@@ -76,6 +76,15 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 - The GPU is designed for Metal (+ a narrow GL subset). Expect Vulkan/GL features that the HW
   lacks (→ must be emulated) and HW capabilities Metal never exposes (→ probe for them).
 
+## Tooling backlog (needed to unblock coverage)
+- **Extend `shdump`/`agxparse` to vertex & fragment stages.** It currently extracts only the
+  `__compute` image. Fragment-only families — interpolation/pull-model, derivatives, barycentrics,
+  programmable blending, raster-order-groups, imageblock writes, implicit-LOD sampling — plus
+  mesh/object, cannot be characterized until we can extract non-compute shader code. High priority
+  (blocks a large slice of Phase 1 + Phase 4). See `docs/isa/msl-feature-map.md` "requires non-compute stage".
+- Persistent runner exists (`tools/agxtest/persistrun.py`); consider a render-pipeline variant for
+  fragment probes (dispatch a draw, read back a render target).
+
 ## Open questions / risks
 - **Modern submission path:** macOS 26 Metal likely submits via IOGPU shared-memory rings, not one `IOConnectCallMethod` per draw (unlike Alyssa's 2021 approach). 0.4 must confirm how to capture it. → the deciding risk for Phase 2.
 - **Does A18 Pro differ from A17 Pro/M3 (both Apple9) at the encoding level?** Empirical — Phase 1/2 answer it.
