@@ -1,0 +1,22 @@
+EXP-0031 vertex-attribute [[stage_in]] fetch (attrdump: own VS+FS through a real
+MTLVertexDescriptor; extract VS _agc.main). Proves in-shader (shader-specialized) fetch.
+
+VS = v_main(VIn{float3 pos[[attribute(0)]]; float4 col[[attribute(1)]];} in [[stage_in]])
+Baseline layout: attr0=float3@off0, attr1=float4@off16, stride=32, perVertex.
+
+base   VS.main: 0cdd1006 9f1054060200[8000]702a0200 67005400030000005d010040220 0 67004406030000001104024022 0 <0b/1b/2b converts> <varying stores> 0e000000
+                ^get_sr vid  ^imad vid*stride(imm 0x0080)  ^device_load attr0 (base_slot byte+4=0x03)  ^device_load attr1
+st64   : imad immediate 8000 -> 0001  (stride baked into address math)      [in-shader]
+off1_12: 2nd load bytes 1104 -> 1184   (attribute offset baked into 2nd load) [in-shader]
+u8n    : attr0 load width 5d01 -> 6101 (32b->8b, EXP-0012 width codes) + a707.. shift + 1b0026 int->float normalize [format baked]
+half4  : attr1 load 5d01 -> 0904 (half) + 1b/2b half->float converts added   [format baked]
+perinst: get_sr 0cdd1006 (vertex_id) -> 0cd81006 (instance_id) + iid*stride math
+         (step function selects vertex_id vs instance_id as the fetch index)   [HW-relevant]
+
+CONCLUSION: Metal lowers the vertex descriptor INTO the VS prologue. Vertex fetch is
+NOT fixed-function; the compiler emits device_load (0x67) + format-conversion ALU per
+attribute, addressed by index*stride+offset (index = get_sr vertex_id SR 0xdd, or
+instance_id SR 0xd8 for per-instance). Vertex-buffer BASE POINTER is preloaded into a
+uniform slot (base_slot byte+4 = 0x03), supplied by the command stream (EXP-0014
+vertex-attribute table @ gpu_va 0x10000100000 -> vtxBuf +0xa0). stride/offset/format
+live in the compiled shader, not that table.

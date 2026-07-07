@@ -1,0 +1,41 @@
+=== COMPUTE get_sr table (const-addr isolation kernels) ===
+builtin                                  SR(byte1) getsr-bytes    form  note
+thread_position_in_grid.x                0xa0      0ca01006       lo=c  dst=0 
+thread_position_in_grid.y                0xa1      0ca11006       lo=c  dst=0 
+thread_position_in_grid.z                0xa2      0ca21006       lo=c  dst=0 
+thread_position_in_threadgroup.x         0xa4      04a41006       lo=4  dst=0 
+thread_position_in_threadgroup.y         0xa5      04a51006       lo=4  dst=0 
+thread_position_in_threadgroup.z         0xa6      04a61006       lo=4  dst=0 
+threadgroup_position_in_grid.x           0x9c      0c9c1006       lo=c  dst=0 
+threadgroup_position_in_grid.y           0x9d      0c9d1006       lo=c  dst=0 
+threadgroup_position_in_grid.z           0x9e      0c9e1006       lo=c  dst=0 
+threads_per_threadgroup.x                0x98      04981006       lo=4  dst=0 
+threads_per_threadgroup.y                0x99      04991006       lo=4  dst=0 
+threads_per_threadgroup.z                0x9a      049a1006       lo=4  dst=0 
+threadgroups_per_grid.x                  0xa8      24a81006       lo=4  dst=2 
+threadgroups_per_grid.y                  0xa9      24a91006       lo=4  dst=2 
+threadgroups_per_grid.z                  0xaa      24aa1006       lo=4  dst=2 
+thread_index_in_threadgroup              0xa7      04a71006       lo=4  dst=0 
+thread_index_in_simdgroup(simd_lane_id)  0x82      04821006       lo=4  dst=0 
+simdgroup_index_in_threadgroup(simd_group_id) 0x85      04851006       lo=4  dst=0 
+threads_per_simdgroup                    --        (no get_sr: folded/computed)   main=0c20e7005400000000001100009000000e000000
+simdgroups_per_threadgroup               0x99      04991006       lo=4  dst=0 (+1 more getsr)
+thread_index_in_quadgroup                0x82      04821006       lo=4  dst=0 
+quadgroup_index_in_threadgroup           0x82      04821006       lo=4  dst=0 (+1 more getsr)
+
+=== VERTEX get_sr (main + cprog) ===
+none                      main_getsr=[]  cprog_getsr=[]
+vertex_id                 main_getsr=['0cdd1006']  cprog_getsr=[]
+instance_id               main_getsr=['0cd81006']  cprog_getsr=[]
+base_vertex               main_getsr=[]  cprog_getsr=['0c880927']
+base_instance             main_getsr=[]  cprog_getsr=['0c880927']
+vertex_id+instance_id     main_getsr=['0cdd1006']  cprog_getsr=[]
+
+=== FRAGMENT get_sr / leader (main) ===
+none                      leader=970c5400  getsr=[]
+position(FS)              leader=1ca01106  getsr=['1ca01106', '0ca11026']
+sample_id                 leader=970c5400  getsr=[]
+front_facing              leader=04c51106  getsr=['04c51106']
+point_coord               leader=2f0d5400  getsr=[]
+primitive_id              leader=1f0b5400  getsr=[]
+barycentric_coord         leader=  getsr=[]

@@ -195,7 +195,9 @@ operand-commute (same trick the compiler uses for `fsub`).
 
 ### ✅ Control flow, predication & program structure (EXP-0010)
 - **Preamble = get-special-register** (`get_sr`, byte0 low-nibble `0xC`, 4B): materializes special
-  registers (e.g. `thread_position_in_grid`) into a GPR; byte0 high nibble = SR-select.
+  registers into a GPR. **(Corrected by EXP-0031: the SR number is in `byte1`; the byte0 high nibble is
+  the destination GPR — not the SR-select.)** See the SR-enum + ABI section below. There is also a 2-byte
+  **`mov_imm`** (byte0 low-nibble `0xC`, byte1 = imm8) sharing the nibble.
 - **Simple divergence is predication, not branches.** `if/else`/ternary/early-return compile to
   **compare → per-lane execution mask → masked op / select** (no jump). Compare producers: `0x0a`
   (6B, control predicate) and `0x02` (6B, feeds a select); compare immediate at **byte+3**. Selects:
@@ -442,6 +444,34 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   programmable blend (EXP-0019).
 - **Pixel ordering (raster-order-groups) — `pixel_order`** (byte0 `0x07` fence family, same as the compute
   `threadgroup_barrier`): `07 14 54 50 06 00` (acquire) + `07 04 54 d0 06 00` (release). ⏳ byte-diff inferred.
+
+### ✅ Special-register enum + shader ABI (EXP-0031, closes G-5)
+**`get_sr` SR number = byte1** (splice-proven: splicing byte1 makes the output become that SR's value):
+
+| SR | code (byte1) | SR | code |
+|---|---|---|---|
+| thread_position_in_grid .x/.y/.z | `0xa0/a1/a2` | threadgroup_position_in_grid | `0x9c/9d/9e` |
+| thread_position_in_threadgroup | `0xa4/a5/a6` | threads_per_threadgroup | `0x98/99/9a` |
+| thread_index_in_threadgroup | `0xa7` | threadgroups_per_grid | `0xa8/a9/aa` |
+| simd_lane_id | `0x82` | simd_group_id | `0x85` |
+| vertex_id | `0xdd` | instance_id | `0xd8` |
+| base_vertex / base_instance | `0x88` / `0x8a` (inferred) | `[[position]]`.xy (FS) | `0xa0/0xa1` |
+| front_facing (FS) | `0xc5` | | |
+
+- **Folded/computed (not `get_sr`):** `threads_per_simdgroup` → `mov_imm 0x20` (=32); simdgroups_per_tg,
+  quad indices are ALU-computed; FS `barycentric_coord`/`point_coord` are **interpolated** (`0x2f` family);
+  `primitive_id` = flat tiler-output load; `sample_id` folds to 0 on a 1-sample target.
+- **Preloaded-register ABI:** **no stage preloads IDs into GPRs** — IDs are read via `get_sr` on demand.
+  Only **buffer/vertex base pointers + scalar uniforms** are preloaded into the **uniform register file**
+  (selected by `device_load` byte+4 `base_slot`; the **vertex-buffer base = slot `0x03`**).
+- **Vertex attribute fetch is IN-SHADER SOFTWARE (no fixed-function fetch).** Metal lowers the
+  `MTLVertexDescriptor` into the VS prologue: **per attribute** a `device_load` (`0x67`) from the vertex
+  base (uniform slot 3) at **`index×stride + offset`** + a format-convert ALU; `index` = `get_sr` `vertex_id`
+  (`0xdd`) or `instance_id` (`0xd8`) per step-rate. **stride/offset/format live in the compiled shader**
+  (shader-specialized); the attribute table `0x10000100000` (EXP-0014) supplies only the base pointer. ⟶ A
+  Mesa driver must **generate attribute-fetch code from the vertex format** (like Asahi does).
+- **FS input/epilog:** varyings via the `0x2f/0xaf` interpolation datapath reading plane-equation
+  coefficients loaded by `0x97` from tiler output; color return via the shared epilog (see `frag_color_store`).
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

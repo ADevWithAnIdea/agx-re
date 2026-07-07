@@ -1,0 +1,93 @@
+{
+ "_note": "EXP-0031 refined/new descriptors for tools/agx-isa/db.json (same schema). Orchestrator merges. Do NOT edit tools/agx-isa/ directly (parallelism constraint).",
+ "instructions": [
+  {
+   "mnemonic": "get_sr",
+   "length": 4,
+   "match": [[0, 3, 4]],
+   "fields": [
+    {"name": "grp", "start": 0, "width": 3, "type": "opcode",
+     "_comment": "low 3 bits = 0b100. byte0 low nibble observed 0xc and 0x4 (bit3=form/width modifier; does NOT change SR select -- HW-proven)."},
+    {"name": "form", "start": 3, "width": 1, "type": "mod",
+     "_comment": "byte0 bit3: 1 (byte0=0xNc) vs 0 (byte0=0xN4). Width/datapath form; splicing a 0xc-form SR into a 0x4-form get_sr still reads the same SR (HW-validated)."},
+    {"name": "dst", "start": 4, "width": 4, "type": "reg",
+     "_comment": "byte0 high nibble = destination GPR low bits (HW-confirmed: hw_ kernels put gid vs builtin in different dst regs matching the store's data reg). High dst bits presumed in the byte+2/+3 suffix (follow-up)."},
+    {"name": "sr_sel", "start": 8, "width": 8, "type": "enum",
+     "enum": {
+      "130": "thread_index_in_simdgroup (simd_lane_id)",
+      "133": "simdgroup_index_in_threadgroup (simd_group_id)",
+      "136": "base_vertex (VS; read in uniform/constant program)",
+      "138": "base_instance (VS; read in uniform/constant program)",
+      "152": "threads_per_threadgroup.x",
+      "153": "threads_per_threadgroup.y",
+      "154": "threads_per_threadgroup.z",
+      "156": "threadgroup_position_in_grid.x",
+      "157": "threadgroup_position_in_grid.y",
+      "158": "threadgroup_position_in_grid.z",
+      "160": "thread_position_in_grid.x  (FS: fragment/pixel x)",
+      "161": "thread_position_in_grid.y  (FS: fragment/pixel y)",
+      "162": "thread_position_in_grid.z",
+      "164": "thread_position_in_threadgroup.x",
+      "165": "thread_position_in_threadgroup.y",
+      "166": "thread_position_in_threadgroup.z",
+      "167": "thread_index_in_threadgroup",
+      "168": "threadgroups_per_grid.x",
+      "169": "threadgroups_per_grid.y",
+      "170": "threadgroups_per_grid.z",
+      "197": "front_facing (FS)",
+      "216": "instance_id (VS)",
+      "221": "vertex_id (VS)"
+     },
+     "_comment": "SR number = BYTE1 (instruction bits [8:16]). HW-VALIDATED by splice-and-observe (EXP-0031): splicing byte1 in a dispatched out[gid]=SR kernel makes the output become exactly that SR's value (0x82->lane, 0x85->simd_group, 0x98->threads_per_tg=64, 0x9c->threadgroup_pos, 0xa4->pos_in_tg, 0xa0->pos_in_grid). Graphics SR numbers (VS/FS) are byte-diff-derived (same instruction, mechanism HW-validated in compute)."},
+    {"name": "suffix", "start": 16, "width": 16, "type": "raw",
+     "_comment": "bytes +2/+3. =0x1006 for a plain 32-bit GPR dst in compute; varies (0x1106,0x1026,0x0927,0x0827) with dst-high/type/datapath. Full decode = follow-up."}
+   ],
+   "semantics": "d[dst] = special_register[sr_sel]. Reads a built-in/special register (thread/threadgroup/simd IDs, dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel (BYTE1) is the SR number. Corrects EXP-0010 which mislabeled byte0-high-nibble as sr_sel (it is the dst reg).",
+   "provenance": "HW-VALIDATED (EXP-0031): SR number = byte1 proven by byte1-splice on dispatched kernels (raw/splice_validation_compute.txt); dst = byte0 hi nibble proven by hw_ multi-getsr kernels; front_facing (0xc5) proven both-sided via winding flip (raw/render_validation.txt). SR enum: compute from const-addr isolation kernels + splice; graphics from VS/FS isolation byte-diff (raw/getsr_table.txt)."
+  },
+  {
+   "mnemonic": "mov_imm",
+   "length": 2,
+   "match": [[0, 4, 12]],
+   "fields": [
+    {"name": "dst", "start": 4, "width": 4, "type": "reg",
+     "_comment": "byte0 high nibble = destination GPR."},
+    {"name": "imm8", "start": 8, "width": 8, "type": "imm",
+     "_comment": "byte1 = 8-bit immediate value moved into dst."}
+   ],
+   "semantics": "d[dst] = imm8. 2-byte move of a small immediate. Shares byte0 low-nibble 0xc with the 4-byte get_sr; distinguished by length (2 vs 4). The compiler uses it for constant-folded built-ins (e.g. threads_per_simdgroup = 32 = 0x20).",
+   "provenance": "HW-VALIDATED (EXP-0031): out[gid]=threads_per_simdgroup compiles to `0c 20`; splicing byte1 0x20->0x21/0x40/0x11 changes the output to 33/64/17 (value == byte1 literal, NOT an SR read). raw/splice_validation_compute.txt. NOTE for tokenizer: get_sr (low-nibble c, 4B) and mov_imm (low-nibble c, 2B) collide on byte0; length is disambiguated by the `10 06`-style 32-bit-source suffix present only on get_sr."
+  }
+ ],
+ "sr_number_table": {
+  "_desc": "A18 Pro / G17P get_sr special-register number -> meaning. delivery: 'get_sr'=read via get_sr instruction; 'get_sr(uniform-prog)'=read via get_sr in the constant/uniform program; 'computed'=derived by ALU from other SRs; 'folded'=compile-time constant; 'interp'=interpolation datapath (0x2f/0x97), not get_sr; 'mem/varying'=loaded from tiler output (0x07/0xa7).",
+  "compute": {
+   "thread_position_in_grid":        {"sr": "0xa0/0xa1/0xa2 (x/y/z)", "delivery": "get_sr"},
+   "thread_position_in_threadgroup": {"sr": "0xa4/0xa5/0xa6 (x/y/z)", "delivery": "get_sr"},
+   "thread_index_in_threadgroup":    {"sr": "0xa7", "delivery": "get_sr"},
+   "threadgroup_position_in_grid":   {"sr": "0x9c/0x9d/0x9e (x/y/z)", "delivery": "get_sr"},
+   "threads_per_threadgroup":        {"sr": "0x98/0x99/0x9a (x/y/z)", "delivery": "get_sr"},
+   "threadgroups_per_grid":          {"sr": "0xa8/0xa9/0xaa (x/y/z)", "delivery": "get_sr"},
+   "thread_index_in_simdgroup":      {"sr": "0x82", "delivery": "get_sr", "alias": "simd_lane_id"},
+   "simdgroup_index_in_threadgroup": {"sr": "0x85", "delivery": "get_sr", "alias": "simd_group_id"},
+   "threads_per_simdgroup":          {"sr": "-", "delivery": "folded", "value": 32, "note": "constant-folded to mov_imm 0x20; Apple9 SIMD width = 32"},
+   "simdgroups_per_threadgroup":     {"sr": "-", "delivery": "computed", "note": "ceil(threads_per_threadgroup/32) from SR 0x98/0x99/0x9a"},
+   "thread_index_in_quadgroup":      {"sr": "-", "delivery": "computed", "note": "simd_lane_id(0x82) & 3"},
+   "quadgroup_index_in_threadgroup": {"sr": "-", "delivery": "computed", "note": "from lane(0x82) and simd_group(0x85)"}
+  },
+  "vertex": {
+   "vertex_id":     {"sr": "0xdd", "delivery": "get_sr", "note": "in _agc.main (per-vertex)"},
+   "instance_id":   {"sr": "0xd8", "delivery": "get_sr", "note": "in _agc.main (per-vertex)"},
+   "base_vertex":   {"sr": "0x88", "delivery": "get_sr(uniform-prog)", "note": "draw-uniform; read in constant_program (inferred/byte-diff)"},
+   "base_instance": {"sr": "0x8a", "delivery": "get_sr(uniform-prog)", "note": "draw-uniform; read in constant_program (inferred/byte-diff)"}
+  },
+  "fragment": {
+   "position":          {"sr": "0xa0/0xa1 (x/y)", "delivery": "get_sr", "note": "pixel x/y via get_sr; z(depth)/w(1/w) computed/interpolated"},
+   "front_facing":      {"sr": "0xc5", "delivery": "get_sr", "note": "HW-validated both sides via winding"},
+   "sample_id":         {"sr": "-", "delivery": "mem/varying", "note": "folds to 0 on 1-sample target; delivered via 0x97 path; NOT-YET-CHARACTERIZED (needs MSAA pipeline)"},
+   "point_coord":       {"sr": "-", "delivery": "interp", "note": "0x2f interpolation family, not get_sr"},
+   "barycentric_coord": {"sr": "-", "delivery": "interp", "note": "0x2f/0x97 interpolation; HW-validated gradient"},
+   "primitive_id":      {"sr": "-", "delivery": "mem/varying", "note": "0x1f/0xa7/0x07 flat load from tiler output, not get_sr"}
+  }
+ }
+}

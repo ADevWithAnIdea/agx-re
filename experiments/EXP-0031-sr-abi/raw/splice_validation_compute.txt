@@ -1,0 +1,25 @@
+EXP-0031 HW SR-number validation (splice byte1 of a get_sr, observe output).
+Device: Apple A18 Pro / G17P, macOS 26.6. Kernel: out[gid]=thread_index_in_threadgroup
+(hw_tidx.metal), grid=64 tg=64 (1 threadgroup, 2 simdgroups of 32). tidx get_sr is at
+_agc.main offset 4 = `14 a7 10 06`; SR byte1 is at offset 0x05. Splice off 0x05 -> SR:
+
+baseline (SR=0xa7 tidx)  : 0 1 2 ... 63                       (thread_index_in_threadgroup)
+splice 0x05=0x82         : 0..31 0..31                        => thread_index_in_simdgroup (simd_lane_id)  [MATCH]
+splice 0x05=0x85         : [0]x32 [1]x32                      => simdgroup_index_in_threadgroup (simd_group_id) [MATCH]
+splice 0x05=0x9c         : [0]x64                             => threadgroup_position_in_grid.x (single tg) [MATCH]
+splice 0x05=0x98         : [64]x64                            => threads_per_threadgroup.x [MATCH]
+splice 0x05=0xa4         : 0..63                              => thread_position_in_threadgroup.x [MATCH]
+splice 0x05=0xa0         : 0..63                              => thread_position_in_grid.x [MATCH]
+splice 0x05=0x20 (14-form): [0]x64                            => SR 0x20 via get_sr = 0 (see mov-imm note)
+
+=> HW-PROVEN: the SR number selected by get_sr is BYTE1 (instruction bits [8:16]).
+   byte0 low-nibble (c/4) is a form bit, NOT the SR selector; splicing a "c-form" SR
+   (0xa0) into a "4-form" get_sr slot still read 0xa0 correctly.
+
+Move-immediate sibling (byte0 low-nibble c, 2 bytes) -- hw_simdw.metal, out[gid]=threads_per_simdgroup:
+  main = 1ca01006 0c20 e710...   ; the `0c 20` is a 2-BYTE move-immediate (value=byte1), NOT get_sr.
+  baseline           : [32]x8   (threads_per_simdgroup=32 constant-folded)
+  splice off5 0x20->0x21 : [33]x8   (value = byte1 literal)
+  splice off5 0x20->0x40 : [64]x8
+  splice off5 0x20->0x11 : [17]x8
+  => threads_per_simdgroup=32 is a COMPILE-TIME CONSTANT (folded to imm move); not a runtime get_sr.
