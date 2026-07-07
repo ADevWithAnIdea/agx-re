@@ -1,0 +1,39 @@
+# os_log shader lowering: AGX image sections (l___air_impl_os_log helper + format-string constant)
+container magic : 0xbebafecb
+bitcode (BC\xC0\xDE) present : True
+AIR64 image present         : False
+
+image @ 48: fat-arch[0] cputype=AIR64
+  error: not a mach-o 64 image (magic=0x424c544d)
+
+image @ 5904: fat-arch[1] cputype=AppleGPU
+  cputype : AppleGPU  filetype=13
+    section __TEXT,__reflection(off=1472,size=288)
+    section __TEXT,__compute(off=1760,size=7760)
+    section __TEXT,__descriptor(off=9520,size=400)
+    section __TEXT,__metallib(off=9920,size=5824)
+
+stages present: compute
+
+AGX extraction [compute] (nested-mach-o) from __TEXT,__compute:
+  nested cputype   : AppleGPU
+  __text size      : 5758
+  _agc.main length : 126
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region l___loweringlib.internal.4: [64:128] (64 bytes)
+  region l___loweringlib.internal.5: [128:1280] (1152 bytes)
+  region l___loweringlib.internal.1: [1280:1472] (192 bytes)
+  region l___loweringlib.internal.0: [1472:2240] (768 bytes)
+  region l___loweringlib.internal.3: [2240:2496] (256 bytes)
+  region l___loweringlib.internal.2: [2496:3328] (832 bytes)
+  region l___air_impl_os_log: [3328:5632] (2304 bytes)
+  region _agc.main: [5632:5758] (126 bytes)
+
+# format-length discriminator: _agc.main hex length identical for 3-char vs 42-char format
+  lenA(3ch)  =      252 hexchars
+  lenB(42ch) =      252 hexchars
+# format string image location:
+magic=0xcbfebabe nfat=2
+  image AIR64: fileoff=0x30 size=0x16dc
+  image AppleGPU/AGX: fileoff=0x1710 size=0x3d80  <-- FORMAT STRING HERE
+format string @ 0x3860

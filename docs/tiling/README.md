@@ -110,8 +110,8 @@ The GPU applies transparent lossless compression to eligible textures, backed by
 ### 4.1 When it is enabled
 Compression aux is present iff:
 
-> **the texture has NO ShaderWrite usage** (render-target or sampled-read-only)
-> **AND the image is at least ~one 16×16-texel tile** (16×16 on, 8×8/4×4 off, for rgba8).
+> **the texture has NO ShaderWrite/PixelFormatView usage**
+> **AND actual W ≥ 16 AND H ≥ 16 texels** (per-dimension, on *unpadded* dims, in **texels independent of bpp** — EXP-O2G: 15×15 no, 17×17 yes, 16×15/32×8 no; r8 16×16 yes / rgba16f 8×8 no).
 
 A **ShaderWrite** (read-write image) OR **PixelFormatView** texture is **never** compressed (EXP-O2B), at any size — its layout is the
 plain uncompressed twiddle of §1. (This is why writable images and staging paths see raw Morton.)
@@ -155,3 +155,9 @@ cube/MSAA twiddle are untested (see `experiments/EXP-0017-tiling/RESULTS.md` §4
 `experiments/EXP-0017-tiling/` — `texprobe.m` (probe harness), `twiddle.py` / `mipmap.py`
 (analyzers), `raw/` (hexdumps + inferred maps). Method: HW-PROBE + DATA-TRACE + OWN-SHADER.
 Descriptor field cross-references: `../descriptors/README.md` (EXP-0015).
+
+## 5. Compression × mipmaps (EXP-O2G)
+A mipmapped compressible texture gets **one contiguous aux buffer covering ALL mip levels**, placed after the full mip
+chain (`auxOff = Σ padded-level-bytes`, size ≈ totalImageBytes/128) — not per-level, not level-0-only. A partial chain
+still reserves the full pyramid footprint + aux (independent of `mipmapLevelCount`).
+

@@ -1,0 +1,26 @@
+## mesh-in-ICB record scan (icbn=1)
+
+=== needle 0x70000600 (LE 00060070) ===
+  bo_sigusr1_h0_va18000_cpu102784000_sz4000.hex @0x1c4 (gpu_va 0x181c4)
+
+=== needle 0x000061c4 (LE c4610000) ===
+  (not found)
+
+=== needle 0x00006404 (LE 04640000) ===
+  (not found)
+
+## icbn=2 (two mesh cmds) record scan
+
+=== needle 0x70000600 (LE 00060070) ===
+  bo_sigusr1_h0_va18000_cpu10317c000_sz4000.hex @0x1c4 (gpu_va 0x181c4)
+  bo_sigusr1_h0_va18000_cpu10317c000_sz4000.hex @0x22c (gpu_va 0x1822c)
+
+## command-count word diff icbn1 vs icbn2 (VDM/tiler 0x18000)
+
+=== gpu_va=0x18000  A=bo_sigusr1_h0_va18000_cpu102784000_sz4000.hex  B=bo_sigusr1_h0_va18000_cpu10317c000_sz4000.hex ===
+  +0x0004: 0x00000001 -> 0x00000002   (A 1  B 2)
+  +0x0084: 0x0000024c -> 0x000002b4   (A 588  B 692)
+  +0x008c: 0x000002c0 -> 0x00000380   (A 704  B 896)
+  +0x0094: 0x00000508 -> 0x00000810   (A 1288  B 2064)
+  +0x00ac: 0x00000380 -> 0x00000500   (A 896  B 1280)
+  +0x00b4: 0x00000500 -> 0x00000800   (A 1280  B 2048)

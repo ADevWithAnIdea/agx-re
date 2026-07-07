@@ -231,6 +231,16 @@ clean, emittable grammar:
   `get_sr`-on-demand (confirms EXP-0031); the uniform file holds only base pointers + scalar/push uniforms. There is **no
   sysval→uniform table** to build.
 
+## Shader logging (printf/os_log) + mesh-in-ICB (EXP-O2G)
+- **Shader logging** (macOS 26 has no MSL `printf`; use `os_log` via `<metal_logging>`, gated by
+  `MTLCompileOptions.enableLogging=YES`): the log buffer is **driver-allocated by `MTLLogState`** (min 1 KB, size =
+  `bufferSize`; `gpu_va 0x10000030000`), **implicitly bound** (not a user buffer, not in the argument buffer). Record
+  format = `[capacity][flags][write-cursor]` header, then dense self-describing records `[u32 len][u32 argblob-size]
+  [u32 type][u16 argdesc][inline NUL-terminated format string][packed args]` (`%f`→8-byte double). The shader calls a
+  compiler helper `l___air_impl_os_log`; the GPU writes the whole record. Allocation/bind/level-gate/drain are runtime-managed.
+- **Mesh-in-ICB is ACCEPTED** (`MTLIndirectCommandTypeDrawMeshThreadgroups`): it lowers to the **same mesh-grid-dispatch
+  record `0x70000600`** (EXP-0030) in the tiler stream (`0x181c4`) — no new work type; command-count at `0x18000+0x04`.
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics (RESOLVED: USC grammar + shader-entry — see above): remaining ⏳ = per-packet bit decode of depth/stencil/

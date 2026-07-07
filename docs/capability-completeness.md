@@ -551,3 +551,7 @@ EXP-0002), `PROVENANCE.md` (authoritative HW-validation log), and the public WWD
 `gpu_knowledge/apple_official/wwdc/` (Family-9 GPU advancements: Dynamic Caching, HW ray tracing +
 reorder stage, HW mesh shading, 2× ALU, flexible on-chip memory). No new experiment; no Apple binary
 introspected.
+
+## Update (EXP-O2G): Metal-exposed NOT-YET → 0
+The 3 remaining Metal-exposed NOT-YET items are now HW-exercised (native-decoded): **shader logging/printf** (os_log MTLLogState buffer + record format), **draw-mesh-into-ICB** (→ `0x70000600` record), **compression×mipmap/NPOT** (contiguous all-level aux; W≥16 ∧ H≥16 texel threshold). Revised counts: **native 187 / emulated 11 / kernel 6 / NOT-YET 10** — and **all 10 remaining NOT-YET are honestly-excluded** (6 microarch-only + 4 Metal-unreachable). **No Metal-exposed capability remains un-exercised** → objective 2 satisfied (pending auditor confirmation).
+

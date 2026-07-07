@@ -177,7 +177,7 @@ tightened as they're decoded.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
-### OBJECTIVE-2 — capability census re-synced: **184 native / 11 emulated / 6 kernel / 13 NOT-YET**. Metal-exposed residue = **3** (printf, draw-mesh-in-ICB, compression×mip) → EXP-O2G. Other 10 NYC = microarch/Metal-unreachable (honestly excluded). O2-A..F all closed, ISA merged (DB 75).
+### OBJECTIVE-2 — capability census re-synced: **184 native / 11 emulated / 6 kernel / 13 NOT-YET**. Metal-exposed residue = **0** ✅ (printf/mesh-ICB/compression×mip closed by EXP-O2G). Other 10 NYC = microarch/Metal-unreachable (honestly excluded). O2-A..F all closed, ISA merged (DB 75).
 From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
 - ☑ **O2-A geometry-output pipeline** (EXP-O2A) [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
