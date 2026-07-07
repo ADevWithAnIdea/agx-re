@@ -171,6 +171,11 @@
     <value value="6" label="rotate/fill">rotate_fill</value>
   </enum>
 
+  <enum kind="simd_ballot_pred" name="simd_ballot pred">
+    <value value="0" label="active_mask/any/all">active_mask_any_all</value>
+    <value value="1" label="ballot(predicate)">ballot</value>
+  </enum>
+
   <enum kind="matrix_mac_dtype" name="matrix_mac dtype">
     <value value="0" label="f16(16-bit)">f16</value>
     <value value="2" label="f32/bf16(32-bit)">f32_bf16</value>
@@ -232,6 +237,8 @@
 
   <enum kind="ret_linkmode" name="ret linkmode">
     <value value="2">leaf</value>
+    <value value="4">cf_merge</value>
+    <value value="5">cf_merge_push</value>
     <value value="18">nonleaf_restore_link</value>
   </enum>
 
@@ -627,6 +634,53 @@
     <zero bit="72:79"/>
   </ins>
 
+  <!-- jump_cond: CONDITIONAL PC-relative jump (masked branch) -->
+  <!-- provenance: HW-VALIDATED (RT-ISA-FIX): appears as the loop-entry guard in our for/while/nested-CF kernels; splicing byte+1 0x01->0x00 ... -->
+  <ins name="jump_cond" length="10" label="CONDITIONAL PC-relative jump (masked branch)">
+    <exact bit="0:7">00001111</exact>
+    <exact bit="8:15">00000001</exact>
+    <!-- mid [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <immediate name="offset" bit="24:71"/>
+    <!-- tail [72:79]: inferred / not yet bit-decoded -->
+    <zero bit="72:79"/>
+  </ins>
+
+  <!-- if_push: execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the ... -->
+  <!-- provenance: HW-VALIDATED (RT-ISA-FIX): the 4-byte push is required for clean tokenization of our for/while/nested divergence kernels (they run correct on HW ... -->
+  <ins name="if_push" length="4" label="execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the ...">
+    <exact bit="0:7">00001111</exact>
+    <exact bit="8:15">00000101</exact>
+    <!-- scope [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- level [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- pop_reconverge: execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or ... -->
+  <!-- provenance: HW-VALIDATED (RT-ISA-FIX): terminates every divergent region in our CF kernels; corrupting it (byte+1 0x06->0x00) -> contained CMDBUF_ERROR (the ... -->
+  <ins name="pop_reconverge" length="6" label="execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or ...">
+    <exact bit="0:7">00001111</exact>
+    <exact bit="8:15">00000110</exact>
+    <!-- b2 [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- level [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- tail [32:47]: inferred / not yet bit-decoded -->
+    <zero bit="32:47"/>
+  </ins>
+
+  <!-- mask_op: inner execution-mask op (0f 04 04 <lvl>, 4 bytes) -->
+  <!-- provenance: inferred (byte-diff, RT-ISA-FIX): single occurrence in cf_big (nested while+continue), 4-byte length anchored by the following 0f 01 jump_cond ... -->
+  <ins name="mask_op" length="4" label="inner execution-mask op (0f 04 04 &lt;lvl&gt;, 4 bytes)">
+    <exact bit="0:7">00001111</exact>
+    <exact bit="8:15">00000100</exact>
+    <!-- b2 [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- level [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
   <!-- device_load: load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` ... -->
   <!-- provenance: HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride), data width (M2). ... -->
   <ins name="device_load" length="14" label="load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` ...">
@@ -812,12 +866,14 @@
   </group>
 
   <!-- simd_shuffle: d = src from another lane -->
-  <!-- provenance: HW-VALIDATED (EXP-0018): broadcast(0/5), broadcast_first, shuffle_xor(1), shuffle(dyn), shuffle_up/down, rotate_up/down and the quad equivalents all ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0018 + RT-ISA-FIX): broadcast(0/5), broadcast_first, shuffle_xor(1), shuffle(dyn), shuffle_up/down, rotate_up/down and the quad ... -->
   <ins name="simd_shuffle" length="10" label="d = src from another lane">
     <exact bit="0:6">1000111</exact>
-    <exact bit="16:23">01010110</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
     <modifier name="dir" bit="7" kind="simd_shuffle_dir"/>
     <modifier name="mode" bit="8:15" kind="simd_shuffle_mode"/>
+    <modifier name="cache" bit="17"/>
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
     <zero bit="24:31"/>
     <src name="src" bit="32:39"/>
@@ -829,11 +885,11 @@
   </ins>
 
   <!-- simd_ballot: produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask) -->
-  <!-- provenance: HW-VALIDATED (EXP-0018): simd_ballot(v>0) = 0xFFFFFFFF with all lanes >0, and the correct even-lane mask (0x55555555) with alternating predicate ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0018 + RT-ISA-FIX): simd_ballot(v>0) = 0xFFFFFFFF with all lanes >0, and the correct even-lane mask (0x55555555) with alternating ... -->
   <ins name="simd_ballot" length="10" label="produces the SIMD-group ballot / vote mask (per-lane boolean -&gt; bitmask)">
     <exact bit="0:7">00010111</exact>
-    <exact bit="8:15">00000111</exact>
-    <!-- b1 [8:15]: constant, pinned by match/opcode -->
+    <exact bit="8:11">0111</exact>
+    <modifier name="pred" bit="12:15" kind="simd_ballot_pred"/>
     <!-- body [16:79]: inferred / not yet bit-decoded -->
     <zero bit="16:79"/>
   </ins>
@@ -1002,6 +1058,19 @@
     <modifier name="memclass" bit="32:39"/>
     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
     <zero bit="40:47"/>
+  </ins>
+
+  <!-- scoreboard_fence: compute memory / scoreboard fence (4 bytes): 07 <sub> <b2> 00 -->
+  <!-- provenance: HW-observed byte-diff (RT-ISA-FIX): `07 22 02 00` precedes every out-of-line call in the RT-1b stress census (followed by 43 00 00 01); `07 02 00 00` ... -->
+  <ins name="scoreboard_fence" length="4" label="compute memory / scoreboard fence (4 bytes): 07 &lt;sub&gt; &lt;b2&gt; 00">
+    <exact bit="0:7">00000111</exact>
+    <exact bit="16">0</exact>
+    <!-- sub [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- b2 [17:23]: inferred / not yet bit-decoded -->
+    <zero bit="17:23"/>
+    <!-- tail [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
   </ins>
 
   <!-- falu_acc: d = srcA (+) srcB -->
@@ -1233,9 +1302,9 @@
     <zero bit="104:111"/>
   </ins>
 
-  <!-- ret: function RETURN: `8f <lm> 54 00` (4 B) -->
-  <!-- provenance: HW-VALIDATED + byte-diff (EXP-0035): `8f 02 54 00` is byte-identical at the tail of every leaf helper (add/mul/sub, float/int/half) regardless of ... -->
-  <ins name="ret" length="4" label="function RETURN: `8f &lt;lm&gt; 54 00` (4 B)">
+  <!-- ret: function RETURN / CF merge: `8f <lm> 54 <t>` (4 B) -->
+  <!-- provenance: HW-VALIDATED + byte-diff (EXP-0035 + RT-ISA-FIX): `8f 02 54 00` is byte-identical at the tail of every leaf helper (add/mul/sub, float/int/half) ... -->
+  <ins name="ret" length="4" label="function RETURN / CF merge: `8f &lt;lm&gt; 54 &lt;t&gt;` (4 B)">
     <exact bit="0:7">10001111</exact>
     <exact bit="16:23">01010100</exact>
     <modifier name="linkmode" bit="8:15" kind="ret_linkmode"/>
@@ -1316,10 +1385,11 @@
   <!-- provenance: HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact (0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5)). Single compute op; field bit-packing ... -->
   <ins name="unpack_convert" length="10" label="packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -&gt; a float2">
     <exact bit="0:7">00010111</exact>
+    <exact bit="8:11">0100</exact>
     <exact bit="16">0</exact>
     <exact bit="18:23">010101</exact>
-    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
+    <!-- b1 [12:15]: inferred / not yet bit-decoded -->
+    <zero bit="12:15"/>
     <!-- b2 [17]: inferred / not yet bit-decoded -->
     <zero bit="17"/>
     <!-- body [24:79]: inferred / not yet bit-decoded -->

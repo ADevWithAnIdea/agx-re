@@ -175,6 +175,18 @@ REAL_INSTRS = {
     "half_pack (18 05 18 03)":             "18051803",       # half2 pack (from k_h2add)
     "simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03)": "bf03540403081403",  # later-consumer reduce (0x54 cache bit)
     "unpack_convert 0x54 cache (17 04 54 ..)": "1704540000001ccae700",  # unpack, 0x54 cache-bit variant (EXP-0038)
+    # ---- RT-ISA-FIX: ballot 0x17 mis-decode, shuffle 0x54 decode-gap, 0x0f exec-mask family, 0x07 fence ----
+    "simd_ballot(pred) (17 17 54 ..)":     "1717540002001448220c",   # simd_ballot(lane<5)=0x1F HW; byte+1=0x17 (was mis-decoded as unpack)
+    "simd_active_mask (17 07 54 ..)":      "17075400020200080218",   # simd_active_threads_mask HW; byte+1=0x07
+    "simd_shuffle bcast3 0x54 (47 04 54 ..)": "470454000200062c0400", # simd_broadcast(v,3)=35 HW; byte+2=0x54 (was undecodable)
+    "simd_shuffle xor3  0x54 (c7 04 54 ..)":  "c70454000200062c0400", # simd_shuffle_xor(v,3) HW; byte+2=0x54
+    "jump back-edge (0f 00 54 ..)":        "0f0054c6ffffffffff00",   # loop back-edge, off=-58, from cf_for HW
+    "jump_cond guard (0f 01 54 5c ..)":    "0f01545c000000000000",   # loop-exit guard, off=+0x5c, from cf_for HW
+    "if_push (0f 05 54 01)":               "0f055401",               # exec-mask push (4B), from cf_for HW
+    "pop_reconverge (0f 06 04 02 00 00)":  "0f0604020000",           # reconverge/pop, from cf_for HW
+    "cf_merge (8f 04 54 22)":              "8f045422",               # loop-body CF merge marker, from cf_for HW
+    "scoreboard_fence pre-call (07 22 02 00)": "07220200",           # 4B fence before a call (RT-1b census)
+    "scoreboard_fence CF (07 02 00 00)":   "07020000",               # 4B fence around divergence, from cf_nested HW
     # ---- EXP-O2C: matrix operand decode + new RT ops (our own RT/tensor kernels) ----
     "matrix_mac mad_f32 (cf 02 56 .. dst=byte+8)": "cf02560200040809d4432401",  # A*B+C f32, full operand decode
     "matrix_mac mul_f32 (cf 02 56 .. acc=0)":      "cf02560200040800d4412400",  # A*B   f32
@@ -373,8 +385,8 @@ SYNTH = [
     # simd_max as a LATER consumer of a shared source: cache=0 -> byte+2 0x54 (EXP-0038 cache-bit).
     ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "b3": 0x00,
                      "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
-    # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1) -> 47 04 56 00 02 00 0a 2c 04 00
-    ("simd_shuffle", {"dir": 0, "mode": 0x04, "b3": 0x00, "src": 0x02, "b5": 0x00,
+    # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1), cache=1 -> 47 04 56 00 02 00 0a 2c 04 00
+    ("simd_shuffle", {"dir": 0, "mode": 0x04, "cache": 1, "b3": 0x00, "src": 0x02, "b5": 0x00,
                       "lane": 0x0a, "tail": 0x00042c}),
     # atomic_rmw add (byte+12 = 0x20) -> 67 11 54 00 00 80 01 00 00 42 00 00 20 00
     ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,

@@ -18,13 +18,14 @@
       "0x27": "8  [integer unary / popcount]",
       "0x0a": "6  [integer compare -> execution predicate (branch/return)]",
       "0x05/0x16": "4  [conditional select (branchless if/ternary)]",
-      "0x0f": "10 if byte+1==0x00 (JUMP: 0f 00 54 <off6> 00, signed byte-rel); other sub-ops (mask push/pop/reconverge) variable = follow-up",
+      "0x0f": "EXECUTION-MASK family, byte+1 sub-op (RT-ISA-FIX): 0x00 jump 10 / 0x01 jump_cond(else,loop-guard) 10 / 0x05 if_push 4 (or 14 if byte+4==0x8f = direct CALL) / 0x06 pop_reconverge 6 / 0x80 call_indirect(computed branch) 6 / 0x04 mask_op 4",
+      "0x07 (byte+2 in {0x00,0x02})": "4  [compute memory/scoreboard fence around calls & divergent CF (07 22 02 00 pre-call; 07 02/00 00 CF). RT-ISA-FIX HW]",
       "lownibble_0x5 + byte+1==0x80 + byte+2==0x0c": "14  [TEXTURE sample / read: 4B coord/result companion + 10B sampler op (0xb0/0x90). EXP-0016 HW-validated]",
       "0xd7": "16  [TEXTURE write (memory-family store). EXP-0016 HW-validated]",
       "0x37": "8 if byte+2==0x56 [quad reduce/scan, EXP-0018]; else 10 [derivative / quad-difference dfdx/dfdy/fwidth, EXP-0016]",
       "0xbf/0x3f/0xb7 (+ byte+2==0x56)": "8  [SUBGROUP/QUAD reduce & prefix-scan: bit3=scope(1 simd/0 quad), bit7+byte+1=op, byte+7=datatype/shape. SIMD width 32. EXP-0018 HW]",
-      "0x47/0xc7": "10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/quad/rotate, byte+6=(lane<<1). EXP-0018 HW-validated]",
-      "0x17": "10  [simd_ballot / vote mask source. EXP-0018 HW-validated]",
+      "0x47/0xc7": "10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/quad/rotate, byte+6=(lane<<1), byte+2 0x54/0x56 (cache bit, RT-ISA-FIX). EXP-0018 HW]",
+      "0x17": "10  [simd_ballot (byte+1 low-nib 7: 0x07 active-mask/any/all, 0x17 ballot(pred), RT-ISA-FIX) | unpack_convert (byte+1 low-nib 4). EXP-0018/0033 HW]",
       "0x67 (byte+1==0x11)": "14  [device ATOMIC RMW (elected-lane), op at byte+12. EXP-0018 HW]",
       "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops.",
       "0xcf": "12  [SIMD-group MATRIX multiply-accumulate: one full 8x8x8 cooperative-matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW]",
@@ -1458,6 +1459,146 @@
       "provenance": "HW-VALIDATED (EXP-0010 E6): -44 back-edge in prodloop; zeroing the offset -> infinite-loop hang, off-boundary offsets -> fault."
     },
     {
+      "mnemonic": "jump_cond",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mid",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "offset",
+          "start": 24,
+          "width": 48,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "CONDITIONAL PC-relative jump (masked branch). offset = signed 48-bit little-endian byte displacement; target = jump_addr + 4 + offset (same convention as 0f 00). Taken while the divergent execution mask still has active lanes; used for if/else forward skips and while/for loop-exit guards.",
+      "provenance": "HW-VALIDATED (RT-ISA-FIX): appears as the loop-entry guard in our for/while/nested-CF kernels; splicing byte+1 0x01->0x00 (conditional->unconditional) makes every lane skip the loop body -> all-zero output (cf_for [0,0,1,3,6,10,15,21] -> all 0). Clean tokenization of the whole kernel; offset field byte-diff-localized."
+    },
+    {
+      "mnemonic": "if_push",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          5
+        ]
+      ],
+      "fields": [
+        {
+          "name": "scope",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "level",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the active-lane mask. byte+2 = scope (0x54 outer / 0x04 inner nested), byte+3 = nesting level / mask id (0x01, 0x1a, 0x05, 0x25 observed at successive nesting depths). Paired with a later 0f 06 pop_reconverge. Reuses the same 0f 05 machinery as the direct CALL (which carries the 0x8f link register at byte+4 and is 14 bytes; disambiguated by length).",
+      "provenance": "HW-VALIDATED (RT-ISA-FIX): the 4-byte push is required for clean tokenization of our for/while/nested divergence kernels (they run correct on HW -- cf_for/cf_nested match the CPU reference). The old 8-byte length desynced the loop head. byte+3 level byte-diff-localized across nesting depths."
+    },
+    {
+      "mnemonic": "pop_reconverge",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "level",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or loop scope, restoring the active mask at a block/loop end. byte+3 = the reconvergence level popped (0x01 innermost, 0x02 next, ... nest levels).",
+      "provenance": "HW-VALIDATED (RT-ISA-FIX): terminates every divergent region in our CF kernels; corrupting it (byte+1 0x06->0x00) -> contained CMDBUF_ERROR (the reconvergence is load-bearing). Nesting level byte-diff-localized (inner pops 0x01, outer 0x02)."
+    },
+    {
+      "mnemonic": "mask_op",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "level",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "inner execution-mask op (0f 04 04 <lvl>, 4 bytes). Appears inside deeply nested divergence (a while-loop with continue+break) just before a 0f 01 jump_cond -- most likely the continue-edge mask narrow / inner-scope re-mask, distinct from if_push (0f 05, byte+2==0x54) by byte+2==0x04. Role INFERRED.",
+      "provenance": "inferred (byte-diff, RT-ISA-FIX): single occurrence in cf_big (nested while+continue), 4-byte length anchored by the following 0f 01 jump_cond leader. Not splice-isolated."
+    },
+    {
       "mnemonic": "device_load",
       "length": 14,
       "match": [
@@ -2134,8 +2275,13 @@
         ],
         [
           16,
-          8,
-          86
+          1,
+          0
+        ],
+        [
+          18,
+          6,
+          21
         ]
       ],
       "fields": [
@@ -2159,6 +2305,12 @@
             "0": "quad",
             "6": "rotate/fill"
           }
+        },
+        {
+          "name": "cache",
+          "start": 17,
+          "width": 1,
+          "type": "mod"
         },
         {
           "name": "b3",
@@ -2192,7 +2344,7 @@
         }
       ],
       "semantics": "d = src from another lane. byte0 0x47 = broadcast / shuffle-up / fill_up, 0xc7 = shuffle-xor / shuffle-down / fill_down (bit7 = direction). byte+1 mode: 0x04 SIMD-group shuffle, 0x00 quad, 0x06 rotate / shuffle_and_fill (NEW EXP-O2D). byte+6 = source lane index (broadcast) or xor mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic simd_shuffle(v,lane) use the same op with the lane index in a register. NEW (EXP-O2D): simd_shuffle_and_fill_up/down = byte+1==0x06; the FILL DATA is a SEPARATE operand loaded by a preceding 0x67 device_load before the shuffle. The modulo/rotate variant (v, fill, delta, modulo) is the same byte+1==0x06 op with byte+6 changed (fill 0x4a -> modulo 0x42) plus a tail byte (0x20 -> 0x30) carrying the modulo. simd_shuffle_up/down add edge-handling predication (0f80/0f9e) around the core op; simd_shuffle_xor is a single clean op.",
-      "provenance": "HW-VALIDATED (EXP-0018): broadcast(0/5), broadcast_first, shuffle_xor(1), shuffle(dyn), shuffle_up/down, rotate_up/down and the quad equivalents all run with distinct per-lane inputs and read back exactly. byte+6=(lane<<1) proven (bcast5 -> 0x0a, bcast lane2 quad -> 0x04, xor1 -> 0x02). mode/dir byte-diff-localized (simd 0x04 vs quad 0x00; 0x47 vs 0xc7)."
+      "provenance": "HW-VALIDATED (EXP-0018 + RT-ISA-FIX): broadcast(0/5), broadcast_first, shuffle_xor(1), shuffle(dyn), shuffle_up/down, rotate_up/down and the quad equivalents all run with distinct per-lane inputs and read back exactly. byte+6=(lane<<1) proven (bcast5 -> 0x0a, bcast lane2 quad -> 0x04, xor1 -> 0x02). mode/dir byte-diff-localized (simd 0x04 vs quad 0x00; 0x47 vs 0xc7). RT-ISA-FIX re-proved on HW: `simd_broadcast(lane*10+5,3)`=35 all lanes (bytes 47 04 54 ..) and `simd_shuffle_xor(v,3)`=(lane^3)*10+5 (c7 04 54 ..) -- both carry byte+2==0x54, which the old 0x56-only gate rejected; the relaxed match now decodes them."
     },
     {
       "mnemonic": "simd_ballot",
@@ -2205,16 +2357,20 @@
         ],
         [
           8,
-          8,
+          4,
           7
         ]
       ],
       "fields": [
         {
-          "name": "b1",
-          "start": 8,
-          "width": 8,
-          "type": "raw"
+          "name": "pred",
+          "start": 12,
+          "width": 4,
+          "type": "enum",
+          "enum": {
+            "0": "active_mask/any/all",
+            "1": "ballot(predicate)"
+          }
         },
         {
           "name": "body",
@@ -2223,8 +2379,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). simd_ballot(p) yields the 32-bit active-lane mask of the predicate; simd_active_threads_mask yields the active mask; simd_all/simd_any reduce it. SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active).",
-      "provenance": "HW-VALIDATED (EXP-0018): simd_ballot(v>0) = 0xFFFFFFFF with all lanes >0, and the correct even-lane mask (0x55555555) with alternating predicate; simd_active_threads_mask = 0xFFFFFFFF; simd_all/any correct. Field bit layout inferred (byte-diff)."
+      "semantics": "produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). byte+1 low nibble 0x7 identifies the family; the high nibble selects the form: 0x07 = simd_active_threads_mask / simd_any / simd_all (unconditional active mask), 0x17 = simd_ballot(predicate) (the 32-bit active-lane mask OF a predicate). SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active). byte+2 carries the 0x54/0x56 source cache/last-use hint (like simd_reduce/simd_shuffle).",
+      "provenance": "HW-VALIDATED (EXP-0018 + RT-ISA-FIX): simd_ballot(v>0) = 0xFFFFFFFF with all lanes >0, and the correct even-lane mask (0x55555555) with alternating predicate; simd_active_threads_mask = 0xFFFFFFFF; simd_all/any correct. RT-ISA-FIX re-proved: `simd_ballot(lane<5)` = 0x1F (=31) all lanes, compiled bytes `17 17 54 ..` (byte+1==0x17) -- which the old byte+1==0x07 gate mis-decoded as unpack_convert; the low-nibble match now names it correctly. Field bit layout inferred (byte-diff)."
     },
     {
       "mnemonic": "atomic_rmw",
@@ -2811,6 +2967,44 @@
       ],
       "semantics": "atomic_thread_fence(mem_flags::mem_device, memory_order_seq_cst[, thread_scope_device]) -- a standalone DEVICE-memory ordering fence with no execution barrier. 6 bytes: 07 04 54 84 0a 00. byte+3 == 0x84 = device-memory fence (vs threadgroup_barrier's 0x85 device = 0x84|0x01, the 0x01 being the added EXECUTION barrier); byte+4 == 0x0a = device memory-class flag. Ordering is realised by fence PRESENCE, not a bit on the 0x67 atomic RMW op: memory_order_relaxed emits NO fence, seq_cst emits this fence (acquire/release/acq_rel are REJECTED by MSL). Scope GATES emission: thread/simdgroup/threadgroup scope emit no device fence; thread_scope_device (default) does. The texture fence (mem_texture) is a byte+4==0x06 pair that decodes as pixel_order (same family).",
       "provenance": "inferred (byte-diff, EXP-O2D): byte-diff of the atomic_thread_fence probe (flags x order x scope) against the no-fence baseline. Consistent with the HW-splice-validated EXP-0025 threadgroup_barrier / EXP-0029 pixel_order 0x07 family; the fence-only form is byte-diff-inferred (a fence's effect only manifests under contention, so not splice-validated in isolation)."
+    },
+    {
+      "mnemonic": "scoreboard_fence",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          16,
+          1,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sub",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "compute memory / scoreboard fence (4 bytes): 07 <sub> <b2> 00. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.",
+      "provenance": "HW-observed byte-diff (RT-ISA-FIX): `07 22 02 00` precedes every out-of-line call in the RT-1b stress census (followed by 43 00 00 01); `07 02 00 00` / `07 00 00 00` appear around break/continue in our for/while/nested CF kernels (which run correct on HW). Length 4 gives clean whole-kernel tokenization. Fields byte-diff (role not splice-isolated -- a fence's effect only manifests under a data hazard)."
     },
     {
       "mnemonic": "falu_acc",
@@ -3611,7 +3805,9 @@
           "type": "enum",
           "enum": {
             "2": "leaf",
-            "18": "nonleaf_restore_link"
+            "18": "nonleaf_restore_link",
+            "4": "cf_merge",
+            "5": "cf_merge_push"
           }
         },
         {
@@ -3621,8 +3817,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "function RETURN: `8f <lm> 54 00` (4 B). byte0 0x8f = control-flow family (low nibble 0xf) with the link/return high bit; byte+2 0x54 = CF marker. linkmode byte+1 = 0x02 (LEAF callee: return address from the hardware link register) or 0x12 (NON-leaf: restores its own spilled return address around inner calls). NO target field -- the return address is a hardware link register / CF (reconvergence) stack.",
-      "provenance": "HW-VALIDATED + byte-diff (EXP-0035): `8f 02 54 00` is byte-identical at the tail of every leaf helper (add/mul/sub, float/int/half) regardless of body; non-leaf mid() -> `8f 12 54 00`. End-to-end dispatch of caller+callee returns correct values."
+      "semantics": "function RETURN / CF merge: `8f <lm> 54 <t>` (4 B). byte0 0x8f = the control-flow family (low nibble 0xf) with the high bit set; byte+2 0x54 = CF marker. byte+1 selects: 0x02 = LEAF function return (return address from the hardware link register), 0x12 = NON-leaf return (restores its own spilled return address around inner calls); 0x04/0x05 = a control-flow MERGE / reconvergence marker emitted at the join of an if/else or loop body (NOT a function return -- appears in plain loop kernels with no calls). NO target field -- the address is a hardware link register / CF (reconvergence) stack.",
+      "provenance": "HW-VALIDATED + byte-diff (EXP-0035 + RT-ISA-FIX): `8f 02 54 00` is byte-identical at the tail of every leaf helper (add/mul/sub, float/int/half) regardless of body; non-leaf mid() -> `8f 12 54 00`. RT-ISA-FIX: `8f 04 54 ..` / `8f 05 54 ..` appear as the if/else and loop-body merge marker in our for/while/nested CF kernels (which run correct on HW), preceding the 0f 00 back-edge -- a reconvergence marker, not a return."
     },
     {
       "mnemonic": "call_indirect",
@@ -3872,6 +4068,11 @@
           23
         ],
         [
+          8,
+          4,
+          4
+        ],
+        [
           16,
           1,
           0
@@ -3902,7 +4103,7 @@
           "type": "raw"
         }
       ],
-      "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+2==0x56 (COMPUTE). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); simd_ballot is gated on byte+1==0x07, this on byte+2==0x56.",
+      "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since both can carry byte+2 in {0x54,0x56}.",
       "provenance": "HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact (0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5)). Single compute op; field bit-packing inferred."
     },
     {

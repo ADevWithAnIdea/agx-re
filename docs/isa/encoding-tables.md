@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 77 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 82 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -435,7 +435,7 @@
 
 ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x4, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -443,7 +443,7 @@
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
 | `body` | [24:80] (byte+3) | raw/unmapped |  |
 
-*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+2==0x56 (COMPUTE). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); simd_ballot is gated on byte+1==0x07, this on byte+2==0x56.*
+*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since both can carry byte+2 in {0x54,0x56}.*
 
 ### `half_pack` — assemble a half2's two fp16 lanes into a packed 32-bit register
 
@@ -772,10 +772,10 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `linkmode` | [8:16] (byte+1) | enum | `0x2`=leaf; `0x12`=nonleaf_restore_link |
+| `linkmode` | [8:16] (byte+1) | enum | `0x2`=leaf; `0x12`=nonleaf_restore_link; `0x4`=cf_merge; `0x5`=cf_merge_push |
 | `tail` | [24:32] (byte+3) | raw/unmapped |  |
 
-*function RETURN: `8f <lm> 54 00` (4 B). byte0 0x8f = control-flow family (low nibble 0xf) with the link/return high bit; byte+2 0x54 = CF marker. linkmode byte+1 = 0x02 (LEAF callee: return address from the hardware link register) or 0x12 (NON-leaf: restores its own spilled return address around inner calls). NO target field -- the return address is a hardware link register / CF (reconvergence) stack.*
+*function RETURN / CF merge: `8f <lm> 54 <t>` (4 B). byte0 0x8f = the control-flow family (low nibble 0xf) with the high bit set; byte+2 0x54 = CF marker. byte+1 selects: 0x02 = LEAF function return (return address from the hardware link register), 0x12 = NON-leaf return (restores its own spilled return address around inner calls); 0x04/0x05 = a control-flow MERGE / reconvergence marker emitted at the join of an if/else or loop body (NOT a function return -- appears in plain loop kernels with no calls). NO target field -- the address is a hardware link register / CF (reconvergence) stack.*
 
 ### `call_indirect` — indirect CALL (visible_function_table)
 
@@ -853,12 +853,13 @@
 
 ### `simd_shuffle` — SIMD/quad shuffle / broadcast
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:7]==0x47, byte+2==0x56  ·  **Provenance:** HW-validated
+- **Length:** 10 bytes  ·  **Match:** bits[0:7]==0x47, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dir` | [7:8] | enum | `0x0`=bcast/up; `0x1`=xor/down |
 | `mode` | [8:16] (byte+1) | enum | `0x4`=simd; `0x0`=quad; `0x6`=rotate/fill |
+| `cache` | [17:18] | modifier |  |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
@@ -869,14 +870,14 @@
 
 ### `simd_ballot` — SIMD ballot / vote mask source
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, byte+1==0x07  ·  **Provenance:** HW-validated
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x7  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `pred` | [12:16] | enum | `0x0`=active_mask/any/all; `0x1`=ballot(predicate) |
 | `body` | [16:80] (byte+2) | raw/unmapped |  |
 
-*produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). simd_ballot(p) yields the 32-bit active-lane mask of the predicate; simd_active_threads_mask yields the active mask; simd_all/simd_any reduce it. SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active).*
+*produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). byte+1 low nibble 0x7 identifies the family; the high nibble selects the form: 0x07 = simd_active_threads_mask / simd_any / simd_all (unconditional active mask), 0x17 = simd_ballot(predicate) (the 32-bit active-lane mask OF a predicate). SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active). byte+2 carries the 0x54/0x56 source cache/last-use hint (like simd_reduce/simd_shuffle).*
 
 ## Matrix
 
@@ -1162,6 +1163,28 @@
 
 *write the shader [[depth]] output to the tile depth buffer. Memory-family store (byte0 0xd7) with the fragment depth variant byte+1==0x14, byte+2==0x54, 6 bytes — distinct from the 16-byte texture write (also 0xd7). Bracketed by 0x87/0x07 tile-access ops whose byte+3==0x01 selects the depth attachment (vs 0x0c for colour RT0).*
 
+## Other
+
+### `jump_cond`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x01
+
+### `if_push`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x05
+
+### `pop_reconverge`
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x06
+
+### `mask_op`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x04
+
+### `scoreboard_fence`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, bits[16:17]==0x0
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1182,13 +1205,14 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `0x27` | 8  [integer unary / popcount] |
 | `0x0a` | 6  [integer compare -> execution predicate (branch/return)] |
 | `0x05/0x16` | 4  [conditional select (branchless if/ternary)] |
-| `0x0f` | 10 if byte+1==0x00 (JUMP: 0f 00 54 <off6> 00, signed byte-rel); other sub-ops (mask push/pop/reconverge) variable = follow-up |
+| `0x0f` | EXECUTION-MASK family, byte+1 sub-op (RT-ISA-FIX): 0x00 jump 10 / 0x01 jump_cond(else,loop-guard) 10 / 0x05 if_push 4 (or 14 if byte+4==0x8f = direct CALL) / 0x06 pop_reconverge 6 / 0x80 call_indirect(computed branch) 6 / 0x04 mask_op 4 |
+| `0x07 (byte+2 in {0x00,0x02})` | 4  [compute memory/scoreboard fence around calls & divergent CF (07 22 02 00 pre-call; 07 02/00 00 CF). RT-ISA-FIX HW] |
 | `lownibble_0x5 + byte+1==0x80 + byte+2==0x0c` | 14  [TEXTURE sample / read: 4B coord/result companion + 10B sampler op (0xb0/0x90). EXP-0016 HW-validated] |
 | `0xd7` | 16  [TEXTURE write (memory-family store). EXP-0016 HW-validated] |
 | `0x37` | 8 if byte+2==0x56 [quad reduce/scan, EXP-0018]; else 10 [derivative / quad-difference dfdx/dfdy/fwidth, EXP-0016] |
 | `0xbf/0x3f/0xb7 (+ byte+2==0x56)` | 8  [SUBGROUP/QUAD reduce & prefix-scan: bit3=scope(1 simd/0 quad), bit7+byte+1=op, byte+7=datatype/shape. SIMD width 32. EXP-0018 HW] |
-| `0x47/0xc7` | 10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/quad/rotate, byte+6=(lane<<1). EXP-0018 HW-validated] |
-| `0x17` | 10  [simd_ballot / vote mask source. EXP-0018 HW-validated] |
+| `0x47/0xc7` | 10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/quad/rotate, byte+6=(lane<<1), byte+2 0x54/0x56 (cache bit, RT-ISA-FIX). EXP-0018 HW] |
+| `0x17` | 10  [simd_ballot (byte+1 low-nib 7: 0x07 active-mask/any/all, 0x17 ballot(pred), RT-ISA-FIX) \| unpack_convert (byte+1 low-nib 4). EXP-0018/0033 HW] |
 | `0x67 (byte+1==0x11)` | 14  [device ATOMIC RMW (elected-lane), op at byte+12. EXP-0018 HW] |
 | `0x67 (byte+1==0x01)` | 14  [standalone ATOMIC exchange/cmpxchg/indexed, op at byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops. |
 | `0xcf` | 12  [SIMD-group MATRIX multiply-accumulate: one full 8x8x8 cooperative-matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW] |
@@ -1235,4 +1259,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 77 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 82 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

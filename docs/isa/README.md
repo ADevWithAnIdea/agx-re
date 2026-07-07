@@ -83,10 +83,15 @@ on 5 synthesized). Prose summary below; treat the DB as source of truth.
 Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
 
 ### ✅ Instruction-length rule (validated)
-> **Census reality (RT-1a/RT-1b):** the DB tokenizes ~**88%** of instruction bytes on a broad corpus; it is NOT "0 leftover"
-> on every realistic kernel. Known undecoded residue (operand-level + a few sub-ops): the **`0x0f` execution-mask family**
-> (else/while/break/pop/reconverge sub-ops — `jump` `0f 00` is decoded, the rest are ⏳), a `0x07` fence variant with
-> byte+2=`0x02`, and `0x32` carry-gen edge forms. These are naming/length gaps, not correctness errors in the decoded ops.
+> **Census reality (RT-1a/RT-1b → RT-ISA-FIX):** the DB tokenizes ~**87–91%** of instruction bytes on a broad corpus
+> (EXP-0036 subcorpus **90.6%**); it is NOT "0 leftover" on every realistic kernel. **RT-ISA-FIX closed the biggest
+> named gaps:** the **`0x0f` execution-mask family** is now fully decoded (`jump`/`jump_cond`/`if_push`/`pop_reconverge`/
+> `call_indirect`/`mask_op` — 42/42 `0x0f` ops tokenize on an if/else/while/for/break/continue/nested corpus), the
+> **`0x07` fence** byte+2∈{`0x00`,`0x02`} variant (`scoreboard_fence`, 4B) is decoded, and `0x32` carry-gen was already
+> merged. RT-ISA-FIX also fixed two **mis-/non-decodes** of real compiled subgroup ops: `simd_ballot(pred)` (`17 17 54`,
+> byte+1=`0x17`, was mis-decoded as `unpack_convert`) and `simd_shuffle` (`47/c7 04 54`, byte+2=`0x54`, was undecodable).
+> Remaining residue is operand-level (the `0x2b`/`0x3b`/`0x5b` register/shift-prep family). These are naming/length gaps,
+> not correctness errors in the decoded ops.
 Parcels are 2 bytes. **Unlike G13, the *first* parcel does not encode length** (e.g. `fsub` 6B
 and `fma` 8B share an identical first parcel). Length is a function of the byte-0 group, with a
 per-group length bit where needed:
@@ -143,34 +148,49 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
   noted for follow-up.
 
 ### ✅ Machine model — registers, uniforms, Dynamic Caching (EXP-0020, supersedes EXP-0006 "64")
-- **96 addressable 32-bit GPRs per thread** (r0–r95). The compiler's register footprint grows then
-  caps at exactly 96; a kernel with 93 live regs + zero scratch runs correctly. (EXP-0006's "64" was a
-  tiny-shader artifact of the nibble-compacted `falu2` dst field.)
+- **96 addressable 32-bit GPRs per thread** (r0–r95, **96 DISTINCT registers — a hard silicon boundary**).
+  The compiler's register footprint grows then caps at exactly 96; a kernel with 93 (and even 96) live regs +
+  zero scratch runs correctly. (EXP-0006's "64" was a tiny-shader artifact of the nibble-compacted `falu2` dst
+  field.) **r96–r127 behave as out-of-file (RT-7, HW):** used as a **memory-index register** (`device_load`
+  byte+5) they **hard-FAULT** (`CMDBUF_ERROR`) with a clean r95/r96 boundary; used as an **ALU source** they
+  **read 0** (no fault). **Neither aliases live data** — r96+ never returns another live register's value, and
+  r64 ≠ r0 (r0..r95 are 96 distinct entries, no mod-64 aliasing). The r96 memory-index fault is positive
+  evidence that 96 is a *hard* boundary, not a compiler policy cap.
 - **16-bit halves are independently addressable, packed 2 per GPR** (64 `half` values → 50 GPRs).
   Native-half access is via the `0x10`/`0x11` groups; the `0x09` 32-bit form's size bit reaches only the
   low half.
 - **Register-field widths:** the 6-byte `falu2` dst is a 4-bit nibble (r0–r15 compaction); high float dst
   uses the 8-byte `falu3` form (`dst=byte+1`, 7-bit; r64 observed). Integer `dst=b3` and all source
   fields are 7-bit `(reg<<1)|size` (span r0–r127, covering the 96-reg file).
-- **Uniform register file:** a source operand selects **GPR vs uniform**. For the **float `0x09`** ALU the
-  uniform-srcB form is now HW-validated (RT-1a-FIX, `falu2_uni`): with **bit39 (srcB-imm-mode) set**, byte+1's
-  **exponent nibble** disambiguates the two srcB overloads — **exp ≥ 8** (instr bit15 = byte+1 bit7 = 1) = a
-  packed minifloat immediate (`falu2i`), **exp < 8** (bit15 = 0) = a **uniform-register source** (`falu2_uni`;
-  uniform index = byte+1 as `(ureg<<1)|size`). Proven: `a[gid]+p.k` compiles to `09 0d 14 01 80 c0` and reads the
-  *runtime* uniform (a=10 → p.k=7 gives 17, p.k=100 gives 110), and splicing a real immediate's byte+1 `0xb1`→`0x0d`
-  makes it read an unbound uniform (=0), not `imm_decode(0x0d)`. (This **supersedes** the earlier byte-diff guess
-  "float uniform-select ~ byte+2 bit4 / byte+5 bit1", which was wrong.) For the **int `0x9f`** ALU the uniform form
-  is still byte-diff-inferred (uniform-srcB byte+5 bit4, uniform-srcA byte+6). `uniform_mov` (4 B, `Xb YY 01 08`)
-  copies uniform→GPR.
-  ≤128 uniform regs (8-bit index); exact count ⏳.
+- **Uniform register file:** a source operand selects **GPR vs uniform**. For the **float `0x09`** ALU there
+  are **TWO valid uniform-source encodings, one per operand position** — the compiler picks by which operand
+  is the uniform (they are commutation variants of `a + p.k`). *Both are HW-validated; neither supersedes the
+  other* (RT-7 corrects the earlier "byte+2-bit4 was wrong/superseded" claim — that framing was itself wrong):
+  - **uniform as srcB** (`falu2` srcB form, e.g. `09 01 0c 0d 00 c2`): the select is **byte+2 bit4 + byte+5 bit1**
+    (toggling *either* → the GPR is read instead, i.e. 0; bit39 is irrelevant here). Uniform index = byte+3.
+    This is what the compiler emits for the exact `struct P{float k}; a[gid]+p.k` kernel (no-fast-math).
+  - **uniform as srcA** (`falu2_uni`, e.g. `09 0d 14 01 80 c0`): the select is **bit39 = byte+4 bit7**
+    (toggling → GPR read = 0; byte+2 bit4 / byte+5 bit1 are irrelevant here). Uniform index = byte+1 as
+    `(ureg<<1)|size`. Emitted when the uniform is srcA (operand order `p.k+a`, or fast-math commuting `a+p.k`).
+    When bit39 is set, byte+1's **exponent nibble** disambiguates this uniform source from a packed minifloat
+    immediate (`falu2i`): **exp ≥ 8** (instr bit15 = 1) = minifloat immediate, **exp < 8** = uniform source.
+  Both HW-read the *runtime* uniform (bind value 7→7, 55→55, 1000→1000). For the **int `0x9f`** ALU the uniform
+  form is still byte-diff-inferred (uniform-srcB byte+5 bit4, uniform-srcA byte+6). `uniform_mov` (4 B,
+  `Xb YY 01 08`) copies uniform→GPR. ≤128 uniform regs (7-bit index); exact count ⏳ (only *referenced*
+  uniforms occupy uniform registers — on-demand / Dynamic-Caching allocation, so sweeping the index surfaces
+  only the one bound uniform).
 - **Footprint declaration:** the exact GPR/scratch/uniform/threadgroup footprint is in the shader
   binary's own `__GPU_METADATA` FlatBuffer (field 0 = GPR count, 14/41 = scratch bytes, 31 = uniform,
   9 = threadgroup) — this is *our own* compiled shader's metadata (OWN-SHADER). The launch-descriptor
-  `+0x00` config word carries only a coarse **2-level occupancy tier** (bit 23: clear ≤11 GPRs, set ≥12).
+  `+0x00` config word carries only a coarse **2-level occupancy tier** (bit 23). The tier bit is real
+  (clear at low footprint, set at high), but the exact **"clear ≤11 / set ≥12 GPRs" threshold is
+  INTERPOLATED, not measured** (RT-7): EXP-0020's config correlation only captured **f0=8 (clear)** and
+  **f0=14 (set)** — the 11-vs-12 transition is an interpolation between those two points, never a directly
+  observed 11→12 flip. Treat the precise threshold as unverified.
 - **Dynamic Caching / spill:** above 96 GPRs the compiler spills to **per-thread scratch (stack)** memory
   (scratch size in `__GPU_METADATA`); spilled kernels (80–256 regs) compute correctly. A compiler must
-  know: 96 GPRs before spill, 2 halves/GPR, scratch cost, and the ~12-GPR occupancy tier. ⏳ whether 96 is
-  hard silicon or a policy cap, and the scratch-base location, are follow-ups.
+  know: 96 GPRs before spill (a hard boundary — r96+ faults, above), 2 halves/GPR, scratch cost, and the
+  occupancy tier bit (exact GPR threshold interpolated). ⏳ the scratch-base location is a follow-up.
 
 ### ✅ Packed float immediate = 8-bit minifloat (HARDWARE-VALIDATED, EXP-0006)
 When srcB imm mode (bit 39) is set, srcB byte encodes an **8-bit minifloat** (NOT IEEE-754):
@@ -226,9 +246,27 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   `0x05`/`0x16` (4B). Proven: splicing the compare immediate moves the active-lane boundary; flipping
   flipping `0x0a`↔`0x02` swaps predicate-vs-select producer (RT-1b: a *naive* byte0 swap MALFORMS output — the two have different operand layouts; true condition inversion is via the **byte+4 compare-mode/negate** field).
 - **Loops use a real backward jump:** `0f 00 54 <off6> 00` (10B), `off6` = **signed little-endian
-  byte-relative offset**. `0x0f` is the control-flow / execution-mask group (byte+1 sub-op: `00`=jump,
-  `05`/`01`=mask push/else, `06`=pop/reconverge). Zeroing the back-edge → contained infinite-loop hang
-  (proves it's the taken edge). Fixed-count loops are fully **unrolled**.
+  byte-relative offset**, target = `jump_addr + 4 + off6`. Zeroing the back-edge → contained infinite-loop
+  hang (proves it's the taken edge). Fixed-count loops are fully **unrolled**.
+- **✅ The `0x0f` execution-mask family is now fully decoded (RT-ISA-FIX, HW-validated).** `0x0f` is the
+  control-flow / execution-mask group; **byte+1 selects the sub-op** — each now has a length rule + descriptor
+  in `agx-isa`, so if/else/while/for/break/continue/nested-divergence shaders **tokenize cleanly** (0 of 42
+  `0x0f` ops undecoded across a for/while/nested/break/continue corpus):
+  | byte+1 | mnemonic | len | role |
+  |---|---|---|---|
+  | `0x00` | `jump` | 10 | unconditional PC-relative jump (loop back-edge / block skip) |
+  | `0x01` | `jump_cond` | 10 | **conditional** PC-relative jump — the `else`-skip / `while`/`for` loop-exit guard |
+  | `0x05` | `if_push` | 4 | execution-mask **push** (enter divergent region); byte+2 0x54 outer / 0x04 inner |
+  | `0x06` | `pop_reconverge` | 6 | mask **pop** / **reconverge** (block/loop end); byte+3 = level |
+  | `0x80` | `call_indirect` | 6 | computed-target branch (indirect call / break-to-exit) |
+  | `0x04` | `mask_op` | 4 | inner mask op in deep nesting (continue-edge re-mask; ⏳ inferred, 1 occurrence) |
+
+  Same shape, the `0x8f` sibling (byte0 = `0x80|0x0f`) is a 4-byte **CF merge/reconverge** marker
+  (`8f 04/05 54 ..`) at if/else and loop joins — the same op as a function `ret` (`8f 02/12 54`) with a
+  different byte+1. HW splice evidence: corrupting the `0f 00` back-edge offset → `CMDBUF_ERROR`; corrupting a
+  `0f 06` reconverge (byte+1 `0x06→0x00`) → `CMDBUF_ERROR`; turning the `0f 01` guard unconditional
+  (byte+1 `0x01→0x00`) makes **every lane skip the loop body → all-zero output** (proving 0f 00 = uncond,
+  0f 01 = cond). See `experiments/RT-ISA-FIX/`.
 - **Program termination:** `0e000000` is **not** a required terminator (splicing it is a no-op); the HW
   stops after the last real instruction — **program length is out-of-band (section/pipeline metadata)**,
   the final `device_store` is the last effective instruction. A `0f 06 …` reconverge word follows
@@ -310,11 +348,19 @@ DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless not
   - **variant / dimension / LOD-mode = op+2:** `0x00` sample(implicit-LOD) · `0x04` grad · `0x07` bias ·
     `0x09` level · `0x13` cube · `0x17` 2D read · `0x79` 3D read · `0x97` 2D-array read (bit7=array) ·
     `0x80` MSAA read.
-  - **texture-slot = op+4** (bit `0x80` = index) — HW-validated (splice tex1→tex0 changed the pixel).
-  - **sampler-slot = op+5** — HW-validated (splice samp1→samp0 flipped linear→nearest).
-  - **coord = op+1** (+ preceding ALU); result reg = sampler-op byte0 hi + companion byte+3;
-    **filtered = op+6** (`0x10` sample vs `0x00` gather/read); explicit-LOD/bias present = op+7 bit2
-    (the LOD/bias/grad *value* comes from a register set up by a preceding ALU op).
+  - **texture-slot = op+4** — the **argument-buffer texture index** (Tier-2 path). ⚠ **CAVEAT (RT-5):**
+    under **direct** `setTexture:atIndex:` binding, op+4's low bits are **inert** — only **bit7 (`0x80`)** is
+    load-bearing, and it is a 2-way flip (reaches only a 2nd texture; a 3rd bound texture differs in
+    companion+3 / op+1, not op+4). op+4 acts as a clean index only through the driver's **Tier-2
+    argument-buffer** texture table (see `../cmdstream/`, `../descriptors/`); the direct-binding fast path
+    folds it to the bit7 flip. Single-resource shaders always encode slot 0.
+  - **sampler-slot = op+5** — HW-validated clean index (splice samp1→samp0 flipped linear→nearest; `0x00`=s0,
+    `0x01`=s1, out-of-range → unbound/zeros).
+  - **coord = op+1** (+ preceding ALU); result reg = sampler-op byte0 hi + companion byte+3.
+  - **op+6 is NOT the filter selector (RT-5):** splicing op+6 `0x10↔0x00↔0x20` on a linear sample is a
+    **no-op** — **filtering is controlled by the SAMPLER** (proven via op+5), not op+6. op+6 does carry the
+    LOD-*mode* (`0x20` = `calculate_lod` query); explicit-LOD/bias *presence* is op+7 bit2, with the
+    LOD/bias/grad *value* coming from a register set up by a preceding ALU op.
 - **Texture read** = same sampler op, mode op+2 = `0x17/0x79/0x97/0x80`, no sampler (HW-validated).
 - **Texture write = `0xd7`, 16 bytes** — a **memory-family store** (sibling of `0x67`/`0xe7`), *not* the
   sampler path (HW-validated).
@@ -345,12 +391,22 @@ address get a compiler optimization: SIMD-reduce → one-lane RMW → prefix-bro
 per simdgroup). Aggregate HW-validated (1024 threads → counter 1024; op-splice add→max → 32).
 
 ### ✅ Subgroup / SIMD-group & quad ops (EXP-0018) — SIMD width = 32
-- **`simd_reduce`** (byte0 `0xbf`/`0x3f`, 8 B, byte+2=`0x56`): reduce & prefix-scan. Op = (byte0 bit7,
-  byte+1); byte+7 = datatype/shape (`0x03` int, `0x07` int-minmax, `0x12` float, `0x0b` exclusive-scan,
-  `0x09` inclusive-scan). **Prefix-scan is native.**
-- **`simd_shuffle`** (byte0 `0x47`/`0xc7`, 10 B): broadcast / shuffle(xor/up/down) / rotate / dynamic
-  shuffle. byte+1 = simd/quad/rotate; byte+6 = lane/mask as `(value<<1)`.
-- **`simd_ballot`** (byte0 `0x17`, 10 B): ballot / active-mask / all / any / is_first.
+- **`simd_reduce`** (byte0 `0xbf`/`0x3f`, 8 B, byte+2=`0x54`/`0x56`): reduce & prefix-scan. Op = (byte0 bit7,
+  byte+1); **byte+7 = datatype/shape: `0x03` int-reduce, `0x07` int-minmax, `0x12` float-reduce, `0x09`
+  inclusive-scan, `0x0b` exclusive-scan** (byte+2 bit1 is a source cache/last-use hint, 0x54 vs 0x56, not an
+  op change). **Prefix-scan is native.** *(RT-ISA-FIX re-proved these on a fresh compile: `simd_sum(int)`=496
+  emits byte+7=`0x03`, inclusive-scan `0x09`, exclusive-scan `0x0b` — exactly as decoded here. RT-5's claim
+  that "int-reduce=`0x01`/exclusive-scan=`0x09`" did **not** reproduce; splicing byte+7 `0x03→0x01/0x07` left
+  the sum=496 unchanged, so the DB enum is correct and unchanged.)*
+- **`simd_shuffle`** (byte0 `0x47`/`0xc7`, 10 B, byte+2=`0x54`/`0x56`): broadcast / shuffle(xor/up/down) /
+  rotate / dynamic shuffle. byte+1 = simd/quad/rotate; byte+6 = lane/mask as `(value<<1)`. *(RT-ISA-FIX:
+  real compiled broadcast/xor carry byte+2=`0x54`; the DB match was relaxed to accept both — `simd_broadcast(v,3)`=35
+  and `simd_shuffle_xor(v,3)` HW-re-validated.)*
+- **`simd_ballot`** (byte0 `0x17`, 10 B): ballot / active-mask / all / any / is_first. **byte+1 low nibble
+  `0x7` identifies the family**; high nibble picks the form — `0x07` = active-mask/any/all, **`0x17` =
+  `simd_ballot(predicate)`**. *(RT-ISA-FIX: `simd_ballot(lane<5)`=0x1F HW; the `0x17` form was previously
+  mis-decoded as `unpack_convert` — now separated from `unpack_convert` on byte+1 low nibble, ballot=7 vs
+  unpack=4.)*
 - **Quad ops** reuse the same two groups at **width 4** (reduce with scope bit3=0 → byte0 `0xb7`/`0x37`;
   shuffle with byte+1=`0x00`). Note `0x37` disambiguates quad-reduce (byte+2=`0x56`, 8 B) from the
   derivative op (10 B).
@@ -381,10 +437,19 @@ Apple9 has **dedicated ray-tracing instructions** that drive a **compiler-genera
 traversal loop** in the shader — not one fire-and-forget "trace ray" op. Proven dedicated: both novel
 opcodes are absent from a hand-written Möller-Trumbore ray/triangle control.
 - **`rt_intersect`** (byte0 low-nibble `0x4`, byte+1 `0xea`, 8 B): the hardware ray/box/triangle
-  intersection primitive. byte0 hi = result reg; byte+2 mode (`0x90` const-origin / `0x10` dynamic-origin
-  / `0xd0` + function-table); byte+3/+4 = ray/AS operand regs (instance-AS flips byte+4 `0x8b→0x1b`);
-  byte+6 bit7 = intersection-function-table bound. Emitted twice (traverse, then result-read). Fields
-  byte-diff-inferred; role + end-to-end correctness HW-validated.
+  intersection primitive. **The OP itself is HW-validated dedicated & load-bearing** (RT-5: corrupting
+  byte+1 `0xea→0x00` on the traverse op → GPU hang; on the result-read op → distance 3→2.984). Emitted twice
+  (traverse, then result-read). ⏳ **Its operand SUB-FIELDS are INFERRED (byte-diff), NOT HW-validated** —
+  RT-5 found every documented sub-field was **splice-INERT** on the single-primitive `intersection_query`
+  path (identical correct hit for all splices): byte0 hi = result reg (`0xe4→0x04/0x14` no change); byte+2
+  mode (`0x90` const-origin / `0x10` dynamic-origin / `0xd0` + function-table — `0x90→0x10/0xd0` no change);
+  byte+3/+4 = ray/AS operand regs, **the "instance-AS flips byte+4 `0x8b→0x1b`" claim did NOT reproduce**
+  (`0x8b→0x1b/0xbb/0x00` all gave the identical hit); byte+6 bit7 = intersection-function-table bound. These
+  are byte-diff correlations, not splice-validated semantics. *(Caveat: RT-5 built only a primitive AS; the
+  instance/motion paths that would exercise `0x1b`/`0xbb` were not constructed, so this falsifies the
+  splice-effect claim, not the existence of an instance-AS encoding elsewhere.)* The earlier
+  "EXP-O2C: `0x8b→0x1b` HW-validated end-to-end" note is **retracted** — mark all `rt_intersect` sub-fields ⏳
+  inferred until an instance/motion-AS testbed splice-proves them.
 - **`rt_as_load`** (byte0 `0xdf`, 14 B): dedicated acceleration-structure / ray-data node loads
   (14–37 per RT kernel). The traversal is a shader loop (a `−88`-byte back-edge whose body holds a `0xdf`
   node-load + `0x0a` loop-condition compare).
@@ -490,6 +555,14 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
 - **Folded/computed (not `get_sr`):** `threads_per_simdgroup` → `mov_imm 0x20` (=32); simdgroups_per_tg,
   quad indices are ALU-computed; FS `barycentric_coord`/`point_coord` are **interpolated** (`0x2f` family);
   `primitive_id` = flat tiler-output load; `sample_id` folds to 0 on a 1-sample target.
+- **⚠ `threadgroups_per_grid` (`0xa8/a9/aa`) is NOT a direct SR value (RT-7):** a bare `get_sr 0xa8`
+  spliced alone returns **threads_per_threadgroup** (it tracks `tg` exactly), not the grid's threadgroup
+  count. The `threadgroups_per_grid` *builtin* is `get_sr 0xa8` **+ a `device_load` + a divide** (visible as
+  `24 a8 10 06 … 67 10 44` in the compiler output); the builtin computes correctly (grid/tg → 256/64=4,
+  192/64=3). So `0xa8` is the code the compiler uses for this builtin, but a driver emitting a bare
+  `get_sr 0xa8` and expecting the threadgroup count would get threads_per_threadgroup instead. (Every other
+  code in the table above IS the direct SR value, splice-proven; only `0xa8` carries this build-and-divide
+  nuance — no code is mislabeled.)
 - **Preloaded-register ABI:** **no stage preloads IDs into GPRs** — IDs are read via `get_sr` on demand.
   Only **buffer/vertex base pointers + scalar uniforms** are preloaded into the **uniform register file**
   (selected by `device_load` byte+4 `base_slot`; the **vertex-buffer base = slot `0x03`**).
@@ -597,9 +670,13 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
 - **RT-from-render (HW-validated):** a fragment shader tracing rays lowers **identically to compute RT** (2×`rt_intersect`
   + `0xdf` loads + `0x5f` + the −88B traversal loop); only the bind stage differs (`setFragmentAccelerationStructure:`).
   No fragment-specific RT opcode.
-- **Motion blur (HW-validated):** no new opcode — `rt_intersect` byte+2=`0x10` (dynamic/time form), motion-AS selected by
-  byte+4=`0xbb` (vs `0x8b` primitive / `0x1b` instance), time value threaded via byte+3; ~5 extra `0xdf` loads for
-  time-interpolated vertices. Interpolated hit distances validated (z=3→5 over 5 times).
+- **Motion blur (end-to-end HW-validated; sub-fields ⏳ inferred):** no new opcode — a motion-AS ray with time
+  produces `rt_intersect` byte+2=`0x10` (dynamic/time form) and byte+4=`0xbb`, with the time value threaded via
+  byte+3 and ~5 extra `0xdf` loads for time-interpolated vertices; interpolated hit distances validated
+  (z=3→5 over 5 times). ⚠ **The `0xbb`/`0x8b`/`0x1b` byte+4 AS-select and byte+2 mode are byte-diff
+  correlations, NOT splice-validated** — RT-5 showed splicing them on a single-primitive path is inert (see
+  the `rt_intersect` sub-field caveat above); the motion path itself is validated by the interpolated
+  distances, but the *specific byte that selects it* is inferred.
 - **`0x5f` = RT ray-data memory op** (14 B, byte+2=`0x54`, sibling of `0xdf`) — the `ray_data` payload path (distinct
   address space in RT scratch; count scales with payload size). Also `rt_transform_test` (`0x?2`, byte+2=`0x27`, traversal
   slab-test ALU) and `ray_move` (`0x?b`, byte+2=`0x80/81`, 4 B ray-register marshalling). Primitive tag (bbox/curve/opacity)
