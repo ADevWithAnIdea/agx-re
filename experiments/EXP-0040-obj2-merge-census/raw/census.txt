@@ -1,0 +1,426 @@
+==============================================================================
+EXP-0040  BYTE0-GROUP INSTRUCTION CENSUS  (merged objective-2 tools/agx-isa DB)
+==============================================================================
+DB: 75 descriptors.  Corpus = EXP-0036 subcorpus (57 unique) + NEW objective-2 families (36 unique: RT/tensor/MPP/bfloat/tile).
+
+--- A. EXP-0036 SUBCORPUS (apples-to-apples vs EXP-0039 = 87.9% bytes) ---
+  streams: 57 unique
+  instructions walked:            1246
+    named (matched a descriptor):     940  (75.4%)
+    length-only (length, no desc):    127  (10.2%)
+    UNDECODED resync regions:         179  (14.4%)
+    --> cleanly tokenized:          1067/1246 = 85.6%
+    --> BYTE COVERAGE:              8886/10110 = 87.9% (1224 bytes / 12.1% undecoded)
+
+--- B. NEW objective-2 families ONLY (RT / tensor / MPP / bfloat / imageblock-tile) ---
+  streams: 36 unique
+  instructions walked:            8333
+    named (matched a descriptor):    6094  (73.1%)
+    length-only (length, no desc):    709  (8.5%)
+    UNDECODED resync regions:        1530  (18.4%)
+    --> cleanly tokenized:          6803/8333 = 81.6%
+    --> BYTE COVERAGE:              67730/82510 = 82.1% (14780 bytes / 17.9% undecoded)
+
+--- C. COMBINED corpus ---
+  streams: 93 unique
+  instructions walked:            9579
+    named (matched a descriptor):    7034  (73.4%)
+    length-only (length, no desc):    836  (8.7%)
+    UNDECODED resync regions:        1709  (17.8%)
+    --> cleanly tokenized:          7870/9579 = 82.2%
+    --> BYTE COVERAGE:              76616/92620 = 82.7% (16004 bytes / 17.3% undecoded)
+
+--- byte coverage by stage category (COMBINED) ---
+  compute:core                   5068/  5658 = 89.6%
+  compute:function-table          128/   142 = 90.1%
+  compute:texture                1640/  2050 = 80.0%
+  mesh                            272/   416 = 65.4%
+  objective2:bfloat               124/   124 = 100.0%
+  objective2:imageblock-tile      294/   346 = 85.0%
+  objective2:matrix/tensor      46350/ 53458 = 86.7%
+  objective2:raytracing         20962/ 28582 = 73.3%
+  render:fragment                1042/  1092 = 95.4%
+  render:vertex                   736/   752 = 97.9%
+
+distinct byte0 groups seen (COMBINED): 181
+  byte0 groups the DB CAN length/decode:    112
+  byte0 groups the DB CANNOT decode at all: 69
+
+--- byte0 groups DECODED (group: named/length-only counts, COMBINED) ---
+  0x02: named=  396 length_only=   0
+  0x04: named=   11 length_only=  34
+  0x05: named=  318 length_only=   3
+  0x07: named=   75 length_only=   1
+  0x09: named=   85 length_only=   3
+  0x0a: named=  197 length_only=   0
+  0x0b: named=   27 length_only=  37
+  0x0c: named=   39 length_only=   0
+  0x0e: named=   99 length_only=   0
+  0x0f: named=   33 length_only= 419
+  0x10: named=   45 length_only=   0
+  0x11: named=    4 length_only=   0
+  0x12: named=   79 length_only=   0
+  0x13: named=   63 length_only=   0
+  0x14: named=    8 length_only=   0
+  0x16: named=   15 length_only=   0
+  0x17: named=  121 length_only=  30
+  0x18: named=    1 length_only=   0
+  0x19: named=   47 length_only=   4
+  0x1b: named=   17 length_only=  30
+  0x1c: named=   22 length_only=   0
+  0x1f: named=   42 length_only=   0
+  0x22: named=    4 length_only=  26
+  0x24: named=   25 length_only=   0
+  0x25: named=    3 length_only=   1
+  0x27: named=  118 length_only=  18
+  0x29: named=   37 length_only=   9
+  0x2b: named=   17 length_only=  20
+  0x2c: named=    4 length_only=   0
+  0x2d: named=    1 length_only=   0
+  0x2f: named=   80 length_only=   0
+  0x32: named=    6 length_only=  21
+  0x34: named=    5 length_only=   0
+  0x37: named=    9 length_only=   0
+  0x39: named=   39 length_only=   4
+  0x3b: named=   13 length_only=  23
+  0x3c: named=    3 length_only=   0
+  0x3f: named=    7 length_only=   0
+  0x43: named=   22 length_only=   0
+  0x44: named=   14 length_only=   0
+  0x45: named=    0 length_only=   3
+  0x47: named=    1 length_only=   5
+  0x49: named=   48 length_only=   0
+  0x4b: named=    8 length_only=  13
+  0x4c: named=    4 length_only=   0
+  0x52: named=    1 length_only=   0
+  0x54: named=   11 length_only=   0
+  0x57: named=   36 length_only=   0
+  0x59: named=   36 length_only=   0
+  0x5b: named=   10 length_only=  17
+  0x5c: named=    4 length_only=   0
+  0x5f: named=  323 length_only=   0
+  0x62: named=    3 length_only=   0
+  0x64: named=    4 length_only=   0
+  0x67: named= 1044 length_only=   3
+  0x69: named=   12 length_only=   0
+  0x6b: named=    7 length_only=   9
+  0x6c: named=    2 length_only=   0
+  0x6f: named=    9 length_only=   0
+  0x72: named=    3 length_only=   0
+  0x74: named=    2 length_only=   0
+  0x79: named=   24 length_only=   0
+  0x7b: named=   11 length_only=  12
+  0x7c: named=    2 length_only=   0
+  0x82: named=    3 length_only=   0
+  0x87: named=   23 length_only=   0
+  0x89: named=   34 length_only=   5
+  0x8b: named=    6 length_only=  16
+  0x8c: named=    3 length_only=   0
+  0x8f: named=   15 length_only=   0
+  0x90: named=    0 length_only=   1
+  0x92: named=    6 length_only=   0
+  0x97: named=   18 length_only=   0
+  0x99: named=   29 length_only=   0
+  0x9b: named=    9 length_only=  16
+  0x9c: named=    1 length_only=   0
+  0x9f: named=  779 length_only=   0
+  0xa2: named=    8 length_only=   0
+  0xa4: named=   47 length_only=   0
+  0xa7: named=  122 length_only=   1
+  0xa9: named=   30 length_only=   0
+  0xab: named=   12 length_only=  12
+  0xac: named=    1 length_only=   0
+  0xaf: named=   28 length_only=   0
+  0xb0: named=    0 length_only=   1
+  0xb2: named=    2 length_only=   0
+  0xb7: named=    2 length_only=   0
+  0xb9: named=   14 length_only=   3
+  0xbb: named=    6 length_only=   9
+  0xbf: named=   10 length_only=   0
+  0xc2: named=    6 length_only=   0
+  0xc7: named=    0 length_only=   2
+  0xc9: named=   21 length_only=   0
+  0xcb: named=    8 length_only=   8
+  0xcc: named=    3 length_only=   0
+  0xcf: named= 1439 length_only=   0
+  0xd2: named=    4 length_only=   0
+  0xd4: named=    2 length_only=   0
+  0xd7: named=    1 length_only=   0
+  0xd9: named=   13 length_only=   0
+  0xdb: named=    6 length_only=   7
+  0xdc: named=    2 length_only=   0
+  0xdf: named=  253 length_only=   0
+  0xe2: named=    8 length_only=   0
+  0xe4: named=    5 length_only=   0
+  0xe7: named=  255 length_only=   0
+  0xe9: named=   10 length_only=   0
+  0xeb: named=    7 length_only=   5
+  0xf2: named=    3 length_only=   0
+  0xf4: named=    2 length_only=   0
+  0xf9: named=   10 length_only=   0
+  0xfb: named=   12 length_only=   5
+
+--- byte0 groups still UNDECODED (the residue, COMBINED) ---
+   (byte0: resync-count, hex sample of the undecoded region)
+  0x00:  count= 263   sample: 00 00 0f 05 54 01 67 01 54 00 00 00 01 00 00 40
+  0x54:  count= 127   sample: 54 04 03 08 04 78 62 00 1f 01 54 08 03 0c 0c 28
+  0x03:  count= 107   sample: 03 04 18 a8 17 05 9f 01 54 00 03 2c 02 a8 15 05
+  0x07:  count=  72   sample: 07 22 02 00 0f 05 54 01 67 01 54 00 00 80 00 00
+  0x0f:  count=  53   sample: 0f 82 86 04 17 02 80 08 e7 00 54 00 00 01 21 00
+  0x24:  count=  51   sample: 24 01 00 00 9f 00 54 00 02 0c 08 c0 70 28 06 00
+  0x1a:  count=  44   sample: 1a 80 35 03 86 12 87 00 80 07 12 06 2d 80 26 80
+  0x42:  count=  43   sample: 42 81 27 08 00 80 07 0a 42 81 27 8a 81 04 06 02
+  0x06:  count=  42   sample: 06 02 e7 00 54 02 00 00 21 00 11 00 00 90 11 00
+  0x80:  count=  41   sample: 80 04 e7 00 54 02 00 00 21 00 01 00 00 10 11 00
+  0x2a:  count=  41   sample: 2a 11 2b 80 06 00 07 02 00 00 0f 05 54 25 67 01
+  0x0b:  count=  37   sample: 0b 00 06 00 00 00 00 00 60 00 e7 02 54 00 00 00
+  0x82:  count=  32   sample: 82 f3 45 3f 02 f6 07 02 20 80 67 00 54 92 06 3a
+  0x9b:  count=  30   sample: 9b 00 00 00 ab 00 00 00 1b 00 40 00 2b 00 40 00
+  0x41:  count=  26   sample: 41 09 00 40 44 00 0f 06 04 01 00 00 9f 01 54 00
+  0x1b:  count=  25   sample: 1b 13 3c 03 ca 8d 25 89 22 81 05 00 20 80 9f 01
+  0x62:  count=  24   sample: 62 81 27 80 82 08 07 02 00 80 1f 01 54 06 03 00
+  0x23:  count=  23   sample: 23 00 00 01 67 10 44 00 02 02 20 00 59 09 ff 5f
+  0x44:  count=  22   sample: 44 14 00 23 20 02 09 1d 00 40 b5 00 cf 02 56 00
+  0xd2:  count=  19   sample: d2 81 25 89 22 81 05 00 20 80 9f 00 54 14 03 10
+  0x2c:  count=  18   sample: 2c 0c 00 02 89 11 3c 13 00 08 79 0f 38 11 27 07
+  0x5b:  count=  16   sample: 5b 07 3c 09 02 0b 0f 80 85 02 07 02 e7 00 54 00
+  0x3a:  count=  15   sample: 3a 8d 35 09 22 81 05 00 20 80 32 80 25 8b 22 81
+  0x2b:  count=  15   sample: 2b 6b 67 93 82 08 00 00 00 00 32 25 45 4b 02 ca
+  0xa2:  count=  15   sample: a2 05 5d 1b 22 83 05 02 20 80 67 00 54 5e 00 38
+  0x56:  count=  14   sample: 56 00 08 10 80 00 44 02 00 30 02 00 07 04 54 61
+  0xe2:  count=  14   sample: e2 93 05 57 02 88 05 02 20 80 ba 99 05 3f 02 a2
+  0x52:  count=  13   sample: 52 81 27 80 84 08 17 02 a7 01 54 04 03 08 04 78
+  0x92:  count=  13   sample: 92 8f 25 8b 22 81 07 00 20 80 9a 97 35 01 22 81
+  0x0d:  count=  13   sample: 0d 3f 02 97 07 02 20 80 67 00 44 26 05 0a 20 0c
+  0x3c:  count=  11   sample: 3c 06 08 00 09 01 18 05 e7 00 54 00 00 01 21 00
+  0x81:  count=  11   sample: 81 18 02 08 c9 8f 31 13 a7 07 54 12 03 0c 8e 20
+  0x01:  count=  11   sample: 01 00 00 00 00 00 0a 39 22 82 87 02 0f 05 54 01
+  0x3b:  count=  11   sample: 3b 6f 67 08 82 08 00 00 60 00 17 00 54 3f 03 4c
+  0x7b:  count=  11   sample: 7b 0d 6f c6 82 08 00 00 60 00 17 00 54 2e 03 5c
+  0xc2:  count=  11   sample: c2 73 0d 3f 02 c7 07 02 20 80 67 00 54 58 19 35
+  0x21:  count=  10   sample: 21 04 1b 82 21 04 17 01 54 07 03 00 05 12 54 21
+  0x33:  count=  10   sample: 33 8a 27 bf 10 02 00 00 00 00 33 8c 27 bf 14 02
+  0x5a:  count=  10   sample: 5a 45 5d 1b 02 88 05 02 20 80 52 a9 55 1b 02 cf
+  0x60:  count=   9   sample: 60 00 00 00 0a 04 2b 80 06 00 07 22 02 00 0f 05
+  0x18:  count=   9   sample: 18 84 24 85 00 08 20 05 39 04 10 02 1e 03 80 04
+  0x08:  count=   9   sample: 08 00 0b 91 27 00 42 20 00 08 00 00 1b 81 27 00
+  0x9c:  count=   9   sample: 9c 81 00 c2 0f 06 24 01 00 00 1a 3b 03 3f 02 6e
+  0xeb:  count=   9   sample: eb 24 41 08 fb 26 41 08 eb 50 81 08 fb 52 81 08
+  0xf3:  count=   9   sample: f3 08 21 01 0b 1f 27 00 42 00 00 00 10 00 1b 03
+  0xb2:  count=   8   sample: b2 81 35 17 22 81 05 00 20 80 92 12 2f 80 06 8a
+  0xf0:  count=   8   sample: f0 11 01 00 a7 00 54 08 03 08 06 00 d0 10 21 00
+  0x85:  count=   8   sample: 85 00 20 80 92 8d 35 05 22 81 05 00 20 80 32 80
+  0xba:  count=   8   sample: ba 99 05 3f 02 a2 07 02 20 80 67 00 54 2c 06 10
+  0x8d:  count=   8   sample: 8d 4b 22 83 07 02 20 80 67 00 54 32 08 0f 20 11
+  0x7a:  count=   8   sample: 7a e5 55 1b 02 ae 05 02 20 80 67 00 54 80 24 43
+  0x6b:  count=   8   sample: 6b 00 40 00 7b 00 00 00 8b 00 00 00 9b 00 00 00
+  0xdb:  count=   8   sample: db 17 af 46 82 08 00 00 00 00 2b 17 af 43 82 08
+  0xbc:  count=   7   sample: bc a0 22 00 00 00 00 00 0f 06 04 01 00 00 0a 97
+  0x72:  count=   7   sample: 72 85 55 1b 20 80 05 03 67 00 44 54 24 39 20 17
+  0x8a:  count=   7   sample: 8a e1 45 3f 02 f6 07 02 20 80 67 00 54 8a 06 3a
+  0xbb:  count=   7   sample: bb 00 00 00 0a 3d 22 a0 87 02 cb 00 00 00 5b 00
+  0xcb:  count=   7   sample: cb 00 00 00 5b 00 40 00 6b 00 40 00 db 00 40 00
+  0xab:  count=   7   sample: ab 5b 07 89 82 0a 00 00 00 00 67 00 54 26 0b 8a
+  0x3f:  count=   7   sample: 3f 0f 00 22 00 00 00 00 7b 00 00 00 9b 75 97 01
+  0xfb:  count=   7   sample: fb 78 41 08 a7 00 56 0a 03 bc 14 00 d0 10 01 00
+  0x8c:  count=   6   sample: 8c 80 02 00 00 00 00 00 4c c0 02 00 04 00 00 00
+  0x4c:  count=   6   sample: 4c c0 02 00 04 00 00 00 3b 01 3e 09 02 08 00 80
+  0xf2:  count=   6   sample: f2 bd 05 65 82 26 05 02 20 80 67 00 54 34 0d 2e
+  0x4d:  count=   6   sample: 4d 65 20 80 05 02 e7 00 54 04 06 0d 20 11 59 06
+  0x8b:  count=   6   sample: 8b 00 40 00 0b 00 00 00 1b 00 00 00 5b 00 00 00
+  0xef:  count=   6   sample: ef c3 82 08 00 00 00 00 7a c3 55 1b 02 ae 05 02
+  0xca:  count=   6   sample: ca d5 85 3f 02 f3 07 02 20 80 67 00 54 64 06 2f
+  0x86:  count=   6   sample: 86 2e 0f 02 82 02 3b a6 21 00 1c 82 22 00 00 00
+  0xaa:  count=   5   sample: aa 05 5d 1b 22 83 05 02 20 80 17 00 54 30 02 8c
+  0x4a:  count=   5   sample: 4a a7 55 1b 82 4e 05 02 20 80 42 a7 55 1b 82 47
+  0x7c:  count=   5   sample: 7c 88 82 00 00 00 00 00 32 91 27 81 22 7a 03 82
+  0xe3:  count=   5   sample: e3 8e 61 01 e4 81 62 00 00 00 00 00 0f 04 04 19
+  0x38:  count=   4   sample: 38 82 24 84 00 c8 30 83 24 85 00 08 10 04 1b 07
+  0xac:  count=   4   sample: ac 01 0f 05 54 01 0f 01 54 6a 01 00 00 00 00 00
+  0xfa:  count=   4   sample: fa 25 4d 4b 02 be 07 02 20 80 67 00 54 24 0b 2d
+  0x55:  count=   4   sample: 55 1b 02 ae 05 02 20 80 8a 45 45 3f 82 76 07 02
+  0x6a:  count=   4   sample: 6a a9 55 1b 02 ce 05 02 20 80 da a9 55 1b 02 c7
+  0xda:  count=   4   sample: da a9 55 1b 02 c7 05 02 20 80 9f 01 54 26 03 30
+  0xdc:  count=   4   sample: dc 81 00 c2 0f 06 24 01 00 00 4b 00 c0 00 3b 00
+  0x1c:  count=   4   sample: 1c a0 a2 00 00 00 00 00 0f 06 04 01 00 00 0a c3
+  0x20:  count=   3   sample: 20 8c 11 04 02 01 0f 80 86 08 16 02 80 04 e7 00
+  0x87:  count=   3   sample: 87 02 00 00 0f 05 54 01 9f 01 54 00 03 00 30 8c
+  0x95:  count=   3   sample: 95 1b 02 d0 05 02 20 80 92 d7 85 3f 02 f1 07 02
+  0x15:  count=   3   sample: 15 1b 02 4c 05 02 20 80 e7 00 54 32 17 28 20 1c
+  0xea:  count=   3   sample: ea c7 55 03 02 d4 05 02 20 80 e2 c7 55 03 02 cf
+  0x53:  count=   3   sample: 53 64 a7 00 02 00 00 00 60 00 53 00 a0 01 4a 01
+  0x63:  count=   3   sample: 63 82 26 9f 16 22 00 00 00 00 63 02 0f 9f 10 02
+  0x3d:  count=   3   sample: 3d 29 00 08 12 03 3f 13 83 12 03 00 80 02 00 00
+  0xa3:  count=   3   sample: a3 00 40 01 df 02 54 30 6a 14 20 00 44 05 03 40
+  0x31:  count=   2   sample: 31 01 3c 81 00 c2 27 07 54 00 03 0c 8e 48 03 00
+  0x4b:  count=   2   sample: 4b 03 3b 11 9f 01 54 02 03 18 28 a8 17 05 5b 07
+  0x5c:  count=   2   sample: 5c 01 6c 01 7c 01 13 00 00 01 e7 10 54 10 00 00
+  0x66:  count=   2   sample: 66 0d 00 c4 1c 0b 4a 43 24 01 67 00 54 56 02 35
+  0x98:  count=   2   sample: 98 41 6a 43 95 1b 02 4c 05 02 20 80 e7 00 54 3e
+  0x58:  count=   2   sample: 58 39 42 43 15 1b 02 47 05 02 20 80 e7 00 54 36
+  0xcd:  count=   2   sample: cd 3f 22 83 07 02 20 80 67 00 54 64 06 2b 20 2a
+  0x9a:  count=   2   sample: 9a b1 55 1b 02 c7 05 02 20 80 9f 01 54 2e 03 30
+  0x83:  count=   2   sample: 83 00 68 00 0a 00 2b c0 06 00 06 c2 00 00 9f 01
+  0x30:  count=   2   sample: 30 a8 16 15 2b 0b 3f 0f 00 22 00 00 00 00 bb 00
+  0xa1:  count=   2   sample: a1 b0 02 02 59 81 34 2d 00 48 19 85 34 2f 00 08
+  0x34:  count=   2   sample: 34 27 00 68 52 0b 3f 0f 83 0e 03 00 80 0a 00 00
+  0xd3:  count=   2   sample: d3 3a 7f c1 00 02 00 80 00 00 92 3a 7f 80 86 06
+  0x7d:  count=   2   sample: 7d 4b 00 08 32 07 3f 45 83 44 03 00 80 06 00 00
+  0x70:  count=   2   sample: 70 a8 16 15 6b 0d 3f 0b 00 22 00 00 00 00 bb 00
+  0xa0:  count=   1   sample: a0 00 00 00 9f 11 54 0a 03 0c 2a 00 15 05 5b 0b
+  0x14:  count=   1   sample: 14 02 00 00 00 00 9f 01 54 00 03 00 00 88 14 14
+  0x2e:  count=   1   sample: 2e 15 a0 0c 32 85 23 08 87 06 02 02 20 b0 00 00
+  0x26:  count=   1   sample: 26 80 0f 02 22 81 1f 01 54 02 03 00 0a 28 15 05
+  0x73:  count=   1   sample: 73 00 00 01 67 10 44 06 06 00 00 00 51 05 00 40
+  0x1d:  count=   1   sample: 1d 1b 02 40 05 02 20 80 e7 00 54 26 17 2a 20 19
+  0x64:  count=   1   sample: 64 66 03 c4 fa 21 d3 24 22 00 9f 01 54 10 03 10
+  0xe1:  count=   1   sample: e1 09 df 02 54 54 30 44 20 00 64 05 00 40 08 00
+  0x75:  count=   1   sample: 75 05 22 81 03 22 20 80 6c 83 42 00 00 00 00 00
+  0x45:  count=   1   sample: 45 a0 29 81 15 02 33 12 89 00 8b 8c 41 00 7b 0c
+  0xc3:  count=   1   sample: c3 00 00 01 df 02 54 30 6a 14 20 00 44 05 03 40
+  0xec:  count=   1   sample: ec 81 42 00 00 00 00 00 df 02 54 40 38 54 20 00
+  0x93:  count=   1   sample: 93 18 2f 81 10 02 00 00 00 00 1a 12 2b 80 06 00
+  0xb0:  count=   1   sample: b0 a8 16 15 5b 15 3f 17 00 22 00 00 00 00 6b 00
+
+--- top named mnemonics (COMBINED) ---
+  matrix_mac             1439
+  device_load            1029
+  iadd2                  554
+  iminmax                395
+  rt_ray_mem             323
+  psel                   314
+  falu2                  269
+  imad                   263
+  rt_as_load             253
+  device_store           237
+  icmp_pred              197
+  get_sr                 183
+  unpack_convert         119
+  falu3                  113
+  iunary                 108
+  ibfe                   102
+  stop                   99
+  fminmax                74
+  threadgroup_barrier    71
+  fspecial               71
+  ray_move               67
+  mov_zext16             63
+  uniform_mov            63
+  falu2i                 63
+  rt_transform_test      59
+  tex_coord_setup        46
+  half_alu               45
+  iter                   36
+  vary_store             36
+  falu_acc               33
+  jump                   29
+  rt_intersect           24
+  frag_tile_setup        23
+  frame_marker           22
+  simd_reduce            19
+  mov_imm                19
+  frag_color_pack        16
+  frag_color_store       16
+  sel                    15
+  ret                    15
+
+--- per-stream coverage (COMBINED) ---
+  k_atomics                       452B    60 instr  undecoded= 12  cov 91%
+  k_atomics_float                  68B    10 instr  undecoded=  1  cov 97%
+  k_atomics_tg                    154B    21 instr  undecoded=  4  cov 86%
+  k_builtins_folded                80B    10 instr  undecoded=  0  cov 100%
+  k_builtins_ids                  162B    21 instr  undecoded=  1  cov 98%
+  k_cf_call                       116B    14 instr  undecoded=  0  cov 100%
+  k_cf_if                          92B    13 instr  undecoded=  2  cov 93%
+  k_cf_loop                       312B    34 instr  undecoded=  4  cov 87%
+  k_cf_switch                     142B    17 instr  undecoded=  4  cov 86%
+  k_cvt_fi                        114B    14 instr  undecoded=  1  cov 95%
+  k_cvt_half                       92B    11 instr  undecoded=  3  cov 80%
+  k_cvt_pack                      118B    14 instr  undecoded=  1  cov 95%
+  k_float_arith                    88B    10 instr  undecoded=  0  cov 100%
+  k_fptr                          142B    18 instr  undecoded=  5  cov 90%
+  k_half2_pack                     70B     7 instr  undecoded=  1  cov 77%
+  k_half_arith                     72B     9 instr  undecoded=  2  cov 86%
+  k_int64                         300B    35 instr  undecoded=  9  cov 78%
+  k_int_arith                     348B    45 instr  undecoded=  8  cov 93%
+  k_int_bitcount                  144B    16 instr  undecoded=  2  cov 83%
+  k_int_bitfield                  102B    10 instr  undecoded=  0  cov 100%
+  k_int_bitwise                    30B     5 instr  undecoded=  0  cov 100%
+  k_int_minmax                    134B    14 instr  undecoded=  2  cov 87%
+  k_int_rotate                    120B    12 instr  undecoded=  1  cov 97%
+  k_int_shift                     132B    13 instr  undecoded=  2  cov 88%
+  k_matrix                        202B    20 instr  undecoded=  1  cov 98%
+  k_matrix_half                   202B    20 instr  undecoded=  1  cov 98%
+  k_mem                           114B    13 instr  undecoded=  2  cov 88%
+  k_quad                          122B    13 instr  undecoded=  0  cov 100%
+  k_subgroup_ballot               120B    13 instr  undecoded=  1  cov 92%
+  k_subgroup_int                   98B    11 instr  undecoded=  0  cov 100%
+  k_subgroup_reduce                80B    11 instr  undecoded=  0  cov 100%
+  k_subgroup_scan                  54B     6 instr  undecoded=  0  cov 100%
+  k_subgroup_shuffle              214B    25 instr  undecoded=  2  cov 93%
+  k_tex_array_cube                256B    35 instr  undecoded=  7  cov 89%
+  k_tex_atomic                    988B   113 instr  undecoded= 29  cov 65%
+  k_tex_compare                   126B    14 instr  undecoded=  0  cov 100%
+  k_tex_gather                    162B    21 instr  undecoded=  0  cov 100%
+  k_tex_lod                       210B    27 instr  undecoded=  1  cov 99%
+  k_tex_msaa                      124B    15 instr  undecoded=  2  cov 76%
+  k_tex_query                      26B     4 instr  undecoded=  0  cov 100%
+  k_tex_rw                        100B    14 instr  undecoded=  0  cov 100%
+  k_tex_sample                     58B     7 instr  undecoded=  0  cov 100%
+  k_threadgroup                   134B    16 instr  undecoded=  3  cov 85%
+  k_transcend                     330B    48 instr  undecoded= 13  cov 75%
+  k_transcend_round               110B    14 instr  undecoded=  3  cov 82%
+  k_uint_arith                    436B    54 instr  undecoded= 12  cov 83%
+  mesh_fragment                   146B    17 instr  undecoded=  0  cov 100%
+  mesh_mesh                       306B    41 instr  undecoded= 15  cov 56%
+  mesh_object                     110B    16 instr  undecoded=  2  cov 93%
+  r_basic_fragment                146B   dup of mesh_fragment
+  r_basic_vertex                  258B    37 instr  undecoded=  4  cov 97%
+  r_blend_fragment                226B    32 instr  undecoded=  6  cov 89%
+  r_blend_vertex                  258B   dup of r_basic_vertex
+  r_cent_fragment                 162B    20 instr  undecoded=  1  cov 98%
+  r_cent_vertex                   186B    21 instr  undecoded=  0  cov 100%
+  r_deriv_fragment                266B    35 instr  undecoded=  3  cov 94%
+  r_deriv_vertex                  308B    42 instr  undecoded=  4  cov 97%
+  r_flat_fragment                  78B    11 instr  undecoded=  0  cov 100%
+  r_flat_vertex                   186B   dup of r_cent_vertex
+  r_tex_fragment                  214B    27 instr  undecoded=  2  cov 97%
+  r_tex_vertex                    308B   dup of r_deriv_vertex
+  bf_bfaddu                        62B     7 instr  undecoded=  0  cov 100%
+  bf_bfmulu                        62B     7 instr  undecoded=  0  cov 100%
+  mpp_mm_16                      2056B   214 instr  undecoded= 41  cov 82%
+  mpp_mm_2sg                     6210B   612 instr  undecoded= 95  cov 88%
+  mpp_mm_f32                     7330B   688 instr  undecoded= 97  cov 89%
+  mpp_mm_mac                     8098B   776 instr  undecoded= 92  cov 90%
+  mpp_mm_mul                     7332B   673 instr  undecoded= 88  cov 89%
+  mpp_mm_tl                     10048B  1041 instr  undecoded=202  cov 82%
+  mpp_mm_tr                     10252B  1127 instr  undecoded=210  cov 83%
+  rt_call_p2                     1584B   174 instr  undecoded= 39  cov 79%
+  rt_call_pbig                   1658B   179 instr  undecoded= 42  cov 77%
+  rt_call_pin                    1556B   161 instr  undecoded= 34  cov 79%
+  rt_call_pnone                  1458B   151 instr  undecoded= 34  cov 76%
+  rt_f_plain_fragment             110B    13 instr  undecoded=  0  cov 100%
+  rt_f_rt_fragment               9654B   933 instr  undecoded=248  cov 65%
+  rt_f_rt_isect_fragment         1448B   151 instr  undecoded= 28  cov 79%
+  rt_f_rt_vertex                  136B    21 instr  undecoded=  6  cov 78%
+  rt_mb_const                    2180B   233 instr  undecoded= 53  cov 77%
+  rt_mb_inst                     1868B   186 instr  undecoded= 38  cov 79%
+  rt_mb_prim                     2180B   234 instr  undecoded= 53  cov 78%
+  rt_tag_bbox                    1458B   dup of rt_call_pnone
+  rt_tag_curve                   1562B   167 instr  undecoded= 40  cov 76%
+  rt_tag_opaque                  1530B   159 instr  undecoded= 35  cov 76%
+  rt_tag_tri                     1530B   dup of rt_tag_opaque
+  rt_tag_world                   1658B   171 instr  undecoded= 39  cov 76%
+  tensor_ls_f32                   146B    14 instr  undecoded=  0  cov 100%
+  tensor_ls_f32_st                192B    18 instr  undecoded=  0  cov 100%
+  tensor_ls_f32_t                 192B    18 instr  undecoded=  0  cov 100%
+  tensor_mad_at                   274B    26 instr  undecoded=  1  cov 99%
+  tensor_mad_ba                   226B    22 instr  undecoded=  1  cov 98%
+  tensor_mad_bf16                 210B    19 instr  undecoded=  0  cov 100%
+  tensor_mad_chain                238B    23 instr  undecoded=  1  cov 98%
+  tensor_mad_f16                  226B    22 instr  undecoded=  1  cov 98%
+  tensor_mad_f32                  226B    22 instr  undecoded=  1  cov 98%
+  tensor_mul_f32                  202B    20 instr  undecoded=  1  cov 98%
+  tile_tk_rmw                     150B    21 instr  undecoded=  5  cov 76%
+  tile_tk_write                    96B    16 instr  undecoded=  4  cov 88%
+  tile_tk_write_slice             100B    14 instr  undecoded=  1  cov 96%

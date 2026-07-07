@@ -168,6 +168,22 @@ REAL_INSTRS = {
     "half_pack (18 05 18 03)":             "18051803",       # half2 pack (from k_h2add)
     "simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03)": "bf03540403081403",  # later-consumer reduce (0x54 cache bit)
     "unpack_convert 0x54 cache (17 04 54 ..)": "1704540000001ccae700",  # unpack, 0x54 cache-bit variant (EXP-0038)
+    # ---- EXP-O2C: matrix operand decode + new RT ops (our own RT/tensor kernels) ----
+    "matrix_mac mad_f32 (cf 02 56 .. dst=byte+8)": "cf02560200040809d4432401",  # A*B+C f32, full operand decode
+    "matrix_mac mul_f32 (cf 02 56 .. acc=0)":      "cf02560200040800d4412400",  # A*B   f32
+    "matrix_mac mad_f16 (cf 00 56 .. half)":       "cf005604020c080410628c00",  # A*B+C half
+    "matrix_mac mpp_tiled (cf 02 54 ..)":          "cf02540501b46f004a422401",  # MPP tiled MAC (mode 0x54)
+    "rt_intersect motion (a4 ea 10 46 bb ..)":     "a4ea1046bb000000",  # motion AS trace (byte+2=0x10, byte+4=0xbb)
+    "rt_ray_mem (5f 02 54 ..)":                    "5f02542200000000400a06300200",  # ray-data / traversal-stack mem op
+    "rt_transform_test (e2 95 27 81 22 ..)":       "e2952781227a0382207c",  # ray-vs-node transform/box-test
+    "ray_move copy (eb 50 81 08)":                 "eb508108",  # ray reg-marshalling MOVE, copy form (byte+2=0x81)
+    # ---- EXP-O2D: bfloat ALU + imageblock + device fence + helper-thread SR (our own kernels) ----
+    "bf_alu bf_add (11 02 1c 02 09 00 c0 81)":     "11021c020900c081",  # native bfloat add (byte+1=0x02, opsel 0x1c)
+    "bf_alu bf_mul (11 02 1d 02 09 00 c0 81)":     "11021d020900c081",  # native bfloat mul (opsel 0x1d) HW-splice
+    "imageblock_store (e7 16 54 04 05 00 01 0e ..)": "e71654040500010e00000004",  # tile imageblock write (byte+1=0x16)
+    "imageblock_load (67 16 54 04 05 00 01 8e ..)":  "671654040500018e02000010",  # tile imageblock read (byte+1=0x16)
+    "mem_fence device (07 04 54 84 0a 00)":        "070454840a00",  # atomic_thread_fence(mem_device, seq_cst)
+    "get_sr helper (04 84 11 06)":                 "04841106",  # simd_is_helper_thread (SR 0x84, FS)
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -267,6 +283,13 @@ REAL_PROGRAMS = {
                "3201350322810500""20809f015402030820a817059f015402020c08881705e7005400020521001900001012000e000000",
     # non-leaf frame region: frame_prologue(0x6f) + link_save(0x07 8B) + link_restore(0x07 8B) + non-leaf ret(8f12).
     "nonleaf_frame": "6f03040000200700540081000000""0700540081ff1f00""8f125400",
+    # ---- EXP-O2D: native bfloat kernels (get_sr + 2 loads + bf ALU + mov_zext16 + store + stop) ----
+    "bfaddu": "0ca010066710540201002000410100404600670044030200200041010040460011021c020900c08113000001e7005402000021001100009011000e000000",
+    "bfmulu": "0ca010066710540201002000410100404600670044030200200041010040460011021d020900c08113000001e7005402000021001100009011000e000000",
+    # ---- EXP-O2D: tile-shader imageblock region (get_sr helper + imageblock write/read + device fence + stop) ----
+    "ib_tile":  "04841106""e71654040500010e00000004""671654040500018e02000010""070454840a00""0e000000",
+    # ---- EXP-O2C: ray-tracing op region (intersect + ray-data mem + transform-test + ray move + AS load + matrix MAC + stop) ----
+    "rt_ops":   "d4ea90a68b000000""5f02542200000000400a06300200""e2952781227a0382207c""eb508108""df025432000000005c02044c0000""cf02560200040809d4432401""0e000000",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
@@ -346,12 +369,26 @@ SYNTH = [
     ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,
                     "mid": 0x4200000180, "op": 0x20, "b13": 0x00}),
     # ---- ray tracing (EXP-0023) ----
-    # rt_intersect const-origin: dst=reg13, subop=0xea, mode=0x90 -> d4 ea 90 a6 8b 00 00 00
-    ("rt_intersect", {"dst": 0xd, "subop": 0xea, "mode": 0x90, "opA": 0xa6,
-                      "opB": 0x8b, "b5": 0x00, "flags": 0x00, "b7": 0x00}),
+    # rt_intersect const-origin: dst=reg13, subop=0xea, mode=0x90, as_type=0x8b primitive_AS -> d4 ea 90 a6 8b 00 00 00
+    ("rt_intersect", {"dst": 0xd, "subop": 0xea, "mode": 0x90, "ray_param": 0xa6,
+                      "as_type": 0x8b, "b5": 0x00, "flags": 0x00, "b7": 0x00}),
     # rt_intersect +fn-table: mode=0xd0, flags byte+6 bit7 set (0x80) -> 24 ea d0 a6 ab 00 80 00
-    ("rt_intersect", {"dst": 0x2, "subop": 0xea, "mode": 0xd0, "opA": 0xa6,
-                      "opB": 0xab, "b5": 0x00, "flags": 0x80, "b7": 0x00}),
+    ("rt_intersect", {"dst": 0x2, "subop": 0xea, "mode": 0xd0, "ray_param": 0xa6,
+                      "as_type": 0xab, "b5": 0x00, "flags": 0x80, "b7": 0x00}),
+    # rt_intersect motion: mode=0x10 (dyn/motion), as_type=0xbb primitive_motion_AS -> a4 ea 10 46 bb 00 00 00
+    ("rt_intersect", {"dst": 0xa, "subop": 0xea, "mode": 0x10, "ray_param": 0x46,
+                      "as_type": 0xbb, "b5": 0x00, "flags": 0x00, "b7": 0x00}),
+    # ---- EXP-O2C new RT ops + matrix operand decode ----
+    # rt_transform_test: dst=reg14, src=0x95, byte+2=0x27 -> e2 95 27 81 22 7a 03 82 20 7c
+    ("rt_transform_test", {"dst": 0xe, "src": 0x95, "marker": 0x27, "b3": 0x81,
+                           "cmpmode": 0x22, "body": 0x7c2082037a}),
+    # ray_move copy form (byte+2=0x81): dst=reg14, src=0x50 -> eb 50 81 08
+    ("ray_move", {"dst": 0xe, "src": 0x50, "form": 0x81, "b3": 0x08}),
+    # ---- EXP-O2D bfloat ALU ----
+    # bf_add scalar (opsel byte+2=0x1c): -> 11 02 1c 02 09 00 c0 81
+    ("bf_alu", {"opsel": 0x1c, "srcA": 0x02, "srcB": 0x09, "tail": 0x81c000}),
+    # bf_mul scalar (opsel byte+2=0x1d): -> 11 02 1d 02 09 00 c0 81
+    ("bf_alu", {"opsel": 0x1d, "srcA": 0x02, "srcB": 0x09, "tail": 0x81c000}),
 ]
 
 

@@ -24,6 +24,7 @@ FAMILY = [
         ("half_alu", "native fp16 (half) ALU (hadd/hmul); half2 packs 2 lanes"),
         ("falu_acc", "compact 4-byte float accumulate (reduction)"),
         ("cvt_f2h", "fp32 -> fp16 narrowing convert"),
+        ("bf_alu", "native bfloat (brain-float16) general ALU (add/mul/fma)"),
         ("fspecial", "special-function unit: rcp/rsqrt/exp2/round/sqrt/log2"),
         ("fspecial_est", "transcendental estimate seed (rcp/rsqrt/sqrt NR seed)"),
     ]),
@@ -94,11 +95,15 @@ FAMILY = [
         ("matrix_mac", "8x8 cooperative-matrix multiply-accumulate"),
     ]),
     ("Ray tracing", [
-        ("rt_intersect", "dedicated ray-intersection primitive"),
+        ("rt_intersect", "dedicated ray-intersection primitive (motion + AS-select)"),
         ("rt_as_load", "acceleration-structure / ray-data load"),
+        ("rt_ray_mem", "ray-data / traversal-stack memory op (payload copy-in/out)"),
+        ("rt_transform_test", "ray-vs-node transform / AABB box-test companion"),
+        ("ray_move", "ray register-marshalling move (also MPP matmul transpose)"),
     ]),
     ("Barrier / ordering", [
         ("threadgroup_barrier", "threadgroup execution barrier + memory fence"),
+        ("mem_fence", "device memory fence (atomic_thread_fence, no execution barrier)"),
         ("pixel_order", "raster-order-group wait/signal (fragment)"),
     ]),
     ("Fragment stage", [
@@ -109,6 +114,8 @@ FAMILY = [
         ("frag_color_pack", "pack/move colour into output GPR"),
         ("frag_tile_setup", "tile / render-target access setup"),
         ("tile_read", "tilebuffer read (programmable blend input)"),
+        ("imageblock_store", "explicit imageblock<T>.write (tile shader; byte-offset slice addressing)"),
+        ("imageblock_load", "explicit imageblock<T>.read (tile shader; byte-offset slice addressing)"),
         ("frag_depth_store", "[[depth]] output store"),
     ]),
 ]

@@ -177,7 +177,7 @@ tightened as they're decoded.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
-### OBJECTIVE-2 WORK QUEUE (Metal-exposed but NOT yet HW-exercised — close all before the obj-2 audit)
+### OBJECTIVE-2 WORK QUEUE — ✅ ALL CLOSED (O2-A..F exercised; ISA merged via EXP-0040, DB 75). Ready for obj-2 audit.
 From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
 - ☑ **O2-A geometry-output pipeline** (EXP-O2A) [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.

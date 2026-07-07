@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 68 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 75 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -154,7 +154,20 @@
 | `b4` | [32:40] (byte+4) | raw/unmapped |  |
 | `tail` | [40:48] (byte+5) | raw/unmapped |  |
 
-*d(half) = half(a)  ; fp32 -> fp16 narrowing convert. byte0 0x11 is the 16-bit-destination (native half) analogue of the 0x09 float ALU group (same 6/8-byte length rule on byte+2 bit1). The reverse (fp16->fp32) is the ordinary falu2 with a 16-bit srcA (byte1 bit0 = 0) -- reuses the size bit.*
+*d(half) = half(a)  ; fp32 -> fp16 narrowing convert. byte0 0x11 is length-polymorphic on byte+1: byte+1 == 0x03 = this 6-byte convert; byte+1 in {0x02,0x04} = the 8/10-byte NATIVE bfloat ALU (bf_alu) below. The reverse (fp16->fp32) is the ordinary falu2 with a 16-bit srcA (byte1 bit0 = 0) -- reuses the size bit.*
+
+### `bf_alu` — native bfloat (brain-float16) general ALU (add/mul/fma)
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x11, byte+1==0x02  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `opsel` | [16:24] (byte+2) | opcode-select | `0x1c`=bf_add; `0x1d`=bf_mul; `0x1e`=bf_fma(10B) |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `tail` | [40:64] (byte+5) | raw/unmapped |  |
+
+*d(bfloat) = op(a,b)  ; NATIVE bfloat (brain-float16) general ALU. byte0 0x11 is a DISTINCT group -- the bfloat sibling of the 0x10 native-fp16 ALU group and the 0x11 fp32->fp16 convert group -- reusing the SAME opsel byte+2 (0x1c add / 0x1d mul / 0x1e fma, the 10-byte form) as the 0x10/0x09 float groups. NOT lowered to fp32 (a single 0x11 op does the add; no widen-add-narrow sequence) and NOT the 0x10 fp16 group (byte0 differs). byte+1 = 0x02 scalar bfloat, 0x04 bfloat2 (each packed lane a separate 0x11 op). bfloat carries fp32 range (bf16 = top 16 bits of fp32), so bfloat->float is a free 0x03 widen and float->bfloat is a 0x11 byte+1==0x03 rounding convert. This descriptor names the 8-byte scalar (byte+1==0x02) add/mul; the bfloat2-packed (byte+1==0x04) and 10-byte fma (opsel 0x1e) forms tokenize by the length rule but are not separately named.*
 
 ### `fspecial` — special-function unit: rcp/rsqrt/exp2/round/sqrt/log2
 
@@ -452,7 +465,7 @@
 |---|---|---|---|
 | `form` | [3:4] | modifier |  |
 | `dst` | [4:8] | register |  |
-| `sr_sel` | [8:16] (byte+1) | enum | `0x82`=thread_index_in_simdgroup (simd_lane_id); `0x85`=simdgroup_index_in_threadgroup (simd_group_id); `0x88`=base_vertex (VS); `0x8a`=base_instance (VS); `0x98`=threads_per_threadgroup.x; `0x99`=threads_per_threadgroup.y; `0x9a`=threads_per_threadgroup.z; `0x9c`=threadgroup_position_in_grid.x; `0x9d`=threadgroup_position_in_grid.y; `0x9e`=threadgroup_position_in_grid.z; `0xa0`=thread_position_in_grid.x (FS: pixel x); `0xa1`=thread_position_in_grid.y (FS: pixel y); `0xa2`=thread_position_in_grid.z; `0xa4`=thread_position_in_threadgroup.x; `0xa5`=thread_position_in_threadgroup.y; `0xa6`=thread_position_in_threadgroup.z; `0xa7`=thread_index_in_threadgroup; `0xa8`=threadgroups_per_grid.x; `0xa9`=threadgroups_per_grid.y; `0xaa`=threadgroups_per_grid.z; `0xc5`=front_facing (FS); `0xd8`=instance_id (VS); `0xdd`=vertex_id (VS) |
+| `sr_sel` | [8:16] (byte+1) | enum | `0x82`=thread_index_in_simdgroup (simd_lane_id); `0x84`=simd_is_helper_thread (FS); `0x85`=simdgroup_index_in_threadgroup (simd_group_id); `0x88`=base_vertex (VS); `0x8a`=base_instance (VS); `0x98`=threads_per_threadgroup.x; `0x99`=threads_per_threadgroup.y; `0x9a`=threads_per_threadgroup.z; `0x9c`=threadgroup_position_in_grid.x; `0x9d`=threadgroup_position_in_grid.y; `0x9e`=threadgroup_position_in_grid.z; `0xa0`=thread_position_in_grid.x (FS: pixel x); `0xa1`=thread_position_in_grid.y (FS: pixel y); `0xa2`=thread_position_in_grid.z; `0xa4`=thread_position_in_threadgroup.x; `0xa5`=thread_position_in_threadgroup.y; `0xa6`=thread_position_in_threadgroup.z; `0xa7`=thread_index_in_threadgroup; `0xa8`=threadgroups_per_grid.x; `0xa9`=threadgroups_per_grid.y; `0xaa`=threadgroups_per_grid.z; `0xc5`=front_facing (FS); `0xd8`=instance_id (VS); `0xdd`=vertex_id (VS) |
 | `suffix` | [16:32] (byte+2) | raw/unmapped |  |
 
 *d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR). byte0 low-3-bits = 0b100; bit3 is a datapath/width modifier that does not change the SR select. IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.*
@@ -798,14 +811,14 @@
 | `b0hi` | [6:7] | raw/unmapped |  |
 | `opcls` | [7:8] | modifier |  |
 | `cache` | [17:18] | modifier |  |
-| `op` | [8:16] (byte+1) | opcode-select | `0x0`=or/and; `0x1`=add/xor; `0x2`=max/min; `0x6`=fadd |
+| `op` | [8:16] (byte+1) | opcode-select | `0x0`=or/and; `0x1`=add/xor; `0x3`=?/umax; `0x5`=?/fmin; `0x6`=fadd/fmul(product); `0x7`=?/fmax; `0x2`=max/min |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 | `shape` | [48:56] (byte+6) | modifier |  |
-| `dtype` | [56:64] (byte+7) | enum | `0x3`=i_reduce; `0x7`=i_minmax; `0x12`=f_reduce; `0xb`=excl_scan; `0x9`=incl_scan |
+| `dtype` | [56:64] (byte+7) | enum | `0x3`=i_reduce; `0x7`=i_minmax; `0x12`=f_reduce; `0xb`=i_excl_scan; `0x9`=i_incl_scan; `0x32`=f_excl_scan; `0x22`=f_scan_variant |
 
-*d = simd/quad reduce or prefix-scan of src over the SIMD-group (scope=1, width 32) or 2x2 quad (scope=0). Operation = (bit7 of byte0, byte+1): or/and/add(sum)/xor/max/min/fadd. byte+7 = datatype/shape: 0x03 int add|and|or|xor reduce, 0x07 int min|max, 0x12 float add, 0x0b exclusive prefix-sum, 0x09 inclusive-scan (with byte+3=0x04,byte+6=0x16). Inclusive prefix-sum = exclusive-scan op followed by an iadd of the lane's own value.*
+*d = simd/quad reduce or prefix-scan of src over the SIMD-group (scope=1, width 32) or 2x2 quad (scope=0). Operation = (byte0 bit7, byte+1): byte+1=0x00 {and(bit7=0), or(1)}; 0x01 {xor(0), add/iadd(1)}; 0x03 {?, umax(1)}; 0x05 {?, fmin(1)}; 0x06 {FADD/simd_sum(0), FMUL/simd_product(1) -- NEW EXP-O2D, HW-splice byte0 0xbf->0x3f flips product 1.0 -> sum 32.0}; 0x07 {?, fmax(1)}; 0x02 {max/min}. byte+7 = datatype/shape: 0x03 int add|and|or|xor reduce, 0x07 int min|max, 0x12 float reduce, 0x0b int exclusive-scan, 0x09 int inclusive-scan, 0x32 FLOAT exclusive-scan (NEW), float inclusive-scan = the exclusive-scan followed by a 0x09 float op of the lane's own value. NB INTEGER simd_product / prefix-product have NO native reduce op -- they LOWER to a log2(32)-step shuffle(0x47)+multiply(0x9f) tree (only FLOAT product/prefix-product use this native op; the reduce unit has a float-mul mode but no int-mul mode).*
 
 ### `simd_shuffle` — SIMD/quad shuffle / broadcast
 
@@ -814,14 +827,14 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dir` | [7:8] | enum | `0x0`=bcast/up; `0x1`=xor/down |
-| `mode` | [8:16] (byte+1) | enum | `0x4`=simd; `0x0`=quad; `0x6`=rotate |
+| `mode` | [8:16] (byte+1) | enum | `0x4`=simd; `0x0`=quad; `0x6`=rotate/fill |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 | `lane` | [48:56] (byte+6) | immediate |  |
 | `tail` | [56:80] (byte+7) | raw/unmapped |  |
 
-*d = src from another lane. byte0 0x47 = broadcast / shuffle-up, 0xc7 = shuffle-xor / shuffle-down (bit7 = direction). byte+1: 0x04 SIMD-group, 0x00 quad, 0x06 rotate. byte+6 = source lane index (broadcast) or xor mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic simd_shuffle(v,lane) use the same op with the lane index in a register.*
+*d = src from another lane. byte0 0x47 = broadcast / shuffle-up / fill_up, 0xc7 = shuffle-xor / shuffle-down / fill_down (bit7 = direction). byte+1 mode: 0x04 SIMD-group shuffle, 0x00 quad, 0x06 rotate / shuffle_and_fill (NEW EXP-O2D). byte+6 = source lane index (broadcast) or xor mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic simd_shuffle(v,lane) use the same op with the lane index in a register. NEW (EXP-O2D): simd_shuffle_and_fill_up/down = byte+1==0x06; the FILL DATA is a SEPARATE operand loaded by a preceding 0x67 device_load before the shuffle. The modulo/rotate variant (v, fill, delta, modulo) is the same byte+1==0x06 op with byte+6 changed (fill 0x4a -> modulo 0x42) plus a tail byte (0x20 -> 0x30) carrying the modulo. simd_shuffle_up/down add edge-handling predication (0f80/0f9e) around the core op; simd_shuffle_xor is a single clean op.*
 
 ### `simd_ballot` — SIMD ballot / vote mask source
 
@@ -843,20 +856,23 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dtype` | [8:16] (byte+1) | enum | `0x0`=f16(16-bit); `0x2`=f32/bf16(32-bit) |
-| `mode` | [16:24] (byte+2) | modifier |  |
-| `a_op` | [24:40] (byte+3) | raw/unmapped |  |
-| `b_op` | [40:56] (byte+5) | raw/unmapped |  |
+| `mode` | [16:24] (byte+2) | enum | `0x56`=standalone; `0x54`=tiled/MPP |
+| `a_desc` | [24:32] (byte+3) | raw/unmapped |  |
+| `pad4` | [32:40] (byte+4) | raw/unmapped |  |
+| `a_reg` | [40:48] (byte+5) | register |  |
+| `b_reg` | [48:56] (byte+6) | register |  |
 | `c_src` | [56:64] (byte+7) | register |  |
-| `dst` | [64:80] (byte+8) | raw/unmapped |  |
-| `b10` | [80:88] (byte+10) | raw/unmapped |  |
+| `dst` | [64:72] (byte+8) | register |  |
+| `dst_desc` | [72:80] (byte+9) | raw/unmapped |  |
+| `op_enable` | [80:88] (byte+10) | opcode-select |  |
 | `acc_en` | [88:89] (byte+11) | enum | `0x0`=multiply; `0x1`=multiply_accumulate |
 | `b11hi` | [89:96] | raw/unmapped |  |
 
-*d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion). byte+2 mode 0x56 = standalone, 0x54 = tiled (MPP matmul2d). C accumulator source register at byte+7 (HW-proven). ACCUMULATE-ENABLE = byte+11 bit0 (HW-proven: 1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). Element types accepted by MSL: half, float, bfloat, incl. mixed half/bfloat inputs -> float accumulate; integer matrices are REJECTED by MSL (no int8 cooperative matrix). Only 8x8 is exposed. A/B operand register bit-packing (byte+3..+6, +8..+9) is partially decoded.*
+*d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). OPERAND SELECTORS (all HW-splice-validated, EXP-O2C, on mad_f32 read back over one 32-lane simdgroup): byte+5 = A (LEFT) multiply-operand fragment register (splice +5 to B's reg -> B*B; swap +5/+6 -> B*A -- matmul is non-commutative so all A*B/B*A/A*A/B*B distinguishable); byte+6 = B (RIGHT) operand register; byte+7 = C accumulator source register; byte+8 = destination fragment register; byte+3 = an A-operand sub-descriptor (corrupting -> ZERO result: load-bearing); byte+10 = op-enable marker 0x24 (corrupting -> C passthrough, the multiply drops out); byte+4 and byte+9 bit1 splice-inert (padding). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion; splicing 0x02->0x00 garbles fp32). mode (byte+2): 0x56 standalone, 0x54 tiled (MPP matmul2d) -- SEMANTIC, not a hint: splicing standalone 0x56->0x54 ZEROES the result (tiled mode sources its accumulator from the MPP tile context). ACCUMULATE-ENABLE = byte+11 bit0 (1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). MSL element types: half, float, bfloat (incl. mixed half/bfloat -> float accumulate); integer matrices REJECTED (no int8 cooperative matrix). Only 8x8 exposed. ALL MPP tensor ops (matmul2d multiply/multiply_accumulate/transpose/f32/16x16x16/2-simdgroup) lower to THIS SAME op -- no new tensor opcode; transpose adds 4-byte data-move ops (ray_move family), not a new op; simdgroup_load/store (incl. transpose=true) are ordinary 0x67/0xe7 memory ops.*
 
 ## Ray tracing
 
-### `rt_intersect` — dedicated ray-intersection primitive
+### `rt_intersect` — dedicated ray-intersection primitive (motion + AS-select)
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4, byte+1==0xea  ·  **Provenance:** HW-validated
 
@@ -864,14 +880,14 @@
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
 | `subop` | [8:16] (byte+1) | opcode-select | `0xea`=trace |
-| `mode` | [16:24] (byte+2) | enum | `0x10`=dyn_origin; `0x90`=const_origin; `0xd0`=const_origin+fntable; `0x11`=result_read |
-| `opA` | [24:32] (byte+3) | raw/unmapped |  |
-| `opB` | [32:40] (byte+4) | raw/unmapped |  |
+| `mode` | [16:24] (byte+2) | enum | `0x10`=dyn_origin/motion; `0x90`=const_origin; `0xd0`=const_origin+fntable; `0x11`=result_read |
+| `ray_param` | [24:32] (byte+3) | register |  |
+| `as_type` | [32:40] (byte+4) | enum | `0x8b`=primitive_AS; `0x1b`=instance_AS; `0xbb`=primitive_motion_AS |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 | `flags` | [48:56] (byte+6) | modifier |  |
 | `b7` | [56:64] (byte+7) | raw/unmapped |  |
 
-*DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 origin folded to a constant, 0x10 dynamic (device-loaded) origin, 0xd0 origin-const + intersection-function-table present (bit7=const-origin, bit6=fn-table). byte+3/+4 = ray/AS operand register packing (instance_acceleration_structure flips byte+4 0x8b->0x1b). byte+6 bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse, op#2 (byte+2 0x10/0x11) result-read. The BVH TRAVERSAL itself is a compiler-generated shader loop (one -88-byte back-edge per intersector kernel) using this op plus the 0xdf AS-data loads -- NOT a single fire-and-forget trace instruction.*
+*DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 const origin, 0x10 dynamic-origin OR primitive-MOTION (the time-parameterised form -- motion sets 0x10 even with a const origin), 0xd0 const-origin + intersection-function-table present (bit7=const-origin, bit6=fn-table), 0x11 result-read. byte+3 = ray/parameter operand register, and also carries the MOTION TIME (device-loaded time 0x46 vs folded-constant 0x26). byte+4 = AS-type selector: 0x8b primitive AS, 0x1b instance AS, 0xbb primitive-MOTION AS (HW-validated end-to-end: motion-AS trace interpolates the hit distance LINEARLY with the time parameter). byte+6 bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse, op#2 (byte+2 0x10/0x11, trailing `26 9f`) result-read. The BVH TRAVERSAL itself is a compiler-generated shader loop (one -88-byte back-edge per intersector) using this op + the 0xdf AS-loads + the 0x5f ray-data ops -- NOT a fire-and-forget trace. PRIMITIVE TAG does not change the op (bounding_box op#1 == triangle op#1 byte-for-byte; curve differs only in the dst-reg nibble): tag discrimination lives in the AS + intersection-function-table. Works IDENTICALLY from a FRAGMENT shader (supportsRaytracingFromRender, HW-validated) -- only the bind stage differs.*
 
 ### `rt_as_load` — acceleration-structure / ray-data load
 
@@ -884,6 +900,46 @@
 | `body` | [24:112] (byte+3) | raw/unmapped |  |
 
 *Dedicated acceleration-structure / ray-data load used during BVH traversal (byte0 0xdf, a memory-family sibling of the 0x67/0xe7 buffer load/store: byte+2 == 0x54 like the memory ops). Fetches BVH node / ray / traversal-stack data. 14-17 per intersector kernel, ~37 in an inline intersection_query. Field bit-packing inferred (byte-diff); not individually splice-validated.*
+
+### `rt_ray_mem` — ray-data / traversal-stack memory op (payload copy-in/out)
+
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x5f, byte+2==0x54  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `subop` | [8:16] (byte+1) | opcode-select |  |
+| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `body` | [24:112] (byte+3) | raw/unmapped |  |
+
+*RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the 0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for custom intersection functions (its count scales with payload size: float2 -> 13, 8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; 0x10/0x11 mirror the 0x67 load space+index byte). Confirms ray_data is a distinct address space backed by RT scratch (RT kernels emit zero threadgroup ops and only one device store = the output).*
+
+### `rt_transform_test` — ray-vs-node transform / AABB box-test companion
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x27, byte+3==0x81, byte+4==0x22  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `cmpmode` | [32:40] (byte+4) | raw/unmapped |  |
+| `body` | [40:80] (byte+5) | raw/unmapped |  |
+
+*RAY-TRACING transform / box-test companion op. byte0 low-nibble 0x2 (high nibble = dst reg), byte+2 == 0x27 (marker), byte+3 == 0x81, byte+4 == 0x22 (an ordered-compare-like mode). ~4-5 per intersector kernel; the ray-vs-node coordinate transform / AABB slab-test arithmetic executed inside the (software) traversal loop, distinct from the dedicated rt_intersect primitive. Gate on byte+2 == 0x27 to distinguish from the other low-nibble-2 ops (0x02 iminmax byte+2 0x1e, 0x12 icmpsel, 0x32 carry-gen byte+2 0x35). In motion kernels the tail differs (time-blended transform).*
+
+### `ray_move` — ray register-marshalling move (also MPP matmul transpose)
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x81  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x81`=copy_reg(b3=0x08); `0x80`=zero_init(b3=0x00) |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode.*
 
 ## Barrier / ordering
 
@@ -899,6 +955,18 @@
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 
 *threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope: 0x61 = threadgroup (mem_threadgroup), 0x85 = device (mem_device). Makes threadgroup-memory stores by OTHER lanes visible before the barrier returns; the compiler emits it between a threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit ordering/'wait' op in the compute stream (device load/store/atomic/texture are HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent stale threadgroup reads (no fault).*
+
+### `mem_fence` — device memory fence (atomic_thread_fence, no execution barrier)
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x07, byte+2==0x54, byte+3==0x84  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `sub` | [8:16] (byte+1) | raw/unmapped |  |
+| `memclass` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+
+*atomic_thread_fence(mem_flags::mem_device, memory_order_seq_cst[, thread_scope_device]) -- a standalone DEVICE-memory ordering fence with no execution barrier. 6 bytes: 07 04 54 84 0a 00. byte+3 == 0x84 = device-memory fence (vs threadgroup_barrier's 0x85 device = 0x84|0x01, the 0x01 being the added EXECUTION barrier); byte+4 == 0x0a = device memory-class flag. Ordering is realised by fence PRESENCE, not a bit on the 0x67 atomic RMW op: memory_order_relaxed emits NO fence, seq_cst emits this fence (acquire/release/acq_rel are REJECTED by MSL). Scope GATES emission: thread/simdgroup/threadgroup scope emit no device fence; thread_scope_device (default) does. The texture fence (mem_texture) is a byte+4==0x06 pair that decodes as pixel_order (same family).*
 
 ### `pixel_order` — raster-order-group wait/signal (fragment)
 
@@ -1021,6 +1089,36 @@
 
 *read the CURRENT tilebuffer / colour-attachment value into a GPR — the ld_tile analogue for PROGRAMMABLE BLENDING (a fragment [[color(n)]] INPUT). Load-family op (byte0 0x67) with the fragment variant byte+1==0x0e (compute device load uses byte+1 in {0x10,0x00,0x11,...}). On Apple TBDR the framebuffer lives in tile memory, so blend is done in-shader (EXP-0019): the shader reads the destination colour with this op and computes the blend with ordinary float ALU, then stores with frag_color_store.*
 
+### `imageblock_store` — explicit imageblock<T>.write (tile shader; byte-offset slice addressing)
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0xe7, byte+1==0x16, byte+2==0x54  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `src` | [24:32] (byte+3) | register |  |
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `slice_off` | [40:48] (byte+5) | immediate |  |
+| `b6` | [48:56] (byte+6) | raw/unmapped |  |
+| `fmt` | [56:64] (byte+7) | enum | `0xe`=half4/16b-slot; `0x22`=float/32b-slot |
+| `tail` | [64:96] (byte+8) | raw/unmapped |  |
+
+*imageblock[slice].write(v)  ; EXPLICIT imageblock<T> WRITE from a fragment or TILE (dispatchThreadsPerTile) shader. Memory-family store byte0 0xe7 with the tile variant byte+1==0x16 (0x16 = 0x06|0x10, the 0x10 bit marking the FIRST store after a 0x87 tile-access setup). Same op as frag_color_store, GENERALISED: byte+5 = SLICE ADDRESSING = the field's BYTE-OFFSET WITHIN THE IMAGEBLOCK STRUCT, encoded (offset>>1). HW-proven: a GB imageblock {half4 albedo@0, half4 normal@8, float depthv@16} stores with byte+5 = 0x00 / 0x04 / 0x08 (=0,8,16 >>1). byte+7 = slice data format (0x0e half4, 0x22 float). This DIFFERS from simple-MRT frag_color_store where byte+5 = render-target index (rt<<1): explicit imageblocks address by BYTE-OFFSET, MRT addresses by RT index. img.write(v) writes the WHOLE struct (one 0xe7 per field). Bracketed by 0x87 frag_tile_setup + a 0x07 tile fence.*
+
+### `imageblock_load` — explicit imageblock<T>.read (tile shader; byte-offset slice addressing)
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x16, byte+2==0x54  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [24:32] (byte+3) | register |  |
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `slice_off` | [40:48] (byte+5) | immediate |  |
+| `b6` | [48:56] (byte+6) | raw/unmapped |  |
+| `fmt` | [56:64] (byte+7) | raw/unmapped |  |
+| `tail` | [64:96] (byte+8) | raw/unmapped |  |
+
+*v = imageblock[slice].read()  ; EXPLICIT imageblock<T> READ from a fragment/tile shader (the load-side sibling of imageblock_store; generalises tile_read's 0x67 byte+1==0x0e). byte0 0x67 load with the tile first-access variant byte+1==0x16; byte+5 = slice byte-offset>>1 (albedo 0x00 / normal 0x04 / depthv 0x08 for the GB imageblock). Used for programmable-blend tile reads and explicit imageblock read-modify-write.*
+
 ### `frag_depth_store` — [[depth]] output store
 
 - **Length:** 6 bytes  ·  **Match:** byte+0==0xd7, byte+1==0x14, byte+2==0x54  ·  **Provenance:** inferred
@@ -1089,7 +1187,18 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `0x07 (byte+1==0x00, byte+2==0x54)` | 8  [LINK-REGISTER SAVE/RESTORE around a nested call in a non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte threadgroup_barrier / pixel_order. EXP-0038] |
 | `0x18` | 4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038] |
 | `0xbf/0x3f/0xb7 cache bit` | the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-reduce byte+2==0x56 disambiguation is deliberately NOT relaxed. |
+| `0x5f (byte+2 in {0x54,0x56})` | 14  [RAY-TRACING ray-data / traversal-stack memory op (rt_ray_mem); the store/spill-side sibling of the 0xdf AS-load, carries the ray_data payload copy-in/out. EXP-O2C] |
+| `0xN2 (byte+2==0x27)` | 10  [RAY-TRACING ray-vs-node transform / AABB box-test companion (rt_transform_test), byte+3==0x81 byte+4==0x22; ~4-5 per intersector. Gated on byte+2==0x27 and placed BEFORE the 0x02/0x32 handlers (which return unconditionally). EXP-O2C] |
+| `0xNb (byte+2 in {0x80,0x81})` | 4  [RAY register-marshalling MOVE (ray_move): byte+2==0x81 copies a computed reg into the block rt_intersect consumes, 0x80 zero-inits a component. Reused 35-38x for MPP matmul2d TRANSPOSE tile moves. EXP-O2C] |
+| `0xcf operand decode` | the 0xcf matrix_mac operands are now FULLY decoded (EXP-O2C splice): byte+5=A (left) operand, byte+6=B (right), byte+7=C accumulator src, byte+8=dst, byte+3=A sub-descriptor (load-bearing), byte+10=op-enable 0x24, byte+1=dtype, byte+2=mode (0x56 standalone SEMANTIC vs 0x54 tiled/MPP), byte+11 bit0=accumulate-enable. All MPP tensor ops lower to this one op. |
+| `0x11` | 6 if byte+1==0x03 (fp32->fp16 convert cvt_f2h); else 8 if byte+1 in {0x02,0x04} (NATIVE bfloat ALU add/mul, opsel byte+2 0x1c/0x1d) or 10 if also (byte+2 & 0x02) (bfloat fma, opsel 0x1e). LOAD-BEARING FIX (EXP-O2D): the old flat `8 if byte+2&0x02 else 6` mis-lengthed every bfloat op (bf_add 0x1c -> 6, bf_fma 0x1e -> 8) and desynced bfloat kernels. Disambiguate on byte+1 -- cvt_f2h and bf_add SHARE opsel byte+2==0x1c. |
+| `0xe7 (byte+1 in {0x06,0x16})` | 12  [fragment COLOUR STORE (0x06 frag_color_store) / explicit imageblock<T>.write (0x16 = first tile store after a 0x87 setup, imageblock_store): byte+5 = imageblock field BYTE-OFFSET>>1 (vs MRT's RT index rt<<1), byte+7 = slice format. EXP-0029/O2D] |
+| `0x67 (byte+1 in {0x06,0x0e,0x16})` | 12  [fragment TILEBUFFER READ (0x0e tile_read, programmable blend) / explicit imageblock<T>.read (0x06/0x16 tile variant, imageblock_load). EXP-0029/O2D] |
+| `0x07 (byte+2==0x54, byte+3==0x84)` | 6  [DEVICE MEMORY FENCE (mem_fence): atomic_thread_fence(mem_device, seq_cst) = `07 04 54 84 0a 00`. byte+3 0x84 = device-memory FENCE (vs threadgroup_barrier's 0x85 device = 0x84\|0x01, the 0x01 = the added EXECUTION barrier); byte+4 0x0a = device memory-class flag. Ordering realised by fence PRESENCE, not a bit on the 0x67 RMW op (relaxed emits no fence, seq_cst emits it; acquire/release REJECTED by MSL). mem_texture is a byte+4==0x06 pair that decodes as pixel_order. EXP-O2D] |
+| `get_sr SR 0x84` | simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06`, read then compared. Distinct from 0x82 simd_lane_id / 0x85 simd_group_id. EXP-O2D |
+| `simd_reduce byte+1==0x06 bit7` | FLOAT simd_product / prefix-product (bit7=1, byte0=0xbf) vs simd_sum (bit7=0, byte0=0x3f); byte+7 0x32 = FLOAT exclusive-scan. INTEGER product has no native reduce op (shuffle+multiply tree). EXP-O2D |
+| `simd_shuffle byte+1==0x06` | simd_shuffle_and_fill_up/down (fill data = a separate preceding 0x67 load) / rotate; modulo variant changes byte+6 (0x4a->0x42) + a tail modulo byte. EXP-O2D |
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 68 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 75 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
