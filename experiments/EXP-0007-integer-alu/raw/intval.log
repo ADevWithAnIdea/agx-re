@@ -1,0 +1,59 @@
+
+===== INTEGER IMMEDIATE: splice (K<<1) into b5:b6 of a+imm form =====
+base a+5 ALU@0x12 = 9f015600020a00881504  (b5=0xa=5<<1)
+  K=     0  b5:b6=0x00:0x00  out=[1000, 2000, 3000, 4000]  exp=[1000, 2000, 3000, 4000]  PASS  st=OK
+  K=     1  b5:b6=0x02:0x00  out=[1001, 2001, 3001, 4001]  exp=[1001, 2001, 3001, 4001]  PASS  st=OK
+  K=     2  b5:b6=0x04:0x00  out=[1002, 2002, 3002, 4002]  exp=[1002, 2002, 3002, 4002]  PASS  st=OK
+  K=     5  b5:b6=0x0a:0x00  out=[1005, 2005, 3005, 4005]  exp=[1005, 2005, 3005, 4005]  PASS  st=OK
+  K=     7  b5:b6=0x0e:0x00  out=[1007, 2007, 3007, 4007]  exp=[1007, 2007, 3007, 4007]  PASS  st=OK
+  K=    15  b5:b6=0x1e:0x00  out=[1015, 2015, 3015, 4015]  exp=[1015, 2015, 3015, 4015]  PASS  st=OK
+  K=    16  b5:b6=0x20:0x00  out=[1016, 2016, 3016, 4016]  exp=[1016, 2016, 3016, 4016]  PASS  st=OK
+  K=    31  b5:b6=0x3e:0x00  out=[1031, 2031, 3031, 4031]  exp=[1031, 2031, 3031, 4031]  PASS  st=OK
+  K=    63  b5:b6=0x7e:0x00  out=[1063, 2063, 3063, 4063]  exp=[1063, 2063, 3063, 4063]  PASS  st=OK
+  K=    64  b5:b6=0x80:0x00  out=[1064, 2064, 3064, 4064]  exp=[1064, 2064, 3064, 4064]  PASS  st=OK
+  K=   100  b5:b6=0xc8:0x00  out=[1100, 2100, 3100, 4100]  exp=[1100, 2100, 3100, 4100]  PASS  st=OK
+  K=   127  b5:b6=0xfe:0x00  out=[1127, 2127, 3127, 4127]  exp=[1127, 2127, 3127, 4127]  PASS  st=OK
+  K=   128  b5:b6=0x00:0x01  out=[1128, 2128, 3128, 4128]  exp=[1128, 2128, 3128, 4128]  PASS  st=OK
+  K=   200  b5:b6=0x90:0x01  out=[1200, 2200, 3200, 4200]  exp=[1200, 2200, 3200, 4200]  PASS  st=OK
+  K=   255  b5:b6=0xfe:0x01  out=[1255, 2255, 3255, 4255]  exp=[1255, 2255, 3255, 4255]  PASS  st=OK
+  K=   256  b5:b6=0x00:0x02  out=[1000, 2000, 3000, 4000]  exp=[1256, 2256, 3256, 4256]  FAIL  st=OK
+  K=   511  b5:b6=0xfe:0x03  out=[1255, 2255, 3255, 4255]  exp=[1511, 2511, 3511, 4511]  FAIL  st=OK
+  K=   512  b5:b6=0x00:0x04  out=[1000, 2000, 3000, 4000]  exp=[1512, 2512, 3512, 4512]  FAIL  st=OK
+  K=  1000  b5:b6=0xd0:0x07  out=[1232, 2232, 3232, 4232]  exp=[2000, 3000, 4000, 5000]  FAIL  st=OK
+  K=  4095  b5:b6=0xfe:0x1f  out=[255, 255, 255, 255]  exp=[5095, 6095, 7095, 8095]  FAIL  st=OK
+  K=    -1  b5:b6=0xfe:0xff  out=[255, 255, 255, 255]  exp=[999, 1999, 2999, 3999]  FAIL  st=OK
+  K=    -2  b5:b6=0xfc:0xff  out=[254, 254, 254, 254]  exp=[998, 1998, 2998, 3998]  FAIL  st=OK
+  K=    -5  b5:b6=0xf6:0xff  out=[251, 251, 251, 251]  exp=[995, 1995, 2995, 3995]  FAIL  st=OK
+  K=  -100  b5:b6=0x38:0xff  out=[156, 156, 156, 156]  exp=[900, 1900, 2900, 3900]  FAIL  st=OK
+  K=  -255  b5:b6=0x02:0xfe  out=[1, 1, 1, 1]  exp=[745, 1745, 2745, 3745]  FAIL  st=OK
+  K=  -256  b5:b6=0x00:0xfe  out=[0, 0, 0, 0]  exp=[744, 1744, 2744, 3744]  FAIL  st=OK
+  IMMEDIATE (imm<<1) some FAIL
+
+===== ADD<->SUB: locate the negate that turns a+b into a-b/b-a =====
+iadd ALU = 9f015600020800a81705
+  base a+b        out=[13, 7, -7, -13]  exp [13, 7, -7, -13]
+  b0&0x7f (0x1f)  out=[-7, -13, 13, 7]  exp b-a [-7, -13, 13, 7]  PASS
+  isub-form       out=[7, 13, -13, -7]  exp a-b [7, 13, -13, -7]  PASS
+
+===== MIN/MAX signedness (0x02 group b4 sel bit1) =====
+  imin  b4=0x07  out=[-5, -6, -1, -8]  exp=[-5, -6, -1, -8]  PASS
+  umin  b4=0x05  out=[3, 100, 2, 7]  exp=[3, 100, 2, 7]  PASS
+  imax  b4=0x06  out=[3, 100, 2, 7]  exp=[3, 100, 2, 7]  PASS
+  umax  b4=0x04  out=[-5, -6, -1, -8]  exp=[-5, -6, -1, -8]  PASS
+  splice imin b4 clear bit1 -> unsigned min  out=[3, 100, 2, 7] exp=[3, 100, 2, 7] PASS
+
+===== LENGTH BIT b1 (10B 2-src vs 12B mad) =====
+iadd(10B) ALU=9f015600020800a81705 b1=0x1
+  base(b1=01) out=[15, 26, 12, 108] (a+b) st=OK
+  b1&~1 (=00) out=[] st=CMDBUF_ERROR  (expect broken: length now read as 12B)
+
+===== DST relocation (dstc: out=va+vb, o2=va, o3=vb) =====
+dstc add ALU=9f015606020010a81105
+  b3=0x00  out=zero o2=a o3=a+b st=OK
+  b3=0x01  out=zero o2=a o3=a+b st=OK
+  b3=0x02  out=zero o2=zero o3=zero st=OK
+  b3=0x03  out=zero o2=zero o3=zero st=OK
+  b3=0x04  out=zero o2=a+b o3=b st=OK
+  b3=0x05  out=zero o2=a+b o3=b st=OK
+  b3=0x06  out=a+b o2=a o3=b st=OK
+  b3=0x07  out=a+b o2=a o3=b st=OK

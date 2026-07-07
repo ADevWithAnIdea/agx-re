@@ -2,15 +2,18 @@
   "isa": "Apple A18 Pro / G17P AGX (clean-room, OWN-SHADER derived)",
   "parcel_bytes": 2,
   "length_rule": {
-    "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c = 6B vs fma 09 01 1e = 8B share first parcel); length is a function of byte0 (group) + for 0x09 a length bit at byte+2 bit1.",
+    "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c = 6B vs fma 09 01 1e = 8B share first parcel); length is a function of byte0 (group) + a per-group length bit. Float 0x09 uses byte+2 bit1; integer arithmetic (0x9f/0x1f/0xa7) uses byte+1 bit0 (1=10B 2-src, 0=12B 3-src mul-add / bitfield). EXP-0007 HW-validated.",
     "byte0_table": {
       "0x0e": 4,
       "lownibble_0xC": 4,
-      "lownibble_0x7": 14,
-      "0x09": "6, or 8 if (byte[+2] & 0x02)",
-      "0x0b": 10,
-      "0x12": 6,
-      "0x9f": "unsolved (int ALU)"
+      "0x67/0xe7": 14,
+      "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
+      "lownibble_0xB": "10  [float unary / integer and/or/xor]",
+      "0x02": "6  [integer min/max]",
+      "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
+      "0x9f/0x1f": "10 if (byte+1 & 1) else 12  [integer add/sub | mul-add]",
+      "0xa7": "10 if (byte+1 & 1) else 12  [integer shift-r | bitfield]",
+      "0x27": "8  [integer unary / popcount]"
     }
   },
   "instructions": [
@@ -369,6 +372,333 @@
       ],
       "semantics": "d = mod(a)   ; unary move (neg mod=0x0a, abs mod=0x02)",
       "provenance": "inferred (byte-diff, EXP-0005 neg/absf)"
+    },
+    {
+      "mnemonic": "iadd2",
+      "length": 10,
+      "match": [
+        [
+          0,
+          7,
+          31
+        ]
+      ],
+      "fields": [
+        {
+          "name": "srcA_neg",
+          "start": 7,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "lenbit",
+          "start": 8,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "b1hi",
+          "start": 9,
+          "width": 7,
+          "type": "raw"
+        },
+        {
+          "name": "b2lo",
+          "start": 16,
+          "width": 1,
+          "type": "raw"
+        },
+        {
+          "name": "arith_en",
+          "start": 17,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "b2hi",
+          "start": 18,
+          "width": 6,
+          "type": "raw"
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opmode",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_imm",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 56,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. dst=b3 (reg<<1). subtract = srcA-negate (b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007).",
+      "provenance": "HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith enable (256-sweep), integer immediate (K<<1) for K in 0..255. srcA/srcB reg bit-packing in the tail located but not fully bit-decoded (follow-up)."
+    },
+    {
+      "mnemonic": "imad",
+      "length": 12,
+      "match": [
+        [
+          0,
+          7,
+          31
+        ]
+      ],
+      "fields": [
+        {
+          "name": "srcA_neg",
+          "start": 7,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "lenbit",
+          "start": 8,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "b1hi",
+          "start": 9,
+          "width": 7,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opmode",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcC_body",
+          "start": 48,
+          "width": 48,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). unsigned/signed imul byte-identical (low 32 bits are sign-agnostic).",
+      "provenance": "HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); 12-byte length = b1 bit0==0 (HW). field bit-packing inferred (byte-diff)."
+    },
+    {
+      "mnemonic": "iminmax",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          2
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "30": "iminmax"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 32,
+          "width": 3,
+          "type": "enum",
+          "enum": {
+            "4": "umax",
+            "5": "umin",
+            "6": "imax",
+            "7": "imin"
+          }
+        },
+        {
+          "name": "selhi",
+          "start": 35,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "d = {min,max}(srcA, srcB)  ; sel bit0=min/max, bit1=signed/unsigned, bit2=1 integer (bit2=0 => float fmin/fmax, byte0 0x12).",
+      "provenance": "HW-VALIDATED (EXP-0007): all four imin/imax/umin/umax outputs on mixed-sign inputs, plus imin->umin splice of sel bit1."
+    },
+    {
+      "mnemonic": "iunary",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          39
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 56,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = unary_int(srcA)  ; popcount observed (also clz/ctz/reduce cousins)",
+      "provenance": "inferred (byte-diff, EXP-0007 popcount); 8-byte length HW (tokenizes)."
+    },
+    {
+      "mnemonic": "ishift",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          167
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 72,
+          "type": "raw"
+        }
+      ],
+      "semantics": "integer shift-right (a>>b, arithmetic/logical by srcA signedness); 10-byte 2-source form (b1 bit0==1).",
+      "provenance": "inferred (byte-diff, EXP-0007 shrimm/iashr/ushr); length HW (tokenizes)."
+    },
+    {
+      "mnemonic": "ibfe",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          167
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 88,
+          "type": "raw"
+        }
+      ],
+      "semantics": "bitfield-extract extract_bits(a,off,cnt) (3-operand 12-byte form)",
+      "provenance": "inferred (byte-diff, EXP-0007 ibfe); 12-byte length HW (tokenizes)."
+    },
+    {
+      "mnemonic": "icmpsel",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          18
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "29": "icmpsel"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "cond",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "sign",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "body",
+          "start": 56,
+          "width": 56,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (srcA cond srcB) ? 1 : 0  ; integer compare-and-select. cond in b4, signed/unsigned in b6 (bit1).",
+      "provenance": "inferred (byte-diff, EXP-0007 icmp_lt/eq/gt, ucmp_lt); 14-byte length HW (tokenizes cleanly); condition/sign fields byte-diff."
     },
     {
       "mnemonic": "device_load",

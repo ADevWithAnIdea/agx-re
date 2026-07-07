@@ -57,18 +57,24 @@ import json
 # Observed byte0 -> length table (all validated by clean tokenization of our
 # own shaders; parcels are always 2 bytes so every length is even):
 #
-#   byte0            group / mnemonic         length (bytes)
+#   byte0            group / mnemonic          length (bytes)
 #   ----------------------------------------------------------------
-#   0x0e             stop / end               4
-#   low nibble 0xC   preamble (get_sr-like)   4     (0x0C, 0x1C observed)
-#   low nibble 0x7   device load/store        14    (0x67 load, 0xE7 store)
-#   0x09             float ALU (2/3 source)   6, or 8 if (byte[+2] & 0x02)
-#   0x0b             float unary (fmov/neg)   10
-#   0x12             float min/max            6
-#   0x9f             integer ALU              10 or 12  (NOT SOLVED - follow-up)
+#   0x0e             stop / end                4
+#   low nibble 0xC   preamble (get_sr-like)    4     (0x0C, 0x1C observed)
+#   0x67 / 0xE7      device load / store       14
+#   low nibble 0x9   float ALU (2/3 source)    6, or 8 if (byte[+2] & 0x02)
+#   low nibble 0xB   float unary / int bitwise 10    (fmov/neg/abs; and/or/xor)
+#   0x02             integer min/max           6
+#   0x12             float min/max (6) / int compare-select (14, byte+2 lo==0xd)
+#   0x9f / 0x1f      integer add/sub (2-src)   10 if (b1&1) else 12 (mul-add form)
+#   0xa7             integer shift-r / bfe     10 if (b1&1) else 12
+#   0x27             integer unary (popcount)  8
 #
 # The 0x09 length bit (byte +2, bit 1) selects the 6-byte 2-source base form
-# from the 8-byte 3-source (fma) extended form.
+# from the 8-byte 3-source (fma) extended form.  For the integer arithmetic
+# groups (0x9f/0x1f/0xa7) the analogous length selector is byte +1 bit 0:
+# 1 => 10-byte 2-source form, 0 => 12-byte 3-source multiply-add / bitfield form
+# (EXP-0007, HW-validated).
 
 LEN_UNKNOWN = None
 
@@ -88,7 +94,7 @@ def instr_length(buf, off=0):
         return 4                       # stop
     if lo == 0x0c:
         return 4                       # preamble / get_sr-like
-    if lo == 0x07:
+    if b0 in (0x67, 0xe7):
         return 14                      # device load (0x67) / store (0xE7)
     if lo == 0x09:
         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
@@ -97,13 +103,24 @@ def instr_length(buf, off=0):
         # a documented follow-up; the compiler emits it only for fabs sources.
         return 8 if (buf[off + 2] & 0x02) else 6
     if lo == 0x0b:
-        return 10                      # float unary (fmov / fneg / fabs)
-    if lo == 0x02 and b0 == 0x12:
-        return 6                       # float min/max
-    if b0 == 0x9f:
-        # integer ALU family: length varies with sub-opcode and is NOT yet
-        # solved (out of scope for EXP-0005; noted follow-up).
-        return LEN_UNKNOWN
+        return 10                      # float unary (fmov/fneg/fabs) & int bitwise (and/or/xor)
+    # ---- integer ALU family (EXP-0007, HW-validated by clean tokenization + splice) ----
+    # Integer arithmetic is byte0 0x9f/0x1f (iadd/isub, bit7=srcA-negate) and 0xa7
+    # (shift-right / bitfield-extract).  Within these groups the length is 10 bytes
+    # (2-source form) when b1 bit0 == 1, and 12 bytes (3-source multiply-add / bfe
+    # form) when b1 bit0 == 0.  EXP-0007: iadd/isub b1=0x01 -> 10B, imul/imad/ibfe
+    # b1=0x00 -> 12B; splicing iadd's b1 bit0 -> the stream is mis-length'd and the
+    # dispatch faults, confirming b1 bit0 is the format/length selector.
+    if b0 in (0x9f, 0x1f, 0xa7):
+        return 10 if (buf[off + 1] & 0x01) else 12
+    if b0 == 0x27:
+        return 8                       # integer unary (popcount / reduce)
+    if b0 == 0x02:
+        return 6                       # integer min/max (signed/unsigned)
+    if b0 == 0x12:
+        # byte0 0x12 is float min/max (6B, byte+2 == 0x1e) OR the integer
+        # compare-and-select producer (14B, byte+2 low-nibble == 0x0d, e.g. 0x1d).
+        return 14 if (buf[off + 2] & 0x0f) == 0x0d else 6
     return LEN_UNKNOWN
 
 
@@ -290,6 +307,152 @@ DB = [
         "semantics": "d = mod(a)   ; unary move (neg mod=0x0a, abs mod=0x02)",
         "provenance": "inferred (byte-diff, EXP-0005 neg/absf)",
     },
+    # ==========================================================================
+    # INTEGER ALU FAMILY  (EXP-0007, byte0 0x9f group + cousins)
+    # ==========================================================================
+    # Unlike the float ALU (one falu2 group with an in-byte op-select), the
+    # integer ops are spread over several byte0 groups, each its own format --
+    # exactly like the float side splits falu2 / fminmax / funary.  Summary of
+    # the group -> operation map (see experiments/EXP-0007-integer-alu/RESULTS.md):
+    #
+    #   group byte0     length   operations                       op-select
+    #   ---------------------------------------------------------------------------
+    #   0x9f / 0x1f     10       iadd / isub  (a +/- b)            b0 bit7 = srcA-neg
+    #   0x9f / 0x1f     12       imul / imad  (a*b [+c])           3-source mul-add
+    #   0x0b            10       iand / ior / ixor                 b2[0:4] + b4/b5 srcB-inv
+    #   0x02            6        imin/imax/umin/umax               b4[0:3] sel
+    #   0xa7            10 / 12  ishr / bitfield-extract           (multi-instr helpers)
+    #   0x27            8        popcount / unary reduce           b0
+    #   0x12            14       integer compare -> select 0/1     b4 cond, b6 sign
+    #
+    # ---- integer 2-source add / sub (a +/- b), 10-byte form -----------------
+    # HW-VALIDATED (EXP-0007): b3 = dst (reg<<1, dstc relocation sweep); b0 bit7 =
+    # srcA negate (clearing 0x9f->0x1f turns a+b into b-a on signed inputs); b1
+    # bit0 = the 10/12 length selector (splicing it faults); b2 bit1 = arith/store
+    # enable (256-value b2 sweep: a+b iff bit1 set); srcA/srcB register descriptors
+    # live in the b7:b9 tail (byte sweeps: b7 gates srcA, b8 gates srcB).
+    {
+        "mnemonic": "iadd2",
+        "length": 10,
+        "match": [(0, 7, 0x1f)],       # bits[0:7]=0x1f => integer add/sub group (0x9f/0x1f)
+        "fields": [
+            {"name": "srcA_neg",  "start": 7,  "width": 1, "type": "mod"},   # HW: 0=neg srcA
+            {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # HW: 1=10B 2-src
+            {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
+            {"name": "b2lo",      "start": 16, "width": 1, "type": "raw"},
+            {"name": "arith_en",  "start": 17, "width": 1, "type": "mod"},   # HW: store enable
+            {"name": "b2hi",      "start": 18, "width": 6, "type": "raw"},
+            {"name": "dst",       "start": 24, "width": 8, "type": "reg"},   # HW: (reg<<1)|size
+            {"name": "opmode",    "start": 32, "width": 8, "type": "mod"},   # 0x02 observed
+            {"name": "srcB_imm",  "start": 40, "width": 8, "type": "imm"},   # HW: (imm<<1) in imm mode
+            {"name": "b6",        "start": 48, "width": 8, "type": "raw"},   # imm bit8 in bit0
+            {"name": "tail",      "start": 56, "width": 24, "type": "raw"},  # srcA/srcB descriptors
+        ],
+        "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. "
+                     "dst=b3 (reg<<1). subtract = srcA-negate (b0 bit7) + operand commute. "
+                     "srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) "
+                     "at b5:b6bit0 (NOT a minifloat -- EXP-0007).",
+        "provenance": "HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), "
+                      "srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith "
+                      "enable (256-sweep), integer immediate (K<<1) for K in 0..255. srcA/srcB "
+                      "reg bit-packing in the tail located but not fully bit-decoded (follow-up).",
+    },
+    # ---- integer 3-source multiply-add (a*b[+c]), 12-byte form --------------
+    # imul compiles to this mul-add form with addend 0 (imul==umul byte-identical);
+    # imad (a*b+c) shares it with the third-operand slot populated.
+    {
+        "mnemonic": "imad",
+        "length": 12,
+        "match": [(0, 7, 0x1f)],       # same group id as iadd2; length (b1 bit0==0) selects
+        "fields": [
+            {"name": "srcA_neg",  "start": 7,  "width": 1, "type": "mod"},
+            {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # =0 => 12B 3-src
+            {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
+            {"name": "b2",        "start": 16, "width": 8, "type": "raw"},
+            {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
+            {"name": "opmode",    "start": 32, "width": 8, "type": "mod"},
+            {"name": "srcB",      "start": 40, "width": 8, "type": "raw"},
+            {"name": "srcC_body", "start": 48, "width": 48, "type": "raw"},  # srcA/srcB/srcC descs
+        ],
+        "semantics": "d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). "
+                     "unsigned/signed imul byte-identical (low 32 bits are sign-agnostic).",
+        "provenance": "HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); "
+                      "12-byte length = b1 bit0==0 (HW). field bit-packing inferred (byte-diff).",
+    },
+    # ---- integer min / max (signed & unsigned), 6-byte form -----------------
+    # HW-VALIDATED (EXP-0007): sel = b4[0:3]: bit0 = min(1)/max(0), bit1 = signed(1)/
+    # unsigned(0), bit2 = 1 (integer-enable; the same byte with bit2==0 is float
+    # fmin/fmax).  imin=0x07 imax=0x06 umin=0x05 umax=0x04; all four validated,
+    # plus splicing imin b4 bit1 -> unsigned min on hardware.
+    {
+        "mnemonic": "iminmax",
+        "length": 6,
+        "match": [(0, 8, 0x02)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "op",   "start": 16, "width": 8, "type": "opcode",
+             "enum": {0x1e: "iminmax"}},
+            {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+            {"name": "sel",  "start": 32, "width": 3, "type": "enum",
+             "enum": {0x4: "umax", 0x5: "umin", 0x6: "imax", 0x7: "imin"}},
+            {"name": "selhi", "start": 35, "width": 5, "type": "mod"},
+            {"name": "srcB", "start": 40, "width": 8, "type": "reg"},
+        ],
+        "semantics": "d = {min,max}(srcA, srcB)  ; sel bit0=min/max, bit1=signed/unsigned, "
+                     "bit2=1 integer (bit2=0 => float fmin/fmax, byte0 0x12).",
+        "provenance": "HW-VALIDATED (EXP-0007): all four imin/imax/umin/umax outputs on "
+                      "mixed-sign inputs, plus imin->umin splice of sel bit1.",
+    },
+    # ---- integer unary: popcount / reduce (8-byte form) --------------------
+    {
+        "mnemonic": "iunary",
+        "length": 8,
+        "match": [(0, 8, 0x27)],
+        "fields": [{"name": "body", "start": 8, "width": 56, "type": "raw"}],
+        "semantics": "d = unary_int(srcA)  ; popcount observed (also clz/ctz/reduce cousins)",
+        "provenance": "inferred (byte-diff, EXP-0007 popcount); 8-byte length HW (tokenizes).",
+    },
+    # ---- integer shift-right / bitfield-extract (0xa7; 10 or 12 byte) ------
+    {
+        "mnemonic": "ishift",
+        "length": 10,
+        "match": [(0, 8, 0xa7)],
+        "fields": [{"name": "body", "start": 8, "width": 72, "type": "raw"}],
+        "semantics": "integer shift-right (a>>b, arithmetic/logical by srcA signedness); "
+                     "10-byte 2-source form (b1 bit0==1).",
+        "provenance": "inferred (byte-diff, EXP-0007 shrimm/iashr/ushr); length HW (tokenizes).",
+    },
+    {
+        "mnemonic": "ibfe",
+        "length": 12,
+        "match": [(0, 8, 0xa7)],       # length (b1 bit0==0) selects vs ishift
+        "fields": [{"name": "body", "start": 8, "width": 88, "type": "raw"}],
+        "semantics": "bitfield-extract extract_bits(a,off,cnt) (3-operand 12-byte form)",
+        "provenance": "inferred (byte-diff, EXP-0007 ibfe); 12-byte length HW (tokenizes).",
+    },
+    # ---- integer compare -> select 0/1 (14-byte, byte0 0x12) ---------------
+    # icmp_lt b4=0x22, icmp_eq b4=0x26 (compare condition); b6 0x07=signed, 0x05=
+    # unsigned (same signed bit as iminmax). Distinguished from float min/max
+    # (also byte0 0x12) by length: byte+2 low-nibble 0x0d => 14B compare.
+    {
+        "mnemonic": "icmpsel",
+        "length": 14,
+        "match": [(0, 8, 0x12)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "op",   "start": 16, "width": 8, "type": "opcode",
+             "enum": {0x1d: "icmpsel"}},
+            {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+            {"name": "cond", "start": 32, "width": 8, "type": "mod"},   # 0x22=lt,0x26=eq
+            {"name": "srcB", "start": 40, "width": 8, "type": "reg"},
+            {"name": "sign", "start": 48, "width": 8, "type": "mod"},   # 0x07 signed, 0x05 unsigned
+            {"name": "body", "start": 56, "width": 56, "type": "raw"},
+        ],
+        "semantics": "d = (srcA cond srcB) ? 1 : 0  ; integer compare-and-select. "
+                     "cond in b4, signed/unsigned in b6 (bit1).",
+        "provenance": "inferred (byte-diff, EXP-0007 icmp_lt/eq/gt, ucmp_lt); 14-byte "
+                      "length HW (tokenizes cleanly); condition/sign fields byte-diff.",
+    },
     # ---- device load (structural) -----------------------------------------
     {
         "mnemonic": "device_load",
@@ -475,11 +638,19 @@ def to_json():
         "length_rule": {
             "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c "
                     "= 6B vs fma 09 01 1e = 8B share first parcel); length is a "
-                    "function of byte0 (group) + for 0x09 a length bit at byte+2 bit1.",
+                    "function of byte0 (group) + a per-group length bit. Float 0x09 "
+                    "uses byte+2 bit1; integer arithmetic (0x9f/0x1f/0xa7) uses "
+                    "byte+1 bit0 (1=10B 2-src, 0=12B 3-src mul-add / bitfield). "
+                    "EXP-0007 HW-validated.",
             "byte0_table": {
-                "0x0e": 4, "lownibble_0xC": 4, "lownibble_0x7": 14,
-                "0x09": "6, or 8 if (byte[+2] & 0x02)",
-                "0x0b": 10, "0x12": 6, "0x9f": "unsolved (int ALU)",
+                "0x0e": 4, "lownibble_0xC": 4, "0x67/0xe7": 14,
+                "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
+                "lownibble_0xB": "10  [float unary / integer and/or/xor]",
+                "0x02": "6  [integer min/max]",
+                "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
+                "0x9f/0x1f": "10 if (byte+1 & 1) else 12  [integer add/sub | mul-add]",
+                "0xa7": "10 if (byte+1 & 1) else 12  [integer shift-r | bitfield]",
+                "0x27": "8  [integer unary / popcount]",
             },
         },
         "instructions": DB,

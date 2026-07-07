@@ -153,6 +153,31 @@ When srcB imm mode (bit 39) is set, srcB byte encodes an **8-bit minifloat** (NO
   register-load form. Worked examples: `1.0→0xb1`, `2.0→0xc1`, `1.5→0xb9`, `3.5→0xcd`,
   `0.0625→0x85`, `30.0→0xff` (max). All 16 tested constants spliced and produced exact `a+K`.
 
+### ✅ Integer ALU family (EXP-0007)
+Integer ops are **spread across several byte0 groups** (each its own format), mirroring the float
+split — there is **no single unified integer op-select**. `isub` = `iadd` with srcA-negate +
+operand-commute (same trick the compiler uses for `fsub`).
+
+| byte0 | len | operation(s) | op-select | status |
+|---|---|---|---|---|
+| `0x9f`/`0x1f` | 10 | iadd / isub | `b0 bit7` = srcA-negate | ✅ HW |
+| `0x9f`/`0x1f` | 12 | imul / imad | 3-source multiply-add (imul = imad, c=0) | ✅ HW (behaviour) |
+| `0x02` | 6 | imin/imax/umin/umax | `b4[0:3]`: bit0 min/max, bit1 signed/uns, bit2 int | ✅ HW |
+| `0x0b` | 10 | iand/ior/ixor | `b2[0:4]` + `b4/b5` src-invert | ⏳ toggle/byte-diff |
+| `0x12` | 14 | compare → select 0/1 | `b4` cond, `b6` sign | ⏳ byte-diff |
+| `0xa7` | 10/12 | shift-right / bitfield-extract | multi-instr for reg shifts | ⏳ byte-diff |
+| `0x27` | 8 | popcount / unary | — | ⏳ byte-diff |
+
+- **Integer length rule:** for `0x9f`/`0x1f`/`0xa7`, the 10-vs-12-byte selector is **byte +1 bit 0**
+  (contrast the float group's byte +2 bit 1). Tokenizes all 26 integer shaders with 0 leftover.
+- **Operand encoding (differs from float):** **dst = `b3`** as `(reg<<1)|size` (float dst was
+  `b0[4:8]`) — the wider field leaves room for **>16 registers**; srcA/srcB packed in the `b7:b8:b9`
+  tail (`(reg<<1)` convention, exact widths a follow-up).
+- **Integer immediate = `(K<<1)`**, plain 8-bit unsigned inline at `b5` (+`b6` bit 0) — HW-validated
+  for K∈{0..255}; ≥256/negative materialize to a register. **Not** the float minifloat encoding.
+- Note: a load/store opcode-keying bug was fixed here (`0x67`/`0xe7` exact, was low-nibble `0x7`
+  which collided with `0xa7`/`0x27`).
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
