@@ -236,6 +236,9 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
 
+### ✅ OBJECTIVE 2 RE-CONFIRMED (OBJ2-AUDIT-2: PASS)
+- Metal-exposed-not-exercised = **0**; totals consistent 189/11/5/9=214; all native/emulated rows PROVENANCE-backed (16/16 spot-checks); excluded set honest (6 microarch + 3 Metal-unreachable). Tessellation caveat + inconsistent-totals from OBJ2-AUDIT-1 both closed.
+
 ### COMPLETION CRITERIA (formal goal — mark complete only when all three hold)
 1. **Implementable-from-docs:** a *separate* acceptance-reviewer subagent, given ONLY `docs/`, confirms it
    has enough to write a full GPU userspace from scratch (nothing else needed). [objective 1]
