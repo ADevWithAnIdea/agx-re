@@ -89,6 +89,29 @@ register-model confirm (uniforms, dst width, Dynamic Caching); then exotic Apple
 `tools/agx-isa`, one editing `tools/iotrace`); faults are contained (0 reboots so far). Orchestrator
 owns `docs/`, `ROADMAP.md`, `PROVENANCE.md` and serializes edits to any shared tool file.
 
+## FINAL PUSH — gap queue from REVIEW-01 (acceptance gap-analysis, FAIL verdict)
+Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance gate. Priority order:
+
+**CRITICAL (blocks any real shader/draw):**
+- ☐ **G-1 Scoreboard / async-wait model** (silent corruption): which ops are async (tex/load/store/atomic), scoreboard slots, max-pending, wait/barrier-drain instruction. [ISA]
+- ☐ **G-2 Transcendental sequences** rcp/rsqrt/sqrt/sin/cos (0x29 seed + Newton-Raphson refinement). [ISA]
+- ☐ **G-3 Graphics USC shader-entry word** — bind VS/FS to a VDM draw (currently "opaque"). [cmdstream]
+- ☐ **G-4 Fragment varying interpolation** — iter/ldcf coefficient model for interpolated FS inputs. [ISA/frag]
+- ☐ **G-5 Special-register enum + preload ABI** — SR-number table; preloaded-reg ABI (vtx/instance id, VS attrib base, FS epilog contract). NEW `docs/abi/`. [ISA/ABI]
+
+**STRUCTURAL (self-containment — the gate reads ONLY docs/):**
+- ☐ **G-6 Encoding tables IN docs/** — render the instruction DB into `docs/isa/encoding-tables.md` (stop deferring to tools/db.json); move the per-format Channels/sizeclass table into `docs/descriptors/`; validate the ⏳ operand widths (int src regs, bitwise/shift/cmp).
+
+**HIGH:**
+- ☐ **G-7 PPP fixed-function header + emission-order grammar** (present-bit header/ordering to assemble 3D state). [cmdstream]
+- ☐ **G-8 Compute threadgroup-memory-size field + CDM `+0x00` config word** decode. [cmdstream]
+- ☐ **G-9 RT (in progress EXP-0023) + mesh shading** hardware docs. [ISA]
+- ☐ **G-10 Native-vs-emulated capability matrix** as a decided doc (GS/tess/XFB/mesh boundary). [synthesis]
+- ☐ **G-11 Reconcile CONTRADICTION**: ZLS/depth-store + programmable sample positions — firmware (pipeline/README) vs userspace drm_asahi fields (requirements). [synthesis/kernel-iface]
+- ☐ **G-12 Kernel-interface contract** — VA-space layout, abstract hand-down (submit/BO/VM/sync), doorbell. NEW `docs/kernel-interface.md`. [synthesis]
+
+**MEDIUM:** programmable-blend epilog ABI; BC/ASTC + 3D/cube/array/MSAA twiddle; MSAA sample-interleave + occlusion query; explain magic values (CDM/USC config word 0x00880000, store-prog 0x6f, VDM 0x61c4/0x61f2, 0x300-seg grammar, num_gps/num_frags/is_sksm).
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the
