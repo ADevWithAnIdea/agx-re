@@ -8,7 +8,8 @@
       "lownibble_0xC": 4,
       "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) and constant all share this opcode pair -- EXP-0012]",
       "0x07 (+ byte+2==0x54)": "6  [THREADGROUP/EXECUTION BARRIER (threadgroup_barrier): 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope 0x61 threadgroup / 0x85 device. The ONLY explicit ordering op in compute -- device load/store/atomic/texture are NOT scoreboard-waited (HW register interlock). EXP-0025 HW/splice-proven]",
-      "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait]",
+      "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait. byte+2==0x25 (still 6B) = transcendental ESTIMATE SEED (byte0 0x29): byte+3 0x09 rcp / 0x0b rsqrt / 0x0d sqrt estimate, ~8 mantissa bits, the Newton-Raphson seed for precise 1/x/rsqrt/sqrt, EXP-0026]",
+      "0x2f/0xaf": "10  [float SPECIAL-FUNCTION UNIT (SFU): one op computes rcp/rsqrt/exp2 (byte0 0xaf) | round/sqrt/log2 (byte0 0x2f), function = byte+1 (0x00 rcp|round / 0x01 rsqrt|sqrt / 0x02 exp2|log2). exp/log/pow/div compose these. fast-math emits single ops; precise 1/x/sqrt/div refine with Newton-Raphson. EXP-0013 (exp2/log2/round) + EXP-0026 (rcp/rsqrt/sqrt)]",
       "lownibble_0xB": "4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: uniform-reg -> GPR, EXP-0020]; else 10 [float unary / integer and/or/xor]",
       "0x02": "6  [integer min/max | compare-for-select]",
       "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
@@ -1040,8 +1041,8 @@
           "width": 1,
           "type": "enum",
           "enum": {
-            "0": "log2/round",
-            "1": "exp2"
+            "0": "0x2f(round/sqrt/log2)",
+            "1": "0xaf(rcp/rsqrt/exp2)"
           }
         },
         {
@@ -1050,8 +1051,9 @@
           "width": 8,
           "type": "enum",
           "enum": {
-            "0": "round",
-            "2": "transcendental"
+            "0": "rcp|round",
+            "1": "rsqrt|sqrt",
+            "2": "exp2|log2"
           }
         },
         {
@@ -1103,8 +1105,63 @@
           "type": "raw"
         }
       ],
-      "semantics": "d = special(a). Function = (byte0 bit7, byte+1): exp2 (0xaf, fnclass=2), log2 (0x2f, fnclass=2); round family (0x2f, fnclass=0) with byte+8 = round-mode 0x00 nearest-even / 0x02 floor / 0x04 ceil / 0x06 trunc.",
-      "provenance": "HW-VALIDATED (EXP-0013): exp2/log2 exact on powers of two; floor/ceil/trunc/rint correct; sweeping byte+8 (0x00/02/04/06) on the round base selects nearest/floor/ceil/trunc exactly on +-2.4/2.6."
+      "semantics": "d = SFU(a). Function = (byte0 bit7 fn_hi, byte+1 fnclass): (0x2f,0x00)=round[floor/ceil/trunc/rint via byte+8], (0x2f,0x01)=sqrt, (0x2f,0x02)=log2, (0xaf,0x00)=rcp(1/x), (0xaf,0x01)=rsqrt(1/sqrt x), (0xaf,0x02)=exp2(2^x). byte+6/+7 = secondary fn code. One hardware special-function op; fast-math emits it directly (~1 ULP). exp/exp10 = exp2(x*k); log/log10 = log2(x)*k; pow = exp2(b*log2(a)); a/b = a*rcp(b).",
+      "provenance": "HW-VALIDATED (EXP-0013 exp2/log2/round; EXP-0026 rcp/rsqrt/sqrt): exp2/log2 exact on powers of two, 1 ULP elsewhere; floor/ceil/trunc/rint via byte+8 round-mode; under fast-math 1/x,rsqrt,sqrt each compile to a single op of this group (byte0/byte+1 as tabulated) at ~0-1 ULP, and a/b=a*rcp(b), pow=exp2(b*log2(a)) confirmed by disassembly+HW readback."
+    },
+    {
+      "mnemonic": "fspecial_est",
+      "length": 6,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          16,
+          8,
+          37
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "subop",
+          "start": 24,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "9": "rcp_estimate",
+            "11": "rsqrt_estimate",
+            "13": "sqrt_estimate"
+          }
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the correctly-rounded 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead.",
+      "provenance": "HW-VALIDATED (EXP-0026): byte+3 0x09/0x0b/0x0d appear in precise 1/x / rsqrt / sqrt; reading the raw estimate register (redirect the final store) over a dense x-sweep gives coarse 1/x, 1/sqrt x, sqrt x with worst-case relerr ~2^-7.5..2^-8 (rcp 8.0, rsqrt 7.9, sqrt 7.5 good bits). Operand bit-fields (dst/srcA) inferred by falu2-analogy (byte-diff); function+precision HW-proven."
     },
     {
       "mnemonic": "icmp_pred",

@@ -389,6 +389,23 @@ op + a 2-slot software scoreboard, `AGX_MAX_PENDING=8`).
 - ⏳ This run was compute-only; the fragment/tilebuffer ordering analogue (`wait_pix`/`signal_pix`-style,
   for imageblock/tilebuffer access) is a follow-up.
 
+### ✅ Transcendentals / special functions (EXP-0026, closes G-2)
+Two mechanisms; a compiler picks by fast-math vs precise:
+- **Special-function unit (SFU)** — the `fspecial` group (byte0 `0x2f`/`0xaf`, 10 B) computes each as a
+  **single op**. Function = (byte0 bit7, byte+1): `0xaf`+`00/01/02` = **rcp / rsqrt / exp2**;
+  `0x2f`+`00/01/02` = **round / sqrt / log2**. Accuracy: rcp/rsqrt 0 ULP, sqrt/exp2/log2 ~1 ULP.
+- **Estimate + Newton-Raphson (precise mode)** — `fspecial_est` (byte0 `0x29`, 6 B: `29 81 25 <fn> 00 c2`;
+  byte+2=`0x25` discriminator; **byte+3 = function**: `0x09` rcp / `0x0b` rsqrt / `0x0d` sqrt). The
+  estimate is a classic **~8-bit seed** (measured rcp ~8.0, rsqrt ~7.9, sqrt ~7.5 good mantissa bits);
+  the compiler refines with **2 NR iterations** (fma/fmul) → 0 ULP. `precise::sqrt` forces this path.
+- **Composites:** `exp = exp2(x·k)`, `log = log2(x)·k`, **`pow(a,b) = exp2(b·log2(a))`**, **`a/b = a·rcp(b)`**.
+- **sin/cos/tan** = range-reduction (a `0x2b` reduce op + quadrant select) + polynomial (fma chains);
+  `tan = sin·rcp(cos)`. Fast and precise are byte-identical. ⚠ **Driver-facing gap:** ~1 ULP for moderate
+  args but **~5·10⁵ ULP at large args** (limited built-in range reduction) — a conformant Vulkan/GL
+  `sin/cos` must add **software Payne-Hanek range reduction**.
+- *(Clean-room: encodings, semantics, precision, and the textbook NR structure are documented; Apple's
+  exact scheduled instruction list is not transcribed — rule 5.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

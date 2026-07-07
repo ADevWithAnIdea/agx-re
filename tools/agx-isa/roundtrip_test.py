@@ -77,6 +77,13 @@ REAL_INSTRS = {
     "fspecial log2 (2f 02 56 ..)":          "2f0256000200b0400000",   # log2 (0x2f) HW
     "fspecial floor (2f 00 56 .. b8=02)":   "2f0056000200b0400200",   # floor HW
     "fspecial ceil  (2f 00 56 .. b8=04)":   "2f0056000200b0400400",   # ceil HW
+    # ---- SFU rcp/rsqrt/sqrt single ops + 0x29 estimate seeds (EXP-0026) ----
+    "fspecial rcp  (af 00 fast 1/x)":       "af005600020010482000",   # SFU reciprocal HW
+    "fspecial rsqrt(af 01 fast)":           "af0156000200b0400000",   # SFU rsqrt HW
+    "fspecial sqrt (2f 01 fast)":           "2f015604030092400000",   # SFU sqrt HW
+    "fspecial_est rcp  (29 81 25 09)":      "2981250900c2",           # rcp estimate seed HW
+    "fspecial_est rsqrt(29 81 25 0b)":      "2981250b00c2",           # rsqrt estimate seed HW
+    "fspecial_est sqrt (29 81 25 0d)":      "2981250d00c2",           # sqrt estimate seed HW
     "ilogic AND (0b 05 1f 01 ..)":          "0b051f01000000800000",   # a&b HW (LUT)
     "ilogic OR  (0b 05 1f 01 0208 ..)":     "0b051f01020800800000",   # a|b HW
     "ilogic XOR (0b 05 1e 01 0208 ..)":     "0b051e01020800800000",   # a^b HW
@@ -166,6 +173,12 @@ REAL_PROGRAMS = {
     "exp2":    "1ca010066710440000012000510100404600af0256000200b0400000e7005400010121001100009011000e000000",
     "log2":    "1ca0100667104400000120005101004046002f0256000200b0400000e7005400010121001100009011000e000000",
     "floor":   "1ca0100667104400000120005101004046002f0056000200b0400200e7005400010121001100009011000e000000",
+    # ---- TRANSCENDENTAL fast-math lowerings (EXP-0026): single SFU ops / compositions ----
+    "fast_rcp":   "1ca010066710440000012000510100404600af005600020010482000e7005400010121001100009011000e000000",
+    "fast_rsqrt": "1ca010066710440000012000510100404600af0156000200b0400000e7005400010121001100009011000e000000",
+    "fdiv_fast":  "1ca0100667105404010120005101004046006700440000012000110000404600af00560403081048200009011d050020e7005400020121001100009011000e000000",
+    "expe_fast":  "1ca01006671044000001200051010040460009012d0900c2af0254000200b0400000e7005400010121001100009011000e000000",
+    "loge_fast":  "1ca0100667104400000120005101004046002f0256000300b040000009010d090002e7005400010121001100009011000e000000",
     "iand":    "1ca01006671054000001200051010040460067004404010120005101004046000b051f01000000800000e7005400020121001100009011000e000000",
     "ior":     "1ca01006671054000001200051010040460067004404010120005101004046000b051f01020800800000e7005400020121001100009011000e000000",
     "ashr_i":  "1ca010066710440000012000510100404600a7015600020008786200e7005400010121001100009011000e000000",
@@ -240,6 +253,13 @@ SYNTH = [
     # fspecial floor (round-mode byte+8 = 0x02): 2f 00 56 00 02 00 b0 40 02 00
     ("fspecial", {"fn_hi": 0, "fnclass": 0x00, "b2": 0x56, "src": 0x0200, "b5": 0x00,
                   "b6": 0xb0, "b7": 0x40, "roundmode": 0x02, "b9": 0x00}),
+    # fspecial rcp (SFU 1/x, fn_hi=1 byte0->0xaf, fnclass=0): af 00 56 00 02 00 10 48 20 00
+    ("fspecial", {"fn_hi": 1, "fnclass": 0x00, "b2": 0x56, "src": 0x0200, "b5": 0x00,
+                  "b6": 0x10, "b7": 0x48, "roundmode": 0x20, "b9": 0x00}),
+    # fspecial_est reciprocal seed (byte0 0x29, byte+2 0x25, subop 0x09): 29 81 25 09 00 c2
+    ("fspecial_est", {"dst": 0x2, "srcA": 0x81, "subop": 0x09, "b4": 0x00, "b5": 0xc2}),
+    # fspecial_est rsqrt seed (subop 0x0b): 29 81 25 0b 00 c2
+    ("fspecial_est", {"dst": 0x2, "srcA": 0x81, "subop": 0x0b, "b4": 0x00, "b5": 0xc2}),
     # ilogic AND (op_base=1 and/or, no invert): 0b 05 1f 01 00 00 00 80 00 00
     ("ilogic", {"b1": 0x05, "op_base": 1, "srcB": 0x01, "lut_a": 0x00, "lut_b": 0x00, "ext": 0x8000}),
     # ilogic XOR (op_base=0 xor, invert bits): 0b 05 1e 01 02 08 00 80 00 00

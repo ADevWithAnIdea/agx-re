@@ -32,6 +32,8 @@ Outcome vocabulary:
 | 16 | Apple9 has a dedicated matrix unit (not FMA-emulated coopmat) | WWDC hints; ML workloads | diffed simdgroup_matrix vs hand FMA/shuffle matmul | **WORKS** — dedicated op 0xcf, 8×8×8 tile MAC; fp16/fp32/bf16; no int8 via Metal | EXP-0022 |
 | 17 | Apple9 has dedicated ray-tracing HW (not pure SW BVH) | Metal supportsRaytracing=YES; WWDC intersector | diffed ray_query vs hand Möller-Trumbore loop | **WORKS (HYBRID)** — HW intersect ops (rt_intersect/rt_as_load) + shader traversal loop; BVH build firmware-managed | EXP-0023 |
 | 18 | G17P needs G13-style software scoreboard waits | G13 had explicit wait ops | compiled load->use, atomic->use; searched for wait ops | **NO — inverted** — HW register interlock handles RAW; no software wait exists; simpler backend than G13 | EXP-0025 |
+| 19 | rcp/rsqrt/exp2/log2 are single-op HW (SFU), not multi-instr | Apple perf; G13 had SFU | disassembled fast-math rcp/rsqrt/exp2 | **WORKS** — `0x2f/0xaf` SFU single op; ~8-bit estimate seed for precise NR | EXP-0026 |
+| 20 | Built-in sin/cos has full-range accuracy | GL/Vulkan conformance | HW readback at large args | **NO** — ~1 ULP moderate, ~5e5 ULP large args; driver must add SW range reduction | EXP-0026 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

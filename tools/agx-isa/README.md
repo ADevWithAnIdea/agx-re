@@ -60,6 +60,8 @@ shaders):
 | `0x17` | **simd_ballot / vote mask** | 10 (EXP-0018 HW) |
 | `0x67` (`byte+1==0x11`/`0x01`) | **atomic RMW** (op selector at byte+12; native, not a CAS loop) | 14 (EXP-0018 HW) |
 | `0xcf` | **SIMD-group MATRIX multiply-accumulate** (dedicated 8×8×8 cooperative-matrix MAC) | 12 (EXP-0022 HW) |
+| `0x2f`/`0xaf` | **float SPECIAL-FUNCTION UNIT** (SFU): rcp/rsqrt/exp2 (`0xaf`) \| round/sqrt/log2 (`0x2f`), fn=byte+1 | 10 (EXP-0013/EXP-0026 HW) |
+| low-nibble `0x9` + `byte+2==0x25` | **transcendental ESTIMATE seed** (byte0 `0x29`): rcp/rsqrt/sqrt NR seed, ~8 mantissa bits | 6 (EXP-0026 HW) |
 
 ## Op-select field (float 2-source ALU, HW-VALIDATED, EXP-0005)
 
@@ -79,11 +81,14 @@ python3 agxisa.py asm      fadd srcA=1 srcB=0
 python3 roundtrip_test.py                 # ALL PASS
 ```
 
-Status: **36 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+Status: **41 instruction descriptors**, most HW-validated (float/int ALU, conversions,
 memory load/store, control flow, the texture family `tex_sample`/`tex_write`/`tex_deriv`
 — EXP-0016 — the subgroup/quad family `simd_reduce`, `simd_shuffle`, `simd_ballot` plus
-the atomic RMW family `atomic_rmw`/`atomic_mem` — EXP-0018 — and the dedicated
+the atomic RMW family `atomic_rmw`/`atomic_mem` — EXP-0018 — the dedicated
 cooperative-matrix MAC `matrix_mac` (byte0 `0xcf`, EXP-0022: `simdgroup_matrix` is real
-8×8 matrix HW, not FMA/shuffle emulation), SIMD width 32).
+8×8 matrix HW, not FMA/shuffle emulation), SIMD width 32, and the transcendental
+special-function unit `fspecial` (byte0 `0x2f`/`0xaf`: rcp/rsqrt/sqrt/exp2/log2/round) +
+its `0x29` Newton-Raphson estimate seed `fspecial_est` (~8-bit rcp/rsqrt/sqrt) — EXP-0026:
+`a/b=a·rcp(b)`, `pow=exp2(b·log2(a))`, `exp/log=exp2/log2` scaled, `sin/cos`=reduction+poly).
 Remaining fields are inferred (byte-diff) or structural — see each descriptor's
 `provenance` and `../../PROVENANCE.md`.
