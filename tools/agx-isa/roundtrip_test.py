@@ -19,8 +19,13 @@ import isadb
 REAL_INSTRS = {
     "fadd  (09 05 1c 01 00 c0)": "09051c0100c0",   # d = a + b     HW-VALIDATED
     "fmul  (09 05 1d 01 00 c0)": "09051d0100c0",   # d = a * b     HW-VALIDATED
-    "fsub  (09 01 1c 05 00 c8)": "09011c0500c8",   # d = a + (-b)
-    "faddi (09 b1 14 01 80 c0)": "09b1140180c0",   # d = a + imm
+    "fadd-nofast (09 01 1c 05 00 c0)": "09011c0500c0",  # d=a+b (no-fast reg alloc) EXP-0006
+    "fsub  (09 01 1c 05 00 c8)": "09011c0500c8",   # d = a + (-b)  srcB negate HW-VALIDATED
+    "fadd-dst3 (39 05 04 01 00 c0)": "3905040100c0",  # dst=reg3 (b0[4:8]) HW-VALIDATED EXP-0006
+    "fadd-map5 (59 09 1c 0b 00 c0)": "59091c0b00c0",  # dst=reg5,srcA=reg4,srcB=reg5 EXP-0006
+    "faddi 1.0 (09 b1 14 01 80 c0)": "09b1140180c0",   # d = a + 1.0   imm HW-VALIDATED
+    "faddi 2.0 (09 c1 14 01 80 c0)": "09c1140180c0",   # d = a + 2.0   imm HW-VALIDATED
+    "fsubi 1.0 (09 b1 1c 01 80 c0)": "09b11c0180c0",   # d = a + (-1.0) imm sign HW-VALIDATED
     "fma   (09 01 1e 05 81 08 02 c0)": "09011e05810802c0",
     "fmax  (12 03 1e 05 00 c0)": "12031e0500c0",
     "fmin  (12 03 1e 05 01 c0)": "12031e0501c0",
@@ -50,13 +55,31 @@ REAL_PROGRAMS = {
 
 # Synthesized field combos for the asm->disasm->fields direction.
 SYNTH = [
-    # falu2 op-select decomposed: opsel 0b100=fadd / 0b101=fmul (HW-validated)
-    ("falu2",   {"dst": 0x05, "opsel": 0b100, "opmod": 3, "srcmode": 0,
-                 "srcA": 0x01, "srcB": 0x00, "mods": 0xc0}),   # -> 09051c0100c0 fadd
-    ("falu2",   {"dst": 0x05, "opsel": 0b101, "opmod": 3, "srcmode": 0,
-                 "srcA": 0x01, "srcB": 0x00, "mods": 0xc0}),   # -> 09051d0100c0 fmul
-    ("falu2",   {"dst": 0x42, "opsel": 0b100, "opmod": 0, "srcmode": 0,
-                 "srcA": 0x11, "srcB": 0x22, "mods": 0x00}),
+    # falu2 (reg-reg), EXP-0006 HW-validated field layout. fadd d=srcA+srcB:
+    #   dst reg0, srcA=reg0/32b, srcB=reg2/32b -> 09051c0100c0 (== fast-math fadd)
+    ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b100,
+                "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),
+    # fmul, same operands:
+    ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b101,
+                "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),
+    # fsub d = srcA + (-srcB): srcB_neg=1 (HW-validated a+b -> a-b):
+    ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 0, "opsel": 0b100,
+                "opflags": 3, "srcB_size": 1, "srcB_reg": 2, "ctrl": 0,
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 1, "mod_hi": 0xc}),  # -> 09011c0500c8
+    # dst = reg5 exercises the b0[4:8] dst field (HW-validated):
+    ("falu2",  {"dst": 5, "srcA_size": 1, "srcA_reg": 4, "opsel": 0b100,
+                "opflags": 3, "srcB_size": 1, "srcB_reg": 5, "ctrl": 0,
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),  # -> 59091c0b00c0
+    # falu2i packed immediate: a + 1.0 (exp=0xb bias11, mant=0, sign=0) HW-validated:
+    ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xb, "opsel": 0b100,
+                "imm_sign": 0, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
+                "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09b1140180c0
+    # a + (-2.0): exp=0xc, sign=1:
+    ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xc, "opsel": 0b100,
+                "imm_sign": 1, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
+                "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09c11c0180c0
     ("falu3",   {"dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ext": 0xc002}),
     ("fminmax", {"dst": 0x03, "op": 0x1e, "srcA": 0x05, "sel": 0x01, "mods": 0xc0}),
 ]
@@ -108,11 +131,31 @@ def test_tokenize_programs():
     return fails
 
 
+def test_imm_codec():
+    """Packed-float immediate codec matches the HW-validated K<->bytes table
+    (EXP-0006 raw/validate_imm_dst.log)."""
+    print("\n== (D) packed float immediate codec (K -> b1/sign -> K) ==")
+    # (K, expected b1 byte, expected sign)  -- all HW-validated on the A18 Pro.
+    TABLE = [(0.0,0x81,0),(0.0625,0x85,0),(0.125,0x89,0),(0.25,0x91,0),(0.5,0xa1,0),
+             (0.75,0xa9,0),(1.0,0xb1,0),(1.5,0xb9,0),(2.0,0xc1,0),(3.0,0xc9,0),
+             (3.5,0xcd,0),(4.0,0xd1,0),(8.0,0xe1,0),(16.0,0xf1,0),(30.0,0xff,0),
+             (-1.0,0xb1,1),(-0.5,0xa1,1),(-2.0,0xc1,1)]
+    fails = 0
+    for K, eb1, esign in TABLE:
+        b1, sign = isadb.imm_encode(K)
+        back = isadb.imm_decode(b1, sign)
+        ok = (b1 == eb1 and sign == esign and abs(back - K) < 1e-6)
+        fails += not ok
+        print(f"  [{'OK' if ok else 'FAIL'}] K={K:>8}  b1={b1:#04x} sign={sign}  decode={back:+g}")
+    return fails
+
+
 def main():
     f = 0
     f += test_real_roundtrip()
     f += test_synth_roundtrip()
     f += test_tokenize_programs()
+    f += test_imm_codec()
     print(f"\n{'ALL PASS' if f == 0 else str(f) + ' FAILURES'}")
     return 1 if f else 0
 

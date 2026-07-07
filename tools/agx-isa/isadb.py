@@ -74,7 +74,14 @@ LEN_UNKNOWN = None
 
 def instr_length(buf, off=0):
     """Return the length in bytes of the instruction starting at buf[off], or
-    None if the leading byte is not in our (float-family) length table."""
+    None if the leading byte is not in our (float-family) length table.
+
+    EXP-0006 refinement: the float-ALU group is identified by the LOW NIBBLE of
+    byte0 (== 0x9), NOT the whole byte.  byte0's high nibble carries the dst
+    register number (bits [4:8]), so e.g. `59 09 1c 0b 00 c0` (dst=reg5) is the
+    same falu2 group as `09 01 1c 05 00 c0` (dst=reg0).  Using the full byte
+    (== 0x09) mis-tokenizes any falu2 whose dst register is >= 1.
+    """
     b0 = buf[off]
     lo = b0 & 0x0f
     if b0 == 0x0e:
@@ -83,12 +90,15 @@ def instr_length(buf, off=0):
         return 4                       # preamble / get_sr-like
     if lo == 0x07:
         return 14                      # device load (0x67) / store (0xE7)
-    if b0 == 0x09:
+    if lo == 0x09:
         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
+        # NB: the 10-byte *extended source-modifier* form (abs; EXP-0006) also
+        # has low-nibble 9 but is not distinguishable from byte0/byte2 alone --
+        # a documented follow-up; the compiler emits it only for fabs sources.
         return 8 if (buf[off + 2] & 0x02) else 6
-    if b0 == 0x0b:
+    if lo == 0x0b:
         return 10                      # float unary (fmov / fneg / fabs)
-    if b0 == 0x12:
+    if lo == 0x02 and b0 == 0x12:
         return 6                       # float min/max
     if b0 == 0x9f:
         # integer ALU family: length varies with sub-opcode and is NOT yet
@@ -129,36 +139,112 @@ FALU2_OPSEL_ENUM = {
     0b101: "fmul",      # HW-VALIDATED (EXP-0003/EXP-0005)
 }
 
+# EXP-0006 packed-float-immediate (srcB immediate form). NOT IEEE-754. The 8-bit
+# byte at instruction bits [8:16] is a minifloat: bit0 = a flag (always 1 = 32b
+# immediate), bits[3:1] = 3-bit mantissa, bits[7:4] = 4-bit exponent (bias 11).
+# The sign lives OUTSIDE this byte, at instruction bit 19 (byte+2 bit3). Normal:
+# (1 + mant/8) * 2^(exp-11) for exp>=9; subnormal (exp==8): (mant/8)*2^(9-11).
+# Representable magnitudes: 0, 1/32 .. 30.0. Out-of-range/undyadic K (e.g. 0.1,
+# 255) make the compiler fall back to a register-load form. HW-VALIDATED across
+# K in {0, +-0.0625..30} (EXP-0006 raw/validate_imm_dst.log).
+def imm_decode(b1, sign):
+    e = (b1 >> 4) & 0xf
+    m = (b1 >> 1) & 0x7
+    v = (m / 8.0) * (2.0 ** (9 - 11)) if e == 8 else (1 + m / 8.0) * (2.0 ** (e - 11))
+    return -v if sign else v
+
+def imm_encode(K):
+    """Return (b1_byte, sign_bit) for the nearest representable packed immediate."""
+    sign = 1 if K < 0 else 0
+    a = abs(float(K)); best = None
+    for e in range(8, 16):
+        for m in range(8):
+            v = (m / 8.0) * (2.0 ** (9 - 11)) if e == 8 else (1 + m / 8.0) * (2.0 ** (e - 11))
+            b1 = (e << 4) | (m << 1) | 1
+            if best is None or abs(v - a) < best[0]:
+                best = (abs(v - a), b1)
+    return best[1], sign
+
 DB = [
-    # ---- float 2-source ALU: fadd / fmul (the validated seed) --------------
+    # ---- float 2-source ALU: fadd / fmul (reg-reg form) --------------------
+    # EXP-0006 fully mapped, HW-VALIDATED, the operand encoding (little-endian
+    # 48-bit instruction; bit b == byte (b//8) bit (b%8)):
+    #   [0:4]   group id = 0x9                                   (match)
+    #   [4:8]   dst register number (b0 high nibble)   HW-VALIDATED (dstc sweep)
+    #   [8]     srcA size: 1 = 32-bit, 0 = 16-bit (reads low half) HW-VALIDATED
+    #   [9:16]  srcA register number (aliases mod 64 -> 64 GPRs)  HW-VALIDATED
+    #   [16:19] opsel: 0b100=fadd 0b101=fmul                      HW-VALIDATED
+    #   [19:24] op/cache flags (source last-use/discard hints)    inferred
+    #   [24]    srcB size (1=32b, 0=16b low half)                 HW-VALIDATED
+    #   [25:32] srcB register number                              HW-VALIDATED
+    #   [32:39] control (low 2 bits must be 0 for a valid store)  inferred
+    #   [39]    srcB-immediate mode select (0=register srcB)      HW-VALIDATED
+    #   [40:43] source-mode low bits                              inferred
+    #   [43]    srcB negate modifier (a + (-b))                   HW-VALIDATED
+    #   [44:48] source-mode high bits (0xC base observed)         inferred
     {
         "mnemonic": "falu2",
         "length": 6,
-        "match": [(0, 8, 0x09)],       # byte0 == 0x09 identifies the float-ALU group
+        "match": [(0, 4, 0x9)],        # low nibble of byte0 identifies the group
         "fields": [
-            {"name": "dst",     "start": 8,  "width": 8, "type": "reg"},
-            # --- the op-select, decomposed as validated by the EXP-0005 sweep --
-            {"name": "opsel",   "start": 16, "width": 3, "type": "opcode",
-             "enum": FALU2_OPSEL_ENUM},         # instr bits[16:19] = operation
-            {"name": "opmod",   "start": 19, "width": 3, "type": "mod"},   # don't-care for op
-            {"name": "srcmode", "start": 22, "width": 2, "type": "enum",
-             "enum": {0: "normal"}},            # nonzero -> srcA-passthrough (HW-observed)
-            # --------------------------------------------------------------------
-            {"name": "srcA",    "start": 24, "width": 8, "type": "reg"},
-            {"name": "srcB",    "start": 32, "width": 8, "type": "imm"},
-            {"name": "mods",    "start": 40, "width": 8, "type": "mod"},
+            {"name": "dst",       "start": 4,  "width": 4, "type": "reg"},   # HW-VALIDATED
+            {"name": "srcA_size", "start": 8,  "width": 1, "type": "enum",
+             "enum": {1: "b32", 0: "b16"}},                                   # HW-VALIDATED
+            {"name": "srcA_reg",  "start": 9,  "width": 7, "type": "reg"},    # HW-VALIDATED
+            {"name": "opsel",     "start": 16, "width": 3, "type": "opcode",
+             "enum": FALU2_OPSEL_ENUM},                                       # HW-VALIDATED
+            {"name": "opflags",   "start": 19, "width": 5, "type": "mod"},    # cache/discard, inferred
+            {"name": "srcB_size", "start": 24, "width": 1, "type": "enum",
+             "enum": {1: "b32", 0: "b16"}},                                   # HW-VALIDATED
+            {"name": "srcB_reg",  "start": 25, "width": 7, "type": "reg"},    # HW-VALIDATED
+            {"name": "ctrl",      "start": 32, "width": 7, "type": "mod"},    # inferred
+            {"name": "srcB_imm",  "start": 39, "width": 1, "type": "enum",
+             "enum": {0: "reg", 1: "immediate"}},                            # HW-VALIDATED
+            {"name": "mod_lo",    "start": 40, "width": 3, "type": "mod"},    # inferred
+            {"name": "srcB_neg",  "start": 43, "width": 1, "type": "mod"},    # HW-VALIDATED (a+(-b))
+            {"name": "mod_hi",    "start": 44, "width": 4, "type": "mod"},    # inferred (0xC base)
         ],
-        # OP-SELECT BIT-FIELD (within the instruction): bits [16:19] (low 3 bits
-        # of byte +2). Width = 3 bits.  0b100=fadd, 0b101=fmul (HW-VALIDATED).
-        "semantics": "d = op(a, b)   ; two-source float ALU (opsel bits[16:19])",
-        "provenance": "HW-VALIDATED (EXP-0003/EXP-0005): fadd=0b100 fmul=0b101 "
-                      "op-select bits[16:19], full 256-value sweep",
+        "semantics": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand "
+                     "byte = (reg<<1)|is32 (64 GPRs, bit0=size). dst reg in b0[4:8]. "
+                     "srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i).",
+        "provenance": "HW-VALIDATED (EXP-0006): dst/srcA/srcB positions, (reg<<1)|size "
+                      "encoding, 16-bit-low-half read, srcB negate (a+b->a-b), and "
+                      "srcB-immediate mode all confirmed by splice-and-observe. "
+                      "opsel from EXP-0003/EXP-0005. op/cache/ctrl flag bits inferred.",
+    },
+    # ---- float 2-source ALU: srcB PACKED IMMEDIATE form (a + K) ------------
+    # Same length (6B) as reg-reg falu2, distinguished by bit39 (srcB-imm) == 1.
+    # Layout differs: b1 becomes the packed immediate; srcA moves to b3.
+    {
+        "mnemonic": "falu2i",
+        "length": 6,
+        "match": [(0, 4, 0x9), (39, 1, 1)],
+        "fields": [
+            {"name": "dst",       "start": 4,  "width": 4, "type": "reg"},   # HW-VALIDATED
+            {"name": "imm_flag",  "start": 8,  "width": 1, "type": "mod"},   # =1 (32b imm)
+            {"name": "imm_mant",  "start": 9,  "width": 3, "type": "imm"},   # HW-VALIDATED
+            {"name": "imm_exp",   "start": 12, "width": 4, "type": "imm"},   # HW-VALIDATED (bias 11)
+            {"name": "opsel",     "start": 16, "width": 3, "type": "opcode",
+             "enum": FALU2_OPSEL_ENUM},                                       # HW-VALIDATED
+            {"name": "imm_sign",  "start": 19, "width": 1, "type": "mod"},   # HW-VALIDATED (sign)
+            {"name": "opflags",   "start": 20, "width": 4, "type": "mod"},   # inferred
+            {"name": "srcA_size", "start": 24, "width": 1, "type": "enum",
+             "enum": {1: "b32", 0: "b16"}},                                   # HW-VALIDATED
+            {"name": "srcA_reg",  "start": 25, "width": 7, "type": "reg"},    # HW-VALIDATED
+            {"name": "ctrl_lo",   "start": 32, "width": 7, "type": "mod"},    # inferred (bit39=imm marker)
+            {"name": "mods",      "start": 40, "width": 8, "type": "mod"},    # inferred
+        ],
+        "semantics": "d = op(srcA, K)  ; srcB is the packed non-IEEE float immediate "
+                     "K = imm_decode(b1, sign). exp(bits12:16,bias11) mant(bits9:12) "
+                     "flag(bit8) sign(bit19). Range +-{0,1/32..30}. HW-VALIDATED EXP-0006.",
+        "provenance": "HW-VALIDATED (EXP-0006): every K in {0,+-0.0625..30} spliced and "
+                      "the runtime output equalled a+K (raw/validate_imm_dst.log).",
     },
     # ---- float 3-source ALU: fma (8-byte extended form) -------------------
     {
         "mnemonic": "falu3",
         "length": 8,
-        "match": [(0, 8, 0x09), (17, 1, 1)],   # byte0==0x09 AND length bit (+2,bit1)
+        "match": [(0, 4, 0x9), (17, 1, 1)],   # low-nibble 0x9 AND length bit (+2,bit1)
         "fields": [
             {"name": "dst",  "start": 8,  "width": 8, "type": "reg"},
             {"name": "op",   "start": 16, "width": 8, "type": "opcode",

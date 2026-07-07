@@ -1,0 +1,30 @@
+
+===== IMMEDIATE: splice packed float, observe runtime = K =====
+base ALU @0x12 = 09b1140180c0  (a+1.0)
+  K=    0.0  b1=0x81 sign=0 q=+0  out=[10.0, 20.0, 30.0, 40.0]  PASS
+  K=    0.5  b1=0xa1 sign=0 q=+0.5  out=[10.5, 20.5, 30.5, 40.5]  PASS
+  K=    1.0  b1=0xb1 sign=0 q=+1  out=[11.0, 21.0, 31.0, 41.0]  PASS
+  K=    2.0  b1=0xc1 sign=0 q=+2  out=[12.0, 22.0, 32.0, 42.0]  PASS
+  K=    4.0  b1=0xd1 sign=0 q=+4  out=[14.0, 24.0, 34.0, 44.0]  PASS
+  K=   -1.0  b1=0xb1 sign=1 q=-1  out=[9.0, 19.0, 29.0, 39.0]  PASS
+  K=   -2.0  b1=0xc1 sign=1 q=-2  out=[8.0, 18.0, 28.0, 38.0]  PASS
+  K=    3.5  b1=0xcd sign=0 q=+3.5  out=[13.5, 23.5, 33.5, 43.5]  PASS
+  K=   0.25  b1=0x91 sign=0 q=+0.25  out=[10.25, 20.25, 30.25, 40.25]  PASS
+  K=    8.0  b1=0xe1 sign=0 q=+8  out=[18.0, 28.0, 38.0, 48.0]  PASS
+  K=    1.5  b1=0xb9 sign=0 q=+1.5  out=[11.5, 21.5, 31.5, 41.5]  PASS
+  K=   16.0  b1=0xf1 sign=0 q=+16  out=[26.0, 36.0, 46.0, 56.0]  PASS
+  K=   -0.5  b1=0xa1 sign=1 q=-0.5  out=[9.5, 19.5, 29.5, 39.5]  PASS
+  K= 0.0625  b1=0x85 sign=0 q=+0.0625  out=[10.0625, 20.0625, 30.0625, 40.0625]  PASS
+  K=   30.0  b1=0xff sign=0 q=+30  out=[40.0, 50.0, 60.0, 70.0]  PASS
+  K=    3.0  b1=0xc9 sign=0 q=+3  out=[13.0, 23.0, 33.0, 43.0]  PASS
+
+===== DST: sweep b0[4:8], observe result relands (via dstc) =====
+base ALU @0x20 = 3905040100c0  (out=va+vb; o2=va; o3=vb)
+  b0=0x09(dst reg0)  out=zero  o2=a  o3=a+b   st=OK
+  b0=0x19(dst reg1)  out=zero  o2=zero  o3=zero   st=OK
+  b0=0x29(dst reg2)  out=zero  o2=a+b  o3=b   st=OK
+  b0=0x39(dst reg3)  out=a+b  o2=a  o3=b   st=OK
+  b0=0x49(dst reg4)  out=zero  o2=a  o3=b   st=OK
+  b0=0x59(dst reg5)  out=zero  o2=a  o3=b   st=OK
+  b0=0x69(dst reg6)  out=zero  o2=a  o3=b   st=OK
+  b0=0x79(dst reg7)  out=zero  o2=a  o3=b   st=OK

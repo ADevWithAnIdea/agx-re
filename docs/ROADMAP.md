@@ -38,7 +38,7 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 `assemble(disassemble(bytes)) == bytes` across the whole validated corpus.
 
 - ◐ **Opcode map** — *started (EXP-0005):* instruction-length rule solved for float groups; float ALU 2-src op-select (fadd/fmul) HW-validated. Groups identified by byte0: `0x09` float-ALU, `0x0b` float-unary, `0x12` fmin/max, `0x67/e7` load/store, `0x9f` integer-ALU (unsolved), `0x0c` preamble, `0x0e` stop. Remaining: enumerate every group's ops.
-- ◐ **Per-instruction spec** — *float ALU 2-src partially mapped (EXP-0005):* op-select field done; **next: operand/register fields, modifiers (neg/abs), packed float immediate.** Then integer ALU, memory addressing, control flow, textures, atomics, subgroup, RT/mesh.
+- ◐ **Per-instruction spec** — *float ALU 2-src fully mapped & HW-validated (EXP-0005/0006):* op-select, dst/srcA/srcB register fields (`(reg<<1)|is32`), srcB negate (bit43), srcB imm-mode (bit39), 8-bit-minifloat immediate. Register model preliminary (64 GPRs). **Next: integer ALU (0x9f), fma/3-src & float-unary & fmin/max, memory addressing, control flow, textures, atomics, subgroup, RT/mesh** — plus confirm register model (uniforms, dst width, Dynamic Caching).
 - ☐ **Machine model** — register file (GPRs/16-bit halves), uniform regs, immediates, addressing modes, and **Dynamic-Caching** implications for a compiler backend.
 - ☐ **New instruction families** — ray-tracing intrinsics, mesh shading, matrix/cooperative ops, subgroup/quad ops, atomics, texture/image ops; whatever Apple9 added.
 - ☐ **Extrapolate & test** — sweep undocumented opcode/modifier space; log every probe (works/no-op/faults) in `hypotheses.md`.

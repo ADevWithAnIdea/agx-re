@@ -98,6 +98,46 @@ wider field); bit 1 = length/fma bit; bit 2 = arithmetic-enable; bits 3–5 = do
 set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use different formats
 (inferred, tracked in `db.json` provenance — not claimed as op-select values).
 
+### ✅ Float ALU 2-source operand encoding (HARDWARE-VALIDATED, EXP-0006)
+6-byte `falu2` instruction, little-endian (bit b → byte b//8, bit b%8):
+
+| bits | field | meaning |
+|---|---|---|
+| `[0:4]` | group | `0x9` = float ALU |
+| `[4:8]` | **dst** | destination register number |
+| `[8]` | srcA size | 1 = 32-bit, 0 = 16-bit (reads low halfword) |
+| `[9:16]` | srcA reg | source-A register number |
+| `[16:19]` | op-select | `100`=fadd, `101`=fmul (see above) |
+| `[19]` | imm sign | sign bit when srcB is an immediate |
+| `[24]` | srcB size | 1 = 32-bit, 0 = 16-bit low half |
+| `[25:32]` | srcB reg | source-B register number (or minifloat when imm mode) |
+| `[39]` | **srcB imm mode** | 0 = srcB is a register, 1 = srcB is an immediate |
+| `[43]` | **srcB negate** | negate source B (`a + (−b)` ⇒ subtract) |
+
+- **Source operand byte = `(reg << 1) | is32`.** 16-bit reads the low halfword of the 32-bit
+  register (HW-confirmed: a 16-bit read returned the low half of the float32).
+- **No srcA-negate bit in the 6-byte form**; the compiler commutes operands to reuse srcB-negate.
+- **abs / extended modifiers** live in a distinct **10-byte** extended form (`09 01 1c 05 02 00
+  00 80 0X 00`); HW-validated `a+|b|`. There is also a `0x10` native-half 2-source group — both
+  noted for follow-up.
+
+### ✅ Register model (preliminary, EXP-0006)
+Sweeping the source register field, index `0x89` aliases `0x09` (bit 7 folds mod 64) ⇒
+**64 physical 32-bit GPRs (r0–r63)**, with the size bit selecting 16/32-bit (low half) —
+**not** independent 16-bit-half addressing, and **no uniform-register file** was exposed in the
+2-source form. This differs from the public **G13** model (r0–r127 as 16-bit halves + u0–u255
+uniforms). ⏳ To confirm: full dst-register width, whether a uniform/constant file select exists
+in other forms, and the Dynamic-Caching (Apple9) implications for occupancy/spill.
+
+### ✅ Packed float immediate = 8-bit minifloat (HARDWARE-VALIDATED, EXP-0006)
+When srcB imm mode (bit 39) is set, srcB byte encodes an **8-bit minifloat** (NOT IEEE-754):
+`[exp:4 (bits 7:4, bias 11)][mant:3 (bits 3:1)][flag:1 (bit 0 = 1)]`, sign at instruction bit 19.
+- normal (exp ≥ 9): `value = (1 + mant/8) · 2^(exp−11)`
+- subnormal (exp = 8): `value = (mant/8) · 2^−2`
+- representable magnitudes: `{0, 1/32 … 30.0}`; out-of-range / non-dyadic constants fall back to a
+  register-load form. Worked examples: `1.0→0xb1`, `2.0→0xc1`, `1.5→0xb9`, `3.5→0xcd`,
+  `0.0625→0x85`, `30.0→0xff` (max). All 16 tested constants spliced and produced exact `a+K`.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
