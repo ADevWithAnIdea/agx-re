@@ -112,6 +112,25 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 
 **MEDIUM:** programmable-blend epilog ABI; BC/ASTC + 3D/cube/array/MSAA twiddle; MSAA sample-interleave + occlusion query; explain magic values (CDM/USC config word 0x00880000, store-prog 0x6f, VDM 0x61c4/0x61f2, 0x300-seg grammar, num_gps/num_frags/is_sksm).
 
+**G-13 — INSTRUCTION-FAMILY COMPLETENESS (calibration: dougallj/applegpu M1 ≈ 124 instruction
+classes; we have 40 family-heads ≈ ~70-90 logical — several whole families still missing).** Decode
+the byte0 groups seen in real shaders but not yet decoded:
+- ☐ **Fragment varying interpolation** — `iter`/`iterproj`/`ldcf` (coefficient load) [= gap G-4].
+- ☐ **Varying / tilebuffer / imageblock** — vertex varying-store (`0x05/0x06/0x57`), fragment
+  varying-load, `ld_tile`/`st_tile`, imageblock load/store (programmable-blend + `[[imageblock]]`).
+- ☐ **Pixel ordering** — `wait_pix`/`signal_pix` (fragment tilebuffer scoreboard; fragment analogue
+  of EXP-0025's compute interlock; M1 has these).
+- ☐ **Control-flow exec-mask sub-ops** — `0x0f` beyond `jump`: `else`/`while`/`break`/`pop`/
+  `reconverge`/`jmp_exec` variants (push/else/pop noted, not decoded).
+- ☐ **Stack spill/fill** — scratch load/store (EXP-0020 saw the behavior, not the ops).
+- ☐ **Pack/unpack** data-movement; register-shift-prep (`0x1b`/`0x2b`).
+- ☐ **Special-function estimates** — rcp/rsqrt/exp2/log2 estimate + refine [= G-2, EXP-0026 in progress].
+- ☐ **RT companions** — `0x5f`, ray-move ops (EXP-0023 follow-up).
+- ☐ **Texture variants** — `sample_compare` (depth PCF, companion low-nibble `0xd`), gather-offset,
+  texture-query variants.
+- ☐ **Misc** — `nop`, fence/barrier scope variants, device-scope barrier (`0x85`).
+Target: iterate until a byte0-group census of a broad shader corpus shows ~0 undecoded groups.
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the
