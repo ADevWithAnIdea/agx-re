@@ -88,6 +88,23 @@ REAL_INSTRS = {
     "psel  (05 22 a0 de)":                 "0522a0de",                # grid select HW
     "jump  (0f 00 54 d4 ff ff ff ff ff 00)":"0f0054d4ffffffffff00",   # -44 back-edge HW
     "get_sr(1c a0 10 06)":                 "1ca01006",                # get thread id HW
+    # ---- SUBGROUP / QUAD / ATOMICS (EXP-0018), carved from our own compiled kernels ----
+    "simd_reduce sum  (bf 01 56..14 03)":  "bf01560002001403",       # simd_sum HW
+    "simd_reduce or   (bf 00 56..14 03)":  "bf00560002001403",       # simd_or  HW
+    "simd_reduce and  (3f 00 56..14 03)":  "3f00560002001403",       # simd_and HW (byte0 bit7=0)
+    "simd_reduce max  (bf 02 56..14 07)":  "bf02560002001407",       # simd_max HW
+    "simd_reduce fadd (3f 06 56..14 12)":  "3f06560002001412",       # simd_sum(float) HW
+    "simd_reduce excl (bf 01 56..14 0b)":  "bf0156000200140b",       # exclusive prefix-sum HW
+    "quad_reduce sum  (b7 01 56..14 03)":  "b701560002001403",       # quad_sum HW (bit3=0)
+    "quad_reduce min  (37 02 56..14 07)":  "3702560002001407",       # quad_min HW
+    "simd_shuffle bcast0 (47 04 56..)":    "470456000200002c0400",   # simd_broadcast(v,0) HW
+    "simd_shuffle bcast5 (47 04 56..0a)":  "4704560002000a2c0400",   # simd_broadcast(v,5) lane<<1 HW
+    "simd_shuffle xor1  (c7 04 56..02)":   "c70456000200022c0400",   # simd_shuffle_xor(v,1) HW
+    "quad_shuffle bcast0 (47 00 56..)":    "470056000200002c0400",   # quad_broadcast(v,0) HW
+    "simd_ballot (17 07 56..)":            "17075600020000582204",   # simd_ballot mask source HW
+    "atomic_rmw add  (67 11 54..20)":      "6711540000800100004200002000",  # device fetch_add HW
+    "atomic_rmw smax (67 11 54..28)":      "6711540000800100004200002800",  # device fetch_max HW
+    "atomic_mem xchg (67 01 56..3c)":      "6701560000000000000200003c00",  # atomic_exchange HW
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -144,6 +161,16 @@ REAL_PROGRAMS = {
     # tokenize cleanly as get_sr + [load] + compare(0x02) + select + store + stop.
     "gsel4":   "1ca010060203078422ef0522a0dee7005400000121001100009011000e000000",
     "dsel5":   "1ca01006671044000101200051010040460002010f8422e416c2a0c8e7005400000121001100009011000e000000",
+    # ---- SUBGROUP / QUAD whole programs (EXP-0018): get_sr + load + reduce/shuffle/ballot + store + stop
+    "s_sum":   "1ca010066710440000012000510100404600bf01560002001403e7005400010121001100009011000e000000",
+    "s_max":   "1ca010066710440000012000510100404600bf02560002001407e7005400010121001100009011000e000000",
+    "s_and":   "1ca0100667104400000120005101004046003f00560002001403e7005400010121001100009011000e000000",
+    "s_pfx_ex":"1ca010066710440000012000510100404600bf0156000200140be7005400010121001100009011000e000000",
+    "q_sum":   "1ca010066710440000012000510100404600b701560002001403e7005400010121001100009011000e000000",
+    "q_min":   "1ca0100667104400000120005101004046003702560002001407e7005400010121001100009011000e000000",
+    "s_bcast0":"1ca010066710440000012000510100404600470456000200002c0400e7005400010121001100009011000e000000",
+    "s_shufx": "1ca010066710440000012000510100404600c70456000200022c0400e7005400010121001100009011000e000000",
+    "s_ballot":"1ca01006671044000001200051010040460017075600020000582204e7005400010121001100009011000e000000",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
@@ -199,6 +226,19 @@ SYNTH = [
     ("ilogic", {"b1": 0x05, "op_base": 1, "srcB": 0x01, "lut_a": 0x00, "lut_b": 0x00, "ext": 0x8000}),
     # ilogic XOR (op_base=0 xor, invert bits): 0b 05 1e 01 02 08 00 80 00 00
     ("ilogic", {"b1": 0x05, "op_base": 0, "srcB": 0x01, "lut_a": 0x02, "lut_b": 0x08, "ext": 0x8000}),
+    # ---- subgroup / quad / atomics (EXP-0018) ----
+    # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03 -> bf 01 56 00 02 00 14 03
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "op": 0x01, "b3": 0x00,
+                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x03}),
+    # quad_min: scope=0(quad), opcls=0, op=0x02(max/min), dtype=0x07 -> 37 02 56 00 02 00 14 07
+    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "op": 0x02, "b3": 0x00,
+                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
+    # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1) -> 47 04 56 00 02 00 0a 2c 04 00
+    ("simd_shuffle", {"dir": 0, "mode": 0x04, "b3": 0x00, "src": 0x02, "b5": 0x00,
+                      "lane": 0x0a, "tail": 0x00042c}),
+    # atomic_rmw add (byte+12 = 0x20) -> 67 11 54 00 00 80 01 00 00 42 00 00 20 00
+    ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,
+                    "mid": 0x4200000180, "op": 0x20, "b13": 0x00}),
 ]
 
 

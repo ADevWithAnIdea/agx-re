@@ -233,9 +233,9 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
 - **Constant address space** (`constant T*` indexing) is **byte-identical** to a device load — the
   device/constant distinction is not in the ISA (it's in the binding). Scalar `constant T&` stays a
   preloaded uniform-register read (no load), per EXP-0010.
-- **Atomics** (noted, deferred): `atomic_fetch_add` uses a **new op byte0 `0xbf`** inside an
-  execution-mask **CAS/retry loop** (`0x0a` compare + `0f 05`/`0f 06` mask ops) around a `67 01…`
-  access — not the plain load/store path.
+- **Atomics** are in the **memory family** (byte0 `0x67`) as **native single-RMW ops** — see the
+  Atomics section below. (Corrects EXP-0012's initial guess of a "`0xbf` CAS loop": `0xbf` is actually
+  the SIMD-reduce op, and the surrounding `0f05`/`0f06` are elect-one-lane predication, not a retry loop.)
 
 ### ✅ Scalar ALU completion — conversions, fma, unary, transcendentals, bitwise, shift, compare (EXP-0013)
 DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless noted):
@@ -281,6 +281,37 @@ DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless not
   `../descriptors/`); single-resource shaders always encode slot 0.
 - ⏳ Follow-ups: result/coord register bit decode; `sample_compare` (depth PCF, distinct companion
   low-nibble `0xd`); array/3D/cube/MSAA index-operand bit positions; derivative fine/coarse.
+
+### ✅ Atomics (EXP-0018)
+Atomics are **native single-RMW ops in the memory family** (byte0 `0x67`), *not* CAS loops.
+`atomic_rmw` = `67 11 54 00 00 <addr> 42 00 00 <OP> 00` (14 B). **base_slot at byte+4** (same slot model
+as loads); **device vs threadgroup = byte+1 bit1** (as in `../isa` memory). **Operation at byte+12**
+(HW splice-proven):
+
+| op | code | op | code | op | code |
+|---|---|---|---|---|---|
+| add | `0x20` | sub | `0x36` | and | `0x22` |
+| or | `0x2c` | xor | `0x3e` | fadd | `0x26` |
+| smax | `0x28` | smin | `0x2a` | umax | `0x38` |
+| umin | `0x3a` | exchange/store | `0x3c` | cmpxchg | `0x24` |
+
+`cmpxchg` is a single op + a following `icmp` for the bool (no loop). Device atomics to a *uniform*
+address get a compiler optimization: SIMD-reduce → one-lane RMW → prefix-broadcast (32 transactions → 1
+per simdgroup). Aggregate HW-validated (1024 threads → counter 1024; op-splice add→max → 32).
+
+### ✅ Subgroup / SIMD-group & quad ops (EXP-0018) — SIMD width = 32
+- **`simd_reduce`** (byte0 `0xbf`/`0x3f`, 8 B, byte+2=`0x56`): reduce & prefix-scan. Op = (byte0 bit7,
+  byte+1); byte+7 = datatype/shape (`0x03` int, `0x07` int-minmax, `0x12` float, `0x0b` exclusive-scan,
+  `0x09` inclusive-scan). **Prefix-scan is native.**
+- **`simd_shuffle`** (byte0 `0x47`/`0xc7`, 10 B): broadcast / shuffle(xor/up/down) / rotate / dynamic
+  shuffle. byte+1 = simd/quad/rotate; byte+6 = lane/mask as `(value<<1)`.
+- **`simd_ballot`** (byte0 `0x17`, 10 B): ballot / active-mask / all / any / is_first.
+- **Quad ops** reuse the same two groups at **width 4** (reduce with scope bit3=0 → byte0 `0xb7`/`0x37`;
+  shuffle with byte+1=`0x00`). Note `0x37` disambiguates quad-reduce (byte+2=`0x56`, 8 B) from the
+  derivative op (10 B).
+
+Capability notes (`../hypotheses.md`): float atomic min/max and 64-bit atomic-add are **not exposed by
+MSL** (→ Vulkan must emulate); prefix-scan is native (not a shuffle-tree lowering).
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

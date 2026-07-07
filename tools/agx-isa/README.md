@@ -54,7 +54,11 @@ shaders):
 | `0x9f` | integer ALU | 10/12 — **not solved (follow-up)** |
 | low-nibble `0x5` + `byte+1==0x80` + `byte+2==0x0c` | **texture sample / read** (companion + sampler op) | 14 (EXP-0016 HW) |
 | `0xd7` | **texture write** (memory-family store) | 16 (EXP-0016 HW) |
-| `0x37` | **derivative** (dfdx/dfdy/fwidth) | 10 (EXP-0016) |
+| `0x37` | **quad reduce/scan** if `byte+2==0x56` (EXP-0018); else **derivative** (dfdx/dfdy) | 8 / 10 |
+| `0xbf`/`0x3f`/`0xb7` + `byte+2==0x56` | **subgroup/quad reduce & prefix-scan** | 8 (EXP-0018 HW) |
+| `0x47`/`0xc7` | **subgroup/quad shuffle & broadcast** | 10 (EXP-0018 HW) |
+| `0x17` | **simd_ballot / vote mask** | 10 (EXP-0018 HW) |
+| `0x67` (`byte+1==0x11`/`0x01`) | **atomic RMW** (op selector at byte+12; native, not a CAS loop) | 14 (EXP-0018 HW) |
 
 ## Op-select field (float 2-source ALU, HW-VALIDATED, EXP-0005)
 
@@ -74,7 +78,9 @@ python3 agxisa.py asm      fadd srcA=1 srcB=0
 python3 roundtrip_test.py                 # ALL PASS
 ```
 
-Status: **29 instruction descriptors**, most HW-validated (float/int ALU, conversions,
-memory load/store, control flow, and — EXP-0016 — the texture family `tex_sample`,
-`tex_write`, `tex_deriv`). Remaining fields are inferred (byte-diff) or structural — see
-each descriptor's `provenance` and `../../PROVENANCE.md`.
+Status: **34 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+memory load/store, control flow, the texture family `tex_sample`/`tex_write`/`tex_deriv`
+— EXP-0016 — and — EXP-0018 — the subgroup/quad family `simd_reduce`, `simd_shuffle`,
+`simd_ballot` plus the atomic RMW family `atomic_rmw`/`atomic_mem`, SIMD width 32).
+Remaining fields are inferred (byte-diff) or structural — see each descriptor's
+`provenance` and `../../PROVENANCE.md`.

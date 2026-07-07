@@ -22,6 +22,8 @@ Outcome vocabulary:
 | 6 | Texture format/swizzle/sRGB/numeric-type are independent (Vulkan-shaped) | Vulkan separates these | varied each independently in the descriptor | **WORKS** — fully orthogonal; bgra8=rgba8+swizzle, depth32f=r32f code, sRGB is a flag | EXP-0015 |
 | 7 | Texture read & write use different HW paths (write is a plain store, not a sampler op) | asymmetry lets image stores bypass the filter unit | disassembled read vs write; write = 0xd7 store family | **WORKS** — read=format-converting sampler op, write=0xd7 store; relevant for Vulkan storage images | EXP-0016 |
 | 8 | Sample op+2 dimension/mode byte has spare encodings (offset-gather / extra gather comps) | only a subset of 256 values used | mapped the used op+2 values | **INCONCLUSIVE** — spare room exists; specific extra variants (texel-offset gather) not yet probed | EXP-0016 |
+| 9 | HW does float atomic min/max | Vulkan/GL want them | tried MSL `atomic_fetch_min<float>` | **NO (via MSL)** — MSL rejects float atomic min/max & 64-bit atomic-add; only float atomic add + 64-bit min/max exist ⇒ Vulkan must emulate | EXP-0018 |
+| 10 | Subgroup prefix-scan is native (not a shuffle-tree lowering) | fewer instrs if native | disassembled inclusive/exclusive scan | **WORKS** — single `simd_reduce` scan op (byte+7 shape) | EXP-0018 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

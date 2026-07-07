@@ -107,8 +107,24 @@ def instr_length(buf, off=0):
         return 14                      # tex_sample / tex_read  (companion + sampler op)
     if b0 == 0xd7:
         return 16                      # texture WRITE (memory family; EXP-0016 HW)
+    # ---- SUBGROUP / QUAD FAMILY (EXP-0018, HW-validated) ----
+    # SIMD-group & quad reduce/scan: byte0 in {0xbf,0x3f (simd), 0xb7,0x37 (quad)},
+    # 8 bytes, always byte+2 == 0x56. NB byte0 0x37 is ALSO the fragment-only
+    # derivative (10B, EXP-0016); disambiguate on byte+2 (reduce ops set 0x56,
+    # derivatives do not). Compute vs fragment never coexist, so this is safe.
+    if b0 in (0xbf, 0x3f, 0xb7) and off + 2 < len(buf) and buf[off + 2] == 0x56:
+        return 8                       # simd/quad reduce/scan
     if b0 == 0x37:
+        if off + 2 < len(buf) and buf[off + 2] == 0x56:
+            return 8                   # quad reduce/scan (and/min)  EXP-0018
         return 10                      # derivative / quad-difference (dfdx/dfdy); EXP-0016
+    # SIMD/quad shuffle & broadcast: byte0 0x47 (broadcast / up) / 0xc7 (xor / down),
+    # 10 bytes (EXP-0018 HW-validated semantics).
+    if b0 in (0x47, 0xc7):
+        return 10                      # simd/quad shuffle / broadcast
+    # SIMD ballot / vote source: byte0 0x17, 10 bytes (EXP-0018).
+    if b0 == 0x17:
+        return 10                      # simd_ballot / vote mask source
     if lo == 0x09:
         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
         # NB: the 10-byte *extended source-modifier* form (abs; EXP-0006) also
@@ -1009,6 +1025,162 @@ DB = [
                       "for the two dfdy. HW: render_deriv produces the correct dfdx+dfdy pixel "
                       "(EXP-0008). Length 10 tokenizes cleanly.",
     },
+    # ======================================================================
+    # SUBGROUP / QUAD FAMILY  (EXP-0018, HW-validated)
+    # ======================================================================
+    # SIMD-group & quad-group REDUCE / PREFIX-SCAN. 8-byte op, byte+2 == 0x56.
+    #   byte0 bits: [0:3]=0b111, [4:6]=0b11 (const); bit3 = scope (1=SIMD-group,
+    #   0=quad); bit7 = op-class-hi. byte+1 = op-within-class. byte+7 = data
+    #   type / reduction-shape (0x03 int add/logic reduce, 0x07 int min/max,
+    #   0x12 float add, 0x0b exclusive-prefix-scan, 0x09 inclusive-scan). The
+    #   operation is (bit7, byte+1): (1,00)=or (0,00)=and (1,01)=add/sum
+    #   (0,01)=xor (1,02)=max (0,02)=min (0,06)=fadd. SIMD width = 32 (HW).
+    {
+        "mnemonic": "simd_reduce",
+        "length": 8,
+        "match": [(0, 3, 0b111), (4, 2, 0b11), (16, 8, 0x56)],
+        "fields": [
+            {"name": "scope",   "start": 3,  "width": 1, "type": "enum",
+             "enum": {1: "simd", 0: "quad"}},          # HW-VALIDATED (bf/3f simd, b7/37 quad)
+            {"name": "b0hi",    "start": 6,  "width": 1, "type": "raw"},
+            {"name": "opcls",   "start": 7,  "width": 1, "type": "mod"},   # HW-VALIDATED (bf<->3f or<->and)
+            {"name": "op",      "start": 8,  "width": 8, "type": "opcode",
+             "enum": {0x00: "or/and", 0x01: "add/xor", 0x02: "max/min", 0x06: "fadd"}},
+            {"name": "b3",      "start": 24, "width": 8, "type": "raw"},
+            {"name": "src",     "start": 32, "width": 8, "type": "reg"},   # byte+4 = source reg desc
+            {"name": "b5",      "start": 40, "width": 8, "type": "raw"},
+            {"name": "shape",   "start": 48, "width": 8, "type": "mod"},   # byte+6 (0x14 reduce / 0x16 scan)
+            {"name": "dtype",   "start": 56, "width": 8, "type": "enum",
+             "enum": {0x03: "i_reduce", 0x07: "i_minmax", 0x12: "f_reduce",
+                      0x0b: "excl_scan", 0x09: "incl_scan"}},
+        ],
+        "semantics": "d = simd/quad reduce or prefix-scan of src over the SIMD-group "
+                     "(scope=1, width 32) or 2x2 quad (scope=0). Operation = (bit7 of byte0, "
+                     "byte+1): or/and/add(sum)/xor/max/min/fadd. byte+7 = datatype/shape: 0x03 "
+                     "int add|and|or|xor reduce, 0x07 int min|max, 0x12 float add, 0x0b exclusive "
+                     "prefix-sum, 0x09 inclusive-scan (with byte+3=0x04,byte+6=0x16). Inclusive "
+                     "prefix-sum = exclusive-scan op followed by an iadd of the lane's own value.",
+        "provenance": "HW-VALIDATED (EXP-0018): all ops run with a distinct per-lane value and "
+                      "read back per-lane (sum/min/max/and/or/xor/prod/fsum/prefix all exact, "
+                      "width 32). Splice-proven op-select: byte0 bf->3f flips or->and; byte+1 "
+                      "01->02 & byte+7 03->07 flips sum->max; byte+7 0b->03 flips exclusive-scan"
+                      "->full-reduce. quad byte0 b7/37 (bit3=0) proven by q_* semantics.",
+    },
+    # SIMD-group & quad SHUFFLE / BROADCAST. 10-byte op, byte+2 == 0x56.
+    #   byte0 0x47 (broadcast / shuffle-up) / 0xc7 (shuffle-xor / down): bit7 =
+    #   direction/xor. byte+1 = 0x04 (SIMD) / 0x00 (quad) / 0x06 (rotate).
+    #   byte+6 = lane index or xor mask, encoded (value << 1). Quad masks the
+    #   index into the 2x2 group.
+    {
+        "mnemonic": "simd_shuffle",
+        "length": 10,
+        "match": [(0, 7, 0x47), (16, 8, 0x56)],
+        "fields": [
+            {"name": "dir",   "start": 7,  "width": 1, "type": "enum",
+             "enum": {0: "bcast/up", 1: "xor/down"}},   # HW-VALIDATED (47 vs c7)
+            {"name": "mode",  "start": 8,  "width": 8, "type": "enum",
+             "enum": {0x04: "simd", 0x00: "quad", 0x06: "rotate"}},   # HW-VALIDATED
+            {"name": "b3",    "start": 24, "width": 8, "type": "raw"},
+            {"name": "src",   "start": 32, "width": 8, "type": "reg"},
+            {"name": "b5",    "start": 40, "width": 8, "type": "raw"},
+            {"name": "lane",  "start": 48, "width": 8, "type": "imm"},    # (index<<1) HW-VALIDATED
+            {"name": "tail",  "start": 56, "width": 24, "type": "raw"},
+        ],
+        "semantics": "d = src from another lane. byte0 0x47 = broadcast / shuffle-up, 0xc7 = "
+                     "shuffle-xor / shuffle-down (bit7 = direction). byte+1: 0x04 SIMD-group, "
+                     "0x00 quad, 0x06 rotate. byte+6 = source lane index (broadcast) or xor "
+                     "mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic "
+                     "simd_shuffle(v,lane) use the same op with the lane index in a register.",
+        "provenance": "HW-VALIDATED (EXP-0018): broadcast(0/5), broadcast_first, shuffle_xor(1), "
+                      "shuffle(dyn), shuffle_up/down, rotate_up/down and the quad equivalents all "
+                      "run with distinct per-lane inputs and read back exactly. byte+6=(lane<<1) "
+                      "proven (bcast5 -> 0x0a, bcast lane2 quad -> 0x04, xor1 -> 0x02). mode/dir "
+                      "byte-diff-localized (simd 0x04 vs quad 0x00; 0x47 vs 0xc7).",
+    },
+    # SIMD BALLOT / VOTE mask source. 10-byte op (byte0 0x17). Produces the active
+    # per-lane predicate mask consumed by simd_ballot / simd_active_threads_mask /
+    # simd_all / simd_any.
+    {
+        "mnemonic": "simd_ballot",
+        "length": 10,
+        "match": [(0, 8, 0x17)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "body", "start": 16, "width": 64, "type": "raw"},
+        ],
+        "semantics": "produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). "
+                     "simd_ballot(p) yields the 32-bit active-lane mask of the predicate; "
+                     "simd_active_threads_mask yields the active mask; simd_all/simd_any reduce "
+                     "it. SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active).",
+        "provenance": "HW-VALIDATED (EXP-0018): simd_ballot(v>0) = 0xFFFFFFFF with all lanes >0, "
+                      "and the correct even-lane mask (0x55555555) with alternating predicate; "
+                      "simd_active_threads_mask = 0xFFFFFFFF; simd_all/any correct. Field bit "
+                      "layout inferred (byte-diff).",
+    },
+    # ======================================================================
+    # ATOMICS  (EXP-0018, HW-validated)  -- memory-family (byte0 0x67), NOT a
+    # CAS/retry loop. Device atomics with a uniform address are optimized to a
+    # SIMD-group reduce (simd_reduce) + elect-one-lane (0f05/0f06 mask) + ONE
+    # native RMW; the RMW itself is a single instruction.
+    # ======================================================================
+    # Device atomic RMW, elected-lane (reduced) form: byte0 0x67, byte+1 0x11.
+    # Operation selector at byte+12 (HW splice-proven). base_slot at byte+4.
+    {
+        "mnemonic": "atomic_rmw",
+        "length": 14,
+        "match": [(0, 8, 0x67), (8, 8, 0x11)],
+        "fields": [
+            {"name": "b2",        "start": 16, "width": 8, "type": "raw"},
+            {"name": "b3",        "start": 24, "width": 8, "type": "raw"},
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},   # buffer slot (=loads)
+            {"name": "mid",       "start": 40, "width": 56, "type": "raw"},  # addr/data regs
+            {"name": "op",        "start": 96, "width": 8, "type": "opcode",
+             "enum": {0x20: "add", 0x36: "sub", 0x22: "and", 0x2c: "or", 0x3e: "xor",
+                      0x28: "smax", 0x2a: "smin", 0x38: "umax", 0x3a: "umin", 0x26: "fadd"}},
+            {"name": "b13",       "start": 104, "width": 8, "type": "raw"},
+        ],
+        "semantics": "atomic read-modify-write to buffer[base_slot] (byte+4, same slot model as "
+                     "loads). Operation at byte+12: 0x20 add 0x36 sub 0x22 and 0x2c or 0x3e xor "
+                     "0x28 smax 0x2a smin 0x38 umax 0x3a umin 0x26 fadd (float add). This is the "
+                     "single native RMW the compiler emits AFTER a SIMD-group simd_reduce pre-"
+                     "combines the per-lane operands and elects one lane (simd_is_first via "
+                     "0f05/0f06 mask). NOT a CAS/retry loop. Device address space (byte+1 bit1=0).",
+        "provenance": "HW-VALIDATED (EXP-0018): aggregate add (1024 threads -> counter 1024); "
+                      "byte+12 splice add(0x20)->max(0x28) makes the aggregate = SIMD width (32), "
+                      "add->or(0x2c) = 32 -- proves byte+12 is the operation selector; da_add_r "
+                      "final counter = sum(inputs) and per-lane returns form the exact exclusive "
+                      "prefix. Op codes read from the compiler's fetch_{add,sub,min,max,and,or,"
+                      "xor}(+signed/unsigned) & fetch_add(float) kernels. base_slot = byte+4.",
+    },
+    # Standalone atomic memory op (exchange / store / compare-exchange / indexed):
+    # byte0 0x67, byte+1 0x01 (device) -- no SIMD pre-reduction (per-lane distinct
+    # address, or exchange/cmpxchg which cannot be reduced). Single native op.
+    {
+        "mnemonic": "atomic_mem",
+        "length": 14,
+        "match": [(0, 8, 0x67), (8, 8, 0x01)],
+        "fields": [
+            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},
+            {"name": "b3",   "start": 24, "width": 8, "type": "raw"},
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},
+            {"name": "mid",  "start": 40, "width": 56, "type": "raw"},
+            {"name": "op",   "start": 96, "width": 8, "type": "opcode",
+             "enum": {0x3c: "exchange", 0x24: "cmpxchg", 0x60: "add_indexed"}},
+            {"name": "b13",  "start": 104, "width": 8, "type": "raw"},
+        ],
+        "semantics": "standalone atomic memory op (single native instruction, no retry loop). "
+                     "byte+12: 0x3c exchange (also atomic_store, which discards the result), "
+                     "0x24 compare-exchange (the returned old value feeds a following icmp that "
+                     "computes the weak-cmpxchg bool; NO hardware retry loop), 0x60 = per-lane "
+                     "indexed atomic add. Device space (byte+1 bit1=0); threadgroup sets the "
+                     "byte+1 threadgroup bit (0x02), base_slot 0x08 -- same address-space model "
+                     "as EXP-0012 memory ops.",
+        "provenance": "HW-VALIDATED behaviour (EXP-0018): atomic_exchange / atomic_store lower to "
+                      "byte+12=0x3c; compare_exchange_weak to 0x24 with a following compare and NO "
+                      "backward jump; da_add_idx (distinct per-lane address) emits a single 0x67 "
+                      "op with no simd_reduce. Threadgroup atomics use byte+1 bit1 (0x02) + "
+                      "base_slot 0x08. Full field bit-packing inferred (byte-diff).",
+    },
 ]
 
 # Index by mnemonic for the assembler.
@@ -1177,7 +1349,18 @@ def to_json():
                         "14  [TEXTURE sample / read: 4B coord/result companion + 10B "
                         "sampler op (0xb0/0x90). EXP-0016 HW-validated]",
                 "0xd7": "16  [TEXTURE write (memory-family store). EXP-0016 HW-validated]",
-                "0x37": "10  [derivative / quad-difference dfdx/dfdy/fwidth. EXP-0016]",
+                "0x37": "8 if byte+2==0x56 [quad reduce/scan, EXP-0018]; else 10 "
+                        "[derivative / quad-difference dfdx/dfdy/fwidth, EXP-0016]",
+                "0xbf/0x3f/0xb7 (+ byte+2==0x56)":
+                        "8  [SUBGROUP/QUAD reduce & prefix-scan: bit3=scope(1 simd/0 quad), "
+                        "bit7+byte+1=op, byte+7=datatype/shape. SIMD width 32. EXP-0018 HW]",
+                "0x47/0xc7": "10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/"
+                        "quad/rotate, byte+6=(lane<<1). EXP-0018 HW-validated]",
+                "0x17": "10  [simd_ballot / vote mask source. EXP-0018 HW-validated]",
+                "0x67 (byte+1==0x11)": "14  [device ATOMIC RMW (elected-lane), op at byte+12. "
+                        "EXP-0018 HW]",
+                "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at "
+                        "byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops.",
             },
         },
         "instructions": DB,
