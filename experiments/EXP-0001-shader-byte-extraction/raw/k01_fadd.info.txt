@@ -1,0 +1,25 @@
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote /Users/user/cleanroom_work/exp0001/out/k01_fadd.run1.bin
+container magic : 0xbebafecb
+bitcode (BC\xC0\xDE) present : True
+AIR64 image present         : False
+
+image @ 48: fat-arch[0] cputype=AIR64
+  error: not a mach-o 64 image (magic=0x424c544d)
+
+image @ 4880: fat-arch[1] cputype=AppleGPU
+  cputype : AppleGPU  filetype=13
+    section __TEXT,__reflection(off=1472,size=416)
+    section __TEXT,__compute(off=1888,size=1696)
+    section __TEXT,__descriptor(off=3584,size=400)
+    section __TEXT,__metallib(off=3984,size=4800)
+
+AGX extraction (nested-mach-o) from __TEXT,__compute:
+  nested cputype   : AppleGPU
+  __text size      : 120
+  _agc.main length : 56
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region _agc.main: [64:120] (56 bytes)

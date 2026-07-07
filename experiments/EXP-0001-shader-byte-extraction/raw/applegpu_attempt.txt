@@ -1,0 +1,47 @@
+# applegpu (dougallj, public/MIT, G13/M1 decoder) run on A18 Pro extracted _agc.main bytes
+# Clean-room: PUBLIC tool applied to OWN-SHADER bytes. Expected to fail/garble (A18 != G13).
+
+=== k00_empty  (bytes: 0e000000) ===
+   0: 0e000000             iadd             r0l, 0, 0
+
+=== k01_fadd  (bytes: 1ca010066710540000012000510100404600670044040101200051010040460009051c0100c0e7005400020121001100009011000e000000) ===
+   0: 1ca0                 <disassembly failed>
+   2: 1006                 <disassembly failed>
+   4: 6710                 <disassembly failed>
+   6: 5400                 <disassembly failed>
+   8: 0001                 <disassembly failed>
+   a: 2000                 <disassembly failed>
+   c: 5101                 <disassembly failed>
+   e: 0040                 <disassembly failed>
+  10: 4600                 <disassembly failed>
+  12: 6700                 <disassembly failed>
+  14: 4404                 <disassembly failed>
+  16: 0101                 <disassembly failed>
+  18: 2000                 <disassembly failed>
+  1a: 5101                 <disassembly failed>
+  1c: 0040                 <disassembly failed>
+  1e: 4600                 <disassembly failed>
+  20: 09051c0100c0e700     st_tile          i16, 0, 0, 48, 28
+  28: 5400                 <disassembly failed>
+TODO: 0000
+  2a: 0201210011000090     fcmpsel          4, r0, 0.53125, u8l, None, 0
+  32: 11000e00             st_var           0, r0, r7l
+
+
+=== k10_load_store  (bytes: 1ca010066710440000012000510100404600e7005600010121001100009011000e000000) ===
+   0: 1ca0                 <disassembly failed>
+   2: 1006                 <disassembly failed>
+   4: 6710                 <disassembly failed>
+   6: 4400                 <disassembly failed>
+   8: 0001                 <disassembly failed>
+   a: 2000                 <disassembly failed>
+   c: 5101                 <disassembly failed>
+   e: 0040                 <disassembly failed>
+  10: 4600                 <disassembly failed>
+  12: e700                 <disassembly failed>
+  14: 56000101             fmul16.sat       r0l, u0h, 0.0
+  18: 21001100             iter             r0l_r0h_r1l_r1h, cf17, center, 0b0, 0, 0, 0, 0, 0
+  1c: 0090                 <disassembly failed>
+  1e: 11000e00             st_var           0, r0, r7l
+
+
