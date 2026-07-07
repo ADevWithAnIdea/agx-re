@@ -1,0 +1,110 @@
+{
+  "_note": "EXP-O2C (A18 Pro / G17P): RT completion tail + tensor ops (objective-2 clusters O2-C, O2-F). Extends EXP-0022 (matrix 0xcf) and EXP-0023 (ray tracing). CLEAN-ROOM: every byte is from OUR OWN compiled MSL (OWN-SHADER, tools/shdump); characterized by byte-diff across provocations, by clean tokenization, and -- for the 0xcf operand selectors, RT-from-render, and motion blur -- by splice-and-observe / end-to-end execution on the REAL A18 Pro GPU (HW-validated). No Apple binary was disassembled. The orchestrator merges this into tools/agx-isa/db.json + isadb.py (this experiment does NOT edit tools/agx-isa/). NOTE: O2-A/O2-B/O2-D run concurrently.",
+
+  "_headline_findings": {
+    "matrix_0xcf_operand_decode": "FULL HW-VALIDATED decode of the 0xcf matrix-MAC operand selectors (EXP-0022 left these 'partially decoded / inferred'). Splice-and-observe on mad_f32 (r=A*B+C, distinct known A,B,C, read back over one 32-lane simdgroup): byte+5 = the A (LEFT) multiply-operand fragment register -- splicing it to B's reg yields B*B+C on hardware; byte+6 = the B (RIGHT) operand register -- splicing it to A's reg yields A*A+C; swapping +5<->+6 yields B*A+C (matmul is non-commutative, so all four A*B/B*A/A*A/B*B are distinguishable). byte+7 = C accumulator source register (re-confirms EXP-0022). byte+8 = destination fragment register (redirect -> the store reads a different/garbage reg). byte+3 = an A-operand sub-descriptor (corrupting it -> a ZERO result: load-bearing, part of the A fragment descriptor). byte+10 = op-enable marker 0x24 (corrupting it -> C passthrough, the multiply drops out). byte+1 = dtype (0x00 f16 / 0x02 f32|bf16; splicing 0x02->0x00 garbles the fp32 result). byte+11 bit0 = accumulate-enable (re-confirms). byte+2 = mode: 0x56 standalone / 0x54 tiled -- and it is NOT a mere liveness hint: splicing a STANDALONE op 0x56->0x54 ZEROES the result (the tiled mode sources its accumulator from the MPP tile context, absent standalone), answering EXP-0022's open question. byte+4 and byte+9 bit1 are splice-inert (padding / don't-care). See raw/cf_decode.txt.",
+
+    "matrix_tensor_ops": "ALL MPP tensor ops lower to the SAME dedicated 0xcf 8x8x8 tile-MAC -- there is NO new tensor opcode beyond matmul2d. multiply (255x 0xcf), multiply_accumulate (255x -- accumulate does not add ops, just sets the +11 bit), float32 (250x), 16x16x16 (32x) vs 32x32x32 (256x) -> pure (dim)^3 tiling of the fixed 8x8x8 primitive, 2-simdgroup scope (128x = half the work per simdgroup). matmul2d TRANSPOSE (transpose_left / transpose_right) is done by extra 4-byte data-MOVEMENT ops (byte0 low-nibble b, +35/+38 of them) around the tile loads/stores, NOT a new matrix op. simdgroup transposed load/store (simdgroup_load(...,transpose=true)) likewise = ordinary 0x67/0xe7 memory + moves, still exactly 1 0xcf for the MAC. => matrix load / store / transpose are all memory + moves; only the MAC is dedicated silicon (confirms + extends EXP-0022).",
+
+    "rt_from_render": "supportsRaytracingFromRender = YES and HW-VALIDATED end-to-end: a FRAGMENT shader that traces a ray (inline intersection_query OR the intersector object) with the AS bound via setFragmentAccelerationStructure:atBufferIndex: renders the correct triangle silhouette (per-pixel hit distance t=3.0 inside / -1.0 miss) into an 8x8 R32Float target. The fragment RT lowers to the SAME dedicated ops as compute RT: the intersector-object fragment (f_rt_isect, 1448B) is structurally identical to the compute intersector (2x rt_intersect + 15x 0xdf + 13x 0x5f + one -88-byte traversal back-edge); the inline query fragment (f_rt, 9654B, 14 back-edges) mirrors the compute intersection_query (large, per-node loops). The ONLY difference from compute is the binding stage (fragment argument buffer) + per-fragment invocation; no fragment-specific RT opcode. See raw/rtrender.txt.",
+
+    "motion_blur": "supportsPrimitiveMotionBlur = YES and HW-VALIDATED end-to-end: a real 2-keyframe motion AS (triangle z=3 at t=0, z=5 at t=1) traced at times {0,0.25,0.5,0.75,1.0} returns hit distances {3.0,3.5,4.0,4.5,5.0} -- the intersect() time parameter drives HARDWARE linear motion interpolation (exact). There is NO new intersect opcode and NO new field: motion blur (a) sets the rt_intersect byte+2 mode to 0x10 (the dynamic/time-parameterised form) even with a constant origin; (b) selects the motion AS via byte+4 == 0xbb (primitive-motion AS) -- vs 0x8b primitive / 0x1b instance; (c) threads the TIME value through the ray-parameter register at byte+3 (device-loaded time 0x46 vs folded-constant time 0x26); (d) adds ~5 extra 0xdf AS-data loads (20-22 vs 15) for the time-interpolated vertex fetch. See raw/rt_ops.txt / raw/mbval.txt.",
+
+    "intersector_tags_and_ray_data": "Primitive TAG does NOT change the rt_intersect op: bounding_box (tag_bbox) op#1 is byte-IDENTICAL to triangle (d4 ea 90 a6 8b 00 00 00); curve (tag_curve) differs only in the byte0-hi dst-reg nibble; force_opacity(opaque) is identical; instance/world-space flip byte+4 to 0x1b (AS type), matching EXP-0023. All lower to the same rt_intersect + 0xdf + 0x5f + one traversal loop -> the primitive discrimination lives in the AS / geometry descriptor + the intersection-function-table, not the opcode. The ray_data payload copy-in/out is marshalled through the RT ray-data memory path (the 0x5f ops), NOT via device or threadgroup memory (zero threadgroup ops) and NOT via a normal shader CALL (the intersection function is invoked by the traversal machinery via the intersection_function_table, resolved at pipeline-build, so the kernel emits NO 0x0f/0x8f call): 0x5f count scales with payload size (float2 -> 13, 8-float -> 15, none -> 12), and the device-store count stays 1 (just the output) -- i.e. ray_data is a distinct address space backed by RT scratch, copy-in before intersect / copy-out after, minimal payloads cheapest (matches WWDC guidance)."
+  },
+
+  "length_rule_additions": {
+    "_comment": "Additions/fixes for tools/agx-isa/isadb.py::instr_length, measured over 8 RT provocation kernels + 7 MPP tensor kernels (OWN-SHADER). These are the EXP-0023 RT length extensions PROMOTED to the DB (they lived in the experiment's rtlen.py) plus the new 0x5f. Every RT/tensor _agc.main tokenizes with these; the RT streams reach ~66% clean coverage (the residual is the traversal-inner address arithmetic + resync, same as EXP-0023).",
+
+    "0x5f (byte+2 in {0x54,0x56})": "14  [RAY-TRACING ray-data / traversal memory op. byte0 0x5f, low-nibble 0xf (the memory-family low nibble, like 0xdf / 0x67 / 0xe7), byte+2 == 0x54 (the memory-op marker). The store/spill-side sibling of the 0xdf AS-data load: 12-28 per intersector kernel (28 in instance-motion). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; the 0x10/0x11 forms mirror the 0x67 load's space+index byte). Fetches/spills the ray struct + per-node traversal-stack state during the (software) BVH traversal loop, and carries the ray_data payload copy-in/out (its count scales with payload size). EXP-O2C inferred (byte-diff; not splice-validated -- splicing needs full AS + traversal state).]",
+
+    "0x?4 (byte+1 == 0xea)": "8  [RAY-TRACING rt_intersect (already in DB via EXP-0023; documented here for the length table). byte0 low-nibble 0x4, high nibble = dst reg; byte+1 == 0xea = intersect sub-op.]",
+
+    "0xdf": "14  [RAY-TRACING rt_as_load (already in DB via EXP-0023). Acceleration-structure / ray-data load, memory-family (byte+2 == 0x54).]",
+
+    "0x?2 (byte+2 == 0x27)": "10  [RAY-TRACING transform/box-test companion op (rt_transform_test). byte0 low-nibble 0x2 (high nibble = dst reg), byte+2 == 0x27, byte+3 == 0x81, byte+4 == 0x22. ~4-5 per intersector; the ray-vs-node transform / slab-test arithmetic in the traversal. Distinct from the 0x02 iminmax (byte+2 0x1e) / 0x12 icmpsel / 0x32 carry-gen (byte+2 0x35) low-nibble-2 ops -- gate on byte+2 == 0x27. EXP-O2C inferred (byte-diff).]",
+
+    "0x?b (byte+2 in {0x80,0x81})": "4  [RAY register-marshalling MOVE (ray_move). byte0 low-nibble 0xb, high nibble = dst reg; byte+2 == 0x81 (byte+3 == 0x08) copies a computed register (ray origin/direction/tmin/tmax component, or payload) into the contiguous register block the rt_intersect op consumes; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) zero-initialises a component (e.g. const origin float3(0,0,0)). A 4-byte compact move, sibling of the existing 0xNb compact-move / uniform_mov forms; disambiguate from them by byte+2 in {0x80,0x81}. Also reused (35-38x) to marshal MPP matmul2d TRANSPOSE tile data. EXP-O2C inferred (byte-diff).]"
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "matrix_mac",
+      "length": 12,
+      "match": [[0, 8, 207]],
+      "fields": [
+        {"name": "dtype",     "start": 8,  "width": 8, "type": "enum", "enum": {"0": "f16(16-bit)", "2": "f32/bf16(32-bit)"}},
+        {"name": "mode",      "start": 16, "width": 8, "type": "enum", "enum": {"86": "standalone(0x56)", "84": "tiled/MPP(0x54)"}},
+        {"name": "a_desc",    "start": 24, "width": 8, "type": "reg"},
+        {"name": "pad4",      "start": 32, "width": 8, "type": "raw"},
+        {"name": "a_reg",     "start": 40, "width": 8, "type": "reg"},
+        {"name": "b_reg",     "start": 48, "width": 8, "type": "reg"},
+        {"name": "c_src",     "start": 56, "width": 8, "type": "reg"},
+        {"name": "dst",       "start": 64, "width": 8, "type": "reg"},
+        {"name": "dst_desc",  "start": 72, "width": 8, "type": "raw"},
+        {"name": "op_enable", "start": 80, "width": 8, "type": "opcode"},
+        {"name": "acc_en",    "start": 88, "width": 1, "type": "enum", "enum": {"0": "multiply", "1": "multiply_accumulate"}},
+        {"name": "b11hi",     "start": 89, "width": 7, "type": "raw"}
+      ],
+      "semantics": "d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). OPERAND SELECTORS (all HW-splice-validated, EXP-O2C): byte+5 = A (LEFT) multiply-operand fragment register; byte+6 = B (RIGHT) operand register (splicing +5 to B's reg -> B*B, +6 to A's reg -> A*A, swapping +5/+6 -> B*A -- matmul non-commutative so all distinguishable); byte+7 = C accumulator source register; byte+8 = destination fragment register; byte+3 = an A-operand sub-descriptor (corrupting -> ZERO result: load-bearing); byte+10 = op-enable marker 0x24 (corrupting -> C passthrough / multiply dropped); byte+4 and byte+9 bit1 splice-inert (padding). dtype byte+1: 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion). mode byte+2: 0x56 = standalone, 0x54 = tiled (MPP matmul2d) -- SEMANTIC, not a hint: splicing a standalone op 0x56->0x54 zeroes the result (tiled mode sources its accumulator from the MPP tile context). ACCUMULATE-ENABLE = byte+11 bit0 (1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). Element types accepted by MSL: half, float, bfloat, incl. mixed half/bfloat inputs -> float accumulate; integer matrices REJECTED (no int8 cooperative matrix). Only 8x8 exposed. ALL MPP tensor ops (matmul2d multiply / multiply_accumulate / transpose_left / transpose_right / f32 / 16x16x16 / 2-simdgroup) lower to THIS SAME op -- no new tensor opcode; transpose adds 4-byte data-move ops, not a new op; simdgroup_load/store (incl. transpose=true) are ordinary 0x67/0xe7 memory ops.",
+      "provenance": "HW-VALIDATED (EXP-0022 core + EXP-O2C operand decode): known 8x8 A,B,C -> correct A*B+C for float AND half (EXP-0022). EXP-O2C splice-and-observe on mad_f32 over one 32-lane simdgroup, classifying the read-back against every candidate product: byte+5=A operand (04->08 => B*B+C), byte+6=B operand (08->04 => A*A+C), +5/+6 swap => B*A+C; byte+7=C src (garbage on redirect), byte+8=dst (relocates the result), byte+3=A sub-descriptor (=> zero), byte+10=op-enable 0x24 (=> C passthrough), byte+1=dtype (0x02->0x00 garbles fp32), byte+2=mode (standalone 0x56->0x54 => zero, so tiled is a semantic accumulator-source change not a liveness hint), byte+11 bit0=accumulate-enable (01->00 => a*b). All MPP-tensor-lower-to-0xcf and transpose=moves confirmed by 0xcf-count + move-op diff across 7 matmul2d kernels. raw/cf_decode.txt, raw/structural.txt."
+    },
+    {
+      "mnemonic": "rt_intersect",
+      "length": 8,
+      "match": [[0, 4, 4], [8, 8, 234]],
+      "fields": [
+        {"name": "dst",   "start": 4,  "width": 4, "type": "reg"},
+        {"name": "subop", "start": 8,  "width": 8, "type": "opcode", "enum": {"234": "trace"}},
+        {"name": "mode",  "start": 16, "width": 8, "type": "enum", "enum": {"16": "dyn_origin/motion", "144": "const_origin", "208": "const_origin+fntable", "17": "result_read"}},
+        {"name": "ray_param", "start": 24, "width": 8, "type": "reg"},
+        {"name": "as_type",   "start": 32, "width": 8, "type": "enum", "enum": {"139": "primitive_AS(0x8b)", "27": "instance_AS(0x1b)", "187": "primitive_motion_AS(0xbb)"}},
+        {"name": "b5",    "start": 40, "width": 8, "type": "raw"},
+        {"name": "flags", "start": 48, "width": 8, "type": "mod"},
+        {"name": "b7",    "start": 56, "width": 8, "type": "raw"}
+      ],
+      "semantics": "DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 const origin, 0x10 dynamic-origin OR primitive-motion (the time-parameterised form -- motion sets 0x10 even with a const origin), 0xd0 const-origin + intersection-function-table present (bit7=const-origin, bit6=fn-table). byte+3 = ray/parameter operand register -- also carries the MOTION TIME (device-loaded time 0x46 vs folded-constant time 0x26). byte+4 = AS-type selector: 0x8b primitive AS, 0x1b instance AS, 0xbb primitive-MOTION AS (HW-validated end-to-end: motion AS trace interpolates the hit distance linearly with the time parameter). byte+6 bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse (byte+2 0x90/0x10/0xd0), op#2 result-read (byte+2 0x10/0x11, trailing 26 9f -> 0x9f int-ALU result unpack). The BVH TRAVERSAL is a compiler-generated shader loop (one -88-byte back-edge per intersector) using this op + the 0xdf AS-loads + 0x5f ray-data ops -- NOT a fire-and-forget trace. PRIMITIVE TAG does not change the op (bounding_box op#1 == triangle op#1 byte-for-byte; curve differs only in the dst-reg nibble): tag discrimination lives in the AS + intersection-function-table. Works IDENTICALLY from a FRAGMENT shader (supportsRaytracingFromRender, HW-validated) -- only the bind stage differs.",
+      "provenance": "HW-VALIDATED role + end-to-end (EXP-0023 trace correctness; EXP-O2C RT-from-render silhouette + motion-blur time interpolation). Field semantics byte-diff-inferred across 8 intersector-tag + motion + payload variants (raw/rt_ops.txt): byte+4 AS-type (8b/1b/bb), byte+2 motion=0x10, byte+3 device-vs-const time (46 vs 26), byte+6 fn-table. Motion byte+4=0xbb corroborated by the mbval.m end-to-end interpolation (raw/mbval.txt); RT-from-render structural identity to compute by raw/structural.txt. Operand register bit-packing not individually splice-validated (needs an AS-aware splice testbed)."
+    },
+    {
+      "mnemonic": "rt_ray_mem",
+      "length": 14,
+      "match": [[0, 8, 95], [16, 8, 84]],
+      "fields": [
+        {"name": "subop",  "start": 8,  "width": 8, "type": "opcode"},
+        {"name": "marker", "start": 16, "width": 8, "type": "raw"},
+        {"name": "body",   "start": 24, "width": 88, "type": "raw"}
+      ],
+      "semantics": "RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the 0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for custom intersection functions (its count scales with payload size: float2 payload -> 13, 8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; the 0x10/0x11 forms mirror the 0x67 load space+index byte). Confirms ray_data is a distinct address space backed by RT scratch (NOT device or threadgroup memory: RT kernels emit zero threadgroup ops and only one device store = the output).",
+      "provenance": "inferred (byte-diff, EXP-O2C): byte0 0x5f present in every raytracing:: kernel (12-28 per kernel) and ABSENT from a hand-written software triangle loop (EXP-0023 control). 14-byte length + byte+2==0x54 tokenizes the RT streams (memory-family shape mirrors the HW-validated 0x67/0xe7/0xdf). Payload-size correlation from call_p2/call_pbig/call_pnone diff (raw/structural.txt). Field bit-packing not splice-validated (needs full traversal state)."
+    },
+    {
+      "mnemonic": "rt_transform_test",
+      "length": 10,
+      "match": [[0, 4, 2], [16, 8, 39]],
+      "fields": [
+        {"name": "dst",    "start": 4,  "width": 4, "type": "reg"},
+        {"name": "src",    "start": 8,  "width": 8, "type": "reg"},
+        {"name": "marker", "start": 16, "width": 8, "type": "raw"},
+        {"name": "b3",     "start": 24, "width": 8, "type": "raw"},
+        {"name": "cmpmode","start": 32, "width": 8, "type": "raw"},
+        {"name": "body",   "start": 40, "width": 40, "type": "raw"}
+      ],
+      "semantics": "RAY-TRACING transform / box-test companion op. byte0 low-nibble 0x2 (high nibble = dst reg), byte+2 == 0x27 (marker), byte+3 == 0x81, byte+4 == 0x22 (an ordered-compare-like mode). ~4-5 per intersector kernel; the ray-vs-node coordinate transform / AABB slab-test arithmetic executed inside the traversal loop (distinct from the dedicated rt_intersect primitive -- these are the surrounding transform/test ALU). Gate on byte+2 == 0x27 to distinguish from the other low-nibble-2 ops (0x02 iminmax byte+2 0x1e, 0x12 icmpsel, 0x32 carry-gen byte+2 0x35). In motion kernels the tail differs (time-blended transform).",
+      "provenance": "inferred (byte-diff, EXP-O2C): the '0x?2 byte+2==0x27 transform/test op' flagged as a follow-up in EXP-0023; present 4-5x in every intersector and absent from the software control. Length 10 tokenizes the RT streams. raw/rt_ops.txt. Not splice-validated."
+    },
+    {
+      "mnemonic": "ray_move",
+      "length": 4,
+      "match": [[0, 4, 11], [16, 8, 129]],
+      "fields": [
+        {"name": "dst", "start": 4,  "width": 4, "type": "reg"},
+        {"name": "src", "start": 8,  "width": 8, "type": "reg"},
+        {"name": "form","start": 16, "width": 8, "type": "enum", "enum": {"129": "copy-reg(0x81,b3=0x08)", "128": "zero-init(0x80,b3=0x00)"}},
+        {"name": "b3",  "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode.",
+      "provenance": "inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel marshalling the ray struct (zero-init 0x80 forms for const origins, copy 0x81 forms for device-loaded direction), and 35-38x in the matmul2d transpose kernels. raw/rt_ops.txt. Not splice-validated."
+    }
+  ]
+}

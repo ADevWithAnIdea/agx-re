@@ -565,6 +565,23 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   fix, not a missing instruction**: op-select `0x26/0x2e` are 6/8-byte (by byte+4 bit1); the naive float length rule
   mis-lengthed them. *(fixes + `vary_store` descriptor staged in `experiments/EXP-0037-varying-texmath/new_descriptors.json`.)*
 
+### ✅ RT tail + tensor completion (EXP-O2C, objective-2 O2-C/O2-F)
+- **RT-from-render (HW-validated):** a fragment shader tracing rays lowers **identically to compute RT** (2×`rt_intersect`
+  + `0xdf` loads + `0x5f` + the −88B traversal loop); only the bind stage differs (`setFragmentAccelerationStructure:`).
+  No fragment-specific RT opcode.
+- **Motion blur (HW-validated):** no new opcode — `rt_intersect` byte+2=`0x10` (dynamic/time form), motion-AS selected by
+  byte+4=`0xbb` (vs `0x8b` primitive / `0x1b` instance), time value threaded via byte+3; ~5 extra `0xdf` loads for
+  time-interpolated vertices. Interpolated hit distances validated (z=3→5 over 5 times).
+- **`0x5f` = RT ray-data memory op** (14 B, byte+2=`0x54`, sibling of `0xdf`) — the `ray_data` payload path (distinct
+  address space in RT scratch; count scales with payload size). Also `rt_transform_test` (`0x?2`, byte+2=`0x27`, traversal
+  slab-test ALU) and `ray_move` (`0x?b`, byte+2=`0x80/81`, 4 B ray-register marshalling). Primitive tag (bbox/curve/opacity)
+  does **not** change the intersect op — discrimination is in the AS + `intersection_function_table`.
+- **Tensor ops all lower to `0xcf`** (no new tensor opcode); transpose/load/store are memory + 4 B moves — the MAC is the
+  only dedicated silicon. **Full `0xcf` operand decode (HW-validated via splice):** byte+5 = A(left) reg, byte+6 = B(right)
+  reg, byte+7 = C accumulator, byte+8 = dst, byte+3 = A sub-descriptor, byte+10 = op-enable `0x24`, byte+11 bit0 =
+  accumulate-enable, byte+1 = dtype, **byte+2 = mode (SEMANTIC, not a hint** — tiled mode `0x54` sources its accumulator
+  from the MPP tile context; resolves EXP-0022's open question). *(descriptors staged in `experiments/EXP-O2C-rt-tensor-tail/new_descriptors.json`.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

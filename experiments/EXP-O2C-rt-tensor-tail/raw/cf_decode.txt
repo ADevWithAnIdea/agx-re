@@ -1,0 +1,23 @@
+0xcf @ main+186: cf02560200040809d4432401
+          +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11
+  bytes:  cf 02 56 02 00 04 08 09 d4 43 24 01
+  baseline                     status=OK           -> A*B+C
+  +5 04->08 (left->b reg)      status=OK           -> B*B+C
+  +6 08->04 (right->a reg)     status=OK           -> A*A+C
+  +5/+6 swap (b*a)             status=OK           -> B*A+C
+  +5 04->00                    status=OK           -> OTHER r[0:4]=[10.0, 11.0, 0.0, 0.0]
+  +6 08->00                    status=OK           -> OTHER r[0:4]=[10.0, 11.0, 0.0, 0.0]
+  +5 04->09 (left->c reg)      status=OK           -> C
+  +6 08->09 (right->c reg)     status=OK           -> A*B+C
+  +7 09->00 (C->reg0)          status=OK           -> OTHER r[0:4]=[6.0, -18.0, 0.0, 0.0]
+  +7 09->04 (C->a reg)         status=OK           -> OTHER r[0:4]=[6.0, -18.0, 3.0, 15.0]
+  +11 01->00 (acc off)         status=OK           -> A*B
+  +8 d4->00                    status=OK           -> OTHER r[0:4]=[0.0, 16.0, 0.0, 18.0]
+  +8 d4->d6                    status=OK           -> OTHER r[0:4]=[21.2, 5.4, 23.2, 7.4]
+  +3 02->00                    status=OK           -> zero
+  +3 02->04                    status=OK           -> zero
+  +4 00->02                    status=OK           -> A*B+C
+  +9 43->41                    status=OK           -> A*B+C
+  +10 24->00                   status=OK           -> C
+  +1 02->00 (dtype f16?)       status=OK           -> A
+  +2 56->54 (mode tiled)       status=OK           -> zero

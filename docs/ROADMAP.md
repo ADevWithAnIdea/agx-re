@@ -183,12 +183,12 @@ From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters 
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
 - ☑ **O2-B sparse/PBE/filtering/sampler-heap** (EXP-O2B) [descriptor/tiling]: sparse/tile textures, PBE-renderable flags,
   32-bit float texture filtering, bindless sampler-heap (500k) layout.
-- ☐ **O2-C RT completion tail** [ISA]: `ray_data` payload, RT-from-render, motion blur, intersection tags,
+- ☑ **O2-C RT completion tail** (EXP-O2C) [ISA]: `ray_data` payload, RT-from-render, motion blur, intersection tags,
   bbox/curve custom primitives, RT companion `0x5f`.
 - ☐ **O2-D tile shaders + threadgroup_imageblock + printf** [ISA/cmdstream]: mid-render compute dispatch encoding.
 - ☐ **O2-E ISA tail** [ISA]: atomic memory-ordering/fence bits + 64-bit atomic min/max width; bfloat general ALU;
   subgroup tail (`simd_shuffle_and_fill_up/down`, modulo, `simd_is_helper_thread`).
-- ☐ **O2-F tensor ops** [ISA]: MPP cooperative-tensor/convolution beyond matmul2d; matrix transpose/load variants;
+- ☑ **O2-F tensor ops** (EXP-O2C) [ISA]: MPP cooperative-tensor/convolution beyond matmul2d; matrix transpose/load variants;
   full `0xcf` operand-selector decode.
 Honestly EXCLUDED from obj-2 (microarch/kernel; document, don't gate): Dynamic-Caching dynamics, flexible on-chip
 memory, 2× ALU dual-issue, occupancy curve, RT reorder stage, compression codec; RT BVH build, sample positions,
