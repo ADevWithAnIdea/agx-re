@@ -113,7 +113,7 @@ Compression aux is present iff:
 > **the texture has NO ShaderWrite usage** (render-target or sampled-read-only)
 > **AND the image is at least ~one 16×16-texel tile** (16×16 on, 8×8/4×4 off, for rgba8).
 
-A ShaderWrite (read-write image) texture is **never** compressed, at any size — its layout is the
+A **ShaderWrite** (read-write image) OR **PixelFormatView** texture is **never** compressed (EXP-O2B), at any size — its layout is the
 plain uncompressed twiddle of §1. (This is why writable images and staging paths see raw Morton.)
 
 ### 4.2 Descriptor flags

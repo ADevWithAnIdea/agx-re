@@ -181,7 +181,7 @@ tightened as they're decoded.
 From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
 - ☐ **O2-A geometry-output pipeline** [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
-- ☐ **O2-B sparse/PBE/filtering/sampler-heap** [descriptor/tiling]: sparse/tile textures, PBE-renderable flags,
+- ☑ **O2-B sparse/PBE/filtering/sampler-heap** (EXP-O2B) [descriptor/tiling]: sparse/tile textures, PBE-renderable flags,
   32-bit float texture filtering, bindless sampler-heap (500k) layout.
 - ☐ **O2-C RT completion tail** [ISA]: `ray_data` payload, RT-from-render, motion blur, intersection tags,
   bbox/curve custom primitives, RT companion `0x5f`.

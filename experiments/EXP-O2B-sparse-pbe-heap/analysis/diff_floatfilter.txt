@@ -1,0 +1,13 @@
+===== FLOAT FILTER r32float nearest vs linear (texture + sampler desc) =====
+### ff_r32_lin vs ff_r32_near
+1c1
+< # caps/ff_r32_near/  argBO=0x100000e0000
+---
+> # caps/ff_r32_lin/  argBO=0x100000e0000
+9c9
+<   +0000: 00000e00800700000000000000000000
+---
+>   +0000: 00008e02800700000000000000000000
+--- sampled readback (nearest quantized vs linear interpolated) ---
+SAMPLES 0.0000 0.0000 1.0000 1.0000 0.0000 0.0000 1.0000 1.0000 2.0000 2.0000 3.0000 3.0000 2.0000 2.0000 3.0000 3.0000
+SAMPLES 0.0000 0.1680 0.8320 1.0000 0.3359 0.5039 1.1680 1.3359 1.6641 1.8320 2.4961 2.6641 2.0000 2.1680 2.8320 3.0000

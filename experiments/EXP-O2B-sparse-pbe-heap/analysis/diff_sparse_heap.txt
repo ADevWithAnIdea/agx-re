@@ -1,0 +1,98 @@
+===== SPARSE (base std256) — sparse-tier flag =====
+### sp256 vs std256
+1,8c1,8
+< # caps/std256/  argBO=0x10000128000
+<   slot0 @+0x14a0 = 0x100001294c0  (texture desc ptr)
+<   slot1 @+0x14a8 = 0x100001294e0  (sampler desc ptr)
+<   slot2 @+0x14b0 = 0x1000001c500  (buffer(0) VA)
+< TEXDESC @ 0x100001294c0 (BO+0x14c0):
+<   +0000: 220a88f60ffc03080080000010000080
+<   +0010: 00c00000100000000000000000000000
+< SAMPDESC @ 0x100001294e0 (BO+0x14e0):
+---
+> # caps/sp256/  argBO=0x100040f8000
+>   slot0 @+0x14a0 = 0x100040f94c0  (texture desc ptr)
+>   slot1 @+0x14a8 = 0x100040f94e0  (sampler desc ptr)
+>   slot2 @+0x14b0 = 0x10004034500  (buffer(0) VA)
+> TEXDESC @ 0x100040f94c0 (BO+0x14c0):
+>   +0000: 120a88f60ffc03380058400010000080
+>   +0010: 80584000100000000000000000000000
+> SAMPDESC @ 0x100040f94e0 (BO+0x14e0):
+===== SPARSE map vs nomap — is tile residency in the descriptor? =====
+### sp256_map vs sp256
+1,3c1,3
+< # caps/sp256/  argBO=0x100040f8000
+<   slot0 @+0x14a0 = 0x100040f94c0  (texture desc ptr)
+<   slot1 @+0x14a8 = 0x100040f94e0  (sampler desc ptr)
+---
+> # caps/sp256_map/  argBO=0x10004108000
+>   slot0 @+0x14a0 = 0x100041094c0  (texture desc ptr)
+>   slot1 @+0x14a8 = 0x100041094e0  (sampler desc ptr)
+5c5
+< TEXDESC @ 0x100040f94c0 (BO+0x14c0):
+---
+> TEXDESC @ 0x100041094c0 (BO+0x14c0):
+8c8
+< SAMPDESC @ 0x100040f94e0 (BO+0x14e0):
+---
+> SAMPDESC @ 0x100041094e0 (BO+0x14e0):
+===== SPARSE rw vs std rw (isolate sparse flag w/o compression) =====
+### sp256_rw vs std256_rw
+1,6c1,6
+< # caps/std256_rw/  argBO=0x10000128000
+<   slot0 @+0x14a0 = 0x100001294c0  (texture desc ptr)
+<   slot1 @+0x14a8 = 0x100001294e0  (sampler desc ptr)
+<   slot2 @+0x14b0 = 0x1000001c500  (buffer(0) VA)
+< TEXDESC @ 0x100001294c0 (BO+0x14c0):
+<   +0000: 220a88f60ffc03000080000010000000
+---
+> # caps/sp256_rw/  argBO=0x100040f8000
+>   slot0 @+0x14a0 = 0x100040f94c0  (texture desc ptr)
+>   slot1 @+0x14a8 = 0x100040f94e0  (sampler desc ptr)
+>   slot2 @+0x14b0 = 0x10004034500  (buffer(0) VA)
+> TEXDESC @ 0x100040f94c0 (BO+0x14c0):
+>   +0000: 120a88f60ffc03300058400010000000
+8c8
+< SAMPDESC @ 0x100001294e0 (BO+0x14e0):
+---
+> SAMPDESC @ 0x100040f94e0 (BO+0x14e0):
+===== SPARSE r32float vs std r32float =====
+### sp256_r32f vs std256_r32f
+1,8c1,8
+< # caps/std256_r32f/  argBO=0x10000128000
+<   slot0 @+0x14a0 = 0x100001294c0  (texture desc ptr)
+<   slot1 @+0x14a8 = 0x100001294e0  (sampler desc ptr)
+<   slot2 @+0x14b0 = 0x1000001c500  (buffer(0) VA)
+< TEXDESC @ 0x100001294c0 (BO+0x14c0):
+<   +0000: 628868f90ffc03080080000010000080
+<   +0010: 00c00000100000000000000000000000
+< SAMPDESC @ 0x100001294e0 (BO+0x14e0):
+---
+> # caps/sp256_r32f/  argBO=0x100040f8000
+>   slot0 @+0x14a0 = 0x100040f94c0  (texture desc ptr)
+>   slot1 @+0x14a8 = 0x100040f94e0  (sampler desc ptr)
+>   slot2 @+0x14b0 = 0x10004034500  (buffer(0) VA)
+> TEXDESC @ 0x100040f94c0 (BO+0x14c0):
+>   +0000: 528868f90ffc03380058400010000080
+>   +0010: 80584000100000000000000000000000
+> SAMPDESC @ 0x100040f94e0 (BO+0x14e0):
+===== PLACEMENT heap vs standalone (base std256) =====
+### plc256 vs std256
+1,3c1,3
+< # caps/std256/  argBO=0x10000128000
+<   slot0 @+0x14a0 = 0x100001294c0  (texture desc ptr)
+<   slot1 @+0x14a8 = 0x100001294e0  (sampler desc ptr)
+---
+> # caps/plc256/  argBO=0x10001128000
+>   slot0 @+0x14a0 = 0x100011294c0  (texture desc ptr)
+>   slot1 @+0x14a8 = 0x100011294e0  (sampler desc ptr)
+5,8c5,8
+< TEXDESC @ 0x100001294c0 (BO+0x14c0):
+<   +0000: 220a88f60ffc03080080000010000080
+<   +0010: 00c00000100000000000000000000000
+< SAMPDESC @ 0x100001294e0 (BO+0x14e0):
+---
+> TEXDESC @ 0x100011294c0 (BO+0x14c0):
+>   +0000: 220a88f60ffc03080040000010000080
+>   +0010: 00800000100000000000000000000000
+> SAMPDESC @ 0x100011294e0 (BO+0x14e0):

@@ -1,0 +1,44 @@
+===== USAGE 4x4 (base us4_read) — is RenderTarget/PBE a descriptor bit? =====
+### us4_readrt vs us4_read
+1c1
+< # caps/us4_read/  argBO=0x100000e0000
+---
+> # caps/us4_readrt/  argBO=0x100000e0000
+### us4_readwrite vs us4_read
+1c1
+< # caps/us4_read/  argBO=0x100000e0000
+---
+> # caps/us4_readwrite/  argBO=0x100000e0000
+### us4_readpix vs us4_read
+1c1
+< # caps/us4_read/  argBO=0x100000e0000
+---
+> # caps/us4_readpix/  argBO=0x100000e0000
+===== USAGE 256 (base us256_read) — usage vs compression =====
+### us256_readrt vs us256_read
+1c1
+< # caps/us256_read/  argBO=0x10000128000
+---
+> # caps/us256_readrt/  argBO=0x10000128000
+### us256_readwrite vs us256_read
+1c1
+< # caps/us256_read/  argBO=0x10000128000
+---
+> # caps/us256_readwrite/  argBO=0x10000128000
+6,7c6,7
+<   +0000: 220a88f60ffc03080080000010000080
+<   +0010: 00c00000100000000000000000000000
+---
+>   +0000: 220a88f60ffc03000080000010000000
+>   +0010: 00000000000000000000000000000000
+### us256_readpix vs us256_read
+1c1
+< # caps/us256_read/  argBO=0x10000128000
+---
+> # caps/us256_readpix/  argBO=0x10000128000
+6,7c6,7
+<   +0000: 220a88f60ffc03080080000010000080
+<   +0010: 00c00000100000000000000000000000
+---
+>   +0000: 220a88f60ffc03000080000010000000
+>   +0010: 00000000000000000000000000000000

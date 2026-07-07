@@ -1,0 +1,17 @@
+DEVICE Apple A18 Pro
+K=4 maxArgBufSamplers=500000
+SAMP[0] gpuResourceID=0x1  (min=near mag=near s=edge)
+SAMP[1] gpuResourceID=0x2  (min=lin mag=near s=edge)
+SAMP[2] gpuResourceID=0x3  (min=near mag=lin s=edge)
+SAMP[3] gpuResourceID=0x4  (min=lin mag=lin s=edge)
+ARGENC encodedLength=32  (=> per-sampler stride=8)
+ARGBUF gpuAddress=0x10000018200
+ARGBUF (argument-encoder, array<sampler,K>) (32 bytes @ gpu_va 0x10000018200):
+  +0000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00
+  +0010: 03 00 00 00 00 00 00 00 04 00 00 00 00 00 00 00
+RIDBUF (raw gpuResourceID array) (32 bytes @ gpu_va 0x10000018300):
+  +0000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00
+  +0010: 03 00 00 00 00 00 00 00 04 00 00 00 00 00 00 00
+SUBMIT status=4
+SAMPLES(center, idx=i): s0=3.000 s1=3.000 s2=1.500 s3=1.500
+(expect nearest slots ~3.000, linear slots ~1.500)

@@ -65,3 +65,21 @@ Bare **inline 8-byte GPU VA** in the argument-buffer slot; **no length/format wo
 Source: `experiments/EXP-0015-descriptors/` (`tvar.m`, `descx.py`).
 
 Full tables: [format-table.md](format-table.md)
+
+## Sparse / render-target / float-filtering / bindless samplers (EXP-O2B)
+- **Sparse textures:** descriptor carries a **sparse-tier flag** (byte0 hi-nibble: `(byte0 & ~0x20)|0x10`; word1
+  bits[28:29] set). **Tile residency is NOT in the descriptor** — it lives in the GPU page table (kernel/firmware-
+  managed; `updateTextureMapping` leaves the descriptor byte-identical). Sparse tile = 16 KiB always. Placement/
+  automatic **heaps are descriptor-transparent** (only base/aux VA point into the heap).
+- **Render-target ("PBE") is NOT a per-texture descriptor bit** — `ShaderRead`/`+RenderTarget`/`+ShaderWrite`/
+  `+PixelFormatView` give a byte-identical sampled descriptor; render-target state is structural via the attachment
+  path (`../pipeline/`, EXP-0021), whose packed pixel-format word = this descriptor's `word0`. Only side-effect:
+  **`ShaderWrite` AND `PixelFormatView` disable lossless compression** (clear word1 bit27/word3 bit31/drop word4);
+  RenderTarget stays compressed. (Extends `../tiling/` §4.1.)
+- **32-bit float texture filtering is unconditional on Apple9** — no descriptor "filterable" flag; nearest vs linear
+  is just the sampler magFilter(bit23)/minFilter(bit25) bits. HW-validated (r32f linear interpolates).
+- **Bindless sampler-heap:** a sampler in an argument buffer = an **8-byte little-endian `gpuResourceID`** (a small
+  sequential integer = index into a **device-global sampler table**, capacity 500000; stride 8). Distinct from the
+  Metal-auto argument buffer's 8-byte pointer-to-descriptor (EXP-0011); shader-computed dynamic index works. Samplers
+  are not `MTLResource`s (no residency).
+
