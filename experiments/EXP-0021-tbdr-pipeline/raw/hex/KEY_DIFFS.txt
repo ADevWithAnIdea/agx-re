@@ -1,0 +1,47 @@
+### Q1 TILE GRID (0x68000 +0x904=0x80000000|ceil(W/32)-1, +0x908=ceil(H/32)-1) ###
+rt32: 00000900: 000c0000 00000080 00000000 00000000 
+rt48: 00000900: 000c0000 01000080 01000000 00000000 
+rt96: 00000900: 000c0000 02000080 02000000 00000000 
+rt100: 00000900: 000c0000 03000080 03000000 00000000 
+rt128: 00000900: 000c0000 03000080 03000000 00000000 
+rt160: 00000900: 000c0000 04000080 04000000 00000000 
+rt256: 00000900: 000c0000 07000080 07000000 00000000 
+rt64x128: 00000900: 000c0000 01000080 03000000 00000000 
+rt128x64: 00000900: 000c0000 03000080 01000000 00000000 
+rt33: 00000900: 000c0000 01000080 01000000 00000000 
+m4_32f: 00000900: 000c0000 01000080 01000000 00000000 
+
+### Q1 format-independence: base 0x68000 vs fmt_rgba32f (expect empty) ###
+(identical)
+
+### Q3 sample count: msaa2 vs msaa4 tiler-heap +0x24 (attachment descr) ###
+  +0x0024: 0x0800fc03 -> 0x0900fc03   (A 134282243  B 151059459)
+  +0x0030: 0x00008800 -> 0x00009000   (A 34816  B 36864)
+
+### Q3 sample POSITIONS: msaa4 vs msaa4_sp all-BO ###
+# NOTE: the diffs below are the KNOWN dir-mode `gpu_va=0x0` pseudo-BO mispairing artifact
+# (two different-size gpu_va=0x0 pages paired by VA). A DIRECT same-page file diff of the
+# gpu_va=0x0 sz10000 pages is EMPTY (0 words), and no real control BO differs. Programmable
+# sample positions are NOT in any captured userspace BO. See RESULTS.md §3.
+  +0x0000: 0x000cc000 -> 0x00000080   (A 835584  B 128)
+  +0x0040: 0x00000000 -> 0x10040000   (A 0  B 268697600)
+  +0x0044: 0x00000000 -> 0x00000004   (A 0  B 4)
+  +0x0080: 0x00000000 -> 0x00000080   (A 0  B 128)
+  +0x00c0: 0x00000000 -> 0x10040000   (A 0  B 268697600)
+  +0x00c4: 0x000000ff -> 0x00000000   (A 255  B 0)
+  +0x00c8: 0x000000ff -> 0x00000000   (A 255  B 0)
+  +0x00cc: 0x000000ff -> 0x00000000   (A 255  B 0)
+  +0x00d0: 0x000000ff -> 0x00000000   (A 255  B 0)
+  +0x00d4: 0x000000ff -> 0x00000000   (A 255  B 0)
+
+### Q4 memoryless color: msaa4_col vs msaa4_mlcol tiler-heap +0x24 (bit27=backing) ###
+  +0x0024: 0x0900fc03 -> 0x0100fc03   (A 151059459  B 16841731)
+  +0x0028: 0x00008000 -> 0x0eeee000   (A 32768  B 250535936)
+  +0x002c: 0x80000010 -> 0x00000000   (A 2147483664  B 0)
+  +0x0030: 0x00009000 -> 0x00000000   (A 36864  B 0)
+  +0x0034: 0x00000010 -> 0x00000000   (A 16  B 0)
+
+### Q5 load DontCare: base vs ld_dc @0x110000 (seg1 +0x468 bit24 clear-enable) ###
+  +0x017c: 0x3f800000 -> 0x00000000   (A 1065353216  B 0)
+  +0x0468: 0x01000002 -> 0x00000002   (A 16777218  B 2)
+  +0x047c: 0x3f800000 -> 0x00000000   (A 1065353216  B 0)

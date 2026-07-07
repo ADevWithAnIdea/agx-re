@@ -27,6 +27,8 @@ Outcome vocabulary:
 | 11 | HW supports depth clamp (Vulkan depthClampEnable) natively | GL/Vulkan want clamp vs clip | read the raster packet clip/clamp field | **WORKS** — native 2-bit field [11:10] in raster packet | EXP-0019 |
 | 12 | Blend is programmable (any factor/op) rather than a fixed LUT | Apple TBDR programmable blend | varied blend factors, watched shader BO vs state pool | **WORKS** — blend compiles into the fragment shader; dual-source + logic-ops free via the shader path | EXP-0019 |
 | 13 | Polygon line-fill (Vulkan POLYGON_MODE_LINE) is native | GL wglPolygonMode | set Metal triangle-fill line mode | **WORKS** — raster nibble 0x5 + flags bit26; polygon-point fill partial | EXP-0019 |
+| 14 | Tile size is fixed (not bpp-shrunk like G13/G14) | Apple9 Dynamic Caching may decouple tile from RF | varied RT format incl. rgba32f+4×MSAA | **WORKS/CONFIRMED** — 32×32 fixed regardless of bpp; don't port G13 shrink-tile logic | EXP-0021 |
+| 15 | Programmable MSAA sample positions are userspace-emittable | Metal exposes programmableSamplePositions | diffed custom vs default sample positions in all userspace BOs | **NO (userspace)** — firmware/register-managed; Mesa must route via kernel | EXP-0021 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —
