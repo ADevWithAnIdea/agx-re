@@ -223,6 +223,20 @@ def instr_length(buf, off=0):
     # 0x67/0xe7 memory ops, not matrix instructions. HW-validated.
     if b0 == 0xcf:
         return 12                      # matrix_mac (EXP-0022 HW)
+    # ---- HARDWARE RAY TRACING (EXP-0023, HW-validated) ----
+    # Dedicated ray-intersection instruction: byte0 LOW nibble 0x4 (byte0 HIGH nibble =
+    # result/destination register), byte+1 == 0xea (a constant intersect sub-opcode).
+    # 8 bytes. Emitted (exactly twice: traverse + result-read) by EVERY raytracing::
+    # intersector / intersection_query kernel, and ABSENT from a hand-written software
+    # ray/triangle (Moller-Trumbore) loop -> proves a dedicated HW intersect op. The
+    # 0xea gate keeps it from colliding with unrelated low-nibble-4 operand bytes.
+    if (b0 & 0x0f) == 0x4 and off + 1 < len(buf) and buf[off + 1] == 0xea:
+        return 8                       # rt_intersect (EXP-0023 HW)
+    # Dedicated acceleration-structure / ray-data load: byte0 0xdf, a memory-family
+    # sibling of 0x67/0xe7 (byte+2 == 0x54), 14 bytes. Loads BVH-node / ray / stack
+    # data during traversal; present in every RT kernel, absent from the software loop.
+    if b0 == 0xdf:
+        return 14                      # rt_as_load (EXP-0023)
     return LEN_UNKNOWN
 
 
@@ -1285,6 +1299,77 @@ DB = [
                       "hardware. byte+7 = C source reg: corrupting it breaks the accumulate. MPP "
                       "matmul2d uses the same 0xcf. dtype/mode/operand-reg fields inferred (byte-diff).",
     },
+    # ==========================================================================
+    # HARDWARE RAY TRACING  (EXP-0023, byte0 low-nibble 0x4 + 0xdf)
+    # ==========================================================================
+    # Apple9 ray tracing is a HYBRID: dedicated hardware ray-intersection + AS-data-load
+    # instructions drive a COMPILER-GENERATED (software) BVH traversal loop in the shader.
+    # A hand-written Moller-Trumbore ray/triangle loop (the software control) contains
+    # ZERO of these opcodes; every raytracing:: intersector / intersection_query kernel
+    # contains them -> they are dedicated ray-tracing HW. The end-to-end trace was
+    # HW-validated (rtval.m: known ray vs known triangle in a real acceleration structure
+    # returns the correct t / primitive_id / barycentrics).
+    #
+    # ---- the dedicated ray-intersect op (rt_intersect, 8 bytes) --------------
+    # Signature: byte0 low-nibble 0x4, byte+1 == 0xea. Appears EXACTLY TWICE per RT
+    # kernel: op#1 = set up ray + kick traversal, op#2 (byte+2==0x10/0x11, trailing
+    # `26 9f`) = read/commit the intersection result. Operand/mode fields byte-diffed
+    # across ray/AS/function-table variants (EXP-0023 raw/intersect_diff.txt).
+    {
+        "mnemonic": "rt_intersect",
+        "length": 8,
+        "match": [(0, 4, 0x4), (8, 8, 0xea)],
+        "fields": [
+            {"name": "dst",   "start": 4,  "width": 4, "type": "reg"},       # byte0 hi nibble = result reg
+            {"name": "subop", "start": 8,  "width": 8, "type": "opcode",
+             "enum": {0xea: "trace"}},                                        # byte+1 constant intersect sub-op
+            {"name": "mode",  "start": 16, "width": 8, "type": "enum",        # byte+2 mode/flags
+             "enum": {0x10: "dyn_origin", 0x90: "const_origin",
+                      0xd0: "const_origin+fntable", 0x11: "result_read"}},
+            {"name": "opA",   "start": 24, "width": 8, "type": "raw"},        # byte+3 ray operand reg
+            {"name": "opB",   "start": 32, "width": 8, "type": "raw"},        # byte+4 ray/AS operand reg (instance flips)
+            {"name": "b5",    "start": 40, "width": 8, "type": "raw"},        # byte+5 (0x00 observed)
+            {"name": "flags", "start": 48, "width": 8, "type": "mod"},        # byte+6 bit7 = intersection-function-table present
+            {"name": "b7",    "start": 56, "width": 8, "type": "raw"},        # byte+7 (0x00 observed)
+        ],
+        "semantics": "DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). "
+                     "byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; "
+                     "byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 origin folded "
+                     "to a constant, 0x10 dynamic (device-loaded) origin, 0xd0 origin-const + intersection-"
+                     "function-table present (bit7=const-origin, bit6=fn-table). byte+3/+4 = ray/AS operand "
+                     "register packing (instance_acceleration_structure flips byte+4 0x8b->0x1b). byte+6 "
+                     "bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse, "
+                     "op#2 (byte+2 0x10/0x11) result-read. The BVH TRAVERSAL itself is a compiler-generated "
+                     "shader loop (one -88-byte back-edge per intersector kernel) using this op plus the "
+                     "0xdf AS-data loads -- NOT a single fire-and-forget trace instruction.",
+        "provenance": "HW-VALIDATED as DEDICATED (EXP-0023): present in all 6 raytracing:: kernels "
+                      "(intersector, intersection_query, instancing, function-table), ZERO occurrences in a "
+                      "hand-written software Moller-Trumbore triangle loop; end-to-end trace of a known ray "
+                      "vs a known triangle in a real MTLAccelerationStructure returned the correct t / "
+                      "primitive_id / barycentrics (rtval.m). Field semantics INFERRED by byte-diff across "
+                      "ray/AS/function-table variants (byte0 dst, byte+2 mode, byte+4 instance, byte+6 "
+                      "fn-table); not individually splice-validated (splicing needs full AS state).",
+    },
+    # ---- dedicated acceleration-structure / ray-data load (rt_as_load, 14 bytes) ----
+    {
+        "mnemonic": "rt_as_load",
+        "length": 14,
+        "match": [(0, 8, 0xdf)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},        # 0x02 observed
+            {"name": "mode", "start": 16, "width": 8,  "type": "raw"},        # 0x54 (memory-family mode, cf 0x67)
+            {"name": "body", "start": 24, "width": 88, "type": "raw"},        # addr / dst-reg / stride tail
+        ],
+        "semantics": "Dedicated acceleration-structure / ray-data load used during BVH traversal "
+                     "(byte0 0xdf, a memory-family sibling of the 0x67/0xe7 buffer load/store: byte+2 == "
+                     "0x54 like the memory ops). Fetches BVH node / ray / traversal-stack data. 14-17 per "
+                     "intersector kernel, ~37 in an inline intersection_query. Field bit-packing inferred "
+                     "(byte-diff); not individually splice-validated.",
+        "provenance": "inferred (byte-diff, EXP-0023): byte0 0xdf group present in every raytracing:: "
+                      "kernel and ABSENT from the hand-written software triangle loop; 14-byte length "
+                      "tokenizes the RT streams cleanly. Memory-family shape (byte+2==0x54) mirrors the "
+                      "HW-validated 0x67/0xe7 loads (EXP-0012).",
+    },
 ]
 
 # Index by mnemonic for the assembler.
@@ -1471,6 +1556,14 @@ def to_json():
                         "matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 "
                         "tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/"
                         "store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW]",
+                "lownibble_0x4 + byte+1==0xea":
+                        "8  [RAY TRACING: dedicated ray-INTERSECT op. byte0 hi nibble=result reg; "
+                        "byte+2 mode (0x90 const-origin / 0x10 dyn-origin / 0xd0 +fn-table); byte+6 "
+                        "bit7=intersection-function-table present. Emitted 2x/kernel (traverse + "
+                        "result-read). ABSENT from a software Moller-Trumbore loop. EXP-0023 HW]",
+                "0xdf": "14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-"
+                        "family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during "
+                        "the (software) traversal loop. EXP-0023]",
             },
         },
         "instructions": DB,

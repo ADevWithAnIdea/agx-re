@@ -1,0 +1,21 @@
+EXP-0023 dedicated ray-intersect op (byte0 low-nibble 0x4, byte+1==0xea), 8 bytes.
+Count per kernel + op#1/op#2 bytes:
+
+  isect_dist       count= 2  op#1=d4ea90a68b000000  op#2=34ea10266386269f
+  isect_anyhit     count= 2  op#1=d4ea90a68b000000  op#2=24ea10065384269f
+  isect_trace      count= 2  op#1=94ea90868b000000  op#2=04ea10066380269f
+  isect_instance   count= 2  op#1=e4ea90a61b000000  op#2=04ea112600200000
+  isect_dynray     count= 2  op#1=a4ea1046cb000000  op#2=04ea112600200000
+  rq_trace         count= 2  op#1=f4ea10666b000000  op#2=54ea1006338a269f
+  trace_custom     count= 2  op#1=24ead0a6ab008000  op#2=34ea10268386269f
+  hand_one         count= 0  op#1=-                 op#2=-
+  hand_trace       count= 0  op#1=-                 op#2=-
+
+op#1 per-byte across variants (b1=0xea const):
+  isect_dist       d4 ea 90 a6 8b 00 00 00
+  isect_anyhit     d4 ea 90 a6 8b 00 00 00
+  isect_trace      94 ea 90 86 8b 00 00 00
+  isect_instance   e4 ea 90 a6 1b 00 00 00
+  isect_dynray     a4 ea 10 46 cb 00 00 00
+  rq_trace         f4 ea 10 66 6b 00 00 00
+  trace_custom     24 ea d0 a6 ab 00 80 00

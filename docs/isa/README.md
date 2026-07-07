@@ -347,6 +347,29 @@ Apple9 has a **dedicated matrix/MAC-array unit**, not a lane-cooperative FMA emu
   `0xcf`** — larger shapes are software-tiled over the 8×8×8 primitive.
 - HW-validated: A·B+C with distinct known A,B,C returns correct C.
 
+### ✅ Hardware ray tracing — HYBRID (EXP-0023)
+Apple9 has **dedicated ray-tracing instructions** that drive a **compiler-generated (software) BVH-
+traversal loop** in the shader — not one fire-and-forget "trace ray" op. Proven dedicated: both novel
+opcodes are absent from a hand-written Möller-Trumbore ray/triangle control.
+- **`rt_intersect`** (byte0 low-nibble `0x4`, byte+1 `0xea`, 8 B): the hardware ray/box/triangle
+  intersection primitive. byte0 hi = result reg; byte+2 mode (`0x90` const-origin / `0x10` dynamic-origin
+  / `0xd0` + function-table); byte+3/+4 = ray/AS operand regs (instance-AS flips byte+4 `0x8b→0x1b`);
+  byte+6 bit7 = intersection-function-table bound. Emitted twice (traverse, then result-read). Fields
+  byte-diff-inferred; role + end-to-end correctness HW-validated.
+- **`rt_as_load`** (byte0 `0xdf`, 14 B): dedicated acceleration-structure / ray-data node loads
+  (14–37 per RT kernel). The traversal is a shader loop (a `−88`-byte back-edge whose body holds a `0xdf`
+  node-load + `0x0a` loop-condition compare).
+- **Acceleration structure** is referenced by an **8-byte GPU VA in the Tier-2 argument buffer**. ⚠ The
+  **BVH *build* is GPU/firmware-managed** — userspace supplies vertices + a build descriptor; the GPU
+  writes the BVH; the **BVH node format is NOT userspace-visible** (kernel-interface item, like ZLS /
+  sample positions).
+- **Intersection functions** compile as separate callable functions bound via an
+  **`intersection_function_table`** (same model as `visible_function_table`); `ray_data` payload is a
+  distinct address space.
+- HW-validated: 6 known rays vs a built `MTLAccelerationStructure` (triangle at z=3) → correct t / prim /
+  barycentrics; above-apex ray correctly misses. ⏳ Follow-ups: full operand bit-decode; the WWDC
+  "reorder" stage; RT-from-render + motion blur.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

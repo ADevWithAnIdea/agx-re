@@ -110,6 +110,12 @@ REAL_INSTRS = {
     "atomic_rmw add  (67 11 54..20)":      "6711540000800100004200002000",  # device fetch_add HW
     "atomic_rmw smax (67 11 54..28)":      "6711540000800100004200002800",  # device fetch_max HW
     "atomic_mem xchg (67 01 56..3c)":      "6701560000000000000200003c00",  # atomic_exchange HW
+    # ---- RAY TRACING (EXP-0023): dedicated intersect op + AS-data load ----
+    "rt_intersect const-origin (d4 ea 90 ..)": "d4ea90a68b000000",  # isect_dist op#1 HW-dedicated
+    "rt_intersect dyn-origin  (a4 ea 10 ..)":  "a4ea1046cb000000",  # isect_dynray op#1 (dynamic ray)
+    "rt_intersect +fntable    (24 ea d0 ..)":  "24ead0a6ab008000",  # trace_custom op#1 (fn-table, byte+6 bit7)
+    "rt_intersect result-read (34 ea 10 ..)":  "34ea10266386269f",  # isect_dist op#2 (result read)
+    "rt_as_load (df 02 54 ..)":                "df025432000000005c02044c0000",  # BVH/ray-data load
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -244,6 +250,13 @@ SYNTH = [
     # atomic_rmw add (byte+12 = 0x20) -> 67 11 54 00 00 80 01 00 00 42 00 00 20 00
     ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,
                     "mid": 0x4200000180, "op": 0x20, "b13": 0x00}),
+    # ---- ray tracing (EXP-0023) ----
+    # rt_intersect const-origin: dst=reg13, subop=0xea, mode=0x90 -> d4 ea 90 a6 8b 00 00 00
+    ("rt_intersect", {"dst": 0xd, "subop": 0xea, "mode": 0x90, "opA": 0xa6,
+                      "opB": 0x8b, "b5": 0x00, "flags": 0x00, "b7": 0x00}),
+    # rt_intersect +fn-table: mode=0xd0, flags byte+6 bit7 set (0x80) -> 24 ea d0 a6 ab 00 80 00
+    ("rt_intersect", {"dst": 0x2, "subop": 0xea, "mode": 0xd0, "opA": 0xa6,
+                      "opB": 0xab, "b5": 0x00, "flags": 0x80, "b7": 0x00}),
 ]
 
 
