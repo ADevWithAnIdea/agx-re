@@ -1,0 +1,24 @@
+== item 1: memory index register + inert +6 + immediate offset ==
+  [OK] device_load has index_reg field (was 'count')
+  [OK] device_load has inert6 field
+  [OK] device_load has idx_off field
+  [OK] device_load roundtrips
+== item 2: iadd2 add/sub polarity ==
+  [OK] byte0 0x9f decodes as iadd (ADD)
+  [OK] byte0 0x1f decodes as isub (SUBTRACT)
+== item 3: float uniform source vs minifloat immediate ==
+  [OK] a+uniform (09 0d ..) -> falu2_uni
+  [OK] a+1.0    (09 b1 ..) -> falu2i
+  [OK] falu2_uni roundtrips
+== item 4: undecoded groups now decode ==
+  [OK] 0x60 -> spill_frame_marker (len 4)
+  [OK] compact accum 0x18 -> falu_acc
+  [OK] compact accum 0x38 -> falu_acc
+  [OK] big.bin prefix tokenizes 0 leftover (was halting at 0x60)
+  [OK] falubank.bin tokenizes 0 leftover (was halting at 0x18)
+== item 5: imm_decode guarded to e>=8 ==
+  [OK] imm_decode(0x0d) raises (e<8, uniform overload)
+  [OK] imm_decode(0x100) raises (not a byte)
+  [OK] imm_decode(0xb1)=1.0 still works
+
+ALL PASS  (DB now has 77 descriptors)

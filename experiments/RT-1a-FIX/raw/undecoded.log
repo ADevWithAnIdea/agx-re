@@ -1,0 +1,33 @@
+## (a) big.bin byte0=0x60 `60 00 00 00` (spill/frame setup?)
+   bytes at main+0x04: 600000009f11540a  (0x60 op + following iadd2 start)
+   baseline: OK out=4294966408
+   splice byte0(+4)=0x60: OK out=4294966408 (orig)
+   splice byte0(+4)=0x00: OK out=4294966408
+   splice byte0(+4)=0xe0: OK out=4294966408
+   splice byte0(+4)=0x40: OK out=4294966408
+   splice byte+1(+5)=0x00: OK out=4294966408 (orig)
+   splice byte+1(+5)=0x01: OK out=4294966408
+   splice byte+1(+5)=0xff: OK out=4294966408
+   splice byte+2(+6)=0x00: OK out=4294966408 (orig)
+   splice byte+2(+6)=0x01: OK out=4294966408
+   splice byte+2(+6)=0xff: OK out=4294966408
+   splice byte+3(+7)=0x00: OK out=4294966408 (orig)
+   splice byte+3(+7)=0x01: OK out=4294966408
+   splice byte+3(+7)=0xff: CMDBUF_ERROR out=None
+
+## (b) falubank.bin `19 0b 18 09` compact float-accumulate (byte+2=0x18)
+   op at main+0x48 = 190b1809 ; op at main+0x4c = 09051807
+   baseline: OK out(a0+a1)=30.0 out2(a2..a7)=33.0  (expect 30, 33)
+   splice +0x48 byte+3 (srcB?)=0x09: OK out2=33.0 (orig)
+   splice +0x48 byte+3 (srcB?)=0x0b: OK out2=33.0
+   splice +0x48 byte+3 (srcB?)=0x01: OK out2=33.0
+   splice +0x48 byte+1 (srcA?)=0x0b: OK out2=33.0 (orig)
+   splice +0x48 byte+1 (srcA?)=0x09: OK out2=33.0
+   splice +0x48 byte+1 (srcA?)=0x03: OK out2=33.0
+   splice +0x48 byte+2 0x18->0x38: OK out2=33.0  (same as baseline 33 => interchangeable)
+--- 0x18 load-bearing confirm ---
+baseline ('OK', 30.0, 33.0)
++0x48 byte0 0x19->0x59 (dst r1->r5): ('OK', 0.0, 33.0)
++0x4c byte0 0x09->0x59 (dst r0->r5): ('OK', 30.0, 0.0)
++0x48 byte+2 0x18->0x1c (arith-enable/fadd byte): ('OK', 0.0, 0.0)
++0x48 byte+2 0x18->0x1d (mul opsel): ('OK', 0.0, 0.0)

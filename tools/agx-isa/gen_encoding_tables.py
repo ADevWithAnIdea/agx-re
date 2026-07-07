@@ -18,6 +18,7 @@ FAMILY = [
     ("Float ALU", [
         ("falu2", "2-source float ALU (fadd/fmul), reg-reg"),
         ("falu2i", "2-source float ALU, srcB packed minifloat immediate"),
+        ("falu2_uni", "2-source float ALU, srcB UNIFORM-register source (a + uniform)"),
         ("falu3", "3-source float ALU (fma)"),
         ("fminmax", "float min/max"),
         ("funary", "float source-modifier move (fmov/fabs/fneg)"),
@@ -85,6 +86,7 @@ FAMILY = [
         ("call_indirect", "indirect CALL (visible_function_table)"),
         ("frame_prologue", "non-leaf function frame prologue (scratch frame setup)"),
         ("link_save_restore", "link-register save/restore around a nested call"),
+        ("spill_frame_marker", "spill/frame-setup marker (after entry get_sr in spilling kernels)"),
     ]),
     ("SIMD-group / quad", [
         ("simd_reduce", "SIMD/quad reduce & prefix-scan"),

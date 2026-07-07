@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 75 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 77 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -50,7 +50,7 @@
 | `srcB_neg` | [43:44] | modifier |  |
 | `mod_hi` | [44:48] | modifier |  |
 
-*d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up to 96 addressable 32-bit regs, EXP-0020). dst here is the compact b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i). A source may name a UNIFORM register instead of a GPR (float uniform-select ~ byte+2 bit4 / byte+5 bit1; see uniform_mov).*
+*d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up to 96 addressable 32-bit regs, EXP-0020). dst here is the compact b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i). When bit39=1, srcB is NOT a GPR: byte+1's exponent nibble (bits[12:16], = instr bit15 = the 8s bit) SPLITS the two overloads -- exp>=8 (bit15=1) => packed minifloat immediate (falu2i), exp<8 (bit15=0) => UNIFORM-REGISTER source (falu2_uni). RT-1a-FIX HW-validated (supersedes the earlier `byte+2 bit4 / byte+5 bit1` guess, which was wrong).*
 
 ### `falu2i` — 2-source float ALU, srcB packed minifloat immediate
 
@@ -71,6 +71,24 @@
 | `mods` | [40:48] (byte+5) | modifier |  |
 
 *d = op(srcA, K)  ; srcB is the packed non-IEEE float immediate K = imm_decode(b1, sign). exp(bits12:16,bias11) mant(bits9:12) flag(bit8) sign(bit19). Range +-{0,1/32..30}. HW-VALIDATED EXP-0006.*
+
+### `falu2_uni` — 2-source float ALU, srcB UNIFORM-register source (a + uniform)
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x9, bits[39:40]==0x1, bits[15:16]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `usrc` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul |
+| `opflags` | [19:24] | modifier |  |
+| `srcA_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcA_reg` | [25:32] | register |  |
+| `ctrl_lo` | [32:39] (byte+4) | modifier |  |
+| `uni_mode` | [39:40] | enum | `0x1`=srcB_not_gpr |
+| `mods` | [40:48] (byte+5) | modifier |  |
+
+*d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-invariant) register, not a GPR and not an immediate. Selected when bit39=1 AND byte+1's exponent nibble < 8 (bit15=0); the minifloat immediate (falu2i) uses exp>=8 (bit15=1). uniform index = byte+1 = (ureg<<1)|size32. The uniform value is preloaded by the driver / the constant (uniform) program (EXP-0010/EXP-0020). RT-1a-FIX HW-VALIDATED.*
 
 ### `falu3` — 3-source float ALU (fma)
 
@@ -132,15 +150,16 @@
 
 ### `falu_acc` — compact 4-byte float accumulate (reduction)
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9, byte+2==0x38  ·  **Provenance:** HW-validated
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9, bits[16:21]==0x18, bits[22:24]==0x0  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
 | `srcA` | [8:16] (byte+1) | register |  |
+| `cache` | [21:22] | modifier |  |
 | `srcB` | [24:32] (byte+3) | register |  |
 
-*d = srcA (+) srcB  ; COMPACT 4-byte float accumulate (float-ALU group low-nibble 9, byte+2 == 0x38 = opsel with the arithmetic-enable bit clear vs the 6-byte 0x3c fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits it for plain reduction accumulates. byte+3 = srcB register descriptor.*
+*d = srcA (+) srcB  ; COMPACT 4-byte float accumulate (float-ALU group low-nibble 9, byte+2 in {0x18,0x38} = opsel with the arithmetic-enable bit clear vs the 6-byte 0x3c fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits it for plain reduction accumulates. byte+3 = srcB register descriptor. byte+2 bit5 (`cache`: 0x18 vs 0x38) is a source-cache/last-use hint, NOT an op change (RT-1a-FIX: splice 0x18<->0x38 leaves the reduction result unchanged).*
 
 ### `cvt_f2h` — fp32 -> fp16 narrowing convert
 
@@ -209,7 +228,7 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `srcA_neg` | [7:8] | modifier |  |
+| `addsub` | [7:8] | opcode-select | `0x1`=iadd; `0x0`=isub |
 | `lenbit` | [8:9] (byte+1) | modifier |  |
 | `b1hi` | [9:16] | raw/unmapped |  |
 | `b2lo` | [16:17] (byte+2) | raw/unmapped |  |
@@ -221,7 +240,7 @@
 | `b6` | [48:56] (byte+6) | raw/unmapped |  |
 | `tail` | [56:80] (byte+7) | raw/unmapped |  |
 
-*d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). subtract = srcA-negate (b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.*
+*d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.*
 
 ### `imad` — integer multiply-add (imul = c=0)
 
@@ -229,7 +248,7 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `srcA_neg` | [7:8] | modifier |  |
+| `b0bit7` | [7:8] | modifier |  |
 | `lenbit` | [8:9] (byte+1) | modifier |  |
 | `b1hi` | [9:16] | raw/unmapped |  |
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
@@ -514,17 +533,17 @@
 | `amode` | [16:24] (byte+2) | raw/unmapped |  |
 | `extmode` | [24:32] (byte+3) | modifier |  |
 | `base_slot` | [32:40] (byte+4) | immediate |  |
-| `count` | [40:48] (byte+5) | immediate |  |
-| `addr_lo` | [48:56] (byte+6) | raw/unmapped |  |
-| `addr_hi` | [56:64] (byte+7) | raw/unmapped |  |
+| `index_reg` | [40:48] (byte+5) | register |  |
+| `inert6` | [48:56] (byte+6) | raw/unmapped |  |
+| `tail7` | [56:64] (byte+7) | raw/unmapped |  |
 | `dst_width` | [64:72] (byte+8) | register |  |
-| `tail9` | [72:80] (byte+9) | raw/unmapped |  |
-| `tail10` | [80:88] (byte+10) | raw/unmapped |  |
-| `tail11` | [88:96] (byte+11) | raw/unmapped |  |
+| `tail9lo` | [72:79] (byte+9) | raw/unmapped |  |
+| `idx_off` | [79:90] | immediate |  |
+| `tail11hi` | [90:96] | raw/unmapped |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `tail13` | [104:112] (byte+13) | raw/unmapped |  |
 
-*load `count` consecutive 32-bit words (vector width, +5 low3) of `elem_size` bytes each (+12 bits[1:4]: k->2^(k-1) B) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at index_GPR * elem_size, base = buffer[base_slot] (+4). Element addressing; NO immediate offset (a[i+k] is a prior ALU add on the index). Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load variant (+3).*
+*load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a prior ALU op, but the HW field exists. Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load (+3).*
 
 ### `device_store` — store (device / threadgroup)
 
@@ -536,17 +555,17 @@
 | `amode` | [16:24] (byte+2) | raw/unmapped |  |
 | `extmode` | [24:32] (byte+3) | modifier |  |
 | `base_slot` | [32:40] (byte+4) | immediate |  |
-| `count` | [40:48] (byte+5) | immediate |  |
-| `addr_lo` | [48:56] (byte+6) | raw/unmapped |  |
-| `addr_hi` | [56:64] (byte+7) | raw/unmapped |  |
+| `index_reg` | [40:48] (byte+5) | register |  |
+| `inert6` | [48:56] (byte+6) | raw/unmapped |  |
+| `tail7` | [56:64] (byte+7) | raw/unmapped |  |
 | `data_width` | [64:72] (byte+8) | register |  |
-| `tail9` | [72:80] (byte+9) | raw/unmapped |  |
-| `tail10` | [80:88] (byte+10) | raw/unmapped |  |
-| `tail11` | [88:96] (byte+11) | raw/unmapped |  |
+| `tail9lo` | [72:79] (byte+9) | raw/unmapped |  |
+| `idx_off` | [79:90] | immediate |  |
+| `tail11hi` | [90:96] | raw/unmapped |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `tail13` | [104:112] (byte+13) | raw/unmapped |  |
 
-*store `count` 32-bit words (vector width, +5) to the address space in `space` (+1 bit1: 1=threadgroup) at index_GPR*elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load. Narrowing stores (char/short) set elem_size (+12).*
+*store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). Narrowing stores (char/short) set elem_size (+12).*
 
 ### `vary_store` — vertex varying / [[position]] store to the UVS/parameter buffer
 
@@ -798,6 +817,18 @@
 | `dir_offset` | [40:64] (byte+5) | raw/unmapped |  |
 
 *LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; byte+5..+7 discriminate SAVE (00 00 00) from RESTORE (ff 1f 00, a scratch offset). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target).*
+
+### `spill_frame_marker` — spill/frame-setup marker (after entry get_sr in spilling kernels)
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x60  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `b2` | [16:24] (byte+2) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / SPILLING kernels (byte0 0x60). Runtime-inert for the computation in our splice test (byte0/+1/+2 sweeps are no-ops); byte+3 is the only live byte (0xff faults). Best-understood role: scratch-frame / occupancy setup for the spill path; exact semantics a follow-up. Adding it unblocks tokenization (RT-1a-FIX: without a length rule the tokenizer halted).*
 
 ## SIMD-group / quad
 
@@ -1141,7 +1172,7 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `lownibble_0xC` | 4 |
 | `0x67/0xe7` | 14  [load/store: device, threadgroup (byte+1 bit1=0x02) and constant all share this opcode pair -- EXP-0012] |
 | `0x07 (+ byte+2==0x54)` | 6  [THREADGROUP/EXECUTION BARRIER (threadgroup_barrier): 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope 0x61 threadgroup / 0x85 device. The ONLY explicit ordering op in compute -- device load/store/atomic/texture are NOT scoreboard-waited (HW register interlock). EXP-0025 HW/splice-proven] |
-| `lownibble_0x9` | 6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait. byte+2==0x25 (still 6B) = transcendental ESTIMATE SEED (byte0 0x29): byte+3 0x09 rcp / 0x0b rsqrt / 0x0d sqrt estimate, ~8 mantissa bits, the Newton-Raphson seed for precise 1/x/rsqrt/sqrt, EXP-0026] |
+| `lownibble_0x9` | 6, or 8 if (byte[+2] & 0x02), or 4 if byte+2 in {0x18,0x38}  [float ALU; byte+2 in {0x18,0x38} = compact 4-byte float accumulate (falu_acc), EXP-0025 / RT-1a-FIX -- NOT a wait; 0x18 vs 0x38 is a source cache/last-use hint. srcB-imm form (bit39=1): byte+1 exp>=8 (bit15=1) = minifloat immediate (falu2i), exp<8 (bit15=0) = UNIFORM-register source (falu2_uni), RT-1a-FIX. byte+2==0x25 (still 6B) = transcendental ESTIMATE SEED (byte0 0x29): byte+3 0x09 rcp / 0x0b rsqrt / 0x0d sqrt estimate, ~8 mantissa bits, the Newton-Raphson seed for precise 1/x/rsqrt/sqrt, EXP-0026] |
 | `0x2f/0xaf` | 10  [float SPECIAL-FUNCTION UNIT (SFU): one op computes rcp/rsqrt/exp2 (byte0 0xaf) \| round/sqrt/log2 (byte0 0x2f), function = byte+1 (0x00 rcp\|round / 0x01 rsqrt\|sqrt / 0x02 exp2\|log2). exp/log/pow/div compose these. fast-math emits single ops; precise 1/x/sqrt/div refine with Newton-Raphson. EXP-0013 (exp2/log2/round) + EXP-0026 (rcp/rsqrt/sqrt)] |
 | `lownibble_0xB` | 4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: uniform-reg -> GPR, EXP-0020]; else 10 [float unary / integer and/or/xor] |
 | `0x02` | 6  [integer min/max \| compare-for-select] |
@@ -1184,6 +1215,9 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `0x32` | 6  [u64 CARRY-GENERATE (carry_gen): unsigned-overflow compare (byte+2==0x35, byte+4==0x22) detecting the low-word add carry in a 64-bit ADD chain; predicate feeds a 0x05 psel. EXP-0038] |
 | `0x22 (byte+2==0x35)` | 6  [carry-generate sibling of 0x32 (intermediate carry of a 3-operand u64 add); the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038] |
 | `0x6f` | 6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch frame a non-leaf callee uses to save its link register around inner calls. EXP-0038] |
+| `0x60` | 4  [SPILL/FRAME-SETUP MARKER (spill_frame_marker): `60 00 00 00` right after the entry get_sr in high-register-pressure / SPILLING kernels. Runtime-inert for the computation (byte0/+1/+2 splices no-op), byte+3 live (0xff faults). Previously halted tokenization (no length rule). RT-1a-FIX HW: length 4; exact role a follow-up] |
+| `device_load/store +5 index_reg (RT-1a-FIX)` | +5 is the INDEX GPR that supplies a[idx] (NOT `count`; sweeping +5 selects which GPR feeds the index); +6 is INERT; +1 = address space; the additive IMMEDIATE index-offset lives at +9 bit7 (+1) / +10 (+2/unit) / +11 low (+512/unit). Vector width/count is at +8 (dst_width) / +12 (elem_size). RT-1a-FIX HW-validated. |
+| `iadd2 add/sub polarity (RT-1a-FIX)` | byte0 bit7 = ADD(1,0x9f) / SUBTRACT(0,0x1f) select. The DB previously had this INVERTED (labelled every add srcA_neg=1 and gave 0x1f d=srcA+srcB although 0x1f subtracts). Splice 0x9f->0x1f turns 10+20 into 10-20=-10. HW-validated. |
 | `0x07 (byte+1==0x00, byte+2==0x54)` | 8  [LINK-REGISTER SAVE/RESTORE around a nested call in a non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte threadgroup_barrier / pixel_order. EXP-0038] |
 | `0x18` | 4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038] |
 | `0xbf/0x3f/0xb7 cache bit` | the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-reduce byte+2==0x56 disambiguation is deliberately NOT relaxed. |
@@ -1201,4 +1235,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 75 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 77 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

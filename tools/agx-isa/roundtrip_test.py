@@ -127,6 +127,13 @@ REAL_INSTRS = {
     "barrier tgmem (07 04 54 61 09 00)": "070454610900",  # threadgroup_barrier(mem_threadgroup) HW/splice
     "barrier device (07 04 54 85 08 00)":"070454850800",  # threadgroup_barrier(mem_device) HW
     "falu_acc (09 01 38 11)":            "09013811",       # compact 4-byte float accumulate HW (NOT a wait)
+    # ---- RT-1a-FIX: memory index, iadd polarity, uniform source, undecoded groups ----
+    "falu2_uni a+uniform (09 0d 14 01 80 c0)": "090d140180c0",  # GPR + UNIFORM src (NOT a minifloat imm) RT-1a-FIX HW
+    "falu_acc 0x18 form (19 0b 18 09)":  "190b1809",       # compact float accumulate, byte+2=0x18 variant RT-1a-FIX HW
+    "spill_frame_marker (60 00 00 00)":  "60000000",       # spill/frame-setup marker after entry get_sr RT-1a-FIX HW len
+    "device_load a[i0] (67 00 46 0a ..)":"6700460a02802000510100404600",  # index_reg=+5, +6 inert, idx_off RT-1a-FIX HW
+    "iadd2 add (9f 01 56 .. a8 17 05)":  "9f015600020800a81705",  # byte0 0x9f = ADD (RT-1a-FIX polarity) HW
+    "iadd2 sub (1f 01 56 .. a8 17 05)":  "1f015600020010a81705",  # byte0 0x1f = SUBTRACT (RT-1a-FIX polarity) HW
     # ---- FRAGMENT STAGE (EXP-0029), carved from our own compiled render pipelines ----
     "iter center (2f 0d 54 .. m0)":      "2f0d5400030000021000",   # varying interpolate, center  HW
     "iter perspW (2f 0d 54 .. m4)":      "2f0d5400030004021000",   # perspective-denominator iter HW
@@ -322,11 +329,15 @@ SYNTH = [
     ("falu3",   {"dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ext": 0xc002}),
     ("fminmax", {"dst": 0x03, "op": 0x1e, "srcA": 0x05, "sel": 0x01, "mods": 0xc0}),
     # ---- integer (EXP-0007) ----
-    # iadd a+b: dst=reg0, srcA_neg=0 (add), lenbit=1 (10B), arith_en=1. Reproduces
-    # the compiler's iadd bytes 9f 01 56 00 02 08 00 a8 17 05.
-    ("iadd2",   {"srcA_neg": 1, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
+    # iadd a+b: dst=reg0, addsub=1 (ADD, byte0 0x9f -- RT-1a-FIX polarity), lenbit=1
+    # (10B), arith_en=1. Reproduces the compiler's iadd bytes 9f 01 56 00 02 08 00 a8 17 05.
+    ("iadd2",   {"addsub": 1, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
                  "b2hi": 0x15, "dst": 0x00, "opmode": 0x02, "srcB_imm": 0x08,
                  "b6": 0x00, "tail": 0x0517a8}),
+    # isub a-b (RT-1a-FIX): addsub=0 (SUBTRACT, byte0 0x1f). 1f 01 56 00 02 00 10 a8 17 05.
+    ("iadd2",   {"addsub": 0, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
+                 "b2hi": 0x15, "dst": 0x00, "opmode": 0x02, "srcB_imm": 0x00,
+                 "b6": 0x10, "tail": 0x0517a8}),
     # iminmax: signed min (sel=0x7), srcA=reg descriptor 0x05, srcB=0xc0.
     ("iminmax", {"b1": 0x01, "op": 0x1e, "srcA": 0x05, "sel": 0x7, "selhi": 0, "srcB": 0xc0}),
     # iminmax: unsigned max (sel=0x4).

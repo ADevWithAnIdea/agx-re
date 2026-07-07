@@ -1,0 +1,55 @@
+
+## sweep byte+5 (index reg): a[i0]-load byte+5 (abs +0x21)
+  0x00 OK  o0=4003     a[40]
+  0x01 OK  o0=303      a[3]
+  0x02 OK  o0=7703     a[77]
+  0x03 OK  o0=1203     a[12]
+  0x04 OK  o0=3        a[0]
+  0x05 OK  o0=3        a[0]
+  0x80 OK  o0=4003     a[40]
+  0x81 OK  o0=303      a[3]
+  0x82 OK  o0=7703     a[77]
+
+## sweep byte+6 (inert?): a[i0]-load byte+6 (abs +0x22)
+  0x00 OK  o0=4003     a[40]
+  0x01 OK  o0=4003     a[40]
+  0x02 OK  o0=4003     a[40]
+  0x10 OK  o0=4003     a[40]
+  0x20 OK  o0=4003     a[40]
+  0x40 OK  o0=4003     a[40]
+  0x80 OK  o0=4003     a[40]
+  0xff OK  o0=4003     a[40]
+
+## sweep byte+1 (space): a[i0]-load byte+1 (abs +0x1d)
+  0x00 OK  o0=4003     a[40]
+  0x01 OK  o0=0        RAW/dest?
+  0x02 OK  o0=0        RAW/dest?
+  0x03 OK  o0=0        RAW/dest?
+  0x04 OK  o0=4003     a[40]
+
+## sweep byte+9 (offset bit7?): a[i0]-load byte+9 (abs +0x25)
+  0x01 OK  o0=4003     a[40]
+  0x81 OK  o0=4103     a[41]
+
+## sweep byte+10 (offset?): a[i0]-load byte+10 (abs +0x26)
+  0x00 OK  o0=4003     a[40]
+  0x01 OK  o0=4203     a[42]
+  0x02 OK  o0=4403     a[44]
+  0x03 OK  o0=4603     a[46]
+
+## sweep byte+11 (offset?): a[i0]-load byte+11 (abs +0x27)
+  0x40 OK  o0=4003     a[40]
+  0x41 OK  o0=0        RAW/dest?
+  0x42 OK  o0=0        RAW/dest?
+  0x44 OK  o0=0        RAW/dest?
+
+WROTE mem_index_results.json
+--- byte9/10/11 offset scaling (big buffer) ---
+byte+11 0x40 OK o0=4003 idx=40
+byte+11 0x41 OK o0=55203 idx=552
+byte+11 0x42 OK o0=106403 idx=1064
+byte+10 0x00 OK o0=4003 idx=40
+byte+10 0x08 OK o0=5603 idx=56
+byte+10 0x10 OK o0=7203 idx=72
+byte+9 0x01 OK o0=4003 idx=40
+byte+9 0x81 OK o0=4103 idx=41

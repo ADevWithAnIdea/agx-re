@@ -1,0 +1,47 @@
+## A) uni.metal a[gid]+p.k : does it read the runtime uniform?
+  p.k=7      -> OK out=17.0  (a+p.k=17.0)  match=True
+  p.k=100    -> OK out=110.0  (a+p.k=110.0)  match=True
+  p.k=0.5    -> OK out=10.5  (a+p.k=10.5)  match=True
+  p.k=2      -> OK out=12.0  (a+p.k=12.0)  match=True
+
+## B) cadd (a+1.0, no uniform) byte+1=0xb1 minifloat; splice->0x0d reads unbound uniform(=0)
+   cadd falu at main+0x12 = 09b1140180c0
+   byte+1=0xb1 (exp nibble=11) -> OK out=11.0
+   byte+1=0x0d (exp nibble=0) -> OK out=10.0
+   byte+1=0x00 (exp nibble=0) -> OK out=4.0
+
+## C) uni_multi: sweep the add's byte+1 -> which uniform is selected
+   uni_multi falu at main+0x12 = 090d140180c0
+   original byte+1 = 0x0d
+   byte+1=0x00 out=3        uniform_val=-7       
+   byte+1=0x01 out=10       uniform_val=0        
+   byte+1=0x02 out=10       uniform_val=1.52588e-05 
+   byte+1=0x03 out=10       uniform_val=0        
+   byte+1=0x04 out=5        uniform_val=-5       
+   byte+1=0x05 out=10       uniform_val=0        
+   byte+1=0x06 out=10       uniform_val=1.52588e-05 
+   byte+1=0x07 out=10       uniform_val=0        
+   byte+1=0x08 out=10       uniform_val=1.52588e-05 
+   byte+1=0x09 out=10       uniform_val=0        
+   byte+1=0x0a out=10       uniform_val=1.52588e-05 
+   byte+1=0x0b out=10       uniform_val=0        
+   byte+1=0x0c out=10       uniform_val=0        
+   byte+1=0x0d out=17       uniform_val=7        k0  <== ORIG
+   byte+1=0x0e out=10       uniform_val=0        
+   byte+1=0x0f out=10       uniform_val=0        
+   byte+1=0x10 out=10       uniform_val=0        
+   byte+1=0x11 out=10       uniform_val=0        
+   byte+1=0x12 out=10       uniform_val=0        
+   byte+1=0x13 out=10       uniform_val=0        
+   byte+1=0x14 out=10       uniform_val=0        
+   byte+1=0x15 out=10       uniform_val=0        
+   byte+1=0x16 out=10       uniform_val=0        
+   byte+1=0x17 out=10       uniform_val=0        
+   byte+1=0x18 out=10       uniform_val=0        
+   byte+1=0x19 out=10       uniform_val=0        
+   byte+1=0x1a out=10       uniform_val=0        
+   byte+1=0x1b out=10       uniform_val=0        
+   byte+1=0x1c out=10       uniform_val=0        
+   byte+1=0x1d out=10       uniform_val=0        
+   byte+1=0x1e out=10       uniform_val=0        
+   byte+1=0x1f out=10       uniform_val=0        

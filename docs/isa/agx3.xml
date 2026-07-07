@@ -289,6 +289,26 @@
     <ins name="fmul" opsel="101"/>
   </group>
 
+  <!-- falu2_uni: d = op(srcA_gpr, uniform_reg[usrc>>1]) -->
+  <!-- provenance: HW-RE-VALIDATED (RT-1a-FIX item 3): uni.metal `a[gid]+p.k` runtime output tracks the runtime uniform (a=10: p.k=7->17, 100->110, 0.5->10.5, 2->12) ... -->
+  <group name="falu2_uni" length="6" label="d = op(srcA_gpr, uniform_reg[usrc&gt;&gt;1])">
+    <exact bit="0:3">1001</exact>
+    <exact bit="39">1</exact>
+    <exact bit="15">0</exact>
+    <exact bit="16:18">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="usrc" bit="8:14"/>
+    <modifier name="opflags" bit="19:23"/>
+    <modifier name="srcA_size" bit="24" kind="opsize"/>
+    <src name="srcA_reg" bit="25:31"/>
+    <modifier name="ctrl_lo" bit="32:38"/>
+    <!-- uni_mode [39]: constant, pinned by match/opcode -->
+    <modifier name="mods" bit="40:47"/>
+
+    <ins name="fadd" opsel="100"/>
+    <ins name="fmul" opsel="101"/>
+  </group>
+
   <!-- falu3: d = a*b + c -->
   <!-- provenance: HW-VALIDATED (EXP-0013): base a*b+c correct across varied a,b,c; splicing byte+5 (srcC) to the srcA/srcB descriptor changes the addend to a / b ... -->
   <ins name="falu3" length="8" label="d = a*b + c">
@@ -332,11 +352,11 @@
     <zero bit="48:79"/>
   </ins>
 
-  <!-- iadd2: d = (srcA_neg?-srcA:srcA) + srcB -->
-  <!-- provenance: HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith enable ... -->
-  <ins name="iadd2" length="10" label="d = (srcA_neg?-srcA:srcA) + srcB">
+  <!-- iadd2: d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f) -->
+  <!-- provenance: HW-VALIDATED (EXP-0007 + RT-1a-FIX): dst field (dstc b3 sweep relocates result), ADD/SUB polarity (RT-1a-FIX: iaddbank p.x+p.y is byte0 0x9f=30 ... -->
+  <group name="iadd2" length="10" label="d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)">
     <exact bit="0:6">0011111</exact>
-    <modifier name="srcA_neg" bit="7"/>
+    <exact bit="7">addsub</exact>
     <modifier name="lenbit" bit="8"/>
     <!-- b1hi [9:15]: inferred / not yet bit-decoded -->
     <zero bit="9:15"/>
@@ -352,13 +372,16 @@
     <zero bit="48:55"/>
     <!-- tail [56:79]: inferred / not yet bit-decoded -->
     <zero bit="56:79"/>
-  </ins>
+
+    <ins name="isub" addsub="0"/>
+    <ins name="iadd" addsub="1"/>
+  </group>
 
   <!-- imad: d = srcA*srcB (+ srcC) -->
   <!-- provenance: HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); 12-byte length = b1 bit0==0 (HW). field bit-packing inferred (byte-diff). -->
   <ins name="imad" length="12" label="d = srcA*srcB (+ srcC)">
     <exact bit="0:6">0011111</exact>
-    <modifier name="srcA_neg" bit="7"/>
+    <modifier name="b0bit7" bit="7"/>
     <modifier name="lenbit" bit="8"/>
     <!-- b1hi [9:15]: inferred / not yet bit-decoded -->
     <zero bit="9:15"/>
@@ -604,53 +627,51 @@
     <zero bit="72:79"/>
   </ins>
 
-  <!-- device_load: load `count` consecutive 32-bit words (vector width, +5 low3) of `elem_size` bytes each (+12 ... -->
-  <!-- provenance: HW-VALIDATED (EXP-0012): base_slot (M6/E7), count/vector-width (M4 splice 4->1 truncates the copy), element-size/address-scale (M2 splice ... -->
-  <ins name="device_load" length="14" label="load `count` consecutive 32-bit words (vector width, +5 low3) of `elem_size` bytes each (+12 ...">
+  <!-- device_load: load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride), data width (M2). ... -->
+  <ins name="device_load" length="14" label="load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` ...">
     <exact bit="0:7">01100111</exact>
     <modifier name="space" bit="8:15"/>
     <!-- amode [16:23]: inferred / not yet bit-decoded -->
     <zero bit="16:23"/>
     <modifier name="extmode" bit="24:31"/>
     <immediate name="base_slot" bit="32:39"/>
-    <immediate name="count" bit="40:47"/>
-    <!-- addr_lo [48:55]: inferred / not yet bit-decoded -->
+    <src name="index_reg" bit="40:47"/>
+    <!-- inert6 [48:55]: inferred / not yet bit-decoded -->
     <zero bit="48:55"/>
-    <!-- addr_hi [56:63]: inferred / not yet bit-decoded -->
+    <!-- tail7 [56:63]: inferred / not yet bit-decoded -->
     <zero bit="56:63"/>
     <dest name="dst_width" bit="64:71"/>
-    <!-- tail9 [72:79]: inferred / not yet bit-decoded -->
-    <zero bit="72:79"/>
-    <!-- tail10 [80:87]: inferred / not yet bit-decoded -->
-    <zero bit="80:87"/>
-    <!-- tail11 [88:95]: inferred / not yet bit-decoded -->
-    <zero bit="88:95"/>
+    <!-- tail9lo [72:78]: inferred / not yet bit-decoded -->
+    <zero bit="72:78"/>
+    <immediate name="idx_off" bit="79:89"/>
+    <!-- tail11hi [90:95]: inferred / not yet bit-decoded -->
+    <zero bit="90:95"/>
     <immediate name="elem_size" bit="96:103"/>
     <!-- tail13 [104:111]: inferred / not yet bit-decoded -->
     <zero bit="104:111"/>
   </ins>
 
-  <!-- device_store: store `count` 32-bit words (vector width, +5) to the address space in `space` (+1 bit1 ... -->
-  <!-- provenance: HW-VALIDATED (EXP-0012): count/vector-width (M4 store +5 4->1 stores fewer words), space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip ... -->
-  <ins name="device_store" length="14" label="store `count` 32-bit words (vector width, +5) to the address space in `space` (+1 bit1 ...">
+  <!-- device_store: store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. ... -->
+  <ins name="device_store" length="14" label="store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * ...">
     <exact bit="0:7">11100111</exact>
     <modifier name="space" bit="8:15"/>
     <!-- amode [16:23]: inferred / not yet bit-decoded -->
     <zero bit="16:23"/>
     <modifier name="extmode" bit="24:31"/>
     <immediate name="base_slot" bit="32:39"/>
-    <immediate name="count" bit="40:47"/>
-    <!-- addr_lo [48:55]: inferred / not yet bit-decoded -->
+    <src name="index_reg" bit="40:47"/>
+    <!-- inert6 [48:55]: inferred / not yet bit-decoded -->
     <zero bit="48:55"/>
-    <!-- addr_hi [56:63]: inferred / not yet bit-decoded -->
+    <!-- tail7 [56:63]: inferred / not yet bit-decoded -->
     <zero bit="56:63"/>
     <src name="data_width" bit="64:71"/>
-    <!-- tail9 [72:79]: inferred / not yet bit-decoded -->
-    <zero bit="72:79"/>
-    <!-- tail10 [80:87]: inferred / not yet bit-decoded -->
-    <zero bit="80:87"/>
-    <!-- tail11 [88:95]: inferred / not yet bit-decoded -->
-    <zero bit="88:95"/>
+    <!-- tail9lo [72:78]: inferred / not yet bit-decoded -->
+    <zero bit="72:78"/>
+    <immediate name="idx_off" bit="79:89"/>
+    <!-- tail11hi [90:95]: inferred / not yet bit-decoded -->
+    <zero bit="90:95"/>
     <immediate name="elem_size" bit="96:103"/>
     <!-- tail13 [104:111]: inferred / not yet bit-decoded -->
     <zero bit="104:111"/>
@@ -984,12 +1005,14 @@
   </ins>
 
   <!-- falu_acc: d = srcA (+) srcB -->
-  <!-- provenance: HW-VALIDATED (EXP-0025): in a 10-value sum (manyload) the stream has 6 six-byte 0x3c/0x1c fadds + 3 of these 0x38 ops = 9 adds (exactly N-1), and the ... -->
+  <!-- provenance: HW-VALIDATED (EXP-0025 + RT-1a-FIX): in a 10-value sum (manyload) the stream has 6 six-byte 0x3c/0x1c fadds + 3 of these ops = 9 adds (exactly N-1) ... -->
   <ins name="falu_acc" length="4" label="d = srcA (+) srcB">
     <exact bit="0:3">1001</exact>
-    <exact bit="16:23">00111000</exact>
+    <exact bit="16:20">11000</exact>
+    <exact bit="22:23">00</exact>
     <dest name="dst" bit="4:7"/>
     <src name="srcA" bit="8:15"/>
+    <modifier name="cache" bit="21"/>
     <src name="srcB" bit="24:31"/>
   </ins>
 
@@ -1394,6 +1417,18 @@
     <!-- b4 [32:39]: inferred / not yet bit-decoded -->
     <zero bit="32:39"/>
     <immediate name="frame_size" bit="40:47"/>
+  </ins>
+
+  <!-- spill_frame_marker: 4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / ... -->
+  <!-- provenance: HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the following 10-byte iadd2 in big.bin; big kernel output invariant to ... -->
+  <ins name="spill_frame_marker" length="4" label="4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / ...">
+    <exact bit="0:7">01100000</exact>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- b2 [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
   </ins>
 
   <!-- link_save_restore: LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame -->

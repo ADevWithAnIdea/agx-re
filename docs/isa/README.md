@@ -4,9 +4,11 @@ Clean-room documentation of the Apple G17P shader instruction set. All facts her
 disassembling **shaders we compiled ourselves** (OWN-SHADER) + public references (PUBLIC) —
 never from Apple binaries. See `../../CLAUDE.md`.
 
-> **Status: mature.** 68 machine-readable instruction descriptors (round-trip-validated asm↔disasm); a
-> broad-corpus byte0 census tokenizes **~88%** of instruction bytes with **no whole undecoded instruction family
+> **Status: mature.** 77 machine-readable instruction descriptors (round-trip-validated asm↔disasm); a
+> broad-corpus byte0 census tokenizes **88.0%** of instruction bytes (77.1% descriptor-named) with **no whole undecoded instruction family
 > remaining** (residual = operand sub-fields + resync artifacts). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md) · Mesa-schema render: [`agx3.xml`](agx3.xml) (drop into `src/asahi/isa/`).
+>
+> **RT-1a-FIX (HW-re-validated red-team corrections applied):** memory-op **index register = byte+5** (not byte+1/+6; byte+6 inert; byte+1 = address space) + an in-instruction **immediate index-offset** at byte+9 bit7/+10/+11; **iadd2 polarity** corrected (byte0 `0x9f`=ADD, `0x1f`=SUBTRACT); a proper **float uniform-register source** (`falu2_uni`, disambiguated from the minifloat immediate by byte+1's exponent range); and descriptors/lengths for byte0 `0x60` (spill/frame marker) + the byte+2=`0x18` compact float-accumulate. Each independently splice-and-observe re-validated on the A18 Pro — see `experiments/RT-1a-FIX/`.
 > ✅ = hardware-validated (run modified code, observe output); ⏳ = byte-diff-inferred, not yet HW-round-tripped.
 
 ## How we get the bytes (validated — EXP-0001)
@@ -146,9 +148,16 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
 - **Register-field widths:** the 6-byte `falu2` dst is a 4-bit nibble (r0–r15 compaction); high float dst
   uses the 8-byte `falu3` form (`dst=byte+1`, 7-bit; r64 observed). Integer `dst=b3` and all source
   fields are 7-bit `(reg<<1)|size` (span r0–r127, covering the 96-reg file).
-- **Uniform register file:** a source operand selects **GPR vs uniform** via a per-source mode bit
-  (int `0x9f`: uniform-srcB byte+5 bit4, uniform-srcA byte+6; float `0x09`: byte+2 bit4 / byte+5 bit1 —
-  ⏳ byte-diff inferred, not yet splice-validated). `uniform_mov` (4 B, `Xb YY 01 08`) copies uniform→GPR.
+- **Uniform register file:** a source operand selects **GPR vs uniform**. For the **float `0x09`** ALU the
+  uniform-srcB form is now HW-validated (RT-1a-FIX, `falu2_uni`): with **bit39 (srcB-imm-mode) set**, byte+1's
+  **exponent nibble** disambiguates the two srcB overloads — **exp ≥ 8** (instr bit15 = byte+1 bit7 = 1) = a
+  packed minifloat immediate (`falu2i`), **exp < 8** (bit15 = 0) = a **uniform-register source** (`falu2_uni`;
+  uniform index = byte+1 as `(ureg<<1)|size`). Proven: `a[gid]+p.k` compiles to `09 0d 14 01 80 c0` and reads the
+  *runtime* uniform (a=10 → p.k=7 gives 17, p.k=100 gives 110), and splicing a real immediate's byte+1 `0xb1`→`0x0d`
+  makes it read an unbound uniform (=0), not `imm_decode(0x0d)`. (This **supersedes** the earlier byte-diff guess
+  "float uniform-select ~ byte+2 bit4 / byte+5 bit1", which was wrong.) For the **int `0x9f`** ALU the uniform form
+  is still byte-diff-inferred (uniform-srcB byte+5 bit4, uniform-srcA byte+6). `uniform_mov` (4 B, `Xb YY 01 08`)
+  copies uniform→GPR.
   ≤128 uniform regs (8-bit index); exact count ⏳.
 - **Footprint declaration:** the exact GPR/scratch/uniform/threadgroup footprint is in the shader
   binary's own `__GPU_METADATA` FlatBuffer (field 0 = GPR count, 14/41 = scratch bytes, 31 = uniform,
@@ -167,15 +176,24 @@ When srcB imm mode (bit 39) is set, srcB byte encodes an **8-bit minifloat** (NO
 - representable magnitudes: `{0, 1/32 … 30.0}`; out-of-range / non-dyadic constants fall back to a
   register-load form. Worked examples: `1.0→0xb1`, `2.0→0xc1`, `1.5→0xb9`, `3.5→0xcd`,
   `0.0625→0x85`, `30.0→0xff` (max). All 16 tested constants spliced and produced exact `a+K`.
+- **Domain (RT-1a-FIX):** the minifloat is only valid for **exponent field e ≥ 8**. The `e < 8` byte range
+  is NOT an immediate — it is the **uniform-register source overload** (`falu2_uni`, above). `imm_decode()`
+  is now **guarded** to `e ≥ 8` (it raises rather than silently extrapolating a bogus tiny value into the
+  uniform range — the old unguarded code returned `a + imm_decode(0x0d) ≈ a + 0.00085` for what is really a
+  uniform read).
 
 ### ✅ Integer ALU family (EXP-0007)
 Integer ops are **spread across several byte0 groups** (each its own format), mirroring the float
-split — there is **no single unified integer op-select**. `isub` = `iadd` with srcA-negate +
-operand-commute (same trick the compiler uses for `fsub`).
+split — there is **no single unified integer op-select**. For `iadd`/`isub`, **byte0 bit7 is the
+ADD/SUBTRACT selector** (RT-1a-FIX HW-re-validated, corrects the earlier inverted `srcA_neg`): the
+compiler emits **`0x9f` for a plain ADD** and **`0x1f` for a SUBTRACT**, and splicing a real add's
+byte0 `0x9f`→`0x1f` turns `10+20` into `10−20 = −10` on hardware. (The DB previously matched the
+canonical iadd on `0x1f` with `srcA_neg=0` / semantics `d=srcA+srcB`, although `0x1f` subtracts —
+now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
 
 | byte0 | len | operation(s) | op-select | status |
 |---|---|---|---|---|
-| `0x9f`/`0x1f` | 10 | iadd / isub | `b0 bit7` = srcA-negate | ✅ HW |
+| `0x9f`/`0x1f` | 10 | iadd / isub | `b0 bit7` = **add(1,`0x9f`) / sub(0,`0x1f`)** | ✅ HW (RT-1a-FIX) |
 | `0x9f`/`0x1f` | 12 | imul / imad | 3-source multiply-add (imul = imad, c=0) | ✅ HW (behaviour) |
 | `0x02` | 6 | imin/imax/umin/umax | `b4[0:3]`: bit0 min/max, bit1 signed/uns, bit2 int | ✅ HW |
 | `0x0b` | 10 | iand/ior/ixor | `b2[0:4]` + `b4/b5` src-invert | ⏳ toggle/byte-diff |
@@ -231,17 +249,22 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
 | byte | field | meaning | status |
 |---|---|---|---|
 | +0 | opcode | `0x67` load / `0xe7` store | ✅ |
-| +1 | space + index | **bit1 (`0x02`) = threadgroup** (else device/global); higher bits = index GPR | ✅ space / ⏳ reg |
+| +1 | **space** | address-space selector: nonzero low bits (`0x01`/`0x02`) = threadgroup / uninitialized (reads 0), `0x00` = device/global/constant. **NOT the index register** (RT-1a corrected the old "higher bits = index GPR") | ✅ |
 | +3 | extmode | bit1 = unsigned/zero-extend variant | ⏳ |
 | +4 | **base_slot** | preloaded buffer-base uniform slot (0=buf0, 1=buf1, …) | ✅ |
-| +5 | **count** | # consecutive 32-bit words = **vector width** (1/2/3/4), not a mask | ✅ |
-| +8 | dst/data + width | dest/data reg + data width (`51`=32b, `41`=16b, `61`=8b, `59`=64b) | ✅ width / ⏳ reg |
+| +5 | **index_reg** | **the GPR that supplies the array index `a[idx]`** — low bits = register number, bit7 (`0x80`) = a scalar/size flag. (RT-1a: this is NOT `count`; sweeping it selects which GPR feeds the index: `0x00`→r0, `0x01`→r1, …) | ✅ |
+| +6 | **inert** | HW-proven padding — sweeping `0x00`..`0xff` never changes the loaded value; not an address byte | ✅ |
+| +8 | dst/data + width | dest/data reg + data width (`51`=32b, `41`=16b, `61`=8b, `59`=64b); **this + +12 carry the true vector width/count** | ✅ width / ⏳ reg |
+| +9 bit7 / +10 / +11 | **idx_off** | in-instruction additive **immediate element index-offset**: +9 bit7 = +1, +10 = +2/unit, +11 low bits = +512/unit (RT-1a) | ✅ |
 | +12 | **elem_size** | address element size, bits[1:4]=k → `2^(k-1)` bytes (`42`=1,`44`=2,`46`=4,`48`=8) | ✅ |
 
-- **Addressing model: element addressing, no in-instruction offset.** Effective byte address =
-  `index_GPR × element_size`. `a[i+k]` / `a[i*s]` are computed by a **prior integer ALU op** on the
-  index (in element units); the load just consumes the result GPR. (HW-proven: `a[gid+1/+2/+4]` and
-  `a[gid*2/*4]` all share a byte-identical load; the offset lives in the preceding `iadd` immediate.)
+- **Addressing model: element addressing with an optional immediate offset.** Effective byte address =
+  `(index_GPR + idx_off) × element_size`, where **index_GPR = byte+5** and **idx_off** is the additive
+  immediate element-offset field (byte+9 bit7 / +10 / +11; RT-1a-FIX HW-validated: idxbuf i0=40 →
+  byte+9=`0x81`→a[41], byte+10=`0x01`→a[42]/`0x08`→a[56], byte+11=`0x41`→a[552]). The **compiler leaves
+  idx_off = 0** and instead computes `a[i+k]` / `a[i*s]` by a **prior integer ALU op** on the index (so
+  `a[gid+1/+2/+4]`, `a[gid*2/*4]` all share a byte-identical load, the offset living in the preceding
+  `iadd` immediate — EXP-0012), **but the hardware offset field exists** and a driver may use it directly.
 - **Vectors:** `float4`/`int4` = one load + one store moving 4 words (`count`=4 at +5).
 - **Sign extension:** signed sub-32-bit loads are **sign-extended by a following ALU shift** (`0xa7`),
   not by the load; unsigned use the zero-extend load variant (byte+3 bit1). HW-validated.

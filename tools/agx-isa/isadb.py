@@ -440,6 +440,15 @@ def instr_length(buf, off=0):
     # link register around inner calls. `6f 03 04 00 00 20`. 6 bytes.
     if b0 == 0x6f:
         return 6                       # frame_prologue (EXP-0038 HW role)
+    # ---- SPILL/FRAME-SETUP MARKER (byte0 0x60, RT-1a-FIX item 4) --------------
+    # `60 00 00 00` appears instruction-aligned right after the entry get_sr in
+    # high-register-pressure / spilling kernels (big.bin). No prior length rule ->
+    # tokenization halted here. RT-1a-FIX HW-validated the length is 4: with 0x60->4
+    # the following 10-byte iadd2 (`9f 11 54 ...`) aligns cleanly, and splicing the
+    # op's byte+3 (=+7) to 0xff FAULTS (it is this instruction's last, live byte)
+    # while byte0/+1/+2 are runtime-inert for the computation. 4 bytes.
+    if b0 == 0x60:
+        return 4                       # spill_frame_marker (RT-1a-FIX HW: length 4, byte+3 live)
     # ---- u64 CARRY-GENERATE (byte0 0x32, EXP-0038) ---------------------------
     # Unsigned-overflow compare (integer compare/min-max family, base 0x02|0x30;
     # byte+2==0x35, byte+4==0x22) detecting the carry-out of the low-word add in a
@@ -521,8 +530,25 @@ FALU2_OPSEL_ENUM = {
 # 255) make the compiler fall back to a register-load form. HW-VALIDATED across
 # K in {0, +-0.0625..30} (EXP-0006 raw/validate_imm_dst.log).
 def imm_decode(b1, sign):
+    """Decode the 8-bit packed minifloat srcB immediate (falu2i).
+
+    GUARDED to the HW-validated domain (RT-1a-FIX, item 5). b1 must be a byte and
+    the exponent field e = bits[7:4] must be >= 8 (the documented representable
+    range {0, 1/32 .. 30}). e < 8 is NOT a minifloat: that byte range is the float
+    UNIFORM-REGISTER source overload (see the `falu2_uni` descriptor) -- RT-1a-FIX
+    re-validated on hardware that `09 0d 14 01 80 c0` (e=0) reads a *uniform
+    register* (a=10, u=7 -> 17; u=100 -> 110), NOT a + imm_decode(0x0d) ~= 10.0009.
+    Extrapolating the minifloat formula into e<8 produced exactly that bogus value,
+    so we raise instead (the old code returned it silently)."""
+    if not (0 <= b1 <= 0xff):
+        raise ValueError(f"imm_decode: b1={b1:#x} is not an 8-bit byte (0..255)")
     e = (b1 >> 4) & 0xf
     m = (b1 >> 1) & 0x7
+    if e < 8:
+        raise ValueError(
+            f"imm_decode: b1={b1:#x} exp={e} < 8 is outside the packed-minifloat "
+            f"domain -- this encoding is a falu2_uni uniform-register source "
+            f"(RT-1a-FIX HW-validated), not an immediate.")
     v = (m / 8.0) * (2.0 ** (9 - 11)) if e == 8 else (1 + m / 8.0) * (2.0 ** (e - 11))
     return -v if sign else v
 
@@ -590,9 +616,12 @@ DB = [
                      "to 96 addressable 32-bit regs, EXP-0020). dst here is the compact "
                      "b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 "
                      "form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = "
-                     "bit43. srcB-immediate mode = bit39 (see falu2i). A source may name a "
-                     "UNIFORM register instead of a GPR (float uniform-select ~ byte+2 "
-                     "bit4 / byte+5 bit1; see uniform_mov).",
+                     "bit43. srcB-immediate mode = bit39 (see falu2i). When bit39=1, srcB is "
+                     "NOT a GPR: byte+1's exponent nibble (bits[12:16], = instr bit15 = the "
+                     "8s bit) SPLITS the two overloads -- exp>=8 (bit15=1) => packed minifloat "
+                     "immediate (falu2i), exp<8 (bit15=0) => UNIFORM-REGISTER source (falu2_uni). "
+                     "RT-1a-FIX HW-validated (supersedes the earlier `byte+2 bit4 / byte+5 bit1` "
+                     "guess, which was wrong).",
         "provenance": "HW-VALIDATED (EXP-0006): dst/srcA/srcB positions, (reg<<1)|size "
                       "encoding, 16-bit-low-half read, srcB negate (a+b->a-b), and "
                       "srcB-immediate mode all confirmed by splice-and-observe. "
@@ -625,6 +654,54 @@ DB = [
                      "flag(bit8) sign(bit19). Range +-{0,1/32..30}. HW-VALIDATED EXP-0006.",
         "provenance": "HW-VALIDATED (EXP-0006): every K in {0,+-0.0625..30} spliced and "
                       "the runtime output equalled a+K (raw/validate_imm_dst.log).",
+    },
+    # ---- float 2-source ALU: srcB UNIFORM-REGISTER source (a + uniform) -----
+    # RT-1a-FIX (item 3), HW-RE-VALIDATED. Same 6-byte length & bit39-imm-mode as
+    # falu2i, but the srcB operand is a UNIFORM register, not a packed minifloat.
+    # `a[gid] + p.k` (p.k a `constant T&` scalar uniform) compiles to
+    # `09 0d 14 01 80 c0`: byte-identical to `a+1.0`'s `09 b1 14 01 80 c0` EXCEPT
+    # byte+1 (0x0d vs 0xb1) and bit39 set for both. Runtime (a=10): p.k=7 -> 17,
+    # p.k=100 -> 110, p.k=0.5 -> 10.5 -- it adds the *runtime uniform value*, NOT an
+    # immediate (an immediate could not change with the bound buffer). The DB
+    # previously mis-decoded this as falu2i imm=imm_decode(0x0d) ~= 0.00085.
+    # DISAMBIGUATION (both forms have bit39=1): byte+1's exponent nibble (bits
+    # [12:16]) -- exp>=8 => minifloat (falu2i), exp<8 => uniform. exp>=8 <=> the top
+    # exponent bit (instruction bit 15 = byte+1 bit7) is set, so bit15 is the single
+    # fixed match bit that separates them (cadd 0xb1 bit15=1 -> minifloat; uni 0x0d
+    # bit15=0 -> uniform; splicing cadd's byte+1 0xb1->0x0d made it read an UNBOUND
+    # uniform register = 0, i.e. a+0, NOT a+imm_decode(0x0d) -- proving the split).
+    # uniform-register index = byte+1 as (ureg<<1)|size32 (same convention as GPR
+    # operands); the observed p.k0 uniform is byte+1=0x0d (ureg 6, size 32b).
+    {
+        "mnemonic": "falu2_uni",
+        "length": 6,
+        # low-nibble 9 + srcB-imm mode (bit39=1) + exp-top-bit CLEAR (bit15=0) => uniform src
+        "match": [(0, 4, 0x9), (39, 1, 1), (15, 1, 0)],
+        "fields": [
+            {"name": "dst",       "start": 4,  "width": 4, "type": "reg"},    # HW-VALIDATED
+            {"name": "usrc",      "start": 8,  "width": 8, "type": "reg"},    # byte+1 = UNIFORM src (ureg<<1)|size
+            {"name": "opsel",     "start": 16, "width": 3, "type": "opcode",
+             "enum": FALU2_OPSEL_ENUM},                                       # HW-VALIDATED (fadd/fmul)
+            {"name": "opflags",   "start": 19, "width": 5, "type": "mod"},    # inferred
+            {"name": "srcA_size", "start": 24, "width": 1, "type": "enum",
+             "enum": {1: "b32", 0: "b16"}},                                   # HW-VALIDATED
+            {"name": "srcA_reg",  "start": 25, "width": 7, "type": "reg"},    # HW-VALIDATED (GPR srcA)
+            {"name": "ctrl_lo",   "start": 32, "width": 7, "type": "mod"},    # inferred (bit39=imm/uni marker)
+            {"name": "uni_mode",  "start": 39, "width": 1, "type": "enum",
+             "enum": {1: "srcB_not_gpr"}},                                    # matched =1
+            {"name": "mods",      "start": 40, "width": 8, "type": "mod"},    # inferred
+        ],
+        "semantics": "d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-"
+                     "invariant) register, not a GPR and not an immediate. Selected when "
+                     "bit39=1 AND byte+1's exponent nibble < 8 (bit15=0); the minifloat "
+                     "immediate (falu2i) uses exp>=8 (bit15=1). uniform index = byte+1 = "
+                     "(ureg<<1)|size32. The uniform value is preloaded by the driver / the "
+                     "constant (uniform) program (EXP-0010/EXP-0020). RT-1a-FIX HW-VALIDATED.",
+        "provenance": "HW-RE-VALIDATED (RT-1a-FIX item 3): uni.metal `a[gid]+p.k` runtime "
+                      "output tracks the runtime uniform (a=10: p.k=7->17, 100->110, 0.5->10.5, "
+                      "2->12), which an immediate cannot. Disambiguation splice-proven: cadd "
+                      "byte+1 0xb1(exp11)->minifloat a+1; ->0x0d(exp0) reads an unbound uniform "
+                      "(=0), NOT a+imm_decode(0x0d). raw/uniform_src.log.",
     },
     # ---- float 3-source ALU: fma (8-byte extended form) -------------------
     {
@@ -701,7 +778,7 @@ DB = [
     #
     #   group byte0     length   operations                       op-select
     #   ---------------------------------------------------------------------------
-    #   0x9f / 0x1f     10       iadd / isub  (a +/- b)            b0 bit7 = srcA-neg
+    #   0x9f / 0x1f     10       iadd / isub  (a +/- b)            b0 bit7 = add(1)/sub(0)
     #   0x9f / 0x1f     12       imul / imad  (a*b [+c])           3-source mul-add
     #   0x0b            10       iand / ior / ixor                 b2[0:4] + b4/b5 srcB-inv
     #   0x02            6        imin/imax/umin/umax               b4[0:3] sel
@@ -710,17 +787,20 @@ DB = [
     #   0x12            14       integer compare -> select 0/1     b4 cond, b6 sign
     #
     # ---- integer 2-source add / sub (a +/- b), 10-byte form -----------------
-    # HW-VALIDATED (EXP-0007): b3 = dst (reg<<1, dstc relocation sweep); b0 bit7 =
-    # srcA negate (clearing 0x9f->0x1f turns a+b into b-a on signed inputs); b1
-    # bit0 = the 10/12 length selector (splicing it faults); b2 bit1 = arith/store
-    # enable (256-value b2 sweep: a+b iff bit1 set); srcA/srcB register descriptors
-    # live in the b7:b9 tail (byte sweeps: b7 gates srcA, b8 gates srcB).
+    # HW-VALIDATED (EXP-0007 + RT-1a-FIX): b3 = dst (reg<<1, dstc relocation sweep);
+    # b0 bit7 = ADD/SUB select (RT-1a-FIX corrected the polarity: 0x9f/bit7=1 = plain
+    # ADD, 0x1f/bit7=0 = SUBTRACT -- the DB previously had it INVERTED, labelling every
+    # real add "srcA_neg=1" and giving 0x1f the semantics d=srcA+srcB although 0x1f
+    # subtracts); b1 bit0 = the 10/12 length selector (splicing it faults); b2 bit1 =
+    # arith/store enable (256-value b2 sweep: a+b iff bit1 set); srcA/srcB register
+    # descriptors live in the b7:b9 tail (byte sweeps: b7 gates srcA, b8 gates srcB).
     {
         "mnemonic": "iadd2",
         "length": 10,
         "match": [(0, 7, 0x1f)],       # bits[0:7]=0x1f => integer add/sub group (0x9f/0x1f)
         "fields": [
-            {"name": "srcA_neg",  "start": 7,  "width": 1, "type": "mod"},   # HW: 0=neg srcA
+            {"name": "addsub",    "start": 7,  "width": 1, "type": "opcode",
+             "enum": {1: "iadd", 0: "isub"}},                                # HW (RT-1a-FIX): b0 bit7 1=add(0x9f) 0=sub(0x1f)
             {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # HW: 1=10B 2-src
             {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
             {"name": "b2lo",      "start": 16, "width": 1, "type": "raw"},
@@ -732,18 +812,23 @@ DB = [
             {"name": "b6",        "start": 48, "width": 8, "type": "raw"},   # imm bit8 in bit0
             {"name": "tail",      "start": 56, "width": 24, "type": "raw"},  # srcA/srcB descriptors
         ],
-        "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. "
-                     "dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so "
-                     "unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches "
-                     "the whole GPR file (up to 96 regs, EXP-0020). subtract = srcA-negate "
-                     "(b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K "
-                     "in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). "
-                     "A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 "
-                     "(0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.",
-        "provenance": "HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), "
-                      "srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith "
-                      "enable (256-sweep), integer immediate (K<<1) for K in 0..255. srcA/srcB "
-                      "reg bit-packing in the tail located but not fully bit-decoded (follow-up).",
+        "semantics": "d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, "
+                     "byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the "
+                     "ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and "
+                     "splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on "
+                     "hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). "
+                     "dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike "
+                     "the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR "
+                     "file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in "
+                     "[0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A "
+                     "source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), "
+                     "uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.",
+        "provenance": "HW-VALIDATED (EXP-0007 + RT-1a-FIX): dst field (dstc b3 sweep relocates "
+                      "result), ADD/SUB polarity (RT-1a-FIX: iaddbank p.x+p.y is byte0 0x9f=30; "
+                      "splice 0x9f->0x1f -> 10-20=-10=4294967286; raw/iadd_polarity.log), length "
+                      "bit b1 (splice faults), b2 arith enable (256-sweep), integer immediate "
+                      "(K<<1) for K in 0..255. srcA/srcB reg bit-packing in the tail located but "
+                      "not fully bit-decoded (follow-up).",
     },
     # ---- integer 3-source multiply-add (a*b[+c]), 12-byte form --------------
     # imul compiles to this mul-add form with addend 0 (imul==umul byte-identical);
@@ -753,7 +838,7 @@ DB = [
         "length": 12,
         "match": [(0, 7, 0x1f)],       # same group id as iadd2; length (b1 bit0==0) selects
         "fields": [
-            {"name": "srcA_neg",  "start": 7,  "width": 1, "type": "mod"},
+            {"name": "b0bit7",    "start": 7,  "width": 1, "type": "mod"},   # byte0 bit7 (the iadd2 add/sub bit; polarity for multiply not separately characterized)
             {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # =0 => 12B 3-src
             {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
             {"name": "b2",        "start": 16, "width": 8, "type": "raw"},
@@ -1196,23 +1281,31 @@ DB = [
     #   +3  bit1 (0x02) = unsigned/zero-extend load variant (sub-32)          inferred(M3)
     #   +4  BASE_SLOT: preloaded buffer-base uniform slot (0=buf0,1=buf1,..). HW(E7,M6)
     #       device & constant use it identically; threadgroup uses 0x08 (local, not a buf).
-    #   +5  COUNT: number of consecutive 32-bit words moved = vector width     HW(M4)
-    #       (1=scalar,2=.2/64b,3=.3,4=.4). low 3 bits; bit7 (0x80)=index-GPR-high.
-    #   +6..+7 addressing / index                                             inferred
+    #   +5  INDEX_REG: the GPR that supplies the array index a[idx]           HW(RT-1a-FIX)
+    #       (RT-1a-FIX corrected: this is NOT `count`. low bits = index register number;
+    #       bit7 (0x80) = a scalar/size flag the compiler sets. Sweeping it selects which
+    #       GPR feeds the index: 0x00->r0, 0x01->r1, ... The apparent count=1/2/3/4 for
+    #       uintN a[gid] loads was a CONFOUND -- the N-word dst occupies r0..r(N-1) so gid
+    #       lands at rN. The true VECTOR WIDTH/count is at +8 (dst_width) / +12 (elem_size).)
+    #   +6  INERT (HW-proven padding, RT-1a-FIX): sweeping 0x00..0xff never changes the
+    #       loaded value -- NOT an address byte.
+    #   +7  addressing / index tail                                           inferred
     #   +8  destination(load)/data(store) register descriptor + DATA WIDTH     HW(M2)/inf
     #       (0x51=32b,0x41=16b,0x61=8b,0x59=64b/2reg; controls bits landed).
-    #   +9..+11 address/register tail                                         inferred
+    #   +9bit7 / +10 / +11  IMMEDIATE INDEX-OFFSET field (RT-1a-FIX, HW-validated)
     #   +12 ELEMENT SIZE for address scaling: bits[1:4] size-class k -> 2^(k-1)  HW(M2)
     #       bytes (0x42=1B/8b,0x44=2B/16b,0x46=4B/32b,0x48=8B/64b). Element addressing.
     #   +13 0x00                                                              inferred
     #
-    # ADDRESSING MODEL (HW-VALIDATED, EXP-0012 M1/M2): element addressing --
-    # effective byte address = index_GPR * element_size(+12).  There is NO
-    # immediate offset / displacement / scale field in the instruction; any
-    # a[i+k] / a[i*s] is computed by a PRIOR integer ALU op on the index (in
-    # ELEMENT units: the iadd immediate for a[gid+1] is (1<<1), EXP-0007 K<<1),
-    # and its result GPR is consumed as the index.  a[gid+1/+2/+4], a[gid*2/*4]
-    # all share a BYTE-IDENTICAL 0x67 load (only the prior ALU differs).
+    # ADDRESSING MODEL (HW-VALIDATED, EXP-0012 + RT-1a-FIX): element addressing --
+    # effective byte address = (index_GPR(+5) + idx_off) * element_size(+12).
+    # RT-1a-FIX: there DOES exist an in-instruction additive IMMEDIATE index-offset
+    # (an 11-bit element offset starting at byte+9 bit7): byte+9 bit7 = +1, byte+10 =
+    # +2 per unit, byte+11 low bits = +512 per unit (HW: idxbuf i0=40 -> byte+9=0x81
+    # -> a[41]; byte+10=0x01 -> a[42], 0x08 -> a[56]; byte+11=0x41 -> a[552]). The
+    # COMPILER leaves it 0 and instead computes a[i+k]/a[i*s] via a PRIOR integer ALU
+    # op on the index (EXP-0012), so all such loads still share a byte-identical 0x67 --
+    # but the hardware field exists and a driver may use it.
     {
         "mnemonic": "device_load",
         "length": 14,
@@ -1222,29 +1315,32 @@ DB = [
             {"name": "amode",     "start": 16, "width": 8, "type": "raw"},    # addressing mode
             {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},    # bit1=unsigned/zero-ext
             {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
-            {"name": "count",     "start": 40, "width": 8, "type": "imm"},    # HW: low3=word/vector count (+5)
-            {"name": "addr_lo",   "start": 48, "width": 8, "type": "raw"},
-            {"name": "addr_hi",   "start": 56, "width": 8, "type": "raw"},
+            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (low bits=reg#, bit7=scalar flag)
+            {"name": "inert6",    "start": 48, "width": 8, "type": "raw"},    # HW(RT-1a-FIX): +6 INERT padding (sweep is a no-op)
+            {"name": "tail7",     "start": 56, "width": 8, "type": "raw"},
             {"name": "dst_width", "start": 64, "width": 8, "type": "reg"},    # HW: dst reg + data width (+8)
-            {"name": "tail9",     "start": 72, "width": 8, "type": "raw"},
-            {"name": "tail10",    "start": 80, "width": 8, "type": "raw"},
-            {"name": "tail11",    "start": 88, "width": 8, "type": "raw"},
+            {"name": "tail9lo",   "start": 72, "width": 7, "type": "raw"},    # +9 bits[0:7]
+            {"name": "idx_off",   "start": 79, "width": 11, "type": "imm"},   # HW(RT-1a-FIX): +9bit7/+10/+11lo additive element index-offset
+            {"name": "tail11hi",  "start": 90, "width": 6, "type": "raw"},    # +11 bits[2:8]
             {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # HW: bits[1:4]=size-class (+12)
             {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
         ],
-        "semantics": "load `count` consecutive 32-bit words (vector width, +5 low3) of "
-                     "`elem_size` bytes each (+12 bits[1:4]: k->2^(k-1) B) from the "
+        "semantics": "load a vector (width from +8 dst_width / +12 elem_size) from the "
                      "address space selected by `space` (+1 bit1: 0=device/constant, "
-                     "1=threadgroup) at index_GPR * elem_size, base = buffer[base_slot] "
-                     "(+4). Element addressing; NO immediate offset (a[i+k] is a prior "
-                     "ALU add on the index). Sub-32 signed types are sign-extended by a "
-                     "following ALU shift; unsigned use the zero-extend load variant (+3).",
-        "provenance": "HW-VALIDATED (EXP-0012): base_slot (M6/E7), count/vector-width (M4 "
-                      "splice 4->1 truncates the copy), element-size/address-scale (M2 "
-                      "splice 46->42/44/48 changes the byte stride to 1/2/8), data width "
-                      "(M2 +8=61,+12=42 -> true 8-bit byte load), element addressing / "
-                      "no-offset-field (M1 iadd-imm splice shifts the read). space bit "
-                      "(M5). amode/extmode/register-tail bit-packing inferred (byte-diff).",
+                     "1=threadgroup) at (index_reg + idx_off) * elem_size, base = "
+                     "buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR "
+                     "holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects "
+                     "which GPR feeds the index; +6 is INERT). idx_off = the in-instruction "
+                     "additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, "
+                     "+11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a "
+                     "prior ALU op, but the HW field exists. Sub-32 signed types are sign-"
+                     "extended by a following ALU shift; unsigned use the zero-extend load (+3).",
+        "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/"
+                      "address-scale (M2 splice 46->42/44/48 changes the byte stride), data "
+                      "width (M2). RT-1a-FIX re-validated: +5 index_reg (a[i0] load, idxbuf "
+                      "{40,3,77,12}, a[j]=100j+3: +5=0x00->a[40],0x01->a[3],0x02->a[77]); +6 "
+                      "INERT (0x00..0xff no-op); +1 = address space (0x01/02/03->reads 0); "
+                      "idx_off (+9 bit7->+1, +10->+2/unit, +11->+512/unit). raw/mem_index.log.",
     },
     # ---- store: identical 14-byte layout, base_slot at +4 (HW M4/M5/E7) -----
     {
@@ -1256,24 +1352,25 @@ DB = [
             {"name": "amode",     "start": 16, "width": 8, "type": "raw"},
             {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},
             {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
-            {"name": "count",     "start": 40, "width": 8, "type": "imm"},    # HW: low3=word/vector count (+5)
-            {"name": "addr_lo",   "start": 48, "width": 8, "type": "raw"},
-            {"name": "addr_hi",   "start": 56, "width": 8, "type": "raw"},
+            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (as device_load)
+            {"name": "inert6",    "start": 48, "width": 8, "type": "raw"},    # HW(RT-1a-FIX): +6 INERT padding
+            {"name": "tail7",     "start": 56, "width": 8, "type": "raw"},
             {"name": "data_width","start": 64, "width": 8, "type": "reg"},    # data reg + width (+8)
-            {"name": "tail9",     "start": 72, "width": 8, "type": "raw"},
-            {"name": "tail10",    "start": 80, "width": 8, "type": "raw"},
-            {"name": "tail11",    "start": 88, "width": 8, "type": "raw"},
+            {"name": "tail9lo",   "start": 72, "width": 7, "type": "raw"},    # +9 bits[0:7]
+            {"name": "idx_off",   "start": 79, "width": 11, "type": "imm"},   # HW(RT-1a-FIX): +9bit7/+10/+11lo additive element index-offset
+            {"name": "tail11hi",  "start": 90, "width": 6, "type": "raw"},    # +11 bits[2:8]
             {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # (+12) size-class
             {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
         ],
-        "semantics": "store `count` 32-bit words (vector width, +5) to the address space "
-                     "in `space` (+1 bit1: 1=threadgroup) at index_GPR*elem_size, base = "
-                     "buffer[base_slot] (+4). Same field layout & element addressing as "
-                     "device_load. Narrowing stores (char/short) set elem_size (+12).",
-        "provenance": "HW-VALIDATED (EXP-0012): count/vector-width (M4 store +5 4->1 stores "
-                      "fewer words), space bit (M5 threadgroup store +1 0x02->0x00 -> the "
-                      "roundtrip reads back zeros), base_slot by symmetry+M5. register/"
-                      "addressing tail inferred (byte-diff).",
+        "semantics": "store a vector to the address space in `space` (+1 bit1: 1=threadgroup) "
+                     "at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). "
+                     "Same field layout & element addressing as device_load (RT-1a-FIX: +5 = "
+                     "index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate "
+                     "element offset). Narrowing stores (char/short) set elem_size (+12).",
+        "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 "
+                      "0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. "
+                      "Index/offset fields shared with device_load (RT-1a-FIX re-validated). "
+                      "register/addressing tail inferred (byte-diff).",
     },
     # ---- preamble / get_special_register (HW-validated role, EXP-0010) -----
     # First instruction of every non-empty _agc.main. HW-VALIDATED (EXP-0010 E1):
@@ -1964,30 +2061,41 @@ DB = [
                       "the fence-only form is byte-diff-inferred (a fence's effect only manifests under "
                       "contention, so not splice-validated in isolation).",
     },
-    # ---- compact float accumulate (EXP-0025): 4-byte float-ALU form ----------
+    # ---- compact float accumulate (EXP-0025 + RT-1a-FIX): 4-byte float-ALU form
     # NOT a scoreboard wait (byte0 0x38 was the G13 `wait` opcode, so this was the
     # prime suspect). Disproven on hardware: it is a 4-byte float ADD. In an N-value
     # sum the reduction emits exactly N-1 additions = (6-byte 0x3c fadds) + (these
-    # 4-byte 0x38 ops); a byte+3 sweep changes the arithmetic result (byte+3 is a
+    # 4-byte ops); a byte+3 sweep changes the arithmetic result (byte+3 is a
     # source-register selector), which a wait mask would not do.
+    # RT-1a-FIX (item 4): the compact accumulate has TWO byte+2 forms -- 0x38 AND 0x18
+    # (they differ only in bit5, 0x20). Both are the SAME op: falubank's a2+..+a7
+    # reduction emits both, splicing a 0x18 op's byte+2 0x18<->0x38 leaves out2
+    # unchanged (=33), and redirecting a 0x18 op's dst zeros out2 (load-bearing add).
+    # The old match `byte+2==0x38` decoded the 0x38 form but the 0x18 form RAISED
+    # ("no descriptor matches 190b1809") and halted tokenization. Match now pins the
+    # invariant bits [16:21]==0x18 and [22:24]==0 (leaving bit21, the 0x20 bit, as a
+    # source-cache/last-use hint field like the 0x54/0x56 reduce bit).
     {
         "mnemonic": "falu_acc",
         "length": 4,
-        "match": [(0, 4, 0x9), (16, 8, 0x38)],   # float-ALU group, byte+2 == 0x38 (arith-enable clear)
+        "match": [(0, 4, 0x9), (16, 5, 0x18), (22, 2, 0x0)],  # float-ALU group, byte+2 in {0x18,0x38}
         "fields": [
-            {"name": "dst",  "start": 4,  "width": 4, "type": "reg"},   # byte0 hi nibble = dst (accumulator)
-            {"name": "srcA", "start": 8,  "width": 8, "type": "reg"},   # byte+1 = srcA / accumulator descriptor
-            {"name": "srcB", "start": 24, "width": 8, "type": "reg"},   # byte+3 = srcB (reg<<1)|size
+            {"name": "dst",   "start": 4,  "width": 4, "type": "reg"},   # byte0 hi nibble = dst (accumulator)
+            {"name": "srcA",  "start": 8,  "width": 8, "type": "reg"},   # byte+1 = srcA / accumulator descriptor
+            {"name": "cache", "start": 21, "width": 1, "type": "mod"},   # byte+2 bit5 (0x18 vs 0x38) source cache/last-use hint
+            {"name": "srcB",  "start": 24, "width": 8, "type": "reg"},   # byte+3 = srcB (reg<<1)|size
         ],
         "semantics": "d = srcA (+) srcB  ; COMPACT 4-byte float accumulate (float-ALU group low-nibble "
-                     "9, byte+2 == 0x38 = opsel with the arithmetic-enable bit clear vs the 6-byte 0x3c "
-                     "fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits "
-                     "it for plain reduction accumulates. byte+3 = srcB register descriptor.",
-        "provenance": "HW-VALIDATED (EXP-0025): in a 10-value sum (manyload) the stream has 6 six-byte "
-                     "0x3c/0x1c fadds + 3 of these 0x38 ops = 9 adds (exactly N-1), and the baseline sums "
-                     "all ten 2^k inputs correctly (1023) -- so these ARE adds. Sweeping byte+3 changes "
-                     "the sum by the referenced register's value (byte+3 is a data source), disproving a "
-                     "wait-mask interpretation. Field bit-packing beyond byte+3 inferred (byte-diff).",
+                     "9, byte+2 in {0x18,0x38} = opsel with the arithmetic-enable bit clear vs the 6-byte "
+                     "0x3c fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler "
+                     "emits it for plain reduction accumulates. byte+3 = srcB register descriptor. byte+2 "
+                     "bit5 (`cache`: 0x18 vs 0x38) is a source-cache/last-use hint, NOT an op change "
+                     "(RT-1a-FIX: splice 0x18<->0x38 leaves the reduction result unchanged).",
+        "provenance": "HW-VALIDATED (EXP-0025 + RT-1a-FIX): in a 10-value sum (manyload) the stream has 6 "
+                     "six-byte 0x3c/0x1c fadds + 3 of these ops = 9 adds (exactly N-1), summing correctly "
+                     "(1023). RT-1a-FIX re-validated the 0x18 form (falubank a2..a7 reduction): 0x18<->0x38 "
+                     "interchangeable (out2=33 either way); redirecting the final 0x18 op's dst zeroes out2 "
+                     "(load-bearing add). raw/undecoded.log. Field bit-packing beyond byte+3 inferred.",
     },
 
     # ========================================================================
@@ -2620,6 +2728,35 @@ DB = [
                      "from our own compiled kernels and ABSENT from every leaf helper. Field roles are byte-diff "
                      "INFERRED. Length 6 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py).",
     },
+    # ---- SPILL / FRAME-SETUP MARKER (byte0 0x60, 4 B, RT-1a-FIX item 4) -------
+    # `60 00 00 00` appears instruction-aligned right after the ENTRY get_sr in high-
+    # register-pressure / spilling kernels (big.bin: `8c a0 91 06 | 60 00 00 00| 9f 11
+    # 54 ...`). Previously had NO length rule -> tokenization halted. RT-1a-FIX gives it
+    # length 4 (the following iadd2 aligns) and characterizes it as far as HW splicing
+    # allows: byte0/+1/+2 are runtime-INERT for the computation (splicing them is a
+    # no-op on the big kernel's output), while byte+3 is this op's live last byte
+    # (splicing +3 to 0xff faults). Best-understood role: a spill/scratch-frame or
+    # occupancy setup marker emitted only in spilling kernels. Semantics beyond "4-byte,
+    # byte+3-live" not fully decoded (a documented follow-up).
+    {
+        "mnemonic": "spill_frame_marker",
+        "length": 4,
+        "match": [(0, 8, 0x60)],
+        "fields": [
+            {"name": "b1", "start": 8,  "width": 8, "type": "raw"},   # inert in our splice test
+            {"name": "b2", "start": 16, "width": 8, "type": "raw"},   # inert in our splice test
+            {"name": "b3", "start": 24, "width": 8, "type": "raw"},   # LIVE: +3=0xff faults (HW)
+        ],
+        "semantics": "4-byte spill/frame-setup marker emitted right after the entry get_sr in "
+                     "high-register-pressure / SPILLING kernels (byte0 0x60). Runtime-inert for "
+                     "the computation in our splice test (byte0/+1/+2 sweeps are no-ops); byte+3 "
+                     "is the only live byte (0xff faults). Best-understood role: scratch-frame / "
+                     "occupancy setup for the spill path; exact semantics a follow-up. Adding it "
+                     "unblocks tokenization (RT-1a-FIX: without a length rule the tokenizer halted).",
+        "provenance": "HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the "
+                     "following 10-byte iadd2 in big.bin; big kernel output invariant to byte0/+1/"
+                     "+2 splices, byte+3->0xff faults. raw/undecoded.log. Field semantics inferred.",
+    },
     # ---- LINK-REGISTER SAVE / RESTORE around a nested call (byte0 0x07, 8 B) --
     {
         "mnemonic": "link_save_restore",
@@ -2827,8 +2964,11 @@ def to_json():
                              "fenced memory scope 0x61 threadgroup / 0x85 device. The ONLY explicit "
                              "ordering op in compute -- device load/store/atomic/texture are NOT "
                              "scoreboard-waited (HW register interlock). EXP-0025 HW/splice-proven]",
-                "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; "
-                             "byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait. "
+                "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2 in {0x18,0x38}  [float ALU; "
+                             "byte+2 in {0x18,0x38} = compact 4-byte float accumulate (falu_acc), EXP-0025 / "
+                             "RT-1a-FIX -- NOT a wait; 0x18 vs 0x38 is a source cache/last-use hint. "
+                             "srcB-imm form (bit39=1): byte+1 exp>=8 (bit15=1) = minifloat immediate (falu2i), "
+                             "exp<8 (bit15=0) = UNIFORM-register source (falu2_uni), RT-1a-FIX. "
                              "byte+2==0x25 (still 6B) = transcendental ESTIMATE SEED (byte0 0x29): "
                              "byte+3 0x09 rcp / 0x0b rsqrt / 0x0d sqrt estimate, ~8 mantissa bits, "
                              "the Newton-Raphson seed for precise 1/x/rsqrt/sqrt, EXP-0026]",
@@ -2923,6 +3063,17 @@ def to_json():
                         "the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038]",
                 "0x6f": "6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch "
                         "frame a non-leaf callee uses to save its link register around inner calls. EXP-0038]",
+                "0x60": "4  [SPILL/FRAME-SETUP MARKER (spill_frame_marker): `60 00 00 00` right after the entry "
+                        "get_sr in high-register-pressure / SPILLING kernels. Runtime-inert for the computation "
+                        "(byte0/+1/+2 splices no-op), byte+3 live (0xff faults). Previously halted tokenization "
+                        "(no length rule). RT-1a-FIX HW: length 4; exact role a follow-up]",
+                "device_load/store +5 index_reg (RT-1a-FIX)": "+5 is the INDEX GPR that supplies a[idx] (NOT "
+                        "`count`; sweeping +5 selects which GPR feeds the index); +6 is INERT; +1 = address space; "
+                        "the additive IMMEDIATE index-offset lives at +9 bit7 (+1) / +10 (+2/unit) / +11 low (+512/"
+                        "unit). Vector width/count is at +8 (dst_width) / +12 (elem_size). RT-1a-FIX HW-validated.",
+                "iadd2 add/sub polarity (RT-1a-FIX)": "byte0 bit7 = ADD(1,0x9f) / SUBTRACT(0,0x1f) select. The DB "
+                        "previously had this INVERTED (labelled every add srcA_neg=1 and gave 0x1f d=srcA+srcB "
+                        "although 0x1f subtracts). Splice 0x9f->0x1f turns 10+20 into 10-20=-10. HW-validated.",
                 "0x07 (byte+1==0x00, byte+2==0x54)": "8  [LINK-REGISTER SAVE/RESTORE around a nested call in a "
                         "non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte "
                         "threadgroup_barrier / pixel_order. EXP-0038]",
