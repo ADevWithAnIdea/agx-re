@@ -118,6 +118,12 @@ tracked in `docs/capability-completeness.md` (see `../CLAUDE.md` → Secondary g
 - **Capability census** = enumerate every Metal/MSL feature + every Apple-advertised (WWDC Family-9)
   feature → map to HW representation → classify native/emulated/kernel/NOT-YET-CHARACTERIZED → drive
   the NOT-YET list to 0.
+  **STATUS (`docs/capability-completeness.md`, 214 rows): native 110 · emulated 9 · kernel 6 · NOT-YET 89.**
+  Top backlog: mesh shading, fragment interpolation(G-4), transcendentals(G-2), SR/preload ABI(G-5),
+  imageblock/tile-shader/raster-order ISA, compression codec, wait_pix/signal_pix, RT completion,
+  format codes+3D/cube/array/MSAA twiddle, indirect/ICB, bitfield/int completeness (clz/ctz/insert/
+  reverse/rotate/pack/64-bit), function-call/pointer ABI, sample_compare/gather variants. Microarch
+  items (Dynamic-Caching dynamic behavior, 2× ALU) observable only via counters — lower priority.
 
 **G-13 — INSTRUCTION-FAMILY COMPLETENESS (calibration: dougallj/applegpu M1 ≈ 124 instruction
 classes; we have 40 family-heads ≈ ~70-90 logical — several whole families still missing).** Decode
