@@ -1,0 +1,177 @@
+===================== RT-6 RAW EVIDENCE (A18 Pro / G17P, macOS 26.6 25G5043d) =====================
+All draws/dispatches status=4, zero faults/reboots. iotrace arm64e, read-only. hex bytes in addr order; le32 = little-endian u32.
+
+########## CLAIM 1: INDIRECT DRAW/DISPATCH ##########
+--- non-indexed DIRECT VDM 0x18000 (counts inline) ---
+  +0x064: bytes=0006c461 le32=0x61c40600
+  +0x068: bytes=03000000 le32=0x00000003
+  +0x06c: bytes=01000000 le32=0x00000001
+  +0x070: bytes=00000000 le32=0x00000000
+  +0x074: bytes=000000c0 le32=0xc0000000
+--- non-indexed INDIRECT VDM (argBuf=0x1000001c600): opcode 0x6404, +0x68 hi=0x100, +0x6c lo=0x1c600 ---
+  +0x064: bytes=00060464 le32=0x64040600
+  +0x068: bytes=00010000 le32=0x00000100
+  +0x06c: bytes=00c60100 le32=0x0001c600
+  +0x070: bytes=000000c0 le32=0xc0000000
+  +0x074: bytes=00000000 le32=0x00000000
+--- INDEXED DIRECT VDM (idxBuf=0x...1c600): opcode 0x61f2 @+0x6c, cut @+0x68, idxVA @+0x70, idxCnt @+0x74, instCnt @+0x78 ---
+  +0x064: bytes=01000040 le32=0x40000001
+  +0x068: bytes=ffff0000 le32=0x0000ffff
+  +0x06c: bytes=0006f261 le32=0x61f20600
+  +0x070: bytes=00c60100 le32=0x0001c600
+  +0x074: bytes=03000000 le32=0x00000003
+  +0x078: bytes=01000000 le32=0x00000001
+  +0x07c: bytes=00000000 le32=0x00000000
+  +0x080: bytes=01000000 le32=0x00000001
+  +0x084: bytes=01000000 le32=0x00000001
+  +0x088: bytes=000000c0 le32=0xc0000000
+--- INDEXED INDIRECT VDM (idxBuf=0x...1c600, argBuf=0x...1c700): opcode 0x6432, idxVA inline @+0x70, args hi @+0x74=0x100 lo @+0x78=0x1c700 ---
+  +0x064: bytes=01000040 le32=0x40000001
+  +0x068: bytes=ffff0000 le32=0x0000ffff
+  +0x06c: bytes=00063264 le32=0x64320600
+  +0x070: bytes=00c60100 le32=0x0001c600
+  +0x074: bytes=00010000 le32=0x00000100
+  +0x078: bytes=00c70100 le32=0x0001c700
+  +0x07c: bytes=01000000 le32=0x00000001
+  +0x080: bytes=01000000 le32=0x00000001
+  +0x084: bytes=000000c0 le32=0xc0000000
+--- indirect DISPATCH CDM 0x100000b0000: [direct] single record, term 0x40000000 @+0x2c ---
+  +0x000: bytes=00000800 le32=0x00080000
+  +0x004: bytes=00000001 le32=0x01000000
+  +0x008: bytes=00240000 le32=0x00002400
+  +0x00c: bytes=01000040 le32=0x40000001
+  +0x010: bytes=40000000 le32=0x00000040
+  +0x014: bytes=01000000 le32=0x00000001
+  +0x018: bytes=01000000 le32=0x00000001
+  +0x01c: bytes=20000000 le32=0x00000020
+  +0x020: bytes=01000000 le32=0x00000001
+  +0x024: bytes=01000000 le32=0x00000001
+  +0x028: bytes=60010060 le32=0x60000160
+  +0x02c: bytes=00000040 le32=0x40000000
+--- [indirect] 2nd record @+0x2c; aux shader 0x2404=0x90100>>6 @+0x34; argptr-into-argbuf @+0x40 ---
+  +0x02c: bytes=00000810 le32=0x10080000
+  +0x030: bytes=00000001 le32=0x01000000
+  +0x034: bytes=04240000 le32=0x00002404
+  +0x038: bytes=01000040 le32=0x40000001
+  +0x03c: bytes=00010000 le32=0x00000100
+  +0x040: bytes=c0140e00 le32=0x000e14c0
+  +0x044: bytes=60010060 le32=0x60000160
+--- [indirect] user argBuf VA (0x1000001c900) staged @0x10000080000+0xb0 ---
+  +0x0b0: bytes=00c90100 le32=0x0001c900
+  +0x0b4: bytes=00010000 le32=0x00000100
+--- MULTIPLE indirect draws in one pass (argBuf0=0x...18800 @+0x6c, argBuf1=0x...18900 @+0x78) ---
+  +0x064: bytes=00060464 le32=0x64040600
+  +0x068: bytes=00010000 le32=0x00000100
+  +0x06c: bytes=00880100 le32=0x00018800
+  +0x070: bytes=00060464 le32=0x64040600
+  +0x074: bytes=00010000 le32=0x00000100
+  +0x078: bytes=00890100 le32=0x00018900
+
+########## CLAIM 2: FULL ICB ##########
+--- capi_icb_n1: cmd-count @0x18000+0x04 + draw opcode hits ---
+  +0x004: bytes=01000000 le32=0x00000001
+draw_0x61c4: 1 hits at 0x1aa
+--- capi_icb_n2: cmd-count @0x18000+0x04 + draw opcode hits ---
+  +0x004: bytes=02000000 le32=0x00000002
+draw_0x61c4: 2 hits at 0x1aa, 0x1ea
+--- capi_icb_n3: cmd-count @0x18000+0x04 + draw opcode hits ---
+  +0x004: bytes=03000000 le32=0x00000003
+draw_0x61c4: 3 hits at 0x1aa, 0x1ea, 0x22a
+--- ICB draw record inline vertexCount (n1 @0x1a8): opcode 0x61c4, vtxCnt @+0x1ac=3, instCnt @+0x1b0=1 ---
+  +0x1a8: bytes=0006c461 le32=0x61c40600
+  +0x1ac: bytes=03000000 le32=0x00000003
+  +0x1b0: bytes=01000000 le32=0x00000001
+--- mesh-in-ICB micb1: cmd-count + 0x70000600 record @0x181c4 ---
+  +0x004: bytes=01000000 le32=0x00000001
+mesh_word_0x70000600: 1 hits at 0x1c4
+--- mesh-in-ICB micb2: cmd-count=2 + two 0x70000600 records ---
+  +0x004: bytes=02000000 le32=0x00000002
+mesh_word_0x70000600: 2 hits at 0x1c4, 0x22c
+--- ADVERSARIAL execute-range subset (enc=3): exec(0,2) ---
+  +0x004: bytes=03000000 le32=0x00000003
+draw_0x61c4: 3 hits at 0x1aa, 0x1ea, 0x22a
+--- ADVERSARIAL execute-range subset: exec(1,2) -> +0x04 still 3, all 3 records still materialized ---
+  +0x004: bytes=03000000 le32=0x00000003
+draw_0x61c4: 3 hits at 0x1aa, 0x1ea, 0x22a
+--- ADVERSARIAL mixed draw|mesh ICB (ACCEPTED status=4): +0x04=2, one 0x61c4 + one 0x70000600 ---
+  +0x004: bytes=02000000 le32=0x00000002
+draw_0x61c4: 1 hits at 0x1c6
+idx_0x61f2: 0 hits at 
+mesh_word_0x70000600: 1 hits at 0x22c
+
+########## CLAIM 3: OCCLUSION QUERY ##########
+--- visBuf ptr 0x10000100000+0x00 (visBuf VA=0x10000018800): +0x00 lo=0x18800 +0x04 hi=0x100 ---
+  +0x000: bytes=00880100 le32=0x00018800
+  +0x004: bytes=00010000 le32=0x00000100
+--- mode 0x58000+0x8c bit14 (0x4000): none/bool/count ---
+capq_none: le32=0x00000000
+capq_bool: le32=0x0004c200
+capq_count: le32=0x00048200
+--- offset 0x58000+0xa0 = byteOffset<<14: off 0/8/16/4096 ---
+capq_count: le32=0x00000000
+capq_c8: le32=0x00020000
+capq_c16: le32=0x00040000
+capq_clarge: le32=0x04000000
+--- readbacks (bool->1, count->4096=64x64, off8->visBuf[1], two->both 4096) ---
+capq_bool:
+VIS[0 off=0] = 0x0000000000000001 (1)
+VIS[1 off=8] = 0xdeadbeef00000001 (16045690981097406465)
+capq_count:
+VIS[0 off=0] = 0x0000000000001000 (4096)
+VIS[1 off=8] = 0xdeadbeef00000001 (16045690981097406465)
+capq_c8:
+VIS[0 off=0] = 0x0000000000000000 (0)
+VIS[1 off=8] = 0x0000000000001000 (4096)
+capq_two:
+VIS[0 off=0] = 0x0000000000001000 (4096)
+VIS[1 off=8] = 0x0000000000001000 (4096)
+
+########## CLAIM 4: TIMESTAMPS ##########
+TSCORR cpu0=52989461420083 gpu0=52989461420083 cpu1=52989521444416 gpu1=52989521444416
+TSCORR dCPU(ns~)=60024333 dGPU=60024333  gpu_ticks_per_cpu_ns=1.000000  ns_per_gpu_tick=1.000000
+TSCORR cpu0=52989567240583 gpu0=52989567240583 cpu1=52989627264125 gpu1=52989627264125
+TSCORR dCPU(ns~)=60023542 dGPU=60023542  gpu_ticks_per_cpu_ns=1.000000  ns_per_gpu_tick=1.000000
+SUPPORTS dispatchBoundary=0 drawBoundary=0 stageBoundary=1
+--- csample (dispatch-boundary) => unsupported, resolve all-zero ---
+CSAMPLE_UNSUPPORTED dispatch-boundary sampling not available
+TS[0]=0 (0x0000000000000000)
+TS[1]=0 (0x0000000000000000)
+TS[2]=0 (0x0000000000000000)
+TS[3]=0 (0x0000000000000000)
+--- rsample (stage-boundary) => real nanoseconds ---
+TS[0]=52990250797416 (0x00003031c1134968)
+TS[1]=52990250800291 (0x00003031c11354a3)
+TS[2]=52990250807458 (0x00003031c11370a2)
+TS[3]=52990250810916 (0x00003031c1137e24)
+TS delta(0->1)=2875 gpu-ticks
+TS delta(0->3)=13500 gpu-ticks
+
+########## CLAIM 5: GEOMETRY OUTPUT ##########
+--- viewport count 0x68000+0x900 = ((count-1)<<12)|0x0C00: base/vp4/vp16 ---
+capo_base: le32=0x00000c00
+capo_vp4: le32=0x00003c00
+capo_vp16: le32=0x0000fc00
+--- clip mask 0x58000+0x20 bits[7:0]: base/clip3/clip8 ---
+capo_base: le32=0x00010000
+capo_clip3: le32=0x00010007
+capo_clip8: le32=0x000100ff
+--- point_size bit18 (0x40000) / vpidx bit19 (0x80000) 0x58000+0x20 (base=0x00010000) ---
+capo_point: le32=0x00050000
+capo_vpidx1: le32=0x00090000
+--- restart cut index 0x18000+0x68 + opcode @+0x6c: ix16(list)/str16r/str32r ---
+capo_ix16:
+  +0x068: bytes=ffff0000 le32=0x0000ffff
+  +0x06c: bytes=0006f261 le32=0x61f20600
+capo_str16r:
+  +0x068: bytes=ffff0000 le32=0x0000ffff
+  +0x06c: bytes=0009f361 le32=0x61f30900
+capo_str32r:
+  +0x068: bytes=ffffffff le32=0xffffffff
+  +0x06c: bytes=0009f561 le32=0x61f50900
+--- viewport 0x18-byte stride: vp4 vs vpmod (perturb only vp[1] h+znear) -> only floats 3-6 of vp[1] change ---
+  +0x0948: 0x41d40000 -> 0x41f00000   (A 1104412672  B 1106247680)
+  +0x094c: 0xc1c40000 -> 0xc1e00000   (A 3250847744  B 3252682752)
+  +0x0950: 0x3ca3d70a -> 0x3e9eb852   (A 1017370378  B 1050589266)
+  +0x0954: 0x3f75c28f -> 0x3f2b851f   (A 1064682127  B 1059816735)
+[4 differing words across 1 paired BO(s)]
+===================== END =====================

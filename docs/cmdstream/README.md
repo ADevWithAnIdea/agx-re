@@ -166,7 +166,7 @@ need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
   injects a **2nd CDM record + a grid-setup helper shader** to multiply `threadgroups × threadsPerThreadgroup`
   (args VA staged at `0x10000080000+0xb0`). **A Mesa driver must replicate this multiply.**
 - **Full ICB** (`executeCommandsInBuffer:`): each command expands to an inline state-block + draw (same
-  `0x61c4`, inline vertexCount); header `+0x04` = command count. (Distinct from the args-pointer form above.)
+  `0x61c4`, inline vertexCount); header `+0x04` = command count. (Distinct from the args-pointer form above.) *(RT-6: `+0x04` is the **encoded/allocated** command count — `withRange:` still shows the full count with all records materialized, range applied elsewhere. **Mesh and draw commands can coexist in one ICB** — a mixed Draw|DrawMeshThreadgroups ICB produces one `0x61c4` + one `0x70000600` record.)*
 - **Occlusion query:** result-buffer base pointer at `0x10000100000+0x00`; per-draw **mode = bit14 of
   `0x58000+0x8c`** (Boolean=1 writes 1 / Counting=0 writes exact passed-sample count, both u64); per-draw
   **offset = `0x58000+0xa0` = byteOffset<<14**. Per-tile→total summation is firmware-managed.
