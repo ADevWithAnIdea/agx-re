@@ -1,0 +1,95 @@
+{
+  "_comment": "EXP-O2D (objective-2 clusters O2-D/O2-E): compute/fragment ISA tail. Covers (1) atomic memory-ordering / atomic_thread_fence encoding, (2) 64-bit atomics width field, (3) bfloat general ALU, (4) subgroup tail op-selects (product reduce/scan, shuffle_and_fill, is_helper_thread), (5) explicit imageblock read/write + slice addressing and the tile-shader (dispatchThreadsPerTile) cmdstream submission. CLEAN-ROOM: every byte learned from the compiled form of MSL WE WROTE (OWN-SHADER) -- byte-diffing our own shaders, splicing bytes and running on the real A18 Pro / G17P GPU (HW-validated), tracing our own submissions with the READ-ONLY iotrace (DATA-TRACE), and tokenizing with the READ-ONLY tools/agx-isa DB. No Apple binary was disassembled. This experiment did NOT edit tools/agx-isa/ ; the orchestrator merges these (and should re-run roundtrip_test.py before merge). Bit numbering: N-byte instr = one little-endian int; bit0=byte0 bit0, bit16=byte+2 bit0, so byte offset +k bit b = bit (8k+b).",
+
+  "device": "Apple A18 Pro / G17P, SoC T8140, macOS 26.6 (25G5043d), Metal 4 / Apple9. supportsFamily(Apple9)=1.",
+
+  "length_rule_additions": {
+    "_note": "Corrections/additions to instr_length() (isadb.py). The 0x11 fix is LOAD-BEARING: the current DB treats ALL byte0 0x11 as 6B (from cvt_f2h), but bfloat ALU is 8B/10B -> the current tokenizer desyncs every bfloat kernel. Verified against OUR extracted bfloat shaders.",
+
+    "0x11": "6 if byte+1==0x03 (fp32->fp16 half-narrowing convert, cvt_f2h: `11 03 1c 81 00 c2`); else 8 if byte+1 in {0x02,0x04} (BFLOAT ALU add/mul: scalar byte+1=0x02, bfloat2-packed byte+1=0x04), or 10 if byte+1 in {0x02,0x04} AND byte+2&0x02 (BFLOAT fma, opsel 0x1e). NOTE the float->bfloat CONVERT `bfloat(x)` is ALSO byte+1==0x03 but 8B (`11 03 1c 81 01 02 40 80`) -- the 6-vs-8 convert sub-split (byte+4 0x00 half vs 0x01 bfloat) is a documented follow-up; bfloat ARITHMETIC is unambiguously byte+1 in {0x02,0x04}. EXP-O2D HW-validated (splice add<->mul, byte+2 0x1c->0x1d, output 3.0->2.0)."
+  },
+
+  "new_instructions": [
+    {
+      "mnemonic": "bf_alu",
+      "length": 8,
+      "match": [[0,8,17],[8,8,2]],
+      "fields": [
+        {"name":"opsel","start":16,"width":8,"type":"opcode","enum":{"28":"bf_add(0x1c)","29":"bf_mul(0x1d)","30":"bf_fma(0x1e,10B)"}},
+        {"name":"srcA","start":24,"width":8,"type":"reg"},
+        {"name":"srcB","start":32,"width":8,"type":"reg"},
+        {"name":"tail","start":40,"width":24,"type":"raw"}
+      ],
+      "semantics": "d(bfloat) = op(a,b) ; NATIVE bfloat (brain-float16) general ALU. byte0 0x11 is a DISTINCT group -- the bfloat sibling of the 0x10 native-fp16 ALU group and the 0x11 fp32->fp16 convert group -- reusing the SAME opsel byte+2 (0x1c add / 0x1d mul / 0x1e fma) as the 0x10/0x09 float groups. NOT lowered to fp32 (a single 0x11 op does the add; there is no widen-add-narrow sequence) and NOT the 0x10 fp16 group (byte0 differs: 0x11 vs 0x10). byte+1 = 0x02 scalar bfloat, 0x04 bfloat2 (each packed lane a separate 0x11 op). bfloat carries fp32 range (bf16 = top 16 bits of fp32) so bfloat->float is a free 0x03 widen and float->bfloat is a 0x11 byte+1==0x03 rounding convert. HW-VALIDATED (EXP-O2D): splicing opsel 0x1c->0x1d turned bfloat(1.0)+bfloat(2.0)=3.0 (bits 0x4040) into bfloat(1.0)*bfloat(2.0)=2.0 (bits 0x4000).",
+      "provenance": "HW-validated (splice add<->mul). byte0/opsel/byte+1 scalar-vs-bf2 from byte-diff of our own bf_add/bf_mul/bf_fma/bf2_add vs h_add(0x10)/f_add(0x09). fma 10B + tail bytes byte-diff-inferred."
+    },
+    {
+      "mnemonic": "imageblock_store",
+      "length": 12,
+      "match": [[0,8,231],[8,8,6]],
+      "fields": [
+        {"name":"variant","start":8,"width":8,"type":"enum","enum":{"6":"imageblock/color store","22":"first-access marker (bit4 set)"}},
+        {"name":"src","start":24,"width":8,"type":"reg"},
+        {"name":"slice_off","start":40,"width":8,"type":"immediate"},
+        {"name":"fmt","start":56,"width":8,"type":"enum","enum":{"14":"half4/16b-slot (0x0e)","34":"float/32b-slot (0x22)"}},
+        {"name":"tail","start":64,"width":32,"type":"raw"}
+      ],
+      "semantics": "imageblock[slice].write(v) ; EXPLICIT imageblock<T> WRITE from a fragment or TILE (dispatchThreadsPerTile) shader. Memory-family store byte0 0xe7 with the fragment/tile variant byte+1 in {0x06, 0x16} (0x16 = 0x06|0x10, the 0x10 bit marking the FIRST store after a 0x87 tile-access setup). Same op as EXP-0029 frag_color_store, GENERALISED: byte+5 = SLICE ADDRESSING = the field's BYTE-OFFSET WITHIN THE IMAGEBLOCK STRUCT, encoded (offset>>1). HW-proven: a GB imageblock {half4 albedo@0, half4 normal@8, float depthv@16} stores with byte+5 = 0x00 / 0x04 / 0x08 (=0,8,16 >>1). byte+7 = slice data format (0x0e half4, 0x22 float). This is DIFFERENT from simple-MRT frag_color_store where byte+5 = render-target index (rt<<1): explicit imageblocks address by byte-offset, MRT addresses by RT index. img.write(v) writes the WHOLE struct (one 0xe7 per field); there is no auto single-slice isolation. Bracketed by 0x87 frag_tile_setup + a 0x07 tile fence. HW-VALIDATED end-to-end (EXP-O2D iotile: a tile kernel overwrote the attachment, readback == the tile-written colour).",
+      "provenance": "HW-validated (iotile: tile-kernel imageblock write landed in the attachment; readback exact). byte+5 slice-offset, byte+7 format from byte-diff of tk_write/tk_rmw/tk_write_slice (3-field GB imageblock). byte+1 0x06/0x16 variant byte-diff."
+    },
+    {
+      "mnemonic": "imageblock_load",
+      "length": 12,
+      "match": [[0,8,103],[8,8,6]],
+      "fields": [
+        {"name":"variant","start":8,"width":8,"type":"enum","enum":{"6":"imageblock read","14":"tile_read/blend (0x0e, EXP-0029)","22":"first-access marker (0x16)"}},
+        {"name":"dst","start":24,"width":8,"type":"reg"},
+        {"name":"slice_off","start":40,"width":8,"type":"immediate"},
+        {"name":"fmt","start":56,"width":8,"type":"raw"},
+        {"name":"tail","start":64,"width":32,"type":"raw"}
+      ],
+      "semantics": "v = imageblock[slice].read() ; EXPLICIT imageblock<T> READ from a fragment/tile shader (the load-side sibling of imageblock_store; generalises EXP-0029's tile_read 0x67 byte+1==0x0e). byte0 0x67 load with fragment/tile variant byte+1 in {0x06,0x16,0x0e}; byte+5 = slice byte-offset>>1 (albedo 0x00 / normal 0x04 / depthv 0x08 for the GB imageblock). Used for programmable-blend tile reads (byte+1 0x0e) and explicit imageblock read-modify-write.",
+      "provenance": "byte-diff of tk_rmw/tk_write_slice (our own tile kernels) vs the EXP-0029 tile_read. Slice-offset addressing shared with imageblock_store (HW-validated there)."
+    }
+  ],
+
+  "refinements": {
+    "simd_reduce": {
+      "_target": "existing simd_reduce descriptor (byte0 0xbf/0x3f/0xb7, byte+2 in {0x54,0x56}, 8B)",
+      "op_field": "Operation = (byte0 bit7, byte+1). byte0 0x3f = bit7 CLEAR, 0xbf = bit7 SET. Pairs share byte+1; bit7 picks within the pair: byte+1=0x00 {and(bit7=0), or(bit7=1)}; byte+1=0x01 {xor(0), add/iadd(1)}; byte+1=0x03 {?, umax(1)}; byte+1=0x05 {?, fmin(1)}; byte+1=0x06 {FADD/simd_sum(0), FMUL/simd_product(1)}; byte+1=0x07 {?, fmax(1)}. NEW (EXP-O2D): byte+1=0x06 bit7=1 = simd_product / simd_prefix_*_product (FLOAT) -- HW-VALIDATED (splice byte0 0xbf->0x3f flipped 32-lane product 1.0 -> sum 32.0). fmin byte+1=0x05, fmax byte+1=0x07 (dtype byte+7=0x12 float).",
+      "shape_field": "byte+7 = datatype/shape: 0x03 int reduce (and/or/xor/add), 0x07 int min/max, 0x12 float reduce, 0x0b int exclusive-scan, 0x09 int inclusive-scan, 0x32 FLOAT exclusive-scan (NEW), float inclusive-scan = exclusive-scan (0x32/byte+3=0x04/byte+7=0x22) followed by a 0x09 float op of the lane's own value.",
+      "note": "INTEGER simd_product / simd_prefix_exclusive_product / simd_prefix_inclusive_product have NO native reduce op-select -- they LOWER to a log2(32)-step shuffle(0x47)+multiply(0x9f) tree (HW-observed: our red_prod/pre_*_prod uint kernels are large unrolled trees with ZERO 0xbf ops). Only FLOAT product/prefix-product use the native 0xbf op (the reduce unit has a float-mul mode but no int-mul mode)."
+    },
+    "simd_shuffle": {
+      "_target": "existing simd_shuffle descriptor (byte0 0x47/0xc7, byte+2==0x56, 10B)",
+      "mode_field": "byte+1 mode: 0x04 = SIMD-group shuffle, 0x00 = quad shuffle, 0x06 = shuffle_and_fill / rotate (NEW). byte0 bit7 = direction (0x47 broadcast/up/fill_up, 0xc7 xor/down/fill_down).",
+      "note": "NEW (EXP-O2D): simd_shuffle_and_fill_up/down = byte+1==0x06; the FILL DATA is a SEPARATE operand loaded by a preceding 0x67 device_load before the shuffle op. The modulo/rotate variant simd_shuffle_and_fill_*(v, fill, delta, modulo) is the same byte+1==0x06 op with byte+6 changed (fill 0x4a -> modulo 0x42) plus a tail byte (0x20 -> 0x30) carrying the modulo. simd_shuffle_up/down themselves add edge-handling predication (0f80/0f9e) around the core 0x47/0xc7 op; simd_shuffle_xor is a single clean op."
+    },
+    "get_sr": {
+      "_target": "existing get_sr descriptor (SR number = byte1)",
+      "new_sr": "byte1 0x84 = HELPER-THREAD / active-lane flag (FRAGMENT): simd_is_helper_thread() reads this SR (get_sr-family leader `04 84 11 06`) then compares it. Distinct from 0x82 simd_lane_id / 0x85 simd_group_id. Byte-diff inferred (f_helper vs f_plain fragment), not splice-validated."
+    }
+  },
+
+  "fence_encoding": {
+    "_summary": "atomic_thread_fence(flags, order, scope) -- ordering/scope live in the 0x07 fence op (same family as EXP-0025 threadgroup_barrier / EXP-0029 pixel_order), NOT on the 0x67 atomic RMW op. MSL flag arg must be qualified mem_flags::mem_device etc.",
+    "ordering": "memory_order_relaxed emits NO fence; memory_order_seq_cst emits the 0x07 fence. (acquire/release/acq_rel are REJECTED by MSL -- only relaxed and seq_cst compile, for BOTH the RMW ops and atomic_thread_fence.) So ordering is realised by fence PRESENCE, not a bit on the RMW op.",
+    "scope": "thread_scope_thread / _simdgroup / _threadgroup -> NO device fence emitted (sub-device scope needs no global fence); thread_scope_device (and default) -> emits the fence. Scope GATES emission.",
+    "device_fence": "atomic_thread_fence(mem_flags::mem_device, seq_cst[, thread_scope_device]) = `07 04 54 84 0a 00` (6B). byte+3=0x84 (device-memory fence; cf. threadgroup_barrier device = 0x85, the 0x01 bit = the added EXECUTION barrier), byte+4=0x0a (device memory-class flag).",
+    "texture_fence": "atomic_thread_fence(mem_flags::mem_texture, ...) = a PAIR `07 04 54 50 06 00` (acquire) + `07 04 54 d0 06 00` (release). byte+4=0x06 (texture/tile fence flag, same as EXP-0029 pixel_order), byte+3 bit7 = acquire(0x50)/release(0xd0).",
+    "threadgroup_fence": "atomic_thread_fence(mem_flags::mem_threadgroup, ...) WITHOUT a threadgroup_barrier emits NO distinct op in a threadgroup-memory kernel (relaxed==seq_cst==tg-scope byte-identical); cross-lane threadgroup visibility still requires the EXECUTION barrier (threadgroup_barrier, EXP-0025 byte+3=0x61). mem_none -> no fence.",
+    "provenance": "byte-diff of atomic_thread_fence probe (flags x order x scope) against the no-fence baseline (fencediff.py). Consistent with the HW-splice-validated EXP-0025 threadgroup_barrier / EXP-0029 pixel_order 0x07 family; the fence-only forms here are byte-diff-inferred (a fence's effect only manifests under contention, so not splice-validated in isolation)."
+  },
+
+  "tile_dispatch_submission": {
+    "_summary": "How a tile shader (kernel + imageblock, dispatchThreadsPerTile) is submitted (iotrace DATA-TRACE, read-only).",
+    "finding": "The tile dispatch is embedded in the SAME render-pass control stream as the draw -- it is NOT a separate compute submission. draw-only vs draw+dispatchThreadsPerTile produced the BYTE-IDENTICAL IOKit call sequence (58 calls, 37 BOs, identical selectors) -- zero extra ioctl / allocation / command buffer. The tile-dispatch record is appended into the render (3D/fragment) control stream: BO gpu_va 0x58000 (fragment control stream) gains the tile-dispatch state record (tile-mem reservation 0x1800, the tile kernel's USC/pipeline words) and BO 0x18000 (tiler/USC heap) gains the tile shader's binding; the imageblock output BO (0x10000018000, tile memory) shows the write result. So a tile shader IS a 'mid-render compute record' -- a compute-style kernel run over the tile, but recorded inline in the render submission, not a distinct compute encoder.",
+    "provenance": "iotrace (our own iotile harness, DATA-TRACE read-only). Call-sequence identity + per-BO word-diff (tilediff.py). HW end-to-end validated: the tile kernel overwrote the RGBA16F attachment after the draw (readback 3b33 2e66 3666 3c00 = the tile colour 0.9,0.1,0.4,1.0)."
+  },
+
+  "negative_results": {
+    "atomic_64bit": "MSL exposes NO 64-bit device atomics on this target. atomic<ulong>/atomic<long>/atomic<uint64_t> with add/min/max/and/or/xor/exchange/LOAD all fail 'no matching function' (every spelling, default = newest MSL language version, tested in isolation). => there is no reachable 64-bit atomic instruction and hence no width field to decode from the MSL path. Vulkan VK_KHR_shader_atomic_int64 (incl. the 64-bit min/max this task targeted) must be EMULATED (or routed outside MSL). (32-bit atomic<uint> works normally: RMW 0x67 byte+1=0x11 elected-lane, exchange/cmpxchg byte+1=0x01.)",
+    "atomic_ordering_on_rmw": "atomic_fetch_*_explicit accepts ONLY memory_order_relaxed; seq_cst/acquire/release/acq_rel are REJECTED by MSL. => the 0x67 atomic RMW op never carries an ordering field; ordering is expressed by a separate atomic_thread_fence (see fence_encoding).",
+    "int_simd_product": "simd_product / simd_prefix_*_product on INTEGER types have no native reduce op (shuffle-tree lowering; see simd_reduce.note)."
+  }
+}

@@ -582,6 +582,26 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   accumulate-enable, byte+1 = dtype, **byte+2 = mode (SEMANTIC, not a hint** — tiled mode `0x54` sources its accumulator
   from the MPP tile context; resolves EXP-0022's open question). *(descriptors staged in `experiments/EXP-O2C-rt-tensor-tail/new_descriptors.json`.)*
 
+### ✅ Compute/fragment ISA tail (EXP-O2D, objective-2 O2-D/O2-E)
+- **Atomic ordering = fence *presence*, not a field on the RMW op.** MSL accepts only `memory_order_relaxed` on
+  `atomic_*_explicit`; the `0x67` RMW carries no ordering field. `atomic_thread_fence` = the **`0x07` fence family**:
+  device fence `07 04 54 84 0a 00` (byte+3=`0x84` device, byte+4=`0x0a`); texture fence pair `07 04 54 50/d0 06 00`
+  (byte+4=`0x06`, byte+3 bit7 = acquire/release). Relaxed / thread / simdgroup / threadgroup scope → no fence emitted.
+- **⚠ 64-bit atomics are ENTIRELY absent from MSL** (all `atomic<ulong/long/uint64_t>` ops rejected) — **corrects
+  EXP-0018's "min/max only".** No reachable 64-bit atomic ⇒ no width field; **Vulkan int64 atomics must be emulated.**
+- **bfloat ALU = distinct group byte0 `0x11`** (opsel byte+2 `0x1c/1d/1e` add/mul/fma; scalar byte+1=`0x02`, bfloat2
+  `0x04`; add/mul 8 B, fma 10 B) — NOT fp32-lowered, NOT the `0x10` fp16 group. Splice `0x1c→0x1d` flipped bf 1+2→1×2.
+  Includes a **length-rule fix** (DB mis-lengths `0x11` as 6 B).
+- **Subgroup tail:** float `simd_product` = `0xbf` byte+1=`0x06`, byte0 bit7=1 (HW-validated, product↔sum); integer
+  product/prefix-product have **no native op** (lowered to `0x47` shuffle + `0x9f` mul tree). `simd_shuffle_and_fill_up/
+  down` = `0x47/0xc7` byte+1=`0x06`; **`simd_is_helper_thread` = `get_sr` SR byte1=`0x84`**.
+- **Imageblock:** write = `0xe7` store, read = `0x67` load (fragment/tile variant byte+1 ∈ {`0x06`,`0x16`,`0x0e`});
+  **slice addressing byte+5 = (field byte-offset within imageblock) >> 1** (differs from MRT's `rt<<1`); byte+7 = format.
+  HW-validated end-to-end (tile kernel overwrote an RGBA16F attachment).
+- **Tile shaders submit mid-render** (no separate submission): draw vs draw+`dispatchThreadsPerTile` = byte-identical
+  IOKit (58 calls / 37 BOs); the tile-dispatch record is appended inline to the render control stream (`0x58000`/`0x18000`).
+  *(descriptors staged in `experiments/EXP-O2D-compute-frag-tail/new_descriptors.json`.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

@@ -1,0 +1,27 @@
+# EXP-O2D HW splice-validation results (agxtest.py, PIPELINE_SOURCE archive = spliced bytes ran)
+
+## Sub-exp 3: bfloat is the 0x11 group (add<->mul opsel splice)
+kernel bfaddu: bfloat add via uint bit-pattern I/O; a=0x3f80(1.0) b=0x4000(2.0)
+  baseline (opsel 0x1c at _agc.main@0x22):  RESULT 0 = 16448 (=0x4040 = bf 3.0)   COMPARE MATCH  [ADD]
+  splice _agc.main@0x22=1d (0x1c->0x1d):    RESULT 0 = 16384 (=0x4000 = bf 2.0)   COMPARE MATCH  [MUL]
+  => byte0 0x11 is a real bfloat ALU group; opsel byte+2 (0x1c/0x1d) selects add/mul exactly like fp16/fp32.
+
+## Sub-exp 4: float simd_product op-select (byte0 bit7)
+kernel rf_prod (subgroup_disambig.metal): simd_product over 32 lanes, v=all 1.0
+  baseline (byte0 0xbf at _agc.main@0x12):  RESULT 0 = all 1.0  COMPARE MATCH  [PRODUCT]
+  splice _agc.main@0x12=3f (0xbf->0x3f, bit7 clear): RESULT 0 = all 32.0  COMPARE MATCH  [SUM]
+  => float simd_product = 0xbf reduce, byte+1=0x06, byte0 bit7=1 (vs fadd/sum bit7=0), dtype byte+7=0x12.
+
+## Sub-exp 5: tile shader (dispatchThreadsPerTile) + imageblock write, end-to-end HW
+iotile: full-screen triangle writes X=(0.2,0.4,0.6); tile kernel tile_paint overwrites imageblock with Y=(0.9,0.1,0.4,1.0)
+  SUBMIT done status=4 (completed)
+  PIXEL half-bits = 3b33 2e66 3666 3c00  ==  0.9h,0.1h,0.4h,1.0h  == the TILE colour Y
+  => the mid-render tile dispatch ran AFTER the draw and its imageblock write landed in the attachment.
+
+## Sub-exp 5b: tile-dispatch cmdstream submission (iotrace, read-only)
+draw-only vs draw+dispatchThreadsPerTile:  CALL SEQUENCES IDENTICAL (58 calls, 37 BOs both) => no separate submission.
+  tile-dispatch record appended to render control stream BOs 0x18000 (tiler/USC) + 0x58000 (fragment CS);
+  imageblock output BO 0x10000018000 shows X->Y (see raw/tile_cmdstream_diff.txt).
+
+## simd_is_helper_thread (fragment; byte-diff only, not spliced)
+f_helper vs f_plain: helper query adds a get_sr-family leader `04 84 11 06` (SR byte1=0x84, a new SR) + compare.
