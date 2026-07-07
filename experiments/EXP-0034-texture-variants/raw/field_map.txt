@@ -1,0 +1,33 @@
+EXP-0034 texture-variant field map (companion[c0 80 0c c3] + sampler-op[+0..+9])
+kernel         c0  c+3 | +0  +1  +2  +3  +4  +5  +6  +7  +8  +9
+b_sample_lod   05  b8  | b0  00  09  00  00  00  10  00  01  00
+f_sample       05  b8  | b0  00  00  00  01  00  10  00  01  00
+b_gather       05  a4  | 90  00  00  00  00  00  00  00  01  00
+g_x            05  a4  | 90  00  00  00  00  00  00  00  01  00
+g_y            05  ac  | 90  00  00  00  00  00  00  00  01  00
+g_z            05  b4  | 90  00  00  00  00  00  00  00  01  00
+g_w            05  bc  | 90  00  00  00  00  00  00  00  01  00
+g_off10        05  a4  | 90  00  01  02  00  08  00  00  01  00
+g_off01        05  a4  | 90  00  01  02  00  80  00  00  01  00
+g_off33        05  a4  | 90  00  01  02  00  18  00  00  01  0e
+s_off          05  b8  | b0  00  1b  02  00  88  10  00  01  00
+f_sample_off   05  b8  | b0  00  01  02  01  88  10  00  01  00
+gc             05  a4  | 90  00  20  00  00  00  00  00  01  00
+gc_off         05  a4  | 90  00  21  02  00  08  00  00  01  00
+sc_lod         0d  a0  | 90  00  29  00  00  00  00  00  01  00
+sc_ref         0d  a0  | 90  00  29  00  00  00  00  00  01  00
+sc_off         0d  a0  | 90  00  3b  02  00  08  00  00  01  00
+f_scmp         05  a0  | 90  00  20  00  01  00  00  00  01  00
+f_scmp_off     05  a0  | 90  00  21  02  01  08  00  00  01  00
+f_gcmp         05  a4  | 90  00  20  00  01  00  00  00  01  00
+s_array        05  b8  | b0  00  09  01  00  00  10  00  01  00
+s_cube         05  b8  | b0  00  13  00  00  00  10  00  01  00
+s_cube_array   05  b8  | b0  00  53  00  00  00  10  00  01  00
+s_3d           05  b8  | b0  00  39  00  00  00  10  00  01  00
+r_ms_s         05  b8  | b0  00  80  14  00  00  00  00  01  00
+lod_c          05  a0  | 90  00  00  00  00  00  20  00  01  00
+lod_u          05  a8  | 90  00  00  00  00  00  20  00  01  00
+
+gather component (companion +3): x=a4 y=ac z=b4 w=bc  -> bit2=gather, bits[3:5]=r/g/b/a
+op+2 compare bit = 0x20 ; op+2 offset bit0 (implicit/gather) ; op+6 mode 10=filt 00=gather/read/cmp 20=lodquery
+op+5 offset: (1,0)=08 (0,1)=80 (1,1)=88 (3,-2)=18/+9=0e ; samp-slot in op+5 low bits

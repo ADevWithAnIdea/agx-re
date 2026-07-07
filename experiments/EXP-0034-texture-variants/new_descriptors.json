@@ -1,0 +1,72 @@
+{
+  "_comment": "EXP-0034 texture-variant refinements. Same schema as tools/agx-isa/db.json. The orchestrator merges these into db.json (do NOT edit tools/agx-isa here). 'tex_sample' REFINES the existing EXP-0016 descriptor (adds the compare / gather-component / const-offset / LOD-query fields and the full op+2 enum); 'tex_atomic' is a note-descriptor for image atomics (they reuse the 0x67 memory-family atomic, not a new opcode). Bit numbering: 14-byte bundle as one little-endian int; companion = bytes 0..3, sampler op = bytes 4..13, so 'op+N' = bit (4+N)*8.",
+
+  "instructions": [
+    {
+      "mnemonic": "tex_sample",
+      "refines": "EXP-0016 tex_sample",
+      "length": 14,
+      "match": [[0, 4, 5], [8, 8, 128], [16, 8, 12]],
+      "match_note": "companion byte0 low-nibble is 0x5 for sample/gather/read, or 0xd (bit3 set) for compute sample_compare carrying a dependent compare-ref register; both match [0,4,5] on the low 3 bits. byte+1==0x80, byte+2==0x0c gate the bundle.",
+      "fields": [
+        {"name": "kind", "start": 0, "width": 4, "type": "mod",
+         "note": "companion byte0 low nibble: 0x5 sample/gather/read; 0xd = sample_compare with a dependent compare-ref reg (compute const/dynamic ref). bit5 (0x20) of byte0 = a chained 2nd texture op follows."},
+        {"name": "result_desc", "start": 24, "width": 8, "type": "mod",
+         "enum": {"184": "vec4 (full sample/read result 0xb8)", "160": "scalar .x / compare-result / clamped-LOD (0xa0)", "168": "scalar unclamped-LOD (0xa8)", "164": "gather comp0=r (0xa4)", "172": "gather comp1=g (0xac)", "180": "gather comp2=b (0xb4)", "188": "gather comp3=a (0xbc)"},
+         "note": "companion byte+3 = result descriptor. bit2 (0x04) = GATHER (returns the 2x2 footprint of ONE channel); bits[3:5] = gather component index 0/1/2/3 -> r/g/b/a (HW-validated EXP-0034). bit3 also distinguishes clamped(0xa0)/unclamped(0xa8) LOD-query result."},
+        {"name": "result_sel", "start": 32, "width": 8, "type": "reg",
+         "note": "sampler-op byte+0: high nibble = result-register selector (0xb0 vec4, 0x90 scalar/gather, 0x30 chained-2nd-op)."},
+        {"name": "coord", "start": 40, "width": 8, "type": "reg",
+         "note": "sampler-op byte+1: coordinate register base. Array-slice / cube-face / 3D-w / MSAA-sample-index / depth-compare-reference are passed as ADDITIONAL registers packed by preceding ALU immediately after u,v (op+3 selects the extra-operand register)."},
+        {"name": "variant", "start": 48, "width": 8, "type": "opcode",
+         "enum": {
+           "0": "sample (implicit LOD) | gather",
+           "1": "sample|gather + const texel offset",
+           "4": "sample_grad",
+           "7": "sample_bias",
+           "9": "sample_lod (explicit level) | array-sample (slice via extra operand)",
+           "19": "cube sample (0x13)",
+           "27": "sample_lod + offset (0x1b)",
+           "23": "read 2D (0x17)",
+           "32": "sample_compare | gather_compare, implicit LOD (0x20)",
+           "33": "sample_compare | gather_compare + offset (0x21)",
+           "41": "sample_compare, explicit level (0x29 = 0x20|0x09)",
+           "57": "3D sample (0x39)",
+           "59": "sample_compare_lod + offset (0x3b)",
+           "83": "cube-array sample (0x53)",
+           "121": "read 3D (0x79)",
+           "128": "read MSAA (0x80)",
+           "151": "read 2D-array (0x97 = 0x17|0x80, bit7=array)"},
+         "note": "op+2. ORTHOGONAL bits proven this run: bit5 (0x20) = DEPTH-COMPARE mode (0x00->0x20 sample_compare, 0x09->0x29, 0x00->0x20 gather_compare) -- HW-validated by the shadow test (all 8 compareFuncs); bit0 (0x01) = const texel-offset present (implicit/gather modes). Low bits select LOD mode (0 implicit / 4 grad / 7 bias / 9 level); high bits select access dimension for reads (0x17/0x79/0x97/0x80) and cube/3D for samples (0x13/0x39/0x53). Array-SAMPLE keeps the 2D LOD-mode byte (slice is an extra coord operand)."},
+        {"name": "extra_coord", "start": 56, "width": 8, "type": "reg",
+         "note": "sampler-op byte+3: selects the extra coordinate/index register (array slice, cube-array slice, 3D w, MSAA sample index, and the sample_compare reference), or 0 when absent."},
+        {"name": "tex_slot", "start": 64, "width": 8, "type": "imm",
+         "note": "sampler-op byte+4: texture-table slot; bit7 (0x80) = the texture-index bit (HW-validated EXP-0016). Indexes the Tier-2 arg-buffer texture-descriptor pointer table."},
+        {"name": "samp_slot_offset", "start": 72, "width": 8, "type": "imm",
+         "note": "sampler-op byte+5: sampler-table slot in the LOW bits (0/1 HW-validated EXP-0016) AND the constant texel OFFSET (HW-validated EXP-0034): offset.x at bits[3:6] (value<<3: (1,0)->0x08,(3,-2)->0x18), offset.y at bit7+ ((0,1)->0x80,(1,1)->0x88); large/negative offsets spill into op+6/op+9."},
+        {"name": "mode", "start": 80, "width": 8, "type": "mod",
+         "enum": {"16": "filtered sample (uses sampler + LOD)", "0": "gather / read / sample_compare (fixed-function)", "32": "LOD query (calculate_clamped/unclamped_lod)"},
+         "note": "sampler-op byte+6. 0x10 = filtered sample; 0x00 = gather/read/compare; 0x20 = LOD-query (HW: op runs, returns a scalar LOD; 0 in compute where there are no derivatives). HW-validated (sample vs gather vs compare vs LOD-query)."},
+        {"name": "lod_present", "start": 88, "width": 8, "type": "mod",
+         "note": "sampler-op byte+7: bit2 (0x04) set when a nonzero explicit LOD/bias operand is present in a register set up by a preceding ALU (level(0.0) omits it -> 0x00)."},
+        {"name": "tail", "start": 96, "width": 16, "type": "raw"}
+      ],
+      "semantics": "Texture sample/gather/read/compare/LOD-query bundle. variant (op+2) selects the operation family; op+2 bit5 = depth-compare (sampler compareFunction applied as compareValue COMPARE sampledDepth, HW-validated shadow), op+6 = filtered/fixed/LOD-query mode, companion byte+3 = result descriptor incl. gather component (bits[3:5] r/g/b/a). LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Constant texel offset packs into op+5 (with op+6/op+9 spill). Same op in compute and fragment; implicit LOD needs a fragment stage.",
+      "provenance": "HW-VALIDATED (EXP-0034): sample_compare (op+2 0x20/0x29, companion 0xa0) -- depth[i]=i/16 vs ref 0.5, all 8 sampler compareFuncs give the exact expected shadow pattern (compareValue COMPARE sampledDepth); dynamic per-thread ref (sc_ref) proves the reference is a register operand; LINEAR filter yields fractional PCF (0.5) proving true hardware 2x2 PCF. Gather component (companion byte+3 bits[3:5]) HW-validated x/y/z/w -> R/G/B/A of the 2x2 footprint. Gather const offset (op+5, HW-validated: footprint shifts +1 column). LOD-query (op+6=0x20) HW-runs. tex_slot/samp_slot HW-validated EXP-0016. Remaining op+2 dimension codes and op+3/op+5 offset sub-bits are byte-diff-localized (EXP-0016/EXP-0034 mains.txt)."
+    },
+
+    {
+      "mnemonic": "tex_atomic",
+      "length": 14,
+      "note_only": true,
+      "match": [[0, 8, 103]],
+      "semantics": "IMAGE / TEXTURE ATOMICS are NOT a dedicated opcode -- Metal ACCEPTS atomic_fetch_add/max/etc on texture2d<uint, access::read_write> (r32uint) and texture_buffer<uint,...> and lowers them to the EXP-0018 memory-family device atomic (byte0 0x67, byte+2 0x54), computing the texel byte-address in-shader from the texture descriptor. texture_buffer atomics use the plain EXP-0018 op-byte (add=0x20 at byte+12). texture2d (2D-addressed image) atomics use byte+1=0x11 and the same op-byte | 0x40 (add 0x20->0x60, umax 0x38->0x78), i.e. bit6 marks the image-addressed atomic variant.",
+      "provenance": "HW-VALIDATED (EXP-0034): compiles (not rejected), and is genuinely atomic on hardware -- 256 threads atomic_fetch_add to one texel -> exactly 256 (no lost updates); atomic_fetch_max(i) over 256 threads -> 255; distinct-texel add -> each texel 1. Op-byte relation to EXP-0018 (|0x40 for the 2D image form) is byte-diff-inferred; the RMW atomicity is HW-proven."
+    }
+  ],
+
+  "length_rule_additions": {
+    "0x67 (image atomic)": "14 -- texture2d<uint,rw>/texture_buffer<uint,rw> atomics lower to the EXP-0018 0x67 device-atomic (byte+1 0x11 for the 2D image form; op-byte at +12 = EXP-0018 code, |0x40 for 2D image). No new opcode. EXP-0034 HW.",
+    "tex_sample variant note": "op+2 gains the compare (0x20 bit), offset (0x01/0x1b/0x21/0x3b), LOD-query (op+6=0x20), and dimension (0x13 cube / 0x39 3D / 0x53 cube-array) codes -- EXP-0034."
+  }
+}

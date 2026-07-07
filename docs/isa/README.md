@@ -493,6 +493,26 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
 - *(EXP-0033 also corrected DB length-rule bugs for the `0xa7 b1∈{04,05}` 8B, `0x27 b1=01` 12B rotate, and the
   `0x10` half group — staged in `experiments/EXP-0033-int-bitfield/new_descriptors.json` for the consolidation.)*
 
+### ✅ Texture variants (EXP-0034, closes backlog #14)
+The 14-byte sample bundle generalizes to every variant via **op+2** (variant/dim/LOD/compare/offset),
+**op+6** (mode), **companion+3** (result descriptor), and register operands from preceding ALU:
+- **sample_compare (shadow/PCF):** **op+2 bit5 (`0x20`) = depth-compare** (`sample_compare(level)`=`0x29`),
+  scalar result (companion+3=`0xa0`); the **compare-reference is a register operand**; the sampler
+  descriptor's `compareFunction` (EXP-0015 sense bit39 + test[40:42]) evaluates `ref CMP sampledDepth`. All 8
+  compare funcs HW-validated; **linear filter yields fractional PCF** ⇒ **native 2×2 hardware PCF**.
+- **gather:** op+6 `0x00` + result-desc in companion+3 (`0xa4/ac/b4/bc`: bit2=gather, bits[3:5]=component
+  R/G/B/A, HW-validated). **gather_compare** = gather + op+2 `0x20`. **Constant offset packs into op+5**
+  (`(1,0)→0x08`, `(1,1)→0x88`, HW-validated).
+- **sample_lod/bias/grad:** op+2 `0x09`/`0x07`/`0x04`; value in a preceding-ALU register; **op+7 bit2** =
+  explicit-LOD/bias present.
+- **LOD query** (`calculate_*_lod`) = a real texture op (op+6 `0x20`; clamped/unclamped in companion+3).
+- **✅ Texture/image atomics are NATIVE** (supported, not rejected): `atomic_*` on `texture2d<uint,rw>` /
+  `texture_buffer` lower to the **memory-family device atomic (`0x67`)** with the texel address computed
+  in-shader (texture2d: byte+1 `0x11`, op-byte `|0x40`). HW-proven (256 contended adds → 256).
+- **array/cube/3D/MSAA:** `read` dim in op+2 (`0x17` 2D / `0x79` 3D / `0x97` 2D-array bit7 / `0x80` MSAA);
+  `sample` encodes cube `0x13` / 3D `0x39` / cube-array `0x53` in op+2; extra index (slice/face/z/sample/ref)
+  = an added coord register selected via op+3 (⏳ byte-diff, not splice-validated).
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
