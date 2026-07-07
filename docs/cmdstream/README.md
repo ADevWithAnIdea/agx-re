@@ -187,6 +187,24 @@ The mesh-output **UVB buffer** is a driver/firmware-allocated intermediate (tile
 reached via USC/uniform binding like the vertex-shader **UVS** varying buffer — **not user-visible**; its
 sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../kernel-interface.md`).
 
+## Geometry-output pipeline (EXP-O2A)
+- **Multiple viewports** (`0x68000`): count word `+0x900 = ((count-1)<<12)|0x0C00` (max 16); a per-viewport
+  control-word header; then a **6-float / 0x18-byte per-viewport transform array** (the single-viewport block
+  `+0x910`, arrayed). Index selected by the VS `[[viewport_array_index]]` output.
+- **PPP output-select word `0x58000+0x20`** (which shader outputs are live): **bits[7:0] = clip-distance plane
+  mask** (max 8 planes), **bit18 = point_size**, **bit19 = viewport_array_index**. Clip-distance = a shader-output
+  varying + this mask; point-size *value* is shader-driven (no descriptor field).
+- **Primitive restart** (indexed VDM record `0x18000`): **cut/restart index at `+0x68` = all-ones of the index
+  width** (0xffff / 0xffffffff); opcode `+0x6c` bit0=strip/bit1=u32; count `+0x74`, extent-dwords-1 `+0x80`,
+  idxBuf VA `+0x70`. **No separate enable bit.**
+- **Alpha-to-coverage** = shader-lowered (FS epilog) + FF bits `0x58000+0x18` bit0 (MSAA-only) and `+0x50`
+  bits[30,26]. **Alpha-to-one has no FF field** — realized entirely in the FS epilog (output alpha → 1.0).
+- **Kernel-managed:** the multi-scissor rectangle array is in **no** client BO — it routes via the `isp_scissor`
+  submit param (see `../kernel-interface.md`); only the scissor *enable* bit (`0x58000+0x34` bit16) + tile-grid
+  clamp (`0x68000+0x904/908`) are client-side.
+- **Metal-unreachable → emulate:** cull distance (MSL has clip only), polygon-point fill (fill/lines only), a
+  *custom* restart index (HW field exists at `+0x68` but Metal always uses all-ones).
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/
