@@ -69,6 +69,23 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 
 ---
 
+## Experiment log & queue (orchestration tracker — resume point)
+Done (committed, provenance-cited): **0001** shader byte extraction · **0002** HW identity/interface ·
+**0003** hardware testbed + first opcode · **0005** ISA DB + length rule + float op-select ·
+**0006** float ALU operands + minifloat imm · **0007** integer ALU family · **0008** vtx/frag
+extraction + render testbed · (**0009** iotrace/cmdstream — in progress). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+
+**Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
+float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
+memory addressing (device/threadgroup/constant load-store forms); conversions (fp16/fp32/int);
+texture sample/gather + samplers; interpolation/derivatives (fragment); atomics; subgroup/quad;
+register-model confirm (uniforms, dst width, Dynamic Caching); then exotic Apple9 (RT, mesh, matrix).
+**Next queue (Phase 2+):** cmdstream decode (post-0009); descriptors; tiling; TBDR/pipeline.
+
+**Orchestration policy:** ≤2 parallel device experiments, on **disjoint files** (e.g. one editing
+`tools/agx-isa`, one editing `tools/iotrace`); faults are contained (0 reboots so far). Orchestrator
+owns `docs/`, `ROADMAP.md`, `PROVENANCE.md` and serializes edits to any shared tool file.
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the
