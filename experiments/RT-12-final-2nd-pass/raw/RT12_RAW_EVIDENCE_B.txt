@@ -1,0 +1,47 @@
+===== RT-12 RAW EVIDENCE — PART B (machine model + SR/ABI) =====
+-- B1: 96 GPR hard boundary --
+memory-index splice (load index_reg @file 0x09):
+ baseline o=a[i]:
+STATUS OK
+RESULT 0 100 101 102 103 104 105 106 107
+ r95:
+STATUS OK
+RESULT 0 100 100 100 100 100 100 100 100
+ r96:
+STATUS CMDBUF_ERROR
+ALU-source splice (fadd srcA @file 0x21), a=[10..80] b=[1..8], srcB=r0(=a):
+ srcA=r0:RESULT 0 20 40 60 80 100 120 140 160
+ srcA=r64:RESULT 0 20 40 60 80 100 120 140 160
+ srcA=r65:RESULT 0 10 0 0 0 0 0 0 0
+ srcA=r95:RESULT 0 10 20 30 40 50 60 70 80
+ srcA=r96:RESULT 0 10 20 30 40 50 60 70 80
+ srcA=r127:RESULT 0 10 20 30 40 50 60 70 80
+-- B2: halves 2-per-GPR (footprint) --
+K   float_f0 float_sc   half_f0 half_sc   ratio(half/float)
+24  33       0          20       0         0.606
+32  43       0          26       0         0.605
+48  63       0          38       0         0.603
+64  83       0          50       0         0.602
+-- B3: SR splices (compute) + graphics read-off --
+ get_sr byte1: 0xa0(baseline tpig), splice 0x82(simd_lane):
+RESULT 0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 2
+RESULT 0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 3
+ graphics get_sr codes (read-off):
+  vertex_id: sr_sel=0xdd
+  instance_id: sr_sel=0xd8
+  front_facing: sr_sel=0xc5
+-- B4: both uniform-source encodings --
+ b4a srcA-form (falu2_uni 09 0d 14 01 80 c0): p.k=17/100, splice bit39(0x16=00):
+  p.k=17:RESULT 0 27 37 47 57
+  p.k=100:RESULT 0 110 120 130 140
+  splice bit39 -> GPR(0):RESULT 0 10 20 30 40
+ b4b srcB-form (falu2 09 01 0c 0d 00 c2): splice byte+2bit4(0x14=1c) / byte+5bit1(0x17=c0):
+  byte+2bit4:RESULT 0 10 20 30 40
+  byte+5bit1:RESULT 0 10 20 30 40
+-- B5: vertex fetch in-shader (VS byte deltas) --
+  vd_base len=372 head24=0cdd10069f10540002008000
+  vd_stride64 len=372 head24=0cdd10069f10540002000001
+  vd_a1off12 len=372 head24=0cdd10069f10540002008000
+  vd_a0uchar len=404 head24=0cdd10069f10540002008000
+  vd_a1half len=356 head24=0cdd10069f10540002008000
+  vd_stepinst len=392 head24=0cd810069f115400031000a8

@@ -1,0 +1,70 @@
+===== RT-12 RAW EVIDENCE (A18 Pro / G17P, macOS 26.6) — 2nd overlapping pass =====
+Tue Jul  7 15:45:22 PDT 2026
+
+########## PART C: TILING (RT-9 fix re-confirm) ##########
+-- 448x448 r32uint (bpp4,T64): heap size + tiled-Morton cols=7 --
+HEAP_SIZE fmt=r32uint W=448 H=448 size=0xc4000 align=0x80 (tilemult=0xc4000 nextpow2=0x100000)
+# cols_tilemult=ceil(W/T)=7  cols_nextpow2=nextpow2(W)/T=8
+# alloc_tilemult=0xc4000  alloc_nextpow2=0x100000
+# registered_size matches: tilemult=True nextpow2=False
+MODEL tilemult: cols=7 checked=676 match=676 mismatch=0
+MODEL nextpow2: cols=8 checked=588 match=104 mismatch=484  e.g.[(0, 72, '0x20200'), (0, 90, '0x20a20'), (0, 108, '0x22280'), (0, 126, '0x22aa0')]
+-- 704x256 rg32uint (bpp8,T32): heap size + tiled-Morton cols=22 --
+HEAP_SIZE fmt=rg32uint W=704 H=256 size=0x160000 align=0x80 (tilemult=0x160000 nextpow2=0x200000)
+# cols_tilemult=ceil(W/T)=22  cols_nextpow2=nextpow2(W)/T=32
+# alloc_tilemult=0x160000  alloc_nextpow2=0x200000
+# registered_size matches: tilemult=True nextpow2=False
+MODEL tilemult: cols=22 checked=702 match=702 mismatch=0
+MODEL nextpow2: cols=32 checked=488 match=104 mismatch=384  e.g.[(0, 40, '0x40400'), (0, 50, '0x41040'), (0, 60, '0x41500'), (0, 70, '0x80140')]
+
+########## PART A: CMDSTREAM-2 ##########
+-- indirect draw opcodes + args ptr --
+direct:
+  +0x064: bytes=0006c461 le32=0x61c40600
+  +0x068: bytes=06000000 le32=0x00000006
+  +0x06c: bytes=01000000 le32=0x00000001
+indirect (0x6404, argHi@+0x68 argLo@+0x6c):
+  +0x064: bytes=00060464 le32=0x64040600
+  +0x068: bytes=00010000 le32=0x00000100
+  +0x06c: bytes=00b90100 le32=0x0001b900
+idxindirect (0x6432, argHi@+0x74 argLo@+0x78):
+  +0x064: bytes=01000040 le32=0x40000001
+  +0x068: bytes=ffff0000 le32=0x0000ffff
+  +0x06c: bytes=00063264 le32=0x64320600
+  +0x070: bytes=00b80100 le32=0x0001b800
+  +0x074: bytes=00010000 le32=0x00000100
+  +0x078: bytes=00ba0100 le32=0x0001ba00
+-- ICB cmd-count @+0x04 + mesh 0x70000600 --
+icbd4 +0x04=le32=0x00000004
+icbd5 +0x04=le32=0x00000005
+icbm3 +0x04=le32=0x00000003
+icbm3 mesh records:
+  op32 0x70000600: 3 hit(s) at ['0x1c4', '0x22c', '0x294']
+-- occlusion mode bit14 @0x58000+0x8c + offset<<14 @+0xa0 --
+occ_none 0x8c=le32=0x00040200
+occ_bool_24 0x8c=le32=0x0004c200
+occ_count_24 0x8c=le32=0x00048200
+occ_count_24 0xa0=le32=0x00060000
+occ_count_40 0xa0=le32=0x000a0000
+-- timestamps --
+TSCORR cpu0=75265909623458 gpu0=75265909623458 dCPU=70027458 dGPU=70027458 ratio_gpu_per_cpu=1.000000
+SUPPORTS stageBoundary=1 drawBoundary=0 dispatchBoundary=0 blitBoundary=0
+COMPUTE_DISPATCH_SAMPLE status=4 TS[0..3]=0 0 0 0
+RENDER_STAGE_SAMPLE status=4 TS[0..3]=75265984892875 75265984899916 0 0 (vtxDelta=7041 fragDelta=0)
+-- geometry: viewport count / clip mask / point / vpidx / restart --
+geo2_base vpcount=le32=0x00000c00
+geo2_vp2 vpcount=le32=0x00001c00
+geo2_vp8 vpcount=le32=0x00007c00
+geo2_vp16 vpcount=le32=0x0000fc00
+geo2_base pppsel=le32=0x00010000
+geo2_clip5 pppsel=le32=0x0001001f
+geo2_point pppsel=le32=0x00050000
+geo2_vpidx pppsel=le32=0x00090000
+geo2_rlist cut@+0x68=le32=0x0000ffff
+ opcode@+0x6c=le32=0x61f20600
+geo2_rl32 cut@+0x68=le32=0xffffffff
+ opcode@+0x6c=le32=0x61f40600
+geo2_rstr16 cut@+0x68=le32=0x0000ffff
+ opcode@+0x6c=le32=0x61f30900
+geo2_rstr32 cut@+0x68=le32=0xffffffff
+ opcode@+0x6c=le32=0x61f50900
