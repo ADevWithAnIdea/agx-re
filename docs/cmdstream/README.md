@@ -95,6 +95,42 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
 - **Fixed-function state** (`0x58000`): raster line/point @+0x54, depth @+0x38, blend @+0x08 — bound via
   the VDM USC-pairs. ⏳ per-packet bit decode is a follow-up.
 
+## Graphics fixed-function state packets & USC bind grammar (EXP-0019)
+
+### ⚠ Blend is programmable (compiled into the fragment shader), not a fixed-function packet
+The single most important structural fact for a Mesa port: **blend factors/ops are lowered into the
+fragment shader's blend microprogram in the shader-code BO `0x10000000000`**, not emitted as a
+fixed-function LUT (changing a blend factor rewrites ~40 shader words; `0x58000` barely moves). This is
+Apple's TBDR programmable-blend model — the driver **must compile blend state into fragment shaders**
+(as Asahi does for M1/M2). `0x58000` keeps only: color-write-mask (R=bit0…A=bit3, reverse of Metal),
+blend-class/constant-color/enable flags. Dual-source blend and framebuffer logic ops both work through
+this shader path (the ISA has the 16-function bitwise LUT, EXP-0013). *(The blend microprogram is
+compiler-generated code — located, deliberately NOT disassembled, per CLAUDE.md clean-room rule 5.)*
+
+### ✅ Depth/stencil packet (`0x58000`, HW-validated)
+Per-face blocks: FRONT depth `+0x38` / stencil `+0x3c`, BACK depth `+0x40` / stencil `+0x44`, flags `+0x34`.
+- **Depth word:** stencil-ref[7:0], depth-write-DISABLE bit21, compare[26:24].
+- **Stencil word:** write-mask[7:0], read-mask[15:8], pass-op[18:16], zfail-op[21:19], sfail-op[24:22], compare[27:25].
+- **Compare 0–7** = never/less/equal/lessEqual/greater/notEqual/greaterEqual/always.
+- **Stencil-op 0–7** = keep/zero/replace/incrClamp/decrClamp/invert/incrWrap/decrWrap.
+
+### ✅ Rasterizer packet (`0x58000+0x70`, HW-validated)
+cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = native 2-bit field [11:10]**
+(depth clamp is HW-supported — good for Vulkan); polygon line-fill = raster nibble `0x5` + flags bit26;
+depth bias: enable = flags `+0x34` bit17, constant/slope/clamp = 3 floats in the tiler-param region
+(`…+0x2a8000`).
+
+### USC bind grammar (EXP-0019)
+The VDM (`0x18000`) holds a **fixed 8-pair template** (control-word, address) into `0x58000`/viewport/
+context — invariant under state changes (only the `+0x0c` state-size field grows). Graphics binds shaders
+**through the USC program `0x10000130000`** (no compute-style `shaderVA>>6` in the draw): 3 stage
+sub-blocks (`+0x00/+0x240/+0x480`), each led by config word `0x00880000`; fragment stage = 3rd block.
+⏳ the exact graphics shader-entry pointer bit-encoding inside the USC block is still opaque.
+
+### Tooling note (macOS 26)
+The `iotrace` interposer **must be built `-arch arm64e`** or captures silently fail; shader size-probes
+need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/

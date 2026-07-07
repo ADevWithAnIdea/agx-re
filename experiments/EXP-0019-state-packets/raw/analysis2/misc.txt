@@ -1,0 +1,10 @@
+# EXP-0019 follow-up: depth-bias floats (dbias_all vs dbias_zero)
+
+=== gpu_va=0x100002a8000  A=bo_sigusr1_h0_va100002a8000_cpu105b90000_szc0000.hex  B=bo_sigusr1_h0_va100002a8000_cpu107780000_szc0000.hex ===
+  +0x0000: 0x00000000 -> 0x40000000   (A 0  B 1073741824)
+  +0x0004: 0x00000000 -> 0x40400000   (A 0  B 1077936128)
+  +0x0008: 0x00000000 -> 0x3f000000   (A 0  B 1056964608)
+
+[3 differing words across 1 paired BO(s)]
+# blend factor lives in shader-code BO (srgb_dstcolor vs bl_ref, code BO word count)
+[44 differing words across 1 paired BO(s)]

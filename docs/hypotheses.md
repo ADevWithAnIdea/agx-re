@@ -24,6 +24,9 @@ Outcome vocabulary:
 | 8 | Sample op+2 dimension/mode byte has spare encodings (offset-gather / extra gather comps) | only a subset of 256 values used | mapped the used op+2 values | **INCONCLUSIVE** — spare room exists; specific extra variants (texel-offset gather) not yet probed | EXP-0016 |
 | 9 | HW does float atomic min/max | Vulkan/GL want them | tried MSL `atomic_fetch_min<float>` | **NO (via MSL)** — MSL rejects float atomic min/max & 64-bit atomic-add; only float atomic add + 64-bit min/max exist ⇒ Vulkan must emulate | EXP-0018 |
 | 10 | Subgroup prefix-scan is native (not a shuffle-tree lowering) | fewer instrs if native | disassembled inclusive/exclusive scan | **WORKS** — single `simd_reduce` scan op (byte+7 shape) | EXP-0018 |
+| 11 | HW supports depth clamp (Vulkan depthClampEnable) natively | GL/Vulkan want clamp vs clip | read the raster packet clip/clamp field | **WORKS** — native 2-bit field [11:10] in raster packet | EXP-0019 |
+| 12 | Blend is programmable (any factor/op) rather than a fixed LUT | Apple TBDR programmable blend | varied blend factors, watched shader BO vs state pool | **WORKS** — blend compiles into the fragment shader; dual-source + logic-ops free via the shader path | EXP-0019 |
+| 13 | Polygon line-fill (Vulkan POLYGON_MODE_LINE) is native | GL wglPolygonMode | set Metal triangle-fill line mode | **WORKS** — raster nibble 0x5 + flags bit26; polygon-point fill partial | EXP-0019 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

@@ -47,7 +47,7 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 ## Phase 2 — Control / command stream & state
 - ☐ VDM (draw) / CDM (compute) / tiler / fragment command lists.
 - ☐ USC binding words (shaders, textures, samplers, uniforms).
-- ☐ State packets (depth/stencil, blend, raster, viewport, …).
+- ◐ State packets — *EXP-0019: depth/stencil + rasterizer packets decoded; blend is PROGRAMMABLE (lowered into fragment shader, not a packet); USC bind template mapped.* → `docs/cmdstream/README.md`.
 - Method: black-box trace + change-one-Metal-parameter diffing. Deliverable: `cmdstream/`.
 
 ## Phase 3 — Resource descriptors & texture layout
@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad (width32, native prefix-scan) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets (depth/stencil/raster) + programmable-blend finding + USC grammar · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
