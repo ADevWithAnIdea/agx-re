@@ -512,7 +512,7 @@ Per-section tallies (native-decoded / emulated / kernel / NYC):
 §6 subgroup 9/0/0/0 · §7 matrix 8/1/0/0 · §8 RT 12/0/1/1 · §9 mesh/geo 5/3/0/1 ·
 §10 raster/blend 18/2/1/2 · §11 interp 7/0/0/0 · §12 TBDR 13/0/3/0 · §13 dispatch 8/0/0/1 ·
 §14 format/tiling 17/0/0/2 · §15 machine-model 8/0/1/2.
-**Totals: native-decoded 187 · emulated 11 · kernel-managed 6 · NYC 10.** (187+11+6+10 = 214 rows.) *(EXP-O2G closed printf/mesh-ICB/comp×mip → native; the sole remaining Metal-exposed residue is **tessellation** — Metal exposes `drawPatches` on Apple9, exercise pending, see §16c.)*
+**Totals: native-decoded 188 · emulated 11 · kernel-managed 6 · NYC 9.** (188+11+6+9 = 214 rows.) **Metal-exposed NOT-YET = 0** — all 9 remaining NYC are honestly-excluded (6 microarch-only + 3 Metal-unreachable: GS, transform-feedback, aniso>16×/wide-lines/conditional-rendering). *(EXP-O2G closed printf/mesh-ICB/comp×mip → native; the last Metal-exposed residue **tessellation** is now **CLOSED (EXP-O2H): NATIVE HW tessellation**. **Metal-exposed residue = 0.**)*
 
 ### Apple-advertised features and their observability
 

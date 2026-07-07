@@ -241,6 +241,21 @@ clean, emittable grammar:
 - **Mesh-in-ICB is ACCEPTED** (`MTLIndirectCommandTypeDrawMeshThreadgroups`): it lowers to the **same mesh-grid-dispatch
   record `0x70000600`** (EXP-0030) in the tiler stream (`0x181c4`) — no new work type; command-count at `0x18000+0x04`.
 
+## ✅ Tessellation — NATIVE hardware stage (EXP-O2H)
+**A18/G17P implements tessellation as a native graphics/tiler-path stage — NOT compute-emulated (unlike M1/M2), NOT
+the mesh path.** Decisive evidence: with CPU-written factors (no user compute encoder), `drawPatches` registers the
+**same BO set as `drawPrimitives`** — **no CDM launch descriptor, no mesh dispatch record** (single graphics submit).
+- `drawPatches` drives a distinct **VDM patch-dispatch record** in the tiler stream `0x18000`: opcode high-byte **`0x40`**
+  (vs draw `0x61c4`, mesh `0x70000600`); **patch domain type @+0x8c** (triangle=1 / quad=2); packed config @+0x68
+  (control-point count + partition mode — ⏳ sub-bit split); factor pointer ~@+0x74. **Partition mode is NOT in `0x58000`**.
+- **Tessellation-factor buffer = IEEE half-float** (`MTLTessellationFactorsHalf`): triangle = edge[3]+inside = 4 halfs (8 B),
+  quad = 6 halfs (12 B). HW-validated (levels 1/4/16 → 0x3c00/0x4400/0x4c00).
+- The **post-tessellation vertex function is an ordinary `__vertex` shader** (no novel opcode) — structurally like mesh
+  (native pipeline, ordinary shader). The **domain-point generator + generated buffers are firmware-managed** (tiler-param
+  buffer `0x10000080000`; a kernel-interface item shared with mesh's UVB).
+- **Driver options:** (a) **native** — ordinary post-tess VS + half-float factor buffer + the tiler patch-dispatch record
+  (no compute pre-pass); or (b) keep `libagx` **compute emulation** as a portable fallback. **Emulation is OPTIONAL on A18.**
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics (RESOLVED: USC grammar + shader-entry — see above): remaining ⏳ = per-packet bit decode of depth/stencil/
