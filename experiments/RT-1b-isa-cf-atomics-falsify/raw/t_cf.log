@@ -1,0 +1,37 @@
+### thresh: out[gid] = gid<4 ? 100:200  (grid=8)
+  cmp@+0x4 = 0203078422e4   psel@+0xa = 0522a0c8
+  baseline: [100, 100, 100, 100, 200, 200, 200, 200] pat AAAABBBB
+  -- locate immediate (which byte moves the A/B boundary):
+     byte+1 (orig 0x03): 0x03:AAAABBBB 0x05:AAAAAAAA 0x07:AAAAAAAA 0x01:AAAAAAAA
+     byte+2 (orig 0x07): 0x07:AAAABBBB 0x09:???????? 0x0b:???????? 0x05:AAAABBBB
+     byte+3 (orig 0x84): 0x84:AAAABBBB 0x86:AAAAAABB 0x88:AAAAAAAA 0x82:AABBBBBB
+     byte+4 (orig 0x22): 0x22:AAAABBBB 0x24:???????? 0x26:BBBBABBB 0x20:????????
+     byte+5 (orig 0xe4): 0xe4:AAAABBBB 0xe6:????BBBB 0xe8:????BBBB 0xe2:????BBBB
+  -- invert: splice cmp byte0 0x02 -> 0x0a
+     0x0a -> ????????
+  -- psel byte+3 (select constant) sweep:
+     0xc8 -> [100, 100, 100, 100, 200, 200, 200, 200]
+     0x00 -> [100, 100, 100, 100, 0, 0, 0, 0]
+     0xfe -> [100, 100, 100, 100, 254, 254, 254, 254]
+
+### ifdata: out = a[gid]>5 ? 100:200  (ramp a=0..7)
+  cmp@+0x12=02010f8422e4 sel@+0x18=16c2a0c8
+  baseline: [200, 200, 200, 200, 200, 200, 100, 100]
+     byte+1 (orig 0x01): 0x01:BBBBBBAA 0x03:B??????? 0x05:BBBBBBBB
+     byte+2 (orig 0x0f): 0x0f:BBBBBBAA 0x11:???????? 0x13:????????
+     byte+3 (orig 0x84): 0x84:BBBBBBAA 0x86:BBBBBBBB 0x88:BBBBBBBB
+     byte+4 (orig 0x22): 0x22:BBBBBBAA 0x24:???????? 0x26:BABAAAAA
+     byte+5 (orig 0xe4): 0xe4:BBBBBBAA 0xe6:BBBBBB?? 0xe8:BBBBBB??
+
+### backward jump: loopbig 0f 00 54 <off40>
+  back-edge @+0x138 : 0f0054fafeffffffff00
+  off40 = -262 (signed). instr@0x138, target≈0x3c (instr+len+off)
+  baseline (n=7): out= 1545
+  offset zeroed -> status=CMDBUF_ERROR  
+  recovery run status=OK
+
+### adversarial semantics (nested / brk / cont / eret) vs CPU ref
+  nested gpu: [1, 2, 3, 4, 5, 6, 7, 8] cpu: [1, 2, 3, 4, 5, 6, 7, 8]
+  brk gpu: [0, 0, 3, 10, 45] cpu: [0, 0, 3, 10, 45]
+  cont gpu: [0, 0, 2, 6, 20] cpu: [0, 0, 2, 6, 20]
+  eret gpu: [7, 7, 7, 7, 0, 0, 0, 0] cpu: [7, 7, 7, 7, 0, 0, 0, 0]

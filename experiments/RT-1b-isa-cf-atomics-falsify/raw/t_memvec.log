@@ -1,0 +1,15 @@
+## load byte layout: scalar vs uint2 vs uint4 (width should be byte+8/+12, not byte+5)
+  dev  load: 6710440001012000510100404600   byte+5=0x01 byte+8=0x51 byte+12=0x46
+  v2   load: 6710440001022000590100404800   byte+5=0x02 byte+8=0x59 byte+12=0x48
+  v4   load: 6710440001042000570100404000   byte+5=0x04 byte+8=0x57 byte+12=0x40
+
+## v4 semantics: one load moves 4 words
+  out: [1, 2, 3, 4, 5, 6, 7, 8] (expect 1..8)
+  #0x67 loads in v4 main: 1 #0xe7 stores: 1
+
+## threadgroup space: tg kernel load/store byte+1 should be 0x02 (device is 0x00)
+  tg load @+0x4: 6710440001012000510100404600  byte+1=0x10
+  tg load @+0x2a: 6702540008088000440d00c00800  byte+1=0x02
+  tg store@+0x16: e702560008080000440200300200  byte+1=0x02
+  tg store@+0x38: e700560000012100110000901100  byte+1=0x00
+  tg copy out: [10, 20, 30, 40, 50, 60, 70, 80] (expect 10..80)

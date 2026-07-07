@@ -1,0 +1,35 @@
+### rmw1 (single thread): out=op(c_init=12, in=10); op field @ byte+12
+  atomic@+0x34 = 6711540000800000004200002000  (op byte+12 = 0x20)
+  baseline add: o0(old)=12 o1(new)=22
+  -- splice op byte+12:
+     0x20 add   -> new=22  OK
+     0x36 sub   -> new=2  OK
+     0x22 and   -> new=8  OK
+     0x2c or    -> new=14  OK
+     0x3e xor   -> new=6  OK
+     0x3c xchg  -> new=10  OK
+     0x28 smax  -> new=12  OK
+     0x2a smin  -> new=10  OK
+     0x38 umax  -> new=12  OK
+     0x3a umin  -> new=10  OK
+
+### cmpxchg (0x24): c=5, desired=99, expected=5 (match) then 7 (mismatch)
+  cmpxchg@+0x18 = 6701560000800000000200002400  (op byte+12 = 0x24)
+  expected=5 -> swapped?=1 observed=5 cfinal=99
+  expected=7 -> swapped?=0 observed=5 cfinal=5
+
+### device vs threadgroup: byte+1 bit1
+  tg atomic @+0x62 byte+1=0x03 : 6703540004010000300000040f06
+  tg atomic @+0x7e byte+1=0x02 : 6702540208000000440d00400000
+  rmw1 byte+1 0x11->0x13 (device->tg space): status=OK out=[10, 12] (device counter should NOT update)
+
+### contended device atomic: agg 1024 threads add 1 -> 1024
+  add: counter=1024 (expect 1024)
+  op->0x38 umax : counter=32
+  op->0x28 smax : counter=32
+  op->0x3c xchg : counter=32
+
+### barrier: race kernel (grid=256), splice barrier byte+3 0x61->0x00 -> stale
+  barrier@+0x2e = 070454610900 (byte+3=0x61)
+  baseline: 256/256 lanes correct (out[gid]=255-gid)
+  byte+3->0x00: status=OK 192/256 correct, 65 lanes read 0 (stale) -> barrier scope load-bearing

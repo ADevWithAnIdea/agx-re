@@ -223,7 +223,7 @@ register pressure/spill, exotic types, recursion, MRT, all texture dims, indirec
 ### RED-TEAM COVERAGE TRACKER (objective 3 — each cluster needs 2+ overlapping falsification passes with no holes)
 Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally by orchestrator; re-tested.)
 - ◐ **RT-ISA-1 arith/logic/memory/operand** — RT-1a found real errors; **RT-1a-FIX applied+HW-reverified all 5** (mem-index byte+5, iadd2 polarity, falu2_uni uniform-source, 0x60 spill-marker, 0x18 accum). DB 77, round-trip 282 OK, census 88%. **Needs a fresh clean 2nd pass (RT-1b).**
-- ☐ RT-ISA-2 control-flow/predication/loops/calls · ☐ RT-ISA-3 textures/samplers/gather/PCF
+- ☑ **RT-ISA-2 control-flow/calls/atomics** — RT-1b (independent 2nd pass): byte+5 mem fix HOLDS, CF/calls/atomics CONFIRMED (10/10 ops, 256/256 stress); found 0x0a↔0x02 wording + census-overstatement + 0x0f-family gap (→ decode after RT-5). · ☐ RT-ISA-3 textures/samplers/gather/PCF (RT-5 running)
 - ☐ RT-ISA-4 subgroup/quad/matrix/RT · ☐ RT-ISA-5 fragment interp/output/tilebuffer/ROG
 - ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
 - ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ☐ RT-cmdstream-2 (indirect/occlusion/timestamp/geometry-output)

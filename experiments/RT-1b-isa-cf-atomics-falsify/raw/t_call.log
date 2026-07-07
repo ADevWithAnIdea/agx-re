@@ -1,0 +1,20 @@
+### CALL target formula: two call sites -> same target (target=call+4+off40)
+  call@+0x24 off40=-104  target(call+4+off40)=-64
+  twocall out: [5.0, 9.0, 13.0, 17.0] expect A+2B= [5, 9, 13, 17]
+
+### off40 is load-bearing: corrupt the target -> fault/wrong
+  baseline helper2=A*B+1: [21.0, 31.0, 41.0, 51.0] expect [21, 31, 41, 51]
+  off40 byte+7 0x98->0x9a : status=OK out=[0.0, 0.0, 0.0, 0.0]
+    recovery: OK
+  off40 byte+7 0x98->0xa8 : status=HANG out=-
+    recovery: OK
+
+### nested (3-level): chain O=mid(A)=8A+2
+  chain out: [10.0, 18.0, 26.0, 34.0] expect [10, 18, 26, 34]
+
+### recursion->loop: recur O=A*1.1^N
+  recur out: [2.0, 2.2, 3.221, 5.1875] expect [2.0, 2.2, 3.221, 5.1875]
+
+### many-arg spill: spill O=sum(A[0..11])
+  spill out: [78.0] expect 78
+  frame markers 43 00 00 01 in main: ['0x56']

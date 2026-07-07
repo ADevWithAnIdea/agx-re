@@ -82,7 +82,11 @@ on 5 synthesized). Prose summary below; treat the DB as source of truth.
 
 Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
 
-### ✅ Instruction-length rule (validated — tokenizes all our shaders cleanly)
+### ✅ Instruction-length rule (validated)
+> **Census reality (RT-1a/RT-1b):** the DB tokenizes ~**88%** of instruction bytes on a broad corpus; it is NOT "0 leftover"
+> on every realistic kernel. Known undecoded residue (operand-level + a few sub-ops): the **`0x0f` execution-mask family**
+> (else/while/break/pop/reconverge sub-ops — `jump` `0f 00` is decoded, the rest are ⏳), a `0x07` fence variant with
+> byte+2=`0x02`, and `0x32` carry-gen edge forms. These are naming/length gaps, not correctness errors in the decoded ops.
 Parcels are 2 bytes. **Unlike G13, the *first* parcel does not encode length** (e.g. `fsub` 6B
 and `fma` 8B share an identical first parcel). Length is a function of the byte-0 group, with a
 per-group length bit where needed:
@@ -220,7 +224,7 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   **compare → per-lane execution mask → masked op / select** (no jump). Compare producers: `0x0a`
   (6B, control predicate) and `0x02` (6B, feeds a select); compare immediate at **byte+3**. Selects:
   `0x05`/`0x16` (4B). Proven: splicing the compare immediate moves the active-lane boundary; flipping
-  `0x0a`↔`0x02` inverts the condition.
+  flipping `0x0a`↔`0x02` swaps predicate-vs-select producer (RT-1b: a *naive* byte0 swap MALFORMS output — the two have different operand layouts; true condition inversion is via the **byte+4 compare-mode/negate** field).
 - **Loops use a real backward jump:** `0f 00 54 <off6> 00` (10B), `off6` = **signed little-endian
   byte-relative offset**. `0x0f` is the control-flow / execution-mask group (byte+1 sub-op: `00`=jump,
   `05`/`01`=mask push/else, `06`=pop/reconverge). Zeroing the back-edge → contained infinite-loop hang

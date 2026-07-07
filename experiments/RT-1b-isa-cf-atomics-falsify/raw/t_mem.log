@@ -1,0 +1,61 @@
+### BANK kernel: identify the a[i0] load and prove byte+5 = index reg
+  main_len 116
+    load @+0xe: 6700540003802000570100404600
+    load @+0x1c: 6700460a02802000510100404600
+  baseline out0 = 41001 expect a[41]= 41001
+  => a[i0] load @+0x1c  (byte+5=0->a[41], =1->a[7])
+
+[byte+5 = INDEX REGISTER]
+  -- sweep byte+5 of load@+0x1c (expect r0..r3 = i0..i3 = a[41/7/83/19])
+     0x00 -> o0=41001    a[41]
+     0x01 -> o0=40967    a[7]
+     0x02 -> o0=41043    a[83]
+     0x03 -> o0=40979    a[19]
+     0x04 -> o0=40960    a[0]
+     0x80 -> o0=41001    a[41]
+     0x81 -> o0=40967    a[7]
+     0x82 -> o0=41043    a[83]
+     0x83 -> o0=40979    a[19]
+
+[byte+6 = INERT]
+  -- sweep byte+6 of load@+0x1c (expect constant = a[41])
+     0x00 -> o0=41001    a[41]
+     0x01 -> o0=41001    a[41]
+     0x02 -> o0=41001    a[41]
+     0x10 -> o0=41001    a[41]
+     0x20 -> o0=41001    a[41]
+     0x40 -> o0=41001    a[41]
+     0x80 -> o0=41001    a[41]
+     0xff -> o0=41001    a[41]
+
+[byte+1 = ADDRESS SPACE]
+  -- sweep byte+1 of load@+0x1c (expect 0x02 -> tg/uninit = 0)
+     0x00 -> o0=41001    a[41]
+     0x01 -> o0=0        raw<256=0
+     0x02 -> o0=0        raw<256=0
+     0x03 -> o0=0        raw<256=0
+     0x04 -> o0=41001    a[41]
+
+### ONE kernel: immediate index-offset field (byte+9 bit7 / +10 / +11)
+  a[i0] load @+0x4: 6710540002012000510100404600
+  baseline out0 = 41
+  orig byte+9/+10/+11 = 0x1/0x0/0x40
+  -- byte+9
+     0x01 -> a[41]  (delta 0)
+     0x81 -> a[0]  (delta -41)
+  -- byte+10
+     0x00 -> a[41]  (delta 0)
+     0x01 -> a[0]  (delta -41)
+     0x02 -> a[0]  (delta -41)
+     0x04 -> a[0]  (delta -41)
+     0x08 -> a[0]  (delta -41)
+  -- byte+11
+     0x40 -> a[41]  (delta 0)
+     0x41 -> a[0]  (delta -41)
+     0x42 -> a[0]  (delta -41)
+
+### compiler-computed a[gid+1] vs a[gid-1]: offset in prior ALU, load identical?
+  plus1 loads : ['6700440001802000510100404600']
+  minus1 loads: ['67104400010120005189ff5f4600']
+  a[gid+1] out: [101, 102, 103, 104, 105, 106, 107, 108]
+  a[gid-1] out: [9, 100, 101, 102, 103, 104, 105, 106]

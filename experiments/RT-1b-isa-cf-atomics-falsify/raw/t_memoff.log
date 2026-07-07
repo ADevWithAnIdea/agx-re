@@ -1,0 +1,20 @@
+baseline (byte5=0) -> 41
+orig byte+9/10/11 = 0x1/0x0/0x40
+byte+9:
+  0x01 -> a[41]  delta=0
+  0x81 -> a[42]  delta=1
+byte+10:
+  0x00 -> a[41]  delta=0
+  0x01 -> a[43]  delta=2
+  0x02 -> a[45]  delta=4
+  0x04 -> a[49]  delta=8
+  0x08 -> a[57]  delta=16
+  0x10 -> a[73]  delta=32
+byte+11:
+  0x40 -> a[41]  delta=0
+  0x41 -> a[None]  delta=?
+  0x42 -> a[None]  delta=?
+  0x44 -> a[None]  delta=?
+
+## signed offset check: replicate minus1's byte+9/10/11 = 89/ff/5f on bank a-load
+  set 89/ff/5f -> status=OK a[40] delta=-1
