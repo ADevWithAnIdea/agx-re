@@ -50,6 +50,12 @@ AIR64_CPUTYPE     = 0x1000017
 SHADER_SECTIONS = ("__compute", "__vertex", "__fragment")
 AGX_MAIN_SYMBOLS = ("_agc.main", "_agc.main.constant_program")
 
+# stage name -> the __TEXT section that carries that stage's AGX code.
+# Insertion order matters: it is the default search order for the
+# backward-compatible (stage=None) code paths (compute first).
+STAGE_SECTIONS = {"compute": "__compute", "vertex": "__vertex", "fragment": "__fragment"}
+SECTION_STAGE = {v: k for k, v in STAGE_SECTIONS.items()}
+
 
 class MachO:
     """Parse one Mach-O image out of a bytes buffer (offset relative to buf)."""
@@ -147,26 +153,76 @@ def iter_gpu_images(buf):
         p += 20
 
 
-def extract_agx(buf):
-    """Return (report, pieces).
+def _carve_shader_section(buf, image_off, shsec, shsecname):
+    """Carve one shader section (a nested Mach-O) into {symbol: bytes} pieces.
 
-    Strategy: find the GPU (AppleGPU) image; inside it the shader section
-    (__TEXT,__compute/__vertex/__fragment) is itself a nested Mach-O whose
-    __TEXT,__text holds the AGX code, carved into named regions by the symbol
-    table (_agc.main = the main program, _agc.main.constant_program = prolog).
+    The section's __TEXT,__text holds the AGX code, split into named regions by
+    the symbol table (_agc.main = main program, _agc.main.constant_program =
+    prolog). Returns (pieces, meta). `pieces` always includes "__whole_text__".
+    For a section that is NOT a nested Mach-O, returns the raw bytes whole.
+    """
+    try:
+        nested = MachO(buf, image_off + shsec["offset"])
+    except ValueError:
+        # Section is raw code, not a nested container; take it whole.
+        off = image_off + shsec["offset"]
+        data = buf[off:off + shsec["size"]]
+        return ({"__whole_text__": data},
+                {"kind": "raw-section", "outer_section": f"__TEXT,{shsecname}",
+                 "length": len(data), "whole_text_length": len(data), "regions": []})
 
-    `pieces` is a dict of name -> bytes, always including the synthetic key
-    "__whole_text__" (the entire nested __text). The default extraction target
-    is "_agc.main". Returns (report, None) if no AppleGPU code was found.
+    text = nested.find_section("__TEXT", "__text")
+    if not text:
+        return None, {"kind": "no-text", "outer_section": f"__TEXT,{shsecname}"}
+    text_all = nested.section_bytes(text)
+
+    # Symbols whose value lies inside __text, sorted by address.
+    insyms = sorted(
+        [s for s in nested.symbols
+         if text["addr"] <= s["value"] < text["addr"] + text["size"]],
+        key=lambda s: s["value"])
+    pieces = {"__whole_text__": text_all}
+    region_meta = []
+    for i, s in enumerate(insyms):
+        start = s["value"] - text["addr"]
+        end = (insyms[i + 1]["value"] - text["addr"]) if i + 1 < len(insyms) else text["size"]
+        pieces[s["name"]] = text_all[start:end]
+        region_meta.append((s["name"], start, end, end - start))
+
+    meta = {
+        "kind": "nested-mach-o",
+        "outer_section": f"__TEXT,{shsecname}",
+        "nested_cputype": nested.cputype_name(),
+        "text_section_size": text["size"],
+        "regions": region_meta,               # (name, start, end, length)
+        "main_length": len(pieces.get("_agc.main", b"")),
+        "whole_text_length": len(text_all),
+    }
+    return pieces, meta
+
+
+def extract_all_stages(buf):
+    """Return (report, stages).
+
+    Walk every AppleGPU image and carve *all* shader stages present (compute,
+    vertex, fragment) — a render pipeline archive carries __vertex and
+    __fragment as two separate __TEXT sections in one AppleGPU image (EXP-0008),
+    directly analogous to the compute path's __compute section.
+
+    `stages` is {stage_name: pieces}, where pieces is {symbol: bytes} (always
+    including "__whole_text__"). report["stages"][stage] holds the per-stage
+    carve metadata; report["agx"] mirrors the compute (else first) stage for
+    backward-compatible callers.
     """
     report = {
         "container_magic": f"{struct.unpack_from('<I', buf, 0)[0]:#010x}",
         "images": [],
         "bitcode_magic_present": (BITCODE_MAGIC in buf),
         "agx": None,
+        "stages": {},
         "air_present": False,
     }
-    pieces = None
+    stages = {}
 
     for (off, size, note) in iter_gpu_images(buf):
         try:
@@ -183,68 +239,64 @@ def extract_agx(buf):
         report["images"].append(img)
         if mo.cputype == AIR64_CPUTYPE:
             report["air_present"] = True
-
         if mo.cputype != APPLE_GPU_CPUTYPE:
             continue
 
-        # Look for a shader container section and parse it as a nested mach-o.
-        for shsecname in SHADER_SECTIONS:
+        for stage_name, shsecname in STAGE_SECTIONS.items():
+            if stage_name in stages:
+                continue
             shsec = mo.find_section("__TEXT", shsecname)
             if not shsec or shsec["size"] == 0:
                 continue
-            try:
-                nested = MachO(buf, off + shsec["offset"])
-            except ValueError:
-                # Section is raw code, not a nested container; take it whole.
-                data = mo.section_bytes(shsec)
-                pieces = {"__whole_text__": data}
-                report["agx"] = {"kind": "raw-section", "section": f"__TEXT,{shsecname}",
-                                 "length": len(data)}
-                break
-
-            text = nested.find_section("__TEXT", "__text")
-            if not text:
+            pieces, meta = _carve_shader_section(buf, off, shsec, shsecname)
+            if pieces is None:
                 continue
-            text_all = nested.section_bytes(text)
+            stages[stage_name] = pieces
+            report["stages"][stage_name] = meta
 
-            # Symbols whose value lies inside __text, sorted by address.
-            insyms = sorted(
-                [s for s in nested.symbols
-                 if text["addr"] <= s["value"] < text["addr"] + text["size"]],
-                key=lambda s: s["value"])
-            # Carve each symbol region [this_sym, next_sym) within __text.
-            pieces = {"__whole_text__": text_all}
-            region_meta = []
-            for i, s in enumerate(insyms):
-                start = s["value"] - text["addr"]
-                end = (insyms[i + 1]["value"] - text["addr"]) if i + 1 < len(insyms) else text["size"]
-                pieces[s["name"]] = text_all[start:end]
-                region_meta.append((s["name"], start, end, end - start))
-
-            main_len = len(pieces.get("_agc.main", b""))
-            report["agx"] = {
-                "kind": "nested-mach-o",
-                "outer_section": f"__TEXT,{shsecname}",
-                "nested_cputype": nested.cputype_name(),
-                "text_section_size": text["size"],
-                "regions": region_meta,           # (name, start, end, length)
-                "main_length": main_len,
-                "whole_text_length": len(text_all),
-            }
+    # Backward-compatible single-stage view: compute if present, else first found.
+    for s in STAGE_SECTIONS:
+        if s in report["stages"]:
+            report["agx"] = report["stages"][s]
             break
-        if pieces is not None:
-            break
-
-    return report, pieces
+    return report, stages
 
 
-def locate_region(buf, symbol="_agc.main"):
+def extract_agx(buf, stage=None):
+    """Return (report, pieces) — backward-compatible single-stage extractor.
+
+    `pieces` is a dict of name -> bytes, always including "__whole_text__"; the
+    default extraction target is "_agc.main". When `stage` is None, returns the
+    compute stage if present, else the first stage found (compute, vertex,
+    fragment order) — preserving the historical behaviour for compute archives.
+    When `stage` is given ("compute"|"vertex"|"fragment"), returns that stage.
+    Returns (report, None) if the requested code was not found.
+    """
+    report, stages = extract_all_stages(buf)
+    if not stages:
+        return report, None
+    if stage is not None:
+        report["agx"] = report["stages"].get(stage)
+        return report, stages.get(stage)
+    for s in STAGE_SECTIONS:            # compute, vertex, fragment
+        if s in stages:
+            report["agx"] = report["stages"][s]
+            return report, stages[s]
+    return report, None
+
+
+def locate_region(buf, symbol="_agc.main", stage=None):
     """Return (abs_offset, length) of a symbol region within the container FILE.
 
     Unlike extract_agx (which returns the *bytes*), this returns the absolute
     byte offset of the region inside `buf`, so a caller can splice replacement
     bytes in place without disturbing the surrounding container. Returns None if
     the symbol / AGX code is not found.
+
+    `stage` ("compute"|"vertex"|"fragment") restricts the search to one shader
+    stage — needed for render archives, which carry a `_agc.main` in BOTH the
+    __vertex and __fragment sections. With stage=None the search order is
+    compute, vertex, fragment (first match wins) — backward compatible.
     """
     for (off, size, note) in iter_gpu_images(buf):
         try:
@@ -253,7 +305,9 @@ def locate_region(buf, symbol="_agc.main"):
             continue
         if mo.cputype != APPLE_GPU_CPUTYPE:
             continue
-        for shsecname in SHADER_SECTIONS:
+        for stage_name, shsecname in STAGE_SECTIONS.items():
+            if stage is not None and stage_name != stage:
+                continue
             shsec = mo.find_section("__TEXT", shsecname)
             if not shsec or shsec["size"] == 0:
                 continue
@@ -300,6 +354,11 @@ def main():
                          "use __whole_text__ for the entire nested __text)")
     ap.add_argument("--whole-text", action="store_true",
                     help="target the whole nested __text (both prolog + main)")
+    ap.add_argument("--stage", choices=("compute", "vertex", "fragment"),
+                    default=None,
+                    help="which shader stage to extract/locate. A render archive "
+                         "carries both 'vertex' and 'fragment'; default is compute "
+                         "(else the first stage found).")
     ap.add_argument("--locate", metavar="SYMBOL", nargs="?", const="_agc.main",
                     help="print 'ABS_OFFSET LENGTH' of a symbol region within the "
                          "container file (for in-place splicing); default _agc.main")
@@ -310,14 +369,15 @@ def main():
         buf = f.read()
 
     if args.locate is not None:
-        loc = locate_region(buf, args.locate)
+        loc = locate_region(buf, args.locate, stage=args.stage)
         if loc is None:
-            sys.stderr.write(f"agxparse: could not locate region '{args.locate}'\n")
+            sys.stderr.write(f"agxparse: could not locate region '{args.locate}'"
+                             f"{f' in stage {args.stage}' if args.stage else ''}\n")
             sys.exit(2)
         print(f"{loc[0]} {loc[1]}")
         sys.exit(0)
 
-    report, pieces = extract_agx(buf)
+    report, pieces = extract_agx(buf, stage=args.stage)
 
     def pick():
         if pieces is None:
@@ -328,7 +388,8 @@ def main():
     if args.extract_hex or args.extract_bin:
         data = pick()
         if data is None:
-            sys.stderr.write(f"agxparse: no bytes for target '{args.symbol}'\n")
+            sys.stderr.write(f"agxparse: no bytes for target '{args.symbol}'"
+                             f"{f' in stage {args.stage}' if args.stage else ''}\n")
             sys.exit(2)
         if args.extract_hex:
             print(data.hex())
@@ -352,14 +413,17 @@ def main():
             print(f"  cputype : {img.get('cputype')}  filetype={img.get('filetype')}")
             for s in img.get("sections", []):
                 print(f"    section {s}")
-        if report["agx"]:
-            a = report["agx"]
-            print(f"\nAGX extraction ({a['kind']}) from {a.get('outer_section')}:")
-            print(f"  nested cputype   : {a.get('nested_cputype')}")
-            print(f"  __text size      : {a.get('whole_text_length')}")
-            print(f"  _agc.main length : {a.get('main_length')}")
-            for (name, start, end, length) in a.get("regions", []):
-                print(f"  region {name}: [{start}:{end}] ({length} bytes)")
+        stages = report.get("stages", {})
+        if stages:
+            print(f"\nstages present: {', '.join(stages)}")
+            for stage_name, a in stages.items():
+                print(f"\nAGX extraction [{stage_name}] ({a['kind']}) "
+                      f"from {a.get('outer_section')}:")
+                print(f"  nested cputype   : {a.get('nested_cputype')}")
+                print(f"  __text size      : {a.get('whole_text_length')}")
+                print(f"  _agc.main length : {a.get('main_length')}")
+                for (name, start, end, length) in a.get("regions", []):
+                    print(f"  region {name}: [{start}:{end}] ({length} bytes)")
         else:
             print("\nAGX extraction: NONE")
 

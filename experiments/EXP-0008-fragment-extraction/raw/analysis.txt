@@ -1,0 +1,85 @@
+========================================================================
+1. CARVE CHECK  (whole __text  ==  constant_program ++ _agc.main)
+========================================================================
+  render_min     vertex   cprog= 64 main=120 text=184  recon==OK  ends_in_stop=True
+  render_min     fragment cprog= 64 main= 54 text=118  recon==OK  ends_in_stop=True
+  render_interp  vertex   cprog= 64 main=172 text=236  recon==OK  ends_in_stop=True
+  render_interp  fragment cprog= 64 main=146 text=210  recon==OK  ends_in_stop=True
+  render_tex     vertex   cprog= 64 main=156 text=220  recon==OK  ends_in_stop=True
+  render_tex     fragment cprog= 64 main=124 text=188  recon==OK  ends_in_stop=True
+  render_deriv   vertex   cprog= 64 main=156 text=220  recon==OK  ends_in_stop=True
+  render_deriv   fragment cprog= 64 main=158 text=222  recon==OK  ends_in_stop=True
+  => ALL carves reconstruct byte-exact & end in stop
+
+========================================================================
+2. COMPUTE REGRESSION  (refactored agxparse -> same bytes; DB clean)
+========================================================================
+  k01_fadd       : CLEAN (6 instr)  [preamble device_load device_load falu2 device_store stop]
+  k10_loadstore  : CLEAN (4 instr)  [preamble device_load device_store stop]
+  => compute path unchanged & tokenizes clean
+
+========================================================================
+3. FRONT-TOKENIZE vertex/fragment under the CURRENT (compute-only) DB
+   clean prefix, then the byte0 of the first un-lengthable instr
+   (a PROVEN new instruction-group leader).
+========================================================================
+  render_min     vertex  : clean_prefix=[preamble] consumed 4/120B, first_unknown_leader=0x9f
+  render_min     fragment: clean_prefix=[] consumed 0/54B, first_unknown_leader=0x97
+  render_interp  vertex  : clean_prefix=[preamble] consumed 4/172B, first_unknown_leader=0x9f
+  render_interp  fragment: clean_prefix=[] consumed 0/146B, first_unknown_leader=0x2f
+  render_tex     vertex  : clean_prefix=[preamble] consumed 4/156B, first_unknown_leader=0x9f
+  render_tex     fragment: clean_prefix=[] consumed 0/124B, first_unknown_leader=0x2f
+  render_deriv   vertex  : clean_prefix=[preamble] consumed 4/156B, first_unknown_leader=0x9f
+  render_deriv   fragment: clean_prefix=[] consumed 0/158B, first_unknown_leader=0x2f
+
+  PROVEN-boundary new leaders (byte0 -> where):
+    0x2f: render_deriv.fragment, render_interp.fragment, render_tex.fragment
+    0x97: render_min.fragment
+    0x9f: render_deriv.vertex, render_interp.vertex, render_min.vertex, render_tex.vertex  (int-ALU family; also in COMPUTE int kernels -> not fragment-new)
+
+========================================================================
+4. DIFFERENTIAL feature attribution (which new code = which feature)
+========================================================================
+  fragment shared epilogue (common suffix) = 28 bytes:
+    ...8702540c0800e70654000000014e000000000702540c02000e000000
+    (this is the color-output store path: 0x87 setup, 0xe7 store,
+     0x07 form, 0x0e stop -- present in EVERY fragment)
+
+  fragment BODY (main minus shared epilogue), byte0 of first parcel:
+    render_min    : body= 26B  first=0x97  parcel-byte0-set=['0x2', '0x4', '0x6', '0x54', '0x80', '0x87', '0x97', '0xc0']
+    render_interp : body=118B  first=0x2f  parcel-byte0-set=['0x0', '0x2', '0x3', '0x4', '0x6', '0x9', '0x10', '0x19', '0x20', '0x29', '0x2f', '0x3f', '0x45', '0x49', '0x54', '0x87', '0x97', '0xaf']
+    render_tex    : body= 96B  first=0x2f  parcel-byte0-set=['0x0', '0x1', '0x2', '0x3', '0x4', '0x5', '0x6', '0x8', '0x9', '0xc', '0x10', '0x18', '0x19', '0x20', '0x2f', '0x3f', '0x40', '0x45', '0x54', '0x87', '0x97', '0xaf', '0xb0']
+    render_deriv  : body=130B  first=0x2f  parcel-byte0-set=['0x0', '0x2', '0x3', '0x4', '0x6', '0x8', '0x9', '0x10', '0x19', '0x20', '0x29', '0x2f', '0x37', '0x38', '0x39', '0x3f', '0x45', '0x54', '0x87', '0x90', '0x92', '0x97', '0xaf', '0xc0']
+
+  feature deltas (constant color has NO interp/sample/deriv):
+    render_min vs render_interp  [varying INTERPOLATION]:
+      shared_prefix=0B shared_suffix=34B  => render_interp adds 112B unique body
+    render_min vs render_tex     [texture SAMPLE (implicit-LOD)]:
+      shared_prefix=0B shared_suffix=28B  => render_tex adds 96B unique body
+    render_min vs render_deriv   [DERIVATIVE (dfdx/dfdy)]:
+      shared_prefix=0B shared_suffix=38B  => render_deriv adds 120B unique body
+
+  vertex determinism/identity cross-check:
+    render_min     vertex sha256[:12]=b18d396b5a83
+    render_interp  vertex sha256[:12]=ef6082d16e89
+    render_tex     vertex sha256[:12]=1ab88ad253c8
+    render_deriv   vertex sha256[:12]=1ab88ad253c8
+
+========================================================================
+5. NEW instruction-GROUP surface vs the current DB
+========================================================================
+  Current DB covers byte0 groups (low-nibble = group id, EXP-0006):
+    c=preamble  9=float-ALU  7(0x67/0xe7)=device load/store  e=stop  (also 0x0b,0x12 float)
+  Vertex/fragment streams additionally exercise, NONE in the DB:
+    * low-nibble 0xf ALU family: 0x2f, 0x3f, 0xaf (siblings of the
+      int-ALU 0x9f) -- PROVEN leader 0x2f begins interp/tex/deriv frags
+    * low-nibble 0x7 memory family variants beyond 0x67/0xe7:
+      0x07, 0x87, 0x97, 0xa7 -- PROVEN leader 0x97 begins the
+      constant-color fragment; 0xa7 in vertex
+    * vertex varying/attribute stores: 0x05/0x06/0x57 forms
+  (byte0 GROUP presence is structural; exact instr boundaries/lengths
+   and semantics are deferred to a follow-up decode experiment.)
+
+========================================================================
+SUMMARY: carve=OK  compute_regression=OK
+========================================================================

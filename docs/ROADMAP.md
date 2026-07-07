@@ -77,13 +77,11 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
   lacks (→ must be emulated) and HW capabilities Metal never exposes (→ probe for them).
 
 ## Tooling backlog (needed to unblock coverage)
-- **Extend `shdump`/`agxparse` to vertex & fragment stages.** It currently extracts only the
-  `__compute` image. Fragment-only families — interpolation/pull-model, derivatives, barycentrics,
-  programmable blending, raster-order-groups, imageblock writes, implicit-LOD sampling — plus
-  mesh/object, cannot be characterized until we can extract non-compute shader code. High priority
-  (blocks a large slice of Phase 1 + Phase 4). See `docs/isa/msl-feature-map.md` "requires non-compute stage".
-- Persistent runner exists (`tools/agxtest/persistrun.py`); consider a render-pipeline variant for
-  fragment probes (dispatch a draw, read back a render target).
+- ☑ **Vertex & fragment extraction + render testbed** — *Done: EXP-0008.* `shdump --render` +
+  `agxparse --stage {compute,vertex,fragment}`; `tools/agxtest/agxrender.m` runs modified fragment
+  code and reads back pixels. Fragment-only families are now reachable.
+- Consider a `newLibraryWithURL:`-per-request **persistent render runner** for fast fragment sweeps
+  (mirror `persistrun.py`), when fragment decode experiments start.
 
 ## Open questions / risks
 - **Modern submission path:** macOS 26 Metal likely submits via IOGPU shared-memory rings, not one `IOConnectCallMethod` per draw (unlike Alyssa's 2021 approach). 0.4 must confirm how to capture it. → the deciding risk for Phase 2.

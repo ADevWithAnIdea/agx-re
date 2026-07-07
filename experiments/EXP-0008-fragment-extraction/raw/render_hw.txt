@@ -1,0 +1,84 @@
+# EXP-0008 render hardware testbed (agxrender.m) results
+# clean-room OWN-SHADER: our own MSL, our own compiled bytes, real A18 Pro GPU.
+
+## render_min 1x1 -- constant float4(1.0,0.5,0.25,1.0)
+DEVICE Apple A18 Pro
+VERTEX v_main
+FRAGMENT f_main
+PIPELINE_SOURCE archive
+GPUTIME_NS 28124
+SIZE 1 1
+PIXEL 0 0 bgra=4080ffff rgba_unorm=1.000,0.502,0.251,1.000
+STATUS OK
+
+## render_interp 4x4 -- interpolated color varying (FRAGMENT interpolation)
+DEVICE Apple A18 Pro
+VERTEX v_main
+FRAGMENT f_main
+PIPELINE_SOURCE archive
+GPUTIME_NS 27000
+SIZE 4 4
+PIXEL 0 0 bgra=00df20ff rgba_unorm=0.125,0.875,0.000,1.000
+PIXEL 1 0 bgra=00df60ff rgba_unorm=0.376,0.875,0.000,1.000
+PIXEL 2 0 bgra=00df9fff rgba_unorm=0.624,0.875,0.000,1.000
+PIXEL 3 0 bgra=00dfdfff rgba_unorm=0.875,0.875,0.000,1.000
+PIXEL 0 1 bgra=009f20ff rgba_unorm=0.125,0.624,0.000,1.000
+PIXEL 1 1 bgra=009f60ff rgba_unorm=0.376,0.624,0.000,1.000
+PIXEL 2 1 bgra=009f9fff rgba_unorm=0.624,0.624,0.000,1.000
+PIXEL 3 1 bgra=009fdfff rgba_unorm=0.875,0.624,0.000,1.000
+PIXEL 0 2 bgra=006020ff rgba_unorm=0.125,0.376,0.000,1.000
+PIXEL 1 2 bgra=006060ff rgba_unorm=0.376,0.376,0.000,1.000
+PIXEL 2 2 bgra=00609fff rgba_unorm=0.624,0.376,0.000,1.000
+PIXEL 3 2 bgra=0060dfff rgba_unorm=0.875,0.376,0.000,1.000
+PIXEL 0 3 bgra=002020ff rgba_unorm=0.125,0.125,0.000,1.000
+PIXEL 1 3 bgra=002060ff rgba_unorm=0.376,0.125,0.000,1.000
+PIXEL 2 3 bgra=00209fff rgba_unorm=0.624,0.125,0.000,1.000
+PIXEL 3 3 bgra=0020dfff rgba_unorm=0.875,0.125,0.000,1.000
+STATUS OK
+
+## render_tex 2x2 -- implicit-LOD sample of constant tex(10,20,30,40)
+DEVICE Apple A18 Pro
+VERTEX v_main
+FRAGMENT f_main
+PIPELINE_SOURCE archive
+GPUTIME_NS 27041
+SIZE 2 2
+PIXEL 0 0 bgra=1e140a28 rgba_unorm=0.039,0.078,0.118,0.157
+PIXEL 1 0 bgra=1e140a28 rgba_unorm=0.039,0.078,0.118,0.157
+PIXEL 0 1 bgra=1e140a28 rgba_unorm=0.039,0.078,0.118,0.157
+PIXEL 1 1 bgra=1e140a28 rgba_unorm=0.039,0.078,0.118,0.157
+STATUS OK
+
+## render_deriv 4x4 -- dfdx+dfdy of uv (FRAGMENT derivatives)
+DEVICE Apple A18 Pro
+VERTEX v_main
+FRAGMENT f_main
+PIPELINE_SOURCE archive
+GPUTIME_NS 27166
+SIZE 4 4
+PIXEL 0 0 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 1 0 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 2 0 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 3 0 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 0 1 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 1 1 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 2 1 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 3 1 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 0 2 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 1 2 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 2 2 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 3 2 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 0 3 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 1 3 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 2 3 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+PIXEL 3 3 bgra=000040ff rgba_unorm=0.251,0.000,0.000,1.000
+STATUS OK
+
+## SPLICE PROOF -- modify archived FRAGMENT code, observe pixel change
+# orig fragment _agc.main[0x06]=0x80 (green const) -> spliced 0x40
+-- original:
+PIPELINE_SOURCE archive
+PIXEL 0 0 bgra=4080ffff rgba_unorm=1.000,0.502,0.251,1.000
+-- spliced main[0x06]=0x40:
+PIPELINE_SOURCE archive
+PIXEL 0 0 bgra=4040ffff rgba_unorm=1.000,0.251,0.251,1.000

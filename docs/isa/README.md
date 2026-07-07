@@ -56,6 +56,21 @@ Byte-level facts (established) and their interpretations (⏳ pending round-trip
   the referenced buffer a fixed uniform slot; the Metal binding index is resolved at bind time
   (argument/uniform table), outside the AGX program. → A cmdstream/descriptor-phase question.
 
+## Extraction & testbed now cover compute, vertex, AND fragment (EXP-0008)
+- `shdump --render` compiles our own `[[vertex]]`+`[[fragment]]` MSL and extracts both stages.
+  Archive layout: the same Metal fat binary → one AppleGPU image, with **vertex and fragment as
+  separate `__TEXT,__vertex` / `__TEXT,__fragment` sections** in that one image (compute is
+  `__TEXT,__compute`); each is a nested Mach-O carved by `_agc.main`/`_agc.main.constant_program`
+  exactly like compute. `agxparse.py --stage {compute,vertex,fragment}` selects the stage.
+- `tools/agxtest/agxrender.m` — a **render testbed**: draws a full-screen triangle with our own
+  archived vertex+fragment code into a small target and reads back pixels, and **runs modified
+  fragment code** (splice-and-observe validated: editing a fragment byte moved the output pixel
+  color). The extrapolate-and-test loop now works for fragment shaders too.
+- **New instruction groups seen only in vertex/fragment code** (byte0 leaders; ⏳ lengths/semantics
+  pending a decode experiment): low-nibble-`f` ALU `0x2f/0x3f/0xaf` (interp/tex/deriv), extra
+  memory `0x07/0x87/0x97/0xa7`, vertex varying-stores `0x05/0x06/0x57`; by feature-attribution,
+  **texture sample** adds `0x18/0xb0`, **derivatives** add `0x37/0x38/0x39/0x90/0x92`.
+
 ## Instruction encoding (EXP-0005)
 
 The machine-readable, authoritative encoding lives in **`tools/agx-isa/`** — one descriptor

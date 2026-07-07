@@ -16,6 +16,7 @@ technique mirrors the public MIT applegpu `hwtestbed` (`metallib_replacer.py` +
 | file | role | runs on |
 |---|---|---|
 | `agxrun.m` | ObjC runner (one-shot, one process per dispatch). Loads a serialized Metal binary archive (possibly spliced), forces the compute pipeline to instantiate **from the archive's precompiled machine code** (`MTLPipelineOptionFailOnBinaryArchiveMiss`), dispatches, dumps output buffers as hex. | device (A18) |
+| `agxrender.m` | **Render runner (EXP-0008).** The vertex/fragment analogue of `agxrun`: loads a serialized **render** binary archive (possibly spliced), forces the render pipeline from the archive (`FailOnBinaryArchiveMiss`), draws a full-screen triangle into a small `bgra8Unorm` target, reads pixels back. HW-validated: splicing fragment bytes changes the pixel. | device (A18) |
 | `agxrun_persist.m` | **Persistent runner (EXP-0005).** One live `MTLDevice`+queue for its whole lifetime; loops over `(spliced-archive, inputs) → outputs` requests read from stdin, **logging-and-continuing past command-buffer faults** (contained illegal-ALU-op hangs), so a 256-value field sweep is one process launch instead of 256. | device (A18) |
 | `persistrun.py` | Driver/library for `agxrun_persist`: issues requests, parses responses, and applies a **per-request watchdog** that kills+restarts the child (optional reboot hook) on a true GPU wedge, so big sweeps are robust. | device (A18) |
 | `agxtest.py` | One-shot driver. Compiles our MSL → archive (`shdump`), locates `_agc.main` in the archive (`agxparse`), splices caller bytes in place, writes inputs, runs `agxrun` under a hard timeout, decodes/compares outputs. | device (A18) |
@@ -30,7 +31,31 @@ expects them alongside `agxrun`/`agxtest.py` in the same directory on the device
 ```sh
 clang -fobjc-arc -framework Metal -framework Foundation -o shdump shdump.m
 clang -fobjc-arc -framework Metal -framework Foundation -o agxrun agxrun.m
+clang -fobjc-arc -framework Metal -framework Foundation -o agxrender agxrender.m   # render (EXP-0008)
 ```
+
+## Render testbed — "give me a (spliced) fragment/vertex → pixel" (EXP-0008)
+
+```sh
+# 1. compile a render pair -> archive (shdump --render), then draw + read back:
+./shdump -o r.bin --render --vertex v_main --fragment f_main render.metal
+./agxrender --archive r.bin --source render.metal --vertex v_main --fragment f_main \
+    --width 1 --height 1                         # 1x1 target, prints PIXEL rgba
+#   --tex-fill R,G,B,A  binds a solid input texture+sampler at [texture(0)]/[sampler(0)]
+
+# 2. splice fragment bytes in place and observe the pixel change:
+LOC=$(python3 agxparse.py r.bin --stage fragment --locate _agc.main)   # "ABS_OFF LEN"
+#   ... write your byte(s) at ABS_OFF+offset into a copy of r.bin, then:
+./agxrender --archive r_spliced.bin --source render.metal --vertex v_main --fragment f_main
+```
+
+`agxrender` is one-shot (fresh `MTLDevice` per run), so each spliced archive
+actually executes (no in-process code memoization). `PIPELINE_SOURCE archive` in
+the output proves the archived (spliced) machine code ran — creation fails with
+`STATUS PIPELINE_MISS` otherwise. Proven on hardware: splicing the constant-color
+fragment's green byte flipped the read-back pixel green 0.502→0.251 (EXP-0008).
+For large fragment sweeps, add a `newLibraryWithURL:`-per-request persistent loop
+(as `agxrun_persist` does for compute) — noted follow-up.
 
 ## Use — "give me bytes + inputs → outputs"
 
