@@ -7,6 +7,12 @@ Baseline for comparison: Mesa's existing M1 (Apple7 / G13) and M2 (Apple8 / G14)
 
 Legend: ☐ not started · ◐ in progress · ☑ documented & provenance-cited · ⚠ blocked
 
+**Cross-cutting thread — capability probing (extrapolate & test):** running through every
+phase, not a separate phase. For each subsystem, beyond documenting what Metal exercises, we
+hypothesize hardware capabilities Metal doesn't expose (esp. Vulkan/GL-shaped ones) and test
+them on hardware, logging every attempt — pass or fail — in `hypotheses.md`. See `../CLAUDE.md`
+→ Methodology.
+
 ---
 
 ## Phase 0 — Foundations & clean-room tooling

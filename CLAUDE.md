@@ -190,6 +190,46 @@ Mirrors the userspace responsibilities of Mesa `src/asahi`. Priority order:
 
 ---
 
+## Methodology: probe the HARDWARE, not Metal
+
+Our subject is the **AGX hardware's capability envelope**. Metal is merely the most
+convenient source of known-valid starting points (valid instruction encodings, valid
+command buffers). **We do not care how Metal works; we care what the silicon can do.**
+The AGX was designed to run Metal (plus a narrow OpenGL subset), so its exposed surface is
+Metal-shaped — but the hardware very likely supports capabilities Metal never emits, and
+very likely *lacks* things Vulkan/OpenGL want. Both facts are what we are here to discover.
+
+**Extrapolate, then test (the Rosenzweig method).** This is a primary job, not an optional
+extra. Alyssa Rosenzweig used it to great effect on M1/M2:
+1. Start from a known-good encoding (from one of our own compiled shaders, or a captured
+   command buffer).
+2. **Hypothesize** what *might* also exist — perturb opcode/modifier/operand/addressing
+   fields; reason from the ISA's structure ("there's `fadd`; is there an `fadd` with a
+   different rounding mode / carry / a wider form?"); and reason from features other APIs and
+   GPUs expose that Metal does **not** ("Vulkan wants logic ops / arbitrary sampler border
+   colors / polygon line-mode / provoking-vertex / transform feedback — does the HW do it?").
+3. **Craft the encoding / state** and run it on real hardware.
+4. **Observe and document the result — positive OR negative.**
+
+**Negative results are first-class deliverables.** "Encoding X faults", "mode Y is a no-op",
+"capability Z does not exist" carries equal weight to a success. Absence-of-capability is
+exactly what tells the implementation team what must be **software-emulated** in Vulkan/GL.
+Record every hypothesis and its outcome in `docs/hypotheses.md` (works / no-op / faults /
+inconclusive), with a reproducible experiment. Do not quietly drop the ones that didn't pan
+out — the trail of what was tried *is* knowledge.
+
+**The Metal-subset heuristic for choosing what to probe:** features Vulkan/OpenGL need that
+Metal exposes differently or not at all are the highest-value probe targets — for each, the
+hardware either supports it natively (a nice instruction/mode to hand the implementers) or it
+doesn't (flag for emulation). Keep a running list; examples to keep chasing: logic ops,
+extended/dual-source blend, arbitrary sampler border colors, polygon/line fill & wide lines,
+provoking-vertex convention, depth clip vs clamp modes, geometry/tessellation/transform-feedback
+hooks, and instruction-level integer/bitfield/rounding/subgroup/quad ops beyond Metal's surface.
+
+**Safety:** capability probing *will* occasionally fault or hang the GPU — that is expected
+and is itself a data point. Follow the reboot protocol, and isolate probes (one hypothesis
+per run where feasible) so a single bad encoding doesn't invalidate a batch of results.
+
 ## After a context compaction
 
 Follow the global recovery procedure in `~/.claude/CLAUDE.md` first (read the last ~20 turns
