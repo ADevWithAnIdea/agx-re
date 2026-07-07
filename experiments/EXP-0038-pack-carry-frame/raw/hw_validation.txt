@@ -1,0 +1,31 @@
+### EXP-0038 HW validation ###
+== half2 round-trip (float2->fp16 pack->unpack->float2) ==
+PIPELINE_SOURCE archive
+STATUS OK
+RESULT 1 1.5 2.25 0.5 10 3.5 7 0.0625 30
+COMPARE 1 MATCH
+== u64 add carry cases ==
+STATUS OK
+RESULT 2 0 1
+COMPARE 2 MATCH
+RESULT 2 0 0
+COMPARE 2 MATCH
+== SPLICE: neutralize 0x32 carry-gen (byte0 0x32->0x00) => carry lost ==
+STATUS OK
+RESULT 2 0 0
+== SPLICE: 0x32 byte+4 cmpmode 0x22->0x26 => carry lost ==
+STATUS OK
+RESULT 2 0 0
+== non-leaf frame chain (a+b)+(a*b) ==
+PIPELINE_SOURCE archive
+STATUS OK
+RESULT 2 23 5 11 9
+COMPARE 2 MISMATCH
+== deep 3-level frame (a+b)*2+1 ==
+STATUS OK
+RESULT 2 17 61
+COMPARE 2 MATCH
+== simd_sum reduce (32 lanes of 1 => 32) ==
+STATUS OK
+RESULT 1 32
+COMPARE 1 MATCH

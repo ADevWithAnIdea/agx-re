@@ -1,0 +1,88 @@
+{
+  "_comment": "EXP-0038: close remaining census-undecoded compute groups (half pack 0x18/0x30/0x38, u64 carry-generate 0x32, non-leaf frame 0x6f + 0x07 link save/restore, and the 0x54<->0x56 cache-bit gating for simd_reduce / pack / unpack). New + refined descriptors and length-rule / match-gating fixes in the tools/agx-isa db.json schema. CLEAN-ROOM: every byte was learned from the compiled form of MSL we wrote (OWN-SHADER) -- byte-diffing our own shaders, splicing bytes and running them on the real A18 Pro / G17P GPU, and tokenizing with the READ-ONLY tools/agx-isa DB. No Apple binary was disassembled. Orchestrator merges this into tools/agx-isa/db.json (this experiment did NOT edit tools/agx-isa/). Bit numbering: N-byte instr = one little-endian int, bit0 = byte0 bit0, bit16 = byte+2 bit0, so byte offset +k bit b = bit (8k+b).",
+
+  "device": "Apple A18 Pro / G17P, SoC T8140, macOS 26.6 (25G5043d), Metal 4 / Apple9.",
+
+  "length_rule_additions": {
+    "_note": "Corrections/additions to instr_length() (isadb.py). All verified to tokenize the previously-undecoded EXP-0038 streams to 0 leftover (verify_fixes.py). Apply these.",
+
+    "0x6f": "6  [NON-LEAF FRAME PROLOGUE: `6f 03 04 00 00 20` (also `6f 03 54 00 00 10` in the broader corpus). Establishes the per-thread SCRATCH frame that a non-leaf callee (one that itself CALLs) uses to save its return/link register around inner calls. 6 bytes. byte+1==0x03 sub-op, byte+2 = 0x04/0x54 marker, byte+5 = candidate frame/scratch-size field (0x20 here vs 0x10 in census; did NOT move in a spilling test because the temporaries stayed in-register -- INFERRED). EXP-0038 HW-validated (k_chain/k_deep non-leaf dispatch correct; helper regions extracted from OUR OWN compiled kernels). Currently NO length rule -> undecoded (census gap).",
+
+    "0x07 (byte+1==0x00, byte+2==0x54)": "8  [LINK REGISTER SAVE/RESTORE around a nested call in a non-leaf frame: save = `07 00 54 00 81 00 00 00` (before each CALL), restore = `07 00 54 00 81 ff 1f 00` (after). An 8-byte op in the 0x07 fence/ordering family, distinct from the 6-byte threadgroup_barrier / pixel_order (byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; byte+5..+7 = save(00 00 00) vs restore(ff 1f 00) discriminator (a scratch offset). CURRENT BUG: the rule `0x07 + byte+2==0x54 -> 6` mis-lengths this 8-byte op as a 6-byte barrier, desyncing every non-leaf helper. FIX: gate byte+1 (0x00 -> 8 link save/restore, {0x04,0x14} -> 6 barrier/pixel-order). EXP-0038 HW-validated (frame dispatch correct; tokenizes clean with the fix).",
+
+    "0x32": "6  [u64 CARRY-GENERATE: `32 01 35 03 22 81`, 6 bytes. An unsigned-overflow compare (integer compare/min-max family, byte0 = 0x02|0x30; byte+2==0x35, byte+4==0x22 ordered-compare mode) that detects the carry-out of the preceding low-word 0x9f/0x1f add (sum_lo < operand). Its predicate feeds a following 0x05 psel (carry -> {0,1}) which is added into the high word. Currently NO length rule -> undecoded (census gap). Siblings: byte0 0x12 (the +constant addk variant) and 0x22 (the intermediate carry of a 3-operand add) with the same byte+2==0x35 signature are also 6-byte carry ops (the current 0x22 rule mislengths byte+2==0x35 as 10 -- refine to 6 when byte+2==0x35). EXP-0038 HW+SPLICE-validated (carry cases correct; neutralizing the 0x32 op drops the carry).",
+
+    "0x18": "4  [HALF-LANE PACK (compute): `18 05 18 03`, 4 bytes. Assembles the two fp16 lanes of a half2 (native-half 0x10 ALU result) into one packed 32-bit register ahead of the device store; the reverse assembly for half unpacks. Confirmed 4-byte across half2 add/mul/fma. byte0 HIGH nibble = destination register nibble (r0..r15), so the same op appears as 0x08/0x18/0x28/0x38 (dst r0/r1/r2/r3) -- this is why the census shows 0x38 (dst r3) while low-register compute shows 0x08/0x18. byte+2 = source register (reg<<1)|hint. A longer (6-byte, byte+2==0x24) form appears for high-register / vertex-fragment contexts in the census (0x18/0x30/0x38 samples) -- length bit not isolated (INFERRED). Currently NO length rule for 0x18 -> undecoded (census gap). EXP-0038 HW-validated (half2 pack->store->unpack round-trip exact).",
+
+    "0x30 / 0x38 (census)": "INFERRED sibling half-pack forms (0x30 = 0x10|0x20, 0x38 = 0x18|0x20). Seen in the census (`38 82 24 84 00 c8 30 83 24 85 00 08`, byte+2==0x24, ~6 bytes) assembling half4 / higher-lane packs. In OUR OWN half4 compute kernels the pack region uses byte0 0x00/0x08/0x18 (low registers). Structure matches the 0x18 family (byte0 high nibble = dst, byte+2 = src reg). Exact length (4 vs 6) and the low-nibble-0 (0x30) vs low-nibble-8 (0x18/0x38) role are a documented follow-up -- not individually splice-validated.",
+
+    "simd_reduce cache-bit (0xbf / 0x3f / 0xb7)": "gate on (byte+2 & ~0x02)==0x54 (i.e. byte+2 in {0x54, 0x56}), NOT ==0x56 only. byte+2 bit1 (instruction bit 17) is a SOURCE CACHE / LAST-USE scheduling hint that does not change the operation. CURRENT BUG: the length rule gates on byte+2==0x56, so min/max/logical reductions -- which the compiler emits with byte+2==0x54 when the source is a later/last consumer -- fall through with NO length (census `bf 00 54` gap). Proven a hint (not op-dependent): standalone simd_max/min/and/or all compile to byte+2==0x56, but the SAME simd_max as the second consumer of a shared source comes out 0x54 (EXP-0038 k_reduce_two). Length 8 unchanged.",
+
+    "0x22 (byte+2==0x35)": "6  [carry-generate sibling of 0x32 (the intermediate carry of a 3-operand u64 add). The current 0x22 rule gives 6 only when byte+2 low-nibble==0x0e (min/max chain) else 10; add: 6 when byte+2==0x35 (carry compare). EXP-0038 byte-diff (k_u64add3)."
+  },
+
+  "match_gating_additions": {
+    "_note": "The byte+2-gated pack/unpack/reduce descriptors currently MATCH only the 0x56 cache-bit value, so the 0x54 variant gets a length but no NAME (census 'falls through'). Relax the match so bit17 (byte+2 bit1) is a don't-care: replace the exact `(16,8,0x56)` match tuple with `(16,1,0)+(18,6,0x15)` (byte+2 == 0x_4/0x_6 pattern, bit1 free). Verified: `bf 03 54` now names simd_reduce and `17 04 54` names unpack_convert (verify_fixes.py).",
+    "simd_reduce": "match: replace [16,8,86] with [16,1,0],[18,6,21]  (accept byte+2 0x54 and 0x56)",
+    "unpack_convert": "match: replace [16,8,86] with [16,1,0],[18,6,21]  (accept byte+2 0x54 and 0x56)",
+    "pack_convert": "match: replace [16,8,86] with [16,1,0],[18,6,21]  (accept byte+2 0x54 and 0x56)"
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "carry_gen",
+      "length": 6,
+      "match": [[0, 8, 50], [16, 8, 53]],
+      "fields": [
+        {"name": "subop", "start": 8, "width": 8, "type": "raw"},
+        {"name": "marker", "start": 16, "width": 8, "type": "raw"},
+        {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+        {"name": "cmpmode", "start": 32, "width": 8, "type": "enum",
+         "enum": {"34": "ordered(0x22)"}},
+        {"name": "b5", "start": 40, "width": 8, "type": "raw"}
+      ],
+      "semantics": "u64 CARRY-GENERATE. `32 01 35 03 22 81` (6 bytes). An unsigned-overflow compare in the integer compare / min-max family (byte0 0x32 = base 0x02 | 0x30; byte+2==0x35 marker; byte+4==0x22 ordered-compare mode) that detects the carry-OUT of the immediately-preceding low-word 32-bit add (0x9f/0x1f iadd2): it computes (sum_lo produced a carry, i.e. sum_lo < operand unsigned). The resulting per-lane predicate feeds a following 0x05 psel that materializes the carry as {0,1}, which is then added into the HIGH-word add. CHAIN for `ulong c = a + b`: (1) 0x9f iadd2 low = a_lo + b_lo, (2) 0x32 carry_gen (this op), (3) 0x05 psel carry -> {0,1}, (4) 0x9f iadd2 high = a_hi + b_hi, (5) 0x9f iadd2 high += carry. The compiler emits this explicit chain for 64-bit ADD; 64-bit SUB uses the single native 0x1f op (EXP-0033). Siblings byte0 0x12 (the a+const variant) and 0x22 (intermediate carry of a 3-operand add) share the byte+2==0x35 signature. Operand register bit-packing INFERRED (byte-diff).",
+      "provenance": "HW+SPLICE-VALIDATED (EXP-0038): u64 add carry correct across low->high carry (0xFFFFFFFF+1 -> lo=0,hi=1), full carry-out (0xFFFF...FFFF+1 -> 0), both-word carry, and a 3-operand two-chain add. SPLICE-PROVEN load-bearing: neutralizing this op (byte0 0x32->0x00, or byte+4 cmpmode 0x22->0x26) drops the carry (hi 1 -> 0) while the low word stays correct (raw/hw_validation.txt). Length 6 tokenizes the whole u64 add chain to 0 leftover (verify_fixes.py)."
+    },
+    {
+      "mnemonic": "frame_prologue",
+      "length": 6,
+      "match": [[0, 8, 111]],
+      "fields": [
+        {"name": "subop", "start": 8, "width": 8, "type": "raw"},
+        {"name": "marker", "start": 16, "width": 8, "type": "raw"},
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"},
+        {"name": "b4", "start": 32, "width": 8, "type": "raw"},
+        {"name": "frame_size", "start": 40, "width": 8, "type": "imm"}
+      ],
+      "semantics": "NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (a function that itself CALLs an out-of-line function) to establish the per-thread SCRATCH frame in which it will save/restore its return/link register around each inner call (the EXP-0020 Dynamic-Caching spill stack). Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. byte+1==0x03 = frame sub-op (constant across all observed non-leaf helpers); byte+2 = 0x04/0x54 marker; byte+5 = candidate frame/scratch-size field (0x20 here, 0x10 in the census sample) -- INFERRED, did not move in a controlled spilling test because the extra temporaries stayed within the 96-GPR file (the spill scratch is declared separately in __GPU_METADATA, EXP-0020).",
+      "provenance": "HW-VALIDATED role (EXP-0038): the non-leaf chain k_chain (main -> mid(non-leaf) -> leaf_add/leaf_mul) and the 3-level k_deep dispatch to correct outputs; the 0x6f prologue is present verbatim in every non-leaf helper region (mid/mid2/outer/bigmid) extracted from OUR OWN compiled kernels and ABSENT from every leaf helper (which start with the arithmetic op and end 8f025400). Confirms EXP-0035's inference. Field roles (subop/marker/frame_size) are byte-diff INFERRED, not splice-isolated. Length 6 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py)."
+    },
+    {
+      "mnemonic": "link_save_restore",
+      "length": 8,
+      "match": [[0, 8, 7], [8, 8, 0], [16, 8, 84], [32, 8, 129]],
+      "fields": [
+        {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        {"name": "marker", "start": 16, "width": 8, "type": "raw"},
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"},
+        {"name": "scope", "start": 32, "width": 8, "type": "raw"},
+        {"name": "dir_offset", "start": 40, "width": 24, "type": "raw"}
+      ],
+      "semantics": "LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and the fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier / pixel-order forms are 6 bytes with byte+1 in {0x04,0x14}). byte+4==0x81 = the scratch/stack scope (cf. the barrier's 0x61 threadgroup / 0x85 device scope); byte+5..+7 discriminates SAVE (`00 00 00`) from RESTORE (`ff 1f 00`, a scratch offset). A non-leaf callee spills its own return/link register here because each inner CALL clobbers the hardware link register (there is no encoded return target -- see ret 0x8f). CRITICAL length fix: without byte+1 gating the current rule lengths this as a 6-byte barrier and desyncs every non-leaf helper.",
+      "provenance": "HW-VALIDATED role (EXP-0038): present (exactly bracketing each nested CALL) in every non-leaf helper region of k_chain/k_deep/k_bigframe, absent from leaf helpers; the frame dispatches correctly. Confirms EXP-0035's inference of the 07.. link save/restore. byte-field roles (scope 0x81, dir_offset) are byte-diff INFERRED. Length 8 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py)."
+    },
+    {
+      "mnemonic": "half_pack",
+      "length": 4,
+      "match": [[0, 8, 24]],
+      "fields": [
+        {"name": "dstlo", "start": 8, "width": 8, "type": "reg"},
+        {"name": "src", "start": 16, "width": 8, "type": "reg"},
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "HALF-LANE PACK (assemble a half2 into a packed 32-bit register). `18 05 18 03` (4 bytes). Combines the two fp16 lanes produced by the native-half 0x10 ALU (EXP-0033 half_alu) into one 32-bit word for the device store (and the reverse assembly for half unpacks). Confirmed 4 bytes across half2 add (`18 05 18 03`), mul (`18 05 19 03`) and fma (`18 05 1b 07`). byte0 HIGH nibble = destination register nibble (r0..r15) -- the SAME op appears as 0x08/0x18/0x28/0x38 for dst r0/r1/r2/r3 (this is why the census undecoded samples show 0x30/0x38 in high-register vertex/fragment/texture contexts while low-register compute shows 0x08/0x18). byte+2 = source register (reg<<1)|hint; byte+1/+3 = further register/mode operands (byte-diff, not bit-isolated). A longer (6-byte, byte+2==0x24) form appears in the census for higher registers -- length bit not isolated (INFERRED, follow-up). half2/half4 arithmetic packs in ONE 0x10 op + these pack ops; short2/short4 (int16) does NOT pack (two 32-bit 0x9f adds, EXP-0033).",
+      "provenance": "HW-VALIDATED (EXP-0038): the half2 round-trip k_h2roundtrip (float2 -> fp16 pack (0x18) -> store -> load -> unpack -> float2) returns EXACT for 8 values incl. 1.5/2.25/0.5/10.0/3.5/7.0/0.0625/30.0 (raw/hw_validation.txt). 4-byte length confirmed by anchored segmentation of half2 add/mul/fma (the pack region is exactly the residual after the known get_sr/loads/half_alu/store/stop). op-role byte-diff isolated (only byte+2/+3 differ add vs mul vs fma). Operand bit-packing INFERRED. The 0x30/0x38 census siblings + the 6-byte high-register form are INFERRED (not splice-validated)."
+    }
+  ]
+}

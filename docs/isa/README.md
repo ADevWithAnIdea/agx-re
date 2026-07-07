@@ -536,6 +536,23 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   linked in adjacent, then an ordinary direct call). The "dynamic" part is **loader resolution** — a
   kernel-interface concern (see `../kernel-interface.md`).
 
+### ✅ Wrap-up decode: pack / carry / frame (EXP-0038, closes census compute gaps)
+- **Half pack `0x18`** (4 B, `18 05 18 03`): assembles the two fp16 lanes from the native-half `0x10` ALU into a
+  packed 32-bit register before store. **byte0 high nibble = dst register** ⇒ same op appears as `0x08/18/28/38`
+  (dst r0–r3), which is why the census saw `0x30/0x38` in high-register vertex/frag code. HW-validated (float2→fp16
+  round-trip). byte+2 = source reg.
+- **u64 carry-generate `0x32`** (6 B, `32 01 35 03 22 81`; in the integer-compare family, byte+2=`0x35`, byte+4=`0x22`):
+  the `ulong a+b` chain is `9f` lo-add → **`0x32` carry-gen** → `0x05` psel (carry→0/1) → `9f` hi-add → `9f` +carry.
+  HW-validated + splice-proven load-bearing (neutralizing `0x32` drops the carry). Siblings `0x12`/`0x22`.
+- **Non-leaf function frame** (EXP-0035 completed): `0x6f` prologue (6 B, `6f 03 04 00 00 20`, in the helper region,
+  absent in leaf); each nested call bracketed by an 8-byte `0x07` **link save/restore** (`07 00 54 …`, gated by
+  byte+1=`0x00`); return `8f 12 54 00` (leaf `8f 02`). HW-validated (3-level deep).
+- **`0x54↔0x56` cache bit** = byte+2 **bit 1 (instr bit 17)** = a **source cache / last-use hint** (NOT an op change):
+  a standalone `simd_reduce` emits `0x56`; the same op as a second consumer of a shared source emits `0x54`. The DB
+  gated on `0x56` only (the census gap); fix relaxes the gate to bit-17-don't-care for `0xbf/0x3f/0xb7` reduce +
+  `0x17` unpack (keeping the `0x37` derivative-vs-quad-reduce split). *(descriptors staged in
+  `experiments/EXP-0038-pack-carry-frame/new_descriptors.json` for merge.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

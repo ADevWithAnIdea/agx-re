@@ -1,0 +1,55 @@
+
+== u64add _agc.main (0x32 carry chain) (90 bytes) ==
+  +0x000 b0=0x5c b2=0x10 len= 4 get_sr  5ca01006
+  +0x004 b0=0x67 b2=0x54 len=14 device_load  6710540600052000590100404800
+  +0x012 b0=0x67 b2=0x44 len=14 device_load  6700440201052000590100404800
+  +0x020 b0=0x9f b2=0x56 len=10 iadd2  9f01560003041aa81505
+  +0x02a b0=0x32 b2=0x35 len= 6 <length-only>  320135032281
+  +0x030 b0=0x05 b2=0x20 len= 4 psel  05002080
+  +0x034 b0=0x9f b2=0x54 len=10 iadd2  9f015402030820a81705
+  +0x03e b0=0x9f b2=0x54 len=10 iadd2  9f015402020c08881705
+  +0x048 b0=0xe7 b2=0x54 len=14 device_store  e700540002052100190000101200
+  +0x056 b0=0x0e b2=0x00 len= 4 stop  0e000000
+  RESULT: CLEAN (0 leftover)
+
+== non-leaf mid() frame ops (0x6f prologue + 0x07 link save/restore x2 + calls) (90 bytes) ==
+  +0x000 b0=0x6f b2=0x04 len= 6 <length-only>  6f0304000020
+  +0x006 b0=0x1b b2=0x21 len= 4 <length-only>  1b942100
+  +0x00a b0=0x07 b2=0x54 len= 8 <length-only>  0700540081000000
+  +0x012 b0=0x0f b2=0x54 len=14 call  0f05541a8f10546affffffffff00
+  +0x020 b0=0x0f b2=0x04 len= 6 <length-only>  0f0604020000
+  +0x026 b0=0x07 b2=0x54 len= 8 <length-only>  0700540081ff1f00
+  +0x02e b0=0x0b b2=0x29 len= 4 <length-only>  0b142900
+  +0x032 b0=0xab b2=0x21 len= 4 <length-only>  ab022100
+  +0x036 b0=0x07 b2=0x54 len= 8 <length-only>  0700540081000000
+  +0x03e b0=0x0f b2=0x54 len=14 call  0f05541a8f00547effffffffff00
+  +0x04c b0=0x0f b2=0x04 len= 6 <length-only>  0f0604020000
+  +0x052 b0=0x07 b2=0x54 len= 8 <length-only>  0700540081ff1f00
+  RESULT: CLEAN (0 leftover)
+
+== 0x07 link save (8B) + link restore (8B) + non-leaf ret 8f12 (4B) (20 bytes) ==
+  +0x000 b0=0x07 b2=0x54 len= 8 <length-only>  0700540081000000
+  +0x008 b0=0x07 b2=0x54 len= 8 <length-only>  0700540081ff1f00
+  +0x010 b0=0x8f b2=0x54 len= 4 ret  8f125400
+  RESULT: CLEAN (0 leftover)
+
+== reduce_two region (simd_sum 0x56 + simd_max 0x54 cache-bit) (26 bytes) ==
+  +0x000 b0=0xbf b2=0x56 len= 8 simd_reduce  bf01560003081601
+  +0x008 b0=0xbf b2=0x54 len= 8 simd_reduce  bf03540403081403
+  +0x010 b0=0x9f b2=0x54 len=10 iadd2  9f015400020800a81705
+  RESULT: CLEAN (0 leftover)
+
+== unpack cache-bit variant: real unpack op byte+2 0x56->0x54 + stop (14 bytes) ==
+  +0x000 b0=0x17 b2=0x54 len=10 unpack_convert  1704540000001ccae700
+  +0x00a b0=0x0e b2=0x00 len= 4 stop  0e000000
+  RESULT: CLEAN (0 leftover)
+
+== h2add _agc.main (0x18 half-pack) (60 bytes) ==
+  +0x000 b0=0x0c b2=0x10 len= 4 get_sr  0ca01006
+  +0x004 b0=0x67 b2=0x54 len=14 device_load  6710540200002000490100404600
+  +0x012 b0=0x67 b2=0x44 len=14 device_load  6700440401002000490100404600
+  +0x020 b0=0x10 b2=0x1c len= 6 half_alu  10041c0200c0
+  +0x026 b0=0x18 b2=0x18 len= 4 <length-only>  18051803
+  +0x02a b0=0xe7 b2=0x54 len=14 device_store  e700540202002100090000901100
+  +0x038 b0=0x0e b2=0x00 len= 4 stop  0e000000
+  RESULT: CLEAN (0 leftover)
