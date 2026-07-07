@@ -152,10 +152,15 @@ Target: iterate until a byte0-group census of a broad shader corpus shows ~0 und
 authoritative opcode table is IN `docs/` (do LAST, once the DB is final). The descriptor tables are now
 self-contained (`docs/descriptors/format-table.md`).
 
-**Final ISA-consolidation pass (deferred, do once ISA experiments finish):** merge all per-experiment
-`experiments/EXP-*/new_descriptors.json` (EXP-0030 mesh, EXP-0031 SR/ABI, EXP-0033+ …) into `isadb.py`,
-regenerate `db.json`, ensure round-trip passes, THEN generate `docs/isa/encoding-tables.md` (G-6 core).
-Prose docs already carry each experiment's facts, so `docs/` stays complete meanwhile.
+**Final ISA-consolidation pass (deferred, do once ISA experiments finish):** merge these staged files into
+`isadb.py`, regenerate `db.json`, ensure round-trip passes, THEN generate `docs/isa/encoding-tables.md` (G-6 core):
+- `experiments/EXP-0030-mesh/new_descriptors.json` (obj_mesh_ctrl 0x43, stage-map __object/__mesh)
+- `experiments/EXP-0031-sr-abi/new_descriptors.json` (get_sr byte1 SR#, mov_imm, sr_number_table)
+- `experiments/EXP-0033-int-bitfield/new_descriptors.json` (ibitcount/irotate/half_alu/pack + **6 length-rule corrections**)
+- `experiments/EXP-0034-texture-variants/new_descriptors.json` (tex_sample refine + tex_atomic)
+- `experiments/EXP-0035-function-abi/new_descriptors.json` (pending EXP-0035)
+Prose docs already carry each experiment's facts, so `docs/` stays complete meanwhile. THEN: byte0-group
+census (instruction-census metric) + re-run acceptance reviewer (REVIEW-02).
 
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
