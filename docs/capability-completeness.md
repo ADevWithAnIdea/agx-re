@@ -450,7 +450,7 @@ provoke-able with our own MSL via the `msl-feature-map.md` recipe.
 
 | # | NYC capability | Why it's still open | How to observe (provocation + method) |
 |---|---|---|---|
-| 1 | **Shader `printf`** (§2) — printf buffer ABI | MSL §6.17 exposes `printf`, but the on-device printf-buffer layout / format-encoding ABI has never been provoked; no experiment has touched it. Debug-only, so lowest driver priority, but genuinely Metal-exposed and undecoded. | `msl-feature-map` §6.17; compile a kernel with `printf`, capture the printf buffer, decode the record/format encoding. |
+| 1 | **Shader `printf`** (§2) — printf buffer ABI | **CLOSED by EXP-O2G (native-decoded):** macOS 26 uses `os_log` (not MSL printf), logging into a driver-allocated `MTLLogState` buffer with self-describing records; shader calls helper `l___air_impl_os_log`. See `cmdstream/README.md`. | `msl-feature-map` §6.17; compile a kernel with `printf`, capture the printf buffer, decode the record/format encoding. |
 | 2 | **Draw-mesh-into-ICB** (§13) | Mesh dispatch (`0x70000600`, EXP-0030) and indirect command buffers (EXP-0027) are each decoded, but the *combined* encoding of a **mesh draw command inside an ICB** (WWDC §3 GPU-driven mesh) has not been exercised. | WWDC §3; encode `drawMeshThreadgroups` into an ICB, diff the ICB inline-command record vs the standalone mesh-grid-dispatch record. |
 | 3 | **Compression × mipmap interaction; NPOT small thresholds** (§14) | A corner-case interaction of two already-native features (lossless compression + mip-tree packing) at small/NPOT sizes; untested. Low priority — both underlying features are decoded and HW-validated. | `tiling` §4.5; sweep compressed mipmapped NPOT textures near the size thresholds, read back the aux/state layout. |
 
@@ -477,7 +477,8 @@ performance counters). Listed for completeness with a one-line reason each.
 - **Scissor test** (§10) — `isp_scissor_base` submit param.
 - **Graphics shader-entry bind** (§15) — a draw carries no `shaderVA>>N`; the code-BO base reaches firmware out-of-band.
 
-### (c) Extrapolate-and-test probes (Vulkan/GL wants, Metal does NOT expose)
+### (c) Extrapolate-and-test probes (mostly Vulkan/GL wants that Metal does NOT expose)
+> **Correction (obj-2 audit):** **tessellation** IS Metal-exposed on Apple9 (`drawPatches` + tessellation-factor buffer + post-tessellation vertex fn) — it is a Metal-exposed objective-2 residue (exercise pending), NOT a Metal-doesn't-expose item. Geometry shaders and transform feedback genuinely have no Metal path.
 
 Not strict objective-2 blockers (Metal exposes no path), but tracked on the `hypotheses.md`
 extrapolate-and-test backlog because each is a native-or-emulate decision for a Vulkan/GL driver. Still
@@ -504,14 +505,14 @@ sub-ops; the per-section tallies below sum the row counts).
 | **native-decoded** | **184** | HW representation decoded in `docs/` (many HW-validated; *(partial)* = principal encoding decoded, sub-fields ⏳; *(lowered)* = no dedicated silicon but the compiler expansion into native ops is decoded & HW-validated; *(mechanism)* = realized through an already-decoded path, no new opcode). |
 | **emulated** | **11** | HW-absent or no proven Metal path → Vulkan/GL must software-emulate. 5 HW-validated absences (float atomic min/max, **64-bit atomic add + min/max** — 64-bit atomics entirely absent from MSL, arbitrary border color, int8 coopmat) + fp64 + no-D24S8 + **polygon-point fill** (Metal-unreachable, EXP-O2A) + the 3 classically-absent geometry stages (GS/tess/XFB, carried from M1/M2, not re-probed on A18). |
 | **kernel-managed** | **6** | Firmware/register state routed via the kernel submit (RT BVH build, sample positions, ZLS/depth store, partial-render trigger, scissor, graphics shader-entry bind) — the canonical set in `capability-matrix` §3 + `kernel-interface`. |
-| **NOT-YET-CHARACTERIZED** | **13** | Metal/MSL-exposed or Apple-advertised, but A18 HW representation not yet decoded — the completeness backlog (§16). Of these, **3** are Metal-exposed objective-2 residue (§16a: printf, draw-mesh-into-ICB, compression×mipmap corner-case); the other **10** are honestly-excluded — **6** microarch-only claims (§16b) + **4** Vulkan-vs-Metal extrapolation probes (§16c). |
+| **NOT-YET-CHARACTERIZED** | **13** | Metal/MSL-exposed or Apple-advertised, but A18 HW representation not yet decoded — the completeness backlog (§16). The former 3 Metal-exposed residue (printf/mesh-ICB/comp×mip) are now **CLOSED by EXP-O2G → native**. The **1** remaining Metal-exposed residue is **tessellation** (`drawPatches`, Apple9 — exercise pending). The other **9** are honestly-excluded: **6** microarch-only (§16b) + **3** truly-Metal-unreachable (§16c: GS, transform-feedback, aniso>16×/wide-lines/conditional-rendering cluster). |
 
 Per-section tallies (native-decoded / emulated / kernel / NYC):
 §1 ALU 28/1/0/1 · §2 CF 13/0/0/1 · §3 mem 12/0/0/1 · §4 atomics 7/3/0/0 · §5 tex/samp 19/1/0/1 ·
 §6 subgroup 9/0/0/0 · §7 matrix 8/1/0/0 · §8 RT 12/0/1/1 · §9 mesh/geo 5/3/0/1 ·
 §10 raster/blend 18/2/1/2 · §11 interp 7/0/0/0 · §12 TBDR 13/0/3/0 · §13 dispatch 8/0/0/1 ·
 §14 format/tiling 17/0/0/2 · §15 machine-model 8/0/1/2.
-**Totals: native-decoded 184 · emulated 11 · kernel-managed 6 · NYC 13.** (184+11+6+13 = 214 rows.)
+**Totals: native-decoded 187 · emulated 11 · kernel-managed 6 · NYC 10.** (187+11+6+10 = 214 rows.) *(EXP-O2G closed printf/mesh-ICB/comp×mip → native; the sole remaining Metal-exposed residue is **tessellation** — Metal exposes `drawPatches` on Apple9, exercise pending, see §16c.)*
 
 ### Apple-advertised features and their observability
 
