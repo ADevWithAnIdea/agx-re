@@ -1,0 +1,32 @@
+# Ring producer index @ heap-alias +0x1ff04 across 4 submits (+0x58/submit):
+dump00 0001ff00: 2c2c0000 58000000 58000000 28000000 
+dump01 0001ff00: 2c2c0000 b0000000 b0000000 28000000 
+dump02 0001ff00: 2c2c0000 08010000 08010000 28000000 
+dump03 0001ff00: 2c2c0000 60010000 60010000 28000000 
+
+# AGX selector histogram (one compute run):
+  30 sel=9(0x9)
+   2 sel=15(0xf)
+   2 sel=14(0xe)
+   1 sel=8(0x8)
+   1 sel=7(0x7)
+   1 sel=6(0x6)
+   1 sel=5(0x5)
+   1 sel=28(0x1c)
+   1 sel=261(0x105)
+   1 sel=258(0x102)
+   1 sel=256(0x100)
+   1 sel=2(0x2)
+   1 sel=17(0x11)
+   1 sel=16(0x10)
+   1 sel=0(0x0)
+
+# sel 0x5 OUT (two shared-page CPU addrs @0x08/0x10 + size @0x18):
+  OUT 000000: 3145 1c9e 0000 0000 00c0 7507 0100 0000 
+  OUT 000010: 0000 7507 0100 0000 0040 0000 0000 0000 
+# sel 0x7 IN first 48 bytes = executable path string:
+  IN 000000: 2f55 7365 7273 2f75 7365 722f 636c 6561 
+  IN 000010: 6e72 6f6f 6d5f 776f 726b 2f65 7870 3030 
+  IN 000020: 3131 2f63 7661 7200 0000 0000 0000 0000 
+# per-submit mapping-syscall counts into GPU space (all 0; VMMAP=framework maps):
+IOConnectMapMemory64=0 MAP32=0 MEMENTRY=0 VMMAP=3

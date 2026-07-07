@@ -20,10 +20,12 @@ public IOKit interface (not copied).
 
 | file | role | runs on |
 |---|---|---|
-| `iotrace.c` | The interposer dylib. Wraps `IOServiceOpen`, `IOConnectCallMethod`/`Scalar`/`Struct`/`Async`, `IOConnectMapMemory64`. Logs selector + scalar/struct in/out (full hex), labels each connection by its user-client class, tracks GPU BOs from the resource-map call, and on demand snapshots every BO's CPU-side bytes (crash-safe via `mach_vm_read_overwrite`). | device (A18) |
+| `iotrace.c` | The interposer dylib. Wraps `IOServiceOpen`, `IOConnectCallMethod`/`Scalar`/`Struct`/`Async`, `IOConnectMapMemory64`, and (EXP-0011) 32-bit `IOConnectMapMemory`, `mach_make_memory_entry_64`, named `mach_vm_map`. Logs selector + scalar/struct in/out (full hex), labels each connection by its user-client class, tracks GPU BOs from the resource-map call (sel 9) and the sel-5 shared pages, and on demand snapshots every BO's CPU-side bytes (crash-safe via `mach_vm_read_overwrite`). | device (A18) |
 | `iohello_compute.m` | Minimal OWN compute dispatch (`o[i]=a[i]+b[i]`). Prints its buffers' GPU VAs (hex + little-endian) for correlation; `--iters N` repeats the submit; `--dump` triggers a BO snapshot after the last submit. | device |
 | `iohello_draw.m` | Minimal OWN full-screen-triangle draw into an offscreen BGRA8 target. Same `--iters`/`--dump`. | device |
 | `dumpscan.py` | Host-side. Loads the BO `.hex` snapshots and searches them at byte granularity for caller-supplied 64/32-bit little-endian needles (our resource VAs, dispatch dims). `--list` summarizes every BO. | anywhere (py3) |
+| `bograph.py` | Host-side (EXP-0011). Reconstructs the **pointer graph** among captured BOs: for every 8-byte LE value in every BO, reports which other BO's `[gpu_va, gpu_va+size)` window it lands in. Reveals launch-descriptor→shader, arg-buffer→buffers, etc. `--from VA` restricts the source BO. | anywhere (py3) |
+| `bodiff.py` | Host-side (EXP-0011). Word-diffs two captures — either two `.hex` files, or two dump dirs pairing BOs by `gpu_va` (the allocator is deterministic across runs). `--va` restricts to one BO, `--maxlen` limits compare length. The core of the change-one-parameter method. | anywhere (py3) |
 | `build.sh` | Builds all three on the device. | device |
 
 ## Build & run (device, Command Line Tools only)
@@ -66,6 +68,8 @@ rather than `raise()` (thread-directed) so the dedicated thread receives it.
 | `IOTRACE_LOG` | log file path | stderr |
 | `IOTRACE_DUMP_DIR` | directory for BO/map `.hex` snapshots | `iotrace_maps` |
 | `IOTRACE_DUMP_ON_USR1` | `1`=snapshot all BOs on SIGUSR1 (harness `--dump`) | 1 |
+| `IOTRACE_DUMP_PERSIG` | `1`=each SIGUSR1 dumps into its own `dumpNN/` subdir (per-submit snapshots for ring/doorbell diffing; EXP-0011) | 0 |
+| `IOTRACE_WRAP_VMMAP` | `1`=log named-object `mach_vm_map` calls (opt-in; very hot, off by default) | 0 |
 | `IOTRACE_DUMP_ON_SEL` | comma list of selectors: snapshot maps before+after any matching `IOConnectCall*` | off |
 | `IOTRACE_DUMP_ATEXIT` | `1`=snapshot at process exit (fallback) | 0 |
 | `IOTRACE_BO_SEL` | selector treated as the resource-map call (parsed for BO cpu/size/GPU-VA) | 9 |
@@ -84,3 +88,12 @@ rather than `raise()` (thread-directed) so the dedicated thread receives it.
   consecutively, a **launch descriptor** carrying our exact dispatch dims
   (grid 64 / threadgroup 32), and a BO of **AGX shader machine code** (op-groups
   + `0e` stop). See `experiments/EXP-0009-iotrace-bringup/`.
+- **EXP-0011** decoded those structures via change-one-parameter diffing
+  (`bodiff.py`/`bograph.py` + the parametric `cvar.m` harness): the CDM launch
+  descriptor is a stream of 0x2c-byte records (shader ptr = `VA>>6`, 3D grid in
+  *threads* + 3D threadgroup, register/config word); the Tier-2 argument buffer is
+  a table at `+0x14a0` (buffers = inline 8-byte VA, textures/samplers = 8-byte
+  pointer to a descriptor). It also located the **submission ring** (a producer
+  index that advances 0x58 B/submit in shared memory) and showed the doorbell uses
+  **no per-submit syscall** (sel 0x7 = the executable-path string, not ring setup).
+  See `experiments/EXP-0011-compute-cmdstream/`.

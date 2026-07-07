@@ -96,6 +96,9 @@ static struct { uint64_t cpu; uint64_t size; uint64_t gpu_va; uint32_t handle; }
 static int g_n_bo = 0;
 static uint32_t g_bo_sel = 9;         /* AGX resource-map selector (overridable) */
 static int      g_dump_on_usr1 = 1;   /* dump all BOs on SIGUSR1 (from harness)  */
+static int      g_dump_persig = 0;    /* 1 = each SIGUSR1 dumps into its own subdir */
+static uint64_t g_dump_count = 0;     /* SIGUSR1 dump counter (per-submit snapshots) */
+static int      g_wrap_vmmap = 0;     /* 1 = log named-object mach_vm_map (opt-in)   */
 
 /* plausible userspace BO CPU-address window on this platform (heuristic gate) */
 static int looks_cpu(uint64_t v) { return v >= 0x100000000ULL && v < 0x400000000ULL; }
@@ -150,9 +153,9 @@ static uint8_t *safe_read(uint64_t addr, uint64_t size, uint64_t *got)
 }
 
 /* snapshot every registered mapped region to a text (.hex) file + note it */
-static void dump_all_maps(const char *reason)
+static void dump_all_maps(const char *reason, const char *dir)
 {
-    if (!g_dump_dir) return;
+    if (!dir) return;
     for (int i = 0; i < g_n_map; i++) {
         uint64_t addr = g_map[i].addr, size = g_map[i].size;
         if (size == 0) continue;
@@ -161,7 +164,7 @@ static void dump_all_maps(const char *reason)
         uint8_t *buf = safe_read(addr, cap, &got);
         char path[512];
         snprintf(path, sizeof(path), "%s/map_seq%06llu_conn%llx_type%08x_at%llx_sz%llx.hex",
-                 g_dump_dir, (unsigned long long)g_call_seq,
+                 dir, (unsigned long long)g_call_seq,
                  (unsigned long long)g_map[i].conn, g_map[i].memType,
                  (unsigned long long)addr, (unsigned long long)size);
         FILE *f = fopen(path, "w");
@@ -245,10 +248,33 @@ static void parse_resource_map(const uint8_t *in, size_t inLen,
     if (out_cpu) bo_add(out_cpu, in_size ? in_size : 0x1000, gpu_va, handle);
 }
 
-/* Snapshot every tracked BO's CPU-side bytes to a .hex text file (crash-safe). */
-static void dump_all_bos(const char *reason)
+/* Parse the AGX sel-5 "shared pages" call.  Empirically (EXP-0011) it returns
+ * two CPU-mapped shared-page addresses (out@0x08, out@0x10) and a size (out@0x18)
+ * that are NOT registered via sel-9 — the prime candidates for the submission
+ * ring / doorbell / completion pages.  Register them so they get snapshotted and
+ * can be diffed across submits to catch the per-submit doorbell write. */
+static void parse_sel5(const uint8_t *out, size_t outLen)
 {
-    if (!g_dump_dir) return;
+    uint64_t a0 = rd64(out, outLen, 0x08);
+    uint64_t a1 = rd64(out, outLen, 0x10);
+    uint64_t sz = rd64(out, outLen, 0x18);
+    if (sz == 0 || sz > g_max_map) sz = 0x4000;
+    uint64_t addrs[2] = { a0, a1 };
+    for (int k = 0; k < 2; k++) {
+        if (!looks_cpu(addrs[k])) continue;
+        int dup = 0;
+        for (int i = 0; i < g_n_map; i++) if (g_map[i].addr == addrs[k]) dup = 1;
+        if (!dup && g_n_map < MAX_MAP) {
+            g_map[g_n_map].conn = 0; g_map[g_n_map].memType = 0x5e15; /* mark: sel-5 */
+            g_map[g_n_map].addr = addrs[k]; g_map[g_n_map].size = sz; g_n_map++;
+        }
+    }
+}
+
+/* Snapshot every tracked BO's CPU-side bytes to a .hex text file (crash-safe). */
+static void dump_all_bos(const char *reason, const char *dir)
+{
+    if (!dir) return;
     fprintf(g_log, "BODUMP begin reason=%s n_bo=%d\n", reason, g_n_bo);
     for (int i = 0; i < g_n_bo; i++) {
         uint64_t cpu = g_bo[i].cpu, size = g_bo[i].size;
@@ -259,7 +285,7 @@ static void dump_all_bos(const char *reason)
         if (!buf || got == 0) { if (buf) free(buf); continue; }
         char path[512];
         snprintf(path, sizeof(path),
-                 "%s/bo_%s_h%u_va%llx_cpu%llx_sz%llx.hex", g_dump_dir, reason,
+                 "%s/bo_%s_h%u_va%llx_cpu%llx_sz%llx.hex", dir, reason,
                  g_bo[i].handle, (unsigned long long)g_bo[i].gpu_va,
                  (unsigned long long)cpu, (unsigned long long)size);
         FILE *f = fopen(path, "w");
@@ -303,8 +329,19 @@ static void *usr1_thread(void *arg)
         int sig = 0;
         if (sigwait(&set, &sig) != 0) continue;
         pthread_mutex_lock(&g_lock);
-        dump_all_bos("sigusr1");
-        dump_all_maps("sigusr1");
+        char dir[512];
+        if (g_dump_persig) {
+            /* Each SIGUSR1 (i.e. each submit) gets its own subdir so the same
+             * BO across submits can be diffed to catch the ring/doorbell write. */
+            snprintf(dir, sizeof(dir), "%s/dump%02llu", g_dump_dir,
+                     (unsigned long long)g_dump_count);
+            mkdir(dir, 0755);
+        } else {
+            snprintf(dir, sizeof(dir), "%s", g_dump_dir);
+        }
+        dump_all_bos("sigusr1", dir);
+        dump_all_maps("sigusr1", dir);
+        g_dump_count++;
         pthread_mutex_unlock(&g_lock);
     }
     return NULL;
@@ -336,6 +373,8 @@ static void iotrace_init(void)
     const char *ax = getenv("IOTRACE_DUMP_ATEXIT");if (ax) g_dump_atexit = atoi(ax);
     const char *bs = getenv("IOTRACE_BO_SEL");     if (bs) g_bo_sel     = (uint32_t)strtoul(bs, NULL, 0);
     const char *u1 = getenv("IOTRACE_DUMP_ON_USR1");if (u1) g_dump_on_usr1 = atoi(u1);
+    const char *ps = getenv("IOTRACE_DUMP_PERSIG"); if (ps) g_dump_persig = atoi(ps);
+    const char *wv = getenv("IOTRACE_WRAP_VMMAP");  if (wv) g_wrap_vmmap = atoi(wv);
 
     /* Block SIGUSR1 in every thread and let a dedicated thread wait for it, so
      * the harness can trigger a BO snapshot at a precise moment (post-submit).
@@ -371,7 +410,7 @@ static void iotrace_fini(void)
     if (g_dump_atexit) {
         pthread_mutex_lock(&g_lock);
         g_call_seq = 999999;   /* distinguish exit snapshot */
-        dump_all_maps("atexit");
+        dump_all_maps("atexit", g_dump_dir);
         pthread_mutex_unlock(&g_lock);
     }
     if (g_log && g_log != stderr) fclose(g_log);
@@ -391,6 +430,16 @@ extern kern_return_t IOConnectCallAsyncMethod(mach_port_t, uint32_t, mach_port_t
                                               size_t, uint64_t *, uint32_t *, void *, size_t *);
 extern kern_return_t IOConnectMapMemory64(io_connect_t, uint32_t, task_port_t,
                                           mach_vm_address_t *, mach_vm_size_t *, IOOptionBits);
+/* Legacy IOConnectMapMemory is declared by <IOKit/IOKitLib.h> (with 64-bit types
+ * on this SDK).  The Mach shared-memory primitives that could set up a submission
+ * ring without any IOConnectMapMemory (EXP-0011 ring/doorbell hunt): */
+extern kern_return_t mach_make_memory_entry_64(vm_map_t, memory_object_size_t *,
+                                               memory_object_offset_t, vm_prot_t,
+                                               mach_port_t *, mem_entry_name_port_t);
+extern kern_return_t mach_vm_map(vm_map_t, mach_vm_address_t *, mach_vm_size_t,
+                                 mach_vm_offset_t, int, mem_entry_name_port_t,
+                                 memory_object_offset_t, boolean_t, vm_prot_t, vm_prot_t,
+                                 vm_inherit_t);
 
 /* ---- shared call logger --------------------------------------------------- */
 static void log_call_common(const char *fn, mach_port_t conn, uint32_t sel,
@@ -472,7 +521,7 @@ kern_return_t wrap_IOConnectCallMethod(mach_port_t connection, uint32_t selector
     pthread_mutex_lock(&g_lock);
     log_call_common("Method", connection, selector, input, inputCnt, inputStruct, inputStructCnt);
     int wantDump = sel_wants_dump(selector);
-    if (wantDump) dump_all_maps("pre-submit");
+    if (wantDump) dump_all_maps("pre-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
 
     kern_return_t ret = IOConnectCallMethod(connection, selector, input, inputCnt, inputStruct,
@@ -483,7 +532,7 @@ kern_return_t wrap_IOConnectCallMethod(mach_port_t connection, uint32_t selector
     if (ret == KERN_SUCCESS && selector == g_bo_sel && inputStruct && outputStruct && outputStructCntP)
         parse_resource_map((const uint8_t *)inputStruct, inputStructCnt,
                            (const uint8_t *)outputStruct, *outputStructCntP);
-    if (wantDump) dump_all_maps("post-submit");
+    if (wantDump) dump_all_maps("post-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
     return ret;
 }
@@ -497,14 +546,14 @@ kern_return_t wrap_IOConnectCallScalarMethod(mach_port_t connection, uint32_t se
     pthread_mutex_lock(&g_lock);
     log_call_common("Scalar", connection, selector, input, inputCnt, NULL, 0);
     int wantDump = sel_wants_dump(selector);
-    if (wantDump) dump_all_maps("pre-submit");
+    if (wantDump) dump_all_maps("pre-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
 
     kern_return_t ret = IOConnectCallScalarMethod(connection, selector, input, inputCnt, output, outputCnt);
 
     pthread_mutex_lock(&g_lock);
     log_call_ret(connection, selector, ret, output, outputCnt, NULL, NULL);
-    if (wantDump) dump_all_maps("post-submit");
+    if (wantDump) dump_all_maps("post-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
     return ret;
 }
@@ -519,7 +568,7 @@ kern_return_t wrap_IOConnectCallStructMethod(mach_port_t connection, uint32_t se
     pthread_mutex_lock(&g_lock);
     log_call_common("Struct", connection, selector, NULL, 0, inputStruct, inputStructCnt);
     int wantDump = sel_wants_dump(selector);
-    if (wantDump) dump_all_maps("pre-submit");
+    if (wantDump) dump_all_maps("pre-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
 
     kern_return_t ret = IOConnectCallStructMethod(connection, selector, inputStruct, inputStructCnt,
@@ -527,7 +576,9 @@ kern_return_t wrap_IOConnectCallStructMethod(mach_port_t connection, uint32_t se
 
     pthread_mutex_lock(&g_lock);
     log_call_ret(connection, selector, ret, NULL, NULL, outputStruct, outputStructCntP);
-    if (wantDump) dump_all_maps("post-submit");
+    if (ret == KERN_SUCCESS && selector == 5 && outputStruct && outputStructCntP && *outputStructCntP >= 0x20)
+        parse_sel5((const uint8_t *)outputStruct, *outputStructCntP);
+    if (wantDump) dump_all_maps("post-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
     return ret;
 }
@@ -551,7 +602,7 @@ kern_return_t wrap_IOConnectCallAsyncMethod(mach_port_t connection, uint32_t sel
         fprintf(g_log, "%s0x%llx", i ? "," : "", (unsigned long long)reference[i]);
     fprintf(g_log, "]\n");
     int wantDump = sel_wants_dump(selector);
-    if (wantDump) dump_all_maps("pre-submit");
+    if (wantDump) dump_all_maps("pre-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
 
     kern_return_t ret = IOConnectCallAsyncMethod(connection, selector, wakePort, reference, referenceCnt,
@@ -560,7 +611,7 @@ kern_return_t wrap_IOConnectCallAsyncMethod(mach_port_t connection, uint32_t sel
 
     pthread_mutex_lock(&g_lock);
     log_call_ret(connection, selector, ret, output, outputCnt, outputStruct, outputStructCntP);
-    if (wantDump) dump_all_maps("post-submit");
+    if (wantDump) dump_all_maps("post-submit", g_dump_dir);
     pthread_mutex_unlock(&g_lock);
     return ret;
 }
@@ -588,6 +639,74 @@ kern_return_t wrap_IOConnectMapMemory64(io_connect_t connect, uint32_t memoryTyp
     return ret;
 }
 
+/* 32-bit legacy IOConnectMapMemory — EXP-0009 saw the 64-bit form never called;
+ * we wrap the legacy form too to be sure a ring is not mapped through it. */
+kern_return_t wrap_IOConnectMapMemory(io_connect_t connect, uint32_t memoryType,
+                                      task_port_t intoTask, mach_vm_address_t *atAddress,
+                                      mach_vm_size_t *ofSize, IOOptionBits options)
+{
+    kern_return_t ret = IOConnectMapMemory(connect, memoryType, intoTask, atAddress, ofSize, options);
+    if (!g_log) return ret;                 /* may be called before our constructor */
+    pthread_mutex_lock(&g_lock);
+    uint64_t addr = (atAddress ? (uint64_t)*atAddress : 0);
+    uint64_t size = (ofSize ? (uint64_t)*ofSize : 0);
+    if (ret == KERN_SUCCESS && g_n_map < MAX_MAP) {
+        g_map[g_n_map].conn = connect; g_map[g_n_map].memType = memoryType;
+        g_map[g_n_map].addr = addr;    g_map[g_n_map].size = size; g_n_map++;
+    }
+    fprintf(g_log, "MAP32 conn=%llx class=%s memType=0x%08x opts=0x%x -> addr=0x%llx size=0x%llx ret=0x%x\n",
+            (unsigned long long)connect, conn_class(connect), memoryType, options,
+            (unsigned long long)addr, (unsigned long long)size, ret);
+    fflush(g_log);
+    pthread_mutex_unlock(&g_lock);
+    return ret;
+}
+
+/* mach_make_memory_entry_64 — creates a named memory-entry (a shareable handle to
+ * a VM range).  A submission ring shared with the GPU/coprocessor would plausibly
+ * be built as a memory entry then mapped; log every one to see if that happens. */
+kern_return_t wrap_mach_make_memory_entry_64(vm_map_t target, memory_object_size_t *size,
+                                             memory_object_offset_t offset, vm_prot_t perm,
+                                             mach_port_t *object_handle,
+                                             mem_entry_name_port_t parent)
+{
+    kern_return_t ret = mach_make_memory_entry_64(target, size, offset, perm, object_handle, parent);
+    if (!g_log) return ret;                 /* called during early libSystem bootstrap */
+    pthread_mutex_lock(&g_lock);
+    fprintf(g_log, "MEMENTRY size=0x%llx offset=0x%llx perm=0x%x parent=0x%x -> handle=0x%x ret=0x%x\n",
+            (unsigned long long)(size ? *size : 0), (unsigned long long)offset, perm,
+            parent, object_handle ? *object_handle : 0, ret);
+    fflush(g_log);
+    pthread_mutex_unlock(&g_lock);
+    return ret;
+}
+
+/* mach_vm_map — only interesting (for a ring) when it maps a *named object*
+ * (object != NULL, i.e. a memory entry / shared region), not anonymous memory.
+ * Anonymous maps are extremely frequent, so we log only the named-object case. */
+kern_return_t wrap_mach_vm_map(vm_map_t target, mach_vm_address_t *address, mach_vm_size_t size,
+                               mach_vm_offset_t mask, int flags, mem_entry_name_port_t object,
+                               memory_object_offset_t offset, boolean_t copy,
+                               vm_prot_t cur, vm_prot_t max, vm_inherit_t inherit)
+{
+    kern_return_t ret = mach_vm_map(target, address, size, mask, flags, object, offset, copy, cur, max, inherit);
+    /* Extremely hot + called before our constructor: opt-in, and never before g_log. */
+    if (g_wrap_vmmap && g_log && object != MACH_PORT_NULL) {
+        pthread_mutex_lock(&g_lock);
+        uint64_t addr = address ? (uint64_t)*address : 0;
+        if (ret == KERN_SUCCESS && g_n_map < MAX_MAP) {
+            g_map[g_n_map].conn = 0; g_map[g_n_map].memType = 0xffffffff; /* mark: mach map */
+            g_map[g_n_map].addr = addr; g_map[g_n_map].size = size; g_n_map++;
+        }
+        fprintf(g_log, "VMMAP object=0x%x offset=0x%llx size=0x%llx flags=0x%x -> addr=0x%llx ret=0x%x\n",
+                object, (unsigned long long)offset, (unsigned long long)size, flags,
+                (unsigned long long)addr, ret);
+        fflush(g_log);
+        pthread_mutex_unlock(&g_lock);
+    }
+    return ret;
+}
+
 /* ---- interpose table ------------------------------------------------------ */
 DYLD_INTERPOSE(wrap_IOServiceOpen,             IOServiceOpen)
 DYLD_INTERPOSE(wrap_IOConnectCallMethod,       IOConnectCallMethod)
@@ -595,3 +714,6 @@ DYLD_INTERPOSE(wrap_IOConnectCallScalarMethod, IOConnectCallScalarMethod)
 DYLD_INTERPOSE(wrap_IOConnectCallStructMethod, IOConnectCallStructMethod)
 DYLD_INTERPOSE(wrap_IOConnectCallAsyncMethod,  IOConnectCallAsyncMethod)
 DYLD_INTERPOSE(wrap_IOConnectMapMemory64,      IOConnectMapMemory64)
+DYLD_INTERPOSE(wrap_IOConnectMapMemory,        IOConnectMapMemory)
+DYLD_INTERPOSE(wrap_mach_make_memory_entry_64, mach_make_memory_entry_64)
+DYLD_INTERPOSE(wrap_mach_vm_map,               mach_vm_map)
