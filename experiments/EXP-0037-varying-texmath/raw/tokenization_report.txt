@@ -1,0 +1,23 @@
+EXP-0037 tokenization: current isadb rule vs proposed EXP-0037 fixes
+(byte coverage %; every stream re-serializes byte-exact; ZERO regressions)
+kernel                    B  base%   new% exact
+k_tex_sample             58   100%   100%  True
+k_tex_array_cube        256    80%    92%  True
+k_tex_gather            162    74%   100%  True
+k_tex_msaa              124    71%    97%  True
+vary_va_vert            168    43%    74%  True
+v_basic_vert            258    74%    97%  True
+k_tex_atomic            988    71%    74%  True
+k_tex_compare           126    78%   100%  True
+k_tex_rw                100   100%   100%  True
+k_tex_lod               210    70%    99%  True
+r_tex_frag              214    97%    97%  True
+r_tex_vert              308    64%    97%  True
+r_deriv_frag            266    94%    95%  True
+CORE:k_float_arith       88    98%   100%  True
+CORE:k_int_arith        348    91%    91%  True
+CORE:k_matrix           202    95%   100%  True
+CORE:k_transcend        330    70%    75%  True
+CORE:k_subgroup_shuffle  214    97%    97%  True
+CORE:k_atomics          452    90%    90%  True
+TOTAL                  4872    80%    89%   regressions=0

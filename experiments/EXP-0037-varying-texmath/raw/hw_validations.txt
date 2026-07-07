@@ -1,0 +1,54 @@
+EXP-0037 hardware validations (all via tools/agxtest/agxrender on the real A18 Pro GPU;
+PIPELINE_SOURCE archive proves the spliced OWN-SHADER machine code ran). No GPU wedge / reboot.
+
+================================================================================
+PART 1 — VERTEX VARYING STORE  0x57  (splice the VS store, observe the interpolated FS pixel)
+================================================================================
+Shader: kernels/vary.metal, v_main writes VOut{ float4 pos[[position]]; float4 va; float4 vb; }.
+f_va returns in.va (vb dead-code-eliminated). Baseline = RGB gradient (va per-vertex
+0.9/0.1). Vertex _agc.main at archive abs offset 12160 (len 168). The 8 varying stores
+(each 8 bytes: 57 b1 b2 SRC SLOT 40 b6 00) at main-off 100..156. Position = va.x/y/z/w
+occupy output slots 0..3 (byte+4 = 0x00/20/40/60); user varying va.x/y/z/w = slots 4..7
+(byte+4 = 0x80/a0/c0/e0). Corner pixels of a 4x4 target (TL,TR,BL,BR) reported below.
+
+baseline                                  TL=0.498,0.451,0.149  TR=0.200,0.451,0.451  BL=0.800,0.149,0.149  BR=0.498,0.149,0.451
+
+--- byte+6 sweep (source-reg CANDIDATE -> inert) ---
+store4.b6 0x49->0x00   (abs 12298)        NO CHANGE   (all 4 stores' byte+6 -> 0x00 = no change) => byte+6 is NOT the value source
+store5.b6 0x4c->0x00   NO CHANGE
+store6.b6 0x4d->0x00   NO CHANGE
+store7.b6 0x4b->0x00   NO CHANGE
+
+--- byte+4 = OUTPUT SLOT (destination in the UVS/parameter buffer) [HW-PROVEN] ---
+store4(va.x).b4 0x80->0x00 (abs 12296)    TL/TR/BL=0,0,0,0 (BLACK) BR=1.000,0.149,0.200  => aliasing slot 0 (position) corrupts geometry
+store4(va.x).b4 0x80->0xa0 (=va.y slot)   R=1.000 everywhere (va.x slot now unwritten -> stale) => value relocated
+REDIRECT: store6(va.z).b4 0xc0->0x80 (=va.x slot) (abs 12312)
+                                          TL=0.149,0.451,1.000  TR=0.451,...  BL=0.149,...  BR=0.451,...
+   => the FS RED channel (reads va.x's slot) now shows va.z's BLUE gradient; B channel = 1.000 (va.z slot now unwritten/stale).
+   CLEAN PROOF: byte+4 selects which UVS output slot the varying value is written to.
+
+--- byte+3 = SOURCE register (the GPR value being emitted) [HW-PROVEN] ---
+store4(va.x).b3 0x08->0x00 (abs 12295)    R=0.000 everywhere; G,B unchanged  => byte+3 selects the stored value; store4 feeds the R (va.x) channel
+store4(va.x).b3 0x08->0x0c (=va.z src)    R takes va.z's gradient (TL R=0.149) => byte+3 = source-register selector
+
+--- byte+1 / byte+2 low bits = liveness/cache hints (inert) ---
+store4.b1 0x06->0x86 (position-style)     NO CHANGE
+store4.b2 0x55->0x54                      NO CHANGE
+
+--- position stores (slots 0..3) drive GEOMETRY, not colour [HW-PROVEN position-vs-varying] ---
+pos-store0.b3(source) -> 0x00 (abs 12263) ENTIRE OUTPUT BLACK 0,0,0,0  => corrupting a position source destroys the triangle
+pos-store2.b4(slot 0x40) -> 0x80          ENTIRE OUTPUT BLACK 0,0,0,0  => a position component redirected out of slots 0-3 leaves position incomplete -> degenerate triangle
+   => position occupies output slots 0-3 (byte+4 0x00/20/40/60); user varyings slots 4+. Same 0x57 opcode; the DISTINCTION is the output-slot range.
+
+================================================================================
+PART 2 — TEXTURE SAMPLE BUNDLE  (companion 05/25/45 80/82/84 0c  +  0xb0/0x90 sampler op)
+================================================================================
+Shader: kernels/texvary.metal, f_tex returns t.sample(s,in.uv); --tex-fill 200,40,20,255 (solid).
+Fragment _agc.main abs 14528 (len 124). Sample bundle at main-off 62:
+   05 80 0c b8 | b0 00 00 00 01 00 10 00 01 00   (companion 4B + sampler op 10B = 14B)
+
+baseline                                 pixel = 0.784,0.157,0.078,1.000  (= tex-fill red)
+op+4 tex-slot idx bit 0x01->0x81 (abs 14598)   STATUS CMDBUF_ERROR (contained fault) => op+4 = texture slot; setting the index bit selects unbound tex1 -> GPU fault (matches EXP-0016). Confirms this byte is inside the sampler op.
+op+2 variant 0x00->0x17 (2D read) (abs 14596)  no pixel change (solid texture, read path returns same texel) — ran OK
+companion result-desc 0xb8->0xa0 (abs 14593)   pixel 0.784,0.157,0.078 -> 0.784,1.000,0.000,0.000 => the 4-byte companion's byte+3 result-descriptor is functional and part of the bundle
+   => the 14-byte bundle boundary (companion + 10B sampler op) is HW-confirmed: splices inside it fault (op+4) or change the output (companion result-desc). The census mis-tokenized 0xb0 only because the tokenizer's companion gate required byte+1==0x80 exactly and missed the CHAINED companion forms (byte+1 = 0x82/0x84/0x88, i.e. high-nibble 8).

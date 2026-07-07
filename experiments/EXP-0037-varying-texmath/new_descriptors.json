@@ -1,0 +1,85 @@
+{
+  "_note": "EXP-0037 (A18 Pro / G17P): closes two census-undecoded groups -- (1) the VERTEX/mesh varying-emit store 0x57, and (2) the texture coordinate/address math (0x2e/0x26/0x92 + the 0xb0/0x90 sampler-op gating). CLEAN-ROOM: every byte is from OUR OWN compiled MSL (OWN-SHADER, tools/shdump --render + census archives); characterized by byte-diff, by tokenize-to-0-leftover re-serialization, and (for 0x57 and the sample bundle) by splice-and-observe on the real GPU via tools/agxtest/agxrender. The orchestrator merges this into tools/agx-isa/db.json + isadb.py (do NOT edit tools/agx-isa/ from this experiment). NOTE EXP-0038 runs concurrently.",
+
+  "_headline_findings": {
+    "varying_store": "The traditional VERTEX stage writes [[position]] + user varyings to the UVS/parameter buffer (which the FS then interpolates via the 0x2f iter op, EXP-0029) with a DEDICATED 8-byte memory-family store, byte0 0x57 (low-nibble 7, the store family alongside 0x67/0xe7/0xd7). It is NOT a distinct 'position' vs 'varying' opcode: byte+4 = the destination output slot; [[position]].xyzw occupy slots 0-3, user varyings slots 4+. byte+3 = the source GPR. All HW-splice-proven. The census 0x05/0x06 that were lumped with 0x57 are NOT a varying-store family: 0x05 = psel (conditional-select, already in the DB, used in the VS to COMPUTE per-vertex varying values) and 0x06 = the byte+1 sub-op of the already-decoded 0f06 reconverge / resync noise adjacent to the mesh 0xe7 emit stores. Mesh stages emit via 0xe7 (EXP-0030), not 0x57.",
+    "texture_0xb0": "0xb0/0x90 is the 10-byte SAMPLER OP -- the second half of the EXP-0016 14-byte sample bundle (4-byte companion + 10-byte sampler op). It needs a GATING fix, not a new length: the census mis-tokenized it because the tex_sample companion gate required byte+1 == 0x80 EXACTLY and so missed the CHAINED-companion forms (byte+1 in {0x82,0x84,0x88}, i.e. high-nibble 8, low bits = chained/coord-source flags) that precede the 2nd..Nth sample op in multi-sample kernels. Widening the gate to (byte+1 & 0xf0)==0x80 makes the whole 14-byte bundle absorb the 0xb0/0x90 op again.",
+    "texture_0x2e_0x26": "0x2e/0x26 (and most census '0x92' leaders) are FLOAT-ALU fused multiply/mul-add COORDINATE math, not a texture-only opcode -- they also fill the VERTEX matrix-vector product (mvp*pos). The census undecoded them because the float-ALU length rule (length = 8 if byte+2 bit1 else 6) mis-lengths the 6-byte fused-mul ops whose op-select byte+2 is 0x26/0x2e (both have bit1 set): consuming 2 extra bytes desynced the walk so it resynced onto the operand bytes (a0 / 26 / 2e / 92 ...) and reported them as bogus leaders. Correcting the float length for op-selects {0x26,0x2e} (6 or 8 by byte+4 bit1) + {0x18,0x38} (compact 4-byte accumulate) fixes both the texture coordinate math AND the vertex matrix multiply."
+  },
+
+  "length_rule_additions": {
+    "_comment": "Additions/fixes for tools/agx-isa/isadb.py::instr_length. Measured over 13 OWN-SHADER texture+render stage programs (3238 instruction bytes): byte-coverage 75% -> 89% overall (k_tex_gather 74->100, k_tex_msaa 71->97, k_tex_compare 78->100, k_tex_lod 70->99, v_basic vertex 74->97, r_tex vertex 64->97); every tokenized stream re-serializes BYTE-EXACT. See raw/tokenization_report.txt.",
+
+    "0x57": "8  [VERTEX/mesh varying + [[position]] store to the UVS/parameter buffer (the VS output the FS iter op interpolates, EXP-0029). Memory-family (low-nibble 7). byte+3 = source GPR, byte+4 = destination output slot (position=slots 0-3 -> byte+4 0x00/20/40/60; user varyings slots 4+). EXP-0037 HW-splice-proven.]",
+
+    "tex_sample_companion_gate_FIX": "The EXISTING tex_sample 14-byte rule gates the companion on `(b0 & 0x07)==0x05 and buf[off+1]==0x80 and buf[off+2]==0x0c`. CHANGE `buf[off+1]==0x80` to `(buf[off+1] & 0xf0)==0x80` so the CHAINED-companion forms (byte+1 0x82/0x84/0x88 seen before the 2nd..Nth sample op in k_tex_lod/gather/msaa/array_cube) also match and absorb their 10-byte 0xb0/0x90 sampler op. This is the fix that removes the census's standalone-0xb0/0x90/0x25/0x45 undecoded leaders. (byte0 already covers the 0x25/0x45 chained companions via (b0&0x07)==0x05.)",
+
+    "0x30/0x90/0xb0 (standalone sampler op)": "10  [FALLBACK: a bare sampler op (byte0 = result-reg<<4 | 0, i.e. 0x30/0x90/0xb0) not preceded by a matched companion -- only reachable via resync -- is 10 bytes. Gate tightly on byte+2 in the texture-variant set {0x00,0x04,0x07,0x09,0x13,0x17,0x1b,0x20,0x21,0x29,0x39,0x53,0x79,0x80,0x97} so it never over-claims a plain 0x90/0x30 operand byte. Belt-and-suspenders for census robustness; the companion-gate FIX above is the primary closer.]",
+
+    "float-ALU op-select length FIX (low-nibble 0x09)": "Replace the flat `return 8 if (buf[off+2] & 0x02) else 6` with an op-select-aware rule: byte+2 in {0x18,0x38} -> 4 (compact float accumulate); byte+2 == 0x1e -> 8 (fma); byte+2 in {0x26,0x2e} -> 8 if (byte+4 & 0x02) else 6 (fused mul / mul-add coordinate op -- these op-selects have byte+2 bit1 SET yet the 2-source form is 6 bytes, which the old rule mis-lengthed to 8); else 8 if (byte+2 & 0x02) else 6 (unchanged fadd/fmul/fma). 0x25 (est) stays 6 via the existing byte+2==0x25 branch. Safe: no existing HW-validated descriptor uses op-select 0x18/0x26/0x2e.",
+
+    "0xNb coord/addr setup (byte+2 in {0x27,0x2f})": "10  [Texture COORDINATE / LOD / gather-offset setup ALU. Leaders 0x2b/0x3b/0x4b/0x5b/0x6b/0x7b/0x8b/0x9b/0xab with byte+2 in {0x27,0x2f} and the `.. 00 42 00 00 0X 00 00` tail. The EXISTING 0xNb block returns 4 for these (the (b2&0xf0)==0x20 compact-move branch catches 0x27/0x2f), desyncing the texture streams; add an explicit `if (b0&0x0f)==0x0b and byte+2 in {0x27,0x2f}: return 10` BEFORE that branch. EXP-0037 inferred (clean tokenization + byte-exact re-serialization; role = coordinate math feeding tex_sample).]",
+
+    "0xNe coordinate ALU (low-nibble 0x0e, b0 != 0x0e, byte+2==0x23)": "10  [Coordinate/interp fused-mul ALU leader 0x2e/0x3e, 10-byte form `2e/3e b1 23 a0 42 00 00 06 02 00`. Distinct from the byte+2 op-select 0x26/0x2e case above (this is a byte0 LEADER). GATE ON byte+2 == 0x23 (the `23 a0 42` coordinate signature) -- do NOT fire on bare low-nibble-e resync bytes like `3e 00 0f 06` (that over-reach regressed k_atomics before the byte+2==0x23 gate was added). Exclude 0x0e (stop, matched earlier). EXP-0037 inferred.]",
+    "_regression_check": "With all fixes above, ZERO regressions across 19 OWN-SHADER stage programs (13 texture/render + 6 core compute: k_float_arith 98->100, k_matrix 95->100, k_int_arith/k_subgroup_shuffle/k_atomics unchanged, k_transcend 70->75); every stream re-serializes byte-exact. Total byte coverage 80% -> 89%."
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "vary_store",
+      "length": 8,
+      "match": [[0, 8, 87]],
+      "fields": [
+        {"name": "hint1",    "start": 8,  "width": 8, "type": "mod"},
+        {"name": "hint2",    "start": 16, "width": 8, "type": "mod"},
+        {"name": "src",      "start": 24, "width": 8, "type": "reg"},
+        {"name": "out_slot", "start": 32, "width": 8, "type": "imm"},
+        {"name": "b5",       "start": 40, "width": 8, "type": "raw"},
+        {"name": "hint6",    "start": 48, "width": 8, "type": "mod"},
+        {"name": "b7",       "start": 56, "width": 8, "type": "raw"}
+      ],
+      "semantics": "uvs_buffer[out_slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer that the fragment stage interpolates from (the FS 0x2f 'iter' op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of the 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (the scalar value emitted; HW: splicing it to r0 zeroed exactly the fragment channel this store feeds). byte+4 = DESTINATION OUTPUT SLOT, encoded (index<<5): [[position]].xyzw occupy slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings follow at slots 4+ (0x80/0xa0/0xc0/0xe0). ONE op per scalar component (a float4 varying = 4 stores). POSITION vs VARYING is NOT a distinct opcode -- it is the output-slot RANGE: HW-proven that redirecting a varying store's byte+4 relocates the interpolated colour, while corrupting a position store's source (byte+3) or moving a position component out of slots 0-3 (byte+4) degenerates the triangle (geometry, not colour). byte+5 = 0x40 (const observed); byte+1 and byte+2 low bits are source last-use/cache hints (splice-inert). byte+7 = 0x00. (Mesh/object stages instead emit via the 0xe7 device store, EXP-0030; 0x57 is the traditional-VS path.)",
+      "provenance": "HW-VALIDATED (EXP-0037): kernels/vary.metal, splice-and-render on the A18 Pro via agxrender. byte+4=output-slot proven by redirecting va.z's store slot 0xc0->0x80 (=va.x's slot) -> the FS RED channel then shows va.z's BLUE gradient; and by corrupting position slots -> degenerate (black) triangle. byte+3=source proven by store4.b3 0x08->0x00 -> RED channel = 0. byte+6 proven INERT (0x49->0x00 no change). Position-vs-varying = slot range, HW-proven. Length 8 = tokenizes all VS stores with 0 leftover, byte-exact re-serialization. raw/hw_validations.txt Part 1."
+    },
+    {
+      "mnemonic": "tex_coord_setup",
+      "length": 10,
+      "match": [[0, 4, 11], [16, 8, 47]],
+      "fields": [
+        {"name": "b0hi",  "start": 4,  "width": 4, "type": "raw"},
+        {"name": "b1",    "start": 8,  "width": 8, "type": "raw"},
+        {"name": "subop", "start": 16, "width": 8, "type": "opcode", "enum": {"39": "coord/LOD (0x27)", "47": "coord/interp (0x2f)"}},
+        {"name": "b3",    "start": 24, "width": 8, "type": "raw"},
+        {"name": "mark",  "start": 32, "width": 8, "type": "raw"},
+        {"name": "body",  "start": 40, "width": 40, "type": "raw"}
+      ],
+      "semantics": "Texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble b: 0x2b/0x3b/0x4b/0x5b/0x6b/0x7b/0x8b/0x9b/0xab, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias value / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample (one per coordinate component / LOD term). Field bit-packing byte-diff-inferred; the ROLE (feeds the sample) is established by position (always immediately precedes the sample bundle) + the EXP-0016 HW proof that op+1/op+3 name the coordinate registers these ops produce.",
+      "provenance": "inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length makes k_tex_gather/lod/compare/array_cube tokenize to the 0e stop with byte-exact re-serialization. Fields not individually splice-decoded (a coordinate splice needs a non-uniform bound texture, which agxrender's solid --tex-fill cannot provide); the coordinate-feeding role reuses EXP-0016's HW-validated op+1/op+3 coordinate operands."
+    },
+    {
+      "mnemonic": "coord_madf",
+      "length": 10,
+      "match": [[0, 8, 46], [16, 8, 35]],
+      "fields": [
+        {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+        {"name": "op",   "start": 16, "width": 8, "type": "raw"},
+        {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+        {"name": "mark", "start": 32, "width": 8, "type": "raw"},
+        {"name": "body", "start": 40, "width": 40, "type": "raw"}
+      ],
+      "semantics": "Coordinate/interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (and sibling 0x3e), 10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of the low-nibble-9 float group, throughout the vertex matrix-vector product -- i.e. it is a general fused mul/mul-add, not texture-specific. NOTE: this descriptor covers only the byte0-LEADER 0x2e/0x3e form; the far more common op-select-0x26/0x2e case is a low-nibble-9 float-ALU op and is handled by the float-ALU op-select length FIX (see length_rule_additions), NOT by this descriptor.",
+      "provenance": "inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length aligns k_tex_array_cube (`2e 87 23 a0 42 00 00 06 02 00`) cleanly between the sample bundles; byte-exact re-serialization. Semantics (fused mul-add) inferred from its co-occurrence in the mvp*pos matrix multiply; not splice-decoded."
+    }
+  ],
+
+  "census_0x05_0x06_resolution": {
+    "0x05": "psel -- conditional-select (branchless ternary), ALREADY in the DB (byte0 0x05, 4 bytes). In the VERTEX stage it computes per-vertex varying VALUES (e.g. vid==k ? A : B) that are then stored by 0x57. It is NOT a varying-store op. The census decoded it correctly (18 psel).",
+    "0x06": "NOT a distinct opcode leader. The census's single undecoded 0x06 (`06 02 e7 00 54 02 ...`) is resync noise adjacent to a mesh 0xe7 emit store, and/or the byte+1 sub-op of the already-decoded control-flow ops 0f06 (reconverge/mask-pop) and e7 06 (fragment colour store). No 0x06 varying-store family exists. Verified by fully tokenizing the vary_va/vary_vb/v_basic VS mains and the mesh main (raw/vertex_mains.txt): the only genuine varying/position store leader is 0x57; the value-computation region uses select-family ops (0x40/0x1a/0x21/0x2f...) that are a separate, non-store follow-up."
+  },
+
+  "not_addressed_followups": {
+    "vertex_select_family_0x40": "The VS per-vertex value computation (the vid==k?A:B selects that feed the 0x57 stores) uses a 0x40/0x1a/0x21 select/compare family this experiment did NOT decode -- it is why vary_va_vert stays at 74% (the 0x57 stores themselves tokenize cleanly). Out of scope for EXP-0037 (varying STORE + texture math); a follow-up.",
+    "k_tex_atomic_74pct": "The texel-address atomic-math kernel keeps the most residue (71->74%): it has the densest coordinate arithmetic (0x92/0x2c/0x1b interleaved). The named groups improve but a full bit-decode of the address-generation ALU is a follow-up.",
+    "coord_math_field_bits": "coord_madf / tex_coord_setup field bit layouts are byte-diff-inferred, not splice-decoded (agxrender's solid --tex-fill cannot make a coordinate change observable; a multi-texel texture harness -- EXP-0016's texr.m -- would be needed)."
+  }
+}

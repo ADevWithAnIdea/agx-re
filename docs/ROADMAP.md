@@ -172,7 +172,7 @@ tightened as they're decoded.
 
 ### Phase W — WRAP-UP (finish the original goal)
 - ☑ **W1** EXP-0036: DB 61 descriptors (round-trip 237 OK), `encoding-tables.md` (G-6 done), census ~82% bytes decoded.
-- ◐ **W2** Close census-flagged undecoded groups: **vertex/mesh varying-store `0x05/06/57`; half pack/unpack `0x18/0x30/0x38`; u64 carry-gen `0x32`; texture addr/interp math `0x2e/0xb0/0x92/0x26`; non-leaf frame prologue `0x6f`; simd/unpack `0x54`-cache variants.** Per-experiment files → merge.
+- ☑ **W2** *(EXP-0037/0038, pending merge)* Closed census groups: **vertex/mesh varying-store `0x05/06/57`; half pack/unpack `0x18/0x30/0x38`; u64 carry-gen `0x32`; texture addr/interp math `0x2e/0xb0/0x92/0x26`; non-leaf frame prologue `0x6f`; simd/unpack `0x54`-cache variants.** Per-experiment files → merge.
 - ☐ **W3** Emit `docs/isa/agx3.xml` (Mesa schema) + finalize `docs/isa/encoding-tables.md`.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.

@@ -553,6 +553,20 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   `0x17` unpack (keeping the `0x37` derivative-vs-quad-reduce split). *(descriptors staged in
   `experiments/EXP-0038-pack-carry-frame/new_descriptors.json` for merge.)*
 
+### ✅ Wrap-up decode: vertex varying-store + texcoord math (EXP-0037, closes census graphics gaps)
+- **Vertex varying-store `0x57`** (8 B, memory family, sibling of `0x67/0xe7/0xd7`): the VS writes `[[position]]` +
+  varyings to the UVS/parameter buffer that the FS `iter` op interpolates. **byte+3 = source GPR**, **byte+4 =
+  output slot (`index<<5`)** — HW-validated (redirecting a store slot moved that varying to a different FS channel).
+  **Position vs varying = the slot range** (position = slots 0–3, user varyings 4+), not a distinct opcode.
+- **Not stores:** `0x05` = `psel` (computes per-vertex varying *values*, already in DB); `0x06` = the `0f06`
+  reconverge sub-op / resync noise next to mesh `0xe7` emit. Mesh emits via `0xe7`, not `0x57`.
+- **`0xb0`/`0x90` = the 10-byte sampler op** (second half of the EXP-0016 14-byte texture bundle) — a **tokenizer
+  gating fix, not a missing instruction**: the `tex_sample` companion gate required `byte+1==0x80` exactly and missed
+  chained-companion forms; fix widens to `(byte+1 & 0xf0)==0x80`.
+- **`0x2e`/`0x26`/`0x92` = float fused-multiply coordinate math** (also the vertex `mvp*pos` product) — a **length-rule
+  fix, not a missing instruction**: op-select `0x26/0x2e` are 6/8-byte (by byte+4 bit1); the naive float length rule
+  mis-lengthed them. *(fixes + `vary_store` descriptor staged in `experiments/EXP-0037-varying-texmath/new_descriptors.json`.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
