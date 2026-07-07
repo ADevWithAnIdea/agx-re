@@ -52,6 +52,9 @@ shaders):
 | `0x0b` | float unary (fmov/neg/abs) | 10 |
 | `0x12` | float min/max | 6 |
 | `0x9f` | integer ALU | 10/12 — **not solved (follow-up)** |
+| low-nibble `0x5` + `byte+1==0x80` + `byte+2==0x0c` | **texture sample / read** (companion + sampler op) | 14 (EXP-0016 HW) |
+| `0xd7` | **texture write** (memory-family store) | 16 (EXP-0016 HW) |
+| `0x37` | **derivative** (dfdx/dfdy/fwidth) | 10 (EXP-0016) |
 
 ## Op-select field (float 2-source ALU, HW-VALIDATED, EXP-0005)
 
@@ -71,6 +74,7 @@ python3 agxisa.py asm      fadd srcA=1 srcB=0
 python3 roundtrip_test.py                 # ALL PASS
 ```
 
-Status: 8 instruction descriptors; **1 HW-validated** (`falu2`: fadd/fmul).
-The rest are inferred (byte-diff) or structural — see each descriptor's
-`provenance` and `../../PROVENANCE.md`.
+Status: **29 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+memory load/store, control flow, and — EXP-0016 — the texture family `tex_sample`,
+`tex_write`, `tex_deriv`). Remaining fields are inferred (byte-diff) or structural — see
+each descriptor's `provenance` and `../../PROVENANCE.md`.

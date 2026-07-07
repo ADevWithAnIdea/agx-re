@@ -20,6 +20,8 @@ Outcome vocabulary:
 | 4 | HW sampler supports arbitrary (Vulkan custom) border color | Vulkan wants RGBA border color | inspected the 8-byte sampler descriptor border field | **PARTIAL/NO** — only a 2-bit preset (transparent/black/white); arbitrary RGBA must be emulated | EXP-0015 |
 | 5 | HW anisotropy exceeds Metal's 16× cap | field is 3-bit log2 (→128×) | read the aniso field width | **PARTIAL** — field can encode up to 128×; >16× not yet run on hardware (probe candidate) | EXP-0015 |
 | 6 | Texture format/swizzle/sRGB/numeric-type are independent (Vulkan-shaped) | Vulkan separates these | varied each independently in the descriptor | **WORKS** — fully orthogonal; bgra8=rgba8+swizzle, depth32f=r32f code, sRGB is a flag | EXP-0015 |
+| 7 | Texture read & write use different HW paths (write is a plain store, not a sampler op) | asymmetry lets image stores bypass the filter unit | disassembled read vs write; write = 0xd7 store family | **WORKS** — read=format-converting sampler op, write=0xd7 store; relevant for Vulkan storage images | EXP-0016 |
+| 8 | Sample op+2 dimension/mode byte has spare encodings (offset-gather / extra gather comps) | only a subset of 256 values used | mapped the used op+2 values | **INCONCLUSIVE** — spare room exists; specific extra variants (texel-offset gather) not yet probed | EXP-0016 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

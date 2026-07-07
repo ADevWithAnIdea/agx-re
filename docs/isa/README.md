@@ -258,6 +258,30 @@ DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless not
   0x06 s> / 0x07 s<` (bits[1:3]=type float/uint/sint, bit0=lt/gt); byte+4 = `0x22 ordered / 0x26 equality`;
   result-negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op handles float and signed/unsigned int.
 
+### ✅ Texture / sample family (EXP-0016)
+- **Sample = 14-byte bundle:** a 4-byte coord/result **companion** (`05 80 0c CC`, byte0 low-nibble 5;
+  bit5 = chained 2nd tex op) + a 10-byte **sampler op** (byte0 `0xb0`/`0x90`, high nibble = result-reg
+  selector). Fields (`op+N`):
+  - **variant / dimension / LOD-mode = op+2:** `0x00` sample(implicit-LOD) · `0x04` grad · `0x07` bias ·
+    `0x09` level · `0x13` cube · `0x17` 2D read · `0x79` 3D read · `0x97` 2D-array read (bit7=array) ·
+    `0x80` MSAA read.
+  - **texture-slot = op+4** (bit `0x80` = index) — HW-validated (splice tex1→tex0 changed the pixel).
+  - **sampler-slot = op+5** — HW-validated (splice samp1→samp0 flipped linear→nearest).
+  - **coord = op+1** (+ preceding ALU); result reg = sampler-op byte0 hi + companion byte+3;
+    **filtered = op+6** (`0x10` sample vs `0x00` gather/read); explicit-LOD/bias present = op+7 bit2
+    (the LOD/bias/grad *value* comes from a register set up by a preceding ALU op).
+- **Texture read** = same sampler op, mode op+2 = `0x17/0x79/0x97/0x80`, no sampler (HW-validated).
+- **Texture write = `0xd7`, 16 bytes** — a **memory-family store** (sibling of `0x67`/`0xe7`), *not* the
+  sampler path (HW-validated).
+- **Texture queries** (`get_width/height/num_mip_levels/num_samples/array_size`) = **no instruction**:
+  compile to a preloaded-uniform read; the driver supplies the value from the texture descriptor.
+- **Derivatives = `0x37`, 10 bytes** (axis byte+6: `0x92`=dfdx, `0x90`=dfdy). Implicit-LOD sampling does
+  *not* emit `0x37` — LOD is computed inside the texture unit; `0x37` is only for source `dfdx/dfdy/fwidth`.
+- Slots op+4/op+5 index the Tier-2 argument-buffer texture/sampler tables (see `../cmdstream/`,
+  `../descriptors/`); single-resource shaders always encode slot 0.
+- ⏳ Follow-ups: result/coord register bit decode; `sample_compare` (depth PCF, distinct companion
+  low-nibble `0xd`); array/3D/cube/MSAA index-operand bit positions; derivative fine/coarse.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

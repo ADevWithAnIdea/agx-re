@@ -1,0 +1,78 @@
+=== 1. sample runs + coordinate->texel (f_sample, 4x4 grid, distinct texels) ===
+PIPELINE_SOURCE archive
+PIXEL 0 0 bgra=c000c0ff rgba=0.753,0.000,0.753,1.000
+PIXEL 1 0 bgra=c040d0ff rgba=0.816,0.251,0.753,1.000
+PIXEL 2 0 bgra=c080e0ff rgba=0.878,0.502,0.753,1.000
+PIXEL 3 0 bgra=c0c0f0ff rgba=0.941,0.753,0.753,1.000
+PIXEL 0 1 bgra=800080ff rgba=0.502,0.000,0.502,1.000
+PIXEL 1 1 bgra=804090ff rgba=0.565,0.251,0.502,1.000
+PIXEL 2 1 bgra=8080a0ff rgba=0.627,0.502,0.502,1.000
+PIXEL 3 1 bgra=80c0b0ff rgba=0.690,0.753,0.502,1.000
+PIXEL 0 2 bgra=400040ff rgba=0.251,0.000,0.251,1.000
+PIXEL 1 2 bgra=404050ff rgba=0.314,0.251,0.251,1.000
+PIXEL 2 2 bgra=408060ff rgba=0.376,0.502,0.251,1.000
+PIXEL 3 2 bgra=40c070ff rgba=0.439,0.753,0.251,1.000
+PIXEL 0 3 bgra=000000ff rgba=0.000,0.000,0.000,1.000
+PIXEL 1 3 bgra=004010ff rgba=0.063,0.251,0.000,1.000
+PIXEL 2 3 bgra=008020ff rgba=0.125,0.502,0.000,1.000
+PIXEL 3 3 bgra=00c030ff rgba=0.188,0.753,0.000,1.000
+STATUS OK
+=== 2. two_tex baseline t0(60,20,0,128)+t1(0,0,180,64) = (60,20,180,192) ===
+PIXEL 0 0 bgra=b4143cc0 rgba=0.235,0.078,0.706,0.753
+STATUS OK
+=== 3. TEXTURE-SLOT splice: sample#2 op+4 bit0x80 (tex1->tex0). expect t0+t0, blue->0 ===
+  _agc.main abs off=15200 ; splice byte 15284 0x81->0x01
+PIXEL 0 0 bgra=002878ff rgba=0.471,0.157,0.000,1.000
+STATUS OK
+=== 4. SAMPLER-SLOT splice: two_samp sample#2 op+5 (samp1->samp0), 8x8 grid ===
+  _agc.main abs off=15184 ; splice byte 15269 0x01->0x00
+  pixels changed by the sampler-slot splice: 55 / 64
+  sample of the change (row 0):
+< PIXEL 0 0 bgra=ff30ffff rgba=1.000,0.188,1.000,1.000
+< PIXEL 1 0 bgra=ff10ffff rgba=1.000,0.063,1.000,1.000
+< PIXEL 2 0 bgra=ff70ffff rgba=1.000,0.439,1.000,1.000
+< PIXEL 3 0 bgra=ff90ffff rgba=1.000,0.565,1.000,1.000
+< PIXEL 4 0 bgra=fff0ffff rgba=1.000,0.941,1.000,1.000
+> PIXEL 0 0 bgra=ff00ffff rgba=1.000,0.000,1.000,1.000
+> PIXEL 1 0 bgra=ff00ffff rgba=1.000,0.000,1.000,1.000
+> PIXEL 2 0 bgra=ff80ffff rgba=1.000,0.502,1.000,1.000
+> PIXEL 3 0 bgra=ff80ffff rgba=1.000,0.502,1.000,1.000
+> PIXEL 4 0 bgra=ffffffff rgba=1.000,1.000,1.000,1.000
+=== 5. texture.read (0xb0 mode 0x17): c_read reads texel[coord] into buffer ===
+PIPELINE_SOURCE archive
+OUT 0 0.000,0.000,0.000,1.000
+OUT 1 0.063,0.251,0.000,1.000
+OUT 2 0.125,0.502,0.000,1.000
+OUT 3 0.188,0.753,0.000,1.000
+OUT 4 0.251,0.000,0.251,1.000
+OUT 5 0.314,0.251,0.251,1.000
+OUT 6 0.376,0.502,0.251,1.000
+OUT 7 0.439,0.753,0.251,1.000
+OUT 8 0.502,0.000,0.502,1.000
+OUT 9 0.565,0.251,0.502,1.000
+OUT 10 0.627,0.502,0.502,1.000
+OUT 11 0.690,0.753,0.502,1.000
+OUT 12 0.753,0.000,0.753,1.000
+OUT 13 0.816,0.251,0.753,1.000
+OUT 14 0.878,0.502,0.753,1.000
+OUT 15 0.941,0.753,0.753,1.000
+STATUS OK
+=== 6. texture.write (0xd7): c_write moves buffer colours into texel[coord] ===
+PIPELINE_SOURCE archive
+TEXEL 0 0 0 rgba=0,239,0,255
+TEXEL 1 1 0 rgba=16,223,64,255
+TEXEL 2 2 0 rgba=32,207,128,255
+TEXEL 3 3 0 rgba=48,191,191,255
+TEXEL 4 0 1 rgba=64,175,0,255
+TEXEL 5 1 1 rgba=80,159,64,255
+TEXEL 6 2 1 rgba=96,143,128,255
+TEXEL 7 3 1 rgba=112,128,191,255
+TEXEL 8 0 2 rgba=128,112,0,255
+TEXEL 9 1 2 rgba=143,96,64,255
+TEXEL 10 2 2 rgba=159,80,128,255
+TEXEL 11 3 2 rgba=175,64,191,255
+TEXEL 12 0 3 rgba=191,48,0,255
+TEXEL 13 1 3 rgba=207,32,64,255
+TEXEL 14 2 3 rgba=223,16,128,255
+TEXEL 15 3 3 rgba=239,0,191,255
+STATUS OK

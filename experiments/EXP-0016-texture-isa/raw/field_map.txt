@@ -1,0 +1,46 @@
+EXP-0016 TEXTURE-SAMPLE FIELD MAP (from byte-diff of our own compiled shaders)
+
+Bundle = 4-byte companion [05/25 80 0c CC] + 10-byte sampler op. Offsets are
+within the 14-byte bundle. companion byte0 low-nibble=5 (bit5=chained 2nd tex op).
+
+shader       | comp: b0 b1 b2 b3 | op: +0 +1 +2 +3 +4 +5 +6 +7 +8 +9
+--------------------------------------------------------------------
+f_sample     | comp: 05 80 0c b8 | op: b0 00 00 00 01 00 10 00 01 00
+f_bias       | comp: 05 80 0c b8 | op: b0 00 07 00 01 00 10 04 01 00
+f_lod        | comp: 05 80 0c b8 | op: b0 00 09 00 01 00 10 04 01 00
+f_grad       | comp: 05 80 0c b8 | op: b0 00 04 01 00 00 10 00 01 00
+f_gather     | comp: 05 80 0c a4 | op: 90 00 00 00 01 00 00 00 01 00
+f_gather_y   | comp: 05 80 0c ac | op: 90 00 00 00 01 00 00 00 01 00
+f_sample_x   | comp: 05 80 0c a0 | op: 90 00 00 00 01 00 10 00 01 00
+f_read       | comp: 05 80 0c b8 | op: b0 00 17 01 00 01 00 00 01 00
+f_read_lod   | comp: 05 80 0c b8 | op: b0 00 17 01 00 01 00 04 01 00
+
+op-byte roles (op+N):
+  +0  = sample-family opcode; low-nibble 0, high-nibble = result-register selector (0xb0/0x90/0x30)
+  +1  = coordinate register
+  +2  = VARIANT / LOD mode: 0x00 sample(implicit) 0x04 grad 0x07 bias 0x09 level 0x17 read
+  +4  = TEXTURE-slot ref (bit7=0x80 is the tex-index bit; HW-validated tex1<->tex0)
+  +5  = SAMPLER-slot ref (0->0x00,1->0x01; HW-validated samp1<->samp0)
+  +6  = filter flag: 0x10 filtered sample; 0x00 for gather/read (unfiltered)
+  +7  = explicit-LOD/bias operand present (bit2=0x04 for bias/level/read_lod)
+companion byte+3 (CC): 0xb8 full sample, 0xa0 .x(1-comp), 0xa4 gather.x, 0xac gather.y
+
+TEXTURE DIMENSION / ACCESS MODE (op+2), from compute read/sample battery:
+  0x00 = 2D sample (implicit LOD)      0x09 = 2D sample_lod (level)
+  0x04 = 2D sample_grad                0x07 = 2D sample_bias
+  0x13 = cube sample                   0x17 = 2D read (integer coord, no sampler)
+  0x79 = 3D read                       0x97 = 2D-ARRAY read (0x17 | 0x80; bit7=array)
+  0x80 = 2D-MSAA read (sample index in op+3=0x14)
+  array/3D-z/MSAA-sample index operands are set up as extra coordinate regs by preceding
+  ALU; op+3 carries an operand reference (c_sample_array op+3=0x01, c_read_ms op+3=0x14).
+  op+7 bit2 (0x04) = explicit LOD/level present (c_read_lod, sample_bias, sample_lod).
+
+DEPTH COMPARE (sample_compare / PCF): a DISTINCT variant -- the companion byte0 is
+  low-nibble 0xd (0x0d..), not 0x5, and a preceding op (2c 80 23 3e ..) materializes the
+  compare reference (0.5). Not the plain sampler bundle. (Full decode = follow-up.)
+
+TEXTURE QUERIES (get_width/height/num_mip_levels/num_samples/array_size): NOT an
+  instruction. All five compile to BYTE-IDENTICAL code = a preloaded-uniform read
+  (0x97/0x1b move family) of an abstract slot; the value is supplied by the driver from
+  the texture descriptor. A two-query kernel (width+height) reads two adjacent uniform
+  slots (byte+6: 0x08 vs 0x18) -> property->slot by declaration order, resolved at bind.

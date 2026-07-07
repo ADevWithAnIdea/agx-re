@@ -96,6 +96,19 @@ def instr_length(buf, off=0):
         return 4                       # preamble / get_sr-like
     if b0 in (0x67, 0xe7):
         return 14                      # device load (0x67) / store (0xE7)
+    # ---- TEXTURE / SAMPLE family (EXP-0016, HW-validated) ----
+    # Texture sample & texture.read are a 14-byte bundle: a 4-byte coordinate/result
+    # "companion" (byte0 low-nibble 5, byte+1==0x80, byte+2==0x0c) immediately
+    # followed by the 10-byte sampler op (byte0 low-nibble 0 = the 0xb0/0x90 group;
+    # its high nibble is the result-register selector). Gate on the companion
+    # signature so it never collides with the 4-byte psel/sel (byte0 0x05/0x16).
+    if (lo == 0x05 and off + 2 < len(buf)
+            and buf[off + 1] == 0x80 and buf[off + 2] == 0x0c):
+        return 14                      # tex_sample / tex_read  (companion + sampler op)
+    if b0 == 0xd7:
+        return 16                      # texture WRITE (memory family; EXP-0016 HW)
+    if b0 == 0x37:
+        return 10                      # derivative / quad-difference (dfdx/dfdy); EXP-0016
     if lo == 0x09:
         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
         # NB: the 10-byte *extended source-modifier* form (abs; EXP-0006) also
@@ -912,6 +925,90 @@ DB = [
                      "(the metadata code length), not this in-band token.",
         "provenance": "HW-confirmed non-required (EXP-0003; EXP-0010 E4 splice = no-op).",
     },
+    # ---- TEXTURE / SAMPLE family (EXP-0016, HW-validated) --------------------
+    # A texture SAMPLE / texture.read is a 14-byte bundle: a 4-byte coordinate/result
+    # "companion" (byte0 low-nibble 5, byte+1=0x80, byte+2=0x0c) directly followed by
+    # the 10-byte sampler op (byte0 low-nibble 0 = the 0xb0/0x90 group). The same op
+    # serves BOTH implicit/explicit sample AND texture.read (read = variant 0x17,
+    # unfiltered, no sampler). Field offsets are within the 14-byte bundle.
+    {
+        "mnemonic": "tex_sample",
+        "length": 14,
+        "match": [(0, 4, 5), (8, 8, 0x80), (16, 8, 0x0c)],
+        "fields": [
+            {"name": "chain", "start": 4, "width": 4, "type": "mod"},        # byte0 hi: 0=first, 2=chained 2nd tex op
+            {"name": "rescomp", "start": 24, "width": 8, "type": "mod"},     # byte+3 result-width / gather component
+            {"name": "result_sel", "start": 32, "width": 8, "type": "reg"},  # byte+4: op-group(lo=0)+dst(hi nibble)
+            {"name": "coord", "start": 40, "width": 8, "type": "reg"},       # byte+5 coordinate register
+            {"name": "variant", "start": 48, "width": 8, "type": "opcode",   # byte+6 op/LOD mode
+             "enum": {"0": "sample", "4": "sample_grad", "7": "sample_bias",
+                      "9": "sample_lod", "23": "read"}},
+            {"name": "b7", "start": 56, "width": 8, "type": "raw"},
+            {"name": "tex_slot", "start": 64, "width": 8, "type": "imm"},     # byte+8 TEXTURE slot ref (bit7=index, HW)
+            {"name": "samp_slot", "start": 72, "width": 8, "type": "imm"},    # byte+9 SAMPLER slot ref (HW)
+            {"name": "filter", "start": 80, "width": 8, "type": "mod"},       # byte+10 bit4=filtered (sampler LOD)
+            {"name": "lodmode", "start": 88, "width": 8, "type": "mod"},      # byte+11 bit2=explicit LOD/bias operand
+            {"name": "tail", "start": 96, "width": 16, "type": "raw"},        # byte+12..+13
+        ],
+        "semantics": "r_result = texture[tex_slot].sample/read(sampler[samp_slot], coord, "
+                     "variant). variant (byte+6): 0x00 sample(implicit-LOD), 0x04 grad, "
+                     "0x07 bias, 0x09 level(explicit-LOD), 0x17 read(integer coord, no "
+                     "sampler). tex_slot = byte+4 (bit7 = the texture-index bit), samp_slot "
+                     "= byte+5. filter (byte+6 of the op = bundle byte+10) bit4 set for "
+                     "filtered sampling, clear for gather/read. LOD/bias/grad operand "
+                     "present flagged by bundle byte+11 bit2 (0x04); the operand register(s) "
+                     "are set up by preceding ALU. Result (4 comps for a full sample) is "
+                     "moved out of the texture-result registers by the following 0x97/mov "
+                     "ops. Same op in COMPUTE and FRAGMENT; implicit-LOD needs a fragment "
+                     "stage (LOD from derivatives).",
+        "provenance": "HW-VALIDATED (EXP-0016): tex_slot (byte+4 bit0x80 splice tex1->tex0 "
+                      "flipped the sampled colour), samp_slot (byte+5 splice samp1->samp0 "
+                      "flipped linear->nearest filtering over 55/64 pixels), sample runs & "
+                      "coordinate->texel (4x4 grid maps 1:1 to texels), texture.read variant "
+                      "(c_read returns texel[coord]). variant/rescomp/coord/dst bit positions "
+                      "byte-diff-localized across sample/bias/lod/grad/gather/read.",
+    },
+    {
+        "mnemonic": "tex_write",
+        "length": 16,
+        "match": [(0, 8, 0xd7)],
+        "fields": [
+            {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+            {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+            {"name": "data", "start": 24, "width": 16, "type": "reg"},   # byte+3/+4 source colour register(s)
+            {"name": "body", "start": 40, "width": 88, "type": "raw"},   # coord + texture-state descriptor tail
+        ],
+        "semantics": "texture[slot].write(color, coord). Memory-family store (byte0 0xd7, "
+                     "low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct "
+                     "from the sampler-path read: writes go through the store path, reads "
+                     "through the sample op (variant 0x17). Fragment or compute.",
+        "provenance": "HW-VALIDATED (EXP-0016): c_write moved buffer colours into texel[coord] "
+                      "exactly (read-back matched in[i]); byte+4 = source data register "
+                      "(0x00 write vs 0x20 read_write). coord/descriptor tail byte-diff.",
+    },
+    {
+        "mnemonic": "tex_deriv",
+        "length": 10,
+        "match": [(0, 8, 0x37)],
+        "fields": [
+            {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+            {"name": "dstsrc", "start": 16, "width": 24, "type": "raw"},   # byte+2..+4 dest/source regs
+            {"name": "src_comp", "start": 40, "width": 8, "type": "raw"},  # byte+5 source component
+            {"name": "axis", "start": 48, "width": 8, "type": "enum",      # byte+6 quad-difference axis
+             "enum": {"146": "dfdx", "144": "dfdy"}},
+            {"name": "tail", "start": 56, "width": 24, "type": "raw"},     # byte+7..+9 (0x40 const + regs)
+        ],
+        "semantics": "d = quad-difference derivative of a source varying (dfdx/dfdy/fwidth). "
+                     "byte0 0x37, 10 bytes; axis at byte+6 (0x92 = dfdx / X, 0x90 = dfdy / Y). "
+                     "Fragment-only (needs 2x2 quad helper lanes). Co-occurs with implicit-LOD "
+                     "sampling, which computes LOD from these derivatives internally (an "
+                     "explicit 0x37 is emitted only for source-level dfdx/dfdy/fwidth). Full "
+                     "fine/coarse decode is a follow-up.",
+        "provenance": "inferred (byte-diff, EXP-0016 render_deriv): four 0x37 ops = dfdx.x/"
+                      "dfdx.y/dfdy.x/dfdy.y with byte+6 = 0x92 (X) for the two dfdx, 0x90 (Y) "
+                      "for the two dfdy. HW: render_deriv produces the correct dfdx+dfdy pixel "
+                      "(EXP-0008). Length 10 tokenizes cleanly.",
+    },
 ]
 
 # Index by mnemonic for the assembler.
@@ -1076,6 +1173,11 @@ def to_json():
                 "0x05/0x16": "4  [conditional select (branchless if/ternary)]",
                 "0x0f": "10 if byte+1==0x00 (JUMP: 0f 00 54 <off6> 00, signed byte-rel); "
                         "other sub-ops (mask push/pop/reconverge) variable = follow-up",
+                "lownibble_0x5 + byte+1==0x80 + byte+2==0x0c":
+                        "14  [TEXTURE sample / read: 4B coord/result companion + 10B "
+                        "sampler op (0xb0/0x90). EXP-0016 HW-validated]",
+                "0xd7": "16  [TEXTURE write (memory-family store). EXP-0016 HW-validated]",
+                "0x37": "10  [derivative / quad-difference dfdx/dfdy/fwidth. EXP-0016]",
             },
         },
         "instructions": DB,
