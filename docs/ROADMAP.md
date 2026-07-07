@@ -192,8 +192,15 @@ register pressure/spill, exotic types, recursion, MRT, all texture dims, indirec
   textures/samplers/gather/PCF · subgroup/quad/matrix/RT · fragment interp/output/tilebuffer/ROG · machine model
   (96 GPR/uniform/spill) · SR/ABI/vertex-fetch · cmdstream compute+graphics+state+USC+indirect/occlusion/timestamp ·
   descriptors+format table · tiling/twiddle/compression/MSAA · TBDR pipeline · kernel-interface · capability matrix.
-- **DONE when:** every cluster has a committed adversarial-verification experiment, all discrepancies fixed &
-  re-tested, round-trip green, the byte0-census shows ~0 undecoded, and a final skeptical acceptance review passes.
+### COMPLETION CRITERIA (formal goal — mark complete only when all three hold)
+1. **Implementable-from-docs:** a *separate* acceptance-reviewer subagent, given ONLY `docs/`, confirms it
+   has enough to write a full GPU userspace from scratch (nothing else needed). [objective 1]
+2. **All Metal-exposed HW exercised:** a *separate* capability-coverage auditor confirms every capability
+   Metal exposes has been actually **provoked & tested on hardware** (`capability-completeness.md`
+   NOT-YET-CHARACTERIZED for Metal-exposed features -> 0; kernel-managed/microarch honestly excluded). [objective 2]
+3. **Overlapping verification, no holes:** every finding cluster checked by **multiple independent (overlapping)
+   red-team subagents that RAN falsification tests** and found no issues; all discrepancies fixed & re-tested;
+   round-trip green; byte0-census ~0 undecoded. [objective 3]
 
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
