@@ -97,6 +97,36 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
 
 ---
 
+## Definition of Done (the acceptance gate)
+
+**Goal:** clean-room RE the MacBook Neo's A18 Pro GPU enough to **fully implement a working
+userspace GPU driver using ONLY the documentation in `docs/`.**
+
+**Done is defined by an acceptance test, not by our own judgment:**
+
+> The goal is complete when a **dedicated acceptance-reviewer subagent** — whose sole job is
+> to scrutinize `docs/` with a critical eye, as if it were about to implement A18 Pro support
+> in Mesa from scratch — concludes that **everything it needs is present in this directory and
+> it would not need anything else** (no guessing, no peeking at Apple's stack, no gaps to fill
+> from outside `docs/`).
+
+Rules for that gate:
+- The reviewer's only source of **A18-specific truth is `docs/`**. It may assume general
+  knowledge of how a Mesa/Gallium+Vulkan userspace driver is structured (that's the target it's
+  implementing), but every A18 Pro hardware fact it relies on must be *in the documentation*.
+  If it would have to look at `gpu_knowledge/`, `mesa/`'s M1/M2 code, Apple's stack, or "just
+  figure it out," that is a **gap**.
+- The reviewer must be adversarial: hunt for missing encodings, unverified claims, hand-waved
+  "incantations," formats without bit layouts, and capabilities that are described but not
+  shown to work. Every gap it finds becomes a new work item; iterate until the gate passes.
+- Use interim gap-analysis reviews (same reviewer, run early and often) to *steer* the work —
+  the final run is just the last one that comes back clean. See Phase 5 in `docs/ROADMAP.md`.
+
+Corollary for how we write `docs/`: assume the reader has **never seen the hardware** and
+cannot run any experiment. Bit layouts must be exhaustive, encodings must be exact, every
+"magic value" must be explained or at least pinned down, and anything a driver must emit must
+be specified precisely enough to emit it without further RE.
+
 ## Target device & operational safety
 
 | | |

@@ -54,9 +54,13 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 - ☐ Tile size, imageblock/threadgroup memory, sample positions, partial render, memoryless targets, dispatch encoding — especially Dynamic-Caching-driven changes.
 - Deliverable: `pipeline/`.
 
-## Phase 5 — Synthesis & handoff
+## Phase 5 — Synthesis & handoff, and the ACCEPTANCE GATE
 - ☐ "Mesa A18 Pro userspace porting guide": per `src/asahi` module, what changes, with experiment citations.
 - ☐ Completeness cross-check against Mesa's M1/M2 module list.
+- ☐ **Acceptance gate (defines "done" — see `../CLAUDE.md` → Definition of Done):** a dedicated
+  reviewer subagent, given ONLY `docs/`, must conclude it could implement A18 Pro Mesa userspace
+  from scratch with **nothing else needed**. Run it early and often as a **gap-finder** to steer
+  the work; the project is complete when it returns clean. Every gap it reports → new work item.
 
 ---
 
