@@ -51,10 +51,23 @@ scales with bpp.
 48×48 rgba32? no — 48×48 r32 → 64×64×4 = 0x4000; 96×96 → 128×128×4 = 0x10000; already-pow2
 sizes are not padded.
 
-### 1.5 Block-compressed formats (BC/ASTC/ETC) — *inferred, not probed*
-Uncompressed formats twiddle over texels. Block-compressed formats are expected to apply the
-**same Morton curve over block coordinates** (e.g. 4×4-texel blocks), with the block's byte
-size as the effective "bytesPerPixel". Not HW-validated in EXP-0017.
+### 1.5 Block-compressed formats (BC/ASTC/ETC) — ✅ CONFIRMED (EXP-0028)
+Block-compressed formats apply the **same Morton curve over block coordinates**:
+`offset = morton(bx, by) · blockBytes` (blockBytes = 8 for BC1/BC4, 16 otherwise). HW-validated for
+BC1/BC7/ASTC-4×4/ASTC-8×8; the 8×8 case proves the curve is over the block *index*, independent of
+block texel size.
+
+### 1.6 Texture-type twiddle variants (✅ HW-validated, EXP-0028)
+- **Texture-type codes** (byte0 low nibble, **4-bit**): 1D=0, 1DArray=1, 2D=2, 2DArray=3, 2DMS=4,
+  3D=5, Cube=6, CubeArray=7, 2DMSArray=8. (Corrects EXP-0015's 3-bit reading.)
+- **3D** = stacked 2D-Morton planes (NOT a 3D Morton): `offset = (z·Wp·Hp + morton(x,y))·bpp`; only W,H
+  are pow2-padded, depth is linear/unpadded.
+- **2DArray / Cube / CubeArray** = each layer/face an independent pow2-padded Morton plane, linear-stacked:
+  `offset = (layer·Wp·Hp + morton(x,y))·bpp`. Cube ≡ 6-layer array; CubeArray stores arrayLength in cubes.
+- **1DArray** = linear rows (1D isn't twiddled), stacked with `stride = max(nextpow2(W)·bpp, 128 B)`.
+- **MSAA sample interleave:** samples are the **lowest** address bits (sample-major per pixel):
+  `offset = (N·morton(x,y) + sample)·bytesPerSample`. HW-confirmed N=2, N=4 (**8× unsupported**); 4×
+  engages MSAA lossless compression at ≥8×8 (aux buffer, like color compression).
 
 ---
 

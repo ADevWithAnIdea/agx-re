@@ -265,3 +265,24 @@ Reproduced so an implementer knows the exact boundary of what is validated:
 
 Full tables above are for the **uncompressed color/integer formats actually captured**; anything not
 listed in §2 has an untested descriptor code.
+
+## Extended format codes (EXP-0028) — 60 formats captured
+
+All reuse `byte1 = numtype<<5 | sizeclass`, `byte0 = type[0:3] | chanArr[4:7]`; sRGB/numtype/swizzle stay orthogonal. New **sizeclass** codes beyond the 31-format table:
+
+| family | sizeclass code | notes |
+|---|---|---|
+| PVRTC (legacy) | `0x14` | |
+| ETC2 | `0x16` | EAC-RG11 = `0x17` |
+| ASTC 4×4 / 5×5 | `0x18` | chanArr nibble picks block shape |
+| ASTC 6×6 / 8×8 | `0x19` | |
+| ASTC 10×10 | `0x1a` | |
+| ASTC 12×12 | `0x1b` | |
+| BC1–BC4 | `0x1d` | BC1/BC4 = 8-byte blocks |
+| BC5 / BC6H / BC7 | `0x1e` | 16-byte blocks |
+
+- **numtype 5 = extended-range (XR)** (`bgr10_xr`, `bgra10_xr`). HDR-ASTC = numtype float; signed BC/EAC = numtype snorm.
+- **Depth/stencil reuse color codes** (depth-ness is only in the default swizzle): `depth16unorm`=r16unorm, `depth32float`=r32float, `stencil8`=r8uint.
+- **Texture-type field is 4-bit** (byte0 low nibble): 1D=0, 1DArray=1, 2D=2, 2DArray=3, 2DMS=4, 3D=5, Cube=6, CubeArray=7, 2DMSArray=8.
+- **Unsupported on A18 Pro** (rejected by Metal): `depth24unorm_stencil8`, `x24_stencil8` — Z/S are separate resources.
+- ⏳ untested/opaque: `byte0` chanArr internal bit-split; 8/14 ASTC block-shape nibbles; depth32float_stencil8 stencil-aspect code; MSAA/lossless-compression codec.
