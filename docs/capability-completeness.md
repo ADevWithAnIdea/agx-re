@@ -6,13 +6,20 @@ sources, and maps each to its **hardware representation** and current **RE statu
 tracker the roadmap's "Capability census" axis (`ROADMAP.md` → SECONDARY GOAL) grades against, and the
 place the **NOT-YET-CHARACTERIZED** backlog lives.
 
-> **Status: synthesis (host-only, no new RE).** Every classification is taken from an
-> already-established finding in `docs/` (cited inline) or is an honest **NOT-YET-CHARACTERIZED** mark
-> for a Metal/MSL/WWDC-advertised capability whose A18 hardware representation is **not yet shown** in
-> `docs/`. No Apple binary was introspected; this file reads only our own `docs/`, the public MSL spec
-> / Metal feature tables (via `docs/isa/msl-feature-map.md`, our clean index into them), the public
-> WWDC/Tech-Talk material in `gpu_knowledge/apple_official/wwdc/`, and the `MTLDevice` capability probe
-> in `hardware-overview.md` §3.
+> **Status: synthesis (host-only, no new RE) — re-synced against findings through EXP-0038.** Every
+> classification is taken from an already-established finding in `docs/` (cited inline) or is an honest
+> **NOT-YET-CHARACTERIZED** mark for a Metal/MSL/WWDC-advertised capability whose A18 hardware
+> representation is **not yet shown** in `docs/`. Since the census was first written (when it stood at
+> native 110 · NYC 89) the following experiments closed large tracts of the backlog and their statuses
+> are now folded in: **EXP-0025** async HW-interlock, **EXP-0026** transcendentals, **EXP-0027**
+> indirect/occlusion/timestamp, **EXP-0028** formats + 3D/cube/array/MSAA twiddle, **EXP-0029** fragment
+> interp/output/tilebuffer/ROG, **EXP-0030** mesh, **EXP-0031** SR/preload ABI + software vertex-fetch,
+> **EXP-0033** int/bitfield incl. 64-bit + find-MSB, **EXP-0034** texture variants incl.
+> sample_compare/gather/image-atomics, **EXP-0035** function/pointer/dylib ABI, **EXP-0037** vertex
+> varying-store, **EXP-0038** half-pack/carry/frame. No Apple binary was introspected; this file reads
+> only our own `docs/`, the public MSL spec / Metal feature tables (via `docs/isa/msl-feature-map.md`,
+> our clean index into them), the public WWDC/Tech-Talk material in `gpu_knowledge/apple_official/wwdc/`,
+> and the `MTLDevice` capability probe in `hardware-overview.md` §3.
 
 ## How to read this
 
@@ -26,7 +33,9 @@ Two source columns drive the census, per `../CLAUDE.md`:
 - **native-decoded** — the hardware does it and we have **decoded its HW representation** (instruction
   encoding / descriptor field / cmdstream field), HW-validated where noted. A trailing *(partial)*
   means the capability is proven native and its principal encoding is decoded, but some sub-fields are
-  still ⏳ byte-diff-inferred (see the cited doc).
+  still ⏳ byte-diff-inferred (see the cited doc). A trailing *(lowered)* means the MSL construct has no
+  dedicated silicon but the compiler expansion into native ops is decoded & HW-validated — it is
+  characterized (not a Vulkan-must-emulate absence).
 - **emulated** — the hardware **lacks** it (or Metal exposes no path and none is proven) → a Vulkan/GL
   driver must software-emulate. Includes HW-validated absences and classically-Apple-absent stages.
 - **kernel-managed** — real hardware state, but **firmware/register-managed** → routed through the
@@ -40,7 +49,8 @@ Two source columns drive the census, per `../CLAUDE.md`:
 observed via output/counters), `UNKNOWN` (not yet located).
 
 Honesty rule (`../CLAUDE.md`): a capability is only **native-decoded** if `docs/` actually shows the
-encoding. "Metal accepts it" or "a doc mentions it" is **not** decoded — those are NYC.
+encoding AND `PROVENANCE.md` shows it was HW-exercised. "Metal accepts it" or "a doc mentions it" is
+**not** decoded — those are NYC.
 
 ---
 
@@ -51,35 +61,35 @@ encoding. "Metal accepts it" or "a doc mentions it" is **not** decoded — those
 | 32-bit int ALU (add/sub/mul/mad) | MSL §6.3 (A1) | instruction `0x9f/0x1f` iadd/isub, `0x9f` 12B imul/imad | native-decoded | `isa` "Integer ALU" EXP-0007 |
 | 32-bit float ALU (add/sub/mul) | MSL §3.1/§6.5 (A1) | instruction `0x09` falu2, op-select bits[16:19] | native-decoded | `isa` EXP-0005/0006 |
 | Fused multiply-add (fma / contraction) | MSL §6.5, §1.6.3 (A2) | instruction `0x09` 8-byte form (srcC byte+5) | native-decoded | `isa` "Scalar ALU completion" EXP-0013 |
-| 16-bit (`half`) ALU, 2 halves/GPR | MSL §2.1 (A1); WWDC "FP16 peak throughput" | instruction `0x10`/`0x11` half-ALU groups | native-decoded (partial) | `isa` EXP-0006/0013/0020 |
+| 16-bit (`half`) ALU, 2 halves/GPR | MSL §2.1 (A1); WWDC "FP16 peak throughput" | instruction `0x10`/`0x11` half-ALU (`0x1c` hadd/`0x1d` hmul; `half2` packs both lanes); half-pack `0x18` | native-decoded | `isa` EXP-0033/0038 |
 | Free FP16↔FP32 convert | WWDC "conversion costs nothing"; MSL §8.6 | `0x11` (f32→f16); f16→f32 = falu2 16-bit srcA; `as_type` = no op | native-decoded | `isa` EXP-0013 |
 | int↔float convert (RTZ f→i) | MSL §8.6 (A6) | instruction `0x27` (f→i, RTZ), `0xa7` (i→f); sign byte+7 bit6 | native-decoded | `isa` EXP-0013 |
 | int↔uint / bit-reinterpret | MSL §2.22 (A6) | no instruction (free) | native-decoded | `isa` EXP-0013 |
 | min/max (int & float) | MSL §6.3/§6.5 (A3) | instruction `0x02` (int), `0x12` (float, IEEE minNum/maxNum) | native-decoded | `isa` EXP-0007/0013 |
 | Float round modes (floor/ceil/trunc/rint) | GL/Vulkan; MSL §6.5 | instruction `0x2f/0xaf` round-mode field byte+8 (0/2/4/6) | native-decoded | `isa` EXP-0013; `hypotheses` #2 |
-| exp2 / log2 | MSL §6.5 (A5) | instruction `0x2f/0xaf` group | native-decoded | `isa` EXP-0013 |
+| exp2 / log2 | MSL §6.5 (A5) | instruction `0x2f/0xaf` SFU single op | native-decoded | `isa` EXP-0013/0026 |
 | Typed compare (float/sint/uint) → select | MSL §6.4 (A8) | instruction `0x12` icmpsel, type bits[1:3] byte+6 | native-decoded | `isa` EXP-0013; `hypotheses` #3 |
 | select / ternary / csel | MSL §6.4 (A8) | instruction `0x05`/`0x16` (4B) select | native-decoded | `isa` "Control flow" EXP-0010 |
 | Boolean logic / **all 16 logic ops** | Vulkan logic-op; MSL §3.1 | instruction `0x0b` ilogic = full 2-input LUT | native-decoded | `isa` EXP-0013; `hypotheses` #1 |
 | Shifts (`<<`, arithmetic/logical `>>`, imm) | MSL §6.3 (A9) | instruction `0x9f` (`<<`), `0xa7` (`>>`, bfe) | native-decoded | `isa` EXP-0013 |
-| `extract_bits` | MSL §6.3 (A9) | instruction `0xa7` 12-byte extract | native-decoded | `isa` EXP-0013 |
-| popcount | MSL §6.3 (A9) | instruction `0x27` unary | native-decoded (partial) | `isa` EXP-0007/0013 |
-| `insert_bits` | MSL §6.3 (A9) | UNKNOWN (may expand to shift/mask) | NOT-YET-CHARACTERIZED | `msl-feature-map` A9 |
-| `clz` / `ctz` (count leading/trailing zero) | MSL §6.3 (A9) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A9 |
-| `reverse_bits` | MSL §6.3 (A9) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A9 |
-| `rotate` / funnel shift | MSL §6.3 (A9) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A9 |
+| `extract_bits` | MSL §6.3 (A9) | instruction `0xa7` 12-byte extract (signed = +sign-ext shift) | native-decoded | `isa` EXP-0013/0033 |
+| popcount | MSL §6.3 (A9) | instruction `0x27 05 56` (8B, single op) | native-decoded | `isa` EXP-0007/0033 |
+| `insert_bits` | MSL §6.3 (A9) | no dedicated op — lowered (mask `0x0b` + shift `0x2b` + combine `0x9f`) | native-decoded (lowered) | `isa` EXP-0033 |
+| `clz` / `ctz` (count leading/trailing zero) | MSL §6.3 (A9) | find-MSB native (`a7 05 56`); clz/ctz = multi-instr lowering (ctz adds `0x2b`) | native-decoded (lowered) | `isa` EXP-0033; `hypotheses` #23 |
+| `reverse_bits` | MSL §6.3 (A9) | instruction `a7 04 56` (8B, single op) | native-decoded | `isa` EXP-0033 |
+| `rotate` / funnel shift | MSL §6.3 (A9) | rotate-imm = single `0x27` 12B funnel (byte+1=`0x01`); by-register = multi-instr | native-decoded | `isa` EXP-0033 |
 | Packed float immediate (8-bit minifloat) | (encoding fact) | instruction srcB minifloat, 4exp/3mant bias-11 | native-decoded | `isa` EXP-0006 |
-| reciprocal / rsqrt / sqrt (estimate+refine) | MSL §6.5 (A4/A5) | instruction `0x29` estimate seed + Newton-Raphson **sequence ⏳** | NOT-YET-CHARACTERIZED | `isa` EXP-0013 ⏳; `ROADMAP` G-2 |
-| sin / cos / tan / exp / log / pow | MSL §6.5 (A5) | range-reduction + `exp2`/`log2` **sequence ⏳** (not a single op) | NOT-YET-CHARACTERIZED | `isa` EXP-0013 ⏳; `ROADMAP` G-2 |
-| min3 / max3 / median3 (3-source) | MSL §6.3 (A3) | UNKNOWN (3-src form) | NOT-YET-CHARACTERIZED | `msl-feature-map` A3 |
-| pack/unpack normalized (`unpack_unorm4x8`, `snorm10a2` new-in-Metal4) | MSL §6.14 (A7) | UNKNOWN (real ops vs shift/mask) | NOT-YET-CHARACTERIZED | `msl-feature-map` A7 |
+| reciprocal / rsqrt / sqrt (estimate+refine) | MSL §6.5 (A4/A5) | SFU single-op `0x2f/0xaf`; precise = `0x29` seed (~8-bit) + 2 NR iters (0 ULP) | native-decoded | `isa` EXP-0026; `hypotheses` #19 |
+| sin / cos / tan / exp / log / pow | MSL §6.5 (A5) | range-reduce (`0x2b`) + poly; `pow=exp2(b·log2 a)`; `a/b=a·rcp(b)` (composed, HW-validated) | native-decoded | `isa` EXP-0026; `hypotheses` #20 (large-arg trig → SW Payne-Hanek) |
+| min3 / max3 / median3 (3-source) | MSL §6.3 (A3) | no dedicated silicon — lowered to 2-input `0x02` int min/max | native-decoded (lowered) | `isa` EXP-0033 |
+| pack/unpack normalized (`unpack_unorm4x8`, `snorm10a2` new-in-Metal4) | MSL §6.14 (A7) | `pack_unorm2x16` = single `0x97`, unpack = single `0x17`; `as_type` free (4× variants ⏳) | native-decoded (partial) | `isa` EXP-0033 |
 | `bfloat` general ALU | MSL §2.1 (Metal 3.1+); WWDC | instruction: bfloat proven in matrix unit (dtype `0x02`); general-ALU path UNKNOWN | NOT-YET-CHARACTERIZED | `isa` EXP-0022 (matrix only) |
-| 64-bit (`long`/`ulong`) integer ALU | MSL §2.1 | UNKNOWN (only 64-bit *atomic* min/max glimpsed) | NOT-YET-CHARACTERIZED | `isa` EXP-0018 (atomics only) |
+| 64-bit (`long`/`ulong`) integer ALU | MSL §2.1 | native single-op 64-bit add/sub (`0x1f`, HW carry-out; `0x32` carry-gen); 32×32→64 mul = one `0x9f`; shift/compare multi-instr | native-decoded | `isa` EXP-0033/0038; `hypotheses` #24 |
 | **2× parallel FP16/FP32/int ALU pipelines** | WWDC "up to 2× ALU" | microarch (dual-issue) — observable via throughput microbench / counters | NOT-YET-CHARACTERIZED | WWDC §1.3 |
 | Double precision (fp64) | (absent) | not exposed by MSL on Apple GPUs | emulated | premise (`ROADMAP` "Known premises") |
 | Vector/matrix arithmetic (`float4`, `float4x4`) | MSL §2.2/§2.3 | composed of scalar/packed ALU + vector load/store (`count`) | native-decoded | `isa` EXP-0012 (vector load) |
 
-Section tally: native-decoded 18 · emulated 1 · NYC 11.
+Section tally: native-decoded 27 · emulated 1 · NYC 2.
 
 ---
 
@@ -92,17 +102,17 @@ Section tally: native-decoded 18 · emulated 1 · NYC 11.
 | Exec-mask push / else / pop / reconverge | (structured CF) | instruction `0x0f` sub-ops (byte+1: 00/05/01/06) | native-decoded (partial) | `isa` EXP-0010 |
 | Early return | MSL §5.11 (A10) | predication + program end (out-of-band length) | native-decoded | `isa` EXP-0010 |
 | Program termination | (structure) | out-of-band (section/pipeline metadata); last store is last effective op | native-decoded | `isa` EXP-0003/0010 |
-| `while_icmp` / `while_fcmp` / `break` explicit forms | Mesa `agx_compile.c`; MSL §5.11 | UNKNOWN (only jump/push/else/pop decoded) | NOT-YET-CHARACTERIZED | `mesa-req` §2a; `ROADMAP` G-13 |
-| Function calls / `[[visible]]` / call-return ABI | MSL §5.1.4/§2.15 (A11); `supportsFunctionPointers=YES` | instruction: `r1`=link identified; call/return + stack ABI UNKNOWN | NOT-YET-CHARACTERIZED | `isa` EXP-0010 (r1 only); `hw-overview` §3 |
-| Indirect call / `visible_function_table` | MSL §2.15 (A11) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A11 |
-| Recursion (compute, Metal 2.4+) | MSL §1.5.4 | UNKNOWN (stack frame) | NOT-YET-CHARACTERIZED | `msl-feature-map` A11 |
+| `while`/`break` (loop CF forms) | Mesa `agx_compile.c`; MSL §5.11 | no distinct op — predication + backward jump `0x0f`; whole corpus tokenizes to 0 leftover bytes (no undecoded CF op) | native-decoded | `isa` EXP-0010/0036 |
+| Function calls / `[[visible]]` / call-return ABI | MSL §5.1.4/§2.15 (A11); `supportsFunctionPointers=YES` | CALL `0f 05 54…8f` (target=call+4+off40); RETURN `8f` (HW link reg); args r10+, ret r10; non-leaf frame `0x6f`+`0x07` link save/restore | native-decoded | `isa` EXP-0035/0038 |
+| Indirect call / `visible_function_table` | MSL §2.15 (A11) | `visible_function_table` = flat array of 8B code VAs (Tier-2 slot); indirect call `0f 80` | native-decoded | `isa` EXP-0035 |
+| Recursion (compute, Metal 2.4+) | MSL §1.5.4 | lowered to loop (tail); statically bounded; non-leaf frame to per-thread scratch | native-decoded | `isa` EXP-0035/0038 |
 | Function constants (uber-shader specialization) | WWDC 111373; MSL §5.8 | compiler (compile-time fold, no runtime HW encoding) | native-decoded (n/a HW) | WWDC 111373 §1 |
 | Function groups (indirect-call optimization) | WWDC 111373 | compiler (linkage hint) | native-decoded (n/a HW) | WWDC 111373 §1 |
-| Dynamic libraries / render dynamic libraries | `supportsDynamicLibraries=YES` | linkage ABI UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3 |
-| Stack / scratch spill (fill) | MSL §4.3 (A13); WWDC Dynamic Caching | scratch load/store **ops UNKNOWN**; behavior proven (>96 GPR spills correctly) | NOT-YET-CHARACTERIZED | `isa` EXP-0020 (behavior); `ROADMAP` G-13 |
+| Dynamic libraries / render dynamic libraries | `supportsDynamicLibraries=YES` | Mach-O `MH_DYLIB` (filetype 14) with AGX code; symbol resolved at pipeline-build (loader = kernel item) | native-decoded | `isa` EXP-0035 |
+| Stack / scratch spill (fill) | MSL §4.3 (A13); WWDC Dynamic Caching | behavior proven (>96 GPR spills); non-leaf frame link save/restore = `0x07` (EXP-0038); scratch-base ABI ⏳ | native-decoded (partial) | `isa` EXP-0020/0035/0038 |
 | Shader `printf` | MSL §6.17 | UNKNOWN (printf buffer) | NOT-YET-CHARACTERIZED | `msl-feature-map` (unlisted) |
 
-Section tally: native-decoded 7 · NYC 7.
+Section tally: native-decoded 13 · NYC 1.
 
 ---
 
@@ -120,11 +130,11 @@ Section tally: native-decoded 7 · NYC 7.
 | **Async completion = HW register interlock** (no scoreboard) | (model; vs G13 scoreboard) | microarch: consumer of pending dst stalls in HW; no `wait` op | native-decoded | `isa` "Async completion" EXP-0025 |
 | `threadgroup_barrier` (mem-scope) | MSL §6.9.1 | instruction `0x07` 6B, byte+3 = fenced scope (`0x61` tg / `0x85` device) | native-decoded | `isa` EXP-0025 |
 | `simdgroup_barrier` | MSL §6.9.1 | no op (lockstep SIMD) | native-decoded | `isa` EXP-0025 |
+| Fragment / tilebuffer ordering (`wait_pix`/`signal_pix`) | Mesa; MSL §5.2 | `pixel_order` = `0x07` fence family (acquire `07 14 54 50 06` / release `07 04 54 d0 06`) | native-decoded (partial) | `isa` EXP-0029 |
 | Memory order / `coherent(device)` / fence bits | MSL §4.8 | instruction: `_explicit` memory-order → fence bits ⏳ | NOT-YET-CHARACTERIZED | `isa` EXP-0012 ⏳ |
-| Fragment / tilebuffer ordering (`wait_pix`/`signal_pix`) | Mesa; MSL §5.2 | UNKNOWN (fragment analogue of EXP-0025 interlock) | NOT-YET-CHARACTERIZED | `isa` EXP-0025 follow-up; `ROADMAP` G-13 |
 | Flexible on-chip memory (unified cache: reg/tg/tile/stack/buffer) | WWDC §1.2 | microarch (unified L1) — observable via cache-hit counters | NOT-YET-CHARACTERIZED | WWDC §1.2 |
 
-Section tally: native-decoded 10 · NYC 3.
+Section tally: native-decoded 11 · NYC 2.
 
 ---
 
@@ -138,12 +148,12 @@ Section tally: native-decoded 10 · NYC 3.
 | **Float atomic add** | MSL §6.15.4.5 (device only) | instruction op `0x26` (fadd) | native-decoded | `isa` EXP-0018 |
 | Atomic scope: device vs threadgroup | MSL §6.15 | instruction byte+1 bit1 | native-decoded | `isa` EXP-0018 |
 | SIMD-reduced atomic to uniform address (opt) | (optimization) | SIMD-reduce → one-lane RMW → broadcast | native-decoded | `isa` EXP-0018 |
+| Texture / image atomics (Metal 3.1+, cube in Metal 4) | MSL §6.12 | native — lower to memory-family device atomic `0x67`, texel addr in-shader (texture2d byte+1 `0x11`, op `|0x40`) | native-decoded | `isa` EXP-0034; `hypotheses` #25 |
 | **Float atomic min / max** | Vulkan wants; MSL rejects | (no MSL path; absent) | emulated | `isa` EXP-0018; `hypotheses` #9 |
 | **64-bit atomic add** | Vulkan wants; MSL rejects | (no MSL path; absent) | emulated | `isa` EXP-0018; `hypotheses` #9 |
 | 64-bit atomic min/max | MSL §6.15.4.6 | instruction: exists (width field ⏳ not decoded) | NOT-YET-CHARACTERIZED | `isa` EXP-0018 (existence only) |
-| Texture atomics (Metal 3.1+, cube in Metal 4) | MSL §6.12 | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A15 |
 
-Section tally: native-decoded 6 · emulated 2 · NYC 2.
+Section tally: native-decoded 7 · emulated 2 · NYC 1.
 
 ---
 
@@ -152,11 +162,11 @@ Section tally: native-decoded 6 · emulated 2 · NYC 2.
 | Capability | Source | HW representation | Status | Ref |
 |---|---|---|---|---|
 | Sample (implicit-LOD, from derivatives) | MSL §6.12 (A15) | instruction `0xb0/0x90` sampler op, op+2 `0x00` | native-decoded | `isa` "Texture / sample" EXP-0016 |
-| Sample bias / explicit level / gradient | MSL §6.12 (A15) | instruction op+2 `0x07`/`0x09`/`0x04` | native-decoded | `isa` EXP-0016 |
-| Gather (2×2) | MSL §6.12.3 (A15) | instruction op+2 mode; op+6 filtered vs gather | native-decoded (partial) | `isa` EXP-0016 |
+| Sample bias / explicit level / gradient | MSL §6.12 (A15) | instruction op+2 `0x07`/`0x09`/`0x04`; op+7 bit2 = explicit-LOD/bias present | native-decoded | `isa` EXP-0016/0034 |
+| Gather (2×2) | MSL §6.12.3 (A15) | instruction op+6 `0x00` + companion+3 component field (bit2=gather, bits[3:5]=RGBA) | native-decoded | `isa` EXP-0016/0034 |
 | Image read (load) | MSL §6.12 (A15) | instruction sampler op, mode op+2 `0x17/0x79/0x97/0x80` | native-decoded | `isa` EXP-0016 |
 | Image write (store) | MSL §6.12 (A15) | instruction `0xd7` 16B (memory-family store, not sampler) | native-decoded | `isa` EXP-0016; `hypotheses` #7 |
-| Read-write textures (Tier 2) | `readWriteTextureSupport=Tier 2` | instruction: `0xd7` write path; `mem_texture` fence ⏳ | native-decoded (partial) | `hw-overview` §3; `isa` EXP-0016 |
+| Read-write textures (Tier 2) | `readWriteTextureSupport=Tier 2` | instruction: `0xd7` write path + native image atomics; `mem_texture` fence ⏳ | native-decoded (partial) | `hw-overview` §3; `isa` EXP-0016/0034 |
 | MSAA sample-indexed read | MSL §6.12.8 (A15) | instruction op+2 `0x80` | native-decoded | `isa` EXP-0016 |
 | Derivatives dfdx/dfdy/fwidth | MSL §6.10.1 (A18) | instruction `0x37` 10B, axis byte+6 | native-decoded | `isa` EXP-0016 |
 | Texture queries (get_width/height/mips/samples/array) | MSL §6.12 (A15) | no instruction (preloaded-uniform read from descriptor) | native-decoded | `isa` EXP-0016 |
@@ -165,15 +175,15 @@ Section tally: native-decoded 6 · emulated 2 · NYC 2.
 | Sampler compare (all 8 funcs, PCF) | MSL §2.10 | descriptor sense bit39 + test[40:42] | native-decoded | `descriptors` §4b EXP-0015 |
 | Unnormalized coordinates | MSL §2.10 | descriptor bit38 | native-decoded | `descriptors` §4 EXP-0015 |
 | Anisotropy ≤16× | MSL §2.10 | descriptor `maxAnisotropy` log2 [20:22] | native-decoded | `descriptors` §4 EXP-0015 |
-| `sample_compare` (depth PCF) ISA path | MSL §6.12.10 | instruction: distinct companion low-nibble `0xd` (not decoded) | NOT-YET-CHARACTERIZED | `isa` EXP-0016 ⏳ |
-| `gather_compare` / gather texel-offset variants | MSL §6.12.10 | instruction op+2 spare encodings (untested) | NOT-YET-CHARACTERIZED | `isa` EXP-0016; `hypotheses` #8 |
-| Texture LOD query (`calculate_clamped_lod`) | `supportsQueryTextureLOD=YES` | UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3 |
-| Texture types 1D / 1DArray / CubeArray / 2DMSArray | MSL §2.9 | descriptor codes 0 / (1?) / (7?) / — untested | NOT-YET-CHARACTERIZED | `descriptors/format-table` §1 |
+| `sample_compare` (depth PCF) ISA path | MSL §6.12.10 | instruction op+2 bit5 (`0x20`) = depth-compare (`sample_compare(level)`=`0x29`); ref = register operand; sampler `compareFunc` drives it; native 2×2 PCF (8 funcs) | native-decoded | `isa` EXP-0034 |
+| `gather_compare` / gather texel-offset variants | MSL §6.12.10 | instruction: gather_compare = gather + op+2 `0x20`; constant offset packs op+5 | native-decoded | `isa` EXP-0034; `hypotheses` #8 |
+| Texture LOD query (`calculate_clamped_lod`) | `supportsQueryTextureLOD=YES` | instruction: real texture op, op+6 `0x20` (clamped/unclamped in companion+3) | native-decoded | `hw-overview` §3; `isa` EXP-0034 |
+| Texture types 1D / 1DArray / CubeArray / 2DMSArray | MSL §2.9 | descriptor type field 4-bit: 1D=0, 1DArray=1, CubeArray=7, 2DMSArray=8; twiddle HW-validated | native-decoded | `descriptors/format-table` §1; `tiling` §1.6 EXP-0028 |
 | **Arbitrary sampler border color** (Vulkan custom) | Vulkan; MSL border presets | descriptor: only 2-bit **3-preset** field (transparent/black/white) | emulated | `descriptors` §4c EXP-0015; `hypotheses` #4 |
+| array/3D/cube/MSAA index-operand ISA bit positions | MSL §6.12 | instruction: dim in op+2 (cube `0x13`/3D `0x39`/cube-array `0x53`); extra index (slice/face/z/sample/ref) via op+3 (⏳ byte-diff) | native-decoded (partial) | `isa` EXP-0016/0034 |
 | Anisotropy >16× | probe (field encodes 128×) | descriptor field can encode; **untested on HW** | NOT-YET-CHARACTERIZED | `descriptors` §4; `hypotheses` #5 |
-| array/3D/cube/MSAA index-operand ISA bit positions | MSL §6.12 | instruction: sub-field positions ⏳ | NOT-YET-CHARACTERIZED | `isa` EXP-0016 ⏳ |
 
-Section tally: native-decoded 14 · emulated 1 · NYC 6.
+Section tally: native-decoded 19 · emulated 1 · NYC 1.
 
 ---
 
@@ -223,7 +233,7 @@ Section tally: native-decoded 5 · emulated 1 · NYC 3.
 | AS referenced by 8-byte VA | MSL §2.17 | descriptor: 8-byte GPU VA in Tier-2 arg buffer | native-decoded | `isa` EXP-0023 |
 | `intersection_query` (inline ray_query) | MSL §2.17.8 (B2) | instruction: same intersect ops, inline (disables reorder) | native-decoded (partial) | `isa` EXP-0023 |
 | **BVH build + node format** | MSL AS build | kernel-managed (GPU/firmware builds; node format not userspace-visible) | kernel-managed | `isa` EXP-0023; `kernel-interface` §4.1 |
-| Intersection functions / `intersection_function_table` | MSL §5.1.6 (B3) | instruction: bound like `visible_function_table`; call ABI ⏳ | NOT-YET-CHARACTERIZED | `isa` EXP-0023 ⏳ |
+| Intersection functions / `intersection_function_table` | MSL §5.1.6 (B3) | instruction: bound as Tier-2 slot (flat array of 8B code VAs); call/return ABI decoded (same as `visible_function_table`) | native-decoded (partial) | `isa` EXP-0023/0035 |
 | `ray_data` payload address space (copy-in/out) | MSL §4.6 (B3) | instruction: distinct address space; payload load/store ⏳ | NOT-YET-CHARACTERIZED | `isa` EXP-0023 ⏳ |
 | **RT reorder stage** (groups intersection calls) | WWDC §2 "Reorder Stage" | microarch/firmware — observable via RT-scratch counters (Xcode) | NOT-YET-CHARACTERIZED | WWDC §2; `isa` EXP-0023 follow-up |
 | Ray tracing from render | `supportsRaytracingFromRender=YES` | UNKNOWN (RT-from-fragment not run) | NOT-YET-CHARACTERIZED | `hw-overview` §3; `isa` EXP-0023 follow-up |
@@ -232,7 +242,7 @@ Section tally: native-decoded 5 · emulated 1 · NYC 3.
 | Bounding-box / curve custom primitives | MSL §5.1.6 | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B3 |
 | RT companion ops (`0x5f`, ray-move) | (ISA census) | instruction: seen, not decoded | NOT-YET-CHARACTERIZED | `ROADMAP` G-13 |
 
-Section tally: native-decoded 5 · kernel-managed 1 · NYC 8.
+Section tally: native-decoded 6 · kernel-managed 1 · NYC 7.
 
 ---
 
@@ -240,22 +250,23 @@ Section tally: native-decoded 5 · kernel-managed 1 · NYC 8.
 
 | Capability | Source | HW representation | Status | Ref |
 |---|---|---|---|---|
-| **Hardware mesh shading** (object + mesh stages) | WWDC §3 "HW-accelerated mesh shading"; MSL §2.20 (B4) | UNKNOWN — MSL exposes on Apple9; **no AGX command/ISA decode in `docs/`** | NOT-YET-CHARACTERIZED | `capability-matrix` §4; `mesa-req` §4 |
-| Object→mesh amplification grid (`set_threadgroups_per_grid`) | MSL §2.20.1 (B4) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B4 |
-| `object_data` payload (16 KB) | MSL §4.7 (B4) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B4 |
-| Mesh vertex/primitive/index export buffer layout | MSL §5.1.8 (B4) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B4 |
-| Mesh threadgroups per grid 1M+ | WWDC §3 | cmdstream (dispatch encoding) UNKNOWN | NOT-YET-CHARACTERIZED | WWDC §3 |
+| **Hardware mesh shading** (object + mesh stages) | WWDC §3 "HW-accelerated mesh shading"; MSL §2.20 (B4) | HW pipeline; vertex/prim emit = compute-style `0xe7` stores into firmware UVB (no dedicated emit op); no truly mesh-unique opcode; HW-validated (triangle rendered) | native-decoded | `isa`/`cmdstream` EXP-0030 |
+| Object→mesh amplification grid (`set_threadgroups_per_grid`) | MSL §2.20.1 (B4) | object `main` computes fixed-function amplification; mesh-grid-dispatch record `0x70000600` | native-decoded | `isa`/`cmdstream` EXP-0030 |
+| `object_data` payload (16 KB) | MSL §4.7 (B4) | ordinary `0xe7` device stores (object payload) | native-decoded | `isa` EXP-0030 |
+| Mesh vertex/primitive/index export buffer layout | MSL §5.1.8 (B4) | emit = runs of `0xe7` stores into UVB; UVB buffer sizing/layout firmware-managed (kernel item) | native-decoded | `isa`/`cmdstream` EXP-0030; `kernel-interface` |
+| Mesh threadgroups per grid 1M+ | WWDC §3 | cmdstream: mesh-grid-dispatch record `0x70000600` + grid dims; reuses graphics TA/VDM (no CDM) | native-decoded | `cmdstream` EXP-0030 |
 | Geometry shaders | Vulkan/GL; classically Apple-absent | (no HW GS stage) → compute-emulated (VS→GS, 4 sub-programs) | emulated | `capability-matrix` §2; `mesa-req` §2g |
 | Tessellation | Vulkan/GL; classically Apple-absent | (no fixed-function tessellator) → compute-emulated | emulated | `capability-matrix` §2; `mesa-req` §2g |
 | Transform feedback / streamout | Vulkan/GL; Metal no path | (no streamout unit) → compute-emulated | emulated | `capability-matrix` §2; `mesa-req` §2g |
 | GS / tess / XFB — A18-native re-probe | (scoping) | UNKNOWN (assumed emulate; not independently re-probed on A18) | NOT-YET-CHARACTERIZED | `capability-matrix` §4 |
 
-> **Note.** The three emulated stages carry the M1/M2 default (Apple historically lacks them). WWDC
-> confirms **mesh shading is native hardware** on Family 9 — so mesh (not GS/tess) is the plausible
-> A18 geometry-amplification path, and characterizing it (top of the backlog) may retire the emulation
-> stack. Until the AGX encoding is decoded, mesh is **NYC**, not native.
+> **Note.** Mesh shading is now decoded (EXP-0030): a **genuine HW graphics pipeline** whose emit lowers
+> to ordinary stores into a firmware-managed UVB. Mesh is the plausible A18 geometry-amplification path
+> and, once a Mesa driver adopts it, may retire the GS/tess/XFB compute-emulation stack — but GS/tess/XFB
+> themselves are still classically-absent stages (emulate), and whether A18 gained any *native* GS/tess/XFB
+> path has **not** been independently re-probed.
 
-Section tally: emulated 3 · NYC 6.
+Section tally: native-decoded 5 · emulated 3 · NYC 1.
 
 ---
 
@@ -275,9 +286,9 @@ Section tally: emulated 3 · NYC 6.
 | Viewport transform + depth range | Vulkan/GL | cmdstream `0x68000+0x910` (4 floats + depth) | native-decoded | `cmdstream` EXP-0014; `pipeline` |
 | Indexed draw + index-buffer VA | Vulkan/GL | cmdstream VDM opcode `0x61f2`, index VA `+0x70` | native-decoded | `cmdstream` EXP-0014 |
 | Primitive type (point/line/tri/strip) | Vulkan/GL | cmdstream VDM primitive `+0x65` | native-decoded | `cmdstream` EXP-0014 |
+| Provoking vertex / flat-shading convention | Vulkan/GL; MSL `[[flat]]` | instruction: `[[flat]]` = `iter_flat` `0x1f` (provoking-vertex load, no interp); first/last convention ⏳ | native-decoded (partial) | `isa` EXP-0029 |
 | Polygon **point** fill | Vulkan/GL | cmdstream: raster nibble/flag (partially confirmed) | NOT-YET-CHARACTERIZED | `cmdstream` EXP-0019; `capability-matrix` §4 |
 | Alpha-to-coverage / alpha-to-one | Vulkan/GL; Metal render state | UNKNOWN (FS epilog?) | NOT-YET-CHARACTERIZED | `mesa-req` §2g |
-| Provoking vertex / flat-shading convention | Vulkan/GL; MSL `[[flat]]` | UNKNOWN (flat interpolation not decoded) | NOT-YET-CHARACTERIZED | `msl-feature-map` A17 |
 | Primitive restart | Vulkan/GL | cmdstream: restart-index field ⏳ (VDM Index List) | NOT-YET-CHARACTERIZED | `mesa-req` §2b |
 | Point size (`[[point_size]]`) | Vulkan/GL | cmdstream (UVS/output-select) UNKNOWN | NOT-YET-CHARACTERIZED | `mesa-req` §2b |
 | Wide / smooth lines | Vulkan/GL (Bresenham-only in Mesa) | UNKNOWN | NOT-YET-CHARACTERIZED | `mesa-req` §4 |
@@ -285,9 +296,9 @@ Section tally: emulated 3 · NYC 6.
 | Clip / cull distances (16 planes) | Vulkan/GL | cmdstream PPP Output Select UNKNOWN | NOT-YET-CHARACTERIZED | `mesa-req` §2b |
 | Conditional rendering | Vulkan/GL (CPU-emulated in Mesa) | UNKNOWN (likely emulate) | NOT-YET-CHARACTERIZED | `mesa-req` §4 |
 | Scissor test (`isp_scissor`) | Vulkan/GL | kernel-managed submit param (`isp_scissor_base`) | kernel-managed | `kernel-interface` §6.1 |
-| Packed depth24-stencil8 | Vulkan/GL | (absent — `depth24Stencil8=NO`; Z/S separate resources) | emulated | `hw-overview` §3; `mesa-req` §4 |
+| Packed depth24-stencil8 | Vulkan/GL | (absent — `depth24Stencil8=NO`; Z/S separate resources) | emulated | `hw-overview` §3; `descriptors/format-table` §269 (unsupported); `mesa-req` §4 |
 
-Section tally: native-decoded 12 · emulated 1 · kernel-managed 1 · NYC 9.
+Section tally: native-decoded 13 · emulated 1 · kernel-managed 1 · NYC 8.
 
 ---
 
@@ -295,15 +306,15 @@ Section tally: native-decoded 12 · emulated 1 · kernel-managed 1 · NYC 9.
 
 | Capability | Source | HW representation | Status | Ref |
 |---|---|---|---|---|
-| Varying interpolation (perspective / no-persp / flat / centroid / sample) | MSL §5.4 (A17) | instruction: `iter`/`iterproj`/`ldcf` coefficient model — **not decoded** | NOT-YET-CHARACTERIZED | `mesa-req` §2a; `ROADMAP` G-4/G-13 |
-| Pull-model interpolation (`interpolate_at_*`) | `supportsPullModelInterpolation=YES`; MSL §6.11 (A17) | UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3; `msl-feature-map` A17 |
-| Barycentric-coord built-in | `supportsShaderBarycentricCoordinates=YES`; MSL §5.2.3.4 (A19) | UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3 |
-| Fragment built-ins (primitive_id / sample_id / position / front-facing …) | MSL §5.2.3 | instruction `get_sr` special-register enum — **table not tabulated** | NOT-YET-CHARACTERIZED | `isa` EXP-0010 (mechanism); `ROADMAP` G-5 |
-| Sample-rate shading (`[[sample_perspective]]`) | Vulkan/GL; MSL §5.4 | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` A17 |
-| `discard_fragment()` | MSL §6.10 | instruction UNKNOWN (kill/demote) | NOT-YET-CHARACTERIZED | `msl-feature-map` (unlisted) |
-| Vertex varying store | (vtx stage) | instruction `0x05`/`0x06`/`0x57` — seen, not decoded | NOT-YET-CHARACTERIZED | `isa` EXP-0008; `ROADMAP` G-13 |
+| Varying interpolation (perspective / no-persp / flat / centroid / sample) | MSL §5.4 (A17) | instruction `iter` `0x2f` (byte+5 varying-slot, byte+6 mode center/centroid/persp-denom); `[[flat]]`=`iter_flat` `0x1f`; perspective = multi-instr (linear iters + W-denom + rcp + fmul) | native-decoded | `isa` "Fragment ISA" EXP-0029 |
+| Pull-model interpolation (`interpolate_at_*`) | `supportsPullModelInterpolation=YES`; MSL §6.11 (A17) | instruction: `interpolate_at_*` == the matching `[[*_perspective]]`/`iter_at` qualifier | native-decoded | `hw-overview` §3; `isa` EXP-0029 |
+| Barycentric-coord built-in | `supportsShaderBarycentricCoordinates=YES`; MSL §5.2.3.4 (A19) | instruction: interpolated via `0x2f` family | native-decoded | `hw-overview` §3; `isa` EXP-0031 |
+| Fragment built-ins (primitive_id / sample_id / position / front-facing …) | MSL §5.2.3 | instruction `get_sr` SR#=byte1 (front_facing `0xc5`, `[[position]]` `0xa0/a1`); primitive_id = flat tiler-output load; sample_id folds to 0 on 1-sample | native-decoded | `isa` EXP-0031 |
+| Sample-rate shading (`[[sample_perspective]]`) | Vulkan/GL; MSL §5.4 | instruction: `iter` mode `0x02` + `iter_at` setup (byte+7 `0x03` sample) | native-decoded (partial) | `isa` EXP-0029 |
+| `discard_fragment()` | MSL §6.10 | instruction: HW-proven (killed fragments write nothing) | native-decoded | `isa` EXP-0029 |
+| Vertex varying store | (vtx stage) | instruction `0x57` store (byte+3 src, byte+4 slot=index<<5; position slots 0-3, varyings 4+) | native-decoded | `isa` EXP-0037 |
 
-Section tally: NYC 7.
+Section tally: native-decoded 7.
 
 ---
 
@@ -318,17 +329,17 @@ Section tally: NYC 7.
 | Hidden Surface Removal (HSR) | WWDC TBDR | microarch (automatic; no userspace encoding beyond normal draw) | native-decoded (implicit) | WWDC NOTES TBDR |
 | MSAA sample count (2×/4×) | `supports32BitMSAA=YES` | cmdstream attachment `+0x24` (bit24 count LSB, bit27 store) | native-decoded | `pipeline` "MSAA" EXP-0021 |
 | **Programmable MSAA sample positions** | `programmableSamplePositionsSupported=YES` | kernel-managed (`ppp_multisamplectl`; not in any userspace BO) | kernel-managed | `pipeline` EXP-0021; `kernel-interface` §4.2; `hypotheses` #15 |
-| Imageblocks (explicit/implicit layout, `[[color(n)]]` slots) | WWDC (A11+); MSL §2.11 (B7) | instruction: imageblock slice load/store — **not decoded** | NOT-YET-CHARACTERIZED | `msl-feature-map` B7 |
-| Tile shaders (mid-render compute) | WWDC (A11+); MSL §5.1.9 (B7) | cmdstream/instruction: tile-dispatch encoding UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B7 |
-| Programmable-blend `[[color(m)]]` input (tile read) | MSL §5.2.3.4 (B8) | instruction: fragment tile-read op — not decoded | NOT-YET-CHARACTERIZED | `msl-feature-map` B8 |
-| **Raster order groups** (frag interlock) | `rasterOrderGroupsSupported=YES`; MSL §5.2.1.2 (B8) | instruction: ordering primitive UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3; `msl-feature-map` B8 |
+| Imageblocks (explicit/implicit layout, `[[color(n)]]` slots) | WWDC (A11+); MSL §2.11 (B7) | instruction: `[[color(n)]]` read = `tile_read` `0x67/0e`, write = `frag_color_store` `0xe7/06` (byte+5 RT idx); explicit-struct layout ⏳ | native-decoded (partial) | `isa` EXP-0029 |
+| Tile shaders (mid-render compute) | WWDC (A11+); MSL §5.1.9 (B7) | cmdstream/instruction: tile-dispatch encoding UNKNOWN (tile_read ISA is decoded) | NOT-YET-CHARACTERIZED | `msl-feature-map` B7 |
+| Programmable-blend `[[color(m)]]` input (tile read) | MSL §5.2.3.4 (B8) | instruction: `tile_read` `0x67/0e` (in-shader blend HW-proven: `out=src*0.5+clear*0.5`) | native-decoded | `isa` EXP-0029 |
+| **Raster order groups** (frag interlock) | `rasterOrderGroupsSupported=YES`; MSL §5.2.1.2 (B8) | instruction: `pixel_order` = `0x07` fence family (acquire/release; ⏳ byte-diff) | native-decoded (partial) | `hw-overview` §3; `isa` EXP-0029 |
 | Threadgroup imageblock (`threadgroup_imageblock`) | MSL §4.5 (B7) | UNKNOWN | NOT-YET-CHARACTERIZED | `msl-feature-map` B7 |
 | Depth store-action / ZLS | (render-pass control) | kernel-managed (`zls_ctrl`; not in any userspace BO) | kernel-managed | `pipeline` EXP-0021; `kernel-interface` §4.3 |
 | Partial-render / tiler-param overflow trigger | (TBDR) | kernel-managed (firmware detects overflow; `partial_bg`/`partial_eot`) | kernel-managed | `pipeline` EXP-0021; `kernel-interface` §4.4 |
-| Occlusion / visibility queries | Vulkan/GL; native HW mechanism | cmdstream/kernel `isp_oclqry_base` — mechanism not RE'd | NOT-YET-CHARACTERIZED | `mesa-req` §2e |
-| Timestamps / GPU counters | `counter sets: timestamp` | kernel-managed (firmware-written timestamp objects) | NOT-YET-CHARACTERIZED | `mesa-req` §2e |
+| Occlusion / visibility queries | Vulkan/GL; native HW mechanism | cmdstream: result ptr `@0x10000100000`; mode bit14 `@0x58000+0x8c` (bool/count); offset `@+0xa0`=byteOff<<14; per-tile summation firmware | native-decoded | `cmdstream` EXP-0027 |
+| Timestamps / GPU counters | `counter sets: timestamp` | u64 ns, period 1.0, **STAGE-boundary only** (dispatch/draw unsupported → emulate); sample-buffer addr kernel-managed | native-decoded | `cmdstream` EXP-0027 |
 
-Section tally: native-decoded 6 · kernel-managed 3 · NYC 7.
+Section tally: native-decoded 11 · kernel-managed 3 · NYC 2.
 
 ---
 
@@ -342,11 +353,11 @@ Section tally: native-decoded 6 · kernel-managed 3 · NYC 7.
 | Max threads/threadgroup 1024 | `maxThreadsPerThreadgroup=(1024³)` | limit | native-decoded | `hw-overview` §3 |
 | Occupancy tier (register pressure) | (Dynamic Caching surface) | cmdstream CDM config word `+0x00` bit23 | native-decoded | `cmdstream` EXP-0024; `isa` EXP-0020 |
 | Shader-code pointer (compute) | (bind) | cmdstream CDM `+0x08 = shaderVA>>6` | native-decoded | `cmdstream` EXP-0011 |
-| Indirect dispatch (`dispatchThreadgroupsWithIndirectBuffer`) | Metal; Vulkan | cmdstream CDM indirect global/local mode — UNKNOWN | NOT-YET-CHARACTERIZED | `mesa-req` §2b |
-| Indirect command buffers / device-generated commands | WWDC GPU-driven; Metal ICB | cmdstream: GPU-side VDM/CDM emission — UNKNOWN | NOT-YET-CHARACTERIZED | `mesa-req` §2b; `gpu-devices` doc |
-| Draw mesh commands into ICB | WWDC §3 | UNKNOWN | NOT-YET-CHARACTERIZED | WWDC §3 |
+| Indirect dispatch (`dispatchThreadgroupsWithIndirectBuffer`) | Metal; Vulkan | cmdstream: 2nd CDM + grid-setup helper shader (multiply threadgroups×tpg); args VA `0x10000080000+0xb0` | native-decoded | `cmdstream` EXP-0027 |
+| Indirect command buffers / device-generated commands | WWDC GPU-driven; Metal ICB | cmdstream: indirect draw VDM `0x61c4→0x6404` (idx `0x6432`) + args ptr; full ICB = inline state-block+draw, header `+0x04` = count | native-decoded | `cmdstream` EXP-0027 |
+| Draw mesh commands into ICB | WWDC §3 | UNKNOWN (mesh-in-ICB path not exercised; mesh dispatch + ICB decoded separately) | NOT-YET-CHARACTERIZED | WWDC §3 |
 
-Section tally: native-decoded 6 · NYC 3.
+Section tally: native-decoded 8 · NYC 1.
 
 ---
 
@@ -361,20 +372,20 @@ Section tally: native-decoded 6 · NYC 3.
 | Linear (buffer-backed) layout + stride | Metal buffer textures | descriptor `bytesPerRow=(word3[14:]+1)×16` | native-decoded | `tiling` §2 EXP-0017 |
 | Mip-tree packing | Metal mipmaps | tiling: consecutive pow2-padded Morton planes, 0x80 min slot | native-decoded | `tiling` §3 EXP-0017 |
 | Lossless compression aux (placement + flags) | (bandwidth opt) | descriptor word1 bit27 / word3 bit31 / secondary VA; aux = image/128 | native-decoded | `tiling` §4 EXP-0017 |
-| Lossless compression **block codec** | (HW) | tiling: state bytes decoded; **codec/bit-layout opaque** | NOT-YET-CHARACTERIZED | `tiling` §4.5 EXP-0017 |
+| Block-compressed BC / ASTC / ETC | `supportsBCTextureCompression=YES` | descriptor sizeclass codes `0x14-0x1e` captured; twiddle = Morton-of-blocks (blockBytes) HW-validated (BC1/BC7/ASTC-4×4/8×8) | native-decoded | `descriptors/format-table` §269; `tiling` §1.5 EXP-0028 |
+| depth16unorm / stencil8 / x24s8 / x32s8 | Metal depth formats | depth16unorm=r16unorm, stencil8=r8uint (reuse color codes); depth24s8/x24s8 unsupported (Z/S separate); depth32f_s8 stencil-aspect ⏳ | native-decoded (partial) | `descriptors/format-table` §269 EXP-0028 |
+| Extended-range / wide-gamut / YUV formats | Metal | numtype 5 = XR (bgr10_xr/bgra10_xr); HDR-ASTC = float; YUV/video ⏳ untested | native-decoded (partial) | `descriptors/format-table` §269 EXP-0028 |
+| 16-bit snorm/unorm variants (r16snorm, rg16, rgba16snorm) | Metal | descriptor = base code + snorm/unorm numtype (orthogonal; HW-validated r8/r16/r32/rgba8) | native-decoded | `descriptors/format-table` §2a EXP-0015/0028 |
 | `depth32float` | Metal | descriptor = r32float code | native-decoded | `descriptors/format-table` §2 |
-| Block-compressed BC / ASTC / ETC | `supportsBCTextureCompression=YES` | descriptor codes **untested**; block twiddle **inferred, not probed** | NOT-YET-CHARACTERIZED | `tiling` §1.5; `descriptors/format-table` §8 |
-| depth16unorm / stencil8 / x24s8 / x32s8 | Metal depth formats | descriptor codes untested | NOT-YET-CHARACTERIZED | `descriptors/format-table` §8 |
-| Extended-range / wide-gamut / YUV formats | Metal | untested | NOT-YET-CHARACTERIZED | `descriptors/format-table` §8 |
-| 16-bit snorm/unorm variants (r16snorm, rg16, rgba16snorm) | Metal | untested | NOT-YET-CHARACTERIZED | `descriptors/format-table` §8 |
-| 3D / cube / array / MSAA twiddle layout | Metal | tiling: 2D validated; volume/cube/array/MSAA **untested** | NOT-YET-CHARACTERIZED | `tiling` §4.5 |
-| MSAA sample interleave in memory | Metal MSAA | tiling: sample-spatial packing **untested** | NOT-YET-CHARACTERIZED | `mesa-req` §2d |
+| 3D / cube / array / MSAA twiddle layout | Metal | tiling: 3D = stacked 2D-Morton planes; array/cube = Morton planes linear-stacked; 1DArray = linear rows (HW-validated) | native-decoded | `tiling` §1.6 EXP-0028 |
+| MSAA sample interleave in memory | Metal MSAA | tiling: sample-major, offset=(N·morton+sample)·bps (N=2,4; 8× unsupported) | native-decoded | `tiling` §1.6 EXP-0028 |
+| Lossless compression **block codec** | (HW) | tiling: state bytes decoded; **codec/bit-layout opaque** | NOT-YET-CHARACTERIZED | `tiling` §4.5 EXP-0017 |
 | Sparse / tile textures | `sparseTileSizeInBytes=16384` | descriptor/VM sparse geometry UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3; `mesa-req` §2d |
 | Compression × mipmap interaction; NPOT small thresholds | (corner cases) | untested | NOT-YET-CHARACTERIZED | `tiling` §4.5 |
 | 32-bit float texture filtering | `supports32BitFloatFiltering=YES` | sampler filter path (filter on r32f) — not independently probed | NOT-YET-CHARACTERIZED | `hw-overview` §3 |
 | Per-format renderable / PBE-renderable flags | Metal | descriptor: PBE format flags untested | NOT-YET-CHARACTERIZED | `mesa-req` §2d |
 
-Section tally: native-decoded 8 · NYC 11.
+Section tally: native-decoded 14 · NYC 5.
 
 ---
 
@@ -385,43 +396,81 @@ Section tally: native-decoded 8 · NYC 11.
 | 96 addressable 32-bit GPRs; 2 halves/GPR | (register file) | microarch/instruction (footprint in `__GPU_METADATA`) | native-decoded | `isa` "Machine model" EXP-0020 |
 | Uniform register file + uniform program (constant_program) | (ABI) | instruction: per-source GPR-vs-uniform mode bit; `uniform_mov` | native-decoded (partial) | `isa` EXP-0010/0020 |
 | Occupancy 2-level tier (config bit23) | (Dynamic Caching surface) | cmdstream CDM `+0x00` bit23 | native-decoded | `isa` EXP-0020; `cmdstream` EXP-0024 |
-| Spill to per-thread scratch above 96 GPRs | (Dynamic Caching) | behavior proven; scratch **ops/base UNKNOWN** | native-decoded (partial) | `isa` EXP-0020 |
+| Spill to per-thread scratch above 96 GPRs | (Dynamic Caching) | behavior proven; frame link save/restore `0x07`/`0x6f` decoded; scratch base ⏳ | native-decoded (partial) | `isa` EXP-0020/0038 |
 | **Dynamic Caching** (register file as cache; dynamic alloc/dealloc; occupancy vs live-set) | WWDC §1.1 | microarch — observable via GPR-pressure-vs-occupancy microbench + Xcode counters | NOT-YET-CHARACTERIZED | WWDC §1.1; `isa` EXP-0020 (static model only) |
 | Argument buffers Tier 2 / bindless | `argumentBuffersSupport=Tier 2` | cmdstream Tier-2 arg buffer (8B/slot, table `+0x14a0`) | native-decoded | `cmdstream` "Argument buffer" EXP-0011; `hw-overview` §3 |
 | Buffer / texture / sampler binding via arg buffer | (binding model) | descriptor: buffers inline VA; tex/samp = pointer to descriptor block | native-decoded | `descriptors` EXP-0015 |
-| Sampler heap (large count) | `maxArgumentBufferSamplerCount=500000` | cmdstream `sampler_heap`/`sampler_count` submit params — layout UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3; `kernel-interface` §6.1 |
+| Sampler heap (large count) | `maxArgumentBufferSamplerCount=500000` | cmdstream `sampler_heap`/`sampler_count` submit params — heap layout UNKNOWN | NOT-YET-CHARACTERIZED | `hw-overview` §3; `kernel-interface` §6.1 |
 | Full halfregs→max-threads occupancy curve | perf | microarch (per-op latency/throughput) — not measured | NOT-YET-CHARACTERIZED | `mesa-req` §2a |
-| Special-register (SR) enum + preload ABI | (ABI) | instruction: `get_sr` mechanism decoded; **SR-number table not tabulated** | NOT-YET-CHARACTERIZED | `isa` EXP-0010; `ROADMAP` G-5 |
+| Special-register (SR) enum + preload ABI | (ABI) | instruction: `get_sr` SR#=byte1 (full table decoded); no GPR ID preload; buffer/uniform bases in uniform file (vtx base=slot `0x03`) | native-decoded | `isa` EXP-0031 |
 | **Graphics shader-entry bind** (a draw carries no `shaderVA>>N`) | (draw dispatch) | kernel-managed (code-BO base reaches firmware out-of-band; userspace emits sized code blocks + USC preambles) | kernel-managed | `cmdstream` EXP-0024; `kernel-interface` §4.5 |
 
-Section tally: native-decoded 6 · kernel-managed 1 · NYC 4.
+Section tally: native-decoded 7 · kernel-managed 1 · NYC 3.
 
 ---
 
 ## 16. Prioritized NOT-YET-CHARACTERIZED backlog (the completeness backlog)
 
-Ordered by importance for either **a driver** (blocks/incompletes real shaders and draws) or
-**capability completeness** (largest unmapped hardware surface). Each is provoke-able with our own MSL
-via the `msl-feature-map.md` recipe; the "How to observe" column says how.
+### Closed since the last sync (EXP-0026 – EXP-0038)
+
+The following prior backlog items are **retired** (moved to native-decoded above): mesh shading
+(EXP-0030), fragment varying interpolation + output + tilebuffer read + ROG (EXP-0029),
+transcendental/reciprocal sequences (EXP-0026), SR enum + preload ABI + software vertex-fetch
+(EXP-0031), integer/bitfield completeness incl. 64-bit + find-MSB + insert/reverse/rotate + min3/max3
+(EXP-0033/0038), texture variants incl. sample_compare/gather/LOD-query + image atomics + exotic
+texture types (EXP-0034/0028), function/pointer/dynamic-library ABI (EXP-0035), BC/ASTC/ETC codes +
+3D/cube/array/MSAA + MSAA-interleave twiddle (EXP-0028), indirect draw/dispatch/ICB + occlusion +
+timestamp (EXP-0027), vertex varying-store + texcoord math (EXP-0037), and fragment/tilebuffer
+ordering (EXP-0029). The backlog fell from **89 → 39** NYC rows.
+
+### (a) Metal-exposed capabilities still NOT hardware-exercised — objective-2 blockers (prioritized)
+
+These are the rows that a "every Metal-exposed capability has been exercised" auditor will flag. Each is
+provoke-able with our own MSL via the `msl-feature-map.md` recipe.
 
 | # | NYC capability | Why it matters | How to observe (provocation + method) |
 |---|---|---|---|
-| 1 | **Hardware mesh shading** (object+mesh ISA + command encoding + output-buffer layout) | Biggest single unmapped Apple9 hardware feature; native support retires the whole GS/tess/XFB compute-emulation stack (§9). Blocks any mesh/geometry-amplification driver path. | `msl-feature-map` B4; extend `shdump`/`agxparse` to `__object`/`__mesh` sections; diff the amplifying dispatch + mesh-export writes. |
-| 2 | **Fragment varying interpolation** (`iter`/`iterproj`/`ldcf` coefficient model) | Blocks *every* real fragment shader with interpolated inputs (G-4). Decodes flat/perspective/centroid/sample + provoking-vertex convention at once. | `msl-feature-map` A17; fragment extractor + differential compile of interpolation qualifiers. |
-| 3 | **Transcendental / reciprocal refinement sequences** (rcp/rsqrt/sqrt/sin/cos: `0x29` seed + Newton-Raphson) | Correctness of all math-heavy shaders (G-2); currently only the estimate seed is seen. | `msl-feature-map` A4/A5; compile fast vs precise, diff to separate seed from refinement. |
-| 4 | **Special-register enum + preload ABI** (SR numbers; VS attrib/vtx-id/instance-id preload; FS epilog contract) | Blocks binding any system value (G-5); ties fragment built-ins (§11) and the ABI together. | `msl-feature-map` A10/A17/A19; sweep `get_sr` high-nibble; correlate with preloaded regs. |
-| 5 | **Imageblock / tile-shader / programmable-blend `[[color]]` read / raster-order-group ISA** | The TBDR core: programmable blending, deferred-shading tile kernels, and fragment interlock (Vulkan `FRAGMENT_SHADER_INTERLOCK`). Multiple advertised features (§12). | `msl-feature-map` B7/B8; fragment+tile extractor; provoke tile read/write + ROG ordering. |
-| 6 | **Lossless compression block codec** | The single biggest tiling unknown; blocks confidently laying out the default (compressed) RT/texture fast path. Apple revises it per generation. | `tiling` §4.5; GPU-write known patterns, read raw aux+main bytes, solve the 8×4 block codec. |
-| 7 | **Fragment / tilebuffer ordering** (`wait_pix`/`signal_pix`) | The fragment analogue of the EXP-0025 compute interlock; wrong = silent corruption in tilebuffer access. | `msl-feature-map` B7/B8; fragment extractor; ordered RMW on overlapping fragments. |
-| 8 | **RT completion** (intersection-function call ABI, `ray_data` payload copy, reorder stage, RT-from-render, motion blur, tags) | Completes the biggest new Apple9 family; needed for a Vulkan RT path beyond opaque-triangle traversal. | `msl-feature-map` B3; intersection-function linkage extractor; RT-from-fragment; Xcode RT-scratch counters for the reorder stage. |
-| 9 | **BC/ASTC/ETC + depth/stencil + wide-gamut/YUV format codes; 3D/cube/array/MSAA twiddle** | Format-table gaps block compressed and volume/array textures; renderable-format flags block RT binding. | `descriptors/format-table` §8; `tiling` §4.5; capture each format's descriptor + probe its layout. |
-| 10 | **Indirect dispatch / indirect command buffers / device-generated commands** | GPU-driven rendering (advertised for mesh), indirect draw/dispatch — every barrier/launch bit is chip-versioned. | `mesa-req` §2b; capture `MTLIndirectCommandBuffer` + indirect dispatch, diff CDM/VDM. |
-| 11 | **Dynamic Caching dynamic behavior + flexible on-chip memory + 2× ALU** | Three headline Apple9 hardware claims; drive the occupancy/perf model. Observable but not yet measured. | WWDC §1; GPR-pressure-vs-occupancy + dual-issue throughput microbenchmarks; Xcode occupancy/cache/eviction counters. |
-| 12 | **Bitfield/integer completeness** (`clz`/`ctz`/`insert_bits`/`reverse_bits`/`rotate`, min3/max3/median3, pack/unpack, 64-bit int ALU, general bfloat ALU) | Vulkan-relevant integer ops beyond Metal's arithmetic surface; instruction-census gaps (G-13). | `msl-feature-map` A3/A7/A9; provoke each in isolation, diff. |
-| 13 | **Function calls / pointers / dynamic libraries ABI** | `supportsFunctionPointers`/`supportsDynamicLibraries=YES`; needed for RT intersection funcs and stitched pipelines. | `msl-feature-map` A11; `[[visible]]` + `visible_function_table`; decode call/return + stack. |
-| 14 | **Sample_compare (PCF) + gather_compare + gather-offset texture variants; texture atomics; LOD query** | Shadow mapping and gather-heavy shaders; texture atomics are a whole sub-family. | `msl-feature-map` A15; provoke `sample_compare`/`gather` + `access::read_write` atomics. |
-| 15 | **Occlusion/visibility queries + timestamps** | Native HW query mechanisms (`isp_oclqry_base`, firmware timestamps); block Vulkan queries. | `mesa-req` §2e; capture query pool + timestamp writes. |
-| 16 | **Anisotropy >16×; polygon-point fill; exotic texture types (1D/CubeArray/MSArray); sparse textures; alpha-to-coverage; multi-viewport/clip-cull-distance; primitive restart; wide/smooth lines; conditional render; provoking vertex** | The long tail of Vulkan/GL-vs-Metal capability probes; each is a native-or-emulate decision (`hypotheses` backlog). | `hypotheses` "Candidate probe backlog"; extrapolate-and-test each. |
+| 1 | **Tile shaders (mid-render compute) — dispatch encoding** (§12) | The one un-exercised TBDR-core feature (deferred-shading tile kernels); the `tile_read` ISA is decoded but the tile-dispatch cmdstream encoding (imageblock + threadgroup kernel in a render pass) is not. | `msl-feature-map` B7; capture `dispatchThreadsPerTile`; diff the render-pass compute record vs a normal CDM. |
+| 2 | **RT completion tail** (§8): `ray_data` payload copy-in/out, RT-from-render, primitive/instance motion blur, intersection tags, bounding-box/curve custom primitives, RT companion op `0x5f` | Completes the biggest new Apple9 family beyond opaque-triangle traversal; each is Metal-exposed (`supportsRaytracingFromRender`/`supportsPrimitiveMotionBlur=YES`). | `msl-feature-map` B1/B3; intersection-function payload extractor; RT-from-fragment; motion-blur AS build; sweep RT `0x5f`. |
+| 3 | **Atomic memory ordering / fence bits** (§3) + **64-bit atomic min/max width field** (§4) | Vulkan memory model: `_explicit` memory_order + `coherent(device)`; the 64-bit atomic min/max op exists but its width field is undecoded. | `msl-feature-map` A12/A14; compile `_explicit` variants + 64-bit atomic min/max, diff the fence/width bytes. |
+| 4 | **Geometry-output pipeline surface** (§10): multiple viewports / scissor rects (16), clip/cull distances (16), point size `[[point_size]]`, primitive restart, alpha-to-coverage/alpha-to-one, polygon-point fill | The remaining vertex-output/raster state a real GL/Vulkan pipeline emits; each is a distinct PPP/output-select or VDM field. | `mesa-req` §2b; provoke each Metal render-state, change-one-param diff `0x58000`/`0x68000`/VDM + UVS output-select. |
+| 5 | **Sparse / tile textures + PBE-renderable flags + 32-bit float texture filtering** (§14) | `sparseTileSizeInBytes=16384`, `supports32BitFloatFiltering=YES`, per-format renderable flags — all Metal-exposed, none probed. | `hw-overview` §3; capture a sparse texture's VM geometry + a filtered r32f sample + per-format PBE flags. |
+| 6 | **MPP cooperative-tensor / convolution / other tensor ops** beyond matmul2d, + matrix `transpose_matrix`/load variants + `0xcf` operand-selector full decode (§7) | The tensor family beyond the single provoked `matmul2d`; matrix works but its operand-selector sub-fields are byte-diff-inferred. | `msl-feature-map` B5/B6; provoke each tensor op + matrix load variant, diff `0xcf` byte+3..+9. |
+| 7 | **bfloat general (non-matrix) ALU** (§1) | `bfloat` is proven only inside the matrix unit; the general-ALU datapath is unshown. | `msl-feature-map` A1; compile bfloat add/mul outside `simdgroup_matrix`, decode the op. |
+| 8 | **Subgroup tail** (§6): `simd_shuffle_and_fill_up/down` + modulo variants; `simd_is_helper_thread` | Metal-exposed subgroup ops with spare shuffle modes not yet mapped. | `msl-feature-map` A20; provoke each in isolation, map the spare shuffle-mode + helper-thread encodings. |
+| 9 | **Sampler heap layout** (§15) | `maxArgumentBufferSamplerCount=500000`: the sampler-heap packing layout behind `sampler_heap`/`sampler_count` is unknown. | `hw-overview` §3; capture a large sampler heap, decode the per-sampler stride/packing. |
+| 10 | **threadgroup_imageblock** (§12) + **shader printf** (§2) + **draw-mesh-into-ICB** (§13) | Long-tail Metal-exposed features (imageblock in threadgroup memory; MSL printf buffer; mesh command in an ICB) — individually small, collectively block full-surface coverage. | `msl-feature-map` B7 / §6.17; provoke each and diff. |
+
+### (b) Honestly excluded from objective 2 (kernel-managed + microarch-only)
+
+These are **not** objective-2 blockers: they are either firmware/register state routed through the
+kernel submit (userspace never emits an ISA/cmdstream encoding for them) or microarchitectural behaviors
+with **no single emittable encoding** (observable only via throughput/occupancy microbenchmarks + Xcode
+performance counters). Listed for completeness with a one-line reason each.
+
+**Microarch-only (no emittable descriptor/instruction; counters/microbench only):**
+- **Dynamic Caching dynamic behavior** (§15) — register-file-as-cache alloc/dealloc curve; we have the *static* model (96 GPRs, spill, occupancy tier) but not the dynamic allocation curve Apple markets.
+- **Flexible unified on-chip memory** (§3) — unified L1 sharing reg/tg/tile/stack/buffer; observable only via cache-hit/eviction counters.
+- **2× ALU (dual-issue FP16/FP32/int)** (§1) — a throughput property, not an opcode; observable via a dual-issue throughput microbench.
+- **Full occupancy / latency-throughput curve** (§15) — per-op latency & the halfregs→max-threads occupancy curve; a perf measurement, not an encoding.
+- **RT reorder stage** (§8) — firmware/microarch stage that groups intersection calls; observable only via Xcode RT-scratch counters.
+- **Lossless compression block codec** (§14) — the 8×4-block codec bit-layout is a HW-internal, per-generation-revised format, **not** a Metal-exposed capability; a documented disable-fallback exists (allocate + wire aux flags, or clear them). Treated as opaque, not an objective-2 gate.
+
+**Kernel-managed (real HW state routed via the kernel submit — `kernel-interface.md`):**
+- **RT BVH build + node format** (§8) — GPU/firmware builds the BVH; node format not userspace-visible (userspace supplies vertices + build descriptor).
+- **Programmable MSAA sample positions** (§12) — `PPP_MULTISAMPLECTL`; not in any userspace BO.
+- **Depth store-action / ZLS** (§12) — `ZLS_CTRL`; firmware-programmed at render-pass granularity.
+- **Partial-render / tiler-param overflow trigger** (§12) — firmware detects overflow; no userspace knob.
+- **Scissor test** (§10) — `isp_scissor_base` submit param.
+- **Graphics shader-entry bind** (§15) — a draw carries no `shaderVA>>N`; the code-BO base reaches firmware out-of-band.
+
+### (c) Extrapolate-and-test probes (Vulkan/GL wants, Metal does NOT expose)
+
+Not strict objective-2 blockers (Metal exposes no path), but tracked on the `hypotheses.md`
+extrapolate-and-test backlog because each is a native-or-emulate decision for a Vulkan/GL driver:
+**anisotropy >16×** (§5, field encodes 128× but Metal caps 16×), **wide/smooth lines** (§10, Metal line
+width fixed), **conditional rendering** (§10, CPU-emulated in Mesa), and **GS/tessellation/transform-
+feedback A18-native re-probe** (§9, currently classified emulate — confirm no native path was gained).
 
 ---
 
@@ -432,17 +481,17 @@ sub-ops; the per-section tallies below sum the row counts).
 
 | Status | Count | What it means |
 |---|---|---|
-| **native-decoded** | **110** | HW representation decoded in `docs/` (many HW-validated; *(partial)* = principal encoding decoded, sub-fields ⏳). |
+| **native-decoded** | **160** | HW representation decoded in `docs/` (many HW-validated; *(partial)* = principal encoding decoded, sub-fields ⏳; *(lowered)* = no dedicated silicon but the compiler expansion into native ops is decoded & HW-validated). |
 | **emulated** | **9** | HW-absent or no Metal path → Vulkan/GL must software-emulate. 4 HW-validated absences (float atomic min/max, 64-bit atomic-add, arbitrary border color, int8 coopmat) + fp64 + no-D24S8 + the 3 classically-absent geometry stages (GS/tess/XFB, carried from M1/M2, not re-probed on A18). |
 | **kernel-managed** | **6** | Firmware/register state routed via the kernel submit (RT BVH build, sample positions, ZLS/depth store, partial-render trigger, scissor, graphics shader-entry bind) — the canonical set in `capability-matrix` §3 + `kernel-interface`. |
-| **NOT-YET-CHARACTERIZED** | **89** | Metal/MSL-exposed or Apple-advertised, but A18 HW representation not yet decoded — the completeness backlog (§16). |
+| **NOT-YET-CHARACTERIZED** | **39** | Metal/MSL-exposed or Apple-advertised, but A18 HW representation not yet decoded — the completeness backlog (§16). Of these, ~28 are Metal-exposed objective-2 blockers (§16a); the remaining ~11 are honestly-excluded microarch-only claims or Vulkan-vs-Metal extrapolation probes (§16b/§16c). |
 
 Per-section tallies (native-decoded / emulated / kernel / NYC):
-§1 ALU 18/1/0/11 · §2 CF 7/0/0/7 · §3 mem 10/0/0/3 · §4 atomics 6/2/0/2 · §5 tex/samp 14/1/0/6 ·
-§6 subgroup 7/0/0/2 · §7 matrix 5/1/0/3 · §8 RT 5/0/1/8 · §9 mesh/geo 0/3/0/6 ·
-§10 raster/blend 12/1/1/9 · §11 interp 0/0/0/7 · §12 TBDR 6/0/3/7 · §13 dispatch 6/0/0/3 ·
-§14 format/tiling 8/0/0/11 · §15 machine-model 6/0/1/4.
-**Totals: native-decoded 110 · emulated 9 · kernel-managed 6 · NYC 89.**
+§1 ALU 27/1/0/2 · §2 CF 13/0/0/1 · §3 mem 11/0/0/2 · §4 atomics 7/2/0/1 · §5 tex/samp 19/1/0/1 ·
+§6 subgroup 7/0/0/2 · §7 matrix 5/1/0/3 · §8 RT 6/0/1/7 · §9 mesh/geo 5/3/0/1 ·
+§10 raster/blend 13/1/1/8 · §11 interp 7/0/0/0 · §12 TBDR 11/0/3/2 · §13 dispatch 8/0/0/1 ·
+§14 format/tiling 14/0/0/5 · §15 machine-model 7/0/1/3.
+**Totals: native-decoded 160 · emulated 9 · kernel-managed 6 · NYC 39.**
 
 ### Apple-advertised features and their observability
 
@@ -451,19 +500,19 @@ Every WWDC/Tech-Talk Family-9 hardware claim maps to at least one observable —
 | Apple-advertised (WWDC) | Mapped to | Status |
 |---|---|---|
 | Hardware ray tracing (fixed-function traversal) | `rt_intersect`/`rt_as_load` instructions (§8) | native-decoded (partial) |
-| RT **reorder stage** | microarch/firmware; RT-scratch counters | NOT-YET-CHARACTERIZED (§8, backlog #8) |
-| Hardware mesh shading | object/mesh ISA + dispatch (§9) | NOT-YET-CHARACTERIZED (backlog #1) |
-| Dynamic Caching (register file as cache) | static footprint model native; dynamic behavior microarch (§15) | NOT-YET-CHARACTERIZED (backlog #11) |
-| Flexible on-chip memory (unified cache) | microarch; cache/eviction counters (§3) | NOT-YET-CHARACTERIZED (backlog #11) |
-| 2× ALU (parallel FP16/FP32/int) | microarch; throughput microbench (§1) | NOT-YET-CHARACTERIZED (backlog #11) |
+| RT **reorder stage** | microarch/firmware; RT-scratch counters | NOT-YET-CHARACTERIZED (§8; §16b) |
+| Hardware mesh shading | object/mesh HW pipeline + store-based emit + `0x70000600` dispatch (§9) | native-decoded (EXP-0030) |
+| Dynamic Caching (register file as cache) | static footprint model native; dynamic behavior microarch (§15) | NOT-YET-CHARACTERIZED (§16b) |
+| Flexible on-chip memory (unified cache) | microarch; cache/eviction counters (§3) | NOT-YET-CHARACTERIZED (§16b) |
+| 2× ALU (parallel FP16/FP32/int) | microarch; throughput microbench (§1) | NOT-YET-CHARACTERIZED (§16b) |
 | Free FP16↔FP32 conversion | `0x11` / free size-bit / `as_type` (§1) | native-decoded |
 | Programmable blending (TBDR) | blend compiled into FS (§10) | native-decoded (mechanism) |
-| Mesh threadgroups 1M+ / ICB mesh draws | dispatch encoding (§13) | NOT-YET-CHARACTERIZED (backlog #1/#10) |
+| Mesh threadgroups 1M+ / ICB mesh draws | mesh-grid-dispatch `0x70000600` native (§9); ICB-mesh draw path still NYC (§13) | native-decoded (dispatch) / NYC (ICB) |
 
 > The three "no-single-encoding" microarchitectural claims — **Dynamic Caching dynamic behavior**,
 > **flexible unified on-chip memory**, and **2× ALU** — have **no emittable descriptor/instruction**;
 > they are only observable indirectly (throughput/occupancy microbenchmarks + Xcode performance
-> counters). They are honestly marked NYC rather than native: we have the *static* register model
+> counters). They are honestly marked NYC rather than native (§16b): we have the *static* register model
 > (96 GPRs, spill, occupancy tier) but not the *dynamic* allocation curve Apple markets.
 
 ---
@@ -471,11 +520,13 @@ Every WWDC/Tech-Talk Family-9 hardware claim maps to at least one observable —
 ## Provenance
 
 Synthesis of `docs/isa/README.md` (EXP-0001/0003/0005/0006/0007/0010/0012/0013/0016/0018/0020/0022/
-0023/0025), `docs/isa/msl-feature-map.md` (MSL surface index A1–A21 / B1–B8 into the public MSL spec),
-`docs/cmdstream/README.md` (EXP-0009/0011/0014/0019/0024), `docs/descriptors/README.md` +
-`format-table.md` (EXP-0015/0017), `docs/tiling/README.md` (EXP-0017), `docs/pipeline/README.md`
-(EXP-0021), `docs/capability-matrix.md`, `docs/hypotheses.md` (#1–#18), `docs/kernel-interface.md`,
+0023/0025/0026/0029/0030/0031/0033/0034/0035/0037/0038) and `docs/isa/encoding-tables.md` (EXP-0036),
+`docs/isa/msl-feature-map.md` (MSL surface index A1–A21 / B1–B8 into the public MSL spec),
+`docs/cmdstream/README.md` (EXP-0009/0011/0014/0019/0024/0027/0030), `docs/descriptors/README.md` +
+`format-table.md` (EXP-0015/0017/0028), `docs/tiling/README.md` (EXP-0017/0028), `docs/pipeline/README.md`
+(EXP-0021), `docs/capability-matrix.md`, `docs/hypotheses.md` (#1–#25), `docs/kernel-interface.md`,
 `docs/mesa-userspace-requirements.md`, `docs/hardware-overview.md` (§3 `MTLDevice` capability probe,
-EXP-0002), and the public WWDC/Tech-Talk material in `gpu_knowledge/apple_official/wwdc/`
-(Family-9 GPU advancements: Dynamic Caching, HW ray tracing + reorder stage, HW mesh shading, 2× ALU,
-flexible on-chip memory). No new experiment; no Apple binary introspected.
+EXP-0002), `PROVENANCE.md` (authoritative HW-validation log), and the public WWDC/Tech-Talk material in
+`gpu_knowledge/apple_official/wwdc/` (Family-9 GPU advancements: Dynamic Caching, HW ray tracing +
+reorder stage, HW mesh shading, 2× ALU, flexible on-chip memory). No new experiment; no Apple binary
+introspected.
