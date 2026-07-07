@@ -138,6 +138,17 @@ the byte0 groups seen in real shaders but not yet decoded:
 - ☐ **Misc** — `nop`, fence/barrier scope variants, device-scope barrier (`0x85`).
 Target: iterate until a byte0-group census of a broad shader corpus shows ~0 undecoded groups.
 
+**G-14 — coverage-matrix not-started rows (EXP-descriptors/matrix sync: done 5 / partial 39 / not-started 8):**
+- ☐ Fragment-only ISA ops (iter/ldcf/ld_tile/st_tile/zs_emit/sample_mask) [overlaps G-13].
+- ☐ Device-generated **indirect** draw/dispatch commands (ICB).
+- ☐ **MSAA sample interleave** in memory; **occlusion/visibility** counters; **timestamps** (+timestampPeriod).
+- ☐ **UVS / varyings** linkage (vertex↔fragment interface); NIR-lowering HW-workaround facts.
+- ☐ **Sparse** page-table / folio geometry (kernel-adjacent).
+
+**G-6 core still owed:** render `tools/agx-isa/db.json` into `docs/isa/encoding-tables.md` so the ISA's
+authoritative opcode table is IN `docs/` (do LAST, once the DB is final). The descriptor tables are now
+self-contained (`docs/descriptors/format-table.md`).
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the

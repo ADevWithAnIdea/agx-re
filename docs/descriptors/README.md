@@ -63,3 +63,5 @@ Bare **inline 8-byte GPU VA** in the argument-buffer slot; **no length/format wo
 - All 8 compare functions, full channel swizzle, and sRGB/format/numeric-type orthogonality are native.
 
 Source: `experiments/EXP-0015-descriptors/` (`tvar.m`, `descx.py`).
+
+Full tables: [format-table.md](format-table.md)
