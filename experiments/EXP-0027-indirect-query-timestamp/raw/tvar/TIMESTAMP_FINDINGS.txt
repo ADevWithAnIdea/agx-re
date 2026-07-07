@@ -1,0 +1,34 @@
+EXP-0027 GPU TIMESTAMPS / COUNTER SAMPLE — curated evidence (A18 Pro / G17P / macOS 26.6)
+=========================================================================================
+Counter sets: exactly one -> name "timestamp", one counter "GPUTimestamp".
+
+(1) FORMAT / PERIOD  (HW-validated)
+    [dev sampleTimestamps:cpu gpuTimestamp:gpu] returns cpu==gpu every call
+       e.g. cpu0=28808777089583 gpu0=28808777089583 (identical)
+    Over a 50ms nanosleep: dCPU==dGPU (=60,033,000) => gpu_ticks_per_cpu_ns = 1.000000.
+    => GPU timestamp is uint64 NANOSECONDS; timestampPeriod = 1.0 ns/tick.
+    Sample-buffer TS[] fall in the same ns clock as sampleTimestamps:
+       cpu1(pre-commit)=28811037764958 ; TS[0]=28811050096416 (~12ms later, submit latency)
+    Stage deltas physically sane for a 64x64 triangle: vtx=10.8us, whole=34us.
+
+(2) SUPPORTED SAMPLING POINTS  (HW-validated via supportsCounterSampling:)
+    dispatchBoundary = 0  (NOT supported; compute csample -> TS all 0)
+    drawBoundary     = 0  (NOT supported)
+    stageBoundary    = 1  (supported: render-pass vertex/fragment start/end)
+    => Timestamps are only available at RENDER STAGE boundaries. Compute/blit/per-draw
+       timestamp queries must be emulated by a Vulkan/GL driver.  KEY CAPABILITY FLAG.
+
+(3) SAMPLE-BUFFER STORAGE / LAYOUT  (HW-validated by value correlation)
+    Resolved TS[0..3] appear verbatim in BO 0x10000080000 at +0x00,+0x08,+0x10,+0x18.
+    => sample buffer = a GPU BO; format = array of uint64 ns timestamps, 8-byte stride,
+       one per sample index (startVtx, endVtx, startFrag, endFrag).
+
+(4) COMMAND-STREAM ENCODING  (HW-clean deltas rnone vs rsample)
+    Enabling stage-boundary sampling grows two state-size words by +0x200:
+       VDM  0x18000 +0x0c : 0x4800 -> 0x4a00
+       pool 0x58000 +0x14 : 0x4c19 -> 0x4e19
+    The sample-buffer BASE ADDRESS is NOT present as a plain or shifted VA in any
+    client-registered BO (searched 0x10000080000 and >>6/low32 forms) => the sample-
+    buffer address handoff is FIRMWARE/KERNEL-MANAGED (kernel-interface item), like the
+    doorbell / sample positions / ZLS store. The per-sample-index write is emitted by the
+    tiler/3D firmware at each stage boundary.

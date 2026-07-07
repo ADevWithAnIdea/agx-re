@@ -158,6 +158,25 @@ length word when the depth/stencil block is present.
 The `iotrace` interposer **must be built `-arch arm64e`** or captures silently fail; shader size-probes
 need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
 
+## Completeness: indirect commands, occlusion queries, timestamps (EXP-0027)
+- **Indirect draw** (`drawPrimitives…indirectBuffer:`): VDM opcode changes **`0x61c4→0x6404`** (non-indexed) /
+  **`0x61f2→0x6432`** (indexed); inline counts are replaced by an 8-byte pointer to the public
+  `MTLDraw[Indexed]PrimitivesIndirectArguments` struct — non-indexed ptr at VDM `+0x68`(hi32)/`+0x6c`(lo32)
+  (stored **high32-then-low32**); indexed keeps index-buf ptr inline at `+0x70`, args ptr at `+0x74`/`+0x78`.
+- **Indirect dispatch:** because the CDM grid is in *threads* but indirect args give *threadgroups*, Metal
+  injects a **2nd CDM record + a grid-setup helper shader** to multiply `threadgroups × threadsPerThreadgroup`
+  (args VA staged at `0x10000080000+0xb0`). **A Mesa driver must replicate this multiply.**
+- **Full ICB** (`executeCommandsInBuffer:`): each command expands to an inline state-block + draw (same
+  `0x61c4`, inline vertexCount); header `+0x04` = command count. (Distinct from the args-pointer form above.)
+- **Occlusion query:** result-buffer base pointer at `0x10000100000+0x00`; per-draw **mode = bit14 of
+  `0x58000+0x8c`** (Boolean=1 writes 1 / Counting=0 writes exact passed-sample count, both u64); per-draw
+  **offset = `0x58000+0xa0` = byteOffset<<14**. Per-tile→total summation is firmware-managed.
+- **GPU timestamps:** format = **uint64 nanoseconds, `timestampPeriod = 1.0`** (cpu==gpu clock). ⚠ **Only
+  stage-boundary sampling is supported** — dispatch- and draw-boundary timestamps read all-zero (a Vulkan
+  emulation flag). Sample-buffer address is firmware/kernel-managed (see `../kernel-interface.md`).
+- **MSAA** (HW-PROBE): N independent samples with 1:1 sample-id ordering (`read(coord,s)` = sample s);
+  resolve = arithmetic average; physical interleave is on-chip tile SRAM (not byte-visible).
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/

@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · REVIEW-01 · SYNTH capability-census · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · SYNTH capability-census · **0027** indirect/occlusion/timestamp (G-14) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -146,8 +146,8 @@ Target: iterate until a byte0-group census of a broad shader corpus shows ~0 und
 
 **G-14 — coverage-matrix not-started rows (EXP-descriptors/matrix sync: done 5 / partial 39 / not-started 8):**
 - ☐ Fragment-only ISA ops (iter/ldcf/ld_tile/st_tile/zs_emit/sample_mask) [overlaps G-13].
-- ☐ Device-generated **indirect** draw/dispatch commands (ICB).
-- ☐ **MSAA sample interleave** in memory; **occlusion/visibility** counters; **timestamps** (+timestampPeriod).
+- ☑ Device-generated **indirect** draw/dispatch + ICB — *EXP-0027: opcode switch + args-struct ptr; indirect dispatch needs driver grid-setup multiply.*
+- ◐ **MSAA / occlusion / timestamps** — *EXP-0027: occlusion mode+offset+result-ptr decoded; timestamps u64 ns stage-only; MSAA on-chip interleave (not byte-visible).*
 - ☐ **UVS / varyings** linkage (vertex↔fragment interface); NIR-lowering HW-workaround facts.
 - ☐ **Sparse** page-table / folio geometry (kernel-adjacent).
 

@@ -1,0 +1,28 @@
+EXP-0027 OCCLUSION QUERY — curated evidence (A18 Pro / G17P / macOS 26.6)
+========================================================================
+Readback (HW-validated, qvar):
+  mode=bool  : visBuf[0] 0xdeadbeef00000000 -> 0x0000000000000001  (Boolean = 1)
+  mode=count : visBuf[0] 0xdeadbeef00000000 -> 0x0000000000001000  (=4096 = 64x64 all samples pass)
+  mode=two (count@off0 + count@off8): visBuf[0]=4096, visBuf[1]=4096 (two per-draw writes)
+  => 64-bit counter write; Counting = exact passed-sample count; Boolean = 1.
+
+(1) VISIBILITY-RESULT-BUFFER BASE POINTER  (HW-correlated)
+    BO 0x10000100000 +0x00 = LE u64 visBuf GPU VA
+    none->bool: +0x00 0->0x00018800 (visBuf low), +0x04 0x6f->0x00000100 (visBuf high)
+    visBuf VA printed = 0x10000018800  (low=0x18800, high=0x100)  MATCH
+
+(2) PER-DRAW MODE FIELD  (HW-clean, single-bit diff bool vs count)
+    BO 0x58000 +0x8c  bit14 (0x4000):  Boolean=1, Counting=0
+    bool  +0x8c = 0x0004c200   (bit14 set)
+    count +0x8c = 0x00048200   (bit14 clear)
+
+(3) PER-DRAW COUNTER OFFSET  (HW-clean, bool_off / count_off)
+    BO 0x58000 +0xa0 = byteOffset << 14
+    off0->0x00000000  off8->0x00020000  off16->0x00040000
+    (mirrored in tiler visibility-context BO 0x10000258000+0x00)
+
+(4) COUNTER WRITE DESTINATION = our visBuf (aliased windows 0x10000018600+0x200 /
+    0x18700+0x100 / 0x18800+0x00 are the same physical page):
+    count: +0x00 0x00000001->0x00001000 (4096). Upper 32 bits of poison cleared => 64-bit write.
+
+Tile->total sample summation is HW/firmware-managed (no userspace field) — INFERRED.

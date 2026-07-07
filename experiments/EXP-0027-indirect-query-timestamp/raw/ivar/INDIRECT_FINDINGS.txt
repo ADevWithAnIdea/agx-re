@@ -1,0 +1,42 @@
+EXP-0027 INDIRECT COMMANDS — curated evidence (A18 Pro / G17P / macOS 26.6)
+==========================================================================
+VDM draw-command opcode is at bytes +0x66/+0x67 (LE16); primitive-type byte at +0x65.
+
+(A) DRAW, ARGS-IN-BUFFER  (drawPrimitives:indirectBuffer:)  [HW-correlated]
+  direct   VDM 0x18000: +0x64 word 0x61c40600 (op 0x61c4), +0x68 vtxCount=3, +0x6c inst=1, +0x74 term 0xc0000000
+  indirect VDM 0x18000: +0x64 word 0x64040600 (op 0x6404), +0x68=0x00000100, +0x6c=0x0001c600, +0x70 term
+     argBuf VA printed = 0x1000001c600  => +0x6c = argBuf VA low32 (0x1c600), +0x68 = VA high32 (0x100)
+     (opcode 0x61c4 -> 0x6404 ; count fields replaced by an 8-byte args pointer)
+  The GPU reads MTLDrawPrimitivesIndirectArguments {vertexCount,instanceCount,vertexStart,
+  baseInstance} (4x u32) from argBuf at execute time (draw rendered with vtxCount=3 from buffer).
+
+(A') INDEXED DRAW, ARGS-IN-BUFFER  [HW-correlated]
+  dir_idx  VDM: +0x64=0x40000001, +0x68=0x0000ffff (idx type/restart), +0x6c op 0x61f2, +0x70 idxVA low,
+                +0x74 indexCount=3, +0x78 inst=1
+  ind_idx  VDM: +0x64=0x40000001, +0x68=0x0000ffff, +0x6c op 0x6432, +0x70 idxVA low (0x1c600),
+                +0x74=0x00000100 (argBuf high), +0x78=0x0001c700 (argBuf low)  [argBuf VA=0x1000001c700]
+  => indexed-indirect opcode 0x6432; index buffer ptr stays inline (+0x70); args pointer at +0x74/+0x78.
+  GPU reads MTLDrawIndexedPrimitivesIndirectArguments {indexCount,instanceCount,indexStart,baseVertex,baseInstance}.
+
+(B) DISPATCH, ARGS-IN-BUFFER  (dispatchThreadgroupsWithIndirectBuffer:)  [HW-validated]
+  CDM 0x100000b0000 record is 0x2c bytes (EXP-0011). Direct: config 0x00080000, grid.x(threads)@+0x10=64,
+    tg.x@+0x1c=32, terminator 0x40000000 @ +0x2c.
+  Indirect: config @+0x00 = 0x00880000; a SECOND 0x2c record follows the first (no 0x40000000 terminator
+    at +0x2c; instead +0x2c=0x10080000, +0x34=0x00002404 = aux shader @ 0x90100>>6, +0x40=0x000e14c0 =
+    ptr into arg-buffer 0x100000e0000+0x14c0). The indirect-args buffer VA (0x1000001c900) is staged in
+    control BO 0x10000080000 +0xb0.
+  => Because the CDM grid is in THREADS but MTLDispatchThreadgroupsIndirectArguments gives THREADGROUPS,
+     Metal injects an AUXILIARY "grid-setup" dispatch (2nd CDM record + aux shader) that reads the args
+     buffer and converts threadgroups*threadsPerThreadgroup into the thread-count grid. Aux shader is
+     Metal-generated (located, NOT disassembled). threadsPerThreadgroup stays inline (tg.x@+0x1c=32).
+
+(C) FULL ICB  (MTLIndirectCommandBuffer + executeCommandsInBuffer:)  [HW-validated]
+  executeCommandsInBuffer expands each ICB command into a state-block + draw-primitive in the tiler stream
+  (0x18xxx region). icb_draw main stream: draw opcode 0x61c4 + vtxCount=3 inline at +0x1ac/+0x1b0 (same as a
+  direct draw). Header command-count word +0x04: icbn=1 -> 1, icbn=2 -> 2 (HW-clean). 2nd command's draw block
+  appears at +0x1e8 (op 0x61c4, count 3, inst 1), ~0x3c stride. Per-command bound resources are stored in the
+  ICB storage region (e.g. vtxBuf VA 0x1000001c500 at +0x400 as NORMAL LE u64: +0x400=0x1c500, +0x404=0x100).
+  => Distinction: ICB carries fully ENCODED commands (opcode+bindings+inline args); indirectBuffer draw carries
+     opcode + pointer to a 16/20-byte args struct read at execute time.
+  Pointer-encoding note: ICB inline resource ptrs are LE u64 (low32 first); the inline VDM indirect-ARGS
+  pointer is stored high32-then-low32 (see A/A').

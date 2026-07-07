@@ -1,0 +1,20 @@
+EXP-0027 MSAA SAMPLE INTERLEAVE (stretch) — evidence (A18 Pro / G17P / macOS 26.6)
+=================================================================================
+HW-PROBE (mvar): fragment writes sample_id/255; resolve = StoreAndMultisampleResolve;
+2nd compute pass reads each sample via texture2d_ms.read(uint2(4,4), s).
+
+  samples=2: RESOLVE r=1 (avg of {0,1});  PERSAMPLE s0=0 s1=1
+  samples=4: RESOLVE r=2 (avg of {0,1,2,3}=1.5->2); PERSAMPLE s0=0 s1=1 s2=2 s3=3
+
+=> HW maintains N INDEPENDENT samples (2 and 4), each written per sample_id and
+   INDEPENDENTLY ADDRESSABLE via read(coord, sample). Sample ordering is 1:1: the
+   value shaded at sample_id==s reads back at sample slot s (no permutation).
+   Resolve is fixed-function ARITHMETIC AVERAGE of the N samples.
+
+MEMORY LAYOUT: the per-sample data lives in on-chip tile/imageblock SRAM during the
+pass and in the (private, tiled) MSAA texture after Store; it is NOT in a client-
+registered linear BO, so the physical byte interleave is not directly byte-diffable
+here. Under 4x MSAA the color attachment descriptor RELOCATES out of 0x10000110000
+into the tiler heap (BO-set delta m1 vs m4 restructures: m1-only 0x10000118000/
+0x10000270000/..., m4-only 0x100000c8000/0x10000210000/0x10000328000/...), corroborating
+EXP-0021. Sample-count field (+0x24) and tile budget are owned by EXP-0021.
