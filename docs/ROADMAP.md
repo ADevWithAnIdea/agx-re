@@ -177,6 +177,23 @@ tightened as they're decoded.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
+### OBJECTIVE-2 WORK QUEUE (Metal-exposed but NOT yet HW-exercised — close all before the obj-2 audit)
+From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
+- ☐ **O2-A geometry-output pipeline** [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
+  `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
+- ☐ **O2-B sparse/PBE/filtering/sampler-heap** [descriptor/tiling]: sparse/tile textures, PBE-renderable flags,
+  32-bit float texture filtering, bindless sampler-heap (500k) layout.
+- ☐ **O2-C RT completion tail** [ISA]: `ray_data` payload, RT-from-render, motion blur, intersection tags,
+  bbox/curve custom primitives, RT companion `0x5f`.
+- ☐ **O2-D tile shaders + threadgroup_imageblock + printf** [ISA/cmdstream]: mid-render compute dispatch encoding.
+- ☐ **O2-E ISA tail** [ISA]: atomic memory-ordering/fence bits + 64-bit atomic min/max width; bfloat general ALU;
+  subgroup tail (`simd_shuffle_and_fill_up/down`, modulo, `simd_is_helper_thread`).
+- ☐ **O2-F tensor ops** [ISA]: MPP cooperative-tensor/convolution beyond matmul2d; matrix transpose/load variants;
+  full `0xcf` operand-selector decode.
+Honestly EXCLUDED from obj-2 (microarch/kernel; document, don't gate): Dynamic-Caching dynamics, flexible on-chip
+memory, 2× ALU dual-issue, occupancy curve, RT reorder stage, compression codec; RT BVH build, sample positions,
+ZLS, partial-render, scissor register, shader-entry bind.
+
 ### Phase R — RED-TEAM (adversarial verification; the user's explicit finishing directive)
 Assume EVERY finding was produced by an unreliable agent. Big structure (families/opcodes) is likely right;
 **subtle field/attribute errors are the target.** Fan out critical subagents that **RUN falsification tests**
