@@ -127,6 +127,18 @@ REAL_INSTRS = {
     "barrier tgmem (07 04 54 61 09 00)": "070454610900",  # threadgroup_barrier(mem_threadgroup) HW/splice
     "barrier device (07 04 54 85 08 00)":"070454850800",  # threadgroup_barrier(mem_device) HW
     "falu_acc (09 01 38 11)":            "09013811",       # compact 4-byte float accumulate HW (NOT a wait)
+    # ---- FRAGMENT STAGE (EXP-0029), carved from our own compiled render pipelines ----
+    "iter center (2f 0d 54 .. m0)":      "2f0d5400030000021000",   # varying interpolate, center  HW
+    "iter perspW (2f 0d 54 .. m4)":      "2f0d5400030004021000",   # perspective-denominator iter HW
+    "iter_at centroid (af 14 54 .. 01)": "af14540403000a01",       # interpolate-at setup, centroid HW
+    "iter_at sample   (af 04 54 .. 03)": "af04540403000a03",       # interpolate-at setup, sample   HW
+    "iter_flat (1f 0b 54 0b 00 05)":     "1f0b540b0005",           # flat varying load HW
+    "frag_color_store (e7 06 54 ..)":    "e70654000000014e00000000",  # colour store RT0 HW
+    "tile_read (67 0e 54 ..)":           "670e5404000001ce02000000",  # programmable-blend tile read HW
+    "frag_tile_setup (87 02 54 0c 08)":  "8702540c0800",           # tile/RT access setup HW
+    "frag_color_pack (97 0c 54 ..)":     "970c54000250805004c8",   # colour-register pack HW
+    "pixel_order acquire (07 14 54 50 06)":"071454500600",         # raster-order-group wait HW-diff
+    "pixel_order release (07 04 54 d0 06)":"070454d00600",         # raster-order-group signal HW-diff
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -202,6 +214,15 @@ REAL_PROGRAMS = {
     # ---- SCOREBOARD (EXP-0025): a 10-way reduction that mixes 6-byte 0x3c fadds and
     # the 4-byte 0x38 compact accumulates -- tokenizes cleanly (no wait ops anywhere).
     "manyload10": "1ca0100667105400000120005101004046006700541c010120005101004046006700541a020120001100004046006700541603012000510000404600670054140401200091000040460067005410050120009100004046006700540e060120009100004046006700540a0701200011010040460067005408080120001101004046006700440409012000d1000040460009013c1d00c009013c1b002009013c17004009013c150060090138110901380f09013c0b00a00901380909011c050080e70054000a0121001100009011000e000000",
+    # ---- FRAGMENT whole _agc.main programs (EXP-0029), from our own render pipelines.
+    # out_const: colour packs (0x97) + tile setup (0x87) + colour store (0xe7 06) + frag end (0x07) + stop.
+    "frag_out_const":     "970c54000250805004c8970454010220c05004c88702540006008702540c0800e70654000000014e000000000702540c02000e000000",
+    # interp_noperspective: four 10-byte varying interpolates (0x2f iter) + colour packs + store epilog.
+    "frag_interp_nopersp":"2f0d54000300000210002f055402030400021000 2f055408030200021000 2f05540403060002100097045400020020d045c297045401020410d045c2870254000600 8702540c0800e70654000000014e000000000702540c02000e000000".replace(' ',''),
+    # interp_flat: four 6-byte flat loads (0x1f iter_flat) + colour packs + store epilog.
+    "frag_interp_flat":   "1f0b540b00051f03548700051f03540401001f03548001009704560602 3448d045c297145407021810d045c2870254000600 8702540c0800e70654060000014e000000000702540c02000e000000".replace(' ',''),
+    # out_mrt: three per-RT colour stores (frag_color_store byte+5 = RT index) — tokenizes clean.
+    "frag_out_mrt":       "970c5404021838d005c8970454050220c0d004c897045402020c20d005c8970454030214c0d004c897045400020008d005c8970454010208c0d004c8870254000600870254c00800e70654040004014e00000000070254c00000870254300800e70654020002014e000000000702543000008702540c0800e70654000000014e000000000702540c02000e000000",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.

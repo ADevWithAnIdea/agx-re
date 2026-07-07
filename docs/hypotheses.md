@@ -34,6 +34,8 @@ Outcome vocabulary:
 | 18 | G17P needs G13-style software scoreboard waits | G13 had explicit wait ops | compiled load->use, atomic->use; searched for wait ops | **NO — inverted** — HW register interlock handles RAW; no software wait exists; simpler backend than G13 | EXP-0025 |
 | 19 | rcp/rsqrt/exp2/log2 are single-op HW (SFU), not multi-instr | Apple perf; G13 had SFU | disassembled fast-math rcp/rsqrt/exp2 | **WORKS** — `0x2f/0xaf` SFU single op; ~8-bit estimate seed for precise NR | EXP-0026 |
 | 20 | Built-in sin/cos has full-range accuracy | GL/Vulkan conformance | HW readback at large args | **NO** — ~1 ULP moderate, ~5e5 ULP large args; driver must add SW range reduction | EXP-0026 |
+| 21 | Perspective-correct interpolation is a HW mode bit | fewer instrs if native | diffed linear vs perspective vs flat fragment | **PARTIAL** — flat=iter_flat(0x1f), linear/centroid/sample are `iter` modes, but perspective = multi-instr (W-denom iter + rcp + fmul) | EXP-0029 |
+| 22 | Raster-order-groups have a dedicated pixel wait/signal op | Metal ROG; G13 had wait_pix/signal_pix | diffed ROG vs non-ROG fragment | **PARTIAL** — no dedicated op; ROG reuses the 0x07 fence family (acquire/release) | EXP-0029 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

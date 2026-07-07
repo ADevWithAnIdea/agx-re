@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · SYNTH capability-census · **0027** indirect/occlusion/timestamp · **0028** format codes+twiddle · **0030** mesh shading (#1: HW pipeline + compute-store emit) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · SYNTH capability-census · **0027** indirect/occlusion/timestamp · **0028** format codes+twiddle · **0030** mesh · **0029** fragment ISA (interp/output/tilebuffer/ROG, G-4) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -105,7 +105,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 **HIGH:**
 - ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*
 - ☑ **G-8 tgmem size + CDM config** — *EXP-0024: tgmem=(bytes<<2)|0x80 in shader BO; config bit23=occupancy tier.*
-- ☑ **G-9 RT ✅ (EXP-0023 hybrid) + mesh shading ✅ (EXP-0030: HW pipeline, compute-store emit, 0x43 marker, graphics-path submission; UVB firmware-managed)**. [ISA]
+- ☑ **G-4 fragment interpolation ✅ (EXP-0029).** **G-9 RT ✅ (EXP-0023 hybrid) + mesh shading ✅ (EXP-0030: HW pipeline, compute-store emit, 0x43 marker, graphics-path submission; UVB firmware-managed)**. [ISA]
 - ☑ **G-10 Native-vs-emulated capability matrix** → `docs/capability-matrix.md` (13 native / 7 emulate / 5 kernel-managed / 6 unknown).
 - ☑ **G-11 Contradiction reconciled** → `docs/kernel-interface.md`: userspace *computes* value, kernel *writes register* as submit-ioctl param (not in command stream). Both docs right at different layers.
 - ☑ **G-12 Kernel-interface contract** → `docs/kernel-interface.md` (submission model, VA-space table, 5 firmware-managed items, what kernel must provide).
@@ -128,11 +128,9 @@ tracked in `docs/capability-completeness.md` (see `../CLAUDE.md` → Secondary g
 **G-13 — INSTRUCTION-FAMILY COMPLETENESS (calibration: dougallj/applegpu M1 ≈ 124 instruction
 classes; we have 40 family-heads ≈ ~70-90 logical — several whole families still missing).** Decode
 the byte0 groups seen in real shaders but not yet decoded:
-- ☐ **Fragment varying interpolation** — `iter`/`iterproj`/`ldcf` (coefficient load) [= gap G-4].
-- ☐ **Varying / tilebuffer / imageblock** — vertex varying-store (`0x05/0x06/0x57`), fragment
-  varying-load, `ld_tile`/`st_tile`, imageblock load/store (programmable-blend + `[[imageblock]]`).
-- ☐ **Pixel ordering** — `wait_pix`/`signal_pix` (fragment tilebuffer scoreboard; fragment analogue
-  of EXP-0025's compute interlock; M1 has these).
+- ☑ **Fragment varying interpolation** — *EXP-0029: `iter` 0x2f (byte+5 slot, byte+6 mode); flat=iter_flat 0x1f; perspective=multi-instr.*
+- ◐ **Varying / tilebuffer / imageblock** — *EXP-0029: frag output `frag_color_store` 0xe7/06, tilebuffer read `tile_read` 0x67/0e. Remaining: vertex varying-store 0x05/06/57, imageblock.*
+- ☑ **Pixel ordering (ROG)** — *EXP-0029: no dedicated op; 0x07 fence family acquire/release.*
 - ☐ **Control-flow exec-mask sub-ops** — `0x0f` beyond `jump`: `else`/`while`/`break`/`pop`/
   `reconverge`/`jmp_exec` variants (push/else/pop noted, not decoded).
 - ☐ **Stack spill/fill** — scratch load/store (EXP-0020 saw the behavior, not the ops).

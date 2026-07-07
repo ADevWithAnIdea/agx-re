@@ -1,0 +1,573 @@
+==== blend_read (120B) ====
+  +000  6B 870254000600             frag_tile_setup
+  +006  6B 870254080800             frag_tile_setup
+  +012 12B 670e5404000001ce02000000 tile_read
+  +024 10B 17045600010814ea0901     simd_ballot
+  +034  UNK  2ea1
+  +036  UNK  2104
+  +038  6B 020219032ea1             iminmax
+  +044  UNK  2102
+  +046  6B 020297045404             iminmax
+  +052  6B 020008d045c2             iminmax
+  +058 10B 17045400010a14ea0901     simd_ballot
+  +068  UNK  2ea1
+  +070  UNK  2100
+  +072  6B 020219032ea1             iminmax
+  +078  UNK  2190
+  +080  6B 020297045405             iminmax
+  +086  6B 020008d045c2             iminmax
+  +092  6B 870254040800             frag_tile_setup
+  +098 12B e70654040000014e00000000 frag_color_store
+  +110  6B 0702540c0200             threadgroup_barrier
+  +116  4B 0e000000                 stop
+
+==== blend_read_half (120B) ====
+  +000  6B 870254000600             frag_tile_setup
+  +006  6B 870254080800             frag_tile_setup
+  +012 12B 670e5400000001ce02000000 tile_read
+  +024 10B 17045602010010ea0002     simd_ballot
+  +034  UNK  2ea0
+  +036  UNK  2102
+  +038  UNK  0002
+  +040  UNK  1003
+  +042  UNK  2ea0
+  +044  UNK  2101
+  +046  UNK  0002
+  +048 10B 97045400020008a845c2     frag_color_pack
+  +058 10B 17045402010210ea0802     simd_ballot
+  +068  UNK  2ea0
+  +070  UNK  2100
+  +072  UNK  0002
+  +074  UNK  1003
+  +076  UNK  2ea0
+  +078  UNK  2190
+  +080  UNK  0002
+  +082 10B 97045401020208a845c2     frag_color_pack
+  +092  6B 870254040800             frag_tile_setup
+  +098 12B e70654000000014e00000000 frag_color_store
+  +110  6B 0702540c0200             threadgroup_barrier
+  +116  4B 0e000000                 stop
+
+==== imageblock (118B) ====
+  +000  4B 4ce6023e                 get_sr
+  +004  8B 1900330b2b000000         falu3
+  +012  4B 3c800200                 get_sr
+  +016  UNK  100c
+  +018  UNK  0100
+  +020  4B 0c800234                 get_sr
+  +024  UNK  000c
+  +026  UNK  0100
+  +028  4B 1c80023c                 get_sr
+  +032  UNK  0008
+  +034  UNK  0100
+  +036  6B 870254000600             frag_tile_setup
+  +042  6B 870254c00800             frag_tile_setup
+  +048 12B e70654080008012200000000 frag_color_store
+  +060  6B 070254c00000             threadgroup_barrier
+  +066  6B 870254300800             frag_tile_setup
+  +072 12B e70654040004010e00000000 frag_color_store
+  +084  6B 070254300000             threadgroup_barrier
+  +090  6B 8702540c0800             frag_tile_setup
+  +096 12B e70654000000010e00000000 frag_color_store
+  +108  6B 0702540c0200             threadgroup_barrier
+  +114  4B 0e000000                 stop
+
+==== interp_centroid (162B) ====
+  +000  8B 04c2110601000000         (no-desc)
+  +008  8B af14540603000a01         iter_at
+  +016 10B 2f055400030003020900     iter
+  +026 10B af005404030002482001     fspecial
+  +036 10B 2f055400030203020800     iter
+  +046 10B 2f055408030403020800     iter
+  +056 10B 2f055402030603020800     iter
+  +066  8B 09012f8500010000         falu3
+  +074 10B 2f055406030803022000     iter
+  +084  8B 49092f8500020000         falu3
+  +092 10B 97045400020020d045c2     frag_color_pack
+  +102  8B 19032f8500030000         falu3
+  +110  8B 29073f0500040000         falu3
+  +118 10B 97045401020410d045c2     frag_color_pack
+  +128  6B 870254000600             frag_tile_setup
+  +134  6B 8702540c0800             frag_tile_setup
+  +140 12B e70654000000014e00000000 frag_color_store
+  +152  6B 0702540c0200             threadgroup_barrier
+  +158  4B 0e000000                 stop
+
+==== interp_centroid_nopersp (110B) ====
+  +000  8B 04c2110601000000         (no-desc)
+  +008  8B af14540403000a01         iter_at
+  +016 10B 2f055400030002020800     iter
+  +026 10B 2f055402030402020800     iter
+  +036 10B 2f055408030202020800     iter
+  +046 10B 2f055404030602022000     iter
+  +056 10B 97045400020020d045c2     frag_color_pack
+  +066 10B 97045401020410d045c2     frag_color_pack
+  +076  6B 870254000600             frag_tile_setup
+  +082  6B 8702540c0800             frag_tile_setup
+  +088 12B e70654000000014e00000000 frag_color_store
+  +100  6B 0702540c0200             threadgroup_barrier
+  +106  4B 0e000000                 stop
+
+==== interp_flat (78B) ====
+  +000  6B 1f0b540b0005             iter_flat
+  +006  6B 1f0354870005             iter_flat
+  +012  6B 1f0354040100             iter_flat
+  +018  6B 1f0354800100             iter_flat
+  +024 10B 97045606023448d045c2     frag_color_pack
+  +034 10B 97145407021810d045c2     frag_color_pack
+  +044  6B 870254000600             frag_tile_setup
+  +050  6B 8702540c0800             frag_tile_setup
+  +056 12B e70654060000014e00000000 frag_color_store
+  +068  6B 0702540c0200             threadgroup_barrier
+  +074  4B 0e000000                 stop
+
+==== interp_noperspective (94B) ====
+  +000 10B 2f0d5400030000021000     iter
+  +010 10B 2f055402030400021000     iter
+  +020 10B 2f055408030200021000     iter
+  +030 10B 2f055404030600021000     iter
+  +040 10B 97045400020020d045c2     frag_color_pack
+  +050 10B 97045401020410d045c2     frag_color_pack
+  +060  6B 870254000600             frag_tile_setup
+  +066  6B 8702540c0800             frag_tile_setup
+  +072 12B e70654000000014e00000000 frag_color_store
+  +084  6B 0702540c0200             threadgroup_barrier
+  +090  4B 0e000000                 stop
+
+==== interp_pull_center (146B) ====
+  +000 10B 2f0d5400030004021000     iter
+  +010 10B af005404030002482001     fspecial
+  +020 10B 2f055400030200021000     iter
+  +030 10B 2f055408030400021000     iter
+  +040 10B 2f055402030600021000     iter
+  +050  8B 09012f8500010000         falu3
+  +058 10B 2f055406030800021000     iter
+  +068  8B 49092f8500020000         falu3
+  +076 10B 97045400020020d045c2     frag_color_pack
+  +086  8B 19032f8500030000         falu3
+  +094  8B 29073f0500040000         falu3
+  +102 10B 97045401020410d045c2     frag_color_pack
+  +112  6B 870254000600             frag_tile_setup
+  +118  6B 8702540c0800             frag_tile_setup
+  +124 12B e70654000000014e00000000 frag_color_store
+  +136  6B 0702540c0200             threadgroup_barrier
+  +142  4B 0e000000                 stop
+
+==== interp_pull_centroid (162B) ====
+  +000  8B 04c2110601000000         (no-desc)
+  +008  8B af14540603000a01         iter_at
+  +016 10B 2f055400030003020900     iter
+  +026 10B af005404030002482001     fspecial
+  +036 10B 2f055400030203020800     iter
+  +046 10B 2f055408030403020800     iter
+  +056 10B 2f055402030603020800     iter
+  +066  8B 09012f8500010000         falu3
+  +074 10B 2f055406030803022000     iter
+  +084  8B 49092f8500020000         falu3
+  +092 10B 97045400020020d045c2     frag_color_pack
+  +102  8B 19032f8500030000         falu3
+  +110  8B 29073f0500040000         falu3
+  +118 10B 97045401020410d045c2     frag_color_pack
+  +128  6B 870254000600             frag_tile_setup
+  +134  6B 8702540c0800             frag_tile_setup
+  +140 12B e70654000000014e00000000 frag_color_store
+  +152  6B 0702540c0200             threadgroup_barrier
+  +158  4B 0e000000                 stop
+
+==== interp_pull_offset (460B) ====
+  +000  6B 1f0b540c0005             iter_flat
+  +006  6B 1f0354890000             iter_flat
+  +012  6B 1f0354060101             iter_flat
+  +018  6B 1f0354830102             iter_flat
+  +024  6B 1f0354000203             iter_flat
+  +030  4B 0ca05086                 get_sr
+  +034  4B fca11086                 get_sr
+  +038  UNK  f320
+  +040 10B 2f9f140200400000a707     fspecial
+  +050  UNK  5420
+  +052  UNK  033e
+  +054  UNK  a420
+  +056  UNK  f31e
+  +058 10B 2f9f100200000000a707     fspecial
+  +068  UNK  541e
+  +070  UNK  033c
+  +072  UNK  a420
+  +074  6B 099154218000             falu2i
+  +080  6B f991141f8000             falu2i
+  +086  8B 19a16699019c02c0         falu3
+  +094  8B 199f629b229b6703         falu3
+  +102  UNK  06a2
+  +104  UNK  0602
+  +106  UNK  801c
+  +108  UNK  d21b
+  +110 10B 2f018624060200a2d299     fspecial
+  +120  8B 270305a20602d299         iunary
+  +128  8B 270104a20602c219         iunary
+  +136 10B 2f80861a16028022af00     fspecial
+  +146  UNK  5418
+  +148  UNK  0330
+  +150  UNK  1048
+  +152  UNK  2000
+  +154  8B e99326a101960220         falu3
+  +162  8B 198f669f01900240         falu3
+  +170  8B e99f2295d98d26a1         falu3
+  +178  UNK  8022
+  +180  6B 191d6999e91b             falu2i
+  +186  8B 29995295670306a2         falu3
+  +194  UNK  0602
+  +196  UNK  8016
+  +198  UNK  228f
+  +200 14B 6703069c06028010d2152f01862a device_load
+  +214  UNK  0602
+  +216  UNK  00a2
+  +218  UNK  a20f
+  +220 10B 2f0186240602009c7293     fspecial
+  +230  8B 270306a20602801a         iunary
+  +238  UNK  a28d
+  +240  8B 2703059c06027293         iunary
+  +248  8B 270104a20602a28d         iunary
+  +256  8B 2701049c06027213         iunary
+  +264 10B 2f8084221602620d2f80     fspecial
+  +274  UNK  8614
+  +276  4B 1602801c                 sel
+  +280 10B 9704540c021c30d045c2     frag_color_pack
+  +290  8B 8989269f018a0260         falu3
+  +298  8B b983361f01840280         falu3
+  +306  8B 898722a179813621         falu3
+  +314  UNK  8016
+  +316  6B b9112999890f             falu2i
+  +322  8B 3919c28927030696         falu3
+  +330  UNK  0602
+  +332  UNK  800a
+  +334  UNK  9283
+  +336  8B 2703069006028004         iunary
+  +344  UNK  7209
+  +346 10B 2f018618060200964203     fspecial
+  +356 10B 2f018612060200901287     fspecial
+  +366  8B 270306960602800e         iunary
+  +374  UNK  4281
+  +376  8B 2703059006021287         iunary
+  +384  8B 2701049606024281         iunary
+  +392  8B 2701049006021207         iunary
+  +400 10B 2f808416160202012f80     fspecial
+  +410  UNK  8608
+  +412  4B 16028010                 sel
+  +416 10B 9704540d020400d045c2     frag_color_pack
+  +426  6B 870254000600             frag_tile_setup
+  +432  6B 8702540c0800             frag_tile_setup
+  +438 12B e706540c0000014e00000000 frag_color_store
+  +450  6B 0702540c0200             threadgroup_barrier
+  +456  4B 0e000000                 stop
+
+==== interp_pull_sample (164B) ====
+  +000 10B 03002600000001000000     (no-desc)
+  +010  8B af04540603000a03         iter_at
+  +018 10B 2f055400030003020900     iter
+  +028 10B af005404030002482001     fspecial
+  +038 10B 2f055400030203020800     iter
+  +048 10B 2f055408030403020800     iter
+  +058 10B 2f055402030603020800     iter
+  +068  8B 09012f8500010000         falu3
+  +076 10B 2f055406030803022000     iter
+  +086  8B 49092f8500020000         falu3
+  +094 10B 97045400020020d045c2     frag_color_pack
+  +104  8B 19032f8500030000         falu3
+  +112  8B 29073f0500040000         falu3
+  +120 10B 97045401020410d045c2     frag_color_pack
+  +130  6B 870254000600             frag_tile_setup
+  +136  6B 8702540c0800             frag_tile_setup
+  +142 12B e70654000000014e00000000 frag_color_store
+  +154  6B 0702540c0200             threadgroup_barrier
+  +160  4B 0e000000                 stop
+
+==== interp_sample (164B) ====
+  +000 10B 03002600000001000000     (no-desc)
+  +010  8B af04540603000a03         iter_at
+  +018 10B 2f055400030003020900     iter
+  +028 10B af005404030002482001     fspecial
+  +038 10B 2f055400030203020800     iter
+  +048 10B 2f055408030403020800     iter
+  +058 10B 2f055402030603020800     iter
+  +068  8B 09012f8500010000         falu3
+  +076 10B 2f055406030803022000     iter
+  +086  8B 49092f8500020000         falu3
+  +094 10B 97045400020020d045c2     frag_color_pack
+  +104  8B 19032f8500030000         falu3
+  +112  8B 29073f0500040000         falu3
+  +120 10B 97045401020410d045c2     frag_color_pack
+  +130  6B 870254000600             frag_tile_setup
+  +136  6B 8702540c0800             frag_tile_setup
+  +142 12B e70654000000014e00000000 frag_color_store
+  +154  6B 0702540c0200             threadgroup_barrier
+  +160  4B 0e000000                 stop
+
+==== interp_sample_nopersp (112B) ====
+  +000 10B 03002600000001000000     (no-desc)
+  +010  8B af04540403000a03         iter_at
+  +018 10B 2f055400030002020800     iter
+  +028 10B 2f055402030402020800     iter
+  +038 10B 2f055408030202020800     iter
+  +048 10B 2f055404030602022000     iter
+  +058 10B 97045400020020d045c2     frag_color_pack
+  +068 10B 97045401020410d045c2     frag_color_pack
+  +078  6B 870254000600             frag_tile_setup
+  +084  6B 8702540c0800             frag_tile_setup
+  +090 12B e70654000000014e00000000 frag_color_store
+  +102  6B 0702540c0200             threadgroup_barrier
+  +108  4B 0e000000                 stop
+
+==== interp_smooth (146B) ====
+  +000 10B 2f0d5400030004021000     iter
+  +010 10B af005404030002482001     fspecial
+  +020 10B 2f055400030200021000     iter
+  +030 10B 2f055408030400021000     iter
+  +040 10B 2f055402030600021000     iter
+  +050  8B 09012f8500010000         falu3
+  +058 10B 2f055406030800021000     iter
+  +068  8B 49092f8500020000         falu3
+  +076 10B 97045400020020d045c2     frag_color_pack
+  +086  8B 19032f8500030000         falu3
+  +094  8B 29073f0500040000         falu3
+  +102 10B 97045401020410d045c2     frag_color_pack
+  +112  6B 870254000600             frag_tile_setup
+  +118  6B 8702540c0800             frag_tile_setup
+  +124 12B e70654000000014e00000000 frag_color_store
+  +136  6B 0702540c0200             threadgroup_barrier
+  +142  4B 0e000000                 stop
+
+==== out_const (54B) ====
+  +000 10B 970c54000250805004c8     frag_color_pack
+  +010 10B 970454010220c05004c8     frag_color_pack
+  +020  6B 870254000600             frag_tile_setup
+  +026  6B 8702540c0800             frag_tile_setup
+  +032 12B e70654000000014e00000000 frag_color_store
+  +044  6B 0702540c0200             threadgroup_barrier
+  +050  4B 0e000000                 stop
+
+==== out_depth (160B) ====
+  +000  6B 1f0b54000005             iter_flat
+  +006  6B 02050f098204             iminmax
+  +012  4B 05c22080                 psel
+  +016  6B 870254000600             frag_tile_setup
+  +022 14B 6700440000802000598900404800 device_load
+  +036  UNK  3484
+  +038  UNK  1006
+  +040 10B 970454040250805004c8     frag_color_pack
+  +050 10B 970454050220c05004c8     frag_color_pack
+  +060 10B 9f115408020c18001605     iadd2
+  +070  UNK  320d
+  +072  8B 2701020083c0200c         iunary
+  +080 10B 9f015400031e20001404     iadd2
+  +090  6B 12073f038302             fminmax
+  +096  UNK  4200
+  +098  UNK  8006
+  +100  UNK  0000
+  +102  UNK  1000
+  +104 10B 0b012f00420000001000     (no-desc)
+  +114  6B 870254010000             frag_tile_setup
+  +120  6B d71454000003             frag_depth_store
+  +126  6B 070254010000             threadgroup_barrier
+  +132  6B 8702540c0800             frag_tile_setup
+  +138 12B e70654040000014e00000000 frag_color_store
+  +150  6B 0702540c0200             threadgroup_barrier
+  +156  4B 0e000000                 stop
+
+==== out_discard (132B) ====
+  +000  4B 0ca01106                 get_sr
+  +004  UNK  0100
+  +006  UNK  0000
+  +008  UNK  1484
+  +010  UNK  1026
+  +012 10B a71754000300ac2009a1     ishift
+  +022  UNK  3401
+  +024  UNK  8000
+  +026  6B 0a012d052280             icmp_pred
+  +032  UNK  0302
+  +034  UNK  2081
+  +036 10B 9f215400030408001605     iadd2
+  +046 10B 9f015400030200001605     iadd2
+  +056 10B 0b002904870254000600     (no-desc)
+  +066  6B 870254010000             frag_tile_setup
+  +072  UNK  5714
+  +074  UNK  5400
+  +076  UNK  0001
+  +078  6B 070254010000             threadgroup_barrier
+  +084 10B 970454000250805004c8     frag_color_pack
+  +094 10B 970454010220c05004c8     frag_color_pack
+  +104  6B 8702540c0800             frag_tile_setup
+  +110 12B e70654000000014e00000000 frag_color_store
+  +122  6B 0702540c0200             threadgroup_barrier
+  +128  4B 0e000000                 stop
+
+==== out_dualsrc (54B) ====
+  +000 10B 970c5400020080d004c8     frag_color_pack
+  +010 10B 970454010220c05004c8     frag_color_pack
+  +020  6B 870254000600             frag_tile_setup
+  +026  6B 8702540c0800             frag_tile_setup
+  +032 12B e70654000000014e00000000 frag_color_store
+  +044  6B 0702540c0200             threadgroup_barrier
+  +050  4B 0e000000                 stop
+
+==== out_half (54B) ====
+  +000 10B 970c54000250805004c8     frag_color_pack
+  +010 10B 970454010220c05004c8     frag_color_pack
+  +020  6B 870254000600             frag_tile_setup
+  +026  6B 8702540c0800             frag_tile_setup
+  +032 12B e70654000000014e00000000 frag_color_store
+  +044  6B 0702540c0200             threadgroup_barrier
+  +050  4B 0e000000                 stop
+
+==== out_mrt (142B) ====
+  +000 10B 970c5404021838d005c8     frag_color_pack
+  +010 10B 970454050220c0d004c8     frag_color_pack
+  +020 10B 97045402020c20d005c8     frag_color_pack
+  +030 10B 970454030214c0d004c8     frag_color_pack
+  +040 10B 97045400020008d005c8     frag_color_pack
+  +050 10B 970454010208c0d004c8     frag_color_pack
+  +060  6B 870254000600             frag_tile_setup
+  +066  6B 870254c00800             frag_tile_setup
+  +072 12B e70654040004014e00000000 frag_color_store
+  +084  6B 070254c00000             threadgroup_barrier
+  +090  6B 870254300800             frag_tile_setup
+  +096 12B e70654020002014e00000000 frag_color_store
+  +108  6B 070254300000             threadgroup_barrier
+  +114  6B 8702540c0800             frag_tile_setup
+  +120 12B e70654000000014e00000000 frag_color_store
+  +132  6B 0702540c0200             threadgroup_barrier
+  +138  4B 0e000000                 stop
+
+==== out_mrt2 (98B) ====
+  +000 10B 970c5402020c20d005c8     frag_color_pack
+  +010 10B 970454030214c0d004c8     frag_color_pack
+  +020 10B 97045400020008d005c8     frag_color_pack
+  +030 10B 970454010208c0d004c8     frag_color_pack
+  +040  6B 870254000600             frag_tile_setup
+  +046  6B 870254300800             frag_tile_setup
+  +052 12B e70654020002014e00000000 frag_color_store
+  +064  6B 070254300000             threadgroup_barrier
+  +070  6B 8702540c0800             frag_tile_setup
+  +076 12B e70654000000014e00000000 frag_color_store
+  +088  6B 0702540c0200             threadgroup_barrier
+  +094  4B 0e000000                 stop
+
+==== persp_smooth (146B) ====
+  +000 10B 2f0d5400030004021000     iter
+  +010 10B af005404030002482001     fspecial
+  +020 10B 2f055400030200021000     iter
+  +030 10B 2f055408030400021000     iter
+  +040 10B 2f055402030600021000     iter
+  +050  8B 09012f8500010000         falu3
+  +058 10B 2f055406030800021000     iter
+  +068  8B 49092f8500020000         falu3
+  +076 10B 97045400020020d045c2     frag_color_pack
+  +086  8B 19032f8500030000         falu3
+  +094  8B 29073f0500040000         falu3
+  +102 10B 97045401020410d045c2     frag_color_pack
+  +112  6B 870254000600             frag_tile_setup
+  +118  6B 8702540c0800             frag_tile_setup
+  +124 12B e70654000000014e00000000 frag_color_store
+  +136  6B 0702540c0200             threadgroup_barrier
+  +142  4B 0e000000                 stop
+
+==== rog (254B) ====
+  +000  6B 1f0b54840005             iter_flat
+  +006  4B 7ca01006                 get_sr
+  +010  4B 9ca11026                 get_sr
+  +014  UNK  8300
+  +016  UNK  2001
+  +018  UNK  830e
+  +020  UNK  2120
+  +022  UNK  9300
+  +024  UNK  2041
+  +026 10B 0b1021041b1221048702     (no-desc)
+  +036  UNK  5400
+  +038  UNK  0600
+  +040  6B 870254080000             frag_tile_setup
+  +046 14B 05800cb8b0001701000100001300 tex_sample
+  +060  UNK  420d
+  +062  UNK  0f11
+  +064  UNK  820c
+  +066  4B 05c22080                 psel
+  +070 14B 6700440800842000598900404800 device_load
+  +084  UNK  6484
+  +086  UNK  1026
+  +088  UNK  7312
+  +090  6B 290119b13401             falu2
+  +096  UNK  c020
+  +098  8B af04540003220a03         iter_at
+  +106  6B 29b13403c000             falu2i
+  +112 10B 2f055400020000022000     iter
+  +122  6B 39b13405c000             falu2i
+  +128  6B 79b13407c000             falu2i
+  +134 10B 0b0e29049f2154040218     (no-desc)
+  +144  UNK  3000
+  +146  4B 16051201                 sel
+  +150  UNK  3f09
+  +152  UNK  8208
+  +154  UNK  03c0
+  +156  UNK  8000
+  +158 10B 9f015400031e10001404     iadd2
+  +168  UNK  9203
+  +170  UNK  3f0b
+  +172  UNK  830a
+  +174  UNK  4200
+  +176  UNK  8002
+  +178  UNK  0004
+  +180  UNK  1000
+  +182 10B 8b012f00420000041000     (no-desc)
+  +192  6B 870254040000             frag_tile_setup
+  +198 16B d71054004040000000040000083a0900 tex_write
+  +214  6B 071454500600             pixel_order
+  +220  6B 070454d00600             pixel_order
+  +226  6B 0702540c0000             threadgroup_barrier
+  +232  6B 870254010000             frag_tile_setup
+  +238 16B d724541020030702540102000e000000 tex_write
+
+==== rog_none (224B) ====
+  +000  6B 1f0b54840005             iter_flat
+  +006  4B 7ca01006                 get_sr
+  +010  4B 9ca11026                 get_sr
+  +014  UNK  8300
+  +016  UNK  2001
+  +018  UNK  830e
+  +020  UNK  2120
+  +022  UNK  9300
+  +024  UNK  2041
+  +026 10B 0b1021041b1221048702     (no-desc)
+  +036  UNK  5400
+  +038  UNK  0600
+  +040 14B 05800cb8b0001701000100001300 tex_sample
+  +054  UNK  420d
+  +056  UNK  0f11
+  +058  UNK  820c
+  +060  4B 05c22080                 psel
+  +064 14B 6700440800842000598900404800 device_load
+  +078  UNK  6484
+  +080  UNK  1026
+  +082  UNK  7312
+  +084  6B 290119b13401             falu2
+  +090  UNK  c020
+  +092  8B af04540003220a03         iter_at
+  +100  6B 29b13403c000             falu2i
+  +106 10B 2f055400020000022000     iter
+  +116  6B 39b13405c000             falu2i
+  +122  6B 79b13407c000             falu2i
+  +128 10B 0b0e29049f2154040218     (no-desc)
+  +138  UNK  3000
+  +140  4B 16051201                 sel
+  +144  UNK  3f09
+  +146  UNK  8208
+  +148  UNK  03c0
+  +150  UNK  8000
+  +152 10B 9f015400031e10001404     iadd2
+  +162  UNK  9203
+  +164  UNK  3f0b
+  +166  UNK  830a
+  +168  UNK  4200
+  +170  UNK  8002
+  +172  UNK  0004
+  +174  UNK  1000
+  +176 10B 8b012f00420000041000     (no-desc)
+  +186 16B d71054004040000000040000083a0900 tex_write
+  +202  6B 870254010000             frag_tile_setup
+  +208 16B d724541020030702540102000e000000 tex_write

@@ -423,6 +423,26 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
 - *(ISA descriptors for `0x43` + stage-map additions are in `experiments/EXP-0030-mesh/new_descriptors.json`,
   pending merge into `tools/agx-isa/db.json`.)*
 
+### ✅ Fragment-shader ISA (EXP-0029, closes G-4 + backlog #2/#5/#7)
+- **Varying interpolation — `iter`** (byte0 `0x2f`/`0xaf`, byte+2=`0x54`, 10 B; `2f BB 54 DD 03 SS MM 02 NN 00`),
+  one op per component. **byte+5 = varying-slot / per-triangle coefficient index (`slot<<1`)** (splice-proven:
+  `0x00→0x02` switched output from `color.x` to `color.y`). **byte+6 = mode:** `0x00` center/linear,
+  `0x02` centroid/sample, `0x04` perspective-denominator.
+  - **`[[flat]]`** = a different, shorter op **`iter_flat`** (byte0 `0x1f`, 6 B) — provoking-vertex load, no interp.
+  - **Perspective-correct is a multi-instruction lowering** (not a mode bit): linear `iter`s + a W-denominator
+    `iter` + `0xaf` reciprocal + per-component `fmul`.
+  - **centroid/sample** add an 8-B `iter_at` setup (byte+6=`0x0a`; byte+7 `0x01` centroid / `0x03` sample).
+    Pull-model `interpolate_at_*` == the matching `[[*_perspective]]` qualifier.
+- **Fragment output — `frag_color_store`** (byte0 `0xe7`, byte+1=`0x06`, 12 B): **byte+3 = source colour reg,
+  byte+5 = render-target index (`rt<<1`)** (splice-proven). MRT = one store per target. `discard_fragment()`
+  HW-proven (killed fragments write nothing). `[[depth]]` out = `0xd7 14 54` (6 B). Dual-source = extra output
+  reg, no distinct op.
+- **Tilebuffer read — `tile_read`** (byte0 `0x67`, byte+1=`0x0e`, 12 B): a `[[color(n)]]` *input* reads the
+  tilebuffer (the `ld_tile` analogue). HW-proven: `out = src*0.5 + clear*0.5` — confirms in-shader
+  programmable blend (EXP-0019).
+- **Pixel ordering (raster-order-groups) — `pixel_order`** (byte0 `0x07` fence family, same as the compute
+  `threadgroup_barrier`): `07 14 54 50 06 00` (acquire) + `07 04 54 d0 06 00` (release). ⏳ byte-diff inferred.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

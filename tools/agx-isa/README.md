@@ -62,6 +62,15 @@ shaders):
 | `0xcf` | **SIMD-group MATRIX multiply-accumulate** (dedicated 8×8×8 cooperative-matrix MAC) | 12 (EXP-0022 HW) |
 | `0x2f`/`0xaf` | **float SPECIAL-FUNCTION UNIT** (SFU): rcp/rsqrt/exp2 (`0xaf`) \| round/sqrt/log2 (`0x2f`), fn=byte+1 | 10 (EXP-0013/EXP-0026 HW) |
 | low-nibble `0x9` + `byte+2==0x25` | **transcendental ESTIMATE seed** (byte0 `0x29`): rcp/rsqrt/sqrt NR seed, ~8 mantissa bits | 6 (EXP-0026 HW) |
+| `0x2f`/`0xaf` + `byte+2==0x54` | **FRAGMENT varying INTERPOLATE** (`iter`): perspective/linear/perspective-W. 8 if `byte+6==0x0a` (interpolate-at setup, centroid/sample) else 10 | 10/8 (EXP-0029 HW) |
+| `0x1f` + `byte+2==0x54` + `byte+1∈{03,0b}` | **FRAGMENT flat varying load** (`iter_flat`, provoking-vertex attribute) | 6 (EXP-0029 HW) |
+| `0xe7` (`byte+1==0x06`) | **FRAGMENT COLOUR STORE** to tilebuffer (`frag_color_store`: byte+3=src reg, byte+5=RT index) | 12 (EXP-0029 HW) |
+| `0x67` (`byte+1==0x0e`) | **FRAGMENT TILEBUFFER READ** (`tile_read`; programmable-blend `[[color(n)]]` input, the ld_tile analogue) | 12 (EXP-0029 HW) |
+| `0x97` | **FRAGMENT colour-register pack/move** (`frag_color_pack`; byte+6 = packed colour component) | 10 (EXP-0029 HW) |
+| `0x87` + `byte+2==0x54` | **FRAGMENT tile/RT access setup** (`frag_tile_setup`; byte+3 = per-RT selector) | 6 (EXP-0029) |
+| `0xd7` (`byte+1==0x14`, `byte+2==0x54`) | **FRAGMENT [[depth]] store** (`frag_depth_store`; vs 16-byte tex write) | 6 (EXP-0029) |
+| `0x07` + `byte+2==0x54` + `byte+4==0x06` | **FRAGMENT PIXEL-ORDERING** (`pixel_order`; raster-order-group wait/signal, byte+1 0x14 acquire / 0x04 release) — same 0x07 fence family as `threadgroup_barrier` | 6 (EXP-0029) |
+| `0x04` (`byte+1!=0xea`) / `0x03` (`byte+2==0x26`) | FRAGMENT centroid/sample-position preamble read | 8 / 10 (EXP-0029) |
 
 ## Op-select field (float 2-source ALU, HW-VALIDATED, EXP-0005)
 
@@ -81,7 +90,16 @@ python3 agxisa.py asm      fadd srcA=1 srcB=0
 python3 roundtrip_test.py                 # ALL PASS
 ```
 
-Status: **41 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+The **fragment stage** (EXP-0029) adds nine descriptors: `iter` / `iter_at` / `iter_flat`
+(varying interpolation — perspective is a multi-instr lowering, `[[flat]]` is a separate
+attribute load, pull-model `interpolate_at_*` ≡ the matching qualifier), `frag_color_store`
+(byte+5 = render-target index, HW-splice-proven) / `frag_color_pack` / `frag_tile_setup`
+(colour output/epilog + MRT), `tile_read` (programmable-blend tilebuffer read, HW-proven vs
+clear colour), `frag_depth_store`, and `pixel_order` (raster-order-group wait/signal — the
+same `0x07` fence family as `threadgroup_barrier`). Fragment groups are gated on
+fragment-specific byte signatures so compute decoding is unaffected (roundtrip still green).
+
+Status: **50 instruction descriptors**, most HW-validated (float/int ALU, conversions,
 memory load/store, control flow, the texture family `tex_sample`/`tex_write`/`tex_deriv`
 — EXP-0016 — the subgroup/quad family `simd_reduce`, `simd_shuffle`, `simd_ballot` plus
 the atomic RMW family `atomic_rmw`/`atomic_mem` — EXP-0018 — the dedicated

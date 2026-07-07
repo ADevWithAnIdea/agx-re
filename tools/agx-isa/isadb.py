@@ -94,8 +94,44 @@ def instr_length(buf, off=0):
         return 4                       # stop
     if lo == 0x0c:
         return 4                       # preamble / get_sr-like
+    # ---- FRAGMENT-STAGE memory / output family (EXP-0029, HW-validated) ----
+    # The fragment stage reuses the low-nibble-7 memory family with distinct byte+1
+    # variants that never occur in compute (compute load/store use byte+1 in
+    # {0x00,0x10,0x11,0x01,0x02}, byte+2==0x56; the fragment forms below use
+    # byte+2==0x54). Gate on those so compute tokenization is unaffected.
+    if b0 == 0xe7 and (buf[off+1] if off+1 < len(buf) else -1) == 0x06:
+        return 12                      # fragment COLOUR STORE to tilebuffer (EXP-0029 HW)
+    if b0 == 0x67 and (buf[off+1] if off+1 < len(buf) else -1) == 0x0e:
+        return 12                      # fragment TILEBUFFER READ (programmable blend, EXP-0029 HW)
+    if b0 == 0x87 and off + 2 < len(buf) and buf[off+2] == 0x54:
+        return 6                       # fragment tile/RT access-setup (EXP-0029)
+    if b0 == 0x97:
+        return 10                      # fragment colour-register pack/move (EXP-0029; no compute 0x97)
+    if b0 == 0xd7 and off + 2 < len(buf) and buf[off+1] == 0x14 and buf[off+2] == 0x54:
+        return 6                       # fragment [[depth]] store (EXP-0029)
     if b0 in (0x67, 0xe7):
         return 14                      # device load (0x67) / store (0xE7)
+    # ---- FRAGMENT varying INTERPOLATION family (EXP-0029, HW-validated) ----
+    # `iter` interpolate op: byte0 0x2f/0xaf, byte+2==0x54, 10 bytes; the 8-byte
+    # form (byte+6==0x0a) is the interpolate-at setup (centroid/sample barycentric).
+    # Compute fspecial (byte0 0x2f/0xaf) uses byte+2==0x56 or, in precise mode,
+    # byte+2==0x54 but never byte+6==0x0a -> the 8-byte case is fragment-only.
+    if b0 in (0x2f, 0xaf) and off + 2 < len(buf) and buf[off+2] == 0x54:
+        if off + 6 < len(buf) and buf[off+6] == 0x0a:
+            return 8                   # interpolate-at setup (centroid/sample position)
+        # else fall through to the existing 0x2f/0xaf -> 10 rule below.
+    # `iter_flat`: flat varyings load the provoking-vertex attribute via byte0 0x1f
+    # with byte+2==0x54 and a small byte+1 (0x03 / 0x0b), 6 bytes. NB compute integer
+    # ALU is also byte0 0x1f/0x9f and CAN carry byte+2==0x54 (e.g. `9f 11 54 ...`),
+    # so this is gated on the fragment-specific byte+1 signatures to avoid colliding
+    # with the compute integer length rule below.
+    if b0 == 0x1f and off + 2 < len(buf) and buf[off+2] == 0x54 and buf[off+1] in (0x03, 0x0b):
+        return 6                       # fragment flat / attribute load (EXP-0029)
+    # Fragment sample-position / sample-id preamble reads (centroid/sample only).
+    if b0 == 0x04 and off + 1 < len(buf) and buf[off+1] != 0xea:
+        return 8                       # centroid-position read
+    if b0 == 0x03 and off + 2 < len(buf) and buf[off+2] == 0x26:
+        return 10                      # sample-id / sample-position read
     # ---- THREADGROUP / EXECUTION BARRIER (EXP-0025, HW-validated) ----
     # threadgroup_barrier compiles to a distinct 6-byte op: byte0 0x07, byte+2 0x54
     # (07 04 54 <mem_scope> <flags> 00). This is the ONLY explicit ordering/"wait"
@@ -1515,6 +1551,221 @@ DB = [
                      "all ten 2^k inputs correctly (1023) -- so these ARE adds. Sweeping byte+3 changes "
                      "the sum by the referenced register's value (byte+3 is a data source), disproving a "
                      "wait-mask interpretation. Field bit-packing beyond byte+3 inferred (byte-diff).",
+    },
+
+    # ========================================================================
+    # FRAGMENT STAGE (EXP-0029) — varying interpolation, colour output/epilog,
+    # tilebuffer read (programmable blend), depth, and pixel ordering (ROG).
+    # These groups are fragment-only; compute never emits them. Where a byte0
+    # group is shared with a compute op (0x2f/0xaf, 0x67/0xe7, 0x1f, 0x07) the
+    # match/length is gated on a fragment-specific byte signature (byte+2==0x54
+    # for the coefficient/attribute forms, byte+1==0x06/0x0e for the tile
+    # store/read) so compute decoding is unaffected. See EXP-0029-fragment-isa.
+    # ========================================================================
+    {
+        "mnemonic": "iter",
+        "length": 10,
+        "match": [(0, 7, 0x2f), (16, 8, 0x54), (56, 8, 0x02)],   # byte0 0x2f/0xaf, byte+2==0x54, byte+7==0x02
+        "fields": [
+            {"name": "grp",   "start": 0,  "width": 8, "type": "raw"},   # byte0 0x2f/0xaf (bit7 = fn_hi)
+            {"name": "lead",  "start": 8,  "width": 8, "type": "raw"},   # byte+1: 0x0d leading op / 0x05 subsequent
+            {"name": "dst",   "start": 24, "width": 8, "type": "reg"},   # byte+3 = destination GPR (reg<<1)
+            {"name": "c4",    "start": 32, "width": 8, "type": "raw"},   # byte+4 == 0x03 (const)
+            {"name": "src_slot", "start": 40, "width": 8, "type": "imm"},# byte+5 = source varying-slot / per-triangle coeff index (slot<<1)  HW-VALIDATED
+            {"name": "mode",  "start": 48, "width": 8, "type": "enum",   # byte+6 interpolation-location / coefficient select
+             "enum": {"0": "center/linear", "2": "centroid/sample", "4": "perspective-denominator(W)"}},
+            {"name": "c7",    "start": 56, "width": 8, "type": "raw"},   # byte+7 == 0x02
+            {"name": "tail",  "start": 64, "width": 16, "type": "raw"},  # byte+8/+9 (0x10 center / 0x08 centroid|sample / 0x20 last)
+        ],
+        "semantics": "r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying "
+                     "interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle "
+                     "varying/coefficient slot (slot<<1); byte+3 = destination GPR; byte+6 = interpolation "
+                     "location: 0x00 pixel-centre/linear, 0x02 centroid or per-sample (paired with the "
+                     "8-byte iter_at setup + a 0x04/0x03 position preamble), 0x04 the perspective "
+                     "denominator (W) channel. PERSPECTIVE-CORRECT interpolation is a multi-instruction "
+                     "lowering, NOT a single mode bit: linear component iters (byte+6==0x00) + a W-denominator "
+                     "iter (byte+6==0x04) + a 0xaf reciprocal (rcp of interpolated 1/w) + a per-component "
+                     "fmul. [[flat]] uses the separate 6-byte iter_flat op instead (no barycentric interp). "
+                     "The pull-model interpolate_at_center/centroid/sample compile BYTE-IDENTICALLY to the "
+                     "matching [[*_perspective]] qualifier.",
+        "provenance": "HW-VALIDATED (EXP-0029): splicing byte+5 0x00->0x02 on interp_noperspective switched "
+                     "the red output from color.x (x-gradient) to color.y (y-gradient) -> byte+5 selects the "
+                     "source varying coefficient (splice-and-render). flat vs interpolated proven behaviourally "
+                     "(flat = constant provoking-vertex value at all pixels; interpolated = gradient). "
+                     "perspective/no-perspective/centroid/sample all differentiated by differential compilation; "
+                     "perspective/linear/flat produce three distinct pixels under w-varying geometry (persp_* "
+                     "kernels). byte+6 mode values and the byte+8 last/location bits are byte-diff-localised.",
+    },
+    {
+        "mnemonic": "iter_at",
+        "length": 8,
+        "match": [(0, 7, 0x2f), (16, 8, 0x54), (48, 8, 0x0a)],   # byte0 0x2f/0xaf, byte+2==0x54, byte+6==0x0a
+        "fields": [
+            {"name": "grp",   "start": 0,  "width": 8, "type": "raw"},
+            {"name": "lead",  "start": 8,  "width": 8, "type": "raw"},   # byte+1 (0x14 centroid / 0x04 sample setup)
+            {"name": "dst",   "start": 24, "width": 8, "type": "reg"},
+            {"name": "c4",    "start": 32, "width": 8, "type": "raw"},   # byte+4 == 0x03
+            {"name": "b5",    "start": 40, "width": 8, "type": "raw"},   # byte+5
+            {"name": "loc",   "start": 56, "width": 8, "type": "enum",   # byte+7 = sampling-location kind
+             "enum": {"1": "centroid", "3": "sample"}},
+        ],
+        "semantics": "interpolate-at SETUP: computes the custom barycentric coordinate for centroid / "
+                     "per-sample / interpolate_at_* interpolation, consumed by the following iter ops "
+                     "(which carry byte+6==0x02). byte+7 = 0x01 centroid, 0x03 sample. Preceded by a "
+                     "sample/centroid-position preamble read (byte0 0x04 centroid / 0x03 sample).",
+        "provenance": "inferred (byte-diff, EXP-0029): present only in centroid/sample/interpolate_at "
+                     "fragments (absent from center/flat); byte+7 = 0x01 (centroid) vs 0x03 (sample) is the "
+                     "sole difference between the interp_centroid and interp_sample setup ops. 8-byte length "
+                     "tokenises those streams to 0 leftover.",
+    },
+    {
+        "mnemonic": "iter_flat",
+        "length": 6,
+        "match": [(0, 8, 0x1f), (16, 8, 0x54)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "sel",  "start": 24, "width": 8, "type": "raw"},   # byte+3 = attribute/slot selector
+            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
+            {"name": "b5",   "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "flat varying load: reads the provoking-vertex attribute directly (NO barycentric "
+                     "interpolation), one 6-byte op per component. Emitted for [[flat]] (nointerpolation). "
+                     "Distinct byte0 (0x1f) and length from the 10-byte perspective/linear iter op.",
+        "provenance": "HW-VALIDATED behaviour (EXP-0029): the [[flat]] fragment renders a CONSTANT colour "
+                     "(the provoking-vertex value 0,0,0.25,1) at all 16 pixels of a 4x4 target while the "
+                     "interpolated variants show a gradient. Four 6-byte 0x1f ops (one per float4 lane) "
+                     "tokenise interp_flat to 0 leftover. Field bit-packing inferred (byte-diff).",
+    },
+    {
+        "mnemonic": "frag_color_store",
+        "length": 12,
+        "match": [(0, 8, 0xe7), (8, 8, 0x06)],
+        "fields": [
+            {"name": "b2",       "start": 16, "width": 8, "type": "raw"},   # 0x54
+            {"name": "src",      "start": 24, "width": 8, "type": "reg"},   # byte+3 = source colour register
+            {"name": "b4",       "start": 32, "width": 8, "type": "raw"},
+            {"name": "rt_index", "start": 40, "width": 8, "type": "imm"},   # byte+5 = render-target index (rt<<1)  HW-VALIDATED
+            {"name": "b6",       "start": 48, "width": 8, "type": "raw"},   # 0x01
+            {"name": "b7",       "start": 56, "width": 8, "type": "raw"},   # 0x4e
+            {"name": "tail",     "start": 64, "width": 32, "type": "raw"},
+        ],
+        "semantics": "store a fragment colour output to the tilebuffer / colour attachment. Memory-family "
+                     "store (byte0 0xe7) with the FRAGMENT variant byte+1==0x06 (compute device store is "
+                     "byte+1==0x00, 14 bytes). byte+3 = source colour GPR, byte+5 = render-target index "
+                     "(rt<<1): RT0=0x00, RT1=0x02, RT2=0x04. Each RT store is bracketed by 0x87 tile-access "
+                     "setup ops. The colour values are packed into GPRs by preceding 0x97 ops. discard_fragment "
+                     "suppresses the store (killed fragments write nothing).",
+        "provenance": "HW-VALIDATED (EXP-0029): splicing byte+5 0x00->0x02 (store to the absent RT1) leaves "
+                     "RT0 at the clear colour -> byte+5 is the render-target index; corrupting byte+1 "
+                     "0x06->0x00 neutralises the store (RT0 stays clear) -> byte+1==0x06 is the fragment "
+                     "tile-store variant. The 3-target out_mrt kernel emits three such stores with byte+3/"
+                     "byte+5 = r2/0x04, r1/0x02, r0/0x00 (per-RT source reg + RT index). discard proven: "
+                     "the x<2 half of out_discard2 keeps the clear colour (fragment killed).",
+    },
+    {
+        "mnemonic": "tile_read",
+        "length": 12,
+        "match": [(0, 8, 0x67), (8, 8, 0x0e)],
+        "fields": [
+            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},   # 0x54
+            {"name": "dst",  "start": 24, "width": 8, "type": "reg"},   # byte+3 = destination GPR
+            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
+            {"name": "rt_index", "start": 40, "width": 8, "type": "imm"},
+            {"name": "b6",   "start": 48, "width": 8, "type": "raw"},   # 0x01
+            {"name": "b7",   "start": 56, "width": 8, "type": "raw"},   # 0xce
+            {"name": "tail", "start": 64, "width": 32, "type": "raw"},
+        ],
+        "semantics": "read the CURRENT tilebuffer / colour-attachment value into a GPR — the ld_tile analogue "
+                     "for PROGRAMMABLE BLENDING (a fragment [[color(n)]] INPUT). Load-family op (byte0 0x67) "
+                     "with the fragment variant byte+1==0x0e (compute device load uses byte+1 in "
+                     "{0x10,0x00,0x11,...}). On Apple TBDR the framebuffer lives in tile memory, so blend is "
+                     "done in-shader (EXP-0019): the shader reads the destination colour with this op and "
+                     "computes the blend with ordinary float ALU, then stores with frag_color_store.",
+        "provenance": "HW-VALIDATED (EXP-0029): rendering blend_read (returns src*src.a + dst*(1-src.a), "
+                     "src.a=0.5) over three different clear colours produced out == src*0.5 + clear*0.5 "
+                     "exactly (clear 0 -> 0.40,0.10,0.05,0.25; clear 1 -> 0.90,0.60,0.55,0.75; clear "
+                     "0.4,0.6,0.8,1 -> 0.60,0.40,0.45,0.75) -> the op read the tilebuffer value and fed the "
+                     "in-shader blend. Field bit-packing inferred (byte-diff).",
+    },
+    {
+        "mnemonic": "frag_tile_setup",
+        "length": 6,
+        "match": [(0, 8, 0x87), (16, 8, 0x54)],
+        "fields": [
+            {"name": "b1",  "start": 8,  "width": 8, "type": "raw"},   # 0x02
+            {"name": "sel", "start": 24, "width": 8, "type": "raw"},   # byte+3 = tile/RT access selector
+            {"name": "b4",  "start": 32, "width": 8, "type": "raw"},
+            {"name": "b5",  "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "fragment tile / render-target access setup, emitted around each colour store and each "
+                     "tilebuffer read (and around raster-order-group ordered accesses). byte+3 = the per-RT / "
+                     "per-tile selector (0x0c/0x30/0xc0 for RT0/RT1/RT2 in out_mrt; 0x08 before a tile read).",
+        "provenance": "inferred (byte-diff, EXP-0029): brackets every frag_color_store / tile_read; its "
+                     "byte+3 steps 0x0c->0x30->0xc0 across the 3 render targets of out_mrt. Length 6 "
+                     "tokenises the output epilog to 0 leftover.",
+    },
+    {
+        "mnemonic": "frag_color_pack",
+        "length": 10,
+        "match": [(0, 8, 0x97)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},   # 0x54 / 0x56
+            {"name": "dst",  "start": 24, "width": 8, "type": "reg"},
+            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
+            {"name": "b5",   "start": 40, "width": 8, "type": "raw"},
+            {"name": "val",  "start": 48, "width": 8, "type": "imm"},   # byte+6 carries a packed colour component
+            {"name": "tail", "start": 56, "width": 24, "type": "raw"},
+        ],
+        "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts "
+                     "the shader's float/half output to the attachment format). byte+6 carries a colour "
+                     "component value.",
+        "provenance": "HW-VALIDATED byte (EXP-0008/EXP-0029): splicing byte+6 0x80->0x40 of a constant-colour "
+                     "fragment's 0x97 op moved the read-back green 0.502->0.251 (128/255 -> 64/255) -> byte+6 "
+                     "holds a colour component. Constant-colour and interpolated fragments both emit these "
+                     "before the store; length 10 tokenises the epilog. Full field decode is a follow-up.",
+    },
+    {
+        "mnemonic": "frag_depth_store",
+        "length": 6,
+        "match": [(0, 8, 0xd7), (8, 8, 0x14), (16, 8, 0x54)],
+        "fields": [
+            {"name": "b3",   "start": 24, "width": 8, "type": "raw"},
+            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
+            {"name": "b5",   "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "write the shader [[depth]] output to the tile depth buffer. Memory-family store (byte0 "
+                     "0xd7) with the fragment depth variant byte+1==0x14, byte+2==0x54, 6 bytes — distinct "
+                     "from the 16-byte texture write (also 0xd7). Bracketed by 0x87/0x07 tile-access ops "
+                     "whose byte+3==0x01 selects the depth attachment (vs 0x0c for colour RT0).",
+        "provenance": "inferred (byte-diff, EXP-0029): appears only in out_depth (a [[depth(any)]] output) "
+                     "and not in the colour-only kernels; sits inside a 0x87(byte+3==0x01)/0x07 bracket "
+                     "distinct from the colour store's 0x0c bracket. Not individually splice-validated "
+                     "(agxrender has no depth attachment to read back).",
+    },
+    {
+        "mnemonic": "pixel_order",
+        "length": 6,
+        "match": [(0, 8, 0x07), (16, 8, 0x54), (32, 8, 0x06)],   # 0x07 ... byte+4==0x06 (ROG fence flag)
+        "fields": [
+            {"name": "kind", "start": 8,  "width": 8, "type": "enum",   # byte+1 = acquire/release
+             "enum": {"20": "acquire/wait", "4": "release/signal"}},
+            {"name": "scope", "start": 24, "width": 8, "type": "raw"},  # byte+3 = ordering scope/mask
+            {"name": "flags", "start": 32, "width": 8, "type": "raw"},  # byte+4 == 0x06 (device + ROG fence)
+            {"name": "b5",   "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "fragment PIXEL-ORDERING op (raster_order_group / fragment-shader-interlock; the "
+                     "wait_pix/signal_pix analogue). Same 0x07 memory-fence family as the compute "
+                     "threadgroup_barrier (EXP-0025), but with byte+4==0x06 (the raster-order/device fence "
+                     "flag) and byte+1 = 0x14 acquire (wait for prior overlapping fragments) / 0x04 release "
+                     "(signal this fragment done). Brackets the ordered read-modify-write of a "
+                     "[[raster_order_group]] resource so overlapping fragments serialise. There is NO "
+                     "dedicated one-shot pixel wait/signal opcode — ordering is these fence ops.",
+        "provenance": "inferred (byte-diff, EXP-0029): rog vs rog_none (identical read_write-texture RMW, "
+                     "differing only in the [[raster_order_group(0)]] tag) differ by EXACTLY these ops — rog "
+                     "adds `07 14 54 50 06 00` and `07 04 54 d0 06 00` (+ two 0x87 tile-access ops); rog_none "
+                     "has neither. Same 0x07 family as the HW-validated threadgroup_barrier. Not "
+                     "splice-validated for a stale read (needs overlapping-fragment geometry).",
     },
 ]
 
