@@ -171,9 +171,8 @@ tightened as they're decoded.
 ## ENDGAME (unattended) — wrap-up, then red-team. Do NOT stop until the red-team passes clean.
 
 ### Phase W — WRAP-UP (finish the original goal)
-- ☐ **W1** EXP-0036 consolidation + census → commit; capture the undecoded byte0-group list.
-- ☐ **W2** Close the remaining/undecoded families the census flags (vertex varying-store `0x05/06/57`,
-  register-shift-prep `0x2b/3b/5b/8b`, RT companions `0x5f`, any others). Per-experiment descriptor files → merge.
+- ☑ **W1** EXP-0036: DB 61 descriptors (round-trip 237 OK), `encoding-tables.md` (G-6 done), census ~82% bytes decoded.
+- ◐ **W2** Close census-flagged undecoded groups: **vertex/mesh varying-store `0x05/06/57`; half pack/unpack `0x18/0x30/0x38`; u64 carry-gen `0x32`; texture addr/interp math `0x2e/0xb0/0x92/0x26`; non-leaf frame prologue `0x6f`; simd/unpack `0x54`-cache variants.** Per-experiment files → merge.
 - ☐ **W3** Emit `docs/isa/agx3.xml` (Mesa schema) + finalize `docs/isa/encoding-tables.md`.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.

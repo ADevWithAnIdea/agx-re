@@ -21,7 +21,8 @@ bytes, EXP-0001).
 | `isadb.py` | the database (`DB`), the instruction-length rule (`instr_length`), and the generic table-driven codec (`decode_one`, `disassemble`, `assemble`, `assemble_op`). Run `python3 isadb.py` for a summary, `--json` for the machine-readable dump. |
 | `agxisa.py` | CLI: `tokenize <hex>`, `disasm <hex>`, `asm <mnem> k=v...`, `json`. |
 | `roundtrip_test.py` | proves `asm(disasm(b))==b`, `disasm(asm(x))==x`, and clean tokenization of whole real `_agc.main` programs. |
-| `db.json` | generated machine-readable export of the DB + length rule. |
+| `db.json` | generated machine-readable export of the DB + length rule (`python3 isadb.py --json > db.json`). |
+| `gen_encoding_tables.py` | renders `db.json` into the human-readable `docs/isa/encoding-tables.md` (per-instruction bit-field tables by family; EXP-0036). |
 
 ## Schema (each instruction descriptor)
 
@@ -99,7 +100,14 @@ clear colour), `frag_depth_store`, and `pixel_order` (raster-order-group wait/si
 same `0x07` fence family as `threadgroup_barrier`). Fragment groups are gated on
 fragment-specific byte signatures so compute decoding is unaffected (roundtrip still green).
 
-Status: **50 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+The **EXP-0036 consolidation** merged the staged EXP-0030/0031/0033/0034/0035 descriptors into this DB
+(get_special_register with SR#=byte1 + `mov_imm`; native-half `half_alu`; `ibitcount`/`irotate`;
+`pack_convert`/`unpack_convert`; `iminmax_chain`; the function-call ABI `frame_marker`/`call`/`ret`/
+`call_indirect`; a refined `tex_sample`). It also rendered the whole DB into `docs/isa/encoding-tables.md`
+and ran a byte0-group census over a broad own-shader corpus (~82% of instruction bytes decoded;
+`experiments/EXP-0036-consolidation-census/`).
+
+Status: **61 instruction descriptors**, most HW-validated (float/int ALU, conversions,
 memory load/store, control flow, the texture family `tex_sample`/`tex_write`/`tex_deriv`
 — EXP-0016 — the subgroup/quad family `simd_reduce`, `simd_shuffle`, `simd_ballot` plus
 the atomic RMW family `atomic_rmw`/`atomic_mem` — EXP-0018 — the dedicated

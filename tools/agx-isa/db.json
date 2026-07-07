@@ -29,7 +29,19 @@
       "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops.",
       "0xcf": "12  [SIMD-group MATRIX multiply-accumulate: one full 8x8x8 cooperative-matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW]",
       "lownibble_0x4 + byte+1==0xea": "8  [RAY TRACING: dedicated ray-INTERSECT op. byte0 hi nibble=result reg; byte+2 mode (0x90 const-origin / 0x10 dyn-origin / 0xd0 +fn-table); byte+6 bit7=intersection-function-table present. Emitted 2x/kernel (traverse + result-read). ABSENT from a software Moller-Trumbore loop. EXP-0023 HW]",
-      "0xdf": "14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during the (software) traversal loop. EXP-0023]"
+      "0xdf": "14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during the (software) traversal loop. EXP-0023]",
+      "byte0 low-3-bits 0b100": "4 get_sr (SR#=byte1, dst=byte0-hi; byte+3 lo-nibble==6 suffix, covers 0xNc & 0xN4 forms) | 2 mov_imm (byte0==0x0c, no suffix). EXP-0031",
+      "0x10": "6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU, sibling of 0x09. EXP-0033]",
+      "0x27 (byte+1==0x05, byte+2==0x56)": "8  [popcount / bit-scan single op (ibitcount). EXP-0033]",
+      "0x27 (byte+1==0x01)": "12  [ROTATE-by-immediate funnel shift (irotate). EXP-0033]",
+      "0xa7 (byte+1 in {0x04,0x05})": "8  [reverse_bits / find-MSB bit-scan (ibitcount). EXP-0033]",
+      "0x97 (byte+2==0x56)": "10  [pack_convert (pack_float_to_unorm/snorm2x16); byte+2==0x54 is the fragment frag_color_pack. EXP-0033]",
+      "0x17 (byte+2==0x56)": "10  [unpack_convert (unpack_unorm2x16); simd_ballot (byte+1==0x07) is the ballot/vote source. EXP-0033/0018]",
+      "0x22": "6 if (byte+2 lo-nibble==0x0e) [iminmax_chain: min3/max3/clamp] else 10 [shift/sign-extend helper]. EXP-0033",
+      "0xNb (byte+2 low-nibble e/f, 0x2b/3b/5b/8b)": "10 shift-amount PREP stage; (byte+2 hi-nibble 2) = 4 compact call-argument MOVE; (byte+2 in {0e,1e,1f}) = 10 funary/ilogic; (byte+2==0x01,byte+3==0x08) = 4 uniform_mov. EXP-0033/0036",
+      "0x43": "4  [CALL-SITE / FRAME-SETUP marker (`43 00 00 01`), precedes every out-of-line CALL in compute & mesh. NOT mesh-unique. EXP-0035 (re-scoped EXP-0030)]",
+      "0x0f (byte+1==0x05)": "14 direct CALL if byte+4==0x8f (target = call_addr+4+off40) else 8 exec-mask push; (byte+1==0x80) = 6 INDIRECT CALL leader; (byte+1==0x06) = 6 reconverge. EXP-0035",
+      "0x8f": "4  [function RETURN (`8f <lm> 54 00`); no encoded target (HW link register / CF stack); byte+1 0x02 leaf / 0x12 non-leaf. EXP-0035]"
     }
   },
   "scoreboard_model": {
@@ -1468,26 +1480,90 @@
       "match": [
         [
           0,
+          3,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "form",
+          "start": 3,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "sr_sel",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "130": "thread_index_in_simdgroup (simd_lane_id)",
+            "133": "simdgroup_index_in_threadgroup (simd_group_id)",
+            "136": "base_vertex (VS)",
+            "138": "base_instance (VS)",
+            "152": "threads_per_threadgroup.x",
+            "153": "threads_per_threadgroup.y",
+            "154": "threads_per_threadgroup.z",
+            "156": "threadgroup_position_in_grid.x",
+            "157": "threadgroup_position_in_grid.y",
+            "158": "threadgroup_position_in_grid.z",
+            "160": "thread_position_in_grid.x (FS: pixel x)",
+            "161": "thread_position_in_grid.y (FS: pixel y)",
+            "162": "thread_position_in_grid.z",
+            "164": "thread_position_in_threadgroup.x",
+            "165": "thread_position_in_threadgroup.y",
+            "166": "thread_position_in_threadgroup.z",
+            "167": "thread_index_in_threadgroup",
+            "168": "threadgroups_per_grid.x",
+            "169": "threadgroups_per_grid.y",
+            "170": "threadgroups_per_grid.z",
+            "197": "front_facing (FS)",
+            "216": "instance_id (VS)",
+            "221": "vertex_id (VS)"
+          }
+        },
+        {
+          "name": "suffix",
+          "start": 16,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR). byte0 low-3-bits = 0b100; bit3 is a datapath/width modifier that does not change the SR select. IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.",
+      "provenance": "HW-VALIDATED (EXP-0031): SR# = byte1 splice-proven on dispatched kernels (0x82->lane, 0x85->simd_group, 0x98->threads_per_tg=64, 0xa0->pos_in_grid); dst = byte0-hi proven by multi-getsr kernels; front_facing (0xc5) both-sided via winding flip. VS/FS SR numbers from isolation byte-diff. (Corrects EXP-0010.)"
+    },
+    {
+      "mnemonic": "mov_imm",
+      "length": 2,
+      "match": [
+        [
+          0,
           4,
           12
         ]
       ],
       "fields": [
         {
-          "name": "sr_sel",
+          "name": "dst",
           "start": 4,
           "width": 4,
-          "type": "mod"
+          "type": "reg"
         },
         {
-          "name": "body",
+          "name": "imm8",
           "start": 8,
-          "width": 24,
-          "type": "raw"
+          "width": 8,
+          "type": "imm"
         }
       ],
-      "semantics": "d = special_register[sr_sel]  ; program preamble reads a lane SR (thread_position_in_grid at sr_sel=0) into a GPR.",
-      "provenance": "HW-VALIDATED (EXP-0010 E1): corrupting it zeroes/faults the gid output; sr_sel nibble changes the value. (mnemonic was 'preamble'.)"
+      "semantics": "d[dst] = imm8  ; 2-byte move of a small immediate into a GPR. The compiler uses it for constant-folded built-ins (e.g. threads_per_simdgroup = 32 = 0x20).",
+      "provenance": "HW-VALIDATED (EXP-0031): out[gid]=threads_per_simdgroup compiles to `0c 20`; splicing byte1 0x20->0x21/0x40/0x11 changes the output to 33/64/17 (value == byte1 literal, not an SR read). raw/splice_validation_compute.txt."
     },
     {
       "mnemonic": "uniform_mov",
@@ -1553,7 +1629,7 @@
       "match": [
         [
           0,
-          4,
+          3,
           5
         ],
         [
@@ -1569,16 +1645,31 @@
       ],
       "fields": [
         {
+          "name": "kind",
+          "start": 0,
+          "width": 4,
+          "type": "mod"
+        },
+        {
           "name": "chain",
           "start": 4,
           "width": 4,
           "type": "mod"
         },
         {
-          "name": "rescomp",
+          "name": "result_desc",
           "start": 24,
           "width": 8,
-          "type": "mod"
+          "type": "mod",
+          "enum": {
+            "184": "vec4 (full sample/read 0xb8)",
+            "160": "scalar/compare/clamped-LOD (0xa0)",
+            "168": "unclamped-LOD (0xa8)",
+            "164": "gather comp0=r (0xa4)",
+            "172": "gather comp1=g (0xac)",
+            "180": "gather comp2=b (0xb4)",
+            "188": "gather comp3=a (0xbc)"
+          }
         },
         {
           "name": "result_sel",
@@ -1598,18 +1689,30 @@
           "width": 8,
           "type": "opcode",
           "enum": {
-            "0": "sample",
+            "0": "sample|gather",
+            "1": "sample|gather+offset",
             "4": "sample_grad",
             "7": "sample_bias",
-            "9": "sample_lod",
-            "23": "read"
+            "9": "sample_lod|array-sample",
+            "19": "cube sample",
+            "23": "read 2D",
+            "27": "sample_lod+offset",
+            "32": "sample_compare|gather_compare",
+            "33": "sample_compare+offset",
+            "41": "sample_compare level",
+            "57": "3D sample",
+            "59": "sample_compare_lod+offset",
+            "83": "cube-array sample",
+            "121": "read 3D",
+            "128": "read MSAA",
+            "151": "read 2D-array (bit7=array)"
           }
         },
         {
-          "name": "b7",
+          "name": "extra_coord",
           "start": 56,
           "width": 8,
-          "type": "raw"
+          "type": "reg"
         },
         {
           "name": "tex_slot",
@@ -1618,19 +1721,24 @@
           "type": "imm"
         },
         {
-          "name": "samp_slot",
+          "name": "samp_slot_offset",
           "start": 72,
           "width": 8,
           "type": "imm"
         },
         {
-          "name": "filter",
+          "name": "mode",
           "start": 80,
           "width": 8,
-          "type": "mod"
+          "type": "mod",
+          "enum": {
+            "16": "filtered sample",
+            "0": "gather/read/sample_compare",
+            "32": "LOD query"
+          }
         },
         {
-          "name": "lodmode",
+          "name": "lod_present",
           "start": 88,
           "width": 8,
           "type": "mod"
@@ -1642,8 +1750,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "r_result = texture[tex_slot].sample/read(sampler[samp_slot], coord, variant). variant (byte+6): 0x00 sample(implicit-LOD), 0x04 grad, 0x07 bias, 0x09 level(explicit-LOD), 0x17 read(integer coord, no sampler). tex_slot = byte+4 (bit7 = the texture-index bit), samp_slot = byte+5. filter (byte+6 of the op = bundle byte+10) bit4 set for filtered sampling, clear for gather/read. LOD/bias/grad operand present flagged by bundle byte+11 bit2 (0x04); the operand register(s) are set up by preceding ALU. Result (4 comps for a full sample) is moved out of the texture-result registers by the following 0x97/mov ops. Same op in COMPUTE and FRAGMENT; implicit-LOD needs a fragment stage (LOD from derivatives).",
-      "provenance": "HW-VALIDATED (EXP-0016): tex_slot (byte+4 bit0x80 splice tex1->tex0 flipped the sampled colour), samp_slot (byte+5 splice samp1->samp0 flipped linear->nearest filtering over 55/64 pixels), sample runs & coordinate->texel (4x4 grid maps 1:1 to texels), texture.read variant (c_read returns texel[coord]). variant/rescomp/coord/dst bit positions byte-diff-localized across sample/bias/lod/grad/gather/read."
+      "semantics": "Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage.",
+      "provenance": "HW-VALIDATED (EXP-0016 + EXP-0034): tex_slot/samp_slot (splice flips texture/filter, EXP-0016); sample_compare (op+2 0x20/0x29, companion 0xa0) -- all 8 compareFuncs give the exact shadow pattern, dynamic per-thread ref proves a register operand, LINEAR filter yields fractional PCF (true 2x2 hardware PCF); gather component (companion+3 bits[3:5]) HW-validated r/g/b/a; gather const offset (op+5) HW-validated; LOD-query (op+6=0x20) HW-runs. Remaining op+2 dimension codes and op+3/op+5 offset sub-bits byte-diff-localized (EXP-0016/EXP-0034 mains)."
     },
     {
       "mnemonic": "tex_write",
@@ -1908,6 +2016,11 @@
           0,
           8,
           23
+        ],
+        [
+          8,
+          8,
+          7
         ]
       ],
       "fields": [
@@ -2836,6 +2949,468 @@
       ],
       "semantics": "fragment PIXEL-ORDERING op (raster_order_group / fragment-shader-interlock; the wait_pix/signal_pix analogue). Same 0x07 memory-fence family as the compute threadgroup_barrier (EXP-0025), but with byte+4==0x06 (the raster-order/device fence flag) and byte+1 = 0x14 acquire (wait for prior overlapping fragments) / 0x04 release (signal this fragment done). Brackets the ordered read-modify-write of a [[raster_order_group]] resource so overlapping fragments serialise. There is NO dedicated one-shot pixel wait/signal opcode \u2014 ordering is these fence ops.",
       "provenance": "inferred (byte-diff, EXP-0029): rog vs rog_none (identical read_write-texture RMW, differing only in the [[raster_order_group(0)]] tag) differ by EXACTLY these ops \u2014 rog adds `07 14 54 50 06 00` and `07 04 54 d0 06 00` (+ two 0x87 tile-access ops); rog_none has neither. Same 0x07 family as the HW-validated threadgroup_barrier. Not splice-validated for a stale read (needs overlapping-fragment geometry)."
+    },
+    {
+      "mnemonic": "frame_marker",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          67
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "call-site / frame-setup marker (byte0 0x43, 4 bytes). `43 00 00 01` is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages it marks the compiler-generated helper-subroutine calls (write_childcount / write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030).",
+      "provenance": "inferred (byte-diff, EXP-0030 + EXP-0035): present before every out-of-line call in plain compute kernels (k_add/k_mul/k_many) and in object/mesh helper regions; the `43 00 00 01` operand is invariant across mesh emit variants (a marker, not the count store). Role not splice-validated."
+    },
+    {
+      "mnemonic": "call",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          5
+        ],
+        [
+          16,
+          8,
+          84
+        ],
+        [
+          32,
+          8,
+          143
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "offset",
+          "start": 56,
+          "width": 48,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 104,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "direct out-of-line CALL: `0f 05 54 1a 8f 00 56 <off40> 00` (14 B). offset = a SIGNED little-endian PC-relative byte displacement; branch target = (call_addr + 4) + offset. Reuses the execution-mask push (0f 05) machinery -- a masked branch that saves the return context -- so byte+4=0x8f and byte+6=0x56 are the CALL/link signature (also the 14-vs-8-byte disambiguator vs a plain predication push). Bracketed by the 0x43 frame marker (before) and a 0f 06 reconverge (after). Args in r10,r11,r12..; return value in r10; return via ret (0x8f).",
+      "provenance": "HW-VALIDATED + byte-diff (EXP-0035): offset model exact across 4 varied call-site distances (k_add off=-104, k_many -158, k_pressure -552, dynamic-lib -458); direct + 3-level nested (k_chain) dispatch return correct results from the archived machine code."
+    },
+    {
+      "mnemonic": "ret",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          143
+        ],
+        [
+          16,
+          8,
+          84
+        ]
+      ],
+      "fields": [
+        {
+          "name": "linkmode",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "2": "leaf",
+            "18": "nonleaf_restore_link"
+          }
+        },
+        {
+          "name": "tail",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "function RETURN: `8f <lm> 54 00` (4 B). byte0 0x8f = control-flow family (low nibble 0xf) with the link/return high bit; byte+2 0x54 = CF marker. linkmode byte+1 = 0x02 (LEAF callee: return address from the hardware link register) or 0x12 (NON-leaf: restores its own spilled return address around inner calls). NO target field -- the return address is a hardware link register / CF (reconvergence) stack.",
+      "provenance": "HW-VALIDATED + byte-diff (EXP-0035): `8f 02 54 00` is byte-identical at the tail of every leaf helper (add/mul/sub, float/int/half) regardless of body; non-leaf mid() -> `8f 12 54 00`. End-to-end dispatch of caller+callee returns correct values."
+    },
+    {
+      "mnemonic": "call_indirect",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          128
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "target_lo",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Leader `0f 80 ..`: byte+1 0x80 selects the call-to-address variant of the control-flow group (vs 0x00 jump, 0x05 direct call). The target is a CODE VA loaded into a register from the function table (entry[i] = 8-byte code VA of function i's entry point); this op transfers control to it and returns via the same ret (0x8f). Per-lane (dynamic) targets are marshalled through a run of 0x4b move ops before the 0f 80.",
+      "provenance": "HW-VALIDATED behaviour + byte-diff (EXP-0035): visible_function_table dispatch (sel=0->vadd, 1->vmul) returns exact A+B / A*B. Exact operand fields are follow-ups (need an indirect-call splice testbed)."
+    },
+    {
+      "mnemonic": "half_alu",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          16
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "hadd",
+            "5": "hmul"
+          }
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "tail",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.)",
+      "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ALU and is the only byte differing between half2_add and half2_mul. Operand bit-packing follows the 0x09 model."
+    },
+    {
+      "mnemonic": "ibitcount",
+      "length": 8,
+      "match": [
+        [
+          0,
+          7,
+          39
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "fn_hi",
+          "start": 7,
+          "width": 1,
+          "type": "opcode",
+          "enum": {
+            "0": "popcount(b1=0x05)",
+            "1": "reverse_bits(b1=0x04)|find_msb(b1=0x05)"
+          }
+        },
+        {
+          "name": "form",
+          "start": 8,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "5": "count/scan",
+            "4": "reverse"
+          }
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "operands",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "single-op bit-count / bit-scan (byte+2==0x56, 8 bytes). Operation = (byte0 bit7 fn_hi, byte+1 form): (0x27,0x05)=popcount; (0xa7,0x04)=reverse_bits; (0xa7,0x05)=find-MSB / bit-scan-reverse (index of the most-significant set bit; 0x80000000->31, 0xFF00->15). clz/ctz are NOT single ops (find_msb + 31-x + clamp; ctz adds a 0x2b low-bit-isolate). Shares byte0 low-7-bits with the 0x27/0xa7 convert family; distinguished by byte+1 form and length 8.",
+      "provenance": "HW-VALIDATED (EXP-0033): popcount/clz/ctz/reverse_bits read back exact over a 6-value sweep; op-select splice-proven ((0x27,0x05)->popcount, (0xa7,0x04)->reverse_bits, (0xa7,0x05)->find-MSB). popcount byte0 0x27,8B corroborates EXP-0007."
+    },
+    {
+      "mnemonic": "irotate",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          39
+        ],
+        [
+          8,
+          8,
+          1
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "operands",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 64,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = rotate_left(a, k)  ; bit-rotate / funnel-shift by an IMMEDIATE amount. Single 12-byte op in the 0x27 family (byte+1==0x01, byte+2==0x56): the 3-operand form fits a funnel shift (hi,lo,shift); for a plain rotate hi==lo==a. Rotate by a REGISTER amount is a multi-instr lowering (0x3b shift-prep + funnel + (32-n) subtract + OR).",
+      "provenance": "HW-VALIDATED behaviour (EXP-0033): rotate(a,5) and rotate(a,n) read back exact. Single-op immediate form vs multi-op dynamic form established by byte-diff. Operand bit-packing inferred."
+    },
+    {
+      "mnemonic": "pack_convert",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          151
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "body",
+          "start": 32,
+          "width": 48,
+          "type": "raw"
+        }
+      ],
+      "semantics": "packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word. byte0 0x97 (COMPUTE, gated by byte+2==0x56). Same op family as the fragment frag_color_pack (float colour -> attachment normalized format) -- 0x97 is the general float->normalized-format pack/convert, in both compute and fragment; disambiguated by byte+2 (compute pack 0x56 vs fragment 0x54).",
+      "provenance": "HW-VALIDATED (EXP-0033): pack_float_to_unorm2x16 read back exact over 4 float2 inputs. Single compute op (byte-diff); field bit-packing inferred."
+    },
+    {
+      "mnemonic": "unpack_convert",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          23
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 56,
+          "type": "raw"
+        }
+      ],
+      "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+2==0x56 (COMPUTE). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); simd_ballot is gated on byte+1==0x07, this on byte+2==0x56.",
+      "provenance": "HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact (0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5)). Single compute op; field bit-packing inferred."
+    },
+    {
+      "mnemonic": "iminmax_chain",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          34
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 32,
+          "width": 3,
+          "type": "enum",
+          "enum": {
+            "4": "umax",
+            "5": "umin",
+            "6": "imax",
+            "7": "imin"
+          }
+        },
+        {
+          "name": "selhi",
+          "start": 35,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20; the 0x20 bit marks the FIRST op of a min3/max3/clamp pair whose result feeds the following 0x02 min/max). sel byte+4 = the same iminmax codes as the 0x02 group (umax=4,umin=5,imax=6,imin=7). min3(a,b,c) = 0x22 min(a,b) then 0x02 min(.,c); clamp(x,lo,hi) = 0x22 imax(x,lo) then 0x02 imin(.,hi). There is NO dedicated 3-input min3/max3/median3 op -- MSL lowers them to sequences of 2-input min/max.",
+      "provenance": "HW-VALIDATED behaviour (EXP-0033): min3/max3/median3/clamp_i read back exact; two-op structure and sel codes established by byte-diff; sel-code semantics from the HW-validated EXP-0007 0x02 iminmax."
     }
   ]
 }

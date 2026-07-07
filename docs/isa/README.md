@@ -78,6 +78,8 @@ table (`db.json` / `isadb.py`) drives both the **assembler** and **disassembler*
 passing round-trip test (`asm(disasm(bytes))==bytes` on 14 real instructions; `disasm(asm(x))==x`
 on 5 synthesized). Prose summary below; treat the DB as source of truth.
 
+> **Encoding tables (all instruction descriptors, rendered):** [`encoding-tables.md`](encoding-tables.md) — the self-contained, per-instruction bit-field tables (byte0 group, length, match bits, every field + enum), grouped by family; generated from `db.json` by `tools/agx-isa/gen_encoding_tables.py` (EXP-0036).
+
 Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
 
 ### ✅ Instruction-length rule (validated — tokenizes all our shaders cleanly)

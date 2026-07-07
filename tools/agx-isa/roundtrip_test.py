@@ -139,6 +139,22 @@ REAL_INSTRS = {
     "frag_color_pack (97 0c 54 ..)":     "970c54000250805004c8",   # colour-register pack HW
     "pixel_order acquire (07 14 54 50 06)":"071454500600",         # raster-order-group wait HW-diff
     "pixel_order release (07 04 54 d0 06)":"070454d00600",         # raster-order-group signal HW-diff
+    # ---- EXP-0036 consolidation: merged EXP-0030/0031/0033/0034/0035 descriptors ----
+    # get_special_register (EXP-0031): SR# = byte1, dst = byte0-hi (0xN4 & 0xNc forms).
+    "get_sr tgpg (24 a8 10 06)":          "24a81006",   # dst r2, SR 0xa8 threadgroups_per_grid.x
+    "get_sr lane (54 82 14 66)":          "54821466",   # dst r5, SR 0x82 simd_lane_id (0xN4 form)
+    "mov_imm 32 (0c 20)":                 "0c20",       # threads_per_simdgroup=32 (constant-fold)
+    "half_alu hadd (10 85 24 84 00 c0)":  "1085248400c0",  # native fp16 add (EXP-0033)
+    "ibitcount popcount (27 05 56 ..)":   "2705560002005c04",   # popcount (EXP-0033/0007)
+    "ibitcount find_msb (a7 05 56 ..)":   "a7055604030c4e04",   # find-MSB / bit-scan (EXP-0033, from k_int_bitcount)
+    "irotate imm (27 01 56 .. 12B)":      "2701560002006c00f0150900",  # rotate-by-immediate funnel (EXP-0033)
+    "pack_convert (97 04 56 ..)":         "9704560c03102a544482",  # pack_float_to_unorm2x16 (EXP-0033, from k_cvt_pack)
+    "unpack_convert (17 04 56 ..)":       "17045600030000000000",  # unpack_unorm2x16 (EXP-0033; byte+1!=07 vs simd_ballot)
+    "iminmax_chain (22 01 1e 05 07 c0)":  "22011e0507c0",   # min3/clamp first op (EXP-0033)
+    "frame_marker (43 00 00 01)":         "43000001",   # call/frame-setup marker (EXP-0035; re-scoped EXP-0030)
+    "call (0f 05 54 1a 8f 10 54 54 ..)":  "0f05541a8f105454ffffffffff00",  # direct CALL (EXP-0035, from k_cf_call)
+    "ret leaf (8f 02 54 00)":             "8f025400",   # function RETURN, leaf (EXP-0035)
+    "call_indirect (0f 80 85 02 07 02)":  "0f8085020702",  # visible_function_table indirect call (EXP-0035, from k_fptr)
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -223,6 +239,12 @@ REAL_PROGRAMS = {
     "frag_interp_flat":   "1f0b540b00051f03548700051f03540401001f03548001009704560602 3448d045c297145407021810d045c2870254000600 8702540c0800e70654060000014e000000000702540c02000e000000".replace(' ',''),
     # out_mrt: three per-RT colour stores (frag_color_store byte+5 = RT index) — tokenizes clean.
     "frag_out_mrt":       "970c5404021838d005c8970454050220c0d004c897045402020c20d005c8970454030214c0d004c897045400020008d005c8970454010208c0d004c8870254000600870254c00800e70654040004014e00000000070254c00000870254300800e70654020002014e000000000702543000008702540c0800e70654000000014e000000000702540c02000e000000",
+    # ---- EXP-0036: whole programs exercising the merged EXP-0030/31/33/35 descriptors
+    # (each instruction has a matching descriptor -> tokenizes to 0 leftover). ----
+    "merged_alu":  "1ca010061085248400c0270556000200"
+                   "5c0422011e0507c0a7055604030c4e040e000000",  # get_sr+half_alu+popcount+min3+find_msb+stop
+    "merged_call": "1ca010060c20430000010f05541a8f1054"
+                   "54ffffffffff008f0254000f80850207020e000000", # get_sr+mov_imm+frame_marker+call+ret+call_indirect+stop
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
