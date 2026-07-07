@@ -40,7 +40,7 @@ BO `gpu_va 0x100000b0000` is a stream of **0x2c-byte records** (one per dispatch
 | `+0x00` | shader config/register word | e.g. `0x00080000`→`0x00880000` for a register-heavy shader ⏳ |
 | `+0x08` | **shader-code pointer = shaderVA >> 6** | 64-byte units. HW-confirmed: shaders at 0x90000/0x90100 → `0x2400`/`0x2404` (Δ=4) |
 | `+0x10/+0x14/+0x18` | grid x / y / z | **in threads**, not threadgroups (`dispatchThreadgroups(2)×32` ≡ `dispatchThreads(64)`) |
-| `+0x1c/+0x20/+0x24` | threadgroup x / y / z | RT-2a: this is the **effective/driver-chosen** tg (e.g. API tg8→16, tg10→32), not the verbatim `threadsPerThreadgroup` |
+| `+0x1c/+0x20/+0x24` | threadgroup x / y / z (**effective/driver-chosen**) | RT-2a/RT-11: NOT the verbatim `threadsPerThreadgroup` — each axis is **rounded up to a power of two** with product ≥ one 32-lane SIMD (1..32→32, 48/64→64, 100→128; 2-D (3,5)→(4,8)); the exact rounding is occupancy/shader-dependent. `grid` @+0x10 is verbatim threads. |
 
 The arg-buffer pointer is **not** in this record — binding flows via the argument buffer, whose VA
 lives in the uniform/USC BO (`0x10000000000`). ⏳ threadgroup-memory-size field is elsewhere (not here).
