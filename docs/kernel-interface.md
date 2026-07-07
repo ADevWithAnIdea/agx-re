@@ -171,9 +171,9 @@ Each item below appears in the other docs as "firmware-managed / route via kerne
 - **Userspace provides:** the **packed sample-position value** (Mesa packs 4-bit x/y nibbles into
   `PPP_MULTISAMPLECTL`: 1×=`0x88`, 2×=`0x44cc`, 4×=`0xeaa26e26` — `mesa-userspace-requirements.md`
   §2e).
-- **Kernel/firmware does:** writes the position into the firmware command context. **Custom
-  positions are NOT in any userspace BO** — msaa4-vs-custom captures are byte-identical, proving the
-  value is firmware/register state, not a command-stream field. → route via the kernel submit (§6).
+- **CORRECTED (RT-4): sample positions ARE userspace-emittable** — written to a client BO (`0x100000e8000` 4× /
+  `0x100000e0000` 2×) at **+0x40** (N `(x,y)` f32 pairs, 1/16-grid). So this is **NOT** a kernel-managed item; a Mesa
+  userspace driver emits them directly into the sample-position BO. (EXP-0021's "byte-identical" diffed the wrong BOs.)
 
 ### 4.3 Depth / ZLS store-action — `pipeline/README.md` (EXP-0021)
 - **Userspace provides:** the **ZLS control value** and the depth/stencil buffer parameters (see

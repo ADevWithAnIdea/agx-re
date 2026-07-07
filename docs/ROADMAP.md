@@ -227,7 +227,7 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 - ☐ RT-ISA-4 subgroup/quad/matrix/RT · ☐ RT-ISA-5 fragment interp/output/tilebuffer/ROG
 - ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
 - ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ☐ RT-cmdstream-2 (indirect/occlusion/timestamp/geometry-output)
-- ☐ RT-descriptors+format+PBE · ☐ RT-tiling/twiddle/compression/MSAA · ☐ RT-pipeline/TBDR
+- ☐ RT-descriptors+format+PBE · ☐ RT-tiling/twiddle/compression/MSAA · ◐ RT-pipeline/TBDR (RT-4: found+fixed sample-positions-are-userspace @+0x40 & 32KiB-not-a-MRT-cap; tile-32×32/memoryless/load-store confirmed robust — needs 2nd pass)
 - ☐ RT-kernel-interface (consistency) · ☐ RT-capability-matrix (consistency)
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
 

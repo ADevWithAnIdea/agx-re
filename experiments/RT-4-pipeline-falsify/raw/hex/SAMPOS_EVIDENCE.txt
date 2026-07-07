@@ -1,0 +1,25 @@
+### RT-4 KEY FALSIFICATION: programmable sample positions ARE in a userspace BO ###
+# BO gpu_va=0x100000e8000 (4x MSAA) / 0x100000e0000 (2x MSAA); array of N (x,y) f32
+# pairs at +0x40, sample n at +0x40+n*8, each coord snapped to a 1/16 grid.
+# Direct same-VA file diff (NOT the gpu_va=0x0 dir-mode artifact):
+
+## 4x MSAA: msaa4 (default) vs msaa4_sp (custom {0.1,0.1},{0.9,0.3},{0.3,0.9},{0.7,0.7})
+# BO 0x100000e8000, bytes +0x40..+0x5c:
+#   default: 0000c03e 0000003e | 0000603f 0000c03e | 0000003e 0000203f | 0000203f 0000603f
+#   custom : 0000003e 0000003e | 0000603f 0000a03e | 0000a03e 0000603f | 0000303f 0000303f
+#   decode default (x,y): (0.375,0.125)(0.875,0.375)(0.125,0.625)(0.625,0.875) = std D3D 4x
+#   decode custom  (x,y): (0.125,0.125)(0.875,0.3125)(0.3125,0.875)(0.6875,0.6875) = our input @1/16
++0x0040: 0x3ec00000 -> 0x3e000000   (0.375 -> 0.125)   x0
++0x004c: 0x3ec00000 -> 0x3ea00000   (0.375 -> 0.3125)  y1
++0x0050: 0x3e000000 -> 0x3ea00000   (0.125 -> 0.3125)  x2
++0x0054: 0x3f200000 -> 0x3f600000   (0.625 -> 0.875)   y2
++0x0058: 0x3f200000 -> 0x3f300000   (0.625 -> 0.6875)  x3
++0x005c: 0x3f600000 -> 0x3f300000   (0.875 -> 0.6875)  y3
+
+## 2x MSAA: msaa2 (default) vs msaa2_sp (custom {0.1,0.1},{0.9,0.9})
+# BO 0x100000e0000, bytes +0x40..+0x4c:
++0x0040: 0x3f400000 -> 0x3e000000   (0.75 -> 0.125)   x0
++0x0044: 0x3f400000 -> 0x3e000000   (0.75 -> 0.125)   y0
++0x0048: 0x3e800000 -> 0x3f600000   (0.25 -> 0.875)   x1
++0x004c: 0x3e800000 -> 0x3f600000   (0.25 -> 0.875)   y1
+#   default 2x (x,y): (0.75,0.75)(0.25,0.25) = std 2x ; custom: (0.125,0.125)(0.875,0.875)
