@@ -6,7 +6,7 @@
     "byte0_table": {
       "0x0e": 4,
       "lownibble_0xC": 4,
-      "0x67/0xe7": 14,
+      "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) and constant all share this opcode pair -- EXP-0012]",
       "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
       "lownibble_0xB": "10  [float unary / integer and/or/xor]",
       "0x02": "6  [integer min/max | compare-for-select]",
@@ -828,10 +828,22 @@
       ],
       "fields": [
         {
-          "name": "pre",
+          "name": "space",
           "start": 8,
-          "width": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "amode",
+          "start": 16,
+          "width": 8,
           "type": "raw"
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
         },
         {
           "name": "base_slot",
@@ -840,14 +852,62 @@
           "type": "imm"
         },
         {
-          "name": "post",
+          "name": "count",
           "start": 40,
-          "width": 72,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "addr_lo",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "addr_hi",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "dst_width",
+          "start": 64,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "tail9",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail10",
+          "start": 80,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail11",
+          "start": 88,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "tail13",
+          "start": 104,
+          "width": 8,
           "type": "raw"
         }
       ],
-      "semantics": "load 32-bit element from device buffer[base_slot] into a register; base_slot (byte+4) selects the preloaded buffer-base uniform slot (0=buffer0, 1=buffer1, ...). Address offset from a GPR (gid-derived).",
-      "provenance": "HW-VALIDATED base_slot (EXP-0010 E7: 0x01->0x02 makes load read the other buffer). rest structural (EXP-0001/EXP-0005)."
+      "semantics": "load `count` consecutive 32-bit words (vector width, +5 low3) of `elem_size` bytes each (+12 bits[1:4]: k->2^(k-1) B) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at index_GPR * elem_size, base = buffer[base_slot] (+4). Element addressing; NO immediate offset (a[i+k] is a prior ALU add on the index). Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load variant (+3).",
+      "provenance": "HW-VALIDATED (EXP-0012): base_slot (M6/E7), count/vector-width (M4 splice 4->1 truncates the copy), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride to 1/2/8), data width (M2 +8=61,+12=42 -> true 8-bit byte load), element addressing / no-offset-field (M1 iadd-imm splice shifts the read). space bit (M5). amode/extmode/register-tail bit-packing inferred (byte-diff)."
     },
     {
       "mnemonic": "device_store",
@@ -861,14 +921,86 @@
       ],
       "fields": [
         {
-          "name": "body",
+          "name": "space",
           "start": 8,
-          "width": 104,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "amode",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "count",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "addr_lo",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "addr_hi",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "data_width",
+          "start": 64,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "tail9",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail10",
+          "start": 80,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail11",
+          "start": 88,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "tail13",
+          "start": 104,
+          "width": 8,
           "type": "raw"
         }
       ],
-      "semantics": "store a register to device buffer[base_slot] (byte+4, same slot scheme as device_load); 32-bit element, gid-derived offset.",
-      "provenance": "structural (inferred, EXP-0001/EXP-0005; base-slot by symmetry with device_load byte+4, EXP-0010)."
+      "semantics": "store `count` 32-bit words (vector width, +5) to the address space in `space` (+1 bit1: 1=threadgroup) at index_GPR*elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load. Narrowing stores (char/short) set elem_size (+12).",
+      "provenance": "HW-VALIDATED (EXP-0012): count/vector-width (M4 store +5 4->1 stores fewer words), space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. register/addressing tail inferred (byte-diff)."
     },
     {
       "mnemonic": "get_sr",

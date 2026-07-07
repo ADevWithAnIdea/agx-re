@@ -552,38 +552,100 @@ DB = [
         "provenance": "HW-VALIDATED (EXP-0010 E6): -44 back-edge in prodloop; zeroing the "
                       "offset -> infinite-loop hang, off-boundary offsets -> fault.",
     },
-    # ---- device load (byte+4 = buffer base slot; HW-validated EXP-0010) ----
-    # The base POINTER is not in the code and is not the Metal binding index
-    # (EXP-0001) nor loaded by the constant_program (EXP-0010 E5): the driver
-    # preloads each bound buffer's base into a uniform/binding slot and the load
-    # selects the slot via byte+4.  HW-VALIDATED (EXP-0010 E7): in `out=a+b`,
-    # splicing load-a's byte+4 from 0x01 (buffer a) to 0x02 (buffer b) makes it
-    # read buffer b (out = b+b); 0x00 reads the (zero) buffer-0.
+    # ==========================================================================
+    # MEMORY ACCESS FAMILY  (EXP-0012, device / threadgroup / constant)
+    # ==========================================================================
+    # ONE opcode pair covers device, threadgroup AND constant address spaces:
+    #   0x67 = load, 0xe7 = store, both 14 bytes.  Byte-aligned field map below
+    #   (each field = one instruction byte; the load-bearing bits within a byte
+    #   are named in the semantics).  HW-VALIDATED bytes: +1(space), +4(base_slot),
+    #   +5(count), +8(data width), +12(element size).  EXP-0012 splice-and-observe.
+    #
+    #   +0  opcode (0x67 load / 0xe7 store)                                  match
+    #   +1  address space + index-register bits.  bit1 (0x02) = THREADGROUP    HW(M5)
+    #       (device=0x00/0x10, threadgroup=0x02). higher bits = index GPR.
+    #   +2  addressing-mode byte (0x44/0x54 device, 0x54 threadgroup)         inferred
+    #   +3  bit1 (0x02) = unsigned/zero-extend load variant (sub-32)          inferred(M3)
+    #   +4  BASE_SLOT: preloaded buffer-base uniform slot (0=buf0,1=buf1,..). HW(E7,M6)
+    #       device & constant use it identically; threadgroup uses 0x08 (local, not a buf).
+    #   +5  COUNT: number of consecutive 32-bit words moved = vector width     HW(M4)
+    #       (1=scalar,2=.2/64b,3=.3,4=.4). low 3 bits; bit7 (0x80)=index-GPR-high.
+    #   +6..+7 addressing / index                                             inferred
+    #   +8  destination(load)/data(store) register descriptor + DATA WIDTH     HW(M2)/inf
+    #       (0x51=32b,0x41=16b,0x61=8b,0x59=64b/2reg; controls bits landed).
+    #   +9..+11 address/register tail                                         inferred
+    #   +12 ELEMENT SIZE for address scaling: bits[1:4] size-class k -> 2^(k-1)  HW(M2)
+    #       bytes (0x42=1B/8b,0x44=2B/16b,0x46=4B/32b,0x48=8B/64b). Element addressing.
+    #   +13 0x00                                                              inferred
+    #
+    # ADDRESSING MODEL (HW-VALIDATED, EXP-0012 M1/M2): element addressing --
+    # effective byte address = index_GPR * element_size(+12).  There is NO
+    # immediate offset / displacement / scale field in the instruction; any
+    # a[i+k] / a[i*s] is computed by a PRIOR integer ALU op on the index (in
+    # ELEMENT units: the iadd immediate for a[gid+1] is (1<<1), EXP-0007 K<<1),
+    # and its result GPR is consumed as the index.  a[gid+1/+2/+4], a[gid*2/*4]
+    # all share a BYTE-IDENTICAL 0x67 load (only the prior ALU differs).
     {
         "mnemonic": "device_load",
         "length": 14,
         "match": [(0, 8, 0x67)],
         "fields": [
-            {"name": "pre",       "start": 8,  "width": 24, "type": "raw"},   # dst reg / addr bits
-            {"name": "base_slot", "start": 32, "width": 8,  "type": "imm"},   # HW: buffer base slot (byte+4)
-            {"name": "post",      "start": 40, "width": 72, "type": "raw"},
+            {"name": "space",     "start": 8,  "width": 8, "type": "mod"},    # HW: bit1(0x02)=threadgroup
+            {"name": "amode",     "start": 16, "width": 8, "type": "raw"},    # addressing mode
+            {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},    # bit1=unsigned/zero-ext
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
+            {"name": "count",     "start": 40, "width": 8, "type": "imm"},    # HW: low3=word/vector count (+5)
+            {"name": "addr_lo",   "start": 48, "width": 8, "type": "raw"},
+            {"name": "addr_hi",   "start": 56, "width": 8, "type": "raw"},
+            {"name": "dst_width", "start": 64, "width": 8, "type": "reg"},    # HW: dst reg + data width (+8)
+            {"name": "tail9",     "start": 72, "width": 8, "type": "raw"},
+            {"name": "tail10",    "start": 80, "width": 8, "type": "raw"},
+            {"name": "tail11",    "start": 88, "width": 8, "type": "raw"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # HW: bits[1:4]=size-class (+12)
+            {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
         ],
-        "semantics": "load 32-bit element from device buffer[base_slot] into a register; "
-                     "base_slot (byte+4) selects the preloaded buffer-base uniform slot "
-                     "(0=buffer0, 1=buffer1, ...). Address offset from a GPR (gid-derived).",
-        "provenance": "HW-VALIDATED base_slot (EXP-0010 E7: 0x01->0x02 makes load read the "
-                      "other buffer). rest structural (EXP-0001/EXP-0005).",
+        "semantics": "load `count` consecutive 32-bit words (vector width, +5 low3) of "
+                     "`elem_size` bytes each (+12 bits[1:4]: k->2^(k-1) B) from the "
+                     "address space selected by `space` (+1 bit1: 0=device/constant, "
+                     "1=threadgroup) at index_GPR * elem_size, base = buffer[base_slot] "
+                     "(+4). Element addressing; NO immediate offset (a[i+k] is a prior "
+                     "ALU add on the index). Sub-32 signed types are sign-extended by a "
+                     "following ALU shift; unsigned use the zero-extend load variant (+3).",
+        "provenance": "HW-VALIDATED (EXP-0012): base_slot (M6/E7), count/vector-width (M4 "
+                      "splice 4->1 truncates the copy), element-size/address-scale (M2 "
+                      "splice 46->42/44/48 changes the byte stride to 1/2/8), data width "
+                      "(M2 +8=61,+12=42 -> true 8-bit byte load), element addressing / "
+                      "no-offset-field (M1 iadd-imm splice shifts the read). space bit "
+                      "(M5). amode/extmode/register-tail bit-packing inferred (byte-diff).",
     },
-    # ---- device store (structural; base slot at byte+4 by symmetry) --------
+    # ---- store: identical 14-byte layout, base_slot at +4 (HW M4/M5/E7) -----
     {
         "mnemonic": "device_store",
         "length": 14,
         "match": [(0, 8, 0xe7)],
-        "fields": [{"name": "body", "start": 8, "width": 104, "type": "raw"}],
-        "semantics": "store a register to device buffer[base_slot] (byte+4, same slot "
-                     "scheme as device_load); 32-bit element, gid-derived offset.",
-        "provenance": "structural (inferred, EXP-0001/EXP-0005; base-slot by symmetry "
-                      "with device_load byte+4, EXP-0010).",
+        "fields": [
+            {"name": "space",     "start": 8,  "width": 8, "type": "mod"},    # HW: bit1(0x02)=threadgroup
+            {"name": "amode",     "start": 16, "width": 8, "type": "raw"},
+            {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
+            {"name": "count",     "start": 40, "width": 8, "type": "imm"},    # HW: low3=word/vector count (+5)
+            {"name": "addr_lo",   "start": 48, "width": 8, "type": "raw"},
+            {"name": "addr_hi",   "start": 56, "width": 8, "type": "raw"},
+            {"name": "data_width","start": 64, "width": 8, "type": "reg"},    # data reg + width (+8)
+            {"name": "tail9",     "start": 72, "width": 8, "type": "raw"},
+            {"name": "tail10",    "start": 80, "width": 8, "type": "raw"},
+            {"name": "tail11",    "start": 88, "width": 8, "type": "raw"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # (+12) size-class
+            {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
+        ],
+        "semantics": "store `count` 32-bit words (vector width, +5) to the address space "
+                     "in `space` (+1 bit1: 1=threadgroup) at index_GPR*elem_size, base = "
+                     "buffer[base_slot] (+4). Same field layout & element addressing as "
+                     "device_load. Narrowing stores (char/short) set elem_size (+12).",
+        "provenance": "HW-VALIDATED (EXP-0012): count/vector-width (M4 store +5 4->1 stores "
+                      "fewer words), space bit (M5 threadgroup store +1 0x02->0x00 -> the "
+                      "roundtrip reads back zeros), base_slot by symmetry+M5. register/"
+                      "addressing tail inferred (byte-diff).",
     },
     # ---- preamble / get_special_register (HW-validated role, EXP-0010) -----
     # First instruction of every non-empty _agc.main. HW-VALIDATED (EXP-0010 E1):
@@ -770,7 +832,9 @@ def to_json():
                     "byte+1 bit0 (1=10B 2-src, 0=12B 3-src mul-add / bitfield). "
                     "EXP-0007 HW-validated.",
             "byte0_table": {
-                "0x0e": 4, "lownibble_0xC": 4, "0x67/0xe7": 14,
+                "0x0e": 4, "lownibble_0xC": 4,
+                "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) "
+                             "and constant all share this opcode pair -- EXP-0012]",
                 "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
                 "lownibble_0xB": "10  [float unary / integer and/or/xor]",
                 "0x02": "6  [integer min/max | compare-for-select]",

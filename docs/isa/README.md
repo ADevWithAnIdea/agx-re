@@ -207,6 +207,36 @@ operand-commute (same trick the compiler uses for `fsub`).
   prefix (present only when the kernel does a device load) is a no-op when corrupted — advisory/prefetch,
   role ⏳ TBD.
 
+### ✅ Memory access family (EXP-0012)
+Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14 bytes:
+
+| byte | field | meaning | status |
+|---|---|---|---|
+| +0 | opcode | `0x67` load / `0xe7` store | ✅ |
+| +1 | space + index | **bit1 (`0x02`) = threadgroup** (else device/global); higher bits = index GPR | ✅ space / ⏳ reg |
+| +3 | extmode | bit1 = unsigned/zero-extend variant | ⏳ |
+| +4 | **base_slot** | preloaded buffer-base uniform slot (0=buf0, 1=buf1, …) | ✅ |
+| +5 | **count** | # consecutive 32-bit words = **vector width** (1/2/3/4), not a mask | ✅ |
+| +8 | dst/data + width | dest/data reg + data width (`51`=32b, `41`=16b, `61`=8b, `59`=64b) | ✅ width / ⏳ reg |
+| +12 | **elem_size** | address element size, bits[1:4]=k → `2^(k-1)` bytes (`42`=1,`44`=2,`46`=4,`48`=8) | ✅ |
+
+- **Addressing model: element addressing, no in-instruction offset.** Effective byte address =
+  `index_GPR × element_size`. `a[i+k]` / `a[i*s]` are computed by a **prior integer ALU op** on the
+  index (in element units); the load just consumes the result GPR. (HW-proven: `a[gid+1/+2/+4]` and
+  `a[gid*2/*4]` all share a byte-identical load; the offset lives in the preceding `iadd` immediate.)
+- **Vectors:** `float4`/`int4` = one load + one store moving 4 words (`count`=4 at +5).
+- **Sign extension:** signed sub-32-bit loads are **sign-extended by a following ALU shift** (`0xa7`),
+  not by the load; unsigned use the zero-extend load variant (byte+3 bit1). HW-validated.
+- **Threadgroup memory:** same `0x67`/`0xe7` with byte+1 = `0x02` (address-space selector) and
+  base_slot `0x08` (local); lid-derived offset. (The vtx/frag `0x07/0x87/0x97/0xa7` groups are *not*
+  threadgroup memory.)
+- **Constant address space** (`constant T*` indexing) is **byte-identical** to a device load — the
+  device/constant distinction is not in the ISA (it's in the binding). Scalar `constant T&` stays a
+  preloaded uniform-register read (no load), per EXP-0010.
+- **Atomics** (noted, deferred): `atomic_fetch_add` uses a **new op byte0 `0xbf`** inside an
+  execution-mask **CAS/retry loop** (`0x0a` compare + `0f 05`/`0f 06` mask ops) around a `67 01…`
+  access — not the plain load/store path.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to
