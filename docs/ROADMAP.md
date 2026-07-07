@@ -168,6 +168,33 @@ mechanically render `db.json` into Mesa's `src/asahi/isa/AGX2.xml` schema (`<gro
 and generate the G17P disassembler. Still-inferred operand sub-fields → reserved/`<zero>` bits (as Mesa itself does),
 tightened as they're decoded.
 
+## ENDGAME (unattended) — wrap-up, then red-team. Do NOT stop until the red-team passes clean.
+
+### Phase W — WRAP-UP (finish the original goal)
+- ☐ **W1** EXP-0036 consolidation + census → commit; capture the undecoded byte0-group list.
+- ☐ **W2** Close the remaining/undecoded families the census flags (vertex varying-store `0x05/06/57`,
+  register-shift-prep `0x2b/3b/5b/8b`, RT companions `0x5f`, any others). Per-experiment descriptor files → merge.
+- ☐ **W3** Emit `docs/isa/agx3.xml` (Mesa schema) + finalize `docs/isa/encoding-tables.md`.
+- ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
+  (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
+
+### Phase R — RED-TEAM (adversarial verification; the user's explicit finishing directive)
+Assume EVERY finding was produced by an unreliable agent. Big structure (families/opcodes) is likely right;
+**subtle field/attribute errors are the target.** Fan out critical subagents that **RUN falsification tests**
+(assemble/splice/observe, trace, probe) designed to BREAK each claim — not confirm it. **Record every test as
+an experiment** (a passing test strengthens the finding). **Fix any issue found**, then re-test. Explicitly
+include **large & unorthodox Metal programs and edge-case inputs** (huge shaders, deep control flow, high
+register pressure/spill, exotic types, recursion, MRT, all texture dims, indirect/ICB, mesh, RT, dynamic libs).
+- Rule: red-team subagents **do NOT edit `tools/agx-isa`/`docs`** — they report discrepancies with evidence;
+  the orchestrator applies fixes centrally (keeps the DB coherent + round-trip green).
+- Coverage checklist (every finding cluster must get an adversarial pass):
+  ISA arithmetic/logic/convert/compare · control-flow/predication/loops/calls · memory/atomics/interlock/barrier ·
+  textures/samplers/gather/PCF · subgroup/quad/matrix/RT · fragment interp/output/tilebuffer/ROG · machine model
+  (96 GPR/uniform/spill) · SR/ABI/vertex-fetch · cmdstream compute+graphics+state+USC+indirect/occlusion/timestamp ·
+  descriptors+format table · tiling/twiddle/compression/MSAA · TBDR pipeline · kernel-interface · capability matrix.
+- **DONE when:** every cluster has a committed adversarial-verification experiment, all discrepancies fixed &
+  re-tested, round-trip green, the byte0-census shows ~0 undecoded, and a final skeptical acceptance review passes.
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the
