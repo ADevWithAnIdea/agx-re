@@ -58,6 +58,11 @@ REAL_INSTRS = {
     "iand  (0b 05 1f 01 00 00 00 80 00 00)":"0b051f01000000800000",  # a&b (0x0b logic)
     "ixor  (0b 05 1e 01 02 08 00 80 00 00)":"0b051e01020800800000",  # a^b
     "popcnt(27 05 56 00 02 00 5c 04)":      "2705560002005c04",       # popcount (8B)
+    # ---- SIMD-group MATRIX multiply-accumulate (0xcf, 12B, EXP-0022 HW) ----
+    "matmad_f32 (cf 02 56 ... acc=1)":      "cf02560200040809d4432401",  # r=a*b+c float  HW
+    "matmul_f32 (cf 02 56 ... acc=0)":      "cf02560200040800d4412400",  # r=a*b   float  HW
+    "matmad_f16 (cf 00 56 ... half)":       "cf005604020c080410628c00",  # r=a*b+c half   HW
+    "matmac_mpp (cf 02 54 ... tiled)":      "cf02540501b46f004a422401",  # MPP tiled MAC  HW-obs
     "ishr  (a7 01 56 00 02 00 08 78 62 00)":"a7015600020008786200",  # a>>2 (10B)
     "ibfe  (a7 00 56 ... 12B)":            "a700560002001000f0118100",# extract_bits (12B)
     "icmp  (12 03 1d 05 ... 14B)":         "12031d05228107c0208013000001",# (a<b)?1:0 (14B)

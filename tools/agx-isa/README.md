@@ -59,6 +59,7 @@ shaders):
 | `0x47`/`0xc7` | **subgroup/quad shuffle & broadcast** | 10 (EXP-0018 HW) |
 | `0x17` | **simd_ballot / vote mask** | 10 (EXP-0018 HW) |
 | `0x67` (`byte+1==0x11`/`0x01`) | **atomic RMW** (op selector at byte+12; native, not a CAS loop) | 14 (EXP-0018 HW) |
+| `0xcf` | **SIMD-group MATRIX multiply-accumulate** (dedicated 8×8×8 cooperative-matrix MAC) | 12 (EXP-0022 HW) |
 
 ## Op-select field (float 2-source ALU, HW-VALIDATED, EXP-0005)
 
@@ -78,9 +79,11 @@ python3 agxisa.py asm      fadd srcA=1 srcB=0
 python3 roundtrip_test.py                 # ALL PASS
 ```
 
-Status: **34 instruction descriptors**, most HW-validated (float/int ALU, conversions,
+Status: **36 instruction descriptors**, most HW-validated (float/int ALU, conversions,
 memory load/store, control flow, the texture family `tex_sample`/`tex_write`/`tex_deriv`
-— EXP-0016 — and — EXP-0018 — the subgroup/quad family `simd_reduce`, `simd_shuffle`,
-`simd_ballot` plus the atomic RMW family `atomic_rmw`/`atomic_mem`, SIMD width 32).
+— EXP-0016 — the subgroup/quad family `simd_reduce`, `simd_shuffle`, `simd_ballot` plus
+the atomic RMW family `atomic_rmw`/`atomic_mem` — EXP-0018 — and the dedicated
+cooperative-matrix MAC `matrix_mac` (byte0 `0xcf`, EXP-0022: `simdgroup_matrix` is real
+8×8 matrix HW, not FMA/shuffle emulation), SIMD width 32).
 Remaining fields are inferred (byte-diff) or structural — see each descriptor's
 `provenance` and `../../PROVENANCE.md`.

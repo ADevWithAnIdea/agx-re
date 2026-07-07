@@ -329,6 +329,24 @@ per simdgroup). Aggregate HW-validated (1024 threads → counter 1024; op-splice
 Capability notes (`../hypotheses.md`): float atomic min/max and 64-bit atomic-add are **not exposed by
 MSL** (→ Vulkan must emulate); prefix-scan is native (not a shuffle-tree lowering).
 
+### ✅ Dedicated matrix unit — `simdgroup_matrix` (EXP-0022)
+Apple9 has a **dedicated matrix/MAC-array unit**, not a lane-cooperative FMA emulation:
+`simdgroup_multiply_accumulate` compiles to a **single novel opcode `0xcf`** (12 B) that performs a full
+**8×8×8 tile MAC** (512 scalar MACs). Proven dedicated: a hand-written FMA matmul and a
+`simd_shuffle`+`fma` cooperative matmul both contain **zero** `0xcf`.
+- **`matrix_mac` (`0xcf`, 12 B):** `d = a·b (+c)`, row-major 8×8. **byte+7 = C accumulator source reg**;
+  **byte+11 bit0 = accumulate-enable** (splice `01→00` drops the `+c`) — both HW-proven. Inferred:
+  byte+1 = dtype (`0x00` half / `0x02` float-bf16), byte+2 = mode (`0x56` standalone / `0x54` tiled),
+  A/B/dst selectors packed across byte+3..+6/+8..+9 (partial).
+- **Dims:** MSL exposes only **8×8** (16×16/8×16/4×4/32×32 rejected). **Types:** fp16, fp32, bfloat, and
+  mixed fp16/bf16 → fp32 accumulate; **all integer types rejected** (no int8 coopmat via Metal → Vulkan
+  int8 cooperative-matrix must emulate).
+- **Fragment load/store** = ordinary `0x67`/`0xe7` memory ops (64-bit load = 2 fp32/lane; 32 lanes × 2 =
+  the 64-element 8×8 tile); `make_filled` = a `0x2c`/`0x3c` constant splat. Only the MAC is dedicated silicon.
+- **Tensor ops** (`mpp::tensor_ops::matmul2d`, 32×32×32) compile on-device and lower to **259× the same
+  `0xcf`** — larger shapes are software-tiled over the 8×8×8 primitive.
+- HW-validated: A·B+C with distinct known A,B,C returns correct C.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

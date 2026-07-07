@@ -216,6 +216,13 @@ def instr_length(buf, off=0):
         if off + 1 < len(buf) and buf[off + 1] == 0x00:
             return 10
         return LEN_UNKNOWN
+    # ---- SIMD-group MATRIX multiply-accumulate (byte0 0xcf, 12B, EXP-0022) ----
+    # The dedicated 8x8 cooperative-matrix MAC (simdgroup_multiply_accumulate).
+    # 12 bytes, byte+2 == 0x56 (single op) / 0x54 (tiled, MPP matmul2d). A single
+    # 0xcf executes one whole 8x8x8 tile MAC; simdgroup_load/store are ordinary
+    # 0x67/0xe7 memory ops, not matrix instructions. HW-validated.
+    if b0 == 0xcf:
+        return 12                      # matrix_mac (EXP-0022 HW)
     return LEN_UNKNOWN
 
 
@@ -1235,6 +1242,49 @@ DB = [
                       "op with no simd_reduce. Threadgroup atomics use byte+1 bit1 (0x02) + "
                       "base_slot 0x08. Full field bit-packing inferred (byte-diff).",
     },
+    # SIMD-group cooperative-MATRIX multiply-accumulate (DEDICATED matrix HW).
+    # byte0 0xcf, 12 bytes. ONE 0xcf executes a full 8x8-by-8x8 tile MAC across
+    # the 32-lane SIMD-group: d = a*b (+ c). Proven dedicated (not FMA/shuffle
+    # emulation) by diff vs a hand-written FMA matmul (EXP-0022): the simdgroup
+    # kernel contains this novel 0xcf group; the FMA control contains ZERO. The
+    # MPP tensor matmul2d lowers to the SAME 0xcf (259 of them for 32x32x32).
+    # simdgroup_load / simdgroup_store are ordinary 0x67 / 0xe7 memory ops (each
+    # lane load/stores its 2 of the 64 tile elements as a 64-bit reg pair), NOT
+    # matrix instructions; make_filled is 0x2c/0x3c constant splats.
+    {
+        "mnemonic": "matrix_mac",
+        "length": 12,
+        "match": [(0, 8, 0xcf)],
+        "fields": [
+            {"name": "dtype",  "start": 8,  "width": 8, "type": "enum",
+             "enum": {0x00: "f16(16-bit)", 0x02: "f32/bf16(32-bit)"}},   # byte+1 (inferred)
+            {"name": "mode",   "start": 16, "width": 8, "type": "mod"},   # byte+2: 0x56 single / 0x54 tiled
+            {"name": "a_op",   "start": 24, "width": 16, "type": "raw"},  # byte+3..+4: A frag + high bits
+            {"name": "b_op",   "start": 40, "width": 16, "type": "raw"},  # byte+5..+6: B frag operand
+            {"name": "c_src",  "start": 56, "width": 8, "type": "reg"},   # byte+7: C accumulator source reg (HW)
+            {"name": "dst",    "start": 64, "width": 16, "type": "raw"},  # byte+8..+9: result reg + width
+            {"name": "b10",    "start": 80, "width": 8, "type": "raw"},   # byte+10 (0x24 marker)
+            {"name": "acc_en", "start": 88, "width": 1, "type": "enum",
+             "enum": {0: "multiply", 1: "multiply_accumulate"}},          # byte+11 bit0 (HW-proven)
+            {"name": "b11hi",  "start": 89, "width": 7, "type": "raw"},   # byte+11 hi bits
+        ],
+        "semantics": "d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the "
+                     "32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k "
+                     "a[i][k]*b[k][j], row-major). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit "
+                     "(float; bfloat shares the 32-bit datapath with input conversion). byte+2 mode "
+                     "0x56 = standalone, 0x54 = tiled (MPP matmul2d). C accumulator source register at "
+                     "byte+7 (HW-proven). ACCUMULATE-ENABLE = byte+11 bit0 (HW-proven: 1 -> a*b+c, "
+                     "0 -> a*b; simdgroup_multiply clears it). Element types accepted by MSL: half, "
+                     "float, bfloat, incl. mixed half/bfloat inputs -> float accumulate; integer "
+                     "matrices are REJECTED by MSL (no int8 cooperative matrix). Only 8x8 is exposed. "
+                     "A/B operand register bit-packing (byte+3..+6, +8..+9) is partially decoded.",
+        "provenance": "HW-VALIDATED (EXP-0022): known 8x8 A,B,C -> correct A*B+C read back for float "
+                      "AND half (numpy-exact); A*I==A, I*B==B, mul-only==A*B. Opcode 0xcf proven "
+                      "dedicated by diff vs a hand-written FMA matmul (control has zero 0xcf). "
+                      "byte+11 bit0 = accumulate-enable: splicing 0x01->0x00 turns A*B+C into A*B on "
+                      "hardware. byte+7 = C source reg: corrupting it breaks the accumulate. MPP "
+                      "matmul2d uses the same 0xcf. dtype/mode/operand-reg fields inferred (byte-diff).",
+    },
 ]
 
 # Index by mnemonic for the assembler.
@@ -1417,6 +1467,10 @@ def to_json():
                         "EXP-0018 HW]",
                 "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at "
                         "byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops.",
+                "0xcf": "12  [SIMD-group MATRIX multiply-accumulate: one full 8x8x8 cooperative-"
+                        "matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 "
+                        "tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/"
+                        "store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW]",
             },
         },
         "instructions": DB,

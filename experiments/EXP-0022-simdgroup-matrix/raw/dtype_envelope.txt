@@ -1,0 +1,26 @@
+# EXP-0022 simdgroup_matrix data-type envelope (element-type probe)
+float : ACCEPTED  len=226  cf_ops=1
+half : ACCEPTED  len=226  cf_ops=1
+bfloat : ACCEPTED  len=242  cf_ops=1
+char : REJECTED by MSL (is_simdgroup_matrix_element<char> == false)
+uchar : REJECTED by MSL (is_simdgroup_matrix_element<uchar> == false)
+short : REJECTED by MSL (is_simdgroup_matrix_element<short> == false)
+ushort : REJECTED by MSL (is_simdgroup_matrix_element<ushort> == false)
+int : REJECTED by MSL (is_simdgroup_matrix_element<int> == false)
+uint : REJECTED by MSL (is_simdgroup_matrix_element<uint> == false)
+
+# mixed-precision (AB-type * AB-type -> ACC-type)
+m_h_f : ACCEPTED
+m_bf_f : ACCEPTED
+m_f_h : ACCEPTED
+
+# non-8x8 dims: simdgroup_matrix<float,16,16> ->
+error: static_assert failed due to requirement 'is_simdgroup_matrix_element<char>::value' "invalid element type 'T' for 'simdgroup_matrix'"
+
+# MPP matmul2d tensor op: COMPILES (threadExecutionWidth=32); lowers to 259 x 0xcf matrix_mac for 32x32x32
+float 8x8 : ACCEPTED
+float 16x16 : REJECTED (static_assert failed due to requirement '_valid_simdgroup_matrix_size()
+float 8x16 : REJECTED (static_assert failed due to requirement '_valid_simdgroup_matrix_size()
+float 16x8 : REJECTED (static_assert failed due to requirement '_valid_simdgroup_matrix_size()
+float 4x4 : REJECTED (static_assert failed due to requirement '_valid_simdgroup_matrix_size()
+float 32x32 : REJECTED (static_assert failed due to requirement '_valid_simdgroup_matrix_size()

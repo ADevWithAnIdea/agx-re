@@ -24,7 +24,8 @@
       "0x47/0xc7": "10  [SUBGROUP/QUAD shuffle & broadcast: bit7=dir, byte+1=simd/quad/rotate, byte+6=(lane<<1). EXP-0018 HW-validated]",
       "0x17": "10  [simd_ballot / vote mask source. EXP-0018 HW-validated]",
       "0x67 (byte+1==0x11)": "14  [device ATOMIC RMW (elected-lane), op at byte+12. EXP-0018 HW]",
-      "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops."
+      "0x67 (byte+1==0x01)": "14  [standalone ATOMIC exchange/cmpxchg/indexed, op at byte+12. EXP-0018 HW]. Atomics are native single ops, NOT CAS loops.",
+      "0xcf": "12  [SIMD-group MATRIX multiply-accumulate: one full 8x8x8 cooperative-matrix tile MAC d=a*b(+c). DEDICATED matrix HW. byte+2 0x56 single / 0x54 tiled; byte+7=C src reg; byte+11 bit0=accumulate-enable. simdgroup_load/store are ordinary 0x67/0xe7 memory ops, NOT matrix ops. EXP-0022 HW]"
     }
   },
   "instructions": [
@@ -1987,6 +1988,83 @@
       ],
       "semantics": "standalone atomic memory op (single native instruction, no retry loop). byte+12: 0x3c exchange (also atomic_store, which discards the result), 0x24 compare-exchange (the returned old value feeds a following icmp that computes the weak-cmpxchg bool; NO hardware retry loop), 0x60 = per-lane indexed atomic add. Device space (byte+1 bit1=0); threadgroup sets the byte+1 threadgroup bit (0x02), base_slot 0x08 -- same address-space model as EXP-0012 memory ops.",
       "provenance": "HW-VALIDATED behaviour (EXP-0018): atomic_exchange / atomic_store lower to byte+12=0x3c; compare_exchange_weak to 0x24 with a following compare and NO backward jump; da_add_idx (distinct per-lane address) emits a single 0x67 op with no simd_reduce. Threadgroup atomics use byte+1 bit1 (0x02) + base_slot 0x08. Full field bit-packing inferred (byte-diff)."
+    },
+    {
+      "mnemonic": "matrix_mac",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          207
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dtype",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "f16(16-bit)",
+            "2": "f32/bf16(32-bit)"
+          }
+        },
+        {
+          "name": "mode",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "a_op",
+          "start": 24,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "b_op",
+          "start": 40,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "c_src",
+          "start": 56,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "dst",
+          "start": 64,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "b10",
+          "start": 80,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "acc_en",
+          "start": 88,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "0": "multiply",
+            "1": "multiply_accumulate"
+          }
+        },
+        {
+          "name": "b11hi",
+          "start": 89,
+          "width": 7,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion). byte+2 mode 0x56 = standalone, 0x54 = tiled (MPP matmul2d). C accumulator source register at byte+7 (HW-proven). ACCUMULATE-ENABLE = byte+11 bit0 (HW-proven: 1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). Element types accepted by MSL: half, float, bfloat, incl. mixed half/bfloat inputs -> float accumulate; integer matrices are REJECTED by MSL (no int8 cooperative matrix). Only 8x8 is exposed. A/B operand register bit-packing (byte+3..+6, +8..+9) is partially decoded.",
+      "provenance": "HW-VALIDATED (EXP-0022): known 8x8 A,B,C -> correct A*B+C read back for float AND half (numpy-exact); A*I==A, I*B==B, mul-only==A*B. Opcode 0xcf proven dedicated by diff vs a hand-written FMA matmul (control has zero 0xcf). byte+11 bit0 = accumulate-enable: splicing 0x01->0x00 turns A*B+C into A*B on hardware. byte+7 = C source reg: corrupting it breaks the accumulate. MPP matmul2d uses the same 0xcf. dtype/mode/operand-reg fields inferred (byte-diff)."
     }
   ]
 }
