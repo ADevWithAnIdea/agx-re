@@ -178,6 +178,35 @@ operand-commute (same trick the compiler uses for `fsub`).
 - Note: a load/store opcode-keying bug was fixed here (`0x67`/`0xe7` exact, was low-nibble `0x7`
   which collided with `0xa7`/`0x27`).
 
+### ✅ Control flow, predication & program structure (EXP-0010)
+- **Preamble = get-special-register** (`get_sr`, byte0 low-nibble `0xC`, 4B): materializes special
+  registers (e.g. `thread_position_in_grid`) into a GPR; byte0 high nibble = SR-select.
+- **Simple divergence is predication, not branches.** `if/else`/ternary/early-return compile to
+  **compare → per-lane execution mask → masked op / select** (no jump). Compare producers: `0x0a`
+  (6B, control predicate) and `0x02` (6B, feeds a select); compare immediate at **byte+3**. Selects:
+  `0x05`/`0x16` (4B). Proven: splicing the compare immediate moves the active-lane boundary; flipping
+  `0x0a`↔`0x02` inverts the condition.
+- **Loops use a real backward jump:** `0f 00 54 <off6> 00` (10B), `off6` = **signed little-endian
+  byte-relative offset**. `0x0f` is the control-flow / execution-mask group (byte+1 sub-op: `00`=jump,
+  `05`/`01`=mask push/else, `06`=pop/reconverge). Zeroing the back-edge → contained infinite-loop hang
+  (proves it's the taken edge). Fixed-count loops are fully **unrolled**.
+- **Program termination:** `0e000000` is **not** a required terminator (splicing it is a no-op); the HW
+  stops after the last real instruction — **program length is out-of-band (section/pipeline metadata)**,
+  the final `device_store` is the last effective instruction. A `0f 06 …` reconverge word follows
+  predicated blocks (block-end, not shader-end).
+
+### ✅ How uniforms & buffer pointers reach registers (EXP-0010)
+- **Buffer base pointers are preloaded into a uniform/binding slot**, selected by **`device_load`
+  byte+4** (HW-proven: splicing the slot changes which bound buffer is read). The pointer is *not* in
+  the shader code (consistent with EXP-0001's negative result) and *not* in the constant_program — it
+  is supplied by the command stream / USC (see `../cmdstream/`).
+- **Scalar uniforms** (`constant T&`) are preloaded into a **uniform register** read directly by the
+  ALU (no `device_load` emitted). ⟶ There *is* a uniform register file, surfaced here as source slots;
+  its full addressing is a follow-up (ties into Dynamic Caching).
+- The `_agc.main.constant_program` prolog does **not** load base pointers; its `0300070002000000 6000`
+  prefix (present only when the kernel does a device load) is a no-op when corrupted — advisory/prefetch,
+  role ⏳ TBD.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

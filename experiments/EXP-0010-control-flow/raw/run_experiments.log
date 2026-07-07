@@ -1,0 +1,95 @@
+# EXP-0010 run_experiments.py output (device: Apple A18 Pro / G17P, macOS 26.6 25G5043d).
+# Captured from ~/cleanroom_work/exp0010 via agxrun_persist. Reboots: 0.
+
+========================================================================
+E1  preamble = get_sr(thread_position_in_grid)   [gidonly out=gid]
+========================================================================
+main: 0ca01006e7105400000020001100009011000e000000
+  baseline out[0..7] = [0, 1, 2, 3, 4, 5, 6, 7]  [OK]
+  splice main[0]=0x00 -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[0]=0xff -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[1]=0x00 -> []  [CMDBUF_ERROR]
+  splice main[1]=0xff -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[2]=0x00 -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[2]=0xff -> []  [CMDBUF_ERROR]
+  splice main[3]=0x00 -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[3]=0xff -> [0, 1, 2, 3, 4, 5, 6, 7]  [OK]
+  splice main[0]=0x1c (byte0 hi-nibble) -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[0]=0x2c (byte0 hi-nibble) -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[0]=0x3c (byte0 hi-nibble) -> [0, 0, 0, 0, 0, 0, 0, 0]  [OK]
+
+========================================================================
+E2  branch/predicate  [eret4: if(gid>=4) return; out[gid]=7]
+========================================================================
+main: 0ca010060a01228214220f0554211c07e7005402000021005100009011000f06040100000e000000
+  compare instr at main[4:10], threshold immediate at main[7] (=0x82 for >=4)
+  baseline out[0..7] = [7, 7, 7, 7, 0, 0, 0, 0]  (0=lane returned, 7=lane stored)  [OK]
+  splice main[7]=0x80 (thr2) -> [7, 7, 0, 0, 0, 0, 0, 0]  [OK]
+  splice main[7]=0x84 (thr6) -> [7, 7, 7, 7, 7, 7, 0, 0]  [OK]
+  splice main[7]=0x8e (thr14/all) -> [7, 7, 7, 7, 7, 7, 7, 7]  [OK]
+  splice main[7]=0x00 (thr0/none) -> [7, 7, 0, 0, 0, 0, 0, 0]  [OK]
+  -- sense/opcode byte sweep (looking for inversion: 0-3 store, 4-7 return) --
+    main[4]=0x00 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[4]=0x01 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[4]=0x02 -> [0, 0, 0, 0, 7, 7, 7, 7] [OK]  <== INVERTED!
+    main[4]=0x10 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[4]=0x20 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[4]=0x40 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[4]=0x80 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[5]=0x00 -> [7, 7, 7, 7, 0, 0, 0, 0] [OK]
+    main[5]=0x02 -> [7, 7, 7, 7, 7, 7, 7, 7] [OK]  (other)
+    main[8]=0x01 -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]  (other)
+    main[9]=0x02 -> [7, 7, 7, 7, 0, 0, 0, 0] [OK]
+    (full sweep of bytes 4,5,8,9 x {00,01,02,10,20,40,80} in-session)
+
+========================================================================
+E3  branchless select  [dsel5: out=(a>5)?100:200]
+========================================================================
+main: 1ca01006671044000101200051010040460002010f8422e416c2a0c8e7005400000121001100009011000e000000
+  compare (byte0 0x02) at main[18:24], immediate at main[21] (=0x84 for >5)
+  a=[0, 6, 3, 9, 5, 7, 2, 8]
+  baseline out = [200, 100, 200, 100, 200, 100, 200, 100]  (expect 100 if a>5 else 200)  [OK]
+  splice cmp-imm main[21]=0x80 (a>1) -> [200, 100, 100, 100, 100, 100, 100, 100]  [OK]
+  splice cmp-imm main[21]=0x8e (a>7) -> [200, 200, 200, 200, 200, 200, 200, 200]  [OK]
+  splice cmp-imm main[21]=0x00 (a>?) -> [200, 100, 100, 100, 100, 100, 100, 100]  [OK]
+
+========================================================================
+E4  program termination  [copy1: out=a]
+========================================================================
+main: 1ca010066710440001012000510100404600e7005600000121001100009011000e000000  len 36
+  baseline out = [11, 22, 33, 44, 55, 66, 77, 88]  [OK]
+  trailing stop 0e000000 at main[32]
+  splice stop b0 0x0e->0x00         -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  splice stop b0 0x0e->0xff         -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  splice stop b0->0x67(load-op)     -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  splice stop payload->ff           -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  store instr at main[18:32] = e700560000012100110000901100
+  store bit-flip main[18]^1 (0xe7->0xe6) -> [] [CMDBUF_ERROR]
+  store bit-flip main[21]^1 (0x00->0x01) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[22]^1 (0x00->0x01) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[23]^1 (0x01->0x00) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[26]^1 (0x11->0x10) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[28]^1 (0x00->0x01) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[29]^1 (0x90->0x91) -> [0, 0, 0, 0, 0, 0, 0, 0] [OK]
+  store bit-flip main[30]^1 (0x11->0x10) -> [11, 55, 0, 0, 0, 0, 0, 0] [OK]
+
+========================================================================
+E5  constant_program / buffer base  [copy1]
+========================================================================
+  const_program region abs_off=7008 len=64
+  const_program bytes: 030007000200000060000e0000000600060006000600...0600 (0600 padding to 64B)
+  baseline out = [11, 22, 33, 44, 55, 66, 77, 88]  [OK]
+  splice cp[0] 0x03->0x00                   -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  splice cp[8] 0x60->0x00                   -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+  splice cp[0:4]->0e000000 (no-load variant head) -> [11, 22, 33, 44, 55, 66, 77, 88] match=True [OK]
+
+========================================================================
+E6  backward loop jump  [prodloop: s=1; for i<n: s=s*3+1; out=s]
+========================================================================
+main: 0ca0100667104404010020005101004046000a85228006c21c812200000000000f0554010f0154560000000000001c812200000000003b0020000f05541a9f0104060302188815040a0723050600070000009f015402030408e816059f0154020202088815048f0454220f0054d4ffffffffff000f06040200000f0604010000e7005402000021001100009011000e000000
+  a=[0, 1, 2, 3, 4, 5, 6, 7]
+  baseline out = [1, 4, 13, 40, 121, 364, 1093, 3280]  (expect [1,4,13,40,121,364,1093,3280])  [OK]
+  backward jump at main[106] = 0f0054d4ffffffffff00  offset_field=d4ffffffffff (signed -44)
+  splice offset->0 (jump to self) -> []  [HANG]        (contained; watchdog restarts child)
+  splice offset->+8 (forward) -> []  [CMDBUF_ERROR]
+  splice offset->-22 (half) -> []  [CMDBUF_ERROR]

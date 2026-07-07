@@ -1,0 +1,5 @@
+#include <metal_stdlib>
+using namespace metal;
+kernel void k(device int* out [[buffer(0)]], device const int* a [[buffer(1)]], uint gid [[thread_position_in_grid]]) {
+    out[gid] = (a[gid] & 1) ? (a[gid]*2) : (a[gid]+1);
+}

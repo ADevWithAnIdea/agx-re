@@ -9,11 +9,14 @@
       "0x67/0xe7": 14,
       "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
       "lownibble_0xB": "10  [float unary / integer and/or/xor]",
-      "0x02": "6  [integer min/max]",
+      "0x02": "6  [integer min/max | compare-for-select]",
       "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
       "0x9f/0x1f": "10 if (byte+1 & 1) else 12  [integer add/sub | mul-add]",
       "0xa7": "10 if (byte+1 & 1) else 12  [integer shift-r | bitfield]",
-      "0x27": "8  [integer unary / popcount]"
+      "0x27": "8  [integer unary / popcount]",
+      "0x0a": "6  [integer compare -> execution predicate (branch/return)]",
+      "0x05/0x16": "4  [conditional select (branchless if/ternary)]",
+      "0x0f": "10 if byte+1==0x00 (JUMP: 0f 00 54 <off6> 00, signed byte-rel); other sub-ops (mask push/pop/reconverge) variable = follow-up"
     }
   },
   "instructions": [
@@ -701,6 +704,119 @@
       "provenance": "inferred (byte-diff, EXP-0007 icmp_lt/eq/gt, ucmp_lt); 14-byte length HW (tokenizes cleanly); condition/sign fields byte-diff."
     },
     {
+      "mnemonic": "icmp_pred",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          10
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sub",
+          "start": 8,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "imm",
+          "start": 24,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "predicate = (srcA cond imm/srcB) ; integer compare that sets the per-lane execution mask for a predicated block (early return / break / continue). Compare bound at byte+3; condition sense in byte0/byte+1 (0x0a<->0x02 inverts).",
+      "provenance": "HW-VALIDATED (EXP-0010 E2): byte+3 immediate moves the active-lane boundary; byte0 0x0a->0x02 inverts the condition (splice-and-observe)."
+    },
+    {
+      "mnemonic": "sel",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          22
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = pred ? A : B  ; branchless conditional select (data operands).",
+      "provenance": "HW-VALIDATED behaviour (EXP-0010 E3 dsel: compare-imm splice flips the chosen value, no jump). clean tokenization; fields byte-diff."
+    },
+    {
+      "mnemonic": "psel",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          5
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = pred ? A : B  ; branchless conditional select (variant used for grid-position ternaries).",
+      "provenance": "HW-VALIDATED behaviour (EXP-0010 E3 gsel). clean tokenization; fields byte-diff."
+    },
+    {
+      "mnemonic": "jump",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mid",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "offset",
+          "start": 24,
+          "width": 48,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "PC-relative jump; offset is a signed 48-bit little-endian byte displacement (backward for loop back-edges). Taken while lanes remain active (execution-mask loop).",
+      "provenance": "HW-VALIDATED (EXP-0010 E6): -44 back-edge in prodloop; zeroing the offset -> infinite-loop hang, off-boundary offsets -> fault."
+    },
+    {
       "mnemonic": "device_load",
       "length": 14,
       "match": [
@@ -712,14 +828,26 @@
       ],
       "fields": [
         {
-          "name": "body",
+          "name": "pre",
           "start": 8,
-          "width": 104,
+          "width": 24,
+          "type": "raw"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "post",
+          "start": 40,
+          "width": 72,
           "type": "raw"
         }
       ],
-      "semantics": "load 32-bit element from a device buffer into a register",
-      "provenance": "structural (inferred, EXP-0001/EXP-0005)"
+      "semantics": "load 32-bit element from device buffer[base_slot] into a register; base_slot (byte+4) selects the preloaded buffer-base uniform slot (0=buffer0, 1=buffer1, ...). Address offset from a GPR (gid-derived).",
+      "provenance": "HW-VALIDATED base_slot (EXP-0010 E7: 0x01->0x02 makes load read the other buffer). rest structural (EXP-0001/EXP-0005)."
     },
     {
       "mnemonic": "device_store",
@@ -739,11 +867,11 @@
           "type": "raw"
         }
       ],
-      "semantics": "store a register to a 32-bit device-buffer element",
-      "provenance": "structural (inferred, EXP-0001/EXP-0005)"
+      "semantics": "store a register to device buffer[base_slot] (byte+4, same slot scheme as device_load); 32-bit element, gid-derived offset.",
+      "provenance": "structural (inferred, EXP-0001/EXP-0005; base-slot by symmetry with device_load byte+4, EXP-0010)."
     },
     {
-      "mnemonic": "preamble",
+      "mnemonic": "get_sr",
       "length": 4,
       "match": [
         [
@@ -754,10 +882,10 @@
       ],
       "fields": [
         {
-          "name": "b0hi",
+          "name": "sr_sel",
           "start": 4,
           "width": 4,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "body",
@@ -766,8 +894,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "fixed program preamble (thread-index / setup); role TBD",
-      "provenance": "structural (inferred, EXP-0001)"
+      "semantics": "d = special_register[sr_sel]  ; program preamble reads a lane SR (thread_position_in_grid at sr_sel=0) into a GPR.",
+      "provenance": "HW-VALIDATED (EXP-0010 E1): corrupting it zeroes/faults the gid output; sr_sel nibble changes the value. (mnemonic was 'preamble'.)"
     },
     {
       "mnemonic": "stop",
@@ -787,8 +915,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "program end (whole body of an empty kernel); not a strictly enforced terminator (EXP-0003: corrupting it did not fault)",
-      "provenance": "inferred (EXP-0001/EXP-0003)"
+      "semantics": "conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator: corrupting it is a no-op (EXP-0003/EXP-0010 E4); the true end-of-program is out-of-band (the metadata code length), not this in-band token.",
+      "provenance": "HW-confirmed non-required (EXP-0003; EXP-0010 E4 splice = no-op)."
     }
   ]
 }

@@ -53,6 +53,12 @@ REAL_INSTRS = {
     "ishr  (a7 01 56 00 02 00 08 78 62 00)":"a7015600020008786200",  # a>>2 (10B)
     "ibfe  (a7 00 56 ... 12B)":            "a700560002001000f0118100",# extract_bits (12B)
     "icmp  (12 03 1d 05 ... 14B)":         "12031d05228107c0208013000001",# (a<b)?1:0 (14B)
+    # ---- CONTROL FLOW (EXP-0010), carved from our own compiled CF shaders -----
+    "icmp_pred (0a 01 22 82 14 22)":       "0a0122821422",            # gid>=4 predicate HW
+    "sel   (16 c2 a0 c8)":                 "16c2a0c8",                # data select HW
+    "psel  (05 22 a0 de)":                 "0522a0de",                # grid select HW
+    "jump  (0f 00 54 d4 ff ff ff ff ff 00)":"0f0054d4ffffffffff00",   # -44 back-edge HW
+    "get_sr(1c a0 10 06)":                 "1ca01006",                # get thread id HW
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -83,6 +89,10 @@ REAL_PROGRAMS = {
     "ibfe":    "1ca010066710440000012000510100404600a700560002001000f0118100e7005400010121001100009011000e000000",
     "icmp_lt": "0ca010066710540200002000510100404600670044040100200051010040460012031d05228107c0208013000001e7005402020021001100009011000e000000",
     "idstc":   "1ca01006671054040001200051010040460067004400010120005101004046009f015606020010a81105e700540602012000110000901100e700540403012000110000901100e7005400040121001100009011000e000000",
+    # ---- CONTROL FLOW whole programs (EXP-0010): branchless select forms that
+    # tokenize cleanly as get_sr + [load] + compare(0x02) + select + store + stop.
+    "gsel4":   "1ca010060203078422ef0522a0dee7005400000121001100009011000e000000",
+    "dsel5":   "1ca01006671044000101200051010040460002010f8422e416c2a0c8e7005400000121001100009011000e000000",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
