@@ -173,7 +173,7 @@ tightened as they're decoded.
 ### Phase W — WRAP-UP (finish the original goal)
 - ☑ **W1** EXP-0036: DB 61 descriptors (round-trip 237 OK), `encoding-tables.md` (G-6 done), census ~82% bytes decoded.
 - ☑ **W2** *(EXP-0037/0038 merged via EXP-0039)* — DB 68 descriptors, round-trip green, census 87.9%, NO whole undecoded family remains. Closed: **vertex/mesh varying-store `0x05/06/57`; half pack/unpack `0x18/0x30/0x38`; u64 carry-gen `0x32`; texture addr/interp math `0x2e/0xb0/0x92/0x26`; non-leaf frame prologue `0x6f`; simd/unpack `0x54`-cache variants.** Per-experiment files → merge.
-- ☐ **W3** Emit `docs/isa/agx3.xml` (Mesa schema) + finalize `docs/isa/encoding-tables.md`.
+- ☑ **W3** `docs/isa/agx3.xml` (Mesa schema: 117 ins/10 group/33 enum, parses, reproducible via gen_agx3_xml.py) + `encoding-tables.md` final.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 

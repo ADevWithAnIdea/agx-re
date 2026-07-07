@@ -6,7 +6,7 @@ never from Apple binaries. See `../../CLAUDE.md`.
 
 > **Status: mature.** 68 machine-readable instruction descriptors (round-trip-validated asm↔disasm); a
 > broad-corpus byte0 census tokenizes **~88%** of instruction bytes with **no whole undecoded instruction family
-> remaining** (residual = operand sub-fields + resync artifacts). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md).
+> remaining** (residual = operand sub-fields + resync artifacts). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md) · Mesa-schema render: [`agx3.xml`](agx3.xml) (drop into `src/asahi/isa/`).
 > ✅ = hardware-validated (run modified code, observe output); ⏳ = byte-diff-inferred, not yet HW-round-tripped.
 
 ## How we get the bytes (validated — EXP-0001)
