@@ -8,7 +8,7 @@
       "lownibble_0xC": 4,
       "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) and constant all share this opcode pair -- EXP-0012]",
       "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
-      "lownibble_0xB": "10  [float unary / integer and/or/xor]",
+      "lownibble_0xB": "4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: uniform-reg -> GPR, EXP-0020]; else 10 [float unary / integer and/or/xor]",
       "0x02": "6  [integer min/max | compare-for-select]",
       "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
       "0x9f/0x1f": "10 if (byte+1 & 1) else 12  [integer add/sub | mul-add]",
@@ -128,7 +128,7 @@
           "type": "mod"
         }
       ],
-      "semantics": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (64 GPRs, bit0=size). dst reg in b0[4:8]. srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i).",
+      "semantics": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up to 96 addressable 32-bit regs, EXP-0020). dst here is the compact b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i). A source may name a UNIFORM register instead of a GPR (float uniform-select ~ byte+2 bit4 / byte+5 bit1; see uniform_mov).",
       "provenance": "HW-VALIDATED (EXP-0006): dst/srcA/srcB positions, (reg<<1)|size encoding, 16-bit-low-half read, srcB negate (a+b->a-b), and srcB-immediate mode all confirmed by splice-and-observe. opsel from EXP-0003/EXP-0005. op/cache/ctrl flag bits inferred."
     },
     {
@@ -478,7 +478,7 @@
           "type": "raw"
         }
       ],
-      "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. dst=b3 (reg<<1). subtract = srcA-negate (b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007).",
+      "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). subtract = srcA-negate (b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.",
       "provenance": "HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith enable (256-sweep), integer immediate (K<<1) for K in 0..255. srcA/srcB reg bit-packing in the tail located but not fully bit-decoded (follow-up)."
     },
     {
@@ -1420,6 +1420,43 @@
       ],
       "semantics": "d = special_register[sr_sel]  ; program preamble reads a lane SR (thread_position_in_grid at sr_sel=0) into a GPR.",
       "provenance": "HW-VALIDATED (EXP-0010 E1): corrupting it zeroes/faults the gid output; sr_sel nibble changes the value. (mnemonic was 'preamble'.)"
+    },
+    {
+      "mnemonic": "uniform_mov",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          1
+        ],
+        [
+          24,
+          8,
+          8
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "usrc",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "d(GPR) = uniform_register[usrc]  ; copy a uniform (thread-invariant) register into a GPR. byte1 encodes the uniform source register; the uniform value was preloaded/precomputed by the driver or by the uniform program in _agc.main.constant_program. Compact 4-byte form; the dst nibble reaches r0..r15 (higher GPR dst would use a wider move form).",
+      "provenance": "byte-diff (EXP-0020): u_each (out[i]=u_i for 6 uniforms) emits six `Xb YY 01 08` with byte0 hi nibble = 0..5 (dst GPR 0..5) and byte1 stepping by 4 per consecutive uniform (0x1c,0x20,0x24,..). f_uni / u_many8 (sum of uniforms) leave the uniform-datapath result in a uniform reg and emit one such move. Uniform-vs-GPR select bit located by GPR-vs-uniform iadd byte-diff (byte+5 bit4)."
     },
     {
       "mnemonic": "stop",

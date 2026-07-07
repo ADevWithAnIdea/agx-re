@@ -132,6 +132,12 @@ def instr_length(buf, off=0):
         # a documented follow-up; the compiler emits it only for fabs sources.
         return 8 if (buf[off + 2] & 0x02) else 6
     if lo == 0x0b:
+        # EXP-0020: the uniform-register -> GPR move is a compact 4-byte form in
+        # this group (`Xb YY 01 08`: byte0 hi nibble = dst GPR, byte1 = uniform
+        # source register, byte+2==0x01 & byte+3==0x08). Gate on that signature so
+        # it never collides with the 10-byte funary/ilogic (byte+2 == 0x0e/0x1e).
+        if off + 3 < len(buf) and buf[off + 2] == 0x01 and buf[off + 3] == 0x08:
+            return 4                   # uniform_mov (read a uniform register into a GPR)
         return 10                      # float unary (fmov/fneg/fabs) & int bitwise (and/or/xor)
     # ---- integer ALU family (EXP-0007, HW-validated by clean tokenization + splice) ----
     # Integer arithmetic is byte0 0x9f/0x1f (iadd/isub, bit7=srcA-negate) and 0xa7
@@ -278,7 +284,15 @@ DB = [
     #   [0:4]   group id = 0x9                                   (match)
     #   [4:8]   dst register number (b0 high nibble)   HW-VALIDATED (dstc sweep)
     #   [8]     srcA size: 1 = 32-bit, 0 = 16-bit (reads low half) HW-VALIDATED
-    #   [9:16]  srcA register number (aliases mod 64 -> 64 GPRs)  HW-VALIDATED
+    #   [9:16]  srcA register number (7-bit field, r0..r127)      HW-VALIDATED
+    #     NB (EXP-0020): the GPR file holds up to 96 addressable 32-bit registers
+    #     (compiler footprint caps at 96, then spills to scratch). EXP-0006's "64
+    #     GPRs" was an artifact of a tiny-footprint test shader (index bit6 folded
+    #     back to r0..r63 only because that shader declared few registers); high-
+    #     pressure kernels use r0..r95 with no aliasing (HW: 93 live regs, no spill,
+    #     computed correctly). 16-bit halves pack 2-per-GPR (independently
+    #     addressable via the native-half 0x10/0x11 groups); the 0x09 size bit here
+    #     only reaches the LOW half of a 32-bit reg.
     #   [16:19] opsel: 0b100=fadd 0b101=fmul                      HW-VALIDATED
     #   [19:24] op/cache flags (source last-use/discard hints)    inferred
     #   [24]    srcB size (1=32b, 0=16b low half)                 HW-VALIDATED
@@ -311,8 +325,13 @@ DB = [
             {"name": "mod_hi",    "start": 44, "width": 4, "type": "mod"},    # inferred (0xC base)
         ],
         "semantics": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand "
-                     "byte = (reg<<1)|is32 (64 GPRs, bit0=size). dst reg in b0[4:8]. "
-                     "srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i).",
+                     "byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up "
+                     "to 96 addressable 32-bit regs, EXP-0020). dst here is the compact "
+                     "b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 "
+                     "form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = "
+                     "bit43. srcB-immediate mode = bit39 (see falu2i). A source may name a "
+                     "UNIFORM register instead of a GPR (float uniform-select ~ byte+2 "
+                     "bit4 / byte+5 bit1; see uniform_mov).",
         "provenance": "HW-VALIDATED (EXP-0006): dst/srcA/srcB positions, (reg<<1)|size "
                       "encoding, 16-bit-low-half read, srcB negate (a+b->a-b), and "
                       "srcB-immediate mode all confirmed by splice-and-observe. "
@@ -453,9 +472,13 @@ DB = [
             {"name": "tail",      "start": 56, "width": 24, "type": "raw"},  # srcA/srcB descriptors
         ],
         "semantics": "d = (srcA_neg?-srcA:srcA) + srcB   ; integer 2-source add/sub. "
-                     "dst=b3 (reg<<1). subtract = srcA-negate (b0 bit7) + operand commute. "
-                     "srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) "
-                     "at b5:b6bit0 (NOT a minifloat -- EXP-0007).",
+                     "dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so "
+                     "unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches "
+                     "the whole GPR file (up to 96 regs, EXP-0020). subtract = srcA-negate "
+                     "(b0 bit7) + operand commute. srcB may be an 8-bit inline immediate K "
+                     "in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). "
+                     "A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 "
+                     "(0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.",
         "provenance": "HW-VALIDATED (EXP-0007): dst field (dstc b3 sweep relocates result), "
                       "srcA-negate (a+b->b-a signed), length bit b1 (splice faults), b2 arith "
                       "enable (256-sweep), integer immediate (K<<1) for K in 0..255. srcA/srcB "
@@ -925,6 +948,37 @@ DB = [
         "provenance": "HW-VALIDATED (EXP-0010 E1): corrupting it zeroes/faults the gid "
                       "output; sr_sel nibble changes the value. (mnemonic was 'preamble'.)",
     },
+    # ---- uniform-register -> GPR move (EXP-0020) --------------------------
+    # A source operand can name a UNIFORM register (thread-invariant) instead of a
+    # GPR. Scalar `constant T&` uniforms and buffer base pointers are preloaded into
+    # the uniform register file; thread-invariant expressions are computed on a
+    # separate UNIFORM/SCALAR datapath in the `_agc.main.constant_program` (the
+    # "uniform program", which device_loads the uniform buffers and does the uniform
+    # ALU) and left in a uniform register. `_agc.main` copies a uniform register into
+    # a GPR with this compact 4-byte move: `Xb YY 01 08` -- byte0 hi nibble = dst GPR,
+    # byte1 = uniform source register index. In the full 2-source ALU forms, a
+    # per-source "uniform" mode bit selects uniform-vs-GPR (integer 0x9f: srcB uniform
+    # = byte+5 bit4, srcA uniform = byte+6; float 0x09: byte+2 bit4 / byte+5 bit1).
+    {
+        "mnemonic": "uniform_mov",
+        "length": 4,
+        "match": [(0, 4, 0x0b), (16, 8, 0x01), (24, 8, 0x08)],
+        "fields": [
+            {"name": "dst",  "start": 4,  "width": 4, "type": "reg"},   # byte0 hi nibble = dst GPR (r0..r15 compact)
+            {"name": "usrc", "start": 8,  "width": 8, "type": "reg"},   # byte1 = uniform register index ((ureg<<2) form)
+        ],
+        "semantics": "d(GPR) = uniform_register[usrc]  ; copy a uniform (thread-invariant) "
+                     "register into a GPR. byte1 encodes the uniform source register; the "
+                     "uniform value was preloaded/precomputed by the driver or by the uniform "
+                     "program in _agc.main.constant_program. Compact 4-byte form; the dst "
+                     "nibble reaches r0..r15 (higher GPR dst would use a wider move form).",
+        "provenance": "byte-diff (EXP-0020): u_each (out[i]=u_i for 6 uniforms) emits six "
+                      "`Xb YY 01 08` with byte0 hi nibble = 0..5 (dst GPR 0..5) and byte1 "
+                      "stepping by 4 per consecutive uniform (0x1c,0x20,0x24,..). f_uni / "
+                      "u_many8 (sum of uniforms) leave the uniform-datapath result in a "
+                      "uniform reg and emit one such move. Uniform-vs-GPR select bit located "
+                      "by GPR-vs-uniform iadd byte-diff (byte+5 bit4).",
+    },
     # ---- stop / end -------------------------------------------------------
     # EXP-0010 E4: the trailing 0e000000 is NOT a required terminator -- splicing
     # its opcode (even to a load opcode) or payload is a NO-OP on the output and
@@ -1335,7 +1389,9 @@ def to_json():
                 "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) "
                              "and constant all share this opcode pair -- EXP-0012]",
                 "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
-                "lownibble_0xB": "10  [float unary / integer and/or/xor]",
+                "lownibble_0xB": "4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: "
+                                 "uniform-reg -> GPR, EXP-0020]; else 10 [float unary / "
+                                 "integer and/or/xor]",
                 "0x02": "6  [integer min/max | compare-for-select]",
                 "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
                 "0x9f/0x1f": "10 if (byte+1 & 1) else 12  [integer add/sub | mul-add]",

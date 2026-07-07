@@ -136,13 +136,28 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
   00 80 0X 00`); HW-validated `a+|b|`. There is also a `0x10` native-half 2-source group — both
   noted for follow-up.
 
-### ✅ Register model (preliminary, EXP-0006)
-Sweeping the source register field, index `0x89` aliases `0x09` (bit 7 folds mod 64) ⇒
-**64 physical 32-bit GPRs (r0–r63)**, with the size bit selecting 16/32-bit (low half) —
-**not** independent 16-bit-half addressing, and **no uniform-register file** was exposed in the
-2-source form. This differs from the public **G13** model (r0–r127 as 16-bit halves + u0–u255
-uniforms). ⏳ To confirm: full dst-register width, whether a uniform/constant file select exists
-in other forms, and the Dynamic-Caching (Apple9) implications for occupancy/spill.
+### ✅ Machine model — registers, uniforms, Dynamic Caching (EXP-0020, supersedes EXP-0006 "64")
+- **96 addressable 32-bit GPRs per thread** (r0–r95). The compiler's register footprint grows then
+  caps at exactly 96; a kernel with 93 live regs + zero scratch runs correctly. (EXP-0006's "64" was a
+  tiny-shader artifact of the nibble-compacted `falu2` dst field.)
+- **16-bit halves are independently addressable, packed 2 per GPR** (64 `half` values → 50 GPRs).
+  Native-half access is via the `0x10`/`0x11` groups; the `0x09` 32-bit form's size bit reaches only the
+  low half.
+- **Register-field widths:** the 6-byte `falu2` dst is a 4-bit nibble (r0–r15 compaction); high float dst
+  uses the 8-byte `falu3` form (`dst=byte+1`, 7-bit; r64 observed). Integer `dst=b3` and all source
+  fields are 7-bit `(reg<<1)|size` (span r0–r127, covering the 96-reg file).
+- **Uniform register file:** a source operand selects **GPR vs uniform** via a per-source mode bit
+  (int `0x9f`: uniform-srcB byte+5 bit4, uniform-srcA byte+6; float `0x09`: byte+2 bit4 / byte+5 bit1 —
+  ⏳ byte-diff inferred, not yet splice-validated). `uniform_mov` (4 B, `Xb YY 01 08`) copies uniform→GPR.
+  ≤128 uniform regs (8-bit index); exact count ⏳.
+- **Footprint declaration:** the exact GPR/scratch/uniform/threadgroup footprint is in the shader
+  binary's own `__GPU_METADATA` FlatBuffer (field 0 = GPR count, 14/41 = scratch bytes, 31 = uniform,
+  9 = threadgroup) — this is *our own* compiled shader's metadata (OWN-SHADER). The launch-descriptor
+  `+0x00` config word carries only a coarse **2-level occupancy tier** (bit 23: clear ≤11 GPRs, set ≥12).
+- **Dynamic Caching / spill:** above 96 GPRs the compiler spills to **per-thread scratch (stack)** memory
+  (scratch size in `__GPU_METADATA`); spilled kernels (80–256 regs) compute correctly. A compiler must
+  know: 96 GPRs before spill, 2 halves/GPR, scratch cost, and the ~12-GPR occupancy tier. ⏳ whether 96 is
+  hard silicon or a policy cap, and the scratch-base location, are follow-ups.
 
 ### ✅ Packed float immediate = 8-bit minifloat (HARDWARE-VALIDATED, EXP-0006)
 When srcB imm mode (bit 39) is set, srcB byte encodes an **8-bit minifloat** (NOT IEEE-754):
@@ -203,9 +218,10 @@ operand-commute (same trick the compiler uses for `fsub`).
 - **Scalar uniforms** (`constant T&`) are preloaded into a **uniform register** read directly by the
   ALU (no `device_load` emitted). ⟶ There *is* a uniform register file, surfaced here as source slots;
   its full addressing is a follow-up (ties into Dynamic Caching).
-- The `_agc.main.constant_program` prolog does **not** load base pointers; its `0300070002000000 6000`
-  prefix (present only when the kernel does a device load) is a no-op when corrupted — advisory/prefetch,
-  role ⏳ TBD.
+- The `_agc.main.constant_program` prolog is the **"uniform program"** (EXP-0020): a separate
+  uniform/scalar datapath that `device_load`s the uniform buffers and runs the uniform ALU to compute
+  **thread-invariant** expressions, leaving results in uniform registers (read directly by the main
+  program). This resolves its earlier "advisory prolog" mystery.
 
 ### ✅ Memory access family (EXP-0012)
 Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14 bytes:
