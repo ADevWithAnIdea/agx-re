@@ -1,0 +1,31 @@
+# EXP-0035 [1] DIRECT CALL/RETURN -- call_noinline vs call_inlined (kernels/direct_call.metal)
+# Device: Apple A18 Pro / G17P, macOS 26.6 (25G5043d). Tool: shdump + agxparse (OWN-SHADER).
+
+## call_noinline archive regions (helper stays OUT-OF-LINE):
+  region _agc.main.constant_program: [0:64]   (64 bytes)   uniform program
+  region l__ZL7helper2ff:            [64:128]  (64 bytes)   the noinline helper (callee)
+  region _agc.main:                  [128:202] (74 bytes)   the caller
+
+## CALLER _agc.main (call_noinline):
+0ca0100667105414000020005101004046006700441601002000510100404600430000010f05541a8f005698ffffffffff000f0604020000e7005414020021001100009011000e000000
+
+  tokenized:
+    get_sr                0ca01006                                (thread_position_in_grid.x -> r0)
+    device_load           67105414000020005101004046 00           (load A[i])
+    device_load           67004416010020005101004046 00           (load B[i])
+    <CALL-SITE MARKER>    43 00 00 01                              (0x43 frame/call-setup marker)
+    <CALL>                0f 05 54 1a 8f 00 56 98 ff ff ff ff ff 00  (14B; off40=-104 -> helper@sec64)
+    <RECONVERGE>          0f 06 04 02 00 00                        (post-call)
+    device_store          e7005414020021001100009011 00           (store O[i])
+    stop                  0e 00 00 00
+
+## HELPER l__ZL7helper2ff  (return a*b+1.0):
+a917161523b00200000000018f025400 060006000600...(0600 padding)...
+    falu3 (fma)   a9 17 16 15 23 b0 02 00   dst=r? srcA=r10 srcB=r17 srcC=0xb0(imm 1.0)
+    <pre-return>  00 00 00 01               (frame-teardown/result-commit marker word)
+    <RETURN>      8f 02 54 00               (leaf return; no encoded target -> HW link)
+
+## INLINED baseline _agc.main (call_inlined, identical math, helper inlined):
+1ca010066710540000012000510100404600670044040101200051010040460009051e0121b002c0e7005400020121001100009011000e000000
+    -> two device_loads, ONE inlined fma (09 05 1e 01 21 b0 02 c0 = a*b+1.0), store, stop.
+    -> NO 0x43 marker, NO 0f 05 call, NO helper region. Confirms 0x43+0f05 == the call.

@@ -1,0 +1,11 @@
+# EXP-0035 CALL target-offset model (HW layout-verified).
+# CALL = 0f 05 54 1a 8f 00 56 <off40> 00  ; off40 = signed LE rel; target = call_addr + 4 + off40.
+# Helper entry is at section offset 64 in every single-helper archive.
+
+k_add        off40=98ffffffff = -104   call@sec164  -> target=64   OK   (caller 74B)
+k_many       off40=62ffffffff = -158   call@sec218  -> target=64   OK   (caller 128B, 12 args)
+k_pressure   off40=d8fdffffff = -552   call@sec612  -> target=64   OK   (caller 74B, callee spills)
+dylib_cons   off40=36feffffff = -458   call@sec454  -> target=0    OK   (dylib ref region @ sec 0)
+
+All four predicted targets land EXACTLY on the callee's section entry -> the PC-relative offset model
+(target = call_instr_addr + 4 + signed_offset) is confirmed across 4 varied call-site distances.

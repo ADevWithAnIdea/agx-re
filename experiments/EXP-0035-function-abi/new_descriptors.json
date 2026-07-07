@@ -1,0 +1,79 @@
+{
+  "_note": "EXP-0035 (function-call / function-pointer / dynamic-library ABI, A18 Pro / G17P). Validated new descriptors + length-rule additions for tools/agx-isa/db.json. CLEAN-ROOM: every byte is from OUR OWN compiled MSL (OWN-SHADER) -- container/symbol parsing + byte-diff + HW dispatch round-trip only; the function-table descriptor is a DATA-TRACE of OUR OWN process' GPU buffers (iotrace). No Apple binary was disassembled. The orchestrator merges this into db.json (do NOT edit tools/agx-isa/ from this experiment).",
+
+  "_headline_finding": "G17P has a real CALL/RETURN mechanism in the CONTROL-FLOW family (byte0 low-nibble 0xf), NOT a dedicated new opcode group. A [[visible]] or __attribute__((noinline)) helper compiles OUT-OF-LINE as its own symbol region in the SAME __compute section (l__Z...mangled / _vname / _<sym>.MTL_VISIBLE_FN_REF). CALL = a 14-byte 0f 05 word carrying a signed PC-relative target (target = call_addr+4+off); RETURN = a 4-byte 8f 02 54 00 word with NO encoded target (the return address is a hardware link/CF-stack, dynamic). Calling convention: args in r10,r11,r12..; return value in r10; args<=regfile pass in registers. Leaf helpers have no frame; a NON-leaf helper (calls another) gets a 6f.. prologue + brackets each nested call with 07.. link save/restore to per-thread SCRATCH (the EXP-0020 spill stack) and returns via 8f 12 54 00. Function pointers (visible_function_table) and RT intersection tables share ONE model: the table is a flat array of 8-byte CODE VAs (entry = function entry-point GPU VA), bound as a Tier-2 argument-buffer slot; the shader loads entry[i] and indirect-calls it (0f 80 family). A MTLDynamicLibrary is a userspace-visible Mach-O DYLIB (filetype 14) of AGX code; a consumer references its symbol as an external <name>.MTL_VISIBLE_FN_REF resolved at pipeline-build by the runtime/driver loader, after which it is a NORMAL direct relative CALL. NOTE: 0x43 (EXP-0030 'obj_mesh_ctrl', thought mesh-unique) is actually the CALL-SITE / frame-setup marker -- it precedes EVERY out-of-line call in plain compute kernels too; mesh merely reused it for its helper-subroutine calls.",
+
+  "length_rule_additions": {
+    "0x0f_b1_0x05_CALL": "0f 05 is 14 bytes (CALL) when byte+4==0x8f AND byte+6==0x56; otherwise it is the 8-byte execution-mask PUSH (EXP-0010). Disambiguator: real CALL carries the 8f/56 link signature + a PC-relative target; a predication push does not. EXP-0035, HW-validated (offset arithmetic exact for 3 call sites; direct+nested calls dispatch correctly).",
+    "0x8f": "4  [function RETURN (ret). byte0 0x8f = control-flow family (low nibble 0xf) with the link/return high bit; byte+1 = 0x02 (leaf) or 0x12 (non-leaf, restores the spilled link); byte+2 = 0x54 CF marker. No encoded target -> the return address is a hardware link/CF-stack. EXP-0035 HW-validated (invariant tail across all helpers; dispatch correct).]",
+    "0x43_note": "0x43 (already added by EXP-0030 as obj_mesh_ctrl, 4 bytes) is the CALL-SITE / frame-setup marker: '43 00 00 01' is emitted immediately before EVERY out-of-line CALL in plain compute kernels (k_add/k_mul/k_many/k_pressure...) and in the recursion/chain kernels. EXP-0030 saw it only because mesh stages call compiler-generated helper subroutines. Refine obj_mesh_ctrl's semantics accordingly (call/subroutine setup marker, not a mesh-emit op). '43 00 06 xx' is the non-leaf-frame prologue variant. EXP-0035, inferred (byte-diff)."
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "call",
+      "length": 14,
+      "match": [[0, 8, 15], [8, 8, 5], [16, 8, 84], [32, 8, 143], [48, 8, 86]],
+      "fields": [
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"},
+        {"name": "b5", "start": 40, "width": 8, "type": "raw"},
+        {"name": "offset", "start": 56, "width": 48, "type": "imm"},
+        {"name": "tail", "start": 104, "width": 8, "type": "raw"}
+      ],
+      "semantics": "Direct out-of-line CALL to a compiler-emitted callable (a [[visible]] / noinline helper / resolved dynamic-library symbol, laid out as its own symbol region in the same __TEXT,<stage> section). Encoding '0f 05 54 1a 8f 00 56 <off40> 00' (14 bytes). offset = a SIGNED little-endian PC-relative byte displacement; the branch target = (call_instruction_address + 4) + offset. HW-VALIDATED: the offset predicts the helper's exact section entry for all probed call sites (k_add off=-104, k_many off=-158, k_pressure off=-552, dynamic-lib consumer off=-458), and k_add/k_mul/k_chain(nested)/visible-table dispatches return correct results. The CALL is bracketed by the 0x43 frame marker (before) and a 0f 06 04 02 00 00 reconverge (after); it reuses the execution-mask (0f 05 push) machinery so the call is a masked branch that saves the return context. byte+4=0x8f and byte+6=0x56 are the constant CALL/link signature (also the 14-vs-8-byte disambiguator vs a predication push).",
+      "provenance": "HW-validated + byte-diff (EXP-0035). Offset model exact across 3 varied call-site distances (helper always at section offset 64; caller length varied 74/128/512 B). Direct call and 3-level nested call (k_chain: main->mid->leaf) dispatch to correct outputs from the ARCHIVED spliced-free machine code (PIPELINE_SOURCE archive). Field roles of b3(0x1a)/b5(0x00) not individually splice-isolated (constant across every call observed)."
+    },
+    {
+      "mnemonic": "ret",
+      "length": 4,
+      "match": [[0, 8, 143], [16, 8, 84]],
+      "fields": [
+        {"name": "linkmode", "start": 8, "width": 8, "type": "enum",
+         "enum": {"2": "leaf", "18": "nonleaf_restore_link"}},
+        {"name": "tail", "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "Function RETURN. Encoding '8f LM 54 00' (4 bytes); byte0 0x8f = control-flow family (low nibble 0xf) with the link/return high bit set; byte+2 0x54 = the CF marker. linkmode byte+1 = 0x02 for a LEAF callee (return address taken straight from the hardware link register) or 0x12 for a NON-leaf callee (which had spilled/restored its own return address around inner calls). There is NO target field -> the return address is supplied by a hardware link register / control-flow (reconvergence) stack, not encoded in the instruction. HW-VALIDATED: the 8f 02 54 00 word is byte-identical at the tail of every leaf helper regardless of body/return type (float/int/half, add/mul/sub), and end-to-end dispatch of caller+callee returns correct values.",
+      "provenance": "HW-validated + byte-diff (EXP-0035). Invariant across h_add/h_mul/h_sub/h_iadd/h_hadd/vadd/vmul (all leaf -> 8f 02 54 00) and the non-leaf mid() -> 8f 12 54 00. Correctness proven by k_add/k_mul/k_chain dispatch. The leaf/nonleaf link semantics are inferred from the 0x02/0x12 byte-diff correlated with presence of the 6f prologue + 07 link save/restore; not independently splice-isolated."
+    },
+    {
+      "mnemonic": "call_indirect",
+      "length": 8,
+      "match": [[0, 8, 15], [8, 8, 128]],
+      "fields": [
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "target_lo", "start": 24, "width": 8, "type": "raw"},
+        {"name": "b4", "start": 32, "width": 8, "type": "raw"},
+        {"name": "tail", "start": 40, "width": 24, "type": "raw"}
+      ],
+      "semantics": "INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Encoding leader '0f 80 ..' (byte+1 0x80 selects the call-to-address / dynamic-target variant of the control-flow group, vs 0x00 static jump and 0x05 direct call). The call target is a CODE VA that has been loaded into a register from the function table (a preceding device_load/uniform-program load of entry[index], entry = 8-byte code VA); this op transfers control to it and returns via the same 8f.. RETURN. In the per-lane (dynamic index) form the target is marshalled through a run of 0x4b move ops before the 0f 80. HW-VALIDATED end-to-end: fptr_call(sel=0->vadd, sel=1->vmul) returns A+B / A*B correctly. Field bit-decode (which register holds the loaded target, index scaling) is byte-diff inferred, not splice-isolated.",
+      "provenance": "HW-validated behaviour + byte-diff (EXP-0035). visible_function_table dispatch (sel=0,1) returns exact A+B / A*B (RESULT 8 15 10 24 for A={3,3,4,4} B={5,5,6,6}). The 0f 80 leader + 0x4b target-marshalling run identified structurally in the fptr_call _agc.main tail; exact operand fields are follow-ups (need an indirect-call splice testbed). Length 8 is the leader form; the full sequence spans the 0x4b moves + 0f 80."
+    }
+  ],
+
+  "abi_facts": {
+    "_comment": "Calling convention -- HW-grounded from OUR OWN compiled helpers + dispatch. For docs/isa (function ABI) and any compiler backend.",
+    "arg_registers": "Integer/float/half arguments pass in consecutive 32-bit GPRs starting at r10: arg0->r10, arg1->r11, arg2->r12, ... (HW-observed: h_sub computes r10 + (-r11) = a-b, so a=r10,b=r11; vadd/vmul read r10,r11). half args occupy the low 16 bits of their GPR. Up to the 96-GPR file, args pass in registers; large arg lists are marshalled by vector device_loads into consecutive regs (k_many, 12 float args).",
+    "return_register": "The return value is left in r10 for all scalar types (float/int/half all dst=r10 in the callee's final op). The caller reads r10 after the RETURN.",
+    "caller_vs_callee_saved": "Leaf callees freely clobber the low GPRs (no save). A NON-leaf callee (one that itself calls) must preserve its OWN return address across inner calls: it emits a 6f.. prologue and brackets each nested CALL with a pair of 0x07 ops ('07 00 54 00 81 00 00 00' before, '07 00 54 00 81 ff 1f 00' after) that save/restore the link register to per-thread SCRATCH (the EXP-0020 spill stack), then returns with 8f 12 54 00. Register-level caller/callee-saved partitioning beyond the link register is compiler-managed (the whole program is co-compiled), not a fixed HW-enforced split.",
+    "stack_frame": "The 'stack' is the per-thread SCRATCH region already documented in EXP-0020 (Dynamic-Caching spill). A callee that exceeds the 96-GPR file spills there (h_pressure: 512 B of callee code, spills correctly); a non-leaf callee also saves its link/return address there around inner calls. There is no separate argument stack for the arg counts tested (args fit in the register file).",
+    "return_address_mechanism": "A hardware LINK REGISTER / control-flow (reconvergence) stack. The RETURN op encodes no target; the CALL (a 0f 05 masked branch) saves the return context, and 8f.. jumps back to it. Depth is therefore bounded by that hardware CF/link stack.",
+    "recursion": "MSL/the compiler does NOT emit true self-recursive calls: tail recursion is lowered to a LOOP (rec() compiled to a single 128-B region containing a 0f 00 54 <neg-off> backward jump, no self-call). Unbounded recursion is not representable -> call depth is statically bounded at compile time."
+  },
+
+  "function_table_descriptor": {
+    "_comment": "visible_function_table / intersection_function_table resolve -- DATA-TRACE of OUR OWN process' GPU buffers (iotrace SIGUSR1 snapshot) + shader-side decode. For docs/descriptors + docs/isa.",
+    "binding": "A visible_function_table is bound as a Tier-2 ARGUMENT-BUFFER slot (buffer index N), exactly like the RT intersection_function_table (EXP-0023) and any resource -- its 8-byte GPU VA sits in the argument buffer at the slot for that buffer index.",
+    "entry_format": "The table itself is a FLAT ARRAY of 8-byte little-endian CODE VAs; entry[i] = the GPU virtual address of function i's ENTRY POINT (the first instruction of its compiled body). Table index i selects entry[i] (stride 8 bytes). PROVEN by iotrace: a table of {vadd,vmul} contained exactly the two consecutive 8-byte VAs 0x100000004c0 and 0x10000000500, and the shader-code BO at code+0x4c0 held vadd (falu2 fadd 'a9171415..8f025400') and at code+0x500 held vmul (falu2 fmul 'a9171515..8f025400') -- byte-identical to the standalone-compiled functions.",
+    "resolve_sequence": "Uniform (thread-invariant) index: the constant_program (uniform program) loads entry[index] into a uniform register (a constant table index changes ONLY one byte of the constant_program, cp+0x5a: 0x20->0x21 for index 0->1) and the main program does an index-independent indirect call. Per-lane (dynamic) index: the main program device_loads entry[sel[i]] (the code VA), marshals it via 0x4b moves, and issues the 0f 80 indirect call. Return via 8f.. as for a direct call.",
+    "provenance": "DATA-TRACE (iotrace, OUR OWN process) for the entry=code-VA format + HW-validated dispatch for correctness; byte-diff for the resolve sequence. Same descriptor model as EXP-0023 intersection_function_table."
+  },
+
+  "dynamic_library_facts": {
+    "_comment": "MTLDynamicLibrary -- what is userspace-visible vs loader/kernel-managed. For docs/isa + a kernel-interface note.",
+    "userspace_artifact": "A MTLDynamicLibrary (MTLLibraryTypeDynamic + installName) serializes to a userspace-visible Metal fat binary whose AppleGPU image is a Mach-O of filetype 14 (MH_DYLIB) carrying the exported functions' AGX machine code in __TEXT,__text (plus __descriptor/__metallib). It is a genuine shared library of GPU code, not an opaque blob.",
+    "symbol_reference": "A consumer that calls a dylib symbol compiles with an UNRESOLVED external reference named '<mangled>.MTL_VISIBLE_FN_REF' (e.g. dl_scale.MTL_VISIBLE_FN_REF). Compiling the consumer succeeds; the reference is resolved at PIPELINE build, requiring the dylib to be available to the loader by its installName/URL (newDynamicLibraryWithURL) and passed via compileOptions.libraries + pipelineDescriptor.preloadedLibraries. Without the dylib loadable by installName the pipeline fails: 'Undefined symbols: dl_scale.MTL_VISIBLE_FN_REF'.",
+    "resolved_call": "Once resolved, the dylib function's code is LINKED IN as a region '_<name>.MTL_VISIBLE_FN_REF' adjacent to the consumer's _agc.main and is invoked by the ORDINARY direct relative CALL (0f 05 54 1a 8f 00 56 <off40> 00). HW-grounded: in the built consumer the call's PC-relative offset (-458) targets exactly the linked-in ref region at section offset 0. So a dynamic-library call is not a distinct instruction -- the 'dynamic' part is purely the LOADER RESOLUTION (userspace-declared external ref, address bound at load/link by the Metal runtime/driver).",
+    "kernel_managed": "Placing the dylib's code into the GPU address space and binding the .MTL_VISIBLE_FN_REF symbol to its code VA is done by the Metal runtime + the (kernel/firmware) GPU loader when the pipeline is built -- a kernel-interface concern (like the shader-code BO residency). Userspace supplies the serialized dylib + installName; it does not itself patch call targets.",
+    "provenance": "OWN-SHADER + pipeline-build validation (EXP-0035). The dylib container structure (filetype 14, __text) and the '.MTL_VISIBLE_FN_REF' external-symbol name are read from OUR OWN serialized artifacts; the resolved direct-call offset is verified against the linked-in region. End-to-end dispatch of the dylib consumer not run (pipeline build success + the direct-call path is separately HW-validated)."
+  }
+}

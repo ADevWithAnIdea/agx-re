@@ -1,0 +1,22 @@
+### HW VALIDATION (dispatch from archived machine code) ###
+--- direct call k_add: A={1..8}+B={10..80} ---
+PIPELINE_SOURCE archive
+STATUS OK
+COMPARE 2 MATCH
+--- direct call k_mul ---
+STATUS OK
+COMPARE 2 MATCH
+--- nested calls k_chain: mid(x)=leaf(x)+leaf(3x), leaf(x)=2x+1 ---
+STATUS OK
+COMPARE 1 MATCH
+--- indirect call fptr_call via visible_function_table (sel 0->add,1->mul) ---
+    A={3,3,4,4} B={5,5,6,6} sel={0,1,0,1}  expect 3+5=8, 3*5=15, 4+6=10, 4*6=24
+RESULT 8 15 10 24
+STATUS OK
+
+### VFT descriptor evidence (code BO + table entries) ###
+code_BO+0x4c0/+0x500 (vadd/vmul bodies):
+000004c0: a9171415 02000000 00018f02 54000600 
+00000500: a9171515 02000000 00010000 8f025400 
+table entries (LE code VAs, seen in heap BO):
+00004a00: c0040000 00010000 00050000 00010000 

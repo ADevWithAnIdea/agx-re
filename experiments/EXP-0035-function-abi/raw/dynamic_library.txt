@@ -1,0 +1,23 @@
+# EXP-0035 [5] MTLDynamicLibrary (dynlib.m; kernels/dylib_provider.metal + dylib_consumer.metal).
+
+## Provider compiled as MTLLibraryTypeDynamic (installName required) -> MTLDynamicLibrary created and
+## serialized to dylib.metallib. Its structure (OUR OWN artifact, agxparse):
+  container magic 0xbebafecb (Metal fat)
+  AppleGPU image  cputype=AppleGPU  filetype=14  (== MH_DYLIB, a dynamic library)
+    __TEXT,__text (1568 B, the dl_scale AGX code) + __TEXT,__descriptor + __TEXT,__metallib
+  => a MTLDynamicLibrary IS a userspace-visible Mach-O DYLIB of AGX machine code.
+
+## Consumer references the dylib symbol as an EXTERNAL '<mangled>.MTL_VISIBLE_FN_REF':
+  Without the dylib loadable by installName the pipeline FAILS:
+    "Undefined symbols:  dl_scale.MTL_VISIBLE_FN_REF, referenced from: use_dylib"
+  After newDynamicLibraryWithURL(dylib.metallib) + compileOptions.libraries + preloadedLibraries,
+  the consumer pipeline builds OK and the consumer archive links the dylib code IN:
+    region _dl_scale.MTL_VISIBLE_FN_REF: [0:64]     (the resolved dl_scale body, linked adjacent)
+    region _agc.main:                    [64:498]   (the consumer kernel)
+
+## The resolved dynamic-library call is a NORMAL DIRECT RELATIVE CALL:
+  consumer _agc.main call = 0f 05 54 1a 8f 00 56 36feffffff 00  (off40=-458)
+    call@sec454 -> target = 454+4-458 = 0 = the _dl_scale.MTL_VISIBLE_FN_REF region entry.  OK.
+  => No distinct 'dynamic-lib call' instruction. The dynamic part is LOADER RESOLUTION
+     (userspace declares the external ref; the Metal runtime/driver loader binds it to a code VA
+     and places the code -- a kernel-interface concern), after which it is the HW-validated direct call.

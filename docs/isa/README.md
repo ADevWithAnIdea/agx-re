@@ -415,9 +415,10 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   mesh-output ("UVB") buffer (proven by opcode-diff vs a hand-written compute control that stores the
   same primitives — identical store family; the mesh `_agc.main` shrinks 306→98 B when it emits nothing).
 - `set_primitive_count` = a predicated `lane==0` store of the count. Object payload = ordinary stores.
-- The **only mesh/object-unique opcode is a 4-byte control marker `0x43`** (`obj_mesh_ctrl`). The compiler
-  emits helper subroutines `_agc.object.write_childcount` and `_agc.mesh.write_uvb`; object→mesh **grid
-  amplification** is real fixed-function dispatch computed in object `main`.
+- Mesh has **no truly mesh-unique opcode** (corrected by EXP-0035): the `0x43` marker seen here is actually
+  the **generic call/frame-setup marker** — mesh shows it only because mesh stages call helper subroutines
+  (`_agc.object.write_childcount`, `_agc.mesh.write_uvb`). object→mesh **grid amplification** is real
+  fixed-function dispatch computed in object `main`.
 - Stages extract as `__TEXT,__object` / `__TEXT,__mesh` sections (like vertex/fragment).
 - **Implication for Mesa:** compile object/mesh as compute-like store kernels + a child-count write; no
   magic emit op exists. Classify **native (pipeline) + emulated-style (emit via stores)**. Submission is
@@ -512,6 +513,26 @@ The 14-byte sample bundle generalizes to every variant via **op+2** (variant/dim
 - **array/cube/3D/MSAA:** `read` dim in op+2 (`0x17` 2D / `0x79` 3D / `0x97` 2D-array bit7 / `0x80` MSAA);
   `sample` encodes cube `0x13` / 3D `0x39` / cube-array `0x53` in op+2; extra index (slice/face/z/sample/ref)
   = an added coord register selected via op+3 (⏳ byte-diff, not splice-validated).
+
+### ✅ Function calls / pointers / dynamic libraries ABI (EXP-0035, closes backlog #13)
+CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a dedicated opcode group.
+- **CALL** = `0f 05 54 1a 8f 00 56 <off40> 00` (14 B): `off40` = signed LE PC-relative, **target = call_addr
+  + 4 + off40** (verified at 4 distances). Reuses the exec-mask push (`0f 05`) machinery (a masked branch
+  saving the return context; disambiguated by byte+4=`0x8f`+byte+6=`0x56`). Each call preceded by a
+  `43 00 00 01` **call/frame marker** and followed by a `0f 06 …` reconverge.
+- **RETURN** = `8f <lm> 54 00` (4 B; `0x8f` = CF-family + link bit): **no encoded target ⇒ return address is
+  a hardware link register / CF stack**. `lm` = `0x02` leaf / `0x12` non-leaf.
+- **Calling convention:** args in **r10, r11, r12…**, return value in **r10**. Leaf callee = no frame;
+  **non-leaf** = `6f…` prologue bracketing each nested call with `07…` link save/restore to **per-thread
+  scratch** (the EXP-0020 spill stack). Recursion is lowered to a loop (tail) ⇒ statically bounded depth.
+- **Function pointers (`visible_function_table`):** a **flat array of 8-byte little-endian code VAs**
+  (`entry[i]` = function i's entry-point GPU VA), bound as a **Tier-2 argument-buffer slot** (same model as
+  RT `intersection_function_table`, EXP-0023). Resolve: uniform index → in the constant/uniform program;
+  per-lane index → device-load `entry[sel]` → **indirect call `0f 80`**. HW-validated (`sel=0→A+B, 1→A*B`).
+- **Dynamic libraries (`MTLDynamicLibrary`):** serialize to a Mach-O **filetype 14 (MH_DYLIB)** with AGX code
+  in `__TEXT,__text`; consumer references `<name>.MTL_VISIBLE_FN_REF`, **resolved at pipeline-build** (code
+  linked in adjacent, then an ordinary direct call). The "dynamic" part is **loader resolution** — a
+  kernel-interface concern (see `../kernel-interface.md`).
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

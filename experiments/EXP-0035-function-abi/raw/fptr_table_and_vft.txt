@@ -1,0 +1,31 @@
+# EXP-0035 [4] Function pointers -- visible_function_table indirect call + descriptor (DATA-TRACE).
+
+## Plain newComputePipelineStateWithFunction: DCEs the indirect call (fptr_call _agc.main = 0e000000).
+## fndump.m links the visible functions (MTLLinkedFunctions) so the call is emitted; the visible
+## functions compile as their own symbol regions:
+  region _agc.main.constant_program: [0:128]
+  region _agc.main:                  [128:320]  (the indirect caller)
+  region _vadd:                      [320:384]
+  region _vmul:                      [384:400]
+
+## fptr_call _agc.main (dynamic index sel[i]) tail = indirect-call sequence:
+  ... 04000000 | 0b013e0902080080 0000 | 8c802200 00000000 \
+  | 4b 03 3b11 190d 380b 5b01 3c09 020b | 0f 80 86 02 07 02 80 06 | e7...  (0f 80 = INDIRECT CALL leader)
+
+## Constant table index resolves in the UNIFORM program:
+  fp_i0 (ftab[0]) vs fp_i1 (ftab[1]) : _agc.main BYTE-IDENTICAL; constant_program differs by ONE byte
+  cp+0x5a: 0x20 -> 0x21  (the table index; thread-invariant target loaded in the uniform program).
+
+## visible_function_table DESCRIPTOR (iotrace SIGUSR1 snapshot of OUR OWN process' GPU BOs):
+  shader-code BO gpu_va = 0x10000000000 (has the 0e000000 stop words)
+  code+0x4c0: a9171415 02000000 00018f02 5400...   = vadd  (falu2 fadd + ret) -- byte-identical to standalone
+  code+0x500: a9171515 02000000 00010000 8f025400  = vmul  (falu2 fmul + ret) -- byte-identical to standalone
+  The table (in the tiler-heap cluster BOs va10000018000..) holds the two entries CONSECUTIVELY as
+  8-byte LE code VAs:
+     entry[0] = 0x100000004c0  (= code_BO + 0x4c0 = vadd entry point)
+     entry[1] = 0x10000000500  (= code_BO + 0x500 = vmul entry point)
+  (bograph edges: +0x..00 -> 0x10000000000+0x4c0 ; +0x..08 -> 0x10000000000+0x500)
+
+## => Function-table entry = 8-byte code VA (function entry point). Indexed by index*8. Bound as an
+##    argument-buffer slot (same model as EXP-0023 intersection_function_table). Shader loads entry[i]
+##    then indirect-calls (0f 80). RETURN via 8f.. as for a direct call.

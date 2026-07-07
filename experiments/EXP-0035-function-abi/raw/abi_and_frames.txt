@@ -1,0 +1,33 @@
+# EXP-0035 [2]/[3] Calling convention, return-value reg, leaf vs non-leaf frame, recursion.
+# All hex is OUR OWN compiled MSL (kernels/abi.metal, kernels/chain.metal). OWN-SHADER.
+
+## LEAF helpers (return isolation + arg registers). Each = ALU op + pre-return + RETURN.
+h_add  a917141502 00 00000001    8f025400      falu2 fadd r10 = r11 + r10        ret 8f 02 54 00
+h_mul  a917151502 00 000000010000 8f025400     falu2 fmul r10 = r11 * r10        ret 8f 02 54 00
+h_sub  a9150c1702 08 00000001    8f025400      falu2 r10 = r10 + (-r11)=a-b (b5 bit3=negB)  a=r10 b=r11
+h_iadd 9f01041402 2c50a81505     8f025400      iadd  dst=r10 (b3=0x14)            ret 8f 02 54 00
+h_hadd a015141402 00 00000001    8f025400      half add dst=r10                  ret 8f 02 54 00
+  => ARG0->r10, ARG1->r11 ; RETURN VALUE -> r10 (float/int/half all r10). RETURN = 8f 02 54 00 invariant.
+
+## visible_function_table callees (pipeline-linked, same ABI):
+_vadd  a91714150200 000000018f025400        falu2 fadd  dst=r10 srcA=r11 srcB=r10
+_vmul  a91715150200 0000000100008f025400    falu2 fmul  dst=r10 srcA=r11 srcB=r10
+
+## NON-LEAF frame -- mid() calls leaf() twice (kernels/chain.metal):
+leaf  a9150ec123b0020200000001 8f025400      (leaf: no prologue, 8f 02 54 00)
+mid   6f03040000201b942100 | 07005400810000 0000 | 0f0554 1a 8f 1054 aa ffffffffff 00 | 0f06040200 00 \
+      | 0700540081ff1f00 | 0b142900a9c9250380 00 | 0700540081000000 00 | 0f0554 1a 8f 0054 7c ffffffffff 00 \
+      | 0f06040200 00 | 0700540081ff1f00 | a91518 01ef025400 0050 | 8f125400   (padding 0600..)
+  -> mid has a 6f.. PROLOGUE, brackets EACH nested CALL with 07..(save) / 07..(restore) to SCRATCH,
+     and RETURNS via 8f 12 54 00 (non-leaf link-mode 0x12). Two 0f 05 CALLs to leaf (offsets aa/7c).
+
+## RECURSION -> LOOP (rec(x,n) tail-recursive; kernels/chain.metal):
+rec  ...contains 0f 00 54 de ff ff ff ff ff 00 (BACKWARD JUMP = loop back-edge) and 0f 05 predication,
+     NO self-CALL. 128-byte single region. => tail recursion lowered to iteration; true recursion not emitted.
+grep of 0f0054 (jump) x1, 0f0554 (mask/call) x2 in the rec region.
+
+## Many-arg (k_many, 12 float args) -- args marshalled by vector device_loads into consecutive regs;
+## the call is the same 43 / 0f 05 (off40=-158). No separate argument stack for 12 args (fit in regfile).
+
+## Callee that spills (h_pressure, 40-iter dependent chain): 512-byte callee region, spills to
+## per-thread scratch (EXP-0020), dispatches correctly. Same 43 / 0f 05 call (off40=-552).
