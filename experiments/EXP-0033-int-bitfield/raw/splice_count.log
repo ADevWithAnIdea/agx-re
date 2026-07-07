@@ -1,0 +1,9 @@
+base op bytes: 2705560002005c04 (expect 2705560002005c04 popcount)
+ref popcount   : [1, 8, 16, 1]
+ref reverse    : [2147483648, 16711680, 252645135, 1]
+ref clz        : [31, 16, 0, 0]
+
+  byte0=0x27 byte+1=0x04 -> [0, 0, 0, 0]  st=OK
+  byte0=0x27 byte+1=0x05 -> [1, 8, 16, 1]  st=OK
+  byte0=0xa7 byte+1=0x04 -> [2147483648, 16711680, 252645135, 1]  st=OK
+  byte0=0xa7 byte+1=0x05 -> [0, 15, 31, 31]  st=OK

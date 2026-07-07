@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · SYNTH capability-census · **0027** indirect/occlusion/timestamp · **0028** format codes+twiddle · **0030** mesh · **0029** fragment ISA (G-4) · **0031** SR enum + shader ABI + SW vertex-fetch (G-5) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH · **0025** async model = HW interlock (G-1) · **0026** transcendentals (G-2) · SYNTH capability-census · **0027** indirect/occlusion/timestamp · **0028** format codes+twiddle · **0030** mesh · **0029** fragment ISA (G-4) · **0031** SR/ABI (G-5) · **0033** int/bitfield completeness (#12) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -134,7 +134,7 @@ the byte0 groups seen in real shaders but not yet decoded:
 - ☐ **Control-flow exec-mask sub-ops** — `0x0f` beyond `jump`: `else`/`while`/`break`/`pop`/
   `reconverge`/`jmp_exec` variants (push/else/pop noted, not decoded).
 - ☐ **Stack spill/fill** — scratch load/store (EXP-0020 saw the behavior, not the ops).
-- ☐ **Pack/unpack** data-movement; register-shift-prep (`0x1b`/`0x2b`).
+- ◐ **Pack/unpack + int/bitfield ✅ (EXP-0033)**; register-shift-prep `0x2b/0x3b/0x5b/0x8b` family still ⏳.
 - ☐ **Special-function estimates** — rcp/rsqrt/exp2/log2 estimate + refine [= G-2, EXP-0026 in progress].
 - ☐ **RT companions** — `0x5f`, ray-move ops (EXP-0023 follow-up).
 - ☐ **Texture variants** — `sample_compare` (depth PCF, companion low-nibble `0xd`), gather-offset,

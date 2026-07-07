@@ -1,0 +1,27 @@
+== Task 1: bit-count / scan ==
+  [OK] popcount           got=[1, 1, 8, 16, 0, 31] exp=[1, 1, 8, 16, 0, 31]
+  [OK] clz                got=[31, 0, 16, 0, 32, 1] exp=[31, 0, 16, 0, 32, 1]
+  [OK] ctz                got=[0, 31, 8, 4, 32, 0] exp=[0, 31, 8, 4, 32, 0]
+  [OK] reverse_bits       got=[2147483648, 1, 16711680, 252645135, 0, 4294967294] exp=[2147483648, 1, 16711680, 252645135, 0, 4294967294]
+== Task 2: bitfield extract/insert ==
+  [OK] extract_u(4,8)     got=[241, 240, 103, 255] exp=[241, 240, 103, 255]
+  [OK] extract_s(4,8)     got=[-15, -16, 103, -1] exp=[-15, -16, 103, -1]
+  [OK] insert(3,5)        got=[248, 4294967047, 305419944, 2863311442] exp=[248, 4294967047, 305419944, 2863311442]
+== Task 3: rotate ==
+  [OK] rotate(a,n)        got=[2, 24, 878082066, 15] exp=[2, 24, 878082066, 15]
+  [OK] rotate(a,5)        got=[32, 48, 1183502082, 30] exp=[32, 48, 1183502082, 30]
+== Task 4: min3/max3/median3/clamp ==
+  [OK] min3               got=[1, 2, -9, 0] exp=[1, 2, -9, 0]
+  [OK] max3               got=[5, 10, -1, 7] exp=[5, 10, -1, 7]
+  [OK] median3            got=[3, 8, -5, 7] exp=[3, 8, -5, 7]
+  [OK] clamp_i            got=[0, 4, 0, 6] exp=[0, 4, 0, 6]
+== Task 6: 64-bit integer ==
+  [OK] u64_add            got=['0x100000003', '0x100000000', '0x223456789abd', '0x8000000000000001'] exp=['0x100000003', '0x100000000', '0x223456789abd', '0x8000000000000001']
+  [OK] u64_sub            got=['0xffffffff', '0xfffffffe', '0x23456789abb', '0x7fffffffffffffff'] exp=['0xffffffff', '0xfffffffe', '0x23456789abb', '0x7fffffffffffffff']
+  [OK] u64_mul            got=['0x200000002', '0xffffffff', '0x89abd23456789abc', '0x8000000000000000'] exp=['0x200000002', '0xffffffff', '0x89abd23456789abc', '0x8000000000000000']
+  [OK] u64_shl            got=['0x200000002', '0xffffffff0', '0xacf1357800000000', '0x0'] exp=['0x200000002', '0xffffffff0', '0xacf1357800000000', '0x0']
+  [OK] u64_shr            got=['0x80000000', '0xfffffff', '0x91a', '0x1'] exp=['0x80000000', '0xfffffff', '0x91a', '0x1']
+  [OK] u64_cmp(<)         got=[0, 0, 0, 0] exp=[0, 0, 0, 0]
+  [OK] u64_from32(mul)    got=['0xfffffffe00000001', '0x100000000', '0x4994f9a0', '0x100000000'] exp=['0xfffffffe00000001', '0x100000000', '0x4994f9a0', '0x100000000']
+
+TOTAL: 20 pass, 0 fail

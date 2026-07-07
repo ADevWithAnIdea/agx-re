@@ -473,6 +473,26 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
 - **FS input/epilog:** varyings via the `0x2f/0xaf` interpolation datapath reading plane-equation
   coefficients loaded by `0x97` from tiler output; color return via the shared epilog (see `frag_color_store`).
 
+### ✅ Integer / bitfield completeness (EXP-0033, closes backlog #12)
+- **Bit-count / scan** — single-op family (byte0 `0x27`/`0xa7`, byte+2 `0x56`, 8 B; op-select = byte0 bit7 +
+  byte+1): `popcount` = `27 05 56`, `reverse_bits` = `a7 04 56`, **find-MSB / bit-scan-reverse** = `a7 05 56`
+  (a primitive Metal doesn't name; `0x80000000`→31). `clz`/`ctz` are **multi-instruction lowerings** (find-MSB
+  + sub + clamp; `ctz` adds a `0x2b` low-bit-isolate).
+- **Bitfield:** unsigned `extract_bits` = single `0xa7` 12 B ibfe; **signed extract = ibfe + sign-ext shift**
+  (signedness is a lowering). **`insert_bits` has no dedicated op** (mask `0x0b` + shift `0x2b` + combine `0x9f`).
+- **Rotate:** by **immediate** = a single 12 B `0x27` funnel op (byte+1=`0x01`); by **register** = multi-instr.
+- **min3/max3/median3:** MSL exposes them but there is **no dedicated silicon** — lowered to 2-input int
+  min/max (`0x02` group). `clamp` = max-then-min.
+- **Pack/unpack + 16-bit:** `as_type` bitcast is **free**. Native fp16 = the **`0x10`** group (`0x1c` hadd /
+  `0x1d` hmul); **`half2` packs both lanes into one `0x10` op**, but **`int16` does NOT pack** (two 32-bit
+  `0x9f` adds). `pack_unorm2x16` = single `0x97`, unpack = single `0x17` (byte+2-gated vs frag-pack/ballot).
+- **64-bit integer:** register pairs, but **native single-op 64-bit add/sub exists** (splice-proven: `u64_sub`
+  is one `0x1f`; `0x1f→0x9f` gives a 64-bit add with **hardware carry-out**). Compiler may also emit an explicit
+  carry chain (`0x32` carry-generate). 32×32→64 mul = one 12 B `0x9f`; 64×64 = 3 mul(-add)s; register shift/
+  compare = multi-instr.
+- *(EXP-0033 also corrected DB length-rule bugs for the `0xa7 b1∈{04,05}` 8B, `0x27 b1=01` 12B rotate, and the
+  `0x10` half group — staged in `experiments/EXP-0033-int-bitfield/new_descriptors.json` for the consolidation.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

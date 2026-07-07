@@ -1,0 +1,108 @@
+{
+  "_comment": "EXP-0033 integer/bitfield completeness. New + refined descriptors in the tools/agx-isa db.json schema. HW-validated on A18 Pro / G17P unless noted 'inferred'. Orchestrator merges into tools/agx-isa/db.json. Bit numbering: N-byte instr = one little-endian int, bit0 = byte0 bit0, bit16 = byte+2 bit0.",
+
+  "length_rule_additions": {
+    "_note": "Corrections/additions to instr_length() (isadb.py). Current rule mislengths several EXP-0033 forms; apply these.",
+    "0xa7 (byte+1 in {0x04,0x05}, byte+2==0x56)": "8  [bit-count/scan single op: reverse_bits (b1=0x04) / find-MSB bit-scan (b1=0x05). Current rule wrongly gives 12/10. EXP-0033 HW-splice-validated]",
+    "0x27 (byte+1==0x01, byte+2==0x56)": "12  [ROTATE-by-immediate funnel-shift op (27 01 56 .. 6c 00 f0 15 09 00). Current 'else 8' branch mislengths it. EXP-0033 HW-behaviour]",
+    "0x27 (byte+1==0x05)": "8  [popcount / population-count single op -- already 8 via 'else 8', documented here for completeness]",
+    "0x10": "6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU group -- the 16-bit-destination sibling of the 0x09 float ALU; same length bit as 0x09/0x11. half/half2 arithmetic. EXP-0033 HW-validated. NOT currently in the length rule (only 0x11 was).]",
+    "0x2b / 0x3b / 0x5b / 0x8b": "10  [shift-amount PREP stage for register/64-bit dynamic shifts, bitfield-insert, ctz. byte+2 low-nibble 0xe/0xf. INFERRED length (tokenises cleanly); a documented follow-up.]",
+    "0x22": "6 if (byte+2 & 0x0f)==0x0e [min/max chained-operand variant, sibling of 0x02] ; else 10 [shift/sign-extend helper]  [INFERRED -- 0x22 is length-polymorphic on byte+2, like 0x12. EXP-0033 byte-diff]"
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "ibitcount",
+      "length": 8,
+      "match": [[0, 7, 39], [16, 8, 86]],
+      "fields": [
+        {"name": "fn_hi", "start": 7, "width": 1, "type": "opcode",
+         "enum": {"0": "popcount(b1=0x05)", "1": "reverse_bits(b1=0x04)|find_msb(b1=0x05)"}},
+        {"name": "form", "start": 8, "width": 8, "type": "opcode",
+         "enum": {"5": "count/scan", "4": "reverse"}},
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "operands", "start": 24, "width": 40, "type": "raw"}
+      ],
+      "semantics": "single-op bit-count / bit-scan (byte+2==0x56, 8 bytes). Operation = (byte0 bit7 fn_hi, byte+1 form): (0x27,0x05)=popcount (count set bits); (0xa7,0x04)=reverse_bits (bit reversal); (0xa7,0x05)=find-MSB / bit-scan-reverse (index of the most-significant set bit; 0x80000000->31, 0x0000FF00->15, 0x00000001->0). clz and ctz are NOT single ops: clz = find_msb then (31-x) then clamp (x==0 -> 32); ctz = a 0x2b low-bit-isolate prep + count + clamp. Shares byte0 low-7-bits (0x27) and byte+2 (0x56) with the 0x27/0xa7 convert family; distinguished by byte+1 form and length 8. Operand (dst/src) bit-packing follows the 0x27/0xa7 convert family (byte-diff, not individually bit-decoded).",
+      "provenance": "HW-VALIDATED (EXP-0033): popcount/clz/ctz/reverse_bits all read back exact over a 6-value sweep (runval.log). Op-select splice-proven (splice_count.log): on the popcount op, byte0/byte+1 = (0x27,0x05)->popcount, (0xa7,0x04)->reverse_bits, (0xa7,0x05)->find-MSB (0x80000000->31, 0xFF00->15); (0x27,0x04)->degenerate 0. popcount byte0 0x27,8B corroborates EXP-0007."
+    },
+    {
+      "mnemonic": "irotate",
+      "length": 12,
+      "match": [[0, 8, 39], [8, 8, 1], [16, 8, 86]],
+      "fields": [
+        {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "operands", "start": 24, "width": 40, "type": "raw"},
+        {"name": "tail", "start": 64, "width": 32, "type": "raw"}
+      ],
+      "semantics": "d = rotate_left(a, k)  ; bit-rotate / funnel-shift by an IMMEDIATE amount. Single 12-byte op in the 0x27 family (byte0 0x27, byte+1==0x01, byte+2==0x56): `27 01 56 00 02 00 6c 00 f0 15 09 00` for rotate(a,5). The 12-byte (3-operand) form fits a funnel shift (hi,lo,shift); for a plain rotate hi==lo==a. Rotate by a REGISTER (dynamic) amount is NOT this single op -- it is a multi-instruction lowering (0x3b shift-prep + funnel/extract ops + (32-n) subtract + OR), byte-identical to a hand-written (x<<s)|(x>>(32-s)).",
+      "provenance": "HW-VALIDATED behaviour (EXP-0033): rotate(a,5) and rotate(a,n) read back exact (runval.log). Single-op immediate form vs multi-op dynamic form established by byte-diff (analyze) -- rotl_imm is 1 compute op (48B total), rotl_var/rotl_manual are 9-instr lowerings and byte-identical to each other. Operand bit-packing inferred."
+    },
+    {
+      "mnemonic": "half_alu",
+      "length": 6,
+      "match": [[0, 8, 16]],
+      "fields": [
+        {"name": "dst", "start": 8, "width": 8, "type": "reg"},
+        {"name": "opsel", "start": 16, "width": 3, "type": "opcode",
+         "enum": {"4": "hadd", "5": "hmul"}},
+        {"name": "opflags", "start": 19, "width": 5, "type": "mod"},
+        {"name": "srcB", "start": 24, "width": 8, "type": "reg"},
+        {"name": "tail", "start": 32, "width": 16, "type": "raw"}
+      ],
+      "semantics": "d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU group (and of the 0x11 fp32->fp16 narrow-convert group). Same op-select as 0x09: byte+2 low-3 bits 0b100=hadd (0x1c), 0b101=hmul (0x1d); same 6-byte 2-source / 8-byte fma length bit (byte+2 bit1). A half2 (packed 2x fp16) operation executes BOTH 16-bit lanes in ONE 0x10 op (packed 2-lane SIMD-within-a-register) followed by a 0x18 pack op to assemble the 32-bit result. (Contrast: short2/2x-int16 add is NOT packed -- it is two separate 32-bit 0x9f integer adds, one per lane; there is no packed 2-lane int16 ALU.)",
+      "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes (halfpack_val.log). op-select (0x1c hadd / 0x1d hmul) mirrors the HW-validated 0x09 float ALU and is the only byte differing between half2_add and half2_mul. Length 6/8 by byte+2 bit1 tokenises the half streams. Operand bit-packing follows the 0x09 model (byte-diff)."
+    },
+    {
+      "mnemonic": "pack_convert",
+      "length": 10,
+      "match": [[0, 8, 151], [16, 8, 86]],
+      "fields": [
+        {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "src", "start": 24, "width": 8, "type": "reg"},
+        {"name": "body", "start": 32, "width": 48, "type": "raw"}
+      ],
+      "semantics": "packed format-conversion store-to-register: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word. byte0 0x97 (COMPUTE; gated by byte+2==0x56). This is the same op family as the fragment 'frag_color_pack' (which converts a float colour to the attachment's normalized format before the tilebuffer store) -- i.e. 0x97 is the general float->normalized-format pack/convert op, in both compute and fragment. NOTE: collides with frag_color_pack (also 0x97); disambiguate by byte+2 (compute pack 0x56 vs fragment).",
+      "provenance": "HW-VALIDATED (EXP-0033): pack_float_to_unorm2x16 read back exact over 4 float2 inputs (0.0/1.0/0.5/0.75 -> the correct 0x0000..0xFFFF packed 16-bit lanes, halfpack_val.log). Single compute op (byte-diff). Field bit-packing inferred."
+    },
+    {
+      "mnemonic": "unpack_convert",
+      "length": 10,
+      "match": [[0, 8, 23], [16, 8, 86]],
+      "fields": [
+        {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "body", "start": 24, "width": 56, "type": "raw"}
+      ],
+      "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+2==0x56 (COMPUTE). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. NOTE: byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); disambiguate by byte+2 (unpack sets 0x56).",
+      "provenance": "HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact (0x00000000->(0,0), 0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5), halfpack_val.log). Single compute op. Field bit-packing inferred; collision-gating (byte+2) is the recommended disambiguation."
+    },
+    {
+      "mnemonic": "iminmax_chain",
+      "length": 6,
+      "match": [[0, 8, 34]],
+      "fields": [
+        {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        {"name": "op", "start": 16, "width": 8, "type": "raw"},
+        {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+        {"name": "sel", "start": 32, "width": 3, "type": "enum",
+         "enum": {"4": "umax", "5": "umin", "6": "imax", "7": "imin"}},
+        {"name": "selhi", "start": 35, "width": 5, "type": "mod"},
+        {"name": "srcB", "start": 40, "width": 8, "type": "reg"}
+      ],
+      "semantics": "integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20; the 0x20 bit marks the FIRST op of a min3/max3/clamp pair whose result feeds the following 0x02 min/max). sel byte+4 = the same iminmax code as the 0x02 group (umax=4,umin=5,imax=6,imin=7). min3(a,b,c) = 0x22 min/max(a,b) then 0x02 min/max(.,c); max3 likewise; clamp(x,lo,hi) = 0x22 imax(x,lo) then 0x02 imin(.,hi); median3 = 3-4 chained min/max. There is NO dedicated 3-input min3/max3/median3 hardware op -- MSL exposes the builtins but they lower to sequences of the 2-input integer min/max.",
+      "provenance": "HW-VALIDATED behaviour (EXP-0033): min3/max3/median3/clamp_i all read back exact (runval.log). Two-op structure and sel codes established by byte-diff (analyze): min3=(0x22 sel7)+(0x02 sel7), max3=(sel6,sel6), umin3=(sel5,sel5), clamp=(0x22 sel6)+(0x02 sel7) matching min(max(x,lo),hi). sel-code semantics from the HW-validated EXP-0007 0x02 iminmax."
+    },
+    {
+      "mnemonic": "iadd2_64_refine",
+      "length": 10,
+      "match": [[0, 7, 31]],
+      "fields": [],
+      "semantics": "REFINEMENT of iadd2 (byte0 0x9f/0x1f), not a new descriptor: the integer add/sub ALU has a NATIVE 64-bit register-pair mode. A single 0x9f/0x1f op consuming 64-bit operands (loaded as register pairs via the 0x59 64-bit data-width load, EXP-0012) propagates carry/borrow across the 32-bit boundary IN HARDWARE. 64-bit sub compiled to one 0x1f op; splicing its byte0 0x1f->0x9f produced a correct 64-bit ADD WITH CARRY (0xFFFFFFFF+1 -> 0x1_00000000, 0xFFFFFFFFFFFFFFFF+1 -> 0 carry-out). The compiler also emits an alternate explicit carry-chain form for add (low 0x9f add + a 0x32 carry-generate + high add + carry add); both are valid. 64-bit operand width is carried in the operand descriptors + the 64-bit load/store data-width (0x59), not a distinct opcode.",
+      "provenance": "HW-SPLICE-VALIDATED (EXP-0033, splice_u64.log): u64_sub is a single 0x1f op; 0x1f->0x9f splice yields native 64-bit add with hardware carry across all 4 carry/carry-out cases. u64_add/sub/mul/shl/shr/cmp all read back exact (runval.log, cmp64.log)."
+    }
+  ]
+}

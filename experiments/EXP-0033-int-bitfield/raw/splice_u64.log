@@ -1,0 +1,8 @@
+byte at main+0x20 = 0x1f (expect 0x1f isub)
+SUB   got = ['0xfffffffe', '0x1fffffffd', '0x1234567813579bcf', '0xfffffffffffffffe']
+SUB   exp = ['0xfffffffe', '0x1fffffffd', '0x1234567813579bcf', '0xfffffffffffffffe']
+SPLICE add status = OK
+ADD   got = ['0x100000000', '0x200000001', '0x1234567922222211', '0x0']
+ADD   exp(native64) = ['0x100000000', '0x200000001', '0x1234567922222211', '0x0']
+ADD   exp(lo32only) = ['0x0', '0x100000001', '0x1234567822222211', '0xffffffff00000000']
+=> NATIVE 64-bit
