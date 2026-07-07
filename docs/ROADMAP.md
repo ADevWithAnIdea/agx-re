@@ -162,6 +162,12 @@ self-contained (`docs/descriptors/format-table.md`).
 Prose docs already carry each experiment's facts, so `docs/` stays complete meanwhile. THEN: byte0-group
 census (instruction-census metric) + re-run acceptance reviewer (REVIEW-02).
 
+**Mesa-schema `agx3.xml` deliverable (data, not code — within our doc mandate):** after the census is clean,
+mechanically render `db.json` into Mesa's `src/asahi/isa/AGX2.xml` schema (`<group>`/`<ins>`/`<enum>`/`<exact>`/
+`<src>/<dest>/<immediate>/<modifier>`) as `docs/isa/agx3.xml`, so the impl team can drop it into `src/asahi/isa/`
+and generate the G17P disassembler. Still-inferred operand sub-fields → reserved/`<zero>` bits (as Mesa itself does),
+tightened as they're decoded.
+
 ## Known premises (given, not to be re-questioned)
 - **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
   entirely different. Do not spend effort "measuring the delta" against applegpu — build the
