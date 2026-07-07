@@ -208,8 +208,8 @@ sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../
 G17P has **no single tagged USC control-word list** (unlike G13). Binding is split across three structures, each with a
 clean, emittable grammar:
 - **Textures + samplers → argument buffer `0x10000248000`:** a **2-pointer header** `[texture-array VA][sampler-array VA]`
-  (8-byte LE GPU VAs, high32 `0x00000100`), then contiguous **32-byte texture descriptors**, then **8-byte sampler
-  descriptors**, then a `0x60000000` terminator. **The Texture/Sampler count split IS this header:**
+  (8-byte LE GPU VAs, high32 `0x00000100`), then contiguous **32-byte texture descriptors**, then **0x20-stride sampler
+  descriptors** (RT-2a: the sampler entries are **0x20 apart**, not 8), then a `0x60000000` terminator. **The Texture/Sampler count split IS this header:**
   `num_textures = (samp_ptr − tex_ptr)/0x20`, `num_samplers = (terminator − samp_ptr)/0x20` **(RT-2a correction: samplers are 0x20-stride, not 8; the earlier `/8` overcounted 4×)**. The shader's `tex_sample`
   op+4 / op+5 index these two arrays. (HW-clean over tex1/2/3, smp1/2/3, mixed.)
 - **Buffers → `0x10000100000+0xa0`:** a flat table of **8-byte LE GPU VAs**, one per bound buffer in index order.

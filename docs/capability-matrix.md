@@ -39,9 +39,11 @@ to the **kernel/firmware**).
 | **One-op typed compare (float/sint/uint)** | ✅ Native | `isa/README.md` "Compare condition codes" (EXP-0013); `hypotheses.md` #3 | Single **`0x12` icmpsel** with a type field (bits[1:3] = float/uint/sint, bit0 = lt/gt) handles all comparisons in one op. |
 | **Texture format / swizzle / sRGB / numeric-type orthogonality** | ✅ Native | `descriptors/README.md` "Capability notes" (EXP-0015); `hypotheses.md` #6 | Fully **orthogonal (Vulkan-shaped)**: `bgra8 = rgba8 + swizzle`, `depth32f = r32f` code, sRGB is an independent flag. Maps directly to Vulkan format/swizzle without lowering. |
 | **Separate texture-read vs image-write paths** | ✅ Native | `isa/README.md` "Texture / sample family" (EXP-0016); `hypotheses.md` #7 | Read = format-converting **sampler op** (`0xb0/0x90`); write = **`0xd7` store** (memory family), *not* the sampler path. Relevant for Vulkan storage images. |
-| **Native single-RMW atomics (int add/sub/and/or/xor/min/max/xchg/cmpxchg, + float-add)** | ✅ Native | `isa/README.md` "Atomics" (EXP-0018) | Native single-RMW ops in the memory family (`0x67`), op at byte+12 — **including `fadd` (`0x26`)**. `cmpxchg` is one op + a compare (no CAS loop). Emit natively. *(Float min/max and 64-bit add are the exception — see §2.)* |
+| **Native single-RMW atomics (int add/sub/and/or/xor/min/max/xchg/cmpxchg, + float-add)** | ✅ Native | `isa/README.md` "Atomics" (EXP-0018) | Native single-RMW ops in the memory family (`0x67`), op at byte+12 — **including `fadd` (`0x26`)**. `cmpxchg` is one op + a compare (no CAS loop). Emit natively. *(Float min/max and all 64-bit atomics are the exception — see §2.)* |
+| **Programmable MSAA sample positions** | ✅ Native | `pipeline/README.md` MSAA § (EXP-0021/RT-4); `hypotheses.md` #15 | **Userspace-emittable, NOT kernel-managed (RT-4 corrects EXP-0021):** written to a **client BO** (`0x100000e8000` 4× / `0x100000e0000` 2×) at **+0x40** — an array of N `(x,y)` f32 pairs on a **1/16 grid**. EXP-0021's "byte-identical" diffed the wrong BOs. Emit directly into the sample-position BO; do **not** route via the kernel. |
+| **Tessellation (native hardware stage)** | ✅ Native | `cmdstream/README.md` "Tessellation — NATIVE hardware stage" (EXP-O2H); `PROVENANCE.md` (EXP-O2H) | **A18 has NATIVE HW tessellation (corrects the M1/M2 compute-emulation default):** `drawPatches` → native VDM patch-dispatch record **`0x40`**, half-float factor buffer (`MTLTessellationFactorsHalf`), ordinary post-tess `__vertex` shader; domain generator firmware-managed. NOT compute-emulated. The `libagx` compute-emulation path is now an **OPTIONAL** portable fallback. (GS + transform feedback stay emulate — §2.) |
 
-**Count: 13 native capabilities.**
+**Count: 15 native capabilities.**
 
 ---
 
@@ -50,17 +52,17 @@ to the **kernel/firmware**).
 | Feature | HW-native? | Evidence (doc §) | Implication |
 |---|---|---|---|
 | **Float atomic min / max** | ⛔ Emulate | `isa/README.md` "Atomics" (EXP-0018); `hypotheses.md` #9 | MSL rejects `atomic_fetch_min/max<float>` — **not exposed**. Only float atomic **add** exists natively. Vulkan float-atomic min/max → **emulate** (e.g. int-bitcast CAS loop). |
-| **64-bit atomic-add** | ⛔ Emulate | `isa/README.md` "Atomics" (EXP-0018); `hypotheses.md` #9 | MSL rejects 64-bit `atomic_fetch_add`. (64-bit **min/max** exist; 64-bit **add** does not.) → **emulate**. |
+| **64-bit atomics (add / min / max)** | ⛔ Emulate | `isa/README.md` "Atomics" (EXP-O2D corrects EXP-0018); `hypotheses.md` #9 | **ALL** 64-bit atomics are rejected by MSL — every `atomic<ulong/long/uint64_t>` spelling (add **and** min/max). The earlier "64-bit min/max exist" claim was **WRONG** (EXP-O2D corrects EXP-0018): there is no reachable HW path → **emulate**. |
 | **Arbitrary sampler border color** | ⛔ Emulate | `descriptors/README.md` "Sampler descriptor" + "Capability notes" (EXP-0015); `hypotheses.md` #4 | The 8-byte sampler encodes only a **2-bit preset** (transparent / black / white). Arbitrary Vulkan RGBA border color must be **emulated** (Mesa's M1/M2 uses a 2-sampler-plane trick — `mesa-userspace-requirements.md` §4). Also: `clampToZero == clampToBorder(transparent-black)` (one HW mode). |
 | **int8 cooperative matrix** | ⛔ Emulate | `isa/README.md` "Dedicated matrix unit" (EXP-0022) | The `0xcf` matrix unit supports fp16/fp32/bf16 only; **all integer types are rejected** by Metal for `simdgroup_matrix`. Vulkan int8 cooperative-matrix → **emulate** (integer MAC in the ALU). |
 | **Geometry shaders** | ⛔ Emulate | `mesa-userspace-requirements.md` §2g / §4 (compute-emulated on M1/M2; historically absent on Apple) | No HW geometry-shader stage found; assume **compute-emulated** (VS→GS lowering, 4 sub-programs). *A18 status not independently probed — see §4; treat as emulate until shown otherwise.* |
-| **Tessellation** | ⛔ Emulate | `mesa-userspace-requirements.md` §2g / §4 (VS→TCS→D3D11-reference tessellator as compute) | No fixed-function tessellator found; assume **compute-emulated**. *A18 not independently probed — see §4.* |
 | **Transform feedback / streamout** | ⛔ Emulate | `mesa-userspace-requirements.md` §2g / §4 (`agx_streamout.c`: GS-path + CPU primitive counting) | Metal does not expose streamout; assume **compute-emulated**. *A18 streamout unit not independently probed — see §4.* |
 
-**Count: 7 emulate capabilities** (4 HW-validated as absent/not-exposed via our own probes:
-float-atomic-min/max, 64-bit-atomic-add, arbitrary border color, int8 coopmat; 3
-classically-Apple-absent geometry-pipeline stages carried from `mesa-userspace-requirements.md`,
-not yet independently re-probed on A18 — see §4).
+**Count: 6 emulate capabilities** (4 HW-validated as absent/not-exposed via our own probes:
+float-atomic-min/max, all-64-bit-atomics, arbitrary border color, int8 coopmat; 2
+classically-Apple-absent geometry-pipeline stages (GS / transform feedback) carried from
+`mesa-userspace-requirements.md`, not yet independently re-probed on A18 — see §4.
+**Tessellation is NO LONGER here — it is NATIVE HW (EXP-O2H), see §1.**)
 
 ---
 
@@ -71,13 +73,13 @@ the value** and hands it to the kernel; the **firmware writes the register**.
 
 | Feature | HW-native? | Evidence (doc §) | Implication |
 |---|---|---|---|
-| **Programmable MSAA sample positions** | 🔥 Kernel/FW | `pipeline/README.md` MSAA § (EXP-0021); `hypotheses.md` #15 | Not in any userspace BO (msaa4-vs-custom captures byte-identical). Userspace packs the value (`PPP_MULTISAMPLECTL`); route via kernel submit (`kernel-interface.md` §4.2/§6.1). |
 | **Depth store-action / ZLS** | 🔥 Kernel/FW | `pipeline/README.md` load/store § (EXP-0021) | ZLS control not captured in any BO; userspace computes `zls_ctrl` + depth/stencil buffers → kernel submit (`kernel-interface.md` §4.3/§6.1). |
 | **RT acceleration-structure (BVH) build + node format** | 🔥 Kernel/FW | `isa/README.md` RT § (EXP-0023) | Userspace supplies vertices + build descriptor + an 8-byte AS VA; the **GPU/firmware builds the BVH**; node format is **not userspace-visible** (`kernel-interface.md` §4.1). (The *traversal* ISA is native — see §1.) |
 | **Partial-render / tiler-param overflow trigger** | 🔥 Kernel/FW | `pipeline/README.md` partial-render § (EXP-0021) | No userspace knob for the trigger; userspace supplies `partial_bg`/`partial_eot` programs; firmware detects overflow and triggers the partial render (`kernel-interface.md` §4.4). |
 | **Graphics shader-entry bind (code-BO → firmware handoff)** | 🔥 Kernel/FW | `cmdstream/README.md` USC/EXP-0024 | A draw carries **no `shaderVA>>N`** anywhere in the client stream; userspace emits sized code blocks + USC preambles, and the code-BO base reaches the firmware out-of-band (`kernel-interface.md` §4.5). |
 
-**Count: 5 kernel/firmware-managed capabilities.**
+**Count: 4 kernel/firmware-managed capabilities.** (Sample positions were moved OUT of this bucket
+by RT-4 → they are **userspace-emittable / native**, §1.)
 
 ---
 
@@ -89,7 +91,7 @@ before an implementer commits to native vs emulate.
 | Feature | Status | Evidence (doc §) | Note |
 |---|---|---|---|
 | **Mesh shaders** | ✅ Native (EXP-0030) | `mesa-userspace-requirements.md` §4; `hypotheses.md` backlog; `GAP-ANALYSIS-01.md` gap #10 | **Native HW graphics pipeline** (EXP-0030): object/mesh compile as compute-style `0xe7`-store kernels + a child-count write; submission reuses the graphics TA/VDM path with a mesh-grid-dispatch record `0x70000600` (no CDM); UVB output buffer is firmware-managed. See `isa/README.md` + `cmdstream/README.md`. |
-| **Geometry shaders / tessellation / transform feedback — A18-native?** | ❓ Unknown | `mesa-userspace-requirements.md` §4 | **CORRECTED (EXP-O2H): A18 has NATIVE hardware tessellation** (drawPatches → a native VDM patch-dispatch record `0x40`, half-float factors, ordinary post-tess VS; NOT compute-emulated). GS and transform feedback remain Metal-unexposed → emulate; **tessellation emulation is now OPTIONAL** on A18. |
+| **Geometry shaders / transform feedback — A18-native?** | ❓ Unknown | `mesa-userspace-requirements.md` §4 | GS and transform feedback remain **Metal-unexposed → emulate** (§2), not independently re-probed on A18. **Tessellation is DECIDED: NATIVE HW (EXP-O2H) — see §1** (drawPatches → native VDM patch-dispatch record `0x40`, half-float factors, ordinary post-tess VS; compute-emulation now OPTIONAL). |
 | **Anisotropy > 16×** | ❓ Unknown (field can encode 128×) | `descriptors/README.md`; `hypotheses.md` #5 | The sampler aniso field is **3-bit log2 (→128×)** though Metal caps 16×; **>16× not yet run on hardware**. Probe candidate; don't assume >16× works. |
 | **Polygon-point fill; extra gather/offset sample variants; 1D/CubeArray/MSArray texture types** | ❓ Unknown / ⏳ | `cmdstream`/`descriptors`/`isa` (EXP-0016/0015) | Spare encodings exist but specific variants are untested; several texture *types* are ⏳. |
 | **BC/ASTC/ETC twiddle; 3D/cube/array/MSAA layout** | ✅ Native (EXP-0028) | `tiling/README.md` §1.5/§1.6, `descriptors/format-table.md` | BC/ASTC = Morton-of-blocks (HW-confirmed); 3D=stacked Morton planes; array/cube=linear-stacked planes; MSAA=sample-major. Only the **compression block codec** stays opaque (documented disable-fallback). |
@@ -100,17 +102,18 @@ before an implementer commits to native vs emulate.
 
 | Bucket | Count | Members |
 |---|---|---|
-| **✅ Native** | **13** | matrix (`0xcf`), hybrid RT, programmable blend, logic ops (16-func LUT), depth clamp, dual-source blend, polygon line fill, subgroup prefix-scan, float round modes, typed compare, format/swizzle/sRGB orthogonality, separate read/write texture paths, native single-RMW atomics |
-| **⛔ Emulate** | **7** | float atomic min/max, 64-bit atomic-add, arbitrary sampler border color, int8 cooperative-matrix, geometry shaders, tessellation, transform feedback |
-| **🔥 Kernel/FW** | **5** | sample positions, ZLS/depth store, RT BVH build, partial render, graphics shader-entry handoff |
-| **❓ Unknown/untested** | 3 clusters | GS/tess/XFB A18-native status; aniso >16×; polygon-point & exotic gather/tex-type variants. (Mesh, BC/3D/cube/MSAA tiling now ✅ native; compression codec opaque.) |
+| **✅ Native** | **15** | matrix (`0xcf`), hybrid RT, programmable blend, logic ops (16-func LUT), depth clamp, dual-source blend, polygon line fill, subgroup prefix-scan, float round modes, typed compare, format/swizzle/sRGB orthogonality, separate read/write texture paths, native single-RMW atomics, **sample positions (userspace-emittable @+0x40, RT-4)**, **native tessellation (VDM patch-dispatch `0x40`, EXP-O2H)** |
+| **⛔ Emulate** | **6** | float atomic min/max, all 64-bit atomics (add/min/max), arbitrary sampler border color, int8 cooperative-matrix, geometry shaders, transform feedback |
+| **🔥 Kernel/FW** | **4** | ZLS/depth store, RT BVH build, partial render, graphics shader-entry handoff |
+| **❓ Unknown/untested** | 3 clusters | GS/XFB A18-native re-probe; aniso >16×; polygon-point & exotic gather/tex-type variants. (Mesh, **tessellation**, BC/3D/cube/MSAA tiling now ✅ native; compression codec opaque.) |
 
-**Honesty note (per `../CLAUDE.md`).** Of the 7 "emulate" rows, **4** are HW-validated absences from
-our own probes (float atomic min/max, 64-bit atomic-add, arbitrary border color, int8 coopmat); the
-**3 geometry-pipeline stages** (GS / tessellation / transform feedback) are marked emulate on the
+**Honesty note (per `../CLAUDE.md`).** Of the 6 "emulate" rows, **4** are HW-validated absences from
+our own probes (float atomic min/max, all 64-bit atomics, arbitrary border color, int8 coopmat); the
+**2 remaining geometry-pipeline stages** (GS / transform feedback) are marked emulate on the
 strength of the M1/M2 driver + Apple's historical absence of these stages, and have **not been
-independently re-probed on A18** — they are cross-listed in §4 as open. Mesh shading is explicitly
-**unknown** (MSL-exposed, HW decode TODO), not native.
+independently re-probed on A18** — they are cross-listed in §4 as open. **Tessellation is NOT emulate:
+it is NATIVE HW (EXP-O2H)** — see §1. **Mesh shading is native (EXP-0030)** — HW graphics pipeline with
+store-based emit; the earlier "unknown/HW-decode-TODO" note is stale.
 
 ---
 

@@ -4,7 +4,9 @@ The **abstract boundary contract** between the Mesa userspace driver and the ker
 what userspace builds and hands down, versus what the kernel/firmware owns. This document
 **consolidates** the "firmware-managed" / "route via kernel" findings that are scattered across
 the other docs into one authoritative boundary, and **reconciles** the one place the docs
-appear to contradict themselves (ZLS / sample positions — see §6, gap **G-11**).
+appear to contradict themselves (ZLS / depth-store — see §6, gap **G-11**). *(Sample positions were
+originally bundled into this contradiction; **RT-4 reclassified them to userspace-emittable / native** —
+they are no longer a kernel item; see §4.2/§5.)*
 
 > **Status: synthesis (host-only).** Every fact here is traceable to an already-established
 > finding in another `docs/` file — the citation is given inline. This doc introduces **no new
@@ -36,8 +38,9 @@ Two consequences drive everything below:
    and a submit request*; the kernel/firmware consumes them (`cmdstream/README.md` "Submission
    model — shared-memory + doorbell").
 2. **A handful of firmware *register* values also cross the boundary — as submit *parameters*,
-   not as command-stream packets.** These are the ZLS / sample-position / tilebuffer-sizing values
-   the firmware writes into its command context (§6).
+   not as command-stream packets.** These are the ZLS / tilebuffer-sizing values the firmware writes
+   into its command context (§6). *(Sample positions are **not** among them — RT-4 showed they are
+   userspace-emittable to a client BO, §4.2/§5.)*
 
 ---
 
@@ -167,13 +170,14 @@ Each item below appears in the other docs as "firmware-managed / route via kerne
   handle and must treat the built structure as opaque. (The HW *traversal* primitives
   `rt_intersect`/`rt_as_load` **are** userspace ISA — only the *build/format* is firmware-owned.)
 
-### 4.2 Programmable MSAA sample positions — `pipeline/README.md` (EXP-0021), hypothesis #15
-- **Userspace provides:** the **packed sample-position value** (Mesa packs 4-bit x/y nibbles into
-  `PPP_MULTISAMPLECTL`: 1×=`0x88`, 2×=`0x44cc`, 4×=`0xeaa26e26` — `mesa-userspace-requirements.md`
-  §2e).
-- **CORRECTED (RT-4): sample positions ARE userspace-emittable** — written to a client BO (`0x100000e8000` 4× /
-  `0x100000e0000` 2×) at **+0x40** (N `(x,y)` f32 pairs, 1/16-grid). So this is **NOT** a kernel-managed item; a Mesa
-  userspace driver emits them directly into the sample-position BO. (EXP-0021's "byte-identical" diffed the wrong BOs.)
+### 4.2 Programmable MSAA sample positions — RECLASSIFIED (RT-4): userspace-emittable, NOT firmware-managed
+> **CORRECTED (RT-4): sample positions are NOT a kernel/firmware-managed item.** They are
+> **userspace-emittable** — written to a **client BO** (`0x100000e8000` 4× / `0x100000e0000` 2×) at
+> **+0x40** (N `(x,y)` f32 pairs on a 1/16 grid). EXP-0021's "byte-identical" diffed the wrong BOs.
+> A Mesa userspace driver emits them **directly into the sample-position BO**; they are **not** a submit
+> parameter and **not** firmware-written. This item has therefore **moved to §5 (what userspace owns)** —
+> it is retained in this slot only to flag the reclassification and keep the section numbering stable.
+> `pipeline/README.md` (RT-4, the owner of EXP-0021) is the authoritative measured doc.
 
 ### 4.3 Depth / ZLS store-action — `pipeline/README.md` (EXP-0021)
 - **Userspace provides:** the **ZLS control value** and the depth/stencil buffer parameters (see
@@ -219,17 +223,25 @@ be treated as kernel-populated:
   userspace (`descriptors/README.md`).
 - **Texture memory layout** (Morton twiddle, mip tree, compression aux placement) — userspace
   (`tiling/README.md`).
+- **Programmable MSAA sample positions** (RT-4) — written by userspace to a **client BO**
+  (`0x100000e8000` 4× / `0x100000e0000` 2×) at **+0x40** (N `(x,y)` f32 pairs, 1/16-grid);
+  **native-decoded, NOT kernel/firmware-managed** (`pipeline/README.md`, RT-4 — corrects EXP-0021).
 
 ---
 
-## 6. Reconciling the contradiction (G-11): ZLS & sample positions — firmware **or** userspace?
+## 6. Reconciling the contradiction (G-11): ZLS / depth-store — firmware **or** userspace?
+
+> **Scope note (RT-4).** This reconciliation originally covered **both** ZLS *and* sample positions.
+> RT-4 has since shown **sample positions are userspace-emittable (a client BO @+0x40), NOT
+> firmware-managed** — so they are struck from every firmware/submit-param list below (§6.1/§6.2) and
+> moved to §4.2/§5. §6 is now a **ZLS/depth-store-only** reconciliation.
 
 `GAP-ANALYSIS-01.md` ("Contradictions & unexplained magic values") flags an apparent conflict:
 
-- `pipeline/README.md` says depth store-action / ZLS and programmable sample positions are
-  **"firmware-managed … route via kernel"** — implying they are *not* a userspace responsibility.
+- `pipeline/README.md` says depth store-action / ZLS is **"firmware-managed … route via kernel"** —
+  implying it is *not* a userspace responsibility.
 - `mesa-userspace-requirements.md` §1/§2b documents these same values (`ZLS_CTRL`, ISP scissor/merge,
-  tilebuffer sizing, sample control) as fields **filled by userspace** in `drm_asahi_cmd_render`.
+  tilebuffer sizing) as fields **filled by userspace** in `drm_asahi_cmd_render`.
 
 **Resolution — both are right; they describe different layers, and the boundary is a *submit
 parameter*.** At the **hardware level** these are **firmware / control-register state**: the
@@ -257,7 +269,6 @@ findings that make each one a *kernel*-boundary item:
 
 | Submit field (userspace computes → firmware writes) | HW register / role | doc that flags it firmware-owned |
 |---|---|---|
-| `ppp_multisamplectl` | `PPP_MULTISAMPLECTL` — **sample positions** (packed 4-bit x/y) | `pipeline` MSAA § →§4.2 |
 | `zls_ctrl` | `ZLS_CTRL` — **depth/stencil load/store** control | `pipeline` load/store § →§4.3 |
 | `depth`, `stencil` (`drm_asahi_zls_buffer`) | Z/S buffer base/stride/tiling/compression | `pipeline` §4.3; note Z/S are **separate resources** (no packed D24S8, `hardware-overview.md` §3) |
 | `isp_zls_pixels` | `ISP_ZLS_PIXELS` — depth/stencil width/height | `mesa-req` §2b |
@@ -271,7 +282,7 @@ findings that make each one a *kernel*-boundary item:
 
 The compute counterpart (`drm_asahi_cmd_compute`) is much thinner — it carries the CDM control
 stream base, `sampler_heap`/`sampler_count`, and flags — because compute has no render-pass
-register state (no ZLS, no sample positions, no tilebuffer). This asymmetry is itself the tell:
+register state (no ZLS, no tilebuffer). This asymmetry is itself the tell:
 **the kernel-populated fields exist because of the *fragment/render* firmware context, not
 compute.**
 
@@ -281,7 +292,7 @@ compute.**
 |---|---|---|---|
 | VDM/CDM/PPP packets, descriptors, shader code | **yes** (in BOs) | base pointers only | consumes BOs |
 | Blend / logic-op / dual-source | **yes** (compiled into FS) | no | — |
-| Sample positions | **no** | **yes** (`ppp_multisamplectl`) | writes register |
+| Sample positions (RT-4) | **yes** (client BO `@+0x40`, f32 pairs) | **no** | — (userspace-emittable, **not** firmware) |
 | ZLS / depth store | **no** | **yes** (`zls_ctrl`, `depth`/`stencil`) | writes ZLS regs |
 | Tilebuffer sizing / scissor / dbias / occlusion base | **no** | **yes** (`isp_*`, `samples`, `utile_*`) | writes ISP regs |
 | RT BVH build + node format | **no** | vertices + build desc | builds BVH (opaque) |
@@ -306,9 +317,9 @@ priority per `../CLAUDE.md`, but in scope as interface notes — `mesa-userspace
 3. **Sync / fences** — completion signalling (macOS sel `0x11` → Linux DRM sync objects) so
    userspace can order and wait on submits.
 4. **The kernel-populated render-pass fields of §6.1** — userspace computes the values; the kernel
-   marshals them into the firmware command context (this is the ZLS / sample-position / tilebuffer
-   contract). The kernel also uses several of them (`width_px`/`height_px`/`utile_*`/`samples`) to
-   build tiling data structures itself.
+   marshals them into the firmware command context (this is the **ZLS / depth-store / tilebuffer**
+   contract; **sample positions are NOT part of it — RT-4**). The kernel also uses several of them
+   (`width_px`/`height_px`/`utile_*`/`samples`) to build tiling data structures itself.
 5. **Read-only hardware params** — the driver-facing topology/limits the kernel exposes
    (`drm_asahi_params_global`-shaped: `gpu_generation`/`variant`, `num_clusters_total`,
    `num_cores_per_cluster`, `core_masks[]`, `vm_start`/`vm_end`, timestamp frequency, feature bits).

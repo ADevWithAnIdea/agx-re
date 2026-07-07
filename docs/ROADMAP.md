@@ -56,7 +56,7 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 - Deliverables: `descriptors/`, `tiling/`.
 
 ## Phase 4 — TBDR & compute specifics
-- ☑ Tile size (32×32 fixed), imageblock/tile-memory budget, MSAA sample count, memoryless, load/store segments, tiler param buffer — *EXP-0021 → `docs/pipeline/README.md`*. (Programmable sample positions + depth/ZLS store are firmware-managed → kernel.) OPEN: sample-position firmware path.
+- ☑ Tile size (32×32 fixed), imageblock/tile-memory budget, MSAA sample count, memoryless, load/store segments, tiler param buffer — *EXP-0021 → `docs/pipeline/README.md`*. (**Sample positions are userspace-emittable @+0x40 — RT-4, corrects EXP-0021**; depth/ZLS store + partial-render trigger are firmware-managed → kernel.)
 - Deliverable: `pipeline/`. ✅
 
 ## Phase 5 — Synthesis & handoff, and the ACCEPTANCE GATE
@@ -106,7 +106,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 - ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*
 - ☑ **G-8 tgmem size + CDM config** — *EXP-0024: tgmem=(bytes<<2)|0x80 in shader BO; config bit23=occupancy tier.*
 - ☑ **G-4 fragment interpolation ✅ (EXP-0029).** **G-9 RT ✅ (EXP-0023 hybrid) + mesh shading ✅ (EXP-0030: HW pipeline, compute-store emit, 0x43 marker, graphics-path submission; UVB firmware-managed)**. [ISA]
-- ☑ **G-10 Native-vs-emulated capability matrix** → `docs/capability-matrix.md` (13 native / 7 emulate / 5 kernel-managed / 6 unknown).
+- ☑ **G-10 Native-vs-emulated capability matrix** → `docs/capability-matrix.md` (now **15 native / 6 emulate / 4 kernel-managed** after RT-4 sample-positions→native + EXP-O2H tessellation→native; was 13/7/5 at G-10 close).
 - ☑ **G-11 Contradiction reconciled** → `docs/kernel-interface.md`: userspace *computes* value, kernel *writes register* as submit-ioctl param (not in command stream). Both docs right at different layers.
 - ☑ **G-12 Kernel-interface contract** → `docs/kernel-interface.md` (submission model, VA-space table, 5 firmware-managed items, what kernel must provide).
 
@@ -118,7 +118,7 @@ tracked in `docs/capability-completeness.md` (see `../CLAUDE.md` → Secondary g
 - **Capability census** = enumerate every Metal/MSL feature + every Apple-advertised (WWDC Family-9)
   feature → map to HW representation → classify native/emulated/kernel/NOT-YET-CHARACTERIZED → drive
   the NOT-YET list to 0.
-  **STATUS (`docs/capability-completeness.md`, 214 rows): native 110 · emulated 9 · kernel 6 · NOT-YET 89.**
+  **STATUS (`docs/capability-completeness.md`, 214 rows): native 189 · emulated 11 · kernel 5 · NOT-YET 9.**
   Top backlog: mesh shading, fragment interpolation(G-4), transcendentals(G-2), SR/preload ABI(G-5),
   imageblock/tile-shader/raster-order ISA, compression codec, wait_pix/signal_pix, RT completion,
   format codes+3D/cube/array/MSAA twiddle, indirect/ICB, bitfield/int completeness (clz/ctz/insert/
@@ -177,7 +177,7 @@ tightened as they're decoded.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
-### OBJECTIVE-2 — capability census re-synced: **184 native / 11 emulated / 6 kernel / 13 NOT-YET**. Metal-exposed residue = **0** ✅ (EXP-O2H: tessellation is NATIVE HW; printf/mesh-ICB/comp×mip closed by EXP-O2G). **OBJECTIVE 2 fully satisfied.** Other 10 NYC = microarch/Metal-unreachable (honestly excluded). O2-A..F all closed, ISA merged (DB 75).
+### OBJECTIVE-2 — capability census re-synced (final, reconciled): **189 native / 11 emulated / 5 kernel / 9 NOT-YET**. Metal-exposed residue = **0** ✅ (EXP-O2H: tessellation is NATIVE HW; printf/mesh-ICB/comp×mip closed by EXP-O2G; RT-4: sample positions userspace-native). **OBJECTIVE 2 fully satisfied.** All 9 remaining NYC = microarch/Metal-unreachable (honestly excluded). O2-A..F all closed, ISA merged (DB 75).
 From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
 - ☑ **O2-A geometry-output pipeline** (EXP-O2A) [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
@@ -228,7 +228,7 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 - ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
 - ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ◐ RT-cmdstream-2 — RT-6: ALL CONFIRMED, **0 discrepancies** (indirect/ICB/occlusion/timestamp/geometry all held under adversarial); cross-confirmed RT-2a indexed shift. 1 clean pass — light 2nd in final sweep
 - ◐ RT-descriptors+format+PBE (RT-3: fixed width/height 14-bit) · ◐ RT-tiling (RT-3: fixed twiddle=row-major Morton tiles T=64/32 by bpp; sampler/PBE/format-rule/compression confirmed — both need 2nd pass) · ◐ RT-pipeline/TBDR (RT-4: found+fixed sample-positions-are-userspace @+0x40 & 32KiB-not-a-MRT-cap; tile-32×32/memoryless/load-store confirmed robust — needs 2nd pass)
-- ☐ RT-kernel-interface (consistency) · ☐ RT-capability-matrix (consistency)
+- ☑ **RT-kernel-interface + RT-capability-matrix (consistency)** — RT-8 found systematic split-brain (corrections not fanned out); consistency-propagation fixed ALL: sample-pos/tess/tiling/64-bit-atomic now consistent across every derived doc; capability-completeness reconciled to 189/11/5/9; PROVENANCE + ROADMAP synced.
 **QUEUED ISA-FIX (batch after RT-7 frees tools/agx-isa; HW-re-validate each):**
 - **RT-5:** ballot `0x17` match (DB wrongly gates byte+1==0x07 → mis-decodes as unpack_convert); shuffle `0x47/0xc7` byte+2=0x54 gate (relaxation was applied to reduce not shuffle → fails to decode); reduce byte+7 dtype enum (int=0x01 not 0x03, excl-scan=0x09); re-mark tex op+4 (folds under direct binding) + op+6 (filtered=no-op) + **RT rt_intersect AS-select sub-fields as INFERRED** (EXP-O2C's 0x8b→0x1b HW-claim did NOT reproduce — over-claim).
 - **RT-1b:** decode the `0x0f` execution-mask family (else/while/break/pop/reconverge sub-ops) + `0x07` fence byte+2=0x02 variant + verify `0x32` carry-gen tokenizes.

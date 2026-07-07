@@ -200,10 +200,11 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   tile-dispatch record is appended inline to the render control stream; a draw vs
   draw+`dispatchThreadsPerTile` is byte-identical IOKit.
 
-**EMULATE / route to KERNEL** (§6 has the contract): **sample positions** (`ppp_multisamplectl`),
-**ZLS / depth store** (`zls_ctrl`), **scissor** (`isp_scissor_base`), and the **graphics shader-
-entry bind** (code-BO base) are **NOT emitted in the userspace command stream** — userspace computes
-the value and hands it down as a **submit parameter**.
+**EMULATE / route to KERNEL** (§6 has the contract): **ZLS / depth store** (`zls_ctrl`), **scissor**
+(`isp_scissor_base`), and the **graphics shader-entry bind** (code-BO base) are **NOT emitted in the
+userspace command stream** — userspace computes the value and hands it down as a **submit parameter**.
+*(**Sample positions are NOT in this list — RT-4:** they are userspace-emittable to a client BO `@+0x40`,
+emitted directly, not a submit param — see §5.)*
 
 ---
 
@@ -266,10 +267,15 @@ address memory.
   (`tiling/README.md` §1–§2).
 
 **DIFFERENT for G17P** — read `tiling/README.md`:
-- **Twiddle = pure Morton over the whole padded texture — NO per-page sub-tile** (§1, EXP-0017):
-  `byte_offset(x,y) = morton(x,y) · bpp`, storage padded to next-pow2 per axis. This **supersedes
-  the G13/G14 per-format tile-size table** — do not port that table; the whole (padded) image is one
-  Morton block. Twiddle is over texel coordinates only (identical for 1/2/4/8/16-byte formats).
+- **Twiddle = ROW-MAJOR GRID OF MORTON TILES (RT-3), tile edge bpp-dependent** (§1.1, EXP-0017/RT-3):
+  the texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T = 64 for
+  bpp ≤ 4, T = 32 for bpp ≥ 8** (bpp-DEPENDENT). With `tx = x>>log2(T)`, `ty = y>>log2(T)`,
+  `cols = ceil(nextpow2(W)/T)`:
+  `element_index(x,y) = (ty·cols + tx)·T² + morton_D(x & (T−1), y & (T−1))`,
+  `byte_offset = element_index · bpp`. Within one tile it is plain Morton (which is why all ≤128-px
+  validations passed); the tiled structure only appears once both padded dims exceed T. This
+  **supersedes the G13/G14 per-format tile table AND the earlier "pure full-texture Morton / one block /
+  bpp-independent / morton(x,y)·bpp" model** (both were wrong above one tile).
 - **Mip packing** (§3): levels packed consecutively, each an independent pow2-padded Morton plane,
   floored to a 0x80-byte minimum slot (offset formula in the doc, HW-validated).
 - **3D / cube / array / MSAA variants** (§1.6, EXP-0028): 3D = stacked 2D-Morton planes (not 3D
@@ -315,9 +321,12 @@ memory, MSAA, memoryless targets, load/store actions.
   `isa/README.md` EXP-O2D). `tile_read` (`0x67/0e`) and `frag_color_store` (`0xe7/06`) are the ISA
   path (§1).
 
+**NATIVE / userspace-emitted:**
+- **Programmable MSAA sample positions** (RT-4, corrects EXP-0021) — **userspace-emittable**, written
+  directly to a **client BO** (`0x100000e8000` 4× / `0x100000e0000` 2×) at **+0x40** as N `(x,y)` f32
+  pairs on a 1/16 grid. **NOT kernel-managed** — do not route `ppp_multisamplectl` via the kernel.
+
 **EMULATE / route to KERNEL** (§6):
-- **Programmable MSAA sample positions** — not in any userspace BO; route `ppp_multisamplectl` via
-  the kernel submit.
 - **Depth store-action / ZLS** — firmware-managed; route `zls_ctrl` + depth/stencil buffers.
 - **Partial-render / tiler-param overflow trigger** — firmware detects overflow; no userspace knob;
   userspace supplies `partial_bg`/`partial_eot` programs.
@@ -352,14 +361,14 @@ kernel/firmware owns. (The kernel driver itself is out of scope; this is the int
 
 **What userspace hands the kernel** (§6.1, `drm_asahi_cmd_render` — userspace computes the value,
 firmware writes the register):
-- `ppp_multisamplectl` (**sample positions**), `zls_ctrl` + `depth`/`stencil` (**ZLS / depth
+- `zls_ctrl` + `depth`/`stencil` (**ZLS / depth
   store**), `isp_zls_pixels` / `isp_scissor_base` / `isp_dbias_base` / `isp_oclqry_base`,
   tilebuffer sizing (`samples`/`utile_*`/`width_px`/`height_px`), `isp_merge_upper_*`,
   `vdm_ctrl_stream_base`, `bg`/`eot`/`partial_bg`/`partial_eot` programs, and the **code-BO base**
   for the graphics shader-entry handoff (§4.5). The compute counterpart is much thinner.
 
 **Firmware-managed items to route** (§4 — userspace does NOT emit these in the command stream):
-sample positions, ZLS/depth store, **RT BVH build + node format** (userspace supplies vertices +
+ZLS/depth store, **RT BVH build + node format** (userspace supplies vertices +
 build descriptor + an 8-byte AS VA; the GPU builds an opaque BVH), partial-render trigger,
 **graphics shader-entry bind** (no `shaderVA>>N` in a draw), **sparse tile residency** (page table,
 §3), the **doorbell/ring advance**, the **timestamp sample-buffer** address, and mesh **UVB**
@@ -372,7 +381,7 @@ sizing. `kernel-interface.md` §6.2 has the unambiguous emit-vs-submit-vs-firmwa
 **Mesa modules:** the native-vs-emulated boundary drives which `libagx/` emulation engines (GS/
 tess/XFB compute lowering, `agx_streamout.c`) and which native paths a Vulkan/GL driver needs.
 `capability-matrix.md` is the **decided** matrix; `capability-completeness.md` is the full 214-row
-census (native-decoded 160 / emulated 9 / kernel-managed 6 / NOT-YET-CHARACTERIZED 39).
+census (native-decoded 189 / emulated 11 / kernel-managed 5 / NOT-YET-CHARACTERIZED 9).
 
 **Native — emit a native instruction / packet / descriptor field** (`capability-matrix.md` §1;
 census §1–§15):
@@ -380,14 +389,17 @@ census §1–§15):
   [11:10]), **dual-source blend** (via FS epilog), **PCF / `sample_compare`** (native 2×2 hardware
   PCF, all 8 funcs), **image / texture atomics** (native, memory-family `0x67`), **matrix unit**
   (`0xcf` 8×8×8 MAC), **hybrid ray tracing** (`rt_intersect`/`rt_as_load` + compiler traversal
-  loop), **mesh shading** (HW pipeline, store-based emit), programmable blend, subgroup prefix-scan,
-  float round modes, typed compare, native single-RMW atomics incl. float-add, format/swizzle/sRGB
-  orthogonality.
+  loop), **mesh shading** (HW pipeline, store-based emit), **native tessellation** (`drawPatches` →
+  VDM patch-dispatch record `0x40`, half-float factor buffer, ordinary post-tess VS — EXP-O2H),
+  **sample positions** (userspace-emittable to a client BO `@+0x40` — RT-4), programmable blend,
+  subgroup prefix-scan, float round modes, typed compare, native single-RMW atomics incl. float-add,
+  format/swizzle/sRGB orthogonality.
 
 **Emulate — HW lacks it or Metal exposes no path** (`capability-matrix.md` §2; census §16c):
-- **Geometry shaders / tessellation / transform feedback** → compute-emulated (VS→GS 4 sub-programs;
-  D3D11-reference tessellator; GS-path streamout) — classically-Apple-absent, **not re-probed native
-  on A18** (open, §8).
+- **Geometry shaders / transform feedback** → compute-emulated (VS→GS 4 sub-programs; GS-path
+  streamout) — classically-Apple-absent, **not re-probed native on A18** (open, §8). **Tessellation is
+  NOT in this list — it is NATIVE HW on A18 (EXP-O2H); see the native list above.** The `libagx`
+  compute-tessellation stack is now only an **OPTIONAL** portable fallback.
 - **64-bit integer atomics** — entirely absent from MSL (all `atomic<ulong/long>` rejected; corrects
   the earlier "min/max only") ⇒ **Vulkan int64 atomics must be emulated** (census §4, EXP-O2D).
 - **Float atomic min/max** — not exposed (only float atomic add is native) → emulate (int-bitcast
@@ -399,8 +411,9 @@ census §1–§15):
 - **Cull distance** (MSL has clip only) and **polygon-point fill** (Metal fill/lines only) are
   **Metal-unreachable** → emulate (`cmdstream/README.md` "Geometry-output"; §8).
 
-**Kernel/firmware-managed** (`capability-matrix.md` §3; §6): sample positions, ZLS/depth store, RT
-BVH build, partial render, graphics shader-entry bind, scissor.
+**Kernel/firmware-managed** (`capability-matrix.md` §3; §6): ZLS/depth store, RT BVH build, partial
+render, graphics shader-entry bind, scissor. *(Sample positions are **not** kernel-managed — RT-4:
+userspace-emittable to a client BO `@+0x40`.)*
 
 Use `capability-completeness.md` §16 to see **which Metal-exposed features are still NOT-YET-
 CHARACTERIZED** (tile-shader dispatch encoding — now decoded EXP-O2D, RT completion tail, sampler-
@@ -443,9 +456,11 @@ here)**
   §16c). Spare HW encodings sometimes exist (e.g. restart-index field at VDM `+0x68`; aniso field
   encodes 128×) but Metal always drives the fixed value. **Fallback:** emulate in the Vulkan/GL
   driver (as Mesa does today), or probe the spare encoding on hardware before relying on it.
-- **GS / tessellation / transform-feedback A18-native status** is **not independently re-probed** —
-  classified emulate by the M1/M2 default (`capability-matrix.md` §4). **Fallback:** keep the compute-
-  emulation stack; a probe could retire it (mesh shading is the plausible native amplification path).
+- **GS / transform-feedback A18-native status** is **not independently re-probed** — classified
+  emulate by the M1/M2 default (`capability-matrix.md` §4). **Fallback:** keep the compute-emulation
+  stack; a probe could retire it (mesh shading is the plausible native amplification path).
+  **Tessellation is NO LONGER open — EXP-O2H proved it NATIVE HW** (VDM patch-dispatch `0x40`,
+  half-float factors, ordinary post-tess VS); the compute-tessellation path is an optional fallback.
 
 **Microarchitectural claims with no emittable encoding (document, do not gate)** —
 `capability-completeness.md` §16b: **Dynamic Caching dynamic behavior**, **2× ALU dual-issue**,

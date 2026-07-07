@@ -390,8 +390,9 @@ opcodes are absent from a hand-written Möller-Trumbore ray/triangle control.
   node-load + `0x0a` loop-condition compare).
 - **Acceleration structure** is referenced by an **8-byte GPU VA in the Tier-2 argument buffer**. ⚠ The
   **BVH *build* is GPU/firmware-managed** — userspace supplies vertices + a build descriptor; the GPU
-  writes the BVH; the **BVH node format is NOT userspace-visible** (kernel-interface item, like ZLS /
-  sample positions).
+  writes the BVH; the **BVH node format is NOT userspace-visible** (kernel-interface item, like the
+  ZLS / depth-store control). *(Note: sample positions are **not** a kernel item — RT-4 showed they are
+  userspace-emittable to a client BO @+0x40; see `kernel-interface.md` §4.2.)*
 - **Intersection functions** compile as separate callable functions bound via an
   **`intersection_function_table`** (same model as `visible_function_table`); `ray_data` payload is a
   distinct address space.
