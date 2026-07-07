@@ -19,3 +19,4 @@ Allowed provenance categories (see `CLAUDE.md`):
 
 ## Operational notes (not doc facts, but part of the paper trail)
 - 2026-07-06: Device configured for unattended work — `pmset SleepDisabled 1`; passwordless sudo installed at `/etc/sudoers.d/cleanroom` (`visudo -c` clean). FileVault off, SIP off. Device state persists across reboots (verified: no auto-reset). Host-side reboot lever: `macvdmtool reboot` (wait 20s before re-SSH).
+- 2026-07-06: **Reboot recovery validated end-to-end.** `macvdmtool reboot` (Mac type J773gAP) reboots cleanly; device returns at 192.168.170.254 ~30s later with `SleepDisabled` and passwordless sudo intact. NOTE: the device's DHCP address can move on reboot if the static lease isn't held (once observed at 192.168.10.162); the lab network owner maintains a static lease — if a reboot ever fails to recover at .254, re-discover by mDNS/ARP before declaring BLOCKED.
