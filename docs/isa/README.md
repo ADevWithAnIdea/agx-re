@@ -56,6 +56,48 @@ Byte-level facts (established) and their interpretations (⏳ pending round-trip
   the referenced buffer a fixed uniform slot; the Metal binding index is resolved at bind time
   (argument/uniform table), outside the AGX program. → A cmdstream/descriptor-phase question.
 
+## Instruction encoding (EXP-0005)
+
+The machine-readable, authoritative encoding lives in **`tools/agx-isa/`** — one descriptor
+table (`db.json` / `isadb.py`) drives both the **assembler** and **disassembler**, with a
+passing round-trip test (`asm(disasm(bytes))==bytes` on 14 real instructions; `disasm(asm(x))==x`
+on 5 synthesized). Prose summary below; treat the DB as source of truth.
+
+Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
+
+### ✅ Instruction-length rule (validated — tokenizes all our shaders cleanly)
+Parcels are 2 bytes. **Unlike G13, the *first* parcel does not encode length** (e.g. `fsub` 6B
+and `fma` 8B share an identical first parcel). Length is a function of the byte-0 group, with a
+per-group length bit where needed:
+
+| byte 0 | group | length (bytes) |
+|---|---|---|
+| `0x0e` | stop | 4 |
+| low-nibble `0xC` | preamble | 4 |
+| low-nibble `0x7` (`67`/`e7`) | device load/store | 14 |
+| `0x09` | **float ALU (2-src)** | 6, or **8 if `byte[+2] & 0x02`** (the fma/length bit) |
+| `0x0b` | float unary | 10 |
+| `0x12` | float min/max | 6 |
+| `0x9f` | integer ALU | 10/12 — **not yet solved (follow-up)** |
+
+Proof: `agxisa.py tokenize` splits all 11 float `_agc.main` programs into instructions with 0
+leftover bytes and re-serializes byte-exact. (Integer kernels, byte0 `0x9f`, still uncovered.)
+
+### ✅ Float ALU 2-source op-select (HARDWARE-VALIDATED, 256-value sweep)
+For the `0x09` float-ALU instruction, the op-select is a **3-bit field = instruction bits
+[16:19]** (low 3 bits of byte +2):
+
+| bits[16:19] | op | status |
+|---|---|---|
+| `0b100` | **fadd** (`a+b`) | ✅ HW-validated (all 8 don't-care combos) |
+| `0b101` | **fmul** (`a*b`) | ✅ HW-validated |
+| `0b111` | illegal → contained GPU hang | HW-observed |
+
+Field decomposition (from the sweep): bit 0 = add/mul (the EXP-0003 bit, now seen as bit 0 of a
+wider field); bit 1 = length/fma bit; bit 2 = arithmetic-enable; bits 3–5 = don't-care; bits 6–7
+set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use different formats
+(inferred, tracked in `db.json` provenance — not claimed as op-select values).
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

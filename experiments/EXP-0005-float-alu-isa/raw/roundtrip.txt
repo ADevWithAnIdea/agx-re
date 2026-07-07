@@ -1,0 +1,37 @@
+== (A) asm(disasm(bytes)) == bytes  [real own-shader instructions] ==
+  [OK] fadd  (09 05 1c 01 00 c0)              09051c0100c0  ->  09051c0100c0
+  [OK] fmul  (09 05 1d 01 00 c0)              09051d0100c0  ->  09051d0100c0
+  [OK] fsub  (09 01 1c 05 00 c8)              09011c0500c8  ->  09011c0500c8
+  [OK] faddi (09 b1 14 01 80 c0)              09b1140180c0  ->  09b1140180c0
+  [OK] fma   (09 01 1e 05 81 08 02 c0)        09011e05810802c0  ->  09011e05810802c0
+  [OK] fmax  (12 03 1e 05 00 c0)              12031e0500c0  ->  12031e0500c0
+  [OK] fmin  (12 03 1e 05 01 c0)              12031e0501c0  ->  12031e0501c0
+  [OK] fneg  (0b 01 0e 09 02 0a 00 80 00 00)  0b010e09020a00800000  ->  0b010e09020a00800000
+  [OK] fabs  (0b 01 0e 09 02 02 00 80 00 00)  0b010e09020200800000  ->  0b010e09020200800000
+  [OK] load  (67 10 54 00 ...)                6710540000012000510100404600  ->  6710540000012000510100404600
+  [OK] store (e7 00 54 00 ...)                e700540002012100110000901100  ->  e700540002012100110000901100
+  [OK] preamble (1c a0 10 06)                 1ca01006  ->  1ca01006
+  [OK] preamble (0c a0 10 06)                 0ca01006  ->  0ca01006
+  [OK] stop  (0e 00 00 00)                    0e000000  ->  0e000000
+
+== (B) disasm(asm(fields)) == fields  [synthesized] ==
+  [OK] falu2({'dst': 5, 'opsel': 4, 'opmod': 3, 'srcmode': 0, 'srcA': 1, 'srcB': 0, 'mods': 192}) -> 09051c0100c0 -> falu2[fadd] {'dst': 5, 'opsel': 4, 'opmod': 3, 'srcmode': 0, 'srcA': 1, 'srcB': 0, 'mods': 192}
+  [OK] falu2({'dst': 5, 'opsel': 5, 'opmod': 3, 'srcmode': 0, 'srcA': 1, 'srcB': 0, 'mods': 192}) -> 09051d0100c0 -> falu2[fmul] {'dst': 5, 'opsel': 5, 'opmod': 3, 'srcmode': 0, 'srcA': 1, 'srcB': 0, 'mods': 192}
+  [OK] falu2({'dst': 66, 'opsel': 4, 'opmod': 0, 'srcmode': 0, 'srcA': 17, 'srcB': 34, 'mods': 0}) -> 094204112200 -> falu2[fadd] {'dst': 66, 'opsel': 4, 'opmod': 0, 'srcmode': 0, 'srcA': 17, 'srcB': 34, 'mods': 0}
+  [OK] falu3({'dst': 1, 'op': 30, 'srcA': 5, 'srcB': 129, 'srcC': 8, 'ext': 49154}) -> 09011e05810802c0 -> falu3[fma] {'dst': 1, 'op': 30, 'srcA': 5, 'srcB': 129, 'srcC': 8, 'ext': 49154}
+  [OK] fminmax({'dst': 3, 'op': 30, 'srcA': 5, 'sel': 1, 'mods': 192}) -> 12031e0501c0 -> fminmax[fminmax] {'dst': 3, 'op': 30, 'srcA': 5, 'sel': 1, 'mods': 192}
+
+== (C) tokenize whole real _agc.main programs (0 leftover) ==
+  [OK] empty     1 instrs: stop
+  [OK] fadd      6 instrs: preamble device_load device_load fadd device_store stop
+  [OK] fmul      6 instrs: preamble device_load device_load fmul device_store stop
+  [OK] fsub_ab   6 instrs: preamble device_load device_load fadd device_store stop
+  [OK] fadd_imm  5 instrs: preamble device_load fadd device_store stop
+  [OK] fma       7 instrs: preamble device_load device_load device_load fma device_store stop
+  [OK] copy      4 instrs: preamble device_load device_store stop
+  [OK] neg       5 instrs: preamble device_load fmov device_store stop
+  [OK] absf      5 instrs: preamble device_load fmov device_store stop
+  [OK] maxf      6 instrs: preamble device_load device_load fminmax device_store stop
+  [OK] minf      6 instrs: preamble device_load device_load fminmax device_store stop
+
+ALL PASS

@@ -1,0 +1,59 @@
+# EXP-0005 instruction-length rule: tokenization of real OWN-SHADER _agc.main programs
+# Each program tokenizes with ZERO leftover bytes using the byte0+(+2 lenbit) length table.
+
+== empty ==
+  +0x00  stop                   0e000000             body=0x0
+CLEAN: 1 instructions, 0 leftover bytes
+
+== fadd ==
+  +0x00  preamble               1ca01006             b0hi=0x1 body=0x610a0
+  +0x04  device_load            6710540000012000510100404600 body=0x464000015100200100005410
+  +0x12  device_load            6700440401012000510100404600 body=0x464000015100200101044400
+  +0x20  falu2        [fadd]    09051c0100c0         dst=0x5 opsel=0x4 opmod=0x3 srcmode=0x0 srcA=0x1 srcB=0x0 mods=0xc0
+  +0x26  device_store           e700540002012100110000901100 body=0x119000001100210102005400
+  +0x34  stop                   0e000000             body=0x0
+CLEAN: 6 instructions, 0 leftover bytes
+
+== fmul ==
+  +0x00  preamble               1ca01006             b0hi=0x1 body=0x610a0
+  +0x04  device_load            6710540000012000510100404600 body=0x464000015100200100005410
+  +0x12  device_load            6700440401012000510100404600 body=0x464000015100200101044400
+  +0x20  falu2        [fmul]    09051d0100c0         dst=0x5 opsel=0x5 opmod=0x3 srcmode=0x0 srcA=0x1 srcB=0x0 mods=0xc0
+  +0x26  device_store           e700540002012100110000901100 body=0x119000001100210102005400
+  +0x34  stop                   0e000000             body=0x0
+CLEAN: 6 instructions, 0 leftover bytes
+
+== fma ==
+  +0x00  preamble               1ca01006             b0hi=0x1 body=0x610a0
+  +0x04  device_load            6710540000012000510100404600 body=0x464000015100200100005410
+  +0x12  device_load            6700540401012000510100404600 body=0x464000015100200101045400
+  +0x20  device_load            6700440802012000510100404600 body=0x464000015100200102084400
+  +0x2e  falu3        [fma]     09011e05810802c0     dst=0x1 op=0x1e srcA=0x5 srcB=0x81 srcC=0x8 ext=0xc002
+  +0x36  device_store           e700540003012100110000901100 body=0x119000001100210103005400
+  +0x44  stop                   0e000000             body=0x0
+CLEAN: 7 instructions, 0 leftover bytes
+
+== copy ==
+  +0x00  preamble               1ca01006             b0hi=0x1 body=0x610a0
+  +0x04  device_load            6710440000012000510100404600 body=0x464000015100200100004410
+  +0x12  device_store           e700560001012100110000901100 body=0x119000001100210101005600
+  +0x20  stop                   0e000000             body=0x0
+CLEAN: 4 instructions, 0 leftover bytes
+
+== neg ==
+  +0x00  preamble               1ca01006             b0hi=0x1 body=0x610a0
+  +0x04  device_load            6710440000012000510100404600 body=0x464000015100200100004410
+  +0x12  funary       [fmov]    0b010e09020a00800000 b1=0x1 op=0xe srcA=0x9 mod=0x2 ext=0x80000a
+  +0x1c  device_store           e700540001012100110000901100 body=0x119000001100210101005400
+  +0x2a  stop                   0e000000             body=0x0
+CLEAN: 5 instructions, 0 leftover bytes
+
+== maxf ==
+  +0x00  preamble               0ca01006             b0hi=0x0 body=0x610a0
+  +0x04  device_load            6710540200002000510100404600 body=0x464000015100200000025410
+  +0x12  device_load            6700440401002000510100404600 body=0x464000015100200001044400
+  +0x20  fminmax      [fminmax] 12031e0500c0         dst=0x3 op=0x1e srcA=0x5 sel=0x0 mods=0xc0
+  +0x26  device_store           e700540202002100110000901100 body=0x119000001100210002025400
+  +0x34  stop                   0e000000             body=0x0
+CLEAN: 6 instructions, 0 leftover bytes
+

@@ -25,7 +25,7 @@ Goal: prove every clean-room technique works end-to-end before doing real RE.
 
 - ☑ **0.1 Environment recon** — chip/OS/toolchain/SIP/sudo/reboot path, GPU codename from device tree (`ioreg` `compatible`/`gpu-core-count` — hardware documentation, safe). *Done: EXP-0002 (`experiments/EXP-0002-hw-identity-recon/`) → `docs/hardware-overview.md`. GPU codename **G17P**; device-tree `sgx@70000000` / `compatible="gpu,t8140"`; **6-core die, 5 active** (core #1 fused); Apple9 / Metal 4; interface via `AGXDeviceUserClient` over IOGPUFamily 130.16.3 / AGXG17P 353.10. Also confirmed in bring-up: CLT-only/SIP off/FileVault off.*
 - ☑ **0.2 Own-shader compile+extract tool** (`tools/shdump`) — *Done: EXP-0001.* MSL → `MTLBinaryArchive` → our parser extracts `_agc.main` from the AppleGPU (cputype 0x1000013) image. Deterministic; confirmed machine code (not AIR). → `docs/isa/README.md`.
-- ◐ **0.3 (Dis)assembler scaffolding & method** — *Method proven (EXP-0001):* differential compilation localizes fields (op-select byte, packed float imm, register selectors) and confirmed the ISA is wholly new (applegpu G13 decoder fails). Remaining: stand up the machine-readable A18 instruction DB (proposed schema in EXP-0001 RESULTS) — deferred to start of Phase 1, gated on the 0.4 testbed for HW validation.
+- ☑ **0.3 (Dis)assembler scaffolding & method** — *Done: EXP-0005.* `tools/agx-isa/` is a working machine-readable DB driving asm+disasm with a passing round-trip test; differential compilation + persistent sweep runner established as the method. Phase 1 now grows this DB.
 - ☑ **0.4 Hardware testbed (the round-trip engine)** — *Done: EXP-0003.* `tools/agxtest/` splices arbitrary bytes into our own compiled shader and runs on the real GPU (Metal runs tampered code, no integrity check, via bound `MTLBinaryArchive` + `FailOnBinaryArchiveMiss`). First HW-validated fact: op-select `1c=fadd/1d=fmul`. Faults are contained (0 reboots). **The extrapolate-and-test loop is live.**
 - ☐ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
 
@@ -37,8 +37,8 @@ an instruction/modifier exists, we must be able to *encode* it, run it via the 0
 observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x)) == x` and
 `assemble(disassemble(bytes)) == bytes` across the whole validated corpus.
 
-- ☐ **Opcode map** — every instruction classified vs G13/G14: unchanged / changed-encoding / new / removed.
-- ☐ **Per-instruction spec** — bit-field encoding, operands, free modifiers (sat/neg/abs, fp16↔fp32, etc.), and **semantics**, each **validated by hardware round-trip** on the 0.4 testbed.
+- ◐ **Opcode map** — *started (EXP-0005):* instruction-length rule solved for float groups; float ALU 2-src op-select (fadd/fmul) HW-validated. Groups identified by byte0: `0x09` float-ALU, `0x0b` float-unary, `0x12` fmin/max, `0x67/e7` load/store, `0x9f` integer-ALU (unsolved), `0x0c` preamble, `0x0e` stop. Remaining: enumerate every group's ops.
+- ◐ **Per-instruction spec** — *float ALU 2-src partially mapped (EXP-0005):* op-select field done; **next: operand/register fields, modifiers (neg/abs), packed float immediate.** Then integer ALU, memory addressing, control flow, textures, atomics, subgroup, RT/mesh.
 - ☐ **Machine model** — register file (GPRs/16-bit halves), uniform regs, immediates, addressing modes, and **Dynamic-Caching** implications for a compiler backend.
 - ☐ **New instruction families** — ray-tracing intrinsics, mesh shading, matrix/cooperative ops, subgroup/quad ops, atomics, texture/image ops; whatever Apple9 added.
 - ☐ **Extrapolate & test** — sweep undocumented opcode/modifier space; log every probe (works/no-op/faults) in `hypotheses.md`.

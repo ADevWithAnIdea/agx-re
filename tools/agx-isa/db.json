@@ -1,0 +1,331 @@
+{
+  "isa": "Apple A18 Pro / G17P AGX (clean-room, OWN-SHADER derived)",
+  "parcel_bytes": 2,
+  "length_rule": {
+    "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c = 6B vs fma 09 01 1e = 8B share first parcel); length is a function of byte0 (group) + for 0x09 a length bit at byte+2 bit1.",
+    "byte0_table": {
+      "0x0e": 4,
+      "lownibble_0xC": 4,
+      "lownibble_0x7": 14,
+      "0x09": "6, or 8 if (byte[+2] & 0x02)",
+      "0x0b": 10,
+      "0x12": 6,
+      "0x9f": "unsolved (int ALU)"
+    }
+  },
+  "instructions": [
+    {
+      "mnemonic": "falu2",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          9
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "fadd",
+            "5": "fmul"
+          }
+        },
+        {
+          "name": "opmod",
+          "start": 19,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "srcmode",
+          "start": 22,
+          "width": 2,
+          "type": "enum",
+          "enum": {
+            "0": "normal"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "mods",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d = op(a, b)   ; two-source float ALU (opsel bits[16:19])",
+      "provenance": "HW-VALIDATED (EXP-0003/EXP-0005): fadd=0b100 fmul=0b101 op-select bits[16:19], full 256-value sweep"
+    },
+    {
+      "mnemonic": "falu3",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          9
+        ],
+        [
+          17,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "30": "fma"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcC",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = a*b + c   ; three-source float ALU (fma)",
+      "provenance": "inferred (byte-diff, EXP-0001 k05_fma)"
+    },
+    {
+      "mnemonic": "fminmax",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          18
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "30": "fminmax"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 32,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "fmax",
+            "1": "fmin"
+          }
+        },
+        {
+          "name": "mods",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d = max(a,b) (sel=0) or min(a,b) (sel=1)",
+      "provenance": "inferred (byte-diff, EXP-0005 maxf/minf)"
+    },
+    {
+      "mnemonic": "funary",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          11
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "14": "fmov"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "mod",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ext",
+          "start": 40,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = mod(a)   ; unary move (neg mod=0x0a, abs mod=0x02)",
+      "provenance": "inferred (byte-diff, EXP-0005 neg/absf)"
+    },
+    {
+      "mnemonic": "device_load",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          103
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 104,
+          "type": "raw"
+        }
+      ],
+      "semantics": "load 32-bit element from a device buffer into a register",
+      "provenance": "structural (inferred, EXP-0001/EXP-0005)"
+    },
+    {
+      "mnemonic": "device_store",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          231
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 104,
+          "type": "raw"
+        }
+      ],
+      "semantics": "store a register to a 32-bit device-buffer element",
+      "provenance": "structural (inferred, EXP-0001/EXP-0005)"
+    },
+    {
+      "mnemonic": "preamble",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          12
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b0hi",
+          "start": 4,
+          "width": 4,
+          "type": "raw"
+        },
+        {
+          "name": "body",
+          "start": 8,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "fixed program preamble (thread-index / setup); role TBD",
+      "provenance": "structural (inferred, EXP-0001)"
+    },
+    {
+      "mnemonic": "stop",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          14
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "program end (whole body of an empty kernel); not a strictly enforced terminator (EXP-0003: corrupting it did not fault)",
+      "provenance": "inferred (EXP-0001/EXP-0003)"
+    }
+  ]
+}

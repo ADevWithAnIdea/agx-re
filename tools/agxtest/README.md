@@ -15,8 +15,10 @@ technique mirrors the public MIT applegpu `hwtestbed` (`metallib_replacer.py` +
 
 | file | role | runs on |
 |---|---|---|
-| `agxrun.m` | ObjC runner. Loads a serialized Metal binary archive (possibly spliced), forces the compute pipeline to instantiate **from the archive's precompiled machine code** (`MTLPipelineOptionFailOnBinaryArchiveMiss`), dispatches, dumps output buffers as hex. | device (A18) |
-| `agxtest.py` | Driver. Compiles our MSL → archive (`shdump`), locates `_agc.main` in the archive (`agxparse`), splices caller bytes in place, writes inputs, runs `agxrun` under a hard timeout, decodes/compares outputs. | device (A18) |
+| `agxrun.m` | ObjC runner (one-shot, one process per dispatch). Loads a serialized Metal binary archive (possibly spliced), forces the compute pipeline to instantiate **from the archive's precompiled machine code** (`MTLPipelineOptionFailOnBinaryArchiveMiss`), dispatches, dumps output buffers as hex. | device (A18) |
+| `agxrun_persist.m` | **Persistent runner (EXP-0005).** One live `MTLDevice`+queue for its whole lifetime; loops over `(spliced-archive, inputs) → outputs` requests read from stdin, **logging-and-continuing past command-buffer faults** (contained illegal-ALU-op hangs), so a 256-value field sweep is one process launch instead of 256. | device (A18) |
+| `persistrun.py` | Driver/library for `agxrun_persist`: issues requests, parses responses, and applies a **per-request watchdog** that kills+restarts the child (optional reboot hook) on a true GPU wedge, so big sweeps are robust. | device (A18) |
+| `agxtest.py` | One-shot driver. Compiles our MSL → archive (`shdump`), locates `_agc.main` in the archive (`agxparse`), splices caller bytes in place, writes inputs, runs `agxrun` under a hard timeout, decodes/compares outputs. | device (A18) |
 | `shdump.m` | (from `tools/shdump`) compile our MSL → serialized binary archive. | device |
 | `agxparse.py` | (from `tools/shdump`) Mach-O/Metal-fat parser; `--locate SYM` returns the absolute file offset+length of a symbol region for in-place splicing. | anywhere |
 
@@ -82,3 +84,29 @@ under a hard timeout (see `experiments/EXP-0003-hw-testbed/run_all.sh` /
 `sshto.py`). Observed on G17P/macOS 26.6: an illegal ALU op raised a **contained**
 `kIOGPUCommandBufferCallbackErrorHang` command-buffer error — the device survived
 and the next dispatch worked, no reboot (EXP-0003 §fault behavior).
+
+## Persistent runner (`agxrun_persist` + `persistrun.py`, EXP-0005)
+
+For field sweeps, spawning one process per splice is dominated by process/Metal
+startup. `agxrun_persist` keeps one `MTLDevice` alive and takes requests on
+stdin:
+
+```
+READY <device>                                  # printed once at startup
+# request:  <id> <archive> <grid> <tg> <nin> [idx:file ...] <nout> [idx:nbytes ...]
+# response: REQ <id> / STATUS ... / [GPUTIME_NS n] / [OUT idx hex ...] / DONE <id>
+```
+
+**Critical gotcha it solves:** a library built from *source*
+(`newLibraryWithSource:`) has a fixed AIR hash whose native code the device
+**memoizes in-process** — so after the first pipeline build, a later *spliced*
+archive is silently ignored and the ORIGINAL code runs. `agxrun_persist` instead
+loads a **fresh `MTLLibrary` from the spliced archive's own bytes**
+(`newLibraryWithURL:`) each request (the public hwtestbed's approach), so each
+splice actually executes. Verified: `1c→1d` flips add→mul, `0xff` faults
+(contained), the next request recovers — all in one process.
+
+```sh
+clang -fobjc-arc -framework Metal -framework Foundation -o agxrun_persist agxrun_persist.m
+# see experiments/EXP-0005-float-alu-isa/opsweep.py for a full sweep driver
+```
