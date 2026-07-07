@@ -238,6 +238,47 @@ def extract_agx(buf):
     return report, pieces
 
 
+def locate_region(buf, symbol="_agc.main"):
+    """Return (abs_offset, length) of a symbol region within the container FILE.
+
+    Unlike extract_agx (which returns the *bytes*), this returns the absolute
+    byte offset of the region inside `buf`, so a caller can splice replacement
+    bytes in place without disturbing the surrounding container. Returns None if
+    the symbol / AGX code is not found.
+    """
+    for (off, size, note) in iter_gpu_images(buf):
+        try:
+            mo = MachO(buf, off)
+        except ValueError:
+            continue
+        if mo.cputype != APPLE_GPU_CPUTYPE:
+            continue
+        for shsecname in SHADER_SECTIONS:
+            shsec = mo.find_section("__TEXT", shsecname)
+            if not shsec or shsec["size"] == 0:
+                continue
+            nested_base = off + shsec["offset"]
+            try:
+                nested = MachO(buf, nested_base)
+            except ValueError:
+                continue
+            text = nested.find_section("__TEXT", "__text")
+            if not text:
+                continue
+            text_abs = nested.base + text["offset"]   # abs file offset of __text
+            insyms = sorted(
+                [s for s in nested.symbols
+                 if text["addr"] <= s["value"] < text["addr"] + text["size"]],
+                key=lambda s: s["value"])
+            for i, s in enumerate(insyms):
+                if s["name"] != symbol:
+                    continue
+                start = s["value"] - text["addr"]
+                end = (insyms[i + 1]["value"] - text["addr"]) if i + 1 < len(insyms) else text["size"]
+                return (text_abs + start, end - start)
+    return None
+
+
 def default_target(pieces):
     """The bytes a caller most likely wants: the main program, else whole text."""
     if pieces is None:
@@ -259,11 +300,22 @@ def main():
                          "use __whole_text__ for the entire nested __text)")
     ap.add_argument("--whole-text", action="store_true",
                     help="target the whole nested __text (both prolog + main)")
+    ap.add_argument("--locate", metavar="SYMBOL", nargs="?", const="_agc.main",
+                    help="print 'ABS_OFFSET LENGTH' of a symbol region within the "
+                         "container file (for in-place splicing); default _agc.main")
     ap.add_argument("--json", action="store_true", help="print JSON report")
     args = ap.parse_args()
 
     with open(args.container, "rb") as f:
         buf = f.read()
+
+    if args.locate is not None:
+        loc = locate_region(buf, args.locate)
+        if loc is None:
+            sys.stderr.write(f"agxparse: could not locate region '{args.locate}'\n")
+            sys.exit(2)
+        print(f"{loc[0]} {loc[1]}")
+        sys.exit(0)
 
     report, pieces = extract_agx(buf)
 

@@ -4,10 +4,12 @@ Clean-room documentation of the Apple G17P shader instruction set. All facts her
 disassembling **shaders we compiled ourselves** (OWN-SHADER) + public references (PUBLIC) —
 never from Apple binaries. See `../../CLAUDE.md`.
 
-> **Status: early.** The extraction pipeline is validated. Encoding observations below are
-> byte-level facts from differential compilation; **interpretations tagged "⏳ pending
-> round-trip"** are not yet hardware-validated (that needs the Phase 0.4 testbed:
-> assemble → run → observe). Do not treat ⏳ items as final.
+> **Status: early, but the validation loop is live.** The extraction pipeline AND the hardware
+> testbed (`tools/agxtest/`, EXP-0003) both work: we can splice arbitrary bytes into our own
+> compiled shader and run them on the real GPU (Metal runs tampered code with **no integrity
+> check**, given a binary archive + `MTLPipelineOptionFailOnBinaryArchiveMiss`). So encodings can
+> now be **hardware-validated** (✅), not just inferred from byte diffs (⏳ pending round-trip).
+> Do not treat ⏳ items as final; ✅ items are proven by running modified code and observing output.
 
 ## How we get the bytes (validated — EXP-0001)
 
@@ -32,11 +34,14 @@ Byte-level facts (established) and their interpretations (⏳ pending round-trip
 
 - **Instruction parcels are 2 bytes.** All observed region lengths are even. ⏳ (variable-length
   instructions built from 2-byte parcels, as on G13, is the working hypothesis.)
-- **Stop/end instruction:** `0e000000` (4 bytes) terminates every `_agc.main` and *is* the
-  entire empty kernel. ⏳ strongly implied to be program end.
+- **✅ Float ALU op-select (HARDWARE-VALIDATED, EXP-0003):** in a `c=a+b` kernel, the byte at
+  file/program offset **`0x22`**, **bit 0**, selects the float ALU op: **`1c`=fadd, `1d`=fmul**.
+  Proven by splicing `1c→1d` and observing the dispatch output change from `a+b` to `a*b`
+  (`1,2,3…×10,20,30…` → `10,40,90,…`), byte-identical to the compiler's own `fmul` output.
+- **`0e000000` is NOT a simple required trailing stop (revised, EXP-0003).** Corrupting it (past
+  the store) did not fault; program extent appears bounded by metadata / the final store, not by
+  a mandatory terminator word. ⏳ true program-end / control-flow-termination encoding still TBD.
 - **Fixed preamble:** every non-empty `_agc.main` begins `1c a0 10 06 …`. ⏳ role TBD.
-- **Float ALU op-select:** float `a+b` vs `a*b` differ in exactly **one byte** (bit 0 of that
-  byte: `1c`=add, `1d`=mul). ⏳ this byte selects the float ALU operation.
 - **Packed float immediate:** `a+1.0` vs `a+2.0` differ in **one byte** (bits 4–6), and the
   value is **not** IEEE-754 (`3f800000`/`40000000` do not appear) — a compact/packed float
   immediate encoding. ⏳ exact encoding TBD (sweep needed).

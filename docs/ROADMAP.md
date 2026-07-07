@@ -13,6 +13,11 @@ hypothesize hardware capabilities Metal doesn't expose (esp. Vulkan/GL-shaped on
 them on hardware, logging every attempt — pass or fail — in `hypotheses.md`. See `../CLAUDE.md`
 → Methodology.
 
+**Master completeness checklist:** `mesa-userspace-requirements.md` — a 52-row coverage matrix
+mapping every A18-hardware-specific dependency in Mesa's userspace to an owning `docs/` area,
+with a prioritized gap list. This is the concrete target the acceptance gate grades against;
+keep its Status column current as phases complete.
+
 ---
 
 ## Phase 0 — Foundations & clean-room tooling
@@ -21,7 +26,7 @@ Goal: prove every clean-room technique works end-to-end before doing real RE.
 - ☑ **0.1 Environment recon** — chip/OS/toolchain/SIP/sudo/reboot path, GPU codename from device tree (`ioreg` `compatible`/`gpu-core-count` — hardware documentation, safe). *Done: EXP-0002 (`experiments/EXP-0002-hw-identity-recon/`) → `docs/hardware-overview.md`. GPU codename **G17P**; device-tree `sgx@70000000` / `compatible="gpu,t8140"`; **6-core die, 5 active** (core #1 fused); Apple9 / Metal 4; interface via `AGXDeviceUserClient` over IOGPUFamily 130.16.3 / AGXG17P 353.10. Also confirmed in bring-up: CLT-only/SIP off/FileVault off.*
 - ☑ **0.2 Own-shader compile+extract tool** (`tools/shdump`) — *Done: EXP-0001.* MSL → `MTLBinaryArchive` → our parser extracts `_agc.main` from the AppleGPU (cputype 0x1000013) image. Deterministic; confirmed machine code (not AIR). → `docs/isa/README.md`.
 - ◐ **0.3 (Dis)assembler scaffolding & method** — *Method proven (EXP-0001):* differential compilation localizes fields (op-select byte, packed float imm, register selectors) and confirmed the ISA is wholly new (applegpu G13 decoder fails). Remaining: stand up the machine-readable A18 instruction DB (proposed schema in EXP-0001 RESULTS) — deferred to start of Phase 1, gated on the 0.4 testbed for HW validation.
-- ☐ **0.4 Hardware testbed (the round-trip engine)** — assemble arbitrary AGX bytes → splice into *our own* metallib/pipeline → dispatch compute → read back results (ref: applegpu `hwtestbed/`, `metallib_replacer.py`, all public/MIT). This is what makes **assemble → run → observe** possible; without it there is no extrapolate-and-test.
+- ☑ **0.4 Hardware testbed (the round-trip engine)** — *Done: EXP-0003.* `tools/agxtest/` splices arbitrary bytes into our own compiled shader and runs on the real GPU (Metal runs tampered code, no integrity check, via bound `MTLBinaryArchive` + `FailOnBinaryArchiveMiss`). First HW-validated fact: op-select `1c=fadd/1d=fmul`. Faults are contained (0 reboots). **The extrapolate-and-test loop is live.**
 - ☐ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
 
 ## Phase 1 — Full A18 Pro AGX (dis)assembler + ISA spec  ⟵ PRIMARY TOOL DELIVERABLE
