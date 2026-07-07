@@ -223,12 +223,16 @@ register pressure/spill, exotic types, recursion, MRT, all texture dims, indirec
 ### RED-TEAM COVERAGE TRACKER (objective 3 — each cluster needs 2+ overlapping falsification passes with no holes)
 Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally by orchestrator; re-tested.)
 - ◐ **RT-ISA-1 arith/logic/memory/operand** — RT-1a found real errors; **RT-1a-FIX applied+HW-reverified all 5** (mem-index byte+5, iadd2 polarity, falu2_uni uniform-source, 0x60 spill-marker, 0x18 accum). DB 77, round-trip 282 OK, census 88%. **Needs a fresh clean 2nd pass (RT-1b).**
-- ☑ **RT-ISA-2 control-flow/calls/atomics** — RT-1b (independent 2nd pass): byte+5 mem fix HOLDS, CF/calls/atomics CONFIRMED (10/10 ops, 256/256 stress); found 0x0a↔0x02 wording + census-overstatement + 0x0f-family gap (→ decode after RT-5). · ☐ RT-ISA-3 textures/samplers/gather/PCF (RT-5 running)
+- ☑ **RT-ISA-2 control-flow/calls/atomics** — RT-1b (independent 2nd pass): byte+5 mem fix HOLDS, CF/calls/atomics CONFIRMED (10/10 ops, 256/256 stress); found 0x0a↔0x02 wording + census-overstatement + 0x0f-family gap (→ decode after RT-5). · ◐ RT-ISA-3/4/5 textures/subgroup/matrix/RT/fragment — RT-5: matrix/reduce/tex/fragment CONFIRMED; found ballot+shuffle decode bugs, reduce enum, RT AS-select over-claim (→ QUEUED ISA-FIX)
 - ☐ RT-ISA-4 subgroup/quad/matrix/RT · ☐ RT-ISA-5 fragment interp/output/tilebuffer/ROG
 - ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
 - ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ◐ RT-cmdstream-2 — RT-6: ALL CONFIRMED, **0 discrepancies** (indirect/ICB/occlusion/timestamp/geometry all held under adversarial); cross-confirmed RT-2a indexed shift. 1 clean pass — light 2nd in final sweep
 - ◐ RT-descriptors+format+PBE (RT-3: fixed width/height 14-bit) · ◐ RT-tiling (RT-3: fixed twiddle=row-major Morton tiles T=64/32 by bpp; sampler/PBE/format-rule/compression confirmed — both need 2nd pass) · ◐ RT-pipeline/TBDR (RT-4: found+fixed sample-positions-are-userspace @+0x40 & 32KiB-not-a-MRT-cap; tile-32×32/memoryless/load-store confirmed robust — needs 2nd pass)
 - ☐ RT-kernel-interface (consistency) · ☐ RT-capability-matrix (consistency)
+**QUEUED ISA-FIX (batch after RT-7 frees tools/agx-isa; HW-re-validate each):**
+- **RT-5:** ballot `0x17` match (DB wrongly gates byte+1==0x07 → mis-decodes as unpack_convert); shuffle `0x47/0xc7` byte+2=0x54 gate (relaxation was applied to reduce not shuffle → fails to decode); reduce byte+7 dtype enum (int=0x01 not 0x03, excl-scan=0x09); re-mark tex op+4 (folds under direct binding) + op+6 (filtered=no-op) + **RT rt_intersect AS-select sub-fields as INFERRED** (EXP-O2C's 0x8b→0x1b HW-claim did NOT reproduce — over-claim).
+- **RT-1b:** decode the `0x0f` execution-mask family (else/while/break/pop/reconverge sub-ops) + `0x07` fence byte+2=0x02 variant + verify `0x32` carry-gen tokenizes.
+
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
 
 ### COMPLETION CRITERIA (formal goal — mark complete only when all three hold)

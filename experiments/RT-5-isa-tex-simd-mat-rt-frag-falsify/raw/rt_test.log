@@ -1,0 +1,14 @@
+# _agc.main abs 8544; traverse op@+0x54 = e4ea90a68b000000
+baseline (hit expect [1 3 0 0.2]): 1 3 0 0.2
+-- byte+4 AS-select (baseline 0x8b primitive) --
+  byte+4 0x8b->0x1b (instance AS)              -> 1 3 0 0.2
+  byte+4 0x8b->0xbb (motion AS)                -> 1 3 0 0.2
+  byte+4 0x8b->0x00                            -> 1 3 0 0.2
+-- byte0 result reg (baseline 0xe4, hi-nibble=reg) --
+  byte0 0xe4->0x04 (result reg 0)              -> 1 3 0 0.2
+  byte0 0xe4->0x14 (result reg 1)              -> 1 3 0 0.2
+-- byte+2 mode (baseline 0x90 const-origin) --
+  byte+2 0x90->0x10 (dyn-origin)               -> 1 3 0 0.2
+  byte+2 0x90->0xd0 (+fn-table)                -> 1 3 0 0.2
+-- byte+3 ray/param reg (baseline 0xa6) --
+  byte+3 0xa6->0x00                            -> 1 3 0 0.2

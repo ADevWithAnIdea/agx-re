@@ -1,0 +1,14 @@
+# fragment _agc.main abs 14128
+baseline pixel rgba: (0.2, 0.4, 0.6, 0.8)
+-- iter varying-slot (byte+5) of iter@+0x14 (baseline reads slot 0x2 = vc.x=0.20) --
+  byte+5 0x02->0x04 (vc.y=0.40)                    rgba=(0.4, 0.4, 0.6, 0.8)
+  byte+5 0x02->0x06 (vc.z=0.60)                    rgba=(0.6, 0.4, 0.6, 0.8)
+  byte+5 0x02->0x08 (vc.w=0.80)                    rgba=(0.8, 0.4, 0.6, 0.8)
+-- iter mode (byte+6) of iter@+0x14 (baseline 0x00 linear/perspective) --
+  byte+6 0x00->0x04 (W-denominator)                rgba=(0.2, 0.4, 0.6, 0.8)
+  byte+6 0x00->0x02 (centroid/sample)              rgba=(0.2, 0.4, 0.6, 0.8)
+-- frag_color_store src (byte+3) @ +0x7f --
+  byte+3 src 0x00->0x02                            rgba=(0.0, 0.0, 0.0, 0.0)
+  byte+3 src 0x00->0x06                            rgba=(0.0, 0.0, 0.0, 0.0)
+-- frag_color_store rt_index (byte+5) @ +0x81 (single RT: expect no-op or drop) --
+  byte+5 0x00->0x02 (RT1)                          rgba=(0.0, 0.0, 0.0, 0.0)

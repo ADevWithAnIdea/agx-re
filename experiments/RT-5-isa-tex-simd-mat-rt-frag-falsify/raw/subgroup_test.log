@@ -1,0 +1,63 @@
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote simd_reduce.bin
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote simd_scan.bin
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote simd_bcast.bin
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote simd_xor.bin
+shdump: device = Apple A18 Pro
+shdump: functions = k
+shdump: chosen function = k
+shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024
+shdump: wrote simd_ballot.bin
+
+===== kernels/simd_reduce.metal  (_agc.main abs 6912, op@+0x08) =====
+op bytes: bf11540002041401e700
+  baseline simd_sum -> 496                             ALL=496
+  byte0 0xbf->0x3f (bit7=0; doc: xor -> 0)             ALL=0
+  byte+1 0x11->0x10                                    ALL=31
+  byte+1 0x11->0x12 (doc low-nib 2 = max/min)          ALL=31
+  byte+1 0x11->0x13 (doc low-nib 3 = umax)             ALL=31
+  byte+1 0x11->0x15                                    ALL=0
+  byte+1 0x11->0x17                                    ALL=0
+  byte+7 0x01->0x03 (doc int-reduce dtype)             496 0 0 0 0 0 0 0 0 0 0 0
+  byte+7 0x01->0x07 (doc int-minmax)                   496 0 0 0 0 0 0 0 0 0 0 0
+
+===== kernels/simd_scan.metal  (_agc.main abs 6928, op@+0x08) =====
+op bytes: bf115400030414099f01
+  baseline incl-scan -> 0,1,3,6,10,...                 0 1 3 6 10 15 21 28 36 45 55 66
+  byte+7 0x09->0x0b (doc: exclusive-scan)              ALL=0
+  byte0 0xbf->0x3f (bit7=0)                            0 1 2 3 4 5 6 7 8 9 10 11
+
+===== kernels/simd_bcast.metal  (_agc.main abs 6960, op@+0x1c) =====
+op bytes: 470454000200062c0400
+  baseline broadcast(v,3) -> 35                        ALL=35
+  byte+6 0x06->0x00 (lane0 -> 5)                       ALL=5
+  byte+6 0x06->0x0a (lane5 -> 55)                      ALL=55
+  byte+6 0x06->0x0e (lane7 -> 75)                      ALL=75
+  byte0 0x47->0xc7 (dir bit flip)                      35 25 15 5 75 65 55 45 115 105 95 85
+  byte+1 0x04->0x00 (doc: quad mode)                   35 35 35 35 75 75 75 75 115 115 115 115
+
+===== kernels/simd_xor.metal  (_agc.main abs 6960, op@+0x1c) =====
+op bytes: c70454000200022c0400
+  baseline shuffle_xor(v,1)                            15 5 35 25 55 45 75 65 95 85 115 105
+  byte+6 0x02->0x04 (mask 2)                           25 35 5 15 65 75 45 55 105 115 85 95
+  byte+6 0x02->0x08 (mask 4)                           45 55 65 75 5 15 25 35 125 135 145 155
+  byte0 0xc7->0x47 (dir bit flip)                      ALL=15
+
+===== kernels/simd_ballot.metal  (_agc.main abs 6944, op@+0x08) =====
+op bytes: 1717540002041418220c
+  baseline ballot(lane<5) -> 31                        ALL=31
