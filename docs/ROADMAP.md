@@ -152,7 +152,7 @@ Target: iterate until a byte0-group census of a broad shader corpus shows ~0 und
 authoritative opcode table is IN `docs/` (do LAST, once the DB is final). The descriptor tables are now
 self-contained (`docs/descriptors/format-table.md`).
 
-**Final ISA-consolidation pass (deferred, do once ISA experiments finish):** merge these staged files into
+**Final ISA-consolidation pass ✅ DONE** (all staged descriptors merged; DB 82, round-trip 293 OK). *(Historical note — these files were merged:*
 `isadb.py`, regenerate `db.json`, ensure round-trip passes, THEN generate `docs/isa/encoding-tables.md` (G-6 core):
 - `experiments/EXP-0030-mesh/new_descriptors.json` (obj_mesh_ctrl 0x43, stage-map __object/__mesh)
 - `experiments/EXP-0031-sr-abi/new_descriptors.json` (get_sr byte1 SR#, mov_imm, sr_number_table)
@@ -235,6 +235,9 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 - **RT-7:** document BOTH uniform-source encodings (srcB byte+2bit4+byte+5bit1 valid, not 'wrong'); add r96+ fault/read-0; soften '~12 GPR' tier to interpolated; note threadgroups_per_grid = get_sr 0xa8 + load + divide.
 
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
+
+### ✅ OBJECTIVE 1 RE-CONFIRMED (REVIEW-03 / GAP-ANALYSIS-03: PASS)
+- 0 blocking gaps; all 8 subsystems PASS; **red-team corrections internally consistent, no split-brain** (grep-verified: byte+5 mem-index, tiled-Morton cols=ceil(W/T), sample-pos-userspace ×6 docs, native-tess ×5 docs, 0x0f family, census 189/11/5/9 tie out). 11 acceptable-residue clusters + 5 minor polish (M1/M3/M4 now fixed; M2 finalized at completion; M5 = structural code-BO header, residue).
 
 ### ✅ OBJECTIVE 2 RE-CONFIRMED (OBJ2-AUDIT-2: PASS)
 - Metal-exposed-not-exercised = **0**; totals consistent 189/11/5/9=214; all native/emulated rows PROVENANCE-backed (16/16 spot-checks); excluded set honest (6 microarch + 3 Metal-unreachable). Tessellation caveat + inconsistent-totals from OBJ2-AUDIT-1 both closed.

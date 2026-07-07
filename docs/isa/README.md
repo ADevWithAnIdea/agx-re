@@ -525,7 +525,7 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   magic emit op exists. Classify **native (pipeline) + emulated-style (emit via stores)**. Submission is
   in `../cmdstream/` (reuses the graphics path). HW-validated end-to-end (correct triangle rendered).
 - *(ISA descriptors for `0x43` + stage-map additions are in `experiments/EXP-0030-mesh/new_descriptors.json`,
-  pending merge into `tools/agx-isa/db.json`.)*
+  now **merged** into `tools/agx-isa/db.json` (DB 82, round-trip green).)*
 
 ### ✅ Fragment-shader ISA (EXP-0029, closes G-4 + backlog #2/#5/#7)
 - **Varying interpolation — `iter`** (byte0 `0x2f`/`0xaf`, byte+2=`0x54`, 10 B; `2f BB 54 DD 03 SS MM 02 NN 00`),
@@ -601,7 +601,7 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   carry chain (`0x32` carry-generate). 32×32→64 mul = one 12 B `0x9f`; 64×64 = 3 mul(-add)s; register shift/
   compare = multi-instr.
 - *(EXP-0033 also corrected DB length-rule bugs for the `0xa7 b1∈{04,05}` 8B, `0x27 b1=01` 12B rotate, and the
-  `0x10` half group — staged in `experiments/EXP-0033-int-bitfield/new_descriptors.json` for the consolidation.)*
+  `0x10` half group — defined in `experiments/EXP-0033-int-bitfield/new_descriptors.json`, now merged into db.json.)*
 
 ### ✅ Texture variants (EXP-0034, closes backlog #14)
 The 14-byte sample bundle generalizes to every variant via **op+2** (variant/dim/LOD/compare/offset),
@@ -672,7 +672,7 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   chained-companion forms; fix widens to `(byte+1 & 0xf0)==0x80`.
 - **`0x2e`/`0x26`/`0x92` = float fused-multiply coordinate math** (also the vertex `mvp*pos` product) — a **length-rule
   fix, not a missing instruction**: op-select `0x26/0x2e` are 6/8-byte (by byte+4 bit1); the naive float length rule
-  mis-lengthed them. *(fixes + `vary_store` descriptor staged in `experiments/EXP-0037-varying-texmath/new_descriptors.json`.)*
+  mis-lengthed them. *(fixes + `vary_store` descriptor from `experiments/EXP-0037-varying-texmath/new_descriptors.json`, now merged.)*
 
 ### ✅ RT tail + tensor completion (EXP-O2C, objective-2 O2-C/O2-F)
 - **RT-from-render (HW-validated):** a fragment shader tracing rays lowers **identically to compute RT** (2×`rt_intersect`
@@ -693,7 +693,7 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   only dedicated silicon. **Full `0xcf` operand decode (HW-validated via splice):** byte+5 = A(left) reg, byte+6 = B(right)
   reg, byte+7 = C accumulator, byte+8 = dst, byte+3 = A sub-descriptor, byte+10 = op-enable `0x24`, byte+11 bit0 =
   accumulate-enable, byte+1 = dtype, **byte+2 = mode (SEMANTIC, not a hint** — tiled mode `0x54` sources its accumulator
-  from the MPP tile context; resolves EXP-0022's open question). *(descriptors staged in `experiments/EXP-O2C-rt-tensor-tail/new_descriptors.json`.)*
+  from the MPP tile context; resolves EXP-0022's open question). *(descriptors from `experiments/EXP-O2C-rt-tensor-tail/new_descriptors.json`, now merged.)*
 
 ### ✅ Compute/fragment ISA tail (EXP-O2D, objective-2 O2-D/O2-E)
 - **Atomic ordering = fence *presence*, not a field on the RMW op.** MSL accepts only `memory_order_relaxed` on
@@ -713,7 +713,7 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   HW-validated end-to-end (tile kernel overwrote an RGBA16F attachment).
 - **Tile shaders submit mid-render** (no separate submission): draw vs draw+`dispatchThreadsPerTile` = byte-identical
   IOKit (58 calls / 37 BOs); the tile-dispatch record is appended inline to the render control stream (`0x58000`/`0x18000`).
-  *(descriptors staged in `experiments/EXP-O2D-compute-frag-tail/new_descriptors.json`.)*
+  *(descriptors from `experiments/EXP-O2D-compute-frag-tail/new_descriptors.json`, now merged.)*
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

@@ -257,9 +257,10 @@ the mesh path.** Decisive evidence: with CPU-written factors (no user compute en
 
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
-- Graphics (RESOLVED: USC grammar + shader-entry — see above): remaining ⏳ = per-packet bit decode of depth/stencil/
-  blend/raster; attachment dims/stride + the 3-segment (load/render/store) meaning; **tiler parameter
-  buffer** (`0x10000088000/140000`); ZLS / partial-render (restructures on `--depth`).
+- Graphics: **RESOLVED** — USC grammar + shader-entry (see above), per-packet depth/stencil/raster bit decode
+  (RT-2a/RT-11: depth@+0x38/stencil@+0x3c/raster@+0x70 exact), attachment dims/stride + 3-segment load/render/store
+  (EXP-G1b), programmable blend (compiled into FS). Remaining firmware-managed (kernel items, not userspace ⏳):
+  the **tiler parameter buffer** (`0x10000088000/140000`) overflow→partial-render trigger + ZLS depth-store.
 - Texture/sampler descriptor bit layouts → `../descriptors/`.
 
 Source: `experiments/EXP-0009-iotrace-bringup/`. Tool: `tools/iotrace/`.

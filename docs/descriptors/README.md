@@ -37,7 +37,10 @@ code. **Format, swizzle, sRGB, and numeric-type are orthogonal** (Vulkan-shaped)
 driver.
 
 ## Sampler descriptor — 8 bytes (EXP-0015)
-64-bit little-endian bitfield:
+64-bit little-endian bitfield. **Note (M1 reconciliation):** the sampler *descriptor content* is **8 bytes**, but in
+an argument buffer each sampler occupies a **0x20-byte (32-byte) slot/stride** (the 8-byte descriptor left-packed,
+remainder reserved) — so `docs/cmdstream`'s `num_samplers=(term−samp)/0x20` (stride) and this 8-byte descriptor size
+are both correct and describe different things (slot stride vs payload size).
 
 | field | bits | encoding |
 |---|---|---|
