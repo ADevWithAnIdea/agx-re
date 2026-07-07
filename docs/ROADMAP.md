@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · (**0013** scalar ALU — in progress). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · (**0015** descriptors — in progress). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;

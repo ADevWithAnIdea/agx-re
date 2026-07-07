@@ -237,6 +237,27 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
   execution-mask **CAS/retry loop** (`0x0a` compare + `0f 05`/`0f 06` mask ops) around a `67 01…`
   access — not the plain load/store path.
 
+### ✅ Scalar ALU completion — conversions, fma, unary, transcendentals, bitwise, shift, compare (EXP-0013)
+DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless noted):
+
+- **Conversions:** fp32→fp16 = new group **`0x11`** (half-ALU, 6B); fp16→fp32 = ordinary `falu2` with a
+  16-bit srcA (the *only* size-bit reuse). float→int = **`0x27`** (10B, **rounds toward zero**);
+  int→float = **`0xa7`** (8B). **Signedness for both = byte+7 bit6.** int narrow+sign-ext = `0x9f`;
+  zero-extend-16 = **`0x13`** (4B); `int↔uint`/`as_type` bitcast = **no instruction** (free).
+- **FMA** (`d=a*b+c`): `0x09` 8-byte form, srcA=byte+3, srcB=byte+4, **srcC=byte+5**.
+- **Float unary** (`0x0b`, 10B): byte+5 = `0x00 fmov / 0x02 fabs / 0x0a fneg`.
+- **Transcendental/round group** (`0x2f`/`0xaf`, 10B): exp2/log2/floor/ceil/trunc/rint, with a
+  **round-mode field at byte+8** (0 nearest, 2 floor, 4 ceil, 6 trunc). frcp/frsqrt/fsqrt/fsin/fcos are
+  **multi-instruction Newton-Raphson** (0x29 estimate seed) — ⏳ follow-up.
+- **fmin/fmax** (`0x12`, 6B): byte+4 bit0 = min/max; IEEE minNum/maxNum (returns the non-NaN operand).
+- **Bitwise** (`ilogic`, `0x0b`): a **full 2-input LUT covering all 16 boolean functions** (selectors
+  byte+2 + byte+4/+5 inverts) — covers every Vulkan/GL logic op. See `../hypotheses.md`.
+- **Shifts:** arithmetic `>>` imm = `0xa7` 10B (amount = byte+6>>2); logical `>>` imm = `0xa7` 12B
+  extract; `<<` imm = `0x9f` 10B; `extract_bits` = `0xa7` 12B. Register-amount shifts are multi-instruction.
+- **Compare condition codes** (`0x12` icmpsel, 14B): byte+6 = `0x02 f> / 0x03 f< / 0x04 u> / 0x05 u< /
+  0x06 s> / 0x07 s<` (bits[1:3]=type float/uint/sint, bit0=lt/gt); byte+4 = `0x22 ordered / 0x26 equality`;
+  result-negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op handles float and signed/unsigned int.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

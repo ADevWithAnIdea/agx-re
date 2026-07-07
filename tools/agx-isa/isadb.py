@@ -111,10 +111,47 @@ def instr_length(buf, off=0):
     # form) when b1 bit0 == 0.  EXP-0007: iadd/isub b1=0x01 -> 10B, imul/imad/ibfe
     # b1=0x00 -> 12B; splicing iadd's b1 bit0 -> the stream is mis-length'd and the
     # dispatch faults, confirming b1 bit0 is the format/length selector.
-    if b0 in (0x9f, 0x1f, 0xa7):
+    if b0 in (0x9f, 0x1f):
         return 10 if (buf[off + 1] & 0x01) else 12
+    # ---- CONVERT / SHIFT / BITFIELD / COUNT family (0x27 / 0xa7), EXP-0013 ----
+    # 0x27 (base) and 0xa7 (=0x27|0x80) form a broad unary/convert/shift group whose
+    # length is selected by byte+1 (the form field), NOT simply by b1 bit0. Observed
+    # (HW-validated by clean tokenization of our own convert/shift kernels, EXP-0013):
+    #   0xa7: b1==0x07 -> 8  (int/uint -> float convert)
+    #         b1  odd  -> 10 (arithmetic shift-right immediate: a7 .. 10B)
+    #         b1  even -> 12 (logical shift-r = bitfield-extract form: a7 .. 12B)
+    #   0x27: b1==0x07 -> 10 (float/half -> int/uint convert)
+    #         b1==0x05 -> 8  (popcount / integer unary reduce)   [EXP-0007]
+    #         b1 in {0x00,0x10} -> 12 (bitfield-extract / shift prep stage)
+    #         else     -> 8  (other unary)
+    if b0 == 0xa7:
+        b1v = buf[off + 1]
+        if b1v == 0x07:
+            return 8                   # int -> float convert (EXP-0013 HW)
+        return 10 if (b1v & 0x01) else 12
     if b0 == 0x27:
+        b1v = buf[off + 1]
+        if b1v == 0x07:
+            return 10                  # float -> int convert (EXP-0013 HW)
+        if b1v in (0x00, 0x10):
+            return 12                  # bitfield-extract / shift-prep stage
         return 8                       # integer unary (popcount / reduce)
+    # ---- HALF-PRECISION float ALU (byte0 0x11, EXP-0013) ----
+    # Mirrors the 0x09 float ALU but targets a 16-bit (half) destination; fp32->fp16
+    # narrowing convert compiles to this group. Same length bit as 0x09 (byte+2 bit1).
+    if b0 == 0x11:
+        return 8 if (buf[off + 2] & 0x02) else 6
+    # ---- 4-byte move / zero-extend (byte0 0x13, EXP-0013) ----
+    # uint->ushort->uint (zero-extend from 16 bits) compiles to a 4-byte move here.
+    if b0 == 0x13:
+        return 4
+    # ---- FLOAT SPECIAL-FUNCTION unary (byte0 0x2f / 0xaf, 10B, EXP-0013) ----
+    # exp2 (0xaf), log2 (0x2f) and the round family floor/ceil/trunc/rint (0x2f, with
+    # the round-mode in byte+8) are single 10-byte ops in COMPUTE. (NB: in vertex/
+    # fragment code 0x2f/0x3f/0xaf are the interp/tex/deriv groups -- different, and
+    # not tokenized here; EXP-0008.)
+    if b0 in (0x2f, 0xaf):
+        return 10
     if b0 == 0x02:
         return 6                       # integer min/max (signed/unsigned)
     if b0 == 0x12:
@@ -294,8 +331,12 @@ DB = [
             {"name": "srcC", "start": 40, "width": 8, "type": "reg"},
             {"name": "ext",  "start": 48, "width": 16, "type": "raw"},
         ],
-        "semantics": "d = a*b + c   ; three-source float ALU (fma)",
-        "provenance": "inferred (byte-diff, EXP-0001 k05_fma)",
+        "semantics": "d = a*b + c   ; three-source float ALU (fma). op=byte+2 (0x1e), "
+                     "dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5 (each (reg<<1)|size).",
+        "provenance": "HW-VALIDATED (EXP-0013): base a*b+c correct across varied a,b,c; "
+                      "splicing byte+5 (srcC) to the srcA/srcB descriptor changes the addend "
+                      "to a / b respectively -> byte+5 is the 3rd source operand. 8-byte length "
+                      "= float-ALU length bit (byte+2 bit1) set. (was inferred EXP-0001 k05_fma.)",
     },
     # ---- float min/max ----------------------------------------------------
     {
@@ -311,24 +352,35 @@ DB = [
              "enum": {0x00: "fmax", 0x01: "fmin"}},   # byte+4 bit0 = min/max
             {"name": "mods", "start": 40, "width": 8, "type": "mod"},
         ],
-        "semantics": "d = max(a,b) (sel=0) or min(a,b) (sel=1)",
-        "provenance": "inferred (byte-diff, EXP-0005 maxf/minf)",
+        "semantics": "d = fmax(a,b) (byte+4 bit0=0) or fmin(a,b) (bit0=1). NaN: returns the "
+                     "non-NaN operand (IEEE minNum/maxNum), NaN only if BOTH are NaN. +-0 not "
+                     "ordered (a tie returns srcB). (Float group byte0 0x12; the integer "
+                     "min/max is the separate 0x02 group, EXP-0007.)",
+        "provenance": "HW-VALIDATED (EXP-0013): fmax base correct; splicing byte+4 0x00->0x01 "
+                      "flips max->min; NaN and signed-zero behaviour observed on hardware. "
+                      "(was inferred byte-diff, EXP-0005 maxf/minf.)",
     },
     # ---- float unary (fmov with negate/abs modifier) ----------------------
     {
         "mnemonic": "funary",
         "length": 10,
-        "match": [(0, 8, 0x0b)],
+        "match": [(0, 8, 0x0b), (16, 8, 0x0e)],   # byte0 0x0b AND op byte+2 == 0x0e (fmov)
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},
-            {"name": "op",   "start": 16, "width": 8,  "type": "opcode",
+            {"name": "b1",    "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "op",    "start": 16, "width": 8,  "type": "opcode",
              "enum": {0x0e: "fmov"}},
-            {"name": "srcA", "start": 24, "width": 8,  "type": "reg"},
-            {"name": "mod",  "start": 32, "width": 8,  "type": "mod"},  # 0a=neg,02=abs
-            {"name": "ext",  "start": 40, "width": 40, "type": "raw"},
+            {"name": "srcA",  "start": 24, "width": 8,  "type": "reg"},
+            {"name": "srcmod","start": 32, "width": 8,  "type": "raw"},   # byte+4 src descr (0x02)
+            {"name": "mod",   "start": 40, "width": 8,  "type": "enum",   # byte+5 = the modifier
+             "enum": {0x00: "mov", 0x02: "abs", 0x0a: "neg"}},
+            {"name": "ext",   "start": 48, "width": 32, "type": "raw"},
         ],
-        "semantics": "d = mod(a)   ; unary move (neg mod=0x0a, abs mod=0x02)",
-        "provenance": "inferred (byte-diff, EXP-0005 neg/absf)",
+        "semantics": "d = mod(a)   ; float source-modifier move. byte+5 selects the modifier: "
+                     "0x00 = mov (copy), 0x02 = fabs (|a|), 0x0a = fneg (-a). (bit1 = abs-enable, "
+                     "bit3 = negate; negate requires bit1 set -- byte+5=0x08 alone acts as mov.)",
+        "provenance": "HW-VALIDATED (EXP-0013): on the fneg base, splicing byte+5 0x0a->0x02 "
+                      "gives |a|, ->0x00 gives a (mov), and 0x0a gives -a; observed on hardware. "
+                      "(was inferred byte-diff, EXP-0005 neg/absf.)",
     },
     # ==========================================================================
     # INTEGER ALU FAMILY  (EXP-0007, byte0 0x9f group + cousins)
@@ -435,46 +487,224 @@ DB = [
         "semantics": "d = unary_int(srcA)  ; popcount observed (also clz/ctz/reduce cousins)",
         "provenance": "inferred (byte-diff, EXP-0007 popcount); 8-byte length HW (tokenizes).",
     },
-    # ---- integer shift-right / bitfield-extract (0xa7; 10 or 12 byte) ------
+    # ---- arithmetic shift-right, immediate (0xa7, 10-byte) ----------------
     {
         "mnemonic": "ishift",
         "length": 10,
-        "match": [(0, 8, 0xa7)],
-        "fields": [{"name": "body", "start": 8, "width": 72, "type": "raw"}],
-        "semantics": "integer shift-right (a>>b, arithmetic/logical by srcA signedness); "
-                     "10-byte 2-source form (b1 bit0==1).",
-        "provenance": "inferred (byte-diff, EXP-0007 shrimm/iashr/ushr); length HW (tokenizes).",
+        "match": [(0, 8, 0xa7), (8, 1, 1)],   # 0xa7 AND b1 bit0==1 (10-byte ashr form)
+        "fields": [
+            {"name": "b1",    "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "b2",    "start": 16, "width": 8,  "type": "raw"},
+            {"name": "srcdst","start": 24, "width": 16, "type": "raw"},   # byte+3:4
+            {"name": "shamt", "start": 48, "width": 8,  "type": "imm"},   # byte+6 = shift<<2
+            {"name": "tail",  "start": 56, "width": 24, "type": "raw"},
+        ],
+        "semantics": "d = a >> shamt  ; ARITHMETIC (sign-preserving) shift-right by an "
+                     "immediate. Shift amount at byte+6 encoded as (shamt<<2): 0x04->1, "
+                     "0x08->2, 0x10->4, 0x20->8. (Logical >> by immediate uses the 12-byte "
+                     "bitfield-extract form below; register-operand shifts are multi-instr "
+                     "with a 0x2b prep stage.)",
+        "provenance": "HW-VALIDATED (EXP-0013): a>>2 on [-16,16,-64,255] = [-4,4,-16,63] "
+                      "(sign-extending); sweeping byte+6 through 0x04/08/10/20 gives shift "
+                      "amounts 1/2/4/8 exactly. (was byte-diff EXP-0007 iashr.)",
     },
     {
         "mnemonic": "ibfe",
         "length": 12,
-        "match": [(0, 8, 0xa7)],       # length (b1 bit0==0) selects vs ishift
+        "match": [(0, 8, 0xa7), (8, 1, 0)],   # 0xa7 AND b1 bit0==0 (12-byte bfe / lshr form)
         "fields": [{"name": "body", "start": 8, "width": 88, "type": "raw"}],
-        "semantics": "bitfield-extract extract_bits(a,off,cnt) (3-operand 12-byte form)",
-        "provenance": "inferred (byte-diff, EXP-0007 ibfe); 12-byte length HW (tokenizes).",
+        "semantics": "bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). "
+                     "Also the lowering for LOGICAL (unsigned) shift-right by an immediate: "
+                     "a>>k = extract_bits(a, k, 32-k).",
+        "provenance": "HW-VALIDATED (EXP-0013): extract_bits(a,4,8) correct on several inputs; "
+                      "unsigned a>>2 uses this 12-byte form and reads back the exact logical "
+                      "shift. (was byte-diff EXP-0007 ibfe.)",
     },
-    # ---- integer compare -> select 0/1 (14-byte, byte0 0x12) ---------------
-    # icmp_lt b4=0x22, icmp_eq b4=0x26 (compare condition); b6 0x07=signed, 0x05=
-    # unsigned (same signed bit as iminmax). Distinguished from float min/max
-    # (also byte0 0x12) by length: byte+2 low-nibble 0x0d => 14B compare.
+    # ---- compare -> select 0/1 (14-byte, byte0 0x12): FULL condition codes ---
+    # EXP-0013 HW-validated the condition-code encoding by sweeping byte+6 on the
+    # icmp_lt base and running all 18 int/uint/float compare kernels:
+    #   byte+4 (cmpmode): 0x22 = ORDERED relational (lt/gt), 0x26 = EQUALity
+    #   byte+6 (cond)   : bits[1:3] = operand type {0b01=float,0b10=uint,0b11=sint},
+    #                     bit0 = direction lt(1)/gt(0).  Enumerated:
+    #        0x02 f>   0x03 f<   0x04 u>   0x05 u<   0x06 s>   0x07 s<
+    #        (equality via byte+4=0x26: float-eq byte+6=0x00, int-eq byte+6=0x07)
+    #   byte+5 bit0 AND byte+9 bit0 = RESULT NEGATE (lt->ge, gt->le, eq->ne).
+    # Handles float, signed-int and unsigned-int compares in one 14-byte op.
+    # Distinguished from float min/max (also byte0 0x12) by length: byte+2
+    # low-nibble 0x0d => 14B compare.
     {
         "mnemonic": "icmpsel",
         "length": 14,
         "match": [(0, 8, 0x12)],
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
-            {"name": "op",   "start": 16, "width": 8, "type": "opcode",
+            {"name": "b1",      "start": 8,  "width": 8, "type": "raw"},
+            {"name": "op",      "start": 16, "width": 8, "type": "opcode",
              "enum": {0x1d: "icmpsel"}},
-            {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
-            {"name": "cond", "start": 32, "width": 8, "type": "mod"},   # 0x22=lt,0x26=eq
-            {"name": "srcB", "start": 40, "width": 8, "type": "reg"},
-            {"name": "sign", "start": 48, "width": 8, "type": "mod"},   # 0x07 signed, 0x05 unsigned
-            {"name": "body", "start": 56, "width": 56, "type": "raw"},
+            {"name": "srcA",    "start": 24, "width": 8, "type": "reg"},
+            {"name": "cmpmode", "start": 32, "width": 8, "type": "enum",     # byte+4
+             "enum": {0x22: "ordered(lt/gt)", 0x26: "equal"}},
+            {"name": "neg_lo",  "start": 40, "width": 8, "type": "mod"},     # byte+5, bit0=negate
+            {"name": "cond",    "start": 48, "width": 8, "type": "enum",     # byte+6 condition code
+             "enum": {0x02: "f_gt", 0x03: "f_lt", 0x04: "u_gt", 0x05: "u_lt",
+                      0x06: "s_gt", 0x07: "s_lt", 0x00: "f_eq"}},
+            {"name": "body",    "start": 56, "width": 56, "type": "raw"},    # byte+7..+13 (incl byte+9 negate, 0/1 consts)
         ],
-        "semantics": "d = (srcA cond srcB) ? 1 : 0  ; integer compare-and-select. "
-                     "cond in b4, signed/unsigned in b6 (bit1).",
-        "provenance": "inferred (byte-diff, EXP-0007 icmp_lt/eq/gt, ucmp_lt); 14-byte "
-                      "length HW (tokenizes cleanly); condition/sign fields byte-diff.",
+        "semantics": "d = (srcA <cond> srcB) ? 1 : 0  ; fused compare-and-select. cmpmode "
+                     "(byte+4): 0x22 ordered relational, 0x26 equality. cond (byte+6) = "
+                     "[type:float/uint/sint][dir:lt/gt]. Result negate (ge/le/ne) = byte+5 "
+                     "bit0 + byte+9 bit0. One op covers float & signed/unsigned int compares.",
+        "provenance": "HW-VALIDATED (EXP-0013): all 18 compare kernels (eq/ne/lt/le/gt/ge x "
+                      "int/uint/float) produce correct 0/1; sweeping byte+6 on the icmp_lt "
+                      "base with signed inputs maps each code (0x02..0x07) to its predicate, "
+                      "and byte+4 0x22<->0x26 switches relational<->equality. (was byte-diff EXP-0007.)",
+    },
+    # ==========================================================================
+    # CONVERSIONS, BITWISE-LUT & SPECIAL FUNCTIONS  (EXP-0013)
+    # ==========================================================================
+    # NUMERIC CONVERSIONS are explicit convert instructions in a broad
+    # unary/convert family, NOT just the ALU size bit:
+    #   float->int / float->uint / half->int : byte0 0x27, 10-byte
+    #   int->float / uint->float / int->half : byte0 0xa7,  8-byte
+    #   fp32->fp16 (narrow)                  : byte0 0x11 (half ALU), 6-byte
+    #   fp16->fp32 (widen)                   : the ordinary float ALU (falu2) with a
+    #                                          16-bit srcA (byte1 bit0 = 0)  -- reuses size bit
+    #   int<->uint / bitcast (as_type)       : NO instruction (free reinterpret)
+    #   int narrow+sign-extend (int->short)  : 0x9f group;  zero-extend-16 (u->ushort): 0x13 (4B);
+    #                                          zero-extend-8 (u->uchar): 0x0b AND-with-0xff
+    # In every convert the SIGNEDNESS lives at byte+7 bit6 (0x40): set = signed
+    # (f2i / i2f), clear = unsigned (f2u / u2f) -- HW-validated by splice. float->int
+    # rounds toward zero (C truncation).
+    # ---- float/half -> int/uint convert (0x27, 10-byte) --------------------
+    {
+        "mnemonic": "cvt_f2i",
+        "length": 10,
+        "match": [(0, 8, 0x27), (8, 8, 0x07)],
+        "fields": [
+            {"name": "b2",      "start": 16, "width": 8,  "type": "raw"},   # 0x56
+            {"name": "src",     "start": 24, "width": 16, "type": "raw"},   # byte+3:4 source descr
+            {"name": "b5",      "start": 40, "width": 8,  "type": "raw"},
+            {"name": "cvtop",   "start": 48, "width": 8,  "type": "opcode", # byte+6
+             "enum": {0xb4: "f2int"}},
+            {"name": "signflag","start": 56, "width": 8,  "type": "mod"},   # byte+7, bit6=signed
+            {"name": "tail",    "start": 64, "width": 16, "type": "raw"},   # byte+8:9
+        ],
+        "semantics": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero "
+                     "(truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint).",
+        "provenance": "HW-VALIDATED (EXP-0013): int(3.9)/int(-3.9)/int(2.5) = 3/-3/2 (trunc); "
+                      "splicing byte+7 0x48->0x08 turns the signed f2i into the unsigned f2u "
+                      "convert on hardware.",
+    },
+    # ---- int/uint -> float/half convert (0xa7, 8-byte) ---------------------
+    {
+        "mnemonic": "cvt_i2f",
+        "length": 8,
+        "match": [(0, 8, 0xa7), (8, 8, 0x07)],
+        "fields": [
+            {"name": "b2",      "start": 16, "width": 8,  "type": "raw"},   # 0x56
+            {"name": "src",     "start": 24, "width": 16, "type": "raw"},   # byte+3:4
+            {"name": "b5",      "start": 40, "width": 8,  "type": "raw"},
+            {"name": "cvtop",   "start": 48, "width": 8,  "type": "opcode", # byte+6
+             "enum": {0xac: "int2f"}},
+            {"name": "signflag","start": 56, "width": 8,  "type": "mod"},   # byte+7, bit6=signed
+        ],
+        "semantics": "d = float(a)  ; integer/uint -> float convert (round to nearest even). "
+                     "byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f).",
+        "provenance": "HW-VALIDATED (EXP-0013): float(-3)/float(1000000) exact; splicing byte+7 "
+                      "0x60->0x20 converts -1 as unsigned (4294967295 -> ~4.29e9) on hardware.",
+    },
+    # ---- fp32 -> fp16 narrowing convert (half ALU, 0x11, 6-byte) -----------
+    {
+        "mnemonic": "cvt_f2h",
+        "length": 6,
+        "match": [(0, 8, 0x11)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},   # 0x03
+            {"name": "op",   "start": 16, "width": 8, "type": "raw"},   # 0x1c (fadd/fmov-like)
+            {"name": "src",  "start": 24, "width": 8, "type": "raw"},   # byte+3 source (0x81)
+            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
+            {"name": "tail", "start": 40, "width": 8, "type": "raw"},   # 0xc2
+        ],
+        "semantics": "d(half) = half(a)  ; fp32 -> fp16 narrowing convert. byte0 0x11 is the "
+                     "16-bit-destination (native half) analogue of the 0x09 float ALU group "
+                     "(same 6/8-byte length rule on byte+2 bit1). The reverse (fp16->fp32) is "
+                     "the ordinary falu2 with a 16-bit srcA (byte1 bit0 = 0) -- reuses the size bit.",
+        "provenance": "HW-VALIDATED (EXP-0013): half(3.5)/half(65504)/half(0.1) round-trip to "
+                      "the exact IEEE fp16 values on hardware.",
+    },
+    # ---- 16-bit zero-extend / narrow move (0x13, 4-byte) -------------------
+    {
+        "mnemonic": "mov_zext16",
+        "length": 4,
+        "match": [(0, 8, 0x13)],
+        "fields": [{"name": "body", "start": 8, "width": 24, "type": "raw"}],
+        "semantics": "d = a & 0xFFFF  ; 16-bit zero-extend / narrow move "
+                     "(uint -> ushort -> uint keeps the low halfword).",
+        "provenance": "HW-VALIDATED (EXP-0013): u2us zero-extends the low 16 bits "
+                      "(0xFFFFFFFF -> 0xFFFF, 0x18000 -> 0x8000).",
+    },
+    # ---- BITWISE 2-input LUT (0x0b, 10-byte): all 16 boolean functions -----
+    # The 0x0b group (shared with the float source-modifier move) is a configurable
+    # 2-input boolean unit: (byte+2, byte+4, byte+5 bit3) select ANY of the 16 LUT2
+    # functions. HW-validated by sweeping a=0xAAAAAAAA,b=0xCCCCCCCC (all four input
+    # bit-pairs) and reading the output LUT. Named ops (LUT over (b_bit,a_bit)):
+    #   AND  b2=0x1f b4=0x00           OR   b2=0x1f b4=0x02 b5|=8
+    #   XOR  b2=0x1e b4=0x02 b5|=8     XNOR b2=0x1f b4=0x01
+    #   NAND b2=0x1e b4=0x03 b5|=8     NOR  b2=0x1e b4=0x01
+    #   ANDN a&~b b2=0x1e b4=0x00 b5|=8  ORN a|~b b2=0x1f b4=0x01 b5|=8
+    # (byte+2 low bit: 0x1e = xor-base, 0x1f = and/or-base; byte+4 low 2 bits + byte+5
+    # bit3 = per-source / output invert -> the full LUT). Covers all Vulkan/GL logic ops.
+    {
+        "mnemonic": "ilogic",
+        "length": 10,
+        "match": [(0, 8, 0x0b), (17, 7, 0x0f)],   # byte0 0x0b AND byte+2[1:8]==0x0f (0x1e/0x1f)
+        "fields": [
+            {"name": "b1",      "start": 8,  "width": 8,  "type": "raw"},   # srcA descriptor
+            {"name": "op_base", "start": 16, "width": 1,  "type": "enum",   # byte+2 bit0
+             "enum": {0: "xor-base", 1: "and/or-base"}},
+            {"name": "srcB",    "start": 24, "width": 8,  "type": "raw"},   # byte+3
+            {"name": "lut_a",   "start": 32, "width": 8,  "type": "mod"},   # byte+4 invert low
+            {"name": "lut_b",   "start": 40, "width": 8,  "type": "mod"},   # byte+5 (bit3 invert)
+            {"name": "ext",     "start": 48, "width": 32, "type": "raw"},   # byte+6..9
+        ],
+        "semantics": "d = LUT2(a, b)  ; 2-input bitwise logic. op_base (byte+2 bit0) picks the "
+                     "xor vs and/or base; byte+4[0:2] and byte+5 bit3 are per-source/output "
+                     "inverts -> any of the 16 boolean functions (and/or/xor/nand/nor/xnor/"
+                     "andn/orn/...). ~a is the fmov(0x0e) op with an invert (byte+4 bit0).",
+        "provenance": "HW-VALIDATED (EXP-0013): all 8 named kernels (and/or/xor/andn/orn/xnor/"
+                      "nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC; the "
+                      "byte+2 x byte+4 x byte+5 sweep enumerates all 16 LUT2 functions.",
+    },
+    # ---- float special-function unary (0x2f / 0xaf, 10-byte) ---------------
+    # Single-op special functions in COMPUTE: exp2 (byte0 0xaf), log2 (0x2f), and the
+    # round family floor/ceil/trunc/rint (0x2f, round-mode in byte+8). frcp/frsqrt/
+    # fsqrt/fsin/fcos are NOT single ops -- they are multi-instruction Newton-Raphson
+    # refinement sequences seeded by a 0x29-group estimate (byte+3 0x09=rcp/0x0b=rsqrt/
+    # 0x0d=sqrt). (NB: 0x2f/0x3f/0xaf are the interp/tex/deriv groups in vertex/fragment
+    # stages -- distinct, EXP-0008; this descriptor is compute-only.)
+    {
+        "mnemonic": "fspecial",
+        "length": 10,
+        "match": [(0, 7, 0x2f)],       # matches 0x2f AND 0xaf (low 7 bits); bit7 = fn_hi
+        "fields": [
+            {"name": "fn_hi",     "start": 7,  "width": 1, "type": "enum",   # byte0 bit7
+             "enum": {0: "log2/round", 1: "exp2"}},
+            {"name": "fnclass",   "start": 8,  "width": 8, "type": "enum",   # byte+1
+             "enum": {0x00: "round", 0x02: "transcendental"}},
+            {"name": "b2",        "start": 16, "width": 8, "type": "raw"},   # 0x56
+            {"name": "src",       "start": 24, "width": 16,"type": "raw"},   # byte+3:4
+            {"name": "b5",        "start": 40, "width": 8, "type": "raw"},
+            {"name": "b6",        "start": 48, "width": 8, "type": "raw"},   # 0xb0
+            {"name": "b7",        "start": 56, "width": 8, "type": "raw"},   # 0x40
+            {"name": "roundmode", "start": 64, "width": 8, "type": "enum",   # byte+8
+             "enum": {0x00: "nearest", 0x02: "floor", 0x04: "ceil", 0x06: "trunc"}},
+            {"name": "b9",        "start": 72, "width": 8, "type": "raw"},
+        ],
+        "semantics": "d = special(a). Function = (byte0 bit7, byte+1): exp2 (0xaf, fnclass=2), "
+                     "log2 (0x2f, fnclass=2); round family (0x2f, fnclass=0) with byte+8 = "
+                     "round-mode 0x00 nearest-even / 0x02 floor / 0x04 ceil / 0x06 trunc.",
+        "provenance": "HW-VALIDATED (EXP-0013): exp2/log2 exact on powers of two; floor/ceil/"
+                      "trunc/rint correct; sweeping byte+8 (0x00/02/04/06) on the round base "
+                      "selects nearest/floor/ceil/trunc exactly on +-2.4/2.6.",
     },
     # ==========================================================================
     # CONTROL FLOW  (EXP-0010, byte0 0x0a / 0x05 / 0x16 / 0x0f)

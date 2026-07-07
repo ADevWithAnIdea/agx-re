@@ -1,0 +1,86 @@
+EXP-0013 tokenization acceptance (updated agx-isa DB vs our own compiled kernels)
+================================================================================
+[CLEAN                             ] cv_bitcast   get_sr device_load device_store stop
+[CLEAN                             ] cv_f2h       get_sr device_load cvt_f2h device_store stop
+[CLEAN                             ] cv_f2h_store get_sr device_load cvt_f2h device_store stop
+[CLEAN                             ] cv_f2i       get_sr device_load f2int device_store stop
+[CLEAN                             ] cv_f2u       get_sr device_load f2int device_store stop
+[CLEAN                             ] cv_h2f       get_sr device_load fadd device_store stop
+[CLEAN                             ] cv_h2i       get_sr device_load cvt_f2i device_store stop
+[PARTIAL(+40B: multi-instr/follow-up)] cv_i2c       get_sr device_load
+[CLEAN                             ] cv_i2f       get_sr device_load int2f device_store stop
+[CLEAN                             ] cv_i2h       get_sr device_load cvt_i2f device_store stop
+[CLEAN                             ] cv_i2s       get_sr device_load iadd2 device_store stop
+[CLEAN                             ] cv_i2u       get_sr device_load device_store stop
+[CLEAN                             ] cv_u2f       get_sr device_load int2f device_store stop
+[CLEAN                             ] cv_u2uc      get_sr device_load ilogic device_store stop
+[CLEAN                             ] cv_u2us      get_sr device_load mov_zext16 device_store stop
+[CLEAN                             ] fcmp_eq      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fcmp_ge      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fcmp_gt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fcmp_le      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fcmp_lt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fcmp_ne      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] fma          get_sr device_load device_load device_load fma device_store stop
+[CLEAN                             ] fma_mad      get_sr device_load device_load device_load fma device_store stop
+[CLEAN                             ] fmax         get_sr device_load device_load fminmax device_store stop
+[CLEAN                             ] fmax_max     get_sr device_load device_load fminmax device_store stop
+[CLEAN                             ] fmin         get_sr device_load device_load fminmax device_store stop
+[CLEAN                             ] fmin_min     get_sr device_load device_load fminmax device_store stop
+[CLEAN                             ] iand         get_sr device_load device_load ilogic device_store stop
+[CLEAN                             ] iandn        get_sr device_load device_load ilogic device_store stop
+[PARTIAL(+38B: multi-instr/follow-up)] iashr        get_sr device_load device_load
+[CLEAN                             ] iashr_i      get_sr device_load ishift device_store stop
+[CLEAN                             ] ibfe         get_sr device_load ibfe device_store stop
+[PARTIAL(+38B: multi-instr/follow-up)] ibfe_s       get_sr device_load ibfe
+[PARTIAL(+48B: multi-instr/follow-up)] ibfi         get_sr device_load device_load
+[CLEAN                             ] icmp_eq      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] icmp_ge      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] icmp_gt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] icmp_le      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] icmp_lt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] icmp_ne      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] inand        get_sr device_load device_load ilogic device_store stop
+[CLEAN                             ] inor         get_sr device_load device_load ilogic device_store stop
+[CLEAN                             ] inot         get_sr device_load fmov device_store stop
+[CLEAN                             ] ior          get_sr device_load device_load ilogic device_store stop
+[CLEAN                             ] iorn         get_sr device_load device_load ilogic device_store stop
+[PARTIAL(+40B: multi-instr/follow-up)] ishl         get_sr device_load device_load
+[CLEAN                             ] ishl_i       get_sr device_load iadd2 device_store stop
+[CLEAN                             ] ixnor        get_sr device_load device_load ilogic device_store stop
+[CLEAN                             ] ixor         get_sr device_load device_load ilogic device_store stop
+[PARTIAL(+22B: multi-instr/follow-up)] pcmp_eq      get_sr device_load iminmax
+[PARTIAL(+22B: multi-instr/follow-up)] pcmp_ge      get_sr device_load iminmax
+[PARTIAL(+22B: multi-instr/follow-up)] pcmp_lt      get_sr device_load iminmax
+[PARTIAL(+22B: multi-instr/follow-up)] pcmp_ne      get_sr device_load iminmax
+[CLEAN                             ] sel_gt       get_sr device_load device_load iminmax device_store stop
+[CLEAN                             ] sel_lt       get_sr device_load device_load iminmax device_store stop
+[CLEAN                             ] ucmp_eq      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] ucmp_ge      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] ucmp_gt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] ucmp_le      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] ucmp_lt      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] ucmp_ne      get_sr device_load device_load icmpsel device_store stop
+[CLEAN                             ] un_fabs      get_sr device_load fmov device_store stop
+[CLEAN                             ] un_fceil     get_sr device_load fspecial device_store stop
+[PARTIAL(+444B: multi-instr/follow-up)] un_fcos      get_sr device_load
+[CLEAN                             ] un_fexp2     get_sr device_load fspecial device_store stop
+[CLEAN                             ] un_ffloor    get_sr device_load fspecial device_store stop
+[CLEAN                             ] un_flog2     get_sr device_load fspecial device_store stop
+[CLEAN                             ] un_fmov      get_sr device_load device_store stop
+[CLEAN                             ] un_fneg      get_sr device_load fmov device_store stop
+[PARTIAL(+106B: multi-instr/follow-up)] un_frcp      get_sr device_load fmul
+[CLEAN                             ] un_frint     get_sr device_load fspecial device_store stop
+[PARTIAL(+110B: multi-instr/follow-up)] un_frsqrt    get_sr device_load fmul
+[PARTIAL(+20B: multi-instr/follow-up)] un_fsat      get_sr device_load fadd
+[PARTIAL(+438B: multi-instr/follow-up)] un_fsin      get_sr device_load
+[PARTIAL(+108B: multi-instr/follow-up)] un_fsqrt     get_sr device_load fmul
+[CLEAN                             ] un_ftrunc    get_sr device_load fspecial device_store stop
+[PARTIAL(+40B: multi-instr/follow-up)] ushl         get_sr device_load device_load
+[PARTIAL(+40B: multi-instr/follow-up)] ushr         get_sr device_load device_load
+[CLEAN                             ] ushr_i       get_sr device_load ibfe device_store stop
+================================================================================
+62/79 single-op kernels tokenize with 0 leftover.
+PARTIAL = multi-instruction lowerings (transcendental NR seqs, register-operand
+shifts via 0x2b prep, insert_bits, signed-extract) + niche forms (0x09 saturate
+8B, 0x02+0x17 compare-select) -- documented follow-ups, not claimed solved.

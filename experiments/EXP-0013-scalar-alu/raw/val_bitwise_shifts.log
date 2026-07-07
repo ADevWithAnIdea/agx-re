@@ -1,0 +1,47 @@
+
+======================================================================
+5a. BITWISE truth-table (0x0b) -- run all 8 + sweep op/invert on ixor base
+======================================================================
+  iand   ALU=0b051f01000000800000 out=0x88888888 exp=0x88888888 LUT=[0, 0, 0, 1] PASS
+  ior    ALU=0b051f01020800800000 out=0xeeeeeeee exp=0xeeeeeeee LUT=[0, 1, 1, 1] PASS
+  ixor   ALU=0b051e01020800800000 out=0x66666666 exp=0x66666666 LUT=[0, 1, 1, 0] PASS
+  iandn  ALU=0b011e05020000800000 out=0x22222222 exp=0x22222222 LUT=[0, 1, 0, 0] PASS
+  iorn   ALU=0b011f05030000800000 out=0xbbbbbbbb exp=0xbbbbbbbb LUT=[1, 1, 0, 1] PASS
+  ixnor  ALU=0b011f05010000800000 out=0x99999999 exp=0x99999999 LUT=[1, 0, 0, 1] PASS
+  inand  ALU=0b051e01030800800000 out=0x77777777 exp=0x77777777 LUT=[1, 1, 1, 0] PASS
+  inor   ALU=0b051e01010000800000 out=0x11111111 exp=0x11111111 LUT=[1, 0, 0, 0] PASS
+
+======================================================================
+5a'. ixor-base sweep: byte+2 in {1e,1f} x byte+4 in 0..3 x byte+5 bit3
+======================================================================
+  base ixor ALU=0b051e01020800800000  (b2=0x1e b4=0x2 b5=0x8)
+    b2=0x1e b4=0x00 b5=0x00 -> 0x00000000 LUT=[0, 0, 0, 0] st=OK
+    b2=0x1e b4=0x00 b5=0x08 -> 0x22222222 LUT=[0, 1, 0, 0] st=OK
+    b2=0x1e b4=0x01 b5=0x00 -> 0x11111111 LUT=[1, 0, 0, 0] st=OK
+    b2=0x1e b4=0x01 b5=0x08 -> 0x33333333 LUT=[1, 1, 0, 0] st=OK
+    b2=0x1e b4=0x02 b5=0x00 -> 0x44444444 LUT=[0, 0, 1, 0] st=OK
+    b2=0x1e b4=0x02 b5=0x08 -> 0x66666666 LUT=[0, 1, 1, 0] st=OK
+    b2=0x1e b4=0x03 b5=0x00 -> (no out) st=CMDBUF_ERROR
+    b2=0x1e b4=0x03 b5=0x08 -> 0x77777777 LUT=[1, 1, 1, 0] st=OK
+    b2=0x1f b4=0x00 b5=0x00 -> 0x88888888 LUT=[0, 0, 0, 1] st=OK
+    b2=0x1f b4=0x00 b5=0x08 -> 0x88888888 LUT=[0, 0, 0, 1] st=OK
+    b2=0x1f b4=0x01 b5=0x00 -> 0x99999999 LUT=[1, 0, 0, 1] st=OK
+    b2=0x1f b4=0x01 b5=0x08 -> 0xbbbbbbbb LUT=[1, 1, 0, 1] st=OK
+    b2=0x1f b4=0x02 b5=0x00 -> 0xcccccccc LUT=[0, 0, 1, 1] st=OK
+    b2=0x1f b4=0x02 b5=0x08 -> 0xeeeeeeee LUT=[0, 1, 1, 1] st=OK
+    b2=0x1f b4=0x03 b5=0x00 -> 0xdddddddd LUT=[1, 0, 1, 1] st=OK
+    b2=0x1f b4=0x03 b5=0x08 -> 0xffffffff LUT=[1, 1, 1, 1] st=OK
+
+======================================================================
+5b. SHIFTS / BITFIELD (0xa7 / 0x9f)
+======================================================================
+  ashr_i(>>2) ALU=a7015600020008786200 out=[-4, 4, -16, 63] exp=[-4, 4, -16, 63] PASS (b6=0x8=shamt)
+    b6=0x04 -> out=[128, -128, 512, -512] (if shamt=1: [128, -128, 512, -512])
+    b6=0x08 -> out=[64, -64, 256, -256] (if shamt=2: [64, -64, 256, -256])
+    b6=0x10 -> out=[16, -16, 64, -64] (if shamt=4: [16, -16, 64, -64])
+    b6=0x20 -> out=[1, -1, 4, -4] (if shamt=8: [1, -1, 4, -4])
+  lshr_i(>>2) ALU=a700560002000800f0110100 out=['0x3ffffffc', '0x4', '0x20000000', '0x3f'] exp=['0x3ffffffc', '0x4', '0x20000000', '0x3f'] PASS
+  shl_i(<<3) ALU=9f015600020000c81414 out=[8, 24, -8, 800] exp=[8, 24, -8, 800] PASS
+  bfe(4,8) ALU=a700560002001000f0118100 out=['0xf1', '0xff', '0xf0', '0x67'] exp=['0xf1', '0xff', '0xf0', '0x67'] PASS
+
+[validate.py done]

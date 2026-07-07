@@ -1,0 +1,40 @@
+
+======================================================================
+6. COMPARE condition codes (0x12 icmpsel 14B) -- run all 18 + sweep byte+6
+======================================================================
+  icmp_eq  b4=0x26 b5=0x81 b6=0x07 b9=0x80 out=[0, 1, 0, 0] exp=[0, 1, 0, 0] PASS
+  icmp_ne  b4=0x26 b5=0x80 b6=0x07 b9=0x81 out=[1, 0, 1, 1] exp=[1, 0, 1, 1] PASS
+  icmp_lt  b4=0x22 b5=0x81 b6=0x07 b9=0x80 out=[1, 0, 0, 1] exp=[1, 0, 0, 1] PASS
+  icmp_le  b4=0x22 b5=0x80 b6=0x06 b9=0x81 out=[1, 1, 0, 1] exp=[1, 1, 0, 1] PASS
+  icmp_gt  b4=0x22 b5=0x81 b6=0x06 b9=0x80 out=[0, 0, 1, 0] exp=[0, 0, 1, 0] PASS
+  icmp_ge  b4=0x22 b5=0x80 b6=0x07 b9=0x81 out=[0, 1, 1, 0] exp=[0, 1, 1, 0] PASS
+  ucmp_lt  b4=0x22 b5=0x81 b6=0x05 b9=0x80 out=[1, 0, 0, 0] exp=[1, 0, 0, 0] PASS
+  ucmp_le  b4=0x22 b5=0x80 b6=0x04 b9=0x81 out=[1, 1, 0, 0] exp=[1, 1, 0, 0] PASS
+  ucmp_gt  b4=0x22 b5=0x81 b6=0x04 b9=0x80 out=[0, 0, 1, 1] exp=[0, 0, 1, 1] PASS
+  ucmp_ge  b4=0x22 b5=0x80 b6=0x05 b9=0x81 out=[0, 1, 1, 1] exp=[0, 1, 1, 1] PASS
+  ucmp_eq  b4=0x26 b5=0x81 b6=0x07 b9=0x80 out=[0, 1, 0, 0] exp=[0, 1, 0, 0] PASS
+  ucmp_ne  b4=0x26 b5=0x80 b6=0x07 b9=0x81 out=[1, 0, 1, 1] exp=[1, 0, 1, 1] PASS
+  fcmp_eq  b4=0x26 b5=0x81 b6=0x00 b9=0x80 out=[0, 1, 0, 0] exp=[0, 1, 0, 0] PASS
+  fcmp_ne  b4=0x26 b5=0x80 b6=0x00 b9=0x81 out=[1, 0, 1, 1] exp=[1, 0, 1, 1] PASS
+  fcmp_lt  b4=0x22 b5=0x81 b6=0x03 b9=0x80 out=[1, 0, 0, 1] exp=[1, 0, 0, 1] PASS
+  fcmp_le  b4=0x26 b5=0x81 b6=0x03 b9=0x80 out=[1, 1, 0, 1] exp=[1, 1, 0, 1] PASS
+  fcmp_gt  b4=0x22 b5=0x81 b6=0x02 b9=0x80 out=[0, 0, 1, 0] exp=[0, 0, 1, 0] PASS
+  fcmp_ge  b4=0x26 b5=0x81 b6=0x02 b9=0x80 out=[0, 1, 1, 0] exp=[0, 1, 1, 0] PASS
+
+======================================================================
+6'. icmp_lt base: sweep byte+6 (condition code), signed A=[1,5,5,-3] B=[5,5,1,2]
+======================================================================
+  base icmp_lt 12031d05228107c0208013000001  a<b expect [1,0,0,1] (signed -3<2)
+    b6=0x00 -> out=[0, 0, 0, 0] st=OK
+    b6=0x01 -> out=[0, 0, 0, 0] st=OK
+    b6=0x02 -> out=[0, 0, 0, 0] st=OK
+    b6=0x03 -> out=[0, 0, 0, 0] st=OK
+    b6=0x04 -> out=[0, 0, 1, 1] st=OK
+    b6=0x05 -> out=[1, 0, 0, 0] st=OK
+    b6=0x06 -> out=[0, 0, 1, 0] st=OK
+    b6=0x07 -> out=[1, 0, 0, 1] st=OK
+  sweep byte+4 (0x22 relational vs 0x26 equality) at b6=base:
+    b4=0x22 -> out=[1, 0, 0, 1]
+    b4=0x26 -> out=[0, 1, 0, 0]
+
+[validate.py done]

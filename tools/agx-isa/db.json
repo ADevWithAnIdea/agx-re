@@ -273,8 +273,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "d = a*b + c   ; three-source float ALU (fma)",
-      "provenance": "inferred (byte-diff, EXP-0001 k05_fma)"
+      "semantics": "d = a*b + c   ; three-source float ALU (fma). op=byte+2 (0x1e), dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5 (each (reg<<1)|size).",
+      "provenance": "HW-VALIDATED (EXP-0013): base a*b+c correct across varied a,b,c; splicing byte+5 (srcC) to the srcA/srcB descriptor changes the addend to a / b respectively -> byte+5 is the 3rd source operand. 8-byte length = float-ALU length bit (byte+2 bit1) set. (was inferred EXP-0001 k05_fma.)"
     },
     {
       "mnemonic": "fminmax",
@@ -325,8 +325,8 @@
           "type": "mod"
         }
       ],
-      "semantics": "d = max(a,b) (sel=0) or min(a,b) (sel=1)",
-      "provenance": "inferred (byte-diff, EXP-0005 maxf/minf)"
+      "semantics": "d = fmax(a,b) (byte+4 bit0=0) or fmin(a,b) (bit0=1). NaN: returns the non-NaN operand (IEEE minNum/maxNum), NaN only if BOTH are NaN. +-0 not ordered (a tie returns srcB). (Float group byte0 0x12; the integer min/max is the separate 0x02 group, EXP-0007.)",
+      "provenance": "HW-VALIDATED (EXP-0013): fmax base correct; splicing byte+4 0x00->0x01 flips max->min; NaN and signed-zero behaviour observed on hardware. (was inferred byte-diff, EXP-0005 maxf/minf.)"
     },
     {
       "mnemonic": "funary",
@@ -336,6 +336,11 @@
           0,
           8,
           11
+        ],
+        [
+          16,
+          8,
+          14
         ]
       ],
       "fields": [
@@ -361,20 +366,31 @@
           "type": "reg"
         },
         {
-          "name": "mod",
+          "name": "srcmod",
           "start": 32,
           "width": 8,
-          "type": "mod"
+          "type": "raw"
+        },
+        {
+          "name": "mod",
+          "start": 40,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "mov",
+            "2": "abs",
+            "10": "neg"
+          }
         },
         {
           "name": "ext",
-          "start": 40,
-          "width": 40,
+          "start": 48,
+          "width": 32,
           "type": "raw"
         }
       ],
-      "semantics": "d = mod(a)   ; unary move (neg mod=0x0a, abs mod=0x02)",
-      "provenance": "inferred (byte-diff, EXP-0005 neg/absf)"
+      "semantics": "d = mod(a)   ; float source-modifier move. byte+5 selects the modifier: 0x00 = mov (copy), 0x02 = fabs (|a|), 0x0a = fneg (-a). (bit1 = abs-enable, bit3 = negate; negate requires bit1 set -- byte+5=0x08 alone acts as mov.)",
+      "provenance": "HW-VALIDATED (EXP-0013): on the fneg base, splicing byte+5 0x0a->0x02 gives |a|, ->0x00 gives a (mov), and 0x0a gives -a; observed on hardware. (was inferred byte-diff, EXP-0005 neg/absf.)"
     },
     {
       "mnemonic": "iadd2",
@@ -609,18 +625,47 @@
           0,
           8,
           167
+        ],
+        [
+          8,
+          1,
+          1
         ]
       ],
       "fields": [
         {
-          "name": "body",
+          "name": "b1",
           "start": 8,
-          "width": 72,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcdst",
+          "start": 24,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "shamt",
+          "start": 48,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 56,
+          "width": 24,
           "type": "raw"
         }
       ],
-      "semantics": "integer shift-right (a>>b, arithmetic/logical by srcA signedness); 10-byte 2-source form (b1 bit0==1).",
-      "provenance": "inferred (byte-diff, EXP-0007 shrimm/iashr/ushr); length HW (tokenizes)."
+      "semantics": "d = a >> shamt  ; ARITHMETIC (sign-preserving) shift-right by an immediate. Shift amount at byte+6 encoded as (shamt<<2): 0x04->1, 0x08->2, 0x10->4, 0x20->8. (Logical >> by immediate uses the 12-byte bitfield-extract form below; register-operand shifts are multi-instr with a 0x2b prep stage.)",
+      "provenance": "HW-VALIDATED (EXP-0013): a>>2 on [-16,16,-64,255] = [-4,4,-16,63] (sign-extending); sweeping byte+6 through 0x04/08/10/20 gives shift amounts 1/2/4/8 exactly. (was byte-diff EXP-0007 iashr.)"
     },
     {
       "mnemonic": "ibfe",
@@ -630,6 +675,11 @@
           0,
           8,
           167
+        ],
+        [
+          8,
+          1,
+          0
         ]
       ],
       "fields": [
@@ -640,8 +690,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "bitfield-extract extract_bits(a,off,cnt) (3-operand 12-byte form)",
-      "provenance": "inferred (byte-diff, EXP-0007 ibfe); 12-byte length HW (tokenizes)."
+      "semantics": "bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k).",
+      "provenance": "HW-VALIDATED (EXP-0013): extract_bits(a,4,8) correct on several inputs; unsigned a>>2 uses this 12-byte form and reads back the exact logical shift. (was byte-diff EXP-0007 ibfe.)"
     },
     {
       "mnemonic": "icmpsel",
@@ -676,22 +726,35 @@
           "type": "reg"
         },
         {
-          "name": "cond",
+          "name": "cmpmode",
           "start": 32,
           "width": 8,
-          "type": "mod"
+          "type": "enum",
+          "enum": {
+            "34": "ordered(lt/gt)",
+            "38": "equal"
+          }
         },
         {
-          "name": "srcB",
+          "name": "neg_lo",
           "start": 40,
           "width": 8,
-          "type": "reg"
+          "type": "mod"
         },
         {
-          "name": "sign",
+          "name": "cond",
           "start": 48,
           "width": 8,
-          "type": "mod"
+          "type": "enum",
+          "enum": {
+            "2": "f_gt",
+            "3": "f_lt",
+            "4": "u_gt",
+            "5": "u_lt",
+            "6": "s_gt",
+            "7": "s_lt",
+            "0": "f_eq"
+          }
         },
         {
           "name": "body",
@@ -700,8 +763,329 @@
           "type": "raw"
         }
       ],
-      "semantics": "d = (srcA cond srcB) ? 1 : 0  ; integer compare-and-select. cond in b4, signed/unsigned in b6 (bit1).",
-      "provenance": "inferred (byte-diff, EXP-0007 icmp_lt/eq/gt, ucmp_lt); 14-byte length HW (tokenizes cleanly); condition/sign fields byte-diff."
+      "semantics": "d = (srcA <cond> srcB) ? 1 : 0  ; fused compare-and-select. cmpmode (byte+4): 0x22 ordered relational, 0x26 equality. cond (byte+6) = [type:float/uint/sint][dir:lt/gt]. Result negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op covers float & signed/unsigned int compares.",
+      "provenance": "HW-VALIDATED (EXP-0013): all 18 compare kernels (eq/ne/lt/le/gt/ge x int/uint/float) produce correct 0/1; sweeping byte+6 on the icmp_lt base with signed inputs maps each code (0x02..0x07) to its predicate, and byte+4 0x22<->0x26 switches relational<->equality. (was byte-diff EXP-0007.)"
+    },
+    {
+      "mnemonic": "cvt_f2i",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          39
+        ],
+        [
+          8,
+          8,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "cvtop",
+          "start": 48,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "180": "f2int"
+          }
+        },
+        {
+          "name": "signflag",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "tail",
+          "start": 64,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint).",
+      "provenance": "HW-VALIDATED (EXP-0013): int(3.9)/int(-3.9)/int(2.5) = 3/-3/2 (trunc); splicing byte+7 0x48->0x08 turns the signed f2i into the unsigned f2u convert on hardware."
+    },
+    {
+      "mnemonic": "cvt_i2f",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          167
+        ],
+        [
+          8,
+          8,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "cvtop",
+          "start": 48,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "172": "int2f"
+          }
+        },
+        {
+          "name": "signflag",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d = float(a)  ; integer/uint -> float convert (round to nearest even). byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f).",
+      "provenance": "HW-VALIDATED (EXP-0013): float(-3)/float(1000000) exact; splicing byte+7 0x60->0x20 converts -1 as unsigned (4294967295 -> ~4.29e9) on hardware."
+    },
+    {
+      "mnemonic": "cvt_f2h",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          17
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d(half) = half(a)  ; fp32 -> fp16 narrowing convert. byte0 0x11 is the 16-bit-destination (native half) analogue of the 0x09 float ALU group (same 6/8-byte length rule on byte+2 bit1). The reverse (fp16->fp32) is the ordinary falu2 with a 16-bit srcA (byte1 bit0 = 0) -- reuses the size bit.",
+      "provenance": "HW-VALIDATED (EXP-0013): half(3.5)/half(65504)/half(0.1) round-trip to the exact IEEE fp16 values on hardware."
+    },
+    {
+      "mnemonic": "mov_zext16",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          19
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 8,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = a & 0xFFFF  ; 16-bit zero-extend / narrow move (uint -> ushort -> uint keeps the low halfword).",
+      "provenance": "HW-VALIDATED (EXP-0013): u2us zero-extends the low 16 bits (0xFFFFFFFF -> 0xFFFF, 0x18000 -> 0x8000)."
+    },
+    {
+      "mnemonic": "ilogic",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          11
+        ],
+        [
+          17,
+          7,
+          15
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "op_base",
+          "start": 16,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "0": "xor-base",
+            "1": "and/or-base"
+          }
+        },
+        {
+          "name": "srcB",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "lut_a",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "lut_b",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = LUT2(a, b)  ; 2-input bitwise logic. op_base (byte+2 bit0) picks the xor vs and/or base; byte+4[0:2] and byte+5 bit3 are per-source/output inverts -> any of the 16 boolean functions (and/or/xor/nand/nor/xnor/andn/orn/...). ~a is the fmov(0x0e) op with an invert (byte+4 bit0).",
+      "provenance": "HW-VALIDATED (EXP-0013): all 8 named kernels (and/or/xor/andn/orn/xnor/nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC; the byte+2 x byte+4 x byte+5 sweep enumerates all 16 LUT2 functions."
+    },
+    {
+      "mnemonic": "fspecial",
+      "length": 10,
+      "match": [
+        [
+          0,
+          7,
+          47
+        ]
+      ],
+      "fields": [
+        {
+          "name": "fn_hi",
+          "start": 7,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "0": "log2/round",
+            "1": "exp2"
+          }
+        },
+        {
+          "name": "fnclass",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "round",
+            "2": "transcendental"
+          }
+        },
+        {
+          "name": "b2",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "roundmode",
+          "start": 64,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "nearest",
+            "2": "floor",
+            "4": "ceil",
+            "6": "trunc"
+          }
+        },
+        {
+          "name": "b9",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = special(a). Function = (byte0 bit7, byte+1): exp2 (0xaf, fnclass=2), log2 (0x2f, fnclass=2); round family (0x2f, fnclass=0) with byte+8 = round-mode 0x00 nearest-even / 0x02 floor / 0x04 ceil / 0x06 trunc.",
+      "provenance": "HW-VALIDATED (EXP-0013): exp2/log2 exact on powers of two; floor/ceil/trunc/rint correct; sweeping byte+8 (0x00/02/04/06) on the round base selects nearest/floor/ceil/trunc exactly on +-2.4/2.6."
     },
     {
       "mnemonic": "icmp_pred",
