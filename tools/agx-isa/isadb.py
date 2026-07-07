@@ -96,6 +96,17 @@ def instr_length(buf, off=0):
         return 4                       # preamble / get_sr-like
     if b0 in (0x67, 0xe7):
         return 14                      # device load (0x67) / store (0xE7)
+    # ---- THREADGROUP / EXECUTION BARRIER (EXP-0025, HW-validated) ----
+    # threadgroup_barrier compiles to a distinct 6-byte op: byte0 0x07, byte+2 0x54
+    # (07 04 54 <mem_scope> <flags> 00). This is the ONLY explicit ordering/"wait"
+    # primitive the compute compiler emits: device load/store/atomic/texture are NOT
+    # scoreboard-waited in the instruction stream (they rely on a HARDWARE register
+    # interlock; a consumer that reads a pending destination register stalls in HW).
+    # The barrier synchronises CROSS-LANE threadgroup-memory ordering, which HW register
+    # interlock cannot cover. byte+2==0x54 gates it off from the vtx/frag 0x07 varying
+    # stores (compute only). simdgroup_barrier emits NO 0x07 op (lockstep 32-lane simd).
+    if b0 == 0x07 and off + 2 < len(buf) and buf[off + 2] == 0x54:
+        return 6                       # threadgroup / execution barrier (EXP-0025 HW)
     # ---- TEXTURE / SAMPLE family (EXP-0016, HW-validated) ----
     # Texture sample & texture.read are a 14-byte bundle: a 4-byte coordinate/result
     # "companion" (byte0 low-nibble 5, byte+1==0x80, byte+2==0x0c) immediately
@@ -130,6 +141,13 @@ def instr_length(buf, off=0):
         # NB: the 10-byte *extended source-modifier* form (abs; EXP-0006) also
         # has low-nibble 9 but is not distinguishable from byte0/byte2 alone --
         # a documented follow-up; the compiler emits it only for fabs sources.
+        # EXP-0025: byte+2 == 0x38 selects a COMPACT 4-byte float accumulate
+        # (arithmetic-enable bit clear; dst=srcA implicit accumulator, srcB=byte+3).
+        # The reduction compiler emits it interleaved with the 6-byte 0x3c fadds.
+        # (This is arithmetic, NOT a scoreboard wait -- proven by a byte+3 source-reg
+        #  sweep + the add-count = N-1 for an N-value sum; EXP-0025.)
+        if off + 2 < len(buf) and buf[off + 2] == 0x38:
+            return 4                   # compact float accumulate (EXP-0025)
         return 8 if (buf[off + 2] & 0x02) else 6
     if lo == 0x0b:
         # EXP-0020: the uniform-register -> GPR move is a compact 4-byte form in
@@ -1370,6 +1388,80 @@ DB = [
                       "tokenizes the RT streams cleanly. Memory-family shape (byte+2==0x54) mirrors the "
                       "HW-validated 0x67/0xe7 loads (EXP-0012).",
     },
+    # ==========================================================================
+    # SCOREBOARD / ASYNC-WAIT MODEL  (EXP-0025)
+    # ==========================================================================
+    # HEADLINE (HW-validated, EXP-0025): G17P has NO explicit per-op scoreboard WAIT
+    # instruction in the compute stream. Device load/store, atomics and texture
+    # sample/read feed their consumers DIRECTLY -- there is no wait/barrier op between
+    # the async op and the instruction that reads its result. This is a fundamental
+    # departure from G13 (Mesa `agx_insert_waits.c`: a 2-byte `wait` op + a 2-slot
+    # software scoreboard, AGX_MAX_PENDING=8). On G17P completion is enforced by a
+    # HARDWARE register interlock: an async op marks its destination register pending;
+    # a consumer that reads that register stalls in HW until the op retires.
+    # PROOF: add2 (a+b, fadd immediately after 2 loads), gather (a[idx[i]] -- load2's
+    # ADDRESS depends on load1's result), loaduse (v*v+3), and manyload20 (TWENTY
+    # independent device loads outstanding, summed) ALL return correct results with
+    # zero scheduling slack and ZERO wait ops -- impossible without a HW interlock.
+    # 20 in-flight >> G13's 8, so "max in flight" is a HW resource (bounded by the
+    # register file), NOT a compiler-emitted AGX_MAX_PENDING constant.
+    #
+    # The ONE explicit ordering primitive the compute compiler emits is the
+    # threadgroup / execution BARRIER below -- for CROSS-LANE threadgroup-memory
+    # visibility, which a per-lane register interlock cannot provide.
+    {
+        "mnemonic": "threadgroup_barrier",
+        "length": 6,
+        "match": [(0, 8, 0x07), (16, 8, 0x54)],   # byte0 0x07, byte+2 0x54
+        "fields": [
+            {"name": "sub",       "start": 8,  "width": 8, "type": "raw"},   # byte+1 = 0x04
+            {"name": "mem_scope", "start": 24, "width": 8, "type": "enum",   # byte+3 = fenced memory scope
+             "enum": {0x61: "threadgroup", 0x85: "device"}},
+            {"name": "flags",     "start": 32, "width": 8, "type": "mod"},   # byte+4 (0x09 tg / 0x08 dev)
+            {"name": "b5",        "start": 40, "width": 8, "type": "raw"},   # byte+5 = 0x00
+        ],
+        "semantics": "threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: "
+                     "07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope: 0x61 = threadgroup "
+                     "(mem_threadgroup), 0x85 = device (mem_device). Makes threadgroup-memory stores by "
+                     "OTHER lanes visible before the barrier returns; the compiler emits it between a "
+                     "threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit "
+                     "ordering/'wait' op in the compute stream (device load/store/atomic/texture are "
+                     "HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 "
+                     "op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent "
+                     "stale threadgroup reads (no fault).",
+        "provenance": "HW-VALIDATED (EXP-0025): tgbar vs tgbar_none differ by EXACTLY these 6 bytes "
+                     "(threadgroup_barrier presence); tgbar_dev (mem_device) has byte+3=0x85/byte+4=0x08 "
+                     "vs threadgroup 0x61/0x09 -> byte+3 is the memory-scope field. SPLICE-PROVEN: on a "
+                     "256-thread divergent-writer kernel, splicing byte+3 0x61->0x00 neutralises the "
+                     "threadgroup fence and 128/256 lanes read STALE ZEROS (STATUS OK, no fault), exactly "
+                     "reproducing the compiler's barrier-less race; the intact barrier reads 0 stale. "
+                     "byte+4 (0x09->0x00) splice was benign. byte+1/byte+5 inferred (byte-diff).",
+    },
+    # ---- compact float accumulate (EXP-0025): 4-byte float-ALU form ----------
+    # NOT a scoreboard wait (byte0 0x38 was the G13 `wait` opcode, so this was the
+    # prime suspect). Disproven on hardware: it is a 4-byte float ADD. In an N-value
+    # sum the reduction emits exactly N-1 additions = (6-byte 0x3c fadds) + (these
+    # 4-byte 0x38 ops); a byte+3 sweep changes the arithmetic result (byte+3 is a
+    # source-register selector), which a wait mask would not do.
+    {
+        "mnemonic": "falu_acc",
+        "length": 4,
+        "match": [(0, 4, 0x9), (16, 8, 0x38)],   # float-ALU group, byte+2 == 0x38 (arith-enable clear)
+        "fields": [
+            {"name": "dst",  "start": 4,  "width": 4, "type": "reg"},   # byte0 hi nibble = dst (accumulator)
+            {"name": "srcA", "start": 8,  "width": 8, "type": "reg"},   # byte+1 = srcA / accumulator descriptor
+            {"name": "srcB", "start": 24, "width": 8, "type": "reg"},   # byte+3 = srcB (reg<<1)|size
+        ],
+        "semantics": "d = srcA (+) srcB  ; COMPACT 4-byte float accumulate (float-ALU group low-nibble "
+                     "9, byte+2 == 0x38 = opsel with the arithmetic-enable bit clear vs the 6-byte 0x3c "
+                     "fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits "
+                     "it for plain reduction accumulates. byte+3 = srcB register descriptor.",
+        "provenance": "HW-VALIDATED (EXP-0025): in a 10-value sum (manyload) the stream has 6 six-byte "
+                     "0x3c/0x1c fadds + 3 of these 0x38 ops = 9 adds (exactly N-1), and the baseline sums "
+                     "all ten 2^k inputs correctly (1023) -- so these ARE adds. Sweeping byte+3 changes "
+                     "the sum by the referenced register's value (byte+3 is a data source), disproving a "
+                     "wait-mask interpretation. Field bit-packing beyond byte+3 inferred (byte-diff).",
+    },
 ]
 
 # Index by mnemonic for the assembler.
@@ -1523,7 +1615,13 @@ def to_json():
                 "0x0e": 4, "lownibble_0xC": 4,
                 "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) "
                              "and constant all share this opcode pair -- EXP-0012]",
-                "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
+                "0x07 (+ byte+2==0x54)": "6  [THREADGROUP/EXECUTION BARRIER "
+                             "(threadgroup_barrier): 07 04 54 <mem_scope> <flags> 00. byte+3 = "
+                             "fenced memory scope 0x61 threadgroup / 0x85 device. The ONLY explicit "
+                             "ordering op in compute -- device load/store/atomic/texture are NOT "
+                             "scoreboard-waited (HW register interlock). EXP-0025 HW/splice-proven]",
+                "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; "
+                             "byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait]",
                 "lownibble_0xB": "4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: "
                                  "uniform-reg -> GPR, EXP-0020]; else 10 [float unary / "
                                  "integer and/or/xor]",
@@ -1565,6 +1663,26 @@ def to_json():
                         "family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during "
                         "the (software) traversal loop. EXP-0023]",
             },
+        },
+        "scoreboard_model": {
+            "note": "EXP-0025 (HW-validated). Unlike G13 (Mesa agx_insert_waits.c: an explicit "
+                    "2-byte `wait` op + a 2-slot software scoreboard, AGX_MAX_PENDING=8), G17P emits "
+                    "NO per-op scoreboard wait in the compute stream. Long-latency ops (device "
+                    "load/store, atomics, texture sample/read) feed their consumers DIRECTLY.",
+            "mechanism": "HARDWARE register interlock: an async op marks its destination register "
+                    "pending; a consumer reading that register stalls in HW until the op retires. No "
+                    "wait instruction, no slot-assign field, no wait-mask field in the async ops.",
+            "max_in_flight": "HW-managed (bounded by the 96-GPR register file), not a compiler "
+                    "constant. >=20 independent device loads outstanding, all consumed correctly with "
+                    "no wait (manyload20). G13's 8-deep 2-slot software scoreboard has no G17P analog.",
+            "ordering": "device RAW hazards: HW interlock (no op). CROSS-LANE threadgroup-memory "
+                    "ordering: the explicit threadgroup_barrier (byte0 0x07, above). simdgroup_barrier "
+                    "emits no op (lockstep simd). No separate device-scope memory-fence op was observed "
+                    "in compute beyond the barrier's byte+3=0x85 device-scope variant.",
+            "danger": "Because there is no software wait to omit, a compiler CANNOT introduce the "
+                    "classic G13 silent-corruption bug for device RAW. The residual silent-corruption "
+                    "surface is the threadgroup_barrier: splicing its byte+3 fence scope 0x61->0x00 "
+                    "produced 128/256 stale-zero reads with STATUS OK (EXP-0025).",
         },
         "instructions": DB,
     }

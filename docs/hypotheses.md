@@ -31,6 +31,7 @@ Outcome vocabulary:
 | 15 | Programmable MSAA sample positions are userspace-emittable | Metal exposes programmableSamplePositions | diffed custom vs default sample positions in all userspace BOs | **NO (userspace)** — firmware/register-managed; Mesa must route via kernel | EXP-0021 |
 | 16 | Apple9 has a dedicated matrix unit (not FMA-emulated coopmat) | WWDC hints; ML workloads | diffed simdgroup_matrix vs hand FMA/shuffle matmul | **WORKS** — dedicated op 0xcf, 8×8×8 tile MAC; fp16/fp32/bf16; no int8 via Metal | EXP-0022 |
 | 17 | Apple9 has dedicated ray-tracing HW (not pure SW BVH) | Metal supportsRaytracing=YES; WWDC intersector | diffed ray_query vs hand Möller-Trumbore loop | **WORKS (HYBRID)** — HW intersect ops (rt_intersect/rt_as_load) + shader traversal loop; BVH build firmware-managed | EXP-0023 |
+| 18 | G17P needs G13-style software scoreboard waits | G13 had explicit wait ops | compiled load->use, atomic->use; searched for wait ops | **NO — inverted** — HW register interlock handles RAW; no software wait exists; simpler backend than G13 | EXP-0025 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

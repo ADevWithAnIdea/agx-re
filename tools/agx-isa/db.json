@@ -7,7 +7,8 @@
       "0x0e": 4,
       "lownibble_0xC": 4,
       "0x67/0xe7": "14  [load/store: device, threadgroup (byte+1 bit1=0x02) and constant all share this opcode pair -- EXP-0012]",
-      "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02)  [float ALU]",
+      "0x07 (+ byte+2==0x54)": "6  [THREADGROUP/EXECUTION BARRIER (threadgroup_barrier): 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope 0x61 threadgroup / 0x85 device. The ONLY explicit ordering op in compute -- device load/store/atomic/texture are NOT scoreboard-waited (HW register interlock). EXP-0025 HW/splice-proven]",
+      "lownibble_0x9": "6, or 8 if (byte[+2] & 0x02), or 4 if byte+2==0x38  [float ALU; byte+2==0x38 = compact 4-byte float accumulate, EXP-0025 -- NOT a wait]",
       "lownibble_0xB": "4 if (byte+2==0x01 and byte+3==0x08) [uniform_mov: uniform-reg -> GPR, EXP-0020]; else 10 [float unary / integer and/or/xor]",
       "0x02": "6  [integer min/max | compare-for-select]",
       "0x12": "6 float min/max, or 14 if (byte+2 & 0x0f)==0x0d [int compare]",
@@ -29,6 +30,13 @@
       "lownibble_0x4 + byte+1==0xea": "8  [RAY TRACING: dedicated ray-INTERSECT op. byte0 hi nibble=result reg; byte+2 mode (0x90 const-origin / 0x10 dyn-origin / 0xd0 +fn-table); byte+6 bit7=intersection-function-table present. Emitted 2x/kernel (traverse + result-read). ABSENT from a software Moller-Trumbore loop. EXP-0023 HW]",
       "0xdf": "14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during the (software) traversal loop. EXP-0023]"
     }
+  },
+  "scoreboard_model": {
+    "note": "EXP-0025 (HW-validated). Unlike G13 (Mesa agx_insert_waits.c: an explicit 2-byte `wait` op + a 2-slot software scoreboard, AGX_MAX_PENDING=8), G17P emits NO per-op scoreboard wait in the compute stream. Long-latency ops (device load/store, atomics, texture sample/read) feed their consumers DIRECTLY.",
+    "mechanism": "HARDWARE register interlock: an async op marks its destination register pending; a consumer reading that register stalls in HW until the op retires. No wait instruction, no slot-assign field, no wait-mask field in the async ops.",
+    "max_in_flight": "HW-managed (bounded by the 96-GPR register file), not a compiler constant. >=20 independent device loads outstanding, all consumed correctly with no wait (manyload20). G13's 8-deep 2-slot software scoreboard has no G17P analog.",
+    "ordering": "device RAW hazards: HW interlock (no op). CROSS-LANE threadgroup-memory ordering: the explicit threadgroup_barrier (byte0 0x07, above). simdgroup_barrier emits no op (lockstep simd). No separate device-scope memory-fence op was observed in compute beyond the barrier's byte+3=0x85 device-scope variant.",
+    "danger": "Because there is no software wait to omit, a compiler CANNOT introduce the classic G13 silent-corruption bug for device RAW. The residual silent-corruption surface is the threadgroup_barrier: splicing its byte+3 fence scope 0x61->0x00 produced 128/256 stale-zero reads with STATUS OK (EXP-0025)."
   },
   "instructions": [
     {
@@ -2177,6 +2185,92 @@
       ],
       "semantics": "Dedicated acceleration-structure / ray-data load used during BVH traversal (byte0 0xdf, a memory-family sibling of the 0x67/0xe7 buffer load/store: byte+2 == 0x54 like the memory ops). Fetches BVH node / ray / traversal-stack data. 14-17 per intersector kernel, ~37 in an inline intersection_query. Field bit-packing inferred (byte-diff); not individually splice-validated.",
       "provenance": "inferred (byte-diff, EXP-0023): byte0 0xdf group present in every raytracing:: kernel and ABSENT from the hand-written software triangle loop; 14-byte length tokenizes the RT streams cleanly. Memory-family shape (byte+2==0x54) mirrors the HW-validated 0x67/0xe7 loads (EXP-0012)."
+    },
+    {
+      "mnemonic": "threadgroup_barrier",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          16,
+          8,
+          84
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sub",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "mem_scope",
+          "start": 24,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "97": "threadgroup",
+            "133": "device"
+          }
+        },
+        {
+          "name": "flags",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope: 0x61 = threadgroup (mem_threadgroup), 0x85 = device (mem_device). Makes threadgroup-memory stores by OTHER lanes visible before the barrier returns; the compiler emits it between a threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit ordering/'wait' op in the compute stream (device load/store/atomic/texture are HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent stale threadgroup reads (no fault).",
+      "provenance": "HW-VALIDATED (EXP-0025): tgbar vs tgbar_none differ by EXACTLY these 6 bytes (threadgroup_barrier presence); tgbar_dev (mem_device) has byte+3=0x85/byte+4=0x08 vs threadgroup 0x61/0x09 -> byte+3 is the memory-scope field. SPLICE-PROVEN: on a 256-thread divergent-writer kernel, splicing byte+3 0x61->0x00 neutralises the threadgroup fence and 128/256 lanes read STALE ZEROS (STATUS OK, no fault), exactly reproducing the compiler's barrier-less race; the intact barrier reads 0 stale. byte+4 (0x09->0x00) splice was benign. byte+1/byte+5 inferred (byte-diff)."
+    },
+    {
+      "mnemonic": "falu_acc",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          16,
+          8,
+          56
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "d = srcA (+) srcB  ; COMPACT 4-byte float accumulate (float-ALU group low-nibble 9, byte+2 == 0x38 = opsel with the arithmetic-enable bit clear vs the 6-byte 0x3c fadd). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits it for plain reduction accumulates. byte+3 = srcB register descriptor.",
+      "provenance": "HW-VALIDATED (EXP-0025): in a 10-value sum (manyload) the stream has 6 six-byte 0x3c/0x1c fadds + 3 of these 0x38 ops = 9 adds (exactly N-1), and the baseline sums all ten 2^k inputs correctly (1023) -- so these ARE adds. Sweeping byte+3 changes the sum by the referenced register's value (byte+3 is a data source), disproving a wait-mask interpretation. Field bit-packing beyond byte+3 inferred (byte-diff)."
     }
   ]
 }

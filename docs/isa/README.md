@@ -370,6 +370,25 @@ opcodes are absent from a hand-written Möller-Trumbore ray/triangle control.
   barycentrics; above-apex ray correctly misses. ⏳ Follow-ups: full operand bit-decode; the WWDC
   "reorder" stage; RT-from-render + motion blur.
 
+### ✅ Async completion = hardware register interlock, NOT a software scoreboard (EXP-0025) — CRITICAL compiler guidance
+**G17P has no explicit per-op scoreboard `wait` instruction.** Long-latency ops (device load/store,
+atomics, texture sample/read) feed their consumers directly; completion is enforced by a **hardware
+register interlock** — a consumer that reads a still-pending destination register **stalls in hardware**
+until the op retires. This is a **fundamental departure from G13** (which used an explicit 2-byte `wait`
+op + a 2-slot software scoreboard, `AGX_MAX_PENDING=8`).
+- **Compiler implication:** do **NOT** emit G13-style scoreboard waits / slot assignments — they do not
+  exist on G17P, and there is no `AGX_MAX_PENDING` analog (20 independent loads stayed in flight and summed
+  correctly; max-in-flight is a HW resource bounded by the register file). The RAW hazard is handled by
+  hardware. This makes the backend simpler than G13's.
+- **The one remaining silent-corruption surface — the barrier:** cross-lane / threadgroup-memory ordering
+  still needs an explicit **barrier**: `threadgroup_barrier` = byte0 `0x07`, 6 B: `07 04 54 <mem_scope>
+  <flags> 00`, **byte+3 = fenced memory scope** (`0x61` threadgroup / `0x85` device). `simdgroup_barrier`
+  emits no op (lockstep SIMD). Splice-proven: on a 256-thread divergent-writer kernel, corrupting byte+3
+  `0x61→0x00` makes **128/256 lanes read stale zeros** (STATUS OK, no fault) — the exact G-1 hazard, and
+  the thing a driver author must get right.
+- ⏳ This run was compute-only; the fragment/tilebuffer ordering analogue (`wait_pix`/`signal_pix`-style,
+  for imageblock/tilebuffer access) is a follow-up.
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

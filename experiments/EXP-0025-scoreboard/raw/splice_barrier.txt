@@ -1,0 +1,19 @@
+# EXP-0025 barrier splice-and-observe (tgdiv2, grid=256 tg=256, a[i]=i, out[lid]=scratch[255-lid])
+# barrier op "07 04 54 61 09 00" at byte offset 0x7e; byte+3=0x81, byte+4=0x82.
+# metric: how many of 256 output lanes read a STALE ZERO (0 = correct, 128 = fully broken fence).
+#
+# splice           bytes                       STATUS  stale_zero_reads/256  verdict
+# ---------------------------------------------------------------------------------------------
+# none (baseline)  07 04 54 61 09 00           OK      0/256                 CORRECT (barrier fences)
+# scope_b3         07 04 54 [00] 09 00         OK      128/256               *** FENCE NEUTRALISED *** stale reads
+# scope_b4         07 04 54 61 [00] 00         OK      0/256                 benign (byte+4 not the fence bit)
+# scope_both       07 04 54 [00][00] 00        OK      128/256               fence neutralised (dominated by b3)
+# op_to_09         [09] 04 54 61 09 00         OK      0/256 (garbage nonzero) becomes a different op
+# zero_all         00 00 00 00 00 00           OK      128/256 (+garbage)    fence gone
+#
+# CONCLUSION: byte+3 (0x61) is the threadgroup-memory FENCE scope field. Splicing 0x61->0x00
+# reproduces the compiler's barrier-less silent corruption (128 fast-reader lanes read stale 0).
+#
+# Compiler source-level control:
+#   tgdiv2      (threadgroup_barrier present)   -> 0/256 stale  (out = correct LCG values)
+#   tgdiv2_none (barrier removed in source)     -> 128/256 stale (out[0..127] = 0)

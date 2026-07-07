@@ -1,0 +1,14 @@
+# EXP-0025 hardware-register-interlock proofs (immediate consume, NO wait op present)
+# Each async op is consumed with ZERO scheduling slack; correctness is impossible
+# without a HW register interlock stalling the consumer until the op retires.
+
+add2      out[i]=a[i]+b[i]     a=1,2,3,4  b=10,20,30,40   -> RESULT 11 22 33 44   OK  (2 loads -> fadd, no wait)
+gather    out[i]=a[idx[i]]     a=10,11,12,13 idx=3,1,2,0  -> RESULT 13 11 12 10   OK  (load2 ADDRESS depends on load1)
+loaduse   out[i]=v*v+3, v=a[i] a=2,3,4,5                  -> RESULT 7 12 19 28     OK  (load -> fma, no wait)
+manyload20 out=sum(a0..a19), a_k[i]=2^k  (20 loads live)  -> RESULT 1048575       OK  (20 in-flight >> G13's 8)
+
+# manyload10 (10 in-flight, a_k=2^k, sum=1023) compact-fadd disambiguation sweep:
+#   the 3 "09 01 38 XX" ops are ADDS not waits. byte+3 sweep of the first (offset 0xab):
+#     0x01(reg0)->1022  0x11(reg8,orig)->1023  all-other-regs->991
+#   -> byte+3 is a data source register (arithmetic), not a scoreboard wait mask.
+#   Also: 6 six-byte 0x3c/0x1c fadds + 3 four-byte 0x38 ops = 9 adds = exactly N-1 for N=10.

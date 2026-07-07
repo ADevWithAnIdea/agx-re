@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH: kernel-interface + capability-matrix (G-10/11/12) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH kernel-interface+capability-matrix (G-10/11/12) · **0025** async model = HW interlock (G-1) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -93,7 +93,7 @@ owns `docs/`, `ROADMAP.md`, `PROVENANCE.md` and serializes edits to any shared t
 Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance gate. Priority order:
 
 **CRITICAL (blocks any real shader/draw):**
-- ☐ **G-1 Scoreboard / async-wait model** (silent corruption): which ops are async (tex/load/store/atomic), scoreboard slots, max-pending, wait/barrier-drain instruction. [ISA]
+- ☑ **G-1 Async model** — *EXP-0025 (INVERTS premise): HW register interlock, NO software scoreboard/wait (unlike G13). Compiler must NOT emit G13 waits. Only ordering op = threadgroup_barrier 0x07 (byte+3 mem-scope); splice-proven silent-corruption surface. Fragment tilebuffer ordering = follow-up.*
 - ☐ **G-2 Transcendental sequences** rcp/rsqrt/sqrt/sin/cos (0x29 seed + Newton-Raphson refinement). [ISA]
 - ☑ **G-3 Graphics shader binding** — *EXP-0024: NO shaderVA>>N in userspace; code BO = self-describing sized-block walk + USC uniform-preamble programs; code-base→fw handoff = kernel item.*
 - ☐ **G-4 Fragment varying interpolation** — iter/ldcf coefficient model for interpolated FS inputs. [ISA/frag]

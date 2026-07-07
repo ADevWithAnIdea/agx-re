@@ -116,6 +116,10 @@ REAL_INSTRS = {
     "rt_intersect +fntable    (24 ea d0 ..)":  "24ead0a6ab008000",  # trace_custom op#1 (fn-table, byte+6 bit7)
     "rt_intersect result-read (34 ea 10 ..)":  "34ea10266386269f",  # isect_dist op#2 (result read)
     "rt_as_load (df 02 54 ..)":                "df025432000000005c02044c0000",  # BVH/ray-data load
+    # ---- SCOREBOARD / BARRIER (EXP-0025): the only explicit ordering op in compute ----
+    "barrier tgmem (07 04 54 61 09 00)": "070454610900",  # threadgroup_barrier(mem_threadgroup) HW/splice
+    "barrier device (07 04 54 85 08 00)":"070454850800",  # threadgroup_barrier(mem_device) HW
+    "falu_acc (09 01 38 11)":            "09013811",       # compact 4-byte float accumulate HW (NOT a wait)
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -182,6 +186,9 @@ REAL_PROGRAMS = {
     "s_bcast0":"1ca010066710440000012000510100404600470456000200002c0400e7005400010121001100009011000e000000",
     "s_shufx": "1ca010066710440000012000510100404600c70456000200022c0400e7005400010121001100009011000e000000",
     "s_ballot":"1ca01006671044000001200051010040460017075600020000582204e7005400010121001100009011000e000000",
+    # ---- SCOREBOARD (EXP-0025): a 10-way reduction that mixes 6-byte 0x3c fadds and
+    # the 4-byte 0x38 compact accumulates -- tokenizes cleanly (no wait ops anywhere).
+    "manyload10": "1ca0100667105400000120005101004046006700541c010120005101004046006700541a020120001100004046006700541603012000510000404600670054140401200091000040460067005410050120009100004046006700540e060120009100004046006700540a0701200011010040460067005408080120001101004046006700440409012000d1000040460009013c1d00c009013c1b002009013c17004009013c150060090138110901380f09013c0b00a00901380909011c050080e70054000a0121001100009011000e000000",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
