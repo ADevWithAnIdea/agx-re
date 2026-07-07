@@ -83,3 +83,14 @@ Full tables: [format-table.md](format-table.md)
   Metal-auto argument buffer's 8-byte pointer-to-descriptor (EXP-0011); shader-computed dynamic index works. Samplers
   are not `MTLResource`s (no residency).
 
+## Storage-image (PBE) descriptor & per-access binding (EXP-G1b)
+A texture bound `access::write`/`read_write` uses a **distinct 32-byte "PBE" descriptor** (not the sampled one):
+- **Shared with sampled:** byte0/byte1 (texture-type + format numtype/sizeclass, same `format-table` codes); base
+  **`VA>>4`** = word2‖word3[0:11].
+- **Differs:** **width−1 = word0[24:31]‖word1[0:5]**, **height−1 = word1[6:19]** (a different split than the sampled
+  descriptor's); word0[16:27] is a format-derived component field (not the 4×3 swizzle); **no lossless-compression aux**
+  (word3 bit31 clear, word4/5 = 0 — ShaderWrite disables compression). Linear stride = `((word3>>12)+1)×16`.
+- **Per-access-qualifier binding:** each image access consumes a descriptor slot **+ an 8-byte control-word slot**.
+  `access::read` → sampled descriptor + read-control; `access::write` → PBE descriptor + write-control;
+  **`access::read_write` binds TWO descriptors** (a compression-disabled read texture desc + a PBE desc). HW-validated.
+

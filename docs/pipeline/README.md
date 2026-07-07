@@ -47,3 +47,20 @@ that private depth embeds.
 ## Open items
 - Programmable sample-position firmware path (kernel-side); depth/ZLS store control.
 - Full packed pixel-format word decode (→ `../descriptors/`); `+0x24` bits beyond 2×/4×/memoryless.
+
+## Render-target attachment descriptor — full field map (EXP-G1b)
+The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte segments: LOAD (+0x000) / RENDER (+0x300)
+/ STORE (+0x600)**.
+- **Surface VA** = `((word3 & 0xfff)<<32 | word2) << 4` (same `VA>>4` as textures; HW-correlated to the RT buffer).
+- **STORE segment is itself a PBE descriptor:** word0 byte3 = **width−1**, word1>>6 = **height−1**, word2 = surface
+  `VA>>4`, word3[12:] = **stride/rowBytes**. HW-validated over 6 sizes (asymmetric 128×64 separates W/H) and 6 formats.
+- **LOAD/RENDER:** format word @seg+0x20 (byte+0x22 = format), config/sample @+0x24; **clear-enable = bit24 @
+  seg1+0x168**, clear-color floats @+0x17c. `loadAction=Load` injects a surface-read descriptor.
+- **Store action:** store-program id `0x6f` + store surface addr (`storeAction=DontCare` poisons the addr). Store-program
+  `0x6f` semantics are firmware-managed (kernel item).
+- **MSAA:** byte0 low-nibble→4 (2DMultisample), +0x24 sample count (`0x08`=2× / `0x09`=4×); **sample positions remain
+  firmware-managed** (no BO).
+- **MRT:** N≥2 attachments (or any MSAA) relocate the color descriptor into the tiler geometry heap `0x10000018200`,
+  arrayed as **fixed 0x20-byte per-attachment records** (LOAD @`+0x20+k·0x20`, STORE/PBE @`+0x220+k·0x20`, clear-color
+  @`+0x500+k·0x18`); per-attachment surfaces at 0x58000/0x60000/… (distinct from the 0x1000 imageblock tile-memory record).
+

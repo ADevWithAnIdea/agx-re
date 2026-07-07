@@ -197,7 +197,7 @@ ZLS, partial-render, scissor register, shader-entry bind.
 ### OBJECTIVE-1 GAPS (porting-guide flagged these as too-thin to emit from `docs/` alone — close before obj-1 review)
 - ☐ **G1-a USC binding-word grammar** [cmdstream, HIGHEST]: the tag magic-byte table (Shader/Uniform/Texture/Sampler)
   + the Texture/Sampler count↔buffer split in the USC bind words. Currently only the per-stage preamble *shape* is known.
-- ☐ **G1-b PBE / render-target descriptor full bit layout** [descriptor]: the sampled-texture 32B descriptor is fully
+- ☑ **G1-b PBE / render-target descriptor** (EXP-G1b) [descriptor]: the sampled-texture 32B descriptor is fully
   specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x22, samples @+0x24).
 - ☐ **G1-c Sysval → uniform-register table** [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
   which-uniform-holds-which-sysval mapping is not — needed to reproduce the FF-state-into-shader ABI.
