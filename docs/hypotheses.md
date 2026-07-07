@@ -17,6 +17,9 @@ Outcome vocabulary:
 | 1 | HW bitwise op is a general 2-input LUT (all 16 boolean funcs), not just and/or/xor | Vulkan/GL need logic ops beyond Metal's set; a LUT would cover them | swept the `0x0b ilogic` selector across all 16 truth tables on hardware | **WORKS** — all 16 boolean functions realized by one op ⇒ every Vulkan/GL logic op is a single native instruction | EXP-0013 |
 | 2 | HW exposes float round modes beyond Metal's defaults | GL/Vulkan want floor/ceil/trunc/nearest; a round-mode field would give them free | spliced the byte+8 round-mode field of the `0x2f/0xaf` group | **WORKS** — 0=nearest, 2=floor, 4=ceil, 6=trunc all validated | EXP-0013 |
 | 3 | Compare is one op over float/sint/uint with a type field | fewer opcodes if type is a field | swept `0x12` byte+6 type bits | **WORKS** — bits[1:3] select float/uint/sint; one icmpsel op | EXP-0013 |
+| 4 | HW sampler supports arbitrary (Vulkan custom) border color | Vulkan wants RGBA border color | inspected the 8-byte sampler descriptor border field | **PARTIAL/NO** — only a 2-bit preset (transparent/black/white); arbitrary RGBA must be emulated | EXP-0015 |
+| 5 | HW anisotropy exceeds Metal's 16× cap | field is 3-bit log2 (→128×) | read the aniso field width | **PARTIAL** — field can encode up to 128×; >16× not yet run on hardware (probe candidate) | EXP-0015 |
+| 6 | Texture format/swizzle/sRGB/numeric-type are independent (Vulkan-shaped) | Vulkan separates these | varied each independently in the descriptor | **WORKS** — fully orthogonal; bgra8=rgba8+swizzle, depth32f=r32f code, sRGB is a flag | EXP-0015 |
 
 ## Candidate probe backlog (Metal-subset heuristic)
 Seed list of Vulkan/GL-vs-Metal gaps worth probing once the tooling exists. Not commitments —

@@ -1,0 +1,24 @@
+# Sampler LOD-clamp / anisotropy disambiguation (SAMPDESC bytes 0-2, raw LE hex of the 8-byte sampler descriptor)
+# harness: tvar --type 2d --fmt rgba8unorm --w16 --h16  <flag>   (nearest/nearest/none/edge base)
+# sampler descriptor = 8 bytes.  bytes0-2 hold lodMin, lodMax, maxAnisotropy.
+
+label            bytes[0..7]                          decode
+base2            00 00 0e 00 80 07 00 00              lodMin=0.0   lodMax=14.0(default) aniso=1x
+lodmin_0p25      10 00 0e 00 ...                      lodMin field 0x010 = 16 = 0.25*64
+lodmin_half      20 00 0e 00 ...                      lodMin field 0x020 = 32 = 0.5*64
+lodmin_1        (40 00 0e 00)                         lodMin field 0x040 = 64 = 1.0*64
+lodmin_1p5       60 00 0e 00 ...                      lodMin field 0x060 = 96 = 1.5*64
+lodmin_2        (80 00 05 ..)                         lodMin field 0x080 = 128 = 2.0*64
+lodmax_2         00 00 02 00 ...                      lodMax field (bits13+) 16 = 2.0*8
+lodmax_2p5       00 80 02 00 ...                      lodMax field 20 = 2.5*8
+lodmax_3        (00 00 03 ..)                         lodMax field 24 = 3.0*8
+lodmax_5        (80 00 05 ..)  with min2             lodMax field 40 = 5.0*8
+lodmax_10        00 00 0a 00 ...                      lodMax field 80 = 10.0*8
+lodmax_15/FLTMAX 00 00 0e 00 ...                      lodMax field 112 = 14.0*8  (saturates; 15 == FLT_MAX)
+an4_only         00 00 2e 00 ...                      aniso field (bits20-22) = 2 = log2(4); lodMax bits unchanged (14)
+lodmax3_an4      00 00 23 00 ...                      lodMax field 24 (=3.0) AND aniso field 2 (=4x), independent, no overlap
+
+# => lodMinClamp = bits[0:12]  = round(lodMin * 64)     (6 fractional bits)
+#    lodMaxClamp = bits[13:19] = round(lodMax * 8)      (3 fractional bits; default/FLT_MAX -> 14.0)
+#    maxAnisotropy = bits[20:22] = log2(maxAnisotropy)  (1->0 2->1 4->2 16->4)
+# All HW-validated by single-parameter diffs; lodMax3+aniso4 confirms the two fields are disjoint.
