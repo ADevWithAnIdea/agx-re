@@ -27,7 +27,7 @@ Goal: prove every clean-room technique works end-to-end before doing real RE.
 - ☑ **0.2 Own-shader compile+extract tool** (`tools/shdump`) — *Done: EXP-0001.* MSL → `MTLBinaryArchive` → our parser extracts `_agc.main` from the AppleGPU (cputype 0x1000013) image. Deterministic; confirmed machine code (not AIR). → `docs/isa/README.md`.
 - ☑ **0.3 (Dis)assembler scaffolding & method** — *Done: EXP-0005.* `tools/agx-isa/` is a working machine-readable DB driving asm+disasm with a passing round-trip test; differential compilation + persistent sweep runner established as the method. Phase 1 now grows this DB.
 - ☑ **0.4 Hardware testbed (the round-trip engine)** — *Done: EXP-0003.* `tools/agxtest/` splices arbitrary bytes into our own compiled shader and runs on the real GPU (Metal runs tampered code, no integrity check, via bound `MTLBinaryArchive` + `FailOnBinaryArchiveMiss`). First HW-validated fact: op-select `1c=fadd/1d=fmul`. Faults are contained (0 reboots). **The extrapolate-and-test loop is live.**
-- ☐ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
+- ☑ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — *Done: EXP-0009.* DYLD interposer captures our own Metal process's IOKit traffic + BO contents. Found: submission = shared-mem+doorbell (not per-call ioctl); `AGXAcceleratorG17P` sel 9 = map-resource→GPU-VA; argument buffer / launch descriptor / shader BO located. → `docs/cmdstream/README.md`. **Phase 2 foundation set.**
 
 ## Phase 1 — Full A18 Pro AGX (dis)assembler + ISA spec  ⟵ PRIMARY TOOL DELIVERABLE
 Build a **complete, hardware-validated, machine-readable AGX instruction database that both
@@ -73,7 +73,8 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 Done (committed, provenance-cited): **0001** shader byte extraction · **0002** HW identity/interface ·
 **0003** hardware testbed + first opcode · **0005** ISA DB + length rule + float op-select ·
 **0006** float ALU operands + minifloat imm · **0007** integer ALU family · **0008** vtx/frag
-extraction + render testbed · (**0009** iotrace/cmdstream — in progress). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
+(**0010** control flow — in progress). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
