@@ -155,6 +155,19 @@ REAL_INSTRS = {
     "call (0f 05 54 1a 8f 10 54 54 ..)":  "0f05541a8f105454ffffffffff00",  # direct CALL (EXP-0035, from k_cf_call)
     "ret leaf (8f 02 54 00)":             "8f025400",   # function RETURN, leaf (EXP-0035)
     "call_indirect (0f 80 85 02 07 02)":  "0f8085020702",  # visible_function_table indirect call (EXP-0035, from k_fptr)
+    # ---- EXP-0037: vertex varying store + texture coordinate math (from our own render stages) ----
+    "vary_store pos (57 26 54 00 00 40 49 00)": "5726540000404900",  # VS [[position]] store, from r_basic_vertex
+    "vary_store varying (57 06 56 0a a0 40 48 00)": "5706560aa0404800",  # VS user-varying store, from r_basic_vertex
+    "tex_coord_setup (5b 03 2f 00 42 00 00 14 00 00)": "5b032f00420000140000",  # coord/interp setup, from r_basic_vertex
+    "coord_madf (2e 87 23 a0 42 00 00 06 02 00)": "2e8723a0420000060200",  # coord fused mul-add leader, from k_tex_array_cube
+    # ---- EXP-0038: u64 carry / non-leaf frame / half pack / cache bit (our own compiled kernels) ----
+    "carry_gen (32 01 35 03 22 81)":       "320135032281",   # u64 carry-generate (from k_u64add)
+    "frame_prologue (6f 03 04 00 00 20)":  "6f0304000020",   # non-leaf frame prologue (from k_chain mid())
+    "link_save (07 00 54 00 81 00 00 00)": "0700540081000000",  # link-register save before a nested call
+    "link_restore (07 00 54 00 81 ff 1f 00)": "0700540081ff1f00",  # link-register restore after a nested call
+    "half_pack (18 05 18 03)":             "18051803",       # half2 pack (from k_h2add)
+    "simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03)": "bf03540403081403",  # later-consumer reduce (0x54 cache bit)
+    "unpack_convert 0x54 cache (17 04 54 ..)": "1704540000001ccae700",  # unpack, 0x54 cache-bit variant (EXP-0038)
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.
@@ -245,6 +258,15 @@ REAL_PROGRAMS = {
                    "5c0422011e0507c0a7055604030c4e040e000000",  # get_sr+half_alu+popcount+min3+find_msb+stop
     "merged_call": "1ca010060c20430000010f05541a8f1054"
                    "54ffffffffff008f0254000f80850207020e000000", # get_sr+mov_imm+frame_marker+call+ret+call_indirect+stop
+    # ---- EXP-0038: whole _agc.main / regions exercising the merged W2 descriptors ----
+    # h2add: get_sr + loads + half_alu (0x10, 6B) + half_pack (0x18, 4B) + store + stop.
+    "h2add":   "0ca010066710540200002000490100404600670044040100200049010040460010041c0200c018051803"
+               "e7005402020021000900009011000e000000",
+    # u64add carry chain: get_sr + loads + iadd_lo + carry_gen(0x32) + psel + iadd_hi + iadd_carry + store + stop.
+    "u64add":  "5ca01006671054060005200059010040480067004402010520005901004048009f01560003041aa81505"
+               "3201350322810500""20809f015402030820a817059f015402020c08881705e7005400020521001900001012000e000000",
+    # non-leaf frame region: frame_prologue(0x6f) + link_save(0x07 8B) + link_restore(0x07 8B) + non-leaf ret(8f12).
+    "nonleaf_frame": "6f03040000200700540081000000""0700540081ff1f00""8f125400",
 }
 
 # Synthesized field combos for the asm->disasm->fields direction.
@@ -308,11 +330,14 @@ SYNTH = [
     # ilogic XOR (op_base=0 xor, invert bits): 0b 05 1e 01 02 08 00 80 00 00
     ("ilogic", {"b1": 0x05, "op_base": 0, "srcB": 0x01, "lut_a": 0x02, "lut_b": 0x08, "ext": 0x8000}),
     # ---- subgroup / quad / atomics (EXP-0018) ----
-    # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03 -> bf 01 56 00 02 00 14 03
-    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "op": 0x01, "b3": 0x00,
+    # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03, cache=1(0x56) -> bf 01 56 00 02 00 14 03
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "b3": 0x00,
                      "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x03}),
-    # quad_min: scope=0(quad), opcls=0, op=0x02(max/min), dtype=0x07 -> 37 02 56 00 02 00 14 07
-    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "op": 0x02, "b3": 0x00,
+    # quad_min: scope=0(quad), opcls=0, op=0x02(max/min), dtype=0x07, cache=1(0x56) -> 37 02 56 00 02 00 14 07
+    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "cache": 1, "op": 0x02, "b3": 0x00,
+                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
+    # simd_max as a LATER consumer of a shared source: cache=0 -> byte+2 0x54 (EXP-0038 cache-bit).
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "b3": 0x00,
                      "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1) -> 47 04 56 00 02 00 0a 2c 04 00
     ("simd_shuffle", {"dir": 0, "mode": 0x04, "b3": 0x00, "src": 0x02, "b5": 0x00,

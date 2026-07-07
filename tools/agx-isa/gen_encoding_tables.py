@@ -34,6 +34,7 @@ FAMILY = [
         ("iminmax_chain", "chained min/max (min3/max3/clamp first op)"),
         ("iunary", "integer unary (popcount / reduce)"),
         ("ibitcount", "bit-count / bit-scan (popcount/reverse_bits/find-MSB)"),
+        ("carry_gen", "u64 carry-generate (unsigned-overflow compare for 64-bit add)"),
         ("irotate", "rotate-by-immediate funnel shift"),
         ("ishift", "arithmetic shift-right immediate"),
         ("ibfe", "bitfield-extract / logical shift-right"),
@@ -45,6 +46,7 @@ FAMILY = [
         ("mov_zext16", "16-bit zero-extend / narrow move"),
         ("pack_convert", "pack_float_to_unorm/snorm2x16 (compute)"),
         ("unpack_convert", "unpack_unorm/snorm2x16_to_float (compute)"),
+        ("half_pack", "assemble a half2's two fp16 lanes into a packed 32-bit register"),
     ]),
     ("Bitwise / logic", [
         ("ilogic", "2-input bitwise LUT (all 16 boolean functions)"),
@@ -58,6 +60,7 @@ FAMILY = [
     ("Memory access", [
         ("device_load", "load (device / threadgroup / constant)"),
         ("device_store", "store (device / threadgroup)"),
+        ("vary_store", "vertex varying / [[position]] store to the UVS/parameter buffer"),
     ]),
     ("Atomics", [
         ("atomic_rmw", "device atomic RMW (elected-lane, op at byte+12)"),
@@ -67,6 +70,8 @@ FAMILY = [
         ("tex_sample", "sample/gather/read/compare/LOD-query bundle"),
         ("tex_write", "texture write (memory-family store)"),
         ("tex_deriv", "quad-difference derivative (dfdx/dfdy/fwidth)"),
+        ("tex_coord_setup", "texture coordinate / LOD / gather-offset setup ALU"),
+        ("coord_madf", "coordinate / interpolation fused mul-add (leader form)"),
     ]),
     ("Control flow / function ABI", [
         ("icmp_pred", "integer compare -> execution predicate"),
@@ -77,6 +82,8 @@ FAMILY = [
         ("call", "direct out-of-line CALL"),
         ("ret", "function RETURN (leaf / non-leaf)"),
         ("call_indirect", "indirect CALL (visible_function_table)"),
+        ("frame_prologue", "non-leaf function frame prologue (scratch frame setup)"),
+        ("link_save_restore", "link-register save/restore around a nested call"),
     ]),
     ("SIMD-group / quad", [
         ("simd_reduce", "SIMD/quad reduce & prefix-scan"),

@@ -4,12 +4,10 @@ Clean-room documentation of the Apple G17P shader instruction set. All facts her
 disassembling **shaders we compiled ourselves** (OWN-SHADER) + public references (PUBLIC) —
 never from Apple binaries. See `../../CLAUDE.md`.
 
-> **Status: early, but the validation loop is live.** The extraction pipeline AND the hardware
-> testbed (`tools/agxtest/`, EXP-0003) both work: we can splice arbitrary bytes into our own
-> compiled shader and run them on the real GPU (Metal runs tampered code with **no integrity
-> check**, given a binary archive + `MTLPipelineOptionFailOnBinaryArchiveMiss`). So encodings can
-> now be **hardware-validated** (✅), not just inferred from byte diffs (⏳ pending round-trip).
-> Do not treat ⏳ items as final; ✅ items are proven by running modified code and observing output.
+> **Status: mature.** 68 machine-readable instruction descriptors (round-trip-validated asm↔disasm); a
+> broad-corpus byte0 census tokenizes **~88%** of instruction bytes with **no whole undecoded instruction family
+> remaining** (residual = operand sub-fields + resync artifacts). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md).
+> ✅ = hardware-validated (run modified code, observe output); ⏳ = byte-diff-inferred, not yet HW-round-tripped.
 
 ## How we get the bytes (validated — EXP-0001)
 

@@ -1,0 +1,252 @@
+==========================================================================
+EXP-0039  BYTE0-GROUP INSTRUCTION CENSUS  (merged W2 tools/agx-isa DB)
+==========================================================================
+corpus: 61 extracted stage programs (57 unique, 4 duplicate vertex/other stages)  [reused EXP-0036 corpus]
+total instructions walked (unique): 1246
+  named (matched a descriptor):          940  (75.4%)
+  length-only (clean length, no desc):   127  (10.2%)
+  UNDECODED regions (resync spans):      179  (14.4%)
+  --> cleanly tokenized (length known): 1067/1246 = 85.6% of tokens
+  --> BYTE COVERAGE: 8886/10110 = 87.9% of instruction bytes decoded (1224 bytes / 12.1% in undecoded regions)
+
+--- byte coverage by stage category ---
+  compute:core                5068/ 5658 = 89.6%
+  compute:function-table       128/  142 = 90.1%
+  compute:texture             1640/ 2050 = 80.0%
+  mesh                         272/  416 = 65.4%
+  render:fragment             1042/ 1092 = 95.4%
+  render:vertex                736/  752 = 97.9%
+
+distinct byte0 groups seen: 115
+  byte0 groups the DB CAN length/decode: 84
+  byte0 groups the DB CANNOT decode at all: 31
+
+--- byte0 groups DECODED (group: named/length-only counts) ---
+  0x02: named=  52 length_only=   0
+  0x04: named=   5 length_only=   4
+  0x05: named=  16 length_only=   3
+  0x07: named=  13 length_only=   0
+  0x09: named=  27 length_only=   3
+  0x0a: named=  17 length_only=   0
+  0x0b: named=   5 length_only=   6
+  0x0c: named=  13 length_only=   0
+  0x0e: named=  57 length_only=   0
+  0x0f: named=   5 length_only=  27
+  0x10: named=   6 length_only=   0
+  0x12: named=   7 length_only=   0
+  0x13: named=   5 length_only=   0
+  0x14: named=   4 length_only=   0
+  0x16: named=   2 length_only=   0
+  0x17: named=  12 length_only=   0
+  0x18: named=   1 length_only=   0
+  0x19: named=  15 length_only=   4
+  0x1b: named=   4 length_only=   6
+  0x1c: named=  21 length_only=   0
+  0x1f: named=  28 length_only=   0
+  0x22: named=   0 length_only=  10
+  0x24: named=   8 length_only=   0
+  0x25: named=   3 length_only=   1
+  0x27: named=  37 length_only=   5
+  0x29: named=  13 length_only=   4
+  0x2b: named=   4 length_only=   5
+  0x2c: named=   3 length_only=   0
+  0x2d: named=   1 length_only=   0
+  0x2f: named=  38 length_only=   0
+  0x32: named=   1 length_only=   4
+  0x34: named=   2 length_only=   0
+  0x37: named=   5 length_only=   0
+  0x39: named=  14 length_only=   4
+  0x3b: named=   2 length_only=   4
+  0x3f: named=   7 length_only=   0
+  0x43: named=   3 length_only=   0
+  0x44: named=   1 length_only=   0
+  0x45: named=   0 length_only=   3
+  0x47: named=   1 length_only=   5
+  0x49: named=  17 length_only=   0
+  0x4b: named=   2 length_only=   7
+  0x4c: named=   4 length_only=   0
+  0x54: named=   4 length_only=   0
+  0x57: named=  26 length_only=   0
+  0x59: named=   8 length_only=   0
+  0x5b: named=   4 length_only=   3
+  0x5c: named=   4 length_only=   0
+  0x64: named=   3 length_only=   0
+  0x67: named=  94 length_only=   0
+  0x69: named=   8 length_only=   0
+  0x6b: named=   3 length_only=   2
+  0x6c: named=   2 length_only=   0
+  0x6f: named=   1 length_only=   0
+  0x74: named=   2 length_only=   0
+  0x79: named=  10 length_only=   0
+  0x7b: named=   4 length_only=   1
+  0x7c: named=   2 length_only=   0
+  0x87: named=  12 length_only=   0
+  0x89: named=  11 length_only=   0
+  0x8b: named=   2 length_only=   5
+  0x8c: named=   3 length_only=   0
+  0x8f: named=   1 length_only=   0
+  0x90: named=   0 length_only=   1
+  0x97: named=  11 length_only=   0
+  0x99: named=   7 length_only=   0
+  0x9b: named=   2 length_only=   2
+  0x9f: named= 108 length_only=   0
+  0xa7: named=  31 length_only=   1
+  0xa9: named=   7 length_only=   0
+  0xab: named=   1 length_only=   3
+  0xac: named=   1 length_only=   0
+  0xaf: named=  11 length_only=   0
+  0xb0: named=   0 length_only=   1
+  0xb7: named=   2 length_only=   0
+  0xb9: named=   4 length_only=   0
+  0xbb: named=   0 length_only=   1
+  0xbf: named=  10 length_only=   0
+  0xc7: named=   0 length_only=   2
+  0xc9: named=   2 length_only=   0
+  0xcc: named=   3 length_only=   0
+  0xcf: named=   2 length_only=   0
+  0xd7: named=   1 length_only=   0
+  0xe7: named=  52 length_only=   0
+
+--- byte0 groups still UNDECODED (the ISA gaps) ---
+   (byte0: resync-count, hex sample of the undecoded region)
+  0x00:  count=  32   sample: 00 00 0f 05 54 01 67 01 54 00 00 00 01 00 00 40
+  0x54:  count=  25   sample: 54 04 03 08 04 78 62 00 1f 01 54 08 03 0c 0c 28
+  0x07:  count=  15   sample: 07 22 02 00 0f 05 54 01 67 01 54 00 00 80 00 00
+  0x42:  count=  12   sample: 42 81 27 08 00 80 07 0a 42 81 27 8a 81 04 06 02
+  0x18:  count=   7   sample: 18 84 24 85 00 08 20 05 39 04 10 02 1e 03 80 04
+  0x80:  count=   6   sample: 80 04 e7 00 54 02 00 00 21 00 01 00 00 10 11 00
+  0x92:  count=   6   sample: 92 8f 25 8b 22 81 07 00 20 80 9a 97 35 01 22 81
+  0x60:  count=   5   sample: 60 00 00 00 0a 04 2b 80 06 00 07 22 02 00 0f 05
+  0x0f:  count=   5   sample: 0f 82 86 04 17 02 80 08 e7 00 54 00 00 01 21 00
+  0x03:  count=   5   sample: 03 04 18 a8 17 05 9f 01 54 00 03 2c 02 a8 15 05
+  0x0b:  count=   4   sample: 0b 00 06 00 00 00 00 00 60 00 e7 02 54 00 00 00
+  0x23:  count=   3   sample: 23 00 00 01 67 10 44 00 02 02 20 00 59 09 ff 5f
+  0x38:  count=   3   sample: 38 82 24 84 00 c8 30 83 24 85 00 08 10 04 1b 07
+  0x2c:  count=   3   sample: 2c 0c 00 02 89 11 3c 13 00 08 79 0f 38 11 27 07
+  0x33:  count=   3   sample: 33 8a 27 bf 10 02 00 00 00 00 33 8c 27 bf 14 02
+  0x01:  count=   3   sample: 01 00 00 00 00 00 0a 39 22 82 87 02 0f 05 54 01
+  0x87:  count=   3   sample: 87 02 00 00 0f 05 54 01 9f 01 54 00 03 00 30 8c
+  0x20:  count=   2   sample: 20 8c 11 04 02 01 0f 80 86 08 16 02 80 04 e7 00
+  0x52:  count=   2   sample: 52 81 27 80 84 08 17 02 a7 01 54 04 03 08 04 78
+  0x31:  count=   2   sample: 31 01 3c 81 00 c2 27 07 54 00 03 0c 8e 48 03 00
+  0x8c:  count=   2   sample: 8c 80 02 00 00 00 00 00 4c c0 02 00 04 00 00 00
+  0x5b:  count=   2   sample: 5b 07 3c 09 02 0b 0f 80 85 02 07 02 e7 00 54 00
+  0x1b:  count=   2   sample: 1b 13 3c 03 ca 8d 25 89 22 81 05 00 20 80 9f 01
+  0x81:  count=   2   sample: 81 18 02 08 c9 8f 31 13 a7 07 54 12 03 0c 8e 20
+  0xf0:  count=   2   sample: f0 11 01 00 a7 00 54 08 03 08 06 00 d0 10 21 00
+  0x2a:  count=   2   sample: 2a 11 2b 80 06 00 07 02 00 00 0f 05 54 25 67 01
+  0x08:  count=   2   sample: 08 00 0b 91 27 00 42 20 00 08 00 00 1b 81 27 00
+  0xa0:  count=   1   sample: a0 00 00 00 9f 11 54 0a 03 0c 2a 00 15 05 5b 0b
+  0x06:  count=   1   sample: 06 02 e7 00 54 02 00 00 21 00 11 00 00 90 11 00
+  0x3c:  count=   1   sample: 3c 06 08 00 09 01 18 05 e7 00 54 00 00 01 21 00
+  0x4c:  count=   1   sample: 4c c0 02 00 04 00 00 00 3b 01 3e 09 02 08 00 80
+  0x4b:  count=   1   sample: 4b 03 3b 11 9f 01 54 02 03 18 28 a8 17 05 5b 07
+  0xd2:  count=   1   sample: d2 81 25 89 22 81 05 00 20 80 9f 00 54 14 03 10
+  0xb2:  count=   1   sample: b2 81 35 17 22 81 05 00 20 80 92 12 2f 80 06 8a
+  0x62:  count=   1   sample: 62 81 27 80 82 08 07 02 00 80 1f 01 54 06 03 00
+  0x21:  count=   1   sample: 21 04 1b 82 21 04 17 01 54 07 03 00 05 12 54 21
+  0xac:  count=   1   sample: ac 01 0f 05 54 01 0f 01 54 6a 01 00 00 00 00 00
+  0x14:  count=   1   sample: 14 02 00 00 00 00 9f 01 54 00 03 00 00 88 14 14
+  0x56:  count=   1   sample: 56 00 08 10 80 00 44 02 00 30 02 00 07 04 54 61
+  0x2e:  count=   1   sample: 2e 15 a0 0c 32 85 23 08 87 06 02 02 20 b0 00 00
+  0x3a:  count=   1   sample: 3a 8d 35 09 22 81 05 00 20 80 32 80 25 8b 22 81
+  0x85:  count=   1   sample: 85 00 20 80 92 8d 35 05 22 81 05 00 20 80 32 80
+  0x1a:  count=   1   sample: 1a 80 35 03 86 12 87 00 80 07 12 06 2d 80 26 80
+  0x26:  count=   1   sample: 26 80 0f 02 22 81 1f 01 54 02 03 00 0a 28 15 05
+  0x73:  count=   1   sample: 73 00 00 01 67 10 44 06 06 00 00 00 51 05 00 40
+  0x5c:  count=   1   sample: 5c 01 6c 01 7c 01 13 00 00 01 e7 10 54 10 00 00
+
+--- top named mnemonics ---
+  iadd2                107
+  get_sr               84
+  device_load          81
+  stop                 57
+  iminmax              52
+  device_store         46
+  falu3                45
+  tex_coord_setup      32
+  falu2i               30
+  iunary               29
+  falu2                29
+  falu_acc             28
+  iter                 27
+  vary_store           26
+  imad                 25
+  fspecial             21
+  simd_reduce          19
+  icmp_pred            17
+  ibfe                 15
+  atomic_mem           12
+  psel                 12
+  frag_tile_setup      12
+  fspecial_est         11
+  cvt_i2f              10
+  unpack_convert       10
+  threadgroup_barrier  9
+  frag_color_pack      9
+  cvt_f2i              8
+  tex_sample           8
+  fminmax              6
+
+--- per-stage coverage ---
+  k_atomics                452B   60 instr  undecoded=12  cov 91%
+  k_atomics_float           68B   10 instr  undecoded= 1  cov 97%
+  k_atomics_tg             154B   21 instr  undecoded= 4  cov 86%
+  k_builtins_folded         80B   10 instr  undecoded= 0  cov 100%
+  k_builtins_ids           162B   21 instr  undecoded= 1  cov 98%
+  k_cf_call                116B   14 instr  undecoded= 0  cov 100%
+  k_cf_if                   92B   13 instr  undecoded= 2  cov 93%
+  k_cf_loop                312B   34 instr  undecoded= 4  cov 87%
+  k_cf_switch              142B   17 instr  undecoded= 4  cov 86%
+  k_cvt_fi                 114B   14 instr  undecoded= 1  cov 95%
+  k_cvt_half                92B   11 instr  undecoded= 3  cov 80%
+  k_cvt_pack               118B   14 instr  undecoded= 1  cov 95%
+  k_float_arith             88B   10 instr  undecoded= 0  cov 100%
+  k_fptr                   142B   18 instr  undecoded= 5  cov 90%
+  k_half2_pack              70B    7 instr  undecoded= 1  cov 77%
+  k_half_arith              72B    9 instr  undecoded= 2  cov 86%
+  k_int64                  300B   35 instr  undecoded= 9  cov 78%
+  k_int_arith              348B   45 instr  undecoded= 8  cov 93%
+  k_int_bitcount           144B   16 instr  undecoded= 2  cov 83%
+  k_int_bitfield           102B   10 instr  undecoded= 0  cov 100%
+  k_int_bitwise             30B    5 instr  undecoded= 0  cov 100%
+  k_int_minmax             134B   14 instr  undecoded= 2  cov 87%
+  k_int_rotate             120B   12 instr  undecoded= 1  cov 97%
+  k_int_shift              132B   13 instr  undecoded= 2  cov 88%
+  k_matrix                 202B   20 instr  undecoded= 1  cov 98%
+  k_matrix_half            202B   20 instr  undecoded= 1  cov 98%
+  k_mem                    114B   13 instr  undecoded= 2  cov 88%
+  k_quad                   122B   13 instr  undecoded= 0  cov 100%
+  k_subgroup_ballot        120B   13 instr  undecoded= 1  cov 92%
+  k_subgroup_int            98B   11 instr  undecoded= 0  cov 100%
+  k_subgroup_reduce         80B   11 instr  undecoded= 0  cov 100%
+  k_subgroup_scan           54B    6 instr  undecoded= 0  cov 100%
+  k_subgroup_shuffle       214B   25 instr  undecoded= 2  cov 93%
+  k_tex_array_cube         256B   35 instr  undecoded= 7  cov 89%
+  k_tex_atomic             988B  113 instr  undecoded=29  cov 65%
+  k_tex_compare            126B   14 instr  undecoded= 0  cov 100%
+  k_tex_gather             162B   21 instr  undecoded= 0  cov 100%
+  k_tex_lod                210B   27 instr  undecoded= 1  cov 99%
+  k_tex_msaa               124B   15 instr  undecoded= 2  cov 76%
+  k_tex_query               26B    4 instr  undecoded= 0  cov 100%
+  k_tex_rw                 100B   14 instr  undecoded= 0  cov 100%
+  k_tex_sample              58B    7 instr  undecoded= 0  cov 100%
+  k_threadgroup            134B   16 instr  undecoded= 3  cov 85%
+  k_transcend              330B   48 instr  undecoded=13  cov 75%
+  k_transcend_round        110B   14 instr  undecoded= 3  cov 82%
+  k_uint_arith             436B   54 instr  undecoded=12  cov 83%
+  mesh_fragment            146B   17 instr  undecoded= 0  cov 100%
+  mesh_mesh                306B   41 instr  undecoded=15  cov 56%
+  mesh_object              110B   16 instr  undecoded= 2  cov 93%
+  r_basic_fragment         146B   dup of mesh_fragment
+  r_basic_vertex           258B   37 instr  undecoded= 4  cov 97%
+  r_blend_fragment         226B   32 instr  undecoded= 6  cov 89%
+  r_blend_vertex           258B   dup of r_basic_vertex
+  r_cent_fragment          162B   20 instr  undecoded= 1  cov 98%
+  r_cent_vertex            186B   21 instr  undecoded= 0  cov 100%
+  r_deriv_fragment         266B   35 instr  undecoded= 3  cov 94%
+  r_deriv_vertex           308B   42 instr  undecoded= 4  cov 97%
+  r_flat_fragment           78B   11 instr  undecoded= 0  cov 100%
+  r_flat_vertex            186B   dup of r_cent_vertex
+  r_tex_fragment           214B   27 instr  undecoded= 2  cov 97%
+  r_tex_vertex             308B   dup of r_deriv_vertex

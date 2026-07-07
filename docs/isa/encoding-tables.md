@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 61 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 68 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -280,6 +280,20 @@
 
 *single-op bit-count / bit-scan (byte+2==0x56, 8 bytes). Operation = (byte0 bit7 fn_hi, byte+1 form): (0x27,0x05)=popcount; (0xa7,0x04)=reverse_bits; (0xa7,0x05)=find-MSB / bit-scan-reverse (index of the most-significant set bit; 0x80000000->31, 0xFF00->15). clz/ctz are NOT single ops (find_msb + 31-x + clamp; ctz adds a 0x2b low-bit-isolate). Shares byte0 low-7-bits with the 0x27/0xa7 convert family; distinguished by byte+1 form and length 8.*
 
+### `carry_gen` — u64 carry-generate (unsigned-overflow compare for 64-bit add)
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x32, byte+2==0x35  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `subop` | [8:16] (byte+1) | raw/unmapped |  |
+| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `cmpmode` | [32:40] (byte+4) | enum | `0x22`=ordered |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+
+*u64 CARRY-GENERATE. `32 01 35 03 22 81` (6 bytes). An unsigned-overflow compare in the integer compare / min-max family (byte0 0x32 = 0x02|0x30; byte+2==0x35 marker; byte+4==0x22 ordered-compare mode) detecting the carry-OUT of the immediately-preceding low-word 32-bit add (sum_lo < operand, unsigned). Its per-lane predicate feeds a following 0x05 psel that materializes the carry as {0,1}, added into the HIGH-word add. The compiler emits this explicit chain for 64-bit ADD; 64-bit SUB uses the single native 0x1f op. Siblings byte0 0x12 (a+const) and 0x22 (intermediate carry of a 3-operand add) share the byte+2==0x35 signature. Operand register bit-packing inferred (byte-diff).*
+
 ### `irotate` — rotate-by-immediate funnel shift
 
 - **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x01, byte+2==0x56  ·  **Provenance:** HW-validated
@@ -389,7 +403,7 @@
 
 ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, byte+2==0x56  ·  **Provenance:** HW-validated
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -398,6 +412,18 @@
 | `body` | [24:80] (byte+3) | raw/unmapped |  |
 
 *packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+2==0x56 (COMPUTE). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); simd_ballot is gated on byte+1==0x07, this on byte+2==0x56.*
+
+### `half_pack` — assemble a half2's two fp16 lanes into a packed 32-bit register
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x18  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dstlo` | [8:16] (byte+1) | register |  |
+| `src` | [16:24] (byte+2) | register |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*HALF-LANE PACK (assemble a half2 into a packed 32-bit register). `18 05 18 03` (4 bytes). Combines the two fp16 lanes produced by the native-half 0x10 ALU (EXP-0033 half_alu) into one 32-bit word for the device store (and the reverse assembly for half unpacks). Confirmed 4 bytes across half2 add (`18 05 18 03`), mul (`18 05 19 03`) and fma (`18 05 1b 07`). byte0 HIGH nibble = destination register nibble -- the SAME op appears as 0x08/0x18/0x28/0x38 for dst r0/r1/r2/r3 (this descriptor matches the 0x18 dst-r1 form). byte+2 = source register (reg<<1)|hint. A longer 6-byte high-register form (byte+2==0x24, seen as 0x30/0x38 in the broad corpus) is a documented follow-up. short2/short4 (int16) does NOT pack.*
 
 ## Bitwise / logic
 
@@ -509,6 +535,22 @@
 
 *store `count` 32-bit words (vector width, +5) to the address space in `space` (+1 bit1: 1=threadgroup) at index_GPR*elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load. Narrowing stores (char/short) set elem_size (+12).*
 
+### `vary_store` — vertex varying / [[position]] store to the UVS/parameter buffer
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x57  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `hint1` | [8:16] (byte+1) | modifier |  |
+| `hint2` | [16:24] (byte+2) | modifier |  |
+| `src` | [24:32] (byte+3) | register |  |
+| `out_slot` | [32:40] (byte+4) | immediate |  |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `hint6` | [48:56] (byte+6) | modifier |  |
+| `b7` | [56:64] (byte+7) | raw/unmapped |  |
+
+*uvs_buffer[out_slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR; byte+4 = DESTINATION OUTPUT SLOT (index<<5): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4+ (0x80/0xa0/0xc0/0xe0). ONE op per scalar component. Position-vs-varying is the SLOT RANGE, not a distinct opcode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.*
+
 ## Atomics
 
 ### `atomic_rmw` — device atomic RMW (elected-lane, op at byte+12)
@@ -590,6 +632,35 @@
 | `tail` | [56:80] (byte+7) | raw/unmapped |  |
 
 *d = quad-difference derivative of a source varying (dfdx/dfdy/fwidth). byte0 0x37, 10 bytes; axis at byte+6 (0x92 = dfdx / X, 0x90 = dfdy / Y). Fragment-only (needs 2x2 quad helper lanes). Co-occurs with implicit-LOD sampling, which computes LOD from these derivatives internally (an explicit 0x37 is emitted only for source-level dfdx/dfdy/fwidth). Full fine/coarse decode is a follow-up.*
+
+### `tex_coord_setup` — texture coordinate / LOD / gather-offset setup ALU
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x2f  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b0hi` | [4:8] | raw/unmapped |  |
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `subop` | [16:24] (byte+2) | opcode-select | `0x27`=coord/LOD; `0x2f`=coord/interp |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `mark` | [32:40] (byte+4) | raw/unmapped |  |
+| `body` | [40:80] (byte+5) | raw/unmapped |  |
+
+*texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.)*
+
+### `coord_madf` — coordinate / interpolation fused mul-add (leader form)
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x2e, byte+2==0x23  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `op` | [16:24] (byte+2) | raw/unmapped |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `mark` | [32:40] (byte+4) | raw/unmapped |  |
+| `body` | [40:80] (byte+5) | raw/unmapped |  |
+
+*coordinate / interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (sibling 0x3e), 10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of the low-nibble-9 float group, in the vertex matrix-vector product -- a general fused mul/mul-add, not texture-specific. This descriptor covers ONLY the byte0-LEADER 0x2e form (gated on byte+2==0x23); the far more common op-select case is a 0x09 float op handled by the float-ALU op-select length rule, NOT here.*
 
 ## Control flow / function ABI
 
@@ -687,17 +758,46 @@
 
 *INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Leader `0f 80 ..`: byte+1 0x80 selects the call-to-address variant of the control-flow group (vs 0x00 jump, 0x05 direct call). The target is a CODE VA loaded into a register from the function table (entry[i] = 8-byte code VA of function i's entry point); this op transfers control to it and returns via the same ret (0x8f). Per-lane (dynamic) targets are marshalled through a run of 0x4b move ops before the 0f 80.*
 
+### `frame_prologue` — non-leaf function frame prologue (scratch frame setup)
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x6f  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `subop` | [8:16] (byte+1) | raw/unmapped |  |
+| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `frame_size` | [40:48] (byte+5) | immediate |  |
+
+*NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/link register around each inner call. Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. byte+1==0x03 = frame sub-op; byte+2 = 0x04/0x54 marker; byte+5 = candidate frame/scratch-size field (INFERRED).*
+
+### `link_save_restore` — link-register save/restore around a nested call
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x07, byte+1==0x00, byte+2==0x54, byte+4==0x81  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `scope` | [32:40] (byte+4) | raw/unmapped |  |
+| `dir_offset` | [40:64] (byte+5) | raw/unmapped |  |
+
+*LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; byte+5..+7 discriminate SAVE (00 00 00) from RESTORE (ff 1f 00, a scratch offset). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target).*
+
 ## SIMD-group / quad
 
 ### `simd_reduce` — SIMD/quad reduce & prefix-scan
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:3]==0x7, bits[4:6]==0x3, byte+2==0x56  ·  **Provenance:** HW-validated
+- **Length:** 8 bytes  ·  **Match:** bits[0:3]==0x7, bits[4:6]==0x3, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `scope` | [3:4] | enum | `0x1`=simd; `0x0`=quad |
 | `b0hi` | [6:7] | raw/unmapped |  |
 | `opcls` | [7:8] | modifier |  |
+| `cache` | [17:18] | modifier |  |
 | `op` | [8:16] (byte+1) | opcode-select | `0x0`=or/and; `0x1`=add/xor; `0x2`=max/min; `0x6`=fadd |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
@@ -977,7 +1077,19 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `0x43` | 4  [CALL-SITE / FRAME-SETUP marker (`43 00 00 01`), precedes every out-of-line CALL in compute & mesh. NOT mesh-unique. EXP-0035 (re-scoped EXP-0030)] |
 | `0x0f (byte+1==0x05)` | 14 direct CALL if byte+4==0x8f (target = call_addr+4+off40) else 8 exec-mask push; (byte+1==0x80) = 6 INDIRECT CALL leader; (byte+1==0x06) = 6 reconverge. EXP-0035 |
 | `0x8f` | 4  [function RETURN (`8f <lm> 54 00`); no encoded target (HW link register / CF stack); byte+1 0x02 leaf / 0x12 non-leaf. EXP-0035] |
+| `0x57` | 8  [VERTEX varying / [[position]] store to the UVS/parameter buffer the FS iter op interpolates. Memory-family (low-nibble 7). byte+3=source GPR, byte+4=output slot (index<<5; position=slots 0-3). EXP-0037 HW-splice-proven] |
+| `lownibble_0x5 + (byte+1 & 0xf0)==0x80 + byte+2==0x0c` | 14  [tex_sample companion-gate WIDENED (EXP-0037) from byte+1==0x80 to high-nibble 8 so the CHAINED-companion forms (0x82/0x84/0x88 before the 2nd..Nth sample op) also absorb their 10-byte 0xb0/0x90 sampler op] |
+| `0x09 op-select 0x26/0x2e` | 8 if (byte+4 & 0x02) else 6  [fused mul / mul-add COORDINATE / matrix-multiply op -- byte+2 bit1 is SET yet the 2-source form is 6B, so length reads byte+4 bit1 not byte+2 bit1 (EXP-0037). 0x09 op-select 0x18/0x38 = 4 compact accumulate] |
+| `0xNb (byte+2 in {0x27,0x2f})` | 10  [texture COORDINATE / LOD / gather-offset setup ALU (tex_coord_setup); must precede the (byte+2 hi-nibble 2)=4 compact-move branch. EXP-0037] |
+| `0x2e/0x3e (byte+2==0x23)` | 10  [coordinate / interpolation fused mul-add ALU LEADER (coord_madf); gated tightly on the `23 a0 42` coord signature. EXP-0037] |
+| `0x30/0x90/0xb0 (byte+2 in texture-variant set)` | 10  [standalone texture SAMPLER OP fallback, resync-only; primary closer is the companion-gate widening. EXP-0037] |
+| `0x32` | 6  [u64 CARRY-GENERATE (carry_gen): unsigned-overflow compare (byte+2==0x35, byte+4==0x22) detecting the low-word add carry in a 64-bit ADD chain; predicate feeds a 0x05 psel. EXP-0038] |
+| `0x22 (byte+2==0x35)` | 6  [carry-generate sibling of 0x32 (intermediate carry of a 3-operand u64 add); the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038] |
+| `0x6f` | 6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch frame a non-leaf callee uses to save its link register around inner calls. EXP-0038] |
+| `0x07 (byte+1==0x00, byte+2==0x54)` | 8  [LINK-REGISTER SAVE/RESTORE around a nested call in a non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte threadgroup_barrier / pixel_order. EXP-0038] |
+| `0x18` | 4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038] |
+| `0xbf/0x3f/0xb7 cache bit` | the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-reduce byte+2==0x56 disambiguation is deliberately NOT relaxed. |
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 61 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 68 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

@@ -153,7 +153,13 @@ def instr_length(buf, off=0):
     # interlock cannot cover. byte+2==0x54 gates it off from the vtx/frag 0x07 varying
     # stores (compute only). simdgroup_barrier emits NO 0x07 op (lockstep 32-lane simd).
     if b0 == 0x07 and off + 2 < len(buf) and buf[off + 2] == 0x54:
-        return 6                       # threadgroup / execution barrier (EXP-0025 HW)
+        # EXP-0038: the NON-LEAF-frame link-register SAVE/RESTORE is an 8-byte op in
+        # the same 0x07 family (byte+1==0x00, byte+4==0x81), distinct from the 6-byte
+        # threadgroup_barrier / pixel_order (byte+1 in {0x04,0x14}). The old flat rule
+        # lengthed both as 6 and desynced every non-leaf helper -- gate on byte+1.
+        if off + 1 < len(buf) and buf[off + 1] == 0x00:
+            return 8                   # link register save/restore around a nested call (EXP-0038 HW)
+        return 6                       # threadgroup / execution barrier | pixel_order (EXP-0025/0029 HW)
     # ---- TEXTURE / SAMPLE family (EXP-0016, HW-validated) ----
     # Texture sample & texture.read are a 14-byte bundle: a 4-byte coordinate/result
     # "companion" (byte0 low-nibble 5, byte+1==0x80, byte+2==0x0c) immediately
@@ -161,9 +167,12 @@ def instr_length(buf, off=0):
     # its high nibble is the result-register selector). Gate on the companion
     # signature so it never collides with the 4-byte psel/sel (byte0 0x05/0x16).
     if ((b0 & 0x07) == 0x05 and off + 2 < len(buf)
-            and buf[off + 1] == 0x80 and buf[off + 2] == 0x0c):
+            and (buf[off + 1] & 0xf0) == 0x80 and buf[off + 2] == 0x0c):
         return 14                      # tex_sample / tex_read (companion + sampler op);
-                                       # low-3-bits 5 covers the 0x0d sample_compare companion (EXP-0034)
+                                       # low-3-bits 5 covers the 0x0d sample_compare companion (EXP-0034).
+                                       # EXP-0037 FIX: byte+1 widened from ==0x80 to high-nibble 8 so the
+                                       # CHAINED-companion forms (0x82/0x84/0x88 before the 2nd..Nth sample
+                                       # op in multi-sample kernels) also absorb their 0xb0/0x90 sampler op.
     if b0 == 0xd7:
         return 16                      # texture WRITE (memory family; EXP-0016 HW)
     # ---- SUBGROUP / QUAD FAMILY (EXP-0018, HW-validated) ----
@@ -171,8 +180,12 @@ def instr_length(buf, off=0):
     # 8 bytes, always byte+2 == 0x56. NB byte0 0x37 is ALSO the fragment-only
     # derivative (10B, EXP-0016); disambiguate on byte+2 (reduce ops set 0x56,
     # derivatives do not). Compute vs fragment never coexist, so this is safe.
-    if b0 in (0xbf, 0x3f, 0xb7) and off + 2 < len(buf) and buf[off + 2] == 0x56:
-        return 8                       # simd/quad reduce/scan
+    if b0 in (0xbf, 0x3f, 0xb7) and off + 2 < len(buf) and (buf[off + 2] & ~0x02) == 0x54:
+        return 8                       # simd/quad reduce/scan. EXP-0038: accept byte+2 in
+                                       # {0x54,0x56} -- bit17 is a source cache/last-use hint,
+                                       # not an op change (a later-consumer reduce comes out 0x54).
+                                       # NB gate is ONLY on 0xbf/0x3f/0xb7 -- the 0x37 derivative-vs-
+                                       # quad-reduce disambiguation below is deliberately untouched.
     if b0 == 0x37:
         if off + 2 < len(buf) and buf[off + 2] == 0x56:
             return 8                   # quad reduce/scan (and/min)  EXP-0018
@@ -194,9 +207,17 @@ def instr_length(buf, off=0):
         # The reduction compiler emits it interleaved with the 6-byte 0x3c fadds.
         # (This is arithmetic, NOT a scoreboard wait -- proven by a byte+3 source-reg
         #  sweep + the add-count = N-1 for an N-value sum; EXP-0025.)
-        if off + 2 < len(buf) and buf[off + 2] == 0x38:
-            return 4                   # compact float accumulate (EXP-0025)
-        return 8 if (buf[off + 2] & 0x02) else 6
+        # EXP-0037 op-select-aware length FIX: the flat `8 if (byte+2 bit1) else 6`
+        # mis-lengths the fused-mul COORDINATE / matrix-multiply op-selects 0x26/0x2e
+        # (byte+2 bit1 is SET yet the 2-source form is 6 bytes) -- for those, the
+        # length selector is byte+4 bit1, not byte+2 bit1. 0x18/0x38 = 4-byte compact
+        # accumulate. Everything else keeps the HW-validated fadd/fmul/fma rule.
+        b2 = buf[off + 2] if off + 2 < len(buf) else -1
+        if b2 in (0x18, 0x38):
+            return 4                   # compact float accumulate (EXP-0025 / EXP-0037)
+        if b2 in (0x26, 0x2e):
+            return 8 if (off + 4 < len(buf) and (buf[off + 4] & 0x02)) else 6  # fused mul / mul-add coord op (EXP-0037)
+        return 8 if (b2 & 0x02) else 6
     if lo == 0x0b:
         # EXP-0020: the uniform-register -> GPR move is a compact 4-byte form in
         # this group (`Xb YY 01 08`). The 10-byte funary/ilogic forms always carry
@@ -212,6 +233,11 @@ def instr_length(buf, off=0):
             return 10                  # float unary (fmov/fneg/fabs) & int bitwise (and/or/xor)
         if b0 in (0x2b, 0x3b, 0x5b, 0x8b) and (b2 & 0x0f) in (0x0e, 0x0f):
             return 10                  # shift-amount PREP stage (EXP-0033, byte+2 lo-nibble e/f)
+        if b2 in (0x27, 0x2f):
+            return 10                  # texture COORDINATE / LOD / gather-offset setup ALU
+                                       # (EXP-0037 tex_coord_setup, byte+2 in {0x27,0x2f}). MUST come
+                                       # before the (b2 & 0xf0)==0x20 compact-move branch, which would
+                                       # otherwise mis-length these 10-byte ops as 4 and desync tex streams.
         if (b2 & 0xf0) == 0x20:
             return 4                   # compact scalar/call-argument MOVE (byte+2 hi-nibble 2:
                                        # `ab 82 21 c0`, the r10/r11 arg marshalling around a CALL).
@@ -332,7 +358,10 @@ def instr_length(buf, off=0):
     # min3/max3/clamp chained min/max op is 6 bytes (byte+2 low-nibble == 0x0e, the
     # 0x1e iminmax op byte); other 0x22 forms (shift / sign-extend helpers) are 10.
     if b0 == 0x22:
-        return 6 if (off + 2 < len(buf) and (buf[off + 2] & 0x0f) == 0x0e) else 10
+        b2 = buf[off + 2] if off + 2 < len(buf) else -1
+        # 6 = min3/max3/clamp chained min/max (byte+2 lo-nibble 0x0e) OR the u64
+        # carry-generate sibling of 0x32 (byte+2==0x35, EXP-0038); else 10 (shift helper).
+        return 6 if ((b2 & 0x0f) == 0x0e or b2 == 0x35) else 10
     # (the register/64-bit shift-amount PREP stage 0x2b/0x3b/0x5b/0x8b is handled in
     #  the low-nibble-0xb block above, gated on byte+2 low-nibble e/f -- EXP-0033.)
     # ---- SIMD-group MATRIX multiply-accumulate (byte0 0xcf, 12B, EXP-0022) ----
@@ -356,6 +385,54 @@ def instr_length(buf, off=0):
     # data during traversal; present in every RT kernel, absent from the software loop.
     if b0 == 0xdf:
         return 14                      # rt_as_load (EXP-0023)
+    # ---- VERTEX-stage varying / [[position]] store (byte0 0x57, EXP-0037) -----
+    # Traditional VS output store to the UVS / vertex-parameter buffer that the FS
+    # iter op interpolates (EXP-0029). Memory-family opcode (low-nibble 7); byte+3 =
+    # source GPR, byte+4 = destination output slot. 8 bytes. HW-splice-proven.
+    if b0 == 0x57:
+        return 8                       # vary_store (EXP-0037 HW)
+    # ---- NON-LEAF FUNCTION FRAME PROLOGUE (byte0 0x6f, EXP-0038) --------------
+    # Establishes the per-thread scratch frame a non-leaf callee uses to save its
+    # link register around inner calls. `6f 03 04 00 00 20`. 6 bytes.
+    if b0 == 0x6f:
+        return 6                       # frame_prologue (EXP-0038 HW role)
+    # ---- u64 CARRY-GENERATE (byte0 0x32, EXP-0038) ---------------------------
+    # Unsigned-overflow compare (integer compare/min-max family, base 0x02|0x30;
+    # byte+2==0x35, byte+4==0x22) detecting the carry-out of the low-word add in a
+    # 64-bit ADD chain. Its predicate feeds a 0x05 psel that adds carry into the high
+    # word. 6 bytes. HW+splice-validated.
+    if b0 == 0x32:
+        return 6                       # carry_gen (EXP-0038 HW)
+    # ---- HALF-LANE PACK (byte0 0x18, EXP-0038) -------------------------------
+    # Assembles the two fp16 lanes of a half2 (native-half 0x10 ALU result) into one
+    # packed 32-bit register before the device store. `18 05 18 03`. 4 bytes. byte0
+    # high nibble = dst reg nibble (0x08/0x18/0x28/0x38 = dst r0..r3). HW round-trip
+    # proven. GATED on the validated compute shape (byte+1==0x05, byte+2 = half_alu
+    # result reg with high-nibble 1) so it never mis-lengths the 6-byte high-register
+    # sibling form (byte+2==0x24, a documented follow-up) NOR spuriously names operand
+    # bytes reached via census resync (`18 05 e7 00` etc.). EXP-0039 regression-tested:
+    # blanket 0x18->4 named operand bytes as half_pack and dropped k_cvt_half 78->76.
+    if (b0 == 0x18 and off + 2 < len(buf)
+            and buf[off + 1] == 0x05 and (buf[off + 2] & 0xf8) == 0x18):
+        return 4                       # half_pack (EXP-0038 HW; shape-gated EXP-0039)
+    # ---- COORDINATE / interpolation fused-mul ALU LEADER (0x2e/0x3e, EXP-0037) -
+    # 10-byte form `2e/3e b1 23 a0 42 00 00 06 02 00` in the texture coordinate /
+    # cube-array normalized-coord math. GATE TIGHTLY on byte+2==0x23 (the `23 a0 42`
+    # coordinate signature) so it never fires on bare low-nibble-e resync bytes;
+    # exclude 0x0e (stop, matched above). Distinct from the byte+2 op-select 0x26/0x2e
+    # case (a low-nibble-9 float op) handled in the 0x09 block. EXP-0037 inferred.
+    if (b0 & 0x0f) == 0x0e and b0 != 0x0e and off + 2 < len(buf) and buf[off + 2] == 0x23:
+        return 10                      # coord_madf (EXP-0037)
+    # ---- STANDALONE texture SAMPLER OP fallback (0x30/0x90/0xb0, EXP-0037) -----
+    # A bare 10-byte sampler op (byte0 = result_reg<<4 | 0) NOT preceded by a matched
+    # tex_sample companion -- only reachable via resync. Gate tightly on byte+2 in the
+    # texture-variant set so it never over-claims a plain 0x90/0x30 operand byte. This
+    # is belt-and-suspenders for census robustness; the companion-gate widening above is
+    # the primary closer. EXP-0037.
+    if b0 in (0x30, 0x90, 0xb0) and off + 2 < len(buf) and buf[off + 2] in (
+            0x00, 0x04, 0x07, 0x09, 0x13, 0x17, 0x1b, 0x20, 0x21,
+            0x29, 0x39, 0x53, 0x79, 0x80, 0x97):
+        return 10                      # standalone sampler op (EXP-0037 fallback)
     return LEN_UNKNOWN
 
 
@@ -1348,12 +1425,17 @@ DB = [
     {
         "mnemonic": "simd_reduce",
         "length": 8,
-        "match": [(0, 3, 0b111), (4, 2, 0b11), (16, 8, 0x56)],
+        # EXP-0038: byte+2 bit1 (instr bit17) is a source CACHE / LAST-USE hint, not an
+        # op change -- the SAME reduce comes out 0x56 standalone but 0x54 as a later
+        # consumer. Make bit17 a don't-care (accept 0x54 and 0x56) and capture it in the
+        # `cache` field so the codec round-trips both variants byte-exact.
+        "match": [(0, 3, 0b111), (4, 2, 0b11), (16, 1, 0), (18, 6, 0x15)],
         "fields": [
             {"name": "scope",   "start": 3,  "width": 1, "type": "enum",
              "enum": {1: "simd", 0: "quad"}},          # HW-VALIDATED (bf/3f simd, b7/37 quad)
             {"name": "b0hi",    "start": 6,  "width": 1, "type": "raw"},
             {"name": "opcls",   "start": 7,  "width": 1, "type": "mod"},   # HW-VALIDATED (bf<->3f or<->and)
+            {"name": "cache",   "start": 17, "width": 1, "type": "mod"},   # byte+2 bit1 = source cache/last-use hint (EXP-0038)
             {"name": "op",      "start": 8,  "width": 8, "type": "opcode",
              "enum": {0x00: "or/and", 0x01: "add/xor", 0x02: "max/min", 0x06: "fadd"}},
             {"name": "b3",      "start": 24, "width": 8, "type": "raw"},
@@ -2080,7 +2162,11 @@ DB = [
     {
         "mnemonic": "unpack_convert",
         "length": 10,
-        "match": [(0, 8, 0x17), (16, 8, 0x56)],   # byte0 0x17 collides with simd_ballot; the latter is gated on byte+1==0x07
+        # byte0 0x17 collides with simd_ballot; the latter is gated on byte+1==0x07 (weight 16 > this
+        # weight 15, so it still wins the tie). EXP-0038: byte+2 bit1 (instr bit17) is a source cache/
+        # last-use hint -- relax the match so both the 0x54 and 0x56 variants NAME (the `b2` field below
+        # captures the full byte+2, so the codec still round-trips byte-exact).
+        "match": [(0, 8, 0x17), (16, 1, 0), (18, 6, 0x15)],
         "fields": [
             {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
             {"name": "b2",   "start": 16, "width": 8, "type": "raw"},
@@ -2115,6 +2201,187 @@ DB = [
         "provenance": "HW-VALIDATED behaviour (EXP-0033): min3/max3/median3/clamp_i read back exact; two-op "
                      "structure and sel codes established by byte-diff; sel-code semantics from the HW-validated "
                      "EXP-0007 0x02 iminmax.",
+    },
+    # ========================================================================
+    # VERTEX VARYING STORE + TEXTURE COORDINATE MATH (EXP-0037)
+    # ========================================================================
+    # ---- VERTEX-stage varying / [[position]] store (byte0 0x57, 8 B) --------
+    {
+        "mnemonic": "vary_store",
+        "length": 8,
+        "match": [(0, 8, 0x57)],
+        "fields": [
+            {"name": "hint1",    "start": 8,  "width": 8, "type": "mod"},
+            {"name": "hint2",    "start": 16, "width": 8, "type": "mod"},
+            {"name": "src",      "start": 24, "width": 8, "type": "reg"},   # byte+3 = source GPR (HW-proven)
+            {"name": "out_slot", "start": 32, "width": 8, "type": "imm"},   # byte+4 = destination output slot (index<<5)
+            {"name": "b5",       "start": 40, "width": 8, "type": "raw"},   # byte+5 = 0x40 (const observed)
+            {"name": "hint6",    "start": 48, "width": 8, "type": "mod"},   # byte+6 = splice-inert hint
+            {"name": "b7",       "start": 56, "width": 8, "type": "raw"},   # byte+7 = 0x00
+        ],
+        "semantics": "uvs_buffer[out_slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a "
+                     "user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from "
+                     "(the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 "
+                     "0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = "
+                     "SOURCE GPR; byte+4 = DESTINATION OUTPUT SLOT (index<<5): [[position]].xyzw = slots 0-3 "
+                     "(byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4+ (0x80/0xa0/0xc0/0xe0). ONE op "
+                     "per scalar component. Position-vs-varying is the SLOT RANGE, not a distinct opcode. "
+                     "Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.",
+        "provenance": "HW-VALIDATED (EXP-0037): splice-and-render on the A18 Pro via agxrender. byte+4=out-slot "
+                     "proven by redirecting va.z's store slot 0xc0->0x80 (FS RED shows va.z's gradient) and by "
+                     "moving position out of slots 0-3 (degenerate triangle); byte+3=source proven by zeroing "
+                     "it (RED channel -> 0); byte+6 proven INERT. Length 8 tokenizes all VS stores byte-exact.",
+    },
+    # ---- texture COORDINATE / LOD / gather-offset setup ALU (0xNb, 10 B) -----
+    {
+        "mnemonic": "tex_coord_setup",
+        "length": 10,
+        "match": [(0, 4, 0x0b), (16, 8, 0x2f)],
+        "fields": [
+            {"name": "b0hi",  "start": 4,  "width": 4,  "type": "raw"},
+            {"name": "b1",    "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "subop", "start": 16, "width": 8,  "type": "opcode",
+             "enum": {0x27: "coord/LOD", 0x2f: "coord/interp"}},
+            {"name": "b3",    "start": 24, "width": 8,  "type": "raw"},
+            {"name": "mark",  "start": 32, "width": 8,  "type": "raw"},
+            {"name": "body",  "start": 40, "width": 40, "type": "raw"},
+        ],
+        "semantics": "texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, "
+                     "byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / "
+                     "normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset "
+                     "that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD "
+                     "register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length "
+                     "but is not separately named here; the descriptor matches the 0x2f coord/interp form.)",
+        "provenance": "inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length makes k_tex_gather/"
+                     "lod/compare/array_cube tokenize to the 0e stop with byte-exact re-serialization. The "
+                     "coordinate-feeding role reuses EXP-0016's HW-validated op+1/op+3 coordinate operands; "
+                     "fields not individually splice-decoded (a coord splice needs a non-uniform texture).",
+    },
+    # ---- coordinate / interpolation fused mul-add ALU LEADER (0x2e/0x3e, 10 B) -
+    {
+        "mnemonic": "coord_madf",
+        "length": 10,
+        "match": [(0, 8, 0x2e), (16, 8, 0x23)],
+        "fields": [
+            {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "op",   "start": 16, "width": 8,  "type": "raw"},
+            {"name": "srcA", "start": 24, "width": 8,  "type": "reg"},
+            {"name": "mark", "start": 32, "width": 8,  "type": "raw"},
+            {"name": "body", "start": 40, "width": 40, "type": "raw"},
+        ],
+        "semantics": "coordinate / interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (sibling 0x3e), "
+                     "10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation "
+                     "path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of "
+                     "the low-nibble-9 float group, in the vertex matrix-vector product -- a general fused mul/"
+                     "mul-add, not texture-specific. This descriptor covers ONLY the byte0-LEADER 0x2e form "
+                     "(gated on byte+2==0x23); the far more common op-select case is a 0x09 float op handled by "
+                     "the float-ALU op-select length rule, NOT here.",
+        "provenance": "inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length aligns k_tex_array_cube "
+                     "(`2e 87 23 a0 42 00 00 06 02 00`) cleanly between sample bundles; byte-exact re-serialization. "
+                     "Fused-mul-add semantics inferred from co-occurrence in mvp*pos; not splice-decoded.",
+    },
+    # ========================================================================
+    # u64 CARRY / NON-LEAF FRAME / HALF PACK (EXP-0038)
+    # ========================================================================
+    # ---- u64 CARRY-GENERATE (byte0 0x32, 6 B) --------------------------------
+    {
+        "mnemonic": "carry_gen",
+        "length": 6,
+        "match": [(0, 8, 0x32), (16, 8, 0x35)],
+        "fields": [
+            {"name": "subop",   "start": 8,  "width": 8, "type": "raw"},
+            {"name": "marker",  "start": 16, "width": 8, "type": "raw"},
+            {"name": "srcA",    "start": 24, "width": 8, "type": "reg"},
+            {"name": "cmpmode", "start": 32, "width": 8, "type": "enum",
+             "enum": {0x22: "ordered"}},
+            {"name": "b5",      "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "u64 CARRY-GENERATE. `32 01 35 03 22 81` (6 bytes). An unsigned-overflow compare in the "
+                     "integer compare / min-max family (byte0 0x32 = 0x02|0x30; byte+2==0x35 marker; byte+4==0x22 "
+                     "ordered-compare mode) detecting the carry-OUT of the immediately-preceding low-word 32-bit "
+                     "add (sum_lo < operand, unsigned). Its per-lane predicate feeds a following 0x05 psel that "
+                     "materializes the carry as {0,1}, added into the HIGH-word add. The compiler emits this "
+                     "explicit chain for 64-bit ADD; 64-bit SUB uses the single native 0x1f op. Siblings byte0 "
+                     "0x12 (a+const) and 0x22 (intermediate carry of a 3-operand add) share the byte+2==0x35 "
+                     "signature. Operand register bit-packing inferred (byte-diff).",
+        "provenance": "HW+SPLICE-VALIDATED (EXP-0038): u64 add carry correct across low->high carry "
+                     "(0xFFFFFFFF+1 -> lo=0,hi=1), full carry-out, both-word carry, and a 3-operand two-chain add. "
+                     "SPLICE-PROVEN load-bearing: neutralizing this op (byte0 0x32->0x00 or byte+4 0x22->0x26) "
+                     "drops the carry (hi 1->0) while the low word stays correct. Length 6 tokenizes the chain "
+                     "to 0 leftover (verify_fixes.py).",
+    },
+    # ---- NON-LEAF FUNCTION FRAME PROLOGUE (byte0 0x6f, 6 B) ------------------
+    {
+        "mnemonic": "frame_prologue",
+        "length": 6,
+        "match": [(0, 8, 0x6f)],
+        "fields": [
+            {"name": "subop",      "start": 8,  "width": 8, "type": "raw"},
+            {"name": "marker",     "start": 16, "width": 8, "type": "raw"},
+            {"name": "b3",         "start": 24, "width": 8, "type": "raw"},
+            {"name": "b4",         "start": 32, "width": 8, "type": "raw"},
+            {"name": "frame_size", "start": 40, "width": 8, "type": "imm"},
+        ],
+        "semantics": "NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also "
+                     "shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself "
+                     "CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/"
+                     "link register around each inner call. Leaf callees have no prologue and return via "
+                     "`8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the "
+                     "8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. byte+1==0x03 = frame sub-op; "
+                     "byte+2 = 0x04/0x54 marker; byte+5 = candidate frame/scratch-size field (INFERRED).",
+        "provenance": "HW-VALIDATED role (EXP-0038): the non-leaf chains k_chain and k_deep dispatch to correct "
+                     "outputs; the 0x6f prologue is present verbatim in every non-leaf helper region extracted "
+                     "from our own compiled kernels and ABSENT from every leaf helper. Field roles are byte-diff "
+                     "INFERRED. Length 6 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py).",
+    },
+    # ---- LINK-REGISTER SAVE / RESTORE around a nested call (byte0 0x07, 8 B) --
+    {
+        "mnemonic": "link_save_restore",
+        "length": 8,
+        "match": [(0, 8, 0x07), (8, 8, 0x00), (16, 8, 0x54), (32, 8, 0x81)],
+        "fields": [
+            {"name": "b1",         "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "marker",     "start": 16, "width": 8,  "type": "raw"},
+            {"name": "b3",         "start": 24, "width": 8,  "type": "raw"},
+            {"name": "scope",      "start": 32, "width": 8,  "type": "raw"},
+            {"name": "dir_offset", "start": 40, "width": 24, "type": "raw"},
+        ],
+        "semantics": "LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each "
+                     "CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` "
+                     "(8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) "
+                     "and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/"
+                     "pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; "
+                     "byte+5..+7 discriminate SAVE (00 00 00) from RESTORE (ff 1f 00, a scratch offset). A "
+                     "non-leaf callee spills its own link register because each inner CALL clobbers the hardware "
+                     "link register (ret 0x8f encodes no return target).",
+        "provenance": "HW-VALIDATED role (EXP-0038): present (exactly bracketing each nested CALL) in every "
+                     "non-leaf helper region of k_chain/k_deep/k_bigframe, absent from leaf helpers; the frame "
+                     "dispatches correctly. byte-field roles are byte-diff INFERRED. Length 8 tokenizes the "
+                     "non-leaf frame to 0 leftover (verify_fixes.py). Without the byte+1 length gate the old "
+                     "rule mis-lengths this as a 6-byte barrier and desyncs every non-leaf helper.",
+    },
+    # ---- HALF-LANE PACK (byte0 0x18, 4 B) ------------------------------------
+    {
+        "mnemonic": "half_pack",
+        "length": 4,
+        "match": [(0, 8, 0x18)],
+        "fields": [
+            {"name": "dstlo", "start": 8,  "width": 8, "type": "reg"},
+            {"name": "src",   "start": 16, "width": 8, "type": "reg"},
+            {"name": "b3",    "start": 24, "width": 8, "type": "raw"},
+        ],
+        "semantics": "HALF-LANE PACK (assemble a half2 into a packed 32-bit register). `18 05 18 03` (4 bytes). "
+                     "Combines the two fp16 lanes produced by the native-half 0x10 ALU (EXP-0033 half_alu) into "
+                     "one 32-bit word for the device store (and the reverse assembly for half unpacks). Confirmed "
+                     "4 bytes across half2 add (`18 05 18 03`), mul (`18 05 19 03`) and fma (`18 05 1b 07`). byte0 "
+                     "HIGH nibble = destination register nibble -- the SAME op appears as 0x08/0x18/0x28/0x38 for "
+                     "dst r0/r1/r2/r3 (this descriptor matches the 0x18 dst-r1 form). byte+2 = source register "
+                     "(reg<<1)|hint. A longer 6-byte high-register form (byte+2==0x24, seen as 0x30/0x38 in the "
+                     "broad corpus) is a documented follow-up. short2/short4 (int16) does NOT pack.",
+        "provenance": "HW-VALIDATED (EXP-0038): the half2 round-trip k_h2roundtrip (float2 -> fp16 pack (0x18) -> "
+                     "store -> load -> unpack -> float2) returns EXACT for 8 values. 4-byte length confirmed by "
+                     "anchored segmentation of half2 add/mul/fma. Operand bit-packing INFERRED. The 0x30/0x38 "
+                     "census siblings + the 6-byte high-register form are INFERRED (not splice-validated).",
     },
 ]
 
@@ -2346,6 +2613,38 @@ def to_json():
                         "exec-mask push; (byte+1==0x80) = 6 INDIRECT CALL leader; (byte+1==0x06) = 6 reconverge. EXP-0035",
                 "0x8f": "4  [function RETURN (`8f <lm> 54 00`); no encoded target (HW link register / CF stack); "
                         "byte+1 0x02 leaf / 0x12 non-leaf. EXP-0035]",
+                # ---- EXP-0037 (vertex varying store + texture coordinate math) ----
+                "0x57": "8  [VERTEX varying / [[position]] store to the UVS/parameter buffer the FS iter op "
+                        "interpolates. Memory-family (low-nibble 7). byte+3=source GPR, byte+4=output slot "
+                        "(index<<5; position=slots 0-3). EXP-0037 HW-splice-proven]",
+                "lownibble_0x5 + (byte+1 & 0xf0)==0x80 + byte+2==0x0c":
+                        "14  [tex_sample companion-gate WIDENED (EXP-0037) from byte+1==0x80 to high-nibble 8 so "
+                        "the CHAINED-companion forms (0x82/0x84/0x88 before the 2nd..Nth sample op) also absorb "
+                        "their 10-byte 0xb0/0x90 sampler op]",
+                "0x09 op-select 0x26/0x2e": "8 if (byte+4 & 0x02) else 6  [fused mul / mul-add COORDINATE / "
+                        "matrix-multiply op -- byte+2 bit1 is SET yet the 2-source form is 6B, so length reads "
+                        "byte+4 bit1 not byte+2 bit1 (EXP-0037). 0x09 op-select 0x18/0x38 = 4 compact accumulate]",
+                "0xNb (byte+2 in {0x27,0x2f})": "10  [texture COORDINATE / LOD / gather-offset setup ALU "
+                        "(tex_coord_setup); must precede the (byte+2 hi-nibble 2)=4 compact-move branch. EXP-0037]",
+                "0x2e/0x3e (byte+2==0x23)": "10  [coordinate / interpolation fused mul-add ALU LEADER (coord_madf); "
+                        "gated tightly on the `23 a0 42` coord signature. EXP-0037]",
+                "0x30/0x90/0xb0 (byte+2 in texture-variant set)": "10  [standalone texture SAMPLER OP fallback, "
+                        "resync-only; primary closer is the companion-gate widening. EXP-0037]",
+                # ---- EXP-0038 (u64 carry / non-leaf frame / half pack / cache bit) ----
+                "0x32": "6  [u64 CARRY-GENERATE (carry_gen): unsigned-overflow compare (byte+2==0x35, byte+4==0x22) "
+                        "detecting the low-word add carry in a 64-bit ADD chain; predicate feeds a 0x05 psel. EXP-0038]",
+                "0x22 (byte+2==0x35)": "6  [carry-generate sibling of 0x32 (intermediate carry of a 3-operand u64 add); "
+                        "the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038]",
+                "0x6f": "6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch "
+                        "frame a non-leaf callee uses to save its link register around inner calls. EXP-0038]",
+                "0x07 (byte+1==0x00, byte+2==0x54)": "8  [LINK-REGISTER SAVE/RESTORE around a nested call in a "
+                        "non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte "
+                        "threadgroup_barrier / pixel_order. EXP-0038]",
+                "0x18": "4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit "
+                        "register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038]",
+                "0xbf/0x3f/0xb7 cache bit": "the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a "
+                        "source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-"
+                        "reduce byte+2==0x56 disambiguation is deliberately NOT relaxed.",
             },
         },
         "scoreboard_model": {
