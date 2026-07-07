@@ -1,0 +1,12 @@
+### item2 iadd2 add/sub polarity
+ADD p.x+p.y compiler byte0:
+  +0x34  iadd2                  9f015612021028a81105 srcA_neg=0x1 lenbit=0x1 b1hi=0x0 b2lo=0x0 arith_en=0x1 b2hi=0x15 dst=0x12 opmode=0x2 srcB_imm=0x10 b6=0x28 tail=0x511a8
+SUB p.x-p.y compiler byte0:
+  +0x12  iadd2                  1f01560a020008a81105 srcA_neg=0x0 lenbit=0x1 b1hi=0x0 b2lo=0x0 arith_en=0x1 b2hi=0x15 dst=0xa opmode=0x2 srcB_imm=0x0 b6=0x8 tail=0x511a8
+splice add byte0 0x9f->0x1f gives (10-20)=-10=4294967286:
+0x9f OK           o0=30  <== ORIG
+0x1f OK           o0=4294967286
+### item2 uniform-add mis-decoded as immediate
+uni instr = 09 0d 14 01 80 c0 (byte-ident to a+1.0 09 b1 14 01 80 c0 except byte+1); runtime out(a=10,u=7)=17, out(u=100)=110
+### item5 byte0=0x60 aligned after get_sr in big.bin (undecoded, halts tokenize):
+first 24 bytes: 8ca09106600000009f11540a0300408910049f0154040210
