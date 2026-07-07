@@ -120,12 +120,39 @@ cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = nat
 depth bias: enable = flags `+0x34` bit17, constant/slope/clamp = 3 floats in the tiler-param region
 (`…+0x2a8000`).
 
-### USC bind grammar (EXP-0019)
+### USC bind grammar + graphics shader binding (EXP-0019, resolved EXP-0024)
 The VDM (`0x18000`) holds a **fixed 8-pair template** (control-word, address) into `0x58000`/viewport/
-context — invariant under state changes (only the `+0x0c` state-size field grows). Graphics binds shaders
-**through the USC program `0x10000130000`** (no compute-style `shaderVA>>6` in the draw): 3 stage
-sub-blocks (`+0x00/+0x240/+0x480`), each led by config word `0x00880000`; fragment stage = 3rd block.
-⏳ the exact graphics shader-entry pointer bit-encoding inside the USC block is still opaque.
+context — invariant under state changes (only the `+0x0c` length word grows, see PPP below).
+
+**✅ How graphics binds shaders (EXP-0024) — there is NO `shaderVA>>N` word in userspace.** Unlike compute
+(CDM `+0x08 = shaderVA>>6`), a draw does **not** carry a shader pointer anywhere in the client command
+stream (exhaustive delta-search: growing FS moves the VS code entry +0x80, and the *only* words that track
+it are **sizes**, never an 8-byte pointer). Instead:
+- The **code BO `0x10000000000`** is a self-describing walk of `[size-header][machine-code]` blocks,
+  walked from the BO base: `+0x00` = `0x340` (offset to first block), `+0x340` = FS(#1) block size,
+  `+0x500` = VS(#2) size; stage order `[helpers][FS][VS]…`. Code sizes also mirror at `0x58000+0x08`
+  (FS code size) and `0x10000000000+0x340` (FS block header).
+- The **USC program `0x10000130000`** holds three `0x240`-byte per-stage **uniform-preamble programs**
+  (block0 ≡ block1 = vertex, block2 = fragment), each led by config `0x008800XX` (XX = stage×0x0c);
+  `+0x10/+0x18/+0x250/+0x490` = uniform-data pointers, `+0x14…` = per-shader slot ids.
+- **Driver guidance:** emit compiled code as sized blocks + emit the USC uniform-preamble programs. The
+  **code-BO-base → firmware handoff is a userspace↔kernel item** (not a client descriptor — flag for the
+  kernel team, see `kernel-interface`).
+
+### ✅ PPP fixed-function header / emission order (EXP-0024) — length word, not a present mask
+There is **no present-bit mask**. The 8 VDM bind-pairs and pool layout are **fixed**; presence is a
+**monotonic length word**: VDM `0x18000+0x0c` and pool `0x58000+0x14` both grow **+0x400** only when a
+depth/stencil block is appended (blend/cull alone → 0 VDM diff). **Per-group presence = enable bits inside
+each packet**: depth `+0x34` bit18 / `+0x38`; stencil `+0x34` bits[19:18] / `+0x3c`; blend `+0x18`,`+0x50`;
+cull `+0x70`. So a driver assembles state by writing packets + toggling their enable bits, and bumps the
+length word when the depth/stencil block is present.
+
+### ✅ Compute config word + threadgroup-memory size (EXP-0024)
+- **CDM config word** (`0x100000b0000+0x00`) = `0x00080000` (bit19 always set) + **bit23 = register/occupancy
+  tier** (EXP-0020); atomics/barriers/simd/tgmem do **not** touch it.
+- **Threadgroup (shared) memory size** is in the **shader BO `0x10000090000`**, not the CDM:
+  **`field = (tgmem_bytes << 2) | 0x80`** (HW-validated 256→32768 B) — static at `+0x40`, dynamic at
+  `+0x4c` bits[31:16].
 
 ### Tooling note (macOS 26)
 The `iotrace` interposer **must be built `-arch arm64e`** or captures silently fail; shader size-probes

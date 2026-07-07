@@ -1,0 +1,77 @@
+EXP-0024 derived evidence tables (from on-device caps/ diffs; DATA-TRACE + OWN-SHADER)
+=======================================================================================
+
+G-3 : GRAPHICS SHADER-ENTRY (USC 0x10000130000 / code BO 0x10000000000)
+-----------------------------------------------------------------------
+Determinism: base vs base2, USC 0x10000130000 restricted = 0 differing words.
+
+USC 3-block structure (base, blocks are 0x240 B each; block0 @+0x00, block1 @+0x240, block2 @+0x480):
+  block0 == block1  BYTE-IDENTICAL except +0x04 config low byte (vertex preamble, duplicated).
+  block2 differs    (fragment preamble).
+  +0x04 config word = 0x008800XX ; XX = 0x00 (blk0) / 0x0c (blk1) / 0x18 (blk2)  (stage index * 0x0c)
+  +0x10/+0x18/+0x250/+0x490 = 0x0042XXXX uniform-DATA pointers (shift +0x4000 per 16 KB when VS grows;
+                                unchanged when FS grows -> NOT a code pointer).
+
+Code-move isolation (grow FS by 4/8 fma-blocks => FS #1 grows, pushes VS #2 entry +0x80/+0x100):
+  Exhaustive delta-search over EVERY registered BO for any word changing by the code shift
+  (+0x80, or +0x80>>6=+0x2, or +0x2 raw). Result (base->fsz4):
+     0x58000   +0x08 : 0x4c0 -> 0x540   (+0x80)  = FRAGMENT-SHADER CODE SIZE (bytes)
+     0x10000000000 +0x340 : 0x140 -> 0x1c0 (+0x80) = code-BO FS block SIZE header
+  -> NO shaderVA>>N pointer anywhere tracks the moving entry. VDM 0x18000 and context BOs
+     0x28000/0x38000/0x48000 = 0 diffs under shader change. No 8-byte pointer to the USC or
+     code BO exists in any registered BO.
+
+0x58000 +0x08 = FS code size, HW-clean:
+  base 0x4c0 ; vsz4 (VS grew) 0x4c0 UNCHANGED ; fsz4 0x540 (+0x80) ; fsz8 0x5c0 (+0xc0)
+
+Code BO 0x10000000000 = sequence of [size-header][machine-code] blocks (HW-clean):
+  +0x00  = 0x340  (const; offset to first shader block / leading helper region size)
+  +0x340 = FS(#1) block size : base 0x140, fsz4 0x1c0, fsz8 0x240  (grows with FS only)
+  +0x500 = VS(#2) block size : base 0x140, vsz4 0x1c0, vsz8 0x240  (grows with VS only)
+  Stage order in BO: [helpers][FS][VS][more helpers]. HW walks blocks from the code-BO base.
+
+Padding (compile N dummy pipelines first) increments per-shader USC id/count fields
+  (+0x14/+0x254/+0x494/+0x644, form 0x002000XX, +2 per pad = 1 VS + 1 FS) but does NOT move the
+  real shader (dummies land in separate BOs) -> id/slot encoding, not a code pointer.
+
+
+G-7 : PPP FIXED-FUNCTION HEADER / EMISSION ORDER (VDM 0x18000 + pool 0x58000)
+----------------------------------------------------------------------------
+VDM 0x18000 header + fixed 8 bind-pairs (base):
+  +0x00 0x4000002e (0x40000000 | len 0x2e words)   +0x08 0x00000001
+  +0x0c STATE-ALLOC SIZE = 0x4800  -> 0x4c00 (+0x400) when a depth/stencil block present
+  +0x1c.. eight (control16, addr) pairs into the pool, INVARIANT under every state toggle.
+
+VDM 0x18000 diff base-> {depth, stencil, ds, all}: ONLY +0x0c 0x4800->0x4c00.
+VDM 0x18000 diff base-> {blend, cullback}: 0 differing words.
+=> No present-bit mask; the "present/order" grammar is a monotonic LENGTH word (VDM+0x0c and
+   pool+0x14) plus a FIXED pool layout; optional depth/stencil block adds 0x400 to the length.
+
+Pool 0x58000 header + per-group ENABLE encoding (HW-clean, base vs toggles):
+  +0x08 = FS code size (see G-3); +0x14 = state size (0x4c19 -> 0x5019, +0x400, depth/stencil)
+  DEPTH on   : +0x34 0x00040200->0x00000200 (bit18 cleared) ; +0x38/+0x40 0x07200f00->0x01000f00
+  DEPTHonly  : +0x34, and NOT the stencil words
+  STENCIL on : +0x34 0x00040200->0x000c0200 (bits19:18 set) ; +0x3c/+0x44 0x0e000000->0x0202ffff
+  BLEND on    : +0x08 (FS size, blend compiled into FS), +0x18 0->1, +0x50 0x200->0x20000200
+  CULL back   : +0x70 0x480->0x482 (cull bits[1:0])
+  "disabled" packet encodings: depth word 0x07200f00 (cmp=always,write off); stencil word 0x0e000000.
+
+
+G-8 : COMPUTE CDM CONFIG WORD + THREADGROUP-MEMORY SIZE
+------------------------------------------------------
+CDM launch record 0x100000b0000 +0x00 config word:
+  add3=0x00080000  heavy=0x00880000  atom=0x00080000  barr=0x00080000  simd=0x00080000
+  dyn256=dyn32k=st64=st8192 = 0x00080000
+  => bit19 (0x00080000) always set (compute type/enable) ; bit23 (0x00800000) = occupancy/reg TIER
+     (set only for register-heavy, EXP-0020). Atomics / barriers / simd / threadgroup-memory do
+     NOT change the config word. Rest of the word = 0 for all probed kernels.
+
+THREADGROUP-MEMORY SIZE -> BO 0x10000090000 (compute preamble/pipeline BO), NOT in the CDM.
+  Field value = (tgmem_bytes << 2) | 0x80 , 16-bit field (HW-validated, both static & dynamic):
+    tgmem bytes :   256    1024    4096    16384    32768
+    field value : 0x0480  0x1080  0x4080  0x10080  0x20080
+    check (b<<2)|0x80: 0x480  0x1080  0x4080  0x10080  0x20080   MATCH
+  static  (compile-time threadgroup array)  : field at 0x10000090000 +0x40 (low16)
+  dynamic (setThreadgroupMemoryLength:)     : field at 0x10000090000 +0x4c (bits[31:16], carries to +0x50)
+  (offset differs because the field is an operand in the per-kernel preamble; ENCODING identical.)
+  CDM record byte-identical across the dynamic sweep (confirms EXP-0011).

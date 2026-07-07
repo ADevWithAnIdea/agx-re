@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 (graphics shader binding, PPP header, tgmem/config) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -95,7 +95,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 **CRITICAL (blocks any real shader/draw):**
 - ☐ **G-1 Scoreboard / async-wait model** (silent corruption): which ops are async (tex/load/store/atomic), scoreboard slots, max-pending, wait/barrier-drain instruction. [ISA]
 - ☐ **G-2 Transcendental sequences** rcp/rsqrt/sqrt/sin/cos (0x29 seed + Newton-Raphson refinement). [ISA]
-- ☐ **G-3 Graphics USC shader-entry word** — bind VS/FS to a VDM draw (currently "opaque"). [cmdstream]
+- ☑ **G-3 Graphics shader binding** — *EXP-0024: NO shaderVA>>N in userspace; code BO = self-describing sized-block walk + USC uniform-preamble programs; code-base→fw handoff = kernel item.*
 - ☐ **G-4 Fragment varying interpolation** — iter/ldcf coefficient model for interpolated FS inputs. [ISA/frag]
 - ☐ **G-5 Special-register enum + preload ABI** — SR-number table; preloaded-reg ABI (vtx/instance id, VS attrib base, FS epilog contract). NEW `docs/abi/`. [ISA/ABI]
 
@@ -103,8 +103,8 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 - ☐ **G-6 Encoding tables IN docs/** — render the instruction DB into `docs/isa/encoding-tables.md` (stop deferring to tools/db.json); move the per-format Channels/sizeclass table into `docs/descriptors/`; validate the ⏳ operand widths (int src regs, bitwise/shift/cmp).
 
 **HIGH:**
-- ☐ **G-7 PPP fixed-function header + emission-order grammar** (present-bit header/ordering to assemble 3D state). [cmdstream]
-- ☐ **G-8 Compute threadgroup-memory-size field + CDM `+0x00` config word** decode. [cmdstream]
+- ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*
+- ☑ **G-8 tgmem size + CDM config** — *EXP-0024: tgmem=(bytes<<2)|0x80 in shader BO; config bit23=occupancy tier.*
 - ◐ **G-9 RT ✅ (EXP-0023: hybrid — HW intersect ops + shader BVH loop; build firmware-managed) + mesh shading (TODO)** hardware docs. [ISA]
 - ☐ **G-10 Native-vs-emulated capability matrix** as a decided doc (GS/tess/XFB/mesh boundary). [synthesis]
 - ☐ **G-11 Reconcile CONTRADICTION**: ZLS/depth-store + programmable sample positions — firmware (pipeline/README) vs userspace drm_asahi fields (requirements). [synthesis/kernel-iface]
