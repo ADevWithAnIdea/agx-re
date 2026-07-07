@@ -220,6 +220,17 @@ register pressure/spill, exotic types, recursion, MRT, all texture dims, indirec
   textures/samplers/gather/PCF · subgroup/quad/matrix/RT · fragment interp/output/tilebuffer/ROG · machine model
   (96 GPR/uniform/spill) · SR/ABI/vertex-fetch · cmdstream compute+graphics+state+USC+indirect/occlusion/timestamp ·
   descriptors+format table · tiling/twiddle/compression/MSAA · TBDR pipeline · kernel-interface · capability matrix.
+### RED-TEAM COVERAGE TRACKER (objective 3 — each cluster needs 2+ overlapping falsification passes with no holes)
+Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally by orchestrator; re-tested.)
+- ◐ **RT-ISA-1 arith/logic/memory/operand** (RT-1a running; +D4 memory-index resolution)
+- ☐ RT-ISA-2 control-flow/predication/loops/calls · ☐ RT-ISA-3 textures/samplers/gather/PCF
+- ☐ RT-ISA-4 subgroup/quad/matrix/RT · ☐ RT-ISA-5 fragment interp/output/tilebuffer/ROG
+- ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
+- ☐ RT-cmdstream (compute+graphics+state+USC) · ☐ RT-cmdstream-2 (indirect/occlusion/timestamp/geometry-output)
+- ☐ RT-descriptors+format+PBE · ☐ RT-tiling/twiddle/compression/MSAA · ☐ RT-pipeline/TBDR
+- ☐ RT-kernel-interface (consistency) · ☐ RT-capability-matrix (consistency)
+Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
+
 ### COMPLETION CRITERIA (formal goal — mark complete only when all three hold)
 1. **Implementable-from-docs:** a *separate* acceptance-reviewer subagent, given ONLY `docs/`, confirms it
    has enough to write a full GPU userspace from scratch (nothing else needed). [objective 1]
