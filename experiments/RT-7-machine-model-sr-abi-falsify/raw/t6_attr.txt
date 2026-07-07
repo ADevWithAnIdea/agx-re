@@ -1,0 +1,46 @@
+BUILD ok
+baseline                         VS_len=166  attrdump: pipeline OK fmt0=31 off0=0 fmt1=28 off1=16 stride=32 nattr=2 step=0
+attrdump: wrote /Users/user/cleanroom_work/rt7/baseline.bin
+stride 32->64                    VS_len=166  attrdump: pipeline OK fmt0=31 off0=0 fmt1=28 off1=16 stride=64 nattr=2 step=0
+attrdump: wrote /Users/user/cleanroom_work/rt7/stride.bin
+off1 16->12                      VS_len=166  attrdump: pipeline OK fmt0=31 off0=0 fmt1=28 off1=12 stride=32 nattr=2 step=0
+attrdump: wrote /Users/user/cleanroom_work/rt7/off1.bin
+fmt0 float3->uchar4Norm(45)      VS_len=144  attrdump: pipeline OK fmt0=45 off0=0 fmt1=28 off1=16 stride=32 nattr=2 step=0
+attrdump: wrote /Users/user/cleanroom_work/rt7/fmt0.bin
+fmt1 float4->half4(25)           VS_len=176  attrdump: pipeline OK fmt0=31 off0=0 fmt1=25 off1=16 stride=32 nattr=2 step=0
+attrdump: wrote /Users/user/cleanroom_work/rt7/fmt1.bin
+step perVertex->perInstance      VS_len=176  attrdump: pipeline OK fmt0=31 off0=0 fmt1=28 off1=16 stride=32 nattr=2 step=1
+attrdump: wrote /Users/user/cleanroom_work/rt7/step.bin
+
+=== VS byte-diffs vs baseline (proves fetch params live IN the VS code) ===
+stride 32->64                    -> 1 changed region(s):
+    @10   base=8000  variant=0001
+off1 16->12                      -> 1 changed region(s):
+    @39   base=0402  variant=8401
+fmt0 float3->uchar4Norm(45)      -> 14 changed region(s):
+    @7    base=06  variant=00
+    @19   base=0003  variant=0400
+    @24   base=5d  variant=61
+    @33   base=0603  variant=0000
+    @44   base=0b012f  variant=a70756
+    @48   base=4200008400  variant=000864281b
+    @54   base=1b032f  variant=260040
+    @58   base=4200  variant=0008
+fmt1 float4->half4(25)           -> 14 changed region(s):
+    @38   base=11  variant=09
+    @44   base=0b012f0042  variant=0c80233e00
+    @51   base=840000  variant=0c4020
+    @55   base=03  variant=01
+    @61   base=08  variant=88
+    @65   base=05  variant=03
+    @74   base=3c80233e00  variant=3b052f0042
+    @81   base=0c4080  variant=100000
+step perVertex->perInstance      -> 20 changed region(s):
+    @1    base=dd  variant=d8
+    @5    base=10  variant=11
+    @7    base=0602008000702a02  variant=00031000a817049f
+    @16   base=670054  variant=540602
+    @20   base=030000005d01004022  variant=8020702a0200670054
+    @30   base=67  variant=03
+    @32   base=44060300  variant=00005d01
+    @37   base=001104024022000b012f  variant=40220067004406030000

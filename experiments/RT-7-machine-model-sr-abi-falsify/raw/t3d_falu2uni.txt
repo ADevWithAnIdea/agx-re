@@ -1,0 +1,11 @@
+falu2_uni bytes: 090d140180c0 byte+1=0x0d(exp 0) byte+4=0x80 bit39=1
+
+(A) runtime uniform (a=0):
+  p.f0=7.0    -> out=7.0
+  p.f0=55.0   -> out=55.0
+  p.f0=1000.0 -> out=1000.0
+
+(C) toggle candidate select bits (uniform=1000,a=0):
+  toggle bit39=byte+4 bit7  (0x80->0x00) -> out=0.0 (CHANGED)
+  toggle byte+2 bit4        (0x14->0x04) -> out=1000.0 (unchanged)
+  toggle byte+5 bit1        (0xc0->0xc2) -> out=1000.0 (unchanged)

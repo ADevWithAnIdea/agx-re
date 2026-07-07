@@ -1,0 +1,36 @@
+=== (D) encoding vs fast-math / operand order ===
+  fast=False a+p.k    -> 09010c0d00c2
+  fast=False p.k+a    -> 090d140180c0
+  fast=True  a+p.k    -> 090d140180c0
+  fast=True  p.k+a    -> 09010c0d00c2
+
+8-uniform add bytes: 09010c0d00c2 off 18
+
+=== (A) runtime uniform (vary p.f0, a=0) ===
+  p.f0=7.0    -> out=7.0
+  p.f0=55.0   -> out=55.0
+  p.f0=1000.0 -> out=1000.0
+
+=== (B) sweep byte+3 (uniform index candidate); out=uniform[idx], idx=out-1000 ===
+  idx=0   byte3=0x01 OK     out=0.0 
+  idx=1   byte3=0x03 OK     out=0.0 
+  idx=2   byte3=0x05 OK     out=0.0 
+  idx=3   byte3=0x07 OK     out=0.0 
+  idx=4   byte3=0x09 OK     out=0.0 
+  idx=5   byte3=0x0b OK     out=0.0 
+  idx=6   byte3=0x0d OK     out=1000.0 =u[0]
+  idx=7   byte3=0x0f OK     out=0.0 
+  idx=8   byte3=0x11 OK     out=0.0 
+  idx=9   byte3=0x13 OK     out=0.0 
+  idx=10  byte3=0x15 OK     out=0.0 
+  idx=11  byte3=0x17 OK     out=0.0 
+  idx=12  byte3=0x19 OK     out=0.0 
+  idx=13  byte3=0x1b OK     out=0.0 
+  idx=14  byte3=0x1d OK     out=0.0 
+  idx=15  byte3=0x1f OK     out=0.0 
+  uniform-index map (byte+3): {6: 0}
+
+=== (C) toggle select-bit candidates on the a+p.f0 op (uniform=1000, a=0) ===
+  toggle byte+2 bit4        (0x0c->0x1c) -> out=0.0 (CHANGED)
+  toggle byte+5 bit1        (0xc2->0xc0) -> out=0.0 (CHANGED)
+  toggle bit39=byte+4 bit7  (0x00->0x80) -> out=1000.0 (uniform still 1000)

@@ -232,6 +232,7 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 **QUEUED ISA-FIX (batch after RT-7 frees tools/agx-isa; HW-re-validate each):**
 - **RT-5:** ballot `0x17` match (DB wrongly gates byte+1==0x07 → mis-decodes as unpack_convert); shuffle `0x47/0xc7` byte+2=0x54 gate (relaxation was applied to reduce not shuffle → fails to decode); reduce byte+7 dtype enum (int=0x01 not 0x03, excl-scan=0x09); re-mark tex op+4 (folds under direct binding) + op+6 (filtered=no-op) + **RT rt_intersect AS-select sub-fields as INFERRED** (EXP-O2C's 0x8b→0x1b HW-claim did NOT reproduce — over-claim).
 - **RT-1b:** decode the `0x0f` execution-mask family (else/while/break/pop/reconverge sub-ops) + `0x07` fence byte+2=0x02 variant + verify `0x32` carry-gen tokenizes.
+- **RT-7:** document BOTH uniform-source encodings (srcB byte+2bit4+byte+5bit1 valid, not 'wrong'); add r96+ fault/read-0; soften '~12 GPR' tier to interpolated; note threadgroups_per_grid = get_sr 0xa8 + load + divide.
 
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
 

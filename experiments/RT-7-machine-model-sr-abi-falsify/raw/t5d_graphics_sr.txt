@@ -1,0 +1,25 @@
+=== (1) real builtins end-to-end (compute) ===
+  threadgroups_per_grid.x    grid=256  tg=64  -> 4   (grid/tg=4, tg=64)
+  threadgroups_per_grid.x    grid=192  tg=64  -> 3   (grid/tg=3, tg=64)
+  threadgroups_per_grid.x    grid=128  tg=32  -> 4   (grid/tg=4, tg=32)
+  threads_per_threadgroup.x  grid=256  tg=64  -> 64   (grid/tg=4, tg=64)
+  threads_per_threadgroup.x  grid=192  tg=64  -> 64   (grid/tg=3, tg=64)
+  threads_per_threadgroup.x  grid=128  tg=32  -> 32   (grid/tg=4, tg=32)
+
+=== (2) graphics get_sr codes (read-off) ===
+  vertex_id                COMPILE_FAIL 4 'float' values) cannot be used in struct of resources/colors
+struct VO{float4 p [[position]]; float v;};
+          ^
+
+
+  instance_id              COMPILE_FAIL 4 'float' values) cannot be used in struct of resources/colors
+struct VO{float4 p [[position]]; float v;};
+          ^
+
+
+  front_facing             stage=fragment doc=0xc5 obs=[none]  >>> doc 0xc5 NOT in observed
+  simd_is_helper_thread    COMPILE_FAIL 
+fragment float4 fmain(bool h [[simd_is_helper_thread]]){return float4(h?1.0:0.0,0,0,1);}
+                      ^~~~~~
+
+

@@ -1,0 +1,23 @@
+get_sr candidates (off,b0,b1,b2,b3): [(4, '0xc', '0xa0', '0x10', '0x6')]
+using get_sr at off=4 orig b1=0xa0
+BASELINE (unspliced, tidx) -> ['pos_in_tg.x/tidx(0..63)']
+
+claimed builtin                        code   status   OBSERVED semantics
+thread_position_in_grid.x              0xa0  OK       ['pos_in_tg.x/tidx(0..63)']
+...y                                   0xa1  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...z                                   0xa2  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+thread_position_in_threadgroup.x       0xa4  OK       ['<no-match> sample=[0, 1, 2, 3, 4, 5, 6, 7]...[60, 61, 62, 63, 0, 0, 0, 0]']
+...y                                   0xa5  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...z                                   0xa6  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+thread_index_in_threadgroup            0xa7  OK       ['<no-match> sample=[0, 1, 2, 3, 4, 5, 6, 7]...[60, 61, 62, 63, 0, 0, 0, 0]']
+threads_per_threadgroup.x              0x98  OK       ['<no-match> sample=[0, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 32, 0, 0, 0]']
+...y                                   0x99  OK       ['<no-match> sample=[0, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...z                                   0x9a  OK       ['<no-match> sample=[0, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+threadgroup_position_in_grid.x         0x9c  OK       ['<no-match> sample=[32, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...y                                   0x9d  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...z                                   0x9e  OK       ['<no-match> sample=[32, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+threadgroups_per_grid.x                0xa8  OK       ['<no-match> sample=[0, 0, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 32, 0, 0, 0]']
+...y                                   0xa9  OK       ['<no-match> sample=[0, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+...z                                   0xaa  OK       ['<no-match> sample=[0, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']
+simd_lane_id                           0x82  OK       ['<no-match> sample=[32, 33, 34, 35, 36, 37, 38, 39]...[0, 0, 0, 0, 0, 0, 0, 0]']
+simd_group_id                          0x85  OK       ['<no-match> sample=[0, 32, 0, 0, 0, 0, 0, 0]...[0, 0, 0, 0, 0, 0, 0, 0]']

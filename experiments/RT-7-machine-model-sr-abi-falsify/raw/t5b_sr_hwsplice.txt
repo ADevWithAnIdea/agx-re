@@ -1,0 +1,13 @@
+get_sr: [(0, '0x82'), (4, '0xa0')]
+value get_sr off=0 (byte1=0x82)
+baseline (simd_lane) -> ['simd_lane(0..31)']
+
+splice byte1 =>                        code   status   OBSERVED
+thread_position_in_grid.x              0xa0  OK       ['tpig.x(0..127)']
+thread_position_in_threadgroup.x       0xa4  OK       ['pos_in_tg/tidx(0..63)']
+thread_index_in_threadgroup            0xa7  OK       ['pos_in_tg/tidx(0..63)']
+threads_per_threadgroup.x              0x98  OK       ['threads_per_tg(=64)']
+threadgroup_position_in_grid.x         0x9c  OK       ['tgroup_pos(0/1)']
+threadgroups_per_grid.x                0xa8  OK       ['threads_per_tg(=64)']
+simd_lane_id                           0x82  OK       ['simd_lane(0..31)']
+simd_group_id                          0x85  OK       ['simd_group(0/1 per tg)']
