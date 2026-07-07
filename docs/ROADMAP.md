@@ -19,17 +19,25 @@ them on hardware, logging every attempt — pass or fail — in `hypotheses.md`.
 Goal: prove every clean-room technique works end-to-end before doing real RE.
 
 - ☐ **0.1 Environment recon** — chip/OS/toolchain/SIP/sudo/reboot path, GPU codename from device tree (`ioreg` `compatible`/`gpu-core-count` — hardware documentation, safe). *(partly done in bring-up: A18 Pro/T8140/macOS 26.6/CLT-only/SIP off/FileVault off confirmed.)*
-- ☐ **0.2 Own-shader compile+extract tool** — MSL source → runtime `MTLLibrary` → `MTLBinaryArchive` serialize → parse the archive *with our own parser* → isolate the raw AGX machine-code bytes. (Confirmed: runtime compile works.)
-- ☐ **0.3 Disassembler bring-up** — run dougallj/applegpu + Mesa's disasm on A18 shader bytes; measure decoded-vs-unknown to size the ISA delta.
-- ☐ **0.4 IOKit/IOGPU tracing harness** — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
-- ☐ **0.5 Hardware probe harness** — compute-shader test rig (known pattern in → read back) for tiling and instruction-behavior probing.
+- ☐ **0.2 Own-shader compile+extract tool** (`tools/shdump`) — MSL source → runtime `MTLLibrary` → `MTLBinaryArchive` serialize → parse the archive *with our own parser* → isolate the raw AGX machine-code bytes. (Confirmed: runtime compile works.)
+- ☐ **0.3 (Dis)assembler bring-up** — fork the public **dougallj/applegpu** (+ Mesa `src/asahi/isa`) as the G13/G14 baseline; run it over an A18 shader corpus; measure decoded-vs-unknown to **size the ISA delta**. This becomes the seed of the Phase 1 tool.
+- ☐ **0.4 Hardware testbed (the round-trip engine)** — assemble arbitrary AGX bytes → splice into *our own* metallib/pipeline → dispatch compute → read back results (ref: applegpu `hwtestbed/`, `metallib_replacer.py`, all public/MIT). This is what makes **assemble → run → observe** possible; without it there is no extrapolate-and-test.
+- ☐ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
 
-## Phase 1 — Shader ISA (largest target)
-- ☐ Encoding delta vs G13/G14: opcodes unchanged / changed / new.
-- ☐ Register file & Dynamic-Caching implications for a compiler backend.
-- ☐ New instruction families: ray tracing, mesh shading, matrix/cooperative ops, texture/atomic changes.
-- ☐ Validate each encoding by hardware round-trip (modify instruction → run → observe).
-- Deliverable: `isa/`.
+## Phase 1 — Full A18 Pro AGX (dis)assembler + ISA spec  ⟵ PRIMARY TOOL DELIVERABLE
+Build a **complete, hardware-validated, machine-readable AGX instruction database that both
+disassembles AND assembles** A18 Pro shaders — the A18 counterpart to dougallj/applegpu. The
+assembler is not optional: it is the engine of the extrapolate-and-test loop (to test whether
+an instruction/modifier exists, we must be able to *encode* it, run it via the 0.4 testbed, and
+observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x)) == x` and
+`assemble(disassemble(bytes)) == bytes` across the whole validated corpus.
+
+- ☐ **Opcode map** — every instruction classified vs G13/G14: unchanged / changed-encoding / new / removed.
+- ☐ **Per-instruction spec** — bit-field encoding, operands, free modifiers (sat/neg/abs, fp16↔fp32, etc.), and **semantics**, each **validated by hardware round-trip** on the 0.4 testbed.
+- ☐ **Machine model** — register file (GPRs/16-bit halves), uniform regs, immediates, addressing modes, and **Dynamic-Caching** implications for a compiler backend.
+- ☐ **New instruction families** — ray-tracing intrinsics, mesh shading, matrix/cooperative ops, subgroup/quad ops, atomics, texture/image ops; whatever Apple9 added.
+- ☐ **Extrapolate & test** — sweep undocumented opcode/modifier space; log every probe (works/no-op/faults) in `hypotheses.md`.
+- Deliverables: `../tools/agx-isa/` (the assembler+disassembler, round-trip-tested) **and** `isa/` (prose + encoding tables). The tool is the executable form of the documentation.
 
 ## Phase 2 — Control / command stream & state
 - ☐ VDM (draw) / CDM (compute) / tiler / fragment command lists.
