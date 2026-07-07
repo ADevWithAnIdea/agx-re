@@ -194,6 +194,18 @@ Honestly EXCLUDED from obj-2 (microarch/kernel; document, don't gate): Dynamic-C
 memory, 2× ALU dual-issue, occupancy curve, RT reorder stage, compression codec; RT BVH build, sample positions,
 ZLS, partial-render, scissor register, shader-entry bind.
 
+### OBJECTIVE-1 GAPS (porting-guide flagged these as too-thin to emit from `docs/` alone — close before obj-1 review)
+- ☐ **G1-a USC binding-word grammar** [cmdstream, HIGHEST]: the tag magic-byte table (Shader/Uniform/Texture/Sampler)
+  + the Texture/Sampler count↔buffer split in the USC bind words. Currently only the per-stage preamble *shape* is known.
+- ☐ **G1-b PBE / render-target descriptor full bit layout** [descriptor]: the sampled-texture 32B descriptor is fully
+  specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x22, samples @+0x24).
+- ☐ **G1-c Sysval → uniform-register table** [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
+  which-uniform-holds-which-sysval mapping is not — needed to reproduce the FF-state-into-shader ABI.
+- ☐ **G1-d Scratch/spill per-core geometry + doorbell/stack-map** [kernel-adjacent]: spill proven, but scratch-base location
+  + per-core doorbell are un-RE'd. Likely partly kernel-managed — decide userspace vs kernel split.
+- ☐ **G1-e UVS/varyings linkage** [ISA/cmdstream]: the VS-output-slot ↔ FS output-select ↔ CF coefficient-binding coupling
+  (fragment reads coefficients, but the exact VS→FS varying-linkage encoding is thin).
+
 ### Phase R — RED-TEAM (adversarial verification; the user's explicit finishing directive)
 Assume EVERY finding was produced by an unreliable agent. Big structure (families/opcodes) is likely right;
 **subtle field/attribute errors are the target.** Fan out critical subagents that **RUN falsification tests**
