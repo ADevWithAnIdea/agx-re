@@ -1,0 +1,16 @@
+# desc in BO 0x10000108000+0x14c0
+# words: w0=79680022 w1=00fffc00 w2=00008000 w3=00000010 w4=00000000 w5=00000000 w6=00000000 w7=00000000
+  INFO byte0=0x22 byte1=0x00  type3b=2 type4b=2 chanArr=0x2 numtype=0 sizeclass=0x00
+  INFO swizzle bits[16:27]=0x968 -> R=R G=0 B=0 A=1
+  INFO word1=0x00fffc00  bits8_9=0b00  bits22_23=0b11
+  INFO width-1  doc12=7(->W 8)  hyp14=7(->W 8)
+  INFO height-1 doc12=4095(->H 4096)  hyp14=16383(->H 16384)
+  PASS width(hyp14 word0[28:31]|word1[0:9]): got=8 exp=8
+  PASS height(hyp14 word1[10:23]): got=16384 exp=16384
+  INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+  INFO baseVA(word2|word3[0:11]<<4)=0x10000080000
+  PASS baseVA lands at BO start: yes@0x10000080000
+  INFO word3=0x00000010 bit12(sRGB)=0 bit31(auxmeta)=0 bits14+=0x0
+  PASS sRGB word3.b12: got=0 exp=0
+  INFO secondaryVA(word4|word5[0:11]<<4)=0x0  (word4=00000000 word5=00000000)
+# SUMMARY 3/3 field checks PASS

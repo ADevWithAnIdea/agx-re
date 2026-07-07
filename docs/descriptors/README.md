@@ -19,8 +19,8 @@ Little-endian; `wordN` = 32-bit word at byte 4N.
 | **channel arrangement** | byte0 hi-nibble | with byte1 forms the format |
 | **format numeric type + size** | byte1 = `numtype<<5 \| sizeclass` | numtype: unorm=0, snorm=1, uint=2, sint=3, float=4. (Full 31-format table in EXP-0015 RESULTS.) |
 | **swizzle** | word0 bits[16:27] | 4×3-bit destination order R,G,B,A; codes R=0,G=1,B=2,A=3,One=4,Zero=5 |
-| **width−1** | word0 bits[28:31] ‖ word1 bits[0:7] | |
-| **height−1** | word1 bits[10:] | |
+| **width−1** | word0[28:31] ‖ word1[0:9] (**14-bit**, max 16384) | RT-3: NOT 12-bit — >4096 truncates otherwise |
+| **height−1** | word1[10:23] (**14-bit**, max 16384) | RT-3 correction |
 | **sampleCount** | word1 bits[24:25] | `log2(n)−1` |
 | **base VA** | word2 ‖ word3 bits[0:11] | **`VA >> 4`** (16-byte units) — HW-confirmed by VA-offset tracking |
 | **sRGB** | word3 bit12 | orthogonal flag (not a format code) |

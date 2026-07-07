@@ -1,0 +1,46 @@
+======================================================================
+RT-3 EVIDENCE — descriptor + tiling falsification (A18 Pro / G17P)
+======================================================================
+
+### DISCREPANCY 1: texture-descriptor WIDTH/HEIGHT are 14-bit, not 12-bit
+(doc: width=word0[28:31]||word1[0:7] 12-bit -> max 4096; ACTUAL 14-bit -> 16384)
+grep: caps/d_w4096 4096 8.out: No such file or directory
+grep: caps/d_w8192 8192 8.out: No such file or directory
+grep: caps/d_w16384 16384 8.out: No such file or directory
+grep: caps/d_h8192 8 8192.out: No such file or directory
+grep: caps/d_h16384 8 16384.out: No such file or directory
+
+### DISCREPANCY 2: 2D twiddle is TILED (64x64 tile <=4bpp / 32x32 >=8bpp), ROW-MAJOR tiles
+-- GF(2) bit-permutation solves (element_index over coord bits) --
+  256x256 r32(4bpp):   element_index = x0<<0 | y0<<1 | x1<<2 | y1<<3 | x2<<4 | y2<<5 | x3<<6 | y3<<7 | x4<<8 | y4<<9 | x5<<10 | y5<<11 | x6<<12 | x7<<13 | y6<<14 | y7<<15
+  256x256 rgba16(8bpp):   element_index = x0<<0 | y0<<1 | x1<<2 | y1<<3 | x2<<4 | y2<<5 | x3<<6 | y3<<7 | x4<<8 | y4<<9 | x5<<10 | x6<<11 | x7<<12 | y5<<13 | y6<<14 | y7<<15
+  256x256 rgba32(16bpp):   element_index = x0<<0 | y0<<1 | x1<<2 | y1<<3 | x2<<4 | y2<<5 | x3<<6 | y3<<7 | x4<<8 | y4<<9 | x5<<10 | x6<<11 | x7<<12 | y5<<13 | y6<<14 | y7<<15
+  512x512 r32(4bpp):   element_index = x0<<0 | y0<<1 | x1<<2 | y1<<3 | x2<<4 | y2<<5 | x3<<6 | y3<<7 | x4<<8 | y4<<9 | x5<<10 | y5<<11 | x6<<12 | x7<<13 | x8<<14 | y6<<15 | y7<<16
+-- doc-vs-tiled model reproduction (0 MISMATCH = model reproduces every texel) --
+  t_2d_256 256 256 x DOC:  
+  t_2d_256 256 256 x TILED:
+  cx_r32_512 512 512 x DOC:  
+  cx_r32_512 512 512 x TILED:
+### DISCREPANCY 1 detail: descriptor word1 for width/height >4096 (bits 8,9 / 22,23 in use)
+[W4096]    INFO word1=0x00001cff  bits8_9=0b00  bits22_23=0b00
+[W4096]    PASS width(hyp14 word0[28:31]|word1[0:9]): got=4096 exp=4096
+[W4096]    PASS height(hyp14 word1[10:23]): got=8 exp=8
+[W4096]    INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+[W8192]    INFO word1=0x00001dff  bits8_9=0b01  bits22_23=0b00
+[W8192]    PASS width(hyp14 word0[28:31]|word1[0:9]): got=8192 exp=8192
+[W8192]    INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+[W16384]   INFO word1=0x00001fff  bits8_9=0b11  bits22_23=0b00
+[W16384]   PASS width(hyp14 word0[28:31]|word1[0:9]): got=16384 exp=16384
+[W16384]   INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+[H8192]    INFO word1=0x007ffc00  bits8_9=0b00  bits22_23=0b01
+[H8192]    PASS height(hyp14 word1[10:23]): got=8192 exp=8192
+[H8192]    INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+[H16384]   INFO word1=0x00fffc00  bits8_9=0b00  bits22_23=0b11
+[H16384]   PASS height(hyp14 word1[10:23]): got=16384 exp=16384
+[H16384]   INFO word1 bit24_25(sampleCount)=0 bit26(mip)=0 bit27(comp)=0 bit28_29=0
+
+### DISCREPANCY 2 detail: doc model FAILS, corrected tiled model reproduces all
+  256x256 DOC:   checked 65536 distinct coords; 32768 MISMATCH
+  256x256 TILED: checked 65536 distinct coords; 0 MISMATCH
+  512x512 DOC:   checked 65536 distinct coords; 57344 MISMATCH
+  512x512 TILED: checked 65536 distinct coords; 0 MISMATCH

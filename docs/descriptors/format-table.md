@@ -192,8 +192,8 @@ Reproduced here so this table file is standalone. Little-endian; `wordN` = word 
 | format channel arrangement | word0 bits[4:7] (byte0 hi nibble) | §2 |
 | format code | word0 bits[8:15] (byte1) | `(numtype<<5) \| sizeclass`, §2 |
 | swizzle | word0 bits[16:27] | §3 |
-| width − 1 | word0 bits[28:31] ‖ word1 bits[0:7] (12 bits) | value = width − 1 |
-| height − 1 | word1 bits[10:...] | value = height − 1 |
+| width − 1 | word0[28:31] ‖ word1[0:9] (**14 bits**, max 16384; RT-3, NOT 12) | value = width − 1 |
+| height − 1 | word1[10:23] (**14 bits**, max 16384; RT-3) | value = height − 1 |
 | sample count (MS) | word1 bits[24:25] | `log2(samples) − 1` (2→0, 4→1) |
 | mipmapped flag | word1 bit26 | set when mipmapLevelCount > 1 |
 | compression-aux present | word1 bit27 | set when a compression metadata buffer is present (§6) |

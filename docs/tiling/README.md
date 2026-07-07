@@ -14,34 +14,34 @@ Byte/word convention matches `../descriptors/`: `wordN` = 32-bit LE word at desc
 ## 1. Optimal (twiddled) 2-D layout — Morton / Z-order
 
 A 2-D texture created in the GPU's optimal layout (Metal `newTextureWithDescriptor:`, i.e. not
-buffer-backed) is stored **twiddled in pure Morton / Z-order**. There is **no fixed sub-tile**:
+buffer-backed) is stored **twiddled as a ROW-MAJOR GRID OF MORTON TILES** (RT-3 correction — NOT one pure full-texture Morton block; that model is wrong for textures larger than one tile):
 the interleave runs across the full address; storage is **padded to the next power of two in
 each axis**.
 
-### 1.1 Offset formula
-Let `Wp = nextpow2(W)`, `Hp = nextpow2(H)`, `kx = log2(Wp)`, `ky = log2(Hp)`, `n = min(kx,ky)`.
-With `x_i` / `y_i` = bit *i* of the texel coordinates:
+### 1.1 Offset formula (CORRECTED — RT-3, GF(2)-solved, 0 mismatch on 256²/512²/NPOT)
+The texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T depends on bpp**:
+`T = 64 for bpp ≤ 4, T = 32 for bpp ≥ 8` (measured Morton depth D: 2/4 bpp → 6, 8/16 bpp → 5; T = 2^D).
+With `tx = x >> log2(T)`, `ty = y >> log2(T)`, `cols = ceil(Wp / T)` (Wp = nextpow2(W)):
 
 ```
-element_index(x,y) =  Σ_{i < n}  ( x_i << (2·i) ) | ( y_i << (2·i + 1) )       # Z-order low part
-                    +  { Σ_{i ≥ n} x_i << (n + i)   if Wp > Hp                   # wider dim, high bits
-                         Σ_{i ≥ n} y_i << (n + i)   if Hp > Wp
-                         0                          if Wp == Hp }
-
-byte_offset(x,y)   =  element_index(x,y) · bytesPerPixel
+element_index(x,y) = (ty · cols + tx) · T²  +  morton_D( x & (T−1), y & (T−1) )
+byte_offset(x,y)   = element_index(x,y) · bytesPerPixel
 ```
+where `morton_D(a,b) = Σ_{i<D} (a_i << 2i) | (b_i << 2i+1)`. **Within one tile it is plain Morton**, which is why
+all prior ≤128-px validations passed; the tiled structure only appears once **both** padded dims exceed T.
+*(Superseded the earlier "pure full-texture Morton, no sub-tile, bpp-independent" model — that was wrong above one tile.)*
 
 In words: **interleave the bits of x and y (x on the lower bit of each pair) up to the smaller
 padded dimension, then append the remaining high bits of the larger dimension linearly.** For a
 square power-of-two texture this is a full Morton curve over all bits.
 
 ### 1.2 Tile size / within-tile order
-There is **no tile boundary below the whole (padded) texture** — it is one Morton block. The
+The tile boundary is at **T texels** (64 for bpp≤4, 32 for bpp≥8); tiles are laid **row-major**. Within a tile it is Morton. The
 "within-tile order" is the Z-order itself. Reference points on the curve:
 `e0=(0,0) e1=(1,0) e2=(0,1) e3=(1,1) e4=(2,0) e5=(3,0) e6=(2,1) e7=(3,1) …`.
 
 ### 1.3 Bytes-per-pixel
-The twiddle is over **texel coordinates only** — identical for 1/2/4/8/16-byte formats
+The twiddle within a tile is over texel coordinates, BUT the **tile size T depends on bpp** (64 for ≤4 B, 32 for ≥8 B) — RT-3 corrects the earlier bpp-independence claim. For 1/2/4-byte formats
 (r8/r16/r32/rg32/rgba8/rgba16/rgba32 all validated). The byte offset is simply
 `morton(x,y) · bytesPerPixel`. Equivalently: the tile is a fixed count of texels; its byte size
 scales with bpp.
