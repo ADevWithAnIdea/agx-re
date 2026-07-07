@@ -76,7 +76,7 @@ Done (committed, provenance-cited): **0001** shader byte extraction · **0002** 
 extraction + render testbed · **0009** iotrace: submission model + interface + cmdstream structs located ·
 **0010** control flow: predication+jumps+program-structure+uniform/base-slot ·
 **0011** compute cmdstream: CDM launch descriptor + Tier-2 arg buffer + ring located ·
-**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 (graphics shader binding, PPP header, tgmem/config) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
+**0012** memory · **0014** graphics cmdstream first pass (VDM record + TA/3D split + viewport/attachment) · **0013** scalar ALU complete (conversions/fma/unary/transcendental/bitwise-LUT/shift/compare) · **0015** descriptors: texture(32B)+sampler(8B)+buffer layouts · **0016** texture-ISA: sample/read/write/query/derivative · **0018** atomics+subgroup/quad · **0019** state packets + programmable-blend + USC grammar · **0020** machine model (96 GPRs, uniforms, spill) · **0021** TBDR pipeline · **0022** matrix unit · REVIEW-01 gap-analysis · **0023** ray tracing (hybrid) · **0024** cmdstream G-3/G-7/G-8 · SYNTH: kernel-interface + capability-matrix (G-10/11/12) · **0017** tiling: Morton twiddle + mip packing + compression aux (codec open). *(Survey: mesa-userspace-requirements, msl-feature-map.)*
 
 **Next queue (ISA, Phase 1):** control-flow + program structure/termination + preamble/uniform-load;
 float fma/3-src + funary(0x0b) + fmin/max(0x12) detail; bitwise/shift/bitfield/cmp-select validate;
@@ -106,9 +106,9 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 - ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*
 - ☑ **G-8 tgmem size + CDM config** — *EXP-0024: tgmem=(bytes<<2)|0x80 in shader BO; config bit23=occupancy tier.*
 - ◐ **G-9 RT ✅ (EXP-0023: hybrid — HW intersect ops + shader BVH loop; build firmware-managed) + mesh shading (TODO)** hardware docs. [ISA]
-- ☐ **G-10 Native-vs-emulated capability matrix** as a decided doc (GS/tess/XFB/mesh boundary). [synthesis]
-- ☐ **G-11 Reconcile CONTRADICTION**: ZLS/depth-store + programmable sample positions — firmware (pipeline/README) vs userspace drm_asahi fields (requirements). [synthesis/kernel-iface]
-- ☐ **G-12 Kernel-interface contract** — VA-space layout, abstract hand-down (submit/BO/VM/sync), doorbell. NEW `docs/kernel-interface.md`. [synthesis]
+- ☑ **G-10 Native-vs-emulated capability matrix** → `docs/capability-matrix.md` (13 native / 7 emulate / 5 kernel-managed / 6 unknown).
+- ☑ **G-11 Contradiction reconciled** → `docs/kernel-interface.md`: userspace *computes* value, kernel *writes register* as submit-ioctl param (not in command stream). Both docs right at different layers.
+- ☑ **G-12 Kernel-interface contract** → `docs/kernel-interface.md` (submission model, VA-space table, 5 firmware-managed items, what kernel must provide).
 
 **MEDIUM:** programmable-blend epilog ABI; BC/ASTC + 3D/cube/array/MSAA twiddle; MSAA sample-interleave + occlusion query; explain magic values (CDM/USC config word 0x00880000, store-prog 0x6f, VDM 0x61c4/0x61f2, 0x300-seg grammar, num_gps/num_frags/is_sksm).
 
