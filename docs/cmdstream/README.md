@@ -40,7 +40,7 @@ BO `gpu_va 0x100000b0000` is a stream of **0x2c-byte records** (one per dispatch
 | `+0x00` | shader config/register word | e.g. `0x00080000`→`0x00880000` for a register-heavy shader ⏳ |
 | `+0x08` | **shader-code pointer = shaderVA >> 6** | 64-byte units. HW-confirmed: shaders at 0x90000/0x90100 → `0x2400`/`0x2404` (Δ=4) |
 | `+0x10/+0x14/+0x18` | grid x / y / z | **in threads**, not threadgroups (`dispatchThreadgroups(2)×32` ≡ `dispatchThreads(64)`) |
-| `+0x1c/+0x20/+0x24` | threadgroup x / y / z | |
+| `+0x1c/+0x20/+0x24` | threadgroup x / y / z | RT-2a: this is the **effective/driver-chosen** tg (e.g. API tg8→16, tg10→32), not the verbatim `threadsPerThreadgroup` |
 
 The arg-buffer pointer is **not** in this record — binding flows via the argument buffer, whose VA
 lives in the uniform/USC BO (`0x10000000000`). ⏳ threadgroup-memory-size field is elsewhere (not here).
@@ -86,8 +86,7 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
   graphics shader-entry word: **RESOLVED below** — draws bind shaders via a self-describing sized-block code walk (no pointer word), EXP-0024; USC bind grammar decoded in EXP-G1a.
 - **VDM draw record:** header (state-size @+0x0c) + USC bind-pairs (control-word, addr) + primitive word:
   **primitive type @+0x65** (point 0x00, line 0x01, tri 0x06, strip 0x09), **vertexCount @+0x68**,
-  **instanceCount @+0x6c**. Indexed draws switch opcode `0x61c4→0x61f2` and add **index-buffer VA @+0x70**
-  (HW-correlated) + index count @+0x74.
+  **instanceCount @+0x6c** *(non-indexed)*. **Indexed draws (RT-2a):** opcode `0x61c4→0x61f2` (u16) / **`0x61f4` (u32)**; the record **shifts** — index-buffer VA @+0x70, index count @+0x74, and **instanceCount moves to @+0x78** (NOT +0x6c). Also present: vertexStart @+0x70, baseVertex @+0x7c, baseInstance @ `0x10000100000+0x8c` (not in the VDM record), linestrip prim byte `0x03`.
 - **Viewport** = 4 transform floats @ `0x68000+0x910` (`{w/2, h/2, w/2, −h/2}` — Y-flip) + depth range
   @+0x920/+0x924; pointed to from the VDM.
 - **Attachment descriptor** (`0x10000110000`): **pixel format** byte @+0x22 (BGRA8=0x0a, RGBA8=0x88);
@@ -211,7 +210,7 @@ clean, emittable grammar:
 - **Textures + samplers → argument buffer `0x10000248000`:** a **2-pointer header** `[texture-array VA][sampler-array VA]`
   (8-byte LE GPU VAs, high32 `0x00000100`), then contiguous **32-byte texture descriptors**, then **8-byte sampler
   descriptors**, then a `0x60000000` terminator. **The Texture/Sampler count split IS this header:**
-  `num_textures = (samp_ptr − tex_ptr)/0x20`, `num_samplers = (terminator − samp_ptr)/8`. The shader's `tex_sample`
+  `num_textures = (samp_ptr − tex_ptr)/0x20`, `num_samplers = (terminator − samp_ptr)/0x20` **(RT-2a correction: samplers are 0x20-stride, not 8; the earlier `/8` overcounted 4×)**. The shader's `tex_sample`
   op+4 / op+5 index these two arrays. (HW-clean over tex1/2/3, smp1/2/3, mixed.)
 - **Buffers → `0x10000100000+0xa0`:** a flat table of **8-byte LE GPU VAs**, one per bound buffer in index order.
 - **Uniform preload → USC program `0x10000130000`** per-stage header tags: `0x0088_00XX` register/shader-config
