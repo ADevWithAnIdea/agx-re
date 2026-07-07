@@ -1,0 +1,12 @@
+### G1-e HW reorder validation (linkA/linkB: identical FS reads middle UVS slot)
+== linkA ==
+PIXEL 1 1 bgra=330000ff rgba_unorm=0.000,0.000,0.200,1.000
+STATUS OK
+== linkB ==
+PIXEL 1 1 bgra=4d0000ff rgba_unorm=0.000,0.000,0.302,1.000
+STATUS OK
+
+### uvar --vout k HW readback (vary=3, blue = (k+1)*0.1)
+vout=0: PIXEL 4 0 bgra=1adf20ff rgba=0.125,0.875,0.102,1.000
+vout=1: PIXEL 4 0 bgra=33ff40ff rgba=0.251,1.000,0.200,1.000
+vout=2: PIXEL 4 0 bgra=4dff60ff rgba=0.376,1.000,0.302,1.000

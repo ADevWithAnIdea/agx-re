@@ -345,3 +345,11 @@ topology, IOKit inventory), `mesa-userspace-requirements.md` (§1/§2b/§2e/§2f
 model and field set), `reviews/GAP-ANALYSIS-01.md` (gap #7/#13 and the G-11 contradiction). UAPI
 field names grounded in the open-source `../mesa/include/drm-uapi/asahi_drm.h`. No new experiment;
 no Apple binary introspected.
+
+## Scratch / doorbell / uniform-heap (EXP-G1a/G1b, objective-1 gap G1-d → kernel-managed)
+Userspace declares the per-thread **scratch (spill) size** in the shader's own `__GPU_METADATA` (EXP-0020); the **scratch
+buffer allocation + per-core scratch geometry**, the **`0x0042XXXX` uniform-data heap base**, the **code-BO→firmware
+shader handoff**, and the **CPU→GPU doorbell store** are all **kernel/firmware-managed** (not in any client BO). A Mesa
+userspace driver emits the scratch-size metadata and buffer/USC contents; the kernel allocates scratch, binds the heaps,
+and rings the doorbell. (These correlate with the un-RE'd per-core geometry — a kernel-team RE item, not userspace.)
+

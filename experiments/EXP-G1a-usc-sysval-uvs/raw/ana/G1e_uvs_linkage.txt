@@ -1,0 +1,37 @@
+### G1-e 0x58000+0x2c (UVS out count) and 0x18000+0x10 vs varying count
+vary0: 58000+0x2c=00000004 58000+0x20=00000000 18000+0x10=00000404
+vary1: 58000+0x2c=00000008 58000+0x20=00010000 18000+0x10=00000808
+vary2: 58000+0x2c=0000000c 58000+0x20=00010000 18000+0x10=00000c0c
+vary3: 58000+0x2c=00000010 58000+0x20=00010000 18000+0x10=00001010
+vary4: 58000+0x2c=00000014 58000+0x20=00010000 18000+0x10=00001414
+vary8: 58000+0x2c=00000024 58000+0x20=00010000 18000+0x10=00002424
+
+### VS 0x57 store slots + FS 0x2f iter coefficients (vary3: pos + 3 float4 varyings)
+=== vary3 VS 0x57 stores (SRC, 9-bit slot) ===
+  @+0x066: SRC=r5   rawSLOT=0x000 slotIdx= 0  POSITION
+  @+0x06e: SRC=r6   rawSLOT=0x020 slotIdx= 1  POSITION
+  @+0x076: SRC=r0   rawSLOT=0x040 slotIdx= 2  POSITION
+  @+0x07e: SRC=r1   rawSLOT=0x060 slotIdx= 3  POSITION
+  @+0x086: SRC=r5   rawSLOT=0x080 slotIdx= 4  user-varying#0.comp0
+  @+0x08e: SRC=r6   rawSLOT=0x0a0 slotIdx= 5  user-varying#0.comp1
+  @+0x096: SRC=r2   rawSLOT=0x0c0 slotIdx= 6  user-varying#0.comp2
+  @+0x09e: SRC=r1   rawSLOT=0x0e0 slotIdx= 7  user-varying#0.comp3
+  @+0x0a6: SRC=r7   rawSLOT=0x100 slotIdx= 8  user-varying#1.comp0
+  @+0x0ae: SRC=r8   rawSLOT=0x120 slotIdx= 9  user-varying#1.comp1
+  @+0x0b6: SRC=r3   rawSLOT=0x140 slotIdx=10  user-varying#1.comp2
+  @+0x0be: SRC=r1   rawSLOT=0x160 slotIdx=11  user-varying#1.comp3
+  @+0x0c6: SRC=r9   rawSLOT=0x180 slotIdx=12  user-varying#2.comp0
+  @+0x0ce: SRC=r10  rawSLOT=0x1a0 slotIdx=13  user-varying#2.comp1
+  @+0x0d6: SRC=r4   rawSLOT=0x1c0 slotIdx=14  user-varying#2.comp2
+  @+0x0de: SRC=r1   rawSLOT=0x1e0 slotIdx=15  user-varying#2.comp3
+=== vary3 FS iter ops (DST, coef) ===
+  @+0x000: DST=r0   COEF=0x00 coefIdx= 0  mode=persp-1/W
+  @+0x014: DST=r8   COEF=0x0a coefIdx= 5  mode=linear
+  @+0x01e: DST=r9   COEF=0x14 coefIdx=10  mode=linear
+  @+0x028: DST=r3   COEF=0x02 coefIdx= 1  mode=linear
+  @+0x032: DST=r0   COEF=0x12 coefIdx= 9  mode=linear
+  @+0x056: DST=r3   COEF=0x0c coefIdx= 6  mode=linear
+  @+0x0a4: DST=r5   COEF=0x06 coefIdx= 3  mode=linear
+  @+0x0ae: DST=r3   COEF=0x08 coefIdx= 4  mode=linear
+  @+0x0b8: DST=r2   COEF=0x18 coefIdx=12  mode=linear
+  @+0x0ca: DST=r8   COEF=0x10 coefIdx= 8  mode=linear

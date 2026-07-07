@@ -195,15 +195,15 @@ memory, 2× ALU dual-issue, occupancy curve, RT reorder stage, compression codec
 ZLS, partial-render, scissor register, shader-entry bind.
 
 ### OBJECTIVE-1 GAPS (porting-guide flagged these as too-thin to emit from `docs/` alone — close before obj-1 review)
-- ☐ **G1-a USC binding-word grammar** [cmdstream, HIGHEST]: the tag magic-byte table (Shader/Uniform/Texture/Sampler)
+- ☑ **G1-a USC binding-word grammar** (EXP-G1a) [cmdstream, HIGHEST]: the tag magic-byte table (Shader/Uniform/Texture/Sampler)
   + the Texture/Sampler count↔buffer split in the USC bind words. Currently only the per-stage preamble *shape* is known.
 - ☑ **G1-b PBE / render-target descriptor** (EXP-G1b) [descriptor]: the sampled-texture 32B descriptor is fully
   specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x22, samples @+0x24).
-- ☐ **G1-c Sysval → uniform-register table** [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
+- ☑ **G1-c Sysval→uniform = NEGATIVE (get_sr on demand, no table)** (EXP-G1a) [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
   which-uniform-holds-which-sysval mapping is not — needed to reproduce the FF-state-into-shader ABI.
-- ☐ **G1-d Scratch/spill per-core geometry + doorbell/stack-map** [kernel-adjacent]: spill proven, but scratch-base location
+- ☑ **G1-d Scratch/doorbell = KERNEL-MANAGED** (userspace declares scratch size in __GPU_METADATA; rest kernel) → kernel-interface.md [kernel-adjacent]: spill proven, but scratch-base location
   + per-core doorbell are un-RE'd. Likely partly kernel-managed — decide userspace vs kernel split.
-- ☐ **G1-e UVS/varyings linkage** [ISA/cmdstream]: the VS-output-slot ↔ FS output-select ↔ CF coefficient-binding coupling
+- ☑ **G1-e UVS/varyings linkage** (EXP-G1a, reorder HW-proven) [ISA/cmdstream]: the VS-output-slot ↔ FS output-select ↔ CF coefficient-binding coupling
   (fragment reads coefficients, but the exact VS→FS varying-linkage encoding is thin).
 
 ### Phase R — RED-TEAM (adversarial verification; the user's explicit finishing directive)

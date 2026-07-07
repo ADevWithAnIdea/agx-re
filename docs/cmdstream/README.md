@@ -205,6 +205,32 @@ sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../
 - **Metal-unreachable → emulate:** cull distance (MSL has clip only), polygon-point fill (fill/lines only), a
   *custom* restart index (HW field exists at `+0x68` but Metal always uses all-ones).
 
+## ✅ USC / resource bind grammar — RESOLVED (EXP-G1a)
+G17P has **no single tagged USC control-word list** (unlike G13). Binding is split across three structures, each with a
+clean, emittable grammar:
+- **Textures + samplers → argument buffer `0x10000248000`:** a **2-pointer header** `[texture-array VA][sampler-array VA]`
+  (8-byte LE GPU VAs, high32 `0x00000100`), then contiguous **32-byte texture descriptors**, then **8-byte sampler
+  descriptors**, then a `0x60000000` terminator. **The Texture/Sampler count split IS this header:**
+  `num_textures = (samp_ptr − tex_ptr)/0x20`, `num_samplers = (terminator − samp_ptr)/8`. The shader's `tex_sample`
+  op+4 / op+5 index these two arrays. (HW-clean over tex1/2/3, smp1/2/3, mixed.)
+- **Buffers → `0x10000100000+0xa0`:** a flat table of **8-byte LE GPU VAs**, one per bound buffer in index order.
+- **Uniform preload → USC program `0x10000130000`** per-stage header tags: `0x0088_00XX` register/shader-config
+  (`XX` = stage×0x0c), `0x0042_XXXX` uniform-data pointer, `0x0020_00XX` uniform-slot count/id. The per-resource preload
+  is done by the program *body* (`0x67` loads), not a fixed tag list. *(This supersedes the EXP-0014 "USC shader-entry
+  word ⏳" note above: graphics binds shaders via the sized-block code walk (EXP-0024), not a pointer word.)*
+
+## ✅ UVS / VS→FS varying linkage — RESOLVED (EXP-G1a)
+- **VS UVS output slots:** `[[position]]` = slots 0–3; user varying #k = slots 4+4k..7+4k (one slot/scalar, declaration
+  order). The `0x57` varying-store `byte+4 = slot<<5` (EXP-0037).
+- **FS `iter`** reads by coefficient index (`0x2f` byte+5 = coef<<1); coef 0 = perspective 1/W. The set is
+  **cross-stage-compacted** — only varyings the FS consumes are emitted; a **linker assigns matching VS-slot↔FS-coef**
+  (no byte-addressable remap descriptor). **Reorder-proven on hardware** (identical FS reading the middle slot rendered
+  0.200 vs 0.302 across two varying orderings).
+- **Count descriptor a driver emits:** `0x58000+0x2c = 4 + 4·nvary` (UVS scalar-output count), mirrored at `0x18000+0x10`.
+- **Sysvals are NOT in uniform registers** (G1-c negative): `vertex_id`/`instance_id`/`[[position]]`/`front_facing` are
+  `get_sr`-on-demand (confirms EXP-0031); the uniform file holds only base pointers + scalar/push uniforms. There is **no
+  sysval→uniform table** to build.
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/

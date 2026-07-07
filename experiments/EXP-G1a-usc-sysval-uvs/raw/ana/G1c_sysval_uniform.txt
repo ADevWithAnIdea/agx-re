@@ -1,0 +1,44 @@
+### G1-c: reading vertex_id/instance_id changes ONLY shader code, USC preamble byte-identical
+=== which BO changed vary1 -> vid ===
+  0x18000       :   0 words changed   (nz    43->   43, sz 0x8000)
+  0x58000       :   0 words changed   (nz    39->   39, sz 0x8000)
+  0x68000       :   0 words changed   (nz    10->   10, sz 0x88e0)
+  0x10000000000 :  37 words changed   (nz 36870->36898, sz 0x10000)
+  0x10000100000 :   0 words changed   (nz    19->   19, sz 0x8000)
+  0x10000110000 :   0 words changed   (nz   140->  140, sz 0x8000)
+  0x10000120000 :   1 words changed   (nz    92->   92, sz 0x8000)
+  0x10000130000 :   0 words changed   (nz  1160-> 1160, sz 0x8000)
+  0x10000248000 :   0 words changed   (nz     3->    3, sz 0x8000)
+  0x10000258000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000268000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000278000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000288000 :   0 words changed   (nz     0->    0, sz 0x8000)
+=== which BO changed vary1 -> iid ===
+  0x18000       :   0 words changed   (nz    43->   43, sz 0x8000)
+  0x58000       :   0 words changed   (nz    39->   39, sz 0x8000)
+  0x68000       :   0 words changed   (nz    10->   10, sz 0x88e0)
+  0x10000000000 :  41 words changed   (nz 36870->36912, sz 0x10000)
+  0x10000100000 :   0 words changed   (nz    19->   19, sz 0x8000)
+  0x10000110000 :   0 words changed   (nz   140->  140, sz 0x8000)
+  0x10000120000 :  47 words changed   (nz    92->  123, sz 0x8000)
+  0x10000130000 :   0 words changed   (nz  1160-> 1160, sz 0x8000)
+  0x10000248000 :   0 words changed   (nz     3->    3, sz 0x8000)
+  0x10000258000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000268000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000278000 :   0 words changed   (nz     0->    0, sz 0x8000)
+  0x10000288000 :   0 words changed   (nz     0->    0, sz 0x8000)
+
+### USC uniform-preamble header tags (0x10000130000), per-stage:
+# VS block0 (+0x00), dup block1 (+0x240), FS block2 (+0x480)
+== block @ 0x00 ==
+  --- base 0x10000130000 +0x0000..+0x0020 ---
+    +0x0000: 0002802c 00880000 0002803c 00000004
+    +0x0010: 0042e0ac 0020000a 004280bc 00000004
+== block @ 0x240 ==
+  --- base 0x10000130000 +0x0240..+0x0260 ---
+    +0x0240: 0002802c 0088000c 0002803c 00000004
+    +0x0250: 0042e0ac 0020000a 004280bc 00000004
+== block @ 0x480 ==
+  --- base 0x10000130000 +0x0480..+0x04a0 ---
+    +0x0480: 0002802c 00880018 0002803c 00000004
+    +0x0490: 0042e07c 0020000e 0042808c 00000004
