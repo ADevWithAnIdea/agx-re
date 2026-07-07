@@ -127,6 +127,27 @@ cannot run any experiment. Bit layouts must be exhaustive, encodings must be exa
 "magic value" must be explained or at least pinned down, and anything a driver must emit must
 be specified precisely enough to emit it without further RE.
 
+## Secondary goal: capability completeness (understand *everything* the HW can do)
+
+Beyond the primary goal (a driver implementable from `docs/`), a standing secondary goal is to map
+the **full hardware capability envelope** — not just what our current driver needs. Drive it two ways,
+and track both to convergence:
+
+1. **Instruction census.** Every opcode the compiler emits must be decoded. Metric: a byte0-group
+   census over a broad shader corpus shows ~0 undecoded groups. (ROADMAP gap **G-13**.)
+2. **Capability census.** Enumerate every capability from **(a) what Metal/MSL exposes** (the full MSL
+   spec, the Metal feature-set tables, and the `MTLDevice` capability probe) and **(b) what Apple
+   advertises** (WWDC / Tech Talk Family-9 / A17-A18 features — they *advertise* new hardware: ray
+   tracing, Dynamic Caching, mesh shading, hardware reorder, 2× ALU, etc.). For **each**, determine how
+   it is represented in hardware (which instruction / descriptor / cmdstream field / kernel-managed),
+   and classify it **native / emulated / kernel-managed / NOT-YET-CHARACTERIZED**. Tracker:
+   `docs/capability-completeness.md`; capability findings also feed `docs/capability-matrix.md` and
+   `docs/hypotheses.md`.
+
+The method for both is the same clean-room loop: provoke the feature with our own MSL (or the feature
+map), extract, decode, and — where it's a claimed capability Metal doesn't expose — **extrapolate and
+test** (see Methodology). A feature that turns out absent/emulated is a first-class result.
+
 ## Target device & operational safety
 
 | | |

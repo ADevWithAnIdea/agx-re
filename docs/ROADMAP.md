@@ -112,6 +112,13 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 
 **MEDIUM:** programmable-blend epilog ABI; BC/ASTC + 3D/cube/array/MSAA twiddle; MSAA sample-interleave + occlusion query; explain magic values (CDM/USC config word 0x00880000, store-prog 0x6f, VDM 0x61c4/0x61f2, 0x300-seg grammar, num_gps/num_frags/is_sksm).
 
+**SECONDARY GOAL — CAPABILITY COMPLETENESS (understand everything the HW can do).** Two census axes,
+tracked in `docs/capability-completeness.md` (see `../CLAUDE.md` → Secondary goal):
+- **Instruction census** = G-13 below (every opcode decoded; ~0 undecoded byte0 groups).
+- **Capability census** = enumerate every Metal/MSL feature + every Apple-advertised (WWDC Family-9)
+  feature → map to HW representation → classify native/emulated/kernel/NOT-YET-CHARACTERIZED → drive
+  the NOT-YET list to 0.
+
 **G-13 — INSTRUCTION-FAMILY COMPLETENESS (calibration: dougallj/applegpu M1 ≈ 124 instruction
 classes; we have 40 family-heads ≈ ~70-90 logical — several whole families still missing).** Decode
 the byte0 groups seen in real shaders but not yet decoded:
