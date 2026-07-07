@@ -1,0 +1,132 @@
+RT-9 CONSOLIDATED EVIDENCE (independent 2nd red-team pass on descriptors+tiling)
+Device: Apple A18 Pro / G17P, macOS 26.6. iotrace built -arch arm64e. Tue Jul  7 15:10:22 PDT 2026
+
+===== 1. TILED-MORTON new cases + bpp boundary (independent GF(2) solve) =====
+### rgba8uint 384x384
+# tex BO 0x10000080000 sz=0x90000 base_off=0x0 fmt=rgba8uint bpp=4 384x384
+# coverage 147456/147456
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=y5 b12=x6 b13=? b14=? b15=? b16=? b17=?
+!! NON-PERMUTATION at output bits [13, 14, 15, 16, 17] — layout is NOT a pure bit-permutation of (x,y)!
+## DERIVED (independent of doc): interleave depth D=6 -> tile edge T=64x64; high-bit order=x????? -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 139264 mismatch / 147456
+## DOC formula (T=64, cols=8): 122880 mismatch / 147456
+=== VERDICT: derived T=64, doc-expected T=64 -> MATCH; doc formula reproduces raw = NO
+
+### r32uint 300x500
+# tex BO 0x10000080000 sz=0xa0000 base_off=0x0 fmt=r32uint bpp=4 300x500
+# coverage 150000/150000
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=y5 b12=? b13=? b14=? b15=? b16=? b17=?
+!! NON-PERMUTATION at output bits [12, 13, 14, 15, 16, 17] — layout is NOT a pure bit-permutation of (x,y)!
+## DERIVED (independent of doc): interleave depth D=6 -> tile edge T=64x64; high-bit order=?????? -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 145904 mismatch / 150000
+## DOC formula (T=64, cols=8): 130800 mismatch / 150000
+=== VERDICT: derived T=64, doc-expected T=64 -> MATCH; doc formula reproduces raw = NO
+
+### rgba16float 256x256
+# tex BO 0x10000080000 sz=0x80000 base_off=0x0 fmt=rgba16float bpp=8 256x256
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=x6 b12=x7 b13=y5 b14=y6 b15=y7
+## DERIVED (independent of doc): interleave depth D=5 -> tile edge T=32x32; high-bit order=xxxyyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=32, cols=8): 0 mismatch / 65536
+=== VERDICT: derived T=32, doc-expected T=32 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### rg32uint 1024x64
+# tex BO 0x10000080000 sz=0x80000 base_off=0x0 fmt=rg32uint bpp=8 1024x64
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=x6 b12=x7 b13=x8 b14=x9 b15=y5
+## DERIVED (independent of doc): interleave depth D=5 -> tile edge T=32x32; high-bit order=xxxxxy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=32, cols=32): 0 mismatch / 65536
+=== VERDICT: derived T=32, doc-expected T=32 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### r16uint 256x256
+# tex BO 0x10000080000 sz=0x20000 base_off=0x0 fmt=r16uint bpp=2 256x256
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=y5 b12=x6 b13=x7 b14=y6 b15=y7
+## DERIVED (independent of doc): interleave depth D=6 -> tile edge T=64x64; high-bit order=xxyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=64, cols=4): 0 mismatch / 65536
+=== VERDICT: derived T=64, doc-expected T=64 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### r32uint 256x256
+# tex BO 0x10000080000 sz=0x40000 base_off=0x0 fmt=r32uint bpp=4 256x256
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=y5 b12=x6 b13=x7 b14=y6 b15=y7
+## DERIVED (independent of doc): interleave depth D=6 -> tile edge T=64x64; high-bit order=xxyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=64, cols=4): 0 mismatch / 65536
+=== VERDICT: derived T=64, doc-expected T=64 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### rgba16uint 256x256
+# tex BO 0x10000080000 sz=0x80000 base_off=0x0 fmt=rgba16uint bpp=8 256x256
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=x6 b12=x7 b13=y5 b14=y6 b15=y7
+## DERIVED (independent of doc): interleave depth D=5 -> tile edge T=32x32; high-bit order=xxxyyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=32, cols=8): 0 mismatch / 65536
+=== VERDICT: derived T=32, doc-expected T=32 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### rgba32uint 256x256
+# tex BO 0x10000080000 sz=0x100000 base_off=0x0 fmt=rgba32uint bpp=16 256x256
+# coverage 65536/65536
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=x5 b11=x6 b12=x7 b13=y5 b14=y6 b15=y7
+## DERIVED (independent of doc): interleave depth D=5 -> tile edge T=32x32; high-bit order=xxxyyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 65536
+## DOC formula (T=32, cols=8): 0 mismatch / 65536
+=== VERDICT: derived T=32, doc-expected T=32 -> MATCH; doc formula reproduces raw = YES (0 mismatch)
+
+### r32uint 17x4095
+# tex BO 0x10000080000 sz=0x80000 base_off=0x0 fmt=r32uint bpp=4 17x4095
+# coverage 69615/69615
+## recovered bit-permutation e_b[k] = : b0=x0 b1=y0 b2=x1 b3=y1 b4=x2 b5=y2 b6=x3 b7=y3 b8=x4 b9=y4 b10=y5 b11=y6 b12=y7 b13=y8 b14=y9 b15=y10 b16=y11
+## DERIVED (independent of doc): interleave depth D=5 -> tile edge T=32x32; high-bit order=yyyyyyy -> ROW-MAJOR tiles
+## reconstruct-from-recovered-perm: 0 mismatch / 69615
+## DOC formula (T=64, cols=1): 69071 mismatch / 69615
+=== VERDICT: derived T=32, doc-expected T=64 -> DISCREPANCY; doc formula reproduces raw = NO
+
+===== 2. cols/allocation-padding discrepancy (CORRECTED vs DOC model) =====
+rgba8 384x384 bpp4: BOsz=0x90000 tilePad=384x384 (bytes=0x90000)  pow2Pad=512x512(0x100000)
+   cov=147456/147456  CORRECTED cols=ceil(W/T)=6: 0 mismatch   DOC cols=Wp/T=8: 122880 mismatch
+r32 300x500 bpp4: BOsz=0xa0000 tilePad=320x512 (bytes=0xa0000)  pow2Pad=512x512(0x100000)
+   cov=150000/150000  CORRECTED cols=ceil(W/T)=5: 0 mismatch   DOC cols=Wp/T=8: 130800 mismatch
+r32 17x4095 bpp4: BOsz=0x80000 tilePad=64x4096 (bytes=0x100000)  pow2Pad=32x4096(0x80000)
+   cov=69615/69615  CORRECTED cols=ceil(W/T)=1: 69071 mismatch   DOC cols=Wp/T=0: 69071 mismatch
+
+===== 3. 14-bit dims descriptor packing =====
+--- 5000x64 ---
+  14-bit reading: 5000 x 64   (expected 5000 x 64)  -> OK
+  12-bit reading: 904 x 64   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 64x5000 ---
+  14-bit reading: 64 x 5000   (expected 64 x 5000)  -> OK
+  12-bit reading: 64 x 904   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 9000x64 ---
+  14-bit reading: 9000 x 64   (expected 9000 x 64)  -> OK
+  12-bit reading: 808 x 64   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 64x9000 ---
+  14-bit reading: 64 x 9000   (expected 64 x 9000)  -> OK
+  12-bit reading: 64 x 808   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 16384x8 ---
+  14-bit reading: 16384 x 8   (expected 16384 x 8)  -> OK
+  12-bit reading: 4096 x 8   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 8x16384 ---
+  14-bit reading: 8 x 16384   (expected 8 x 16384)  -> OK
+  12-bit reading: 8 x 4096   -> would be WRONG (proves 14-bit needed)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 4096x64 ---
+  14-bit reading: 4096 x 64   (expected 4096 x 64)  -> OK
+  12-bit reading: 4096 x 64   -> would be same (dims<=4096, no regression)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 64x4096 ---
+  14-bit reading: 64 x 4096   (expected 64 x 4096)  -> OK
+  12-bit reading: 64 x 4096   -> would be same (dims<=4096, no regression)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)
+--- 2048x2048 ---
+  14-bit reading: 2048 x 2048   (expected 2048 x 2048)  -> OK
+  12-bit reading: 2048 x 2048   -> would be same (dims<=4096, no regression)
+  base VA = 0x10000080000 (word2|word3[0:11]<<4)

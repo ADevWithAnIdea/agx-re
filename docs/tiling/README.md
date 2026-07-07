@@ -15,21 +15,26 @@ Byte/word convention matches `../descriptors/`: `wordN` = 32-bit LE word at desc
 
 A 2-D texture created in the GPU's optimal layout (Metal `newTextureWithDescriptor:`, i.e. not
 buffer-backed) is stored **twiddled as a ROW-MAJOR GRID OF MORTON TILES** (RT-3 correction — NOT one pure full-texture Morton block; that model is wrong for textures larger than one tile):
-the interleave runs across the full address; storage is **padded to the next power of two in
-each axis**.
+the interleave runs across the full address; each axis is **padded to a whole number of tiles**
+(a multiple of the tile edge **T**), NOT to the next power of two — see §1.4 (RT-9 correction).
 
-### 1.1 Offset formula (CORRECTED — RT-3, GF(2)-solved, 0 mismatch on 256²/512²/NPOT)
+### 1.1 Offset formula (CORRECTED — RT-3 + RT-9, GF(2)-solved, 0 mismatch on non-pow2 widths 192/300/384/448/576)
 The texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T depends on bpp**:
-`T = 64 for bpp ≤ 4, T = 32 for bpp ≥ 8` (measured Morton depth D: 2/4 bpp → 6, 8/16 bpp → 5; T = 2^D).
-With `tx = x >> log2(T)`, `ty = y >> log2(T)`, `cols = ceil(Wp / T)` (Wp = nextpow2(W)):
+`T = 64 for bpp ≤ 4, T = 32 for bpp ≥ 8` (measured Morton depth D: 2/4 bpp → 6, 8/16 bpp → 5; T = 2^D; HW-derived
+across bpp 2/4/8/16 — the break is exactly between 4-byte and 8-byte elements).
+Define the **tile-count width** `cols = ceil(W / T)` (RT-9: the ACTUAL width in whole tiles — **NOT** `ceil(nextpow2(W)/T)`).
+With `tx = x >> log2(T)`, `ty = y >> log2(T)`:
 
 ```
 element_index(x,y) = (ty · cols + tx) · T²  +  morton_D( x & (T−1), y & (T−1) )
 byte_offset(x,y)   = element_index(x,y) · bytesPerPixel
 ```
 where `morton_D(a,b) = Σ_{i<D} (a_i << 2i) | (b_i << 2i+1)`. **Within one tile it is plain Morton**, which is why
-all prior ≤128-px validations passed; the tiled structure only appears once **both** padded dims exceed T.
-*(Superseded the earlier "pure full-texture Morton, no sub-tile, bpp-independent" model — that was wrong above one tile.)*
+all prior ≤128-px validations passed; the tiled structure only appears once **both** dims exceed T.
+> ⚠ **RT-9 correction (driver-breaking):** `cols` uses the **multiple-of-T padded width, not nextpow2**. E.g. a
+> 1920-wide RT (bpp4, T=64) has `cols = 30`, NOT 32; a 384² texture has `cols = 6`, NOT 8. RT-3's `nextpow2` was
+> untested for non-pow2 widths (it only tried 256/512, where mult-of-T and nextpow2 coincide).
+*(Supersedes both the "pure full-texture Morton" model AND RT-3's `cols=nextpow2(W)/T`.)*
 
 In words: **interleave the bits of x and y (x on the lower bit of each pair) up to the smaller
 padded dimension, then append the remaining high bits of the larger dimension linearly.** For a
@@ -47,15 +52,23 @@ The twiddle within a tile is over texel coordinates, BUT the **tile size T depen
 scales with bpp.
 
 ### 1.4 Allocation size
-`paddedImageBytes = Wp · Hp · bytesPerPixel`. Examples (validated against backing-BO sizes):
-48×48 rgba32? no — 48×48 r32 → 64×64×4 = 0x4000; 96×96 → 128×128×4 = 0x10000; already-pow2
-sizes are not padded.
+`paddedImageBytes = padW · padH · bytesPerPixel`, where the per-axis pad is (RT-9):
+
+```
+padDim(d, T) = ceil(d / T) · T     if d ≥ T     # round UP to a whole number of tiles (multiple of T)
+             = nextpow2(d)         if d < T     # sub-tile dims fall back to the narrow interleave-append model (§1.1)
+```
+Examples (validated against backing-BO sizes): 48×48 r32 (48<64) → nextpow2 64×64×4 = 0x4000;
+96×96 r32 → 128×128×4 = 0x10000; **384×384 rgba8 (bpp4,T64) → 384·384·4 = 0x90000** (RT-9: NOT the
+nextpow2 512²·4 = 0x100000 — the tell that padding is multiple-of-T, not nextpow2). Pow2-multiple-of-T
+sizes (256/512) are unchanged, which is why RT-3 didn't catch this.
 
 ### 1.5 Block-compressed formats (BC/ASTC/ETC) — ✅ CONFIRMED (EXP-0028)
-Block-compressed formats apply the **same Morton curve over block coordinates**:
-`offset = morton(bx, by) · blockBytes` (blockBytes = 8 for BC1/BC4, 16 otherwise). HW-validated for
-BC1/BC7/ASTC-4×4/ASTC-8×8; the 8×8 case proves the curve is over the block *index*, independent of
-block texel size.
+Block-compressed formats apply the **same tiled-Morton curve over BLOCK coordinates** (RT-9: the block grid
+also tiles — §1.1 at block granularity, block-grid tile ≈ 32 blocks, padded to a tile-multiple, NOT un-tiled
+block-Morton): `element = tiledMorton(bx, by) · blockBytes` (blockBytes = 8 for BC1/BC4, 16 otherwise). HW-validated
+for BC1/BC7/ASTC-4×4/ASTC-8×8 (8×8 proves the curve is over the block *index*); RT-9 confirmed the block grid is
+padded to a whole number of block-tiles (BC7 384px→96×96 blocks, 320px→96 rounded, 1024×768→256×192 — never nextpow2).
 
 ### 1.6 Texture-type twiddle variants (✅ HW-validated, EXP-0028)
 - **Texture-type codes** (byte0 low nibble, **4-bit**): 1D=0, 1DArray=1, 2D=2, 2DArray=3, 2DMS=4,
@@ -86,13 +99,16 @@ twiddled one in §1.
 
 ## 3. Mipmaps
 
-Mip levels are packed **consecutively after the base**, each an **independent pow2-padded Morton
-plane** (§1 applied at that level's dimensions). Level *L* size = `nextpow2(W>>L) · nextpow2(H>>L)
-· bytesPerPixel`, floored to a **0x80-byte minimum slot** for tiny levels.
+Mip levels are packed **consecutively after the base**, each an **independent tile-padded Morton
+plane** (§1 applied at that level's dimensions, using the same `padDim(d,T)` as §1.4 — multiple-of-T,
+NOT `nextpow2`; RT-9). Level *L* size = `padDim(W>>L) · padDim(H>>L) · bytesPerPixel`, floored to a
+**0x80-byte minimum slot** for tiny levels.
 
 ```
-offset(L) = Σ_{i < L}  max( nextpow2(W>>i) · nextpow2(H>>i) · bpp , 0x80 )   # aligned; base = level 0
+offset(L) = Σ_{i < L}  max( padDim(W>>i,T) · padDim(H>>i,T) · bpp , 0x80 )   # aligned; base = level 0
 ```
+(RT-9: a 384² mip chain allocates 0xcd600 — impossible under the old `nextpow2` rule, where level 0 alone
+would be 0x100000.)
 
 Validated (128×128 r32uint): L0@0x0, L1@0x10000, L2@0x14000, L3@0x15000, L4@0x15400, L5@0x15500,
 L6@0x15580, L7@0x15600. 96×96 confirms per-level pow2 padding (L0 uses a full 128×128 slot).

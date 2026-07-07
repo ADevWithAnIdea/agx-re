@@ -270,12 +270,14 @@ address memory.
 - **Twiddle = ROW-MAJOR GRID OF MORTON TILES (RT-3), tile edge bpp-dependent** (§1.1, EXP-0017/RT-3):
   the texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T = 64 for
   bpp ≤ 4, T = 32 for bpp ≥ 8** (bpp-DEPENDENT). With `tx = x>>log2(T)`, `ty = y>>log2(T)`,
-  `cols = ceil(nextpow2(W)/T)`:
+  **`cols = ceil(W/T)`** (RT-9: ACTUAL width in whole tiles — NOT `nextpow2(W)/T`):
   `element_index(x,y) = (ty·cols + tx)·T² + morton_D(x & (T−1), y & (T−1))`,
   `byte_offset = element_index · bpp`. Within one tile it is plain Morton (which is why all ≤128-px
-  validations passed); the tiled structure only appears once both padded dims exceed T. This
-  **supersedes the G13/G14 per-format tile table AND the earlier "pure full-texture Morton / one block /
-  bpp-independent / morton(x,y)·bpp" model** (both were wrong above one tile).
+  validations passed); the tiled structure only appears once both dims exceed T. **Allocation pads each
+  axis to a MULTIPLE OF T** (`padDim(d)=ceil(d/T)·T` for d≥T, `nextpow2(d)` for d<T; RT-9) — **NOT nextpow2**;
+  e.g. a 1920-wide RT has cols=30 not 32, and 384²→0x90000 not 0x100000. Mip levels use the same `padDim`.
+  This **supersedes the G13/G14 per-format tile table, the "pure full-texture Morton" model, AND RT-3's
+  `cols=nextpow2(W)/T`** (all wrong for non-pow2 widths).
 - **Mip packing** (§3): levels packed consecutively, each an independent pow2-padded Morton plane,
   floored to a 0x80-byte minimum slot (offset formula in the doc, HW-validated).
 - **3D / cube / array / MSAA variants** (§1.6, EXP-0028): 3D = stacked 2D-Morton planes (not 3D
