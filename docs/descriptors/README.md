@@ -26,7 +26,11 @@ Little-endian; `wordN` = 32-bit word at byte 4N.
 | **sRGB** | word3 bit12 | orthogonal flag (not a format code) |
 | **depth / arrayLen − 1** | word3 bits[14:] | |
 | **mipCount − 1** | byte +0x16 | |
-| large-texture / tiling bits | word1 bit27, word3 bit31, **secondary VA @ +0x10** | ⏳ appear above a size threshold → see `../tiling/` (Phase 4) |
+| mipmapped | word1 bit26 | set when mipmapped (see `../tiling/`) |
+| compression aux present | word1 bit27 | set when the texture has a compression metadata buffer |
+| aux layout metadata | word3 bit31 | set by compression **or** mipmaps |
+| **secondary VA (aux buffer)** | word4 ‖ word5[0:11] | `(word4 \| word5[0:11]<<32) << 4` — compression metadata; see `../tiling/` §4 |
+| linear stride | word3 bits[14:] | buffer-backed only: `bytesPerRow = (word3[14:]+1)×16` (0 for twiddled) |
 
 Independent knobs: `bgra8` = `rgba8` + swizzle; `a8` = `r8` + swizzle; `depth32float` = `r32float`
 code. **Format, swizzle, sRGB, and numeric-type are orthogonal** (Vulkan-shaped) — good for a Vulkan

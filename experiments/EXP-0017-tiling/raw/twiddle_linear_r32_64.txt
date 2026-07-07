@@ -1,0 +1,21 @@
+# DESCRIPTOR in BO 0x10000028000+0x20: w0=f9684842 w1=0000fc03 w2=00001800 w3=0003c010 w4=00000000 w5=00000000 w6=00000000 w7=00000000
+# base VA=0x10000018000  layout word1.b27=0 word1.b26(mip)=0 word3.b31=0  mipCount-1=0  secondaryVA=0x0
+# TEXTURE BO va=0x10000018000 sz=0x8000 base_off=0x0 fmt=r32uint bpp=4 64x64
+# coverage 4096/4096
+
+## element index e for texel (x,y), top-left 8x8:
+          0     1     2     3     4     5     6     7
+y=  0      0     1     2     3     4     5     6     7
+y=  1     64    65    66    67    68    69    70    71
+y=  2    128   129   130   131   132   133   134   135
+y=  3    192   193   194   195   196   197   198   199
+y=  4    256   257   258   259   260   261   262   263
+y=  5    320   321   322   323   324   325   326   327
+y=  6    384   385   386   387   388   389   390   391
+y=  7    448   449   450   451   452   453   454   455
+
+## GF(2) bit-permutation over 64x64 block (4096 samples):
+  e_b0=x0  e_b1=x1  e_b2=x2  e_b3=x3  e_b4=x4  e_b5=x5  e_b6=y0  e_b7=y1  e_b8=y2  e_b9=y3  e_b10=y4  e_b11=y5
+  element_index = x0<<0 | x1<<1 | x2<<2 | x3<<3 | x4<<4 | x5<<5 | y0<<6 | y1<<7 | y2<<8 | y3<<9 | y4<<10 | y5<<11
+
+## extent x[0,63] y[0,63]  max_e=4095

@@ -1,0 +1,14 @@
+# Linear-texture bytesPerRow encoding in the descriptor word3 (EXP-0017 side-finding).
+# Buffer-backed LINEAR r32uint textures, height 16, varying width -> varying bytesPerRow.
+# word3 = base_VA[36:47] (bits[0:11]) | stride field (bits[14:]).  b27=0 for all (no compression).
+#
+#  W    bytesPerRow(bpr)   word3        stride F = word3>>14   check bpr = (F+1)*16
+#  32   0x80  (128)        0x0001c010   7                      (7+1)*16  = 128  OK
+#  64   0x100 (256)        0x0003c010   15                     (15+1)*16 = 256  OK
+#  128  0x200 (512)        0x0007c010   31                     (31+1)*16 = 512  OK
+#  200  0x320 (800)        0x000c4010   49                     (49+1)*16 = 800  OK
+#
+# => LINEAR bytesPerRow = (word3[14:] + 1) * 16   (stride in 16-byte units, minus 1).
+# This is the same field EXP-0015 attributed to depth/arrayLength-1 (word3 bits14+);
+# for a linear non-array 2D texture it instead carries the row stride.
+# Twiddled (optimal) textures leave word3[14:] = 0 (no stride; layout is implicit Morton).
