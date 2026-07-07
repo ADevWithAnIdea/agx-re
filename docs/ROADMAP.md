@@ -20,7 +20,7 @@ Goal: prove every clean-room technique works end-to-end before doing real RE.
 
 - ☐ **0.1 Environment recon** — chip/OS/toolchain/SIP/sudo/reboot path, GPU codename from device tree (`ioreg` `compatible`/`gpu-core-count` — hardware documentation, safe). *(partly done in bring-up: A18 Pro/T8140/macOS 26.6/CLT-only/SIP off/FileVault off confirmed.)*
 - ☐ **0.2 Own-shader compile+extract tool** (`tools/shdump`) — MSL source → runtime `MTLLibrary` → `MTLBinaryArchive` serialize → parse the archive *with our own parser* → isolate the raw AGX machine-code bytes. (Confirmed: runtime compile works.)
-- ☐ **0.3 (Dis)assembler bring-up** — fork the public **dougallj/applegpu** (+ Mesa `src/asahi/isa`) as the G13/G14 baseline; run it over an A18 shader corpus; measure decoded-vs-unknown to **size the ISA delta**. This becomes the seed of the Phase 1 tool.
+- ☐ **0.3 (Dis)assembler scaffolding & method** — the A18 ISA is a **completely different instruction set** from G13/G14 (given: opcodes are entirely new, not a delta). So dougallj/applegpu is reused as a **structural template** (how to express a machine-readable ISA description that drives both asm & disasm) and for its **ISA-agnostic testbed**, NOT as a decoder to extend. Establish the core RE method here: **differential compilation** — compile minimal-pair MSL shaders (change one operand/immediate/op at a time), diff the extracted bytes, and localize which bits encode what. Stand up an empty A18 instruction database that grows in Phase 1.
 - ☐ **0.4 Hardware testbed (the round-trip engine)** — assemble arbitrary AGX bytes → splice into *our own* metallib/pipeline → dispatch compute → read back results (ref: applegpu `hwtestbed/`, `metallib_replacer.py`, all public/MIT). This is what makes **assemble → run → observe** possible; without it there is no extrapolate-and-test.
 - ☐ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — DYLD interposer over the Metal↔kernel submission path (IOConnectCall* family + IOGPU shared-memory rings) in *our own* Metal process; capture a triangle draw and a compute dispatch.
 
@@ -59,6 +59,13 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 - ☐ Completeness cross-check against Mesa's M1/M2 module list.
 
 ---
+
+## Known premises (given, not to be re-questioned)
+- **The A18 Pro AGX ISA is a completely new instruction set vs M1/M2 (G13/G14).** Opcodes are
+  entirely different. Do not spend effort "measuring the delta" against applegpu — build the
+  A18 instruction table from scratch by differential compilation + hardware validation.
+- The GPU is designed for Metal (+ a narrow GL subset). Expect Vulkan/GL features that the HW
+  lacks (→ must be emulated) and HW capabilities Metal never exposes (→ probe for them).
 
 ## Open questions / risks
 - **Modern submission path:** macOS 26 Metal likely submits via IOGPU shared-memory rings, not one `IOConnectCallMethod` per draw (unlike Alyssa's 2021 approach). 0.4 must confirm how to capture it. → the deciding risk for Phase 2.
