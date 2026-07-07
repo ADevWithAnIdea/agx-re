@@ -1,0 +1,16 @@
+### PART4 baselines + cross-bind ###
+-- p4_prim first rt_intersect bytes vs p4_inst --
+p4_prim  @+0x054: e4ea90a68b000000
+p4_inst  @+0x054: f4ea90a66b000000   (byte+4: 0x8b prim vs 0x6b inst)
+-- baselines --
+ASMODE prim
+OUT 1 3 0 0.2
+STATUS OK
+ASMODE inst
+OUT 1 3 0 0
+STATUS OK
+-- cross-bind (prim-code on inst-AS, inst-code on prim-AS): both MISS --
+OUT 0 inf 0 -9
+STATUS OK
+OUT 0 inf 0 -9
+STATUS OK

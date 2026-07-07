@@ -1,0 +1,11 @@
+# p4_prim _agc.main abs 8544; byte+4 @ 8632 = 0x8b
+PRIM baseline (prim AS)             : 1 3 0 0.2
+PRIM byte+4 0x8b->0x6b (inst val)   : 1 3 0 0.2
+PRIM byte+4 0x8b->0x1b (old claim)  : 1 3 0 0.2
+PRIM byte+4 0x8b->0x00              : 1 3 0 0.2
+PRIM byte+4 0x8b->0xff              : FAULT:ERROR dispatch: Caused GPU Hang Error (00000003:kIOGPUCommandBufferCallbackErrorHang)
+
+# p4_inst _agc.main abs 8624; byte+4 @ 8712 = 0x6b
+INST baseline (inst AS)             : 1 3 0 0
+INST byte+4 0x6b->0x8b (prim val)   : 1 3 0 0
+INST byte+4 0x6b->0x00              : 1 3 0 0

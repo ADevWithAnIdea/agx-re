@@ -1,0 +1,29 @@
+### PART1 subgroup splices ###
+-- p1_ballot baseline (lane>=16 -> 0xFFFF0000=-65536) --
+RESULT 0 -65536 -65536 -65536 -65536
+-- p1_ballot byte+1 0x17->0x14 (ballot family 7 -> unpack 4): expect break/0 --
+RESULT 0 0 0 0 0
+-- p1_active baseline (active_threads_mask -> 0xFFFFFFFF=-1) --
+RESULT 0 -1 -1 -1 -1
+-- p1_bcast baseline (bcast lane7=22) + splice byte+6 0x0e->0x06 (lane3=10) --
+RESULT 0 22 22 22 22
+RESULT 0 10 10 10 10
+-- p1_xor baseline (xor mask1) + splice byte+6 0x02->0x06 (mask3) --
+RESULT 0 4 1 10 7 16 13 22 19
+RESULT 0 10 7 4 1 22 19 16 13
+-- p1_unpack functional (snorm(0x7FFF3FFF) -> 0xBF000000,0x3F800000) --
+RESULT 0 -1090518272 1065353216
+
+### PART2 exec-mask splices ###
+-- p2_switch baseline (in=tid) expect 7,3,-9,86,11,15,-5,82 --
+RESULT 0 7 3 -9 86 11 15 -5 82
+-- jump_cond 0f01->0f00 @0x035 (divergence collapse) --
+RESULT 0 7 1 2 3 11 5 6 7
+-- pop_reconverge 0f06->0f00 @0x087 (expect fault) --
+STATUS CMDBUF_ERROR
+ERROR command buffer failed: Caused GPU Address Fault Error (0000000b:kIOGPUCommandBufferCallbackErrorPageFault)
+
+-- p2_multibreak baseline (n=5) expect 65 --
+RESULT 0 65 65 65 65 65 65 65 65
+-- back-edge 0f00 offset @0x0a9 0xc4->0x00 (taken-edge corrupt) -> all 0 --
+RESULT 0 0 0 0 0 0 0 0 0

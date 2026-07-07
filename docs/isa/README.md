@@ -406,7 +406,10 @@ per simdgroup). Aggregate HW-validated (1024 threads → counter 1024; op-splice
   `0x7` identifies the family**; high nibble picks the form — `0x07` = active-mask/any/all, **`0x17` =
   `simd_ballot(predicate)`**. *(RT-ISA-FIX: `simd_ballot(lane<5)`=0x1F HW; the `0x17` form was previously
   mis-decoded as `unpack_convert` — now separated from `unpack_convert` on byte+1 low nibble, ballot=7 vs
-  unpack=4.)*
+  unpack=4. RT-10 confirmed: splicing byte+1 low-nibble `0x17→0x14` zeroes the ballot, proving the low nibble
+  is the load-bearing family separator. The **high nibble** (ballot-predicate vs active-mask) is a correct
+  naming distinction but is **not cleanly splice-convertible** — its operands co-vary — so treat it as a decode
+  label, not an independently-settable field.)*
 - **Quad ops** reuse the same two groups at **width 4** (reduce with scope bit3=0 → byte0 `0xb7`/`0x37`;
   shuffle with byte+1=`0x00`). Note `0x37` disambiguates quad-reduce (byte+2=`0x56`, 8 B) from the
   derivative op (10 B).
@@ -419,10 +422,12 @@ Apple9 has a **dedicated matrix/MAC-array unit**, not a lane-cooperative FMA emu
 `simdgroup_multiply_accumulate` compiles to a **single novel opcode `0xcf`** (12 B) that performs a full
 **8×8×8 tile MAC** (512 scalar MACs). Proven dedicated: a hand-written FMA matmul and a
 `simd_shuffle`+`fma` cooperative matmul both contain **zero** `0xcf`.
-- **`matrix_mac` (`0xcf`, 12 B):** `d = a·b (+c)`, row-major 8×8. **byte+7 = C accumulator source reg**;
-  **byte+11 bit0 = accumulate-enable** (splice `01→00` drops the `+c`) — both HW-proven. Inferred:
-  byte+1 = dtype (`0x00` half / `0x02` float-bf16), byte+2 = mode (`0x56` standalone / `0x54` tiled),
-  A/B/dst selectors packed across byte+3..+6/+8..+9 (partial).
+- **`matrix_mac` (`0xcf`, 12 B):** `d = a·b (+c)`, row-major 8×8. RT-5/RT-10 splice-proved the full operand map on
+  the **fp32 datapath**: **byte+5 = A, byte+6 = B, byte+7 = C, byte+8 = dst, byte+11 bit0 = accumulate-enable**
+  (swap +5/+6 → B·A; +5→B → B·B; byte+11 `01→00` drops `+c`; op-enable byte+10=`0x24`). ⚠ **The `0x24`/`0x01`
+  op-enable/accum byte *values* are fp32-specific:** the **half datapath** (byte+1=`0x00`) encodes them as
+  byte+10=`0x8c` / byte+11=`0x00` — the half-datapath accumulate byte is **uncharacterized** (RT-10). Inferred:
+  byte+1 = dtype (`0x00` half / `0x02` float-bf16), byte+2 = mode (`0x56` standalone / `0x54` tiled).
 - **Dims:** MSL exposes only **8×8** (16×16/8×16/4×4/32×32 rejected). **Types:** fp16, fp32, bfloat, and
   mixed fp16/bf16 → fp32 accumulate; **all integer types rejected** (no int8 coopmat via Metal → Vulkan
   int8 cooperative-matrix must emulate).
@@ -443,13 +448,16 @@ opcodes are absent from a hand-written Möller-Trumbore ray/triangle control.
   RT-5 found every documented sub-field was **splice-INERT** on the single-primitive `intersection_query`
   path (identical correct hit for all splices): byte0 hi = result reg (`0xe4→0x04/0x14` no change); byte+2
   mode (`0x90` const-origin / `0x10` dynamic-origin / `0xd0` + function-table — `0x90→0x10/0xd0` no change);
-  byte+3/+4 = ray/AS operand regs, **the "instance-AS flips byte+4 `0x8b→0x1b`" claim did NOT reproduce**
-  (`0x8b→0x1b/0xbb/0x00` all gave the identical hit); byte+6 bit7 = intersection-function-table bound. These
-  are byte-diff correlations, not splice-validated semantics. *(Caveat: RT-5 built only a primitive AS; the
-  instance/motion paths that would exercise `0x1b`/`0xbb` were not constructed, so this falsifies the
-  splice-effect claim, not the existence of an instance-AS encoding elsewhere.)* The earlier
-  "EXP-O2C: `0x8b→0x1b` HW-validated end-to-end" note is **retracted** — mark all `rt_intersect` sub-fields ⏳
-  inferred until an instance/motion-AS testbed splice-proves them.
+  byte+3/+4 = ray/AS operand regs. **byte+4 is a real AS-type byte-diff correlate — `0x8b` = primitive AS,
+  `0x6b` = instance AS** (RT-10 built BOTH AS types and corrects the retracted `0x1b` to the actual **`0x6b`**),
+  **but splicing byte+4 is INERT** (`0x8b↔0x6b↔0x1b↔0x00` all give the identical correct hit; only `0xff` faults),
+  so it is a passenger/correlate, not the load-bearing selector. The genuine primitive-vs-instance distinction is
+  **structural**: the instance kernel emits an extra `rt_intersect` at +0x690 (byte+2=`0x10` dynamic-origin) + ~2×
+  the `0xdf` ray-transform loads, and **cross-binding a kernel to the wrong AS type → a clean MISS** (RT-10). byte+2
+  mode (`0x90` const-origin / `0x10` dynamic-origin / `0xd0` + function-table) and byte0-hi result reg are likewise
+  inert to splice; byte+6 bit7 = intersection-function-table bound. The earlier "EXP-O2C: `0x8b→0x1b` HW-validated
+  end-to-end" note is **retracted** (RT-5/RT-10) — `rt_intersect` field *values* are ⏳ byte-diff correlations, and
+  the AS-type dispatch is structural (kernel shape), not a spliceable field.
 - **`rt_as_load`** (byte0 `0xdf`, 14 B): dedicated acceleration-structure / ray-data node loads
   (14–37 per RT kernel). The traversal is a shader loop (a `−88`-byte back-edge whose body holds a `0xdf`
   node-load + `0x0a` loop-condition compare).
