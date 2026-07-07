@@ -1,0 +1,51 @@
+{
+  "_note": "EXP-0030 (hardware mesh shading, A18 Pro / G17P). Validated new descriptors + length-rule and stage-map additions for tools/agx-isa/db.json. CLEAN-ROOM: every byte is from OUR OWN compiled object+mesh+fragment MSL (OWN-SHADER); container parsing + byte-diff + HW render round-trip only. The orchestrator merges this into db.json (do NOT edit tools/agx-isa/ from this experiment).",
+
+  "_headline_finding": "Mesh shading on G17P is NOT built from dedicated vertex/primitive-EMIT opcodes. Unlike EXP-0022 (matrix 0xcf) and EXP-0023 (ray-tracing 0xea) -- where a NOVEL opcode present in the HW path and ABSENT from a hand-written software control proved dedicated silicon -- the object/mesh stages emit vertices/indices/primitives with the SAME ordinary memory-store family (0xe7 device store, 0xd7 memory-store, 0x67 load) that a plain compute kernel writing the same data uses (control kernel compute_emul.metal). The only opcode GROUP unique to the object/mesh stages is 0x43 (a 4-byte stage control/marker, below). Mesh acceleration on G17P is STRUCTURAL (a real HW object->mesh grid-amplification dispatch in the tiler + a fixed-function mesh-output-buffer -> rasterizer path), not new ALU/emit instructions.",
+
+  "stage_map_additions": {
+    "_comment": "A MESH render pipeline archive (MTLMeshRenderPipelineDescriptor) is the same Metal fat binary as a render archive; the AppleGPU image (cputype 0x1000013) carries two ADDITIONAL __TEXT sections analogous to __vertex/__fragment. agxparse STAGE_SECTIONS should gain these two. Each is a nested Mach-O carved by the symbol table exactly like __compute/__vertex/__fragment.",
+    "object": "__object",
+    "mesh": "__mesh",
+    "helper_symbols": {
+      "_agc.object.write_childcount": "object stage: compiler-generated subroutine that writes the mesh-grid CHILD COUNT (# mesh threadgroups to launch = the set_threadgroups_per_grid amplification). Generic: byte-IDENTICAL between grid=(1,1,1) and grid=(2,1,1) -- it is fed a count computed in _agc.main. 128 B in our shader.",
+      "_agc.mesh.write_uvb": "mesh stage: compiler-generated subroutine that computes the mesh-output-buffer (UVB) base + per-lane slot address and performs the trailing index/primitive stores (a run of 0xd7 memory-stores). Fixed 576 B, INVARIANT across all emit variants (generic address-setup helper). 'UVB' = the mesh-output/parameter buffer, the mesh analogue of the vertex UVS/varying buffer."
+    }
+  },
+
+  "length_rule_additions": {
+    "0x43": "4  [OBJECT/MESH-stage control marker. Only opcode group unique to the object+mesh stages; absent from compute/vertex/fragment. Seen as 43 00 00 01 at instruction boundaries in object and mesh _agc.main, and as a 43 00 06 xx region prologue. EXP-0030, inferred (byte-diff + clean tokenization); role not splice-validated.]"
+  },
+
+  "instructions": [
+    {
+      "mnemonic": "obj_mesh_ctrl",
+      "length": 4,
+      "match": [[0, 8, 67]],
+      "fields": [
+        {"name": "b1", "start": 8,  "width": 8, "type": "raw"},
+        {"name": "b2", "start": 16, "width": 8, "type": "raw"},
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "Object/mesh-stage control/marker op (byte0 0x43, 4 bytes). The ONLY opcode group that appears in the object and mesh stages but in NONE of compute/vertex/fragment. Observed forms: '43 00 00 01' (a fixed marker emitted once in object _agc.main and once in mesh _agc.main, and at the tail of the write_childcount/write_uvb helper regions -- INVARIANT: identical in a mesh that emits a triangle and a mesh that emits nothing, so it is NOT the set_primitive_count writer); and '43 00 06 00' at the head of the mesh-output helper regions. Best interpretation: an amplification-stage control/output-setup marker for the object->mesh grid pipeline. NOT a data-emit op -- set_vertex/set_index/set_primitive/set_primitive_count all lower to ordinary memory stores (0xe7/0xd7), see semantics of the memory family.",
+      "provenance": "inferred (byte-diff, EXP-0030): byte0 0x43 group present in every object and mesh _agc.main we compiled and ABSENT from the compute control (compute_emul.metal), a plain vertex shader, and a plain fragment shader; tokenizes cleanly as 4 bytes at real instruction boundaries (the preceding instructions tokenize with 0 leftover under the merged compute+fragment length rule). The '43 00 00 01' operand is invariant across emit0 (set_primitive_count(0)) and base (set_primitive_count(1)), proving it is a control marker, not the count store. Role not splice-validated (would need a mesh-stage splice testbed)."
+    }
+  ],
+
+  "emit_lowering_facts": {
+    "_comment": "These are the HW-grounded facts about how mesh output lowers -- documented against the EXISTING memory-family descriptors (0xe7/0xd7/0x67), which do NOT change. Provided for docs/isa + docs/cmdstream.",
+    "set_vertex(i,v)": "A run of consecutive 0xe7 device stores (14 B each: e7 02 54 <field_off> 00 14 00 00 <src_sel> 30 02 00), one per struct word, writing the vertex struct (float4 position + float4 color) into the mesh-output buffer (UVB) at the vertex slot. HW-validated by byte-diff: swapping vertex COLOUR green->red moved exactly two store SOURCE-immediate bytes (offsets +187/+201 of mesh _agc.main); the store opcodes/structure are unchanged. Same 0xe7 opcode the compute control uses.",
+    "set_index(i,x)": "The index value is computed in registers (an int-ALU op if non-trivial) then stored; reversing set_index(lane) -> set_index(2-lane) added a single 10-byte 0x1f/0x9f int-subtract and left the store path otherwise intact (mesh main 306 B -> 316 B). Index/connectivity writes also appear as the run of 0xd7 memory-stores in the write_uvb helper (d7 06 54 <slot> 16 00, 8 of them).",
+    "set_primitive(i,p)": "Stores of the per-primitive struct (POut) into the UVB primitive region; predicated under if(lane==0) via the 0f05/0f06 execution-mask push/pop.",
+    "set_primitive_count(n)": "A predicated (lane==0) device store of the count value -- NOT a dedicated opcode and NOT the 0x43 marker (emit0 with count 0 vs base with count 1 differ only in the stored VALUE, while the 0x43 marker is byte-identical).",
+    "object payload (object_data)": "Written by ordinary stores in the object stage; the payload constant is materialized then stored (payload scale 1.0 vs 2.0 changed 2 constant bytes at object _agc.main +11/+15).",
+    "mesh_grid amplification (set_threadgroups_per_grid)": "The grid dim count is computed in object _agc.main (grid (1,1,1) vs (2,1,1) moved bytes at object _agc.main +16..+25) and handed to the generic _agc.object.write_childcount helper (helper byte-identical between the two grids)."
+  },
+
+  "cmdstream_facts": {
+    "_comment": "For docs/cmdstream -- how a mesh draw is submitted (DATA-TRACE via tools/iotrace, read-only).",
+    "work_type": "NOT a new work type. A mesh draw reuses the SAME graphics submission path as an ordinary drawPrimitives: same two user clients (IOSurfaceRoot + AGXAcceleratorG17P), same selector set, same 39 sel-9 (resource-map) calls (compute uses fewer). IOKit call count: mesh 59 ~= draw 58 (>> compute 49); the +1 is an IOSurface bookkeeping call. NO compute (CDM) launch descriptor BO is registered -> it is a SINGLE unified graphics submit, not a compute pre-pass + draw.",
+    "vdm_record": "The object+mesh dispatch is a distinct record in the SAME tiler (TA/VDM) command stream at fw-ctx gpu_va 0x18000 that a draw uses. Where a drawPrimitives emits the 0x61c4 draw-primitive opcode (+ inline vertexCount/instanceCount), a mesh draw emits a mesh-grid-dispatch record instead (word 0x70000600 followed by the object/mesh grid dimensions as a run of 01000000 words). 3D fixed-function state (0x58000) and viewport (0x68000) are bound exactly as for a draw.",
+    "mesh_output_buffer": "The mesh-output buffer (UVB, where set_vertex/set_primitive stores land) and the object payload buffer are DRIVER/FIRMWARE-allocated intermediate BOs (the tiler-heap cluster at gpu_va 0x10000018000.. plus a mesh-specific dispatch-descriptor BO at 0x100000f8000 that carries the object/mesh threadgroup dims); their base reaches the shader through the USC/uniform binding like the vertex-shader varying buffer. NOT a user-visible buffer -> a kernel-interface item (allocation/sizing), like the tiler parameter buffer and the vertex UVS."
+  }
+}

@@ -177,6 +177,16 @@ need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
 - **MSAA** (HW-PROBE): N independent samples with 1:1 sample-id ordering (`read(coord,s)` = sample s);
   resolve = arithmetic average; physical interleave is on-chip tile SRAM (not byte-visible).
 
+## Mesh/object shading submission (EXP-0030)
+A mesh draw is **not a new work type** — it reuses the graphics path (same `IOSurfaceRoot` +
+`AGXAcceleratorG17P` clients, same selectors, ~39 sel-9 maps; **no CDM launch descriptor** → a single
+unified graphics submit, not compute+draw). It builds the same tiler/VDM stream at `0x18000` but replaces
+the draw's `0x61c4` primitive record with a **mesh-grid-dispatch record (`0x70000600` + grid dims)**; same
+3D state (`0x58000`) + viewport (`0x68000`), plus a **mesh-only dispatch-descriptor BO `0x100000f8000`**.
+The mesh-output **UVB buffer** is a driver/firmware-allocated intermediate (tiler-heap + `0x100000f8000`),
+reached via USC/uniform binding like the vertex-shader **UVS** varying buffer — **not user-visible**; its
+sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../kernel-interface.md`).
+
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
 - Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/

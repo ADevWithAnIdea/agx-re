@@ -406,6 +406,23 @@ Two mechanisms; a compiler picks by fast-math vs precise:
 - *(Clean-room: encodings, semantics, precision, and the textbook NR structure are documented; Apple's
   exact scheduled instruction list is not transcribed — rule 5.)*
 
+### ✅ Mesh / object shaders — HW pipeline, compute-style emit (EXP-0030)
+Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike matrix (`0xcf`) and RT
+(`0xea`) — **the vertex/primitive emit is NOT a dedicated opcode**. It lowers to ordinary stores:
+- `set_vertex` / `set_index` / `set_primitive` = runs of **`0xe7` device stores** into a HW-managed
+  mesh-output ("UVB") buffer (proven by opcode-diff vs a hand-written compute control that stores the
+  same primitives — identical store family; the mesh `_agc.main` shrinks 306→98 B when it emits nothing).
+- `set_primitive_count` = a predicated `lane==0` store of the count. Object payload = ordinary stores.
+- The **only mesh/object-unique opcode is a 4-byte control marker `0x43`** (`obj_mesh_ctrl`). The compiler
+  emits helper subroutines `_agc.object.write_childcount` and `_agc.mesh.write_uvb`; object→mesh **grid
+  amplification** is real fixed-function dispatch computed in object `main`.
+- Stages extract as `__TEXT,__object` / `__TEXT,__mesh` sections (like vertex/fragment).
+- **Implication for Mesa:** compile object/mesh as compute-like store kernels + a child-count write; no
+  magic emit op exists. Classify **native (pipeline) + emulated-style (emit via stores)**. Submission is
+  in `../cmdstream/` (reuses the graphics path). HW-validated end-to-end (correct triangle rendered).
+- *(ISA descriptors for `0x43` + stage-map additions are in `experiments/EXP-0030-mesh/new_descriptors.json`,
+  pending merge into `tools/agx-isa/db.json`.)*
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

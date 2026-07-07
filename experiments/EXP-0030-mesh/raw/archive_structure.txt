@@ -1,0 +1,39 @@
+container magic : 0xbebafecb
+AIR64 present   : False
+
+image @ 48: fat-arch[0] cputype=AIR64
+  error: not a mach-o 64 image (magic=0x424c544d)
+
+image @ 14992: fat-arch[1] cputype=AppleGPU
+  cputype : AppleGPU filetype=13
+    section __TEXT,__reflection(off=2368,size=2064)
+    section __TEXT,__fragment(off=4432,size=2464)
+    section __TEXT,__mesh(off=6896,size=2976)
+    section __TEXT,__object(off=9872,size=1904)
+    section __TEXT,__descriptor(off=11776,size=1184)
+    section __TEXT,__metallib(off=12960,size=14912)
+
+stages present: fragment, object, mesh
+
+AGX [fragment] (nested-mach-o) from __TEXT,__fragment:
+  nested cputype   : AppleGPU
+  __text size      : 210
+  _agc.main length : 146
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region _agc.main: [64:210] (146 bytes)
+
+AGX [object] (nested-mach-o) from __TEXT,__object:
+  nested cputype   : AppleGPU
+  __text size      : 302
+  _agc.main length : 110
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region _agc.object.write_childcount: [64:192] (128 bytes)
+  region _agc.main: [192:302] (110 bytes)
+
+AGX [mesh] (nested-mach-o) from __TEXT,__mesh:
+  nested cputype   : AppleGPU
+  __text size      : 946
+  _agc.main length : 306
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region _agc.mesh.write_uvb: [64:640] (576 bytes)
+  region _agc.main: [640:946] (306 bytes)
