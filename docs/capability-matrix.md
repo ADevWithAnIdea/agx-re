@@ -88,11 +88,11 @@ before an implementer commits to native vs emulate.
 
 | Feature | Status | Evidence (doc §) | Note |
 |---|---|---|---|
-| **Mesh / task shaders** | ❓ Unknown (likely native) | `mesa-userspace-requirements.md` §4; `hypotheses.md` backlog; `GAP-ANALYSIS-01.md` gap #10 | **MSL exposes mesh on Apple9** and A18 is the plausible first mesh-capable generation, but the **HW command/ISA decode is still TODO** — no AGX encoding exists in `docs/`. If native, it could retire the VS→GS/TCS compute-emulation stack. **Probe before deciding.** |
+| **Mesh shaders** | ✅ Native (EXP-0030) | `mesa-userspace-requirements.md` §4; `hypotheses.md` backlog; `GAP-ANALYSIS-01.md` gap #10 | **Native HW graphics pipeline** (EXP-0030): object/mesh compile as compute-style `0xe7`-store kernels + a child-count write; submission reuses the graphics TA/VDM path with a mesh-grid-dispatch record `0x70000600` (no CDM); UVB output buffer is firmware-managed. See `isa/README.md` + `cmdstream/README.md`. |
 | **Geometry shaders / tessellation / transform feedback — A18-native?** | ❓ Unknown | `mesa-userspace-requirements.md` §4 | §2 assumes **emulate** (the M1/M2 default). Whether A18 gained any native path (or subsumes them under mesh) is **not independently probed on A18**. Scoping-critical: native support retires large emulation paths. |
 | **Anisotropy > 16×** | ❓ Unknown (field can encode 128×) | `descriptors/README.md`; `hypotheses.md` #5 | The sampler aniso field is **3-bit log2 (→128×)** though Metal caps 16×; **>16× not yet run on hardware**. Probe candidate; don't assume >16× works. |
 | **Polygon-point fill; extra gather/offset sample variants; 1D/CubeArray/MSArray texture types** | ❓ Unknown / ⏳ | `cmdstream`/`descriptors`/`isa` (EXP-0016/0015) | Spare encodings exist but specific variants are untested; several texture *types* are ⏳. |
-| **Block-compressed (BC/ASTC/ETC) twiddle; 3D/cube/array/MSAA layout; compression codec** | ❓ Unknown / inferred | `tiling/README.md` §1.5 / §4.5; `GAP-ANALYSIS-01.md` gap #14 | BC twiddle is *inferred, not probed*; volume/cube/array/MSAA layouts untested; the compression **codec** is opaque (documented disable-fallback exists). Affects whether compressed/volume textures can be laid out with confidence. |
+| **BC/ASTC/ETC twiddle; 3D/cube/array/MSAA layout** | ✅ Native (EXP-0028) | `tiling/README.md` §1.5/§1.6, `descriptors/format-table.md` | BC/ASTC = Morton-of-blocks (HW-confirmed); 3D=stacked Morton planes; array/cube=linear-stacked planes; MSAA=sample-major. Only the **compression block codec** stays opaque (documented disable-fallback). |
 
 ---
 
@@ -103,7 +103,7 @@ before an implementer commits to native vs emulate.
 | **✅ Native** | **13** | matrix (`0xcf`), hybrid RT, programmable blend, logic ops (16-func LUT), depth clamp, dual-source blend, polygon line fill, subgroup prefix-scan, float round modes, typed compare, format/swizzle/sRGB orthogonality, separate read/write texture paths, native single-RMW atomics |
 | **⛔ Emulate** | **7** | float atomic min/max, 64-bit atomic-add, arbitrary sampler border color, int8 cooperative-matrix, geometry shaders, tessellation, transform feedback |
 | **🔥 Kernel/FW** | **5** | sample positions, ZLS/depth store, RT BVH build, partial render, graphics shader-entry handoff |
-| **❓ Unknown/untested** | 6 clusters | mesh/task shaders; GS/tess/XFB A18-native status; aniso >16×; polygon-point & gather variants & exotic tex types; BC/3D/cube/array/MSAA tiling; compression codec |
+| **❓ Unknown/untested** | 3 clusters | GS/tess/XFB A18-native status; aniso >16×; polygon-point & exotic gather/tex-type variants. (Mesh, BC/3D/cube/MSAA tiling now ✅ native; compression codec opaque.) |
 
 **Honesty note (per `../CLAUDE.md`).** Of the 7 "emulate" rows, **4** are HW-validated absences from
 our own probes (float atomic min/max, 64-bit atomic-add, arbitrary border color, int8 coopmat); the

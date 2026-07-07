@@ -29,7 +29,7 @@ Goal: prove every clean-room technique works end-to-end before doing real RE.
 - ☑ **0.4 Hardware testbed (the round-trip engine)** — *Done: EXP-0003.* `tools/agxtest/` splices arbitrary bytes into our own compiled shader and runs on the real GPU (Metal runs tampered code, no integrity check, via bound `MTLBinaryArchive` + `FailOnBinaryArchiveMiss`). First HW-validated fact: op-select `1c=fadd/1d=fmul`. Faults are contained (0 reboots). **The extrapolate-and-test loop is live.**
 - ☑ **0.5 IOKit/IOGPU data-tracing harness** (`tools/iotrace`) — *Done: EXP-0009.* DYLD interposer captures our own Metal process's IOKit traffic + BO contents. Found: submission = shared-mem+doorbell (not per-call ioctl); `AGXAcceleratorG17P` sel 9 = map-resource→GPU-VA; argument buffer / launch descriptor / shader BO located. → `docs/cmdstream/README.md`. **Phase 2 foundation set.**
 
-## Phase 1 — Full A18 Pro AGX (dis)assembler + ISA spec  ⟵ PRIMARY TOOL DELIVERABLE
+## Phase 1 — Full A18 Pro AGX (dis)assembler + ISA spec  ✅ (DB 75 descriptors, round-trip green, encoding-tables.md + agx3.xml; census ~88% no missing families)
 Build a **complete, hardware-validated, machine-readable AGX instruction database that both
 disassembles AND assembles** A18 Pro shaders — the A18 counterpart to dougallj/applegpu. The
 assembler is not optional: it is the engine of the extrapolate-and-test loop (to test whether
@@ -38,19 +38,19 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 `assemble(disassemble(bytes)) == bytes` across the whole validated corpus.
 
 - ◐ **Opcode map** — *float + integer arithmetic mapped (EXP-0005/6/7):* length rules for float & integer groups; float ALU (fadd/fmul) + integer (iadd/isub/imul/imad, imin/imax) HW-validated. Byte0 groups so far: `0x09` float-ALU, `0x0b` float-unary/bitwise, `0x12` fmin/max & int-cmp, `0x67/e7` load/store, `0x9f/0x1f` int-arith, `0x02` int-min/max, `0xa7` shift/bfe, `0x27` popcnt, `0x0c` preamble, `0x0e` stop; **vtx/frag-only (pending decode):** `0x2f/3f/af` ALU-f, `0x07/87/97` mem, `0x05/06/57` varying-store, sample `0x18/b0`, deriv `0x37/38/39/90/92`. Remaining: fma/unary/minmax float ops, bitwise/shift/cmp detail, memory, control-flow, texture, atomic, subgroup, RT/mesh.
-- ◐ **Per-instruction spec** — *float ALU 2-src fully mapped & HW-validated (EXP-0005/0006):* op-select, dst/srcA/srcB register fields (`(reg<<1)|is32`), srcB negate (bit43), srcB imm-mode (bit39), 8-bit-minifloat immediate. Register model preliminary (64 GPRs). **Next: integer ALU (0x9f), fma/3-src & float-unary & fmin/max, memory addressing, control flow, textures, atomics, subgroup, RT/mesh** — plus confirm register model (uniforms, dst width, Dynamic Caching).
+- ◐ **Per-instruction spec** — *float ALU 2-src fully mapped & HW-validated (EXP-0005/0006):* op-select, dst/srcA/srcB register fields (`(reg<<1)|is32`), srcB negate (bit43), srcB imm-mode (bit39), 8-bit-minifloat immediate. Register model: 96 GPRs (EXP-0020). **Next: integer ALU (0x9f), fma/3-src & float-unary & fmin/max, memory addressing, control flow, textures, atomics, subgroup, RT/mesh** — plus confirm register model (uniforms, dst width, Dynamic Caching).
 - ☑ **Machine model** — *EXP-0020: 96 GPRs, halves 2/GPR, uniform register file + uniform program (constant_program), footprint in __GPU_METADATA, spill to scratch >96 (Dynamic Caching).* → `docs/isa/README.md`.
 - ◐ **New instruction families** — ✅ atomics/subgroup/quad (0018), texture (0016), **matrix `0xcf` 8×8×8 (0022)**. Remaining: **ray-tracing intrinsics, mesh shading** (exotic Apple9, biggest gaps).
 - ☐ **Extrapolate & test** — sweep undocumented opcode/modifier space; log every probe (works/no-op/faults) in `hypotheses.md`.
 - Deliverables: `../tools/agx-isa/` (the assembler+disassembler, round-trip-tested) **and** `isa/` (prose + encoding tables). The tool is the executable form of the documentation.
 
-## Phase 2 — Control / command stream & state
+## Phase 2 — Control / command stream & state  ✅ (compute+graphics submission, USC grammar, state packets, indirect/occlusion/timestamp)
 - ☐ VDM (draw) / CDM (compute) / tiler / fragment command lists.
 - ☐ USC binding words (shaders, textures, samplers, uniforms).
 - ◐ State packets — *EXP-0019: depth/stencil + rasterizer packets decoded; blend is PROGRAMMABLE (lowered into fragment shader, not a packet); USC bind template mapped.* → `docs/cmdstream/README.md`.
 - Method: black-box trace + change-one-Metal-parameter diffing. Deliverable: `cmdstream/`.
 
-## Phase 3 — Resource descriptors & texture layout
+## Phase 3 — Resource descriptors & texture layout  ✅ (texture/sampler/buffer/PBE + format table + tiling)
 - ☐ Texture / sampler / buffer descriptor bit layouts; bindless/argument-buffer model.
 - ☐ Tiling/swizzle order + lossless compression per format.
 - Deliverables: `descriptors/`, `tiling/`.

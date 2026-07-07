@@ -83,7 +83,7 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
 - **TA** binds VDM `0x18000` + viewport `0x68000` + attr table; **3D** binds attachment `0x110000` + FF-state `0x58000`.
 - **Shader binding:** unlike compute's single `shaderVA>>6`, VS/FS are bound **indirectly through USC
   bind-pairs** in the VDM (changing either shader touches `{0x10000000000, 0x10000130000}`). ⏳ the exact
-  graphics shader-entry word inside the USC blocks is not yet decoded.
+  graphics shader-entry word: **RESOLVED below** — draws bind shaders via a self-describing sized-block code walk (no pointer word), EXP-0024; USC bind grammar decoded in EXP-G1a.
 - **VDM draw record:** header (state-size @+0x0c) + USC bind-pairs (control-word, addr) + primitive word:
   **primitive type @+0x65** (point 0x00, line 0x01, tri 0x06, strip 0x09), **vertexCount @+0x68**,
   **instanceCount @+0x6c**. Indexed draws switch opcode `0x61c4→0x61f2` and add **index-buffer VA @+0x70**
@@ -233,7 +233,7 @@ clean, emittable grammar:
 
 ## Open items (next cmdstream experiments)
 - Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
-- Graphics: USC bind-pair grammar + graphics shader-entry word; per-packet bit decode of depth/stencil/
+- Graphics (RESOLVED: USC grammar + shader-entry — see above): remaining ⏳ = per-packet bit decode of depth/stencil/
   blend/raster; attachment dims/stride + the 3-segment (load/render/store) meaning; **tiler parameter
   buffer** (`0x10000088000/140000`); ZLS / partial-render (restructures on `--depth`).
 - Texture/sampler descriptor bit layouts → `../descriptors/`.
