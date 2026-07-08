@@ -67,7 +67,7 @@ Tiled Morton (T=64 bpp≤4 / 32 bpp≥8), cols=ceil(W/T), mult-of-T padding, mip
 A18 shares:** the tile-row stride must be a whole number of 16-KiB pages, so `cols = round_up(ceil(W/T), G)`, `G =
 0x4000/(T²·bpp)` → bpp8 needs even columns (A18: 96→4, 160→6, 288→10, 0 mismatch; flat `ceil(W/T)` off by thousands).
 This closes an original A18 coverage gap (A18 only probed bpp-4 widths where G=1). Folded into `tiling/README §1.1/§1.4`;
-bpp1/bpp2 (G=4/G=2) predicted, being probed (EXP-M4-06).
+bpp2 confirmed (G=2, even). **bpp1 REFUTED the G=4 prediction and found a doc ERROR: bpp1 uses tile edge T=128 (not 64)** — A18 320-wide r8 → cols 3 (odd), tile=128²·1=16KiB, G=1 (EXP-M4-06). Corrected `tiling/README §1.1-1.4`: T = largest pow2 with T²·bpp≤16KiB (bpp1→128, bpp2/4→64, bpp8/16→32).
 
 ## 6. TBDR / pipeline — ✅ IDENTICAL (EXP-M4-03)
 Tile **32×32 fixed** (0x68000 +0x904/+0x908 = ceil(W/32)−1), MSAA count byte3=0x09@+0x24, **userspace sample

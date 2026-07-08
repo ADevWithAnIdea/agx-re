@@ -19,28 +19,29 @@ the interleave runs across the full address; each axis is **padded to a whole nu
 (a multiple of the tile edge **T**), NOT to the next power of two — see §1.4 (RT-9 correction).
 
 ### 1.1 Offset formula (CORRECTED — RT-3 + RT-9, GF(2)-solved, 0 mismatch on non-pow2 widths 192/300/384/448/576)
-The texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T depends on bpp**:
-`T = 64 for bpp ≤ 4, T = 32 for bpp ≥ 8` (measured Morton depth D: 2/4 bpp → 6, 8/16 bpp → 5; T = 2^D; HW-derived
-across bpp 2/4/8/16 — the break is exactly between 4-byte and 8-byte elements).
-Define the **tile-count width** `cols` = `ceil(W/T)` rounded UP so the **tile-row stride is a whole number of 16-KiB pages**
-(the AGX page size). A Morton tile is `T²·bpp` bytes, and a tile-row (`cols` tiles) must be a multiple of `0x4000`:
+The texture is a **row-major grid of square Morton tiles** of edge **T** texels. **T = the largest power-of-two square
+whose byte size `T²·bpp` is ≤ 16 KiB** (the AGX page). So T is bpp-dependent (⚠ this **corrects** the earlier
+"T=64 for bpp≤4 / 32 for bpp≥8" — which was **wrong for bpp1**, HW-shown by EXP-M4-06). Then the **tile-count width**
+`cols = ceil(W/T)` is rounded up so the **tile-row stride is a whole number of 16-KiB pages**:
 
 ```
-G    = max(1, 0x4000 / (T*T*bpp))            # tiles per 16-KiB page-row granule
-cols = round_up( ceil(W/T), G )              # (single-tile W ≤ T excepted)
+T    = largest 2^k with T²·bpp ≤ 0x4000       # 1→128, 2/4→64, 8/16→32 bytes-per-texel
+G    = max(1, 0x4000 / (T*T*bpp))             # tiles per 16-KiB page-row granule
+cols = round_up( ceil(W/T), G )               # (single-tile W ≤ T excepted)
+padW = cols*T ;  padH = ceil(H/T)*T           # padH is NOT granule-rounded (horizontal-only)
 ```
-| bpp | T | tile bytes (T²·bpp) | **G** | column rule | status |
+| bpp | **T** | tile bytes (T²·bpp) | **G** | column rule | status (HW-validated) |
 |---|---|---|---|---|---|
-| 1 (r8) | 64 | 0x1000 | **4** | cols ×4 | ⏳ predicted (EXP-M4-06 probing) |
-| 2 (r16) | 64 | 0x2000 | **2** | cols even | ⏳ predicted (EXP-M4-06 probing) |
-| 4 (r32) | 64 | 0x4000 | 1 | any | control ✓ |
-| 8 (rg32/rgba16) | 32 | 0x2000 | **2** | cols even | **HW-confirmed A18+M4 (EXP-M4-04/05)** |
-| 16 (rgba32) | 32 | 0x4000 | 1 | any | control ✓ |
+| 1 (r8) | **128** | 0x4000 | 1 | `ceil(W/128)` | **A18 (EXP-M4-06)** — 320→cols 3 (odd) proves T=128, refutes G=4 |
+| 2 (r16) | 64 | 0x2000 | **2** | `round_up(ceil(W/64),2)` (even) | **A18 (EXP-M4-06)** — 320→cols 6 |
+| 4 (r32) | 64 | 0x4000 | 1 | `ceil(W/64)` | A18+M4 (EXP-0017/M4-04) |
+| 8 (rg32/rgba16) | 32 | 0x2000 | **2** | `round_up(ceil(W/32),2)` (even) | **A18+M4 (EXP-M4-04/05)** — 96→4,160→6,288→10 |
+| 16 (rgba32) | 32 | 0x4000 | 1 | `ceil(W/32)` | A18+M4 (EXP-M4-04/05) |
 
-**HW-confirmed on BOTH the A18 Pro and the M4** (EXP-M4-05 cross-confirmed on the real A18 with 0 mismatch: bpp8
-96→cols 4/padW 128, 160→6/192, 288→10/320; flat `ceil(W/T)` mismatches by thousands of texels, and `nextpow2` is
-also refuted since cols 6/10 are even-but-not-pow2). This closes an original A18 gap (the A18 corpus only used bpp-4
-non-pow2 widths, where `G=1` makes the rule a no-op). With `tx = x >> log2(T)`, `ty = y >> log2(T)`:
+The `T²·bpp ≤ 16 KiB` + 16-KiB-row-stride rules were **HW-derived on the M4 and cross-confirmed on the real A18** (0
+mismatch throughout; flat `ceil(W/T)` mismatches by thousands, and `nextpow2` is refuted — e.g. bpp8 cols 6/10 and
+bpp1 cols 3 are non-pow2). This closes two original A18 gaps the earlier corpus never probed (bpp8/bpp2 even-column
+padding, and bpp1's T=128). With `tx = x >> log2(T)`, `ty = y >> log2(T)`:
 
 ```
 element_index(x,y) = (ty · cols + tx) · T²  +  morton_D( x & (T−1), y & (T−1) )
@@ -58,12 +59,12 @@ padded dimension, then append the remaining high bits of the larger dimension li
 square power-of-two texture this is a full Morton curve over all bits.
 
 ### 1.2 Tile size / within-tile order
-The tile boundary is at **T texels** (64 for bpp≤4, 32 for bpp≥8); tiles are laid **row-major**. Within a tile it is Morton. The
+The tile boundary is at **T texels** (bpp1→128, bpp2/4→64, bpp8/16→32 — largest pow2 with T²·bpp≤16KiB, §1.1); tiles are laid **row-major**. Within a tile it is Morton. The
 "within-tile order" is the Z-order itself. Reference points on the curve:
 `e0=(0,0) e1=(1,0) e2=(0,1) e3=(1,1) e4=(2,0) e5=(3,0) e6=(2,1) e7=(3,1) …`.
 
 ### 1.3 Bytes-per-pixel
-The twiddle within a tile is over texel coordinates, BUT the **tile size T depends on bpp** (64 for ≤4 B, 32 for ≥8 B) — RT-3 corrects the earlier bpp-independence claim. For 1/2/4-byte formats
+The twiddle within a tile is over texel coordinates, BUT the **tile edge T depends on bpp** (bpp1→128, bpp2/4→64, bpp8/16→32 = largest pow2 with T²·bpp≤16KiB; §1.1) — RT-3 corrected the earlier bpp-independence claim, EXP-M4-06 corrected the bpp1 value. For 1/2/4-byte formats
 (r8/r16/r32/rg32/rgba8/rgba16/rgba32 all validated). The byte offset is simply
 `morton(x,y) · bytesPerPixel`. Equivalently: the tile is a fixed count of texels; its byte size
 scales with bpp.
@@ -79,8 +80,8 @@ Examples (validated against backing-BO sizes): 48×48 r32 (48<64) → nextpow2 6
 96×96 r32 → 128×128×4 = 0x10000; **384×384 rgba8 (bpp4,T64) → 384·384·4 = 0x90000** (RT-9: NOT the
 nextpow2 512²·4 = 0x100000 — the tell that padding is multiple-of-T, not nextpow2). Pow2-multiple-of-T
 sizes (256/512) are unchanged, which is why RT-3 didn't catch this. **`padW = round_up(ceil(W/T), G)·T`** where
-`G = max(1, 0x4000/(T²·bpp))` (§1.1 — the tile-row stride is a whole number of 16-KiB pages): G=1 for bpp4/16, **G=2
-for bpp2/bpp8, G=4 for bpp1**. `padH = ceil(H/T)·T` (no granule rule on rows). HW-confirmed A18+M4 for bpp8 (EXP-M4-04/05).
+`G = max(1, 0x4000/(T²·bpp))` and **T = largest pow2 with T²·bpp≤16KiB** (§1.1): (bpp1,T128,G1) (bpp2,T64,G2) (bpp4,T64,G1)
+(bpp8,T32,G2) (bpp16,T32,G1). `padH = ceil(H/T)·T` (no granule rule on rows). HW-confirmed on A18+M4 (EXP-M4-04/05/06).
 
 ### 1.5 Block-compressed formats (BC/ASTC/ETC) — ✅ CONFIRMED (EXP-0028)
 Block-compressed formats apply the **same tiled-Morton curve over BLOCK coordinates** (RT-9: the block grid
