@@ -277,6 +277,6 @@ Method: HW-PROBE + OWN-SHADER + DATA-TRACE; no Apple binary disassembled.
 
 ## 5. Compression × mipmaps (EXP-O2G)
 A mipmapped compressible texture gets **one contiguous aux buffer covering ALL mip levels**, placed after the full mip
-chain (`auxOff = Σ padded-level-bytes`, size ≈ totalImageBytes/128) — not per-level, not level-0-only. A partial chain
+chain (`auxOff = Σ padded-level-bytes`, size ≈ **totalTexels/32** = totalImageBytes/128 only at bpp4, see §4.3) — not per-level, not level-0-only. A partial chain
 still reserves the full pyramid footprint + aux (independent of `mipmapLevelCount`).
 

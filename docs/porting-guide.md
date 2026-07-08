@@ -97,7 +97,7 @@ inserts hazard synchronization, and stitches prolog/main/epilog.
   file** + a separate **uniform program** (the `_agc.main.constant_program`, a thread-invariant
   scalar datapath), and **spill to per-thread scratch above 96 GPRs** (Dynamic Caching). Footprint
   is declared in the shader's own `__GPU_METADATA`; the launch descriptor carries only a coarse
-  **~12-GPR 2-level occupancy tier** (config bit23). Register-field widths differ by form (nibble
+  **2-level occupancy tier by PEAK register pressure** (config bit23; NOT a fixed ~12-GPR threshold — EXP-M4-09/CMD-8). Register-field widths differ by form (nibble
   dst in the compact `falu2`, 7-bit `(reg<<1)|size` for integer/wide forms).
 - **Async = HW register interlock, NO scoreboard waits** (`isa/README.md` "Async completion",
   EXP-0025 — CRITICAL): do **not** emit G13-style scoreboard `wait` ops or slot assignments; they do
@@ -268,9 +268,9 @@ address memory.
 
 **DIFFERENT for G17P** — read `tiling/README.md`:
 - **Twiddle = ROW-MAJOR GRID OF MORTON TILES (RT-3), tile edge bpp-dependent** (§1.1, EXP-0017/RT-3):
-  the texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T = 64 for
+  the texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T = largest pow2 with T²·bpp≤16KiB** (bpp1→**128**, bpp2/4→64, bpp8/16→32; EXP-M4-06) — NOT the old flat 64 for
   bpp ≤ 4, T = 32 for bpp ≥ 8** (bpp-DEPENDENT). With `tx = x>>log2(T)`, `ty = y>>log2(T)`,
-  **`cols = ceil(W/T)`** (RT-9: ACTUAL width in whole tiles — NOT `nextpow2(W)/T`):
+  **`cols = round_up(ceil(W/T), G)`**, G=0x4000/(T²·bpp) (RT-9/EXP-M4-06: whole tiles, 16KiB-row granule — NOT flat ceil or nextpow2):
   `element_index(x,y) = (ty·cols + tx)·T² + morton_D(x & (T−1), y & (T−1))`,
   `byte_offset = element_index · bpp`. Within one tile it is plain Morton (which is why all ≤128-px
   validations passed); the tiled structure only appears once both dims exceed T. **Allocation pads each
@@ -285,7 +285,7 @@ address memory.
   linear rows; **MSAA sample-major** interleave `offset = (N·morton(x,y)+sample)·bps` (N=2,4; 8×
   unsupported). BC/ASTC/ETC = same Morton curve over **block** coordinates (§1.5).
 - **Lossless compression** (§4): enabled iff **no ShaderWrite** AND image ≥ ~16×16. Allocate an
-  **aux metadata buffer** = `image_bytes/128` (1 state byte per 8×4-texel block) placed **immediately
+  **aux metadata buffer** = `numTexels/32` = `paddedImageBytes/(32·bpp)` (1 state byte per 8×4-texel block; = image_bytes/128 only at bpp4 — EXP-M4-07) placed **immediately
   after** the image (`secondaryVA = baseVA + paddedImageBytes`); set descriptor flags word1 bit27 /
   word3 bit31 + secondary VA (§3). Aux bytes are Morton-of-blocks ordered.
 
@@ -468,7 +468,7 @@ here)**
 `capability-completeness.md` §16b: **Dynamic Caching dynamic behavior**, **2× ALU dual-issue**,
 **flexible unified on-chip memory**, **RT reorder stage**, and the **full occupancy/latency curve**.
 These are observable only via throughput/occupancy microbenchmarks + Xcode counters. **Fallback:**
-use the *static* model that **is** decoded (96 GPRs, spill threshold, ~12-GPR occupancy tier) — it
+use the *static* model that **is** decoded (96 GPRs, spill threshold, peak-pressure occupancy tier) — it
 is correct; the dynamic curves are performance-only (wrong = slow, not broken).
 
 **Kernel-side open items** (`kernel-interface.md` §8): the exact CPU→GPU doorbell store, the

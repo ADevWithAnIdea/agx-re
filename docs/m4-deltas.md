@@ -68,7 +68,7 @@ A18-*inferred* width-high field word1[0:5]), format→code rule — **all byte-i
 
 ## 5. Texture tiling & compression — ✅ IDENTICAL + 1 refinement (EXP-M4-04)
 Tiled Morton (T=64 bpp≤4 / 32 bpp≥8), cols=ceil(W/T), mult-of-T padding, mip (384²→0xcd600 exact), compression
-(≥16×16 threshold, aux=image/128, secondaryVA=base+paddedImageBytes, ShaderWrite **and PixelFormatView** disable it)
+(≥16×16 threshold, **aux = numTexels/32 = paddedImageBytes/(32·bpp)** — EXP-M4-07 CORRECTS the old image_bytes/128 which over-counts 2×/4× at bpp8/16; secondaryVA=base+paddedImageBytes; ShaderWrite **and PixelFormatView** disable it)
 — all reproduce with 0 mismatch, incl. the decisive non-pow2-tile widths. **Refinement M4 surfaced, then CROSS-CONFIRMED on the real A18 (EXP-M4-05) — NOT a delta, a general AGX rule the
 A18 shares:** the tile-row stride must be a whole number of 16-KiB pages, so `cols = round_up(ceil(W/T), G)`, `G =
 0x4000/(T²·bpp)` → bpp8 needs even columns (A18: 96→4, 160→6, 288→10, 0 mismatch; flat `ceil(W/T)` off by thousands).

@@ -364,7 +364,7 @@ argument-buffer slot — **no length or format word** (EXP-0015 §3).
   ≥ ~one 16×16 tile (16×16 on, 8×8/4×4 off, for rgba8). ShaderWrite (read-write) textures are never
   compressed at any size.
 - **Aux placement/size:** immediately after the main image in the same allocation
-  (`secondaryVA = baseVA + paddedImageBytes`); `aux_bytes = image_bytes / 128` = 1 state byte per
+  (`secondaryVA = baseVA + paddedImageBytes`); `aux_bytes = numTexels/32` = `paddedImageBytes/(32·bpp)` = 1 state byte per
   8×4-texel block, in Morton-of-blocks order.
 - **Per-block state-byte values (observed):** `0x03` = compressed constant, `0x15` = compressed
   smooth gradient, `0x7f` = incompressible / stored raw. The compressed block **codec** and the exact

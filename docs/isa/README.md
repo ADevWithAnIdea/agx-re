@@ -193,7 +193,7 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
   binary's own `__GPU_METADATA` FlatBuffer (field 0 = GPR count, 14/41 = scratch bytes, 31 = uniform,
   9 = threadgroup) — this is *our own* compiled shader's metadata (OWN-SHADER). The launch-descriptor
   `+0x00` config word carries only a coarse **2-level occupancy tier** (bit 23). The tier bit is real
-  (clear at low footprint, set at high), but the exact **"clear ≤11 / set ≥12 GPRs" threshold is
+  (clear at low footprint, set at high), but the exact **"2-tier by PEAK register pressure (EXP-M4-09/CMD-8: f0=8 appears on both sides, lowest SET at f0=5) — the earlier "clear ≤11 / set ≥12 GPRs" threshold is
   INTERPOLATED, not measured** (RT-7): EXP-0020's config correlation only captured **f0=8 (clear)** and
   **f0=14 (set)** — the 11-vs-12 transition is an interpolation between those two points, never a directly
   observed 11→12 flip. Treat the precise threshold as unverified.

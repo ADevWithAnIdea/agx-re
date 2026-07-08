@@ -198,7 +198,7 @@ ZLS, partial-render, scissor register, shader-entry bind.
 - ☑ **G1-a USC binding-word grammar** (EXP-G1a) [cmdstream, HIGHEST]: the tag magic-byte table (Shader/Uniform/Texture/Sampler)
   + the Texture/Sampler count↔buffer split in the USC bind words. Currently only the per-stage preamble *shape* is known.
 - ☑ **G1-b PBE / render-target descriptor** (EXP-G1b) [descriptor]: the sampled-texture 32B descriptor is fully
-  specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x22, samples @+0x24).
+  specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x21, samples @+0x24).
 - ☑ **G1-c Sysval→uniform = NEGATIVE (get_sr on demand, no table)** (EXP-G1a) [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
   which-uniform-holds-which-sysval mapping is not — needed to reproduce the FF-state-into-shader ABI.
 - ☑ **G1-d Scratch/doorbell = KERNEL-MANAGED** (userspace declares scratch size in __GPU_METADATA; rest kernel) → kernel-interface.md [kernel-adjacent]: spill proven, but scratch-base location

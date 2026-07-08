@@ -131,7 +131,7 @@ word = (0xf << 28) | (swizzle[11:0] << 16) | (byte1 << 8) | (byte0 & ~0x20)
 | byte+0x22 | `swizzle[0:7]` (low byte of the 12-bit swizzle) |
 | byte+0x23 | `0xf0 \| swizzle[8:11]` |
 
-**⚠ Correction:** `../pipeline/README.md` and `../cmdstream/` state "byte+0x22 = format". That is
+**⚠ Correction:** `../pipeline/README.md` and `../cmdstream/` **previously** stated "byte+0x22 = format" (now corrected to +0x21). That was
 **wrong** — the format code is at **byte+0x21**; byte+0x22 is the swizzle low byte. The old claim only
 coincided for **bgra8** (whose swizzle-low `0x0a` equals its format code `0x0a`). For rgba8 byte+0x22 =
 `0x88` (swizzle), not the format. *(These are not my files to edit — flag for the orchestrator.)*
