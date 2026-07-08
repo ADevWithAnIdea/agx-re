@@ -1,0 +1,38 @@
+ISA-2 saturate/output-clamp + ISA-3 per-operand abs/neg -- byte-diff + splice evidence
+Host: Apple M4 (Apple9 AGX ISA). Tools: compdump/pairdiff (own compile+diff) + agxtest (own splice+run).
+
+=== ISA-2: saturate() is a NATIVE output-clamp modifier bit (NOT min/max lowering) ===
+Float ALU (byte0 0x09). Plain fadd = compact 6B `09 05 1c 01 00 c0`.
+saturate(a+b) / clamp(a+b,0,1)  compile IDENTICALLY to the EXTENDED 8B form:
+    `09 05 1c 01 01 00 00 82`   (byte+4=0x01 selects +2B tail; byte+7=0x82, bit1=0x02 = CLAMP)
+abs form is 10B `09 05 1c 01 02 00 00 80 01 00`; saturate(a+|b|) flips ONLY byte+7 0x80->0x82
+  (clean single-bit isolation of the clamp modifier, same length).
+fp16 (byte0 0x10): saturate(a+b) = `10 03 1c 02 01 00 00 82` -- same byte+7 bit1 clamp.
+Length rule (all groups): 6 + 2*(byte+4 & 0x3): 0x00->6, 0x01->8 (saturate), 0x02->10 (abs).
+  fma too (byte+2 bit1 set): plain 0x81->8, saturate 0x82->10, abs 0x83->12 (isadb.py FIXED this session;
+  the old flat `return 8` desynced saturate/abs-fma tails).
+
+HW SPLICE PROOF (native, not emulated): sat_f.metal, a=0.5 b=1.0 (sum 1.5):
+  baseline -> 1.0 (clamped).  splice byte+7 0x82->0x80 (clear clamp bit) -> 1.5 (clamp OFF).
+  => saturate is ONE modifier bit on the producing op; no following min/max instruction is emitted.
+clamp(x,0,1) == saturate() == native bit. clamp(x,2,7) is DIFFERENT: lowered to explicit
+  fmax/fmin ops (`...3c ... 2a ... 0d...`, +12B), i.e. only the [0,1] special case uses the bit.
+
+=== ISA-3: per-operand abs/neg (byte-diff; negate splice-proven) ===
+falu2 (fadd/fmul 6B `09 05 1c 01 00 c0`): srcB-slot negate = byte+5 bit3 (0x08); srcA-negate via
+  operand COMMUTE (no srcA-negate in 6B form). abs => 10B extended form (byte+4=0x02), abs-enable
+  in byte+8 (bit0=slotB, bit1=slotA; absA|absB=0x03).
+  HW SPLICE PROOF: add.metal 5+3=8; splice byte+5 0xc0->0xc8 (set bit3) -> -2 (one operand negated).
+fma (8B `09 01 1e 05 81 08 02 c0`): multiplicand negate = byte+7 bit3 (0xc0->0xc8);
+  addend(C) negate = byte+4 bit4 (0x81->0x91); addend abs = byte+4 bit3 (0x81->0x89);
+  src abs => 12B extended (byte+4=0x83).
+mul commutes freely (mul_negA==mul_negB: both byte+5 0xc0->0xc8).
+
+=== ISA-4 (immediates, byte-diff) ===
+minifloat (float ALU imm): byte+1 = 8-bit minifloat code (matches roundtrip_test.py sweep, e.g.
+  1.0->0xb1, 2.0->0xc1, 3.5->0xcd, 0.5->0xa1); negate = byte+2 bit3; 255 & 256 compile IDENTICALLY
+  (both out of minifloat range -> same fallback; max representable ~30 -> 0xff).
+integer immediate: multi-byte little-endian (K<<1) starting byte+5 (K=1->0x02, 127->0xfe,
+  128->0x0100 spanning +5/+6). CORRECTION: stays INLINE at least to 65536 (immi_256/512/1024/65536
+  all same 46B length as immi_1) -- refutes the doc's "K>=256 materializes to a register". Negative
+  immediate uses a different op byte0 (0x9f->0x1f) / sign path, not register materialization.

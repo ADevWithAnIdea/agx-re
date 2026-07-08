@@ -272,7 +272,15 @@ def instr_length(buf, off=0):
                 return 10              # extended-source fmul-add coord op (VS varying compute)
             return 8 if (b4 & 0x02) else 6  # fused mul / mul-add coord op (EXP-0037)
         if b2 & 0x02:
-            return 8                    # fma / 3-source form (byte+2 length bit set)
+            # fma / 3-source form. EXP-M4-10 (ISA-2/3, HW byte-diff): the fma ALSO
+            # carries the saturate/abs EXTENDED tail, so it is length-POLYMORPHIC on
+            # byte+4 exactly like the 2-source form: plain fma byte+4 low2=01 -> 8,
+            # saturate(fma) byte+4=0x82 -> 10 (`09 01 1e 05 82 08 02 00 00 82`),
+            # abs-src fma byte+4=0x83 -> 12 (`09 01 1e 05 83 08 02 00 00 80 01 00`).
+            # The old flat `return 8` mis-lengthed saturate/abs fma and desynced the
+            # tail. Guard low2==0 -> 8 (never seen; keeps the base fma length safe).
+            b4 = buf[off + 4] if off + 4 < len(buf) else 0
+            return (6 + 2 * (b4 & 0x03)) if (b4 & 0x03) else 8
         # EXP-M4-10 (ISA-2/3, HW-splice): the EXTENDED 2-source float-ALU form
         # (output-clamp `saturate` / srcA-slot negate / abs) is LONGER than the compact
         # 6-byte form even though byte+2 bit1 (the fma length bit) is CLEAR. Its length is
@@ -455,7 +463,10 @@ def instr_length(buf, off=0):
     # same length bit (byte+2 bit1) as 0x09/0x11.
     if b0 == 0x10:
         if buf[off + 2] & 0x02:
-            return 8                    # fma / 3-source (byte+2 length bit)
+            # fp16 fma / 3-source. EXP-M4-10: same saturate/abs byte+4 polymorphism as
+            # the 0x09 fp32 fma (8/10/12), so length off byte+4 low2 (guard 0 -> 8).
+            b4 = buf[off + 4] if off + 4 < len(buf) else 0
+            return (6 + 2 * (b4 & 0x03)) if (b4 & 0x03) else 8
         # EXP-M4-10 (ISA-2): the fp16 EXTENDED form (saturate output-clamp / negate / abs)
         # is 6 + 2*(byte+4 & 0x3), same as the 0x09 fp32 group. saturate(a+b) fp16 =
         # `10 03 1c 02 01 00 00 82` (8B, byte+7 bit1 clamp). Old flat rule dropped the tail.
@@ -1717,10 +1728,10 @@ DB = [
             {"name": "amode",     "start": 16, "width": 8, "type": "raw"},
             {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},
             {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
-            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (as device_load)
+            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (as device_load). EXP-M4-10(ISA-1): +5=0xff(r127) -> CMDBUF_ERROR fault (high bits are real reg-select, NOT masked mod-64).
             {"name": "inert6",    "start": 48, "width": 8, "type": "raw"},    # HW(RT-1a-FIX): +6 INERT padding
             {"name": "tail7",     "start": 56, "width": 8, "type": "raw"},
-            {"name": "data_width","start": 64, "width": 8, "type": "reg"},    # data reg + width (+8)
+            {"name": "data_width","start": 64, "width": 8, "type": "reg"},    # +8. CAUTION (EXP-M4-10 ISA-1): +8 is HW-INERT under splice for STORE (unlike device_load +8 dst, which IS the reg). Two scalar stores of DISTINCT regs both had +8=0x11 while the stored VALUE tracked byte+2/+3 (amode 0x54: +3 low bits = data GPR). device_store data-reg is NOT +8 and NOT symmetric with device_load dst; exact position is amode-dependent (byte-diff, not fully pinned).
             {"name": "tail9lo",   "start": 72, "width": 7, "type": "raw"},    # +9 bits[0:7]
             {"name": "idx_off",   "start": 79, "width": 11, "type": "imm"},   # HW(RT-1a-FIX): +9bit7/+10/+11lo additive element index-offset
             {"name": "tail11hi",  "start": 90, "width": 6, "type": "raw"},    # +11 bits[2:8]
@@ -1884,7 +1895,11 @@ DB = [
                       9: "sample_lod|array-sample", 0x13: "cube sample", 0x17: "read 2D", 0x1b: "sample_lod+offset",
                       0x20: "sample_compare|gather_compare", 0x21: "sample_compare+offset", 0x29: "sample_compare level",
                       0x39: "3D sample", 0x3b: "sample_compare_lod+offset", 0x53: "cube-array sample",
-                      0x79: "read 3D", 0x80: "read MSAA", 0x97: "read 2D-array (bit7=array)"}},
+                      0x79: "read 3D", 0x80: "read MSAA", 0x97: "read 2D-array (bit7=array)",
+                      # EXP-M4-10 (ISA-6) HW-splice-confirmed READ-path dim codes:
+                      0x03: "read 2D-array (const layer; op+3=(layer<<3)|3)",
+                      0x37: "read cube (face=coord imm (face<<1)@main+0x09)",
+                      0xc3: "read cube-array (face imm; op+3=(array<<3)|3)"}},
             {"name": "extra_coord", "start": 56, "width": 8, "type": "reg"},  # sampler-op byte+3: array-slice/cube-face/3D-w/MSAA-sample/compare-ref reg (or 0)
             {"name": "tex_slot", "start": 64, "width": 8, "type": "imm"},     # sampler-op byte+4: texture slot; bit7(0x80)=texture-index bit (HW)
             {"name": "samp_slot_offset", "start": 72, "width": 8, "type": "imm"}, # sampler-op byte+5: sampler slot (low) + const texel offset (HW)

@@ -628,7 +628,7 @@
 | `result_desc` | [24:32] (byte+3) | modifier | `0xb8`=vec4 (full sample/read 0xb8); `0xa0`=scalar/compare/clamped-LOD (0xa0); `0xa8`=unclamped-LOD (0xa8); `0xa4`=gather comp0=r (0xa4); `0xac`=gather comp1=g (0xac); `0xb4`=gather comp2=b (0xb4); `0xbc`=gather comp3=a (0xbc) |
 | `result_sel` | [32:40] (byte+4) | register |  |
 | `coord` | [40:48] (byte+5) | register |  |
-| `variant` | [48:56] (byte+6) | opcode-select | `0x0`=sample|gather; `0x1`=sample|gather+offset; `0x4`=sample_grad; `0x7`=sample_bias; `0x9`=sample_lod|array-sample; `0x13`=cube sample; `0x17`=read 2D; `0x1b`=sample_lod+offset; `0x20`=sample_compare|gather_compare; `0x21`=sample_compare+offset; `0x29`=sample_compare level; `0x39`=3D sample; `0x3b`=sample_compare_lod+offset; `0x53`=cube-array sample; `0x79`=read 3D; `0x80`=read MSAA; `0x97`=read 2D-array (bit7=array) |
+| `variant` | [48:56] (byte+6) | opcode-select | `0x0`=sample|gather; `0x1`=sample|gather+offset; `0x4`=sample_grad; `0x7`=sample_bias; `0x9`=sample_lod|array-sample; `0x13`=cube sample; `0x17`=read 2D; `0x1b`=sample_lod+offset; `0x20`=sample_compare|gather_compare; `0x21`=sample_compare+offset; `0x29`=sample_compare level; `0x39`=3D sample; `0x3b`=sample_compare_lod+offset; `0x53`=cube-array sample; `0x79`=read 3D; `0x80`=read MSAA; `0x97`=read 2D-array (bit7=array); `0x3`=read 2D-array (const layer; op+3=(layer<<3)|3); `0x37`=read cube (face=coord imm (face<<1)@main+0x09); `0xc3`=read cube-array (face imm; op+3=(array<<3)|3) |
 | `extra_coord` | [56:64] (byte+7) | register |  |
 | `tex_slot` | [64:72] (byte+8) | immediate |  |
 | `samp_slot_offset` | [72:80] (byte+9) | immediate |  |

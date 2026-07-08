@@ -1,0 +1,35 @@
+ISA-1 high-register (r16-r95) operand-field encodings -- splice evidence
+Host: Apple M4 (shares A18 Pro Apple9 AGX ISA). Runner: tools/agxtest (own clean-room).
+Register operand byte = (reg<<1)|is32. r0=0x01 r15=0x1f r16=0x21 r31=0x3f r63=0x7f r64=0x81 r95=0xbf.
+(Builds on already-committed EXP-0020 "96 distinct, no mod-64" + RT-7 "r96 mem-index FAULT / r96+ ALU reads 0".)
+
+--- device_load DESTINATION register = byte+8, (reg<<1)|size  [CONFIRMED] ---
+copy kernel out[gid]=in[gid]: load `67 10 44 00 01 01 20 00 51 ...` dst byte+8=0x51=r40.
+  splice load+8 0x51->0x11 (r8): consumer (store, reads r40) gets STALE reg -> out=0 (load wrote elsewhere).
+  splice load+8 0x51->0x51 (r40): out=in (identity). => byte+8 IS the load dst GPR.
+
+--- device_load / device_store INDEX register = byte+5  [CONFIRMED + mod-64 REFUTED] ---
+  splice load+5 / store+5 = 0xff (r127) -> STATUS CMDBUF_ERROR (hard fault).
+  => the high bits of +5 are REAL register-select bits reaching past r63; if the field were
+     masked to 6 bits (mod-64), 0xff would alias r63 and read fine. It FAULTS -> NO mod-64.
+  (RT-1a-FIX already swept +5 low: 0x00/0x01/0x02 -> distinct GPRs a[40]/a[3]/a[77].)
+  idx_off byte+9 bit7 confirmed: load+9 0x01->0xff shifts read by +1 element (in[gid]->in[gid+1]).
+
+--- device_store DATA-source register is NOT byte+8  [CORRECTION] ---
+Kernel: out[0]=in[0]*3; out[9]=in[1]*5 (two scalar stores of DISTINCT registers x=30, y=100).
+  BOTH stores have byte+8 = 0x11 (identical) yet store DIFFERENT values -> +8 is not the data reg.
+  splice store#0 +8 := store#1 +8 : out UNCHANGED  => byte+8 HW-INERT for store.
+  store#0 byte+3 sweep (amode 0x54): 0x02->30 (x) | 0x00->100 (y) | 0x01->garbage | >=0x03->0 | 0xff->FAULT.
+  => the stored data GPR is byte+2/+3-region, (reg<<1)|size, amode-dependent; NOT symmetric with
+     device_load dst(+8). The DB's device_store "data_width @+8" label is wrong; annotated in isadb.py.
+  (Decode/length/census unaffected: +8 is not load-bearing for tokenization; roundtrip stays GREEN.)
+
+--- ALU-source high registers ---
+r64-r95 cannot be populated with a KNOWN sentinel as an ALU source without register spilling
+(the fold-resistant "store-all" pressure kernel spills at ~K=66; "store-one" folds). The full-file
+distinctness of ALU sources (r0..r95, no mod-64) is therefore taken from the already-committed
+EXP-0020 kernel that keeps 93-96 live GPRs and runs correctly. NO operand mis-encoding found in the
+(reg<<1)|size formula for the fields that ARE cleanly probeable (load dst, load/store index).
+
+VERDICT: (reg<<1)|size operand encoding CONFIRMED for load-dst + load/store-index; mod-64 REFUTED
+(r127 index faults). One CORRECTION: device_store data register is byte+2/+3, not byte+8.

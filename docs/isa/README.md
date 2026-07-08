@@ -144,8 +144,18 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
   register (HW-confirmed: a 16-bit read returned the low half of the float32).
 - **No srcA-negate bit in the 6-byte form**; the compiler commutes operands to reuse srcB-negate.
 - **abs / extended modifiers** live in a distinct **10-byte** extended form (`09 01 1c 05 02 00
-  00 80 0X 00`); HW-validated `a+|b|`. There is also a `0x10` native-half 2-source group — both
-  noted for follow-up.
+  00 80 0X 00`); HW-validated `a+|b|`. There is also a `0x10` native-half 2-source group.
+- **✅ saturate / output-clamp is a NATIVE modifier bit (EXP-M4-10 ISA-2, HW-splice).** `saturate(x)`
+  and `clamp(x,0,1)` compile to the **8-byte** extended form with a single output-clamp bit at
+  **byte+7 bit1 (0x02)**: fadd `09 05 1c 01 00 c0` → `09 05 1c 01 01 00 00 82` (fp16 mirror
+  `10 03 1c 02 01 00 00 82`). Splicing that bit 0x82→0x80 turns clamped 1.0 back into 1.5 — no
+  min/max op is emitted, so it is **native, not lowered**. General `clamp(x,lo,hi)` (lo,hi≠0,1) IS
+  lowered to explicit fmax/fmin. The **extended-form length = `6 + 2*(byte+4 & 3)`** (0→6 compact,
+  1→8 saturate, 2→10 abs) and the SAME rule extends `fma` (0x81→8 / 0x82→10 saturate / 0x83→12 abs).
+- **✅ per-operand abs/neg map (EXP-M4-10 ISA-3).** falu2 (6B): srcB-slot negate = **byte+5 bit3**
+  (splice-proven: 5+3=8 → byte+5 0xc0→0xc8 → −2); abs → 10B form, abs-enable **byte+8** (bit0 slotB /
+  bit1 slotA). fma (8B): multiplicand negate = **byte+7 bit3**, addend negate = **byte+4 bit4**,
+  addend abs = **byte+4 bit3**, src-abs → 12B (byte+4=0x83).
 
 ### ✅ Machine model — registers, uniforms, Dynamic Caching (EXP-0020, supersedes EXP-0006 "64")
 - **96 addressable 32-bit GPRs per thread** (r0–r95, **96 DISTINCT registers — a hard silicon boundary**).
@@ -229,8 +239,11 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
 - **Operand encoding (differs from float):** **dst = `b3`** as `(reg<<1)|size` (float dst was
   `b0[4:8]`) — the wider field leaves room for **>16 registers**; srcA/srcB packed in the `b7:b8:b9`
   tail (`(reg<<1)` convention, exact widths a follow-up).
-- **Integer immediate = `(K<<1)`**, plain 8-bit unsigned inline at `b5` (+`b6` bit 0) — HW-validated
-  for K∈{0..255}; ≥256/negative materialize to a register. **Not** the float minifloat encoding.
+- **Integer immediate = `(K<<1)`**, a **multi-byte little-endian** field starting at `b5` (K=1→0x02,
+  127→0xfe, 128→0x0100 spanning b5/b6). **CORRECTION (EXP-M4-10 ISA-4):** it stays **INLINE at least
+  to 65536** (K∈{256,512,1024,65536} all keep the same instruction length) — the earlier "≥256
+  materializes to a register" was wrong. Negative immediates switch the op byte0 (`0x9f`→`0x1f`
+  subtract)/sign path, not a register materialization. **Not** the float minifloat encoding.
 - Note: a load/store opcode-keying bug was fixed here (`0x67`/`0xe7` exact, was low-nibble `0x7`
   which collided with `0xa7`/`0x27`).
 
@@ -384,9 +397,9 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
 | +1 | **space** | address-space selector: nonzero low bits (`0x01`/`0x02`) = threadgroup / uninitialized (reads 0), `0x00` = device/global/constant. **NOT the index register** (RT-1a corrected the old "higher bits = index GPR") | ✅ |
 | +3 | extmode | bit1 = unsigned/zero-extend variant | ⏳ |
 | +4 | **base_slot** | preloaded buffer-base uniform slot (0=buf0, 1=buf1, …) | ✅ |
-| +5 | **index_reg** | **the GPR that supplies the array index `a[idx]`** — low bits = register number, bit7 (`0x80`) = a scalar/size flag. (RT-1a: this is NOT `count`; sweeping it selects which GPR feeds the index: `0x00`→r0, `0x01`→r1, …) | ✅ |
+| +5 | **index_reg** | **the GPR that supplies the array index `a[idx]`** — low bits = register number, bit7 (`0x80`) = a scalar/size flag. (RT-1a: this is NOT `count`; sweeping it selects which GPR feeds the index: `0x00`→r0, `0x01`→r1, …). **EXP-M4-10 (ISA-1):** splicing +5=`0xff` (r127) **hard-FAULTS** (`CMDBUF_ERROR`) — proof the high bits are real register-select bits, **not** masked mod-64. | ✅ |
 | +6 | **inert** | HW-proven padding — sweeping `0x00`..`0xff` never changes the loaded value; not an address byte | ✅ |
-| +8 | dst/data + width | dest/data reg + data width (`51`=32b, `41`=16b, `61`=8b, `59`=64b); **this + +12 carry the true vector width/count** | ✅ width / ⏳ reg |
+| +8 | dst / (load-only) reg + width | **LOAD:** destination GPR + data width (`51`=32b `(reg<<1)|is32`, `41`=16b, `61`=8b, `59`=64b), splice-confirmed (EXP-M4-10 ISA-1: changing it breaks the consumer). **STORE — CORRECTION (EXP-M4-10 ISA-1):** +8 is **HW-INERT** for `device_store` (two scalar stores of distinct regs both had +8=`0x11`; splicing +8 does nothing). The stored **data GPR is byte+2/+3-region** (amode 0x54: +3 low bits = data reg), **not** +8 and **not** symmetric with the load dst; exact position is amode-dependent (byte-diff, not fully pinned). | ✅ load / ⚠️ store reg |
 | +9 bit7 / +10 / +11 | **idx_off** | in-instruction additive **immediate element index-offset**: +9 bit7 = +1, +10 = +2/unit, +11 low bits = +512/unit (RT-1a) | ✅ |
 | +12 | **elem_size** | address element size, bits[1:4]=k → `2^(k-1)` bytes (`42`=1,`44`=2,`46`=4,`48`=8) | ✅ |
 
