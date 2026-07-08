@@ -559,3 +559,16 @@ introspected.
 ## Update (EXP-O2G / O2-H / RT-4): Metal-exposed NOT-YET → 0; census reconciled
 The 3 Metal-exposed NOT-YET items O2-G closed are now HW-exercised (native-decoded): **shader logging/printf** (os_log MTLLogState buffer + record format), **draw-mesh-into-ICB** (→ `0x70000600` record), **compression×mipmap/NPOT** (contiguous all-level aux; W≥16 ∧ H≥16 texel threshold). **EXP-O2H** then closed the last Metal-exposed residue — **tessellation is NATIVE HW** (VDM patch-dispatch `0x40`) → native. **RT-4** moved **programmable sample positions** kernel-managed → native (userspace-emittable @+0x40). **Reconciled final counts: native 189 / emulated 11 / kernel 5 / NOT-YET 9** (= 214) — matching the §17 summary table, the per-section tallies, and the "Totals:" line. **All 9 remaining NOT-YET are honestly-excluded** (6 microarch-only + 3 Metal-unreachable). **No Metal-exposed capability remains un-exercised** → objective 2 satisfied.
 
+## Update (EXP-M4-12): instruction census COMPLETE — G-13 fully met
+The **instruction-census** axis of the secondary goal (`../CLAUDE.md` G-13: "every opcode the compiler
+emits must be decoded; ~0 undecoded byte0 groups over a broad corpus") is now **exactly 0**: the
+broad OWN-SHADER corpus tokenizes at **100.0% byte coverage — 0 undecoded resync regions, 0 byte0
+groups the DB cannot decode** (was 97.4%). EXP-M4-12 closed the final 2.6% with 4 parallel
+investigation subagents that isolated each residue op in a single-op shader; **every residue was a
+length-rule gap or a 2-byte over-read, not an unknown opcode** (the only genuinely-new instruction was
+the half `0x39` combine op). This confirms — at the strongest granularity — that **no unknown
+instruction family exists** in the A18/M4 (Apple9) compiler output. Round-trip ALL PASS (whole-program
+walk, 0 leftover bytes). Operand sub-fields of the SFU range-reduction words remain deliberately
+undecoded (clean-room rule 5: decoding them would transcribe a compiler sequence); they are
+family-labeled, not unknown. See `experiments/EXP-M4-12-isa-residue-closure/`.
+

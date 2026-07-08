@@ -4,9 +4,12 @@ Clean-room documentation of the Apple G17P shader instruction set. All facts her
 disassembling **shaders we compiled ourselves** (OWN-SHADER) + public references (PUBLIC) —
 never from Apple binaries. See `../../CLAUDE.md`.
 
-> **Status: mature.** 77 machine-readable instruction descriptors (round-trip-validated asm↔disasm); a
-> broad-corpus byte0 census tokenizes **88.0%** of instruction bytes (77.1% descriptor-named) with **no whole undecoded instruction family
-> remaining** (residual = operand sub-fields + resync artifacts). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md) · Mesa-schema render: [`agx3.xml`](agx3.xml) (drop into `src/asahi/isa/`).
+> **Status: mature — census complete.** 85 machine-readable instruction descriptors (round-trip-validated asm↔disasm); the
+> broad-corpus byte0 census tokenizes **100.0%** of instruction bytes — **0 undecoded regions, 0 undecoded byte0 groups**
+> (EXP-M4-12 closed the last 2.6%: all length-rule gaps / 2-byte over-reads, no unknown opcodes; round-trip whole-program
+> walk leaves 0 leftover bytes). ~79% of tokens are descriptor-named; the remainder are family-labeled "length-only" tokens
+> whose operand sub-fields are deliberately left undecoded where doing so would transcribe a compiler sequence (clean-room
+> rule 5). Authoritative encoding tables: [`encoding-tables.md`](encoding-tables.md) · Mesa-schema render: [`agx3.xml`](agx3.xml) (drop into `src/asahi/isa/`).
 >
 > **RT-1a-FIX (HW-re-validated red-team corrections applied):** memory-op **index register = byte+5** (not byte+1/+6; byte+6 inert; byte+1 = address space) + an in-instruction **immediate index-offset** at byte+9 bit7/+10/+11; **iadd2 polarity** corrected (byte0 `0x9f`=ADD, `0x1f`=SUBTRACT); a proper **float uniform-register source** (`falu2_uni`, disambiguated from the minifloat immediate by byte+1's exponent range); and descriptors/lengths for byte0 `0x60` (spill/frame marker) + the byte+2=`0x18` compact float-accumulate. Each independently splice-and-observe re-validated on the A18 Pro — see `experiments/RT-1a-FIX/`.
 > ✅ = hardware-validated (run modified code, observe output); ⏳ = byte-diff-inferred, not yet HW-round-tripped.

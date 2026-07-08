@@ -33,14 +33,30 @@ The core count (10 vs 5) is a throughput/config delta, not an architectural one;
 occupancy/dispatch sizing but not encodings. (Any driver-visible core-count field is a
 kernel-interface item — see §7.)
 
-## 1. Shader ISA — ✅ IDENTICAL (EXP-M4-01/10)
+## 1. Shader ISA — ✅ IDENTICAL (EXP-M4-01/10/12)
 M4 runs the same AGX Apple9 ISA. All 57 A18-corpus shaders compile on M4; the A18 DB disassembles
-them at **97.4% byte coverage on M4 / 96.4% on A18** (undecoded-group closure rounds 1–3 + the
-ISA-1..6 coverage sweep; DB now 85 descriptors, round-trip green). **No ISA delta** — every
-encoding matches A18, and every coverage-sweep correction (high-register `(reg<<1)|is32`, saturate
-= native byte+7 bit1, integer-immediate inline ≥65536, device_store byte+8 inert, +3 non-2D texture
-read codes) applies to BOTH parts (they were A18-doc gaps, not M4 differences). Residue (~2.6%) is
-the deliberately-out-of-scope fragment blend microprogram + a low-freq SFU tail.
+them at **100.0% byte coverage — 0 undecoded regions, 0 undecoded byte0 groups** (EXP-M4-12 drove
+the census from 97.4% to complete; round-trip suite ALL PASS incl. the whole-program walk with 0
+leftover bytes). **No ISA delta** — every encoding matches A18, and every coverage-sweep correction
+(high-register `(reg<<1)|is32`, saturate = native byte+7 bit1, integer-immediate inline ≥65536,
+device_store byte+8 inert, +3 non-2D texture read codes) applies to BOTH parts (they were A18-doc
+gaps, not M4 differences).
+
+The final residue (the "last 2.6%") closed in EXP-M4-12 was **entirely length-rule gaps and 2-byte
+over-reads, not unknown opcodes** — closed by isolating each mystery op in its own single-op shader
+and reading its true length from anchored bracketing. Headline families: the transcendental residue
+is only the **sin/cos argument range-reduction** (exp2/log2/exp/log/pow/sqrt/rsqrt are clean in
+isolation); the big texture desyncs were one mis-lengthed `0x17` coordinate-projection setup (→12B)
+and a `0x2e` coord transform (→12B); the `r_blend_f` residue was **not** Apple's blend microprogram
+(a cmdstream artifact absent from the shader corpus) but our own shader's tilebuffer-unpack + iter +
+float-accumulate ops (fragment `0x17` unpack corrected 10→8B). One prior fact was corrected:
+`unpack_convert` is **8 bytes** (EXP-0033 recorded 10 by a 2-byte over-read; HW readback had
+validated the value, not the length). See `experiments/EXP-M4-12-isa-residue-closure/`.
+
+Every instruction byte is now tokenized with a known length and byte0-group family; ~79% carry a
+full decode descriptor (mnemonic), the remainder are family-labeled "length-only" tokens whose
+operand bit-fields are deliberately left undecoded where decoding them would amount to transcribing
+a compiler-generated sequence (clean-room rule 5) — chiefly the SFU range-reduction immediate words.
 
 ## 2. Machine model — ✅ IDENTICAL (EXP-M4-11)
 Splice-validated on M4, all identical to A18: **96 GPRs, hard boundary** (r96 memory-index →
