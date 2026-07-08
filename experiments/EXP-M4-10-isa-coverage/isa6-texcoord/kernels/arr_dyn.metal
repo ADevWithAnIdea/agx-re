@@ -1,0 +1,7 @@
+#include <metal_stdlib>
+using namespace metal;
+kernel void k(texture2d_array<float, access::read> t [[texture(0)]],
+              device const uint* lay [[buffer(1)]],
+              device float* o [[buffer(0)]], uint i [[thread_position_in_grid]]) {
+    o[i] = t.read(uint2(0,0), lay[i]).r;   // dynamic layer from buffer
+}

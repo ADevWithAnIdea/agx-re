@@ -187,8 +187,12 @@ def instr_length(buf, off=0):
     # Gated on byte+2 in {0x00,0x02} so it never touches the 0x54 barrier above or the
     # vertex/fragment 0x07 varying stores. (RT-ISA-FIX: closes the RT-1b census gap
     # where a `07 22 02` halted strict tokenization for want of a length rule.)
-    if b0 == 0x07 and off + 2 < len(buf) and buf[off + 2] in (0x00, 0x02):
-        return 4                       # compute memory / scoreboard fence (RT-ISA-FIX HW)
+    if b0 == 0x07 and off + 2 < len(buf) and buf[off + 2] in (0x00, 0x02, 0x20):
+        return 4                       # compute memory / scoreboard fence (RT-ISA-FIX HW).
+                                       # EXP-M4-01 round-3: byte+2==0x20 is the SUBGROUP-scope
+                                       # variant (`07 00 20 80` in k_subgroup_ballot@58, between the
+                                       # simd_ballot ops and the reduce iadd2 chain); 4B, anchored by
+                                       # a clean 6-op resync to the stop. Same 0x07 fence family.
     # ---- TEXTURE / SAMPLE family (EXP-0016, HW-validated) ----
     # Texture sample & texture.read are a 14-byte bundle: a 4-byte coordinate/result
     # "companion" (byte0 low-nibble 5, byte+1==0x80, byte+2==0x0c) immediately
@@ -267,7 +271,18 @@ def instr_length(buf, off=0):
             if b4 == 0x82 and b6 == 0x42 and b7 == 0x02:
                 return 10              # extended-source fmul-add coord op (VS varying compute)
             return 8 if (b4 & 0x02) else 6  # fused mul / mul-add coord op (EXP-0037)
-        return 8 if (b2 & 0x02) else 6
+        if b2 & 0x02:
+            return 8                    # fma / 3-source form (byte+2 length bit set)
+        # EXP-M4-10 (ISA-2/3, HW-splice): the EXTENDED 2-source float-ALU form
+        # (output-clamp `saturate` / srcA-slot negate / abs) is LONGER than the compact
+        # 6-byte form even though byte+2 bit1 (the fma length bit) is CLEAR. Its length is
+        # 6 + 2*(byte+4 & 0x3): byte+4 0x00 -> 6 (plain fadd/fmul, and the 0x80 immediate /
+        # uniform forms whose low 2 bits are 0), 0x01 -> 8 (saturate output-clamp bit57, or
+        # srcA-negate), 0x02 -> 10 (abs srcA/srcB slot). HW-splice proven: saturate(a+b) =
+        # `09 05 1c 01 01 00 00 82` (8B); the old `8 if b2&0x02 else 6` mis-lengthed it as 6
+        # and dropped the `00 82` clamp-mod tail (leftover 20 bytes, tokenizer desync).
+        b4 = buf[off + 4] if off + 4 < len(buf) else 0
+        return 6 + 2 * (b4 & 0x03)
     if lo == 0x0b:
         # EXP-0020: the uniform-register -> GPR move is a compact 4-byte form in
         # this group (`Xb YY 01 08`). The 10-byte funary/ilogic forms always carry
@@ -311,6 +326,13 @@ def instr_length(buf, off=0):
                                        # consumes (`eb 50 81 08`); byte+2==0x80 zero-inits a component
                                        # (`6b 00 80 00`, const-origin float3(0,0,0)). Also reused (35-38x)
                                        # to marshal MPP matmul2d TRANSPOSE tile data.
+        if b1 == 0x00 and b2 in (0x00, 0x06):
+            return 4 if b2 == 0x00 else 8   # THREADGROUP-ATOMIC / control-flow PREP compact op
+                                       # (EXP-M4-01 round-3): `0b 00 00 00` (4B, tg_store atomic-value
+                                       # setup, also `1b 00 00 00` k_cf_loop loop-prep, `0b 00 00 00`
+                                       # mesh_mesh) and `0b 00 06 00 00 00 00 00` (8B, tg_add atomic RMW
+                                       # descriptor). Anchored: each is followed by a clean device_store /
+                                       # pop_reconverge run. High nibble = dst/scope reg.
         return LEN_UNKNOWN             # other uncharacterized 0xNb compact form
     # ---- INTEGER COMPARE / MIN-MAX / SELECT / CARRY group (byte0 low-nibble 2) ----
     # EXP-M4-01 (M4/A18 census): this is ONE group whose byte0 HIGH nibble is the
@@ -432,7 +454,13 @@ def instr_length(buf, off=0):
     # The 16-bit-destination sibling of the 0x09 float ALU (half/half2 arithmetic);
     # same length bit (byte+2 bit1) as 0x09/0x11.
     if b0 == 0x10:
-        return 8 if (buf[off + 2] & 0x02) else 6
+        if buf[off + 2] & 0x02:
+            return 8                    # fma / 3-source (byte+2 length bit)
+        # EXP-M4-10 (ISA-2): the fp16 EXTENDED form (saturate output-clamp / negate / abs)
+        # is 6 + 2*(byte+4 & 0x3), same as the 0x09 fp32 group. saturate(a+b) fp16 =
+        # `10 03 1c 02 01 00 00 82` (8B, byte+7 bit1 clamp). Old flat rule dropped the tail.
+        b4 = buf[off + 4] if off + 4 < len(buf) else 0
+        return 6 + 2 * (b4 & 0x03)
     # ---- byte0 0x11: fp32->fp16 convert (EXP-0013) *and* NATIVE bfloat ALU (EXP-O2D) ----
     # This group is length-POLYMORPHIC on byte+1 (LOAD-BEARING, EXP-O2D):
     #   byte+1 == 0x03 : fp32->fp16 narrowing convert (cvt_f2h, `11 03 1c 81 00 c2`) = 6B.
@@ -452,22 +480,45 @@ def instr_length(buf, off=0):
         if b1v in (0x02, 0x04):
             return 10 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 8   # bfloat add/mul (8) | fma (10)
         return 8 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 6         # legacy fallback
+    # ---- fp16 PACK/CONVERT compact op (low-nibble-1, byte+1==0x01, byte+2==0x3c), 6B ----
+    # EXP-M4-01 round-3: k_cvt_half@32 `31 01 3c 81 00 c2` (dst r3). The half<->int/float
+    # pack-convert helper the mixed-precision `half(int)`/`int(half)` path emits; distinct from
+    # the 0x11 bfloat/cvt group (byte+1 in {0x02,0x03,0x04}). High nibble = dst reg. Anchored 6B
+    # (the following `27 07 54 ..` cvt_f2i tokenizes cleanly; a walk of the whole kernel closes).
+    if (b0 & 0x0f) == 0x01 and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x01 \
+            and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x3c:
+        return 6
     # ---- low-nibble-3 group: 4-byte move/zero-extend, or 10-byte 0x27-form -------
     # byte0 0x13 (dst r0) zero-extend (uint->ushort->uint) is a 4-byte move (EXP-0013).
     # EXP-M4-01: the SAME low-nibble-3 group with byte+2==0x27 is a distinct 10-byte op
     # (k_tex_atomic@226 `33 8a 27 bf 10 02 00 00 00 00`, two anchored 10B ops; also in
     # k_transcend). High nibble = dst reg. Gate the 10-byte form on byte+2==0x27 so the
     # 4-byte zero-extend (byte0==0x13, byte+2 != 0x27) is unaffected.
-    if (b0 & 0x0f) == 0x03 and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x27:
-        return 10                      # low-nibble-3 0x27-form (EXP-M4-01)
-    if b0 == 0x13:
-        return 4
+    # low-nibble-3 group: byte0 HIGH nibble = destination register (r0..r15), like
+    # the low-nibble-2 icmp/select and low-nibble-a icmp_pred families (rounds 1-2).
+    # The DB previously hard-coded only 0x13 (dst r0) and left every higher-register
+    # form UNDECODED. The byte+2==0x27 form is a 10-byte op (matrix/tex address prep,
+    # EXP-M4-01 round-1); every OTHER form is the 4-byte zero-extend / id-compose / move
+    # (0x13 zero-extend; 0x23 thread/threadgroup-id compose `23 00 00 01`, k_builtins_ids;
+    # 0x43 call-site marker `43 00 00 01`; 0x73 mesh helper `73 00 00 01`, mesh_mesh@70).
+    # HW-anchored: every occurrence is followed by a cleanly-tokenized run (round-3 census).
+    # Exclude 0x03 (fragment sample-id read, handled above via byte+2==0x26).
+    if (b0 & 0x0f) == 0x03 and b0 != 0x03:
+        return 10 if (off + 2 < len(buf) and buf[off + 2] == 0x27) else 4
     # ---- compact low-nibble-c move (byte0 0x2c), 4 bytes (EXP-M4-01) ------------
     # s_div@178 `2c 0c 00 02` (anchored between a falu3 and a falu2, gap = 4). A
     # compact move/immediate form; high nibble = dst reg. Gated on byte+1==0x0c so it
     # never swallows the get_sr (byte+3 lo-nibble 6) or a longer 0xNc op.
     if b0 == 0x2c and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x0c:
         return 4
+    # ---- THREADGROUP-memory address / base compute (byte0 0x1c, `1c 02 00 ..`), 6B ----
+    # EXP-M4-01 round-3: k_threadgroup@46 `1c 02 00 00 00 00`, bracketed between two low-nibble-3
+    # threadgroup-id ops and the half_alu/threadgroup device_store; a 6-byte threadgroup-buffer
+    # base/offset compute. Gate tightly on byte+1==0x02, byte+2==0x00 so it never claims the
+    # 4-byte get_sr datapath form (byte+3 low-nibble 6) nor a resync-exposed 0x1c operand tail.
+    if b0 == 0x1c and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x02 \
+            and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x00:
+        return 6
     # ---- packed-half2 ALU (byte0 low-nibble 0/8, byte+2==0x24), 6 bytes ---------
     # EXP-M4-01: k_half2_pack@32 `38 82 24 84 00 c8` / `30 83 24 85 00 08` (anchored
     # 6B each between loads and the store); k_half_arith@38 `18 84 24 85 00 08`. The
@@ -636,7 +687,13 @@ def instr_length(buf, off=0):
     # op's byte+3 (=+7) to 0xff FAULTS (it is this instruction's last, live byte)
     # while byte0/+1/+2 are runtime-inert for the computation. 4 bytes.
     if b0 == 0x60:
-        return 4                       # spill_frame_marker (RT-1a-FIX HW: length 4, byte+3 live)
+        # RT-1a-FIX HW: `60 00 00 00` spill_frame_marker is 4B (byte+3 live). EXP-M4-01
+        # round-3: the `60 00 <nonzero>` form is a 2-byte compact frame/scope marker that
+        # PRECEDES a threadgroup-atomic store (`60 00` + `e7 02 54..` in k_atomics_tg@26, which
+        # matches the bare `e7 02 54..` threadgroup store in the isolated tg_store) or a divergent
+        # control-flow block (`60 00` + `1b 00 00 00` in k_atomics@362). Both resync 8 clean ops
+        # (lenprobe). Gate on byte+2: ==0x00 keeps the spill marker at 4.
+        return 4 if (off + 2 < len(buf) and buf[off + 2] == 0x00) else 2
     # ---- u64 CARRY-GENERATE (byte0 0x32, EXP-0038) ---------------------------
     # Unsigned-overflow compare (integer compare/min-max family, base 0x02|0x30;
     # byte+2==0x35, byte+4==0x22) detecting the carry-out of the low-word add in a
@@ -689,6 +746,14 @@ def instr_length(buf, off=0):
             0x00, 0x04, 0x07, 0x09, 0x13, 0x17, 0x1b, 0x20, 0x21,
             0x29, 0x39, 0x53, 0x79, 0x80, 0x97):
         return 10                      # standalone sampler op (EXP-0037 fallback)
+    # ---- CUBE-ARRAY normalized-coordinate constant/reciprocal load (0xf0, EXP-M4-01) ----
+    # `f0 c0 04 00` (4B) in the cube/cube-array coordinate math (k_tex_array_cube@48): a
+    # small constant/reciprocal-of-major-axis load feeding the face-select coord_madf chain.
+    # Gate tightly on the whole `f0 c0 04` signature so it never claims an operand-tail 0xf0
+    # (e.g. the `f0 11 01 00`/`f0 13 01 00` matrix-load / ibfe tails absorbed by their upstream
+    # 0x27 ops in round-1) reached via resync.
+    if b0 == 0xf0 and off + 2 < len(buf) and buf[off + 1] == 0xc0 and buf[off + 2] == 0x04:
+        return 4
     return LEN_UNKNOWN
 
 
@@ -3119,6 +3184,58 @@ DB = [
         "provenance": "HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the "
                      "following 10-byte iadd2 in big.bin; big kernel output invariant to byte0/+1/"
                      "+2 splices, byte+3->0xff faults. raw/undecoded.log. Field semantics inferred.",
+    },
+    # ---- COMPACT frame/scope marker (byte0 0x60, 2 B, EXP-M4-01 round-3) -------
+    # The `60 00 <nonzero>` sibling of the 4-byte spill_frame_marker: a 2-byte compact
+    # frame/scope marker that precedes a threadgroup-atomic store (`60 00` + `e7 02 54..`
+    # in k_atomics_tg / the isolated tg_store) or a divergent-CF block (`60 00` + a CF op
+    # in k_atomics). Length disambiguates it from spill_frame_marker (byte+2==0x00 -> 4B).
+    {
+        "mnemonic": "frame_marker_compact",
+        "length": 2,
+        "match": [(0, 8, 0x60)],
+        "fields": [
+            {"name": "b1", "start": 8, "width": 8, "type": "raw"},
+        ],
+        "semantics": "2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00). Precedes a "
+                     "threadgroup-atomic store or a divergent control-flow block; the following "
+                     "op is a full 14-byte threadgroup device_store or a CF op. Distinct from the "
+                     "4-byte spill_frame_marker (byte+2==0x00).",
+        "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `60 00`->2 resyncs 8 clean "
+                     "ops in k_atomics_tg@26 and k_atomics@362 (>=4 resyncs 0); byte+2==0x00 keeps "
+                     "the spill marker at 4. Isolated via work/iso_tg.metal. Role inferred.",
+    },
+    # ---- CUBE/CUBE-ARRAY normalized-coord constant load (byte0 0xf0, 4 B) ------
+    {
+        "mnemonic": "cubearray_coord_const",
+        "length": 4,
+        "match": [(0, 8, 0xf0), (8, 8, 0xc0), (16, 8, 0x04)],
+        "fields": [
+            {"name": "b3", "start": 24, "width": 8, "type": "raw"},
+        ],
+        "semantics": "4-byte constant / reciprocal-of-major-axis load feeding the cube/cube-array "
+                     "face-select coordinate math (`f0 c0 04 00`, k_tex_array_cube@48). Precedes the "
+                     "fspecial + coord_madf chain that normalizes the cube face coordinate.",
+        "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `f0 c0 04`->4 resyncs 5 clean "
+                     "ops (fspecial + coord_madf) to @90. Tightly gated on the `f0 c0 04` signature so "
+                     "no `f0 ..` operand tail is claimed. Role inferred (own-shader).",
+    },
+    # ---- THREADGROUP-memory address/base compute (byte0 0x1c, 6 B) -------------
+    {
+        "mnemonic": "tg_addr_compute",
+        "length": 6,
+        "match": [(0, 8, 0x1c), (8, 8, 0x02), (16, 8, 0x00)],
+        "fields": [
+            {"name": "b3", "start": 24, "width": 8, "type": "raw"},
+            {"name": "b4", "start": 32, "width": 8, "type": "raw"},
+            {"name": "b5", "start": 40, "width": 8, "type": "raw"},
+        ],
+        "semantics": "6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, "
+                     "k_threadgroup@46), bracketed between the low-nibble-3 threadgroup-id ops and "
+                     "the threadgroup device_store. Distinct from the 4-byte get_sr datapath form "
+                     "(byte+3 low-nibble 6).",
+        "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `1c 02 00 ..`->6 resyncs 8 "
+                     "clean ops to @130; other lengths resync 0-1. Role inferred (own-shader).",
     },
     # ---- LINK-REGISTER SAVE / RESTORE around a nested call (byte0 0x07, 8 B) --
     {

@@ -1503,6 +1503,38 @@
     <zero bit="24:31"/>
   </ins>
 
+  <!-- frame_marker_compact: 2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00) -->
+  <!-- provenance: length HW-anchored (EXP-M4-01 round-3, lenprobe): `60 00`->2 resyncs 8 clean ops in k_atomics_tg@26 and k_atomics@362 (>=4 resyncs 0); byte+2==0x00 ... -->
+  <ins name="frame_marker_compact" length="2" label="2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00)">
+    <exact bit="0:7">01100000</exact>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+  </ins>
+
+  <!-- cubearray_coord_const: 4-byte constant / reciprocal-of-major-axis load feeding the cube/cube-array face-select coordinate ... -->
+  <!-- provenance: length HW-anchored (EXP-M4-01 round-3, lenprobe): `f0 c0 04`->4 resyncs 5 clean ops (fspecial + coord_madf) to @90. Tightly gated on the `f0 c0 04` ... -->
+  <ins name="cubearray_coord_const" length="4" label="4-byte constant / reciprocal-of-major-axis load feeding the cube/cube-array face-select coordinate ...">
+    <exact bit="0:7">11110000</exact>
+    <exact bit="8:15">11000000</exact>
+    <exact bit="16:23">00000100</exact>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- tg_addr_compute: 6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed ... -->
+  <!-- provenance: length HW-anchored (EXP-M4-01 round-3, lenprobe): `1c 02 00 ..`->6 resyncs 8 clean ops to @130; other lengths resync 0-1. Role inferred (own-shader). -->
+  <ins name="tg_addr_compute" length="6" label="6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed ...">
+    <exact bit="0:7">00011100</exact>
+    <exact bit="8:15">00000010</exact>
+    <exact bit="16:23">00000000</exact>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+  </ins>
+
   <!-- link_save_restore: LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame -->
   <!-- provenance: HW-VALIDATED role (EXP-0038): present (exactly bracketing each nested CALL) in every non-leaf helper region of k_chain/k_deep/k_bigframe, absent from ... -->
   <ins name="link_save_restore" length="8" label="LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame">

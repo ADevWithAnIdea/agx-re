@@ -1,0 +1,28 @@
+ISA-6 non-2D texture coordinate/index operands — splice/byte-diff evidence
+Host: Apple M4 (shares A18 Pro Apple9 AGX ISA). Runner: texrun.m (own clean-room).
+Texture filled so slice i (layer/z/face/sample) = float 100+i; cube-array slice=array*6+face.
+
+tex_sample bundle = 14B: [companion 4B: b0(low3=5) 80 0c <result_desc>][sampler-op 10B].
+Task naming: op+K = sampler-op byte+K = bundle byte+(4+K). op+2=bundle[6]=variant/dim; op+3=bundle[7]=extra index.
+
+--- op+2 dim codes (READ path), HW-confirmed by correct read + dim-splice break ---
+read 2D          op+2=0x17   (op+3=0x01)                        [DB matches]
+read 2D-array    op+2=0x03   const layer  -> op+3=(layer<<3)|3  [DB says 0x97; that is the DYNAMIC form]
+read 2D-array    op+2=0x97   dynamic layer via coord register   [DB matches: 0x17|0x80 "bit7=array"]
+read 3D          op+2=0x79   z = coord immediate (0x80|z) @main+0x0d ; dynamic z = coord reg  [DB matches]
+read cube        op+2=0x37   face = coord immediate (face<<1) @main+0x09                       [DB read enum lacked it]
+read cube-array  op+2=0xc3   face = coord imm (face<<1)@+0x09 ; array = op+3=(array<<3)|3       [new]
+read MSAA        op+2=0x80   sample = coord immediate (sample<<1) @main+0x09                    [DB matches]
+(array SAMPLE    op+2=0x8d = base|0x80, bit7=array, filter mode 0x10 -- confirms bit7=array on sample path)
+
+--- op+3 / index-operand splice proofs (value read back) ---
+ARRAY (arr_L2, op+3 @0x0f): 0x13->102(L2 base) 0x03->100(L0) 0x0b->101(L1) 0x1b->103(L3) 0x2b->103(L5 CLAMP to last). layer=op+3>>3.
+3D   (td_z2, coord-imm @0x0d): 0x82->102(z2) 0x80->100(z0) 0x81->101(z1) 0x83->103(z3). z=byte&0x7f.
+CUBE (cube_f3, face-imm @0x09): 0x06->103(f3) 0x00->100(f0) 0x02->101(f1) 0x08->104(f4) 0x0a->105(f5). face=byte>>1.
+CUBEARRAY (ca_f0a0): face@0x09 0x00->100 ; 0x06->103(f3). array op+3@0x1f 0x03->100 ; 0x0b->106(a1). both->109(f3,a1).
+MSAA (ms_s0, sample-imm @0x09): 0x00->100(s0) 0x02->101(s1) 0x04->102(s2) 0x06->103(s3). sample=byte>>1.
+DYNAMIC array (0x97, layer via buffer): layer 0/1/3 -> 100/101/103 (HW run, no splice).
+
+--- op+2 dim-code mismatch (bound=2d_array 4 layers, baseline layer2=102), all STATUS OK, NO fault ---
+0x03(array)->102  0x17(2Dread)->100(slice0)  0x79(3D)->0.0(OOB)  0x37(cube)->100  0x80(MSAA)->100  0x53->100  0x13->100
+=> wrong dim code silently reads base slice or 0 (robustness); no GPU hang.

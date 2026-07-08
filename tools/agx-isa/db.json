@@ -4468,6 +4468,101 @@
       "provenance": "HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the following 10-byte iadd2 in big.bin; big kernel output invariant to byte0/+1/+2 splices, byte+3->0xff faults. raw/undecoded.log. Field semantics inferred."
     },
     {
+      "mnemonic": "frame_marker_compact",
+      "length": 2,
+      "match": [
+        [
+          0,
+          8,
+          96
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00). Precedes a threadgroup-atomic store or a divergent control-flow block; the following op is a full 14-byte threadgroup device_store or a CF op. Distinct from the 4-byte spill_frame_marker (byte+2==0x00).",
+      "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `60 00`->2 resyncs 8 clean ops in k_atomics_tg@26 and k_atomics@362 (>=4 resyncs 0); byte+2==0x00 keeps the spill marker at 4. Isolated via work/iso_tg.metal. Role inferred."
+    },
+    {
+      "mnemonic": "cubearray_coord_const",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          240
+        ],
+        [
+          8,
+          8,
+          192
+        ],
+        [
+          16,
+          8,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "4-byte constant / reciprocal-of-major-axis load feeding the cube/cube-array face-select coordinate math (`f0 c0 04 00`, k_tex_array_cube@48). Precedes the fspecial + coord_madf chain that normalizes the cube face coordinate.",
+      "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `f0 c0 04`->4 resyncs 5 clean ops (fspecial + coord_madf) to @90. Tightly gated on the `f0 c0 04` signature so no `f0 ..` operand tail is claimed. Role inferred (own-shader)."
+    },
+    {
+      "mnemonic": "tg_addr_compute",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          28
+        ],
+        [
+          8,
+          8,
+          2
+        ],
+        [
+          16,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed between the low-nibble-3 threadgroup-id ops and the threadgroup device_store. Distinct from the 4-byte get_sr datapath form (byte+3 low-nibble 6).",
+      "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `1c 02 00 ..`->6 resyncs 8 clean ops to @130; other lengths resync 0-1. Role inferred (own-shader)."
+    },
+    {
       "mnemonic": "link_save_restore",
       "length": 8,
       "match": [

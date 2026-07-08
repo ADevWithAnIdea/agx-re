@@ -203,6 +203,10 @@ REAL_INSTRS = {
     "imageblock_load (67 16 54 04 05 00 01 8e ..)":  "671654040500018e02000010",  # tile imageblock read (byte+1=0x16)
     "mem_fence device (07 04 54 84 0a 00)":        "070454840a00",  # atomic_thread_fence(mem_device, seq_cst)
     "get_sr helper (04 84 11 06)":                 "04841106",  # simd_is_helper_thread (SR 0x84, FS)
+    # ---- EXP-M4-01 round-3 census ops (length HW-anchored, own-shader) ----
+    "frame_marker_compact (60 00)":                "6000",          # 2B compact frame/scope marker (tg-atomic)
+    "cubearray_coord_const (f0 c0 04 00)":         "f0c00400",      # cube/cube-array normalized-coord const load
+    "tg_addr_compute (1c 02 00 00 00 00)":         "1c0200000000",  # threadgroup-buffer base/offset compute
 }
 
 # Whole real _agc.main programs (from our own kernels) for the tokenization test.

@@ -176,3 +176,87 @@ Every remaining region is a NAMED, characterized op — not a resync-cascade art
 `census/` (harness + `hex/` OWN-SHADER bytes), `work/` (isolation kernels `iso_tex.metal`,
 `iso_icmp2.metal`; analysis harnesses `walk.py`, `enum_gaps.py`, `scan_op.py`). HW splices via
 `tools/agxtest/agxtest.py` on the local M4. Method: OWN-SHADER + HW-PROBE. No Apple binary inspected.
+
+---
+
+# RESULTS — ROUND 3 (EXP-M4-01, drive the residue → ~0, + the EXP-M4-10 coverage split)
+
+All changes in `tools/agx-isa/isadb.py` `instr_length` (pure length rules). `roundtrip_test.py`
+stays **GREEN**. New round-3 harnesses: `work/round3_scan.py` (per-kernel undec-region + culprit
+walker), `work/lenprobe.py` (anchored per-op length probe), `work/resid_inventory.py` (dedup
+residue inventory over BOTH corpora), `work/iso_tg.metal` (threadgroup-atomic isolation kernels
+`tg_store`/`tg_add`/`tg_max`). Method unchanged: anchored segmentation + minimal isolation.
+
+## Headline metric
+
+| corpus | metric | round-2 end | **round-3 end** |
+|---|---|---|---|
+| **M4** | distinct byte0 groups the DB CANNOT decode | 12 | **8** |
+| M4 | byte coverage | 96.4% | **97.0%** |
+| M4 | tokens cleanly length-known | 95.2% | **96.1%** |
+| M4 | UNDECODED resync regions | 57 | **46** |
+| **A18** (cross-check, same ISA) | never-decoded groups | 13 | **8** |
+| A18 | byte coverage | 96.0% | **96.4%** |
+| A18 | UNDECODED regions | 70 | **57** |
+
+**No per-kernel regression** (roundtrip GREEN + monotone census drop after each of the 7 edits;
+4 MORE kernels reach 100%: k_cvt_half, k_threadgroup, k_builtins_ids, k_subgroup_ballot).
+
+## What each round-3 fix was (all length rules, HW-anchored by isolation/lenprobe)
+
+1. **low-nibble-3 dst-register generalization.** The DB hard-coded only `0x13` (dst r0) as the
+   4-byte zero-extend/move and left every higher-dst form UNDECODED — exactly the round-1/2
+   `0x?2`/`0x?a` dst-nibble pattern. Generalized: `(b0&0x0f)==0x03 (b0!=0x03) → 10 if byte+2==0x27
+   else 4`. Closes `23 00 00 01` (k_builtins_ids thread-id compose), `73 00 00 01` (mesh helper),
+   `23 04 1f ff` (k_threadgroup); consistent with the existing `0x43` call-marker / `0x13`.
+2. **`0x60` frame/scope marker split.** `60 00 00 00` stays the 4-byte spill_frame_marker
+   (byte+3 live, RT-1a-FIX HW), but `60 00 <nonzero>` is a **2-byte** compact marker that precedes
+   a threadgroup-atomic store or a divergent-CF block. Confirmed by isolation: in `tg_store` the
+   threadgroup atomic store is a bare 14-byte `e7 02 54 ..` device_store (threadgroup space, byte+1
+   bit1 set); in `tg_add` a `60 00` sits in front of it. lenprobe: `60 00`→2 resyncs 8 clean ops in
+   BOTH k_atomics_tg@26 and k_atomics@362; ≥4 resyncs 0. Gate on byte+2==0x00.
+3. **`0x0b` threadgroup-atomic / CF-prep compact op** (byte+1==0x00): `0b/1b 00 00 00`→4,
+   `0b 00 06 ..`→8. Isolated from `tg_store` (4B atomic-value setup) vs `tg_add` (8B RMW descriptor);
+   also closes k_cf_loop@38 `1b 00 00 00` and mesh_mesh@4.
+4. **fp16 pack/convert `X1 01 3c`→6** (k_cvt_half@32 `31 01 3c 81 00 c2`, dst r3): the
+   `half(int)`/`int(half)` mixed-precision pack helper, distinct from the 0x11 bfloat/cvt group.
+5. **`0x07` compute fence, subgroup scope** (byte+2==0x20)→4: `07 00 20 80` in k_subgroup_ballot@58,
+   the same scoreboard-fence family as byte+2 in {0x00,0x02}.
+6. **`0x1c` threadgroup-address compute** `1c 02 00 ..`→6 (k_threadgroup@46): a threadgroup-buffer
+   base/offset op bracketed between the low-nibble-3 id ops and the threadgroup store.
+7. **cube-array coord constant `f0 c0 04`→4** (k_tex_array_cube@48): reciprocal/constant load feeding
+   the face-select coord_madf chain (tightly gated so it never claims an `f0 ..` operand tail).
+
+## Remaining residue — ENUMERATED + JUSTIFIED (46 M4 / 57 A18 regions; none a mystery)
+
+Per-kernel (M4): k_transcend 10 · r_blend_f 5 · k_tex_atomic 4 · r_deriv_f 3 · k_uint_arith 3 ·
+k_transcend_round 3 · k_tex_array_cube 3 · r_tex_f 2 · k_mem 2 · k_cf_loop 2 · (r_cent_f, k_tex_msaa,
+k_tex_lod, k_subgroup_shuffle, k_int64, k_half_arith, k_cvt_pack, k_atomics_tg, k_atomics) 1 each.
+Grouped by cause:
+
+- **Fragment BLEND / interpolation microprogram** (r_blend_f, r_deriv_f, r_tex_f, r_cent_f — 11
+  regions): the `0x54 xx 03`-headed ops here are the blend-lowered fragment microprogram +
+  resync tails around mis-aligned `iter`/`unpack_convert`/`fspecial`. Walking r_blend_f shows the
+  `0x54` bytes are OPERAND tails of the interpolation ops, not a standalone op family — and per
+  clean-room rule 5 the blend microprogram is **deliberately out of scope** (the impl team writes
+  its own blend-lowering compiler). **Justified — the single biggest `0x54` cluster resolved as
+  blend, not a missing instruction** (this was the round-2 "0x54 texture-address family" target).
+- **SFU polynomial / range-reduction helpers** (k_transcend 10, k_transcend_round 3): a long tail of
+  distinct low-frequency Horner/range-reduce ops, each a unique byte+2 op-select (`0x72` `06 02 72`,
+  `2e 15 a0`, `42 85 03`, `38 xx 42 81`, coefficient loads `00 00 01/02 00`). Each needs its own
+  isolation kernel; **task-sanctioned justified residue.**
+- **Software texture-coordinate atomic / MSAA address blobs** (k_tex_atomic 4, k_tex_msaa's single
+  40-byte blob): the ~440-byte SW address computation characterized in round-2; residual coord-pack
+  and MSAA-sample-address ops. k_tex_atomic is already 99% covered.
+- **Cube-array coordinate math** (k_tex_array_cube 3): the `coord_madf` / `54 21 92` normalized
+  face-coord residue (`f0 c0 04` now closed). Tangled 6/8/10-byte forms; justified follow-up.
+- **Dense int64 / uint carry arithmetic** (k_int64 1, k_uint_arith 3): `07 00 9f`/`25 83 22`/`26 80 0f`
+  carry-mask tails that resync cleanly to the next iadd2 chain.
+- **misc n=1 ambiguous** (each resyncs cleanly, length 2-vs-N ambiguous from a single occurrence, so
+  DEFERRED rather than risk a wrong length): `5b 11 17` (k_mem 64-bit masked), `2c cd` (k_tex_lod
+  LOD-clamp), `a0 00 00 00` (k_cf_loop compact), `02 00`/`20 05`/`20 00`/`80 00` low-nibble-0/2
+  compact-move subsystem (byte0 collides with texture-sampler byte0s 0x20/0x80/0xb0, so a blanket
+  2-byte rule is unsafe — each needs a tight per-signature gate).
+
+The residue is now dominated by (a) the out-of-scope blend microprogram and (b) low-frequency
+SFU helpers — both task-sanctioned — with no resync-cascade artifacts and no kernel below 68% cov.

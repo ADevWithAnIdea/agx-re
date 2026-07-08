@@ -1,0 +1,19 @@
+ISA-5 atomic op-code table (byte+12) — splice/byte-diff evidence
+Host: Apple M4 (shares A18 Pro Apple9 AGX ISA). Runner: tools/agxtest (own clean-room).
+Atomic op = 14B, byte0 0x67. Elected-lane RMW: 67 01 54 .. <OP> 00 (byte+2=0x54).
+Standalone (exchange/cmpxchg/indexed): 67 01 56 .. <OP> 00 (byte+2=0x56).
+byte+1 bit4(0x10)=FETCH(return old): 0x11 fetch-and-op, 0x01 op-only; bit1(0x02)=threadgroup.
+byte+12 = operation selector (identical table for 0x01 and 0x11 forms).
+
+byte+12 op table (compiler byte-diff == HW splice, all STATUS OK, no faults):
+add 0x20 | sub 0x36 | and 0x22 | or 0x2c | xor 0x3e | smax 0x28 | smin 0x2a |
+umax 0x38 | umin 0x3a | fadd 0x26 | exchange 0x3c | cmpxchg 0x24 | add_indexed 0x60
+
+Splice on add baseline (byte+12 @ abs 0x38), init=12 v0=10:
+ add22 sub2 and8 or14 xor6 smax12 smin10 umax12 umin10 xchg10 cmpxchg12(no compare match)
+Sign-straddle init=1 v0=-1(0xFFFFFFFF):
+ smax(0x28)=1  umax(0x38)=0xFFFFFFFF   smin(0x2a)=-1  umin(0x3a)=1
+ => SIGNED != UNSIGNED, proven. bit4(0x10)=unsigned, bit1(0x02)=min.
+Float bits init=2.0f v0=1.0f: fadd(0x26)=0x40400000(3.0f) vs int add(0x20)=0x7f800000 => fadd is float add.
+Native: xchg stores v0; splice xchg-form 0x3c->0x20 => add(22) [byte+12 selects op in 0x56 form too].
+Native cmpxchg: expected match->999, mismatch->unchanged; splice 0x24->0x3c => unconditional store.

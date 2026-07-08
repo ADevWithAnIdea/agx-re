@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 82 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 85 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -1186,6 +1186,18 @@
 
 - **Length:** 4 bytes  ·  **Match:** byte+0==0x07, bits[16:17]==0x0
 
+### `frame_marker_compact`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x60
+
+### `cubearray_coord_const`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0xf0, byte+1==0xc0, byte+2==0x04
+
+### `tg_addr_compute`
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x1c, byte+1==0x02, byte+2==0x00
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1260,4 +1272,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 82 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 85 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
