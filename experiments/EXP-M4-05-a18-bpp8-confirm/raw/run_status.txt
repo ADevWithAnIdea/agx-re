@@ -1,0 +1,48 @@
+A18 Pro (Apple A18 Pro, T8140, 5-core, Metal 4) — texprobe run status, all configs.
+status=4 == MTLCommandBufferStatusCompleted. Zero GPU faults, zero reboots.
+(texprobe stdout, "^CALL|^MAP" interposer lines filtered.)
+
+=== RUN b8_96 : rg32uint 96x96 ===
+CONFIG fmt=rg32uint W=96 H=96 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b8_160 : rg32uint 160x160 ===
+CONFIG fmt=rg32uint W=160 H=160 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b8_288 : rg32uint 288x288 ===
+CONFIG fmt=rg32uint W=288 H=288 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b8_320 : rg32uint 320x320 ===
+CONFIG fmt=rg32uint W=320 H=320 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b8_448 : rg32uint 448x448 ===   (re-run with IOTRACE_MAX_MAP=0x400000 for full backing capture)
+CONFIG fmt=rg32uint W=448 H=448 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b8_160x256 : rg32uint 160x256 ===
+CONFIG fmt=rg32uint W=160 H=256 bpp=8 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b4_160 : r32uint 160x160 (bpp4 control) ===
+CONFIG fmt=r32uint W=160 H=160 bpp=4 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK a5000000 a5000001 a5000002 a5000003 a5000004 a5000005 a5000006 a5000007
+
+=== RUN b16_96 : rgba32uint 96x96 (bpp16 control) ===
+CONFIG fmt=rgba32uint W=96 H=96 bpp=16 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007
+
+=== RUN b16_160 : rgba32uint 160x160 (bpp16 control) ===
+CONFIG fmt=rgba32uint W=160 H=160 bpp=16 mips=1 linear=0 priv=0 render=0 usage=rw
+TEX ok / WRITE done status=4 / BIND done status=4
+READBACK 00000000 00000001 00000002 00000003 00000004 00000005 00000006 00000007

@@ -63,10 +63,11 @@ A18-*inferred* width-high field word1[0:5]), format→code rule — **all byte-i
 ## 5. Texture tiling & compression — ✅ IDENTICAL + 1 refinement (EXP-M4-04)
 Tiled Morton (T=64 bpp≤4 / 32 bpp≥8), cols=ceil(W/T), mult-of-T padding, mip (384²→0xcd600 exact), compression
 (≥16×16 threshold, aux=image/128, secondaryVA=base+paddedImageBytes, ShaderWrite **and PixelFormatView** disable it)
-— all reproduce with 0 mismatch, incl. the decisive non-pow2-tile widths. **Refinement M4 surfaced (improves the A18
-doc):** for **bpp-8** the tile column count must be **even** (`cols=round_up_even(ceil(W/T))`), because a Morton tile is
-0x2000 B at bpp8 vs 0x4000 B at bpp4/16 → the tile-row stride is **16-KiB-aligned**. A18 never probed bpp-8 non-pow2
-widths (where it's a no-op), so this was latent; now folded into `tiling/README.md §1.1/§1.4`. Likely general AGX.
+— all reproduce with 0 mismatch, incl. the decisive non-pow2-tile widths. **Refinement M4 surfaced, then CROSS-CONFIRMED on the real A18 (EXP-M4-05) — NOT a delta, a general AGX rule the
+A18 shares:** the tile-row stride must be a whole number of 16-KiB pages, so `cols = round_up(ceil(W/T), G)`, `G =
+0x4000/(T²·bpp)` → bpp8 needs even columns (A18: 96→4, 160→6, 288→10, 0 mismatch; flat `ceil(W/T)` off by thousands).
+This closes an original A18 coverage gap (A18 only probed bpp-4 widths where G=1). Folded into `tiling/README §1.1/§1.4`;
+bpp1/bpp2 (G=4/G=2) predicted, being probed (EXP-M4-06).
 
 ## 6. TBDR / pipeline — ✅ IDENTICAL (EXP-M4-03)
 Tile **32×32 fixed** (0x68000 +0x904/+0x908 = ceil(W/32)−1), MSAA count byte3=0x09@+0x24, **userspace sample

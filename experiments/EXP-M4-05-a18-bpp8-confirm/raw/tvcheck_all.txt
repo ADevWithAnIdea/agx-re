@@ -1,0 +1,99 @@
+########## b8_96 (rg32uint 96x96) ##########
+# maps_b8_96 fmt=rg32uint 96x96 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0x18000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           3     3072     6144 0x012000
+   32 nextpow2(W)/T       4     9216        0 0x016000  <== MODEL CONFIRMED (0 mismatch)
+   32 16KiB-row           4     9216        0 0x016000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           2     5120     4096 0x01a000
+   64 nextpow2(W)/T       2     5120     4096 0x01a000
+   64 16KiB-row           2     5120     4096 0x01a000
+# CONFIRMED: T=32 cols=4 (nextpow2(W)/T); padW=128 padH=96 paddedImageBytes=0x18000 (BO sz=0x18000)
+
+########## b8_160 (rg32uint 160x160) ##########
+# maps_b8_160 fmt=rg32uint 160x160 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0x3c000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           5     5120    20480 0x032000
+   32 nextpow2(W)/T       8     5120    20480 0x04a000
+   32 16KiB-row           6    25600        0 0x03a000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           3     8192    17408 0x042000
+   64 nextpow2(W)/T       4     5120    20480 0x052000
+   64 16KiB-row           3     8192    17408 0x042000
+# CONFIRMED: T=32 cols=6 (16KiB-row); padW=192 padH=160 paddedImageBytes=0x3c000 (BO sz=0x3c000)
+
+########## b8_288 (rg32uint 288x288) ##########
+# maps_b8_288 fmt=rg32uint 288x288 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0xb4000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           9     9216    73728 0x0a2000
+   32 nextpow2(W)/T      16     9216    73728 0x112000
+   32 16KiB-row          10    82944        0 0x0b2000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           5    14336    68608 0x0c2000
+   64 nextpow2(W)/T       8     3072    79872 0x122000
+   64 16KiB-row           5    14336    68608 0x0c2000
+# CONFIRMED: T=32 cols=10 (16KiB-row); padW=320 padH=288 paddedImageBytes=0xb4000 (BO sz=0xb4000)
+
+########## b8_320 (rg32uint 320x320) ##########
+# maps_b8_320 fmt=rg32uint 320x320 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0xc8000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)          10   102400        0 0x0c8000  <== MODEL CONFIRMED (0 mismatch)
+   32 nextpow2(W)/T      16    10240    92160 0x134000
+   32 16KiB-row          10   102400        0 0x0c8000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           5    20480    81920 0x0c8000
+   64 nextpow2(W)/T       8     4096    98304 0x128000
+   64 16KiB-row           5    20480    81920 0x0c8000
+# CONFIRMED: T=32 cols=10 (ceil(W/T)); padW=320 padH=320 paddedImageBytes=0xc8000 (BO sz=0xc8000)
+
+########## b8_448 (rg32uint 448x448) ##########
+# maps_b8_448 fmt=rg32uint 448x448 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0x188000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)          14   200704        0 0x188000  <== MODEL CONFIRMED (0 mismatch)
+   32 nextpow2(W)/T      16    14336   186368 0x1bc000
+   32 16KiB-row          14   200704        0 0x188000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           7    28672   172032 0x188000
+   64 nextpow2(W)/T       8    10240   190464 0x1b8000
+   64 16KiB-row           7    28672   172032 0x188000
+# CONFIRMED: T=32 cols=14 (ceil(W/T)); padW=448 padH=448 paddedImageBytes=0x188000 (BO sz=0x188000)
+
+########## b8_160x256 (rg32uint 160x256) ##########
+# maps_b8_160x256 fmt=rg32uint 160x256 bpp=8 baseVA=0x10000080000 BO=0x10000080000 sz=0x60000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           5     5120    35840 0x050000
+   32 nextpow2(W)/T       8     5120    35840 0x07a000
+   32 16KiB-row           6    40960        0 0x05e000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           3    12288    28672 0x05e000
+   64 nextpow2(W)/T       4     5120    35840 0x076000
+   64 16KiB-row           3    12288    28672 0x05e000
+# CONFIRMED: T=32 cols=6 (16KiB-row); padW=192 padH=256 paddedImageBytes=0x60000 (BO sz=0x60000)
+
+########## b4_160 (r32uint 160x160) ##########
+# maps_b4_160 fmt=r32uint 160x160 bpp=4 baseVA=0x10000080000 BO=0x10000080000 sz=0x24000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           5     2048    23552 0x019000
+   32 nextpow2(W)/T       8     3072    22528 0x025000
+   32 16KiB-row           8     3072    22528 0x025000
+   64 ceil(W/T)           3    25600        0 0x021000  <== MODEL CONFIRMED (0 mismatch)
+   64 nextpow2(W)/T       4    10240    15360 0x029000
+   64 16KiB-row           3    25600        0 0x021000  <== MODEL CONFIRMED (0 mismatch)
+# CONFIRMED: T=64 cols=3 (ceil(W/T)); padW=192 padH=192 paddedImageBytes=0x24000 (BO sz=0x24000)
+
+########## b16_96 (rgba32uint 96x96) ##########
+# maps_b16_96 fmt=rgba32uint 96x96 bpp=16 baseVA=0x10000080000 BO=0x10000080000 sz=0x24000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           3     9216        0 0x024000  <== MODEL CONFIRMED (0 mismatch)
+   32 nextpow2(W)/T       4     3072     6144 0x02c000
+   32 16KiB-row           3     9216        0 0x024000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           2     2048     7168 0x034000
+   64 nextpow2(W)/T       2     2048     7168 0x034000
+   64 16KiB-row           2     2048     7168 0x034000
+# CONFIRMED: T=32 cols=3 (ceil(W/T)); padW=96 padH=96 paddedImageBytes=0x24000 (BO sz=0x24000)
+
+########## b16_160 (rgba32uint 160x160) ##########
+# maps_b16_160 fmt=rgba32uint 160x160 bpp=16 baseVA=0x10000080000 BO=0x10000080000 sz=0x64000 base_off=0x0
+#   T cols-rule        cols    match mismatch   maxoff
+   32 ceil(W/T)           5    25600        0 0x064000  <== MODEL CONFIRMED (0 mismatch)
+   32 nextpow2(W)/T       8     5120    20480 0x094000
+   32 16KiB-row           5    25600        0 0x064000  <== MODEL CONFIRMED (0 mismatch)
+   64 ceil(W/T)           3     2048    23552 0x084000
+   64 nextpow2(W)/T       4     2048    23552 0x0a4000
+   64 16KiB-row           3     2048    23552 0x084000
+# CONFIRMED: T=32 cols=5 (ceil(W/T)); padW=160 padH=160 paddedImageBytes=0x64000 (BO sz=0x64000)
+
