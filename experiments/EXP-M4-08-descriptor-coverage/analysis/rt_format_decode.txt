@@ -1,0 +1,51 @@
+DESC-1: RT attachment LOAD/RENDER format word = (0xf<<28)|(swizzle<<16)|(byte1<<8)|(byte0 & ~0x20)
+format             seg0(LOAD)  b+20 b+21 b+22 b+23   sampled(b0/b1/swiz)  formula-match
+r8unorm            f9680002    02   00   68   f9    22/00/968         OK
+rg8unorm           f9480282    82   02   48   f9    a2/02/948         OK
+rgba8unorm         f6880a02    02   0a   88   f6    22/0a/688         OK
+bgra8unorm         f60a0a02    02   0a   0a   f6    22/0a/60a         OK
+rgba8unorm_srgb    f6880a02    02   0a   88   f6    22/0a/688         OK
+bgra8unorm_srgb    f60a0a02    02   0a   0a   f6    22/0a/60a         OK
+r8snorm            f9682002    02   20   68   f9    22/20/968         OK
+rg8snorm           f9482282    82   22   48   f9    a2/22/948         OK
+rgba8snorm         f6882a02    02   2a   88   f6    22/2a/688         OK
+r16unorm           f9680242    42   02   68   f9    62/02/968         OK
+rg16unorm          f94808c2    c2   08   48   f9    e2/08/948         OK
+rgba16unorm        f6880c82    82   0c   88   f6    a2/0c/688         OK
+r16snorm           f9682242    42   22   68   f9    62/22/968         OK
+rg16snorm          f94828c2    c2   28   48   f9    e2/28/948         OK
+rgba16snorm        f6882c82    82   2c   88   f6    a2/2c/688         OK
+r16float           f9688242    42   82   68   f9    62/82/968         OK
+rg16float          f94888c2    c2   88   48   f9    e2/88/948         OK
+rgba16float        f6888c82    82   8c   88   f6    a2/8c/688         OK
+r32float           f9688842    42   88   68   f9    62/88/968         OK
+rg32float          f9488c42    42   8c   48   f9    62/8c/948         OK
+rgba32float        RELOCATED (128-bit; identical value at tiler heap 0x10000018200/0x10000120000)
+rgb10a2unorm       f6880982    82   09   88   f6    a2/09/688         OK
+bgr10a2unorm       f60a0982    82   09   0a   f6    a2/09/60a         OK
+rg11b10float       f8888942    42   89   88   f8    62/89/888         OK
+rgb9e5float        f88889c2    c2   89   88   f8    e2/89/888         OK
+bgr10_xr           f80aa982    82   a9   0a   f8    a2/a9/80a         OK
+bgra10_xr          f60aacc2    c2   ac   0a   f6    e2/ac/60a         OK
+r8uint             f9684002    02   40   68   f9    22/40/968         OK
+rg8uint            f9484282    82   42   48   f9    a2/42/948         OK
+rgba8uint          f6884a02    02   4a   88   f6    22/4a/688         OK
+r16uint            f9684242    42   42   68   f9    62/42/968         OK
+rg16uint           f94848c2    c2   48   48   f9    e2/48/948         OK
+rgba16uint         f6884c82    82   4c   88   f6    a2/4c/688         OK
+r32uint            f9684842    42   48   68   f9    62/48/968         OK
+rg32uint           f9484c42    42   4c   48   f9    62/4c/948         OK
+rgba32uint         RELOCATED (128-bit; identical value at tiler heap 0x10000018200/0x10000120000)
+rgb10a2uint        f6884982    82   49   88   f6    a2/49/688         OK
+r8sint             f9686002    02   60   68   f9    22/60/968         OK
+rg8sint            f9486282    82   62   48   f9    a2/62/948         OK
+rgba8sint          f6886a02    02   6a   88   f6    22/6a/688         OK
+r16sint            f9686242    42   62   68   f9    62/62/968         OK
+rg16sint           f94868c2    c2   68   48   f9    e2/68/948         OK
+rgba16sint         f6886c82    82   6c   88   f6    a2/6c/688         OK
+r32sint            f9686842    42   68   68   f9    62/68/968         OK
+rg32sint           f9486c42    42   6c   48   f9    62/6c/948         OK
+rgba32sint         RELOCATED (128-bit; identical value at tiler heap 0x10000018200/0x10000120000)
+
+Format code = byte+0x21 (= sampled byte1). byte+0x22 = swizzle[0:7]. byte+0x23 = 0xf0|swizzle[8:11].
+(doc's 'byte+0x22 = format' was WRONG; only coincided for bgra8 where swizzle-low==byte1.)
