@@ -1,0 +1,35 @@
+device = Apple M4
+PROBE                               M4        A18-expected                    diagnostic(first line)
+-----                               --        ------------                    ----------------------
+bfloat_alu                          COMPILED  COMPILED                        
+half_alu                            COMPILED  COMPILED                        
+long64_int_alu                      COMPILED  COMPILED                        
+simdgroup_matrix_f16                COMPILED  COMPILED                        
+simdgroup_matrix_f32                COMPILED  COMPILED                        
+simdgroup_matrix_bf16               COMPILED  COMPILED                        
+simdgroup_matrix_int8               REJECTED  REJECTED                        In module 'monolithic_metal' imported from <built-in>:1:
+simdgroup_matrix_int32              REJECTED  REJECTED                        In module 'monolithic_metal' imported from <built-in>:1:
+atomic_float_add_device             COMPILED  COMPILED                        
+atomic_float_min_device             REJECTED  REJECTED                        kernel void k(device atomic<float>* p [[buffer(0)]]){ atomic_fetch_min_explicit(p, 1.0f, memory_orde
+atomic_uint64_add                   REJECTED  REJECTED                        kernel void k(device atomic<uint64_t>* p [[buffer(0)]]){ atomic_fetch_add_explicit(p, (uint64_t)1, m
+atomic_ulong_min                    REJECTED  REJECTED                        kernel void k(device atomic<ulong>* p [[buffer(0)]]){ atomic_fetch_min_explicit(p, (ulong)1, memory_
+atomic_int_add                      COMPILED  COMPILED                        
+quad_ops                            COMPILED  COMPILED                        
+simd_prefix_scan                    COMPILED  COMPILED                        
+simd_shuffle_and_fill               COMPILED  COMPILED                        
+simd_is_helper_thread_frag          COMPILED  COMPILED                        
+simd_ballot_vote                    COMPILED  COMPILED                        
+rt_intersector                      COMPILED  COMPILED                        
+rt_intersection_query_inline        COMPILED  COMPILED                        
+rt_custom_intersection_fn           COMPILED  COMPILED                        
+mesh_object_pipeline                COMPILED  COMPILED                        
+tessellation_posttess_vertex        COMPILED  COMPILED                        
+tessellation_factors_compute        COMPILED  COMPILED                        
+os_log                              COMPILED  COMPILED                        
+printf_msl                          REJECTED  UNKNOWN(A18: os_log, not MSL printf)  kernel void k(uint i [[thread_position_in_grid]]){ printf("hi %d", (int)i); }
+sampler_border_opaque_white         COMPILED  COMPILED                        
+sampler_border_transparent_black    COMPILED  COMPILED                        
+sampler_border_opaque_black         COMPILED  COMPILED                        
+metal_tensor_type                   COMPILED  UNKNOWN(Metal-4)                
+mpp_tensor_ops_matmul2d             COMPILED  UNKNOWN(Metal-4 MPP)            
+texture_atomic                      COMPILED  COMPILED                        
