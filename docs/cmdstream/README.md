@@ -101,7 +101,7 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
     consumes `[[instance_id]]` — elided otherwise.
 - **Viewport** = 4 transform floats @ `0x68000+0x910` (`{w/2, h/2, w/2, −h/2}` — Y-flip) + depth range
   @+0x920/+0x924; pointed to from the VDM.
-- **Attachment descriptor** (`0x10000110000`): **pixel format** byte @+0x22 (BGRA8=0x0a, RGBA8=0x88);
+- **Attachment descriptor** (`0x10000110000`): **pixel-format code = byte @+0x21** (= sampled byte1; EXP-M4-08 DESC-1 CORRECTS the earlier +0x22, which is the swizzle low byte and only coincided for bgra8). Full format word `(0xf<<28)|(swizzle<<16)|(byte1<<8)|(byte0&~0x20)`, 43/43 formats;
   **clear color** = 4 floats @+0x170, in chained 0x300-byte segments (⏳ load/render/store meaning).
 - **Fixed-function state** (`0x58000`): raster line/point @+0x54, depth @+0x38, blend @+0x08 — bound via
   the VDM USC-pairs. ⏳ per-packet bit decode is a follow-up.
