@@ -1,0 +1,45 @@
+###### TIL-1: 3D/array plane stride = tile-multiple (not nextpow2), T(bpp) ######
+# CONFIRMED: T=128 cols=3(ceil) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=128 cols=3(16KiB) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=32 cols=6(16KiB) planeStride=padW*padH planeElems=30720 padW=192 padH=160 predTotal=0x78000 (matches BO size)
+###### TIL-5: compression aux = imageBytes/(32*bpp) (formula B), engages bpp8/16 ######
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   formula A (imageBytes/128) = 0x800 (2048)  <-- MATCH
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   formula A (imageBytes/128) = 0x1000 (4096)  
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   formula A (imageBytes/128) = 0x2000 (8192)  
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+###### TIL-2: block-tile edge 32, G=2 for 8-byte blocks / G=1 for 16-byte ######
+-n bc1: 
+# CONFIRMED: T_blk=32 cols=4(nextpow2) padBW=128 padBH=96 predTotal=0x18000 (matches BO)
+-n bc4: 
+# CONFIRMED: T_blk=32 cols=4(nextpow2) padBW=128 padBH=96 predTotal=0x18000 (matches BO)
+-n bc7: 
+# CONFIRMED: T_blk=32 cols=3(ceil) padBW=96 padBH=96 predTotal=0x24000 (matches BO)
+-n astc4: 
+# CONFIRMED: T_blk=32 cols=3(ceil) padBW=96 padBH=96 predTotal=0x24000 (matches BO)
+-n astc12: 
+# CONFIRMED: T_blk=32 cols=3(ceil) padBW=96 padBH=96 predTotal=0x24000 (matches BO)
+-n eacr11: 
+# CONFIRMED: T_blk=32 cols=4(nextpow2) padBW=128 padBH=96 predTotal=0x18000 (matches BO)
+###### TIL-4: mip tail 0x8000-align extra page (non-pow2) ######
+-n r32 192sq: 
+# total predicted = 0x3d600  BO=0x3d600  (matches) # TOTAL mismatch across all levels = 0  <== MODEL CONFIRMED 
+-n r32 384sq: 
+# total predicted = 0xcd600  BO=0xcd600  (matches) # TOTAL mismatch across all levels = 0  <== MODEL CONFIRMED 
+-n r32 128sq: 
+# total predicted = 0x15680  BO=0x15680  (matches) # TOTAL mismatch across all levels = 0  <== MODEL CONFIRMED 
+###### TIL-3: MSAA r32 4x tile edge (expect T=32 via bpp*N) ######
+# CONFIRMED: T=32 cols=6(ceil) planeStride=MSAA planeElems=36864 padW=192 padH=192 predTotal=0x90000 (pred 0x90000 vs BO 0x92000)
+###### TIL-6: 16x16 threshold bpp-independent ######
+r8unorm 15x15: compress=0
+r8unorm 16x16: compress=1
+rgba32f 15x15: compress=0
+rgba32f 16x16: compress=1
+DONE

@@ -1,0 +1,48 @@
+RENDER done status=4
+# maps_cmp_rgba8unorm_256: fmt=rgba8unorm bpp=4 256x256
+#   desc: f6880a22 0803fc0f 00008000 80000010 0000c000 00000010
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   baseVA=0x10000080000  secVA=0x100000c0000  backingBO=0x10000080000 sz=0x40800 base_off=0x0
+#   2D pad: T=64 G=1 cols=4 padW=256 padH=256 paddedImageBytes=0x40000 (262144)
+#   secVA-baseVA = 0x40000 (262144)  [== paddedImageBytes? True]
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   ratios: aux/imageBytes = 1/128.0   aux/texels = 1/32.00
+#   formula A (imageBytes/128) = 0x800 (2048)  <-- MATCH
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+
+RENDER done status=4
+# maps_cmp_rgba16f_256: fmt=rgba16f bpp=8 256x256
+#   desc: f6888ca2 0803fc0f 00008000 80000010 00010000 00000010
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   baseVA=0x10000080000  secVA=0x10000100000  backingBO=0x10000080000 sz=0x80800 base_off=0x0
+#   2D pad: T=32 G=2 cols=8 padW=256 padH=256 paddedImageBytes=0x80000 (524288)
+#   secVA-baseVA = 0x80000 (524288)  [== paddedImageBytes? True]
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   ratios: aux/imageBytes = 1/256.0   aux/texels = 1/32.00
+#   formula A (imageBytes/128) = 0x1000 (4096)  
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+
+RENDER done status=4
+# maps_cmp_rgba32f_256: fmt=rgba32f bpp=16 256x256
+#   desc: f6888e22 0803fc0f 00008000 80000010 00018000 00000010
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   baseVA=0x10000080000  secVA=0x10000180000  backingBO=0x10000080000 sz=0x100800 base_off=0x0
+#   2D pad: T=32 G=1 cols=8 padW=256 padH=256 paddedImageBytes=0x100000 (1048576)
+#   secVA-baseVA = 0x100000 (1048576)  [== paddedImageBytes? True]
+#   aux_bytes (BO - base_off - image) = 0x800 (2048)
+#   ratios: aux/imageBytes = 1/512.0   aux/texels = 1/32.00
+#   formula A (imageBytes/128) = 0x2000 (8192)  
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x800 (2048)  <-- MATCH
+
+RENDER done status=4
+# maps_cmp_rgba32f_128: fmt=rgba32f bpp=16 128x128
+#   desc: f6888e22 0801fc07 00008000 80000010 0000c000 00000010
+#   word1 bit27(compress)=1  word3 bit31(auxmeta)=1
+#   baseVA=0x10000080000  secVA=0x100000c0000  backingBO=0x10000080000 sz=0x40200 base_off=0x0
+#   2D pad: T=32 G=1 cols=4 padW=128 padH=128 paddedImageBytes=0x40000 (262144)
+#   secVA-baseVA = 0x40000 (262144)  [== paddedImageBytes? True]
+#   aux_bytes (BO - base_off - image) = 0x200 (512)
+#   ratios: aux/imageBytes = 1/512.0   aux/texels = 1/32.00
+#   formula A (imageBytes/128) = 0x800 (2048)  
+#   formula B (1 byte / 8x4 block = imageBytes/(32*bpp)) = 0x200 (512)  <-- MATCH
+

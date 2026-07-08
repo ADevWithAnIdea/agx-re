@@ -1,0 +1,71 @@
+UPLOAD ok mips=9
+# maps_mip_r8uint_320: fmt=r8uint bpp=1 320x320 mips=9 T=128 G=1 BO=0x3d680 base_off=0x0
+#   L   lw   lh  padW  padH levelBytes    offset permiss
+#   0  320  320   384   384 0x00024000 0x0000000       0
+#   1  160  160   256   256 0x00010000 0x0024000       0
+#   2   80   80   128   128 0x00004000 0x0034000    6377
+#   3   40   40    64    64 0x00001000 0x0038000    1600
+#   4   20   20    32    32 0x00000400 0x0039000     400
+#   5   10   10    16    16 0x00000100 0x0039400     100
+#   6    5    5     8     8 0x00000080 0x0039500      25
+#   7    2    2     2     2 0x00000080 0x0039580       4
+#   8    1    1     1     1 0x00000080 0x0039600       1
+# total predicted = 0x39680  BO=0x3d680  (DIFFERS)
+# TOTAL mismatch across all levels = 8507  
+
+UPLOAD ok mips=9
+# maps_mip_r16uint_320: fmt=r16uint bpp=2 320x320 mips=9 T=64 G=2 BO=0x62b80 base_off=0x0
+#   L   lw   lh  padW  padH levelBytes    offset permiss
+#   0  320  320   384   320 0x0003c000 0x0000000       0
+#   1  160  160   256   192 0x00018000 0x003c000       0
+#   2   80   80   128   128 0x00008000 0x0054000    6399
+#   3   40   40    64    64 0x00002000 0x005c000    1600
+#   4   20   20    32    32 0x00000800 0x005e000     400
+#   5   10   10    16    16 0x00000200 0x005e800     100
+#   6    5    5     8     8 0x00000080 0x005ea00      25
+#   7    2    2     2     2 0x00000080 0x005ea80       4
+#   8    1    1     1     1 0x00000080 0x005eb00       1
+# total predicted = 0x5eb80  BO=0x62b80  (DIFFERS)
+# TOTAL mismatch across all levels = 8529  
+
+UPLOAD ok mips=8
+# maps_mip_r32uint_192: fmt=r32uint bpp=4 192x192 mips=8 T=64 G=1 BO=0x3d600 base_off=0x0
+#   L   lw   lh  padW  padH levelBytes    offset permiss
+#   0  192  192   192   192 0x00024000 0x0000000       0
+#   1   96   96   128   128 0x00010000 0x0024000       0
+#   2   48   48    64    64 0x00004000 0x0034000    2304
+#   3   24   24    32    32 0x00001000 0x0038000     576
+#   4   12   12    16    16 0x00000400 0x0039000     144
+#   5    6    6     8     8 0x00000100 0x0039400      36
+#   6    3    3     4     4 0x00000080 0x0039500       9
+#   7    1    1     1     1 0x00000080 0x0039580       1
+# total predicted = 0x39600  BO=0x3d600  (DIFFERS)
+# TOTAL mismatch across all levels = 3070  
+
+UPLOAD ok mips=8
+# maps_mip_rg32uint_160: fmt=rg32uint bpp=8 160x160 mips=8 T=32 G=2 BO=0x62b00 base_off=0x0
+#   L   lw   lh  padW  padH levelBytes    offset permiss
+#   0  160  160   192   160 0x0003c000 0x0000000       0
+#   1   80   80   128    96 0x00018000 0x003c000       0
+#   2   40   40    64    64 0x00008000 0x0054000    1600
+#   3   20   20    32    32 0x00002000 0x005c000     400
+#   4   10   10    16    16 0x00000800 0x005e000     100
+#   5    5    5     8     8 0x00000200 0x005e800      25
+#   6    2    2     2     2 0x00000080 0x005ea00       4
+#   7    1    1     1     1 0x00000080 0x005ea80       1
+# total predicted = 0x5eb00  BO=0x62b00  (DIFFERS)
+# TOTAL mismatch across all levels = 2130  
+
+UPLOAD ok mips=7
+# maps_mip_rgba32uint_96: fmt=rgba32uint bpp=16 96x96 mips=7 T=32 G=1 BO=0x3d580 base_off=0x0
+#   L   lw   lh  padW  padH levelBytes    offset permiss
+#   0   96   96    96    96 0x00024000 0x0000000       0
+#   1   48   48    64    64 0x00010000 0x0024000       0
+#   2   24   24    32    32 0x00004000 0x0034000     576
+#   3   12   12    16    16 0x00001000 0x0038000     144
+#   4    6    6     8     8 0x00000400 0x0039000      36
+#   5    3    3     4     4 0x00000100 0x0039400       9
+#   6    1    1     1     1 0x00000080 0x0039500       1
+# total predicted = 0x39580  BO=0x3d580  (DIFFERS)
+# TOTAL mismatch across all levels = 766  
+

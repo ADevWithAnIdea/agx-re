@@ -1,0 +1,38 @@
+### 3D + 2DArray (bpp1..16) ###
+-- 3d r8   320 --
+# CONFIRMED: T=128 cols=3(ceil) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=128 cols=3(16KiB) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+-- arr r8  320 --
+# CONFIRMED: T=128 cols=3(ceil) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=128 cols=3(16KiB) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0x48000 (matches BO size)
+-- 3d r16  320 --
+# CONFIRMED: T=64 cols=6(16KiB) planeStride=padW*padH planeElems=122880 padW=384 padH=320 predTotal=0x78000 (matches BO size)
+-- arr r16 320 --
+# CONFIRMED: T=64 cols=6(16KiB) planeStride=padW*padH planeElems=122880 padW=384 padH=320 predTotal=0x78000 (matches BO size)
+-- 3d r32  192 --
+# CONFIRMED: T=64 cols=3(ceil) planeStride=padW*padH planeElems=36864 padW=192 padH=192 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=64 cols=3(16KiB) planeStride=padW*padH planeElems=36864 padW=192 padH=192 predTotal=0x48000 (matches BO size)
+-- arr r32 192 --
+# CONFIRMED: T=64 cols=3(ceil) planeStride=padW*padH planeElems=36864 padW=192 padH=192 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=64 cols=3(16KiB) planeStride=padW*padH planeElems=36864 padW=192 padH=192 predTotal=0x48000 (matches BO size)
+-- 3d rg32 160 --
+# CONFIRMED: T=32 cols=6(16KiB) planeStride=padW*padH planeElems=30720 padW=192 padH=160 predTotal=0x78000 (matches BO size)
+-- arr rg32 160 --
+# CONFIRMED: T=32 cols=6(16KiB) planeStride=padW*padH planeElems=30720 padW=192 padH=160 predTotal=0x78000 (matches BO size)
+-- 3d rgba32 96 --
+# CONFIRMED: T=32 cols=3(ceil) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=32 cols=3(16KiB) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0x48000 (matches BO size)
+-- arr rgba32 96 --
+# CONFIRMED: T=32 cols=3(ceil) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0x48000 (matches BO size)
+# CONFIRMED: T=32 cols=3(16KiB) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0x48000 (matches BO size)
+### Cube + CubeArray (bpp1 & bpp16) ###
+-- cube r8 320 --
+# CONFIRMED: T=128 cols=3(ceil) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0xd8000 (matches BO size)
+# CONFIRMED: T=128 cols=3(16KiB) planeStride=padW*padH planeElems=147456 padW=384 padH=384 predTotal=0xd8000 (matches BO size)
+-- cubearr r8 320 --
+# NO 0-mismatch model found (check dims/pattern)
+-- cube rgba32 96 --
+# CONFIRMED: T=32 cols=3(ceil) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0xd8000 (matches BO size)
+# CONFIRMED: T=32 cols=3(16KiB) planeStride=padW*padH planeElems=9216 padW=96 padH=96 predTotal=0xd8000 (matches BO size)
+-- cubearr rgba32 96 --
+# NO 0-mismatch model found (check dims/pattern)

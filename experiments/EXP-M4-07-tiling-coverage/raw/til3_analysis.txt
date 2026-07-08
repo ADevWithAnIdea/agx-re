@@ -1,0 +1,48 @@
+===== r32uint 192 2x FULL (T=64 refuted, T=32 confirmed) =====
+# maps_ms_r32uint_192_2x: type=2dms fmt=r32uint bpp=4 192x192 slices/samples=2
+#   backing BO=0x10000080000 sz=0x49000 baseVA=0x10000080000 base_off=0x0 desc=f9684864 0802fc0b 00008000 80000010
+#    T  colsRule      planeStride cols  padW  padH planeElems mismatch predTotalBO
+#   16      ceil      MSAA*N+samp   12   192   192      36864      200 0x00048000
+#   16  nextpow2      MSAA*N+samp   16   256   192      49152      200 0x00060000
+#   16     16KiB      MSAA*N+samp   16   256   192      49152      200 0x00060000
+#   32      ceil      MSAA*N+samp    6   192   192      36864        0 0x00048000  <== 0-MISMATCH
+#   32  nextpow2      MSAA*N+samp    8   256   192      49152      200 0x00060000
+#   32     16KiB      MSAA*N+samp    8   256   192      49152      200 0x00060000
+#   64      ceil      MSAA*N+samp    3   192   192      36864      200 0x00048000
+#   64  nextpow2      MSAA*N+samp    4   256   192      49152      200 0x00060000
+#   64     16KiB      MSAA*N+samp    3   192   192      36864      200 0x00048000
+#  128      ceil      MSAA*N+samp    2   256   256      65536      200 0x00080000
+#  128  nextpow2      MSAA*N+samp    2   256   256      65536      200 0x00080000
+#  128     16KiB      MSAA*N+samp    2   256   256      65536      200 0x00080000
+# BO actual size = 0x49000
+# CONFIRMED: T=32 cols=6(ceil) planeStride=MSAA planeElems=36864 padW=192 padH=192 predTotal=0x48000 (pred 0x48000 vs BO 0x49000)
+
+===== r32uint 192 4x FULL =====
+#   backing BO=0x10000080000 sz=0x92000 baseVA=0x10000080000 base_off=0x0 desc=f9684864 0902fc0b 00008000 80000010
+#    T  colsRule      planeStride cols  padW  padH planeElems mismatch predTotalBO
+#   16      ceil      MSAA*N+samp   12   192   192      36864      200 0x00090000
+#   16  nextpow2      MSAA*N+samp   16   256   192      49152      200 0x000c0000
+#   16     16KiB      MSAA*N+samp   16   256   192      49152      200 0x000c0000
+#   32      ceil      MSAA*N+samp    6   192   192      36864        0 0x00090000  <== 0-MISMATCH
+#   32  nextpow2      MSAA*N+samp    8   256   192      49152      200 0x000c0000
+#   32     16KiB      MSAA*N+samp    8   256   192      49152      200 0x000c0000
+#   64      ceil      MSAA*N+samp    3   192   192      36864      200 0x00090000
+#   64  nextpow2      MSAA*N+samp    4   256   192      49152      200 0x000c0000
+#   64     16KiB      MSAA*N+samp    3   192   192      36864      200 0x00090000
+#  128      ceil      MSAA*N+samp    2   256   256      65536      200 0x00100000
+#  128  nextpow2      MSAA*N+samp    2   256   256      65536      200 0x00100000
+#  128     16KiB      MSAA*N+samp    2   256   256      65536      200 0x00100000
+# BO actual size = 0x92000
+# CONFIRMED: T=32 cols=6(ceil) planeStride=MSAA planeElems=36864 padW=192 padH=192 predTotal=0x90000 (pred 0x90000 vs BO 0x92000)
+
+===== cross-bpp MSAA 4x BO-size vs T(bpp*N) allocation model =====
+r8uint      bpp 1 2x: bpp*N= 2 -> T_eff= 64  padW=192 padH=192  image=0x12000  BO=0x19000  aux=0x7000 (28672)
+r16uint     bpp 2 2x: bpp*N= 4 -> T_eff= 64  padW=192 padH=192  image=0x24000  BO=0x25000  aux=0x1000 (4096)
+r32uint     bpp 4 2x: bpp*N= 8 -> T_eff= 32  padW=192 padH=192  image=0x48000  BO=0x49000  aux=0x1000 (4096)
+rg32uint    bpp 8 2x: bpp*N=16 -> T_eff= 32  padW=160 padH=160  image=0x64000  BO=0x65000  aux=0x1000 (4096)
+rgba32uint  bpp16 2x: bpp*N=32 -> T_eff= 16  padW=96 padH=96  image=0x48000  BO=0x48400  aux=0x400 (1024)
+r8uint      bpp 1 4x: bpp*N= 4 -> T_eff= 64  padW=192 padH=192  image=0x24000  BO=0x26000  aux=0x2000 (8192)
+r16uint     bpp 2 4x: bpp*N= 8 -> T_eff= 32  padW=192 padH=192  image=0x48000  BO=0x4a000  aux=0x2000 (8192)
+r32uint     bpp 4 4x: bpp*N=16 -> T_eff= 32  padW=192 padH=192  image=0x90000  BO=0x92000  aux=0x2000 (8192)
+rg32uint    bpp 8 4x: bpp*N=32 -> T_eff= 16  padW=160 padH=160  image=0xc8000  BO=0xca000  aux=0x2000 (8192)
+rgba32uint  bpp16 4x: bpp*N=64 -> T_eff= 16  padW=96 padH=96  image=0x90000  BO=0x90800  aux=0x800 (2048)

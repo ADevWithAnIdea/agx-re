@@ -1,7 +1,8 @@
 # A18 Pro (G17P) Texture Memory Layout — Twiddle & Lossless Compression
 
-Clean-room documentation of how a userspace driver must lay out 2-D texture memory on the
-A18 Pro / G17P (Apple9). Learned by **hardware probing** — GPU-write a known
+Clean-room documentation of how a userspace driver must lay out texture memory on the
+A18 Pro / G17P (Apple9) — 2D, 3D, array, cube, MSAA, mipmapped, block-compressed, and
+lossless-compressed. Learned by **hardware probing** — GPU-write a known
 `texel(x,y) = encode(x,y)` pattern into a texture in the optimal layout, read the raw backing
 bytes via the read-only `tools/iotrace` interposer, and infer the texel→byte map (a GF(2)
 bit-permutation solve). No Apple binary was disassembled. Source: `experiments/EXP-0017-tiling/`
@@ -83,24 +84,62 @@ sizes (256/512) are unchanged, which is why RT-3 didn't catch this. **`padW = ro
 `G = max(1, 0x4000/(T²·bpp))` and **T = largest pow2 with T²·bpp≤16KiB** (§1.1): (bpp1,T128,G1) (bpp2,T64,G2) (bpp4,T64,G1)
 (bpp8,T32,G2) (bpp16,T32,G1). `padH = ceil(H/T)·T` (no granule rule on rows). HW-confirmed on A18+M4 (EXP-M4-04/05/06).
 
-### 1.5 Block-compressed formats (BC/ASTC/ETC) — ✅ CONFIRMED (EXP-0028)
-Block-compressed formats apply the **same tiled-Morton curve over BLOCK coordinates** (RT-9: the block grid
-also tiles — §1.1 at block granularity, block-grid tile ≈ 32 blocks, padded to a tile-multiple, NOT un-tiled
-block-Morton): `element = tiledMorton(bx, by) · blockBytes` (blockBytes = 8 for BC1/BC4, 16 otherwise). HW-validated
-for BC1/BC7/ASTC-4×4/ASTC-8×8 (8×8 proves the curve is over the block *index*); RT-9 confirmed the block grid is
-padded to a whole number of block-tiles (BC7 384px→96×96 blocks, 320px→96 rounded, 1024×768→256×192 — never nextpow2).
+### 1.5 Block-compressed formats (BC/ASTC/ETC/EAC) — ✅ CONFIRMED (EXP-0028, **EXP-M4-07** for the block-tile/G rule)
+Block-compressed formats apply the **same tiled-Morton curve over BLOCK coordinates**, with the
+**identical §1.1 rule applied at block granularity** — substitute `element_bytes = blockBytes`
+(the block is the element):
 
-### 1.6 Texture-type twiddle variants (✅ HW-validated, EXP-0028)
+```
+element(bx,by) = tiledMorton(bx, by, T_blk, cols_blk) · blockBytes
+T_blk    = largest 2^k with T_blk²·blockBytes ≤ 0x4000   #  = 32 blocks for BOTH 8- and 16-byte blocks
+G_blk    = 0x4000 / (T_blk²·blockBytes)                  #  = 2 for 8-byte blocks, 1 for 16-byte blocks
+cols_blk = round_up( ceil(BW/T_blk), G_blk )             #  BW = blocks-wide = ceil(W/blockWidth)
+padBW    = cols_blk·T_blk ; padBH = ceil(BH/T_blk)·T_blk ; BOsize = padBW·padBH·blockBytes
+```
+
+| blockBytes | formats (**all HW-validated, EXP-M4-07**) | **T_blk** | tile bytes | **G_blk** | block-column rule |
+|---|---|---|---|---|---|
+| **8** | BC1, BC4, ETC2_RGB8, EAC_R11 | **32** | 0x2000 (8 KiB) | **2** | `round_up(ceil(BW/32),2)` — **EVEN** |
+| **16** | BC2, BC3, BC5, BC6H, BC7, ASTC 4×4…12×12, ETC2_RGBA(EAC), EAC_RG11 | **32** | 0x4000 (16 KiB) | **1** | `ceil(BW/32)` — flat |
+
+- **T_blk = 32 blocks for every block byte-size** (both 8- and 16-byte). The **granule differs**:
+  8-byte blocks (tile = 8 KiB) need **even** block-columns (`G_blk=2`), 16-byte blocks (tile = 16 KiB)
+  are flat (`G_blk=1`) — exactly the bpp2/bpp8 vs bpp4/bpp16 alternation of §1.1. HW-shown on a 66×66
+  block grid (odd tile count): 8-byte → `cols_blk` rounds 3→4 (padBW=128, `0x18000`; flat cols=3
+  refuted); 16-byte → `cols_blk=3` survives (padBW=96, `0x24000`; nextpow2=4 refuted).
+- ASTC 5×5/6×6/8×8/10×10/12×12 all use the **same 32-block tile** — T_blk depends only on `blockBytes`,
+  not the block's texel footprint. A18-confirmed for BC1/BC4/EAC_R11 (padBW=128) and BC7/ASTC-4×4/ASTC-12×12
+  (padBW=96). *(Supersedes the earlier "block-grid tile ≈ 32 blocks" approximation with the exact edge +
+  the 8-byte-block even-column rule.)*
+
+### 1.6 Texture-type twiddle variants (✅ HW-validated, EXP-0028 + **EXP-M4-07** per-bpp)
 - **Texture-type codes** (byte0 low nibble, **4-bit**): 1D=0, 1DArray=1, 2D=2, 2DArray=3, 2DMS=4,
   3D=5, Cube=6, CubeArray=7, 2DMSArray=8. (Corrects EXP-0015's 3-bit reading.)
-- **3D** = stacked 2D-Morton planes (NOT a 3D Morton): `offset = (z·Wp·Hp + morton(x,y))·bpp`; only W,H
-  are pow2-padded, depth is linear/unpadded.
-- **2DArray / Cube / CubeArray** = each layer/face an independent pow2-padded Morton plane, linear-stacked:
-  `offset = (layer·Wp·Hp + morton(x,y))·bpp`. Cube ≡ 6-layer array; CubeArray stores arrayLength in cubes.
+- **Each plane/layer/face is a full standalone-2D twiddle (§1.1) — NOT nextpow2-padded.** ⚠ **CORRECTION
+  (EXP-M4-07, HW-validated at bpp1/2/4/8/16, A18-confirmed):** the per-plane layout uses the **bpp-dependent
+  tile edge `T` and the `G` page-granule column rule of §1.1**, and each plane is padded to a **whole number
+  of tiles** (`padW = round_up(ceil(W/T),G)·T`, `padH = ceil(H/T)·T`) — **not** to the next power of two.
+  The earlier "pow2-padded" wording was a pre-RT-9 artifact (EXP-0028 probed only bpp4 at ≤16-px dims where
+  nextpow2 = tile-multiple). Planes are **linear-stacked** with `planeStride = padW·padH·bpp`:
+  ```
+  offset(x,y,plane) = plane·(padW·padH) · bpp  +  tiledMorton(x,y,T,cols) · bpp    # cols = padW/T
+  ```
+  - **3D** = stacked 2D-Morton planes (NOT a 3D Morton); depth is linear/unpadded (`plane = z`). Refuted at
+    bpp1 320³-plane: padW=**384** (not nextpow2 512); bpp8 160: padW=**192** (not 256).
+  - **2DArray** = `plane = layer`. **Cube** = 6-layer array (`plane = face`). **CubeArray** = `6·arrayLength`
+    stacked planes (`plane = cubeIndex·6 + face`); no extra per-cube padding.
+  - **BO size = numPlanes · padW · padH · bpp** exactly (planes/layers/faces contiguous).
 - **1DArray** = linear rows (1D isn't twiddled), stacked with `stride = max(nextpow2(W)·bpp, 128 B)`.
-- **MSAA sample interleave:** samples are the **lowest** address bits (sample-major per pixel):
-  `offset = (N·morton(x,y) + sample)·bytesPerSample`. HW-confirmed N=2, N=4 (**8× unsupported**); 4×
-  engages MSAA lossless compression at ≥8×8 (aux buffer, like color compression).
+- **MSAA sample interleave (2DMS):** samples are the **lowest** address bits (sample-**minor** per pixel):
+  `offset = (N·tiledMorton(x,y,T,cols) + sample)·bpp`, `bpp` = bytes per sample. ⚠ **REFINEMENT (EXP-M4-07):
+  the pixel-tile edge `T` follows the PER-PIXEL footprint `bpp·N`, not `bpp`** — i.e. use `T = largest 2^k
+  with T²·(bpp·N) ≤ 16 KiB` and `G = 16KiB/(T²·bpp·N)`. So MSAA **shrinks the Morton tile**: r32 (bpp4)
+  1×→T=64 but 2× and 4×→**T=32** (HW-decisive: at 192², T=64 mismatches, T=32 is 0-mismatch). BO size
+  `= padW·padH·N·bpp + aux` confirmed across bpp1/2/4/8/16. **N ∈ {2,4} only — 8× is Metal-rejected**
+  (`supportsTextureSampleCount:8` = 0, device-level; descriptor creation asserts). **Both 2× and 4× engage
+  MSAA lossless compression aux** at ≥8×8 (aux grows with N; bpp4 192²: 0x1000 at 2× / 0x2000 at 4× — the
+  exact per-sample MSAA aux ratio is not fully pinned). Interleave HW-proven on r32(bpp4), A18-confirmed;
+  other bpp are size-consistent (narrow/wide-integer MSAA raw content is capture-limited).
 
 ---
 
@@ -121,17 +160,32 @@ twiddled one in §1.
 
 Mip levels are packed **consecutively after the base**, each an **independent tile-padded Morton
 plane** (§1 applied at that level's dimensions, using the same `padDim(d,T)` as §1.4 — multiple-of-T,
-NOT `nextpow2`; RT-9). Level *L* size = `padDim(W>>L) · padDim(H>>L) · bytesPerPixel`, floored to a
-**0x80-byte minimum slot** for tiny levels.
+NOT `nextpow2`; RT-9). Level *L* slot = `padDim(W>>L) · padDim(H>>L) · bpp`, floored to a
+**0x80-byte minimum slot** for tiny levels. **HW-validated at bpp1/2/4/8/16** (EXP-M4-07), incl. the
+0x80 floor at bpp16.
+
+⚠ **CORRECTION (EXP-M4-07, A18-confirmed): the small-mip TAIL is 0x8000-aligned.** The naive running
+sum below is off by one 16-KiB page for non-power-of-two bases. The exact rule: the **tail** — the run
+of levels beginning at the **first level whose slot ≤ 0x8000** (2 pages / 32 KiB) — **starts at an offset
+aligned UP to 0x8000**. Levels before the tail are packed tightly from 0; tail levels packed tightly from
+the aligned start.
 
 ```
-offset(L) = Σ_{i < L}  max( padDim(W>>i,T) · padDim(H>>i,T) · bpp , 0x80 )   # aligned; base = level 0
+slot(L)   = max( padDim(W>>L,T)·padDim(H>>L,T)·bpp , 0x80 )
+t         = min L with slot(L) ≤ 0x8000                      # first tail level
+offset(L) = Σ_{i<L} slot(i)                        for L < t
+          = align_up( Σ_{i<t} slot(i), 0x8000 ) + Σ_{t≤i<L} slot(i)   for L ≥ t
 ```
-(RT-9: a 384² mip chain allocates 0xcd600 — impossible under the old `nextpow2` rule, where level 0 alone
-would be 0x100000.)
+- **Pow2-square bases** are already 0x8000-aligned at the tail → no gap. **Non-pow2 bases insert one
+  extra 16-KiB page** (zero-filled) at the tail boundary. This is why a **384² r32 chain = 0xcd600** (not
+  the `Σ slot` value 0xc9600): the tail (L3, 48²) is aligned from 0xc4000 up to 0xc8000. HW-validated
+  0-mismatch at bpp1(320²)/bpp2(320²)/bpp4(192²,384²)/bpp8(160²)/bpp16(96²) and pow2 128²/256²/64².
+- **Non-square mip chains** (W≠H): allocation total confirmed, but per-level *addressing* of sub-tile
+  levels (padDim<T) follows the §1.1 narrow interleave-append — not separately re-verified here; a driver
+  applies §1.1 to each level. Non-square totals may differ by one 0x80 slot.
 
-Validated (128×128 r32uint): L0@0x0, L1@0x10000, L2@0x14000, L3@0x15000, L4@0x15400, L5@0x15500,
-L6@0x15580, L7@0x15600. 96×96 confirms per-level pow2 padding (L0 uses a full 128×128 slot).
+Validated (128×128 r32uint, pow2, no tail gap): L0@0x0, L1@0x10000, L2@0x14000, L3@0x15000, L4@0x15400,
+L5@0x15500, L6@0x15580, L7@0x15600.
 
 **Descriptor bits (mipmapped):** `word1 bit26 = 1` (mipmapped); `word3 bit31 = 1`;
 `mipCount−1 = word5 bits[16:19]` (byte +0x16).
@@ -147,7 +201,13 @@ The GPU applies transparent lossless compression to eligible textures, backed by
 Compression aux is present iff:
 
 > **the texture has NO ShaderWrite/PixelFormatView usage**
-> **AND actual W ≥ 16 AND H ≥ 16 texels** (per-dimension, on *unpadded* dims, in **texels independent of bpp** — EXP-O2G: 15×15 no, 17×17 yes, 16×15/32×8 no; r8 16×16 yes / rgba16f 8×8 no).
+> **AND actual W ≥ 16 AND H ≥ 16 texels** (per-dimension, on *unpadded* dims).
+
+The `W≥16 ∧ H≥16` threshold is **bpp-independent AND format-family-independent** — ✅ **HW-validated
+(EXP-M4-07, A18-confirmed)** with the identical boundary (15→no, **16→yes**, 17→yes, 16×15→no, 8×32→no,
+8×8→no, 64→yes) for float bpp1/2/8/16 (r8unorm, r16f, rgba16f, rgba32f), integer (r32uint, rgba8uint),
+**and** packed (rgb10a2, rg11b10). Compression engages for all these families (unorm/float/uint/packed).
+The aux flag/buffer is allocated at texture **creation** (no render required).
 
 A **ShaderWrite** (read-write image) OR **PixelFormatView** texture is **never** compressed (EXP-O2B), at any size — its layout is the
 plain uncompressed twiddle of §1. (This is why writable images and staging paths see raw Morton.)
@@ -162,13 +222,22 @@ plain uncompressed twiddle of §1. (This is why writable images and staging path
 (`word1 bit26` / `word5[16:19]` remain the mip fields from §3; they coexist with the compression
 fields in disjoint bit ranges.)
 
-### 4.3 Aux buffer placement and size
+### 4.3 Aux buffer placement and size — ⚠ CORRECTED (EXP-M4-07, memory-safety)
 - **Location:** immediately after the main image, in the **same allocation**:
-  `secondaryVA = baseVA + paddedImageBytes`.
-- **Size:** `aux_bytes = image_bytes / 128` = **1 state byte per 8×4-texel block** (32 texels =
-  128 bytes at rgba8). The main image keeps its full uncompressed footprint (compression saves
-  bandwidth, not allocation).
-- **Total allocation** for a compressed texture = `paddedImageBytes + paddedImageBytes/128`.
+  `secondaryVA = baseVA + paddedImageBytes` (HW-validated to the byte at bpp4/8/16).
+- **Size (THE rule — bpp-independent in *texels*):**
+  > **`aux_bytes = numTexels / 32` = 1 state byte per 8×4-texel block**, i.e.
+  > **`aux_bytes = paddedImageBytes / (32·bpp)`**.
+
+  ✅ HW-validated (A18-confirmed): `aux/texels = 1/32` **exactly** at rgba8(bpp4)/rgba16f(bpp8)/rgba32f(bpp16),
+  256² and 128². In *byte* terms this is `image_bytes/128` at bpp4 but `image_bytes/256` at bpp8 and
+  `image_bytes/512` at bpp16.
+
+  ⚠ **The old `aux_bytes = image_bytes / 128` formula is WRONG for bpp≠4** — it over-counts 2× at bpp8
+  and 4× at bpp16 (measured aux = 0x800 for a 256² rgba32f, where ÷128 would give 0x2000). Use `numTexels/32`.
+  The main image keeps its full uncompressed footprint (compression saves bandwidth, not allocation).
+- **Total allocation** for a compressed texture = `paddedImageBytes + paddedImageBytes/(32·bpp)`
+  = `paddedImageBytes · (1 + 1/(32·bpp))`. (`numTexels = padW·padH` from §1.4.)
 
 ### 4.4 Aux content — per-block compression state
 Each aux byte is the compression **state/mode of one 8×4-texel block**. Aux bytes are ordered in
@@ -182,8 +251,14 @@ The **compressed block codec** (the actual bit-layout of an 8×4 block) and the 
 meaning of the state-byte values are **not decoded** — a driver can allocate and wire up
 compression (flags + aux placement/size above) but must treat block *contents* as opaque, or
 disable compression (omit ShaderWrite-less eligibility / clear the flags) to fall back to the
-plain twiddle. Compression×mipmaps interaction, non-square small-size thresholds, and 3D/array/
-cube/MSAA twiddle are untested (see `experiments/EXP-0017-tiling/RESULTS.md` §4).
+plain twiddle.
+
+Resolved since EXP-0017 (all EXP-M4-07): compression **aux size at bpp8/16** (§4.3, memory-safety),
+**eligibility threshold** bpp/format-family independence (§4.1), **3D/array/cube/MSAA twiddle** per bpp
+(§1.6), **block-compressed tiling** across block byte-sizes (§1.5), **mip packing** per bpp + tail align
+(§3), and compression×mipmaps (§5). Still open: the block codec bitstream, the exact **per-sample MSAA
+aux ratio** (aux exists at 2×/4× and grows with N, but the precise divisor is not pinned), and the
+compressed-state-byte numeric semantics.
 
 ---
 
@@ -191,6 +266,14 @@ cube/MSAA twiddle are untested (see `experiments/EXP-0017-tiling/RESULTS.md` §4
 `experiments/EXP-0017-tiling/` — `texprobe.m` (probe harness), `twiddle.py` / `mipmap.py`
 (analyzers), `raw/` (hexdumps + inferred maps). Method: HW-PROBE + DATA-TRACE + OWN-SHADER.
 Descriptor field cross-references: `../descriptors/README.md` (EXP-0015).
+
+**Coverage across the full bpp / texture-type / block-size space** (§1.5 block-tile+G rule, §1.6
+3D/array/cube/MSAA per bpp, §3 mip per bpp + tail align, §4.1 threshold breadth, §4.3 aux size):
+`experiments/EXP-M4-07-tiling-coverage/` — `typrobe2.m` (3D/array/cube/MSAA + mip, `--upload`),
+`texprobe.m` (2D + compression, extended formats), `bcprobe2.m` (17 block formats); host model-checkers
+`solve3d.py` / `solvebc.py` / `solvemip.py` / `cmpx.py` / `b27check.py`. Primary device Apple **M4**;
+every **correction** cross-confirmed on the **A18 Pro** (`raw/til_a18_verify.txt` — tiling-identical).
+Method: HW-PROBE + OWN-SHADER + DATA-TRACE; no Apple binary disassembled.
 
 ## 5. Compression × mipmaps (EXP-O2G)
 A mipmapped compressible texture gets **one contiguous aux buffer covering ALL mip levels**, placed after the full mip
