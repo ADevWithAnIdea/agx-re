@@ -698,10 +698,11 @@
 
 ### `icmp_pred` — integer compare -> execution predicate
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x0a  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xa  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
+| `dst` | [4:8] | raw/unmapped |  |
 | `sub` | [8:24] (byte+1) | raw/unmapped |  |
 | `imm` | [24:32] (byte+3) | immediate |  |
 | `tail` | [32:48] (byte+4) | raw/unmapped |  |

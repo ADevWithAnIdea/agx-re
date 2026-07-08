@@ -249,12 +249,16 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   |---|---|---|---|
   | `0x1e,0x2e,0x3e, 0x26,0x36` | 6 | iminmax (min/max/median/clamp) | i_max, mm3 |
   | `0x35` | 6 | `carry_gen` (u64 add carry-out) | l_add |
+  | `0x3d` | 6 | fcmp→predicate (feeds a psel) | k_int_arith `42 0d 3d` (EXP-M4-01 r2) |
+  | `0x23` | 6 | SFU polynomial fma (exp/log/pow Horner step, feeds a sel) | k_transcend `42 81 23` (EXP-M4-01 r2) |
   | `0x1d,0x2d` | 14 | icmpsel (compare → 0/1 const-select) | i_cmp |
-  | `0x27`, byte+3`==0x80` | 10 | coordinate / integer-madd | s_div, s_mod |
+  | `0x27`/`0x2f`, byte+3`==0x80`, **byte+4 bit1 (0x02) set** | 10 | coordinate / integer-madd `dst=a*b+c`, WIDE srcC (+ trailing 16-bit operand word) | s_div, k_int64@230 |
+  | `0x27`/`0x2f`, byte+3`==0x80`, **byte+4 bit1 clear** | 8 | same madd, narrow srcC | k_cf_switch@78, k_int_bitcount@72/@98 (EXP-M4-01 r2) |
   | `0x27`, byte+3`==0x81`&byte+4`==0x22` | 10 | `rt_transform_test` | (EXP-O2C) |
-  | `0x27`, else | 8 | quotient / wide-select | u_div, k_cf_if |
+  | `0x27`, else | 8 | quotient / wide-select (incl. dst `0x22`) | u_div, k_cf_if |
   | lo-nibble `7`/`f` or `0x25`, byte+3 a reg-descriptor (hi-nibble 0/8, lo≠4) | 10 | register-operand cmpsel / select | i_selreg, l_cmp |
   | byte+1`==0xc2`, tail `.. 80 08` | 8 | transcendental range-reduction select | t_sin |
+  | byte+2 **> 0x3f** (not a valid op-select) | — | NOT this op: greedy `→6` was gated off (EXP-M4-01 r2) so a compact op / resync landing is not mis-lengthed and does not eat the following op | k_transcend, k_tex_array_cube |
 
   (A predicate-producing compare that feeds a *separate* `0x05` psel keeps the 6-byte form — its
   byte+3 low-nibble is `4`, e.g. gsel4/dsel5 `02 03 07 84`.) All lengths are fixed by **anchored
@@ -276,6 +280,50 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   regression**; the residue is concentrated in `k_tex_atomic` (interleaved variable-length `0x0f`
   control-flow mask ops — a documented follow-up — plus texture-atomic ops) and the remaining
   transcendental range-reduction helpers.
+
+- **✅ EXP-M4-01 (round 2) — the census residue was GENUINE instruction gaps, not `0x0f` CF.**
+  Round 1 left the `0x0f` execution-mask family flagged as an unresolved variable-length follow-up.
+  **That was stale:** `instr_length` already lengths every `0x0f` sub-op (`00`/`01` jump 10B, `04`
+  mask_op 4B, `05` if_push 4B / direct-CALL 14B, `06` pop_reconverge 6B, `80` computed-branch 6B),
+  and the whole-corpus walk decodes all 67 `0x0f` occurrences in-sequence. The real residue was a set
+  of genuinely-missing ops and length-polymorphism bugs, now closed:
+  - **`icmp_pred` is a dst-register family (byte0 LOW nibble `0xa`, HIGH nibble = predicate reg).**
+    HW-VALIDATED by splice (`k_iso_icmp2`, a loop with `break`/`continue`): splicing a loop-guard
+    compare byte0 `0x2a→0x0a` moved its predicate p2→p0 (out `4,25,110,110`→`133,25,133,133`) and
+    `0x2a→0x4a` moved it p2→p4 (`→4,389,9989`), both `STATUS OK` — i.e. the high nibble selects the
+    destination predicate register, exactly like the `0x?2` sibling. The old `b0==0x0a` rule left every
+    `0x1a/0x2a/0x3a/0x9a/0xca` UNDECODED (the dominant `k_tex_atomic`/`k_uint_arith`/`k_int64` desync).
+    6 bytes; byte+2 is the compare op-select (`0x22/23/25/2b/35/39/3a`, all `≤ 0x3f`).
+  - **madd length is keyed on byte+4 bit1, for byte+2 `0x27` AND `0x2f`** (see table above): the
+    srcC descriptor's bit1 (`0x02`) selects a wide srcC carrying a trailing 16-bit operand word (10B)
+    vs narrow (8B). Separates every corpus occurrence cleanly and now applies to dst `0x22` too (the
+    old `0x22` baseline forced 10 and ate the following op, exposing a spurious `0x54` group).
+  - **`0xa7` byte+1`==0x17` is an 8-byte convert** (sibling of the `0x07` int→float; k_cvt_fi/k_cvt_half),
+    not the 10-byte `ashr`; the old odd→10 rule ate the following `a7 07` cvt.
+  - **Extended-source vertex fma (byte0 lo-nibble 9, byte+2 `0x26`/`0x2e`, byte+4`==0x82`, byte+6/+7
+    `42 02`) is 10 bytes** with a trailing `00 <slot>` varying/output-slot word (every VS: r_basic_v/
+    r_deriv_v/r_tex_v). Fixing it took **render:vertex to 100%** on the A18 corpus.
+  - **Fragment derivative (`37 xx 54`, 10B) vs COMPUTE texture-gradient (`37 xx 80`, 8B)** disambiguated
+    on byte+2; the 8B compute form is followed by a 12-byte `27 00 54 .. f0 13 01 00` ibfe in the
+    software texture-coordinate atomic path.
+  - **COMPUTE scoreboard-fence high-scope variants** `87 02 00 00` / `80 02 00 00` (4B, byte0 = `0x07`
+    fence with the high bit set; gate the full form on byte+2`==0x00` so a bare `80 02`/`87 02` before a
+    CF op is not mis-lengthed). Plus the compact ops `18 00`, `2b 35`/`0b 35` (texture coord/LOD
+    selector before `37 xx 80`), `00 8c`, `80 04` (2B compact moves), and the `0x?b` shift/rotate
+    compact `?b .. {1c,3c} <amt>` (4B).
+  - **Greedy `02`/`0a` gate:** `b0==0x02`/lo-nibble-`0xa` now return 6 **only when byte+2 ≤ 0x3f** (a
+    real op-select); a byte+2 > 0x3f means it is a compact op / resync landing, so the op no longer
+    greedily eats the following `fspecial`/`coord_madf` (k_transcend, k_tex_array_cube).
+
+  **Net (M4 own-shader census):** distinct UNDECODED byte0 groups **19 → 12**, byte coverage
+  **93.4% → 96.4%**, cleanly-tokenized tokens **91.4% → 95.2%**, resync regions **101 → 57**, still
+  **0 per-kernel regression** (all 23 previously-100% kernels stay 100%, 9 more reach 100%). A18
+  cross-check (same ISA): **93.2% → 96.0%**, groups **20 → 13**, regions **112 → 70**. `roundtrip_test`
+  stays **GREEN**. The remaining ≈57 regions are a *characterized* long tail — dense-code compact
+  2-byte helper ops (`00 8c`-class), the `0x54` texture-address/imageblock op family (variable
+  4/6/8/10-byte, byte+2`==0x03`), threadgroup-memory atomic ops (`k_atomics_tg`: `0b 00 06`, `54 .. 44`),
+  cube-array coordinate math (`k_tex_array_cube`), and low-frequency SFU polynomial helpers
+  (`k_transcend`) — each a named op needing per-op HW isolation, **not** a resync-cascade artifact.
 
 ### ✅ Control flow, predication & program structure (EXP-0010)
 - **Preamble = get-special-register** (`get_sr`, byte0 low-nibble `0xC`, 4B): materializes special

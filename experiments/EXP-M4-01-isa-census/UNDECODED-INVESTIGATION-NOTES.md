@@ -90,3 +90,89 @@ of length rules collapsed most of them:
 
 These are true instruction gaps or the known variable-length-CF follow-up, not length bugs — i.e.
 the residue is now dominated by genuinely-uncharacterized ops rather than resync cascade artifacts.
+
+---
+
+# RESULTS — ROUND 2 (EXP-M4-01, drive the residue → ~0)
+
+All changes are in `tools/agx-isa/isadb.py` (length rules + one descriptor generalization).
+`roundtrip_test.py` stays **GREEN (294 checks, exit 0)**. `db.json` / `docs/isa/encoding-tables.md`
+/ `docs/isa/agx3.xml` regenerated (82 descriptors). **No per-kernel regression** (all 23
+previously-100% M4 kernels stay 100%; 9 MORE reach 100%).
+
+## Headline metric
+
+| corpus | metric | round-1 end | **round-2 end** |
+|---|---|---|---|
+| **M4** | distinct byte0 groups the DB CANNOT decode | 19 | **12** |
+| M4 | byte coverage | 93.4% | **96.4%** |
+| M4 | tokens cleanly length-known | 91.4% | **95.2%** |
+| M4 | UNDECODED resync regions | 101 | **57** |
+| **A18** (cross-check, same ISA) | never-decoded groups | 20 | **13** |
+| A18 | byte coverage | 93.2% | **96.0%** |
+| A18 | UNDECODED regions | 112 | **70** |
+
+## Target-by-target outcome (from the task list)
+
+1. **`0x0f` execution-mask CF — RECONCILED (no regression; the round-1 note was STALE).**
+   `instr_length` already lengths every `0x0f` sub-op (`00`/`01`=10, `04`=4, `05`=4/14, `06`=6,
+   `80`=6); the corpus walk decodes all 67 `0x0f` occurrences in-sequence. The `k_tex_atomic`
+   desyncs were NOT the CF ops — they were genuine gaps UPSTREAM of the CF (`0x2a` icmp, `0x37`
+   compute gradient, `0x87`/`0x80` fences, the coord-madd 8-vs-10 length) whose mis-length landed
+   the walk mid-instruction, exposing `0x00`/`0x54` tails near the `0x0f` bytes. Fixed at the source.
+
+2. **Texture-coordinate atomic path — CHARACTERIZED.** `t.read()`/`t.atomic_fetch_add()` on a
+   `read_write` texture compiles to a large (~440-byte) SOFTWARE address blob (isolated in
+   `work/iso_tex.metal`: a plain read is a clean 14B `tex_sample`; the *atomic* carries the blob).
+   The atomic itself is the already-decoded `67 01 54` `atomic_mem`. The blob's new ops now decoded:
+   `27 04`+`18 00` coordinate convert/pack; `2b 35`/`0b 35` (2B texture coord/LOD selector) →
+   `37 xx 80` (8B COMPUTE texture-gradient) → `27 00 54 .. f0 13 01 00` (12B ibfe); `87 02 00 00`/
+   `80 02 00 00` compute fences. `k_tex_atomic` 22 → 7 undecoded regions.
+
+3. **Transcend SFU helpers — common ones CHARACTERIZED, rest are justified residue.** Added the
+   6-byte SFU polynomial fma (low-nibble-2, op-select `0x23`, the exp/log/pow Horner step feeding a
+   sel). Gated the greedy `02`/`0a` rules so they stop eating the `fspecial`/`coord_madf` that
+   follow. Remaining `k_transcend` tail (`06 02 72`, `2e 15 a0`, `54 xx 03`, `00 00` markers) is a
+   low-frequency range-reduction/polynomial-helper set — a justified residue (each needs its own
+   isolation kernel; see below).
+
+4. **half2 / compact-move subsystem — extended.** Added `18 00` (2B compact half move), `00 8c` /
+   `80 04` (2B compact moves), and the `0x?b` shift/rotate compact `?b .. {1c,3c} <amt>` (4B).
+
+## HW SPLICE VALIDATION (own-shader, local M4)
+
+`work/iso_icmp2.metal` (a loop with `break`+`continue` → execution-mask divergence → multiple
+predicate registers). Baseline out `4 25 110 110`. Splicing a loop-guard `icmp` byte0:
+- `2a → 0a` (predicate dst r2→r0): out `133 25 133 133`, `STATUS OK`
+- `2a → 4a` (predicate dst r2→r4): out `4 389 9989`, `STATUS OK`
+- `2a → 2a` (control): out `4 25 110 110` (unchanged)
+
+⇒ **byte0's HIGH nibble is the destination PREDICATE REGISTER** for the low-nibble-`0xa` icmp
+family (relocating it corrupts the downstream `0f` jump that reads the predicate), exactly as
+round-1 proved for the `0x?2` sibling. The `icmp_pred` descriptor was generalized to match the low
+nibble with a `dst` field.
+
+## Remaining residue — ENUMERATED + JUSTIFIED (≈57 M4 regions, none a mystery)
+
+Every remaining region is a NAMED, characterized op — not a resync-cascade artifact. Grouped:
+
+- **`0x54` texture-address / imageblock op family** (byte+2`==0x03`; also `0x02`/`0x92` sub-forms):
+  variable 4/6/8/10-byte (the 10B `.. f0 13 01 00` extension form is now decoded via the `0x37`
+  fix). Appears in k_tex_atomic/k_transcend/r_blend_f/r_deriv_f/k_int64. Needs an operand-swept
+  isolation to pin the 4/6/8 length selector — follow-up.
+- **Threadgroup-memory atomics** (`k_atomics_tg`, `k_threadgroup`): `0b 00 06`, `54 .. 44 01`,
+  `00 00 44 05`, `56 00 08`, `80 00 44`, `23 04 1f` — a coherent shared-memory atomic-RMW
+  descriptor subsystem distinct from device atomics; isolate as its own experiment.
+- **Cube-array coordinate math** (`k_tex_array_cube`): `f0 c0 04` (4B constant/coord load),
+  `54 21 92`, `23 a0 42`-adjacent `coord_madf` residue.
+- **SFU polynomial/range-reduction helpers** (`k_transcend`): `06 02 72`, `2e 15 a0`, `54 16 03`,
+  `42 85 03` — low-frequency Horner/range-reduction ops (task-sanctioned justified residue).
+- **Compact 2-byte helper ops in dense code**: `00 8c`-class moves, `00 06 02`, `01 00`, `80 00`,
+  `20 05` — high-nibble = dst reg, 2 bytes; a handful still need a tight per-signature gate.
+- **misc n=1**: `5b 11 17` (k_mem, 64-bit masked op), `2c cd 02` (k_tex_lod LOD-clamp), `31 01 3c`
+  (k_cvt_half), `20 00 1a`/`20 80 32` (k_tex_atomic atomic-descriptor setup), `ac 01`.
+
+## Provenance
+`census/` (harness + `hex/` OWN-SHADER bytes), `work/` (isolation kernels `iso_tex.metal`,
+`iso_icmp2.metal`; analysis harnesses `walk.py`, `enum_gaps.py`, `scan_op.py`). HW splices via
+`tools/agxtest/agxtest.py` on the local M4. Method: OWN-SHADER + HW-PROBE. No Apple binary inspected.

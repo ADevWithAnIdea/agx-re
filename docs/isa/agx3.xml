@@ -598,7 +598,9 @@
   <!-- icmp_pred: predicate = (srcA cond imm/srcB) -->
   <!-- provenance: HW-VALIDATED (EXP-0010 E2): byte+3 immediate moves the active-lane boundary; byte0 0x0a->0x02 inverts the condition (splice-and-observe). -->
   <ins name="icmp_pred" length="6" label="predicate = (srcA cond imm/srcB)">
-    <exact bit="0:7">00001010</exact>
+    <exact bit="0:3">1010</exact>
+    <!-- dst [4:7]: inferred / not yet bit-decoded -->
+    <zero bit="4:7"/>
     <!-- sub [8:23]: inferred / not yet bit-decoded -->
     <zero bit="8:23"/>
     <immediate name="imm" bit="24:31"/>
