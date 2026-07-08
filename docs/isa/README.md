@@ -219,11 +219,10 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
 |---|---|---|---|---|
 | `0x9f`/`0x1f` | 10 | iadd / isub | `b0 bit7` = **add(1,`0x9f`) / sub(0,`0x1f`)** | ✅ HW (RT-1a-FIX) |
 | `0x9f`/`0x1f` | 12 | imul / imad | 3-source multiply-add (imul = imad, c=0) | ✅ HW (behaviour) |
-| `0x02` | 6 | imin/imax/umin/umax | `b4[0:3]`: bit0 min/max, bit1 signed/uns, bit2 int | ✅ HW |
+| `0x?2` (lo-nibble 2) | 6/8/10/14 | imin/imax/umin/umax, compare→select, carry, coord/madd | **byte0 hi-nibble = dst reg**; length keyed on byte+2 op-select (see below) | ✅ HW |
 | `0x0b` | 10 | iand/ior/ixor | `b2[0:4]` + `b4/b5` src-invert | ⏳ toggle/byte-diff |
-| `0x12` | 14 | compare → select 0/1 | `b4` cond, `b6` sign | ⏳ byte-diff |
 | `0xa7` | 10/12 | shift-right / bitfield-extract | multi-instr for reg shifts | ⏳ byte-diff |
-| `0x27` | 8 | popcount / unary | — | ⏳ byte-diff |
+| `0x27` | 8/10/12 | popcount / unary / convert / shift-prep / matrix-load-prep | byte+1 form (`0x02`=12B matrix prep) | ⏳ byte-diff |
 
 - **Integer length rule:** for `0x9f`/`0x1f`/`0xa7`, the 10-vs-12-byte selector is **byte +1 bit 0**
   (contrast the float group's byte +2 bit 1). Tokenizes all 26 integer shaders with 0 leftover.
@@ -234,6 +233,49 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   for K∈{0..255}; ≥256/negative materialize to a register. **Not** the float minifloat encoding.
 - Note: a load/store opcode-keying bug was fixed here (`0x67`/`0xe7` exact, was low-nibble `0x7`
   which collided with `0xa7`/`0x27`).
+
+- **✅ The `0x?2` (low-nibble-2) INTEGER COMPARE / MIN-MAX / SELECT / CARRY group is ONE family
+  whose byte0 HIGH nibble is the DESTINATION register (r0..r15)** — exactly like the low-nibble-9
+  float ALU (EXP-M4-01, M4/A18 census). **HW-VALIDATED:** on `o=max(a,b)` (a single `02 01 1e 05 06 c0`
+  iminmax writing r0, then stored), splicing byte0 `0x02→0x12` (dst r1) or `0x02→0x42` (dst r4) makes
+  the result land in a different register while the store still reads r0 ⇒ output flips `10,20,…,80`→
+  all-zeros, and the dispatch runs `STATUS OK` (so `0x12`/`0x42` are *valid* encodings, not faults).
+  The DB previously hard-coded only dst r0..r3 (`0x02`/`0x12`/`0x22`/`0x32`) and left every
+  higher-register form (`0x42,0x52,0x62,0x72,0x82,0x92,0xa2,0xb2,0xc2,0xd2,…`) UNDECODED — the single
+  largest source of census resync cascades. The op and length are selected by the **byte+2 op-select**
+  (every op-select is `≤ 0x3f`; a larger byte+2 is an operand tail, so it is never mis-lengthed):
+
+  | byte+2 op-select | len | operation | evidence (anchored gap) |
+  |---|---|---|---|
+  | `0x1e,0x2e,0x3e, 0x26,0x36` | 6 | iminmax (min/max/median/clamp) | i_max, mm3 |
+  | `0x35` | 6 | `carry_gen` (u64 add carry-out) | l_add |
+  | `0x1d,0x2d` | 14 | icmpsel (compare → 0/1 const-select) | i_cmp |
+  | `0x27`, byte+3`==0x80` | 10 | coordinate / integer-madd | s_div, s_mod |
+  | `0x27`, byte+3`==0x81`&byte+4`==0x22` | 10 | `rt_transform_test` | (EXP-O2C) |
+  | `0x27`, else | 8 | quotient / wide-select | u_div, k_cf_if |
+  | lo-nibble `7`/`f` or `0x25`, byte+3 a reg-descriptor (hi-nibble 0/8, lo≠4) | 10 | register-operand cmpsel / select | i_selreg, l_cmp |
+  | byte+1`==0xc2`, tail `.. 80 08` | 8 | transcendental range-reduction select | t_sin |
+
+  (A predicate-producing compare that feeds a *separate* `0x05` psel keeps the 6-byte form — its
+  byte+3 low-nibble is `4`, e.g. gsel4/dsel5 `02 03 07 84`.) All lengths are fixed by **anchored
+  segmentation**: the gap between two high-confidence anchors (get_sr / load / store / cvt / iadd /
+  imad / stop) equals the sum of the enclosed op lengths.
+
+- **Compact 4-byte float ALU (byte0 low-nibble 9, byte+2 arith-enable bit `0x04` clear):** the
+  division/sqrt refinement emits a 4-byte accumulate/move form; byte+2 ∈ `{0x18,0x38,0x19,0x21,0x31}`
+  (extends the EXP-0025 `0x18/0x38` set). Confirmed by anchored `cvt..cvt` gaps (s_div@136 `79 8d 21 97`,
+  t_sqrt@28 `09 05 19 01`).
+
+- **Other length-rule fixes closing census gaps (EXP-M4-01):** `0x27` byte+1`==0x02` is a **12-byte
+  matrix-load-prep** form (k_matrix; the old rule dropped it to 8B and exposed the tail as a spurious
+  `0xf0` group); byte0 `0x2c`/byte+1`==0x0c` is a **4-byte compact move** (s_div); the low-nibble-3
+  group with byte+2`==0x27` is a distinct **10-byte** op (`33 8a 27 bf …`, transcend/tex); byte0
+  low-nibble-0/8 with byte+2`==0x24` is the **6-byte packed-half2 ALU** (k_half2_pack, distinct from the
+  `0x10` scalar native-half ALU and the `0x18` half_pack). Net effect on the M4 own-shader census:
+  distinct UNDECODED byte0 groups **28 → 19**, byte coverage **91.5% → 93.4%**, with **no per-kernel
+  regression**; the residue is concentrated in `k_tex_atomic` (interleaved variable-length `0x0f`
+  control-flow mask ops — a documented follow-up — plus texture-atomic ops) and the remaining
+  transcendental range-reduction helpers.
 
 ### ✅ Control flow, predication & program structure (EXP-0010)
 - **Preamble = get-special-register** (`get_sr`, byte0 low-nibble `0xC`, 4B): materializes special

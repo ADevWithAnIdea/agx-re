@@ -228,8 +228,12 @@ def instr_length(buf, off=0):
         # length selector is byte+4 bit1, not byte+2 bit1. 0x18/0x38 = 4-byte compact
         # accumulate. Everything else keeps the HW-validated fadd/fmul/fma rule.
         b2 = buf[off + 2] if off + 2 < len(buf) else -1
-        if b2 in (0x18, 0x38):
-            return 4                   # compact float accumulate (EXP-0025 / EXP-0037)
+        if b2 in (0x18, 0x38, 0x19, 0x21, 0x31):
+            return 4                   # compact float accumulate/move (arith-enable bit clear).
+                                       # EXP-M4-01: 0x19 (t_sqrt@28 `09 05 19 01`), 0x21/0x31 (s_div@136
+                                       # `79 8d 21 97`/@244) join the EXP-0025 0x18/0x38 forms -- all are
+                                       # the 4-byte low-nibble-9 form the div/sqrt refinement emits between
+                                       # cvt anchors (anchored gap length = 4).
         if b2 in (0x26, 0x2e):
             return 8 if (off + 4 < len(buf) and (buf[off + 4] & 0x02)) else 6  # fused mul / mul-add coord op (EXP-0037)
         return 8 if (b2 & 0x02) else 6
@@ -264,6 +268,57 @@ def instr_length(buf, off=0):
                                        # (`6b 00 80 00`, const-origin float3(0,0,0)). Also reused (35-38x)
                                        # to marshal MPP matmul2d TRANSPOSE tile data.
         return LEN_UNKNOWN             # other uncharacterized 0xNb compact form
+    # ---- INTEGER COMPARE / MIN-MAX / SELECT / CARRY group (byte0 low-nibble 2) ----
+    # EXP-M4-01 (M4/A18 census): this is ONE group whose byte0 HIGH nibble is the
+    # DESTINATION register (r0..r15), exactly like the low-nibble-9 float ALU. The
+    # DB previously hard-coded only dst r0..r3 (0x02/0x12/0x22/0x32) and left every
+    # higher-register form (0x42,0x52,0x62,0x72,0x82,0x92,0xa2,0xb2,0xc2,0xd2,...)
+    # UNDECODED -- the dominant source of census resync cascades. The op & length are
+    # selected by the byte+2 op-select (all op-selects are <= 0x3f; a larger byte+2 is
+    # an operand tail, not a real op). Lengths confirmed by anchored gaps (cvt/iadd/
+    # imad/store brackets) in i_max/i_cmp/mm3/l_add/l_cmp/i_selreg/u_div/s_div/s_mod:
+    #   byte+2 in {0x1e,0x2e,0x3e, 0x26,0x36, 0x35} -> 6   iminmax / carry_gen
+    #   byte+2 in {0x1d,0x2d}                       -> 14  icmpsel (select 0/1 const)
+    #   byte+2 == 0x27, byte+3==0x80 (reg operand)  -> 10  coord/madd
+    #             ..   byte+3==0x81 & byte+4==0x22  -> 10  rt_transform_test (EXP-O2C)
+    #             ..   else                         -> 8   quotient/wide-select
+    #   byte+2 low-nibble {7,f} or 0x25, byte+3 hi-nibble 0/8 (reg descriptor) -> 10
+    #                                                      register-operand cmpsel/select
+    #   byte+1 == 0xc2, tail `.. 80 08`             -> 8   transcend range-reduction sel
+    # Unrecognized op-selects fall back to the ORIGINAL per-dst-reg behavior so tails
+    # and unhandled forms never get a wrong length (never regresses vs the old rules).
+    if (b0 & 0x0f) == 0x02:
+        b1 = buf[off + 1] if off + 1 < len(buf) else -1
+        b2 = buf[off + 2] if off + 2 < len(buf) else -1
+        b3 = buf[off + 3] if off + 3 < len(buf) else -1
+        b4 = buf[off + 4] if off + 4 < len(buf) else -1
+        if b1 == 0xc2 and (buf[off+6] if off+6 < len(buf) else -1) == 0x80 \
+                      and (buf[off+7] if off+7 < len(buf) else -1) == 0x08:
+            return 8                   # transcendental range-reduction select (t_sin@24)
+        if 0 <= b2 <= 0x3f:
+            ln = b2 & 0x0f
+            if b2 in (0x1e, 0x2e, 0x3e, 0x26, 0x36, 0x35):
+                return 6               # iminmax / carry_gen
+            if b2 in (0x1d, 0x2d):
+                return 14              # icmpsel (compare -> 0/1)
+            if b0 != 0x22:             # 0x22 keeps its baseline for the ambiguous forms
+                if b2 == 0x27:
+                    if b3 == 0x80 or (b3 == 0x81 and b4 == 0x22):
+                        return 10      # coord/madd | rt_transform_test
+                    return 8           # quotient / wide-select
+                if (ln in (0x07, 0x0f) or b2 == 0x25) and (b3 & 0xf0) in (0x00, 0x80) \
+                        and (b3 & 0x0f) != 0x04:
+                    return 10          # register-operand cmpsel / select. byte+3 is the
+                                       # 2nd-source register descriptor (hi-nibble 0/8, e.g.
+                                       # 0x80/0x83/0x87/0x07). A predicate-producing compare
+                                       # that feeds a SEPARATE 0x05 psel (gsel4/dsel5: byte+3
+                                       # low-nibble 4, e.g. 0x84) is the 6-byte form below.
+        # fall back to the original per-dst-reg rules (dst r0..r3 forms):
+        if b0 == 0x02: return 6
+        if b0 == 0x12: return 14 if (b2 & 0x0f) == 0x0d else 6
+        if b0 == 0x22: return 6 if (b2 & 0x0f) == 0x0e or b2 == 0x35 else 10
+        if b0 == 0x32: return 6
+        return LEN_UNKNOWN             # new high-nibble dst, unrecognized op-select
     # ---- integer ALU family (EXP-0007, HW-validated by clean tokenization + splice) ----
     # Integer arithmetic is byte0 0x9f/0x1f (iadd/isub, bit7=srcA-negate) and 0xa7
     # (shift-right / bitfield-extract).  Within these groups the length is 10 bytes
@@ -297,8 +352,12 @@ def instr_length(buf, off=0):
             return 10                  # float -> int convert (EXP-0013 HW)
         if b1v == 0x01:
             return 12                  # ROTATE-by-immediate funnel shift (EXP-0033 HW)
-        if b1v in (0x00, 0x10):
-            return 12                  # bitfield-extract / shift-prep stage
+        if b1v in (0x00, 0x02, 0x10):
+            return 12                  # bitfield-extract / shift-prep / matrix-load prep stage.
+                                       # EXP-M4-01: byte+1==0x02 is the 12-byte matrix-load prep form
+                                       # (k_matrix@58 `27 02 54 .. f0 11 01 00`, anchored iadd2..iadd2);
+                                       # the old rule dropped it to the 8-byte else-branch and exposed the
+                                       # tail `f0 11 01 00` as a spurious 0xf0 undecoded group.
         return 8                       # integer unary (popcount / reduce)
     # ---- native-half (fp16) float ALU (byte0 0x10, EXP-0033) ----
     # The 16-bit-destination sibling of the 0x09 float ALU (half/half2 arithmetic);
@@ -324,10 +383,31 @@ def instr_length(buf, off=0):
         if b1v in (0x02, 0x04):
             return 10 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 8   # bfloat add/mul (8) | fma (10)
         return 8 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 6         # legacy fallback
-    # ---- 4-byte move / zero-extend (byte0 0x13, EXP-0013) ----
-    # uint->ushort->uint (zero-extend from 16 bits) compiles to a 4-byte move here.
+    # ---- low-nibble-3 group: 4-byte move/zero-extend, or 10-byte 0x27-form -------
+    # byte0 0x13 (dst r0) zero-extend (uint->ushort->uint) is a 4-byte move (EXP-0013).
+    # EXP-M4-01: the SAME low-nibble-3 group with byte+2==0x27 is a distinct 10-byte op
+    # (k_tex_atomic@226 `33 8a 27 bf 10 02 00 00 00 00`, two anchored 10B ops; also in
+    # k_transcend). High nibble = dst reg. Gate the 10-byte form on byte+2==0x27 so the
+    # 4-byte zero-extend (byte0==0x13, byte+2 != 0x27) is unaffected.
+    if (b0 & 0x0f) == 0x03 and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x27:
+        return 10                      # low-nibble-3 0x27-form (EXP-M4-01)
     if b0 == 0x13:
         return 4
+    # ---- compact low-nibble-c move (byte0 0x2c), 4 bytes (EXP-M4-01) ------------
+    # s_div@178 `2c 0c 00 02` (anchored between a falu3 and a falu2, gap = 4). A
+    # compact move/immediate form; high nibble = dst reg. Gated on byte+1==0x0c so it
+    # never swallows the get_sr (byte+3 lo-nibble 6) or a longer 0xNc op.
+    if b0 == 0x2c and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x0c:
+        return 4
+    # ---- packed-half2 ALU (byte0 low-nibble 0/8, byte+2==0x24), 6 bytes ---------
+    # EXP-M4-01: k_half2_pack@32 `38 82 24 84 00 c8` / `30 83 24 85 00 08` (anchored
+    # 6B each between loads and the store); k_half_arith@38 `18 84 24 85 00 08`. The
+    # packed-half2 arithmetic op (distinct from the 0x10 scalar native-half ALU and
+    # from the 0x18 b1==0x05 half_pack). High nibble = dst reg. byte+2==0x24 gate keeps
+    # it off the texture sampler ops (0x30/0x90/0xb0, whose byte+2 is a texture opsel).
+    if (b0 & 0x0f) in (0x00, 0x08) and b0 != 0x00 \
+            and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x24:
+        return 6
     # ---- FLOAT SPECIAL-FUNCTION unary (byte0 0x2f / 0xaf, 10B, EXP-0013) ----
     # exp2 (0xaf), log2 (0x2f) and the round family floor/ceil/trunc/rint (0x2f, with
     # the round-mode in byte+8) are single 10-byte ops in COMPUTE. (NB: in vertex/
