@@ -25,7 +25,11 @@ marked ⏳. Source: `experiments/EXP-0021-tbdr-pipeline/`.
 
 ## MSAA — sample count & positions
 - **Sample count** in the attachment descriptor word `+0x24` (msaa2 `0x08…`, msaa4 `0x09…`; bit24 = count
-  LSB, bit27 = MSAA-store). The color descriptor relocates from `0x10000110000` into the tiler heap on **MRT≥2 OR MSAA OR memoryless** (RT-4).
+  LSB, bit27 = MSAA-store). Full RENDER/STORE-segment `+0x24` words (EXP-M4-09/CMD-7): 1× = `0x0000fc03`,
+  2× = `0x0800fc03`, 4× = `0x0900fc03`. **Only 2×/4× exist — 8× is Metal-rejected** (`supportsTextureSampleCount:`
+  1/2/4 = YES, 8/16/32 = NO; 8× hard-asserts on texture creation and returns nil+NSError on pipeline creation),
+  so no 8× stream is producible. The color descriptor relocates from `0x10000110000` into the tiler heap on
+  **MRT≥2 OR MSAA OR memoryless** (RT-4).
 - **✅ Programmable sample positions ARE userspace-emittable — CORRECTED by RT-4** (EXP-0021 wrongly said
   "byte-identical" because it diffed the wrong BOs). They are written to a **client BO** (`0x100000e8000` for 4× /
   `0x100000e0000` for 2×) at **+0x40**: an array of N `(x,y)` f32 pairs (sample n @ `+0x40 + n·8`), each coord snapped
@@ -63,6 +67,17 @@ The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte seg
   `0x6f` semantics are firmware-managed (kernel item).
 - **MSAA:** byte0 low-nibble→4 (2DMultisample), +0x24 sample count (`0x08`=2× / `0x09`=4×); **sample positions are userspace-emittable @+0x40** (1/16-grid f32 pairs; RT-4, corrects EXP-0021).
 - **MRT:** N≥2 attachments (or any MSAA) relocate the color descriptor into the tiler geometry heap `0x10000018200`,
-  arrayed as **fixed 0x20-byte per-attachment records** (LOAD @`+0x20+k·0x20`, STORE/PBE @`+0x220+k·0x20`, clear-color
-  @`+0x500+k·0x18`); per-attachment surfaces at 0x58000/0x60000/… (distinct from the 0x1000 imageblock tile-memory record).
+  arrayed as **fixed 0x20-byte per-attachment records** (LOAD @`+0x20+k·0x20`, STORE/PBE @`+0x220+k·0x20`);
+  per-attachment surfaces at 0x58000/0x60000/… (distinct from the 0x1000 imageblock tile-memory record). **The
+  0x20-byte k-stride is HW-validated to k=7 (all 8 attachments), and each record's format word is genuinely
+  per-attachment** (mixed-format MRT: each byte = `numtype<<5|sizeclass` per `../descriptors/format-table.md`) —
+  EXP-M4-09/CMD-3.
+  - **⚠ Clear-color CORRECTION (EXP-M4-09/CMD-3, A18-cross-confirmed):** the earlier claim *"clear-color @
+    `+0x500+k·0x18` inside `0x10000018200`"* was a **vertex-buffer allocator alias** — `vtxBuf` lands at
+    `0x10000018700` = `0x18200+0x500`, so reading there returns the triangle verts (`-1,-1,3,-1,-1,3`; the
+    phantom `0x18` stride was the 6-float triangle). The **real** per-attachment clear colors are a **float4
+    RGBA array at 0x10 stride** in a **separate tiler BO `0x10000128000`** at **`+0x170 + k·0x10`** (RT0 =
+    (0,0,0,1) @ `+0x170`), **mirrored at `+0x470 + k·0x10`** (0x300 apart = the LOAD/RENDER segment spacing).
+    Byte-identical on M4 and A18. The `0x18200` k·0x20 records hold LOAD/STORE descriptors only — **not** the
+    clear color.
 

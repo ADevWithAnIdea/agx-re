@@ -37,10 +37,10 @@ BO `gpu_va 0x100000b0000` is a stream of **0x2c-byte records** (one per dispatch
 
 | offset | field | notes |
 |---|---|---|
-| `+0x00` | shader config/register word | e.g. `0x00080000`→`0x00880000` for a register-heavy shader ⏳ |
+| `+0x00` | config word: bit19 (`0x00080000`) always set + **bit23 = occupancy/register tier** | `0x00080000`↔`0x00880000` — a **2-tier boolean**, not a counter (see the corrected occupancy note below; EXP-M4-09/CMD-8) |
 | `+0x08` | **shader-code pointer = shaderVA >> 6** | 64-byte units. HW-confirmed: shaders at 0x90000/0x90100 → `0x2400`/`0x2404` (Δ=4) |
 | `+0x10/+0x14/+0x18` | grid x / y / z | **in threads**, not threadgroups (`dispatchThreadgroups(2)×32` ≡ `dispatchThreads(64)`) |
-| `+0x1c/+0x20/+0x24` | threadgroup x / y / z (**effective/driver-chosen**) | RT-2a/RT-11: NOT the verbatim `threadsPerThreadgroup` — each axis is **rounded up to a power of two** with product ≥ one 32-lane SIMD (1..32→32, 48/64→64, 100→128; 2-D (3,5)→(4,8)); the exact rounding is occupancy/shader-dependent. `grid` @+0x10 is verbatim threads. |
+| `+0x1c/+0x20/+0x24` | threadgroup x / y / z = **physical launch threadgroup size, in threads/axis** | **CORRECTED (EXP-M4-09/CMD-8, A18-cross-confirmed):** this is *verbatim* `threadsPerThreadgroup` whenever the group boundaries carry semantics — every **single-group** dispatch and every kernel using a **barrier or threadgroup memory** records the exact request (M4+A18: tgmem kernel 16→16, 48→48, 100→100). The earlier "round up to power of two, product ≥ 32" was a **Metal userspace occupancy *repack*** that only fires for **barrier-free / shared-mem-free** kernels with **>1** group (M4+A18: add3 16→32, 48→64, 100→128) and is **neither next-pow2 nor next-mult-32** (e.g. 34→36, 38→64, 39→39, 80→96, 200→200) — a driver heuristic, **not a hardware rule**. **A conformant driver emits the exact requested workgroup size here (verbatim).** `grid` @+0x10 is verbatim total threads. |
 
 The arg-buffer pointer is **not** in this record — binding flows via the argument buffer, whose VA
 lives in the uniform/USC BO (`0x10000000000`). ⏳ threadgroup-memory-size field is elsewhere (not here).
@@ -84,9 +84,21 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
 - **Shader binding:** unlike compute's single `shaderVA>>6`, VS/FS are bound **indirectly through USC
   bind-pairs** in the VDM (changing either shader touches `{0x10000000000, 0x10000130000}`). ⏳ the exact
   graphics shader-entry word: **RESOLVED below** — draws bind shaders via a self-describing sized-block code walk (no pointer word), EXP-0024; USC bind grammar decoded in EXP-G1a.
-- **VDM draw record:** header (state-size @+0x0c) + USC bind-pairs (control-word, addr) + primitive word:
-  **primitive type @+0x65** (point 0x00, line 0x01, tri 0x06, strip 0x09), **vertexCount @+0x68**,
-  **instanceCount @+0x6c** *(non-indexed)*. **Indexed draws (RT-2a):** opcode `0x61c4→0x61f2` (u16) / **`0x61f4` (u32)**; the record **shifts** — index-buffer VA @+0x70, index count @+0x74, and **instanceCount moves to @+0x78** (NOT +0x6c). Also present: vertexStart @+0x70, baseVertex @+0x7c, baseInstance @ `0x10000100000+0x8c` (not in the VDM record), linestrip prim byte `0x03`.
+- **VDM draw record — full field map (EXP-M4-09/CMD-4; all 5 prims × {non-indexed,u16,u32} RUN):**
+  header (state-size @+0x0c) + USC bind-pairs (control-word, addr) + primitive word.
+  - **Non-indexed:** opcode **`0x61c4`** (bytes @+0x66/+0x67); **primitive type byte @+0x65** =
+    {point `0x00`, line `0x01`, lineStrip `0x03`, tri `0x06`, triStrip `0x09`}; **vertexCount @+0x68**;
+    **instanceCount @+0x6c**.
+  - **Indexed (record shifts):** opcode word @+0x6c–0x6f = **`0x61f2 | strip | (u32<<1)`** →
+    `0x61f2` (u16 list) / `0x61f3` (u16 strip) / **`0x61f4` (u32 list)** / `0x61f5` (u32 strip) —
+    **the u32 path `0x61f4` is now HW-RUN, not inferred**; **primitive byte @+0x6d** (same enum as
+    non-indexed); **restart comparand @+0x68** (0xffff u16 / 0xffffffff u32); **index-buffer config
+    @+0x70**; **indexCount @+0x74**; **instanceCount @+0x78** (moved from +0x6c); **baseVertex @+0x7c**;
+    **index-buffer extent-in-dwords−1 @+0x80** = ⌈indexCount·indexSize/4⌉−1 (u16×6=2, u32×6=5,
+    u16-strip×8=3); config word @+0x64 = `0x40000001`.
+  - **baseInstance** is **not** in the VDM record (both indexed and non-indexed unchanged when set); it
+    reaches the shader via the vertex-attribute path (`0x10000100000+0x8c`) only when the shader
+    consumes `[[instance_id]]` — elided otherwise.
 - **Viewport** = 4 transform floats @ `0x68000+0x910` (`{w/2, h/2, w/2, −h/2}` — Y-flip) + depth range
   @+0x920/+0x924; pointed to from the VDM.
 - **Attachment descriptor** (`0x10000110000`): **pixel format** byte @+0x22 (BGRA8=0x0a, RGBA8=0x88);
@@ -101,17 +113,46 @@ The single most important structural fact for a Mesa port: **blend factors/ops a
 fragment shader's blend microprogram in the shader-code BO `0x10000000000`**, not emitted as a
 fixed-function LUT (changing a blend factor rewrites ~40 shader words; `0x58000` barely moves). This is
 Apple's TBDR programmable-blend model — the driver **must compile blend state into fragment shaders**
-(as Asahi does for M1/M2). `0x58000` keeps only: color-write-mask (R=bit0…A=bit3, reverse of Metal),
-blend-class/constant-color/enable flags. Dual-source blend and framebuffer logic ops both work through
+(as Asahi does for M1/M2). Dual-source blend and framebuffer logic ops both work through
 this shader path (the ISA has the 16-function bitwise LUT, EXP-0013). *(The blend microprogram is
 compiler-generated code — located, deliberately NOT disassembled, per CLAUDE.md clean-room rule 5.)*
+
+#### ✅ Blend STATE-POOL side — full field map (EXP-M4-09, all 19 factors × 5 ops × dual-source)
+Sweeping **every** blend factor/op on srcRGB/dstRGB/srcAlpha/dstAlpha + write-mask + dual-source and
+diffing only the traceable `0x58000` pool proves the **factor/op identity is entirely in the FS
+microprogram** — changing a factor/op rewrites the FS blend epilog (typically ~5,600–7,800 code words;
+some factors lower to a near-identical program, a handful of word deltas) while **nothing in `0x58000`
+selects a factor or op**, and the **five blend ops (add/sub/revsub/min/max) touch `0x58000` not at
+all**. So the impl team's blend-lowering compiler owns the equation; `0x58000` carries only these
+orthogonal side-flags the driver must emit **alongside** the compiled FS:
+
+| field | offset | meaning |
+|---|---|---|
+| **Color write mask** | `0x58000+0x5c` bits[3:0] | 4-bit mask, **bit-reversed RGBA**: R→bit3, G→bit2, B→bit1, A→bit0 (full=0xf). Present whether blend is on or off. |
+| **Store-epilog engaged** | `0x58000+0x50` bit29 (`0x2000_0000`) | set iff blending enabled **OR** write mask ≠ 0xf (no-blend + full mask = `0x0000_0200`; otherwise `0x2000_0200`). |
+| **Blend-constant-color needed** | `0x58000+0x10` bit6 (`0x40`) | set iff any factor ∈ {blendColor, 1−blendColor, blendAlpha, 1−blendAlpha}, on any of the 4 factor slots. |
+| **Blend/store program-class** | `0x58000+0x08` bits[10:6] | small enum co-selected by the FS lowering (observed `0x4c0` plain-store / `0x500` default-blend / `0x540` extended). **Not** a driver-independent field — set it as part of blend lowering. |
+| **Extended-source / saturate class** | `0x58000+0x18` bit0 | FS-class covariant (observed set by srcAlphaSaturate and several one-minus-dst factors); driver-set as part of lowering, not an orthogonal knob. |
+
+- **Blend-constant color (`setBlendColor`) is a FS UNIFORM, not a fixed-function register:** the 4×f32
+  RGBA constant is placed into the uniform/argument BO `0x10000248000` (observed at `+0x620`; the exact
+  offset is the driver's own uniform-allocation choice) and read by the FS blend epilog. Driver action:
+  set `0x58000+0x10` bit6 and append the RGBA constant to the FS uniform stream.
+- **Dual-source blend leaves `0x58000` unchanged** vs single-source (the `src1*` factors change only
+  ~27 FS words). Dual-source is realized purely in the FS, which declares `color(0) index(0)` +
+  `color(0) index(1)` outputs — **there is no `0x58000` flag distinguishing dual-source**.
+- The `0x58000` blend words are all HW-validated on **M4**; the pool layout matches the A18-derived
+  offsets used elsewhere in this doc byte-for-byte.
 
 ### ✅ Depth/stencil packet (`0x58000`, HW-validated)
 Per-face blocks: FRONT depth `+0x38` / stencil `+0x3c`, BACK depth `+0x40` / stencil `+0x44`, flags `+0x34`.
 - **Depth word:** stencil-ref[7:0], depth-write-DISABLE bit21, compare[26:24].
-- **Stencil word:** write-mask[7:0], read-mask[15:8], pass-op[18:16], zfail-op[21:19], sfail-op[24:22], compare[27:25].
+- **Stencil word:** write-mask[7:0], read-mask[15:8], pass-op[18:16], zfail-op[21:19], sfail-op[24:22], compare[27:25]; bits[31:28] unused.
 - **Compare 0–7** = never/less/equal/lessEqual/greater/notEqual/greaterEqual/always.
 - **Stencil-op 0–7** = keep/zero/replace/incrClamp/decrClamp/invert/incrWrap/decrWrap.
+- **All three op fields share the identical 0–7 enum — HW-validated 8-of-8 per field** (EXP-M4-09/CMD-2:
+  pass, zfail, and sfail each swept through all 8 ops independently). **Back-face** uses the identical
+  encoding at the back stencil word `+0x44`, independent of front `+0x3c`.
 
 ### ✅ Rasterizer packet (`0x58000+0x70`, HW-validated)
 cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = native 2-bit field [11:10]**
@@ -146,9 +187,20 @@ each packet**: depth `+0x34` bit18 / `+0x38`; stencil `+0x34` bits[19:18] / `+0x
 cull `+0x70`. So a driver assembles state by writing packets + toggling their enable bits, and bumps the
 length word when the depth/stencil block is present.
 
-### ✅ Compute config word + threadgroup-memory size (EXP-0024)
-- **CDM config word** (`0x100000b0000+0x00`) = `0x00080000` (bit19 always set) + **bit23 = register/occupancy
+### ✅ Compute config word + threadgroup-memory size (EXP-0024; occupancy tier CORRECTED EXP-M4-09/CMD-8)
+- **CDM config word** (`0x100000b0000+0x00`) = `0x00080000` (bit19 always set) + **bit23 = occupancy/register
   tier** (EXP-0020); atomics/barriers/simd/tgmem do **not** touch it.
+- **⚠ Occupancy tier bit23 — threshold CORRECTED (A18-cross-confirmed).** bit23 is a **single-bit 2-tier
+  boolean** — across ~50 kernels (footprint f0 = 2…96) the word is *only ever* `0x00080000` (clear) or
+  `0x00880000` (set); no higher bit ever lights, so it is **not** the LSB of a GPR-count field (the actual
+  GPR count lives in the shader BO / USC config, not here). The earlier interpolated **"clear ≤11 / set
+  ≥12 GPRs" is FALSE.** The flip is driven by the compiler's **peak register-pressure / occupancy class**,
+  *not* the total-GPR (metadata field-0) count, and it happens **far below 12** — A18-measured: an f0=8
+  kernel with two loop-carried chains (`N2E0`) is **SET** while other f0=8 kernels (`N1E3`, `N0E7`) are
+  **CLEAR**; f0=9 likewise splits (`N1E4`/`N3E0` set, `N0E8` clear); the lowest SET is a half-datapath
+  kernel at **f0=5**. (bit23 correlates 1:1 with the presence of our own shader's `__GPU_METADATA`
+  field-32 — a compiler-computed occupancy property.) **A Mesa driver must set bit23 from its own register
+  allocator's occupancy decision (peak-GPR class), not from a `≥12` test.**
 - **Threadgroup (shared) memory size** is in the **shader BO `0x10000090000`**, not the CDM:
   **`field = (tgmem_bytes << 2) | 0x80`** (HW-validated 256→32768 B) — static at `+0x40`, dynamic at
   `+0x4c` bits[31:16].
@@ -169,12 +221,20 @@ need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
   `0x61c4`, inline vertexCount); header `+0x04` = command count. (Distinct from the args-pointer form above.) *(RT-6: `+0x04` is the **encoded/allocated** command count — `withRange:` still shows the full count with all records materialized, range applied elsewhere. **Mesh and draw commands can coexist in one ICB** — a mixed Draw|DrawMeshThreadgroups ICB produces one `0x61c4` + one `0x70000600` record.)*
 - **Occlusion query:** result-buffer base pointer at `0x10000100000+0x00`; per-draw **mode = bit14 of
   `0x58000+0x8c`** (Boolean=1 writes 1 / Counting=0 writes exact passed-sample count, both u64); per-draw
-  **offset = `0x58000+0xa0` = byteOffset<<14**. Per-tile→total summation is firmware-managed.
-- **GPU timestamps:** format = **uint64 nanoseconds, `timestampPeriod = 1.0`** (cpu==gpu clock). ⚠ **Only
-  stage-boundary sampling is supported** — dispatch- and draw-boundary timestamps read all-zero (a Vulkan
-  emulation flag). Sample-buffer address is firmware/kernel-managed (see `../kernel-interface.md`).
+  **offset = `0x58000+0xa0` = byteOffset<<14** — HW-validated across offsets 0/8/16/64/256/1024/4096
+  (EXP-M4-09/CMD-7); a tiler mirror at `0x10000258000+0x00 = byteOffset>>2` also carries it. Readback
+  confirms accumulation (Counting wrote 4096 = 64×64; Boolean wrote 1). Per-tile→total summation is
+  firmware-managed.
+- **GPU timestamps:** format = **uint64 nanoseconds, `timestampPeriod = 1.0`** (cpu==gpu clock; confirmed
+  by `sampleTimestamps` cpu==gpu every call). ⚠ **Only stage-boundary sampling is supported** — dispatch-
+  and draw-boundary timestamps read all-zero (a Vulkan emulation flag). Sample-buffer address is
+  firmware/kernel-managed (see `../kernel-interface.md`).
 - **MSAA** (HW-PROBE): N independent samples with 1:1 sample-id ordering (`read(coord,s)` = sample s);
-  resolve = arithmetic average; physical interleave is on-chip tile SRAM (not byte-visible).
+  resolve = arithmetic average; physical interleave is on-chip tile SRAM (not byte-visible). **Only 2×/4×
+  exist — 8× is Metal-rejected** (EXP-M4-09/CMD-7: `supportsTextureSampleCount:` 1/2/4 = YES, 8/16/32 = NO;
+  8× fails both texture creation (hard assert) and pipeline creation (nil+NSError)). Sample-count word in
+  the RENDER/STORE segment `+0x24`: 1× = `0x0000fc03`, 2× = `0x0800fc03`, 4× = `0x0900fc03` (bit24 = count
+  LSB, bit27 = MSAA-store).
 
 ## Mesh/object shading submission (EXP-0030)
 A mesh draw is **not a new work type** — it reuses the graphics path (same `IOSurfaceRoot` +
@@ -186,16 +246,26 @@ The mesh-output **UVB buffer** is a driver/firmware-allocated intermediate (tile
 reached via USC/uniform binding like the vertex-shader **UVS** varying buffer — **not user-visible**; its
 sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../kernel-interface.md`).
 
-## Geometry-output pipeline (EXP-O2A)
-- **Multiple viewports** (`0x68000`): count word `+0x900 = ((count-1)<<12)|0x0C00` (max 16); a per-viewport
-  control-word header; then a **6-float / 0x18-byte per-viewport transform array** (the single-viewport block
-  `+0x910`, arrayed). Index selected by the VS `[[viewport_array_index]]` output.
+## Geometry-output pipeline (EXP-O2A; ranges swept to max in EXP-M4-09/CMD-5)
+- **Multiple viewports** (`0x68000`): count word `+0x900 = ((count-1)<<12)|0x0C00` — **HW-validated for
+  the full range count = 1..16** (`0x0c00, 0x1c00, … 0xfc00`). A per-viewport control-word header; then a
+  **6-float / 0x18-byte per-viewport transform array** (the single-viewport block `+0x910`, arrayed).
+  Index selected by the VS `[[viewport_array_index]]` output.
 - **PPP output-select word `0x58000+0x20`** (which shader outputs are live): **bits[7:0] = clip-distance plane
-  mask** (max 8 planes), **bit18 = point_size**, **bit19 = viewport_array_index**. Clip-distance = a shader-output
-  varying + this mask; point-size *value* is shader-driven (no descriptor field).
-- **Primitive restart** (indexed VDM record `0x18000`): **cut/restart index at `+0x68` = all-ones of the index
-  width** (0xffff / 0xffffffff); opcode `+0x6c` bit0=strip/bit1=u32; count `+0x74`, extent-dwords-1 `+0x80`,
-  idxBuf VA `+0x70`. **No separate enable bit.**
+  mask** — **HW-validated for N = 1..8 planes** (mask = `(1<<N)-1`: `0x01,0x03,…,0xff`); **bit16 = a constant
+  "outputs present" flag**; **bit18 = point_size**, **bit19 = viewport_array_index**. Clip-distance = a
+  shader-output varying + this mask; point-size *value* is shader-driven (no descriptor field).
+- **Primitive restart** (indexed VDM record `0x18000`): **cut/restart comparand at `+0x68`** — a genuine
+  **per-draw userspace-written field, always present, with no separate enable bit**. It **tracks the index
+  width**: `0x0000ffff` (u16) / `0xffffffff` (u32), HW-confirmed by the u16→u32 diff, and is written on
+  **every** indexed draw (restart or not). opcode `+0x6c` bit0=strip / bit1=u32; count `+0x74`,
+  extent-dwords-1 `+0x80`, idxBuf VA `+0x70`.
+  - **Metal only ever writes the index-type maximum** (`0xffff`/`0xffffffff`) — which is exactly the
+    Vulkan/D3D10+ restart-index semantics, so a **Vulkan Mesa driver needs nothing more**. A truly
+    *arbitrary* (OpenGL `glPrimitiveRestartIndex`-style) value is **not emittable through Metal**, so its
+    HW acceptance is **formally untested**; but since `+0x68` is proven a settable per-draw comparand
+    (width-tracking), a GL frontend writing an arbitrary value there is well-founded — HW-plausible,
+    unverified. This is the one residual can't-emit-from-Metal item, now precisely located.
 - **Alpha-to-coverage** = shader-lowered (FS epilog) + FF bits `0x58000+0x18` bit0 (MSAA-only) and `+0x50`
   bits[30,26]. **Alpha-to-one has no FF field** — realized entirely in the FS epilog (output alpha → 1.0).
 - **Kernel-managed:** the multi-scissor rectangle array is in **no** client BO — it routes via the `isp_scissor`

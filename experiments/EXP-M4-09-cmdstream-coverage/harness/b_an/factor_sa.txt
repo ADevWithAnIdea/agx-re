@@ -1,0 +1,17 @@
+### sa factor sweep: bl_ref(=srcalpha/1-srcalpha add) vs each
+###   58000 delta | FS code-word change count (classification only, no interpretation)
+zero           | 58000: (none)                                                         | code_words=5656
+one            | 58000: (none)                                                         | code_words=5638
+srccolor       | 58000: (none)                                                         | code_words=5612
+1-srccolor     | 58000:   +0x0018: 0x00000000 -> 0x00000001   (A 0  B 1)               | code_words=5658
+srcalpha       | 58000: (none)                                                         | code_words=5612
+1-srcalpha     | 58000:   +0x0018: 0x00000000 -> 0x00000001   (A 0  B 1)               | code_words=46
+dstcolor       | 58000: (none)                                                         | code_words=5656
+1-dstcolor     | 58000: (none)                                                         | code_words=5626
+dstalpha       | 58000: (none)                                                         | code_words=5656
+1-dstalpha     | 58000: (none)                                                         | code_words=5626
+srcalphasat    | 58000: (none)                                                         | code_words=5638
+blendcolor     | 58000:   +0x0010: 0x01000000 -> 0x01000040   (A 16777216  B 16777280)  | code_words=5619
+1-blendcolor   | 58000:   +0x0010: 0x01000000 -> 0x01000040   (A 16777216  B 16777280)  | code_words=5621
+blendalpha     | 58000:   +0x0010: 0x01000000 -> 0x01000040   (A 16777216  B 16777280)  | code_words=7
+1-blendalpha   | 58000:   +0x0010: 0x01000000 -> 0x01000040   (A 16777216  B 16777280)  | code_words=5621

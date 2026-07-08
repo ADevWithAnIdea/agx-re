@@ -1,0 +1,39 @@
+### FRONT-FACE stencil word (+0x3c) per capture
+
+  s_ref            +0x3c=0x0202ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=0 cmp=1 hi=0
+
+--- spass sweep (front +0x3c) ---
+  spass_keep       +0x3c=0x0200ffff  wm=0xff rm=0xff pass=0 zfail=0 sfail=0 cmp=1 hi=0   <== spass=keep -> pass-field=0
+  spass_zero       +0x3c=0x0201ffff  wm=0xff rm=0xff pass=1 zfail=0 sfail=0 cmp=1 hi=0   <== spass=zero -> pass-field=1
+  spass_replace    +0x3c=0x0202ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=0 cmp=1 hi=0   <== spass=replace -> pass-field=2
+  spass_incrclamp  +0x3c=0x0203ffff  wm=0xff rm=0xff pass=3 zfail=0 sfail=0 cmp=1 hi=0   <== spass=incrclamp -> pass-field=3
+  spass_decrclamp  +0x3c=0x0204ffff  wm=0xff rm=0xff pass=4 zfail=0 sfail=0 cmp=1 hi=0   <== spass=decrclamp -> pass-field=4
+  spass_invert     +0x3c=0x0205ffff  wm=0xff rm=0xff pass=5 zfail=0 sfail=0 cmp=1 hi=0   <== spass=invert -> pass-field=5
+  spass_incrwrap   +0x3c=0x0206ffff  wm=0xff rm=0xff pass=6 zfail=0 sfail=0 cmp=1 hi=0   <== spass=incrwrap -> pass-field=6
+  spass_decrwrap   +0x3c=0x0207ffff  wm=0xff rm=0xff pass=7 zfail=0 sfail=0 cmp=1 hi=0   <== spass=decrwrap -> pass-field=7
+
+--- szfail sweep (front +0x3c) ---
+  szfail_keep      +0x3c=0x0202ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=0 cmp=1 hi=0   <== szfail=keep -> zfail-field=0
+  szfail_zero      +0x3c=0x020affff  wm=0xff rm=0xff pass=2 zfail=1 sfail=0 cmp=1 hi=0   <== szfail=zero -> zfail-field=1
+  szfail_replace   +0x3c=0x0212ffff  wm=0xff rm=0xff pass=2 zfail=2 sfail=0 cmp=1 hi=0   <== szfail=replace -> zfail-field=2
+  szfail_incrclamp +0x3c=0x021affff  wm=0xff rm=0xff pass=2 zfail=3 sfail=0 cmp=1 hi=0   <== szfail=incrclamp -> zfail-field=3
+  szfail_decrclamp +0x3c=0x0222ffff  wm=0xff rm=0xff pass=2 zfail=4 sfail=0 cmp=1 hi=0   <== szfail=decrclamp -> zfail-field=4
+  szfail_invert    +0x3c=0x022affff  wm=0xff rm=0xff pass=2 zfail=5 sfail=0 cmp=1 hi=0   <== szfail=invert -> zfail-field=5
+  szfail_incrwrap  +0x3c=0x0232ffff  wm=0xff rm=0xff pass=2 zfail=6 sfail=0 cmp=1 hi=0   <== szfail=incrwrap -> zfail-field=6
+  szfail_decrwrap  +0x3c=0x023affff  wm=0xff rm=0xff pass=2 zfail=7 sfail=0 cmp=1 hi=0   <== szfail=decrwrap -> zfail-field=7
+
+--- sfail sweep (front +0x3c) ---
+  sfail_keep       +0x3c=0x0202ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=0 cmp=1 hi=0   <== sfail=keep -> sfail-field=0
+  sfail_zero       +0x3c=0x0242ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=1 cmp=1 hi=0   <== sfail=zero -> sfail-field=1
+  sfail_replace    +0x3c=0x0282ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=2 cmp=1 hi=0   <== sfail=replace -> sfail-field=2
+  sfail_incrclamp  +0x3c=0x02c2ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=3 cmp=1 hi=0   <== sfail=incrclamp -> sfail-field=3
+  sfail_decrclamp  +0x3c=0x0302ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=4 cmp=1 hi=0   <== sfail=decrclamp -> sfail-field=4
+  sfail_invert     +0x3c=0x0342ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=5 cmp=1 hi=0   <== sfail=invert -> sfail-field=5
+  sfail_incrwrap   +0x3c=0x0382ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=6 cmp=1 hi=0   <== sfail=incrwrap -> sfail-field=6
+  sfail_decrwrap   +0x3c=0x03c2ffff  wm=0xff rm=0xff pass=2 zfail=0 sfail=7 cmp=1 hi=0   <== sfail=decrwrap -> sfail-field=7
+
+### BACK-FACE check
+  s_ref    front +0x3c=0x0202ffff (pass=2 zfail=0 sfail=0 cmp=1 wm=0xff rm=0xff)
+  s_ref    back  +0x44=0x0202ffff (pass=2 zfail=0 sfail=0 cmp=1 wm=0xff rm=0xff)
+  sback    front +0x3c=0x0202ffff (pass=2 zfail=0 sfail=0 cmp=1 wm=0xff rm=0xff)
+  sback    back  +0x44=0x046a0f3c (pass=2 zfail=5 sfail=1 cmp=2 wm=0x3c rm=0x0f)
