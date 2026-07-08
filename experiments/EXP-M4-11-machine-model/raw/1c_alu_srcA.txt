@@ -1,0 +1,11 @@
+baseline srcA=r2(b): out=a+b= [11, 22, 33, 44, 55, 66, 77, 88] -> ('OK', [11, 22, 33, 44, 55, 66, 77, 88])
+legend: out=a[1..8]=>srcA read 0 (empty reg); out=[2,4..]=>srcA aliases r0(=a); out=[11,22..]=>reads b
+  srcA=r0   byte0x01: STATUS=OK           out=[2, 4, 6, 8, 10, 12, 14, 16]  = r0 value (a) -> ALIASES r0
+  srcA=r2   byte0x05: STATUS=OK           out=[11, 22, 33, 44, 55, 66, 77, 88]  reads b (=r2, baseline)
+  srcA=r32  byte0x41: STATUS=OK           out=[1, 2, 3, 4, 5, 6, 7, 8]  reads 0  (DISTINCT empty reg)
+  srcA=r63  byte0x7f: STATUS=OK           out=[1, 2, 3, 4, 5, 6, 7, 8]  reads 0  (DISTINCT empty reg)
+  srcA=r64  byte0x81: STATUS=OK           out=[2, 4, 6, 8, 10, 12, 14, 16]  = r0 value (a) -> ALIASES r0
+  srcA=r66  byte0x85: STATUS=OK           out=[11, 22, 33, 44, 55, 66, 77, 88]  reads b (=r2, baseline)
+  srcA=r95  byte0xbf: STATUS=OK           out=[1, 2, 3, 4, 5, 6, 7, 8]  reads 0  (DISTINCT empty reg)
+  srcA=r96  byte0xc1: STATUS=OK           out=[1, 2, 3, 4, 5, 6, 7, 8]  reads 0  (DISTINCT empty reg)
+  srcA=r127 byte0xff: STATUS=OK           out=[1, 2, 3, 4, 5, 6, 7, 8]  reads 0  (DISTINCT empty reg)

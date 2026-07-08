@@ -33,16 +33,23 @@ The core count (10 vs 5) is a throughput/config delta, not an architectural one;
 occupancy/dispatch sizing but not encodings. (Any driver-visible core-count field is a
 kernel-interface item — see §7.)
 
-## 1. Shader ISA — ✅ IDENTICAL (EXP-M4-01)
-M4 runs the same AGX Apple9 ISA. All 57 A18-corpus shaders compile on M4; the A18 DB
-disassembles them at **88.6% tokens / 91.5% bytes** (same as A18), matching **including the
-red-team corrections** (byte+5 memory index, `scoreboard_fence`, `imad` byte+2=0x56). Encoding
-byte-diff M4-vs-A18 and the undecoded-group closure are in progress (EXP-M4-01). No ISA delta
-found so far.
+## 1. Shader ISA — ✅ IDENTICAL (EXP-M4-01/10)
+M4 runs the same AGX Apple9 ISA. All 57 A18-corpus shaders compile on M4; the A18 DB disassembles
+them at **97.4% byte coverage on M4 / 96.4% on A18** (undecoded-group closure rounds 1–3 + the
+ISA-1..6 coverage sweep; DB now 85 descriptors, round-trip green). **No ISA delta** — every
+encoding matches A18, and every coverage-sweep correction (high-register `(reg<<1)|is32`, saturate
+= native byte+7 bit1, integer-immediate inline ≥65536, device_store byte+8 inert, +3 non-2D texture
+read codes) applies to BOTH parts (they were A18-doc gaps, not M4 differences). Residue (~2.6%) is
+the deliberately-out-of-scope fragment blend microprogram + a low-freq SFU tail.
 
-## 2. Machine model — ⏳ PENDING
-96 GPRs / halves-2-per-GPR / uniform file / async HW-interlock / SR table — to be re-validated by
-splice-run on M4 (expected identical; A18 baseline in `isa/README.md`).
+## 2. Machine model — ✅ IDENTICAL (EXP-M4-11)
+Splice-validated on M4, all identical to A18: **96 GPRs, hard boundary** (r96 memory-index →
+CMDBUF_ERROR, no mod-64 aliasing; metadata caps at exactly 96; spill/scratch numbers match),
+halves 2/GPR (64→f0=50), **both uniform-source encodings** (srcB byte+2bit4+byte+5bit1, srcA bit39),
+occupancy 2-tier by peak register pressure, **SR table** (tpig 0xa0/simd_lane 0x82/vertex_id 0xdd/
+instance_id 0xd8/front_facing 0xc5/…), in-shader software vertex fetch, and **async = HW register
+interlock** (dependent chains correct with 0 scoreboard ops; >8 loads in flight). `isa/README.md`
+machine-model section applies unchanged.
 
 ## 3. Command stream (CDM/VDM/USC/state) — ✅ IDENTICAL (EXP-M4-03)
 `iotrace` works on the M4 host (interposes IOKit, SIP disabled). Every cmdstream field byte-identical to A18:
@@ -51,8 +58,7 @@ CDM compute (config `0x00080000`@+0x00, shaderVA>>6@+0x08, grid-threads@+0x10, e
 0x61f2@+0x6e, indexCount@+0x74, instanceCount@+0x78), USC (**sampler stride 0x20**, `num_samplers=(term−samp)/0x20` —
 RT-2a fix holds), state packets (depth@+0x38, stencil@+0x3c, raster@+0x70, PPP-output@+0x20, **PPP length +0x400
 bump**), indirect (0x6404/0x6432), occlusion (bit14 @0x58000+0x8c), mesh (0x70000600), native tessellation (VDM
-record high-byte 0x40, domain@+0x8c). `cmdstream/README.md` applies unchanged. *(Inferred-identical, not re-run:
-u32-index opcode 0x61f4, timestamps.)*
+record high-byte 0x40, domain@+0x8c). `cmdstream/README.md` applies unchanged. u32-index opcode `0x61f4` and stage-boundary timestamps (period 1.0) are now **HW-run on M4** (EXP-M4-11), identical.
 
 ## 4. Resource descriptors — ✅ IDENTICAL (EXP-M4-04)
 Texture (32B — byte0 type/chanArr, byte1=numtype<<5|sizeclass, swizzle word0[16:27], **14-bit dims confirmed to
@@ -107,4 +113,4 @@ So the A18 `capability-matrix.md` / `capability-completeness.md` (189 native / 1
 | Kernel interface | ✅ identical except user-client class `AGXAcceleratorG16G` + config (10 cores, buf>4GiB) |
 | Resource descriptors | ✅ identical (EXP-M4-04) |
 | Tiling & compression | ✅ identical + bpp8 even-column refinement (EXP-M4-04, improves A18 doc) |
-| Machine model | ⏳ validating |
+| Machine model | ✅ identical (EXP-M4-11) |

@@ -1,0 +1,14 @@
+== runtime-uniform read (out should = a + k) ==
+ uniB.metal (srcA-form falu2_uni):
+   k=7     out=[17, 27, 37, 47, 57, 67, 77, 87]  OK track
+   k=55    out=[65, 75, 85, 95, 105, 115, 125, 135]  OK track
+   k=1000  out=[1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080]  OK track
+ uniA.metal (srcB-form falu2):
+   k=7     out=[17, 27, 37, 47, 57, 67, 77, 87]  OK track
+   k=55    out=[65, 75, 85, 95, 105, 115, 125, 135]  OK track
+   k=1000  out=[1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080]  OK track
+
+== splice select bit -> operand reads GPR (=0), out should become a = [10, 20, 30, 40, 50, 60, 70, 80] ==
+ srcA-form clear bit39 (0x16:0x80->0x00): out=[10, 20, 30, 40, 50, 60, 70, 80]  GPR read (=0)
+ srcB-form clear byte+5 bit1 (0x17:0xc2->0xc0): out=[10, 20, 30, 40, 50, 60, 70, 80]  GPR read (=0)
+ srcB-form set byte+2 bit4 (0x14:0x0c->0x1c):   out=[10, 20, 30, 40, 50, 60, 70, 80]  GPR read (=0)

@@ -1,0 +1,7 @@
+baseline srcB=r0 (holds b): expect a+b = [11, 22, 33, 44, 55, 66, 77, 88]
+   ('OK', [11, 22, 33, 44, 55, 66, 77, 88])
+  srcB=r0   byte0x01: STATUS=OK           out=[11, 22, 33, 44, 55, 66, 77, 88]  reads b  -> ALIASES r0 (mod-64!) or unchanged
+  srcB=r32  byte0x41: STATUS=OK           out=[10, 20, 30, 40, 50, 60, 70, 80]  other
+  srcB=r64  byte0x81: STATUS=OK           out=[11, 22, 33, 44, 55, 66, 77, 88]  reads b  -> ALIASES r0 (mod-64!) or unchanged
+  srcB=r96  byte0xc1: STATUS=OK           out=[10, 20, 30, 40, 50, 60, 70, 80]  other
+  srcB=r127 byte0xff: STATUS=OK           out=[10, 20, 30, 40, 50, 60, 70, 80]  other

@@ -1,0 +1,16 @@
+Item 8a: u32 index draw opcode 0x61f4 (HW-RUN on M4 via dvar11 --idx32 + iotrace)
+VDM control-stream BO at GPU VA 0x18000 (size 0x8000). Record bytes (file offset : words):
+
+u16 indexed (--indexed):
+00000060: 00800400 01000040 ffff0000 0006f261
+00000070: 00880100 03000000 01000000 00000000
+u32 indexed (--idx32):
+00000060: 00800400 01000040 ffffffff 0006f461
+00000070: 00880100 03000000 01000000 00000000
+
+Decode (matches A18 baseline docs/cmdstream/README.md exactly):
+  +0x6e indexed opcode : 0x61f2 (u16, bytes f2 61) -> 0x61f4 (u32, bytes f4 61)   [the (u32<<1) bit]
+  +0x68 index-range/restart sentinel: 0x0000FFFF (u16) -> 0xFFFFFFFF (u32)         [index width]
+  +0x74 indexCount = 3     (unchanged)
+  +0x78 instanceCount = 1  (unchanged)
+=> u32-index path 0x61f4 CONFIRMED HW-RUN on M4, IDENTICAL to A18.

@@ -1,0 +1,8 @@
+(A) pointer-chase (8 dependent loads): STATUS=OK
+    out    = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    expect = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23] -> CORRECT (interlock enforced)
+    compiled: 8 device_load ops; wait/scoreboard ops found = 0 (none -> no software scoreboard)
+
+(B) 20 independent loads summed: STATUS=OK
+    match=True (out[0]=7030 exp[0]=7030)
+    compiled device_load ops = 20 ; wait/scoreboard ops = 0

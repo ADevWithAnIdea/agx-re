@@ -1,0 +1,29 @@
+baseline (unspliced byte+5=0x01 reads gid):
+   STATUS OK
+   RESULT 0 100 101 102 103 104 105 106 107
+
+-- sweep memory-index byte+5 (reg = byte & 0x7f) around 95/96 --
+  r0   flag00 byte0x00: STATUS=OK           all=100
+  r0   flag80 byte0x80: STATUS=OK           all=100
+  r1   flag00 byte0x01: STATUS=OK           out=['100', '101', '102', '103', '104', '105', '106', '107']
+  r1   flag80 byte0x81: STATUS=OK           out=['100', '0', '0', '0', '0', '0', '0', '0']
+  r32  flag00 byte0x20: STATUS=OK           all=100
+  r32  flag80 byte0xa0: STATUS=OK           all=100
+  r63  flag00 byte0x3f: STATUS=OK           all=100
+  r63  flag80 byte0xbf: STATUS=OK           all=100
+  r64  flag00 byte0x40: STATUS=OK           all=100
+  r64  flag80 byte0xc0: STATUS=OK           all=100
+  r94  flag00 byte0x5e: STATUS=OK           all=100
+  r94  flag80 byte0xde: STATUS=OK           all=100
+  r95  flag00 byte0x5f: STATUS=OK           all=100
+  r95  flag80 byte0xdf: STATUS=OK           all=100
+  r96  flag00 byte0x60: STATUS=CMDBUF_ERROR out=None
+  r96  flag80 byte0xe0: STATUS=CMDBUF_ERROR out=None
+  r97  flag00 byte0x61: STATUS=CMDBUF_ERROR out=None
+  r97  flag80 byte0xe1: STATUS=OK           all=0
+  r100 flag00 byte0x64: STATUS=CMDBUF_ERROR out=None
+  r100 flag80 byte0xe4: STATUS=CMDBUF_ERROR out=None
+  r126 flag00 byte0x7e: STATUS=OK           all=0
+  r126 flag80 byte0xfe: STATUS=CMDBUF_ERROR out=None
+  r127 flag00 byte0x7f: STATUS=OK           all=0
+  r127 flag80 byte0xff: STATUS=CMDBUF_ERROR out=None
