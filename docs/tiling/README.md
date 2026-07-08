@@ -22,8 +22,13 @@ the interleave runs across the full address; each axis is **padded to a whole nu
 The texture is a **row-major grid of square Morton tiles** of edge **T** texels, where **T depends on bpp**:
 `T = 64 for bpp ≤ 4, T = 32 for bpp ≥ 8` (measured Morton depth D: 2/4 bpp → 6, 8/16 bpp → 5; T = 2^D; HW-derived
 across bpp 2/4/8/16 — the break is exactly between 4-byte and 8-byte elements).
-Define the **tile-count width** `cols = ceil(W / T)` (RT-9: the ACTUAL width in whole tiles — **NOT** `ceil(nextpow2(W)/T)`).
-With `tx = x >> log2(T)`, `ty = y >> log2(T)`:
+Define the **tile-count width** `cols = ceil(W / T)` (RT-9: the ACTUAL width in whole tiles — **NOT** `ceil(nextpow2(W)/T)`),
+**then round `cols` up so the tile-row stride is 16-KiB-aligned** (EXP-M4-04). A Morton tile is `T²·bpp` bytes = **0x4000 B
+for bpp 4 and bpp 16**, but only **0x2000 B for bpp 8** (8-byte texels: 32²·8) — so a **bpp-8 texture needs an EVEN number
+of tile columns** (`cols = round_up_even(ceil(W/T))`, single-tile `W ≤ 32` excepted); bpp 4/16 already land on 16 KiB with
+any `cols`. HW-derived on the M4 (0-mismatch: bpp8 160→cols 6/padW 192, 96→4/128, 288→10); the geometry implies the A18
+follows the same rule (the A18 corpus only exercised bpp-4 non-pow2 widths, where even-rounding is a no-op, so it went
+unprobed there). With `tx = x >> log2(T)`, `ty = y >> log2(T)`:
 
 ```
 element_index(x,y) = (ty · cols + tx) · T²  +  morton_D( x & (T−1), y & (T−1) )
@@ -61,7 +66,8 @@ padDim(d, T) = ceil(d / T) · T     if d ≥ T     # round UP to a whole number 
 Examples (validated against backing-BO sizes): 48×48 r32 (48<64) → nextpow2 64×64×4 = 0x4000;
 96×96 r32 → 128×128×4 = 0x10000; **384×384 rgba8 (bpp4,T64) → 384·384·4 = 0x90000** (RT-9: NOT the
 nextpow2 512²·4 = 0x100000 — the tell that padding is multiple-of-T, not nextpow2). Pow2-multiple-of-T
-sizes (256/512) are unchanged, which is why RT-3 didn't catch this.
+sizes (256/512) are unchanged, which is why RT-3 didn't catch this. **bpp-8 adds the even-column rule** (§1.1,
+EXP-M4-04): `padW = round_up_even(ceil(W/T))·T` so the tile row stride is 16-KiB-aligned.
 
 ### 1.5 Block-compressed formats (BC/ASTC/ETC) — ✅ CONFIRMED (EXP-0028)
 Block-compressed formats apply the **same tiled-Morton curve over BLOCK coordinates** (RT-9: the block grid

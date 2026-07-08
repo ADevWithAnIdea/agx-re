@@ -1,0 +1,13 @@
+# Compression: word1 bit27 (aux present), word3 bit31, secondaryVA-baseVA (=paddedImageBytes), word4.
+# Threshold: per-dimension >=16 texels. secVA-base = paddedImageBytes; aux size = imageBytes/128.
+16x16 rgba8 : COMPRESSED  secVA-base=0x400  (=16*16*4)      aux=8B
+16x15 rgba8 : none (H<16)
+32x8  rgba8 : none (H<16)
+15x15 rgba8 : none
+17x17 rgba8 : COMPRESSED  secVA-base=0x1000 (=32*32*4 padDim) aux=32B
+64x64 rgba8 : COMPRESSED  secVA-base=0x4000 (=64*64*4)      aux=128B
+r8   16x16  : COMPRESSED  secVA-base=0x100  (=16*16*1)      aux=2B
+rgba16f 8x8 : none (8<16)
+ShaderRead 64x64  : word1=0800fc03(b27=1) word3=80000010(b31=1) word4=00008400  -> COMPRESSED
+ShaderWrite(write): word4=0                                                       -> NOT compressed
+PixelFormatView   : word1=0000fc03(b27=0) word3=00000010(b31=0) word4=0           -> NOT compressed

@@ -1,0 +1,28 @@
+# Column-count (padded tile columns) vs width, per bpp. cols = tile-row-stride/T^2.
+# bpp4->T64, bpp8->T32, bpp16->T32. Shows bpp8 pads cols to even (16KiB row-stride align).
+r32uint 128x128: # work/sw_r32uint_128x128 128x128 bpp=4 BOsz=0x10000 coverage=16384/16384 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 160x128: # work/sw_r32uint_160x128 160x128 bpp=4 BOsz=0x18000 coverage=20480/20480 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 192x128: # work/sw_r32uint_192x128 192x128 bpp=4 BOsz=0x18000 coverage=24576/24576 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 256x128: # work/sw_r32uint_256x128 256x128 bpp=4 BOsz=0x20000 coverage=32768/32768 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 320x128: # work/sw_r32uint_320x128 320x128 bpp=4 BOsz=0x28000 coverage=40960/40960 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 64x128: # work/sw_r32uint_64x128 64x128 bpp=4 BOsz=0x8000 coverage=8192/8192 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+r32uint 96x128: # work/sw_r32uint_96x128 96x128 bpp=4 BOsz=0x10000 coverage=12288/12288 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+rg32uint 128x64: # work/sw_rg32uint_128x64 128x64 bpp=8 BOsz=0x10000 coverage=8192/8192 # tile-row stride (e(0,32)-e(0,0)) = 4096  => cols=4 
+rg32uint 160x64: # work/sw_rg32uint_160x64 160x64 bpp=8 BOsz=0x18000 coverage=10240/10240 # tile-row stride (e(0,32)-e(0,0)) = 6144  => cols=6 
+rg32uint 192x64: # work/sw_rg32uint_192x64 192x64 bpp=8 BOsz=0x18000 coverage=12288/12288 # tile-row stride (e(0,32)-e(0,0)) = 6144  => cols=6 
+rg32uint 224x64: # work/sw_rg32uint_224x64 224x64 bpp=8 BOsz=0x20000 coverage=14336/14336 # tile-row stride (e(0,32)-e(0,0)) = 8192  => cols=8 
+rg32uint 256x64: # work/sw_rg32uint_256x64 256x64 bpp=8 BOsz=0x20000 coverage=16384/16384 # tile-row stride (e(0,32)-e(0,0)) = 8192  => cols=8 
+rg32uint 32x64: # work/sw_rg32uint_32x64 32x64 bpp=8 BOsz=0x4000 coverage=2048/2048 # tile-row stride (e(0,32)-e(0,0)) = 1024  => cols=1 
+rg32uint 64x64: # work/sw_rg32uint_64x64 64x64 bpp=8 BOsz=0x8000 coverage=4096/4096 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+rg32uint 96x64: # work/sw_rg32uint_96x64 96x64 bpp=8 BOsz=0x10000 coverage=6144/6144 # tile-row stride (e(0,32)-e(0,0)) = 4096  => cols=4 
+rgba32uint 128x64: # work/sw_rgba32uint_128x64 128x64 bpp=16 BOsz=0x20000 coverage=8192/8192 # tile-row stride (e(0,32)-e(0,0)) = 4096  => cols=4 
+rgba32uint 160x64: # work/sw_rgba32uint_160x64 160x64 bpp=16 BOsz=0x28000 coverage=10240/10240 # tile-row stride (e(0,32)-e(0,0)) = 5120  => cols=5 
+rgba32uint 192x64: # work/sw_rgba32uint_192x64 192x64 bpp=16 BOsz=0x30000 coverage=12288/12288 # tile-row stride (e(0,32)-e(0,0)) = 6144  => cols=6 
+rgba32uint 32x64: # work/sw_rgba32uint_32x64 32x64 bpp=16 BOsz=0x8000 coverage=2048/2048 # tile-row stride (e(0,32)-e(0,0)) = 1024  => cols=1 
+rgba32uint 64x64: # work/sw_rgba32uint_64x64 64x64 bpp=16 BOsz=0x10000 coverage=4096/4096 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+rgba32uint 96x64: # work/sw_rgba32uint_96x64 96x64 bpp=16 BOsz=0x18000 coverage=6144/6144 # tile-row stride (e(0,32)-e(0,0)) = 3072  => cols=3 
+rg32uint 288x64: # work/cf_rg32uint_288x64 288x64 bpp=8 BOsz=0x28000 coverage=18432/18432 # tile-row stride (e(0,32)-e(0,0)) = 10240  => cols=10 
+rg32uint 32x96: # work/cf_rg32uint_32x96 32x96 bpp=8 BOsz=0x8000 coverage=3072/3072 # tile-row stride (e(0,32)-e(0,0)) = 1024  => cols=1 
+rg32uint 33x64: # work/cf_rg32uint_33x64 33x64 bpp=8 BOsz=0x8000 coverage=2112/2112 # tile-row stride (e(0,32)-e(0,0)) = 2048  => cols=2 
+rgba32uint 224x64: # work/cf_rgba32uint_224x64 224x64 bpp=16 BOsz=0x38000 coverage=14336/14336 # tile-row stride (e(0,32)-e(0,0)) = 7168  => cols=7 
+rgba32uint 96x96: # work/cf_rgba32uint_96x96 96x96 bpp=16 BOsz=0x24000 coverage=9216/9216 # tile-row stride (e(0,32)-e(0,0)) = 3072  => cols=3 
