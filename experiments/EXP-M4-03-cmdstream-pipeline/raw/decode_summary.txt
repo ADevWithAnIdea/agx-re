@@ -1,0 +1,44 @@
+############ ITEM 1 — CDM compute launch (0x100000b0000) ############
+  +0x00 config    = 0x00080000   [A18: 0x00080000, bit19]
+  +0x08 shaderptr = 0x00002400   [A18: shaderVA>>6; 0x90000>>6=0x2400]
+  +0x10 grid.xyz  = 64,1,1   [A18: threads; 64,1,1]
+  +0x1c tg.xyz    = 32,1,1   [A18: effective tg; 32,1,1]
+  +0x2c term      = 0x40000000   [A18: 0x40000000]
+
+############ ITEM 2 — VDM draw record (0x18000) ############
+  [draw_tri] +0x60..0x80: 00 80 04 00 00 06 c4 61 03 00 00 00 01 00 00 00 00 00 00 00 00 00 00 c0 00 00 00 00 00 00 00 00
+  [draw_line] +0x60..0x80: 00 80 04 00 00 01 c4 61 03 00 00 00 01 00 00 00 00 00 00 00 00 00 00 c0 00 00 00 00 00 00 00 00
+  [draw_inst5] +0x60..0x80: 00 80 04 00 00 06 c4 61 03 00 00 00 05 00 00 00 00 00 00 00 00 00 00 c0 00 00 00 00 00 00 00 00
+  [draw_idx] +0x60..0x80: 00 80 04 00 01 00 00 40 ff ff 00 00 00 06 f2 61 00 88 01 00 03 00 00 00 01 00 00 00 00 00 00 00
+    tri:  prim@+0x65=0x06 op@+0x66=0x61c4 vcnt@+0x68=3 icnt@+0x6c=1  [A18: prim tri=0x06, op 0x61c4, +0x68/+0x6c]
+    inst5: icnt@+0x6c=5  [A18: instanceCount @+0x6c non-indexed]
+    line: prim@+0x65=0x01  [A18: line=0x01]
+    idx:  restart@+0x68=0xffff prim@+0x6d=0x06 op@+0x6e=0x61f2 idxcnt@+0x74=3 icnt@+0x78=1  [A18: op 0x61f2(u16), restart 0xffff@+0x68, idxcnt+0x74, icnt+0x78]
+
+############ ITEM 3 — USC sampler stride (arg buf 0x10000248000, hdr +0x600) ############
+  [usc_t1s1] tex_ptr=0x10000248620 samp_ptr=0x10000248640 term=0x10000248660  num_tex=(samp-tex)/0x20=1 num_samp=(term-samp)/0x20=1  (expect 1/1)  [A18 RT-2a: samp stride 0x20]
+  [usc_t2s3] tex_ptr=0x10000248620 samp_ptr=0x10000248660 term=0x100002486c0  num_tex=(samp-tex)/0x20=2 num_samp=(term-samp)/0x20=3  (expect 2/3)  [A18 RT-2a: samp stride 0x20]
+  [usc_t3s1] tex_ptr=0x10000248620 samp_ptr=0x10000248680 term=0x100002486a0  num_tex=(samp-tex)/0x20=3 num_samp=(term-samp)/0x20=1  (expect 3/1)  [A18 RT-2a: samp stride 0x20]
+
+############ ITEM 4 — Fixed-function state packets (0x58000) ############
+  [tb_base] +0x14 len=0x00004c19 +0x20 PPPout=0x00010000 +0x2c UVScnt=0x00000008 +0x34 flags=0x00040200 +0x38 depth=0x07200f00 +0x3c stencil=0x0e000000 +0x70 raster=0x00000480
+  [tb_ds] +0x14 len=0x00005019 +0x20 PPPout=0x00010000 +0x2c UVScnt=0x00000008 +0x34 flags=0x000c0200 +0x38 depth=0x01000f01 +0x3c stencil=0x0e02ffff +0x70 raster=0x00000480
+    PPP length bump on depth/stencil: 0x4c19 -> 0x5019  (delta 0x400)  [A18: +0x400]
+
+############ ITEM 5 — Indirect / occlusion / mesh / tessellation ############
+  [ind_draw] opcode@+0x66=0x6404  [A18: 0x6404 non-indexed / 0x6432 indexed]
+  [ind_drawix] opcode@+0x6e=0x6432  [A18: 0x6404 non-indexed / 0x6432 indexed]
+  [occ_bool] 0x58000+0x8c=0x0004c200 bit14=1  [A18: Boolean=1/Counting=0]
+  [occ_count] 0x58000+0x8c=0x00048200 bit14=0  [A18: Boolean=1/Counting=0]
+  [mesh_base] record 0x70000600 @+0x80 grid=1,1,1  [A18: 0x70000600]
+  [tess_tri] VDM record hi-byte@+0x67=0x40 domain@+0x8c=1 cfg@+0x68=0x47a00000 factorptr@+0x74=0x00018300  [A18: hi 0x40, tri=1/quad=2]
+  [tess_quad] VDM record hi-byte@+0x67=0x40 domain@+0x8c=2 cfg@+0x68=0x47b00000 factorptr@+0x74=0x00018300  [A18: hi 0x40, tri=1/quad=2]
+
+############ ITEM 6 — TBDR pipeline ############
+  [tb_base w=64] tile +0x904=0x80000001 +0x908=0x00000001 vp@+0x910=32,32,32,-32  [A18: 0x80000000|ceil(W/32)-1 ; 32x32 fixed]
+  [tb_big w=200] tile +0x904=0x80000006 +0x908=0x00000006 vp@+0x910=100,100,100,-100  [A18: 0x80000000|ceil(W/32)-1 ; 32x32 fixed]
+  [tb_base] att +0x24=0x0000fc03 (byte3=0x00)  [A18: msaa4=0x09xxxxxx bit24/bit27]
+  [tb_msaa4] att +0x24=0x0900fc03 (byte3=0x09)  [A18: msaa4=0x09xxxxxx bit24/bit27]
+  [tb_msaa4] sample pos @0x100000e8000+0x40: (0.3750,0.1250), (0.8750,0.3750), (0.1250,0.6250), (0.6250,0.8750)  [A18 RT-4: userspace-emittable, 1/16 grid]
+  [tb_sampos] sample pos @0x100000e8000+0x40: (0.1250,0.1250), (0.8750,0.3125), (0.3125,0.8750), (0.6875,0.6875)  [A18 RT-4: userspace-emittable, 1/16 grid]
+  [tb_mlc] memoryless poison 0x0eeee000 in 0x10000018200 at offsets ['0x28']  [A18: 0x0eeee000]

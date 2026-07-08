@@ -44,10 +44,15 @@ found so far.
 96 GPRs / halves-2-per-GPR / uniform file / async HW-interlock / SR table — to be re-validated by
 splice-run on M4 (expected identical; A18 baseline in `isa/README.md`).
 
-## 3. Command stream (CDM/VDM/USC/state) — ⏳ PENDING
-CDM compute launch, VDM draw, USC bind grammar (0x20 sampler stride), state packets, indirect/
-occlusion/timestamp, mesh, native tessellation — to be traced on M4 via `iotrace` and diffed vs
-`cmdstream/README.md`.
+## 3. Command stream (CDM/VDM/USC/state) — ✅ IDENTICAL (EXP-M4-03)
+`iotrace` works on the M4 host (interposes IOKit, SIP disabled). Every cmdstream field byte-identical to A18:
+CDM compute (config `0x00080000`@+0x00, shaderVA>>6@+0x08, grid-threads@+0x10, effective-tg@+0x1c), VDM draw
+(prim@+0x65, opcode 0x61c4@+0x66, vertexCount@+0x68, instanceCount@+0x6c; **indexed shifts identically** —
+0x61f2@+0x6e, indexCount@+0x74, instanceCount@+0x78), USC (**sampler stride 0x20**, `num_samplers=(term−samp)/0x20` —
+RT-2a fix holds), state packets (depth@+0x38, stencil@+0x3c, raster@+0x70, PPP-output@+0x20, **PPP length +0x400
+bump**), indirect (0x6404/0x6432), occlusion (bit14 @0x58000+0x8c), mesh (0x70000600), native tessellation (VDM
+record high-byte 0x40, domain@+0x8c). `cmdstream/README.md` applies unchanged. *(Inferred-identical, not re-run:
+u32-index opcode 0x61f4, timestamps.)*
 
 ## 4. Resource descriptors — ⏳ PENDING
 Texture (14-bit dims) / sampler (0x20 stride) / buffer / PBE / bindless — to be probed on M4 vs
@@ -57,13 +62,19 @@ Texture (14-bit dims) / sampler (0x20 stride) / buffer / PBE / bindless — to b
 Row-major Morton tiles (T=64/32 by bpp, cols=ceil(W/T), multiple-of-T padding), mip, compression
 (≥16×16, aux/128) — to be re-derived on M4 vs `tiling/README.md`.
 
-## 6. TBDR / pipeline — ⏳ PENDING
-32×32 tile, imageblock, MSAA, sample positions (userspace @+0x40), memoryless — to be traced on
-M4 vs `pipeline/README.md`. (Watch for tile-memory/occupancy effects of the 10-core config.)
+## 6. TBDR / pipeline — ✅ IDENTICAL (EXP-M4-03)
+Tile **32×32 fixed** (0x68000 +0x904/+0x908 = ceil(W/32)−1), MSAA count byte3=0x09@+0x24, **userspace sample
+positions @0x100000e8000+0x40** (default D3D + custom decode exact — RT-4 fix holds), memoryless poison
+`0x0eeee000`, per-attachment 0x20-stride tile-memory records. `pipeline/README.md` applies unchanged.
+**10-core effect: NONE in userspace** — no cmdstream/pipeline field encodes/scales with core count; the tiler
+geometry/parameter heaps vary in size but are firmware/kernel-managed (below the userspace boundary).
 
-## 7. Kernel interface — ⏳ PENDING
-Submit/BO/VM contract + firmware-managed items + the core-count/config the userspace must know —
-vs `kernel-interface.md`.
+## 7. Kernel interface — ✅ mostly IDENTICAL (EXP-M4-03) + 2 per-part deltas
+Same shared-mem ring + doorbell submission, same `IOSurfaceRoot`, same selectors, same **sel-9 map-resource→GPU-VA**
+ABI. **Deltas a driver must handle per part:** (1) the **AGX user-client class name is `AGXAcceleratorG16G`** (vs
+`AGXAcceleratorG17P` on A18) — match by part; (2) the config the userspace/kernel must know differs — **10 GPU cores**
+(vs 5) and **maxBufferLength ~8.88 GiB** (vs hard 4 GiB) — query the device, don't hard-code. `kernel-interface.md`
+otherwise applies. (Firmware-managed heap sizes scale with the part but stay below the userspace boundary.)
 
 ## 8. Capabilities — ✅ IDENTICAL (EXP-M4-02)
 The M4 and A18 Pro have the **identical Metal/MSL capability envelope — zero capability deltas.** All 32 MSL
@@ -84,4 +95,7 @@ So the A18 `capability-matrix.md` / `capability-completeness.md` (189 native / 1
 | Device config | ⚠ 10 cores (vs 5); maxBufferLength 8.88 GiB (vs 4 GiB); codename g16g |
 | Capabilities | ✅ identical (EXP-M4-02) — zero capability deltas |
 | ISA | ✅ identical (EXP-M4-01) |
-| Machine model / cmdstream / descriptors / tiling / pipeline / kernel-iface / capabilities | ⏳ validating |
+| Command stream | ✅ identical (EXP-M4-03) |
+| TBDR / pipeline | ✅ identical (EXP-M4-03) |
+| Kernel interface | ✅ identical except user-client class `AGXAcceleratorG16G` + config (10 cores, buf>4GiB) |
+| Machine model / descriptors / tiling | ⏳ validating |
