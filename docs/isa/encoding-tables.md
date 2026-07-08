@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-07). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 85 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-08). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 85 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -435,15 +435,15 @@
 
 ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x4, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x4, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `b1` | [8:16] (byte+1) | raw/unmapped |  |
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `body` | [24:80] (byte+3) | raw/unmapped |  |
+| `body` | [24:64] (byte+3) | raw/unmapped |  |
 
-*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 10 bytes, byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since both can carry byte+2 in {0x54,0x56}.*
+*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes (EXP-M4-12 length CORRECTION: EXP-0033 recorded 10 by a 2-byte over-read; a fresh isolated compile of unpack_unorm2x16_to_float = `17 04 56 00 00 00 1c ca` tokenizes cleanly at 8B between device_load and device_store -- the HW readback validated the VALUE, not the length). byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since both can carry byte+2 in {0x54,0x56}.*
 
 ### `half_pack` — assemble a half2's two fp16 lanes into a packed 32-bit register
 

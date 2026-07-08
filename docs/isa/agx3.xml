@@ -1388,7 +1388,7 @@
 
   <!-- unpack_convert: packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2 -->
   <!-- provenance: HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact (0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5)). Single compute op; field bit-packing ... -->
-  <ins name="unpack_convert" length="10" label="packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -&gt; a float2">
+  <ins name="unpack_convert" length="8" label="packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -&gt; a float2">
     <exact bit="0:7">00010111</exact>
     <exact bit="8:11">0100</exact>
     <exact bit="16">0</exact>
@@ -1397,8 +1397,8 @@
     <zero bit="12:15"/>
     <!-- b2 [17]: inferred / not yet bit-decoded -->
     <zero bit="17"/>
-    <!-- body [24:79]: inferred / not yet bit-decoded -->
-    <zero bit="24:79"/>
+    <!-- body [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
   </ins>
 
   <!-- iminmax_chain: integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20 -->

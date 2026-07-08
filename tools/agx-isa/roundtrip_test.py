@@ -156,7 +156,7 @@ REAL_INSTRS = {
     "ibitcount find_msb (a7 05 56 ..)":   "a7055604030c4e04",   # find-MSB / bit-scan (EXP-0033, from k_int_bitcount)
     "irotate imm (27 01 56 .. 12B)":      "2701560002006c00f0150900",  # rotate-by-immediate funnel (EXP-0033)
     "pack_convert (97 04 56 ..)":         "9704560c03102a544482",  # pack_float_to_unorm2x16 (EXP-0033, from k_cvt_pack)
-    "unpack_convert (17 04 56 ..)":       "17045600030000000000",  # unpack_unorm2x16 (EXP-0033; byte+1!=07 vs simd_ballot)
+    "unpack_convert (17 04 56 ..)":       "1704560000001cca",  # unpack_unorm2x16, 8B (EXP-M4-12 fresh isolated compile; byte+1!=07 vs simd_ballot). EXP-0033's 10B was a 2-byte over-read.
     "iminmax_chain (22 01 1e 05 07 c0)":  "22011e0507c0",   # min3/clamp first op (EXP-0033)
     "frame_marker (43 00 00 01)":         "43000001",   # call/frame-setup marker (EXP-0035; re-scoped EXP-0030)
     "call (0f 05 54 1a 8f 10 54 54 ..)":  "0f05541a8f105454ffffffffff00",  # direct CALL (EXP-0035, from k_cf_call)
@@ -174,7 +174,7 @@ REAL_INSTRS = {
     "link_restore (07 00 54 00 81 ff 1f 00)": "0700540081ff1f00",  # link-register restore after a nested call
     "half_pack (18 05 18 03)":             "18051803",       # half2 pack (from k_h2add)
     "simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03)": "bf03540403081403",  # later-consumer reduce (0x54 cache bit)
-    "unpack_convert 0x54 cache (17 04 54 ..)": "1704540000001ccae700",  # unpack, 0x54 cache-bit variant (EXP-0038)
+    "unpack_convert 0x54 cache (17 04 54 ..)": "1704540000001cca",  # unpack, 0x54 cache-bit variant, 8B (EXP-M4-12: dropped trailing `e7 00` = next device_store head)
     # ---- RT-ISA-FIX: ballot 0x17 mis-decode, shuffle 0x54 decode-gap, 0x0f exec-mask family, 0x07 fence ----
     "simd_ballot(pred) (17 17 54 ..)":     "1717540002001448220c",   # simd_ballot(lane<5)=0x1F HW; byte+1=0x17 (was mis-decoded as unpack)
     "simd_active_mask (17 07 54 ..)":      "17075400020200080218",   # simd_active_threads_mask HW; byte+1=0x07

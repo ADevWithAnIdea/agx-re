@@ -92,25 +92,6 @@ def instr_length(buf, off=0):
     lo = b0 & 0x0f
     if b0 == 0x0e:
         return 4                       # stop
-    # ---- SFU range-reduction 2-byte operand-WORDS (EXP-M4-12 S1, sin/cos) ----------
-    # The transcendental argument range-reduction (sin/cos) injects little-endian
-    # immediate/coefficient WORDS between the SFU ops. Each is 2 bytes, cleanly
-    # bracketed between known-length ops; tightly gated on (byte0, byte+1) so it can
-    # never mis-length a real op. Operands are intentionally NOT bit-decoded -- doing so
-    # would reconstruct the range-reduction sequence, which clean-room rule 5 forbids.
-    # Every gate is anchored by an isolated OWN-SHADER compile (S1 evidence table).
-    _b1 = buf[off + 1] if off + 1 < len(buf) else -1
-    _b2 = buf[off + 2] if off + 2 < len(buf) else -1
-    if b0 == 0x06 and _b1 == 0x02:                          return 2   # 06 02
-    if b0 == 0x01 and _b1 == 0x00:                          return 2   # 01 00
-    if b0 == 0x00 and _b1 in (0x00, 0x80, 0x84):            return 2   # 00 00 / 00 80 / 00 84
-    if b0 == 0x80 and _b1 in (0x00, 0x08, 0x0c):            return 2   # 80 00 / 80 08 / 80 0c
-    if b0 == 0x20 and _b1 in (0x00, 0x80) and _b2 != 0x24:  return 2   # 20 00 / 20 80 (b2!=0x24: half2)
-    if b0 == 0xa0 and _b1 == 0x0c:                          return 2   # a0 0c
-    if b0 == 0x03 and _b1 == 0x02 and _b2 != 0x26:          return 2   # 03 02 (b2!=0x26: sample-id read)
-    if b0 == 0xa0 and _b1 == 0x00 and _b2 == 0x00:          return 4   # a0 00 00 00: loop-header compact
-                                       # init op (EXP-M4-12 S4: k_cf_loop@0x44, get_sr -> [4] -> iadd2;
-                                       # reproduced in cf_for/cf_break). Distinct from the 2-byte `a0 0c`.
     # ---- get_sr special-register read / mov_imm (EXP-0031, HW-validated) ----
     # byte0 low-3-bits == 0b100: either the 0xNc preamble form or the 0xN4 datapath
     # form; byte1 = the SR number; byte+2/+3 = a 32-bit-source suffix whose byte+3
@@ -134,6 +115,9 @@ def instr_length(buf, off=0):
                                        # memory (EXP-0029 / EXP-O2D HW). byte+1 0x16 == 0x06|0x10 = the
                                        # FIRST store after a 0x87 tile-access setup (dispatchThreadsPerTile
                                        # tile shader); 0x06 = a subsequent store / simple-MRT colour store.
+    if b0 == 0x67 and (buf[off+1] if off+1 < len(buf) else -1) == 0x03 \
+            and (buf[off+2] if off+2 < len(buf) else -1) == 0x54:
+        return 12                      # EXP-M4-12: threadgroup atomic load/store
     if b0 == 0x67 and (buf[off+1] if off+1 < len(buf) else -1) in (0x06, 0x0e, 0x16):
         return 12                      # fragment TILEBUFFER READ (0x0e programmable-blend tile_read,
                                        # EXP-0029) / explicit imageblock<T>.read (0x06 / 0x16 tile
@@ -147,12 +131,6 @@ def instr_length(buf, off=0):
     # 0x07 fence fills in the non-texture atomics kernel. Gated off the fragment 0x87
     # (byte+2==0x54, handled above) and off 0x80 operand-tail bytes (byte+1 != 0x02).
     if b0 == 0x87:
-        if off + 2 < len(buf) and buf[off + 1] == 0x00 and 0 < buf[off + 2] < 0x80:
-            return 2                   # BARE compute fence, 2 bytes (EXP-M4-12 S3): byte+1==0x00 and
-                                       # byte+2 is the NEXT op's byte0 (a real op-leader, 0<b2<0x80),
-                                       # NOT a scope operand. k_uint_arith@0x114 `87 00 3a 80` -> the
-                                       # `3a 80 ..` icmp_pred follows. Real scope operands set bit7
-                                       # (e.g. `87 00 80 04`), so this never eats a 4-byte scoped fence.
         return 4                       # compute scoreboard fence (device/texture scope)
     if b0 == 0x80 and off + 1 < len(buf) and buf[off + 1] == 0x02:
         # compute scoreboard fence (0x80 scope variant): the FULL form is `80 02 00 00`
@@ -164,11 +142,6 @@ def instr_length(buf, off=0):
         return 10                      # fragment colour-register pack/move (EXP-0029; no compute 0x97)
     if b0 == 0xd7 and off + 2 < len(buf) and buf[off+1] == 0x14 and buf[off+2] == 0x54:
         return 6                       # fragment [[depth]] store (EXP-0029)
-    if b0 == 0x67 and off + 2 < len(buf) and buf[off + 1] == 0x03 and buf[off + 2] == 0x54:
-        return 12                      # THREADGROUP atomic load/store, 12 bytes (EXP-M4-12 S4):
-                                       # k_atomics_tg -- the `67 03 54 ..` tg-atomic is 12B, but the
-                                       # generic `0x67 -> 14` over-read it by 2 and swallowed a `0f 06`
-                                       # pop_reconverge, cascading into the `44 05 00 40 00 00` residue.
     if b0 in (0x67, 0xe7):
         return 14                      # device load (0x67) / store (0xE7)
     # ---- FRAGMENT varying INTERPOLATION family (EXP-0029, HW-validated) ----
@@ -263,24 +236,10 @@ def instr_length(buf, off=0):
     # 10 bytes (EXP-0018 HW-validated semantics).
     if b0 in (0x47, 0xc7):
         return 10                      # simd/quad shuffle / broadcast
-    # ---- byte0 0x17: three length-distinct ops, disambiguated by byte+1 (EXP-M4-12) ----
-    # The old flat `-> 10` was correct only for compute simd_ballot; it mis-lengthed the
-    # fragment unpack_convert (should be 8) and the texture coordinate-projection setup
-    # (should be 12), whose 2-byte overruns produced the r_blend / k_cvt_pack / k_tex_msaa
-    # / k_tex_array_cube residue cascades. byte+1 cleanly separates the three:
-    #   byte+1 low-nibble 4 (0x04/0x14)            -> 8   unpack_convert (fragment tilebuffer
-    #                                                     colour unpack, S4; and fp-pack convert,
-    #                                                     S3 k_cvt_pack -- two back-to-back 8B unpacks)
-    #   byte+1 in {0x01,0x05} & (byte+2 & ~2)==0x54 -> 12  texture coordinate-projection /
-    #                                                     sample-address SETUP (S2 k_tex_msaa,
-    #                                                     k_tex_array_cube; carries a trailing
-    #                                                     operand word past the base 10B form)
-    #   else (byte+1 low-nibble 7)                 -> 10  simd_ballot / vote mask source (compute)
+    # SIMD ballot / vote source: byte0 0x17, 10 bytes (EXP-0018).
+    if b0 == 0x17 and off + 7 < len(buf) and buf[off + 6] == 0x14 and buf[off + 7] == 0xea:
+        return 8                       # EXP-M4-12: FRAGMENT tilebuffer-color UNPACK/convert
     if b0 == 0x17:
-        if (_b1 & 0x0f) == 0x04:
-            return 8
-        if _b1 in (0x01, 0x05) and (_b2 & ~0x02) == 0x54:
-            return 12
         return 10                      # simd_ballot / vote mask source
     if lo == 0x09:
         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
@@ -303,22 +262,11 @@ def instr_length(buf, off=0):
                                        # EXP-M4-01: 0x19 (t_sqrt@28 `09 05 19 01`), 0x21/0x31 (s_div@136
                                        # `79 8d 21 97`/@244) join the EXP-0025 0x18/0x38 forms -- all are
                                        # the 4-byte low-nibble-9 form the div/sqrt refinement emits between
-                                       # cvt anchors (anchored gap length = 4). EXP-M4-12 S4 adds the bit0
-                                       # siblings 0x30 (r_deriv_f `89 81 30 11`) and 0x39 (r_tex_f
-                                       # `19 03 39 11` / `29 07 39 09`) -- same 4-byte compact form; their
-                                       # absence orphaned the following tex_deriv / frag_color_pack.
+                                       # cvt anchors (anchored gap length = 4).
         if b2 in (0x26, 0x2e):
-            b3 = buf[off + 3] if off + 3 < len(buf) else -1
             b4 = buf[off + 4] if off + 4 < len(buf) else -1
             b6 = buf[off + 6] if off + 6 < len(buf) else -1
             b7 = buf[off + 7] if off + 7 < len(buf) else -1
-            if b2 == 0x2e and b3 == 0x87 and b4 == 0x23 and b6 == 0x42 and b7 == 0x00:
-                return 12              # 12B texture-coordinate TRANSFORM (0x2e sibling of the 0x3e
-                                       # coord op), EXP-M4-12 S2: k_tex_array_cube@0x5e
-                                       # `49 0f 2e 87 23 a0 42 00 00 06 02 00`. The `byte+4 bit1 -> 8`
-                                       # rule mis-lengthed it 8 and exposed its tail `00 06 02 00` as a
-                                       # spurious leader. Signature `2e 87 23 .. 42 .. 00` is unique
-                                       # (no 6/10B coord op shares it).
             # EXP-M4-01: the EXTENDED-source fused mul-add coord op carries a trailing
             # `00 <slot>` operand word (10 bytes). Signature byte+4==0x82, byte+6==0x42,
             # byte+7==0x02; the trailing word's byte+1 is the varying/output SLOT (a
@@ -329,11 +277,7 @@ def instr_length(buf, off=0):
                 return 10              # extended-source fmul-add coord op (VS varying compute)
             return 8 if (b4 & 0x02) else 6  # fused mul / mul-add coord op (EXP-0037)
         if b2 == 0x3e and (buf[off + 4] if off + 4 < len(buf) else -1) == 0x80:
-            return 6                   # 6B uniform-source falu (op-select 0x3e, byte+4==0x80),
-                                       # EXP-M4-12 S4: r_blend_f `19 03 3e 09 80 06`. 0x3e has bit1 set
-                                       # so the fma branch below mis-lengthed it 8, orphaning the
-                                       # frag_color_pack `54 05` tail. Gated on byte+4==0x80 so the
-                                       # compute coord form (`3e .. 23 a0 42`, byte+4==0x23) keeps fma.
+            return 6                   # EXP-M4-12: fragment uniform-source falu (0x3e, b4=0x80)
         if b2 & 0x02:
             # fma / 3-source form. EXP-M4-10 (ISA-2/3, HW byte-diff): the fma ALSO
             # carries the saturate/abs EXTENDED tail, so it is length-POLYMORPHIC on
@@ -372,13 +316,8 @@ def instr_length(buf, off=0):
                                        # 2 bytes, anchored by the following 8-byte 0x37 op.
         if off + 3 < len(buf) and b2 == 0x01 and buf[off + 3] == 0x08:
             return 4                   # uniform_mov (read a uniform register into a GPR)
-        if b2 in (0x0e, 0x17, 0x1e, 0x1f):
-            return 10                  # float unary (fmov/fneg/fabs) & int bitwise (and/or/xor).
-                                       # EXP-M4-12 S3 adds op-select 0x17 = the `& mask` integer-logic
-                                       # form (k_mem@0xe `5b 11 17 ff 10 02 00 00 00 00`, the `& 255`
-                                       # array-index mask; byte+3==0xff = mask immediate). Sibling of the
-                                       # already-decoded `0b 01 1f ff ..` ilogic; the `10 02 00 00 00 00`
-                                       # is this op's operand tail, NOT a half_alu.
+        if b2 in (0x0e, 0x1e, 0x1f):
+            return 10                  # float unary (fmov/fneg/fabs) & int bitwise (and/or/xor)
         if b0 in (0x2b, 0x3b, 0x5b, 0x8b) and (b2 & 0x0f) in (0x0e, 0x0f):
             return 10                  # shift-amount PREP stage (EXP-0033, byte+2 lo-nibble e/f)
         if b2 in (0x27, 0x2f):
@@ -434,42 +373,21 @@ def instr_length(buf, off=0):
         b2 = buf[off + 2] if off + 2 < len(buf) else -1
         b3 = buf[off + 3] if off + 3 < len(buf) else -1
         b4 = buf[off + 4] if off + 4 < len(buf) else -1
+        if b0 == 0x02 and b1 == 0x00 and not (0 <= b2 <= 0x3f):
+            return 2                   # EXP-M4-12: compact 2-byte select/predicate helper
         if b1 == 0xc2 and (buf[off+6] if off+6 < len(buf) else -1) == 0x80 \
                       and (buf[off+7] if off+7 < len(buf) else -1) == 0x08:
             return 8                   # transcendental range-reduction select (t_sin@24)
         if 0 <= b2 <= 0x3f:
             ln = b2 & 0x0f
-            if b2 == 0x21:
-                return 10              # register-operand SELECT + trailing operand word, ALL dst regs
-                                       # (EXP-M4-12 S1). t_sin/cos + sign range-reduction; the census
-                                       # "6B" `X2 81 21 81 22 b0` was a resync-gap artifact -- the
-                                       # trailing `02 02 20 80` / `03 02 09 05` is THIS op's operand
-                                       # word. Disamb: at 8B the sign/round walk overruns; only 10B
-                                       # reaches stop cleanly (isolated `sign`, transcend_round@38/@46).
-            if b2 == 0x25:
-                return 8 if (b4 & 0x02) == 0 else 10
-                                       # icmp/select op-select 0x25, length-polymorphic on the srcC
-                                       # descriptor byte+4 bit1: register srcC (clear) = 8B; immediate
-                                       # 0/1-select srcC (set, `.. 22 81 .. 20 80` tail) = 10B. ALL dst
-                                       # regs incl 0x22 (EXP-M4-12 S3: k_int64@0xa2 `92 8f 25 8b 85 19
-                                       # 07 00` = 8B; the old reg-select rule below mis-lengthed it 10).
-            if b2 in (0x1e, 0x2e, 0x3e, 0x26, 0x36, 0x35, 0x3d, 0x23, 0x2b, 0x03):
+            if b2 in (0x1e, 0x2e, 0x3e, 0x26, 0x36, 0x35, 0x3d, 0x23):
                 return 6               # iminmax / carry_gen / fcmp-pred (0x3d, EXP-M4-01:
                                        # k_int_arith@224 `42 0d 3d 09 22 81` = 6B, feeds a psel)
                                        # / SFU polynomial fma (0x23, EXP-M4-01: k_transcend
                                        # `42 81 23 80 96 08` = 6B, the exp/log/pow Horner step
-                                       # feeding a sel; anchored by the following 0x16 sel).
-                                       # EXP-M4-12 S1 adds the sin/cos range-reduction op-selects
-                                       # 0x2b (SFU range-reduction select, `72 01 2b 82 96 08` r7 /
-                                       # `32 05 2b 82 95 06` r3 / `22 05 2b 0d 87 06` r2 -- uniform 6B
-                                       # all dst regs; the old 0x22 rule mis-lengthed b2=0x2b as 10) and
-                                       # 0x03 (SFU polynomial select, `42 85 03 0d 87 08` r4).
+                                       # feeding a sel; anchored by the following 0x16 sel)
             if b2 in (0x1d, 0x2d):
-                if b2 == 0x2d and b3 == 0x80:
-                    return 10          # register-operand cmpsel (div/mod correction SELECT, EXP-M4-12
-                                       # S3: k_uint_arith@0x134 `12 06 2d 80 26 80 ..` = 10B). The old
-                                       # flat `-> 14` over-read it and swallowed the next op's head.
-                return 14              # icmpsel: compare -> 0/1 const (b2=0x1d, b3=0x05)
+                return 14              # icmpsel (compare -> 0/1)
             if b2 in (0x27, 0x2f) and b3 == 0x80:
                 # madd / register-operand select `dst = srcA*srcB + srcC`, for ALL dst regs
                 # INCLUDING 0x22. EXP-M4-01: byte+4 is the srcC operand descriptor and its bit1
@@ -500,20 +418,8 @@ def instr_length(buf, off=0):
         # so the old unconditional `-> 6` GREEDILY ate the following op -- e.g. `02 00 59
         # 0b 3e 07` ate a coord_madf in k_tex_array_cube and `02 00 af 01 54` ate an
         # fspecial in k_transcend. Leaving those LEN_UNKNOWN lets the real op tokenize.
-        if b0 == 0x02:
-            if 0 <= b2 <= 0x3f: return 6
-            return 2 if b1 == 0x00 else LEN_UNKNOWN
-                                       # EXP-M4-12 S4: `02 00` (b1==0x00, b2 not a real op-select) is a
-                                       # 2-byte compact select/predicate helper (k_atomics@0x168 fence->
-                                       # [2]->frame_marker; k_subgroup_shuffle@0x7c shuffle->[2]->iadd2).
-                                       # A real 6-byte iminmax always carries its op-select (<=0x3f) in
-                                       # byte+2; when it does not, the leading `02 00` is this compact op.
-        if b0 == 0x12:
-            if b2 == 0x3f:
-                return 8               # compare/select op-select 0x3f feeding a final iadd2 accumulate
-                                       # (EXP-M4-12 S3: k_uint_arith@0x190 `12 0d 3f 11 81 0c 05 00` =
-                                       # 8B; the fminmax `-> 6` left `05 00` and exposed a spurious 0x54).
-            return 14 if (b2 & 0x0f) == 0x0d else 6
+        if b0 == 0x02: return 6 if 0 <= b2 <= 0x3f else LEN_UNKNOWN
+        if b0 == 0x12: return 14 if (b2 & 0x0f) == 0x0d else 6
         if b0 == 0x22: return 6 if (b2 & 0x0f) == 0x0e or b2 == 0x35 else 10
         if b0 == 0x32: return 6 if 0 <= b2 <= 0x3f else LEN_UNKNOWN
         return LEN_UNKNOWN             # new high-nibble dst, unrecognized op-select
@@ -625,16 +531,6 @@ def instr_length(buf, off=0):
     # never swallows the get_sr (byte+3 lo-nibble 6) or a longer 0xNc op.
     if b0 == 0x2c and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x0c:
         return 4
-    # ---- 0xNc compact MOV-IMMEDIATE (byte0 low-nibble c), 2 bytes (EXP-M4-12 S2) --------
-    # dst = byte0 high nibble; byte+1 = an 8-bit immediate/coefficient. Closes k_tex_lod@0x12
-    # (`2c cd`, the gradient->LOD coefficient), k_tex_atomic@0x38 (`ac 01`), k_transcend_round@0x50
-    # (`3c 01`). Exclusions are LOAD-BEARING (enumerated over all 0xNc boundary ops corpus-wide):
-    #   byte+3 lo-nibble 6 -> get_sr (4B, handled at top);  byte+1==0x0c -> the `2c 0c` 4-byte move
-    #   above;  byte+1==0x02 -> `1c 02 ..` tg-addr compute (6B, below);  byte+1==0xea -> rt_intersect.
-    # A blanket 0xNc->2 regresses (eats k_threadgroup's 6-byte `1c 02`); the three exclusions are required.
-    if (b0 & 0x0f) == 0x0c and (buf[off + 1] if off + 1 < len(buf) else -1) not in (0x0c, 0x02, 0xea) \
-            and ((buf[off + 3] if off + 3 < len(buf) else -1) & 0x0f) != 0x06:
-        return 2
     # ---- THREADGROUP-memory address / base compute (byte0 0x1c, `1c 02 00 ..`), 6B ----
     # EXP-M4-01 round-3: k_threadgroup@46 `1c 02 00 00 00 00`, bracketed between two low-nibble-3
     # threadgroup-id ops and the half_alu/threadgroup device_store; a 6-byte threadgroup-buffer
@@ -652,14 +548,6 @@ def instr_length(buf, off=0):
     if (b0 & 0x0f) in (0x00, 0x08) and b0 != 0x00 \
             and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x24:
         return 6
-    # ---- half combine/fma op (byte0 low-nibble 0, byte+2==0x39), 10 bytes (EXP-M4-12 S3) ----
-    # k_half_arith@0x2c `20 05 39 04 10 02 1e 03 80 04` (dst r2). A genuine 10-byte half
-    # `(x+y)*(x-y)+x*y`-style combine; DB had no rule (LEN_UNKNOWN). Distinct from the
-    # low-nibble-9 byte+2==0x39 compact-accumulate (4B) above -- this is low-nibble 0.
-    # Exclude the sampler byte0s (0x30/0x90/0xb0) and the 0x00 stop.
-    if (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \
-            and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x39:
-        return 10
     # ---- FLOAT SPECIAL-FUNCTION unary (byte0 0x2f / 0xaf, 10B, EXP-0013) ----
     # exp2 (0xaf), log2 (0x2f) and the round family floor/ceil/trunc/rint (0x2f, with
     # the round-mode in byte+8) are single 10-byte ops in COMPUTE. (NB: in vertex/
@@ -709,11 +597,6 @@ def instr_length(buf, off=0):
     #       Cleanly tokenizes gsel4 (0x05) and dsel5 (0x16). The compare feeding
     #       it is byte0 0x02/6B (shares length with iminmax).
     if b0 in (0x05, 0x16):
-        return 4
-    # 0x85: psel HIGH-predicate-register variant (0x05 | 0x80), 4 bytes (EXP-M4-12 S3).
-    # k_uint_arith@0x11c `85 00 20 80` (tail `20 80`); parallels k_int64@0x66 `05 00 20 80`.
-    # Gated on the `20 80` tail so it never claims an unrelated 0x85 operand byte.
-    if b0 == 0x85 and off + 3 < len(buf) and buf[off + 2] == 0x20 and buf[off + 3] == 0x80:
         return 4
     # 0x0f: control-flow / execution-mask group; sub-opcode in byte+1. The JUMP
     #       (loop back-edge / block skip) is `0f 00 54 <off6> 00` = 10 bytes with a
@@ -873,15 +756,6 @@ def instr_length(buf, off=0):
     # case (a low-nibble-9 float op) handled in the 0x09 block. EXP-0037 inferred.
     if (b0 & 0x0f) == 0x0e and b0 != 0x0e and off + 2 < len(buf) and buf[off + 2] == 0x23:
         return 10                      # coord_madf (EXP-0037)
-    # ---- 16-byte texture-READ SAMPLER variant (trailing operand word), EXP-M4-12 S2 ----
-    # k_tex_atomic@0x3c4 `90 00 17 01 a0 02 80 00 02 00 ...` -- the texture-read sampler op
-    # under register pressure carries a trailing 6-byte operand word, making it 16 bytes; the
-    # 10-byte fallback below over-read it as 10 and left `00 20 00 00 00 00` (byte0 0x00, never a
-    # real leader) as residue. The plain read has byte+4==0x00 (10B via the companion path);
-    # this variant is uniquely byte+1==0x00 && byte+2==0x17 && byte+4==0xa0.
-    if b0 in (0x30, 0x90, 0xb0) and off + 4 < len(buf) and buf[off + 1] == 0x00 \
-            and buf[off + 2] == 0x17 and buf[off + 4] == 0xa0:
-        return 16
     # ---- STANDALONE texture SAMPLER OP fallback (0x30/0x90/0xb0, EXP-0037) -----
     # A bare 10-byte sampler op (byte0 = result_reg<<4 | 0) NOT preceded by a matched
     # tex_sample companion -- only reachable via resync. Gate tightly on byte+2 in the
@@ -900,6 +774,12 @@ def instr_length(buf, off=0):
     # 0x27 ops in round-1) reached via resync.
     if b0 == 0xf0 and off + 2 < len(buf) and buf[off + 1] == 0xc0 and buf[off + 2] == 0x04:
         return 4
+    if b0 == 0xa0 and off + 2 < len(buf) and buf[off + 1] == 0x00 and buf[off + 2] == 0x00:
+        return 4                       # EXP-M4-12: loop-header compact init op
+    if b0 == 0x06 and off + 2 < len(buf) and buf[off + 1] == 0x02 and buf[off + 2] == 0xe7:
+        return 2                       # EXP-M4-12: compact select/predicate helper (pre-store)
+    if b0 == 0x01 and off + 3 < len(buf) and buf[off + 1] == 0x00 and buf[off + 2] == 0x00 and buf[off + 3] == 0x00:
+        return 4                       # EXP-M4-12: fragment centroid interp setup preamble
     return LEN_UNKNOWN
 
 
@@ -3128,7 +3008,7 @@ DB = [
     # ---- packed format CONVERT (unpack): byte0 0x17, byte+2 0x56, 10 B ------
     {
         "mnemonic": "unpack_convert",
-        "length": 8,
+        "length": 10,
         # byte0 0x17 collides with simd_ballot (also 0x17, 10B). RT-ISA-FIX: discriminate on
         # byte+1 LOW NIBBLE -- unpack byte+1==0x04 (low nib 4), ballot byte+1 in {0x07,0x17}
         # (low nib 7). Adding (8,4,0x04) makes the two descriptors MUTUALLY EXCLUSIVE (they can
@@ -3141,13 +3021,10 @@ DB = [
         "fields": [
             {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
             {"name": "b2",   "start": 16, "width": 8, "type": "raw"},
-            {"name": "body", "start": 24, "width": 40, "type": "raw"},
+            {"name": "body", "start": 24, "width": 56, "type": "raw"},
         ],
         "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, "
-                     "8 bytes (EXP-M4-12 length CORRECTION: EXP-0033 recorded 10 by a 2-byte over-read; a fresh "
-                     "isolated compile of unpack_unorm2x16_to_float = `17 04 56 00 00 00 1c ca` tokenizes cleanly "
-                     "at 8B between device_load and device_store -- the HW readback validated the VALUE, not the "
-                     "length). byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two "
+                     "10 bytes, byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two "
                      "normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also "
                      "0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since "
                      "both can carry byte+2 in {0x54,0x56}.",
