@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 126 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 134 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -912,12 +912,11 @@
 
 ### `rt_ray_mem` — ray-data / traversal-stack memory op (payload copy-in/out)
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0x5f, byte+2==0x54  ·  **Provenance:** inferred
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x02  ·  **Provenance:** inferred
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `subop` | [8:16] (byte+1) | opcode-select |  |
-| `marker` | [16:24] (byte+2) | raw/unmapped |  |
+| `mode` | [16:24] (byte+2) | enum | `0x54`=mem_54; `0x56`=mem_56; `0x4`=mode_04; `0x64`=mode_64 |
 | `body` | [24:112] (byte+3) | raw/unmapped |  |
 
 *RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the 0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for custom intersection functions (its count scales with payload size: float2 -> 13, 8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; 0x10/0x11 mirror the 0x67 load space+index byte). Confirms ray_data is a distinct address space backed by RT scratch (RT kernels emit zero threadgroup ops and only one device store = the output).*
@@ -1182,6 +1181,14 @@
 
 - **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x04
 
+### `rt_ray_mem_ldidx`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x10, byte+2==0x54
+
+### `rt_ray_mem_short`
+
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x11, byte+2==0x54
+
 ### `scoreboard_fence`
 
 - **Length:** 4 bytes  ·  **Match:** byte+0==0x07, bits[16:17]==0x0
@@ -1346,6 +1353,30 @@
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x06
 
+### `b_alu14_c83`
+
+- **Length:** 14 bytes  ·  **Match:** bits[0:4]==0xf, bits[7:8]==0x0, byte+2==0x83
+
+### `if_push_pred`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, bits[8:12]==0x5
+
+### `b_alu14_prep2`
+
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1
+
+### `int_alu_ehi`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0xef, byte+2==0x54, byte+9==0x40
+
+### `vtx_out_pos`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+1==0x00, byte+2==0x26, byte+3==0x00, byte+4==0x40, byte+5==0x00, byte+6==0x00
+
+### `vary_slot`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x00, byte+2==0x40
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1420,4 +1451,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 126 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 134 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

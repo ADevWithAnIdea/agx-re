@@ -202,6 +202,13 @@
     <value value="187">primitive_motion_AS</value>
   </enum>
 
+  <enum kind="rt_ray_mem_mode" name="rt_ray_mem mode">
+    <value value="4">mode_04</value>
+    <value value="84">mem_54</value>
+    <value value="86">mem_56</value>
+    <value value="100">mode_64</value>
+  </enum>
+
   <enum kind="ray_move_form" name="ray_move form">
     <value value="128" label="zero_init(b3=0x00)">zero_init</value>
     <value value="129" label="copy_reg(b3=0x08)">copy_reg</value>
@@ -1152,12 +1159,32 @@
   <!-- provenance: inferred (byte-diff, EXP-O2C): byte0 0x5f present in every raytracing:: kernel (12-28 per kernel) and ABSENT from a hand-written software triangle ... -->
   <ins name="rt_ray_mem" length="14" label="RAY-TRACING ray-data / traversal-stack memory op">
     <exact bit="0:7">01011111</exact>
-    <exact bit="16:23">01010100</exact>
-    <!-- opcode-select subop [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
-    <!-- marker [16:23]: constant, pinned by match/opcode -->
+    <exact bit="8:15">00000010</exact>
+    <modifier name="mode" bit="16:23" kind="rt_ray_mem_mode"/>
     <!-- body [24:111]: inferred / not yet bit-decoded -->
     <zero bit="24:111"/>
+  </ins>
+
+  <!-- rt_ray_mem_ldidx: RAY-TRACING ray-data memory op, load-INDEX variant (12B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = 12 across 32 occurrences (rq_pred / RT-query kernels). Length bracketed by the next 0x5f ... -->
+  <ins name="rt_ray_mem_ldidx" length="12" label="RAY-TRACING ray-data memory op, load-INDEX variant (12B)">
+    <exact bit="0:7">01011111</exact>
+    <exact bit="8:15">00010000</exact>
+    <exact bit="16:23">01010100</exact>
+    <!-- body [24:95]: inferred / not yet bit-decoded -->
+    <zero bit="24:95"/>
+  </ins>
+
+  <!-- rt_ray_mem_short: RAY-TRACING ray-data memory op, SHORT form (6B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = 6 across 92 occurrences (rq_pred / RT-query kernels). Length bracketed by the ... -->
+  <ins name="rt_ray_mem_short" length="6" label="RAY-TRACING ray-data memory op, SHORT form (6B)">
+    <exact bit="0:7">01011111</exact>
+    <exact bit="8:15">00010001</exact>
+    <exact bit="16:23">01010100</exact>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- tail [32:47]: inferred / not yet bit-decoded -->
+    <zero bit="32:47"/>
   </ins>
 
   <!-- rt_transform_test: RAY-TRACING transform / box-test companion op -->
@@ -2270,6 +2297,93 @@
     <!-- form [16:23]: constant, pinned by match/opcode -->
     <!-- body [24:63]: inferred / not yet bit-decoded -->
     <zero bit="24:63"/>
+  </ins>
+
+  <!-- b_alu14_c83: Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form) -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = exactly 14 across the corpus (e.g. `3f 07 83 06 03 00 80 04 00 00 03 00 12 01` then the next ... -->
+  <ins name="b_alu14_c83" length="14" label="Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form)">
+    <exact bit="0:3">1111</exact>
+    <exact bit="7">0</exact>
+    <exact bit="16:23">10000011</exact>
+    <!-- hi [4:6]: inferred / not yet bit-decoded -->
+    <zero bit="4:6"/>
+    <src name="rega" bit="8:15"/>
+    <src name="regb" bit="24:31"/>
+    <!-- c4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- c6 [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- zz [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+    <!-- tail [80:111]: inferred / not yet bit-decoded -->
+    <zero bit="80:111"/>
+  </ins>
+
+  <!-- if_push_pred: Execution-mask PUSH / if-enter, PREDICATE variant (4B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): ~100 corpus leaders (`0f 15 54 21`, `0f 45 54 21`, `0f 25 56 02`, ...) each bracketed to 4 bytes by the ... -->
+  <ins name="if_push_pred" length="4" label="Execution-mask PUSH / if-enter, PREDICATE variant (4B)">
+    <exact bit="0:7">00001111</exact>
+    <exact bit="8:11">0101</exact>
+    <!-- pred [12:15]: inferred / not yet bit-decoded -->
+    <zero bit="12:15"/>
+    <!-- scope [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- level [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- b_alu14_prep2: 2-byte compact PREP word preceding a b_alu14 (byte+2==0x83 int/simd ALU) -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): `72 0f | 3f 13 83 ..`, `52 0b | 3f 13 83 ..`, `82 11 | 3f 45 83 ..`, `92 13 | 3f 17 83 ..` - prev op decodes ... -->
+  <ins name="b_alu14_prep2" length="2" label="2-byte compact PREP word preceding a b_alu14 (byte+2==0x83 int/simd ALU)">
+    <exact bit="0:3">0010</exact>
+    <exact bit="8">1</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- sel [9:15]: inferred / not yet bit-decoded -->
+    <zero bit="9:15"/>
+  </ins>
+
+  <!-- int_alu_ehi: Integer address/index arithmetic (dst=byte+3, op-select=byte+4) -->
+  <!-- provenance: EXP-M4-13 R4 (lenhi): byte-diff over 276 own-compiled instances extracted from our own shdump compilation of open-source Dawn/Tint std140 ... -->
+  <ins name="int_alu_ehi" length="10" label="Integer address/index arithmetic (dst=byte+3, op-select=byte+4)">
+    <exact bit="0:7">11101111</exact>
+    <exact bit="16:23">01010100</exact>
+    <exact bit="72:79">01000000</exact>
+    <!-- b1flags [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <dest name="dst" bit="24:31"/>
+    <modifier name="opmode" bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- srcdesc [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- srcB [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+    <!-- srcC [64:71]: inferred / not yet bit-decoded -->
+    <zero bit="64:71"/>
+  </ins>
+
+  <!-- vtx_out_pos: Vertex-stage output-position / attribute op -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL): `Xb 00 26 00 40 00 00 SS`; corpus co-occurrence 55/55 with a preceding low-nibble-b leader; `40 00 00 SS` ... -->
+  <ins name="vtx_out_pos" length="8" label="Vertex-stage output-position / attribute op">
+    <exact bit="0:3">1011</exact>
+    <exact bit="8:15">00000000</exact>
+    <exact bit="16:23">00100110</exact>
+    <exact bit="24:31">00000000</exact>
+    <exact bit="32:39">01000000</exact>
+    <exact bit="40:47">00000000</exact>
+    <exact bit="48:55">00000000</exact>
+    <dest name="dst" bit="4:7"/>
+    <immediate name="slot" bit="56:63"/>
+  </ins>
+
+  <!-- vary_slot: Vertex varying-output SLOT descriptor emitted immediately before each `57 SS 54 -->
+  <!-- provenance: byte-diff EXP-M4-13 R4 (own-MSL vtest_posonly `00 0c 40 60` -> vary_store, reproduced byte-exact); genuine leader - appears after 8+ distinct ... -->
+  <ins name="vary_slot" length="4" label="Vertex varying-output SLOT descriptor emitted immediately before each `57 SS 54">
+    <exact bit="0:7">00000000</exact>
+    <exact bit="16:23">01000000</exact>
+    <!-- sel [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <immediate name="slot" bit="24:31"/>
   </ins>
 
 </isa>

@@ -1,0 +1,94 @@
+{
+  "task": "HIGH-NIBBLE LENGTH-RULE GENERALIZATION (real-world gaps) — EXP-M4-13 round 4",
+  "kind": "fix",
+  "summary": "Closed the two dominant, cleanly-anchorable newVsOwnCorpus gap families (0xef high-register integer address/index ALU, and the low-nibble-b source-class-0x02 compact move). 14 of 38 newVsOwn signatures decode; ~696 of 822 newVsOwn bytes (85%) recovered. The other 24 signatures are proven un-anchorable resync fragments (never reached at a clean instruction boundary anywhere in the corpus) and are reported UNRESOLVED rather than fabricated.",
+
+  "lengthRuleEdits": [
+    {
+      "id": "R4-b-srcclass02",
+      "location": "isadb.py::instr_length, low-nibble-b block (lo == 0x0b), immediately BEFORE the final `return LEN_UNKNOWN` of that block (currently ~line 438).",
+      "op": "add",
+      "before": "        if (b2 & 0x0f) in (0x00, 0x01, 0x09) and b3 in (0x00, 0x08):\n            return 4\n        return LEN_UNKNOWN             # other uncharacterized 0xNb compact form",
+      "after": "        if (b2 & 0x0f) in (0x00, 0x01, 0x09) and b3 in (0x00, 0x08):\n            return 4\n        # ---- R4: source-class 0x02 compact register move ----\n        if (b2 & 0x0f) in (0x00, 0x01, 0x09) and b3 == 0x02:\n            return 4\n        return LEN_UNKNOWN             # other uncharacterized 0xNb compact form",
+      "rationale": "Same 4-byte compact register move as reg_move_c0/c1/c9 (byte0 low-nibble b, byte0 high-nibble = dst reg, byte+2 low-nibble in {0,1,9}) but with source-class byte+3 == 0x02 instead of the previously-handled {0x00,0x08}. Dawn std140 uniform->storage matrix-copy shaders emit long runs of `Xb YY ZZ 02` to marshal matrix columns; the old gate left every 0x02-class move undecoded (desync). Reuses the EXISTING reg_move_c0/c1/c9 descriptors (match (0,4,11)+(16,4,{0,1,9})) — no new descriptor needed; those already match once the length is 4.",
+      "length": 4,
+      "additive": true,
+      "additiveProof": "Fires only where byte+3 == 0x02, a case that currently falls through every earlier rule in the lo==0x0b block to the final `return LEN_UNKNOWN` (None). No offset that previously returned a length changes. Therefore per-file leftover can only decrease."
+    },
+    {
+      "id": "R4-ef-intalu",
+      "location": "isadb.py::instr_length, at the VERY END, immediately BEFORE the final `return LEN_UNKNOWN` (currently ~line 986, after the 0xf0 cubearray_coord_const rule).",
+      "op": "add",
+      "after": "    if b0 == 0xef and off + 2 < len(buf) and buf[off + 2] == 0x54:\n        return 10\n    return LEN_UNKNOWN",
+      "rationale": "byte0 0xef is a low-nibble-f integer address/index ALU op DISTINCT from iadd2/imad (0x1f/0x9f). It is uniformly 10 bytes and does NOT follow the iadd2/imad `b1 bit0` length selector (every instance has even byte+1 yet is 10 bytes and re-aligns to the next op at a 10-byte stride). Placed LAST so every specific low-nibble-f handler wins first (0x1f/0x9f iadd, 0x2f/0xaf fspecial, 0x5f/0xdf rt, 0x6f frame, 0x8f ret, 0xcf matrix, 0x0f CF); none of them claim 0xef.",
+      "length": 10,
+      "additive": true,
+      "additiveProof": "byte0==0xef is matched by no earlier length rule (all specific low-nibble-f rules test exact byte0 values != 0xef; the 0x9f/0x1f rule tests `b0 in (0x9f,0x1f)`). Currently 0xef reaches the function end -> None. Placed at the very end, it converts only None->10. Per-file leftover can only decrease."
+    }
+  ],
+
+  "descriptors": [
+    {
+      "mnemonic": "int_alu_ehi",
+      "length": 10,
+      "match": [[0, 8, 239], [16, 8, 84], [72, 8, 64]],
+      "matchHuman": "byte0==0xef, byte+2==0x54, byte+9==0x40 (invariant structural markers across all 276 corpus instances)",
+      "fields": [
+        {"name": "b1flags", "start": 8,  "width": 8, "type": "raw", "note": "byte+1 source/flag field, observed {0x00,0x10,0x20}"},
+        {"name": "dst",     "start": 24, "width": 8, "type": "reg", "note": "byte+3 destination register (position-analogous to iadd2's dst field)"},
+        {"name": "opmode",  "start": 32, "width": 8, "type": "mod", "note": "byte+4 op/round select, observed {0x1e,0x2a,0x2e,0x24,0x26,0x56}"},
+        {"name": "b5",      "start": 40, "width": 8, "type": "raw", "note": "byte+5, observed {0x02,0x0a}"},
+        {"name": "srcdesc", "start": 48, "width": 8, "type": "raw", "note": "byte+6 operand descriptor, observed {0x27,0x21,0x2d,0x29}"},
+        {"name": "srcB",    "start": 56, "width": 8, "type": "raw", "note": "byte+7 source operand"},
+        {"name": "srcC",    "start": 64, "width": 8, "type": "raw", "note": "byte+8 source operand"}
+      ],
+      "semantics": "Integer address/index arithmetic (dst=byte+3, op-select=byte+4); the high-register-pressure integer ALU form emitted by std140 uniform->storage matrix-copy shaders. Distinct opcode from iadd2/imad. byte0==0xef, byte+2==0x54 and byte+9==0x40 are invariant structural markers. Exact per-opmode operation is inferred from field position (compile-only host — no HW dispatch on this M4).",
+      "provenance": "EXP-M4-13 R4 (lenhi): byte-diff over 276 own-compiled instances extracted from open-source Dawn/Tint std140 matNxN_to_storage MSL (our own shdump compilation of public open-source shaders); length 10 anchored by bracketing — every instance re-aligns at a 10-byte stride between known ops (e.g. tp_dawn std140 struct mat2x2_f32_to_storage @782: four `ef .. 54 .. 1e/2a 02 .. .. 0a/0b 40` ops in a row, then reg_move/uniform_mov, then more ef). Own hand-written MSL (corpus/r4_lenhi/*.metal) emits 0x9f for equivalent integer address math on this toolchain -> 0xef could NOT be own-MSL-reproduced; the byte evidence is our own compilation of open-source MSL."
+    }
+  ],
+
+  "replaces": [],
+
+  "notes": [
+    "0xef byte0 does NOT encode the dst register in its high nibble (bits 0-6 of 0xef == 0x6f != iadd2's 0x1f). The dst reg is byte+3 (like iadd2). So for this low-nibble-f family the 'high nibble = dst reg' framing does NOT apply — byte0's high nibble is opcode/modifier bits. The generalization therefore keys on byte0==0xef + byte+2==0x54 (sub-signature), not on a swept high-nibble set. This is the honest hardware finding.",
+    "The low-nibble-b 0x02-source-class move DOES follow 'high nibble = dst reg': the same reg_move_c0/c1/c9 descriptors decode it once the length rule returns 4; broadening only the byte+3 accepted-source-class set from {0x00,0x08} to also include 0x02 closes it.",
+    "Own-MSL reproduction (clean-room): corpus/r4_lenhi/k_intaddr.metal, k_std140.metal, k_manylive.metal — three integer-address/index-heavy compute kernels (uniform-sourced index math, std140-style padded-matrix copy, 24 simultaneously-live accumulators). All compile to 0x9f integer ALU (hex/r4_lenhi_*_own.hex), never 0xef, on the M4 Command-Line-Tools toolchain. Recorded as a first-class negative reproduction result: the 0xef form is a register-allocation/modifier state our hand-written MSL did not provoke.",
+    "byte-diff tools: anchoring via the committed tokenizer walk (work/r4_lenhi/anchor.py) over full own-compiled programs; length brackets verified by re-alignment to the next known op. No GPU dispatch (shdump is compile-only)."
+  ],
+
+  "validation": {
+    "samplesDecoded": {
+      "newVsOwnSignaturesTotal": 38,
+      "newVsOwnSignaturesClosed": 14,
+      "newVsOwnBytesTotal": 822,
+      "newVsOwnBytesClosed": 696,
+      "closedByFamily": {
+        "0xef int_alu_ehi (ef.00/ef.10/ef.20)": {"signatures": 3, "count": 116, "bytes": 662},
+        "low-nibble-b src-class-0x02 move (cb/eb/fb .00/.0a/.0e/.1a/.2a/.22/.02/.84)": {"signatures": 11, "count": 21, "bytes": 34}
+      },
+      "targetSampleRoundtrip": "all 14 closed signatures: decode_one succeeds AND assemble(decode(sample))==sample",
+      "efInstancesInCorpus": 276,
+      "efCleanTokensDecoded": 60,
+      "brRealignEvidence": "tp_0__dawn__...std140_struct_mat2x2_f32_to_storage @782 tokenizes 4x int_alu_ehi(10) then compact moves then int_alu_ehi(10) etc., reaching a clean tail"
+    },
+    "roundtripSuitePass": true,
+    "roundtripSuiteDetail": "tools/agx-isa/roundtrip_test.py run against the scratch DB (127 descriptors): (A) real-instr asm(disasm)==bytes ALL PASS, (B) synth disasm(asm)==fields ALL PASS, (C) whole-program tokenize 0-leftover ALL PASS, (D) immediate codec ALL PASS -> 'ALL PASS'.",
+    "noRegression": true,
+    "noRegressionDetail": {
+      "ownCorpus": {"files": 1001, "regressions": 0, "filesImproved": 14, "bytesRecovered": 580, "baselineTotalLeftover": 424532, "scratchTotalLeftover": 423952},
+      "thirdpartyCorpus": {"files": 6450, "regressions": 0, "filesImproved": 52, "filesNewlyFullyClosed": 19, "bytesRecovered": 14678, "baselineTotalLeftover": 487844, "scratchTotalLeftover": 473166, "exactRebuildOnNewlyClosed": true},
+      "method": "per-file strict-tokenizer leftover compared before (real isadb.py) vs after (scratch). Both edits are additive (only convert None->length at offsets that previously desynced), so per-file leftover is provably non-increasing; measured regressions = 0 on all 7451 files."
+    }
+  },
+
+  "unresolved": [
+    "24 of 38 newVsOwn signatures (116 bytes, 34 occurrences) are UN-ANCHORABLE resync fragments: none of their byte0 values (low-nibble a: 0x7a/0x9a/0xaa/0xca; low-nibble d: 0x5d/0x9d/0xdd; 0x0c-ea tessellation; 0xf4; 0xb1; and the residual low-nibble-b forms with byte+2==0x64 8-byte or byte+3 in {0x10,0x20,0xc0}) is EVER reached at a clean instruction boundary anywhere in the 7451-file corpus. Their sampleHex begins mid-stream after an UPSTREAM desync, so the leading byte is likely an operand byte of a preceding still-undecoded op, not a real op leader — length/fields cannot be honestly established. Verified via a reachable-desync census (work/r4_lenhi/desync_census.py): the actual reachable gaps at clean boundaries are a different, larger set (22.00, 32.25, 04.00, 40.0b, 0b.00/b3=0x20, ...) outside this task's newVsOwn scope.",
+    "low-nibble-a int16 (0x7a/0xaa/0xca, byte+2 in {0x65,0x6d,0x75}): appears only in the naga wgsl-int16 / SPIRV-Cross mod.comp shaders, which desync EARLIER (e.g. wgsl-int16 desyncs at offset 24 on a 02.60 low-nibble-2 form, ~1190 bytes before the first 0x7a). Closing it requires first closing the upstream low-nibble-2 byte+2>0x3f gap (a separate work item).",
+    "0x0c byte+1==0xea (tessellation control-point load): appears only deep inside tesc shaders that desync earlier on low-nibble-b (b2=0x25/b3=0x26) forms; not reachable to bracket.",
+    "Residual low-nibble-b variants reachable at clean boundaries but OUT OF newVsOwn SCOPE (future work item, not fabricated here): b2=0x00/b3=0x20 (154x), b2=0x26/b3=0x83 (26x), b2=0x09/b3=0xc0 (24x), b2=0x1c/b3=0x04 (13x) — these need their own byte-diff anchoring pass; b3=0xc0 in particular may be a longer immediate-carrying form, so it was NOT assumed to be 4 bytes."
+  ],
+
+  "provenance": "EXP-M4-13 round 4. Clean-room: HARDWARE encodings only. Evidence = (a) our own shdump compilation of open-source Dawn/Tint/SPIRV-Cross/naga MSL (thirdparty_hex/, non-copyrightable compiled data we produced ourselves) and (b) our own hand-written MSL (corpus/r4_lenhi/). No Apple binary introspected; no compiler sequence lifted as an algorithm; encoding/semantics documented only. Validated ENTIRELY on a scratch copy (work/r4_lenhi/isadb_scratch.py); the real tools/agx-isa/isadb.py was NOT modified; no git operations performed.",
+  "scratchDb": "experiments/EXP-M4-13-full-corpus/work/r4_lenhi/isadb_scratch.py",
+  "harness": ["work/r4_lenhi/anchor.py", "work/r4_lenhi/leftover.py", "work/r4_lenhi/desync_census.py", "work/r4_lenhi/probe.py"]
+}

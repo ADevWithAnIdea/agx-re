@@ -1,0 +1,186 @@
+{
+  "task": "EXP-M4-13 R4 CASCADE-ROOT RESOLUTION for byte0 roots 0x00/0x54/0x40/0x42/0x21/0x24. For each root: decide GENUINE leader vs cascade debris (mid-instruction landing after an upstream mis-length); close genuine ops by byte-diff; for cascade, name the upstream owner. Clean-room: OWN-MSL only (shdump compile-only, no GPU dispatch); reproduced byte-exact.",
+  "kind": "fix",
+  "kind_detail": "2 length-rule EDITS that fix upstream mis-lengths (0x40 + 0x54 roots are cascade), 1 length-rule ADD for a genuine op (0x00 root), and 2 NEW descriptors that name the now-lengthed bytes. 0x42/0x21/0x24 are pure cascade owned by other families (reported, not fixed here -- they clear when those owners close).",
+  "perRootVerdict": {
+    "0x40": {
+      "verdict": "CASCADE (fixed) + 1 residual genuine op (reported)",
+      "owner": "low-nibble-b VERTEX output-position op `Xb 00 26 00 40 00 00 SS` (was mis-lengthed 4 by the nb_ray `b2 hi-nibble 2 -> 4` compact-move rule; is actually 8).",
+      "evidence": "corpus co-occurrence 55/55: every `Xb 00 26 00` is followed by `40 00 00 SS` (SS in {04,08,0c,10,14}); `40 00 00 SS` appears as an independent leader in only 2/57 sites. So `40 00 00 SS` is this op's operand tail (+4..+7), NOT a leader.",
+      "impact": "first-desyncs on 0x40: 31 -> 17. Fully closed the depth_*/half_frag/rt_frag_query/vertex_stagein vertex preambles.",
+      "residual": "half_vec2 `40 87 26 83 00 85` is a GENUINE 6-byte LOW-half float ALU (byte+2=0x26 coord op-select; the low-nibble-0 sibling of the n8 low-nibble-8 high-half op h_coord_hi_ext, length 6+2*(byte+4&3)). Left UNRESOLVED here (belongs to a low-nibble-0 half-ALU family task; a byte0==0x40-only rule would be an over-narrow slice of a 16-dst-reg family and byte0 0x30/0x60/0x90/0xb0 collide with sampler/spill rules). `40 a0 57 ..` (x8, vertex_stagein) and `40 81 af ..`(bf16 cvt_f2h tail) are further small cascades."
+    },
+    "0x00": {
+      "verdict": "GENUINE op closed + remaining are diverse cascade",
+      "genuine": "`00 YY 40 SS` (byte0==0x00, byte+1 in {0x04,0x0a,0x0c}, byte+2==0x40) is a genuine 4-byte VERTEX varying-output SLOT op emitted immediately before each `57 SS 54 ..` vary_store (byte+3 SS tracks the store slot). Reproduced byte-exact (own-MSL vtest_posonly @60 `00 0c 40 60` -> vary_store). Genuine leader: appears after 8+ distinct preceding ops corpus-wide (276 occurrences), so not a tail.",
+      "remaining_cascade": "`00 04 00 00` (x13, frag_output vertex) = interior of the vertex 0x17 coordinate-transform bundle (same owner as the 0x21 root); `00 02 e7 ..`/`00 08 e7 ..` (half2 saturate/neg, tail before device_store); `00 10 11 00` (f16 subgroup epilogue before stop); `00 02 80 ..`, `00 0e 0f ..` etc. -- all cascade owned by the immediately preceding op's family. UNRESOLVED (belong to vertex-coord / half2 / f16 owners)."
+    },
+    "0x54": {
+      "verdict": "CASCADE (fixed the dominant epilogue) + shift-tails reported",
+      "owner": "low-nibble-2 register-operand cmpsel that produces the final result and is immediately followed by the program-epilogue device_store. The `(ln in {7,f} or b2==0x25) -> 10` branch over-read it by 2, swallowing the store's `e7 00`/`67 00` head and orphaning its `54 00 00 0X 21 00` tail (before the trailing cvt_f2h + stop) as the spurious 0x54 root.",
+      "evidence": "8 + 14-byte device_store + 4-byte stop tiles the tail exactly (abs_s32@28 `02 01 0f 80 81 04 07 02` then `e7 00 54 ..`; uniform_branch@56). 24 corpus sites, all with a store head at the 10-byte position; no genuine 10B cmpsel has `e7/67 00` at bytes +8..+9. Fix gated on that store head.",
+      "impact": "first-desyncs on 0x54: 49 -> 26.",
+      "remaining_cascade": "`54 XX 03 XX` (byte+2==0x03) x~9 = operand tail of a mis-lengthed 0x27/0xa7 shift/convert op (the shift-op byte+2==0x54 marker leaks a `54 .. 03` tail); owner = the low-nibble-7 convert/shift family (0x27/0xa7), consistent with round-2 n7_fence. UNRESOLVED."
+    },
+    "0x42": {
+      "verdict": "CASCADE (pure) -- reported, not fixed here",
+      "owner": "dec2_n8 RAY intersection-query GETTER result-marshalling sequence (`mov_imm(Xc 80) + 42 00 00 00 .. + reg_move(fb 00 00 00) + rt_transform_test`). byte+2==0x00 (never a real low-nibble-2 op-select), so `42 XX 00 00 00 00` is a marshalling operand word, NOT a genuine low-nibble-2 op.",
+      "evidence": "26/32 of the 0x42 first-desyncs are in dec2_n8__g_*/s_* getter kernels, between rt_ray_mem/rt_as_load and rt_transform_test. Owner = the n8/nb RT-getter family; 0x42 clears when the intersection-query getter marshalling is characterized. UNRESOLVED.",
+      "impact": "unchanged (32) -- out of scope of a 0x42-leader fix; correctly NOT force-sliced."
+    },
+    "0x21": {
+      "verdict": "CASCADE (pure) -- reported, not fixed here",
+      "owner": "(a) VERTEX 0x17 coordinate-transform bundle: `17 22 a2 b0 ..` is mis-lengthed by the compute simd_ballot `0x17 -> 10` rule in vertex context, orphaning the `21 82 a6 b0 07 02 82 01` coord continuation (17/29 sites, all frag_output/derivatives __vertex). (b) transcendental low-nibble-2 op tail `21 0c 02 00`/`21 1a 02 00` after an n2_op6 (7 sites). (c) `21 00 XX 00` epilogue operand (few).",
+      "evidence": "the `a2 b0`/`a6 b0` operand structure repeats across the 0x17-led vertex bundle; reproduced in own-MSL vtest_posonly @10-@28. Genuine vertex-coord op lengths are a separate family (not one of the 6 roots). UNRESOLVED (vertex-coord + transcendental owners)."
+    },
+    "0x24": {
+      "verdict": "CASCADE (pure) -- reported, not fixed here",
+      "owner": "(a) MESH-stage 0x04 op: the fragment-only `b0==0x04 && b1!=0xea -> 8` centroid-read rule misfires in mesh shaders, over-reading a mesh 0x04 op and swallowing the following `0f 06` reconverge; the exposed `24 01 00 00` is that reconverge's operand tail (7/12 sites, all mesh). (b) sin/cos range-reduction `24 83 82 08` tail (3 sites). (c) frag_discard vary_store tail / r11g11b10f ibfe tail (1 each).",
+      "evidence": "mesh_line@50 `04 83 00 10 00 00` should be 6B, then `0f 06 24 01 00 00` (6B reconverge) tiles to the get_sr at 62. Owner = mesh 0x04 family + the mis-scoped fragment 0x04 rule. UNRESOLVED (mesh-stage op family + sin/cos)."
+    }
+  },
+  "lengthRuleEdits": [
+    {
+      "root": "0x40",
+      "location": "instr_length, inside the `lo == 0x0b` block, BEFORE the `if b2 == 0x01` / `(b2 & 0xf0)==0x20 -> 4` rules",
+      "gate": "b1==0x00 and b2==0x26 and b3==0x00 and buf[off+4]==0x40",
+      "length": 8,
+      "mnemonic": "vtx_out_pos",
+      "change": "ADD: the low-nibble-b VERTEX output-position op is 8 bytes (was 4 via the compact-move rule). Absorbs the `40 00 00 SS` tail that was the dominant spurious 0x40 root desync.",
+      "safety": "gated on the exact `Xb 00 26 00 40` signature; never touches a genuine 4-byte `Xb .. 26 ..` compact move (those have b1 or b3 != 0). Verified 0 regression across 1003 corpus files."
+    },
+    {
+      "root": "0x00",
+      "location": "instr_length, immediately after the `b0==0x00 and _b1 in (0x00,0x80,0x84) -> 2` pad rule",
+      "gate": "b0==0x00 and buf[off+1] in {0x04,0x0a,0x0c} and buf[off+2]==0x40",
+      "length": 4,
+      "mnemonic": "vary_slot",
+      "change": "ADD: genuine 4-byte vertex varying-output slot op. byte+1 set {04,0a,0c} is disjoint from the 2-byte pad set {00,80,84,8c}, so it never mis-lengths a pad or the 0x00 stop.",
+      "safety": "Verified 0 regression across 1003 corpus files; fetch_float_float__vertex now fully clean."
+    },
+    {
+      "root": "0x54",
+      "location": "instr_length, low-nibble-2 block, inside `if b0 != 0x22:` right before the reg-operand cmpsel `return 10`",
+      "gate": "(ln in {0x07,0x0f} or b2==0x25) and (b3&0xf0) in {0,0x80} and (b3&0x0f)!=0x04 and buf[off+8] in {0xe7,0x67} and buf[off+9]==0x00",
+      "length": 8,
+      "mnemonic": "(cmpsel store-epilogue form; family-level, no new descriptor)",
+      "change": "EDIT: return 8 (not 10) when a device_store head follows at the 10-byte position -- the store-epilogue cmpsel is 8 bytes. Closes the `54 00 00 0X 21 00` epilogue desync.",
+      "safety": "Narrow: fires only when `e7/67 00` sits at bytes +8..+9 (a following store). 24 corpus sites, all real 8B ops; verified 0 regression, roundtrip suite still ALL PASS."
+    }
+  ],
+  "descriptors": [
+    {
+      "mnemonic": "vtx_out_pos",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          8,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          38
+        ],
+        [
+          24,
+          8,
+          0
+        ],
+        [
+          32,
+          8,
+          64
+        ],
+        [
+          40,
+          8,
+          0
+        ],
+        [
+          48,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "slot",
+          "start": 56,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "Vertex-stage output-position / attribute op. byte0 high nibble = dst reg; byte+7 = varying/output slot (0x04/0x08/0x0c/0x10/0x14). Bytes +4..+7 (`40 00 00 SS`) were the dominant spurious 0x40 root desync before this op was lengthed 8.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): `Xb 00 26 00 40 00 00 SS`; corpus co-occurrence 55/55 with a preceding low-nibble-b leader; `40 00 00 SS` independent in only 2/57 sites."
+    },
+    {
+      "mnemonic": "vary_slot",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          64
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sel",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "slot",
+          "start": 24,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "Vertex varying-output SLOT descriptor emitted immediately before each `57 SS 54 ..` vary_store; byte+3 = the varying slot (monotone, tracks the store slot). byte+1 (sel) in {0x04,0x0a,0x0c} = the output-class form.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL vtest_posonly `00 0c 40 60` -> vary_store, reproduced byte-exact); genuine leader -- appears after 8+ distinct preceding ops corpus-wide."
+    }
+  ],
+  "replaces": [],
+  "notes": "Round-2 verify's hypothesis is CONFIRMED for the two biggest roots (0x40, 0x54) and the residue of the others: these landings are overwhelmingly mid-instruction debris after an upstream mis-length, not real ops. 0x40 = tail of an 8-byte low-nibble-b vertex op; 0x54 = the 2-byte over-read of a store-epilogue cmpsel; 0x42 = RT-getter marshalling; 0x21 = vertex 0x17 coord bundle + transcendental n2 tails; 0x24 = mesh 0x04 misfire + sin/cos. The ONE genuine NEW leader among the six roots is 0x00's `00 YY 40 SS` vary_slot (and, as a residual, half_vec2's low-half float `40 87 26 83`). No length gate was broadened in a way that mis-slices a real op: each edit is signature-gated and shown to be 0-regression.",
+  "provenance": "CLEAN-ROOM OWN-MSL. shdump_r4_probe (compile-only, no GPU dispatch) built from tools/shdump/shdump.m; MSL we wrote compiled at runtime, AGX bytes extracted with our own agxparse.py, tokenized/byte-diffed with our own isadb + bytediff. half_vec2 and depth_any reproduced byte-identical to the committed corpus hex. No Apple binary was introspected.",
+  "validation": {
+    "samplesDecoded": "6 target descriptor samples (vtx_out_pos x3 dst/slot variants + vary_slot x3) decode and asm(disasm(b))==b byte-exact; 1003/1003 corpus files disassemble with 0 exceptions; epilogue files abs_s32 & uniform_branch now tokenize with 0 leftover.",
+    "roundtripSuitePass": true,
+    "noRegression": true,
+    "leftoverBaseline": 17072,
+    "leftoverAfter": 16312,
+    "leftoverReclaimed": 760,
+    "filesImproved": 90,
+    "filesWorse": 0,
+    "filesCleanBaseline": 600,
+    "filesCleanAfter": 641,
+    "corpusFiles": 1003
+  },
+  "unresolved": [
+    "0x42 (32 first-desyncs, unchanged): dec2_n8 RAY intersection-query GETTER result-marshalling (`Xc80 mov_imm + 42 00 00 00 + fb.. reg_move + rt_transform_test`). Owner = n8/nb RT-getter family; clears when that marshalling sequence is length-modelled. NOT a genuine 0x42 leader (byte+2==0x00).",
+    "0x21 (29, unchanged): (a) VERTEX 0x17 coordinate-transform bundle mis-lengthed by the compute simd_ballot 0x17->10 rule in vertex context (17 sites) -- needs a vertex-vs-compute 0x17 length split; (b) transcendental low-nibble-2 op tail (7 sites); owners identified, fixes belong to those families.",
+    "0x24 (12, unchanged): (a) MESH-stage 0x04 op -- the fragment `04->8` centroid rule misfires in mesh, swallowing a `0f 06` reconverge (7 sites); needs a mesh-vs-fragment 0x04 disambiguation / mesh-04 characterization; (b) sin/cos range-reduction tail (3 sites).",
+    "0x54 residual (26, from 49): `54 XX 03 XX` shift/convert operand tails owned by the 0x27/0xa7 low-nibble-7 convert/shift family (round-2 n7_fence scope).",
+    "0x40 residual (17, from 31): half_vec2 low-half float `40 87 26 83` (genuine; low-nibble-0 half-ALU family task), `40 a0 57 ..` vertex-stagein output tail (x8), `40 81 af ..` bf16 cvt_f2h tail.",
+    "0x00 residual (62, from 70): vertex 0x17 coord bundle interior `00 04 00 00` (owner = 0x21's 0x17 bundle), half2 saturate/neg tails `00 02 e7 ..`, f16 subgroup epilogue `00 10 11 00`."
+  ]
+}

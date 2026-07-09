@@ -3132,23 +3132,23 @@
           95
         ],
         [
-          16,
           8,
-          84
+          8,
+          2
         ]
       ],
       "fields": [
         {
-          "name": "subop",
-          "start": 8,
-          "width": 8,
-          "type": "opcode"
-        },
-        {
-          "name": "marker",
+          "name": "mode",
           "start": 16,
           "width": 8,
-          "type": "raw"
+          "type": "enum",
+          "enum": {
+            "84": "mem_54",
+            "86": "mem_56",
+            "4": "mode_04",
+            "100": "mode_64"
+          }
         },
         {
           "name": "body",
@@ -3159,6 +3159,74 @@
       ],
       "semantics": "RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the 0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for custom intersection functions (its count scales with payload size: float2 -> 13, 8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; 0x10/0x11 mirror the 0x67 load space+index byte). Confirms ray_data is a distinct address space backed by RT scratch (RT kernels emit zero threadgroup ops and only one device store = the output).",
       "provenance": "inferred (byte-diff, EXP-O2C): byte0 0x5f present in every raytracing:: kernel (12-28 per kernel) and ABSENT from a hand-written software triangle loop (EXP-0023 control). 14-byte length + byte+2==0x54 tokenizes the RT streams (memory-family shape mirrors the HW-validated 0x67/0xe7/0xdf). Payload-size correlation from call_p2/call_pbig/call_pnone diff. Field bit-packing not splice-validated."
+    },
+    {
+      "mnemonic": "rt_ray_mem_ldidx",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          95
+        ],
+        [
+          8,
+          8,
+          16
+        ],
+        [
+          16,
+          8,
+          84
+        ]
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "start": 24,
+          "width": 72,
+          "type": "raw"
+        }
+      ],
+      "semantics": "RAY-TRACING ray-data memory op, load-INDEX variant (12B). byte0 0x5f, byte+1 == 0x10, byte+2 == 0x54. Mirrors the 0x67 device-load space+index addressing byte (byte+1 low nibble 0 = indexed). 12 bytes (NOT 14): all 32 corpus occurrences sit back-to-back at gap 12. The old blunt byte+2-only rule wrongly gave it 14.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = 12 across 32 occurrences (rq_pred / RT-query kernels). Length bracketed by the next 0x5f leader; body raw. Not splice-validated."
+    },
+    {
+      "mnemonic": "rt_ray_mem_short",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          95
+        ],
+        [
+          8,
+          8,
+          17
+        ],
+        [
+          16,
+          8,
+          84
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "RAY-TRACING ray-data memory op, SHORT form (6B). byte0 0x5f, byte+1 == 0x11 (the 0x67 load index+1 addressing byte), byte+2 == 0x54, body `<b3> 00 00`. 6 bytes: ALL 92 corpus occurrences sit back-to-back at gap 6. The old blunt byte+2-only rule wrongly gave it 14.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = 6 across 92 occurrences (rq_pred / RT-query kernels). Length bracketed by the immediately-following 0x5f leader. Not splice-validated."
     },
     {
       "mnemonic": "rt_transform_test",
@@ -6975,6 +7043,299 @@
       ],
       "semantics": "Threadgroup-atomic RMW descriptor prep (8B). byte0 low-nibble 0xb, byte+2==0x06; sets up the atomic-value / descriptor for a threadgroup atomic RMW. dst=byte0 hi nibble (scope/reg).",
       "provenance": "byte-diff EXP-M4-13 R2 / round-1 EXP-M4-01: `0b 00 06 00 00 00 00 00` anchored before a clean device_store in atomics__tg_u_add. Length 8 (b1==0,b2==0x06). Not splice-validated."
+    },
+    {
+      "mnemonic": "b_alu14_c83",
+      "length": 14,
+      "match": [
+        [
+          0,
+          4,
+          15
+        ],
+        [
+          7,
+          1,
+          0
+        ],
+        [
+          16,
+          8,
+          131
+        ]
+      ],
+      "fields": [
+        {
+          "name": "hi",
+          "start": 4,
+          "width": 3,
+          "type": "raw"
+        },
+        {
+          "name": "rega",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "regb",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "c4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "c6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "zz",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "tail",
+          "start": 80,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form). Distinct from the iadd2/imad 0x9f/0x1f family (byte+2 == 0x54): byte0 high nibble is a variant selector (0x3f/0x5f/0x7f observed), byte+1 = (reg<<1)|1 and byte+3 = byte+1-1 form a register operand pair, tail carries a fixed `03 00 80 <ZZ> 00 00 03 00` frame plus a trailing register word. Appears back-to-back in the RT-traversal coordinate/index getters and the log2(N) shuffle+multiply integer simd-prefix/product reduction trees. Exact arithmetic NOT resolved -- structural/length only.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): back-to-back spacing = exactly 14 across the corpus (e.g. `3f 07 83 06 03 00 80 04 00 00 03 00 12 01` then the next 0x3f/0x7f op); byte+1/byte+3 register-pair relation (b3=b1-1) holds across all high-nibble variants. Not splice-validated (M4 compile-only, no GPU dispatch)."
+    },
+    {
+      "mnemonic": "if_push_pred",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          4,
+          5
+        ]
+      ],
+      "fields": [
+        {
+          "name": "pred",
+          "start": 12,
+          "width": 4,
+          "type": "raw"
+        },
+        {
+          "name": "scope",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "level",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Execution-mask PUSH / if-enter, PREDICATE variant (4B). byte0 0x0f, byte+1 low nibble == 5 with a non-zero HIGH nibble selecting a predicate/condition register (the plain 0x05 base is if_push). byte+2 = CF marker (0x54 outer / 0x56 last-use), byte+3 = nesting level. Pairs with the following 0f 01 jump_cond as the if/loop test-and-branch in the RT-query and integer simd-prefix kernels; paired with a later 0f 06 pop_reconverge.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): ~100 corpus leaders (`0f 15 54 21`, `0f 45 54 21`, `0f 25 56 02`, ...) each bracketed to 4 bytes by the immediately-following `0f 01 54 <off>` jump_cond. Generalizes the RT-ISA-FIX HW-validated b1==0x05 -> 4 push. Not splice-validated."
+    },
+    {
+      "mnemonic": "b_alu14_prep2",
+      "length": 2,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ],
+        [
+          8,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "2-byte compact PREP word preceding a b_alu14 (byte+2==0x83 int/simd ALU). byte0 low nibble 2, high nibble = dst reg; byte+1 = (dst<<1)|1 (the compact register field, size bit set). A per-operand register declaration / high-half select emitted right before the 14-byte ALU op in the RT getter and integer simd-reduction trees. Distinct from the 6-byte low-nibble-2 min/max (whose byte+2 is a min/max op-select, not a b_alu14 leader).",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): `72 0f | 3f 13 83 ..`, `52 0b | 3f 13 83 ..`, `82 11 | 3f 45 83 ..`, `92 13 | 3f 17 83 ..` -- prev op decodes cleanly (falu2) so the 2-byte word is a genuine leader, and byte0=(dst<<4)|2 / byte+1=(dst<<1)|1 holds across dst regs. Not splice-validated."
+    },
+    {
+      "mnemonic": "int_alu_ehi",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          239
+        ],
+        [
+          16,
+          8,
+          84
+        ],
+        [
+          72,
+          8,
+          64
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1flags",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opmode",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcdesc",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcB",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "srcC",
+          "start": 64,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Integer address/index arithmetic (dst=byte+3, op-select=byte+4); the high-register-pressure integer ALU form emitted by std140 uniform->storage matrix-copy shaders. Distinct opcode from iadd2/imad. byte0==0xef, byte+2==0x54 and byte+9==0x40 are invariant structural markers. Exact per-opmode operation is inferred from field position (compile-only host -- no HW dispatch on this M4).",
+      "provenance": "EXP-M4-13 R4 (lenhi): byte-diff over 276 own-compiled instances extracted from our own shdump compilation of open-source Dawn/Tint std140 matNxN_to_storage MSL; length 10 anchored by bracketing (every instance re-aligns at a 10-byte stride between known ops). Own hand-written MSL emits 0x9f for equivalent integer address math on this toolchain -> 0xef could NOT be own-MSL-reproduced (first-class negative reproduction result). Not splice-validated."
+    },
+    {
+      "mnemonic": "vtx_out_pos",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          8,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          38
+        ],
+        [
+          24,
+          8,
+          0
+        ],
+        [
+          32,
+          8,
+          64
+        ],
+        [
+          40,
+          8,
+          0
+        ],
+        [
+          48,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "slot",
+          "start": 56,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "Vertex-stage output-position / attribute op. byte0 high nibble = dst reg; byte+7 = varying/output slot (0x04/0x08/0x0c/0x10/0x14). Bytes +4..+7 (`40 00 00 SS`) were the dominant spurious 0x40 root desync before this op was lengthed 8.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL): `Xb 00 26 00 40 00 00 SS`; corpus co-occurrence 55/55 with a preceding low-nibble-b leader; `40 00 00 SS` independent in only 2/57 sites."
+    },
+    {
+      "mnemonic": "vary_slot",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          64
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sel",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "slot",
+          "start": 24,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "Vertex varying-output SLOT descriptor emitted immediately before each `57 SS 54 ..` vary_store; byte+3 = the varying slot (monotone, tracks the store slot). byte+1 (sel) in {0x04,0x0a,0x0c} = the output-class form.",
+      "provenance": "byte-diff EXP-M4-13 R4 (own-MSL vtest_posonly `00 0c 40 60` -> vary_store, reproduced byte-exact); genuine leader -- appears after 8+ distinct preceding ops corpus-wide."
     }
   ]
 }
