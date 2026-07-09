@@ -1,0 +1,705 @@
+{
+ "family": "float 2-source ALU, low-nibble-0x9 (byte0 0x09/0x29 group): fadd/fmul/fma/fmul_interp + estimate seeds + compact accumulate + extended (saturate) forms",
+ "kind": "new",
+ "replaces": [
+  "falu2",
+  "falu2i",
+  "falu2_uni",
+  "falu3",
+  "falu_acc",
+  "fspecial_est"
+ ],
+ "adds": [
+  "falu2_ext",
+  "falu3_ext"
+ ],
+ "lengthRules": [],
+ "lengthRulesNote": "NO length-rule change. All lengths were ALREADY produced by isadb.py::instr_length's low-nibble-0x9 branch (EXP-0005/EXP-0025/EXP-M4-10/EXP-M4-12): 6B falu2 family; 4B compact accumulate (byte+2 in {0x18,0x19,0x38,0x39}); 8/10B extended = 6 + 2*(byte+4 & 3); 8B fma (byte+2 bit1 set). This proposal only adds/fixes DESCRIPTORS so the already-correctly-lengthed bytes decode to a named op instead of family-only / desync.",
+ "opSelectMap": {
+  "field": "op-select = byte+2 (instruction bits [16:24]); the arithmetic OPERATION is the low 3 bits [16:19] (opsel), the high 5 bits are source-cache/last-use/modifier flags (do not change the op).",
+  "opsel_0b100_0x4": "fadd  (byte+2 low-nibble 4/c: 0x1c,0x2c,0x3c,0x24,0x34,0x54,...)",
+  "opsel_0b101_0x5": "fmul  (byte+2 low-nibble 5/d: 0x1d,0x2d,0x35,0x65,0x6d,0xa5,0x25,...)",
+  "opsel_0b110_0x6": "fma   fused multiply-add (8B falu3 a*b+c = 0x1e; 6B falu2/falu2_uni continuation & VS/tessellation coordinate fused-mul = 0x1e/0x26/0x2e/0x3e/0x66/0x6e; 10B falu3_ext saturate-fma)",
+  "opsel_0b111_0x7": "fmul_interp  FRAGMENT-ONLY perspective-correct interpolation finalize multiply (attr * 1/w): 0x2f,0x3f,0x0f,0x27,0x6f -- 174 corpus instances, all fragment",
+  "compact_4B_accumulate": "byte+2 {0x18,0x38}=fadd_acc, {0x19,0x39}=fmul_acc (2nd..Nth vector component / reduction; byte+2 bit0 = add/mul, bit5 = cache hint)",
+  "estimate_seed": "byte0 0x29 (still low-nibble 9) + byte+2==0x25 + byte+3 in {0x09 rcp,0x0b rsqrt,0x0d sqrt} = fspecial_est Newton-Raphson seed (~8 mantissa bits). Any OTHER byte+3 with byte+2==0x25 is a plain fmul (opsel 5), now correctly labelled.",
+  "sub_select_add_mul_fma": "byte+2 bit0 = mul(1)/add(0) -- HW byte-diff k_add 0x1c vs k_mul 0x1d; a-b = fadd with srcB-negate bit43 (0xc0->0xc8), NOT a distinct op-select"
+ },
+ "descriptors": [
+  {
+   "mnemonic": "falu2",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA_size",
+     "start": 8,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcA_reg",
+     "start": 9,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "fadd",
+      "5": "fmul",
+      "6": "fma",
+      "7": "fmul_interp"
+     }
+    },
+    {
+     "name": "opflags",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_size",
+     "start": 24,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcB_reg",
+     "start": 25,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "ctrl",
+     "start": 32,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_imm",
+     "start": 39,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "0": "reg",
+      "1": "immediate"
+     }
+    },
+    {
+     "name": "mod_lo",
+     "start": 40,
+     "width": 3,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_neg",
+     "start": 43,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "mod_hi",
+     "start": 44,
+     "width": 4,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = op(srcA, [-]srcB)  ; 2-source float ALU. src operand byte = (reg<<1)|is32 (bit0=size; 7-bit reg field, GPR file = up to 96 addressable 32-bit regs, EXP-0020). dst here is the compact b0[4:8] nibble (r0..r15 only); a high GPR dst uses the 8-byte falu3 form (dst=byte+1, 7-bit) -- HW seen writing r64. srcB negate = bit43. srcB-immediate mode = bit39 (see falu2i). When bit39=1, srcB is NOT a GPR: byte+1's exponent nibble (bits[12:16], = instr bit15 = the 8s bit) SPLITS the two overloads -- exp>=8 (bit15=1) => packed minifloat immediate (falu2i), exp<8 (bit15=0) => UNIFORM-REGISTER source (falu2_uni). RT-1a-FIX HW-validated (supersedes the earlier `byte+2 bit4 / byte+5 bit1` guess, which was wrong).",
+   "provenance": "HW-VALIDATED (EXP-0006): dst/srcA/srcB positions, (reg<<1)|size encoding, 16-bit-low-half read, srcB negate (a+b->a-b), and srcB-immediate mode all confirmed by splice-and-observe. opsel from EXP-0003/EXP-0005. op/cache/ctrl flag bits inferred."
+  },
+  {
+   "mnemonic": "falu2i",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     39,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "imm_flag",
+     "start": 8,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "imm_mant",
+     "start": 9,
+     "width": 3,
+     "type": "imm"
+    },
+    {
+     "name": "imm_exp",
+     "start": 12,
+     "width": 4,
+     "type": "imm"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "fadd",
+      "5": "fmul",
+      "6": "fma",
+      "7": "fmul_interp"
+     }
+    },
+    {
+     "name": "imm_sign",
+     "start": 19,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "opflags",
+     "start": 20,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "srcA_size",
+     "start": 24,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcA_reg",
+     "start": 25,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "ctrl_lo",
+     "start": 32,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "mods",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = op(srcA, K)  ; srcB is the packed non-IEEE float immediate K = imm_decode(b1, sign). exp(bits12:16,bias11) mant(bits9:12) flag(bit8) sign(bit19). Range +-{0,1/32..30}. HW-VALIDATED EXP-0006.",
+   "provenance": "HW-VALIDATED (EXP-0006): every K in {0,+-0.0625..30} spliced and the runtime output equalled a+K (raw/validate_imm_dst.log)."
+  },
+  {
+   "mnemonic": "falu2_uni",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     39,
+     1,
+     1
+    ],
+    [
+     15,
+     1,
+     0
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "usrc",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "fadd",
+      "5": "fmul",
+      "6": "fma",
+      "7": "fmul_interp"
+     }
+    },
+    {
+     "name": "opflags",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcA_size",
+     "start": 24,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcA_reg",
+     "start": 25,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "ctrl_lo",
+     "start": 32,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "uni_mode",
+     "start": 39,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "srcB_not_gpr"
+     }
+    },
+    {
+     "name": "mods",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-invariant) register, not a GPR and not an immediate. Selected when bit39=1 AND byte+1's exponent nibble < 8 (bit15=0); the minifloat immediate (falu2i) uses exp>=8 (bit15=1). uniform index = byte+1 = (ureg<<1)|size32. The uniform value is preloaded by the driver / the constant (uniform) program (EXP-0010/EXP-0020). RT-1a-FIX HW-VALIDATED.",
+   "provenance": "HW-RE-VALIDATED (RT-1a-FIX item 3): uni.metal `a[gid]+p.k` runtime output tracks the runtime uniform (a=10: p.k=7->17, 100->110, 0.5->10.5, 2->12), which an immediate cannot. Disambiguation splice-proven: cadd byte+1 0xb1(exp11)->minifloat a+1; ->0x0d(exp0) reads an unbound uniform (=0), NOT a+imm_decode(0x0d). raw/uniform_src.log."
+  },
+  {
+   "mnemonic": "falu3",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     17,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst_lo",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "op",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "30": "fma",
+      "54": "fma",
+      "38": "fma_coord",
+      "46": "fma_coord",
+      "102": "fma",
+      "110": "fma_coord",
+      "70": "fma_coord",
+      "78": "fma_coord",
+      "142": "fma_coord",
+      "174": "fma_coord",
+      "98": "fma",
+      "62": "fma"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcB",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcC",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ext",
+     "start": 48,
+     "width": 16,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = a*b + c   ; three-source float ALU (fma). op=byte+2 (0x1e), dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5 (each (reg<<1)|size).",
+   "provenance": "HW-VALIDATED (EXP-0013): base a*b+c correct across varied a,b,c; splicing byte+5 (srcC) to the srcA/srcB descriptor changes the addend to a / b respectively -> byte+5 is the 3rd source operand. 8-byte length = float-ALU length bit (byte+2 bit1) set. (was inferred EXP-0001 k05_fma.)"
+  },
+  {
+   "mnemonic": "falu3_ext",
+   "length": 10,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     17,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst_lo",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "op",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "30": "fma",
+      "54": "fma",
+      "38": "fma_coord",
+      "46": "fma_coord",
+      "102": "fma",
+      "110": "fma_coord",
+      "62": "fma"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcB",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcC",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ext",
+     "start": 48,
+     "width": 32,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = saturate?( a*b + c )  ; the 10-byte EXTENDED fma. Same op-select as the 8-byte falu3 (op=byte+2, opsel 0b110; dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5). The 2-byte-longer tail (byte+6..+9) carries the saturate / source modifier; length = EXP-M4-10 `6 + 2*(byte+4 & 3)` with byte+4 low2 == 10. op-select 0x26/0x2e/0x6e are the fused mul-add COORDINATE forms (VS/tessellation) of the same family.",
+   "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): corpus/dec2_n9_falu/compute_ops.metal saturate(fma) `09 01 1e 05 82 08 02 00 00 82` extends the 8-byte fma by the byte+4=0x82 length selector + a 0x82 saturate tail; op-select byte+2=0x1e unchanged. Reproduced in the corpus (out_unorm8 byte+2=0x36). Base fma semantics inherit EXP-0013 HW; the extended tail is raw-captured (INFERRED), NOT HW-dispatch validated (M4 host compile-only)."
+  },
+  {
+   "mnemonic": "falu2_ext",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     17,
+     1,
+     0
+    ],
+    [
+     18,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA_size",
+     "start": 8,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcA_reg",
+     "start": 9,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "fadd",
+      "5": "fmul",
+      "6": "fma",
+      "7": "fmul_interp"
+     }
+    },
+    {
+     "name": "opflags",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_size",
+     "start": 24,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "1": "b32",
+      "0": "b16"
+     }
+    },
+    {
+     "name": "srcB_reg",
+     "start": 25,
+     "width": 7,
+     "type": "reg"
+    },
+    {
+     "name": "ext",
+     "start": 32,
+     "width": 32,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = saturate?( op(srcA,[mod]srcB) )  ; the 8-byte EXTENDED 2-source float ALU. op = opsel (0b100 fadd / 0b101 fmul), identical to the 6-byte falu2; bit17==0 keeps it distinct from the 8-byte fma (falu3, bit17==1). byte+4 low 2 bits = the length selector (01 -> this 8-byte form). SATURATE (clamp to [0,1]) sets byte+7 bit1 (the 0x82 tail seen on saturate(a+b)/saturate(a*b)); other tail bytes carry source-slot modifiers. The `ext` field captures byte+4..+7 verbatim for round-trip.",
+   "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): corpus/dec2_n9_falu/compute_ops.metal k_satadd `09 05 1c 01 01 00 00 82` and k_satmul `09 05 1d 01 01 00 00 82` differ from the 6-byte fadd/fmul only by the byte+4=0x01 length selector + the byte+7=0x82 saturate tail (op-select byte+2 unchanged). Reproduced byte-exact in the corpus (clamp01, sat_mul, vertex_stagein fetch_* with byte+2 0x3c/0x34). Length from the HW-splice EXP-M4-10 rule. Tail bit semantics beyond the saturate marker INFERRED (raw-captured); NOT HW-dispatch validated (M4 host compile-only)."
+  },
+  {
+   "mnemonic": "falu_acc",
+   "length": 4,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     17,
+     4,
+     12
+    ],
+    [
+     22,
+     2,
+     0
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "op",
+     "start": 16,
+     "width": 1,
+     "type": "opcode",
+     "enum": {
+      "0": "fadd_acc",
+      "1": "fmul_acc"
+     }
+    },
+    {
+     "name": "cache",
+     "start": 21,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    }
+   ],
+   "semantics": "d = srcA (op) srcB  ; COMPACT 4-byte float accumulate/multiply continuation (float-ALU group low-nibble 9). byte+2 in {0x18 add,0x19 mul,0x38 add+cache,0x39 mul+cache}: bits[1:5]==0b1100 with the arithmetic-enable bit (bit2) clear vs the 6-byte 0x1c/0x1d falu2. byte+2 bit0 = the add/mul op-select (`op`: 0x18/0x38 add, 0x19/0x39 mul). Omits the byte+4/+5 modifier tail of the 6-byte falu2, so the compiler emits it for the 2nd..Nth component of a vector add/mul (floatN) and for reduction accumulates. byte+3 = srcB register descriptor. byte+2 bit5 (`cache`) is a source-cache/last-use hint, NOT an op change (RT-1a-FIX: 0x18<->0x38 interchangeable).",
+   "provenance": "HW-VALIDATED add form (EXP-0025 + RT-1a-FIX): in a 10-value sum (manyload) the stream has 6 six-byte 0x3c/0x1c fadds + 3 of these = 9 adds (exactly N-1), summing to 1023; 0x18<->0x38 splice-interchangeable, redirecting the final op's dst zeroes the result. MUL form (0x19/0x39) byte-diff EXP-M4-13 R2 (own-MSL): float4 a*b compiles to one 6-byte 0x1d fmul + three 4-byte 0x19 (corpus/dec2_n9_falu/compute_ops.metal k_mul4), exactly mirroring float4 a+b = one 0x1c fadd + three 0x18 (k_add4); byte+2 bit0 is the sole add/mul difference. Field bit-packing beyond byte+3 inferred. NOT HW-dispatch validated for the mul form (M4 host compile-only); the add form retains EXP-0025 HW."
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     9
+    ],
+    [
+     16,
+     8,
+     37
+    ],
+    [
+     28,
+     4,
+     0
+    ],
+    [
+     24,
+     1,
+     1
+    ],
+    [
+     27,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "subop",
+     "start": 24,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "9": "rcp_estimate",
+      "11": "rsqrt_estimate",
+      "13": "sqrt_estimate"
+     }
+    },
+    {
+     "name": "b4",
+     "start": 32,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the correctly-rounded 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead.",
+   "provenance": "HW-VALIDATED (EXP-0026): byte+3 0x09/0x0b/0x0d appear in precise 1/x / rsqrt / sqrt; reading the raw estimate register (redirect the final store) over a dense x-sweep gives coarse 1/x, 1/sqrt x, sqrt x with worst-case relerr ~2^-7.5..2^-8 (rcp 8.0, rsqrt 7.9, sqrt 7.5 good bits). Operand bit-fields (dst/srcA) inferred by falu2-analogy (byte-diff); function+precision HW-proven."
+  }
+ ],
+ "notes": "OWNS low-nibble family 0x?9 (float 2-source ALU). METHOD (clean-room byte-diff, own-MSL, compile-only on the M4 host -- NO GPU dispatch): (1) op-select bit0 = add/mul proven by single-bit byte-diff of k_add(0x1c)/k_mul(0x1d) [corpus/dec2_n9_falu/compute_ops.metal]; opsel 0b110=fma from k_fma/k_madexpr(0x1e) and the dot4 continuation (0x1e/0x3e). (2) opsel 0b111 = fmul_interp DECISIVELY characterised by the fragment probe battery [corpus/dec2_n9_falu/frag_ops.metal]: opsel-7 appears iff a PERSPECTIVE varying is used (f_persp/f_mulvv/f_addvv) and is ABSENT for [[flat]] (f_flat), [[center_no_perspective]] (f_nopersp) and uniform-only fragment code (f_muluu/f_adduu) -> it is the perspective-divide finalize multiply attr*(1/w) (srcB is the interpolated rcp_w register, e.g. r66 in the passthrough case). (3) The 4-byte compact MUL continuation (0x19/0x39) mirrors the add continuation (0x18/0x38) exactly: float4 a*b = one 6B 0x1d fmul + three 4B 0x19 (k_mul4) vs float4 a+b = one 0x1c fadd + three 0x18 (k_add4). (4) The EXTENDED 8/10-byte forms (saturate/source-mod) keep the op-select byte+2 unchanged and grow a tail selected by byte+4 low 2 bits (k_satadd/k_satmul/saturate-fma). (5) fspecial_est was OVER-matching every byte+2==0x25 as an estimate; it is now pinned by byte+3 in {9,b,d}, relabelling 98 plain fmuls correctly. OP-SELECT bits are hardware instruction-encoding facts; no compiler instruction SEQUENCE was lifted. falu3/falu3_ext gained dst_lo (byte0 high nibble = destination low nibble) to make the 8/10-byte fma round-trip byte-exact -- this dst_lo fix is SHARED with proposals_r2/fix_falu3_ishift.json (idempotent; the integrator applies it once and updates the falu3 SYNTH entry in roundtrip_test.py to add dst_lo=0, which this proposal's scratch validation already does).",
+ "provenance": "Clean-room byte-diff, EXP-M4-13 R2, OWN-MSL only. All probe shaders under experiments/EXP-M4-13-full-corpus/corpus/dec2_n9_falu/ compiled with our own shdump (shdump_r2_n9, COMPILE-ONLY -- NO GPU dispatch on the M4 host) and tokenized with our own isadb/agxparse/bytediff. No Apple binary inspected. Extracted hex under experiments/EXP-M4-13-full-corpus/hex/dec2_n9_*.hex. Base op semantics (fadd/fmul/fma/min-max, estimate precision) inherit prior HW validation (EXP-0003/0005/0006/0013/0025/0026); the NEW facts here (opsel-7=fragment perspective-finalize multiply, 0x19/0x39=mul continuation, extended-form op-select invariance, fspecial_est byte+3 discriminator) are byte-diff-derived and NOT HW-dispatch validated. Provenance is honest per-descriptor.",
+ "validation": {
+  "samplesDecoded": 582,
+  "samplesDecodedDetail": "582 low-nibble-0x9 float-ALU instructions across 197 corpus files decode via these 8 descriptors; 579 carry a named op-select (falu2 327, falu3 51, falu2_uni 51, falu_acc 50, falu2i 46, falu2_ext 39, falu3_ext 9, fspecial_est 9). Family-only NAMING gap fell from 312 -> 3; whole-corpus undecoded leftover fell 1422 bytes (611 -> 594 files with leftover); n9-boundary desync files fell 36 -> 15.",
+  "roundtripOnSamplesPass": true,
+  "roundtripOnSamplesDetail": "asm(disasm(b))==b for all 582 corpus n9 instructions (0 failures; committed DB had 32 falu3 dst-nibble failures, all fixed by dst_lo). Includes the previously-mislabelled 98 byte+2==0x25 fmuls now decoding as falu2 op=fmul, and the estimate seeds preserved.",
+  "roundtripSuitePass": true,
+  "roundtripSuiteDetail": "tools/agx-isa/roundtrip_test.py copied to work/scratch_r2_n9 (falu3 SYNTH entry updated with dst_lo:0) -> ALL PASS (sections A/B/C/D, 296 [OK]).",
+  "tokenizationRegression": "NONE beyond improvement -- whole-corpus disassemble() leftover is 1422 bytes SMALLER with the change and never larger for any file (checked all 866 hex files).",
+  "hwDispatchValidated": false
+ },
+ "unresolved": [
+  "3 residual family-only op-selects have the ARITHMETIC-ENABLE bit (byte+2 bit2) CLEAR yet still set the fma length bit (bit17): 0x0a (opsel 2, mat3_ops), 0x23 & 0x3b (opsel 3, barycentric / tf_lod_distance). 1x each; likely NOT plain fma (a coordinate/special form swept in by the (17,1,1) length bit). Left op=None (decodes+round-trips, just unnamed).",
+  "15 n9-boundary desyncs remain, all from EXOTIC compact 4-byte / coordinate forms OUTSIDE the pure 2-source ALU: byte+2 0x21/0x24/0x30/0x31/0x33 (software-divide / derivative / fragment-finalize Newton refinement steps; length-anchored to 4 in instr_length but operand semantics not byte-isolated), and 0x29/0x69/0xa1/0x78 (tessellation/vertex coordinate & pack helpers overlapping the coord_madf/frag_color_pack/tex_coord_setup families owned elsewhere). Several are cascade artifacts of a single earlier non-n9 mis-length. Flagged for a follow-up compact-form pass, not part of the 2-source op-select map.",
+  "fmul_interp (opsel-7) is proven a fragment perspective-finalize MULTIPLY, but its exact source-modifier bit layout (byte+5 differs from the compute fmul's 0xc0 default) and whether it is ever emitted for non-perspective fragment products are only partially isolated (raw-captured for round-trip).",
+  "Extended-form (falu2_ext / falu3_ext) tail bytes beyond the saturate marker (byte+7 bit1) are raw-captured, not individually byte-diffed (abs vs negate vs per-slot source-clamp not separated). NOT HW-dispatch validated.",
+  "The 0x19/0x39 mul-continuation and the estimate byte+3 discriminator are byte-diff/structural, NOT HW-dispatch validated (M4 host is compile-only)."
+ ]
+}

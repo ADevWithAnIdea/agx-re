@@ -342,8 +342,12 @@ SYNTH = [
     ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xc, "opsel": 0b100,
                 "imm_sign": 1, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
                 "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09c11c0180c0
-    ("falu3",   {"dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ext": 0xc002}),
-    ("fminmax", {"dst": 0x03, "op": 0x1e, "srcA": 0x05, "sel": 0x01, "mods": 0xc0}),
+    ("falu3",   {"dst_lo": 0x0, "dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ext": 0xc002}),
+    # dst_lo=r3 exercises the byte0 high-nibble dst field added in EXP-M4-13 R2 (fix_falu3_ishift):
+    ("falu3",   {"dst_lo": 0x3, "dst": 0x07, "op": 0x1e, "srcA": 0x0b, "srcB": 0x81, "srcC": 0x0e, "ext": 0x6002}),
+    # EXP-M4-13 R2 (n2_intalu): float min/max UNIFIED into low-nibble-2 iminmax.
+    # fmin at dst r1 (byte0 0x12) -> reproduces the old fminmax bytes 12031e0501c0:
+    ("iminmax", {"dst": 0x1, "dst_full": 0x03, "fmt": 0x3, "srcA": 0x05, "sel": 0x1, "selhi": 0, "srcB": 0xc0}),
     # ---- integer (EXP-0007) ----
     # iadd a+b: dst=reg0, addsub=1 (ADD, byte0 0x9f -- RT-1a-FIX polarity), lenbit=1
     # (10B), arith_en=1. Reproduces the compiler's iadd bytes 9f 01 56 00 02 08 00 a8 17 05.
@@ -354,10 +358,10 @@ SYNTH = [
     ("iadd2",   {"addsub": 0, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
                  "b2hi": 0x15, "dst": 0x00, "opmode": 0x02, "srcB_imm": 0x00,
                  "b6": 0x10, "tail": 0x0517a8}),
-    # iminmax: signed min (sel=0x7), srcA=reg descriptor 0x05, srcB=0xc0.
-    ("iminmax", {"b1": 0x01, "op": 0x1e, "srcA": 0x05, "sel": 0x7, "selhi": 0, "srcB": 0xc0}),
-    # iminmax: unsigned max (sel=0x4).
-    ("iminmax", {"b1": 0x01, "op": 0x1e, "srcA": 0x05, "sel": 0x4, "selhi": 0, "srcB": 0xc0}),
+    # iminmax (n2_intalu unified schema): signed min (sel=0x7) at dst r0 -> 02011e0507c0.
+    ("iminmax", {"dst": 0x0, "dst_full": 0x01, "fmt": 0x3, "srcA": 0x05, "sel": 0x7, "selhi": 0, "srcB": 0xc0}),
+    # iminmax: unsigned max (sel=0x4) at dst r0 -> 02011e0504c0.
+    ("iminmax", {"dst": 0x0, "dst_full": 0x01, "fmt": 0x3, "srcA": 0x05, "sel": 0x4, "selhi": 0, "srcB": 0xc0}),
     # ---- scalar ALU (EXP-0013) ----
     # cvt_f2i (float->int, byte+7 0x48 = signed): reproduces 27 07 56 00 02 00 b4 48 03 00
     ("cvt_f2i", {"b2": 0x56, "src": 0x0200, "b5": 0x00, "cvtop": 0xb4, "signflag": 0x48, "tail": 0x0003}),

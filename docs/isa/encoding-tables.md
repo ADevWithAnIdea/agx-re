@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-08). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 96 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 126 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -40,7 +40,7 @@
 | `dst` | [4:8] | register |  |
 | `srcA_size` | [8:9] (byte+1) | enum | `0x1`=b32; `0x0`=b16 |
 | `srcA_reg` | [9:16] | register |  |
-| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
 | `opflags` | [19:24] | modifier |  |
 | `srcB_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
 | `srcB_reg` | [25:32] | register |  |
@@ -62,7 +62,7 @@
 | `imm_flag` | [8:9] (byte+1) | modifier |  |
 | `imm_mant` | [9:12] | immediate |  |
 | `imm_exp` | [12:16] | immediate |  |
-| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
 | `imm_sign` | [19:20] | modifier |  |
 | `opflags` | [20:24] | modifier |  |
 | `srcA_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
@@ -80,7 +80,7 @@
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
 | `usrc` | [8:16] (byte+1) | register |  |
-| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
 | `opflags` | [19:24] | modifier |  |
 | `srcA_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
 | `srcA_reg` | [25:32] | register |  |
@@ -96,28 +96,15 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
+| `dst_lo` | [4:8] | register |  |
 | `dst` | [8:16] (byte+1) | register |  |
-| `op` | [16:24] (byte+2) | opcode-select | `0x1e`=fma |
+| `op` | [16:24] (byte+2) | opcode-select | `0x1e`=fma; `0x36`=fma; `0x26`=fma_coord; `0x2e`=fma_coord; `0x66`=fma; `0x6e`=fma_coord; `0x46`=fma_coord; `0x4e`=fma_coord; `0x8e`=fma_coord; `0xae`=fma_coord; `0x62`=fma; `0x3e`=fma |
 | `srcA` | [24:32] (byte+3) | register |  |
 | `srcB` | [32:40] (byte+4) | register |  |
 | `srcC` | [40:48] (byte+5) | register |  |
 | `ext` | [48:64] (byte+6) | raw/unmapped |  |
 
 *d = a*b + c   ; three-source float ALU (fma). op=byte+2 (0x1e), dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5 (each (reg<<1)|size).*
-
-### `fminmax` — float min/max
-
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x12  ·  **Provenance:** HW-validated
-
-| Field | Bits | Type | Enum / values |
-|---|---|---|---|
-| `dst` | [8:16] (byte+1) | register |  |
-| `op` | [16:24] (byte+2) | opcode-select | `0x1e`=fminmax |
-| `srcA` | [24:32] (byte+3) | register |  |
-| `sel` | [32:40] (byte+4) | enum | `0x0`=fmax; `0x1`=fmin |
-| `mods` | [40:48] (byte+5) | modifier |  |
-
-*d = fmax(a,b) (byte+4 bit0=0) or fmin(a,b) (bit0=1). NaN: returns the non-NaN operand (IEEE minNum/maxNum), NaN only if BOTH are NaN. +-0 not ordered (a tie returns srcB). (Float group byte0 0x12; the integer min/max is the separate 0x02 group, EXP-0007.)*
 
 ### `funary` — float source-modifier move (fmov/fabs/fneg)
 
@@ -150,12 +137,13 @@
 
 ### `falu_acc` — compact 4-byte float accumulate (reduction)
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9, bits[16:21]==0x18, bits[22:24]==0x0  ·  **Provenance:** HW-validated
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:21]==0xc, bits[22:24]==0x0  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
 | `srcA` | [8:16] (byte+1) | register |  |
+| `op` | [16:17] (byte+2) | opcode-select | `0x0`=fadd_acc; `0x1`=fmul_acc |
 | `cache` | [21:22] | modifier |  |
 | `srcB` | [24:32] (byte+3) | register |  |
 
@@ -208,7 +196,7 @@
 
 ### `fspecial_est` — transcendental estimate seed (rcp/rsqrt/sqrt NR seed)
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x9, byte+2==0x25  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x9, byte+2==0x25, bits[28:32]==0x0, bits[24:25]==0x1, bits[27:28]==0x1  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -261,33 +249,19 @@
 
 ### `iminmax` — integer min/max (signed/unsigned)
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x02  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x6  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `op` | [16:24] (byte+2) | opcode-select | `0x1e`=iminmax |
+| `dst` | [4:8] | register |  |
+| `dst_full` | [8:16] (byte+1) | register |  |
+| `fmt` | [19:24] | modifier |  |
 | `srcA` | [24:32] (byte+3) | register |  |
-| `sel` | [32:35] (byte+4) | enum | `0x4`=umax; `0x5`=umin; `0x6`=imax; `0x7`=imin |
+| `sel` | [32:35] (byte+4) | opcode-select | `0x0`=fmax; `0x1`=fmin; `0x4`=umax; `0x5`=umin; `0x6`=imax; `0x7`=imin |
 | `selhi` | [35:40] | modifier |  |
 | `srcB` | [40:48] (byte+5) | register |  |
 
-*d = {min,max}(srcA, srcB)  ; sel bit0=min/max, bit1=signed/unsigned, bit2=1 integer (bit2=0 => float fmin/fmax, byte0 0x12).*
-
-### `iminmax_chain` — chained min/max (min3/max3/clamp first op)
-
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x22  ·  **Provenance:** HW-validated
-
-| Field | Bits | Type | Enum / values |
-|---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `op` | [16:24] (byte+2) | raw/unmapped |  |
-| `srcA` | [24:32] (byte+3) | register |  |
-| `sel` | [32:35] (byte+4) | enum | `0x4`=umax; `0x5`=umin; `0x6`=imax; `0x7`=imin |
-| `selhi` | [35:40] | modifier |  |
-| `srcB` | [40:48] (byte+5) | register |  |
-
-*integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20; the 0x20 bit marks the FIRST op of a min3/max3/clamp pair whose result feeds the following 0x02 min/max). sel byte+4 = the same iminmax codes as the 0x02 group (umax=4,umin=5,imax=6,imin=7). min3(a,b,c) = 0x22 min(a,b) then 0x02 min(.,c); clamp(x,lo,hi) = 0x22 imax(x,lo) then 0x02 imin(.,hi). There is NO dedicated 3-input min3/max3/median3 op -- MSL lowers them to sequences of 2-input min/max.*
+*d = min/max(a,b) by TYPE (32-bit int signed/unsigned, or float). byte0 hi nibble = dst r0..r15. byte1 = (dst<<1)|size. byte+2 = source-format marker (bits[16:19]==0b110). byte+3 = srcA. byte+4 = OP-SELECT (sel low 3 bits): 0=fmax 1=fmin 4=umax 5=umin 6=imax 7=imin. byte+5 = srcB.*
 
 ### `iunary` — integer unary (popcount / reduce)
 
@@ -301,7 +275,7 @@
 
 ### `ibitcount` — bit-count / bit-scan (popcount/reverse_bits/find-MSB)
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:7]==0x27, byte+2==0x56  ·  **Provenance:** HW-validated
+- **Length:** 8 bytes  ·  **Match:** bits[0:7]==0x27, bits[9:10]==0x0, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -314,12 +288,12 @@
 
 ### `carry_gen` — u64 carry-generate (unsigned-overflow compare for 64-bit add)
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x32, byte+2==0x35  ·  **Provenance:** mixed
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x35  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
+| `dst` | [4:8] | register |  |
 | `subop` | [8:16] (byte+1) | raw/unmapped |  |
-| `marker` | [16:24] (byte+2) | raw/unmapped |  |
 | `srcA` | [24:32] (byte+3) | register |  |
 | `cmpmode` | [32:40] (byte+4) | enum | `0x22`=ordered |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
@@ -328,7 +302,7 @@
 
 ### `irotate` — rotate-by-immediate funnel shift
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x01, byte+2==0x56  ·  **Provenance:** HW-validated
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x01, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -347,7 +321,7 @@
 |---|---|---|---|
 | `b1` | [8:16] (byte+1) | raw/unmapped |  |
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `srcdst` | [24:40] (byte+3) | raw/unmapped |  |
+| `srcdst` | [24:48] (byte+3) | raw/unmapped |  |
 | `shamt` | [48:56] (byte+6) | immediate |  |
 | `tail` | [56:80] (byte+7) | raw/unmapped |  |
 
@@ -365,19 +339,20 @@
 
 ### `icmpsel` — compare -> select 0/1 (full condition codes)
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0x12  ·  **Provenance:** HW-validated
+- **Length:** 14 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:20]==0xd  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `op` | [16:24] (byte+2) | opcode-select | `0x1d`=icmpsel |
+| `dst` | [4:8] | register |  |
+| `dst_full` | [8:16] (byte+1) | register |  |
+| `fmt` | [20:24] | modifier |  |
 | `srcA` | [24:32] (byte+3) | register |  |
 | `cmpmode` | [32:40] (byte+4) | enum | `0x22`=ordered(lt/gt); `0x26`=equal |
 | `neg_lo` | [40:48] (byte+5) | modifier |  |
 | `cond` | [48:56] (byte+6) | enum | `0x2`=f_gt; `0x3`=f_lt; `0x4`=u_gt; `0x5`=u_lt; `0x6`=s_gt; `0x7`=s_lt; `0x0`=f_eq |
 | `body` | [56:112] (byte+7) | raw/unmapped |  |
 
-*d = (srcA <cond> srcB) ? 1 : 0  ; fused compare-and-select. cmpmode (byte+4): 0x22 ordered relational, 0x26 equality. cond (byte+6) = [type:float/uint/sint][dir:lt/gt]. Result negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op covers float & signed/unsigned int compares.*
+*d = (a <cond> b) ? K1 : K0  ; integer/float compare feeding a 0/1 select, 14-byte form. dst = byte0 high nibble. byte1 = (dst<<1)|size. byte+2 low nibble 0xd = compare-select marker. byte+3 = srcA. cmpmode (byte+4): 0x22 ordered relational, 0x26 equality. cond (byte+6) = [type:float/uint/sint][dir:lt/gt]. Result negate (ge/le/ne) = byte+5 bit0 + byte+9 bit0. One op covers float & signed/unsigned int compares.*
 
 ## Conversions / pack
 
@@ -405,7 +380,7 @@
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
 | `src` | [24:40] (byte+3) | raw/unmapped |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
-| `cvtop` | [48:56] (byte+6) | opcode-select | `0xac`=int2f |
+| `cvtop` | [48:56] (byte+6) | opcode-select | `0xac`=int2f[32->32]; `0xa0`=i2f[16->16]; `0xa4`=i2f[16->32]; `0xa8`=i2f[32->16]; `0xb4`=i2f[8->32]; `0x8e`=i2f[sibling] |
 | `signflag` | [56:64] (byte+7) | modifier |  |
 
 *d = float(a)  ; integer/uint -> float convert (round to nearest even). byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f).*
@@ -844,12 +819,12 @@
 | `b0hi` | [6:7] | raw/unmapped |  |
 | `opcls` | [7:8] | modifier |  |
 | `cache` | [17:18] | modifier |  |
-| `op` | [8:16] (byte+1) | opcode-select | `0x0`=or/and; `0x1`=add/xor; `0x3`=?/umax; `0x5`=?/fmin; `0x6`=fadd/fmul(product); `0x7`=?/fmax; `0x2`=max/min |
+| `op` | [8:16] (byte+1) | opcode-select | `0x0`=ior/iand; `0x1`=isum/ixor; `0x2`=smax/smin; `0x3`=umax/umin; `0x4`=f16prod/f16sum; `0x5`=fmin; `0x6`=f32prod/f32sum; `0x7`=fmax |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 | `shape` | [48:56] (byte+6) | modifier |  |
-| `dtype` | [56:64] (byte+7) | enum | `0x3`=i_reduce; `0x7`=i_minmax; `0x12`=f_reduce; `0xb`=i_excl_scan; `0x9`=i_incl_scan; `0x32`=f_excl_scan; `0x22`=f_scan_variant |
+| `dtype` | [56:64] (byte+7) | enum | `0x3`=i32_reduce; `0x7`=s32_minmax; `0x9`=i32_incl_scan; `0xb`=i32_excl_scan; `0x12`=f32_reduce; `0x22`=f32_incl_scan; `0x32`=f32_excl_scan; `0x8`=f16_reduce; `0x13`=f16_minmax; `0x10`=f16_incl_scan; `0x18`=f16_excl_scan |
 
 *d = simd/quad reduce or prefix-scan of src over the SIMD-group (scope=1, width 32) or 2x2 quad (scope=0). Operation = (byte0 bit7, byte+1): byte+1=0x00 {and(bit7=0), or(1)}; 0x01 {xor(0), add/iadd(1)}; 0x03 {?, umax(1)}; 0x05 {?, fmin(1)}; 0x06 {FADD/simd_sum(0), FMUL/simd_product(1) -- NEW EXP-O2D, HW-splice byte0 0xbf->0x3f flips product 1.0 -> sum 32.0}; 0x07 {?, fmax(1)}; 0x02 {max/min}. byte+7 = datatype/shape: 0x03 int add|and|or|xor reduce, 0x07 int min|max, 0x12 float reduce, 0x0b int exclusive-scan, 0x09 int inclusive-scan, 0x32 FLOAT exclusive-scan (NEW), float inclusive-scan = the exclusive-scan followed by a 0x09 float op of the lane's own value. NB INTEGER simd_product / prefix-product have NO native reduce op -- they LOWER to a log2(32)-step shuffle(0x47)+multiply(0x9f) tree (only FLOAT product/prefix-product use this native op; the reduce unit has a float-mul mode but no int-mul mode).*
 
@@ -860,7 +835,7 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dir` | [7:8] | enum | `0x0`=bcast/up; `0x1`=xor/down |
-| `mode` | [8:16] (byte+1) | enum | `0x4`=simd; `0x0`=quad; `0x6`=rotate/fill |
+| `mode` | [8:16] (byte+1) | enum | `0x0`=quad; `0x1`=quad_updown; `0x4`=simd; `0x5`=simd_updown; `0x6`=simd_rotate/fill; `0x8`=quad_frag; `0x10`=quad_dyn; `0x14`=simd_dyn; `0x15`=simd_updown_dyn |
 | `cache` | [17:18] | modifier |  |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 | `src` | [32:40] (byte+4) | register |  |
@@ -1167,6 +1142,30 @@
 
 ## Other
 
+### `falu2_ext`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1
+
+### `falu3_ext`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1
+
+### `hminmax`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x1c
+
+### `isel_reg`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x2f
+
+### `isel_reg8`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x25
+
+### `n2_op6`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2
+
 ### `jump_cond`
 
 - **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x01
@@ -1243,6 +1242,110 @@
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4, bits[15:16]==0x1, byte+3==0x00, bits[16:17]==0x0, bits[17:18]==0x1
 
+### `rt_query_traverse`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86, byte+5==0x22, byte+6==0x82
+
+### `fldexp`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x15, byte+2==0x80
+
+### `ibfins`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[16:17]==0x0, bits[18:24]==0x15
+
+### `atomic_tg`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x03
+
+### `tile_read_mrt`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x06, byte+2==0x54
+
+### `tex_addr_setup`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, bits[16:17]==0x0, bits[18:24]==0x15
+
+### `h_alu_hi`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7
+
+### `h_alu_hi_ext`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7
+
+### `h_coord_hi`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1
+
+### `h_coord_hi_ext`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1
+
+### `packed_half2_hi`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, byte+2==0x24
+
+### `rtq_pred`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x06, byte+1==0xc2, bits[16:32]==0x0
+
+### `sfu_marker`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x06, byte+1==0x02
+
+### `ray_move_copy6`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x41
+
+### `ray_move_zero6`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x40
+
+### `ray_move_zinit`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x80
+
+### `rtq_state_move`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x09, byte+3==0x00
+
+### `funary_imm`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x0f
+
+### `b_alu10_lo7`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x7
+
+### `b_alu10_loe`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xe
+
+### `b_alu10_lof`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xf
+
+### `reg_move_c0`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x0
+
+### `reg_move_c1`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x1
+
+### `reg_move_c9`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x9
+
+### `reg_move_cb`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xb
+
+### `tg_atomic_prep`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x06
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1317,4 +1420,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 96 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 126 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

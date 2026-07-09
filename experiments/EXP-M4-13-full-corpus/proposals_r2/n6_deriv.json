@@ -1,0 +1,70 @@
+{
+  "family": "n6",
+  "kind": "new",
+  "owner": "low-nibble 0x?6",
+  "summary": "Two byte-INVARIANT fixed-encoding low-nibble-6 ops decoded and validated: rtq_pred (06 c2 00 00, 4B, ray-query traversal predicate/condition word) and sfu_marker (06 02, 2B, SFU/transcendental helper marker -- the round-1 'family-only' 50-token gap, now NAMED). The remaining low-nibble-6 desyncs are ray-tracing-traversal cascade residue (a separate, still-unmodelled family) and are reported UNRESOLVED rather than fabricated. The screen-space derivative dfdx/dfdy/fwidth is NOT a low-nibble-6 op -- it is the pre-existing 0x37 tex_deriv (low-nibble 7); see notes.",
+
+  "lengthRules": [
+    {
+      "gate": "b0==0x06 && b1==0xc2 && b2==0x00 && b3==0x00",
+      "length": 4,
+      "mnemonic": "rtq_pred",
+      "status": "NEW (this proposal)",
+      "note": "Gated tight on b1==0xc2 so it never touches the pre-existing 2-byte 06 02 SFU marker. Anchored by clean resync of the following branch/iadd2 to program end across 44 own-compiled ray-query shaders and one isolated own kernel."
+    },
+    {
+      "gate": "b0==0x06 && b1==0x02",
+      "length": 2,
+      "mnemonic": "sfu_marker",
+      "status": "PRE-EXISTING length rule (EXP-M4-12 S1); this proposal only adds the DESCRIPTOR that names the token",
+      "note": "Was family-only (length known, no descriptor). No length-rule change required."
+    }
+  ],
+
+  "descriptors": [
+    {
+      "mnemonic": "rtq_pred",
+      "length": 4,
+      "match": [[0, 8, 6], [8, 8, 194], [16, 16, 0]],
+      "fields": [],
+      "semantics": "Ray-query traversal predicate/condition word. Byte-INVARIANT 4-byte token (06 c2 00 00) the intersection_query compiler emits immediately after the candidate-status compare (icmp_pred, byte0 0x0a) and before its consumer (if_push conditional branch, or a predicated iadd2). Exclusively emitted inside intersection_query / ray-query traversal loops (0 occurrences in non-ray control-flow / int / float shaders). Exact micro-op is NOT-YET-CHARACTERIZED (candidate: predicate / execution-mask helper that gates the ray-query candidate/commit branch); documented as a fixed encoding + length only.",
+      "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 c2 00 00 across 260 corpus occurrences in 44 own-compiled ray-query shaders, ALWAYS at a clean leader position directly after a 6-byte icmp_pred; independently reproduced in an isolated OWN ray-query kernel (corpus/dec2_n6_deriv/rq_pred.metal, 8 occurrences). Length 4 anchored by clean resync of the following branch/iadd2 to the program end. Compile-only M4 host: semantics inferred from position, NOT GPU-dispatch-validated."
+    },
+    {
+      "mnemonic": "sfu_marker",
+      "length": 2,
+      "match": [[0, 8, 6], [8, 8, 2]],
+      "fields": [],
+      "semantics": "SFU / transcendental helper marker word. Byte-INVARIANT 2-byte token (06 02) the compiler emits adjacent to special-function-unit and varying/mesh output ops -- consistently after a 6-byte low-nibble-2 min/max range-reduction op and before an fspecial (2f/af) SFU op or an 0x80 output word. Appears in transcendental (sin/cos/pow), fragment/mesh output, and half-precision kernels. Fixed control token with no operand bits; exact micro-op NOT-YET-CHARACTERIZED. Per clean-room rule 5 the adjacent range-reduction coefficient words are deliberately left raw and are NOT bit-decoded here (naming a fixed opcode token reveals no algorithm).",
+      "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 02 across 59 corpus occurrences in 22 own-compiled shaders; reproduced in an isolated OWN fast::sin kernel (corpus/dec2_n6_deriv/sfu_marker.metal), where it sits between the range-reduction min/max op and the sin fspecial. Length 2 was already in the committed length rule (EXP-M4-12 S1); this descriptor only NAMES the previously family-only token. Compile-only M4 host: semantics inferred, NOT GPU-dispatch-validated."
+    }
+  ],
+
+  "notes": [
+    "HIGH-NIBBLE TEST: rtq_pred and sfu_marker both have a byte0 whose high nibble is INVARIANT 0 across the entire corpus (never a dst register) -- confirmed by the byte-invariance survey. So for these two ops byte0 does NOT carry a dst; they are fixed control/marker tokens, not the usual (dst<<4)|op ALU shape.",
+    "DERIVATIVE (task-named 0x06/0x36): NEGATIVE / clarifying result. The screen-space derivative dfdx/dfdy/fwidth compiles to the pre-existing 0x37 tex_deriv op (low-nibble 7, already in the committed DB; axis at byte+6: 0x92=dfdx, 0x90=dfdy). fwidth = tex_deriv + fabs + fadd (lowered, not a dedicated op). There is NO distinct low-nibble-6 derivative encoding: deriv_scalar/vec4/half/fwidth fragment shaders tokenize with 0x37 tex_deriv and contain no genuine 0x06/0x36 leader. The only low-nibble-6 op adjacent to derivatives is sfu_marker (06 02), present in deriv_fwidth because it uses sin/cos.",
+    "The '0x86 desync ~212' from the round-1 triage is NOT a genuine 0x86 leader family: 0x86 is a middle-byte that the tokenizer lands on while cascading through the still-unmodelled ray-tracing traversal / commit path and the unmodelled 0x?b uniform_mov register-move chains. In the genuine-leader survey nearly every 0x86 desync has a prev token that is itself <unknown>/desync (e.g. 86 10 N=41, 86 12 N=29, 86 0a N=20 are all cascade). Assigning them lengths/fields from cascade-recovered boundaries would risk fabrication, so they are left UNRESOLVED.",
+    "SCOPE / clean-room stance: decoding the ray-tracing traversal 0x?6 residue (66 00 / 06 00 / 46 00 after falu3; 56 xx after rt_ray_mem; a6 b0; the 0x86 cascade bytes) requires FIRST modelling the ray-tracing traversal instruction family (rt_ray_mem exact length, the uniform_mov 0x?b chains, the ray-query commit ops) -- a different low-nibble ownership. Per the Prime Directive (better NO result than a TAINTED one) these are reported as unresolved with evidence, not guessed."
+  ],
+
+  "provenance": "EXP-M4-13 R2, low-nibble-6 family. All facts from OWN-MSL: the pre-compiled EXP-M4-13 own-shader corpus (hex/) plus two isolated kernels I compiled here on the M4 host with shdump (corpus/dec2_n6_deriv/{rq_pred,sfu_marker}.metal). Method: compile -> agxparse --extract-hex -> table-driven tokenize -> byte-invariance survey + length bracketing. No Apple binary was disassembled or introspected. Compile-only host: NO GPU dispatch/splice -- semantics are inferred, encodings+lengths are byte-diff/anchor evidence.",
+
+  "validation": {
+    "samplesDecoded": 319,
+    "samplesDecoded_breakdown": {"rtq_pred": 260, "sfu_marker": 59},
+    "roundtripOnSamplesPass": true,
+    "roundtripOnSamples_detail": "asm(disasm(b))==b verified on ALL 260 rtq_pred + 59 sfu_marker occurrences across the whole hex/ corpus: 319 OK, 0 BAD.",
+    "roundtripSuitePass": true,
+    "roundtripSuite_detail": "tools/agx-isa/roundtrip_test.py run against the scratch DB (work/n6/isadb_scratch.py) = ALL PASS (A: asm(disasm)==b; B: disasm(asm)==fields; C: whole-program tokenization 0 leftover). No regressions vs committed DB baseline (also ALL PASS).",
+    "desyncReduction": "Adding rtq_pred removed 260 desync tokens corpus-wide (e.g. dec2_n8__g_bary 220->214, rt_curve 55->53, isolated rq_pred 460->452). sfu_marker changed no desync counts (token was already length-2) but converted 59 family-only tokens to named.",
+    "scratchDB": "work/n6/isadb_scratch.py (copy of the real DB + these 2 descriptors + the 06 c2->4 length rule). The real /Users/user/asahi_re/public/gpu/tools/agx-isa/isadb.py was NOT modified."
+  },
+
+  "unresolved": [
+    {"signature": "b0=0x66/0x06/0x46 b1=0x00 (X6 00 00 00 00 00 after falu3, before sr_read_wide)", "count": "~148", "reason": "Ray-tracing traversal/commit residue. The 'clean prev=falu3' boundary is itself reached via cascade recovery inside the unmodelled ray-query commit path; high-nibble is even-only (2/4/6/8/a) so NOT a simple 4-bit dst. Needs the ray-tracing family modelled first. Left raw to avoid fabrication."},
+    {"signature": "b0=0x86 b1 in {0x10,0x12,0x0a,0x0c,0x38,0x46,0x34,0x32,0x3a,0x3c,...}", "count": "~212 total", "reason": "Middle-byte cascade through the unmodelled ray-tracing traversal + 0x?b uniform_mov chains; prev token is overwhelmingly <unknown>/desync. Not a genuine 0x86 leader family."},
+    {"signature": "b0=0x56 b1 in {0x02,0x06,0x08,0x0a,0x0c,0x0e,0x10,...} after rt_ray_mem (tail ...20 00 80 8b 83 00 68 00)", "count": "~90", "reason": "Ray-memory access continuation; entangled with rt_ray_mem's uncertain 14-byte length. byte1 steps in even increments (looks like an offset/reg field) but cannot be bracket-confirmed without a corrected rt_ray_mem length. Ray-tracing ownership."},
+    {"signature": "b0=0x06 b1=0x30 (after unknown); b0=0xa6 b1=0xb0", "count": "~36", "reason": "Cascade artifacts inside ray-query getter loops (prev token unknown)."},
+    {"signature": "b0=0x06 b1 in {0x20,0x60} (06 X0 00 80 00 00 after n3_mov, before 0f 04 mask/if, in rt_frag_query/rt_query_abort)", "count": "7", "reason": "CANDIDATE genuine 6-byte ray-query op (regular encoding, clean-ish n3_mov prev) but only 7 occurrences and ray-query-specific; not compiled/isolated enough to bracket-prove length or decode fields without risking fabrication. Flagged for a ray-tracing-family follow-up."}
+  ]
+}

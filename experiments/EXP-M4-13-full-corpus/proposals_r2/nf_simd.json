@@ -1,0 +1,470 @@
+{
+  "family": "low-nibble 0x?f (subgroup/quad SIMD, ray-query, fldexp) -- EXP-M4-13 round 2",
+  "owner_scope": "byte0 low-nibble 0xf: {0x0f,0x3f,0x5f,0x8f,0xbf,0xff}; 0x5f noted (already rt_ray_mem, common named memory op)",
+  "kind": "new",
+  "kind_detail": "2 NEW descriptors (rt_query_traverse, fldexp) + 2 EXTENDED existing descriptors (simd_reduce op/dtype enums, simd_shuffle mode enum). All from own-MSL byte-diff; NOT HW-dispatch-validated in R2.",
+  "lengthRules": [
+    {
+      "signature": "byte0 low-nibble 0xf AND byte+1==0x80 AND byte+2==0x86",
+      "length": 8,
+      "mnemonic": "rt_query_traverse",
+      "evidence": "anchored-resync brute force across 76 own-compiled intersection_query occurrences: only L=8 re-tokenizes the following ops (471 clean follow-on ops vs <=100 for L in {4,6,10,12}). Absorbs the trailing `0f 22 82` (its own bytes +4..+7), which is why round-1 saw spurious `0f 22 82` desyncs."
+    },
+    {
+      "signature": "byte0==0x0f AND byte+1==0x15 AND byte+2==0x80",
+      "length": 6,
+      "mnemonic": "fldexp",
+      "evidence": "clean bracketing (iunary -> fldexp -> device_store -> stop) in float_arith__ldexp & transcendental__ldexp; whole kernel tokenizes clean at L=6."
+    }
+  ],
+  "descriptors": [
+    {
+      "mnemonic": "rt_query_traverse",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          15
+        ],
+        [
+          8,
+          8,
+          128
+        ],
+        [
+          16,
+          8,
+          134
+        ],
+        [
+          40,
+          8,
+          34
+        ],
+        [
+          48,
+          8,
+          130
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "opA",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "sel",
+          "start": 32,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "7": "sel0",
+            "15": "sel1"
+          }
+        },
+        {
+          "name": "opB",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte special op emitted only inside intersection_query traversal / committed+candidate result getters. byte0 HIGH nibble = dst register; byte+1=0x80, byte+2=0x86 (SFU/special-function datapath marker, same 0x86 the 0x2f/0xaf fspecial family carries), byte+5=0x22, byte+6=0x82 constant. byte+4 low-nibble 7 vs f is a 1-bit selector; byte+3/byte+7 are operand selectors. The trailing `[07|0f] 22 82 ZZ` (bytes +4..+7) is the SECOND HALF of THIS instruction, not a separate 0x0f op -- this is why the round-1 census reported spurious `0f 22 82 ..` / `bf 80 86 ..` / `ff 80 86 ..` desyncs. Internal operand semantics left structural (clean-room: encoding documented, the getter algorithm is not lifted).",
+      "provenance": "structural (inferred) + LENGTH byte-diff (EXP-M4-13 R2, own-MSL): length 8 established by anchored resync across 76 occurrences in 5 own-compiled intersection_query shaders (rq_bary/rq_dist/rq_xform + the two query-getter corpus kernels) -- only length 8 lets the following 0x0a compare / 0f05 push / 9f01 iadd ops re-tokenize (471 clean follow-on ops vs <=100 for 4/6/10/12). Constant bytes +1/+2/+5/+6 and dst=byte0-hi read directly off the 76 samples. NOT HW-dispatch-validated (no GPU splice run in R2)."
+    },
+    {
+      "mnemonic": "fldexp",
+      "length": 6,
+      "match": [
+        [
+          0,
+          4,
+          15
+        ],
+        [
+          8,
+          8,
+          21
+        ],
+        [
+          16,
+          8,
+          128
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "operand",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "fldexp: d = ldexp(a, n) = a * 2^n for a RUNTIME integer exponent n (float scale-by-power-of-two). byte0 low-nibble 0xf, high-nibble = dst; byte+1=0x15 sub-op, byte+2=0x80 constant; byte+3 = operand descriptor (source float / exponent register). Only emitted for the dynamic-exponent ldexp -- the constant-exponent form folds to an fmul by a power-of-two literal.",
+      "provenance": "byte-diff (EXP-M4-13 R2, own-MSL): length 6 proven by clean bracketing (iunary@170 -> fldexp -> device_store@184 -> stop, whole ldexp kernel tokenizes clean). Emission gated to dynamic exponent shown by compiling ldexp(v,3)/ldexp(v,5)/ldexp(v,-2) (constant-folded, NO 0f15 op) vs ldexp(v,n) (emits it). byte+3 operand localized by a 3x-ldexp regalloc-variation kernel (0x08->0x16->0x10). NOT HW-dispatch-validated."
+    },
+    {
+      "mnemonic": "simd_reduce",
+      "length": 8,
+      "match": [
+        [
+          0,
+          3,
+          7
+        ],
+        [
+          4,
+          2,
+          3
+        ],
+        [
+          16,
+          1,
+          0
+        ],
+        [
+          18,
+          6,
+          21
+        ]
+      ],
+      "fields": [
+        {
+          "name": "scope",
+          "start": 3,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "simd",
+            "0": "quad"
+          }
+        },
+        {
+          "name": "b0hi",
+          "start": 6,
+          "width": 1,
+          "type": "raw"
+        },
+        {
+          "name": "opcls",
+          "start": 7,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "cache",
+          "start": 17,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "op",
+          "start": 8,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "0": "ior/iand",
+            "1": "isum/ixor",
+            "2": "smax/smin",
+            "3": "umax/umin",
+            "4": "f16prod/f16sum",
+            "5": "fmin",
+            "6": "f32prod/f32sum",
+            "7": "fmax"
+          }
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "shape",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "dtype",
+          "start": 56,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "3": "i32_reduce",
+            "7": "s32_minmax",
+            "9": "i32_incl_scan",
+            "11": "i32_excl_scan",
+            "18": "f32_reduce",
+            "34": "f32_incl_scan",
+            "50": "f32_excl_scan",
+            "8": "f16_reduce",
+            "19": "f16_minmax",
+            "16": "f16_incl_scan",
+            "24": "f16_excl_scan"
+          }
+        }
+      ],
+      "semantics": "d = simd/quad reduce or prefix-scan of src over the SIMD-group (scope=1, width 32) or 2x2 quad (scope=0). Operation = (byte0 bit7, byte+1): byte+1=0x00 {and(bit7=0), or(1)}; 0x01 {xor(0), add/iadd(1)}; 0x03 {?, umax(1)}; 0x05 {?, fmin(1)}; 0x06 {FADD/simd_sum(0), FMUL/simd_product(1) -- NEW EXP-O2D, HW-splice byte0 0xbf->0x3f flips product 1.0 -> sum 32.0}; 0x07 {?, fmax(1)}; 0x02 {max/min}. byte+7 = datatype/shape: 0x03 int add|and|or|xor reduce, 0x07 int min|max, 0x12 float reduce, 0x0b int exclusive-scan, 0x09 int inclusive-scan, 0x32 FLOAT exclusive-scan (NEW), float inclusive-scan = the exclusive-scan followed by a 0x09 float op of the lane's own value. NB INTEGER simd_product / prefix-product have NO native reduce op -- they LOWER to a log2(32)-step shuffle(0x47)+multiply(0x9f) tree (only FLOAT product/prefix-product use this native op; the reduce unit has a float-mul mode but no int-mul mode).",
+      "provenance": "HW-VALIDATED (EXP-0018 + EXP-O2D): all ops run with a distinct per-lane value and read back per-lane (sum/min/max/and/or/xor/prod/fsum/prefix all exact, width 32). Splice-proven op-select: byte0 bf->3f flips or->and; byte+1 01->02 & byte+7 03->07 flips sum->max; byte+7 0b->03 flips exclusive-scan->full-reduce; EXP-O2D byte0 0xbf->0x3f flips 32-lane float product 1.0 -> sum 32.0 (byte+1=0x06 bit7=1 = simd_product). quad byte0 b7/37 (bit3=0) proven by q_* semantics."
+    },
+    {
+      "mnemonic": "simd_shuffle",
+      "length": 10,
+      "match": [
+        [
+          0,
+          7,
+          71
+        ],
+        [
+          16,
+          1,
+          0
+        ],
+        [
+          18,
+          6,
+          21
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dir",
+          "start": 7,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "0": "bcast/up",
+            "1": "xor/down"
+          }
+        },
+        {
+          "name": "mode",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "quad",
+            "1": "quad_updown",
+            "4": "simd",
+            "5": "simd_updown",
+            "6": "simd_rotate/fill",
+            "8": "quad_frag",
+            "16": "quad_dyn",
+            "20": "simd_dyn",
+            "21": "simd_updown_dyn"
+          }
+        },
+        {
+          "name": "cache",
+          "start": 17,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "lane",
+          "start": 48,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "tail",
+          "start": 56,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = src from another lane. byte0 0x47 = broadcast / shuffle-up / fill_up, 0xc7 = shuffle-xor / shuffle-down / fill_down (bit7 = direction). byte+1 mode: 0x04 SIMD-group shuffle, 0x00 quad, 0x06 rotate / shuffle_and_fill (NEW EXP-O2D). byte+6 = source lane index (broadcast) or xor mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic simd_shuffle(v,lane) use the same op with the lane index in a register. NEW (EXP-O2D): simd_shuffle_and_fill_up/down = byte+1==0x06; the FILL DATA is a SEPARATE operand loaded by a preceding 0x67 device_load before the shuffle. The modulo/rotate variant (v, fill, delta, modulo) is the same byte+1==0x06 op with byte+6 changed (fill 0x4a -> modulo 0x42) plus a tail byte (0x20 -> 0x30) carrying the modulo. simd_shuffle_up/down add edge-handling predication (0f80/0f9e) around the core op; simd_shuffle_xor is a single clean op.",
+      "provenance": "HW-VALIDATED (EXP-0018 + RT-ISA-FIX): broadcast(0/5), broadcast_first, shuffle_xor(1), shuffle(dyn), shuffle_up/down, rotate_up/down and the quad equivalents all run with distinct per-lane inputs and read back exactly. byte+6=(lane<<1) proven (bcast5 -> 0x0a, bcast lane2 quad -> 0x04, xor1 -> 0x02). mode/dir byte-diff-localized (simd 0x04 vs quad 0x00; 0x47 vs 0xc7). RT-ISA-FIX re-proved on HW: `simd_broadcast(lane*10+5,3)`=35 all lanes (bytes 47 04 54 ..) and `simd_shuffle_xor(v,3)`=(lane^3)*10+5 (c7 04 54 ..) -- both carry byte+2==0x54, which the old 0x56-only gate rejected; the relaxed match now decodes them."
+    }
+  ],
+  "opSelectMaps": {
+    "simd_reduce.op(byte+1)": {
+      "0x00": {
+        "opcls0": "iand",
+        "opcls1": "ior",
+        "evidence": "sr_and/or_u32,s32"
+      },
+      "0x01": {
+        "opcls0": "ixor",
+        "opcls1": "isum(iadd)",
+        "evidence": "sr_xor/sum_u32,s32"
+      },
+      "0x02": {
+        "opcls0": "smin",
+        "opcls1": "smax",
+        "evidence": "sr_min/max_s32 (dtype 0x07)"
+      },
+      "0x03": {
+        "opcls0": "umin",
+        "opcls1": "umax",
+        "evidence": "sr_min/max_u32 (dtype 0x03)"
+      },
+      "0x04": {
+        "opcls0": "f16sum(fadd)",
+        "opcls1": "f16prod(fmul)",
+        "evidence": "sr_sum/prod_f16 (WAS UNMAPPED)"
+      },
+      "0x05": {
+        "opcls0": "(fmin, opcls0 not emitted)",
+        "opcls1": "fmin",
+        "evidence": "sr_min_f32/f16"
+      },
+      "0x06": {
+        "opcls0": "f32sum(fadd)",
+        "opcls1": "f32prod(fmul)",
+        "evidence": "sr_sum/prod_f32"
+      },
+      "0x07": {
+        "opcls0": "(fmax, opcls0 not emitted)",
+        "opcls1": "fmax",
+        "evidence": "sr_max_f32/f16"
+      }
+    },
+    "simd_reduce.dtype(byte+7)": {
+      "0x03": "i32_reduce",
+      "0x07": "s32_minmax",
+      "0x09": "i32_incl_scan",
+      "0x0b": "i32_excl_scan",
+      "0x12": "f32_reduce",
+      "0x22": "f32_incl_scan",
+      "0x32": "f32_excl_scan",
+      "0x08": "f16_reduce(WAS UNMAPPED)",
+      "0x13": "f16_minmax(WAS UNMAPPED)",
+      "0x10": "f16_incl_scan(WAS UNMAPPED)",
+      "0x18": "f16_excl_scan(WAS UNMAPPED)"
+    },
+    "simd_shuffle.mode(byte+1)": {
+      "0x00": "quad shuffle/bcast(dir0)/xor(dir1)",
+      "0x01": "quad up(dir0)/down(dir1)",
+      "0x04": "simd shuffle/bcast(dir0)/xor(dir1)",
+      "0x05": "simd up(dir0)/down(dir1)",
+      "0x06": "simd rotate/shuffle_and_fill up(dir0)/down(dir1)",
+      "0x08": "quad (fragment-stage variant)",
+      "0x10": "quad shuffle (dynamic index)",
+      "0x14": "simd shuffle (dynamic index)",
+      "0x15": "simd up/down (dynamic delta)",
+      "_note": "low nibble = op class; bit4(0x10)=dynamic register index/delta; bit3(0x08)=fragment quad; byte0 bit7=dir"
+    }
+  },
+  "notes": [
+    "REDUCE op-select is a JOINT encoding: byte+1(op) + byte0.bit7(opcls, picks within the op-pair) + byte+7(dtype=width/reduce-vs-scan). Integer add=op1; int min/max split signed(op2)/unsigned(op3); FLOAT add/mul split by WIDTH into op4(half)/op6(f32); float min=op5,max=op7 (width-independent, width in dtype). This fully maps the previously-unmapped op=0x04 and the f16 dtypes 0x08/0x10/0x13/0x18.",
+    "SHUFFLE mode(byte+1): low nibble = op class, bit4(0x10)=DYNAMIC (register) index/delta, bit3(0x08)=fragment-stage quad variant; byte0 bit7(dir) picks bcast/up/rotate_up vs xor/down/rotate_down. Adds modes 0x01,0x05,0x08,0x10,0x14,0x15.",
+    "rt_query_traverse: 8-byte low-nibble-f op unique to intersection_query traversal/getters. High-nibble=dst; byte+1/+2/+5/+6 constant (0x80/0x86/0x22/0x82); byte+2==0x86 is the SFU/special-function datapath marker shared with 0x2f/0xaf fspecial. Internal operand semantics LEFT STRUCTURAL on purpose -- naming them would reconstruct the compiler getter sequence (clean-room rule 5). We document the ENCODING/length only.",
+    "fldexp (0f 15 80): runtime ldexp(float,int) = float * 2^n. Constant-exponent ldexp constant-folds to fmul (no op emitted).",
+    "0x5f: per task, NOT re-decoded -- it is already the named rt_ray_mem memory op (byte+2 in {0x54,0x56} -> 14B). The `5f 02 ..` census desyncs are resync artifacts inside RT kernels (byte+2 not a memory marker), not a new op.",
+    "0x8f: already the named `ret` (4B). The `8f 04 56` / `8f 10 02` census gaps are mid-stream resync artifacts (best-resync L=4 is dominated by hundreds of coincidental mid-instruction 0x8f bytes; 0x8f's real semantic is function-return, which does not fit a reduce marker). NOT decoded to a new op -- reported UNRESOLVED."
+  ],
+  "provenance": "byte-diff EXP-M4-13 R2 (own-MSL). All evidence from shaders WE compiled (55 single-op subgroup/quad probes + 8 ldexp/ray-query isolation probes under corpus/dec2_nf_simd/, plus the subgroup_quad corpus). shdump is COMPILE-ONLY; NO GPU dispatch/splice was run in R2 -> NOT HW-VALIDATED (semantics of new ops are inferred from encoding + emission context, not hardware round-trip).",
+  "validation": {
+    "scratchDbPath": "work/r2/db/isadb.py (scratch copy; real isadb.py NOT modified)",
+    "descriptorCount": 98,
+    "samplesDecoded": 341,
+    "samplesBreakdown": {
+      "simd_reduce": 54,
+      "simd_shuffle": 243,
+      "rt_query_traverse": 41,
+      "fldexp": 3
+    },
+    "reduceOpValuesCovered": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "shuffleModeValuesCovered": [
+      "0x0",
+      "0x1",
+      "0x4",
+      "0x5",
+      "0x6",
+      "0x8",
+      "0x10",
+      "0x14",
+      "0x15"
+    ],
+    "roundtripOnSamplesPass": true,
+    "roundtripOnSamplesFailures": 0,
+    "roundtripSuitePass": true,
+    "preexistingUnrelatedRoundtripFails": "102 falu3/ishift (byte0 low-nibble 9/7) failures are IDENTICAL on the pristine DB -> pre-existing, out of low-nibble-f scope, NOT introduced by R2.",
+    "desyncImpact": {
+      "queryGetter_desync_bytes_pristine": 2728,
+      "queryGetter_desync_bytes_scratch": 2654,
+      "queryGetter_spurious_0f22/Xf86_leaders_pristine": 65,
+      "queryGetter_spurious_leaders_scratch": 17,
+      "corpuswide_0x3f_desync_leaders": "513 -> 380",
+      "corpuswide_0xbf": "97 -> 41",
+      "corpuswide_0x0f": "422 -> 407",
+      "fldexp_0f1580_resolved": "2/2 (100%)",
+      "rtq_Xf8086_absorbed": "423/460"
+    }
+  },
+  "unresolved": [
+    "0x8f `8f 04 56` (7x, rt_query getters) and `8f 10 02` (x_quad_vote): NOT decoded to a new op. 0x8f is already `ret` (4B). These occurrences are resync artifacts inside dense unowned multi-family desync regions (intersection_query getters; quad_ballot lowering); best-resync L=4 is dominated by coincidental mid-stream 0x8f bytes and 0x8f's real semantic (return) does not fit a reduce/0x56 marker. Flagged for a future HW-splice pass if a clean isolation can be built.",
+    "rt_query_traverse internal operand semantics (byte+3/+4/+7): left STRUCTURAL. Decoding them requires reconstructing the intersection_query getter sequence, which clean-room rule 5 forbids. Only the encoding/length is documented.",
+    "Residual low-nibble-f census desync leaders (corpus-wide ~2168): overwhelmingly resync artifacts, NOT new ops. Breakdown: 0xff `ff ff`/`ff 00` (~612) = end-of-shader PADDING/alignment fill; 0x0f/0x3f inside the INTEGER simd_product / prefix-scan tree (`0f 2f XX 86 ..` = fspecial tails mis-aligned by the unowned log2(32) shuffle+multiply scaffolding); 0x5f `5f 02` inside RT traversal (byte+2 not a memory marker). These sit in unowned families (0x9f mul-tree, 0x0a/0x2a compares, 0xbb/0xdb/0xeb ray ops, half-relational) and cannot be bracketed from the low-nibble-f family alone.",
+    "reduce dtype values 0x00/0x01/0x02/0x05 appear in some corpus reduces (e.g. sg_reduce_f16 shows dtype 0x00) but were not isolated to a single (type,op) in R2 -> left un-named in the dtype enum (they still decode as raw values; no round-trip impact)."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "family": "float-ALU low-nibble-0x9 8-byte (falu3) + integer 0xa7 10-byte arithmetic-shift (ishift)",
+  "kind": "fix",
+  "replaces": ["falu3", "ishift"],
+  "summary": "Two existing descriptors failed byte-exact corpus round-trip because they left real register bits UNCOVERED by both match and fields, so those bits were silently zeroed on re-assembly. falu3 dropped the byte0 HIGH nibble (dst register low-4 bits); ishift dropped byte+5 (a source/dest register-addressing byte). Fix = add a dst_lo field to falu3 (byte0[4:8]) and widen ishift's operand field to include byte+5. No length rule changes.",
+
+  "lengthRules": [
+    {
+      "note": "UNCHANGED. Both instructions are already lengthed correctly by isadb.instr_length: falu3 via the low-nibble-0x9 float-ALU rule (8 bytes when byte+2 bit1 is set, plus the 0x26/0x2e coord op-select siblings that also reach 8B), ishift via the byte0==0xa7 & byte+1 bit0==1 -> 10 rule. This fix touches ONLY the descriptor match/fields (bit coverage), not tokenization/length."
+    }
+  ],
+
+  "descriptors": [
+    {
+      "mnemonic": "falu3",
+      "length": 8,
+      "match": [[0, 4, 9], [17, 1, 1]],
+      "fields": [
+        {"name": "dst_lo", "start": 4,  "width": 4,  "type": "reg"},
+        {"name": "dst",    "start": 8,  "width": 8,  "type": "reg"},
+        {"name": "op",     "start": 16, "width": 8,  "type": "opcode", "enum": {"30": "fma"}},
+        {"name": "srcA",   "start": 24, "width": 8,  "type": "reg"},
+        {"name": "srcB",   "start": 32, "width": 8,  "type": "reg"},
+        {"name": "srcC",   "start": 40, "width": 8,  "type": "reg"},
+        {"name": "ext",    "start": 48, "width": 16, "type": "raw"}
+      ],
+      "semantics": "d = a*b + c ; three-source float ALU (fma) and, more generally, the 8-byte low-nibble-0x9 float-ALU form (op=byte+2: 0x1e fma, plus op-select siblings 0x26/0x2e fused-mul coord/matrix forms that share this 8-byte length). op=byte+2; dst=byte+1 (full 7-bit, (reg<<1)|size); srcA=byte+3; srcB=byte+4; srcC=byte+5. NEW dst_lo (byte0 hi-nibble, bits[4:8]) MIRRORS the destination register's low 4 bits (= (byte+1>>1) & 0xf) -- a real register field that MUST be captured for a byte-exact re-encode. It was previously omitted, so any fma/coord op whose dst was >= r1 lost its byte0 high nibble on re-assembly (e.g. raw 3982260b... -> reasm 0982260b...).",
+      "provenance": "HW-VALIDATED (EXP-0013) for the fma base semantics and srcC=byte+5. dst_lo = byte0[4:8]: byte-diff EXP-M4-13 R2 (own-MSL k_fma_dst / k_fma_dst8, recompiled fresh on this M4 -> byte-identical to the committed hex). A 4-fma kernel with 4 simultaneously-live dst registers shows byte0 hi-nibble tracking the dst 0..7 in lockstep with byte+1=(reg<<1)|1 (bytediff.py f_r0 vs f_r3: byte0 09->39, i.e. bits 4,5 flip 0->3). For dst>=r16 the nibble is INFERRED = (reg & 0xf) (the low-nibble mirror of byte+1); the 4-bit field captures whatever HW emits either way, which is what guarantees exact roundtrip. NOT independently GPU-dispatch validated in R2 (compile+extract+byte-diff only)."
+    },
+    {
+      "mnemonic": "ishift",
+      "length": 10,
+      "match": [[0, 8, 167], [8, 1, 1]],
+      "fields": [
+        {"name": "b1",     "start": 8,  "width": 8,  "type": "raw"},
+        {"name": "b2",     "start": 16, "width": 8,  "type": "raw"},
+        {"name": "srcdst", "start": 24, "width": 24, "type": "raw"},
+        {"name": "shamt",  "start": 48, "width": 8,  "type": "imm"},
+        {"name": "tail",   "start": 56, "width": 24, "type": "raw"}
+      ],
+      "semantics": "d = a >> shamt ; ARITHMETIC (sign-preserving) shift-right by an immediate (byte0==0xa7, 10-byte form). shamt=byte+6 encoded as (amount<<2): 0x04->1, 0x08->2, 0x10->4, 0x20->8. dst descriptor = byte+1 = (reg<<1)|size; byte+2 = 0x56/0x54 (the EXP-0038 cache bit). The operand-descriptor field 'srcdst' is WIDENED from byte+3:4 (16b) to byte+3:4:5 (24b): byte+5 carries additional source/destination register-addressing bits that vary with the dst register and was previously an un-captured hole between the operand bytes and shamt, so any shift with byte+5 != 0 failed to re-encode (e.g. raw a7115402020408... -> reasm a7115402020008...).",
+      "provenance": "HW-VALIDATED (EXP-0013) for a>>k semantics and the shamt=(amount<<2) byte+6 map. byte+5 coverage widened: byte-diff EXP-M4-13 R2 (own-MSL k_ashr_dst / k_ashr_amt, recompiled fresh -> byte-identical to committed hex). The dst sweep (4 live shift results) moves byte+5 across 0x00/04/08/0c while holding shamt; the amount sweep holds byte+5=0x0c and moves byte+6 -- isolating byte+5 as a register-addressing byte (bytediff.py ashr_d0 vs ashr_d16: byte+5 00->08 as the dst goes r0->r16). NOT independently GPU-dispatch validated in R2."
+    }
+  ],
+
+  "opSelectMaps": {
+    "falu3.op (byte+2)": {
+      "note": "The 'op' field is the byte+2 op-select of the 8-byte low-nibble-0x9 float form. Only 0x1e=fma is byte-diff proven here (this fix does not add new op names). Other values seen on falu3-classified corpus bytes (0x26/0x2e coord/mul-add, and many higher values that are mesh/RT/tess ops sharing the 8-byte length) are captured as raw op values so roundtrip is exact but are left UNNAMED -- naming them is out of scope for this fix.",
+      "0x1e": "fma"
+    },
+    "ishift.shamt (byte+6, HW-validated EXP-0013)": {
+      "0x04": "shift 1", "0x08": "shift 2", "0x10": "shift 4", "0x20": "shift 8",
+      "encoding": "amount<<2"
+    }
+  },
+
+  "notes": [
+    "ROOT CAUSE (both): a table-driven codec re-encodes an instruction as (match constant bits) | (field bits). Any bit set in the real bytes but covered by NEITHER a match tuple NOR a declared field is lost (assembled as 0). Both descriptors had exactly such uncovered bits.",
+    "falu3: match pinned only the low nibble (bits[0:4]=0x9) + the length bit[17]; fields started at bit 8. Bits[4:8] (byte0 hi-nibble = dst low-4) were uncovered -> any dst>=r1 zeroed them. FIX adds field dst_lo @ bits[4:8]. After the fix EVERY one of the 64 bits is in match or a field (structural coverage proof: uncovered = NONE).",
+    "ishift: match pinned all of byte0 (0xa7) so the dst is NOT in byte0 (it is byte+1); the uncovered hole was byte+5 (bits[40:47]) between srcdst(byte+3:4) and shamt(byte+6). FIX widens srcdst 16->24 bits to swallow byte+5. After the fix all 80 bits are covered (uncovered = NONE).",
+    "The task framed both as 'byte0 HIGH-nibble dst'; that is precisely true for falu3. For ishift the lost bits are byte+5 (a register-addressing byte), not byte0 -- byte0==0xa7 is fixed and pinned by match; documented honestly above.",
+    "roundtrip_test.py must be updated in lockstep: its SYNTH falu3 entry needs the new dst_lo key (else the disasm(asm(fields)) equality check fails on the added field). The scratch validation copy adds '\"dst_lo\": 0x0' to the existing entry and a second 'dst_lo=0x3' entry that reconstructs the real dst-r3 fma bytes 39071e0b810e0260. ishift is not in SYNTH, so no SYNTH change is needed for it.",
+    "No length-rule / tokenization change. No other descriptor is affected (falu2 len-6 vs falu3 len-8 and ishift len-10 vs ibfe len-12 are separated by length before matching; match specificity for falu3 is unchanged since only a field was added)."
+  ],
+
+  "provenance": "byte-diff EXP-M4-13 R2 (own-MSL). Tools: shdump.m extractor (compile-only, built on this M4), agxparse.py --extract-hex, bytediff.py, isadb.py (scratch copy). Fresh recompiles of k_fma_dst/k_fma_dst8/k_ashr_dst/k_ashr_amt reproduced the committed corpus hex byte-for-byte. NO GPU dispatch was performed in R2 (local M4, no reboot escape); dst=byte0-hi and byte+5=register-addressing are byte-diff/structural inferences, not splice-validated -- stated as such in each descriptor's provenance.",
+
+  "validation": {
+    "samplesDecoded": 1228,
+    "samplesDecodedBreakdown": "resync-census over the 861-file local corpus (reaching instances past desync points): falu3 = 1067 instrs across 152 files; ishift = 161 instrs across 54 files. A stop-at-first-desync tokenization reaches fewer (falu3 46 / ishift 22) but the same 0-failure result.",
+    "roundtripOnSamplesPass": true,
+    "roundtripOnSamplesDetail": "asm(disasm(b))==b for ALL 1067 falu3 + 161 ishift corpus instructions with the patched DB (0 failures). Before the fix the same census had 869 falu3 + 145 ishift round-trip failures (138 + 44 fail-streams). Structural proof: after the fix, both descriptors have EVERY bit (64 / 80) covered by match or a field, so any instruction that decodes as falu3/ishift is guaranteed byte-exact.",
+    "roundtripSuitePass": true,
+    "roundtripSuiteDetail": "tools/agx-isa/roundtrip_test.py copied to work/scratch_val with the falu3 SYNTH entry updated (+ one dst_lo=0x3 demo) -> ALL PASS (sections A real-instr, B synth, C whole-program tokenize, D imm codec). No regression: a full-corpus roundtrip of ALL 5607 stop-at-desync-decoded instructions across every mnemonic reports 0 failures with the patched DB.",
+    "noRegression": true,
+    "cleanRoom": "own-MSL only; compile+extract+byte-diff; no Apple binary inspected; no GPU dispatch."
+  },
+
+  "unresolved": [
+    "falu3 op-select (byte+2) -> mnemonic map: only 0x1e=fma is proven. The 8-byte low-nibble-0x9 form is a catch-all also reached by 0x26/0x2e coord/mul-add and by numerous higher op-select values from mesh/RT/tessellation lowerings (gaps_round1 lists op-select vals 2,3,6,10,11,14,...). These now round-trip exactly (raw op captured) but remain UNNAMED. Decoding them is a separate family task, not part of this byte-exactness fix.",
+    "falu3 dst_lo for dst>=r16: inferred = (reg & 0xf) mirror of byte+1; not directly observed (the register allocator kept the probe's live fma results in r0..r7). Roundtrip is unaffected (the field captures the actual bits regardless).",
+    "ishift byte+5 exact bit-semantics: proven to be a register-addressing byte that varies with the destination register, captured within the widened raw 'srcdst' operand field, but its internal sub-fields (which bits are src vs dst high bits) are not individually decoded. Not required for byte-exact roundtrip."
+  ]
+}

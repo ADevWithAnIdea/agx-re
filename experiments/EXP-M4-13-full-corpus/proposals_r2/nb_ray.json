@@ -1,0 +1,855 @@
+{
+  "family": "0x?b  (byte0 low-nibble 0xb; byte0 HIGH nibble = destination register)",
+  "kind": "new",
+  "experiment": "EXP-M4-13 round-2 (own-MSL, G17P/G16 AGX)",
+  "owner": "low-nibble 0x?b",
+  "summary": "The 0x?b group is TWO sub-families keyed on byte+2's LOW nibble: {0,1,9,b} = 4-byte COMPACT REGISTER MOVES (incl. the RAY-struct marshalling moves emitted around rt_intersect / intersection_query), and {7,e,f} = 10-byte source-modifier / logic / convert ALU forms. In every form byte0 HIGH nibble = destination register, byte+1 = source selector, byte+2 = source-class/op-form, byte+3 = operand type (0x08 = 32-bit register, 0x00 = none/zero). Closing the 4-byte marshalling moves (byte+2 0x40/0x41 + the 0x09 query-state move) removed the dominant root-desync cluster and cascade-closed downstream 0x00/0x54 debris.",
+  "lengthRules": [
+    {
+      "selector": "byte0 low-nibble 0xb",
+      "note": "all lengths below are within the lo==0x0b branch of instr_length"
+    },
+    {
+      "byte2": "0x01 (any byte+3)",
+      "length": 4,
+      "mnemonic": "uniform_mov",
+      "change": "BROADENED from (0x01 && byte+3==0x08) to any byte+3 (adds the byte+3==0x00 sibling)",
+      "evidence": "byte-diff: `8b 98 01 00`,`6b 0a 01 00` 4-byte in grids"
+    },
+    {
+      "byte2": "0x0e / 0x0f / 0x17 / 0x1e / 0x1f",
+      "length": 10,
+      "mnemonic": "funary/funary_imm/ilogic",
+      "change": "ADDED 0x0f (modifier + immediate form)",
+      "evidence": "bracketed `0b 01 0f 09 .. 00 80 00 00` = 10B device_load->device_store (and_imm/or_imm/negabs)"
+    },
+    {
+      "byte2": "low-nibble e or f (ANY high nibble)",
+      "length": 10,
+      "mnemonic": "b_alu10_loe / b_alu10_lof",
+      "change": "GENERALISED the shift-prep rule from byte0 in {2b,3b,5b,8b} to ANY dst high-nibble",
+      "evidence": "`6b 4d 8e 81 ..`,`cb 11 3f 0d ..` 10B with differing dst reg"
+    },
+    {
+      "byte2": "0x07 / 0x47 / 0x57 / 0x67 / 0x87 / 0xa7  (specific, NOT blanket)",
+      "length": 10,
+      "mnemonic": "b_alu10_lo7",
+      "change": "ADDED these low-nibble-7 modifier/convert forms (0xe7/0xd7 deliberately EXCLUDED: they are device-store byte0s that appear as a spurious byte+2 mid-desync)",
+      "evidence": "bracketed `1b 52 07 7a 10 02 ..`,`5b 9c 47 9f 10 02 ..`,`5b cd a7 81 10 02 ..`,`eb 29 57 07 00 02 ..`,`2b 25 87 6b 00 02 ..` between rt_ray_mem/imad"
+    },
+    {
+      "byte2": "0x40 / 0x41 / 0x80 / 0x81",
+      "length": 4,
+      "mnemonic": "ray_move family",
+      "change": "ADDED bit6 forms 0x40 (zero) / 0x41 (copy) next to round-1 0x80/0x81",
+      "evidence": "`Xb NN 41 08` clean 4-byte grid between rt_intersect and rt_as_load across >=8 RT kernels"
+    },
+    {
+      "byte2": "0x09 && byte+3==0x00",
+      "length": 4,
+      "mnemonic": "rtq_state_move",
+      "evidence": "`8b 14 09 00`,`6b 14 09 00` bracketed 4-byte between tg-prep ops in intersection_query kernels"
+    },
+    {
+      "byte2": "low-nibble 0/1/9 && byte+3 in {0x00,0x08}",
+      "length": 4,
+      "mnemonic": "reg_move_c0/c1/c9 (+ specific wins)",
+      "change": "ADDED the general 4-byte compact-move rule (covers 0x49/0x61/0x69/0x89/0xa9/0xa1 etc.)",
+      "evidence": "bracketed 4-byte in RT-query / dec2_n8 marshalling grids"
+    },
+    {
+      "byte2": "0x0b / 0x1b / 0x3b",
+      "length": 4,
+      "mnemonic": "reg_move_cb",
+      "change": "ADDED the pack/bitcast/convert compact move (byte+2 low-nibble b)",
+      "evidence": "`0b 01 1b 05` bracketed before device_store; `4b 05 3b 09 2b 07 3b 0b` regular grid; closes the 0xe7 device-store bleed"
+    },
+    {
+      "byte2": "0x06 && byte+1==0x00",
+      "length": 8,
+      "mnemonic": "tg_atomic_prep",
+      "change": "descriptor added (length rule pre-existing)",
+      "evidence": "`0b 00 06 00 00 00 00 00` before a clean device_store (atomics__tg_u_add)"
+    }
+  ],
+  "opSelectMap_byte2": {
+    "_comment": "byte+2 value -> (mnemonic, length). Source-class high-nibble semantics INFERRED (bits6-7 = source register class, bit0 = register-source-present), not splice-validated.",
+    "0x01": "uniform_mov (4)  uniform-bank -> GPR",
+    "0x09": "rtq_state_move (4)  intersection-query state read",
+    "0x0e": "funary (10)  fmov/fabs/fneg",
+    "0x0f": "funary_imm (10)  modifier + immediate (and/or-imm, neg/abs)",
+    "0x17": "ilogic-& (10)  `& mask` integer logic",
+    "0x1e/0x1f": "ilogic (10)  2-input LUT2",
+    "0x27/0x2f": "tex_coord_setup (10)",
+    "0x07/0x47/0x57/0x67/0x87/0xa7": "b_alu10_lo7 (10)  modifier/convert/setup",
+    "0x40": "ray_move_zero6 (4)  bit6 zero form (b3=0x00)",
+    "0x41": "ray_move_copy6 (4)  bit6 copy form (b3=0x08)",
+    "0x80": "ray_move_zinit (4)  zero-init (b3=0x00)",
+    "0x81": "ray_move (4)  copy (b3=0x08) [round-1]",
+    "0x00/0x20/0x60/0xa0/...": "reg_move_c0 (4)  const-zero/prep + source-class variants",
+    "0x21/0x61/0xa1/...": "reg_move_c1 (4)  low-nibble-1 source-class",
+    "0x29/0x49/0x69/0x89/0xa9": "reg_move_c9 (4)  low-nibble-9 source-class",
+    "0x0b/0x1b/0x3b": "reg_move_cb (4)  pack/bitcast/convert",
+    "0x06": "tg_atomic_prep (8)"
+  },
+  "descriptors": [
+    {
+      "mnemonic": "ray_move_copy6",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          65
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "65": "copy_b6(b3=0x08)"
+          }
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "RAY register-marshalling MOVE, bit6 copy form (4B). dst=byte0 hi nibble, src=byte+1, byte+2==0x41 (byte+3==0x08 = 32-bit register operand). The dominant move in the ray-struct marshalling grid after rt_intersect. Shares the compact-move family with 0x01 uniform_mov (uniform-bank source), 0x81 ray_move copy and 0x40 zero form; byte+2 bits6-7 appear to select the source register class (bit6 here vs bit7 for 0x80/0x81), bit0 = register-source-present -- INFERRED from byte+2/byte+3 co-variation.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): 100%% of 0x41-form bytes are raytracing; a clean 4-byte grid (`bb 04 41 08 cb 06 41 08 ..`) bracketed between rt_intersect and rt_as_load across >=8 RT kernels; adding length 4 removed the dominant root-desync. Field bit-packing inferred, not splice-validated (no GPU dispatch)."
+    },
+    {
+      "mnemonic": "ray_move_zero6",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          64
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "64": "zero_b6(b3=0x00)"
+          }
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "RAY register-marshalling MOVE, bit6 zero form (4B). byte+2==0x40, byte+1==byte+3==0x00 -> writes a zero/const component in the bit6 source-class (the no-source counterpart of the 0x41 copy form, as 0x80 is to 0x81). Heads a marshalling grid (`db 00 40 00 ..`).",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed in the RT marshalling grid immediately before the 0x41 copy run (rt_assume_identity @128). Not splice-validated."
+    },
+    {
+      "mnemonic": "ray_move_zinit",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          128
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "128": "zero_init"
+          }
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "RAY register-marshalling MOVE, zero-init form (4B). byte+2==0x80, byte+1==byte+3==0x00 -> zero/const component (e.g. const origin float3(0,0,0)) in the bit7 source-class. Sibling of ray_move copy (0x81); split out because the round-1 ray_move match pinned 0x81.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed inside the marshalling grid of rt_assume_identity / rt_query_*. Not splice-validated."
+    },
+    {
+      "mnemonic": "rtq_state_move",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          9
+        ],
+        [
+          24,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "9": "query_state_read"
+          }
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Intersection-query compact register move (4B). byte+2==0x09, byte+3==0x00, byte+1 = source selector (0x14 observed). Emitted once per intersection_query kernel in the 4-byte marshalling grid (`7b 00 00 00 | 8b 14 09 00 | 9b 00 00 00 | 1b 00 81 08 ..`), reading a fixed query-state / result register into a GPR.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): identical `8b 14 09 00` / `6b 14 09 00` in rt_query_abort/bbox_commit/candidate_getters/curve/transforms/triangle_step, rt_frag_query, rt_vertex_query; bracketed 4-byte. Not splice-validated."
+    },
+    {
+      "mnemonic": "reg_move_c1",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Compact 4-byte register move, low-nibble-1 source-class (dst=byte0 hi nibble, src=byte+1, form=byte+2, byte+3=operand type). Family-level decode; per-form source semantics (high nibble of byte+2) not individually characterised. Observed forms: 0x61/0xa1 (RT-query marshalling) and 0x01/byte+3==0x00 (uniform-move sibling).",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 4-byte in the compact-move grids of dec2_n8 / rt_query_* kernels. Family-level; per-form semantics inferred, not splice-validated."
+    },
+    {
+      "mnemonic": "reg_move_c9",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          9
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Compact 4-byte register move, low-nibble-9 source-class (dst=byte0 hi nibble, src=byte+1, form=byte+2, byte+3=operand type). Family-level decode. Observed forms 0x29/0x49/0x69/0x89/0xa9 in the RT-query / dec2_n8 marshalling grids -- differ in the byte+2 high nibble (source register class), which is not individually characterised.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 4-byte between tg-prep / device ops in the intersection-query kernels. Family-level; not splice-validated."
+    },
+    {
+      "mnemonic": "funary_imm",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          15
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "15": "modifier_imm"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "lut_a",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "mod",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Float source-modifier / integer-logic move with an immediate/operand tail (10B). byte+2==0x0f selects the modifier-with-immediate form (vs 0x0e plain fmov, 0x1e/0x1f LUT2 logic). The op (fneg/fabs, or AND/OR with the trailing immediate) is chosen by byte+4/byte+5 exactly as in funary (byte+5: 0x00 mov,0x02 abs,0x0a neg) and ilogic; byte+6..9 carry the immediate/second operand. Op-select bits in the tail are INFERRED (shared with the HW-validated funary/ilogic), not independently splice-validated.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed to exactly 10B (`0b 01 0f 09 .. .. 00 80 00 00`) between a 14B device_load and a 14B device_store in bitops__and_imm_u32 / or_imm_u32 and float_arith__negabs. Not splice-validated."
+    },
+    {
+      "mnemonic": "b_alu10_lo7",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "form_hi",
+          "start": 20,
+          "width": 4,
+          "type": "raw"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7 (source-modifier / shift-mask / convert; siblings 0x17 `& mask`, 0x27 tex/operand setup, 0x07/0x47/0x67). Family-level decode: dst=byte0 hi nibble, byte+2 high nibble = class, `10 02` operand tail. Exact op-select within the tail NOT characterised here.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte (`1b 52 07 7a 10 02 00 00 00 00`, `5b 9c 47 9f 10 02 ..`) between rt_ray_mem and imad. Family-level; not splice-validated."
+    },
+    {
+      "mnemonic": "b_alu10_loe",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          14
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "form_hi",
+          "start": 20,
+          "width": 4,
+          "type": "raw"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "0x?b 10-byte modifier ALU, byte+2 low-nibble 0xe (funary/ilogic/shift-prep base with a non-zero dst register). Named forms funary(0x0e)/ilogic(0x1e) win by specificity; this fallback covers 0x2e/0x4e/0x8e (shift-amount prep `.. 8e 81 12 02 ..`). Family-level.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte in dec2_n8 / rt_query kernels. Family-level; not splice-validated."
+    },
+    {
+      "mnemonic": "b_alu10_lof",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          15
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "form_hi",
+          "start": 20,
+          "width": 4,
+          "type": "raw"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "ext",
+          "start": 48,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "0x?b 10-byte modifier ALU, byte+2 low-nibble 0xf (funary_imm 0x0f / ilogic 0x1f base with a non-zero dst). Named forms win by specificity; this fallback covers 0x3f/0x4f/0x8f (source-modifier + immediate with a differing dst/class). Family-level.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte (`cb 11 3f 0d 00 02 00 80 00 00`, `3b 07 3f 05 ..`) in RT / dec2_n8 kernels. Family-level; not splice-validated."
+    },
+    {
+      "mnemonic": "reg_move_c0",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Compact 4-byte register move, low-nibble-0 source-class (dst=byte0 hi nibble, src=byte+1, form=byte+2, byte+3=operand type). byte+2==0x00 = const-zero / scope-prep (the tg_store atomic-value setup / cf-loop prep / mesh prep; src==0, dst=hi nibble). 0x20/0x60/0xa0/0xc0/0xe0 = source-class variants. Family-level decode.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): `Xb 00 00 00` prep ops anchored before clean device_store / pop_reconverge runs (round-1 EXP-M4-01) and the 0x20-range call-arg marshalling grids. Family-level; not splice-validated."
+    },
+    {
+      "mnemonic": "reg_move_cb",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          11
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Compact 4-byte pack / bitcast / convert move, byte+2 low-nibble 0xb (0x0b/0x1b/0x2b/0x3b). dst=byte0 hi nibble, src=byte+1, byte+3=operand/immediate. Appears in regular 4-byte grids in conversions_pack / bitcast_vec / pack_norm and the int_arith long (64-bit) helpers. Family-level; per-form convert semantics not resolved.",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): `0b 01 1b 05` bracketed 4-byte before a device_store (dec_iso_clampmix), `4b 05 3b 09 2b 07 3b 0b` a regular 4-byte grid (int_arith long_mulhi). Closes the 0xe7 device-store desync bleed. Not splice-validated."
+    },
+    {
+      "mnemonic": "tg_atomic_prep",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          8,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "6": "tg_atomic_rmw_prep"
+          }
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Threadgroup-atomic RMW descriptor prep (8B). byte0 low-nibble 0xb, byte+2==0x06; sets up the atomic-value / descriptor for a threadgroup atomic RMW (the 8-byte sibling of the 4-byte `Xb 00 00 00` prep). dst=byte0 hi nibble (scope/reg).",
+      "provenance": "byte-diff EXP-M4-13 R2 / round-1 EXP-M4-01: `0b 00 06 00 00 00 00 00` anchored before a clean device_store in atomics__tg_u_add. Length 8 (b1==0,b2==0x06). Not splice-validated."
+    }
+  ],
+  "notes": [
+    "byte0 HIGH nibble = destination register in EVERY 0x?b form (confirmed by the marshalling grids where dst high-nibble and src byte+1 vary INDEPENDENTLY, e.g. `bb 04 41 08 cb 06 41 08 db 08 41 08 ..`).",
+    "The 4-byte compact-move sub-family is ONE instruction shape: dst=byte0[4:8], src=byte+1, form=byte+2, opnd-type=byte+3. byte+2 bits6-7 look like a source-register-class selector (00=uniform bank uniform_mov, bit6=class-1 0x40/0x41, bit7=GPR/ray 0x80/0x81) and bit0=register-source-present -- this bit-level reading is INFERRED from byte+2/byte+3 co-variation, not splice-validated.",
+    "The RAY marshalling moves are NOT a new opcode: matrix TRANSPOSE (MPP) reuses the SAME 0x81/0x41 moves (round-1 finding); this round shows the copy form also has a bit6 variant (0x41) that dominates the ray-struct copy-in.",
+    "10-byte forms are distinguished purely by byte+2 low-nibble {7,e,f}; the exact op-select lives in the byte+4/byte+5 tail exactly as in the HW-validated funary/ilogic (byte+5: 0x00 mov, 0x02 abs, 0x0a neg). funary_imm (0x0f) and the b_alu10 fallbacks decode the length+operand frame but do NOT re-assert the tail op-select as independently validated.",
+    "Provenance is byte-diff / bracketing on OWN-MSL only (corpus + one freshly-compiled RT kernel). NO GPU dispatch was performed (shdump is compile-only; agxtest/agxrun were NOT run), so NOTHING here is claimed HW-VALIDATED. Field bit-packing is diff/bracket-inferred.",
+    "reg_move_c0/c1/c9/cb and b_alu10_lo7/loe/lof are FAMILY-LEVEL fallbacks (match on byte+2 low-nibble): they name+length+field-frame the many high-nibble source-class variants without asserting per-form semantics. Specific descriptors (ray_move_*, rtq_state_move, uniform_mov, tex_coord_setup, funary, ilogic) win by match specificity.",
+    "Multiple descriptors may NOT share a mnemonic in this DB (assemble/_BY_MNEM keeps only the last) -- each new descriptor was given a unique mnemonic so asm(disasm(b))==b holds."
+  ],
+  "provenance": "byte-diff + anchored bracketing, EXP-M4-13 R2, OWN-MSL (clean-room). Corpus = our own compiled shaders (hex/), plus corpus/dec2_nb_ray/rt_marshal.metal compiled fresh with shdump (compile-only) on the local Apple M4 and extracted via agxparse.py. No Apple binary was inspected. No GPU dispatch.",
+  "validation": {
+    "samplesDecoded": [
+      {
+        "hex": "9b 0c 41 08",
+        "decode": "ray_move_copy6 dst=9 src=12 form=0x41 b3=0x08"
+      },
+      {
+        "hex": "8b 14 09 00",
+        "decode": "rtq_state_move dst=8 src=0x14 form=0x09 b3=0x00"
+      },
+      {
+        "hex": "0b 01 0f 09 00 02 00 80 00 00",
+        "decode": "funary_imm dst=0 form=0x0f mod=0x02(abs)"
+      },
+      {
+        "hex": "6b 00 40 00",
+        "decode": "ray_move_zero6 dst=6 form=0x40"
+      },
+      {
+        "hex": "1b 00 80 00",
+        "decode": "ray_move_zinit dst=1 form=0x80"
+      },
+      {
+        "hex": "5b cd a7 81 10 02 00 80 00 00",
+        "decode": "b_alu10_lo7 dst=5 (low-nibble-7 modifier)"
+      },
+      {
+        "hex": "0b 01 1b 05",
+        "decode": "reg_move_cb dst=0 src=1 form=0x1b"
+      }
+    ],
+    "roundtripOnSamplesPass": true,
+    "roundtripSuitePass": true,
+    "roundtripSuiteDetail": "roundtrip_test.py on the scratch DB (isadb_nb.py) = ALL PASS (A real-program asm(disasm)==b, B synth, C 0-leftover tokenization of real programs, D imm codec).",
+    "corpusRoundtrip": {
+      "nb_decoded_instrs": 7002,
+      "asm_disasm_OK": 7002,
+      "asm_disasm_BAD": 0
+    },
+    "coverage_same_snapshot": {
+      "files": 1001,
+      "real": {
+        "decodedPct": 80.1,
+        "totalDesyncBytes": 33086,
+        "nbDesyncBytes": 7154,
+        "nbUnnamedBytes": 15294
+      },
+      "scratch": {
+        "decodedPct": 86.2,
+        "totalDesyncBytes": 19972,
+        "nbDesyncBytes": 80,
+        "nbUnnamedBytes": 582
+      },
+      "delta": {
+        "nbDesync": "7154 -> 80 bytes (98.9% closed)",
+        "nbUnnamed": "15294 -> 582 bytes (96% named)",
+        "totalDesync": "33086 -> 19972 bytes (cascade-closed ~6040 non-0xb debris)"
+      }
+    },
+    "freshOwnMSL": {
+      "file": "corpus/dec2_nb_ray/rt_marshal.metal -> hex/dec2_nb_ray__rt_marshal__compute.hex",
+      "nb_instrs": 198,
+      "roundtrip": "198/198 OK",
+      "desync_real_vs_scratch": "1040 -> 518 bytes",
+      "marshalling_ops_present": [
+        "ray_move(0x81)",
+        "ray_move_copy6(0x41)",
+        "ray_move_zero6(0x40)",
+        "ray_move_zinit(0x80)",
+        "rtq_state_move(0x09)"
+      ]
+    }
+  },
+  "unresolved": [
+    "byte+2 low-nibble-6 call-arg moves (0x26, ~308B unnamed, length 4 known): source-class variant of the 0x2X compact move; length correct, no dedicated descriptor. Low value.",
+    "byte+2 0x1c/0x3c (shift/rotate-amount, ~208B unnamed, length 4 known): these belong to the integer-shift work (round-1 length rule); left unnamed here to avoid cross-owner duplication.",
+    "byte+2 0x22/0x23/0x24/0x2a (int_arith long-division helpers, ~64B unnamed): rare 4-byte forms in the 0x2X compact-move range; not individually bracketed.",
+    "Compact-move variant with byte+3==0xc0 (immediate operand type), e.g. `3b 16 09 c0`, `9b a2 61 c0`: excluded by the byte+3 in {0x00,0x08} gate to stay conservative; ~a few bytes of desync. Plausibly a 4-byte move-immediate; NOT confirmed -> left UNRESOLVED rather than risk over-lengthing.",
+    "~80 bytes of scattered 0x?b desync remain, mostly entangled with UPSTREAM non-0xb family gaps (e.g. `1b e1 e7 81` = a device-store bleed after another family's undecoded op; `3b 68 c7 bf`, `1b cf 66 bf`). These will clear once the sibling families (0x?2, 0x?f, 0x?6) close their own gaps.",
+    "Exact per-form SEMANTICS of the byte+2 high-nibble source-class (which register bank each of 0x40/0x60/0x80/0xa0 reads) and the byte+4/+5 op-select inside the b_alu10 10-byte forms are NOT resolved to field level; would need splice-and-observe (GPU dispatch), which was out of scope (no reboot escape on this host)."
+  ]
+}

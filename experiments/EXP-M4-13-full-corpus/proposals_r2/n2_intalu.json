@@ -1,0 +1,493 @@
+{
+ "family": "low-nibble-0x2 INTEGER/FLOAT COMPARE - MIN/MAX - SELECT - CARRY family (byte0 0x02..0xf2; byte0 HIGH nibble = destination register r0..r15, byte0 LOW nibble 0x2 = family). Roots 0x02 (dst r0) and 0x22 (dst r2) in the census are the SAME ops at different dst regs. Provoked with OWN-MSL (EXP-M4-13 R2). Clean-room: dst + op-select proven by byte-diffing our own compiled min/max/select/carry shaders; NO Apple binary inspected; NO GPU dispatch (compile+extract+tokenize+byte-diff only on this M4 host).",
+ "kind": "new",
+ "lowNibble": 2,
+ "replaces": [
+  "iminmax",
+  "fminmax",
+  "iminmax_chain",
+  "icmpsel",
+  "carry_gen"
+ ],
+ "byte0Model": "byte0 low nibble == 0x2 selects this family; byte0 HIGH nibble = destination register (r0..r15). PROVEN by an 8-register sweep (dec2_n2_intalu/k_minmax_dst): 8 simultaneously-live imin ops emit byte0 high nibbles {e,d,b,9,7,5,3,1} tracking 8 distinct dst regs while the op bytes (byte+2==0x1e, byte+4==0x07) stay constant. byte1 = (dst<<1)|size, the full destination descriptor (redundant with byte0-hi for reg<16). This is the SAME byte0 model as the low-nibble-0x9 float ALU and low-nibble-0xa icmp_pred families.",
+ "opSelectMap": {
+  "note": "The min/max OP-SELECT is byte+4 (NOT byte+2 as the base DB's 'op' field implied). byte+2 is a source-format/width marker. PROVEN: k_imin/k_imax/k_umin/k_umax/k_fmin/k_fmax are byte-identical except byte+4.",
+  "byte+4 sel (32-bit int / float min/max, byte+2 bits[17:18]==0b11 e.g. 0x1e)": {
+   "0": "fmax",
+   "1": "fmin",
+   "4": "umax",
+   "5": "umin",
+   "6": "imax",
+   "7": "imin",
+   "2,3": "reserved/unobserved"
+  },
+  "byte+4 sel (16-bit half/half2 min/max, byte+2==0x1c)": {
+   "0": "hmax",
+   "1": "hmin"
+  },
+  "byte+2 source-format marker (min/max)": {
+   "0x1e": "32-bit register 2-source",
+   "0x0e": "32-bit srcB-immediate",
+   "0x1c": "16-bit (half/half2)",
+   "0x2e / 0x3e": "chained-source (min3 / median3 / clamp inner op)",
+   "0x26 / 0x36": "float sibling source-mode"
+  },
+  "byte+2 op-select (other low-nibble-2 forms)": {
+   "0x35": "carry_gen (u64 add carry-generate, 6B)",
+   "0x0d / 0x1d / 0x2d": "icmpsel (compare -> 0/1 const select, 14B)",
+   "0x25": "isel_reg8 (register-operand select, 8B)",
+   "0x2f": "isel_reg (register-operand select, div/mod correction, 10B)",
+   "0x27": "madd / rt_transform_test (register-operand, 8/10B; rt_transform is byte+3==0x81 & byte+4==0x22)",
+   "0x21 / 0x23 / 0x2b / 0x03 / 0x3d / 0x3f": "SFU polynomial / transcendental range-reduction SELECT steps (6B, captured by the n2_op6 catch-all; per clean-room rule 5 the transcendental sequence is NOT reconstructed)",
+   "0x00 / 0x09 / 0x18 / ... (byte+4 not a valid sel)": "compact select / predicate helpers (6B, n2_op6 catch-all)"
+  }
+ },
+ "lengthRules": [
+  {
+   "applyWhen": "byte0 low-nibble==0x2 AND byte+2<=0x3f AND base instr_length returns None (i.e. dst reg NOT already covered by the EXP-M4-01 per-dst rules)",
+   "length": 6,
+   "lengthBitNote": "DEFAULT 6-byte form (min/max / carry / compact select). ONLY applied where the committed EXP-M4-01 rule returns LEN_UNKNOWN, so it can never change an existing length -> zero tokenization regression. Generalises the min/max + compact-select length to ALL 16 dst regs (the committed rule hard-coded dst r0..r3)."
+  },
+  {
+   "applyWhen": "... same guard, AND byte+2==0x0d",
+   "length": 14,
+   "lengthBitNote": "icmpsel compare->const select at a dst reg other than r1 (base only lengthed 0x0d for byte0==0x12)."
+  },
+  {
+   "applyWhen": "... same guard, AND byte+2==0x25",
+   "length": 8,
+   "lengthBitNote": "8-byte register-operand select (isel_reg8)."
+  },
+  {
+   "applyWhen": "... same guard, AND byte+2 in {0x27,0x2f}",
+   "length": "10 if (byte+4 & 0x02) else 8",
+   "lengthBitNote": "register-operand select / madd; byte+4 bit1 = wide-srcC (trailing operand word)."
+  }
+ ],
+ "descriptors": [
+  {
+   "mnemonic": "iminmax",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     17,
+     2,
+     3
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst_full",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "fmt",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "sel",
+     "start": 32,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "0": "fmax",
+      "1": "fmin",
+      "4": "umax",
+      "5": "umin",
+      "6": "imax",
+      "7": "imin"
+     }
+    },
+    {
+     "name": "selhi",
+     "start": 35,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    }
+   ],
+   "semantics": "d = min/max(a,b) by TYPE (32-bit int signed/unsigned, or float). byte0 low-nibble 2 = family; byte0 high nibble (dst) = destination reg r0..r15 (PROVEN, 8-reg sweep). byte1 = (dst<<1)|size. byte+2 = source-format/addressing marker (bits[17:18]==0b11 matched: 0x1e register, 0x0e srcB-immediate, 0x2e/0x3e chained-source min3/median3, 0x26/0x36 float sibling). byte+3 = srcA. byte+4 = OP-SELECT (sel = low 3 bits): 0=fmax 1=fmin 4=umax 5=umin 6=imax 7=imin. selhi (byte+4 upper 5 bits) = srcB-immediate-mode flag. byte+5 = srcB. Unifies the former dst-pinned iminmax(r0)/fminmax(r1)/iminmax_chain(r2).",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL; compile-only, NO GPU dispatch). dst=byte0-hi PROVEN: dec2_n2_intalu/k_minmax_dst emits 8 simultaneously-live imin ops with byte0 high nibbles e,d,b,9,7,5,3,1 (8 distinct dst regs) while byte+2==0x1e, byte+4==0x07 stay constant. op-select=byte+4 PROVEN: k_imin/imax/umin/umax/fmin/fmax are byte-identical except byte+4=07/06/05/04/01/00. srcA/srcB/sel inherit EXP-0007 HW validation. fmt/selhi upper-bit semantics INFERRED (captured for round-trip). NOT HW-dispatch validated (M4 host is compile-only)."
+  },
+  {
+   "mnemonic": "hminmax",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     16,
+     8,
+     28
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst_full",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "sel",
+     "start": 32,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "0": "hmax",
+      "1": "hmin"
+     }
+    },
+    {
+     "name": "selhi",
+     "start": 35,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    }
+   ],
+   "semantics": "d = min/max(a,b), 16-bit (half/half2) form. Identical layout to the 32-bit iminmax but byte+2 == 0x1c (16-bit width marker) and byte+4 carries bit4 set. byte+4 low 3 bits = op-select (0=hmax 1=hmin). PROVEN by k_hmin/k_hmax which differ only in byte+4 (0x11 min vs 0x10 max).",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL). k_hmin=`12 02 1c 02 11 c0`, k_hmax=`12 02 1c 02 10 c0`; byte+2==0x1c is the 16-bit min/max marker, byte+4 low-3-bits the min/max op-select (same as the 32-bit form). dst=byte0-hi from the family sweep. NOT HW-dispatch validated."
+  },
+  {
+   "mnemonic": "icmpsel",
+   "length": 14,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     16,
+     4,
+     13
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst_full",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "fmt",
+     "start": 20,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "cmpmode",
+     "start": 32,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "34": "ordered(lt/gt)",
+      "38": "equal"
+     }
+    },
+    {
+     "name": "neg_lo",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "cond",
+     "start": 48,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "0": "f_eq",
+      "2": "f_gt",
+      "3": "f_lt",
+      "4": "u_gt",
+      "5": "u_lt",
+      "6": "s_gt",
+      "7": "s_lt"
+     }
+    },
+    {
+     "name": "body",
+     "start": 56,
+     "width": 56,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = (a <cond> b) ? K1 : K0 ; integer/float compare feeding a 0/1 (or const) select, 14-byte form. dst = byte0 high nibble. byte1 = (dst<<1)|size. byte+2 low nibble 0xd = compare-select marker (fmt = upper nibble 0/1/2 for 0x0d/0x1d/0x2d). byte+3 = srcA. byte+4 = cmpmode (0x22 relational | 0x26 equality). byte+6 = cond predicate. byte+7.. = the two selected constants + srcB descriptor (body).",
+   "provenance": "Generalises HW-VALIDATED icmpsel (EXP-0013: 18 compare kernels correct, byte+6 predicate map + byte+4 relational<->equality splice). Widened EXP-M4-13 R2 from byte0==0x12 (dst r1) to low-nibble-2 all dst (byte+2 lo-nibble 0xd). dst=byte0-hi from the family sweep. k_icmp01 reproduces the r1 form byte-exact. NOT HW-dispatch validated."
+  },
+  {
+   "mnemonic": "carry_gen",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     16,
+     8,
+     53
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "subop",
+     "start": 8,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "cmpmode",
+     "start": 32,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "34": "ordered"
+     }
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "carry = (a + b overflowed) ? 1 : 0 ; carry-generate half of a multi-word (u64) add. byte+2 == 0x35 carry marker. dst = byte0 high nibble. byte+3 = srcA, byte+4 = cmpmode. Feeds a psel that folds the carry into the high word.",
+   "provenance": "Generalises HW+SPLICE-VALIDATED carry_gen (EXP-0038: u64 carry correct; neutralizing byte0 0x32->0x00 or byte+4 0x22->0x26 drops carry). Widened EXP-M4-13 R2 from byte0==0x32 (dst r3) to low-nibble-2 all dst. k_u64add reproduces `32 01 35 03 22 81` byte-exact. NOT HW-dispatch validated."
+  },
+  {
+   "mnemonic": "isel_reg",
+   "length": 10,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     16,
+     8,
+     47
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst_full",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "body",
+     "start": 32,
+     "width": 48,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = (predicate) ? a : b ; register-operand compare-select, 10-byte form (byte+2 0x2f). Emitted in the integer division/modulo correction (quotient adjust). dst = byte0 high nibble, srcA = byte+3, body = 2nd operand + compare descriptor.",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL). byte+2 0x2f 10-byte reg-select in u_div/s_div/s_mod. dst=byte0-hi from the family sweep; bit-packing beyond dst/srcA INFERRED (raw). NOT HW-dispatch validated. Clean-room: the DIVISION ALGORITHM is NOT reconstructed, only this op's encoding."
+  },
+  {
+   "mnemonic": "isel_reg8",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ],
+    [
+     16,
+     8,
+     37
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "dst_full",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "body",
+     "start": 32,
+     "width": 32,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d = (predicate) ? a : b ; register-operand select, 8-byte form (byte+2 0x25, register srcC). dst = byte0 high nibble, srcA = byte+3, body = 2nd operand + compare descriptor.",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-MSL). byte+2 0x25 8-byte reg-select (k_int64 `92 8f 25 8b 85 19 07 00`). dst=byte0-hi from the family sweep; bit-packing beyond dst/srcA INFERRED (raw). NOT HW-dispatch validated."
+  },
+  {
+   "mnemonic": "n2_op6",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     2
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "b1",
+     "start": 8,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "op",
+     "start": 16,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "b3",
+     "start": 24,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "b4",
+     "start": 32,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "Generic 6-byte low-nibble-2 op (dst = byte0 high nibble). Covers the compact select/predicate helpers and the SFU polynomial/range-reduction SELECT steps (byte+2 op-selects 0x21/0x23/0x2b/0x03/0x3d/0x3f and the compact 0x00/0x18/0x09 forms) that are NOT the min/max, carry, or compare-select ops named above. Byte-level fields only; per-op-select semantics UNRESOLVED (and, for the transcendental range-reduction selects, deliberately NOT reconstructed per clean-room rule 5).",
+   "provenance": "byte-diff EXP-M4-13 R2 catch-all. dst=byte0-hi from the family sweep. Generalises the byte0-only iminmax/fminmax/iminmax_chain catch-all behaviour of the base DB to all dst regs, but WITHOUT asserting a min/max op-select for these non-min/max forms. Byte fields captured for clean tokenization + round-trip; op semantics UNRESOLVED."
+  }
+ ],
+ "notes": "Turns the low-nibble-0x2 family from length-only/desync into FULL field-level decode across ALL 16 dst regs. Core correction: the min/max OP-SELECT lives in byte+4 (sel), not byte+2 -- the base DB's dst-pinned iminmax(0x02)/fminmax(0x12)/iminmax_chain(0x22) are the SAME 6-byte min/max op at dst r0/r1/r2 (e.g. iminmax_chain `22 01 1e 05 07 c0` is imin->r2, byte-for-byte an imin), so they are UNIFIED into one dst-agnostic `iminmax` (32-bit int + float) plus `hminmax` (16-bit). carry_gen (EXP-0038 HW) and icmpsel (EXP-0013 HW) keep their validated field layouts and are only widened from one dst reg to all 16. A low-specificity `n2_op6` catch-all preserves clean tokenization of the remaining 6-byte forms (compact selects, SFU range-reduction selects) for all dst regs -- exactly the role the base DB's byte0-only iminmax/fminmax played, but WITHOUT falsely asserting a min/max op-select for non-min/max bytes. APPLYING requires: (1) remove base descriptors iminmax/fminmax/iminmax_chain/icmpsel/carry_gen; add the 8 descriptors here; (2) add the guarded length generalisation (only fires where the committed rule returns LEN_UNKNOWN); (3) update roundtrip_test.py SYNTH: the old `('fminmax',{dst,op,srcA,sel,mods})` and `('iminmax',{b1,op,...})` entries move to the new unified iminmax field schema {dst,dst_full,fmt,srcA,sel,selhi,srcB} (this proposal ships that validated update, ALL PASS). No other family's descriptors, matches, or lengths change; whole-corpus leftover is byte-for-byte <= base on every file (28 files strictly improved, 0 regressed).",
+ "provenance": "Clean-room byte-diff, EXP-M4-13 R2, OWN-MSL only. All probe shaders in experiments/EXP-M4-13-full-corpus/corpus/dec2_n2_intalu/ compiled with our own shdump (compile-only; NO GPU dispatch on the M4 host -- shdump never dispatches) and tokenized with our own isadb/agxparse. No Apple binary was inspected. dst=byte0-hi and op-select=byte+4 are byte-diff PROVEN from our own shaders; srcA/srcB operand positions and the icmpsel/carry_gen field layouts inherit prior HARDWARE validation (EXP-0007/EXP-0013/EXP-0038); fmt/selhi upper-bit semantics and the isel_reg/n2_op6 sub-field packing are byte-diff INFERRED (captured for round-trip, flagged in unresolved). NOT HW-dispatch validated on this M4 host.",
+ "validation": {
+  "samplesDecoded": 210,
+  "samplesDecodedNote": "210 low-nibble-2 tokens in the cleanly-tokenized regions of the 858-file corpus decode with sensible fields (iminmax 117, n2_op6 69, icmpsel 12, hminmax 5, carry_gen 3, isel_reg 2, rt_transform_test 2) PLUS 16 isolated own-MSL probe ops (imin/imax/umin/umax/fmin/fmax/hmin/hmax/imin-imm/min3/carry/icmp + an 8-register dst sweep).",
+  "roundtripOnSamplesPass": true,
+  "roundtripOnSamplesNote": "asm(disasm(b))==b for all 210 corpus low-nibble-2 tokens (0 failures) and all 16 probe ops. Before: base had 135 n2 round-trip-ok / 95 family-only unnamed.",
+  "roundtripSuitePass": true,
+  "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py copied to work/scratch_n2 with the SYNTH schema update -> ALL PASS (sections A real-instr, B synth incl. new iminmax dst14 / hminmax / isel_reg8, C whole-program tokenization incl. u64add carry_gen + gsel4/dsel5 iminmax, D imm codec).",
+  "tokenizationRegression": "NONE. Per-file disassemble() leftover is <= base on ALL 858 files (28 strictly improved, 0 regressed); fully-clean files 255 -> 265 (+10); covered bytes 48536 -> 49684.",
+  "opSelectNamedCoverage": "low-nibble-2 tokens carrying a decoded op-select mnemonic: 40 -> 132 in clean regions (resync-walk full corpus 49 -> 314).",
+  "hwDispatchValidated": false
+ },
+ "unresolved": [
+  "n2_op6 catch-all (byte+2 op-selects 0x00/0x09/0x18/0x21/0x23/0x2b/0x03/0x3d/0x3f, ~69 in clean regions, ~3000 resync-walk) tokenizes + round-trips but its per-op-select SEMANTICS are unresolved. Several (0x21/0x23/0x2b/0x03) are the transcendental/SFU polynomial & range-reduction SELECT steps -- deliberately NOT decoded to an algorithm (clean-room rule 5).",
+  "iminmax fmt (byte+2 upper bits) and selhi (byte+4 upper bits) are captured for round-trip but their exact source-addressing / immediate-mode semantics are byte-diff INFERRED, not splice-isolated. The srcB-immediate encoding (fmt==0x0e form, e.g. min(a,5)=`02 01 0e 84 17 c2`) splits the immediate across byte+3/byte+5 and is not fully bit-decoded.",
+  "isel_reg (0x2f, 10B) and isel_reg8 (0x25, 8B): dst + srcA proven by the family model; the remaining bytes (second operand + compare descriptor) are captured as a raw 'body' field, not bit-decoded. They arise in integer div/mod correction whose ALGORITHM is intentionally not reconstructed.",
+  "min/max sel values 2 and 3 (byte+4 low-3-bits) were never emitted by our probes -> reserved/unobserved (documented, not decoded).",
+  "half min/max (hminmax, byte+2==0x1c) op-select is byte-diff confirmed (hmin/hmax differ only in byte+4) but only over half/half2; the exact boundary between a 0x1c min/max and any other 0x1c-marked 6-byte op is inferred (the catch-all would otherwise absorb it harmlessly).",
+  "NOT HW-dispatch validated: this M4 host is compile-only (shdump never dispatches; no reboot escape for a hang). dst/op-select are byte-diff PROVEN; operand/predicate semantics inherit prior EXP HW validation; new upper-bit fields are inferred."
+ ]
+}

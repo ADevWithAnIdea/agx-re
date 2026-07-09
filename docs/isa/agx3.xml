@@ -41,22 +41,10 @@
     <value value="1">immediate</value>
   </enum>
 
-  <enum kind="fminmax_sel" name="fminmax sel">
-    <value value="0">fmax</value>
-    <value value="1">fmin</value>
-  </enum>
-
   <enum kind="funary_mod" name="funary mod">
     <value value="0">mov</value>
     <value value="2">abs</value>
     <value value="10">neg</value>
-  </enum>
-
-  <enum kind="iminmax_sel" name="iminmax sel">
-    <value value="4">umax</value>
-    <value value="5">umin</value>
-    <value value="6">imax</value>
-    <value value="7">imin</value>
   </enum>
 
   <enum kind="icmpsel_cmpmode" name="icmpsel cmpmode">
@@ -151,13 +139,17 @@
   </enum>
 
   <enum kind="simd_reduce_dtype" name="simd_reduce dtype">
-    <value value="3">i_reduce</value>
-    <value value="7">i_minmax</value>
-    <value value="9">i_incl_scan</value>
-    <value value="11">i_excl_scan</value>
-    <value value="18">f_reduce</value>
-    <value value="34">f_scan_variant</value>
-    <value value="50">f_excl_scan</value>
+    <value value="3">i32_reduce</value>
+    <value value="7">s32_minmax</value>
+    <value value="8">f16_reduce</value>
+    <value value="9">i32_incl_scan</value>
+    <value value="11">i32_excl_scan</value>
+    <value value="16">f16_incl_scan</value>
+    <value value="18">f32_reduce</value>
+    <value value="19">f16_minmax</value>
+    <value value="24">f16_excl_scan</value>
+    <value value="34">f32_incl_scan</value>
+    <value value="50">f32_excl_scan</value>
   </enum>
 
   <enum kind="simd_shuffle_dir" name="simd_shuffle dir">
@@ -167,8 +159,14 @@
 
   <enum kind="simd_shuffle_mode" name="simd_shuffle mode">
     <value value="0">quad</value>
+    <value value="1">quad_updown</value>
     <value value="4">simd</value>
-    <value value="6" label="rotate/fill">rotate_fill</value>
+    <value value="5">simd_updown</value>
+    <value value="6" label="simd_rotate/fill">simd_rotate_fill</value>
+    <value value="8">quad_frag</value>
+    <value value="16">quad_dyn</value>
+    <value value="20">simd_dyn</value>
+    <value value="21">simd_updown_dyn</value>
   </enum>
 
   <enum kind="simd_ballot_pred" name="simd_ballot pred">
@@ -267,6 +265,16 @@
     <value value="128">to_half</value>
   </enum>
 
+  <enum kind="rt_query_traverse_sel" name="rt_query_traverse sel">
+    <value value="7">sel0</value>
+    <value value="15">sel1</value>
+  </enum>
+
+  <enum kind="ibfins_opdesc" name="ibfins opdesc">
+    <value value="192" label="imm-operand">imm_operand</value>
+    <value value="240" label="reg-operand">reg_operand</value>
+  </enum>
+
   <!-- ========================= instructions / groups ====================== -->
 
   <!-- falu2: d = op(srcA, [-]srcB) -->
@@ -288,6 +296,8 @@
 
     <ins name="fadd" opsel="100"/>
     <ins name="fmul" opsel="101"/>
+    <ins name="fma" opsel="110"/>
+    <ins name="fmul_interp" opsel="111"/>
   </group>
 
   <!-- falu2i: d = op(srcA, K) -->
@@ -309,6 +319,8 @@
 
     <ins name="fadd" opsel="100"/>
     <ins name="fmul" opsel="101"/>
+    <ins name="fma" opsel="110"/>
+    <ins name="fmul_interp" opsel="111"/>
   </group>
 
   <!-- falu2_uni: d = op(srcA_gpr, uniform_reg[usrc>>1]) -->
@@ -329,34 +341,78 @@
 
     <ins name="fadd" opsel="100"/>
     <ins name="fmul" opsel="101"/>
+    <ins name="fma" opsel="110"/>
+    <ins name="fmul_interp" opsel="111"/>
   </group>
 
   <!-- falu3: d = a*b + c -->
   <!-- provenance: HW-VALIDATED (EXP-0013): base a*b+c correct across varied a,b,c; splicing byte+5 (srcC) to the srcA/srcB descriptor changes the addend to a / b ... -->
-  <ins name="falu3" length="8" label="d = a*b + c">
+  <group name="falu3" length="8" label="d = a*b + c">
     <exact bit="0:3">1001</exact>
-    <exact bit="17">1</exact>
+    <exact bit="16:23">op</exact>
+    <dest name="dst_lo" bit="4:7"/>
     <dest name="dst" bit="8:15"/>
-    <!-- opcode op = fma -->
-    <exact bit="16:23">00011110</exact>
     <src name="srcA" bit="24:31"/>
     <src name="srcB" bit="32:39"/>
     <src name="srcC" bit="40:47"/>
     <!-- ext [48:63]: inferred / not yet bit-decoded -->
     <zero bit="48:63"/>
-  </ins>
 
-  <!-- fminmax: d = fmax(a,b) (byte+4 bit0=0) or fmin(a,b) (bit0=1) -->
-  <!-- provenance: HW-VALIDATED (EXP-0013): fmax base correct; splicing byte+4 0x00->0x01 flips max->min; NaN and signed-zero behaviour observed on hardware. (was ... -->
-  <ins name="fminmax" length="6" label="d = fmax(a,b) (byte+4 bit0=0) or fmin(a,b) (bit0=1)">
-    <exact bit="0:7">00010010</exact>
+    <ins name="fma" op="00011110"/>
+    <ins name="fma_coord" op="00100110"/>
+    <ins name="fma_coord_2" op="00101110"/>
+    <ins name="fma_2" op="00110110"/>
+    <ins name="fma_3" op="00111110"/>
+    <ins name="fma_coord_3" op="01000110"/>
+    <ins name="fma_coord_4" op="01001110"/>
+    <ins name="fma_4" op="01100010"/>
+    <ins name="fma_5" op="01100110"/>
+    <ins name="fma_coord_5" op="01101110"/>
+    <ins name="fma_coord_6" op="10001110"/>
+    <ins name="fma_coord_7" op="10101110"/>
+  </group>
+
+  <!-- falu2_ext: d = saturate?( op(srcA,[mod]srcB) ) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): k_satadd `09 05 1c 01 01 00 00 82` / k_satmul `09 05 1d 01 01 00 00 82` differ from the 6-byte fadd/fmul only by ... -->
+  <group name="falu2_ext" length="8" label="d = saturate?( op(srcA,[mod]srcB) )">
+    <exact bit="0:3">1001</exact>
+    <exact bit="16:18">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <modifier name="srcA_size" bit="8" kind="opsize"/>
+    <src name="srcA_reg" bit="9:15"/>
+    <modifier name="opflags" bit="19:23"/>
+    <modifier name="srcB_size" bit="24" kind="opsize"/>
+    <src name="srcB_reg" bit="25:31"/>
+    <!-- ext [32:63]: inferred / not yet bit-decoded -->
+    <zero bit="32:63"/>
+
+    <ins name="fadd" opsel="100"/>
+    <ins name="fmul" opsel="101"/>
+    <ins name="fma" opsel="110"/>
+    <ins name="fmul_interp" opsel="111"/>
+  </group>
+
+  <!-- falu3_ext: d = saturate?( a*b + c ) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): saturate(fma) `09 01 1e 05 82 08 02 00 00 82` extends the 8-byte fma by the byte+4=0x82 length selector + a 0x82 ... -->
+  <group name="falu3_ext" length="10" label="d = saturate?( a*b + c )">
+    <exact bit="0:3">1001</exact>
+    <exact bit="16:23">op</exact>
+    <dest name="dst_lo" bit="4:7"/>
     <dest name="dst" bit="8:15"/>
-    <!-- opcode op = fminmax -->
-    <exact bit="16:23">00011110</exact>
     <src name="srcA" bit="24:31"/>
-    <modifier name="sel" bit="32:39" kind="fminmax_sel"/>
-    <modifier name="mods" bit="40:47"/>
-  </ins>
+    <src name="srcB" bit="32:39"/>
+    <src name="srcC" bit="40:47"/>
+    <!-- ext [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+
+    <ins name="fma" op="00011110"/>
+    <ins name="fma_coord" op="00100110"/>
+    <ins name="fma_coord_2" op="00101110"/>
+    <ins name="fma_2" op="00110110"/>
+    <ins name="fma_3" op="00111110"/>
+    <ins name="fma_4" op="01100110"/>
+    <ins name="fma_coord_3" op="01101110"/>
+  </group>
 
   <!-- funary: d = mod(a) -->
   <!-- provenance: HW-VALIDATED (EXP-0013): on the fneg base, splicing byte+5 0x0a->0x02 gives |a|, ->0x00 gives a (mov), and 0x0a gives -a; observed on hardware. (was ... -->
@@ -417,18 +473,82 @@
     <zero bit="48:95"/>
   </ins>
 
-  <!-- iminmax: d = {min,max}(srcA, srcB) -->
-  <!-- provenance: HW-VALIDATED (EXP-0007): all four imin/imax/umin/umax outputs on mixed-sign inputs, plus imin->umin splice of sel bit1. -->
-  <ins name="iminmax" length="6" label="d = {min,max}(srcA, srcB)">
-    <exact bit="0:7">00000010</exact>
-    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
-    <!-- opcode op = iminmax -->
-    <exact bit="16:23">00011110</exact>
+  <!-- iminmax: d = min/max(a,b) by TYPE (32-bit int signed/unsigned, or float) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): dst=byte0-hi PROVEN by an 8-reg sweep (8 live imin ops, byte0 hi nibbles e,d,b,9,7,5,3,1). op-select=byte+4 PROVEN ... -->
+  <group name="iminmax" length="6" label="d = min/max(a,b) by TYPE (32-bit int signed/unsigned, or float)">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:18">110</exact>
+    <exact bit="32:34">sel</exact>
+    <dest name="dst" bit="4:7"/>
+    <dest name="dst_full" bit="8:15"/>
+    <modifier name="fmt" bit="19:23"/>
     <src name="srcA" bit="24:31"/>
-    <modifier name="sel" bit="32:34" kind="iminmax_sel"/>
     <modifier name="selhi" bit="35:39"/>
     <src name="srcB" bit="40:47"/>
+
+    <ins name="fmax" sel="000"/>
+    <ins name="fmin" sel="001"/>
+    <ins name="umax" sel="100"/>
+    <ins name="umin" sel="101"/>
+    <ins name="imax" sel="110"/>
+    <ins name="imin" sel="111"/>
+  </group>
+
+  <!-- hminmax: d = min/max(a,b), 16-bit (half/half2) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): k_hmin/k_hmax differ only in byte+4 (0x11 min vs 0x10 max); byte+2==0x1c is the 16-bit marker. dst=byte0-hi. NOT ... -->
+  <group name="hminmax" length="6" label="d = min/max(a,b), 16-bit (half/half2)">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:23">00011100</exact>
+    <exact bit="32:34">sel</exact>
+    <dest name="dst" bit="4:7"/>
+    <dest name="dst_full" bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <modifier name="selhi" bit="35:39"/>
+    <src name="srcB" bit="40:47"/>
+
+    <ins name="hmax" sel="000"/>
+    <ins name="hmin" sel="001"/>
+  </group>
+
+  <!-- isel_reg: d = (predicate) ? a : b -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): byte+2 0x2f 10-byte reg-select in u_div/s_div/s_mod. dst+srcA from the family model; body raw. NOT HW-dispatch ... -->
+  <ins name="isel_reg" length="10" label="d = (predicate) ? a : b">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:23">00101111</exact>
+    <dest name="dst" bit="4:7"/>
+    <dest name="dst_full" bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <!-- body [32:79]: inferred / not yet bit-decoded -->
+    <zero bit="32:79"/>
+  </ins>
+
+  <!-- isel_reg8: d = (predicate) ? a : b -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): byte+2 0x25 8-byte reg-select (k_int64 `92 8f 25 8b 85 19 07 00`). dst+srcA from family model; body raw. NOT ... -->
+  <ins name="isel_reg8" length="8" label="d = (predicate) ? a : b">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:23">00100101</exact>
+    <dest name="dst" bit="4:7"/>
+    <dest name="dst_full" bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <!-- body [32:63]: inferred / not yet bit-decoded -->
+    <zero bit="32:63"/>
+  </ins>
+
+  <!-- n2_op6: Generic 6-byte low-nibble-2 op (dst = byte0 high nibble) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 catch-all. dst=byte0-hi from the family sweep. Generalises the byte0-only iminmax/fminmax/iminmax_chain catch-all of the base ... -->
+  <ins name="n2_op6" length="6" label="Generic 6-byte low-nibble-2 op (dst = byte0 high nibble)">
+    <exact bit="0:3">0010</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- op [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
   </ins>
 
   <!-- iunary: d = unary_int(srcA) -->
@@ -448,8 +568,8 @@
     <zero bit="9:15"/>
     <!-- b2 [16:23]: inferred / not yet bit-decoded -->
     <zero bit="16:23"/>
-    <!-- srcdst [24:39]: inferred / not yet bit-decoded -->
-    <zero bit="24:39"/>
+    <!-- srcdst [24:47]: inferred / not yet bit-decoded -->
+    <zero bit="24:47"/>
     <immediate name="shamt" bit="48:55"/>
     <!-- tail [56:79]: inferred / not yet bit-decoded -->
     <zero bit="56:79"/>
@@ -464,14 +584,14 @@
     <zero bit="9:95"/>
   </ins>
 
-  <!-- icmpsel: d = (srcA <cond> srcB) ? 1 : 0 -->
-  <!-- provenance: HW-VALIDATED (EXP-0013): all 18 compare kernels (eq/ne/lt/le/gt/ge x int/uint/float) produce correct 0/1; sweeping byte+6 on the icmp_lt base with ... -->
-  <ins name="icmpsel" length="14" label="d = (srcA &lt;cond&gt; srcB) ? 1 : 0">
-    <exact bit="0:7">00010010</exact>
-    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
-    <!-- opcode op = icmpsel -->
-    <exact bit="16:23">00011101</exact>
+  <!-- icmpsel: d = (a <cond> b) ? K1 : K0 -->
+  <!-- provenance: Generalises HW-VALIDATED icmpsel (EXP-0013: 18 compare kernels correct; byte+6 predicate map + byte+4 relational<->equality splice). Widened ... -->
+  <ins name="icmpsel" length="14" label="d = (a &lt;cond&gt; b) ? K1 : K0">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:19">1101</exact>
+    <dest name="dst" bit="4:7"/>
+    <dest name="dst_full" bit="8:15"/>
+    <modifier name="fmt" bit="20:23"/>
     <src name="srcA" bit="24:31"/>
     <modifier name="cmpmode" bit="32:39" kind="icmpsel_cmpmode"/>
     <modifier name="neg_lo" bit="40:47"/>
@@ -500,19 +620,25 @@
 
   <!-- cvt_i2f: d = float(a) -->
   <!-- provenance: HW-VALIDATED (EXP-0013): float(-3)/float(1000000) exact; splicing byte+7 0x60->0x20 converts -1 as unsigned (4294967295 -> ~4.29e9) on hardware. -->
-  <ins name="cvt_i2f" length="8" label="d = float(a)">
+  <group name="cvt_i2f" length="8" label="d = float(a)">
     <exact bit="0:7">10100111</exact>
     <exact bit="8:15">00000111</exact>
+    <exact bit="48:55">cvtop</exact>
     <!-- b2 [16:23]: inferred / not yet bit-decoded -->
     <zero bit="16:23"/>
     <!-- src [24:39]: inferred / not yet bit-decoded -->
     <zero bit="24:39"/>
     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
     <zero bit="40:47"/>
-    <!-- opcode cvtop = int2f -->
-    <exact bit="48:55">10101100</exact>
     <modifier name="signflag" bit="56:63"/>
-  </ins>
+
+    <ins name="i2f_sibling" cvtop="10001110" label="i2f[sibling]"/>
+    <ins name="i2f_16_16" cvtop="10100000" label="i2f[16-&gt;16]"/>
+    <ins name="i2f_16_32" cvtop="10100100" label="i2f[16-&gt;32]"/>
+    <ins name="i2f_32_16" cvtop="10101000" label="i2f[32-&gt;16]"/>
+    <ins name="int2f_32_32" cvtop="10101100" label="int2f[32-&gt;32]"/>
+    <ins name="i2f_8_32" cvtop="10110100" label="i2f[8-&gt;32]"/>
+  </group>
 
   <!-- cvt_f2h: d(half) = half(a) -->
   <!-- provenance: HW-VALIDATED (EXP-0013): half(3.5)/half(65504)/half(0.1) round-trip to the exact IEEE fp16 values on hardware. -->
@@ -882,13 +1008,14 @@
     <modifier name="shape" bit="48:55"/>
     <modifier name="dtype" bit="56:63" kind="simd_reduce_dtype"/>
 
-    <ins name="or_and" op="00000000" label="or/and"/>
-    <ins name="add_xor" op="00000001" label="add/xor"/>
-    <ins name="max_min" op="00000010" label="max/min"/>
-    <ins name="umax" op="00000011" label="?/umax"/>
-    <ins name="fmin" op="00000101" label="?/fmin"/>
-    <ins name="fadd_fmul" op="00000110" label="fadd/fmul(product)"/>
-    <ins name="fmax" op="00000111" label="?/fmax"/>
+    <ins name="ior_iand" op="00000000" label="ior/iand"/>
+    <ins name="isum_ixor" op="00000001" label="isum/ixor"/>
+    <ins name="smax_smin" op="00000010" label="smax/smin"/>
+    <ins name="umax_umin" op="00000011" label="umax/umin"/>
+    <ins name="f16prod_f16sum" op="00000100" label="f16prod/f16sum"/>
+    <ins name="fmin" op="00000101"/>
+    <ins name="f32prod_f32sum" op="00000110" label="f32prod/f32sum"/>
+    <ins name="fmax" op="00000111"/>
   </group>
 
   <!-- simd_shuffle: d = src from another lane -->
@@ -1101,15 +1228,19 @@
 
   <!-- falu_acc: d = srcA (+) srcB -->
   <!-- provenance: HW-VALIDATED (EXP-0025 + RT-1a-FIX): in a 10-value sum (manyload) the stream has 6 six-byte 0x3c/0x1c fadds + 3 of these ops = 9 adds (exactly N-1) ... -->
-  <ins name="falu_acc" length="4" label="d = srcA (+) srcB">
+  <group name="falu_acc" length="4" label="d = srcA (+) srcB">
     <exact bit="0:3">1001</exact>
-    <exact bit="16:20">11000</exact>
+    <exact bit="17:20">1100</exact>
     <exact bit="22:23">00</exact>
+    <exact bit="16">op</exact>
     <dest name="dst" bit="4:7"/>
     <src name="srcA" bit="8:15"/>
     <modifier name="cache" bit="21"/>
     <src name="srcB" bit="24:31"/>
-  </ins>
+
+    <ins name="fadd_acc" op="0"/>
+    <ins name="fmul_acc" op="1"/>
+  </group>
 
   <!-- iter: r_dst = interpolate(varying_slot=src_slot, mode) -->
   <!-- provenance: HW-VALIDATED (EXP-0029): splicing byte+5 0x00->0x02 on interp_noperspective switched the red output from color.x (x-gradient) to color.y (y-gradient) ... -->
@@ -1372,10 +1503,13 @@
   <!-- provenance: HW-VALIDATED (EXP-0033): popcount/clz/ctz/reverse_bits read back exact over a 6-value sweep; op-select splice-proven ((0x27,0x05)->popcount ... -->
   <ins name="ibitcount" length="8" label="single-op bit-count / bit-scan (byte+2==0x56, 8 bytes)">
     <exact bit="0:6">0100111</exact>
-    <exact bit="16:23">01010110</exact>
+    <exact bit="9">0</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
     <modifier name="fn_hi" bit="7" kind="ibitcount_fn_hi"/>
-    <modifier name="form" bit="8:15" kind="ibitcount_form"/>
-    <!-- b2 [16:23]: constant, pinned by match/opcode -->
+    <modifier name="form" bit="8 10:15" kind="ibitcount_form"/>
+    <!-- b2 [17]: inferred / not yet bit-decoded -->
+    <zero bit="17"/>
     <!-- operands [24:63]: inferred / not yet bit-decoded -->
     <zero bit="24:63"/>
   </ins>
@@ -1385,9 +1519,11 @@
   <ins name="irotate" length="12" label="d = rotate_left(a, k)">
     <exact bit="0:7">00100111</exact>
     <exact bit="8:15">00000001</exact>
-    <exact bit="16:23">01010110</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
     <!-- b1 [8:15]: constant, pinned by match/opcode -->
-    <!-- b2 [16:23]: constant, pinned by match/opcode -->
+    <!-- b2 [17]: inferred / not yet bit-decoded -->
+    <zero bit="17"/>
     <!-- operands [24:63]: inferred / not yet bit-decoded -->
     <zero bit="24:63"/>
     <!-- tail [64:95]: inferred / not yet bit-decoded -->
@@ -1420,20 +1556,6 @@
     <zero bit="17"/>
     <!-- body [24:63]: inferred / not yet bit-decoded -->
     <zero bit="24:63"/>
-  </ins>
-
-  <!-- iminmax_chain: integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20 -->
-  <!-- provenance: HW-VALIDATED behaviour (EXP-0033): min3/max3/median3/clamp_i read back exact; two-op structure and sel codes established by byte-diff; sel-code ... -->
-  <ins name="iminmax_chain" length="6" label="integer min/max, chained-operand variant (byte0 0x22 = 0x02|0x20">
-    <exact bit="0:7">00100010</exact>
-    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
-    <zero bit="8:15"/>
-    <!-- op [16:23]: inferred / not yet bit-decoded -->
-    <zero bit="16:23"/>
-    <src name="srcA" bit="24:31"/>
-    <modifier name="sel" bit="32:34" kind="iminmax_sel"/>
-    <modifier name="selhi" bit="35:39"/>
-    <src name="srcB" bit="40:47"/>
   </ins>
 
   <!-- vary_store: uvs_buffer[out_slot] = reg[src] -->
@@ -1489,11 +1611,11 @@
   <!-- carry_gen: u64 CARRY-GENERATE -->
   <!-- provenance: HW+SPLICE-VALIDATED (EXP-0038): u64 add carry correct across low->high carry (0xFFFFFFFF+1 -> lo=0,hi=1), full carry-out, both-word carry, and a ... -->
   <ins name="carry_gen" length="6" label="u64 CARRY-GENERATE">
-    <exact bit="0:7">00110010</exact>
+    <exact bit="0:3">0010</exact>
     <exact bit="16:23">00110101</exact>
+    <dest name="dst" bit="4:7"/>
     <!-- subop [8:15]: inferred / not yet bit-decoded -->
     <zero bit="8:15"/>
-    <!-- marker [16:23]: constant, pinned by match/opcode -->
     <src name="srcA" bit="24:31"/>
     <modifier name="cmpmode" bit="32:39"/>
     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
@@ -1748,6 +1870,406 @@
     <zero bit="18:23"/>
     <!-- op [32:63]: inferred / not yet bit-decoded -->
     <zero bit="32:63"/>
+  </ins>
+
+  <!-- rt_query_traverse: 8-byte special op emitted only inside intersection_query traversal / committed+candidate result ... -->
+  <!-- provenance: structural (inferred) + LENGTH byte-diff (EXP-M4-13 R2, own-MSL): length 8 established by anchored resync across 76 occurrences in 5 own-compiled ... -->
+  <ins name="rt_query_traverse" length="8" label="8-byte special op emitted only inside intersection_query traversal / committed+candidate result ...">
+    <exact bit="0:3">1111</exact>
+    <exact bit="8:15">10000000</exact>
+    <exact bit="16:23">10000110</exact>
+    <exact bit="40:47">00100010</exact>
+    <exact bit="48:55">10000010</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- opA [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <modifier name="sel" bit="32:39" kind="rt_query_traverse_sel"/>
+    <!-- opB [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+  </ins>
+
+  <!-- fldexp: fldexp: d = ldexp(a, n) = a * 2^n for a RUNTIME integer exponent n (float scale-by-power-of-two) -->
+  <!-- provenance: byte-diff (EXP-M4-13 R2, own-MSL): length 6 proven by clean bracketing (iunary -> fldexp -> device_store -> stop). Emission gated to dynamic exponent ... -->
+  <ins name="fldexp" length="6" label="fldexp: d = ldexp(a, n) = a * 2^n for a RUNTIME integer exponent n (float scale-by-power-of-two)">
+    <exact bit="0:3">1111</exact>
+    <exact bit="8:15">00010101</exact>
+    <exact bit="16:23">10000000</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- operand [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+  </ins>
+
+  <!-- ibfins: d = shift-left / bitfield-insert (integer) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): the shl_reg(0x27)/shr_log(0xa7) 12-byte ops are byte-identical except byte0 -> byte0 bit7 = direction; 0x27 = the ... -->
+  <group name="ibfins" length="12" label="d = shift-left / bitfield-insert (integer)">
+    <exact bit="0:7">00100111</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
+    <exact bit="8:15">form</exact>
+    <modifier name="cache" bit="17"/>
+    <!-- operands [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
+    <modifier name="opdesc" bit="64:71" kind="ibfins_opdesc"/>
+    <!-- tail [72:95]: inferred / not yet bit-decoded -->
+    <zero bit="72:95"/>
+
+    <ins name="insert_mask_narrow" form="00000000" label="insert/mask/narrow"/>
+    <ins name="addr_matrix_prep" form="00000010" label="addr/matrix-prep"/>
+    <ins name="shl" form="00010000" label="shl(reg)"/>
+    <ins name="insert" form="00010001" label="insert(var)"/>
+    <ins name="shl_merge" form="00100000" label="shl/merge(var)"/>
+  </group>
+
+  <!-- atomic_tg: THREADGROUP (shared-memory) atomic read-modify-write -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): op-select localised to bits[86:91] by diffing our own ... -->
+  <group name="atomic_tg" length="12" label="THREADGROUP (shared-memory) atomic read-modify-write">
+    <exact bit="0:7">01100111</exact>
+    <exact bit="8:15">00000011</exact>
+    <exact bit="86:90">op</exact>
+    <!-- b2 [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- ret [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- src [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- body [48:85]: inferred / not yet bit-decoded -->
+    <zero bit="48:85"/>
+    <!-- tail [91:95]: inferred / not yet bit-decoded -->
+    <zero bit="91:95"/>
+
+    <ins name="add" op="10000"/>
+    <ins name="and" op="10001"/>
+    <ins name="cmpxchg" op="10010"/>
+    <ins name="smin" op="10101"/>
+    <ins name="or" op="10110"/>
+    <ins name="sub" op="11011"/>
+    <ins name="umax" op="11100"/>
+    <ins name="umin" op="11101"/>
+    <ins name="xchg" op="11110"/>
+    <ins name="xor" op="11111"/>
+  </group>
+
+  <!-- tile_read_mrt: fragment tilebuffer / attachment READ (byte+1==0x06) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): the byte+1==0x06 read variant in our own blend_mrt_rw / per_sample_blend / tile_imageblock kernels; field layout ... -->
+  <ins name="tile_read_mrt" length="12" label="fragment tilebuffer / attachment READ (byte+1==0x06)">
+    <exact bit="0:7">01100111</exact>
+    <exact bit="8:15">00000110</exact>
+    <exact bit="16:23">01010100</exact>
+    <dest name="dst" bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <immediate name="rt_index" bit="40:47"/>
+    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- fmt [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+    <!-- tail [64:95]: inferred / not yet bit-decoded -->
+    <zero bit="64:95"/>
+  </ins>
+
+  <!-- tex_addr_setup: texture COORDINATE-PROJECTION / sample-address / gradient SETUP feeding a following tex_sample -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): present (12-byte, byte+1 in {0x01,0x05}) directly before the tex_sample in our own ... -->
+  <group name="tex_addr_setup" length="12" label="texture COORDINATE-PROJECTION / sample-address / gradient SETUP feeding a following tex_sample">
+    <exact bit="0:7">00010111</exact>
+    <exact bit="16">0</exact>
+    <exact bit="18:23">010101</exact>
+    <exact bit="8:15">form</exact>
+    <modifier name="cache" bit="17"/>
+    <!-- operands [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
+    <!-- tail [64:95]: inferred / not yet bit-decoded -->
+    <zero bit="64:95"/>
+
+    <ins name="coord_proj" form="00000001" label="coord-proj"/>
+    <ins name="sample_addr_grad" form="00000101" label="sample-addr/grad"/>
+  </group>
+
+  <!-- h_alu_hi: d -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-SHADER): op-select by per-lane byte-diff - half2(a.x*b.x, a.y-b.y) -> low-half `10 04 1d`(fmul) + high-half `18 03 1c 05 ... -->
+  <group name="h_alu_hi" length="6" label="d">
+    <exact bit="0:3">1000</exact>
+    <exact bit="19:20">11</exact>
+    <exact bit="16:18">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <modifier name="opflags" bit="21:23"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ctrl" bit="32:39"/>
+    <modifier name="mods" bit="40:47"/>
+
+    <ins name="hadd" opsel="100"/>
+    <ins name="hmul" opsel="101"/>
+    <ins name="hfma" opsel="110"/>
+  </group>
+
+  <!-- h_alu_hi_ext: d -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-SHADER): own half2(a.x+b.x, fma(a.y,b.y,c.y)) -> high-half `18 03 1e 05 81 06 00 20` (byte+4=0x81 -> 8B); srcC = byte+5. ... -->
+  <group name="h_alu_hi_ext" length="8" label="d">
+    <exact bit="0:3">1000</exact>
+    <exact bit="19:20">11</exact>
+    <exact bit="16:18">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <modifier name="opflags" bit="21:23"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ext" bit="32:39"/>
+    <src name="srcC" bit="40:47"/>
+    <!-- tail [48:63]: inferred / not yet bit-decoded -->
+    <zero bit="48:63"/>
+
+    <ins name="hadd" opsel="100"/>
+    <ins name="hmul" opsel="101"/>
+    <ins name="hfma" opsel="110"/>
+  </group>
+
+  <!-- h_coord_hi: d -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-SHADER): corpus half_fma `38 88 26 82 00 86` / h2_many `38 07 2e 82 00 84` (6B, byte+4==0x00). op-select 0x26/0x2e == ... -->
+  <group name="h_coord_hi" length="6" label="d">
+    <exact bit="0:3">1000</exact>
+    <exact bit="16:23">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ctrl" bit="32:39"/>
+    <modifier name="mods" bit="40:47"/>
+
+    <ins name="hmul_coord" opsel="00100110"/>
+    <ins name="hfma_coord" opsel="00101110"/>
+  </group>
+
+  <!-- h_coord_hi_ext: d -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-SHADER): half vec2 high-half `48 86 26 82 01 84 00 c0` (8B, byte+4==0x01). Length 6+2*(byte+4&3). Operand semantics ... -->
+  <group name="h_coord_hi_ext" length="8" label="d">
+    <exact bit="0:3">1000</exact>
+    <exact bit="16:23">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ext" bit="32:39"/>
+    <src name="srcC" bit="40:47"/>
+    <!-- tail [48:63]: inferred / not yet bit-decoded -->
+    <zero bit="48:63"/>
+
+    <ins name="hmul_coord" opsel="00100110"/>
+    <ins name="hfma_coord" opsel="00101110"/>
+  </group>
+
+  <!-- packed_half2_hi: d(half2) = op(a, b) on a PACKED 2xfp16 register (both lanes in ONE op), op-select 0x24 -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-SHADER): corpus half `18 b0 24 82 80 c0` / `38 82 24 84 00 c8` (EXP-M4-01 packed-half2). op-select 0x24 == byte+2. Field ... -->
+  <ins name="packed_half2_hi" length="6" label="d(half2) = op(a, b) on a PACKED 2xfp16 register (both lanes in ONE op), op-select 0x24">
+    <exact bit="0:3">1000</exact>
+    <exact bit="16:23">00100100</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <!-- opsel [16:23]: constant, pinned by match/opcode -->
+    <src name="srcB" bit="24:31"/>
+    <modifier name="mods" bit="32:47"/>
+  </ins>
+
+  <!-- rtq_pred: Ray-query traversal predicate/condition word -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 c2 00 00 across 260 corpus occurrences in 44 own-compiled ray-query shaders, ALWAYS directly after a ... -->
+  <ins name="rtq_pred" length="4" label="Ray-query traversal predicate/condition word">
+    <exact bit="0:7">00000110</exact>
+    <exact bit="8:15">11000010</exact>
+    <exact bit="16:31">0000000000000000</exact>
+  </ins>
+
+  <!-- sfu_marker: SFU / transcendental helper marker word -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 02 across 59 corpus occurrences in 22 own-compiled shaders; reproduced in an isolated OWN fast::sin ... -->
+  <ins name="sfu_marker" length="2" label="SFU / transcendental helper marker word">
+    <exact bit="0:7">00000110</exact>
+    <exact bit="8:15">00000010</exact>
+  </ins>
+
+  <!-- ray_move_copy6: RAY register-marshalling MOVE, bit6 copy form (4B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): a clean 4-byte grid bracketed between rt_intersect and rt_as_load across >=8 RT kernels; 100% of 0x41-form bytes ... -->
+  <ins name="ray_move_copy6" length="4" label="RAY register-marshalling MOVE, bit6 copy form (4B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">01000001</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- ray_move_zero6: RAY register-marshalling MOVE, bit6 zero form (4B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed in the RT marshalling grid immediately before the 0x41 copy run. Not splice-validated. -->
+  <ins name="ray_move_zero6" length="4" label="RAY register-marshalling MOVE, bit6 zero form (4B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">01000000</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- ray_move_zinit: RAY register-marshalling MOVE, zero-init form (4B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed inside the marshalling grid of rt_assume_identity / rt_query_*. Not splice-validated. -->
+  <ins name="ray_move_zinit" length="4" label="RAY register-marshalling MOVE, zero-init form (4B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">10000000</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- rtq_state_move: Intersection-query compact register move (4B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): identical `8b 14 09 00` / `6b 14 09 00` in rt_query_abort/bbox_commit/candidate_getters/curve/transforms. Not ... -->
+  <ins name="rtq_state_move" length="4" label="Intersection-query compact register move (4B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">00001001</exact>
+    <exact bit="24:31">00000000</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <!-- b3 [24:31]: constant, pinned by match/opcode -->
+  </ins>
+
+  <!-- funary_imm: Float source-modifier / integer-logic move with an immediate/operand tail (10B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed to exactly 10B between a 14B device_load and a 14B device_store in bitops__and_imm_u32 / ... -->
+  <ins name="funary_imm" length="10" label="Float source-modifier / integer-logic move with an immediate/operand tail (10B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">00001111</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <src name="srcA" bit="24:31"/>
+    <modifier name="lut_a" bit="32:39"/>
+    <modifier name="mod" bit="40:47"/>
+    <!-- ext [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+  </ins>
+
+  <!-- b_alu10_lo7: 0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7 (source-modifier / shift-mask / ... -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte (`1b 52 07 7a 10 02 ..`) between rt_ray_mem and imad. Family-level; not splice-validated. -->
+  <ins name="b_alu10_lo7" length="10" label="0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7 (source-modifier / shift-mask / ...">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">0111</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- form_hi [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <src name="srcA" bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- ext [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+  </ins>
+
+  <!-- b_alu10_loe: 0x?b 10-byte modifier ALU, byte+2 low-nibble 0xe (funary/ilogic/shift-prep base with a non-zero dst ... -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte in dec2_n8 / rt_query kernels. Family-level; not splice-validated. -->
+  <ins name="b_alu10_loe" length="10" label="0x?b 10-byte modifier ALU, byte+2 low-nibble 0xe (funary/ilogic/shift-prep base with a non-zero dst ...">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">1110</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- form_hi [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <src name="srcA" bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- ext [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+  </ins>
+
+  <!-- b_alu10_lof: 0x?b 10-byte modifier ALU, byte+2 low-nibble 0xf (funary_imm 0x0f / ilogic 0x1f base with a ... -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte (`cb 11 3f 0d 00 02 ..`) in RT / dec2_n8 kernels. Family-level; not splice-validated. -->
+  <ins name="b_alu10_lof" length="10" label="0x?b 10-byte modifier ALU, byte+2 low-nibble 0xf (funary_imm 0x0f / ilogic 0x1f base with a ...">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">1111</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- form_hi [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <src name="srcA" bit="24:31"/>
+    <!-- b4 [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- ext [48:79]: inferred / not yet bit-decoded -->
+    <zero bit="48:79"/>
+  </ins>
+
+  <!-- reg_move_c0: Compact 4-byte register move, low-nibble-0 source-class -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): `Xb 00 00 00` prep ops anchored before clean device_store / pop_reconverge runs and the 0x20-range call-arg ... -->
+  <ins name="reg_move_c0" length="4" label="Compact 4-byte register move, low-nibble-0 source-class">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">0000</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- reg_move_c1: Compact 4-byte register move, low-nibble-1 source-class -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed 4-byte in the compact-move grids of dec2_n8 / rt_query_* kernels. Family-level; not splice-validated. -->
+  <ins name="reg_move_c1" length="4" label="Compact 4-byte register move, low-nibble-1 source-class">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">0001</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- reg_move_c9: Compact 4-byte register move, low-nibble-9 source-class -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): bracketed 4-byte between tg-prep / device ops in the intersection-query kernels. Family-level; not splice-validated. -->
+  <ins name="reg_move_c9" length="4" label="Compact 4-byte register move, low-nibble-9 source-class">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">1001</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- reg_move_cb: Compact 4-byte pack / bitcast / convert move, byte+2 low-nibble 0xb (0x0b/0x1b/0x2b/0x3b) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 (own-MSL): `0b 01 1b 05` bracketed 4-byte before a device_store; `4b 05 3b 09 2b 07 3b 0b` a regular 4-byte grid. Closes the ... -->
+  <ins name="reg_move_cb" length="4" label="Compact 4-byte pack / bitcast / convert move, byte+2 low-nibble 0xb (0x0b/0x1b/0x2b/0x3b)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">1011</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [20:23]: inferred / not yet bit-decoded -->
+    <zero bit="20:23"/>
+    <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- tg_atomic_prep: Threadgroup-atomic RMW descriptor prep (8B) -->
+  <!-- provenance: byte-diff EXP-M4-13 R2 / round-1 EXP-M4-01: `0b 00 06 00 00 00 00 00` anchored before a clean device_store in atomics__tg_u_add. Length 8 ... -->
+  <ins name="tg_atomic_prep" length="8" label="Threadgroup-atomic RMW descriptor prep (8B)">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:23">00000110</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src" bit="8:15"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <!-- body [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
   </ins>
 
 </isa>

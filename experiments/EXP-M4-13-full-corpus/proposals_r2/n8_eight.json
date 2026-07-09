@@ -1,0 +1,387 @@
+{
+ "family": "low-nibble 0x?8 (native-half HIGH-HALF float ALU + packed-half2)",
+ "kind": "new",
+ "owner": "EXP-M4-13 R2 n8_eight",
+ "summary": "Low-nibble-8 (byte0 0x08/0x18/.../0xf8) is the HIGH-16-bit-half destination sibling of the 0x10 low-half native-half (fp16) float ALU. A packed halfN op computes the .x lane in the LOW half (0x10 group) and the .y lane in the HIGH half via this low-nibble-8 group; byte0 HIGH nibble = dst reg (r0..r15), byte+2 = the SAME float op-select as the 0x09/0x10 families. The dominant '0x08 desync' gaps (08 02 00 00 count 101, 18 02 .. count 18, etc.) are NOT genuine leaders -- they are mid-instruction LANDINGS (operand tails of the low-nibble-9 fma-saturate and the low-nibble-B RT intersection-query getter cascade); the rule refuses them.",
+ "byte0": "byte0 & 0x0f == 0x8 ; byte0 high nibble = destination register (r0..r15)",
+ "opSelectMap": {
+  "byte+2 op-select (== the 0x09/0x10 float enum)": {
+   "0x1c": "hadd  (fp16 add, high-half dst)",
+   "0x1d": "hmul  (fp16 mul, high-half dst; in practice the compiler emits the compact 4B 0x19 form -- see unresolved)",
+   "0x1e": "hfma  (fp16 fused mul-add, high-half dst)",
+   "0x26": "hmul_coord (fused-mul coordinate op, half geometry)",
+   "0x2e": "hfma_coord (fused mul-add coordinate op, half geometry)",
+   "0x24": "hpack2_alu (packed 2xfp16 ALU, both lanes one op)"
+  }
+ },
+ "lengthRules": [
+  {
+   "gate": "(byte0 & 0x0f)==0x08 AND byte+2 in {0x1c,0x1d,0x1e,0x26,0x2e} AND (byte+4 & 0x7c)==0",
+   "length": "6 + 2*(byte+4 & 3)",
+   "note": "Arith/coord half ALU. Length model identical to the 0x09/0x10 families: byte+4 low-2 bits = the 6/8/10-byte extended-tail selector (continuation-lane fma byte+4==0x80 -> 6; leading/saturate fma byte+4 low2==1 -> 8). The (byte+4 & 0x7c)==0 second gate is LOAD-BEARING: it refuses low-nibble-B RT-getter cascade landings (08 0b 26 81 08 / 08 1b 1e 41 08, byte+4==0x08) and a tessellation desync landing (08 a9 1d ae d3, byte+4==0xd3) whose byte+2 coincidentally hits the op-select set. 0 corpus regressions."
+  },
+  {
+   "gate": "(byte0 & 0x0f) in {0x00,0x08} AND byte0!=0x00 AND byte+2==0x24",
+   "length": 6,
+   "note": "packed-half2 ALU -- ALREADY present in the committed length rule; this proposal only adds its DESCRIPTOR."
+  }
+ ],
+ "descriptors": [
+  {
+   "mnemonic": "h_alu_hi",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     8
+    ],
+    [
+     18,
+     3,
+     7
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "hadd",
+      "5": "hmul",
+      "6": "hfma"
+     }
+    },
+    {
+     "name": "opflags",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ctrl",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "mods",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d.hi(half) = op(a, b)  ; NATIVE fp16 float ALU writing the HIGH 16-bit half of the destination register (the .y lane of a packed half2 / a scalar half whose SSA value the allocator placed in a register's upper half). byte0 low-nibble 0x8 is the high-half sibling of the 0x10 low-half half_alu; byte0 high nibble = dst reg (r0..r15). op-select byte+2 low-3 bits (0b100=hadd/0x1c, 0b101=hmul/0x1d, 0b110=hfma/0x1e) is the SAME enum as the 0x09/0x10 float families. srcA/srcB descriptors (byte+1/byte+3) carry a half-select low bit that reads the source register's high 16-bit half (proven by the +1 descriptor delta between the low-half 0x10 lane and this high-half lane in an own-compiled half4 op).",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER): op-select isolated by controlled per-lane byte-diff -- half2(a.x*b.x, a.y-b.y) -> low-half `10 04 1d`(fmul) + high-half `18 03 1c 05 00 08`(fadd); half2 fma high lane `18 03 1e 05 80 07`. dst = byte0 high nibble (own half4 fma writes lanes to r0.hi `08 01 1e 05 80 09` and r1.hi `18 03 1e 07 80 0b`). Length 6+2*(byte+4&3) mirrors the HW-validated 0x09/0x10 length model; each op cleanly bracketed between known-length ops. Operand-field SEMANTICS inferred (byte-diff), NOT hardware-dispatch-validated (no GPU dispatch)."
+  },
+  {
+   "mnemonic": "h_alu_hi_ext",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     8
+    ],
+    [
+     18,
+     3,
+     7
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "enum": {
+      "4": "hadd",
+      "5": "hmul",
+      "6": "hfma"
+     }
+    },
+    {
+     "name": "opflags",
+     "start": 19,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ext",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcC",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tail",
+     "start": 48,
+     "width": 16,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d.hi(half) = a*b + c  (fma) or op(a,b) with an extended saturate/abs source tail, writing the HIGH 16-bit half. 8-byte member of the low-nibble-8 half ALU: byte+4 low-2 bits set selects the extended encoding (fma addend srcC at byte+5, or the saturate/negate/abs tail), exactly like the 0x09 fp32 8/10/12-byte polymorphism. op-select byte+2 as in h_alu_hi.",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER): own half2(a.x+b.x, fma(a.y,b.y,c.y)) -> high-half `18 03 1e 05 81 06 00 20` (byte+4=0x81 -> 8B); srcC = byte+5 (mirrors the 0x09 falu3 addend position). Length anchored by the following device_store. srcC/ext SEMANTICS inferred."
+  },
+  {
+   "mnemonic": "h_coord_hi",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     8
+    ],
+    [
+     16,
+     3,
+     6
+    ],
+    [
+     21,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "38": "hmul_coord",
+      "46": "hfma_coord"
+     }
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ctrl",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "mods",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d.hi(half) = fused-multiply[-add] coordinate op writing the HIGH 16-bit half; op-select 0x26 (hmul_coord, 2-source) / 0x2e (hfma_coord, fused mul-add). Emitted by half-precision geometry / interpolation. Same fused-mul coord op-select the fp32 coord math uses; the low-half sibling is the 0x?0-group (e.g. `40 87 26 83 00 85`) seen in the same op pair. 6-byte 2-source form.",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER): corpus half_fma `38 88 26 82 00 86` / h2_many `38 07 2e 82 00 84` (6B, byte+4==0x00). op-select 0x26/0x2e == byte+2. Field semantics inferred."
+  },
+  {
+   "mnemonic": "h_coord_hi_ext",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     8
+    ],
+    [
+     16,
+     3,
+     6
+    ],
+    [
+     21,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "38": "hmul_coord",
+      "46": "hfma_coord"
+     }
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "ext",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcC",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tail",
+     "start": 48,
+     "width": 16,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d.hi(half) = fused-mul[-add] coordinate op (0x26/0x2e) writing the HIGH 16-bit half, 8-byte extended form (byte+4 low2==1: 3rd source / ext tail at byte+5). See h_coord_hi.",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER): own/corpus half vec2 high-half `48 86 26 82 01 84 00 c0` (8B, byte+4==0x01) paired with the low-half 0x40-group `40 87 26 83 00 85` (6B). Length 6+2*(byte+4&3). Operand semantics inferred (byte-diff), NOT hardware-dispatch-validated."
+  },
+  {
+   "mnemonic": "packed_half2_hi",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     8
+    ],
+    [
+     16,
+     8,
+     36
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcA",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "36": "hpack2_alu"
+     }
+    },
+    {
+     "name": "srcB",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "mods",
+     "start": 32,
+     "width": 16,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d(half2) = op(a, b) on a PACKED 2xfp16 register (both lanes in ONE op), op-select 0x24. The low-nibble-8 member (byte0 high nibble = dst) of the packed-half2 ALU already sized by the packed-half2 length rule; this descriptor names it (closes the `X8 .. 24 ..` family-only gap).",
+   "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER): corpus half `18 b0 24 82 80 c0` / `38 82 24 84 00 c8` (EXP-M4-01 packed-half2). op-select 0x24 == byte+2. Field semantics inferred."
+  }
+ ],
+ "notes": [
+  "byte0 HIGH nibble = dst reg PROVEN: own half4 fma writes the four lanes to r0.lo (00 00 1e 04..), r0.hi (08 01 1e 05 80 09), r1.lo (10 02 1e 06 80 0a), r1.hi (18 03 1e 07 80 0b) -- the high-half lanes are exactly the low-nibble-8 group with byte0 high nibble tracking the register.",
+  "op-select PROVEN by controlled per-lane byte-diff: half2(a.x*b.x, a.y-b.y) -> low-half `10 04 1d`(fmul) + high-half `18 03 1c 05 00 08`(fadd). The ONLY byte differing between a high-half add and the corresponding fma is byte+2 (0x1c vs 0x1e), matching the HW-validated 0x09/0x10 op-select enum.",
+  "srcA/srcB/srcC operand descriptors (byte+1/byte+3/byte+5) carry a half-select low bit: in an own half4 op the high-half lane's source descriptors are each +1 vs the low-half lane's, selecting the source register's upper 16-bit half.",
+  "The '0x08 desync-heavy' gap is a CASCADE ARTIFACT, reported honestly: (a) 08 02 00 00 (count 101) is the byte+5.. tail of the 10-byte low-nibble-9 fma-saturate `09 .. 1e .. 82 08 02 00 00 82` (census predates the EXP-M4-10 fma-sat length fix; the current tokenizer absorbs it cleanly); (b) the RT-query 08 landings are byte+3 of the low-nibble-B intersection-query getter ops (`Xb XX 41 08`); (c) the subgroup `X8 00 d0 ..` gaps are operand landings inside simd/quad reduce desyncs. None are 0x?8 leaders."
+ ],
+ "provenance": "byte-diff EXP-M4-13 R2 (OWN-SHADER). NO GPU DISPATCH -- compile+extract+tokenize+byte-diff only. Operand-field semantics are byte-diff-inferred, NOT hardware-dispatch-validated; op-select and dst are byte-diff-PROVEN; lengths anchored by clean bracketing between known-length ops.",
+ "validation": {
+  "samplesDecoded": 26,
+  "samplesDecodedNote": "26 low-nibble-8 ops across 21 corpus files decode via the 5 new descriptors (0 ERR); plus 7 controlled own-MSL samples. Mix: hadd 5, hfma 5+2ext, hmul_coord 3+1, hfma_coord 4+1, hpack2 5.",
+  "roundtripOnSamplesPass": true,
+  "roundtripOnSamplesNote": "asm(disasm(b))==b for all 26 corpus samples + all 7 controlled samples (0 failures).",
+  "roundtripSuitePass": true,
+  "roundtripSuiteNote": "roundtrip_test.py on the scratch DB copy: ALL PASS (real+synth roundtrip, program tokenization, imm codec).",
+  "corpusCoverage": "walk-coverage 94.916% -> 94.934% (+82 bytes), 16 files improved, 0 regressions vs committed length rule."
+ },
+ "unresolved": [
+  "COMPACT 4-byte half accumulate/move (byte+2 in {0x18,0x19,0x38,0x39}, arith-enable clear): genuine (high-half mul contracts to `X8 05 19 SS`; long `38 0d 38 09 ..` pack runs in tile_resolve/half_relational) but a blanket `byte+2 in {18,19,38,39} -> 4` rule introduces 4 false-positive regressions in RT-query/conversion desyncs (+20 bytes for -4 files); left UNRESOLVED rather than mis-length. byte0==0x18 & byte+1==0x05 is already handled (half_pack).",
+  "2-byte COMPACT half moves (`38 07`,`68 06`,`38 0a`,`38 13`,`18 04`,`18 08`,`58 0f`): high-nibble=dst, byte+1=source, analogous to the committed `18 00 -> 2` -- but no safe stateless length gate exists (a small byte+1 also occurs in the genuine 6-byte arith form `18 03 1c ..`), so a blanket 2-byte rule would mis-length real ops. UNRESOLVED.",
+  "hmul (op-select 0x1d) in the 6-byte high-half form is supported by h_alu_hi but NOT observed in the corpus (the compiler emits mul as the compact 0x19 form); the 6-byte 0x1d encoding is validated synthetically only."
+ ],
+ "desyncLandingsReported": {
+  "08 02 00 00 (count 101)": "tail of low-nibble-9 fma-saturate `09 .. 1e .. 82 08 02 00 00 82` (10B) + RT-b cascade",
+  "18 02 00 00 (count 18)": "landing (byte+2==0x00, not an op-select)",
+  "d8 00 d0 .. / 28 00 d0 .. / 58 00 d0 .. / a8 00 d0 .. / 38 00 d0 ..": "subgroup simd/quad reduce operand landings (byte+2==0xd0/0x12)",
+  "08 00 / 08 08 / 08 40 / 08 88 / 08 a0 / 18 88 / 18 8c / 28 44 / 28 a1 / 48 d0 / a8 8c / a8 91": "byte+2 not a float op-select -> refused (mid-instruction landings)"
+ }
+}
