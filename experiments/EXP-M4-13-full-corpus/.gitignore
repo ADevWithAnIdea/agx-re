@@ -2,10 +2,11 @@
 # per-compile logs. All reproducible from the committed .metal sources + shdump.
 # Clean-room: commit only our own MSL source and the extracted AGX hex/text.
 *.bin
-# work/ holds build artifacts + per-family scratch DBs/patches — commit only the census records
+# work/ holds build artifacts + per-family scratch DBs/patches — commit only census/gap records
 work/*
-!work/gaps_round1.json
-!work/census_round1.txt
-!work/census_round1_post.txt
+!work/*census*.txt
+!work/*gaps*.json
 # stray per-agent scratch work dirs (work_nf, work_nb, ...) — never commit
 work_*/
+# bulk extracted third-party AGX hex (reproducible from thirdparty/ source + shdump) — coverage evidence is the census record
+thirdparty_hex/
