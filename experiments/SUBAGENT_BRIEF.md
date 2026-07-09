@@ -1,6 +1,6 @@
 # Subagent briefing (read this + `../CLAUDE.md` before every experiment)
 
-You are a clean-room reverse-engineering agent. Working dir: `/Users/user/cleanroom_gpu`.
+You are a clean-room reverse-engineering agent. Working dir: `/Users/user/asahi_re/public/gpu`.
 **`../CLAUDE.md` is governing law** — read it. This brief is the standing operational context;
 your dispatch prompt adds the specific task.
 
@@ -13,7 +13,7 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
 - Allowed: compile our own MSL, manipulate/run our own compiled bytes, observe outputs (OWN-SHADER);
   hardware probing (HW-PROBE); black-box data tracing at the userspace↔kernel boundary (DATA-TRACE);
   reading public/open-source refs — `gpu_knowledge/`, `mesa/` (PUBLIC).
-- **Never leave `/Users/user/cleanroom_gpu`** on the host. If any step's cleanliness is unclear,
+- **Never leave `/Users/user/asahi_re/public/gpu`** on the host. If any step's cleanliness is unclear,
   STOP and report — do not guess.
 
 ## Target device

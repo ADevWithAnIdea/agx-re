@@ -72,7 +72,7 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
    no firmware, no Apple-authored precompiled shaders / system shader caches. (Committing our
    own shader source, our own shader disassembly, and captured command-buffer/descriptor byte
    traces *is* fine and encouraged — that is non-copyrightable hardware data and evidence.)
-7. **Never leave this directory (`/Users/user/cleanroom_gpu`).** All host-side work stays
+7. **Never leave this directory (`/Users/user/asahi_re/public/gpu`).** All host-side work stays
    here. Do not read, search, or operate on files elsewhere on the host filesystem.
 
 ### The one-line test
@@ -152,7 +152,7 @@ test** (see Methodology). A feature that turns out absent/emulated is a first-cl
 
 | | |
 |---|---|
-| Host (here) | macOS, this repo at `/Users/user/cleanroom_gpu`. `sshpass`, `macvdmtool` available. |
+| Host (here) | macOS, this repo at `/Users/user/asahi_re/public/gpu`. `sshpass`, `macvdmtool` available. |
 | Target | `user@192.168.170.254`, password `Password_1`. Apple A18 Pro, SoC T8140, macOS 26.6 (25G5043d), 5 GPU cores, Metal 4 / feature family Apple9. SIP **disabled**. `user` is a sudoer (sudo needs the password). |
 | Toolchain on target | Command Line Tools only (`clang`, `python3`, `git`). **No `metal` CLI** → we use **runtime** MSL compilation (confirmed working). Full Metal offline toolchain can be installed later if needed. |
 | Device workspace | `~/cleanroom_work` on the target. Keep all experiment code/data there, then pull artifacts back here to commit. |

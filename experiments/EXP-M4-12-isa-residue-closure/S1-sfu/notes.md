@@ -7,7 +7,7 @@ NOT reconstruct the sin/cos range-reduction algorithm (the 2-byte operand-words
 below are treated as opaque immediate/coefficient injections).
 
 ## Toolchain
-    CEN=/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census
+    CEN=/Users/user/asahi_re/public/gpu/experiments/EXP-M4-01-isa-census/census
     $CEN/shdump -o out.bin -f k_iso x.metal
     python3 $CEN/agxparse.py out.bin --extract-hex | tr -d '\n ' > out.hex
     python3 work/tok.py out.hex        # tokenizer bound to the LOCAL patched isadb copy
