@@ -2,7 +2,18 @@
 # fixes (varying store 0x57, tex companion-gate widen, standalone sampler op,
 # coordinate-math low-nibble-b/e, refined float-ALU op-select 0x26/0x2e/0x18).
 import sys
-sys.path.insert(0,'/Users/user/cleanroom_gpu/tools/agx-isa')
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0,os.path.join(_REPO, 'tools', 'agx-isa'))
 import isadb
 TEX_VARIANTS={0x00,0x04,0x07,0x09,0x13,0x17,0x1b,0x20,0x21,0x29,0x39,0x53,0x79,0x80,0x97}
 def plen(buf,off):

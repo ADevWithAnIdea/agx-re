@@ -7,7 +7,18 @@
 #  (B) 20 INDEPENDENT loads sum correctly => >8 in flight, i.e. no G13-style AGX_MAX_PENDING=8 cap.
 #  (C) tokenize both kernels and confirm NO 'wait'/scoreboard instruction exists (G17P/Apple9 ISA).
 import subprocess, os
-ROOT = "/Users/user/cleanroom_gpu"; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 ISA = os.path.join(ROOT, "tools/agx-isa/agxisa.py")
 HERE = os.path.dirname(os.path.abspath(__file__)); K = os.path.join(HERE, "kernels")
 

@@ -5,7 +5,18 @@
 # 32-bit srcA: out = ~0 + 100 = 100. Splice srcA size bit (byte+1 bit0, file off 0x21) 1->0
 # (16-bit): srcA reads the LOW halfword = half(0x3C00)=1.0 => out = 1.0 + 100 = 101.
 import subprocess, os, struct
-ROOT = "/Users/user/cleanroom_gpu"; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 SRC = "/private/tmp/claude-501/-Users-user-cleanroom-gpu/2b10ccd4-6b22-4ef0-899b-1cb5a544bbb2/scratchpad/mm/add.metal"
 SRCA_OFF = 0x21
 bval = struct.unpack('<f', bytes([0x00, 0x3C, 0x00, 0x00]))[0]   # raw 0x00003C00

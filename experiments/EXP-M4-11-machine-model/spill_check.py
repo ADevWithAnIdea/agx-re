@@ -3,7 +3,18 @@
 # Reuse copy96's self-n copy kernel at high K (heavy spill); exact copy => spill correct.
 import os, subprocess, importlib.util
 HERE=os.path.dirname(os.path.abspath(__file__)); H=os.path.join(HERE,"harness")
-ROOT="/Users/user/cleanroom_gpu"; AGXTEST=os.path.join(ROOT,"tools/agxtest/agxtest.py")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT=_REPO; AGXTEST=os.path.join(ROOT,"tools/agxtest/agxtest.py")
 spec=importlib.util.spec_from_file_location("cp",os.path.join(HERE,"copy96.py")); cp=importlib.util.module_from_spec(spec); spec.loader.exec_module(cp)
 for K in [112,128,160,200,256]:
     kp=os.path.join(HERE,"kernels","cp%d.metal"%K); open(kp,"w").write(cp.src(K))

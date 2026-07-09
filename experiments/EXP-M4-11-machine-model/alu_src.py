@@ -7,7 +7,18 @@
 # So out==a after r64-splice proves r64 != r0 (no mod-64 alias); r96 out==a & STATUS OK
 # proves out-of-file ALU source reads 0 (no fault). CLEAN-ROOM: own MSL/own bytes.
 import subprocess, os
-ROOT = "/Users/user/cleanroom_gpu"
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO
 AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 SRC = "/private/tmp/claude-501/-Users-user-cleanroom-gpu/2b10ccd4-6b22-4ef0-899b-1cb5a544bbb2/scratchpad/mm/add.metal"
 SRCB_OFF = 0x23

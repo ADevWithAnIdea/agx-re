@@ -2,7 +2,18 @@
 # EXP-M4-11 item 5: SR table (reproduces RT-7 §5). get_sr @0x00, byte1 = SR selector (file off 0x01).
 # Splice byte1 to each SR code; the output becomes that SR's value across a grid=128/tg=64 launch.
 import subprocess, os
-ROOT = "/Users/user/cleanroom_gpu"; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO; AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "kernels/sr.metal")
 GRID, TG = 128, 64
 

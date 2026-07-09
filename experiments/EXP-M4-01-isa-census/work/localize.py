@@ -5,12 +5,23 @@
 # its start to the next anchor using DB lengths for all OTHER ops. Report the op
 # whose DB length is wrong and its corrected length. CLEAN-ROOM: own shaders only.
 import sys, os, glob, collections
-sys.path.insert(0,'/Users/user/cleanroom_gpu/tools/agx-isa')
-sys.path.insert(0,'/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census')
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0,os.path.join(_REPO, 'tools', 'agx-isa'))
+sys.path.insert(0,os.path.join(_REPO, 'experiments', 'EXP-M4-01-isa-census', 'census'))
 import isadb, solve
 
-HEXDIR='/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census/hex'
-A18DIR='/Users/user/cleanroom_gpu/experiments/EXP-0036-consolidation-census/hex'
+HEXDIR=os.path.join(_REPO, 'experiments', 'EXP-M4-01-isa-census', 'census', 'hex')
+A18DIR=os.path.join(_REPO, 'experiments', 'EXP-0036-consolidation-census', 'hex')
 
 def dbl(b,off):
     L=isadb.instr_length(b,off)

@@ -10,10 +10,21 @@
 # CLEAN-ROOM: our own MSL only.
 import subprocess, os, struct, importlib.util, sys
 
-ROOT="/Users/user/cleanroom_gpu"; AGXTEST=os.path.join(ROOT,"tools/agxtest/agxtest.py")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT=_REPO; AGXTEST=os.path.join(ROOT,"tools/agxtest/agxtest.py")
 HERE=os.path.dirname(os.path.abspath(__file__)); WORK=os.path.join(HERE,"work")
 os.makedirs(WORK,exist_ok=True); os.makedirs(os.path.join(HERE,"kernels"),exist_ok=True)
-sys.path.insert(0,'/Users/user/cleanroom_gpu/tools/agx-isa'); import isadb
+sys.path.insert(0,os.path.join(_REPO, 'tools', 'agx-isa')); import isadb
 spec=importlib.util.spec_from_file_location("compdump",os.path.join(HERE,"../isa2-saturate/compdump.py"))
 cd=importlib.util.module_from_spec(spec); spec.loader.exec_module(cd)
 

@@ -3,11 +3,22 @@
 # kernel walk, WITHOUT editing isadb.py. Monkeypatches isadb.instr_length.
 # CLEAN-ROOM: our own shader bytes only.
 import sys, os, glob
-sys.path.insert(0, '/Users/user/cleanroom_gpu/tools/agx-isa')
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0, os.path.join(_REPO, 'tools', 'agx-isa'))
 import isadb
 
-HEXDIR = '/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census/hex'
-A18DIR = '/Users/user/cleanroom_gpu/experiments/EXP-0036-consolidation-census/hex'
+HEXDIR = os.path.join(_REPO, 'experiments', 'EXP-M4-01-isa-census', 'census', 'hex')
+A18DIR = os.path.join(_REPO, 'experiments', 'EXP-0036-consolidation-census', 'hex')
 _orig = isadb.instr_length
 
 def trim(b):

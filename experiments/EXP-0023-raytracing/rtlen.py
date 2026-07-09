@@ -5,7 +5,18 @@
 # until a whole RT _agc.main tokenizes with zero leftover (the ISA-bringup method).
 # CLEAN-ROOM: OUR OWN compiled bytes only.
 import sys
-sys.path.insert(0,'/Users/user/cleanroom_gpu/tools/agx-isa')
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0,os.path.join(_REPO, 'tools', 'agx-isa'))
 import isadb
 
 def B(b,o): return b[o] if 0<=o<len(b) else -1

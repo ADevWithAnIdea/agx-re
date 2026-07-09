@@ -6,7 +6,18 @@
 # an out-of-file index register. A clean r95->r96 fault edge + no aliasing = 96 is a hard
 # silicon boundary, not mod-64. CLEAN-ROOM: own MSL, own compiled bytes.
 import subprocess, os
-ROOT = "/Users/user/cleanroom_gpu"
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO
 AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "kernels/cp.metal")

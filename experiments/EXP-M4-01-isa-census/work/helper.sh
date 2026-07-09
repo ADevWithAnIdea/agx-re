@@ -2,13 +2,19 @@
 # helper.sh <metal_file> <kernel_name> — compile, extract, and walk one kernel.
 # Prints the instruction walk. CLEAN-ROOM: our own shader only.
 set -e
+# portable repo root (repo was relocated; anchor to a sentinel by walking up from this script)
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+while [ "$REPO" != "/" ] && ! { [ -f "$REPO/CLAUDE.md" ] && [ -d "$REPO/tools/agx-isa" ]; }; do
+  REPO="$(dirname "$REPO")"
+done
 MF="$1"; KN="$2"
 BASE=$(basename "$MF" .metal)
 ./shdump -f "$KN" -o "/tmp/${BASE}_${KN}.bin" "$MF" 2>/dev/null
-python3 - "$MF" "$KN" "$BASE" <<'PY'
+python3 - "$MF" "$KN" "$BASE" "$REPO" <<'PY'
 import sys, os
-sys.path.insert(0, '/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census')
-sys.path.insert(0, '/Users/user/cleanroom_gpu/tools/agx-isa')
+_REPO = sys.argv[4]
+sys.path.insert(0, os.path.join(_REPO, 'experiments', 'EXP-M4-01-isa-census', 'census'))
+sys.path.insert(0, os.path.join(_REPO, 'tools', 'agx-isa'))
 import agxparse, isadb
 mf, kn, base = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(f"/tmp/{base}_{kn}.bin","rb") as f: buf=f.read()

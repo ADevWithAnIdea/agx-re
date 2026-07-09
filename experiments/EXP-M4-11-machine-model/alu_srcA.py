@@ -8,7 +8,18 @@
 # not truncated to r0 which would give [2,4,..]) => r64 != r0, 7-bit field reaches r64.
 # srcA->r96 yielding a with STATUS OK => out-of-file ALU source reads 0, no fault.
 import subprocess, os
-ROOT = "/Users/user/cleanroom_gpu"
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+ROOT = _REPO
 AGXTEST = os.path.join(ROOT, "tools/agxtest/agxtest.py")
 SRC = "/private/tmp/claude-501/-Users-user-cleanroom-gpu/2b10ccd4-6b22-4ef0-899b-1cb5a544bbb2/scratchpad/mm/add.metal"
 SRCA_OFF = 0x21

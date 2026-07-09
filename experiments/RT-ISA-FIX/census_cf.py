@@ -4,7 +4,18 @@ Tokenizes each kernel BOTH with a reconstructed pre-fix length rule (0f05=8,
 no 0f01/0f04, no 0x07 non-0x54 fence) and with the current (fixed) DB, and
 reports byte-coverage + 0x0f-family op decode counts."""
 import sys, os
-sys.path.insert(0, "/Users/user/cleanroom_gpu/tools/agx-isa")
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0, os.path.join(_REPO, 'tools', 'agx-isa'))
 import isadb
 
 HEX = dict(l.split() for l in open(os.path.join(os.path.dirname(__file__), "raw/all_hex.txt"))

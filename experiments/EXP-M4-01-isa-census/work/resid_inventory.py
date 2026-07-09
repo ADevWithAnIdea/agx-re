@@ -3,12 +3,23 @@
 # corpora: key = (byte0, first 4 bytes, region length), value = list of (corpus,
 # kernel, offset). Helps target the highest-frequency residue ops.
 import sys, os, glob, collections
-sys.path.insert(0, '/Users/user/cleanroom_gpu/tools/agx-isa')
+# --- portable repo root (repo was relocated; anchor to a sentinel, not a hardcoded path) ---
+import os
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while d != os.path.dirname(d):
+        if os.path.isfile(os.path.join(d, 'CLAUDE.md')) and os.path.isdir(os.path.join(d, 'tools', 'agx-isa')):
+            return d
+        d = os.path.dirname(d)
+    raise RuntimeError('repo root not found from ' + start)
+_REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
+# --- end portable repo root ---
+sys.path.insert(0, os.path.join(_REPO, 'tools', 'agx-isa'))
 import isadb
 
 HEXDIRS = {
-    'M4':  '/Users/user/cleanroom_gpu/experiments/EXP-M4-01-isa-census/census/hex',
-    'A18': '/Users/user/cleanroom_gpu/experiments/EXP-0036-consolidation-census/hex',
+    'M4':  os.path.join(_REPO, 'experiments', 'EXP-M4-01-isa-census', 'census', 'hex'),
+    'A18': os.path.join(_REPO, 'experiments', 'EXP-0036-consolidation-census', 'hex'),
 }
 def trim(b):
     e=len(b)
