@@ -1,0 +1,268 @@
+{
+  "group": "Memory: device_load + device_store",
+  "refinedDescriptors": [
+    {
+      "mnemonic": "device_load",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          103
+        ]
+      ],
+      "fields": [
+        {
+          "name": "space",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "addr_mode",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "68": "indexed_load (base+index; terminal/standalone)",
+            "84": "base_rel_load (non-terminal of a base-sharing group / GPR index)",
+            "4": "rare CF form",
+            "36": "rare CF form (loop_nested)",
+            "34": "rare RT form (rt_query_params)",
+            "70": "rare CF form (call_fptr)"
+          }
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "index_reg",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "access_desc",
+          "start": 48,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "32": "device/global buffer (bit5)",
+            "0": "threadgroup/other"
+          }
+        },
+        {
+          "name": "reserved7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "dst_width",
+          "start": 64,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "dst_ext9",
+          "start": 72,
+          "width": 7,
+          "type": "raw"
+        },
+        {
+          "name": "idx_off",
+          "start": 79,
+          "width": 11,
+          "type": "imm"
+        },
+        {
+          "name": "ldform_hi11",
+          "start": 90,
+          "width": 6,
+          "type": "mod"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "reserved13",
+          "start": 104,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a prior ALU op, but the HW field exists. Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load (+3).",
+      "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride), data width (M2). RT-1a-FIX re-validated: +5 index_reg (a[i0] load, idxbuf {40,3,77,12}, a[j]=100j+3: +5=0x00->a[40],0x01->a[3],0x02->a[77]); +6 INERT (0x00..0xff no-op); +1 = address space (0x01/02/03->reads 0); idx_off (+9 bit7->+1, +10->+2/unit, +11->+512/unit). raw/mem_index.log. EXP-M4-13 R6 (byte-diff, own-MSL, NOT dispatch-validated): +2 addr_mode enum (0x44 terminal/standalone vs 0x54 non-terminal base-sharing load); +6 access_desc (bit5=0x20 device vs 0x00 threadgroup, but RT-1a splice-inert); +7/+13 reserved (const 0 across 1730+ corpus loads); +11 ldform_hi11 fixed tag 0x10. +9 dst_ext9 LEFT RAW (register-plumbing, needs dispatch splice to separate from idx_off)."
+    },
+    {
+      "mnemonic": "device_store",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          231
+        ]
+      ],
+      "fields": [
+        {
+          "name": "space",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "addr_mode",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "84": "store (ALU-computed data / base-relative)",
+            "86": "store (direct live load-result data; bit1 set)",
+            "100": "store (mesh/extended)",
+            "4": "rare form",
+            "36": "rare form"
+          }
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "index_reg",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "access_desc",
+          "start": 48,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "33": "device/global store (bit5 device | bit0 store-dir)",
+            "32": "device (bit5)",
+            "0": "threadgroup/other",
+            "128": "extended"
+          }
+        },
+        {
+          "name": "reserved7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "data_width",
+          "start": 64,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "stdata_ext9",
+          "start": 72,
+          "width": 7,
+          "type": "raw"
+        },
+        {
+          "name": "idx_off",
+          "start": 79,
+          "width": 11,
+          "type": "imm"
+        },
+        {
+          "name": "stdata_desc_hi",
+          "start": 90,
+          "width": 6,
+          "type": "raw"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "reserved13",
+          "start": 104,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). Narrowing stores (char/short) set elem_size (+12).",
+      "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. Index/offset fields shared with device_load (RT-1a-FIX re-validated). register/addressing tail inferred (byte-diff). EXP-M4-13 R6 (byte-diff, own-MSL, NOT dispatch-validated): +2 addr_mode enum (0x56 direct live load-result data vs 0x54 ALU-computed data vs 0x64 mesh); +6 access_desc (0x21 device store = bit5 device | bit0 store-dir; 0x00 threadgroup); +7/+13 reserved (CONST 0 across all 614 corpus stores); +9 stdata_ext9 and +11 stdata_desc_hi LEFT RAW (store data-register/format plumbing -- needs dispatch splice)."
+    }
+  ],
+  "rawBitsBefore": 90,
+  "rawBitsAfter": 20,
+  "notes": [
+    "Round 6 field refinement. Method: differential compilation of our own MSL (compile-only shdump on the local M4; NEVER dispatched), extract _agc.main AGX bytes with agxparse, tokenize with the committed isadb, and bytediff minimal pairs to localize the raw bits. All findings are byte-diff (own-MSL) provenance, NOT HW-dispatch-validated.",
+    "device_load: refined 5 of 6 raw fields. +2 amode->addr_mode (enum): 0x44 terminal/standalone indexed load vs 0x54 non-terminal load of a base-sharing group (in a two-load `in[i]+in[i+1]` kernel the first load is 0x54 and the second 0x44; in a 16-load kernel the first 15 are 0x54 and the last 0x44). +6 inert6->access_desc (mod): bit5(0x20) set on device/global loads, clear(0x00) on threadgroup loads -- but RT-1a-FIX already found +6 splice-INERT on the loaded value, so it is a compiler hint. +7 tail7->reserved7, +13 tail13->reserved13 (const 0 across 1730+ corpus loads). +11 tail11hi->ldform_hi11 (mod): fixed load-descriptor tag 0x10.",
+    "device_store: refined 4 of 6 raw fields. +2 amode->addr_mode (enum): 0x56 when the stored value is a live memory-load result (out[i]=in[i], out[i]=in[i+512]) vs 0x54 when the value is ALU-computed (out[i]=i*3+7, out[i]=in[i]*3, out[i]=in[i]+in[i+1]) vs 0x64 mesh. +6 inert6->access_desc (mod): device store carries 0x21 = bit5(0x20 device) | bit0(0x01 store-direction); threadgroup stores carry 0x00. +7 tail7->reserved7 and +13 tail13->reserved13 (CONST 0 across all 614 corpus stores).",
+    "Address-space byte-diff summary (own-MSL): device vs constant address space produced BYTE-IDENTICAL loads (a per-thread-indexed `constant T*` compiles the same as `device const T*`); threadgroup is distinguished by +1 space bit1(0x02) and by access_desc(+6)=0x00. volatile-qualified device pointers produced byte-identical loads/stores (no distinct coherence/cache encoding surfaced at this access width).",
+    "Element-size / access-width and vector-width all move the already-typed elem_size(+12) and dst_width/data_width(+8) fields (u8/u16/u32/u64/half and .2/.3/.4 vectors); index-register vs immediate-offset and the offset value move the already-typed index_reg(+5)/idx_off; none of those toggles disturbed the newly named +2/+6/+7/+13 fields, corroborating the assignments.",
+    "SCOPE HONESTY: no isadb.py edit was committed and git was untouched; all work is under experiments/EXP-M4-13-full-corpus/work/r6_mem/ on a scratch copy of isadb.py."
+  ],
+  "validation": {
+    "tokenizationUnchanged": true,
+    "roundtripSuitePass": true,
+    "detail": "roundtrip_test.py ALL PASS on the scratch DB; tokenization (off,len,mnemonic) byte-identical to the committed DB across 1005 corpus programs; asm(disasm(b))==b for all 2346 device_load/device_store instances in the corpus; both refined descriptors cover all 112 bits with zero field overlap."
+  },
+  "unresolved": [
+    {
+      "op": "device_load",
+      "field": "dst_ext9",
+      "bits": "+9[0:7]",
+      "type": "raw",
+      "why": "Low bits of the destination/format descriptor continuing from dst_width(+8). byte-diff: bit0=1 on every load (form marker, redundant with byte0 load/store), higher bits co-vary with dst-register allocation. Cannot be cleanly separated from the idx_off field or from register plumbing without a dispatch splice. NEEDS-SPLICE."
+    },
+    {
+      "op": "device_load",
+      "field": "ldform_hi11",
+      "bits": "+11[2:8]",
+      "type": "mod",
+      "why": "Typed mod but only located: observed const 0x10 for normal loads; rare 0x20/0x30 (extended/bf16 forms) semantics NEED-SPLICE."
+    },
+    {
+      "op": "device_store",
+      "field": "stdata_ext9",
+      "bits": "+9[0:7]",
+      "type": "raw",
+      "why": "Low bits of the store data/format descriptor; 0 for common device stores, nonzero in threadgroup/mesh forms. Register-plumbing, not separable from idx_off by byte-diff. NEEDS-SPLICE."
+    },
+    {
+      "op": "device_store",
+      "field": "stdata_desc_hi",
+      "bits": "+11[2:8]",
+      "type": "raw",
+      "why": "High bits of the STORE data-source descriptor (the store's data register is NOT at +8 -- see data_width caution). byte-diff shows +11 co-varies with the stored value's register+format (0x90 for 32b-scalar/8b vs 0x10 for 16b/vector) but carries reg AND format bits that byte-diff cannot split. Data-register/format hypothesis, NEEDS-SPLICE."
+    },
+    {
+      "op": "both",
+      "field": "amode/access_desc sub-bits",
+      "bits": "+2, +6",
+      "type": "enum/mod",
+      "why": "Named at BYTE granularity with byte-diff-established discrete values, but the individual sub-bit meanings (amode bit1 data-source-class, bit4 base-chaining; access_desc device/threadgroup) are byte-diff correlations only. +6 was already found splice-INERT by RT-1a-FIX. Exact per-bit hardware semantics NEED-SPLICE."
+    }
+  ]
+}

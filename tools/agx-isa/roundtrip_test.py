@@ -349,15 +349,18 @@ SYNTH = [
     # fmin at dst r1 (byte0 0x12) -> reproduces the old fminmax bytes 12031e0501c0:
     ("iminmax", {"dst": 0x1, "dst_full": 0x03, "fmt": 0x3, "srcA": 0x05, "sel": 0x1, "selhi": 0, "srcB": 0xc0}),
     # ---- integer (EXP-0007) ----
-    # iadd a+b: dst=reg0, addsub=1 (ADD, byte0 0x9f -- RT-1a-FIX polarity), lenbit=1
-    # (10B), arith_en=1. Reproduces the compiler's iadd bytes 9f 01 56 00 02 08 00 a8 17 05.
-    ("iadd2",   {"addsub": 1, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
-                 "b2hi": 0x15, "dst": 0x00, "opmode": 0x02, "srcB_imm": 0x08,
-                 "b6": 0x00, "tail": 0x0517a8}),
-    # isub a-b (RT-1a-FIX): addsub=0 (SUBTRACT, byte0 0x1f). 1f 01 56 00 02 00 10 a8 17 05.
-    ("iadd2",   {"addsub": 0, "lenbit": 1, "b1hi": 0, "b2lo": 0, "arith_en": 1,
-                 "b2hi": 0x15, "dst": 0x00, "opmode": 0x02, "srcB_imm": 0x00,
-                 "b6": 0x10, "tail": 0x0517a8}),
+    # iadd a+b: dst=reg0, addsub=1 (ADD opcode, byte0 0x9f -- RT-1a-FIX polarity),
+    # lenbit=1 (10B), store_en=1. Reproduces the compiler's iadd bytes
+    # 9f 01 56 00 02 08 00 a8 17 05. (EXP-M4-13 R6 refined field schema.)
+    ("iadd2",   {"addsub": 0x1, "lenbit": 0x1, "srcB_reg_hi": 0x0, "b2_bit0": 0x0,
+                 "store_en": 0x1, "b2_fmt": 0x15, "dst": 0x0, "opmode": 0x2,
+                 "srcB_imm": 0x8, "srcB_imm_hi": 0x0, "srcB_ext": 0x0, "srcA": 0xa8,
+                 "opc_tail": 0x17, "opc_tail2": 0x5}),
+    # isub a-b (RT-1a-FIX): addsub=0 (SUBTRACT opcode, byte0 0x1f). 1f 01 56 00 02 00 10 a8 17 05.
+    ("iadd2",   {"addsub": 0x0, "lenbit": 0x1, "srcB_reg_hi": 0x0, "b2_bit0": 0x0,
+                 "store_en": 0x1, "b2_fmt": 0x15, "dst": 0x0, "opmode": 0x2,
+                 "srcB_imm": 0x0, "srcB_imm_hi": 0x0, "srcB_ext": 0x8, "srcA": 0xa8,
+                 "opc_tail": 0x17, "opc_tail2": 0x5}),
     # iminmax (n2_intalu unified schema): signed min (sel=0x7) at dst r0 -> 02011e0507c0.
     ("iminmax", {"dst": 0x0, "dst_full": 0x01, "fmt": 0x3, "srcA": 0x05, "sel": 0x7, "selhi": 0, "srcB": 0xc0}),
     # iminmax: unsigned max (sel=0x4) at dst r0 -> 02011e0504c0.
@@ -380,9 +383,12 @@ SYNTH = [
     # fspecial_est rsqrt seed (subop 0x0b): 29 81 25 0b 00 c2
     ("fspecial_est", {"dst": 0x2, "srcA": 0x81, "subop": 0x0b, "b4": 0x00, "b5": 0xc2}),
     # ilogic AND (op_base=1 and/or, no invert): 0b 05 1f 01 00 00 00 80 00 00
-    ("ilogic", {"b1": 0x05, "op_base": 1, "srcB": 0x01, "lut_a": 0x00, "lut_b": 0x00, "ext": 0x8000}),
+    # (EXP-M4-13 R6 refined schema: srcA=byte1, outmod=byte7 store bit.)
+    ("ilogic", {"srcA": 0x5, "op_base": 0x1, "srcB": 0x1, "lut_a": 0x0, "lut_b": 0x0,
+                "z6": 0x0, "outmod": 0x80, "z8": 0x0, "z9": 0x0}),
     # ilogic XOR (op_base=0 xor, invert bits): 0b 05 1e 01 02 08 00 80 00 00
-    ("ilogic", {"b1": 0x05, "op_base": 0, "srcB": 0x01, "lut_a": 0x02, "lut_b": 0x08, "ext": 0x8000}),
+    ("ilogic", {"srcA": 0x5, "op_base": 0x0, "srcB": 0x1, "lut_a": 0x2, "lut_b": 0x8,
+                "z6": 0x0, "outmod": 0x80, "z8": 0x0, "z9": 0x0}),
     # ---- subgroup / quad / atomics (EXP-0018) ----
     # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03, cache=1(0x56) -> bf 01 56 00 02 00 14 03
     ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "b3": 0x00,

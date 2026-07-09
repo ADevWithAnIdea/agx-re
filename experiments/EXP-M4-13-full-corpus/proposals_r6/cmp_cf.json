@@ -1,0 +1,257 @@
+{
+  "group": "Compare + control-flow: icmp_pred + jump_cond + if_push + pop_reconverge",
+  "refinedDescriptors": [
+    {
+      "mnemonic": "icmp_pred",
+      "length": 6,
+      "match": [
+        [
+          0,
+          4,
+          10
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst_pred",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "neg",
+          "start": 15,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "cmpmode",
+          "start": 16,
+          "width": 4,
+          "type": "enum",
+          "enum": {
+            "2": "relational(lt/gt)",
+            "3": "equality(eq/ne)"
+          }
+        },
+        {
+          "name": "opdesc_hi",
+          "start": 20,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "srcB",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "cond",
+          "start": 32,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "f_eq",
+            "2": "f_gt",
+            "3": "f_lt",
+            "4": "u_gt",
+            "5": "u_lt",
+            "6": "s_gt",
+            "7": "s_lt",
+            "20": "u_gt|imm",
+            "21": "u_lt|imm",
+            "22": "s_gt|imm",
+            "23": "s_lt|imm"
+          }
+        },
+        {
+          "name": "opclass",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "predicate[dst_pred] = (srcA <cond> srcB) ; integer/float compare that sets a per-lane predicate register feeding a divergent block (early return / break / continue / if). byte0 hi nibble = destination predicate register. cond (byte+4) low 3 bits encode [type: float(0x0x)/uint(0x4-5)/sint(0x6-7)][direction: gt even/lt odd] EXACTLY like the 14-byte icmpsel byte+6 map; cond bit4 (0x10) flags the compact-immediate operand form. cmpmode (byte+2 low nibble): 0x2 relational, 0x3 equality. neg (byte+1 bit7) negates the result for le/ge/ne. srcB (byte+3) is a register (opclass byte+5==0xc0) or an immediate bound (opclass==0xc2, bit1 set). NOTE: the match is family-level (byte0 low nibble == 0xa, length 6) and also catches sibling 6-byte low-nibble-a ops that reuse the byte+2/byte+4 slots as opcode/operand bytes (corpus byte+4 values outside the cond map, e.g. 0x22/0x26); the cond/cmpmode semantics above hold for the integer/float compare-predicate subset (cond in 0x00-0x07 and the 0x14-0x17 immediate forms), which is the dominant use.",
+      "provenance": "byte-diff EXP-M4-13 R6 (OWN-MSL): compiled the full comparator cross-product {lt,gt,le,ge,eq,ne} x {int,uint,float} feeding a data-dependent loop (defeats predication) -> cond (byte+4) low3 = {f_gt02,f_lt03,u_gt04,u_lt05,s_gt06,s_lt07}, matching the HW-VALIDATED icmpsel byte+6 map (EXP-0013); neg=byte+1 bit7 (le/ge/ne clear it); cmpmode=byte+2 lo nibble (2 rel / 3 eq); srcB-immediate flags byte+5 bit1 + cond bit4 localized by an immediate-constant sweep. dst_pred hi nibble HW-VALIDATED EXP-M4-01. srcA/opdesc_hi/opclass located, sub-field semantics INFERRED (not GPU-dispatch validated). Prior EXP-0010 byte+3 immediate-bound is the opclass==0xc2 case."
+    },
+    {
+      "mnemonic": "jump_cond",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "cf_scope",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "84": "scope54(guard/exit)",
+            "100": "scope64(else-skip)"
+          }
+        },
+        {
+          "name": "offset",
+          "start": 24,
+          "width": 48,
+          "type": "imm"
+        },
+        {
+          "name": "reserved",
+          "start": 72,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "CONDITIONAL PC-relative jump (masked branch). offset = signed 48-bit little-endian byte displacement; target = jump_addr + 4 + offset (same convention as the 0f 00 unconditional jump). Taken while the divergent execution mask still has active lanes; used for if/else forward skips and while/for loop-exit guards. cf_scope (byte+2) selects the reconvergence mask bank (0x54 / 0x56) the branch condition is drawn from.",
+      "provenance": "byte-diff EXP-M4-13 R6 (OWN-MSL): compiled if-bodies of increasing size -> the offset field grows monotonically (0x6e/0x80/0xba) confirming it is the forward target displacement; backward loop back-edges carry a negative 48-bit offset. cf_scope byte+2==0x54 across all own CF kernels (0x56 in the nested last-use form). Conditional->unconditional (byte+1 0x01->0x00) HW-VALIDATED earlier (RT-ISA-FIX): all lanes skip the loop body. offset base convention HW-VALIDATED EXP-0010 E6. cf_scope/reserved semantics INFERRED (not GPU-dispatch validated in R6)."
+    },
+    {
+      "mnemonic": "if_push",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          5
+        ]
+      ],
+      "fields": [
+        {
+          "name": "scope",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "84": "mask_bankA(outer/even)",
+            "86": "mask_bankB(nested/odd)"
+          }
+        },
+        {
+          "name": "scope_kind",
+          "start": 24,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "1": "cond_skip(if/loop-guard)",
+            "26": "loop_iter",
+            "5": "cond_skip+b2",
+            "33": "cond_skip+b5",
+            "37": "cond_skip+b2+b5"
+          }
+        }
+      ],
+      "semantics": "execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the active-lane mask. scope (byte+2) selects the reconvergence mask bank -- it ping-pongs 0x54/0x56 with nesting parity (outer even = 0x54, nested odd = 0x56); the low 0x04 form is the inner mask-op variant. scope_kind (byte+3) names the KIND of region: 0x01 for a conditional-skip scope (a plain if / loop-entry guard) and 0x1a for a loop-iteration scope. Paired with a later 0f 06 pop_reconverge. Shares the 0f 05 leader with the direct CALL (14 bytes, 0x8f link at byte+4; disambiguated by length). The predicate-register PUSH variant sets a non-zero byte+1 high nibble (see if_push_pred).",
+      "provenance": "byte-diff EXP-M4-13 R6 (OWN-MSL): compiled a loop-nesting ladder L1/L2/L3 -> the loop-body pushes carry scope alternating 0x54 (outer), 0x56 (next), 0x54 (inner) by nesting parity, all with scope_kind 0x1a; the pre-loop / plain-if guard push is scope 0x54, scope_kind 0x01. 4-byte length HW-VALIDATED (RT-ISA-FIX): the push is required for clean tokenization of our for/while/nested kernels (cf_for/cf_nested match the CPU reference). scope/scope_kind exact bit semantics INFERRED (byte-diff located, not GPU-dispatch validated)."
+    },
+    {
+      "mnemonic": "pop_reconverge",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "scope",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "4": "mask_bankA",
+            "36": "mask_bankB"
+          }
+        },
+        {
+          "name": "scope_kind",
+          "start": 24,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "1": "guard/outermost",
+            "2": "loop_body"
+          }
+        },
+        {
+          "name": "reserved",
+          "start": 32,
+          "width": 16,
+          "type": "mod"
+        }
+      ],
+      "semantics": "execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or loop scope, restoring the active mask at a block/loop end. scope_kind (byte+3) names the reconvergence scope popped -- 0x02 for a loop-body scope, 0x01 for the outermost / loop-entry guard scope. Every loop back-edge is immediately followed by a scope_kind 0x02 pop; the final reconverge is 0x01. scope (byte+2) is the mask-bank selector (low 0x04 form).",
+      "provenance": "byte-diff EXP-M4-13 R6 (OWN-MSL): loop-nesting ladder L1/L2/L3 -> each loop back-edge is followed by pop scope_kind 0x02 and the region terminates with scope_kind 0x01, regardless of absolute nesting depth (so scope_kind is a per-scope KIND, not an absolute-depth counter). 6-byte length + load-bearing role HW-VALIDATED (RT-ISA-FIX): corrupting byte+1 0x06->0x00 -> contained CMDBUF_ERROR. scope/scope_kind exact bit semantics INFERRED (byte-diff located, not GPU-dispatch validated)."
+    }
+  ],
+  "rawBitsBefore": 100,
+  "rawBitsAfter": 0,
+  "notes": "R6 field refinement (byte-diff, OWN-MSL, LOCAL M4, compile-only -- NOT GPU-dispatch validated). icmp_pred: named the CONDITION-CODE field cond (byte+4) whose low 3 bits reproduce the HW-VALIDATED icmpsel byte+6 map {f_gt02,f_lt03,u_gt04,u_lt05,s_gt06,s_lt07,f_eq00} EXACTLY, established by compiling the full {lt,gt,le,ge,eq,ne}x{int,uint,float} comparator cross-product feeding a data-dependent loop; cmpmode (byte+2 lo nibble: 2 relational / 3 equality), neg (byte+1 bit7: clear=le/ge/ne), srcB operand (byte+3, register or immediate) and the srcB-immediate flag (byte+5 bit1 / cond bit4) all byte-diff-localized. dst_pred (byte0 hi nibble) is the destination predicate register (HW-VALIDATED EXP-M4-01 splice). The (0,4,0x0a) match is family-level and also catches sibling 6-byte low-nibble-a ops (byte+4 outside the cond map); the compare semantics hold for cond in 0x00-0x07 + the 0x14-0x17 immediate forms (the dominant subset). jump_cond: confirmed offset (byte+3..+8, signed 48-bit LE) is the branch TARGET displacement by compiling if-bodies of growing size (offset grows 0x6e/0x80/0xba monotonically); named cf_scope (byte+2 condition/mask-bank selector, corpus 0x54/0x64) and reserved (byte+9 = 0x00). if_push: named scope (byte+2 mask-bank selector, ping-pongs 0x54/0x56 by nesting parity) and scope_kind (byte+3: 0x01 conditional-skip/if/loop-guard, 0x1a loop-iteration; corpus also 0x05/0x21/0x25) from a loop-nesting ladder L1/L2/L3. pop_reconverge: named scope (byte+2 0x04/0x24 mask bank) and scope_kind (byte+3: 0x02 loop-body pop after every back-edge, 0x01 guard/outermost); reserved (byte+4..+5 = 0x0000). Predicate/mask REGISTER: for icmp_pred it is the dst_pred hi nibble; the plain push/branch/pop consume the IMPLICIT hardware execution-mask stack (no explicit reg operand) -- the explicit-predicate-register push is the separate if_push_pred descriptor (byte+1 hi nibble). Stack/reconverge DEPTH: not an absolute counter -- each scope carries a per-scope KIND (push scope_kind <-> pop scope_kind), located but semantics inferred (need a HW splice to confirm the mask-stack encoding).",
+  "validation": {
+    "tokenizationUnchanged": true,
+    "roundtripSuitePass": true,
+    "corpusInstancesRoundtrip": "523/523 (216 icmp_pred + 130 if_push + 61 jump_cond + 116 pop_reconverge) asm(disasm(b))==b",
+    "method": "byte-diff own-MSL, compile-only local M4, NOT HW-dispatch-validated"
+  },
+  "unresolved": [
+    {
+      "op": "icmp_pred",
+      "field": "srcA (byte+1[0:7])",
+      "why": "located; register/size sub-encoding not independently varied (the compared value stays in r0 across own compiles) -- typed reg, semantics inferred"
+    },
+    {
+      "op": "icmp_pred",
+      "field": "opdesc_hi (byte+2 hi nibble)",
+      "why": "located; operand-width descriptor (tracks int32 0x3 vs float 0x2) -- typed mod, semantics inferred"
+    },
+    {
+      "op": "icmp_pred",
+      "field": "opclass (byte+5)",
+      "why": "located; operand-class/cache tail (0xc0 reg-reg, 0xc2 imm, 0x00/0xc8 other consumers) -- typed mod, only the imm flag (bit1) confirmed"
+    },
+    {
+      "op": "if_push",
+      "field": "scope / scope_kind",
+      "why": "located to byte+2/byte+3; mask-bank + scope-kind bitfield values enumerated from corpus, but exact mask-stack semantics need a HW splice (compile-only host)"
+    },
+    {
+      "op": "pop_reconverge",
+      "field": "scope / scope_kind",
+      "why": "located to byte+2/byte+3; pairs with the matching push, but bit-level semantics inferred (needs HW splice)"
+    },
+    {
+      "op": "jump_cond",
+      "field": "cf_scope (byte+2)",
+      "why": "located; condition/mask-bank selector (0x54/0x64) -- typed enum, semantics inferred (needs HW splice)"
+    }
+  ]
+}

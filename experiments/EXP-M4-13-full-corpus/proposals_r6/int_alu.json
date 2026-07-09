@@ -1,0 +1,369 @@
+{
+ "group": "Integer ALU: iadd2 + imad + ibfe (EXP-M4-13 R6 encoding field refinement)",
+ "refinedDescriptors": [
+  {
+   "mnemonic": "iadd2",
+   "length": 10,
+   "match": [
+    [
+     0,
+     7,
+     31
+    ]
+   ],
+   "fields": [
+    {
+     "name": "addsub",
+     "start": 7,
+     "width": 1,
+     "type": "opcode",
+     "enum": {
+      "1": "iadd",
+      "0": "isub"
+     }
+    },
+    {
+     "name": "lenbit",
+     "start": 8,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_reg_hi",
+     "start": 9,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "b2_bit0",
+     "start": 16,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "store_en",
+     "start": 17,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "b2_fmt",
+     "start": 18,
+     "width": 6,
+     "type": "mod"
+    },
+    {
+     "name": "dst",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opmode",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcB_imm",
+     "start": 40,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "srcB_imm_hi",
+     "start": 48,
+     "width": 1,
+     "type": "imm"
+    },
+    {
+     "name": "srcB_ext",
+     "start": 49,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "srcA",
+     "start": 56,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opc_tail",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "opc_tail2",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020. EXP-M4-13 R6 (own-MSL byte-diff): signed and unsigned add/sub are BYTE-IDENTICAL (the 10-byte 2-src add is sign-agnostic; there is no separate sign field). The srcB immediate is a 9-bit field (srcB_imm b5[0:8] + srcB_imm_hi b6bit0) stored (K<<1): addi{1,5,7,255}->b5=0x02/0x0a/0x0e/0xfe, b6bit0=1 at 255. srcB REGISTER NUMBER is scattered (srcB_reg_hi b1[1:8] + srcB_imm/b5 + srcB_ext b6[1:8]); the srcB-is-register-vs-immediate TYPE flips opc_tail/opc_tail2 (b8 bit1, b9 bit0) and srcA b7 bit5 -- reg-srcB tail = a8 17 05, imm-srcB tail = 88 15 04.",
+   "provenance": "HW-VALIDATED (EXP-0007 + RT-1a-FIX): dst field (dstc b3 sweep relocates result), ADD/SUB polarity (RT-1a-FIX: iaddbank p.x+p.y is byte0 0x9f=30; splice 0x9f->0x1f -> 10-20=-10=4294967286; raw/iadd_polarity.log), length bit b1 (splice faults), b2 store enable (256-sweep), integer immediate (K<<1) for K in 0..255. EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): signed==unsigned add/sub proven byte-identical; srcB_imm 9-bit field proven (addi sweep); srcB register-number bits LOCATED-but-scattered across srcB_reg_hi/srcB_imm/srcB_ext (compiler reg-alloc prevents clean single-bit isolation); srcA / opcode-tail bits named from position, semantics inferred / needs splice."
+  },
+  {
+   "mnemonic": "imad",
+   "length": 12,
+   "match": [
+    [
+     0,
+     7,
+     31
+    ]
+   ],
+   "fields": [
+    {
+     "name": "b0bit7",
+     "start": 7,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "lenbit",
+     "start": 8,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "b1hi",
+     "start": 9,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "b2_bit0",
+     "start": 16,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "store_en",
+     "start": 17,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "b2_fmt",
+     "start": 18,
+     "width": 6,
+     "type": "mod"
+    },
+    {
+     "name": "dst",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "opmode",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcB",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcC_lo",
+     "start": 48,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcC_desc",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "mulsel",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b9",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b10",
+     "start": 80,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b11",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). EXP-M4-13 R6 (own-MSL byte-diff): LOW-32 mul is sign-agnostic (a*b int==uint byte-identical); mad int==uint byte-identical. ACCUMULATE (srcC) is encoded in srcC_desc (b7): 0x00 = no addend (imul), 0x40 = register addend (b9->0x2f, b10->0x2a), (K<<3) = immediate addend (K in b7[3:8]+mulsel[0:3], proven K=1/5/7/255). HI vs LO multiply selects mulsel (b8): 0xd0 = low 32 bits, 0xe0 = high 32 bits (mulhi); MULHI is sign-dependent -- signed mulhi flips b10 (0x0a->0x1e) whereas low mul does not. dst=b3 (reg<<1)|size PROVEN by an r6/r4/r2 dst sweep.",
+   "provenance": "HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); 12-byte length = b1 bit0==0 (HW). EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): dst=b3 PROVEN (3-way dst sweep 0x0c/0x08/0x04=r6/r4/r2); low-mul sign-agnostic PROVEN (mul_uu==mul_ss); accumulate srcC_desc, hi/lo mulsel, signed-mulhi (b10) LOCATED by minimal-pair diff; immediate-accumulate value (K<<3) proven by a K sweep. srcA/srcB register-number packing scattered (b1hi/srcB/srcC_lo) -- LOCATED not fully bit-decoded; semantics inferred / needs splice."
+  },
+  {
+   "mnemonic": "ibfe",
+   "length": 12,
+   "match": [
+    [
+     0,
+     8,
+     167
+    ],
+    [
+     8,
+     1,
+     0
+    ]
+   ],
+   "fields": [
+    {
+     "name": "lenhi",
+     "start": 9,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "b2_bit0",
+     "start": 16,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "store_en",
+     "start": 17,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "b2_fmt",
+     "start": 18,
+     "width": 6,
+     "type": "mod"
+    },
+    {
+     "name": "dst",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "b4",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b6_bit0",
+     "start": 48,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "sign_ext",
+     "start": 49,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "offset",
+     "start": 50,
+     "width": 6,
+     "type": "imm"
+    },
+    {
+     "name": "b7",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcA",
+     "start": 64,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcC_flags",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "width_lo",
+     "start": 80,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "width",
+     "start": 84,
+     "width": 6,
+     "type": "imm"
+    },
+    {
+     "name": "b11hi",
+     "start": 90,
+     "width": 6,
+     "type": "mod"
+    }
+   ],
+   "semantics": "bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k). EXP-M4-13 R6 (own-MSL byte-diff): the bitfield OFFSET immediate is offset = b6>>2 (start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20); the WIDTH immediate is width = (b10|b11<<8)>>4 (start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned shift-right a>>k lowers to offset=k, width=0 (width=0 => extract-to-MSB / all remaining bits). SIGNED (sign-extending) extract_bits sets sign_ext (b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN by a dst sweep (b3 0x0c/0x0a/0x06 = r6/r5/r3).",
+   "provenance": "HW-VALIDATED (EXP-0013): extract_bits(a,4,8) correct on several inputs; unsigned a>>2 uses this 12-byte form and reads back the exact logical shift. EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): OFFSET and WIDTH immediate encodings PROVEN by constant sweeps; dst=b3 PROVEN by dst sweep; SIGNED-vs-UNSIGNED extract flip LOCATED (sign_ext b6bit1 + srcC_flags b9bit0); srcA register descriptor (b8) LOCATED (0xf0 loaded / 0xd0 computed). srcA register-number packing scattered (lenhi/b4/b5/b8) -- not fully bit-decoded; semantics inferred / needs splice."
+  }
+ ],
+ "rawBitsBefore": 205,
+ "rawBitsAfter": 0,
+ "rawBitsBeforeBreakdown": {
+  "iadd2": 46,
+  "imad": 71,
+  "ibfe": 88,
+  "note": "raw-typed bits in the base DB: iadd2 b1hi(7)+b2lo(1)+b2hi(6)+b6(8)+tail(24)=46; imad b1hi(7)+b2(8)+srcB(8)+srcC_body(48)=71; ibfe body(88)=88."
+ },
+ "rawBitsAfterBreakdown": {
+  "iadd2": 0,
+  "imad": 0,
+  "ibfe": 0,
+  "note": "every former raw bit is now a typed named field (reg/imm/opcode/mod). Fields whose exact meaning needs a GPU splice are typed 'mod' with a descriptive name + 'inferred/needs splice' note, per the r6 brief -- a LOCATED field beats anonymous raw."
+ },
+ "notes": [
+  "PROVEN by own-MSL byte-diff (compile-only on local M4, NO GPU dispatch):",
+  "iadd2: signed==unsigned add/sub are BYTE-IDENTICAL (no sign field; the 10B 2-src add is sign-agnostic). srcB immediate is a 9-bit field srcB_imm(b5)+srcB_imm_hi(b6 bit0) stored (K<<1) -- addi 1/5/7/255 -> b5 0x02/0x0a/0x0e/0xfe, b6bit0=1 at 255. srcB register NUMBER is scattered across srcB_reg_hi(b1[1:8])/srcB_imm(b5)/srcB_ext(b6[1:8]); the srcB register-vs-immediate TYPE flips the opcode tail (opc_tail b8 bit1, opc_tail2 b9 bit0) and srcA b7 bit5 (reg-srcB tail a8 17 05 vs imm-srcB tail 88 15 04).",
+  "imad: LOW-32 multiply is sign-agnostic (a*b int==uint byte-identical) and so is a*b+c. ACCUMULATE source = srcC_desc(b7): 0x00 no addend (imul), 0x40 register addend (b9->0x2f,b10->0x2a), (K<<3) immediate addend (K in b7[3:8]+mulsel[0:3], proven K=1/5/7/255). HI-vs-LO multiply = mulsel(b8): 0xd0 low32 / 0xe0 high32 (mulhi). MULHI is sign-dependent: signed mulhi flips b10 0x0a->0x1e; low mul does not. dst=b3 (reg<<1)|size PROVEN (dst sweep r6/r4/r2).",
+  "ibfe: bitfield OFFSET immediate = offset = b6>>2 (field start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20). bitfield WIDTH immediate = width = (b10|b11<<8)>>4 (field start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned a>>k lowers to offset=k,width=0 (width=0 => extract-to-MSB/remaining). SIGNED (sign-extending) extract sets sign_ext(b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN (dst sweep r6/r5/r3). srcA reg descriptor located at b8 (0xf0 loaded / 0xd0 computed).",
+  "CLEAN-ROOM: all facts from OWN MSL compiled with our shdump on the local M4 and tokenized with our own isadb/agxparse; no Apple binary inspected; the G13 applegpu source-operand model (public open-source, CLAUDE.md rule 4) was used ONLY as a layout hypothesis, every named field confirmed on our own bytes. NOT HW-dispatch validated (M4 host is compile-only)."
+ ],
+ "validation": {
+  "tokenizationUnchanged": true,
+  "roundtripSuitePass": true,
+  "corpusHexFilesScanned": 1005,
+  "tokenizationDifferencesVsBaseDB": 0,
+  "myOpInstancesInCorpus": 1136,
+  "myOpRoundtripOK": 1136,
+  "myOpRoundtripFail": 0,
+  "probeEncodingsRoundtrip": "24/24 OK (add/sub/imm/chain iadd2; mul/mad/madi/mulhi_u/mulhi_s/imm255 imad; offset/width/signed/shr/multi-dst ibfe)",
+  "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py copied to work/r6_int_alu/scratch with the 2 iadd2 SYNTH entries updated to the new field names (addsub/lenbit/srcB_reg_hi/b2_bit0/store_en/b2_fmt/dst/opmode/srcB_imm/srcB_imm_hi/srcB_ext/srcA/opc_tail/opc_tail2) -> ALL PASS. imad/ibfe are only in REAL_INSTRS + whole-program sections (raw hex, no field-name refs), so their rename needs no synth edit.",
+  "hwDispatchValidated": false
+ },
+ "unresolved": [
+  "iadd2 srcB register-NUMBER bits are LOCATED-but-scattered (srcB_reg_hi b1[1:8] + srcB_imm b5 + srcB_ext b6[1:8]); compiler register-allocation kept srcA/dst pinned so a clean single-bit srcB reg sweep was not achievable on the M4 (compile-only). srcA(b7)/opc_tail(b8)/opc_tail2(b9) named by position; their internal reg/type bit split is inferred / needs splice.",
+  "iadd2 saturating add/carry-in/carry-out NOT probed here: Metal exposes no saturating int add, and multi-word carry uses the separate low-nibble-2 carry_gen op (EXP-0038), not this 10B iadd2.",
+  "imad srcA/srcB register-number packing scattered (b1hi/srcB/srcC_lo); b9/b11 tail bytes named as mod (0x26/0x2f, 0x00) but their per-bit meaning is inferred. mulsel low 3 bits overlap the immediate-accumulate high bits (b8[0:3]) -- named mulsel(8) as one byte; the lo/hi distinction (0xd0/0xe0) is in the upper bits.",
+  "ibfe srcA register-number packing scattered (lenhi b1[1:8], b4, b5, srcA b8); named as mod/reg by position. The signed-extract control is coupled across sign_ext(b6 bit1) and srcC_flags bit0 (b9) -- which is the primary vs redundant bit needs a splice to separate. width_lo/b11hi flag bits named mod.",
+  "NOT HW-dispatch validated: local M4 host is compile-only (shdump never dispatches). OFFSET/WIDTH/dst/accumulate/hi-lo/sign toggles are byte-diff PROVEN from our own shaders; scattered source-operand bit-splits are byte-diff LOCATED but their internal semantics are inferred."
+ ]
+}

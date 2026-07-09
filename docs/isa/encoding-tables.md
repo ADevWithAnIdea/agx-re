@@ -218,17 +218,20 @@
 |---|---|---|---|
 | `addsub` | [7:8] | opcode-select | `0x1`=iadd; `0x0`=isub |
 | `lenbit` | [8:9] (byte+1) | modifier |  |
-| `b1hi` | [9:16] | raw/unmapped |  |
-| `b2lo` | [16:17] (byte+2) | raw/unmapped |  |
-| `arith_en` | [17:18] | modifier |  |
-| `b2hi` | [18:24] | raw/unmapped |  |
+| `srcB_reg_hi` | [9:16] | modifier |  |
+| `b2_bit0` | [16:17] (byte+2) | modifier |  |
+| `store_en` | [17:18] | modifier |  |
+| `b2_fmt` | [18:24] | modifier |  |
 | `dst` | [24:32] (byte+3) | register |  |
 | `opmode` | [32:40] (byte+4) | modifier |  |
 | `srcB_imm` | [40:48] (byte+5) | immediate |  |
-| `b6` | [48:56] (byte+6) | raw/unmapped |  |
-| `tail` | [56:80] (byte+7) | raw/unmapped |  |
+| `srcB_imm_hi` | [48:49] (byte+6) | immediate |  |
+| `srcB_ext` | [49:56] | modifier |  |
+| `srcA` | [56:64] (byte+7) | register |  |
+| `opc_tail` | [64:72] (byte+8) | modifier |  |
+| `opc_tail2` | [72:80] (byte+9) | modifier |  |
 
-*d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.*
+*d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020. EXP-M4-13 R6 (own-MSL byte-diff): signed and unsigned add/sub are BYTE-IDENTICAL (the 10-byte 2-src add is sign-agnostic; there is no separate sign field). The srcB immediate is a 9-bit field (srcB_imm b5[0:8] + srcB_imm_hi b6bit0) stored (K<<1): addi{1,5,7,255}->b5=0x02/0x0a/0x0e/0xfe, b6bit0=1 at 255. srcB REGISTER NUMBER is scattered (srcB_reg_hi b1[1:8] + srcB_imm/b5 + srcB_ext b6[1:8]); the srcB-is-register-vs-immediate TYPE flips opc_tail/opc_tail2 (b8 bit1, b9 bit0) and srcA b7 bit5 -- reg-srcB tail = a8 17 05, imm-srcB tail = 88 15 04.*
 
 ### `imad` — integer multiply-add (imul = c=0)
 
@@ -238,14 +241,21 @@
 |---|---|---|---|
 | `b0bit7` | [7:8] | modifier |  |
 | `lenbit` | [8:9] (byte+1) | modifier |  |
-| `b1hi` | [9:16] | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
+| `b1hi` | [9:16] | modifier |  |
+| `b2_bit0` | [16:17] (byte+2) | modifier |  |
+| `store_en` | [17:18] | modifier |  |
+| `b2_fmt` | [18:24] | modifier |  |
 | `dst` | [24:32] (byte+3) | register |  |
 | `opmode` | [32:40] (byte+4) | modifier |  |
-| `srcB` | [40:48] (byte+5) | raw/unmapped |  |
-| `srcC_body` | [48:96] (byte+6) | raw/unmapped |  |
+| `srcB` | [40:48] (byte+5) | register |  |
+| `srcC_lo` | [48:56] (byte+6) | modifier |  |
+| `srcC_desc` | [56:64] (byte+7) | modifier |  |
+| `mulsel` | [64:72] (byte+8) | modifier |  |
+| `b9` | [72:80] (byte+9) | modifier |  |
+| `b10` | [80:88] (byte+10) | modifier |  |
+| `b11` | [88:96] (byte+11) | modifier |  |
 
-*d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). unsigned/signed imul byte-identical (low 32 bits are sign-agnostic).*
+*d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). EXP-M4-13 R6 (own-MSL byte-diff): LOW-32 mul is sign-agnostic (a*b int==uint byte-identical); mad int==uint byte-identical. ACCUMULATE (srcC) is encoded in srcC_desc (b7): 0x00 = no addend (imul), 0x40 = register addend (b9->0x2f, b10->0x2a), (K<<3) = immediate addend (K in b7[3:8]+mulsel[0:3], proven K=1/5/7/255). HI vs LO multiply selects mulsel (b8): 0xd0 = low 32 bits, 0xe0 = high 32 bits (mulhi); MULHI is sign-dependent -- signed mulhi flips b10 (0x0a->0x1e) whereas low mul does not. dst=b3 (reg<<1)|size PROVEN by an r6/r4/r2 dst sweep.*
 
 ### `iminmax` — integer min/max (signed/unsigned)
 
@@ -265,13 +275,15 @@
 
 ### `iunary` — integer unary (popcount / reduce)
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0x27  ·  **Provenance:** inferred
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x27  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `body` | [8:64] (byte+1) | raw/unmapped |  |
+| `b1` | [8:16] (byte+1) | modifier |  |
+| `opsel` | [16:24] (byte+2) | enum | `0x56`=int_unary/convert; `0x22`=rt/interp_datapath; `0x10`=convert; `0x26`=convert2; `0x7`=logic |
+| `operand` | [24:64] (byte+3) | raw/unmapped |  |
 
-*d = unary_int(srcA)  ; popcount observed (also clz/ctz/reduce cousins)*
+*d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.*
 
 ### `ibitcount` — bit-count / bit-scan (popcount/reverse_bits/find-MSB)
 
@@ -333,9 +345,24 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `body` | [8:96] (byte+1) | raw/unmapped |  |
+| `lenhi` | [9:16] | modifier |  |
+| `b2_bit0` | [16:17] (byte+2) | modifier |  |
+| `store_en` | [17:18] | modifier |  |
+| `b2_fmt` | [18:24] | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | modifier |  |
+| `b6_bit0` | [48:49] (byte+6) | modifier |  |
+| `sign_ext` | [49:50] | modifier |  |
+| `offset` | [50:56] | immediate |  |
+| `b7` | [56:64] (byte+7) | modifier |  |
+| `srcA` | [64:72] (byte+8) | register |  |
+| `srcC_flags` | [72:80] (byte+9) | modifier |  |
+| `width_lo` | [80:84] (byte+10) | modifier |  |
+| `width` | [84:90] | immediate |  |
+| `b11hi` | [90:96] | modifier |  |
 
-*bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k).*
+*bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k). EXP-M4-13 R6 (own-MSL byte-diff): the bitfield OFFSET immediate is offset = b6>>2 (start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20); the WIDTH immediate is width = (b10|b11<<8)>>4 (start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned shift-right a>>k lowers to offset=k, width=0 (width=0 => extract-to-MSB / all remaining bits). SIGNED (sign-extending) extract_bits sets sign_ext (b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN by a dst sweep (b3 0x0c/0x0a/0x06 = r6/r5/r3).*
 
 ### `icmpsel` — compare -> select 0/1 (full condition codes)
 
@@ -401,12 +428,13 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
+| `src_desc` | [8:16] (byte+1) | modifier |  |
+| `fmt_class` | [16:24] (byte+2) | raw/unmapped |  |
 | `src` | [24:32] (byte+3) | register |  |
-| `body` | [32:80] (byte+4) | raw/unmapped |  |
+| `mode` | [32:40] (byte+4) | modifier |  |
+| `fmt_word` | [40:80] (byte+5) | raw/unmapped |  |
 
-*packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word. byte0 0x97 (COMPUTE, gated by byte+2==0x56). Same op family as the fragment frag_color_pack (float colour -> attachment normalized format) -- 0x97 is the general float->normalized-format pack/convert, in both compute and fragment; disambiguated by byte+2 (compute pack 0x56 vs fragment 0x54).*
+*packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byte+3) = source GPR. mode (byte+4) = mode/size (0x02/0x03). fmt_word (byte+5..+9) = the format-conversion / rounding descriptor -- kept raw (n=4; not individually decoded).*
 
 ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
 
@@ -414,11 +442,13 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `body` | [24:64] (byte+3) | raw/unmapped |  |
+| `src_class` | [8:16] (byte+1) | raw/unmapped |  |
+| `cache` | [16:24] (byte+2) | modifier | `0x56`=fresh; `0x54`=cache/last-use |
+| `convert_desc` | [24:56] (byte+3) | raw/unmapped |  |
+| `size` | [56:60] (byte+7) | modifier |  |
+| `reg_sel` | [60:64] | register |  |
 
-*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes (EXP-M4-12 length CORRECTION: EXP-0033 recorded 10 by a 2-byte over-read; a fresh isolated compile of unpack_unorm2x16_to_float = `17 04 56 00 00 00 1c ca` tokenizes cleanly at 8B between device_load and device_store -- the HW readback validated the VALUE, not the length). byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also 0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since both can carry byte+2 in {0x54,0x56}.*
+*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source cache / last-use hint (0x56 fresh vs 0x54 cache/last-use, EXP-0038). convert_desc (byte+3..+6) = the format-conversion descriptor -- kept raw. byte+7: low nibble (size) = a size/const (0xa typical); high nibble (reg_sel) = a register selector, most likely the unpack RESULT destination -- it steps e/b/c/a/6/3 across successive unpacks in one kernel (role inferred, not splice-confirmed). Distinguished from simd_ballot (byte+1 low nibble != 4) by the match.*
 
 ### `half_pack` — assemble a half2's two fp16 lanes into a packed 32-bit register
 
@@ -440,14 +470,17 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `srcA` | [8:16] (byte+1) | register |  |
 | `op_base` | [16:17] (byte+2) | enum | `0x0`=xor-base; `0x1`=and/or-base |
-| `srcB` | [24:32] (byte+3) | raw/unmapped |  |
+| `srcB` | [24:32] (byte+3) | register |  |
 | `lut_a` | [32:40] (byte+4) | modifier |  |
 | `lut_b` | [40:48] (byte+5) | modifier |  |
-| `ext` | [48:80] (byte+6) | raw/unmapped |  |
+| `z6` | [48:56] (byte+6) | raw/unmapped |  |
+| `outmod` | [56:64] (byte+7) | modifier | `0x80`=output/store |
+| `z8` | [64:72] (byte+8) | raw/unmapped |  |
+| `z9` | [72:80] (byte+9) | raw/unmapped |  |
 
-*d = LUT2(a, b)  ; 2-input bitwise logic. op_base (byte+2 bit0) picks the xor vs and/or base; byte+4[0:2] and byte+5 bit3 are per-source/output inverts -> any of the 16 boolean functions (and/or/xor/nand/nor/xnor/andn/orn/...). ~a is the fmov(0x0e) op with an invert (byte+4 bit0).*
+*d = LUT2(a, b) ; 2-input bitwise logic (all 16 boolean functions). srcA (byte+1) / srcB (byte+3) = the two source register descriptors (srcA at the falu srcA position, srcB at byte+3). op_base (byte+2 bit0) picks the xor vs and/or base; lut_a (byte+4 low bits) and lut_b (byte+5 bit3) are the per-source / output inverts -> any of the 16 LUT2 functions. outmod (byte+7) bit7 = an output/store flag (set for the store-consumed forms, clear for the compare-consumed dec2 forms). z6/z8/z9 = zero tail. ~a is the fmov(0x0e) op with an invert.*
 
 ## Move / special register
 
@@ -505,18 +538,18 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `space` | [8:16] (byte+1) | modifier |  |
-| `amode` | [16:24] (byte+2) | raw/unmapped |  |
+| `addr_mode` | [16:24] (byte+2) | enum | `0x44`=indexed_load (base+index; terminal/standalone); `0x54`=base_rel_load (non-terminal of a base-sharing group / GPR index); `0x4`=rare CF form; `0x24`=rare CF form (loop_nested); `0x22`=rare RT form (rt_query_params); `0x46`=rare CF form (call_fptr) |
 | `extmode` | [24:32] (byte+3) | modifier |  |
 | `base_slot` | [32:40] (byte+4) | immediate |  |
 | `index_reg` | [40:48] (byte+5) | register |  |
-| `inert6` | [48:56] (byte+6) | raw/unmapped |  |
-| `tail7` | [56:64] (byte+7) | raw/unmapped |  |
+| `access_desc` | [48:56] (byte+6) | modifier | `0x20`=device/global buffer (bit5); `0x0`=threadgroup/other |
+| `reserved7` | [56:64] (byte+7) | modifier |  |
 | `dst_width` | [64:72] (byte+8) | register |  |
-| `tail9lo` | [72:79] (byte+9) | raw/unmapped |  |
+| `dst_ext9` | [72:79] (byte+9) | raw/unmapped |  |
 | `idx_off` | [79:90] | immediate |  |
-| `tail11hi` | [90:96] | raw/unmapped |  |
+| `ldform_hi11` | [90:96] | modifier |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
-| `tail13` | [104:112] (byte+13) | raw/unmapped |  |
+| `reserved13` | [104:112] (byte+13) | modifier |  |
 
 *load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a prior ALU op, but the HW field exists. Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load (+3).*
 
@@ -527,18 +560,18 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `space` | [8:16] (byte+1) | modifier |  |
-| `amode` | [16:24] (byte+2) | raw/unmapped |  |
+| `addr_mode` | [16:24] (byte+2) | enum | `0x54`=store (ALU-computed data / base-relative); `0x56`=store (direct live load-result data; bit1 set); `0x64`=store (mesh/extended); `0x4`=rare form; `0x24`=rare form |
 | `extmode` | [24:32] (byte+3) | modifier |  |
 | `base_slot` | [32:40] (byte+4) | immediate |  |
 | `index_reg` | [40:48] (byte+5) | register |  |
-| `inert6` | [48:56] (byte+6) | raw/unmapped |  |
-| `tail7` | [56:64] (byte+7) | raw/unmapped |  |
+| `access_desc` | [48:56] (byte+6) | modifier | `0x21`=device/global store (bit5 device | bit0 store-dir); `0x20`=device (bit5); `0x0`=threadgroup/other; `0x80`=extended |
+| `reserved7` | [56:64] (byte+7) | modifier |  |
 | `data_width` | [64:72] (byte+8) | register |  |
-| `tail9lo` | [72:79] (byte+9) | raw/unmapped |  |
+| `stdata_ext9` | [72:79] (byte+9) | raw/unmapped |  |
 | `idx_off` | [79:90] | immediate |  |
-| `tail11hi` | [90:96] | raw/unmapped |  |
+| `stdata_desc_hi` | [90:96] | raw/unmapped |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
-| `tail13` | [104:112] (byte+13) | raw/unmapped |  |
+| `reserved13` | [104:112] (byte+13) | modifier |  |
 
 *store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). Narrowing stores (char/short) set elem_size (+12).*
 
@@ -674,16 +707,20 @@
 
 ### `icmp_pred` — integer compare -> execution predicate
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xa  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xa  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `dst` | [4:8] | raw/unmapped |  |
-| `sub` | [8:24] (byte+1) | raw/unmapped |  |
-| `imm` | [24:32] (byte+3) | immediate |  |
-| `tail` | [32:48] (byte+4) | raw/unmapped |  |
+| `dst_pred` | [4:8] | register |  |
+| `srcA` | [8:15] (byte+1) | register |  |
+| `neg` | [15:16] | modifier |  |
+| `cmpmode` | [16:20] (byte+2) | enum | `0x2`=relational(lt/gt); `0x3`=equality(eq/ne) |
+| `opdesc_hi` | [20:24] | modifier |  |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `cond` | [32:40] (byte+4) | enum | `0x0`=f_eq; `0x2`=f_gt; `0x3`=f_lt; `0x4`=u_gt; `0x5`=u_lt; `0x6`=s_gt; `0x7`=s_lt; `0x14`=u_gt|imm; `0x15`=u_lt|imm; `0x16`=s_gt|imm; `0x17`=s_lt|imm |
+| `opclass` | [40:48] (byte+5) | modifier |  |
 
-*predicate = (srcA cond imm/srcB) ; integer compare that sets the per-lane execution mask for a predicated block (early return / break / continue). Compare bound at byte+3; condition sense in byte0/byte+1 (0x0a<->0x02 inverts).*
+*predicate[dst_pred] = (srcA <cond> srcB) ; integer/float compare that sets a per-lane predicate register feeding a divergent block (early return / break / continue / if). byte0 hi nibble = destination predicate register. cond (byte+4) low 3 bits encode [type: float(0x0x)/uint(0x4-5)/sint(0x6-7)][direction: gt even/lt odd] EXACTLY like the 14-byte icmpsel byte+6 map; cond bit4 (0x10) flags the compact-immediate operand form. cmpmode (byte+2 low nibble): 0x2 relational, 0x3 equality. neg (byte+1 bit7) negates the result for le/ge/ne. srcB (byte+3) is a register (opclass byte+5==0xc0) or an immediate bound (opclass==0xc2, bit1 set). NOTE: the match is family-level (byte0 low nibble == 0xa, length 6) and also catches sibling 6-byte low-nibble-a ops that reuse the byte+2/byte+4 slots as opcode/operand bytes (corpus byte+4 values outside the cond map, e.g. 0x22/0x26); the cond/cmpmode semantics above hold for the integer/float compare-predicate subset (cond in 0x00-0x07 and the 0x14-0x17 immediate forms), which is the dominant use.*
 
 ### `sel` — conditional select (data operands)
 
@@ -900,26 +937,46 @@
 
 ### `rt_as_load` — acceleration-structure / ray-data load
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0xdf  ·  **Provenance:** inferred
+- **Length:** 14 bytes  ·  **Match:** byte+0==0xdf  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `mode` | [16:24] (byte+2) | raw/unmapped |  |
-| `body` | [24:112] (byte+3) | raw/unmapped |  |
+| `sub_space` | [8:16] (byte+1) | enum | `0x2`=as_load; `0x12`=as_load_idx1; `0x22`=as_load_idx2 |
+| `mode` | [16:24] (byte+2) | enum | `0x54`=amode_54; `0x56`=amode_56; `0x4`=amode_04; `0x81`=amode_81 |
+| `dst` | [24:32] (byte+3) | register |  |
+| `addr_lo` | [32:40] (byte+4) | register |  |
+| `addr_hi` | [40:48] (byte+5) | register |  |
+| `flags` | [48:56] (byte+6) | modifier |  |
+| `inert7` | [56:64] (byte+7) | raw/unmapped |  |
+| `width` | [64:72] (byte+8) | immediate |  |
+| `off_lo` | [72:80] (byte+9) | immediate |  |
+| `field_off` | [80:88] (byte+10) | immediate |  |
+| `off_hi` | [88:96] (byte+11) | immediate |  |
+| `elem_size` | [96:104] (byte+12) | immediate |  |
+| `inert13` | [104:112] (byte+13) | raw/unmapped |  |
 
-*Dedicated acceleration-structure / ray-data load used during BVH traversal (byte0 0xdf, a memory-family sibling of the 0x67/0xe7 buffer load/store: byte+2 == 0x54 like the memory ops). Fetches BVH node / ray / traversal-stack data. 14-17 per intersector kernel, ~37 in an inline intersection_query. Field bit-packing inferred (byte-diff); not individually splice-validated.*
+*Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.*
 
 ### `rt_ray_mem` — ray-data / traversal-stack memory op (payload copy-in/out)
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x02  ·  **Provenance:** inferred
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x02  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `mode` | [16:24] (byte+2) | enum | `0x54`=mem_54; `0x56`=mem_56; `0x4`=mode_04; `0x64`=mode_64 |
-| `body` | [24:112] (byte+3) | raw/unmapped |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `addr_lo` | [32:40] (byte+4) | register |  |
+| `addr_hi` | [40:48] (byte+5) | register |  |
+| `flags` | [48:56] (byte+6) | modifier |  |
+| `inert7` | [56:64] (byte+7) | raw/unmapped |  |
+| `width` | [64:72] (byte+8) | immediate |  |
+| `off_lo` | [72:80] (byte+9) | immediate |  |
+| `field_off` | [80:88] (byte+10) | immediate |  |
+| `off_hi` | [88:96] (byte+11) | immediate |  |
+| `elem_size` | [96:104] (byte+12) | immediate |  |
+| `inert13` | [104:112] (byte+13) | raw/unmapped |  |
 
-*RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the 0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for custom intersection functions (its count scales with payload size: float2 -> 13, 8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing form (0x00/0x02/0x10/0x11; 0x10/0x11 mirror the 0x67 load space+index byte). Confirms ray_data is a distinct address space backed by RT scratch (RT kernels emit zero threadgroup ops and only one device store = the output).*
+*RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.*
 
 ### `rt_transform_test` — ray-vs-node transform / AABB box-test companion
 
@@ -1058,15 +1115,15 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
+| `src_desc` | [8:16] (byte+1) | modifier |  |
+| `fmt_class` | [16:24] (byte+2) | enum | `0x54`=tilebuffer/attachment; `0x56`=compute_pack |
 | `dst` | [24:32] (byte+3) | register |  |
-| `b4` | [32:40] (byte+4) | raw/unmapped |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `mode` | [32:40] (byte+4) | modifier |  |
+| `comp_off` | [40:48] (byte+5) | modifier |  |
 | `val` | [48:56] (byte+6) | immediate |  |
-| `tail` | [56:80] (byte+7) | raw/unmapped |  |
+| `fmt_word` | [56:80] (byte+7) | raw/unmapped |  |
 
-*pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). byte+6 carries a colour component value.*
+*pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. fmt_word (byte+7..+9) = attachment-format / rounding descriptor (0xd0 0x45 0xc2 typical) -- kept raw.*
 
 ### `frag_tile_setup` — tile / render-target access setup
 

@@ -1,0 +1,113 @@
+{
+  "group": "RT memory ops: rt_ray_mem (0x5f 02, 14B) + rt_as_load (0xdf, 14B)",
+  "experiment": "EXP-M4-13 round-6 encoding field refinement (own-MSL, clean-room, compile-only on local Apple M4)",
+  "kind": "refine",
+  "summary": "Turned the raw 88-bit `body` (and rt_as_load's raw b1/mode head) of the two RT memory ops into TYPED named fields by mapping the HW-VALIDATED device_load/device_store memory-family layout (EXP-0012 + RT-1a-FIX) onto them and CONFIRMING the key fields by own-MSL byte-diff. Both ops are 14-byte memory-family loads/stores (low-nibble 0xf, byte+2==0x54 marker) that read/write ray-struct + BVH-node + traversal-stack + query-state fields. There is NO dedicated per-field opcode: WHICH struct member is accessed is selected by the immediate element-offset (idx_off, dominant byte +10 = field_off), exactly like any struct-member load. Named: +3 dst register (CONFIRMED), +4/+5 address/pointer registers (CONFIRMED), +2 mode (addressing/cache enum), +1 sub_space (rt_as_load), +6 flags, +8 width descriptor, +9/+10/+11 idx_off (field selector), +12 elem_size, +7/+13 inert padding.",
+  "method": "Compiled own MSL ray_query/intersection_query kernels that each read exactly ONE ray/hit field (candidate/committed primitive_id, geometry_id, instance_id, user_instance_id, distance, barycentrics; world-space ray origin/direction; ray tmin/tmax; per-component). Extracted AGX via shdump+agxparse, tokenized with isadb, byte-diffed minimal pairs, and built a per-byte variability histogram over all 13335 corpus instances. Field roles established by: (a) instance_id vs user_instance_id single-instruction 0x67-sibling diff (idx_off +9bit7/+10: element 23 vs 24) HW-validated on device_load; (b) within-op consecutive-field reads incrementing +10 (02->04->06->0d) while +3 (dst) changes; (c) a register-realloc cascade (ray origin.z perturbation) in which ONLY +3 shifts (dst) or +4/+5 shift (address) while +10 field_off stays fixed.",
+  "refinedDescriptors": [
+    {
+      "mnemonic": "rt_as_load",
+      "length": 14,
+      "match": [[0, 8, 223]],
+      "fields": [
+        {"name": "sub_space", "start": 8,  "width": 8, "type": "enum",
+         "enum": {"2": "as_load", "18": "as_load_idx1", "34": "as_load_idx2"}},
+        {"name": "mode",      "start": 16, "width": 8, "type": "enum",
+         "enum": {"84": "amode_54", "86": "amode_56", "4": "amode_04", "129": "amode_81"}},
+        {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
+        {"name": "addr_lo",   "start": 32, "width": 8, "type": "reg"},
+        {"name": "addr_hi",   "start": 40, "width": 8, "type": "reg"},
+        {"name": "flags",     "start": 48, "width": 8, "type": "mod"},
+        {"name": "inert7",    "start": 56, "width": 8, "type": "raw"},
+        {"name": "width",     "start": 64, "width": 8, "type": "imm"},
+        {"name": "off_lo",    "start": 72, "width": 8, "type": "imm"},
+        {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+        {"name": "off_hi",    "start": 88, "width": 8, "type": "imm"},
+        {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+        {"name": "inert13",   "start": 104,"width": 8, "type": "raw"}
+      ],
+      "fieldNotes": {
+        "sub_space": "+1 address-space / index sub-op. 0x02 general (97%), 0x12/0x22 = index-register variants (mirror device_load +1 index-GPR high bits).",
+        "mode": "+2 addressing / cache mode. 0x54 default, 0x56 last-use/source-cache-hint, 0x04 continuation variant, 0x81 rare. Same marker slot as device_load +2 amode.",
+        "dst": "+3 DESTINATION register (load) / SOURCE register (store). CONFIRMED byte-diff: under a register-realloc cascade only +3 shifts while field_off stays fixed; across consecutive field loads +3 and field_off co-vary.",
+        "addr_lo": "+4 base / address register low: the ray/BVH-node/query-state pointer the load addresses. CONFIRMED byte-diff: shifts with the computed node/state address (ray perturbation); 0x00 in pure-immediate-offset reads.",
+        "addr_hi": "+5 address register high / index. Pairs with +4 (both shift together as a register/address pair). 0x00 in pure-immediate-offset reads.",
+        "flags": "+6 cache / coherence / addressing flags. Discrete {0x20 (76%), 0x00, 0xa0, 0x80}. Meaning inferred (coherence/scope hint) / needs-splice.",
+        "inert7": "+7 inert padding, const 0x00 across 3686/3687 instances (device_load +7 inert-analogue).",
+        "width": "+8 data width / type descriptor. Discrete {0x44,0x5c,0x64,0x84}; analogue of device_load +8 dst_width but here NOT the register (that is +3). Exact bit subfields inferred / needs-splice.",
+        "off_lo": "+9 immediate element-offset low. Part of the idx_off field (device_load +9 bit7 = +1 unit).",
+        "field_off": "+10 STRUCT-FIELD SELECTOR: byte/element offset of the accessed member within the ray/BVH-node/query record. THE 'which field' selector. CONFIRMED byte-diff: increments 0x02->0x04->0x06->0x0d across consecutive per-field loads while dst(+3) shifts; matches HW-validated device_load idx_off (+10 = +2/unit).",
+        "off_hi": "+11 immediate element-offset high / marker (0xc0/0x4c/0x40/0x00). device_load idx_off +11 low bits = +512/unit; the high bits are a raw marker.",
+        "elem_size": "+12 element size / address-scale class. Discrete {0x0c,0x0d,0x08,0x04,0x00}; analogue of HW-validated device_load +12 elem_size (bits[1:4] size-class -> 2^(k-1) bytes).",
+        "inert13": "+13 inert padding, const 0x00 across 3686/3687 instances (device_load +13 inert-analogue)."
+      },
+      "semantics": "Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.",
+      "provenance": "Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX splice-and-observe) mapped onto the byte-identical 0xdf shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) isolated by register-realloc cascade, addr_lo/addr_hi(+4/+5) by address perturbation, field_off(+10) by consecutive-field increments + the instance_id/user_instance_id 0x67-sibling minimal pair (elements 23 vs 24). NOT individually HW-splice-validated for this 0xdf opcode (M4 compile-only, no GPU dispatch). Byte-diff / own-MSL only; no Apple binary inspected."
+    },
+    {
+      "mnemonic": "rt_ray_mem",
+      "length": 14,
+      "match": [[0, 8, 95], [8, 8, 2]],
+      "fields": [
+        {"name": "mode",      "start": 16, "width": 8, "type": "enum",
+         "enum": {"84": "mem_54", "86": "mem_56", "4": "mode_04", "100": "mode_64"}},
+        {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
+        {"name": "addr_lo",   "start": 32, "width": 8, "type": "reg"},
+        {"name": "addr_hi",   "start": 40, "width": 8, "type": "reg"},
+        {"name": "flags",     "start": 48, "width": 8, "type": "mod"},
+        {"name": "inert7",    "start": 56, "width": 8, "type": "raw"},
+        {"name": "width",     "start": 64, "width": 8, "type": "imm"},
+        {"name": "off_lo",    "start": 72, "width": 8, "type": "imm"},
+        {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+        {"name": "off_hi",    "start": 88, "width": 8, "type": "imm"},
+        {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+        {"name": "inert13",   "start": 104,"width": 8, "type": "raw"}
+      ],
+      "fieldNotes": {
+        "mode": "+2 addressing / cache mode (unchanged enum). 0x54 default (88%), 0x56 last-use/cache-hint, 0x04 continuation variant, 0x64 further variant. byte+1 (0x02) is in match = the addressing sub-op (0x10 load-index and 0x11 short are SEPARATE descriptors rt_ray_mem_ldidx/rt_ray_mem_short).",
+        "dst": "+3 DESTINATION register (load side) / SOURCE register (store side). CONFIRMED byte-diff (as rt_as_load): shifts under register-realloc while field_off fixed; highest-variability byte (var91).",
+        "addr_lo": "+4 base / address register low: the ray-struct / traversal-stack-frame pointer. CONFIRMED byte-diff: shifts with computed ray/node address.",
+        "addr_hi": "+5 address register high / index. Pairs with +4.",
+        "flags": "+6 cache / coherence / addressing flags. Discrete {0x20 (56%),0x00,0xa0,0x80}. Meaning inferred / needs-splice.",
+        "inert7": "+7 inert padding, const 0x00 across ALL 9648 instances.",
+        "width": "+8 data width / type descriptor. Discrete {0x40,0x00,0x80,0x38,0x58}. Exact bit subfields inferred / needs-splice.",
+        "off_lo": "+9 immediate element-offset low (part of idx_off).",
+        "field_off": "+10 STRUCT-FIELD SELECTOR: byte/element offset of the ray-struct / traversal-stack member accessed (origin.xyz / direction.xyz / tmin / node-stack entry / payload). CONFIRMED byte-diff: increments across consecutive field accesses while dst(+3) shifts; device_load idx_off analogue.",
+        "off_hi": "+11 immediate element-offset high / marker (0x03 dominant / 0x00 / 0x11 / 0x01).",
+        "elem_size": "+12 element size / address-scale class. Discrete {0x66,0x61,0x68,0x62,0x64}; device_load +12 elem_size analogue.",
+        "inert13": "+13 inert padding, const 0x00 across ALL 9648 instances."
+      },
+      "semantics": "RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.",
+      "provenance": "Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX) mapped onto the byte-identical 0x5f shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) by register-realloc cascade, addr_lo/addr_hi(+4/+5) by ray-origin perturbation, field_off(+10) by consecutive-field increments. tmax found to be a compile-time float immediate (0x02 imm move), NOT a memory field -- negative result. NOT HW-splice-validated for this 0x5f opcode (M4 compile-only). Byte-diff / own-MSL only; no Apple binary inspected."
+    }
+  ],
+  "rawBitsBefore": 636296,
+  "rawBitsAfter": 110192,
+  "rawBitsNote": "Corpus-wide (hex/ committed corpus) raw bits over all instances: rt_as_load 1890 x 104 = 196560 (23KB) -> 1890 x 16 = 30240; rt_ray_mem 4997 x 88 = 439736 (53KB) -> 4997 x 16 = 79952. Per-descriptor-schema: rt_as_load 104->16 raw bits, rt_ray_mem 88->16 raw bits (the two inert padding bytes +7/+13 remain raw; every other byte now typed).",
+  "notes": [
+    "KEY FINDING: rt_ray_mem and rt_as_load are 14-byte MEMORY-FAMILY loads/stores (low-nibble 0xf, byte+2==0x54), structurally identical to the HW-validated device_load/device_store (0x67/0xe7). WHICH ray/hit/BVH-node/query-state field is accessed is selected by the IMMEDIATE ELEMENT-OFFSET (idx_off, dominant byte +10 = field_off) plus the address register (+4/+5) and elem_size (+12) -- there is NO dedicated per-field opcode/selector nibble. This is the 'field selector' the task asked for.",
+    "REGISTER FIELDS (byte-diff CONFIRMED): +3 = dst (load) / src (store) register; +4/+5 = the source/dest address (ray-struct / BVH-node / query-state pointer) register pair. Under a register-realloc cascade (ray origin.z perturbed) ONLY +3 shifts for a fixed-offset load, and +4/+5 shift when the addressed pointer changes, while field_off(+10) stays put -- cleanly separating register bytes from the offset selector.",
+    "ADDRESS / MODE bits: +2 mode (0x54 default / 0x56 last-use-or-cache-hint / 0x04 continuation / 0x64/0x81 variants); +1 sub_space on rt_as_load (0x02 general / 0x12 / 0x22 index-register variants); +6 flags (coherence/scope {0x20,0x00,0xa0,0x80}); +8 width descriptor; +12 elem_size (address scale). +7 and +13 are inert 0x00 padding (const across the entire corpus).",
+    "The final ray_query field GETTERS (get_candidate_/get_committed_ primitive_id/geometry_id/instance_id/user_instance_id/distance/barycentric) compile to ORDINARY 0x67 device_load ops, not 0x5f/0xdf: e.g. instance_id vs user_instance_id differ in exactly ONE 0x67 whose idx_off is element 23 vs 24 (a single-instruction minimal-pair diff). This HW-validated (device_load) result anchors the idx_off = field-offset semantics that is mapped onto 0x5f/0xdf. The 0x5f/0xdf ops are the INTERNAL traversal machinery (ray-struct spill, BVH-node fetch, traversal-stack), whose fields are only observable within-op (consecutive-offset reads), not via getter minimal-pairs.",
+    "NEGATIVE RESULTS: (a) binding the acceleration_structure to buffer(1) vs buffer(2) produced BYTE-IDENTICAL code -> the AS base is register-relative (loaded via the reset()-initialised query-state pointer), NOT a buffer base_slot in the instruction; so unlike device_load +4, rt_as_load/rt_ray_mem have no base_slot immediate. (b) ray tmax is a compile-time float immediate (a 0x02 imm move), not a memory-op field.",
+    "Length/match/boundaries UNCHANGED: only operand bytes were renamed/typed. instr_length untouched -> tokenization is byte-identical to baseline across all 1039 own-corpus + 6450 thirdparty hex files (0 mismatches). All 13335 (own) + 150 (thirdparty) corpus instances of the two ops decode and asm(disasm(b))==b (0 bad).",
+    "PROVENANCE HONESTY: field layout derives from the HW-VALIDATED device_load memory-family template (EXP-0012 + RT-1a-FIX) applied to the byte-identical 0xdf/0x5f shape, with each key field CONFIRMED by own-MSL byte-diff (not HW-dispatch-validated for these two RT opcodes specifically -- M4 compile-only, no GPU dispatch). +6 flags, +8 width bit-subfields, and the exact idx_off bit-packing (+9/+11 aux bits) are LOCATED but their precise bit meaning is inferred / needs-splice."
+  ],
+  "validation": {
+    "tokenizationUnchanged": true,
+    "tokenizationDetail": "instr_length and match bits untouched; 0 tokenization mismatch across 1039 own-corpus hex + 6450 thirdparty hex vs baseline isadb.",
+    "roundtripSuitePass": true,
+    "roundtripSuiteDetail": "roundtrip_test.py on the scratch DB (work/r6_rt_mem/isadb.py) = ALL PASS (A real-program asm(disasm)==b incl. rt_as_load/rt_ray_mem/rt_ops; B synth; C 0-leftover tokenization; D imm codec).",
+    "opsReassembled": {"decoded": 13485, "asm_disasm_OK": 13485, "asm_disasm_BAD": 0,
+      "detail": "13335 own-corpus + 150 thirdparty instances of rt_as_load(0xdf,14) + rt_ray_mem(0x5f02,14); every one decodes and re-encodes byte-identically (fields tile all 112 bits)."},
+    "fullCoverage": "rt_as_load: match 8b + 13x8b fields = 112b. rt_ray_mem: match 16b + 12x8b fields = 112b. No gaps/overlaps."
+  },
+  "unresolved": [
+    "flags (+6, both ops): located (discrete {0x20,0x00,0xa0,0x80}) but exact coherence/scope/addressing-mode meaning inferred -- needs-splice (GPU dispatch to observe effect).",
+    "width (+8, both ops): data width/type descriptor located (discrete class values) but exact bit subfields (which bits = element width vs type) inferred from device_load analogue -- needs-splice.",
+    "idx_off aux bits (+9 off_lo, +11 off_hi): the dominant field-select byte is +10 (field_off, CONFIRMED); the +9/+11 low bits also carry element-offset weight (device_load +9 bit7 = +1, +11 low = +512/unit) but for these RT ops carry mixed addressing/marker bits that are located-but-not-fully-decomposed -- needs-splice.",
+    "sub_space (+1 rt_as_load): 0x12/0x22 variants located as index-register sub-ops (mirror device_load +1 index-GPR high bits) but not splice-confirmed for 0xdf.",
+    "The exact ray/query-record STRUCT LAYOUT (which field_off value = origin.x vs tmin vs node.child vs payload) is NOT enumerated here on purpose: that would transcribe the traversal record layout as a recipe. The ENCODING (field_off selects the member; +3 dst; +4/+5 address; +2/+6/+8/+12 mode/width/scale) is decoded; the per-member offset table is left to the AS-descriptor spec."
+  ],
+  "provenance": "byte-diff on OWN-MSL (clean-room) + HW-validated device_load memory-family template. EXP-M4-13 R6. shdump compile-only on local Apple M4, extracted via agxparse.py; tokenized/roundtripped with a scratch copy of isadb.py under work/r6_rt_mem/. No Apple binary inspected. No GPU dispatch. Real isadb.py and git untouched."
+}

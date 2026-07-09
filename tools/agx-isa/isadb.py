@@ -1423,38 +1423,25 @@ DB = [
     {
         "mnemonic": "iadd2",
         "length": 10,
-        "match": [(0, 7, 0x1f)],       # bits[0:7]=0x1f => integer add/sub group (0x9f/0x1f)
+        "match": [(0, 7, 0x1f)],
         "fields": [
-            {"name": "addsub",    "start": 7,  "width": 1, "type": "opcode",
-             "enum": {1: "iadd", 0: "isub"}},                                # HW (RT-1a-FIX): b0 bit7 1=add(0x9f) 0=sub(0x1f)
-            {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # HW: 1=10B 2-src
-            {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
-            {"name": "b2lo",      "start": 16, "width": 1, "type": "raw"},
-            {"name": "arith_en",  "start": 17, "width": 1, "type": "mod"},   # HW: store enable
-            {"name": "b2hi",      "start": 18, "width": 6, "type": "raw"},
-            {"name": "dst",       "start": 24, "width": 8, "type": "reg"},   # HW: (reg<<1)|size
-            {"name": "opmode",    "start": 32, "width": 8, "type": "mod"},   # 0x02 observed
-            {"name": "srcB_imm",  "start": 40, "width": 8, "type": "imm"},   # HW: (imm<<1) in imm mode
-            {"name": "b6",        "start": 48, "width": 8, "type": "raw"},   # imm bit8 in bit0
-            {"name": "tail",      "start": 56, "width": 24, "type": "raw"},  # srcA/srcB descriptors
+            {"name": "addsub", "start": 7, "width": 1, "type": "opcode", "enum": {1: 'iadd', 0: 'isub'}},
+            {"name": "lenbit", "start": 8, "width": 1, "type": "mod"},
+            {"name": "srcB_reg_hi", "start": 9, "width": 7, "type": "mod"},
+            {"name": "b2_bit0", "start": 16, "width": 1, "type": "mod"},
+            {"name": "store_en", "start": 17, "width": 1, "type": "mod"},
+            {"name": "b2_fmt", "start": 18, "width": 6, "type": "mod"},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "opmode", "start": 32, "width": 8, "type": "mod"},
+            {"name": "srcB_imm", "start": 40, "width": 8, "type": "imm"},
+            {"name": "srcB_imm_hi", "start": 48, "width": 1, "type": "imm"},
+            {"name": "srcB_ext", "start": 49, "width": 7, "type": "mod"},
+            {"name": "srcA", "start": 56, "width": 8, "type": "reg"},
+            {"name": "opc_tail", "start": 64, "width": 8, "type": "mod"},
+            {"name": "opc_tail2", "start": 72, "width": 8, "type": "mod"},
         ],
-        "semantics": "d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, "
-                     "byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the "
-                     "ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and "
-                     "splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on "
-                     "hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). "
-                     "dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike "
-                     "the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR "
-                     "file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in "
-                     "[0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A "
-                     "source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), "
-                     "uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020.",
-        "provenance": "HW-VALIDATED (EXP-0007 + RT-1a-FIX): dst field (dstc b3 sweep relocates "
-                      "result), ADD/SUB polarity (RT-1a-FIX: iaddbank p.x+p.y is byte0 0x9f=30; "
-                      "splice 0x9f->0x1f -> 10-20=-10=4294967286; raw/iadd_polarity.log), length "
-                      "bit b1 (splice faults), b2 arith enable (256-sweep), integer immediate "
-                      "(K<<1) for K in 0..255. srcA/srcB reg bit-packing in the tail located but "
-                      "not fully bit-decoded (follow-up).",
+        "semantics": "d = srcA + srcB (addsub=1, byte0 0x9f) | d = srcA - srcB (addsub=0, byte0 0x1f)  ; integer 2-source add/sub. byte0 bit7 (addsub) is the ADD/SUBTRACT selector: the compiler emits 0x9f for + and 0x1f for -, and splicing a real add's byte0 0x9f->0x1f turns 10+20 into 10-20=-10 on hardware (RT-1a-FIX -- corrects the earlier INVERTED `srcA_neg`/semantics). dst=b3 (reg<<1)|size, a full 8-bit byte -> 7-bit reg (r0..r127), so unlike the 6-byte falu2's 4-bit dst nibble the integer dst reaches the whole GPR file (up to 96 regs, EXP-0020). srcB may be an 8-bit inline immediate K in [0,255] encoded as (K<<1) at b5:b6bit0 (NOT a minifloat -- EXP-0007). A source may name a UNIFORM register: uniform srcB sets byte+5 bit4 (0x10), uniform srcA sets byte+6 (0x30) -- HW byte-diff EXP-0020. EXP-M4-13 R6 (own-MSL byte-diff): signed and unsigned add/sub are BYTE-IDENTICAL (the 10-byte 2-src add is sign-agnostic; there is no separate sign field). The srcB immediate is a 9-bit field (srcB_imm b5[0:8] + srcB_imm_hi b6bit0) stored (K<<1): addi{1,5,7,255}->b5=0x02/0x0a/0x0e/0xfe, b6bit0=1 at 255. srcB REGISTER NUMBER is scattered (srcB_reg_hi b1[1:8] + srcB_imm/b5 + srcB_ext b6[1:8]); the srcB-is-register-vs-immediate TYPE flips opc_tail/opc_tail2 (b8 bit1, b9 bit0) and srcA b7 bit5 -- reg-srcB tail = a8 17 05, imm-srcB tail = 88 15 04.",
+        "provenance": 'HW-VALIDATED (EXP-0007 + RT-1a-FIX): dst field (dstc b3 sweep relocates result), ADD/SUB polarity (RT-1a-FIX: iaddbank p.x+p.y is byte0 0x9f=30; splice 0x9f->0x1f -> 10-20=-10=4294967286; raw/iadd_polarity.log), length bit b1 (splice faults), b2 store enable (256-sweep), integer immediate (K<<1) for K in 0..255. EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): signed==unsigned add/sub proven byte-identical; srcB_imm 9-bit field proven (addi sweep); srcB register-number bits LOCATED-but-scattered across srcB_reg_hi/srcB_imm/srcB_ext (compiler reg-alloc prevents clean single-bit isolation); srcA / opcode-tail bits named from position, semantics inferred / needs splice.',
     },
     # ---- integer 3-source multiply-add (a*b[+c]), 12-byte form --------------
     # imul compiles to this mul-add form with addend 0 (imul==umul byte-identical);
@@ -1462,21 +1449,26 @@ DB = [
     {
         "mnemonic": "imad",
         "length": 12,
-        "match": [(0, 7, 0x1f)],       # same group id as iadd2; length (b1 bit0==0) selects
+        "match": [(0, 7, 0x1f)],
         "fields": [
-            {"name": "b0bit7",    "start": 7,  "width": 1, "type": "mod"},   # byte0 bit7 (the iadd2 add/sub bit; polarity for multiply not separately characterized)
-            {"name": "lenbit",    "start": 8,  "width": 1, "type": "mod"},   # =0 => 12B 3-src
-            {"name": "b1hi",      "start": 9,  "width": 7, "type": "raw"},
-            {"name": "b2",        "start": 16, "width": 8, "type": "raw"},
-            {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
-            {"name": "opmode",    "start": 32, "width": 8, "type": "mod"},
-            {"name": "srcB",      "start": 40, "width": 8, "type": "raw"},
-            {"name": "srcC_body", "start": 48, "width": 48, "type": "raw"},  # srcA/srcB/srcC descs
+            {"name": "b0bit7", "start": 7, "width": 1, "type": "mod"},
+            {"name": "lenbit", "start": 8, "width": 1, "type": "mod"},
+            {"name": "b1hi", "start": 9, "width": 7, "type": "mod"},
+            {"name": "b2_bit0", "start": 16, "width": 1, "type": "mod"},
+            {"name": "store_en", "start": 17, "width": 1, "type": "mod"},
+            {"name": "b2_fmt", "start": 18, "width": 6, "type": "mod"},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "opmode", "start": 32, "width": 8, "type": "mod"},
+            {"name": "srcB", "start": 40, "width": 8, "type": "reg"},
+            {"name": "srcC_lo", "start": 48, "width": 8, "type": "mod"},
+            {"name": "srcC_desc", "start": 56, "width": 8, "type": "mod"},
+            {"name": "mulsel", "start": 64, "width": 8, "type": "mod"},
+            {"name": "b9", "start": 72, "width": 8, "type": "mod"},
+            {"name": "b10", "start": 80, "width": 8, "type": "mod"},
+            {"name": "b11", "start": 88, "width": 8, "type": "mod"},
         ],
-        "semantics": "d = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). "
-                     "unsigned/signed imul byte-identical (low 32 bits are sign-agnostic).",
-        "provenance": "HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); "
-                      "12-byte length = b1 bit0==0 (HW). field bit-packing inferred (byte-diff).",
+        "semantics": 'd = srcA*srcB (+ srcC)  ; integer multiply-add (imul is this with c=0). EXP-M4-13 R6 (own-MSL byte-diff): LOW-32 mul is sign-agnostic (a*b int==uint byte-identical); mad int==uint byte-identical. ACCUMULATE (srcC) is encoded in srcC_desc (b7): 0x00 = no addend (imul), 0x40 = register addend (b9->0x2f, b10->0x2a), (K<<3) = immediate addend (K in b7[3:8]+mulsel[0:3], proven K=1/5/7/255). HI vs LO multiply selects mulsel (b8): 0xd0 = low 32 bits, 0xe0 = high 32 bits (mulhi); MULHI is sign-dependent -- signed mulhi flips b10 (0x0a->0x1e) whereas low mul does not. dst=b3 (reg<<1)|size PROVEN by an r6/r4/r2 dst sweep.',
+        "provenance": 'HW-VALIDATED behaviour (EXP-0007 smoke: imul/umul/imad correct); 12-byte length = b1 bit0==0 (HW). EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): dst=b3 PROVEN (3-way dst sweep 0x0c/0x08/0x04=r6/r4/r2); low-mul sign-agnostic PROVEN (mul_uu==mul_ss); accumulate srcC_desc, hi/lo mulsel, signed-mulhi (b10) LOCATED by minimal-pair diff; immediate-accumulate value (K<<3) proven by a K sweep. srcA/srcB register-number packing scattered (b1hi/srcB/srcC_lo) -- LOCATED not fully bit-decoded; semantics inferred / needs splice.',
     },
     # ---- integer min / max (signed & unsigned), 6-byte form -----------------
     # HW-VALIDATED (EXP-0007): sel = b4[0:3]: bit0 = min(1)/max(0), bit1 = signed(1)/
@@ -1570,34 +1562,30 @@ DB = [
     {
         "mnemonic": "n2_op6",
         "length": 6,
-        "match": [(0, 4, 2)],
+        "match": [(0, 4, 0x02)],
         "fields": [
-            {"name": "dst", "start": 4,  "width": 4, "type": "reg"},
-            {"name": "b1",  "start": 8,  "width": 8, "type": "raw"},
-            {"name": "op",  "start": 16, "width": 8, "type": "raw"},
-            {"name": "b3",  "start": 24, "width": 8, "type": "raw"},
-            {"name": "b4",  "start": 32, "width": 8, "type": "raw"},
-            {"name": "b5",  "start": 40, "width": 8, "type": "raw"},
+            {"name": "dst", "start": 4, "width": 4, "type": "reg"},
+            {"name": "src_desc", "start": 8, "width": 8, "type": "mod"},
+            {"name": "opsel", "start": 16, "width": 8, "type": "enum", "enum": {0: 'compact_select/move', 2: 'mode2', 8: 'mode8', 16: 'mode10', 18: 'mode12', 41: 'mode29'}},
+            {"name": "opA", "start": 24, "width": 8, "type": "raw"},
+            {"name": "opB", "start": 32, "width": 8, "type": "raw"},
+            {"name": "imm_sel", "start": 40, "width": 8, "type": "imm"},
         ],
-        "semantics": "Generic 6-byte low-nibble-2 op (dst = byte0 high nibble). Catch-all for the "
-                     "compact select/predicate helpers and the SFU polynomial / range-reduction "
-                     "SELECT steps (byte+2 op-selects 0x21/0x23/0x2b/0x03/0x3d/0x3f and compact "
-                     "0x00/0x18/0x09 forms) that are NOT the min/max, carry, or compare-select ops. "
-                     "Byte-level fields only; per-op-select semantics UNRESOLVED (and, for the "
-                     "transcendental range-reduction selects, deliberately NOT reconstructed, rule 5).",
-        "provenance": "byte-diff EXP-M4-13 R2 catch-all. dst=byte0-hi from the family sweep. "
-                      "Generalises the byte0-only iminmax/fminmax/iminmax_chain catch-all of the base "
-                      "DB to all dst regs WITHOUT asserting a min/max op-select for non-min/max forms. "
-                      "Byte fields captured for clean tokenization + round-trip; op semantics UNRESOLVED.",
+        "semantics": 'Compact 6-byte low-nibble-2 select/predicate/helper. dst = byte0 high nibble (reg-sweep PROVEN across r0..r15). src_desc (byte+1) = source/mode descriptor (bit7 = uniform/special-file flag). opsel (byte+2) = op/mode selector: 0x00 = compact select/move (dominant), others select the sub-op. imm_sel (byte+6) = trailing small index/immediate -- in the output-write-mask helper family (SPIRV-Cross masking_write_outputs kernels) it steps the mask/location index 0..0xd; in the shuffle-helper family the tail is a lane/mode word; in the transcendental family it is an SFU coefficient/select. opA/opB (byte+3/+4) = operand descriptors, MIXED (register / shuffle-desc / SFU coefficient) and deliberately kept raw. n2_op6 is a genuine catch-all bucket (write-mask helper + compact select + SFU range-reduction select); the SFU coefficient SEQUENCE is NOT reconstructed (clean-room rule 5).',
+        "provenance": 'byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=1597): dst=byte0-hi from the family reg-sweep. src_desc/opsel/imm_sel LOCATED by covariation (opsel==0x00 for compact select-moves; imm_sel steps the write-mask location index across masking_write_outputs_mask_location_0/1 kernels; bit7 of src_desc = uniform-file). opA/opB kept raw (mixed/SFU). NOT HW-dispatch validated (M4 compile-only). Semantics of the SFU/marshalling tail deliberately not reconstructed.',
     },
     # ---- integer unary: popcount / reduce (8-byte form) --------------------
     {
         "mnemonic": "iunary",
         "length": 8,
         "match": [(0, 8, 0x27)],
-        "fields": [{"name": "body", "start": 8, "width": 56, "type": "raw"}],
-        "semantics": "d = unary_int(srcA)  ; popcount observed (also clz/ctz/reduce cousins)",
-        "provenance": "inferred (byte-diff, EXP-0007 popcount); 8-byte length HW (tokenizes).",
+        "fields": [
+            {"name": "b1", "start": 8, "width": 8, "type": "mod"},
+            {"name": "opsel", "start": 16, "width": 8, "type": "enum", "enum": {86: 'int_unary/convert', 34: 'rt/interp_datapath', 16: 'convert', 38: 'convert2', 7: 'logic'}},
+            {"name": "operand", "start": 24, "width": 40, "type": "raw"},
+        ],
+        "semantics": 'd = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.',
+        "provenance": 'byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=27): opsel==0x56 carries the HW-VALIDATED popcount (`27 05 56 ..`, EXP-0007) and the vertex-fetch format unpack; opsel==0x22 (byte+1==0x81) appears only in raytracing/interp kernels. b1/opsel LOCATED; operand kept raw. NOT HW-dispatch validated.',
     },
     # ---- arithmetic shift-right, immediate (0xa7, 10-byte) ----------------
     {
@@ -1627,14 +1615,27 @@ DB = [
     {
         "mnemonic": "ibfe",
         "length": 12,
-        "match": [(0, 8, 0xa7), (8, 1, 0)],   # 0xa7 AND b1 bit0==0 (12-byte bfe / lshr form)
-        "fields": [{"name": "body", "start": 8, "width": 88, "type": "raw"}],
-        "semantics": "bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). "
-                     "Also the lowering for LOGICAL (unsigned) shift-right by an immediate: "
-                     "a>>k = extract_bits(a, k, 32-k).",
-        "provenance": "HW-VALIDATED (EXP-0013): extract_bits(a,4,8) correct on several inputs; "
-                      "unsigned a>>2 uses this 12-byte form and reads back the exact logical "
-                      "shift. (was byte-diff EXP-0007 ibfe.)",
+        "match": [(0, 8, 0xa7), (8, 1, 0x00)],
+        "fields": [
+            {"name": "lenhi", "start": 9, "width": 7, "type": "mod"},
+            {"name": "b2_bit0", "start": 16, "width": 1, "type": "mod"},
+            {"name": "store_en", "start": 17, "width": 1, "type": "mod"},
+            {"name": "b2_fmt", "start": 18, "width": 6, "type": "mod"},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "b4", "start": 32, "width": 8, "type": "mod"},
+            {"name": "b5", "start": 40, "width": 8, "type": "mod"},
+            {"name": "b6_bit0", "start": 48, "width": 1, "type": "mod"},
+            {"name": "sign_ext", "start": 49, "width": 1, "type": "mod"},
+            {"name": "offset", "start": 50, "width": 6, "type": "imm"},
+            {"name": "b7", "start": 56, "width": 8, "type": "mod"},
+            {"name": "srcA", "start": 64, "width": 8, "type": "reg"},
+            {"name": "srcC_flags", "start": 72, "width": 8, "type": "mod"},
+            {"name": "width_lo", "start": 80, "width": 4, "type": "mod"},
+            {"name": "width", "start": 84, "width": 6, "type": "imm"},
+            {"name": "b11hi", "start": 90, "width": 6, "type": "mod"},
+        ],
+        "semantics": 'bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k). EXP-M4-13 R6 (own-MSL byte-diff): the bitfield OFFSET immediate is offset = b6>>2 (start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20); the WIDTH immediate is width = (b10|b11<<8)>>4 (start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned shift-right a>>k lowers to offset=k, width=0 (width=0 => extract-to-MSB / all remaining bits). SIGNED (sign-extending) extract_bits sets sign_ext (b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN by a dst sweep (b3 0x0c/0x0a/0x06 = r6/r5/r3).',
+        "provenance": 'HW-VALIDATED (EXP-0013): extract_bits(a,4,8) correct on several inputs; unsigned a>>2 uses this 12-byte form and reads back the exact logical shift. EXP-M4-13 R6 own-MSL byte-diff (compile-only, NO GPU dispatch): OFFSET and WIDTH immediate encodings PROVEN by constant sweeps; dst=b3 PROVEN by dst sweep; SIGNED-vs-UNSIGNED extract flip LOCATED (sign_ext b6bit1 + srcC_flags b9bit0); srcA register descriptor (b8) LOCATED (0xf0 loaded / 0xd0 computed). srcA register-number packing scattered (lenhi/b4/b5/b8) -- not fully bit-decoded; semantics inferred / needs splice.',
     },
     # ---- compare -> select 0/1 (14-byte, byte0 0x12): FULL condition codes ---
     # EXP-0013 HW-validated the condition-code encoding by sweeping byte+6 on the
@@ -1809,23 +1810,20 @@ DB = [
     {
         "mnemonic": "ilogic",
         "length": 10,
-        "match": [(0, 8, 0x0b), (17, 7, 0x0f)],   # byte0 0x0b AND byte+2[1:8]==0x0f (0x1e/0x1f)
+        "match": [(0, 8, 0x0b), (17, 7, 0x0f)],
         "fields": [
-            {"name": "b1",      "start": 8,  "width": 8,  "type": "raw"},   # srcA descriptor
-            {"name": "op_base", "start": 16, "width": 1,  "type": "enum",   # byte+2 bit0
-             "enum": {0: "xor-base", 1: "and/or-base"}},
-            {"name": "srcB",    "start": 24, "width": 8,  "type": "raw"},   # byte+3
-            {"name": "lut_a",   "start": 32, "width": 8,  "type": "mod"},   # byte+4 invert low
-            {"name": "lut_b",   "start": 40, "width": 8,  "type": "mod"},   # byte+5 (bit3 invert)
-            {"name": "ext",     "start": 48, "width": 32, "type": "raw"},   # byte+6..9
+            {"name": "srcA", "start": 8, "width": 8, "type": "reg"},
+            {"name": "op_base", "start": 16, "width": 1, "type": "enum", "enum": {0: 'xor-base', 1: 'and/or-base'}},
+            {"name": "srcB", "start": 24, "width": 8, "type": "reg"},
+            {"name": "lut_a", "start": 32, "width": 8, "type": "mod"},
+            {"name": "lut_b", "start": 40, "width": 8, "type": "mod"},
+            {"name": "z6", "start": 48, "width": 8, "type": "raw"},
+            {"name": "outmod", "start": 56, "width": 8, "type": "mod", "enum": {128: 'output/store'}},
+            {"name": "z8", "start": 64, "width": 8, "type": "raw"},
+            {"name": "z9", "start": 72, "width": 8, "type": "raw"},
         ],
-        "semantics": "d = LUT2(a, b)  ; 2-input bitwise logic. op_base (byte+2 bit0) picks the "
-                     "xor vs and/or base; byte+4[0:2] and byte+5 bit3 are per-source/output "
-                     "inverts -> any of the 16 boolean functions (and/or/xor/nand/nor/xnor/"
-                     "andn/orn/...). ~a is the fmov(0x0e) op with an invert (byte+4 bit0).",
-        "provenance": "HW-VALIDATED (EXP-0013): all 8 named kernels (and/or/xor/andn/orn/xnor/"
-                      "nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC; the "
-                      "byte+2 x byte+4 x byte+5 sweep enumerates all 16 LUT2 functions.",
+        "semantics": 'd = LUT2(a, b) ; 2-input bitwise logic (all 16 boolean functions). srcA (byte+1) / srcB (byte+3) = the two source register descriptors (srcA at the falu srcA position, srcB at byte+3). op_base (byte+2 bit0) picks the xor vs and/or base; lut_a (byte+4 low bits) and lut_b (byte+5 bit3) are the per-source / output inverts -> any of the 16 LUT2 functions. outmod (byte+7) bit7 = an output/store flag (set for the store-consumed forms, clear for the compare-consumed dec2 forms). z6/z8/z9 = zero tail. ~a is the fmov(0x0e) op with an invert.',
+        "provenance": 'HW-VALIDATED (EXP-0013): all 8 named boolean kernels (and/or/xor/andn/orn/xnor/nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC. R6 (own-MSL + corpus, n=16): srcA=byte+1 / srcB=byte+3 RE-TYPED from raw to reg (the falu srcA/srcB register positions; srcA=0x05 for `a`, srcB=0x01 for `b` in a&b, XOR differs only in byte+2/+4/+5); outmod byte+7 bit7 set on store-consumed forms, clear on the dec2 predicate-consumed forms. Not the ext tail is reconstructed.',
     },
     # ---- float SPECIAL-FUNCTION UNIT (SFU): 0x2f / 0xaf, 10-byte -----------
     # A single hardware SFU op computes a family of unary functions, selected by
@@ -1934,25 +1932,19 @@ DB = [
     {
         "mnemonic": "icmp_pred",
         "length": 6,
-        # byte0 LOW nibble == 0xa identifies the op; byte0 HIGH nibble is the destination
-        # (predicate) register -- HW-VALIDATED (EXP-M4-01): in k_iso_icmp2, splicing byte0
-        # 0x2a->0x0a moved the loop-guard predicate from p2 to p0 (out 4/25/110/110 ->
-        # 133/25/133/133) and 0x2a->0x4a moved it to p4 (-> 4/389/9989), both STATUS OK --
-        # i.e. the high nibble selects which predicate register the compare writes, exactly
-        # like the low-nibble-2 icmp/select family. The old (0,8,0x0a) match named only p0.
         "match": [(0, 4, 0x0a)],
         "fields": [
-            {"name": "dst",  "start": 4,  "width": 4,  "type": "raw"},   # predicate reg (byte0 hi nibble)
-            {"name": "sub",  "start": 8,  "width": 16, "type": "raw"},   # sense/regs
-            {"name": "imm",  "start": 24, "width": 8,  "type": "imm"},   # HW: compare bound K (byte+3)
-            {"name": "tail", "start": 32, "width": 16, "type": "raw"},
+            {"name": "dst_pred", "start": 4, "width": 4, "type": "reg"},
+            {"name": "srcA", "start": 8, "width": 7, "type": "reg"},
+            {"name": "neg", "start": 15, "width": 1, "type": "mod"},
+            {"name": "cmpmode", "start": 16, "width": 4, "type": "enum", "enum": {2: 'relational(lt/gt)', 3: 'equality(eq/ne)'}},
+            {"name": "opdesc_hi", "start": 20, "width": 4, "type": "mod"},
+            {"name": "srcB", "start": 24, "width": 8, "type": "reg"},
+            {"name": "cond", "start": 32, "width": 8, "type": "enum", "enum": {0: 'f_eq', 2: 'f_gt', 3: 'f_lt', 4: 'u_gt', 5: 'u_lt', 6: 's_gt', 7: 's_lt', 20: 'u_gt|imm', 21: 'u_lt|imm', 22: 's_gt|imm', 23: 's_lt|imm'}},
+            {"name": "opclass", "start": 40, "width": 8, "type": "mod"},
         ],
-        "semantics": "predicate = (srcA cond imm/srcB) ; integer compare that sets the "
-                     "per-lane execution mask for a predicated block (early return / "
-                     "break / continue). Compare bound at byte+3; condition sense in "
-                     "byte0/byte+1 (0x0a<->0x02 inverts).",
-        "provenance": "HW-VALIDATED (EXP-0010 E2): byte+3 immediate moves the active-lane "
-                      "boundary; byte0 0x0a->0x02 inverts the condition (splice-and-observe).",
+        "semantics": 'predicate[dst_pred] = (srcA <cond> srcB) ; integer/float compare that sets a per-lane predicate register feeding a divergent block (early return / break / continue / if). byte0 hi nibble = destination predicate register. cond (byte+4) low 3 bits encode [type: float(0x0x)/uint(0x4-5)/sint(0x6-7)][direction: gt even/lt odd] EXACTLY like the 14-byte icmpsel byte+6 map; cond bit4 (0x10) flags the compact-immediate operand form. cmpmode (byte+2 low nibble): 0x2 relational, 0x3 equality. neg (byte+1 bit7) negates the result for le/ge/ne. srcB (byte+3) is a register (opclass byte+5==0xc0) or an immediate bound (opclass==0xc2, bit1 set). NOTE: the match is family-level (byte0 low nibble == 0xa, length 6) and also catches sibling 6-byte low-nibble-a ops that reuse the byte+2/byte+4 slots as opcode/operand bytes (corpus byte+4 values outside the cond map, e.g. 0x22/0x26); the cond/cmpmode semantics above hold for the integer/float compare-predicate subset (cond in 0x00-0x07 and the 0x14-0x17 immediate forms), which is the dominant use.',
+        "provenance": 'byte-diff EXP-M4-13 R6 (OWN-MSL): compiled the full comparator cross-product {lt,gt,le,ge,eq,ne} x {int,uint,float} feeding a data-dependent loop (defeats predication) -> cond (byte+4) low3 = {f_gt02,f_lt03,u_gt04,u_lt05,s_gt06,s_lt07}, matching the HW-VALIDATED icmpsel byte+6 map (EXP-0013); neg=byte+1 bit7 (le/ge/ne clear it); cmpmode=byte+2 lo nibble (2 rel / 3 eq); srcB-immediate flags byte+5 bit1 + cond bit4 localized by an immediate-constant sweep. dst_pred hi nibble HW-VALIDATED EXP-M4-01. srcA/opdesc_hi/opclass located, sub-field semantics INFERRED (not GPU-dispatch validated). Prior EXP-0010 byte+3 immediate-bound is the opclass==0xc2 case.',
     },
     # ---- conditional select (branchless if / ternary), 4-byte --------------
     # d = pred ? A : B.  gsel (grid select, byte0 0x05) and dsel (data select,
@@ -2009,18 +2001,12 @@ DB = [
         "length": 10,
         "match": [(0, 8, 0x0f), (8, 8, 0x01)],
         "fields": [
-            {"name": "mid",    "start": 16, "width": 8,  "type": "raw"},   # 0x54 observed
-            {"name": "offset", "start": 24, "width": 48, "type": "imm"},   # signed byte-relative target
-            {"name": "tail",   "start": 72, "width": 8,  "type": "raw"},
+            {"name": "cf_scope", "start": 16, "width": 8, "type": "enum", "enum": {84: 'scope54(guard/exit)', 100: 'scope64(else-skip)'}},
+            {"name": "offset", "start": 24, "width": 48, "type": "imm"},
+            {"name": "reserved", "start": 72, "width": 8, "type": "mod"},
         ],
-        "semantics": "CONDITIONAL PC-relative jump (masked branch). offset = signed 48-bit "
-                     "little-endian byte displacement; target = jump_addr + 4 + offset (same "
-                     "convention as 0f 00). Taken while the divergent execution mask still has "
-                     "active lanes; used for if/else forward skips and while/for loop-exit guards.",
-        "provenance": "HW-VALIDATED (RT-ISA-FIX): appears as the loop-entry guard in our for/while/"
-                     "nested-CF kernels; splicing byte+1 0x01->0x00 (conditional->unconditional) makes "
-                     "every lane skip the loop body -> all-zero output (cf_for [0,0,1,3,6,10,15,21] -> "
-                     "all 0). Clean tokenization of the whole kernel; offset field byte-diff-localized.",
+        "semantics": 'CONDITIONAL PC-relative jump (masked branch). offset = signed 48-bit little-endian byte displacement; target = jump_addr + 4 + offset (same convention as the 0f 00 unconditional jump). Taken while the divergent execution mask still has active lanes; used for if/else forward skips and while/for loop-exit guards. cf_scope (byte+2) selects the reconvergence mask bank (0x54 / 0x56) the branch condition is drawn from.',
+        "provenance": 'byte-diff EXP-M4-13 R6 (OWN-MSL): compiled if-bodies of increasing size -> the offset field grows monotonically (0x6e/0x80/0xba) confirming it is the forward target displacement; backward loop back-edges carry a negative 48-bit offset. cf_scope byte+2==0x54 across all own CF kernels (0x56 in the nested last-use form). Conditional->unconditional (byte+1 0x01->0x00) HW-VALIDATED earlier (RT-ISA-FIX): all lanes skip the loop body. offset base convention HW-VALIDATED EXP-0010 E6. cf_scope/reserved semantics INFERRED (not GPU-dispatch validated in R6).',
     },
     # ---- execution-mask PUSH / if-enter (0x0f sub 0x05), 4-byte -----------------
     # `0f 05 54 <lvl>` -- pushes a reconvergence entry and narrows the active mask on
@@ -2030,24 +2016,13 @@ DB = [
     {
         "mnemonic": "if_push",
         "length": 4,
-        # length 4 already isolates the push from the 14-byte direct CALL (0f 05 .. 8f);
-        # byte+2 is 0x54 (outer scope) OR 0x04 (inner nested scope, cf_big) -- captured as
-        # a field, not gated, so both decode.
         "match": [(0, 8, 0x0f), (8, 8, 0x05)],
         "fields": [
-            {"name": "scope", "start": 16, "width": 8, "type": "raw"},   # byte+2: 0x54 outer / 0x04 inner
-            {"name": "level", "start": 24, "width": 8, "type": "raw"},   # reconverge stack level / mask id
+            {"name": "scope", "start": 16, "width": 8, "type": "enum", "enum": {84: 'mask_bankA(outer/even)', 86: 'mask_bankB(nested/odd)'}},
+            {"name": "scope_kind", "start": 24, "width": 8, "type": "enum", "enum": {1: 'cond_skip(if/loop-guard)', 26: 'loop_iter', 5: 'cond_skip+b2', 33: 'cond_skip+b5', 37: 'cond_skip+b2+b5'}},
         ],
-        "semantics": "execution-mask PUSH: enters a divergent region, saving the reconvergence "
-                     "point and narrowing the active-lane mask. byte+2 = scope (0x54 outer / 0x04 inner "
-                     "nested), byte+3 = nesting level / mask id (0x01, 0x1a, 0x05, 0x25 observed at "
-                     "successive nesting depths). Paired with a later 0f 06 pop_reconverge. Reuses the "
-                     "same 0f 05 machinery as the direct CALL (which carries the 0x8f link register at "
-                     "byte+4 and is 14 bytes; disambiguated by length).",
-        "provenance": "HW-VALIDATED (RT-ISA-FIX): the 4-byte push is required for clean tokenization of "
-                     "our for/while/nested divergence kernels (they run correct on HW -- cf_for/cf_nested "
-                     "match the CPU reference). The old 8-byte length desynced the loop head. byte+3 "
-                     "level byte-diff-localized across nesting depths.",
+        "semantics": 'execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the active-lane mask. scope (byte+2) selects the reconvergence mask bank -- it ping-pongs 0x54/0x56 with nesting parity (outer even = 0x54, nested odd = 0x56); the low 0x04 form is the inner mask-op variant. scope_kind (byte+3) names the KIND of region: 0x01 for a conditional-skip scope (a plain if / loop-entry guard) and 0x1a for a loop-iteration scope. Paired with a later 0f 06 pop_reconverge. Shares the 0f 05 leader with the direct CALL (14 bytes, 0x8f link at byte+4; disambiguated by length). The predicate-register PUSH variant sets a non-zero byte+1 high nibble (see if_push_pred).',
+        "provenance": 'byte-diff EXP-M4-13 R6 (OWN-MSL): compiled a loop-nesting ladder L1/L2/L3 -> the loop-body pushes carry scope alternating 0x54 (outer), 0x56 (next), 0x54 (inner) by nesting parity, all with scope_kind 0x1a; the pre-loop / plain-if guard push is scope 0x54, scope_kind 0x01. 4-byte length HW-VALIDATED (RT-ISA-FIX): the push is required for clean tokenization of our for/while/nested kernels (cf_for/cf_nested match the CPU reference). scope/scope_kind exact bit semantics INFERRED (byte-diff located, not GPU-dispatch validated).',
     },
     # ---- execution-mask POP / reconverge (0x0f sub 0x06), 6-byte ----------------
     # `0f 06 <b2> <lvl> 00 00` -- pops a reconvergence entry, re-widening the active
@@ -2057,16 +2032,12 @@ DB = [
         "length": 6,
         "match": [(0, 8, 0x0f), (8, 8, 0x06)],
         "fields": [
-            {"name": "b2",    "start": 16, "width": 8, "type": "raw"},   # 0x04 / 0x24 observed
-            {"name": "level", "start": 24, "width": 8, "type": "raw"},   # reconverge stack level popped
-            {"name": "tail",  "start": 32, "width": 16, "type": "raw"},
+            {"name": "scope", "start": 16, "width": 8, "type": "enum", "enum": {4: 'mask_bankA', 36: 'mask_bankB'}},
+            {"name": "scope_kind", "start": 24, "width": 8, "type": "enum", "enum": {1: 'guard/outermost', 2: 'loop_body'}},
+            {"name": "reserved", "start": 32, "width": 16, "type": "mod"},
         ],
-        "semantics": "execution-mask POP / reconverge: re-enables the lanes masked off by the matching "
-                     "if_push (0f 05) or loop scope, restoring the active mask at a block/loop end. "
-                     "byte+3 = the reconvergence level popped (0x01 innermost, 0x02 next, ... nest levels).",
-        "provenance": "HW-VALIDATED (RT-ISA-FIX): terminates every divergent region in our CF kernels; "
-                     "corrupting it (byte+1 0x06->0x00) -> contained CMDBUF_ERROR (the reconvergence is "
-                     "load-bearing). Nesting level byte-diff-localized (inner pops 0x01, outer 0x02).",
+        "semantics": 'execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or loop scope, restoring the active mask at a block/loop end. scope_kind (byte+3) names the reconvergence scope popped -- 0x02 for a loop-body scope, 0x01 for the outermost / loop-entry guard scope. Every loop back-edge is immediately followed by a scope_kind 0x02 pop; the final reconverge is 0x01. scope (byte+2) is the mask-bank selector (low 0x04 form).',
+        "provenance": 'byte-diff EXP-M4-13 R6 (OWN-MSL): loop-nesting ladder L1/L2/L3 -> each loop back-edge is followed by pop scope_kind 0x02 and the region terminates with scope_kind 0x01, regardless of absolute nesting depth (so scope_kind is a per-scope KIND, not an absolute-depth counter). 6-byte length + load-bearing role HW-VALIDATED (RT-ISA-FIX): corrupting byte+1 0x06->0x00 -> contained CMDBUF_ERROR. scope/scope_kind exact bit semantics INFERRED (byte-diff located, not GPU-dispatch validated).',
     },
     # ---- inner exec-mask op (0x0f sub 0x04), 4-byte -- INFERRED ----------------
     # `0f 04 04 <lvl>` -- a 4-byte 0x0f-family mask op seen once, immediately before a
@@ -2135,36 +2106,22 @@ DB = [
         "length": 14,
         "match": [(0, 8, 0x67)],
         "fields": [
-            {"name": "space",     "start": 8,  "width": 8, "type": "mod"},    # HW: bit1(0x02)=threadgroup
-            {"name": "amode",     "start": 16, "width": 8, "type": "raw"},    # addressing mode
-            {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},    # bit1=unsigned/zero-ext
-            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
-            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (low bits=reg#, bit7=scalar flag)
-            {"name": "inert6",    "start": 48, "width": 8, "type": "raw"},    # HW(RT-1a-FIX): +6 INERT padding (sweep is a no-op)
-            {"name": "tail7",     "start": 56, "width": 8, "type": "raw"},
-            {"name": "dst_width", "start": 64, "width": 8, "type": "reg"},    # HW: dst reg + data width (+8)
-            {"name": "tail9lo",   "start": 72, "width": 7, "type": "raw"},    # +9 bits[0:7]
-            {"name": "idx_off",   "start": 79, "width": 11, "type": "imm"},   # HW(RT-1a-FIX): +9bit7/+10/+11lo additive element index-offset
-            {"name": "tail11hi",  "start": 90, "width": 6, "type": "raw"},    # +11 bits[2:8]
-            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # HW: bits[1:4]=size-class (+12)
-            {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
+            {"name": "space", "start": 8, "width": 8, "type": "mod"},
+            {"name": "addr_mode", "start": 16, "width": 8, "type": "enum", "enum": {68: 'indexed_load (base+index; terminal/standalone)', 84: 'base_rel_load (non-terminal of a base-sharing group / GPR index)', 4: 'rare CF form', 36: 'rare CF form (loop_nested)', 34: 'rare RT form (rt_query_params)', 70: 'rare CF form (call_fptr)'}},
+            {"name": "extmode", "start": 24, "width": 8, "type": "mod"},
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},
+            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},
+            {"name": "access_desc", "start": 48, "width": 8, "type": "mod", "enum": {32: 'device/global buffer (bit5)', 0: 'threadgroup/other'}},
+            {"name": "reserved7", "start": 56, "width": 8, "type": "mod"},
+            {"name": "dst_width", "start": 64, "width": 8, "type": "reg"},
+            {"name": "dst_ext9", "start": 72, "width": 7, "type": "raw"},
+            {"name": "idx_off", "start": 79, "width": 11, "type": "imm"},
+            {"name": "ldform_hi11", "start": 90, "width": 6, "type": "mod"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+            {"name": "reserved13", "start": 104, "width": 8, "type": "mod"},
         ],
-        "semantics": "load a vector (width from +8 dst_width / +12 elem_size) from the "
-                     "address space selected by `space` (+1 bit1: 0=device/constant, "
-                     "1=threadgroup) at (index_reg + idx_off) * elem_size, base = "
-                     "buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR "
-                     "holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects "
-                     "which GPR feeds the index; +6 is INERT). idx_off = the in-instruction "
-                     "additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, "
-                     "+11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a "
-                     "prior ALU op, but the HW field exists. Sub-32 signed types are sign-"
-                     "extended by a following ALU shift; unsigned use the zero-extend load (+3).",
-        "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/"
-                      "address-scale (M2 splice 46->42/44/48 changes the byte stride), data "
-                      "width (M2). RT-1a-FIX re-validated: +5 index_reg (a[i0] load, idxbuf "
-                      "{40,3,77,12}, a[j]=100j+3: +5=0x00->a[40],0x01->a[3],0x02->a[77]); +6 "
-                      "INERT (0x00..0xff no-op); +1 = address space (0x01/02/03->reads 0); "
-                      "idx_off (+9 bit7->+1, +10->+2/unit, +11->+512/unit). raw/mem_index.log.",
+        "semantics": 'load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a prior ALU op, but the HW field exists. Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load (+3).',
+        "provenance": 'HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride), data width (M2). RT-1a-FIX re-validated: +5 index_reg (a[i0] load, idxbuf {40,3,77,12}, a[j]=100j+3: +5=0x00->a[40],0x01->a[3],0x02->a[77]); +6 INERT (0x00..0xff no-op); +1 = address space (0x01/02/03->reads 0); idx_off (+9 bit7->+1, +10->+2/unit, +11->+512/unit). raw/mem_index.log. EXP-M4-13 R6 (byte-diff, own-MSL, NOT dispatch-validated): +2 addr_mode enum (0x44 terminal/standalone vs 0x54 non-terminal base-sharing load); +6 access_desc (bit5=0x20 device vs 0x00 threadgroup, but RT-1a splice-inert); +7/+13 reserved (const 0 across 1730+ corpus loads); +11 ldform_hi11 fixed tag 0x10. +9 dst_ext9 LEFT RAW (register-plumbing, needs dispatch splice to separate from idx_off).',
     },
     # ---- store: identical 14-byte layout, base_slot at +4 (HW M4/M5/E7) -----
     {
@@ -2172,29 +2129,22 @@ DB = [
         "length": 14,
         "match": [(0, 8, 0xe7)],
         "fields": [
-            {"name": "space",     "start": 8,  "width": 8, "type": "mod"},    # HW: bit1(0x02)=threadgroup
-            {"name": "amode",     "start": 16, "width": 8, "type": "raw"},
-            {"name": "extmode",   "start": 24, "width": 8, "type": "mod"},
-            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},    # HW: buffer base slot (+4)
-            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},    # HW(RT-1a-FIX): +5 = index GPR (as device_load). EXP-M4-10(ISA-1): +5=0xff(r127) -> CMDBUF_ERROR fault (high bits are real reg-select, NOT masked mod-64).
-            {"name": "inert6",    "start": 48, "width": 8, "type": "raw"},    # HW(RT-1a-FIX): +6 INERT padding
-            {"name": "tail7",     "start": 56, "width": 8, "type": "raw"},
-            {"name": "data_width","start": 64, "width": 8, "type": "reg"},    # +8. CAUTION (EXP-M4-10 ISA-1): +8 is HW-INERT under splice for STORE (unlike device_load +8 dst, which IS the reg). Two scalar stores of DISTINCT regs both had +8=0x11 while the stored VALUE tracked byte+2/+3 (amode 0x54: +3 low bits = data GPR). device_store data-reg is NOT +8 and NOT symmetric with device_load dst; exact position is amode-dependent (byte-diff, not fully pinned).
-            {"name": "tail9lo",   "start": 72, "width": 7, "type": "raw"},    # +9 bits[0:7]
-            {"name": "idx_off",   "start": 79, "width": 11, "type": "imm"},   # HW(RT-1a-FIX): +9bit7/+10/+11lo additive element index-offset
-            {"name": "tail11hi",  "start": 90, "width": 6, "type": "raw"},    # +11 bits[2:8]
-            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},    # (+12) size-class
-            {"name": "tail13",    "start": 104,"width": 8, "type": "raw"},
+            {"name": "space", "start": 8, "width": 8, "type": "mod"},
+            {"name": "addr_mode", "start": 16, "width": 8, "type": "enum", "enum": {84: 'store (ALU-computed data / base-relative)', 86: 'store (direct live load-result data; bit1 set)', 100: 'store (mesh/extended)', 4: 'rare form', 36: 'rare form'}},
+            {"name": "extmode", "start": 24, "width": 8, "type": "mod"},
+            {"name": "base_slot", "start": 32, "width": 8, "type": "imm"},
+            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},
+            {"name": "access_desc", "start": 48, "width": 8, "type": "mod", "enum": {33: 'device/global store (bit5 device | bit0 store-dir)', 32: 'device (bit5)', 0: 'threadgroup/other', 128: 'extended'}},
+            {"name": "reserved7", "start": 56, "width": 8, "type": "mod"},
+            {"name": "data_width", "start": 64, "width": 8, "type": "reg"},
+            {"name": "stdata_ext9", "start": 72, "width": 7, "type": "raw"},
+            {"name": "idx_off", "start": 79, "width": 11, "type": "imm"},
+            {"name": "stdata_desc_hi", "start": 90, "width": 6, "type": "raw"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+            {"name": "reserved13", "start": 104, "width": 8, "type": "mod"},
         ],
-        "semantics": "store a vector to the address space in `space` (+1 bit1: 1=threadgroup) "
-                     "at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). "
-                     "Same field layout & element addressing as device_load (RT-1a-FIX: +5 = "
-                     "index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate "
-                     "element offset). Narrowing stores (char/short) set elem_size (+12).",
-        "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 "
-                      "0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. "
-                      "Index/offset fields shared with device_load (RT-1a-FIX re-validated). "
-                      "register/addressing tail inferred (byte-diff).",
+        "semantics": 'store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). Narrowing stores (char/short) set elem_size (+12).',
+        "provenance": 'HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. Index/offset fields shared with device_load (RT-1a-FIX re-validated). register/addressing tail inferred (byte-diff). EXP-M4-13 R6 (byte-diff, own-MSL, NOT dispatch-validated): +2 addr_mode enum (0x56 direct live load-result data vs 0x54 ALU-computed data vs 0x64 mesh); +6 access_desc (0x21 device store = bit5 device | bit0 store-dir; 0x00 threadgroup); +7/+13 reserved (CONST 0 across all 614 corpus stores); +9 stdata_ext9 and +11 stdata_desc_hi LEFT RAW (store data-register/format plumbing -- needs dispatch splice).',
     },
     # ---- preamble / get_special_register (HW-validated role, EXP-0010) -----
     # First instruction of every non-empty _agc.main. HW-VALIDATED (EXP-0010 E1):
@@ -2760,45 +2710,44 @@ DB = [
         "length": 14,
         "match": [(0, 8, 0xdf)],
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},        # 0x02 observed
-            {"name": "mode", "start": 16, "width": 8,  "type": "raw"},        # 0x54 (memory-family mode, cf 0x67)
-            {"name": "body", "start": 24, "width": 88, "type": "raw"},        # addr / dst-reg / stride tail
+            {"name": "sub_space", "start": 8, "width": 8, "type": "enum", "enum": {2: 'as_load', 18: 'as_load_idx1', 34: 'as_load_idx2'}},
+            {"name": "mode", "start": 16, "width": 8, "type": "enum", "enum": {84: 'amode_54', 86: 'amode_56', 4: 'amode_04', 129: 'amode_81'}},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "addr_lo", "start": 32, "width": 8, "type": "reg"},
+            {"name": "addr_hi", "start": 40, "width": 8, "type": "reg"},
+            {"name": "flags", "start": 48, "width": 8, "type": "mod"},
+            {"name": "inert7", "start": 56, "width": 8, "type": "raw"},
+            {"name": "width", "start": 64, "width": 8, "type": "imm"},
+            {"name": "off_lo", "start": 72, "width": 8, "type": "imm"},
+            {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+            {"name": "off_hi", "start": 88, "width": 8, "type": "imm"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+            {"name": "inert13", "start": 104, "width": 8, "type": "raw"},
         ],
-        "semantics": "Dedicated acceleration-structure / ray-data load used during BVH traversal "
-                     "(byte0 0xdf, a memory-family sibling of the 0x67/0xe7 buffer load/store: byte+2 == "
-                     "0x54 like the memory ops). Fetches BVH node / ray / traversal-stack data. 14-17 per "
-                     "intersector kernel, ~37 in an inline intersection_query. Field bit-packing inferred "
-                     "(byte-diff); not individually splice-validated.",
-        "provenance": "inferred (byte-diff, EXP-0023): byte0 0xdf group present in every raytracing:: "
-                      "kernel and ABSENT from the hand-written software triangle loop; 14-byte length "
-                      "tokenizes the RT streams cleanly. Memory-family shape (byte+2==0x54) mirrors the "
-                      "HW-validated 0x67/0xe7 loads (EXP-0012).",
+        "semantics": 'Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.',
+        "provenance": 'Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX splice-and-observe) mapped onto the byte-identical 0xdf shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) isolated by register-realloc cascade, addr_lo/addr_hi(+4/+5) by address perturbation, field_off(+10) by consecutive-field increments + the instance_id/user_instance_id 0x67-sibling minimal pair (elements 23 vs 24). NOT individually HW-splice-validated for this 0xdf opcode (M4 compile-only, no GPU dispatch). Byte-diff / own-MSL only; no Apple binary inspected.',
     },
     # ---- ray-data / traversal-stack memory op (rt_ray_mem, 14 bytes, EXP-O2C) --------
     {
         "mnemonic": "rt_ray_mem",
         "length": 14,
-        "match": [(0, 8, 0x5f), (8, 8, 0x02)],   # EXP-M4-13 R4: re-keyed byte+2==0x54 -> byte+1==0x02
+        "match": [(0, 8, 0x5f), (8, 8, 0x02)],
         "fields": [
-            {"name": "mode", "start": 16, "width": 8, "type": "enum",
-             "enum": {0x54: "mem_54", 0x56: "mem_56", 0x04: "mode_04", 0x64: "mode_64"}},
-            {"name": "body", "start": 24, "width": 88, "type": "raw"},        # addr / dst-reg / stride tail
+            {"name": "mode", "start": 16, "width": 8, "type": "enum", "enum": {84: 'mem_54', 86: 'mem_56', 4: 'mode_04', 100: 'mode_64'}},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "addr_lo", "start": 32, "width": 8, "type": "reg"},
+            {"name": "addr_hi", "start": 40, "width": 8, "type": "reg"},
+            {"name": "flags", "start": 48, "width": 8, "type": "mod"},
+            {"name": "inert7", "start": 56, "width": 8, "type": "raw"},
+            {"name": "width", "start": 64, "width": 8, "type": "imm"},
+            {"name": "off_lo", "start": 72, "width": 8, "type": "imm"},
+            {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+            {"name": "off_hi", "start": 88, "width": 8, "type": "imm"},
+            {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+            {"name": "inert13", "start": 104, "width": 8, "type": "raw"},
         ],
-        "semantics": "RAY-TRACING ray-data / traversal-stack memory op. byte0 0x5f (low-nibble 0xf, the "
-                     "memory-family low nibble, sibling of the 0xdf AS-load and the 0x67/0xe7 buffer "
-                     "load/store), byte+2 == 0x54 (memory-op marker). The store/spill-side companion of the "
-                     "0xdf AS-data load: fetches/spills the ray struct + per-node BVH traversal-stack state "
-                     "during the (software) traversal loop, and carries the ray_data PAYLOAD copy-in/out for "
-                     "custom intersection functions (its count scales with payload size: float2 -> 13, "
-                     "8-float -> 15, no payload -> 12; instance-motion -> 28). byte+1 = sub-op / addressing "
-                     "form (0x00/0x02/0x10/0x11; 0x10/0x11 mirror the 0x67 load space+index byte). Confirms "
-                     "ray_data is a distinct address space backed by RT scratch (RT kernels emit zero "
-                     "threadgroup ops and only one device store = the output).",
-        "provenance": "inferred (byte-diff, EXP-O2C): byte0 0x5f present in every raytracing:: kernel "
-                      "(12-28 per kernel) and ABSENT from a hand-written software triangle loop (EXP-0023 "
-                      "control). 14-byte length + byte+2==0x54 tokenizes the RT streams (memory-family shape "
-                      "mirrors the HW-validated 0x67/0xe7/0xdf). Payload-size correlation from "
-                      "call_p2/call_pbig/call_pnone diff. Field bit-packing not splice-validated.",
+        "semantics": 'RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.',
+        "provenance": 'Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX) mapped onto the byte-identical 0x5f shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) by register-realloc cascade, addr_lo/addr_hi(+4/+5) by ray-origin perturbation, field_off(+10) by consecutive-field increments. tmax found to be a compile-time float immediate (0x02 imm move), NOT a memory field -- negative result. NOT HW-splice-validated for this 0x5f opcode (M4 compile-only). Byte-diff / own-MSL only; no Apple binary inspected.',
     },
     # ---- rt_ray_mem load-INDEX variant (12B) and SHORT form (6B), EXP-M4-13 R4 ----
     {
@@ -3247,21 +3196,16 @@ DB = [
         "length": 10,
         "match": [(0, 8, 0x97)],
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
-            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},   # 0x54 / 0x56
-            {"name": "dst",  "start": 24, "width": 8, "type": "reg"},
-            {"name": "b4",   "start": 32, "width": 8, "type": "raw"},
-            {"name": "b5",   "start": 40, "width": 8, "type": "raw"},
-            {"name": "val",  "start": 48, "width": 8, "type": "imm"},   # byte+6 carries a packed colour component
-            {"name": "tail", "start": 56, "width": 24, "type": "raw"},
+            {"name": "src_desc", "start": 8, "width": 8, "type": "mod"},
+            {"name": "fmt_class", "start": 16, "width": 8, "type": "enum", "enum": {84: 'tilebuffer/attachment', 86: 'compute_pack'}},
+            {"name": "dst", "start": 24, "width": 8, "type": "reg"},
+            {"name": "mode", "start": 32, "width": 8, "type": "mod"},
+            {"name": "comp_off", "start": 40, "width": 8, "type": "mod"},
+            {"name": "val", "start": 48, "width": 8, "type": "imm"},
+            {"name": "fmt_word", "start": 56, "width": 24, "type": "raw"},
         ],
-        "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts "
-                     "the shader's float/half output to the attachment format). byte+6 carries a colour "
-                     "component value.",
-        "provenance": "HW-VALIDATED byte (EXP-0008/EXP-0029): splicing byte+6 0x80->0x40 of a constant-colour "
-                     "fragment's 0x97 op moved the read-back green 0.502->0.251 (128/255 -> 64/255) -> byte+6 "
-                     "holds a colour component. Constant-colour and interpolated fragments both emit these "
-                     "before the store; length 10 tokenises the epilog. Full field decode is a follow-up.",
+        "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. fmt_word (byte+7..+9) = attachment-format / rounding descriptor (0xd0 0x45 0xc2 typical) -- kept raw.",
+        "provenance": 'HW-VALIDATED byte (EXP-0008/0029): splicing byte+6 0x80->0x40 moved read-back green 0.502->0.251 -> byte+6 = colour component. R6 (own-MSL + corpus, n=93): src_desc/fmt_class/mode/comp_off LOCATED by covariation (fmt_class 0x54 fragment vs 0x56 compute; comp_off steps 00/04/08/18 across packed components). fmt_word kept raw. NOT further HW-dispatch validated.',
     },
     {
         "mnemonic": "frag_depth_store",
@@ -3481,49 +3425,31 @@ DB = [
     {
         "mnemonic": "pack_convert",
         "length": 10,
-        "match": [(0, 8, 0x97), (16, 8, 0x56)],   # byte+2==0x56 gates it off from the fragment frag_color_pack (0x54)
+        "match": [(0, 8, 0x97), (16, 8, 0x56)],
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
-            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},
-            {"name": "src",  "start": 24, "width": 8, "type": "reg"},
-            {"name": "body", "start": 32, "width": 48, "type": "raw"},
+            {"name": "src_desc", "start": 8, "width": 8, "type": "mod"},
+            {"name": "fmt_class", "start": 16, "width": 8, "type": "raw"},
+            {"name": "src", "start": 24, "width": 8, "type": "reg"},
+            {"name": "mode", "start": 32, "width": 8, "type": "mod"},
+            {"name": "fmt_word", "start": 40, "width": 40, "type": "raw"},
         ],
-        "semantics": "packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed "
-                     "word. byte0 0x97 (COMPUTE, gated by byte+2==0x56). Same op family as the fragment "
-                     "frag_color_pack (float colour -> attachment normalized format) -- 0x97 is the general "
-                     "float->normalized-format pack/convert, in both compute and fragment; disambiguated by "
-                     "byte+2 (compute pack 0x56 vs fragment 0x54).",
-        "provenance": "HW-VALIDATED (EXP-0033): pack_float_to_unorm2x16 read back exact over 4 float2 inputs. "
-                     "Single compute op (byte-diff); field bit-packing inferred.",
+        "semantics": 'packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byte+3) = source GPR. mode (byte+4) = mode/size (0x02/0x03). fmt_word (byte+5..+9) = the format-conversion / rounding descriptor -- kept raw (n=4; not individually decoded).',
+        "provenance": 'HW-VALIDATED (EXP-0033): pack_float_to_unorm2x16 read back exact over 4 float2 inputs. R6 (own-MSL + corpus, n=4): src_desc/mode LOCATED; fmt_word kept raw. NOT further HW-dispatch validated.',
     },
     # ---- packed format CONVERT (unpack): byte0 0x17, byte+2 0x56, 10 B ------
     {
         "mnemonic": "unpack_convert",
         "length": 8,
-        # byte0 0x17 collides with simd_ballot (also 0x17, 10B). RT-ISA-FIX: discriminate on
-        # byte+1 LOW NIBBLE -- unpack byte+1==0x04 (low nib 4), ballot byte+1 in {0x07,0x17}
-        # (low nib 7). Adding (8,4,0x04) makes the two descriptors MUTUALLY EXCLUSIVE (they can
-        # never both match), which is necessary because unpack ALSO appears with byte+2==0x54
-        # (the cache/last-use variant, EXP-0038) -- so byte+2 alone can NOT separate them from a
-        # ballot's byte+2==0x54. EXP-0038: byte+2 bit1 (instr bit17) is a source cache/last-use
-        # hint -- the (16,1,0)+(18,6,0x15) gate names both the 0x54 and 0x56 variants; the `b2`
-        # field captures the full byte+2 so the codec round-trips byte-exact.
-        "match": [(0, 8, 0x17), (8, 4, 0x04), (16, 1, 0), (18, 6, 0x15)],
+        "match": [(0, 8, 0x17), (8, 4, 0x04), (16, 1, 0x00), (18, 6, 0x15)],
         "fields": [
-            {"name": "b1",   "start": 8,  "width": 8, "type": "raw"},
-            {"name": "b2",   "start": 16, "width": 8, "type": "raw"},
-            {"name": "body", "start": 24, "width": 40, "type": "raw"},
+            {"name": "src_class", "start": 8, "width": 8, "type": "raw"},
+            {"name": "cache", "start": 16, "width": 8, "type": "mod", "enum": {86: 'fresh', 84: 'cache/last-use'}},
+            {"name": "convert_desc", "start": 24, "width": 32, "type": "raw"},
+            {"name": "size", "start": 56, "width": 4, "type": "mod"},
+            {"name": "reg_sel", "start": 60, "width": 4, "type": "reg"},
         ],
-        "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, "
-                     "8 bytes (EXP-M4-12 length CORRECTION: EXP-0033 recorded 10 by a 2-byte over-read; a fresh "
-                     "isolated compile of unpack_unorm2x16_to_float = `17 04 56 00 00 00 1c ca` tokenizes cleanly "
-                     "at 8B between device_load and device_store -- the HW readback validated the VALUE, not the "
-                     "length). byte+1==0x04 (low nibble 4). Reads a 32-bit packed word and expands the two "
-                     "normalized 16-bit lanes to floats. byte0 0x17 collides with simd_ballot (EXP-0018, also "
-                     "0x17, 10B); RT-ISA-FIX separates them on byte+1 low nibble (unpack 4 vs ballot 7), since "
-                     "both can carry byte+2 in {0x54,0x56}.",
-        "provenance": "HW-VALIDATED (EXP-0033): unpack_unorm2x16_to_float read back exact "
-                     "(0xFFFFFFFF->(1,1), 0x8000_4000->(0.25,0.5)). Single compute op; field bit-packing inferred.",
+        "semantics": 'packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source cache / last-use hint (0x56 fresh vs 0x54 cache/last-use, EXP-0038). convert_desc (byte+3..+6) = the format-conversion descriptor -- kept raw. byte+7: low nibble (size) = a size/const (0xa typical); high nibble (reg_sel) = a register selector, most likely the unpack RESULT destination -- it steps e/b/c/a/6/3 across successive unpacks in one kernel (role inferred, not splice-confirmed). Distinguished from simd_ballot (byte+1 low nibble != 4) by the match.',
+        "provenance": 'HW-VALIDATED length (EXP-M4-12) + HW cache-bit (EXP-0038). R6 (own-MSL + corpus, n=30): reg_sel = byte+7 high nibble LOCATED by the corpus reg-nibble sweep (0xea/0xba/0xca/0xaa/0x6a/0x3a); cache bit re-typed from raw. convert_desc kept raw. reg_sel ROLE (dst vs src) inferred. NOT further HW-dispatch validated.',
     },
     # ---- integer min/max CHAINED-operand variant (byte0 0x22): UNIFIED into `iminmax`
     # (n2_intalu, EXP-M4-13 R2). `22 01 1e 05 07 c0` (min3/clamp first op) is byte-for-byte
@@ -3836,25 +3762,16 @@ DB = [
     {
         "mnemonic": "n3_mov",
         "length": 4,
-        "match": [(0, 4, 3)],
+        "match": [(0, 4, 0x03)],
         "fields": [
-            {"name": "dst",      "start": 4,  "width": 4, "type": "reg"},
-            {"name": "srcA_reg", "start": 8,  "width": 7, "type": "reg"},
-            {"name": "srcA_uni", "start": 15, "width": 1, "type": "mod", "enum": {0: "gpr", 1: "uniform/hi"}},
-            {"name": "sel",      "start": 16, "width": 8, "type": "raw"},
-            {"name": "srcB",     "start": 24, "width": 8, "type": "raw"},
+            {"name": "dst", "start": 4, "width": 4, "type": "reg"},
+            {"name": "srcA_reg", "start": 8, "width": 7, "type": "reg"},
+            {"name": "srcA_uni", "start": 15, "width": 1, "type": "mod", "enum": {0: 'gpr', 1: 'uniform/hi'}},
+            {"name": "subform", "start": 16, "width": 8, "type": "mod"},
+            {"name": "companion", "start": 24, "width": 8, "type": "mod", "enum": {1: 'zext_hi_zero'}},
         ],
-        "semantics": "d = mov/zero-extend(srcA)  ; compact 4-byte register move / 16-bit zero-extend / "
-                     "half-pack. dst = byte0 high nibble (r0..r15). byte1 = source operand (bit7 = "
-                     "uniform-file / high-half flag). byte2 selects the sub-form (word vs low-half move); a "
-                     "32-bit zero-extend of a 16-bit value emits the low-half move followed by the "
-                     "`X3 00 00 01` high-half-zero companion. Generalises the HW-validated mov_zext16 "
-                     "(0x13, dst r1) and frame_marker (0x43) to all dst regs; those keep their bytes by "
-                     "match-bit specificity.",
-        "provenance": "byte-diff EXP-M4-13 (own-MSL): dst PROVEN by parallel-extend / uint4 diffs (k_zext4 / "
-                     "k_zext8w emit identical bodies differing only in the high nibble, stepping r0,r1,r2..); "
-                     "srcA=byte1 tracks the source reg; sel/srcB sub-form INFERRED from OWN-MSL zero-extend / "
-                     "move constructs -- NOT hardware dispatch-validated.",
+        "semantics": 'd = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15) PROVEN by parallel-extend diffs. srcA_reg (byte+1 bits0-6) = source register; srcA_uni (byte+1 bit7) = uniform-file/high-half flag. subform (byte+2) = source-class / size sub-form selector (0x00 full-word move; 0x20 a source-class variant; 0x01/0x02 half/size selects). companion (byte+3) = companion / second-operand descriptor: value 0x01 with subform 0x00 is the ZERO-EXTEND high-half-zero companion `X3 00 00 01` (emitted after the low-half move to zero the upper 16 bits, matching the HW-validated mov_zext16 lowering); other values carry a second-source / shuffle-move descriptor. Generalises mov_zext16 (0x13) and frame_marker (0x43) to all dst regs.',
+        "provenance": 'byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=1516): dst=byte0-hi and srcA=byte+1 PROVEN by k_zext4 / parallel-extend diffs (identical bodies stepping the high nibble). companion==0x01 zero-extend companion corroborated by the mov_zext16 lowering (`13 00 00 01`, EXP-0013 HW) and its X3-nibble corpus siblings. subform/companion per-value semantics LOCATED but inferred (not every sub-form individually splice-validated). NOT HW-dispatch validated.',
     },
     # ---- low-nibble-3 10-byte address/coordinate/matrix-load prep (byte+2==0x27) ----
     {
@@ -4005,27 +3922,16 @@ DB = [
     {
         "mnemonic": "sr_read_wide",
         "length": 8,
-        "match": [(0, 4, 4), (15, 1, 1), (24, 8, 0), (16, 1, 0), (17, 1, 1)],
+        "match": [(0, 4, 0x04), (15, 1, 0x01), (24, 8, 0x00), (16, 1, 0x00), (17, 1, 0x01)],
         "fields": [
-            {"name": "dst", "start": 4,  "width": 4,  "type": "reg"},
-            {"name": "sel", "start": 8,  "width": 7,  "type": "raw"},
-            {"name": "sub", "start": 16, "width": 8,  "type": "raw"},
-            {"name": "op",  "start": 32, "width": 32, "type": "raw"},
+            {"name": "dst", "start": 4, "width": 4, "type": "reg"},
+            {"name": "sel", "start": 8, "width": 7, "type": "enum", "enum": {127: 'simd_matrix_ld/st_builtin', 0: 'wide_builtin_base', 33: 'rtq_property(a1)', 1: 'rtq_property(81)', 72: 'rtq_property(c8)'}},
+            {"name": "width", "start": 16, "width": 8, "type": "enum", "enum": {34: 'w22', 2: 'w02', 6: 'w06', 70: 'w46', 38: 'w26'}},
+            {"name": "operand", "start": 32, "width": 8, "type": "imm"},
+            {"name": "marshal", "start": 40, "width": 24, "type": "raw"},
         ],
-        "semantics": "d[dst] = wide_special_read(sel, sub)  ; 8-byte member of the get_sr low-nibble-4 datapath "
-                     "family (byte0 low-3-bits 0b100). Reads a wide/indexed builtin OR, inside the "
-                     "intersection_query BVH-traversal loop, a committed/candidate intersection or instance "
-                     "PROPERTY (type / geometry-id / primitive-id / instance-id / distance / barycentrics / "
-                     "object<->world transform component) into dst = byte0 high nibble. byte+1 (high bit always "
-                     "set) is the property/register selector; byte+2 (low-nibble 2 or 6) a sub-selector; byte+3 "
-                     "== 0x00; bytes+4..+7 a small operand/mask word. Emitted in bursts by every "
-                     "intersection_query getter and by wide-builtin reads.",
-        "provenance": "byte-diff EXP-M4-13 (OWN-SHADER): dst = byte0 high nibble byte-diff-PROVEN (corpus "
-                     "dst-nibble histogram spans r0..r15); length 8 anchored by the immediately-following op "
-                     "(44 82 26 00 -> 8 in 147/147; 64/84 81 a2 00 & 44 83 26 00 unanimous) and hand-verified at "
-                     "a clean boundary directly after a 14-byte rt_as_load in own-compiled rtq_inst. selector / "
-                     "sub-selector / operand-word SEMANTICS are structural/INFERRED, NOT hardware-dispatch-"
-                     "validated. Generalises get_sr; strictly less specific than rt_intersect (byte+1==0xea).",
+        "semantics": 'd[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the sub-selector / component-WIDTH: toggles 0x02<->0x06 across successive component reads of one wide value, and 0x22/0x26/0x46 across property kinds. operand (byte+4) = an element/offset operand that STEPS with the wide-component index (0x00,0x10,0x18,.. as dst advances r0->r3). marshal (byte+5..+7; byte+7 const 0) = the RT-getter / matrix element marshalling word -- kept raw (the getter/marshal SEQUENCE is not reconstructed, rule 5).',
+        "provenance": 'byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=659): dst=byte0-hi PROVEN by nibble histogram; sel values PINNED by kernel co-occurrence (0x7f only in subgroupMatrixLoad/Store; 0xa1/0x81 only in intersection_query getters); width toggle and operand step READ off the mat2x4/mat4x4 explicit-identity sweep (byte+2 02<->06, byte+4 00/10/18/.. tracking the component). marshal kept raw. selector/width per-value SEMANTICS inferred, NOT HW-dispatch validated. Strictly less specific than rt_intersect (byte+1==0xea).',
     },
     # ========================================================================
     # EXP-M4-13 ROUND-2 additions (nf_simd, n7_fence, n8_eight, n6_deriv, nb_ray)
@@ -4379,22 +4285,24 @@ DB = [
                      "14B device_store in bitops__and_imm_u32 / float_arith__negabs. Not splice-validated.",
     },
     {
-        "mnemonic": "b_alu10_lo7", "length": 10,
-        "match": [(0, 4, 11), (16, 4, 7)],   # byte+2 low-nibble 7
+        "mnemonic": "b_alu10_lo7",
+        "length": 10,
+        "match": [(0, 4, 0x0b), (16, 4, 0x07)],
         "fields": [
-            {"name": "dst",     "start": 4,  "width": 4, "type": "reg"},
-            {"name": "b1",      "start": 8,  "width": 8, "type": "raw"},
-            {"name": "form_hi", "start": 20, "width": 4, "type": "raw"},
-            {"name": "srcA",    "start": 24, "width": 8, "type": "reg"},
-            {"name": "b4",      "start": 32, "width": 8, "type": "raw"},
-            {"name": "b5",      "start": 40, "width": 8, "type": "raw"},
-            {"name": "ext",     "start": 48, "width": 32, "type": "raw"},
+            {"name": "dst", "start": 4, "width": 4, "type": "reg"},
+            {"name": "src_reg", "start": 8, "width": 7, "type": "reg"},
+            {"name": "src_flag", "start": 15, "width": 1, "type": "mod", "enum": {0: 'gpr', 1: 'uniform/class'}},
+            {"name": "opsel_hi", "start": 20, "width": 4, "type": "enum", "enum": {0: '0x07', 1: 'and_mask(0x17)', 2: 'tex/operand_setup(0x27)', 4: '0x47', 5: '0x57', 6: '0x67', 7: '0x77', 12: '0xc7', 13: '0xd7', 14: '0xe7'}},
+            {"name": "srcA", "start": 24, "width": 8, "type": "reg"},
+            {"name": "modA", "start": 32, "width": 8, "type": "mod"},
+            {"name": "modB", "start": 40, "width": 8, "type": "mod"},
+            {"name": "z6", "start": 48, "width": 8, "type": "raw"},
+            {"name": "outmod", "start": 56, "width": 8, "type": "mod"},
+            {"name": "ext8", "start": 64, "width": 8, "type": "raw"},
+            {"name": "ext9", "start": 72, "width": 8, "type": "raw"},
         ],
-        "semantics": "0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7 (source-modifier / shift-mask "
-                     "/ convert; siblings 0x17 `& mask`, 0x27 tex/operand setup, 0x07/0x47/0x67). Family-level "
-                     "decode; exact op-select within the tail NOT characterised.",
-        "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): bracketed 10-byte (`1b 52 07 7a 10 02 ..`) between "
-                     "rt_ray_mem and imad. Family-level; not splice-validated.",
+        "semantics": '0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7. dst = byte0 high nibble (reg-sweep PROVEN). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (covaries with dst across the subgroup-matrix load/store sweep: byte+1 low = 0x0c/0x0a/0x06/0x04 tracks srcA reg 6/5/3/2 as dst steps r2/r2/r1/r1). opsel_hi (byte+2 high nibble) = the op-select family: 0x27 tex/operand-setup (dominant), 0x17 `& mask`, 0x07 base, 0x47/0x57/0x67. srcA (byte+3) = second source descriptor (0x81 = single-source marker). modA/modB (byte+4/+5) = modifier/mode words (0x10/0x02 dominant). z6 (byte+6) = const 0. outmod (byte+7) = output/rounding modifier (bit7/nibble). ext8/ext9 = operand/coefficient tail (near-const; kept raw). Exact per-op-select tail semantics NOT characterised (family-level; convert/setup coefficient words not reconstructed).',
+        "provenance": 'byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=821): dst=byte0-hi and src_reg=byte+1 LOCATED by the subgroup-matrix load/store dst/src reg-sweep; opsel_hi values read off the corpus byte+2 histogram; modA/modB/outmod positions from the covariation table. srcA reg from family analogy. Tail kept raw. NOT HW-dispatch validated.',
     },
     {
         "mnemonic": "b_alu10_loe", "length": 10,

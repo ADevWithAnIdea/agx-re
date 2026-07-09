@@ -1,0 +1,638 @@
+{
+  "group": "Misc ALU/move (EXP-M4-13 R6): n2_op6 + b_alu10_lo7 + n3_mov + sr_read_wide + iunary/ilogic/pack raw tails",
+  "kind": "descriptors (raw->typed field refinement; NO length/match edits)",
+  "refinedDescriptors": [
+    {
+      "mnemonic": "n2_op6",
+      "length": 6,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src_desc",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "compact_select/move",
+            "2": "mode2",
+            "8": "mode8",
+            "16": "mode10",
+            "18": "mode12",
+            "41": "mode29"
+          }
+        },
+        {
+          "name": "opA",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opB",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "imm_sel",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "Compact 6-byte low-nibble-2 select/predicate/helper. dst = byte0 high nibble (reg-sweep PROVEN across r0..r15). src_desc (byte+1) = source/mode descriptor (bit7 = uniform/special-file flag). opsel (byte+2) = op/mode selector: 0x00 = compact select/move (dominant), others select the sub-op. imm_sel (byte+6) = trailing small index/immediate -- in the output-write-mask helper family (SPIRV-Cross masking_write_outputs kernels) it steps the mask/location index 0..0xd; in the shuffle-helper family the tail is a lane/mode word; in the transcendental family it is an SFU coefficient/select. opA/opB (byte+3/+4) = operand descriptors, MIXED (register / shuffle-desc / SFU coefficient) and deliberately kept raw. n2_op6 is a genuine catch-all bucket (write-mask helper + compact select + SFU range-reduction select); the SFU coefficient SEQUENCE is NOT reconstructed (clean-room rule 5).",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=1597): dst=byte0-hi from the family reg-sweep. src_desc/opsel/imm_sel LOCATED by covariation (opsel==0x00 for compact select-moves; imm_sel steps the write-mask location index across masking_write_outputs_mask_location_0/1 kernels; bit7 of src_desc = uniform-file). opA/opB kept raw (mixed/SFU). NOT HW-dispatch validated (M4 compile-only). Semantics of the SFU/marshalling tail deliberately not reconstructed."
+    },
+    {
+      "mnemonic": "b_alu10_lo7",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "src_flag",
+          "start": 15,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "gpr",
+            "1": "uniform/class"
+          }
+        },
+        {
+          "name": "opsel_hi",
+          "start": 20,
+          "width": 4,
+          "type": "enum",
+          "enum": {
+            "0": "0x07",
+            "1": "and_mask(0x17)",
+            "2": "tex/operand_setup(0x27)",
+            "4": "0x47",
+            "5": "0x57",
+            "6": "0x67",
+            "7": "0x77",
+            "12": "0xc7",
+            "13": "0xd7",
+            "14": "0xe7"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "modA",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "modB",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "z6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "outmod",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ext8",
+          "start": 64,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "ext9",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7. dst = byte0 high nibble (reg-sweep PROVEN). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (covaries with dst across the subgroup-matrix load/store sweep: byte+1 low = 0x0c/0x0a/0x06/0x04 tracks srcA reg 6/5/3/2 as dst steps r2/r2/r1/r1). opsel_hi (byte+2 high nibble) = the op-select family: 0x27 tex/operand-setup (dominant), 0x17 `& mask`, 0x07 base, 0x47/0x57/0x67. srcA (byte+3) = second source descriptor (0x81 = single-source marker). modA/modB (byte+4/+5) = modifier/mode words (0x10/0x02 dominant). z6 (byte+6) = const 0. outmod (byte+7) = output/rounding modifier (bit7/nibble). ext8/ext9 = operand/coefficient tail (near-const; kept raw). Exact per-op-select tail semantics NOT characterised (family-level; convert/setup coefficient words not reconstructed).",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=821): dst=byte0-hi and src_reg=byte+1 LOCATED by the subgroup-matrix load/store dst/src reg-sweep; opsel_hi values read off the corpus byte+2 histogram; modA/modB/outmod positions from the covariation table. srcA reg from family analogy. Tail kept raw. NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "n3_mov",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          3
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_uni",
+          "start": 15,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "gpr",
+            "1": "uniform/hi"
+          }
+        },
+        {
+          "name": "subform",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "companion",
+          "start": 24,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "1": "zext_hi_zero"
+          }
+        }
+      ],
+      "semantics": "d = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15) PROVEN by parallel-extend diffs. srcA_reg (byte+1 bits0-6) = source register; srcA_uni (byte+1 bit7) = uniform-file/high-half flag. subform (byte+2) = source-class / size sub-form selector (0x00 full-word move; 0x20 a source-class variant; 0x01/0x02 half/size selects). companion (byte+3) = companion / second-operand descriptor: value 0x01 with subform 0x00 is the ZERO-EXTEND high-half-zero companion `X3 00 00 01` (emitted after the low-half move to zero the upper 16 bits, matching the HW-validated mov_zext16 lowering); other values carry a second-source / shuffle-move descriptor. Generalises mov_zext16 (0x13) and frame_marker (0x43) to all dst regs.",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=1516): dst=byte0-hi and srcA=byte+1 PROVEN by k_zext4 / parallel-extend diffs (identical bodies stepping the high nibble). companion==0x01 zero-extend companion corroborated by the mov_zext16 lowering (`13 00 00 01`, EXP-0013 HW) and its X3-nibble corpus siblings. subform/companion per-value semantics LOCATED but inferred (not every sub-form individually splice-validated). NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "sr_read_wide",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          4
+        ],
+        [
+          15,
+          1,
+          1
+        ],
+        [
+          24,
+          8,
+          0
+        ],
+        [
+          16,
+          1,
+          0
+        ],
+        [
+          17,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 8,
+          "width": 7,
+          "type": "enum",
+          "enum": {
+            "127": "simd_matrix_ld/st_builtin",
+            "0": "wide_builtin_base",
+            "33": "rtq_property(a1)",
+            "1": "rtq_property(81)",
+            "72": "rtq_property(c8)"
+          }
+        },
+        {
+          "name": "width",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "34": "w22",
+            "2": "w02",
+            "6": "w06",
+            "70": "w46",
+            "38": "w26"
+          }
+        },
+        {
+          "name": "operand",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "marshal",
+          "start": 40,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the sub-selector / component-WIDTH: toggles 0x02<->0x06 across successive component reads of one wide value, and 0x22/0x26/0x46 across property kinds. operand (byte+4) = an element/offset operand that STEPS with the wide-component index (0x00,0x10,0x18,.. as dst advances r0->r3). marshal (byte+5..+7; byte+7 const 0) = the RT-getter / matrix element marshalling word -- kept raw (the getter/marshal SEQUENCE is not reconstructed, rule 5).",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=659): dst=byte0-hi PROVEN by nibble histogram; sel values PINNED by kernel co-occurrence (0x7f only in subgroupMatrixLoad/Store; 0xa1/0x81 only in intersection_query getters); width toggle and operand step READ off the mat2x4/mat4x4 explicit-identity sweep (byte+2 02<->06, byte+4 00/10/18/.. tracking the component). marshal kept raw. selector/width per-value SEMANTICS inferred, NOT HW-dispatch validated. Strictly less specific than rt_intersect (byte+1==0xea)."
+    },
+    {
+      "mnemonic": "iunary",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          39
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b1",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "86": "int_unary/convert",
+            "34": "rt/interp_datapath",
+            "16": "convert",
+            "38": "convert2",
+            "7": "logic"
+          }
+        },
+        {
+          "name": "operand",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=27): opsel==0x56 carries the HW-VALIDATED popcount (`27 05 56 ..`, EXP-0007) and the vertex-fetch format unpack; opsel==0x22 (byte+1==0x81) appears only in raytracing/interp kernels. b1/opsel LOCATED; operand kept raw. NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "ilogic",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          11
+        ],
+        [
+          17,
+          7,
+          15
+        ]
+      ],
+      "fields": [
+        {
+          "name": "srcA",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "op_base",
+          "start": 16,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "0": "xor-base",
+            "1": "and/or-base"
+          }
+        },
+        {
+          "name": "srcB",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "lut_a",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "lut_b",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "z6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "outmod",
+          "start": 56,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "128": "output/store"
+          }
+        },
+        {
+          "name": "z8",
+          "start": 64,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "z9",
+          "start": 72,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = LUT2(a, b) ; 2-input bitwise logic (all 16 boolean functions). srcA (byte+1) / srcB (byte+3) = the two source register descriptors (srcA at the falu srcA position, srcB at byte+3). op_base (byte+2 bit0) picks the xor vs and/or base; lut_a (byte+4 low bits) and lut_b (byte+5 bit3) are the per-source / output inverts -> any of the 16 LUT2 functions. outmod (byte+7) bit7 = an output/store flag (set for the store-consumed forms, clear for the compare-consumed dec2 forms). z6/z8/z9 = zero tail. ~a is the fmov(0x0e) op with an invert.",
+      "provenance": "HW-VALIDATED (EXP-0013): all 8 named boolean kernels (and/or/xor/andn/orn/xnor/nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC. R6 (own-MSL + corpus, n=16): srcA=byte+1 / srcB=byte+3 RE-TYPED from raw to reg (the falu srcA/srcB register positions; srcA=0x05 for `a`, srcB=0x01 for `b` in a&b, XOR differs only in byte+2/+4/+5); outmod byte+7 bit7 set on store-consumed forms, clear on the dec2 predicate-consumed forms. Not the ext tail is reconstructed."
+    },
+    {
+      "mnemonic": "frag_color_pack",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          151
+        ]
+      ],
+      "fields": [
+        {
+          "name": "src_desc",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "fmt_class",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "84": "tilebuffer/attachment",
+            "86": "compute_pack"
+          }
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "mode",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "comp_off",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "val",
+          "start": 48,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "fmt_word",
+          "start": 56,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. fmt_word (byte+7..+9) = attachment-format / rounding descriptor (0xd0 0x45 0xc2 typical) -- kept raw.",
+      "provenance": "HW-VALIDATED byte (EXP-0008/0029): splicing byte+6 0x80->0x40 moved read-back green 0.502->0.251 -> byte+6 = colour component. R6 (own-MSL + corpus, n=93): src_desc/fmt_class/mode/comp_off LOCATED by covariation (fmt_class 0x54 fragment vs 0x56 compute; comp_off steps 00/04/08/18 across packed components). fmt_word kept raw. NOT further HW-dispatch validated."
+    },
+    {
+      "mnemonic": "pack_convert",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          151
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "src_desc",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "fmt_class",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "mode",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "fmt_word",
+          "start": 40,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byte+3) = source GPR. mode (byte+4) = mode/size (0x02/0x03). fmt_word (byte+5..+9) = the format-conversion / rounding descriptor -- kept raw (n=4; not individually decoded).",
+      "provenance": "HW-VALIDATED (EXP-0033): pack_float_to_unorm2x16 read back exact over 4 float2 inputs. R6 (own-MSL + corpus, n=4): src_desc/mode LOCATED; fmt_word kept raw. NOT further HW-dispatch validated."
+    },
+    {
+      "mnemonic": "unpack_convert",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          23
+        ],
+        [
+          8,
+          4,
+          4
+        ],
+        [
+          16,
+          1,
+          0
+        ],
+        [
+          18,
+          6,
+          21
+        ]
+      ],
+      "fields": [
+        {
+          "name": "src_class",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "cache",
+          "start": 16,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "86": "fresh",
+            "84": "cache/last-use"
+          }
+        },
+        {
+          "name": "convert_desc",
+          "start": 24,
+          "width": 32,
+          "type": "raw"
+        },
+        {
+          "name": "size",
+          "start": 56,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "reg_sel",
+          "start": 60,
+          "width": 4,
+          "type": "reg"
+        }
+      ],
+      "semantics": "packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source cache / last-use hint (0x56 fresh vs 0x54 cache/last-use, EXP-0038). convert_desc (byte+3..+6) = the format-conversion descriptor -- kept raw. byte+7: low nibble (size) = a size/const (0xa typical); high nibble (reg_sel) = a register selector, most likely the unpack RESULT destination -- it steps e/b/c/a/6/3 across successive unpacks in one kernel (role inferred, not splice-confirmed). Distinguished from simd_ballot (byte+1 low nibble != 4) by the match.",
+      "provenance": "HW-VALIDATED length (EXP-M4-12) + HW cache-bit (EXP-0038). R6 (own-MSL + corpus, n=30): reg_sel = byte+7 high nibble LOCATED by the corpus reg-nibble sweep (0xea/0xba/0xca/0xaa/0x6a/0x3a); cache bit re-typed from raw. convert_desc kept raw. reg_sel ROLE (dst vs src) inferred. NOT further HW-dispatch validated."
+    }
+  ],
+  "rawBitsBefore": 443,
+  "rawBitsAfter": 240,
+  "opsRefined": [
+    "n2_op6",
+    "b_alu10_lo7",
+    "n3_mov",
+    "sr_read_wide",
+    "iunary",
+    "ilogic",
+    "frag_color_pack",
+    "pack_convert",
+    "unpack_convert"
+  ],
+  "validation": {
+    "tokenizationUnchanged": true,
+    "roundtripSuitePass": true,
+    "coverageIdenticalToCommitted": true,
+    "corpusFilesScanned": 7507,
+    "filesLeftoverChanged": 0,
+    "filesTokenSequenceChanged": 0,
+    "refinedOpRoundtripFailures": 0,
+    "instancesRoundTripped": {
+      "n2_op6": 1597,
+      "n3_mov": 1516,
+      "b_alu10_lo7": 821,
+      "sr_read_wide": 659,
+      "frag_color_pack": 93,
+      "unpack_convert": 30,
+      "iunary": 27,
+      "ilogic": 16,
+      "pack_convert": 4
+    },
+    "note": "match bits + field bit-coverage are byte-identical to the committed DB for all 9 ops (verified: cov==orig, full coverage, no field overlap). instr_length + match untouched => tokenization provably identical (0 files changed length/leftover/token-sequence over 7507 corpus files: hex/ own-shaders + permissive thirdparty_hex/). asm(disasm(b))==b for all 4763 refined-op instances. tools/agx-isa/roundtrip_test.py (with the 2 ilogic SYNTH entries updated to the refined field names) = ALL PASS."
+  },
+  "notes": "PURELY FIELD-LEVEL: every refined descriptor keeps the same mnemonic/length/match; only raw operand/control/modifier bits are split into TYPED named fields tiling the identical bit ranges. Core HW facts (own-MSL + corpus byte-diff): (n2_op6) dst=byte0-hi, byte+1=source/mode descriptor (bit7=uniform-file), byte+2=op-select (0x00 compact-select dominant), byte+6=trailing index/imm (steps the write-mask location index in the SPIRV-Cross masking_write_outputs family); operand tail MIXED (write-mask/shuffle/SFU) kept raw. (b_alu10_lo7) dst=byte0-hi, byte+1=source reg(0-6)+class flag(7) tracking srcA across the subgroup-matrix load/store sweep, byte+2-hi=op-select family (0x27 tex/setup dominant), byte+3=2nd source desc, byte+4/+5=modifier/mode, byte+7=output modifier; coefficient tail kept raw. (n3_mov) dst=byte0-hi, byte+1=srcA reg(0-6)+uniform flag(7), byte+2=source-class/size sub-form, byte+3=companion (0x01=zero-extend high-half-zero companion, corroborated by mov_zext16). (sr_read_wide) dst=byte0-hi, byte+1=special-register/property SELECTOR (0x7f simd-matrix builtin, 0xa1/0x81 intersection_query property), byte+2=sub-selector/WIDTH (toggles 02<->06 across wide components), byte+4=element/offset operand stepping with the component; RT-getter/matrix marshalling word kept raw. (iunary) byte+1=fn/source desc, byte+2=mode (0x56 int-unary/convert incl HW-validated popcount; 0x22 RT/interp datapath), operand/coefficient kept raw. (ilogic) srcA=byte+1 / srcB=byte+3 RE-TYPED raw->reg (falu srcA/srcB positions; op HW-VALIDATED EXP-0013), byte+7 bit7=output/store flag. (frag_color_pack/pack_convert/unpack_convert) byte+1=source/mode desc, byte+2=format-class (0x54 attachment vs 0x56 compute; unpack bit1=cache/last-use HW EXP-0038), byte+3=dst/src reg, byte+4=mode; format-conversion descriptor word kept raw. Clean-room: NO SFU range-reduction / RT-getter / format-conversion SEQUENCE is reconstructed (rule 5) -- those words are LEFT raw and SAID so.",
+  "provenance": "byte-diff of OUR OWN compiled shaders on a local M4 (compile-only shdump, never dispatched) + the committed permissive thirdparty MSL corpus (thirdparty_hex/, we compiled it). dst=byte0-hi and source-register positions inherit the family register-sweep (HW-anchored in prior iminmax/half-ALU provenance). ilogic + popcount + frag_color_pack byte+6 + unpack cache-bit carry prior HW-VALIDATED anchors (EXP-0013/0007/0029/0038); everything newly named this round is byte-diff/corpus-LOCATED, NOT HW-dispatch-validated (M4 host is compile+extract+tokenize only).",
+  "unresolved": [
+    "n2_op6 opA/opB (byte+3/+4): MIXED operand descriptors (register vs shuffle-desc vs SFU coefficient) -- kept raw. The transcendental SFU range-reduction SELECT steps (byte+2 0x08..0x1e coefficient words) are deliberately NOT reconstructed (rule 5).",
+    "b_alu10_lo7 z6/ext8/ext9 (byte+6/+8/+9): near-constant operand/coefficient tail of the convert/setup forms -- kept raw; exact per-op-select (0x07/0x17/0x27/0x47..) convert coefficient meaning not characterised.",
+    "sr_read_wide marshal (byte+5..+7): the intersection_query getter / simd-matrix element marshalling word -- kept raw (getter/marshal SEQUENCE not reconstructed, rule 5). sel/width per-value semantics LOCATED but inferred (needs GPU-dispatch splice to confirm each property index).",
+    "iunary operand (byte+3..+7): MIXED source + SFU/interp/format-conversion coefficient word -- kept raw. iunary is a loose byte0==0x27 catch-all: popcount is the HW-validated member but RT/interp/convert siblings of equal length dominate the corpus; a future round could add match bits to split them (out of scope: naming-only, no length/match edits).",
+    "ilogic z6/z8/z9 + frag_color_pack fmt_word + pack/unpack convert_desc/fmt_word: the format-conversion / rounding descriptor words -- LOCATED but kept raw (the pack/unpack format-conversion recipe is not reconstructed, rule 5). pack_convert n=4 too few for confident per-byte typing.",
+    "All newly-named selector/modifier fields are byte-diff/corpus LOCATED, NOT HW-dispatch-validated -- semantics inferred / needs splice. A LOCATED-but-unconfirmed typed field still beats anonymous raw."
+  ]
+}
