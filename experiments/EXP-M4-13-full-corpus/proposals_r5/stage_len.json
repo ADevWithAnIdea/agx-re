@@ -1,0 +1,121 @@
+{
+  "task": "STAGE-DEPENDENT length mis-fires: 0x17 (vertex vs compute) and 0x04 (mesh vs fragment)",
+  "kind": "length-rule-split + descriptor",
+  "experiment": "EXP-M4-13-full-corpus round 5 (r5_stage_len)",
+  "target_db": "tools/agx-isa/isadb.py",
+
+  "summary": "Both stage-dependent 0x17 and 0x04 collisions ARE statically disambiguable by a fixed byte signature (no context-dependent limitation needed). (1) VERTEX 0x17 coordinate-transform (`17 22 a2 b0`) is distinguished from COMPUTE 0x17 simd_ballot (`17 07/17 .. 54/56`) by byte+2==0xa2 & byte+3==0xb0; its length is 10 -- the SAME as simd_ballot -- so the desync was NOT a length error but a MISSING DESCRIPTOR (instr_length returned 10 via the else branch, but no length-10 descriptor matched the vertex bytes, so decode_one halted AT the 0x17). Fixed with an explicit stage branch + a vtx_coord_xform descriptor. (2) MESH 0x04 output-store source (`04 SS e7 02`) IS a genuine length mis-fire: the flat fragment centroid rule `0x04 -> 8` over-read it by 6, swallowing the following device_store head + a `0f 06` pop_reconverge. Split to length 2 gated on byte+2==0xe7 && byte+3==0x02, plus a mesh_out_src descriptor.",
+
+  "lengthRuleEdits": [
+    {
+      "id": "0x17-vertex-split",
+      "byte0": "0x17",
+      "location": "instr_length(), inside `if b0 == 0x17:` block, before the final `return 10`",
+      "signature": "byte+2 == 0xa2 && byte+3 == 0xb0",
+      "length": 10,
+      "note": "Length UNCHANGED (10, same as compute simd_ballot). This is a documentary stage-split so the vertex form is explicitly recognized; the load-bearing fix is the vtx_coord_xform descriptor below. Compute simd_ballot keeps byte+1-low-nibble-7 / byte+2 0x54|0x56; compute sh_down is byte+2==0x82; none carry byte+2==0xa2, so the split is exclusive.",
+      "code": "        _vb3 = buf[off + 3] if off + 3 < len(buf) else -1\n        if _b2 == 0xa2 and _vb3 == 0xb0:\n            return 10                  # vtx_coord_xform (VERTEX position/coordinate setup)\n        return 10                      # simd_ballot / vote mask source (compute)"
+    },
+    {
+      "id": "0x04-mesh-split",
+      "byte0": "0x04",
+      "location": "instr_length(), immediately BEFORE the `# Fragment sample-position ... return 8 centroid-position read` rule",
+      "signature": "b0 == 0x04 && byte+2 == 0xe7 && byte+3 == 0x02",
+      "old_length": 8,
+      "new_length": 2,
+      "note": "GENUINE length correction. The `04 SS e7 02` op feeds the immediately-following 14-byte device_store (0xe7 leader at byte+2, its 0x02 sub-byte at byte+3), so the 0x04 op is only 2 bytes. Gate excludes the fragment centroid read (byte+2 != 0xe7), get_sr (byte+3 low-nibble 6, matched earlier), sr_read_wide (byte+1>=0x80, matched earlier) and rt_intersect (byte+1==0xea).",
+      "code": "    if b0 == 0x04 and off + 3 < len(buf) and buf[off + 2] == 0xe7 and buf[off + 3] == 0x02:\n        return 2                       # mesh_out_src (compact mesh output-store source, R5)"
+    }
+  ],
+
+  "descriptors": [
+    {
+      "mnemonic": "vtx_coord_xform",
+      "length": 10,
+      "match": [[0, 8, 23], [16, 8, 162], [24, 8, 176]],
+      "match_hex_note": "byte0==0x17, byte+2==0xa2, byte+3==0xb0",
+      "fields": [
+        {"name": "mode", "start": 8, "width": 8, "type": "raw"},
+        {"name": "sel", "start": 32, "width": 8, "type": "raw"},
+        {"name": "operand", "start": 40, "width": 40, "type": "raw"}
+      ],
+      "semantics": "VERTEX-stage coordinate / position transform op. Reads a vertex-array / constant-indexed coordinate and produces the clip-space position or a varying coordinate. byte+2==0xa2, byte+3==0xb0 are the fixed operand-selector pair that statically distinguish it from the compute-stage 0x17 simd_ballot (byte+2==0x54/0x56) with which it shares byte0 and length (10). The operand bytes are left raw (the coordinate-select sequence is not reconstructed, clean-room rule 5).",
+      "provenance": "OWN-SHADER (EXP-M4-13 R5, byte-diff, NOT HW-dispatch-validated): compiled derivatives_misc/deriv_scalar vMain and every frag_output vertex prologue on the local M4, byte-identical to the committed corpus vertex hex. Length 10 bracketed: the next op leader begins exactly 10 bytes later (root 0x21 in deriv-shaped VS, root 0x00 in discard-shaped VS)."
+    },
+    {
+      "mnemonic": "mesh_out_src",
+      "length": 2,
+      "match": [[0, 8, 4]],
+      "match_hex_note": "byte0==0x04",
+      "fields": [
+        {"name": "sel", "start": 8, "width": 8, "type": "raw"}
+      ],
+      "semantics": "MESH-stage compact source op feeding the immediately-following device store (byte+2==0xe7) of a mesh vertex/primitive output. Occupies the same structural slot as the 8-byte sr_read_wide (mesh_point `04 88 06 ..`) but is a distinct 2-byte compact encoding (byte+1 < 0x80). byte+1 left raw.",
+      "provenance": "OWN-SHADER (EXP-M4-13 R5, byte-diff/bracket, NOT HW-dispatch-validated): mesh corpus mesh-stage hex (mesh_transform/tri/line/maxout/grid3d/amplify_dyn/obj_reduce/payload_large/pervertex_wide); length 2 bracketed by an if_push (0f 05 54 01) before and a 14-byte device_store (e7 02 54|64 ..) after in every sample; mesh_transform own recompile byte-checked."
+    }
+  ],
+
+  "replaces": [
+    "instr_length 0x17 flat `else return 10` (simd_ballot) -- now split so the vertex byte+2==0xa2/byte+3==0xb0 form is named vtx_coord_xform (still 10); compute simd_ballot path unchanged.",
+    "instr_length 0x04 flat `return 8` centroid-position read -- now preceded by the mesh `byte+2==0xe7 && byte+3==0x02 -> 2` split; the fragment centroid path (byte+2 != 0xe7) is unchanged."
+  ],
+
+  "notes": [
+    "0x17 was a MISSING-DESCRIPTOR desync, not a length error: instr_length already returned 10 for the vertex form (via the compute else branch), but decode_one found no length-10 descriptor matching `17 22 a2 b0 ..` and halted at the 0x17. The stage split is therefore documentary for length but load-bearing for identity; adding vtx_coord_xform is what actually clears the halt.",
+    "0x04 mesh op WAS a real length mis-fire (8 vs 2). Direct trace confirms the `0f 06` pop_reconverge is now preserved: mesh_transform @44 `04 01`=mesh_out_src(2) -> @46 device_store(14) -> @60 `0f 06 24 01 00 00` pop_reconverge(6), instead of the old 8-byte over-read that swallowed the store head + reconverge.",
+    "The task cited `root 0x24 x11` for the 0x04 swallow. In the committed DB the mesh 0x04 does not actually reach a 0x24 landing -- it HALTS at the 0x04 itself (no descriptor for the mis-lengthed 8-byte value), so the swallow is latent. The length-2 fix prevents any swallow regardless; the reconverge preservation is verified directly by trace rather than via a 0x24 root.",
+    "Downstream roots are the task's predicted genuine next-ops and are OUT OF SCOPE for this task: after the vertex 0x17 decodes, deriv-shaped VS halt on 0x21 (`21 82 a6 b0`) and discard-shaped VS halt on 0x00 (`00 04 00 00`); after the mesh 0x04 decodes, the mesh stages advance ~50-150 bytes and halt on 0x02 (`02 88 21 80 26 a0 ..`, a sibling coord op with byte+3==0xa0). These are separate follow-up items.",
+    "Mesh byte+1 selector values observed: 0x01 (mesh_transform/tri/grid3d/amplify_dyn/obj_reduce/payload_large/pervertex_wide), 0x04 (mesh_line), 0x20 (mesh_maxout). Left raw; likely the set_primitive_count / lane value. The byte+2==0xe7 && byte+3==0x02 gate generalizes to any selector value (does not hard-code the observed set)."
+  ],
+
+  "provenance": "OWN-SHADER byte-diff / anchored-bracket on the committed EXP-M4-13 corpus (hex/), reproduced byte-identically by compiling the corpus MSL sources on the local M4 with tools/shdump (compile-only, no GPU dispatch). NOT HW-dispatch-validated. Vertex 0x17: derivatives_misc/deriv_scalar + frag_output/discard vertex stages. Mesh 0x04: mesh corpus mesh stages, mesh_transform own recompile confirmed byte-identical.",
+
+  "validation": {
+    "samplesDecoded": {
+      "vtx_coord_xform_tokens": 33,
+      "mesh_out_src_tokens": 9,
+      "target_files_scanned": 156,
+      "decoded_tokens_in_targets": 2274,
+      "per_token_roundtrip_failures": 0,
+      "direct_decode_examples": [
+        "1722a2b00b0020040a80 -> vtx_coord_xform len10 (roundtrip OK)",
+        "1722a2b01b0026004000 -> vtx_coord_xform len10 (roundtrip OK)",
+        "1722a2b01c80233e0000 -> vtx_coord_xform len10 (roundtrip OK)",
+        "0401(+e70254) -> mesh_out_src len2 (roundtrip OK)",
+        "0404(+e70254) -> mesh_out_src len2 (roundtrip OK)",
+        "0420(+e70254) -> mesh_out_src len2 (roundtrip OK)"
+      ]
+    },
+    "roundtripSuitePass": "ALL PASS (tools/agx-isa/roundtrip_test.py run against the scratch DB)",
+    "noRegression": {
+      "corpus_files": 1005,
+      "files_residue_increased": 0,
+      "files_residue_decreased": 42,
+      "residue_bytes_eliminated": 978,
+      "baseline_total_residue": 423162,
+      "new_total_residue": 422184,
+      "root_census_delta": {
+        "0x17": "40 -> 8 (-32 vertex coord ops resolved)",
+        "0x04": "18 -> 9 (-9 mesh ops resolved)",
+        "0x21": "2 -> 19 (+17 downstream next-op, predicted)",
+        "0x00": "23 -> 36 (+13 downstream next-op, predicted)",
+        "0x02": "79 -> 83 (+4 mesh downstream)",
+        "0x07": "2 -> 6 (+4 mesh downstream)",
+        "note": "no file went clean->halting; all halt points moved strictly forward."
+      },
+      "fragment_centroid_unchanged": [
+        "frag_output__early_frag__fragment.hex 218->218",
+        "frag_varying__centroid_persp__fragment.hex 158->158",
+        "frag_varying__centroid_nopersp__fragment.hex 106->106",
+        "frag_varying__pull_centroid__fragment.hex 158->158",
+        "frag_output__blend_over__fragment.hex 96->96"
+      ]
+    }
+  },
+
+  "unresolved": [
+    "Semantics of vtx_coord_xform operand bytes (+5..+9) and of the mesh_out_src byte+1 selector left RAW by design (clean-room rule 5: not reconstructing the compiler's coordinate-select / output sequence). Length + op identity are established; field-level decode is a deliberate non-goal here.",
+    "Downstream (post-fix) roots are NOT closed by this task and remain open follow-ups: vertex root 0x21 (`21 82 a6 b0`, a sibling coord op, x19) and root 0x00 (`00 04 00 00`, x36); mesh root 0x02 (`02 88 21 80 26 a0 ..`, x83 total incl. these). These are genuine next instructions, not artifacts of the 0x17/0x04 rules.",
+    "The vertex 0x17 length (10) is asserted equal to compute simd_ballot; it was confirmed by within-corpus bracketing (next-leader offset) and own-recompile byte-identity, but NOT by hardware dispatch. If a future variant emits a vertex 0x17 with byte+2==0xa2 at a different length, the split would need a length field -- none seen in this corpus."
+  ]
+}

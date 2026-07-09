@@ -2386,4 +2386,184 @@
     <immediate name="slot" bit="24:31"/>
   </ins>
 
+  <!-- vtx_coord_xform: VERTEX-stage coordinate / position transform op -->
+  <!-- provenance: OWN-SHADER (EXP-M4-13 R5, byte-diff, NOT HW-dispatch-validated): compiled derivatives_misc/deriv_scalar vMain and every frag_output vertex prologue ... -->
+  <ins name="vtx_coord_xform" length="10" label="VERTEX-stage coordinate / position transform op">
+    <exact bit="0:7">00010111</exact>
+    <exact bit="16:23">10100010</exact>
+    <exact bit="24:31">10110000</exact>
+    <!-- mode [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- sel [32:39]: inferred / not yet bit-decoded -->
+    <zero bit="32:39"/>
+    <!-- operand [40:79]: inferred / not yet bit-decoded -->
+    <zero bit="40:79"/>
+  </ins>
+
+  <!-- mesh_out_src: MESH-stage compact source op feeding the immediately-following device store (byte+2==0xe7) of a ... -->
+  <!-- provenance: OWN-SHADER (EXP-M4-13 R5, byte-diff/bracket, NOT HW-dispatch-validated): mesh corpus mesh-stage hex ... -->
+  <ins name="mesh_out_src" length="2" label="MESH-stage compact source op feeding the immediately-following device store (byte+2==0xe7) of a ...">
+    <exact bit="0:7">00000100</exact>
+    <!-- sel [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+  </ins>
+
+  <!-- isel8: d = (predicate) ? srcA : srcB -->
+  <!-- provenance: OWN-MSL byte-diff (EXP-M4-13 R5): `(a>b)?a:b` (int) compiles to `12 81 27 85 01 84 07 20` (8B, dst r1); div-correction SELECT `02 93 27 0f 86 14 00 ... -->
+  <group name="isel8" length="8" label="d = (predicate) ? srcA : srcB">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:18">111</exact>
+    <exact bit="19:23">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- srcA_desc [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <src name="srcB" bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- b7 [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+
+    <ins name="sel" opsel="00000" label="sel(0x07)"/>
+    <ins name="sel_2" opsel="00001" label="sel(0x0f)"/>
+    <ins name="sel_3" opsel="00011" label="sel(0x1f)"/>
+    <ins name="sel_4" opsel="00100" label="sel(0x27)"/>
+    <ins name="sel_5" opsel="00101" label="sel(0x2f)"/>
+  </group>
+
+  <!-- isel10: d = (predicate) ? srcA : srcB -->
+  <!-- provenance: OWN-MSL byte-diff (EXP-M4-13 R5): int div/mod correction emits `22 8f 07 91 22 80 05 00 80 06` and `72 81 27 80 22 20 07 c2 20 80` (10B, byte+2 ... -->
+  <group name="isel10" length="10" label="d = (predicate) ? srcA : srcB">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:18">111</exact>
+    <exact bit="19:23">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- srcA_desc [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <src name="srcB" bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- b7 [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+    <!-- operand [64:79]: inferred / not yet bit-decoded -->
+    <zero bit="64:79"/>
+
+    <ins name="sel" opsel="00000" label="sel(0x07)"/>
+    <ins name="sel_2" opsel="00001" label="sel(0x0f)"/>
+    <ins name="sel_3" opsel="00011" label="sel(0x1f)"/>
+    <ins name="sel_4" opsel="00100" label="sel(0x27)"/>
+    <ins name="sel_5" opsel="00111" label="sel(0x3f)"/>
+  </group>
+
+  <!-- isel10_c: d = (predicate) ? srcA : srcB -->
+  <!-- provenance: OWN-MSL byte-diff (EXP-M4-13 R5): unsigned div/mod emits `12 80 25 8b 22 81 85 00 20 80` (0x25 wide-select) and `12 02 2d 80 26 80 07 02 22 81` (0x2d ... -->
+  <group name="isel10_c" length="10" label="d = (predicate) ? srcA : srcB">
+    <exact bit="0:3">0010</exact>
+    <exact bit="16:18">101</exact>
+    <exact bit="19:23">opsel</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- srcA_desc [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <src name="srcA" bit="24:31"/>
+    <src name="srcB" bit="32:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <!-- b6 [48:55]: inferred / not yet bit-decoded -->
+    <zero bit="48:55"/>
+    <!-- b7 [56:63]: inferred / not yet bit-decoded -->
+    <zero bit="56:63"/>
+    <!-- operand [64:79]: inferred / not yet bit-decoded -->
+    <zero bit="64:79"/>
+
+    <ins name="sel" opsel="00000" label="sel(0x05)"/>
+    <ins name="sel_2" opsel="00001" label="sel(0x0d)"/>
+    <ins name="sel_3" opsel="00010" label="sel(0x15)"/>
+    <ins name="sel_4" opsel="00100" label="sel(0x25)"/>
+    <ins name="sel_5" opsel="00101" label="sel(0x2d)"/>
+  </group>
+
+  <!-- n2_compact2: 2-byte compact low-nibble-2 helper `02 00` (dst r0, byte+1 == 0x00) -->
+  <!-- provenance: byte-diff EXP-M4-13 R5 (own-MSL + corpus): standalone 2-byte word in transcendental/half/atan kernels (length 2 from the byte0==0x02,byte+1==0x00 ... -->
+  <ins name="n2_compact2" length="2" label="2-byte compact low-nibble-2 helper `02 00` (dst r0, byte+1 == 0x00)">
+    <exact bit="0:7">00000010</exact>
+    <exact bit="8:15">00000000</exact>
+  </ins>
+
+  <!-- n2_op8: Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 8-byte forms that are NOT ... -->
+  <!-- provenance: byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 8 from the low-nibble-2 length rule. byte fields captured for clean ... -->
+  <ins name="n2_op8" length="8" label="Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 8-byte forms that are NOT ...">
+    <exact bit="0:3">0010</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- srcA_desc [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- opsel [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- body [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
+  </ins>
+
+  <!-- n2_op10: Generic 10-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 10-byte forms not covered ... -->
+  <!-- provenance: byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 10 from the low-nibble-2 length rule. RT-getter / SFU marshalling ... -->
+  <ins name="n2_op10" length="10" label="Generic 10-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 10-byte forms not covered ...">
+    <exact bit="0:3">0010</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- srcA_desc [8:15]: inferred / not yet bit-decoded -->
+    <zero bit="8:15"/>
+    <!-- opsel [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- body [24:79]: inferred / not yet bit-decoded -->
+    <zero bit="24:79"/>
+  </ins>
+
+  <!-- cvt_i2f_src: d = float(a) -->
+  <!-- provenance: inferred (OWN-MSL byte-diff, EXP-M4-13 R5): reproduced by our own compilation of `o=float(int)+float(int)` / `float(uint)+float(uint)` and the ... -->
+  <group name="cvt_i2f_src" length="8" label="d = float(a)">
+    <exact bit="0:7">10100111</exact>
+    <exact bit="8:15">00010111</exact>
+    <exact bit="48:55">cvtop</exact>
+    <!-- b2 [16:23]: inferred / not yet bit-decoded -->
+    <zero bit="16:23"/>
+    <!-- src [24:39]: inferred / not yet bit-decoded -->
+    <zero bit="24:39"/>
+    <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+    <zero bit="40:47"/>
+    <modifier name="signflag" bit="56:63"/>
+
+    <ins name="i2f_sibling2" cvtop="10001100" label="i2f[sibling2]"/>
+    <ins name="i2f_sibling" cvtop="10001110" label="i2f[sibling]"/>
+    <ins name="i2f_16_16" cvtop="10100000" label="i2f[16-&gt;16]"/>
+    <ins name="i2f_16_32" cvtop="10100100" label="i2f[16-&gt;32]"/>
+    <ins name="i2f_32_16" cvtop="10101000" label="i2f[32-&gt;16]"/>
+    <ins name="int2f_32_32" cvtop="10101100" label="int2f[32-&gt;32]"/>
+    <ins name="i2f_8_32" cvtop="10110100" label="i2f[8-&gt;32]"/>
+  </group>
+
+  <!-- copysign: d = copysign(a, b) = |a| with the sign bit of b (float) -->
+  <!-- provenance: inferred (OWN-MSL byte-diff, EXP-M4-13 R5): our own compilation of `copysign(a[i],b[i])` (float) emits `07 c2 88 00` byte-exact vs the committed ... -->
+  <ins name="copysign" length="4" label="d = copysign(a, b) = |a| with the sign bit of b (float)">
+    <exact bit="0:7">00000111</exact>
+    <exact bit="8:15">11000010</exact>
+    <exact bit="16:23">10001000</exact>
+    <!-- operands [24:31]: inferred / not yet bit-decoded -->
+    <zero bit="24:31"/>
+  </ins>
+
+  <!-- ibfe_mesh_attr: d = extract_bits(packed_attr, off, cnt) - bitfield-extract of a packed flat PER-PRIMITIVE mesh ... -->
+  <!-- provenance: inferred (byte-diff, EXP-M4-13 R5): single occurrence in our OWN-MSL mesh_pervertex_wide fragment (`27 00 66 00 03 14 42 00 f0 10 01 00`), unpacking ... -->
+  <ins name="ibfe_mesh_attr" length="12" label="d = extract_bits(packed_attr, off, cnt) -- bitfield-extract of a packed flat PER-PRIMITIVE mesh ...">
+    <exact bit="0:7">00100111</exact>
+    <exact bit="8:15">00000000</exact>
+    <exact bit="16:23">01100110</exact>
+    <!-- operands [24:63]: inferred / not yet bit-decoded -->
+    <zero bit="24:63"/>
+    <modifier name="opdesc" bit="64:71" kind="ibfins_opdesc"/>
+    <!-- tail [72:95]: inferred / not yet bit-decoded -->
+    <zero bit="72:95"/>
+  </ins>
+
 </isa>

@@ -221,6 +221,14 @@ def instr_length(buf, off=0):
     # with the compute integer length rule below.
     if b0 == 0x1f and off + 2 < len(buf) and buf[off+2] == 0x54 and buf[off+1] in (0x03, 0x0b):
         return 6                       # fragment flat / attribute load (EXP-0029)
+    # ---- MESH output-store SOURCE op (EXP-M4-13 R5 stage_len): `04 SS e7 02`, 2 bytes ----
+    # A compact mesh-stage source word that feeds the immediately-following 14-byte
+    # device_store (0xe7 leader at byte+2, its 0x02 sub-byte at byte+3). The flat fragment
+    # centroid rule (`0x04 -> 8`) over-read it by 6 and swallowed the store head + a `0f 06`
+    # pop_reconverge. Gate on byte+2==0xe7 && byte+3==0x02 so it never touches the fragment
+    # centroid read (byte+2 != 0xe7), get_sr, sr_read_wide or rt_intersect (byte+1==0xea).
+    if b0 == 0x04 and off + 3 < len(buf) and buf[off + 2] == 0xe7 and buf[off + 3] == 0x02:
+        return 2                       # mesh_out_src (compact mesh output-store source, R5)
     # Fragment sample-position / sample-id preamble reads (centroid/sample only).
     if b0 == 0x04 and off + 1 < len(buf) and buf[off+1] != 0xea:
         return 8                       # centroid-position read
@@ -251,8 +259,20 @@ def instr_length(buf, off=0):
     # Gated on byte+2 in {0x00,0x02} so it never touches the 0x54 barrier above or the
     # vertex/fragment 0x07 varying stores. (RT-ISA-FIX: closes the RT-1b census gap
     # where a `07 22 02` halted strict tokenization for want of a length rule.)
-    if b0 == 0x07 and off + 2 < len(buf) and buf[off + 2] in (0x00, 0x02, 0x20):
+    if b0 == 0x07 and off + 2 < len(buf) and (
+            buf[off + 2] in (0x00, 0x02, 0x20, 0x88)
+            or (buf[off + 2] == 0x22 and buf[off + 1] == 0x22)):
         return 4                       # compute memory / scoreboard fence (RT-ISA-FIX HW).
+                                       # EXP-M4-13 R5 (n7_barrier): byte+1==0x22 && byte+2==0x22 is the
+                                       # SUBGROUP-VOTE fence `07 22 22 80` (multi-vote sibling of the 0x20
+                                       # single-vote form) and byte+2==0x88 is the copysign SIGN-COMBINE op
+                                       # `07 c2 88 00`; both were unlengthed (byte+2 not in the old set) and
+                                       # desynced their operand tails as spurious 0x54. Both are 4B; byte+2
+                                       # bit0==0 so scoreboard_fence already matches once lengthed (copysign
+                                       # additionally gets a more-specific descriptor). The 0x22 case is
+                                       # gated on byte+1==0x22 (the validated subgroup-vote signature) so it
+                                       # never lengthens the `07 00 22`/`07 02 22` cascade-region bytes in
+                                       # the ray-query commit kernels (which would shift a downstream resync).
                                        # EXP-M4-01 round-3: byte+2==0x20 is the SUBGROUP-scope
                                        # variant (`07 00 20 80` in k_subgroup_ballot@58, between the
                                        # simd_ballot ops and the reduce iadd2 chain); 4B, anchored by
@@ -4591,6 +4611,241 @@ DB = [
                      "{0x04,0x0a,0x0c} = the output-class form.",
         "provenance": "byte-diff EXP-M4-13 R4 (own-MSL vtest_posonly `00 0c 40 60` -> vary_store, reproduced "
                      "byte-exact); genuine leader -- appears after 8+ distinct preceding ops corpus-wide.",
+    },
+    {
+        "mnemonic": "vtx_coord_xform", "length": 10,
+        "match": [(0, 8, 23), (16, 8, 162), (24, 8, 176)],   # byte0==0x17, byte+2==0xa2, byte+3==0xb0
+        "fields": [
+            {"name": "mode",    "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "sel",     "start": 32, "width": 8,  "type": "raw"},
+            {"name": "operand", "start": 40, "width": 40, "type": "raw"},
+        ],
+        "semantics": "VERTEX-stage coordinate / position transform op. Reads a vertex-array / constant-"
+                     "indexed coordinate and produces the clip-space position or a varying coordinate. "
+                     "byte+2==0xa2, byte+3==0xb0 are the fixed operand-selector pair that statically "
+                     "distinguish it from the compute-stage 0x17 simd_ballot (byte+2==0x54/0x56) with which "
+                     "it shares byte0 and length (10). The operand bytes are left raw (the coordinate-select "
+                     "sequence is not reconstructed, clean-room rule 5).",
+        "provenance": "OWN-SHADER (EXP-M4-13 R5, byte-diff, NOT HW-dispatch-validated): compiled "
+                     "derivatives_misc/deriv_scalar vMain and every frag_output vertex prologue on the local "
+                     "M4, byte-identical to the committed corpus vertex hex. Length 10 bracketed: the next op "
+                     "leader begins exactly 10 bytes later (root 0x21 in deriv-shaped VS, root 0x00 in "
+                     "discard-shaped VS).",
+    },
+    {
+        "mnemonic": "mesh_out_src", "length": 2,
+        "match": [(0, 8, 4)],   # byte0==0x04
+        "fields": [
+            {"name": "sel", "start": 8, "width": 8, "type": "raw"},
+        ],
+        "semantics": "MESH-stage compact source op feeding the immediately-following device store "
+                     "(byte+2==0xe7) of a mesh vertex/primitive output. Occupies the same structural slot as "
+                     "the 8-byte sr_read_wide (mesh_point `04 88 06 ..`) but is a distinct 2-byte compact "
+                     "encoding (byte+1 < 0x80). byte+1 left raw.",
+        "provenance": "OWN-SHADER (EXP-M4-13 R5, byte-diff/bracket, NOT HW-dispatch-validated): mesh corpus "
+                     "mesh-stage hex (mesh_transform/tri/line/maxout/grid3d/amplify_dyn/obj_reduce/"
+                     "payload_large/pervertex_wide); length 2 bracketed by an if_push (0f 05 54 01) before and "
+                     "a 14-byte device_store (e7 02 54|64 ..) after in every sample; mesh_transform own "
+                     "recompile byte-checked.",
+    },
+    # ---- low-nibble-2 register-operand compare-SELECT family (EXP-M4-13 R5 n2_name) ----
+    # PURELY ADDITIVE naming of the dominant family-only low-nibble-2 chunk. byte0 low
+    # nibble 2 = group; byte0 HIGH nibble = dst r0..r15. byte+2 low 3 bits == 0b111 marks
+    # the register-operand compare-SELECT (d = pred ? srcA : srcB), NOT a multiply-add
+    # (own MSL 'a*b+c' int emits the 12-byte 0x9f imad; 'a>b?a:b' emits this select).
+    {
+        "mnemonic": "isel8", "length": 8,
+        "match": [(0, 4, 2), (16, 3, 7)],   # low nibble 2, byte+2 low-3-bits == 7
+        "fields": [
+            {"name": "dst",      "start": 4,  "width": 4, "type": "reg"},
+            {"name": "srcA_desc","start": 8,  "width": 8, "type": "raw"},
+            {"name": "opsel",    "start": 19, "width": 5, "type": "opcode",
+             "enum": {4: "sel(0x27)", 5: "sel(0x2f)", 1: "sel(0x0f)", 3: "sel(0x1f)", 0: "sel(0x07)"}},
+            {"name": "srcA",     "start": 24, "width": 8, "type": "reg"},
+            {"name": "srcB",     "start": 32, "width": 8, "type": "reg"},
+            {"name": "b5",       "start": 40, "width": 8, "type": "raw"},
+            {"name": "b6",       "start": 48, "width": 8, "type": "raw"},
+            {"name": "b7",       "start": 56, "width": 8, "type": "raw"},
+        ],
+        "semantics": "d = (predicate) ? srcA : srcB ; register-operand integer/float compare-SELECT, NARROW "
+                     "8-byte form (both sources registers, no trailing operand word). byte0 low-nibble 2 = "
+                     "group; byte0 HIGH nibble = dst r0..r15; byte+1 = srcA/size descriptor; byte+2 low 3 bits "
+                     "== 0b111 identifies the register-select forms (op variants 0x07/0x0f/0x1f/0x27/0x2f in "
+                     "byte+2, upper 5 bits = opsel); byte+3 = srcA, byte+4 = srcB. Dominant low-nibble-2 form "
+                     "(own-MSL: int/float ternaries and the quotient/remainder correction SELECT in integer "
+                     "division). The 0x25 8-byte sibling (isel_reg8) and 0x2f 10-byte sibling (isel_reg) are "
+                     "more-specific and still win their signatures.",
+        "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): `(a>b)?a:b` (int) compiles to `12 81 27 85 01 84 07 "
+                     "20` (8B, dst r1); div-correction SELECT `02 93 27 0f 86 14 00 02` -- all 8-byte "
+                     "low-nibble-2 with byte+2 low3==7, bracketed by iadd2/carry_gen/n2_op6. byte+2 confirmed a "
+                     "SELECT (not imad) because own-MSL int `a*b+c` emits the 12-byte 0x9f imad. NOT "
+                     "HW-dispatch validated (M4 compile-only).",
+    },
+    {
+        "mnemonic": "isel10", "length": 10,
+        "match": [(0, 4, 2), (16, 3, 7)],   # low nibble 2, byte+2 low-3-bits == 7
+        "fields": [
+            {"name": "dst",      "start": 4,  "width": 4,  "type": "reg"},
+            {"name": "srcA_desc","start": 8,  "width": 8,  "type": "raw"},
+            {"name": "opsel",    "start": 19, "width": 5,  "type": "opcode",
+             "enum": {4: "sel(0x27)", 0: "sel(0x07)", 1: "sel(0x0f)", 3: "sel(0x1f)", 7: "sel(0x3f)"}},
+            {"name": "srcA",     "start": 24, "width": 8,  "type": "reg"},
+            {"name": "srcB",     "start": 32, "width": 8,  "type": "reg"},
+            {"name": "b5",       "start": 40, "width": 8,  "type": "raw"},
+            {"name": "b6",       "start": 48, "width": 8,  "type": "raw"},
+            {"name": "b7",       "start": 56, "width": 8,  "type": "raw"},
+            {"name": "operand",  "start": 64, "width": 16, "type": "raw"},
+        ],
+        "semantics": "d = (predicate) ? srcA : srcB ; register-operand compare-SELECT, WIDE 10-byte form -- "
+                     "the isel8 sibling carrying a trailing operand word (byte+8:9), used when srcB / the "
+                     "correction addend is an immediate / wide operand. byte+2 low 3 bits == 0b111. The "
+                     "already-named 0x2f (isel_reg) and 0x27/0x81/0x22 (rt_transform_test) forms are "
+                     "more-specific and still win. Operand semantics left structural (rule 5).",
+        "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): int div/mod correction emits `22 8f 07 91 22 80 05 00 "
+                     "80 06` and `72 81 27 80 22 20 07 c2 20 80` (10B, byte+2 low3==7, trailing operand word), "
+                     "bracketed by carry_gen. Same SELECT semantics as isel8 (confirmed vs 0x9f imad). NOT "
+                     "HW-dispatch validated.",
+    },
+    {
+        "mnemonic": "isel10_c", "length": 10,
+        "match": [(0, 4, 2), (16, 3, 5)],   # low nibble 2, byte+2 low-3-bits == 5
+        "fields": [
+            {"name": "dst",      "start": 4,  "width": 4,  "type": "reg"},
+            {"name": "srcA_desc","start": 8,  "width": 8,  "type": "raw"},
+            {"name": "opsel",    "start": 19, "width": 5,  "type": "opcode",
+             "enum": {4: "sel(0x25)", 5: "sel(0x2d)", 0: "sel(0x05)", 2: "sel(0x15)", 1: "sel(0x0d)"}},
+            {"name": "srcA",     "start": 24, "width": 8,  "type": "reg"},
+            {"name": "srcB",     "start": 32, "width": 8,  "type": "reg"},
+            {"name": "b5",       "start": 40, "width": 8,  "type": "raw"},
+            {"name": "b6",       "start": 48, "width": 8,  "type": "raw"},
+            {"name": "b7",       "start": 56, "width": 8,  "type": "raw"},
+            {"name": "operand",  "start": 64, "width": 16, "type": "raw"},
+        ],
+        "semantics": "d = (predicate) ? srcA : srcB ; register/immediate-operand compare-SELECT, WIDE 10-byte "
+                     "form with byte+2 low 3 bits == 0b101 (op variants 0x05/0x0d/0x15/0x25/0x2d). 0x25 = the "
+                     "wide (immediate-srcB) select; 0x2d = the integer division/modulo QUOTIENT correction "
+                     "select. Sibling of the 8-byte 0x25 isel_reg8. The division algorithm is NOT reconstructed "
+                     "(rule 5).",
+        "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): unsigned div/mod emits `12 80 25 8b 22 81 85 00 20 "
+                     "80` (0x25 wide-select) and `12 02 2d 80 26 80 07 02 22 81` (0x2d correction select), 10B, "
+                     "bracketed by carry_gen. NOT HW-dispatch validated.",
+    },
+    {
+        "mnemonic": "n2_compact2", "length": 2,
+        "match": [(0, 8, 2), (8, 8, 0)],   # exact `02 00`
+        "fields": [],
+        "semantics": "2-byte compact low-nibble-2 helper `02 00` (dst r0, byte+1 == 0x00). A compiler-internal "
+                     "select/predicate/frame marker emitted between other ops (e.g. after a fence before a "
+                     "frame-marker, or between a subgroup-shuffle and an iadd). Distinct from the "
+                     "b_alu14_prep2 compact word (byte+1 bit0 == 1) and the 6-byte iminmax (real op-select in "
+                     "byte+2). Length-only; semantics deliberately NOT reconstructed (clean-room rule 5).",
+        "provenance": "byte-diff EXP-M4-13 R5 (own-MSL + corpus): standalone 2-byte word in "
+                     "transcendental/half/atan kernels (length 2 from the byte0==0x02,byte+1==0x00 length "
+                     "rule; the following byte is the next op's head, re-tokenizing cleanly). NOT HW-dispatch "
+                     "validated; op class inferred, not reconstructed.",
+    },
+    {
+        "mnemonic": "n2_op8", "length": 8,
+        "match": [(0, 4, 2)],   # catch-all: low nibble 2, length 8
+        "fields": [
+            {"name": "dst",       "start": 4,  "width": 4,  "type": "reg"},
+            {"name": "srcA_desc", "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "opsel",     "start": 16, "width": 8,  "type": "raw"},
+            {"name": "body",      "start": 24, "width": 40, "type": "raw"},
+        ],
+        "semantics": "Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 8-byte forms that "
+                     "are NOT the register-operand SELECTs (isel8, byte+2 low3==7) nor the 0x25 isel_reg8. In "
+                     "practice the transcendental SFU RANGE-REDUCTION select (byte+1 == 0xc2, byte+2 in "
+                     "{0x19,0x29,0x49,0x59}, tail `.. 80 08`): a compiler-generated argument-reduction step. "
+                     "Length-classified only; SFU per-op-select semantics deliberately NOT reconstructed "
+                     "(clean-room rule 5).",
+        "provenance": "byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 8 from "
+                     "the low-nibble-2 length rule. byte fields captured for clean tokenization + round-trip; "
+                     "op semantics UNRESOLVED (SFU internal). NOT HW-dispatch validated.",
+    },
+    {
+        "mnemonic": "n2_op10", "length": 10,
+        "match": [(0, 4, 2)],   # catch-all: low nibble 2, length 10
+        "fields": [
+            {"name": "dst",       "start": 4,  "width": 4,  "type": "reg"},
+            {"name": "srcA_desc", "start": 8,  "width": 8,  "type": "raw"},
+            {"name": "opsel",     "start": 16, "width": 8,  "type": "raw"},
+            {"name": "body",      "start": 24, "width": 56, "type": "raw"},
+        ],
+        "semantics": "Generic 10-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 10-byte forms "
+                     "not covered by the named selects (isel10/isel10_c/isel_reg/rt_transform_test). A MIX: "
+                     "(a) the all-zero `X2 00 00 ..` word (likely an OVER-READ of the byte0==0x22 default-to-10 "
+                     "length rule -- see the R5 unresolved note); (b) RAY-QUERY GETTER result-marshalling "
+                     "words inside intersection_query getters; (c) transcendental Horner/select steps. All are "
+                     "compiler-internal SFU / RT-getter marshalling; length-classified only, per-op semantics "
+                     "deliberately NOT reconstructed (rule 5).",
+        "provenance": "byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 10 "
+                     "from the low-nibble-2 length rule. RT-getter / SFU marshalling classification from corpus "
+                     "co-occurrence (intersection_query and transcendental kernels). byte fields captured for "
+                     "clean tokenization + round-trip; op semantics UNRESOLVED. NOT HW-dispatch validated.",
+    },
+    # ---- 0xa7 / 0x07 / 0x27 low-nibble-7 convert/shift + barrier siblings (EXP-M4-13 R5 n7_barrier) ----
+    {
+        "mnemonic": "cvt_i2f_src", "length": 8,
+        "match": [(0, 8, 167), (8, 8, 23)],   # byte0==0xa7, byte+1==0x17
+        "fields": [
+            {"name": "b2",       "start": 16, "width": 8,  "type": "raw"},     # byte+2 0x54/0x56 cache/last-use hint
+            {"name": "src",      "start": 24, "width": 16, "type": "raw"},     # byte+3:4 source descriptor
+            {"name": "b5",       "start": 40, "width": 8,  "type": "raw"},     # byte+5 source-descriptor high
+            {"name": "cvtop",    "start": 48, "width": 8,  "type": "opcode",   # byte+6 source/dest WIDTH descriptor
+             "enum": {172: "int2f[32->32]", 160: "i2f[16->16]", 164: "i2f[16->32]", 168: "i2f[32->16]",
+                      180: "i2f[8->32]", 142: "i2f[sibling]", 140: "i2f[sibling2]"}},
+            {"name": "signflag", "start": 56, "width": 8,  "type": "mod"},     # byte+7, bit6 (0x40) = signed
+        ],
+        "semantics": "d = float(a) ; integer/uint -> float/half convert (round to nearest even). The "
+                     "byte+1==0x17 sibling of cvt_i2f (byte+1==0x07): byte+1 bit4 marks the "
+                     "SOURCE-CONSUMED-BY-A-FOLLOWING-ALU-OP routing (byte+2==0x54 result-consumed vs 0x56 "
+                     "standalone/last-use); the convert itself and the byte+6 width / byte+7 sign (bit6=signed "
+                     "i2f vs unsigned u2f) fields are IDENTICAL to the HW-VALIDATED cvt_i2f.",
+        "provenance": "inferred (OWN-MSL byte-diff, EXP-M4-13 R5): reproduced by our own compilation of "
+                     "`o=float(int)+float(int)` / `float(uint)+float(uint)` and the committed "
+                     "conversions_pack/cvt_i2f.metal (`a7 17 54 08 03 00 8e 20`, byte-exact). The a7-07 and "
+                     "a7-17 forms appear TOGETHER when two converts feed one ALU combine (differ only in "
+                     "byte+1 0x07->0x17, byte+2 0x56->0x54, source descriptor; byte+6 width and byte+7 sign "
+                     "identical). Signed/unsigned byte+7 0x60/0x20 CONFIRMED own-MSL; the byte+1 bit4 "
+                     "source-routing role is byte-diff-inferred, NOT HW-splice-isolated. Same convert "
+                     "semantics as HW-VALIDATED cvt_i2f.",
+    },
+    {
+        "mnemonic": "copysign", "length": 4,
+        "match": [(0, 8, 7), (8, 8, 194), (16, 8, 136)],   # byte0==0x07, byte+1==0xc2, byte+2==0x88
+        "fields": [
+            {"name": "operands", "start": 24, "width": 8, "type": "raw"},   # byte+3 src/dst register descriptor
+        ],
+        "semantics": "d = copysign(a, b) = |a| with the sign bit of b (float). 4 bytes: 07 c2 88 <ops>. byte0 "
+                     "0x07 low-nibble-7 sign-combine ALU op; byte+3 carries the src/dst register operand "
+                     "descriptor. The half (fp16) copysign is a separate byte0-0x0f op, not this one. MORE "
+                     "SPECIFIC than scoreboard_fence (24 vs 9 match bits) so decode_one prefers it for "
+                     "`07 c2 88 xx`; semantically it is ALU, not a memory fence.",
+        "provenance": "inferred (OWN-MSL byte-diff, EXP-M4-13 R5): our own compilation of `copysign(a[i],b[i])` "
+                     "(float) emits `07 c2 88 00` byte-exact vs the committed float_arith/copysign corpus (the "
+                     "half form is a distinct `0f c2 8a 02`). Length 4 is forced by clean whole-kernel "
+                     "tokenization (op followed directly by the 14B device store then the stop). byte+3 "
+                     "operand-descriptor role byte-diff-inferred, NOT HW-splice-isolated.",
+    },
+    {
+        "mnemonic": "ibfe_mesh_attr", "length": 12,
+        "match": [(0, 8, 39), (8, 8, 0), (16, 8, 102)],   # byte0==0x27, byte+1==0x00, byte+2==0x66
+        "fields": [
+            {"name": "operands", "start": 24, "width": 40, "type": "raw"},   # byte+3..+7 src/off/cnt descriptor
+            {"name": "opdesc",   "start": 64, "width": 8,  "type": "enum",    # byte+8
+             "enum": {240: "reg-operand", 192: "imm-operand"}},
+            {"name": "tail",     "start": 72, "width": 24, "type": "raw"},    # byte+9..+11
+        ],
+        "semantics": "d = extract_bits(packed_attr, off, cnt) -- bitfield-extract of a packed flat "
+                     "PER-PRIMITIVE mesh attribute in the fragment stage (source-address mode byte+2==0x66). "
+                     "12-byte operand form (byte+8==0xf0 register-operand tail), the same bitfield-extract "
+                     "family as the 0xa7 ibfe / 0x27 ibfins but with the mesh packed-attribute source mode.",
+        "provenance": "inferred (byte-diff, EXP-M4-13 R5): single occurrence in our OWN-MSL mesh_pervertex_wide "
+                     "fragment (`27 00 66 00 03 14 42 00 f0 10 01 00`), unpacking the flat `uint pid [[flat]]` "
+                     "per-primitive attribute (`float(in.p.pid)*0.01`). Length 12 gives clean tokenization of "
+                     "the mesh-fragment prologue; field roles byte-diff-inferred, NOT HW-splice-isolated. "
+                     "Single own-corpus occurrence, 0 in thirdparty.",
     },
 ]
 

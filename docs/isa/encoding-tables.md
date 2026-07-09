@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 134 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 145 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -1377,6 +1377,50 @@
 
 - **Length:** 4 bytes  ·  **Match:** byte+0==0x00, byte+2==0x40
 
+### `vtx_coord_xform`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, byte+2==0xa2, byte+3==0xb0
+
+### `mesh_out_src`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x04
+
+### `isel8`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7
+
+### `isel10`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7
+
+### `isel10_c`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x5
+
+### `n2_compact2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x00
+
+### `n2_op8`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2
+
+### `n2_op10`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2
+
+### `cvt_i2f_src`
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0xa7, byte+1==0x17
+
+### `copysign`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, byte+1==0xc2, byte+2==0x88
+
+### `ibfe_mesh_attr`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x00, byte+2==0x66
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1451,4 +1495,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 134 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 145 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

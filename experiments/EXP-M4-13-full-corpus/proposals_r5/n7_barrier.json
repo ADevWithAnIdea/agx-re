@@ -1,0 +1,107 @@
+{
+  "task": "0x27/0xa7 low-nibble-7 convert/shift + 0x07 barrier variants (0x54 residual root owner) — EXP-M4-13 R5 (n7_barrier)",
+  "kind": "length-rule-edit + descriptor-add (additive; clean-room OWN-MSL / own-compiled-corpus byte-diff)",
+  "summary": "Root-caused the 0x54 residual desync to a MISSING descriptor for the a7-17 int/uint->float/half convert sibling (length 8 was already correct), plus two unlengthed 0x07 low-nibble-7 ops (copysign 07 c2 88, subgroup-vote fence 07 22 22) and one unlengthed-descriptor mesh 0x27 bitfield (27 00 66). Closing these cleared 30 corpus files (17 own + 13 tp) with ZERO regression. The a7-17 root alone accounts for 14 own + 13 tp of the 0x54 residual (the bulk of the '~20 own / 30 tp' the task cited); the residual 0x54-containing leftovers that REMAIN are cascades of unrelated families (0x0b compact-move, 0x17 unpack, 0x02 icmp, 0x09 op-select) and are out of scope.",
+
+  "lengthRuleEdits": [
+    {
+      "op": "byte0 == 0x07 (compute memory / scoreboard fence gate)",
+      "location": "isadb.py instr_length(), the `if b0 == 0x07 and buf[off+2] in (...)` scoreboard-fence branch",
+      "before": "buf[off + 2] in (0x00, 0x02, 0x20)  -> 4",
+      "after":  "buf[off + 2] in (0x00, 0x02, 0x20, 0x22, 0x88)  -> 4",
+      "rationale": "Two 0x07 low-nibble-7 ops had NO length rule (byte+2 not in the old set) and desynced their operand tails as spurious 0x54: (a) the SUBGROUP-VOTE fence `07 22 22 80` (byte+2==0x22) — the multi-vote sibling of the already-handled single-vote `07 00 20 80` (byte+2==0x20); (b) the copysign SIGN-COMBINE op `07 c2 88 00` (byte+2==0x88). Both are 4 bytes (own-MSL confirmed for copysign; backward-tokenization-forced for both). byte+2==0x54 is still handled earlier (barrier/mem_fence/link_save, 6/8B) so this gate is never reached for it. Both new byte+2 values have bit0==0, so the existing scoreboard_fence descriptor already matched them once lengthed; copysign additionally gets a dedicated more-specific descriptor.",
+      "provenance": "OWN-MSL: `copysign(a,b)` (float) compiles to `07 c2 88 00` byte-exact (reproduced vs committed float_arith/copysign corpus); `07 22 22 80` byte-diffed against the sibling `07 00 20 80` our own simd_all/simd_any/simd_ballot kernels emit. NOT HW-dispatch-validated."
+    }
+  ],
+
+  "noLengthEditNeeded": [
+    {
+      "op": "0xa7 byte+1 == 0x17 (cvt_i2f sibling)",
+      "note": "Length 8 was ALREADY returned by the existing `a7 byte+1 in {0x07,0x17} -> 8` rule; the ONLY gap was the missing descriptor. Descriptor-only fix (cvt_i2f_src)."
+    },
+    {
+      "op": "0x27 byte+1 == 0x00, byte+2 == 0x66 (mesh per-primitive attr unpack)",
+      "note": "Length 12 was ALREADY returned by the existing `0x27 byte+1 in {0x00,0x02,0x10} -> 12` rule; the existing ibfins descriptor required byte+2 in {0x54,0x56} and so did not match byte+2==0x66. Descriptor-only fix (ibfe_mesh_attr)."
+    }
+  ],
+
+  "descriptors": [
+    {
+      "mnemonic": "cvt_i2f_src",
+      "length": 8,
+      "match": [[0, 8, 167], [8, 8, 23]],
+      "match_hex_note": "byte0==0xa7, byte+1==0x17",
+      "fields": [
+        {"name": "b2",       "start": 16, "width": 8,  "type": "raw",    "note": "byte+2 0x54/0x56 cache/last-use hint"},
+        {"name": "src",      "start": 24, "width": 16, "type": "raw",    "note": "byte+3:4 source descriptor"},
+        {"name": "b5",       "start": 40, "width": 8,  "type": "raw",    "note": "byte+5 source-descriptor high"},
+        {"name": "cvtop",    "start": 48, "width": 8,  "type": "opcode", "enum": {"172": "int2f[32->32]", "160": "i2f[16->16]", "164": "i2f[16->32]", "168": "i2f[32->16]", "180": "i2f[8->32]", "142": "i2f[sibling]", "140": "i2f[sibling2]"}, "note": "byte+6 source/dest WIDTH descriptor (0xac/0xa0/0xa4/0xa8/0xb4/0x8e/0x8c)"},
+        {"name": "signflag", "start": 56, "width": 8,  "type": "mod",    "note": "byte+7, bit6 (0x40) = signed"}
+      ],
+      "semantics": "d = float(a) ; integer/uint -> float/half convert (round to nearest even). The byte+1==0x17 sibling of cvt_i2f (byte+1==0x07): byte+1 bit4 marks the SOURCE-CONSUMED-BY-A-FOLLOWING-ALU-OP routing (byte+2==0x54 result-consumed vs 0x56 standalone/last-use); the convert itself and the byte+6 width / byte+7 sign (bit6=signed i2f vs unsigned u2f) fields are IDENTICAL to the HW-VALIDATED cvt_i2f.",
+      "provenance": "inferred (OWN-MSL byte-diff, EXP-M4-13 R5): reproduced by our own compilation of `o=float(int)+float(int)` / `float(uint)+float(uint)` and the committed conversions_pack/cvt_i2f.metal (`a7 17 54 08 03 00 8e 20`, byte-exact). The a7-07 and a7-17 forms appear TOGETHER when two converts feed one ALU combine (byte-diff: differ only in byte+1 0x07->0x17, byte+2 0x56->0x54, source descriptor; byte+6 width and byte+7 sign identical). Signed/unsigned byte+7 0x60/0x20 CONFIRMED own-MSL; the byte+1 bit4 source-routing role is byte-diff-inferred, NOT HW-splice-isolated. Same convert semantics as HW-VALIDATED cvt_i2f."
+    },
+    {
+      "mnemonic": "copysign",
+      "length": 4,
+      "match": [[0, 8, 7], [8, 8, 194], [16, 8, 136]],
+      "match_hex_note": "byte0==0x07, byte+1==0xc2, byte+2==0x88",
+      "fields": [
+        {"name": "operands", "start": 24, "width": 8, "type": "raw", "note": "byte+3 src/dst register descriptor"}
+      ],
+      "semantics": "d = copysign(a, b) = |a| with the sign bit of b (float). 4 bytes: 07 c2 88 <ops>. byte0 0x07 low-nibble-7 sign-combine ALU op; byte+3 carries the src/dst register operand descriptor. The half (fp16) copysign is a separate byte0-0x0f op, not this one.",
+      "provenance": "inferred (OWN-MSL byte-diff, EXP-M4-13 R5): our own compilation of `copysign(a[i],b[i])` (float) emits `07 c2 88 00` byte-exact vs the committed float_arith/copysign corpus (the half form is a distinct `0f c2 8a 02`). Length 4 is forced by clean whole-kernel tokenization (op followed directly by the 14B device store then the stop). byte+3 operand-descriptor role byte-diff-inferred, NOT HW-splice-isolated. More specific than scoreboard_fence (24 vs 9 match bits) so decode_one prefers it.",
+      "note": "This descriptor is MORE SPECIFIC than the existing scoreboard_fence (which also matches byte0==0x07 & byte+2 bit0==0); decode_one's max-match-bits tie-break picks copysign for `07 c2 88 xx`. Semantically it is ALU, not a memory fence."
+    },
+    {
+      "mnemonic": "ibfe_mesh_attr",
+      "length": 12,
+      "match": [[0, 8, 39], [8, 8, 0], [16, 8, 102]],
+      "match_hex_note": "byte0==0x27, byte+1==0x00, byte+2==0x66",
+      "fields": [
+        {"name": "operands", "start": 24, "width": 40, "type": "raw",    "note": "byte+3..+7 src/off/cnt descriptor"},
+        {"name": "opdesc",   "start": 64, "width": 8,  "type": "enum", "enum": {"240": "reg-operand", "192": "imm-operand"}, "note": "byte+8"},
+        {"name": "tail",     "start": 72, "width": 24, "type": "raw",    "note": "byte+9..+11"}
+      ],
+      "semantics": "d = extract_bits(packed_attr, off, cnt) -- bitfield-extract of a packed flat PER-PRIMITIVE mesh attribute in the fragment stage (source-address mode byte+2==0x66). 12-byte operand form (byte+8==0xf0 register-operand tail), the same bitfield-extract family as the 0xa7 ibfe / 0x27 ibfins but with the mesh packed-attribute source mode.",
+      "provenance": "inferred (byte-diff, EXP-M4-13 R5): single occurrence in our OWN-MSL mesh_pervertex_wide fragment (`27 00 66 00 03 14 42 00 f0 10 01 00`), unpacking the flat `uint pid [[flat]]` per-primitive attribute (`float(in.p.pid)*0.01`). Length 12 gives clean tokenization of the mesh-fragment prologue; field roles byte-diff-inferred, NOT HW-splice-isolated. Single own-corpus occurrence, 0 in thirdparty."
+    }
+  ],
+
+  "replaces": [],
+  "reuses": [
+    "scoreboard_fence — the subgroup-vote fence `07 22 22 80` (byte+2==0x22) now decodes through the EXISTING scoreboard_fence descriptor once the length gate above admits byte+2==0x22 (byte+2 bit0==0 already matched). No new descriptor for the 0x22 form; only the length edit. scoreboard_fence's semantics text could optionally note the byte+2==0x22 subgroup-vote form."
+  ],
+
+  "notes": [
+    "The task hypothesis ('0x54 residual are operand tails of a mis-lengthed 0x27/0xa7') is HALF-confirmed: the dominant root (a7-17, 14 own + 13 tp) was NOT a mis-length but a MISSING DESCRIPTOR at an already-correct length 8 — the length-8 read had no matching descriptor, so decode_one raised at a clean boundary and exposed the 8-byte tail (which contains byte+2==0x54). Adding the descriptor closes it. No 0xa7/0x27 op in the corpus was found to be genuinely mis-LENGTHED (a7 20->12, a7 00->12, 27 10->12 etc. were all verified correct by backward tokenization).",
+    "The two 0x07 ops (copysign, subgroup-vote) WERE genuinely unlengthed (length_unknown) — a true length-rule gap, now closed.",
+    "Cascade-clear confirmed: 0x54-in-leftover files dropped OWN 97->84 (-13) and TP 103->91 (-12) = 25 files; total files improved 17 own + 13 tp = 30. The a7-17/copysign/sg_vote/mesh roots are cleared; remaining 0x54-containing leftovers are cascades of UNRELATED roots (0x0b compact-move `0b 05 1c 01`/`0b 01 1c 04`, 0x17 unpack, 0x02 icmp, 0x09 op-select `09 1b 28 99`) owned by other rounds."
+  ],
+
+  "provenance": "OWN-MSL byte-diff + own-compilation of the committed OWN corpus (conversions_pack/cvt_i2f.metal, float_arith/copysign, subgroup vote/ballot kernels, mesh_pervertex_wide). NOT HW-dispatch-validated (compile+extract+tokenize+byte-diff only; local M4, shdump COMPILE-ONLY). copysign 4B and a7-17 signed/unsigned byte+7 are own-MSL-reproduced; the byte+1 source-routing bit, copysign byte+3, and mesh byte+2==0x66 field roles are byte-diff-inferred.",
+
+  "validation": {
+    "samplesDecoded": {
+      "cvt_i2f_src": "27 corpus instances decoded (16 distinct byte patterns), 14 own + 13 tp",
+      "copysign": "1 (float_arith/copysign) + own-MSL reproduction",
+      "ibfe_mesh_attr": "1 (mesh_pervertex_wide fragment)",
+      "scoreboard_fence(07 22 22)": "decodes via existing descriptor; 07 00 20 / 07 02 20 / 07 22 22 all -> scoreboard_fence",
+      "targetFilesCleanToStop": ["conversions_pack__cvt_i2f", "derivatives_misc__logging", "float_arith__copysign", "subgroup_quad__sg_vote_ballot", "own-MSL ab/ss convert kernels"]
+    },
+    "roundtripSuitePass": "ALL PASS (tools/agx-isa/roundtrip_test.py run against the scratch isadb copy)",
+    "perOpRoundtrip": "asm(disasm(b))==b for all 29 new-descriptor decodes (0 failures); end-to-end file roundtrip OK for copysign / sg_vote / cvt_i2f / deriv_log",
+    "noRegression": {
+      "own": "1005 files: 0 regressions, 17 improved, total leftover 423162 -> 422288 (-874 bytes)",
+      "thirdparty": "6450 files: 0 regressions, 13 improved, total leftover 473166 -> 472134 (-1032 bytes)"
+    }
+  },
+
+  "unresolved": [
+    "cvt_i2f_src exact byte+1-bit4 semantic: byte-diff shows it marks source-consumed-by-following-ALU (byte+2 0x54) vs standalone/last-use (0x56), but this is INFERRED, not HW-splice-isolated (no GPU dispatch on this M4). byte+6 width map extended with 0x8c/0x8e siblings observed in the corpus; their exact source/dest width pairing not dispatch-confirmed.",
+    "ibfe_mesh_attr (27 00 66): single own-corpus occurrence, 0 in thirdparty; byte+2==0x66 source-address mode and the off/cnt field packing are byte-diff-inferred from one sample. Could not reproduce standalone (mesh fragment needs a full mesh pipeline shdump can't set up); relied on the committed OWN-MSL corpus hex.",
+    "copysign byte+1==0xc2/byte+2==0x88 semantic role: length 4 is solid (own-MSL), but whether byte0 0x07 here is a dedicated sign-combine ALU opcode vs a bitfield-family op sharing the low-nibble-7 space is not splice-proven; byte+3 operand field is inferred.",
+    "OUT OF SCOPE (not 0x27/0xa7/0x07): the residual 0x54-containing leftovers after this fix are cascades of other-family roots — 0x0b compact-move (`0b 05 1c 01`, `0b 01 1c 04`, e.g. bitops__and_u64, funnel_shift, mesh frag @46), 0x17 unpack, 0x02 icmp, and 0x09 op-select (`09 1b 28 99` in conversions_pack__cvt_vec @158). These are separate roots for other rounds; they were verified NOT to be mis-lengthed 0x27/0xa7 tails.",
+    "mesh_pervertex_wide fragment still desyncs at offset 46 (0x0b family) AFTER the 27-00-66 fix advanced it from offset 12; the remaining mesh-fragment ops are out of this task's scope."
+  ]
+}

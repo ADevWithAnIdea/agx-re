@@ -1,0 +1,386 @@
+{
+  "task": "NAME the low-nibble-0x2 family (integer/float register-operand compare-SELECT + compact/length-only residue); the single biggest family-only chunk (byte0 0x22 dominant).",
+  "kind": "descriptors (additive naming; NO length-rule edits)",
+  "lengthRuleEdits": [],
+  "descriptors": [
+    {
+      "mnemonic": "isel8",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ],
+        [
+          16,
+          3,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_desc",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opsel",
+          "start": 19,
+          "width": 5,
+          "type": "opcode",
+          "enum": {
+            "4": "sel(0x27)",
+            "5": "sel(0x2f)",
+            "1": "sel(0x0f)",
+            "3": "sel(0x1f)",
+            "0": "sel(0x07)"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (predicate) ? srcA : srcB  ; register-operand integer/float compare-SELECT, NARROW 8-byte form (both sources are registers, no trailing operand word). byte0 low-nibble 2 = group; byte0 HIGH nibble = dst r0..r15; byte+1 = srcA/size descriptor; byte+2 low 3 bits == 0b111 identifies the register-select forms (op variants 0x07/0x0f/0x1f/0x27/0x2f in byte+2, upper 5 bits = opsel); byte+3 = srcA, byte+4 = srcB. This is the DOMINANT low-nibble-2 form (own-MSL: emitted for int/float ternaries and the quotient/remainder correction SELECT in integer division). The 0x25 8-byte sibling (isel_reg8) and 0x2f 10-byte sibling (isel_reg) were already named; this generalises the same family. Predicate/condition source is byte+1/byte+2-encoded (not reconstructed per-bit here -- the SELECT choice itself is the documented hardware op).",
+      "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): `(a>b)?a:b` (int) compiles to `12 81 27 85 01 84 07 20` (8B, dst r1); `(a>b)?a:b` variants and `a/b` correction to `02 93 27 0f 86 14 00 02` -- all 8-byte low-nibble-2 with byte+2 low3==7, cleanly bracketed by iadd2/carry_gen/n2_op6. dst=byte0-hi inherits the family reg-sweep (iminmax provenance). byte+2 confirmed a SELECT (not imad) because own-MSL `a*b+c` (int) emits the 12-byte 0x9f imad instead. NOT HW-dispatch validated (M4 compile-only)."
+    },
+    {
+      "mnemonic": "isel10",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ],
+        [
+          16,
+          3,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_desc",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opsel",
+          "start": 19,
+          "width": 5,
+          "type": "opcode",
+          "enum": {
+            "4": "sel(0x27)",
+            "0": "sel(0x07)",
+            "1": "sel(0x0f)",
+            "3": "sel(0x1f)",
+            "7": "sel(0x3f)"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "operand",
+          "start": 64,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (predicate) ? srcA : srcB  ; register-operand compare-SELECT, WIDE 10-byte form -- the isel8 sibling that carries a trailing operand word (byte+8:9), used when srcB (or the correction addend) is an immediate / wide operand. byte+2 low 3 bits == 0b111 (op variants 0x07/0x0f/0x1f/0x27/0x3f/0x5f/0x67/0x7f in byte+2). The already-named 0x2f form (isel_reg) and the 0x27/0x81/0x22 form (rt_transform_test) are more-specific and still win the decode; this names the remaining low3==7 10-byte selects. NOTE: a small number of byte0==0x22 low3==7 instances (notably byte+2==0x9f) may be an over-read of the byte0==0x22 default-to-10 length rule rather than a genuine 10-byte select -- see UNRESOLVED. Operand semantics beyond the register SELECT are left structural (rule 5).",
+      "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): int div/mod correction emits `22 8f 07 91 22 80 05 00 80 06` and `72 81 27 80 22 20 07 c2 20 80` (10B, byte+2 low3==7, trailing operand word), cleanly bracketed by carry_gen. dst=byte0-hi from the family reg-sweep. Same SELECT semantics as isel8 (confirmed vs 0x9f imad). NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "isel10_c",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ],
+        [
+          16,
+          3,
+          5
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_desc",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opsel",
+          "start": 19,
+          "width": 5,
+          "type": "opcode",
+          "enum": {
+            "4": "sel(0x25)",
+            "5": "sel(0x2d)",
+            "0": "sel(0x05)",
+            "2": "sel(0x15)",
+            "1": "sel(0x0d)"
+          }
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "operand",
+          "start": 64,
+          "width": 16,
+          "type": "raw"
+        }
+      ],
+      "semantics": "d = (predicate) ? srcA : srcB  ; register/immediate-operand compare-SELECT, WIDE 10-byte form with byte+2 low 3 bits == 0b101 (op variants 0x05/0x0d/0x15/0x25/0x2d). 0x25 = the wide (immediate-srcB) select; 0x2d = the integer division/modulo QUOTIENT correction select. Sibling of the 8-byte 0x25 isel_reg8. Same dst=byte0-hi family model. A few byte0==0x22 instances (0x05/0x15) may be over-reads of the 0x22 default-to-10 length rule (UNRESOLVED); the division algorithm is NOT reconstructed (rule 5).",
+      "provenance": "OWN-MSL byte-diff (EXP-M4-13 R5): unsigned div/mod (`a/b`, `a%b`) emits `12 80 25 8b 22 81 85 00 20 80` (0x25 wide-select) and `12 02 2d 80 26 80 07 02 22 81` (0x2d correction select), 10B, cleanly bracketed by carry_gen. dst=byte0-hi from the family reg-sweep. NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "n2_compact2",
+      "length": 2,
+      "match": [
+        [
+          0,
+          8,
+          2
+        ],
+        [
+          8,
+          8,
+          0
+        ]
+      ],
+      "fields": [],
+      "semantics": "2-byte compact low-nibble-2 helper `02 00` (dst r0, byte+1 == 0x00). A compiler-internal select/predicate/frame marker emitted between other ops (e.g. after a fence before a frame-marker, or between a subgroup-shuffle and an iadd). Distinct from the b_alu14_prep2 compact word (which has byte+1 bit0 == 1 and precedes a 0x83 b_alu14) and from the 6-byte iminmax (which carries a real op-select in byte+2). Length-only: a compiler-internal marshalling/predicate word, semantics deliberately NOT reconstructed (clean-room rule 5).",
+      "provenance": "byte-diff EXP-M4-13 R5 (own-MSL + corpus): appears as a standalone 2-byte word in transcendental/half/atan kernels (length 2 established by the byte0==0x02,byte+1==0x00 length rule; the following byte is the next op's head, which re-tokenizes cleanly). NOT HW-dispatch validated; op class inferred, not reconstructed."
+    },
+    {
+      "mnemonic": "n2_op8",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_desc",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for the 8-byte forms that are NOT the register-operand SELECTs (isel8, byte+2 low3==7) nor the 0x25 isel_reg8. In practice this is the transcendental SFU RANGE-REDUCTION select (byte+1 == 0xc2, byte+2 in {0x19,0x29,0x49,0x59}, tail `.. 80 08`): a compiler-generated argument-reduction step feeding a polynomial evaluation. Length-classified only; per-op-select semantics UNRESOLVED and, for the SFU range-reduction selects, deliberately NOT reconstructed (clean-room rule 5).",
+      "provenance": "byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 8 from the low-nibble-2 length rule. byte fields captured for clean tokenization + round-trip; op semantics UNRESOLVED (SFU internal). NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "n2_op10",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          2
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_desc",
+          "start": 8,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 56,
+          "type": "raw"
+        }
+      ],
+      "semantics": "Generic 10-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for the 10-byte forms not covered by the named selects (isel10/isel10_c/isel_reg/rt_transform_test). This bucket is a MIX: (a) the all-zero `X2 00 00 00 00 00 ..` word (dominant; a zero/pad select -- likely an OVER-READ of the byte0==0x22 default-to-10 length rule, see UNRESOLVED); (b) RAY-QUERY GETTER result-marshalling words (trailing `.. df 02 54 <off>` accel/ray-data load, or `.. 09 00 0f 06 04 01`, or `.. 67 81 10 02 00 80`) that read/pack a committed/candidate intersection field inside the intersection_query getters; (c) transcendental Horner/select steps (byte+2 0x08/0x0a/0x0c/0x10/0x12/0x14/0x16/0x18/0x1a/0x1c/0x1e). All are compiler-internal SFU / RT-getter marshalling; length-classified only, per-op semantics deliberately NOT reconstructed (rule 5).",
+      "provenance": "byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 10 from the low-nibble-2 length rule. RT-getter / SFU marshalling classification from corpus co-occurrence (these tokens appear only in intersection_query and transcendental kernels). byte fields captured for clean tokenization + round-trip; op semantics UNRESOLVED (compiler-internal). NOT HW-dispatch validated."
+    }
+  ],
+  "replaces": [],
+  "notes": "PURELY ADDITIVE: instr_length() is UNCHANGED, so desync/tokenization is byte-identical to the committed DB (0 regression by construction). The 6 new descriptors only convert previously family-only low-nibble-2 tokens (lengths 2/8/10) into NAMED. Existing more-specific low-nibble-2 descriptors (iminmax, hminmax, isel_reg[0x2f], isel_reg8[0x25 8B], icmpsel, carry_gen, rt_transform_test, b_alu14_prep2, n2_op6) all have more match-bits and still win their signatures; verified 0 change to any existing decode. Match-bit design: isel8/isel10/isel10_c = 7 bits (group + byte+2 low-3-bits); catch-alls n2_op8/n2_op10 = 4 bits (group only); n2_compact2 = 16 bits (exact 02 00). The two 10-byte selects (isel10 low3==7, isel10_c low3==5) are mutually exclusive. CORE HW FACT (own-MSL PROVEN): byte+2 low-nibble {7,f}/{5,d} at this group is a register-operand compare-SELECT (dst=pred?srcA:srcB), NOT an integer multiply-add -- own MSL 'a*b+c' (int) emits the 12-byte 0x9f imad, while 'a>b?a:b' emits this low-nibble-2 SELECT. dst=byte0 high nibble (r0..r15), byte+1=srcA/size descriptor, byte+2=op/mode selector, byte+3=srcA, byte+4=srcB, wide forms append a trailing operand word at byte+8:9.",
+  "provenance": "byte-diff of OUR OWN compiled shaders on a local M4 (compile-only shdump, never dispatched): hand-written MSL (imad.metal a*b+c, isel_reg.metal int ternary, udiv.metal a/b & a%b) plus the committed own-shader corpus (hex/) and our own compilations of permissive third-party MSL (thirdparty_hex/). dst=byte0-hi inherits the family register-sweep already HW-anchored in the iminmax provenance. NOT HW-dispatch-validated (M4 host is compile+extract+tokenize only).",
+  "validation": {
+    "samplesDecoded": "all 7530 low-nibble-2 tokens across 1721 unique programs (hex/ + thirdparty_hex/) decode cleanly; n2 family-only 3587 -> 0",
+    "roundtripSuitePass": true,
+    "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py against the scratch DB: ALL PASS. Additionally asm(disasm(b))==b for every one of the 7530 low-nibble-2 tokens (0 failures).",
+    "noRegression": true,
+    "noRegressionNote": "per-file disassemble() leftover over all 1005 hex/*.hex: 0 files INCREASED (regression), 153 files DECREASED (improvement), 8874 leftover bytes removed. Byte-weighted census: familyOnly 6.91%->3.55% (15420B newly named), desync UNCHANGED 2.40% (11012B), named 90.68%->94.05%. Length rule untouched.",
+    "censusBefore": {
+      "named_pct": 90.68,
+      "familyOnly_pct": 6.91,
+      "desync_pct": 2.4,
+      "familyOnly_bytes": 31666
+    },
+    "censusAfter": {
+      "named_pct": 94.05,
+      "familyOnly_pct": 3.55,
+      "desync_pct": 2.4,
+      "familyOnly_bytes": 16246
+    },
+    "n2NamedCounts": {
+      "isel8": 1289,
+      "isel10": 717,
+      "isel10_c": 524,
+      "n2_op10": 910,
+      "n2_compact2": 138,
+      "n2_op8": 9,
+      "(existing) n2_op6": 2202,
+      "(existing) isel_reg": 557,
+      "(existing) iminmax": 537,
+      "(existing) icmpsel": 224,
+      "(existing) rt_transform_test": 183,
+      "(existing) carry_gen": 130,
+      "(existing) b_alu14_prep2": 74,
+      "(existing) isel_reg8": 22,
+      "(existing) hminmax": 14
+    }
+  },
+  "unresolved": [
+    "byte0==0x22 DEFAULT-TO-10 length rule likely OVER-READS two sub-forms into spurious 10-byte tokens: (a) the all-zero 'X2 00 00 00 00 00 <4 varying bytes>' word (528 corpus tokens; the trailing 4 bytes vary as real op heads 8f../2c../0f.. suggesting a genuine 6-byte op + a swallowed follower), and (b) the 'X2 .. df 02 54 <off>' RT-getter words (the embedded 0xdf accel/ray-data load looks like a separate op). NOT changed this round (mandate = naming, and instr_length edits risk regression); these are named by the honest length-classified n2_op10 catch-all. First-class finding: a future round should test narrowing byte0==0x22 b2==0x00 to length 6 and re-measuring leftover.",
+    "RT intersection-query GETTER result-marshalling words (n2_op10 residue: tails 'df 02 54', '09 00 0f 06 04 01', '67 81 10 02 00 80'; byte+2 0xe3/0xdb/0xcb/0xf3/0x9b/0x8b/0xab/0x5b/0x75/...) are compiler-internal marshalling of committed/candidate hit fields; kept length-only, semantics deliberately NOT reconstructed (clean-room rule 5).",
+    "Transcendental SFU RANGE-REDUCTION selects (n2_op8 residue: byte+1==0xc2, byte+2 0x19/0x29/0x49/0x59) and SFU Horner/select steps (n2_op10 byte+2 0x08..0x1e) are compiler-internal argument-reduction / polynomial words; kept length-only per rule 5.",
+    "The register-operand SELECTs (isel8/isel10/isel10_c) name the SELECT itself and its dst/srcA/srcB/op-select positions (documented HW encoding). The exact per-op-select PREDICATE condition-code bits of the feeding compare are captured raw (byte+1/byte+2 upper bits) but not enumerated per value; the 14-byte icmpsel is the fully-decoded compare-select and the reference for the condition map. NOT HW-dispatch-validated (compile-only M4)."
+  ]
+}
