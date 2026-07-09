@@ -1,0 +1,88 @@
+{
+  "lowNibble": 3,
+  "family": "low-nibble-3 compact MOVE / zero-extend / address-prep family (byte0 0x03..0xf3; high nibble = destination register). Provoked with OWN-MSL (EXP-M4-13). Clean-room: field positions from byte-diffing our own compiled zero-extend/move shaders; NO Apple binary inspected; NO GPU dispatch (compile+extract+tokenize+byte-diff only).",
+  "distinctByte0Covered": ["0x03","0x13","0x23","0x33","0x43","0x53","0x63","0x73","0x83","0x93","0xa3","0xb3","0xc3","0xd3","0xe3","0xf3"],
+  "lengthRules": [
+    {
+      "applyWhen": "byte0 low-nibble == 0x3 AND byte+2 == 0x27",
+      "length": 10,
+      "lengthBitNote": "op-select in byte+2 (0x27) marks the WIDE address/coordinate/matrix-load-prep form. dst = byte0 high nibble."
+    },
+    {
+      "applyWhen": "byte0 == 0x03 AND byte+1 == 0x02 AND byte+2 != 0x26",
+      "length": 2,
+      "lengthBitNote": "PRE-EXISTING (EXP-M4-12 S1): the SFU sin/cos range-reduction 2-byte immediate/coefficient WORD. This is operand DATA, not an opcode; left undescribed on purpose (clean-room rule 5 forbids reconstructing the range-reduction sequence). Checked BEFORE the generic low-nibble-3 rule so it is preserved."
+    },
+    {
+      "applyWhen": "byte0 == 0x03 AND byte+2 == 0x26",
+      "length": 10,
+      "lengthBitNote": "PRE-EXISTING (EXP-0029): fragment sample-id / sample-position read. Checked before the generic rule."
+    },
+    {
+      "applyWhen": "byte0 low-nibble == 0x3 (fall-through: not the byte+2==0x27 / byte+2==0x26 / 0x03-byte+1==0x02 cases above)",
+      "length": 4,
+      "lengthBitNote": "The generic compact MOVE / 16-bit zero-extend / half-pack. The FIX vs the committed DB is that byte0==0x03 (dst r0) now takes this rule too -- the committed rule had `and b0 != 0x03`, which desynced every dst-r0 form. dst = byte0 high nibble (r0..r15). The committed 4/10 split for high-nibbles 0x13..0xf3 was already correct and is preserved."
+    }
+  ],
+  "opSelectMap": {
+    "note": "Within low-nibble-3 the operation is selected by LENGTH + the byte+2 op-select, not by a bit inside one word. dst is ALWAYS byte0 high nibble.",
+    "4-byte (byte+2 not 0x27)": "n3_mov  (compact register move / uint->ushort->uint zero-extend / half-pack). byte+2 sub-form: 0x00 = word/high-half-zero companion (the ubiquitous `X3 00 00 01`); 0x01/0x09 = low-half move.",
+    "10-byte byte+2==0x27": "n3_addr_prep  (matrix-load / texture-address / coordinate-prep ALU)",
+    "10-byte byte+2==0x26 (byte0==0x03)": "n3_sample_read  (fragment sample-id / sample-position read)",
+    "2-byte byte0==0x03 byte+1==0x02": "SFU range-reduction operand WORD (DATA, not an opcode -- intentionally not described)"
+  },
+  "descriptors": [
+    {
+      "mnemonic": "n3_mov",
+      "length": 4,
+      "match": [[0, 4, 3]],
+      "fields": [
+        {"name": "dst",      "start": 4,  "width": 4, "type": "reg"},
+        {"name": "srcA_reg", "start": 8,  "width": 7, "type": "reg"},
+        {"name": "srcA_uni", "start": 15, "width": 1, "type": "mod", "enum": {"0": "gpr", "1": "uniform/hi"}},
+        {"name": "sel",      "start": 16, "width": 8, "type": "raw"},
+        {"name": "srcB",     "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "d = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15). byte1 = source operand (bit7 = uniform-file/high-half flag). byte2 selects the sub-form (word vs low-half move); a 32-bit zero-extend of a 16-bit value emits the low-half move followed by the `X3 00 00 01` high-half-zero companion.",
+      "provenance": "byte-diff EXP-M4-13 (dst PROVEN by parallel-extend & uint4 diffs -- k_zext4/k_zext8w emit identical bodies differing only in the high nibble; srcA=byte1 tracks the source reg by +1 increment, src=dst+4 in k_zext4; sel/srcB semantics INFERRED from OWN-MSL zero-extend/move constructs -- NOT hardware dispatch-validated). Generalises the HW-validated mov_zext16 (byte0 0x13, dst r1). Less specific (4 match bits) so mov_zext16/frame_marker keep byte0 0x13/0x43."
+    },
+    {
+      "mnemonic": "n3_addr_prep",
+      "length": 10,
+      "match": [[0, 4, 3], [16, 8, 39]],
+      "fields": [
+        {"name": "dst",  "start": 4,  "width": 4,  "type": "reg"},
+        {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},
+        {"name": "b3",   "start": 24, "width": 8,  "type": "raw"},
+        {"name": "tail", "start": 32, "width": 48, "type": "raw"}
+      ],
+      "semantics": "d = address/coordinate prep (matrix-load / texture-address / coordinate ALU). 10-byte low-nibble-3 form, op-select byte+2==0x27. dst = byte0 high nibble.",
+      "provenance": "byte-diff EXP-M4-13 (length + op-select established across all dst high nibbles in the corpus; dst = high nibble by family analogy; operand body kept structural/raw -- NOT hardware dispatch-validated). Distinct from the low-nibble-2 rt_transform_test (also byte+2==0x27)."
+    },
+    {
+      "mnemonic": "n3_sample_read",
+      "length": 10,
+      "match": [[0, 8, 3], [16, 8, 38]],
+      "fields": [
+        {"name": "b1",   "start": 8,  "width": 8,  "type": "raw"},
+        {"name": "b3",   "start": 24, "width": 8,  "type": "raw"},
+        {"name": "tail", "start": 32, "width": 48, "type": "raw"}
+      ],
+      "semantics": "fragment sample-id / sample-position read (byte0 0x03, op-select byte+2==0x26). 10-byte low-nibble-3 form.",
+      "provenance": "byte-diff EXP-M4-13 (length/op-select from the EXP-0029 fragment sample-read length rule; body structural/raw -- NOT hardware dispatch-validated)."
+    }
+  ],
+  "notes": "High-nibble-of-byte0 = destination register was PROVEN (not just assumed) for this family: four parallel independent zero-extends (k_zext8w) and a uint4 write (k_zext4) emit identical operand bodies that differ ONLY in the high nibble, stepping r0,r1,r2,r3,... The committed DB already lengthed high-nibbles 0x13..0xf3 correctly but (a) had NO descriptor for dst != r1 (0x13) -- 659 family-only gaps -- and (b) EXCLUDED byte0==0x03 from the length rule -- 155 desync gaps. This proposal adds the generic n3_mov/n3_addr_prep descriptors (naming all dst regs) and drops the `and b0 != 0x03` exclusion so dst-r0 forms length as 4/10 and resync. mov_zext16 (0x13) and frame_marker (0x43) are left untouched (they win on match-bit specificity). The 4-byte form's dst is 4 bits (addresses r0..r15 only); a wider destination presumably uses the 10-byte or another form -- noted as a follow-up.",
+  "provenance": "OWN-SHADER byte-diff (EXP-M4-13). Field positions from our own compiled MSL (corpus/dec_n3_three/*.metal -> hex/dec_n3_three/*.hex). No Apple binary was disassembled or introspected. No GPU dispatch: compile + extract + tokenize + byte-diff only. dst is byte-diff-PROVEN; source/sub-form fields are byte-diff-INFERRED (not HW-splice-validated).",
+  "validation": {
+    "samplesDecoded": 869,
+    "roundtripOnSamplesPass": true,
+    "roundtripSuitePass": true,
+    "method": "Scratch copy work/scratch_n3three/isadb.py (committed DB + this proposal's length change + 3 descriptors). (a) All 736 corpus hex files walked: low-nibble-3 tokens = 2653 NAMED (n3_mov 2216, mov_zext16 232, frame_marker 166, n3_addr_prep 36, n3_sample_read 3), 0 DESYNC landing on a low-nibble-3 byte0 (was 155), 99 remaining unnamed = the 2-byte `03 02` SFU words (data, intentionally not an opcode). (b) 869/870 distinct low-nibble-3 op byte-strings decode_one() cleanly AND assemble(disasm(b))==b; the 1 non-decoding string is `0302`, the 2-byte SFU word (correctly no descriptor). (c) roundtrip_test.py against the scratch DB = ALL PASS (no regression to other families). (d) Global corpus desync steps 11903 -> 11087 (-816), files fully clean 377 -> 383 (+6); no family regressed. (e) All 12 OWN-SHADER probe shaders tokenize 100% clean, including the previously-desyncing dst-r0 `03 00 00 01` forms."
+  },
+  "unresolved": [
+    "2-byte `03 02` SFU range-reduction WORD (99 instances): lengthed (=2) by the pre-existing EXP-M4-12 rule and left WITHOUT an instruction descriptor on purpose -- it is range-reduction operand DATA, and clean-room rule 5 forbids reconstructing that sequence. It is byte0==0x03 (in this owned low-nibble) but is not an opcode.",
+    "BOUNDARY: a genuine dst-r0 move with byte+1==0x02 (analogous to the 0x13 b1==0x02 forms that DO exist in-corpus) would be mis-lengthed as the 2-byte `03 02` SFU word by the pre-existing rule. Not resolved here to avoid regressing the validated EXP-M4-12 SFU rule; no such collision was observed in the corpus (all `03 02` occur in transcendental range-reduction contexts).",
+    "n3_mov sub-form (byte2) and second-operand (byte3) semantics are INFERRED from own-MSL constructs, not HW-splice-validated. The 4-byte form's destination field is only 4 bits (r0..r15); whether a wider dst exists (bits spilling into byte1) is uncharacterised. n3_addr_prep / n3_sample_read operand bodies are structural/raw (length + op-select established; full operand decomposition is a follow-up)."
+  ]
+}

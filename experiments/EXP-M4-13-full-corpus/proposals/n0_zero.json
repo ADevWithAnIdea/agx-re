@@ -1,0 +1,80 @@
+{
+  "lowNibble": 0,
+  "owner": "EXP-M4-13 low-nibble family 0x?0 (byte0 & 0x0f == 0), incl. the headline 0x00",
+  "headline": {
+    "question": "Is byte0=0x00 padding/nop/alignment or a real instruction?",
+    "answer": "NOT a real instruction. 0x00 is NOT a distinct opcode and NOT a compiler-emitted NOP. The 2-byte low-nibble-0 'family-only' tokens (00 00 / 00 80 / 00 84 / 00 8c / 20 80 / 80 00 / 80 04 / 80 08 / 80 0c / a0 0c / 20 00 ...) are NON-OPCODE FILLER: trailing operand / immediate / SFU-coefficient WORDS of the PRECEDING instruction, or inter-op zero PADDING, or the middle bytes of one longer under-lengthed op that the ad-hoc 2-byte length rules slice into pieces.",
+    "evidence": [
+      "E1 (own-shader positive control): controlled OWN-MSL kernels (fma plain/saturate/negate/chain, half add/mul/fma/saturate, uint & float atomics) NEVER emit a standalone 00 00 at a boundary where the preceding op is correctly lengthed. When a real op is fully lengthed it ABSORBS its own operand tail: saturate(fma) is ONE 10-byte op (09 01 1e 05 82 08 02 00 00 82), not fma(8B)+00 00; half saturate(fma) is ONE 10-byte op (10 04 1e 05 82 02 00 00 00 82). Corpus hex is also our own shaders, so the 00 00 tokens there are the SAME compiler's operand/pad bytes, not a hidden opcode.",
+      "E2 (slice artifact): loop_converge@88 the 8-byte block 03 02 00 00 00 00 01 00 (one longer unknown op, bracketed by two icmp_pred) is chopped by the ad-hoc length rules into 0302 / 0000 / 0000 / 0100 -- the two 00 00 tokens are literally the interior zero bytes of that op.",
+      "E3 (distribution): across 342 clean streams the low-nibble-0 2-byte tokens take byte1 only from a tiny set {00,80,84,8c,04}; corpus-wide the dominant predecessor op is falu3 (fma) and other ops with KNOWN extended/immediate tail forms -- the signature of dropped operand tails, not a semantic opcode. byte0=0x00 has 0 named tokens corpus-wide.",
+      "E4 (why 0x00 is the #1 desync source): 0x00 is the most common operand/zero byte, so a resync that lands after an upstream mis-length almost always lands ON a 0x00 that is mid-instruction (2386 desync bytes). These are a SYMPTOM of upstream mis-lengthing, not a real 0x00 op; broadening the 0x00 length rule to swallow them would corrupt real ops, so it is deliberately NOT done."
+    ]
+  },
+  "lengthRules": [
+    {
+      "applyWhen": "byte0==0x00 && byte1 in {0x00,0x80,0x84} (SFU/atomic operand-word) ; also byte0==0x00 && byte1==0x8c (compact-move source word)",
+      "length": 2,
+      "lengthBitNote": "ALREADY PRESENT in instr_length (isadb.py lines ~106 and ~864). Not modified by this proposal. These gates are deliberately tight: any OTHER byte1 (e.g. 00 02 / 00 04) returns LEN_UNKNOWN and is left as desync, because those are mid-instruction landings, not real 2-byte slots."
+    },
+    {
+      "applyWhen": "byte0==0x20 && byte1 in {0x00,0x80} && byte2!=0x24 ; byte0==0x80 && byte1 in {0x00,0x08,0x0c} ; byte0==0x80 && byte1==0x04 ; byte0==0xa0 && byte1==0x0c",
+      "length": 2,
+      "lengthBitNote": "ALREADY PRESENT (isadb.py lines ~107-109, ~866). The other high-nibble 0x?0 filler slots; same non-opcode nature as 0x00. Not modified by this proposal."
+    },
+    {
+      "applyWhen": "byte0==0x80 && byte1==0x02 && byte2==0x00",
+      "length": 4,
+      "lengthBitNote": "ALREADY PRESENT (isadb.py line ~157: `80 02 00 00` = 4, else `80 02` = 2). This is the REAL op named below (dev_scoreboard_fence). Not modified."
+    }
+  ],
+  "descriptors": [
+    {
+      "mnemonic": "pad_operand",
+      "length": 2,
+      "match": [[0, 4, 0]],
+      "fields": [
+        {"name": "hi",   "start": 4, "width": 4, "type": "raw"},
+        {"name": "word", "start": 8, "width": 8, "type": "raw"}
+      ],
+      "semantics": "NOT A STANDALONE HARDWARE OPCODE. A 2-byte low-nibble-0 slot carrying a trailing operand/immediate/SFU-coefficient WORD of the PRECEDING instruction, or inter-op zero PADDING, or the interior bytes of one longer under-lengthed op. byte0 high nibble and byte1 are a verbatim raw passthrough; the coefficient/immediate bits are intentionally NOT semantically decoded (clean-room rule 5 -- the SFU range-reduction coefficient SEQUENCE is not reconstructed). Named only so the tokenizer resolves these slots out of the unknown bucket. Matches low-nibble-0 at length 2; the more-specific frame_marker_compact (0x60) / mov_imm (0x0c) win where they apply.",
+      "provenance": "byte-diff + census EXP-M4-13 (own-MSL): NEGATIVE RESULT -- 0x00 is not an opcode. Field positions are a raw 2-byte passthrough (no HW dispatch)."
+    },
+    {
+      "mnemonic": "dev_scoreboard_fence",
+      "length": 4,
+      "match": [[0, 8, 128], [8, 8, 2], [16, 8, 0]],
+      "fields": [
+        {"name": "b3", "start": 24, "width": 8, "type": "raw"}
+      ],
+      "semantics": "Compute memory / scoreboard FENCE, device/wide-scope variant: `80 02 00 00` (4 bytes). The 0x80 sibling of the 0x07/0x87 scoreboard_fence family (high bit = wider memory/device scope). The compiler inserts it around divergent control flow and before atomics/calls. byte+3 is a scope/flag operand (0x00 in observed forms). A bare `80 02` with byte+2!=0x00 is the 2-byte compact form -> pad_operand.",
+      "provenance": "byte-diff EXP-M4-13 (field positions; scope semantics from EXP-M4-01 census anchoring). No HW dispatch -- structural / census-anchored, not splice-validated."
+    }
+  ],
+  "opSelectMaps": {
+    "note": "No op-select map applies. pad_operand is not an opcode (byte1 is raw operand/pad data, not an operation selector). dev_scoreboard_fence is a single fixed op (no op-select field)."
+  },
+  "notes": [
+    "This closes 2660 of 2808 (94.7%) low-nibble-0 FAMILY-ONLY tokens: 2647 pad_operand + 13 dev_scoreboard_fence.",
+    "No instr_length change is required: every targeted slot is ALREADY given a length by the committed rules; the gap was purely a MISSING DESCRIPTOR (family-only). Adding descriptors removes them from the unknown bucket without touching lengths -> desync count is unchanged (no cascade risk).",
+    "pad_operand is intentionally the LOW-SPECIFICITY match (0,4,0)@len2 so it is the catch-all for the vetted low-nibble-0 2-byte slots; every more-specific real length-2 op (frame_marker_compact 0x60) still wins via decode_one's most-specific-match rule (verified).",
+    "The remaining 148 low-nibble-0 FAMILY-only tokens are len-8/10/12 0x10/0x30/0x40/0x80 tokens that are DESYNC RESIDUE from over-eager upstream length rules landing on mid-instruction 0x10/0x30/etc bytes (their embedded 9f 01 54 is a swallowed iadd2) -- the correct fix is upstream (other families), not a fabricated low-nibble-0 descriptor.",
+    "half_fma (0x10) IS a real op in this family and was characterized from own-MSL (see unresolved) but is left undescribed due to a length ambiguity that needs dedicated experiments."
+  ],
+  "provenance": "EXP-M4-13 (clean-room, OWN-SHADER, compile-only on M4). Extractor tools/shdump/shdump.m built as work/shdump_dec_n0zero; isolated MSL in corpus/dec_n0_zero/*.metal; extracted hex in hex/dec_*.hex. Byte-diff via own tok/scan scripts + the committed agx-isa codec. NO GPU dispatch; NO Apple binary inspected.",
+  "validation": {
+    "samplesDecoded": 2660,
+    "samplesDecodedNote": "corpus low-nibble-0 tokens now decoded: 2647 pad_operand + 13 dev_scoreboard_fence. Plus own-MSL samples (dec_at_add, dec_fma_*, dec_half_*) tokenize with 0 desync.",
+    "roundtripOnSamplesPass": true,
+    "roundtripOnSamplesNote": "asm(disasm(b))==b verified for pad_operand samples {0000,2080,8000,0080,0084,008c,800c,8008,a00c,8004,2000} and dev_scoreboard_fence {80020000}. (Isolated 00 02 / 00 04 correctly do NOT decode -- they are genuine desync, not pad_operand, confirming the tight gate.)",
+    "roundtripSuitePass": true,
+    "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py run against the scratch DB (85 committed + these 2 descriptors) -> ALL PASS. Whole-corpus (686 hex): clean_streams unchanged 339->339, desync unchanged 8525->8525 (0 regressions), named +2660, family-only -2660.",
+    "corpusBeforeAfter": {"clean_streams": [339, 339], "named": [23746, 26406], "family_only": [8945, 6285], "desync": [8525, 8525], "lowNibble0_family_only": [2808, 148]}
+  },
+  "unresolved": [
+    "0x00 desync bytes (~2386 corpus bytes): mid-instruction landings after an UPSTREAM mis-length; not a real 0x00 op and not fixable in this family without corrupting real ops. Root cause is other families' length rules; tracked as cross-family follow-up.",
+    "half_fma (byte0=0x10, len 8): REAL op, own-MSL encoding `10 04 1e 05 81 02 00 c0` (fma, byte+2 opsel 0x1e; the 0x10/half analog of falu3 `09 01 1e ...`; saturate form `10 04 1e 05 82 02 00 00 00 82` is 10B). LEFT UNDESCRIBED because the 0x10 length rule cannot robustly separate the true 8-byte fma from the 6-byte half sub/minmax that ALSO carries byte+2=0x1e (corpus half_minmax `10 02 1e 03 80 04` (6B) and short_mulhi `10 26 1e 00 ..` are over-read to 8B by the current rule). Needs a byte-diff experiment isolating half-sub vs half-fma length before a safe descriptor + match can be authored.",
+    "len-8/10/12 0x10/0x30/0x40/0x80 FAMILY-only tokens (~148): desync residue from over-eager upstream length rules (the 0x10 half-ALU length rule lengths ANY mid-stream 0x10 byte). Not real low-nibble-0 ops; upstream fix.",
+    "The exact identity of the 2-byte filler (scheduling/no-op hint vs pure operand-word vs alignment padding) is not further resolvable without HW dispatch, which is forbidden on this host. Documented as non-opcode filler, which is sufficient for the driver-doc reader (emit nothing; these bytes belong to the preceding instruction's encoding)."
+  ]
+}

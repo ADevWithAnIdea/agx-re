@@ -1,0 +1,206 @@
+{
+ "family": "rare low-nibble pool 0x?e / 0x?5 / 0x?a / 0x?d / 0x7c (EXP-M4-13, owner: rare_e5ad)",
+ "lowNibble": [
+  "0xe",
+  "0x5",
+  "0xa",
+  "0xd",
+  "0x7c"
+ ],
+ "method": "own-MSL compile (shdump_dec_e5ad) -> agxparse --extract-hex -> bytediff.py -> scratch isadb.py; validated by roundtrip_test.py suite + whole-corpus asm(disasm(b))==b. NO hardware dispatch (compile+extract+tokenize+byte-diff only). No Apple binary inspected; only our own compiled shaders.",
+ "lengthRules": [
+  {
+   "applyWhen": "byte0 low-nibble==9 (float ALU), fma/3-source branch (byte+2 bit1 set), NOT a coord/special sub-form; length = 6 + 2*(byte+4 & 0x3)",
+   "length": "6/8/10/12 (was: 8 when byte+4 low2==0)",
+   "lengthBitNote": "ROOT-CAUSE FIX for the bogus 0x1e/0x2e/0x3e byte0 'gaps'. The compact VECTOR-CONTINUATION fma (2nd..Nth component of a floatN fma, byte+4==0x80 -> low2=0) is 6 bytes, not 8. The old `(6+2*(b4&3)) if (b4&3) else 8` over-read every continuation by 2 and exposed the next component's byte+2 op-select (0x1e/0x2e/0x3e) as a spurious leader. Use the SAME uniform 6+2*(byte+4&3) as the 2-source branch. own-shader t_fma4 (== corpus float_arith__fma_v4) reproduces it byte-exact; after the fix fma_v4 tokenizes to 0 leftover."
+  },
+  {
+   "applyWhen": "byte0 low-nibble==0xc AND byte+1 not in {0x0c,0xea} AND (byte+3 low-nibble)!=6 AND NOT (byte+1==0x02 and byte+2==0x00)  [i.e. not the 1c-02-00 tg_addr]",
+   "length": 2,
+   "lengthBitNote": "mov_imm generalization: byte+1==0x02 was blanket-excluded to protect the 6-byte `1c 02 00 ..` tg_addr_compute. The mesh OBJECT stage loads a small grid-dim immediate==2 into r5..r9 as `7c 02 | 8c 02 | 9c 02 | 5c 02 | 6c 02` (mesh__mesh_grid3d, uint3(2,2,2)) -- these are 2-byte mov_imm. tg_addr is UNIQUELY byte0==0x1c with byte+2==0x00; a mov_imm with imm==2 is followed by the next op leader (byte+2 != 0x00). Dropped 0x02 from the exclusion and refused only the `.. 02 00` tg_addr signature. mesh_grid3d now tokenizes to 0 leftover; +1 clean file; roundtrip suite ALL PASS. dst=byte0-hi, imm=byte+1 per HW-validated mov_imm (EXP-0031)."
+  },
+  {
+   "applyWhen": "TEXTURE companion: byte0 low-3-bits==5 (covers low-nibble 5 sample/gather/read AND 0xd sample_compare) AND (byte+1 & 0xf0)==0x80 AND byte+2==0x0c",
+   "length": 14,
+   "lengthBitNote": "UNCHANGED length rule (already 14); the DESCRIPTOR match is what was relaxed (see descriptors). Note some texture companions carry byte0 low-nibble 0xd (0x2d/0x3d) or 0x5 with byte+1 low-nibble != 0 -- all length 14."
+  }
+ ],
+ "descriptors": [
+  {
+   "mnemonic": "tex_sample",
+   "length": 14,
+   "match": [
+    [
+     0,
+     3,
+     5
+    ],
+    [
+     12,
+     4,
+     8
+    ],
+    [
+     16,
+     8,
+     12
+    ]
+   ],
+   "fields": [
+    {
+     "name": "kind",
+     "start": 0,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "chain",
+     "start": 4,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "comp_flags",
+     "start": 8,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "result_desc",
+     "start": 24,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "184": "vec4 (full sample/read 0xb8)",
+      "160": "scalar/compare/clamped-LOD (0xa0)",
+      "168": "unclamped-LOD (0xa8)",
+      "164": "gather comp0=r (0xa4)",
+      "172": "gather comp1=g (0xac)",
+      "180": "gather comp2=b (0xb4)",
+      "188": "gather comp3=a (0xbc)"
+     }
+    },
+    {
+     "name": "result_sel",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "coord",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "variant",
+     "start": 48,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "0": "sample|gather",
+      "1": "sample|gather+offset",
+      "4": "sample_grad",
+      "7": "sample_bias",
+      "9": "sample_lod|array-sample",
+      "19": "cube sample",
+      "23": "read 2D",
+      "27": "sample_lod+offset",
+      "32": "sample_compare|gather_compare",
+      "33": "sample_compare+offset",
+      "41": "sample_compare level",
+      "57": "3D sample",
+      "59": "sample_compare_lod+offset",
+      "83": "cube-array sample",
+      "121": "read 3D",
+      "128": "read MSAA",
+      "151": "read 2D-array (bit7=array)",
+      "3": "read 2D-array (const layer; op+3=(layer<<3)|3)",
+      "55": "read cube (face=coord imm (face<<1)@main+0x09)",
+      "195": "read cube-array (face imm; op+3=(array<<3)|3)",
+      "5": "sample 2D (implicit-LOD / bias base; render_implicit)",
+      "51": "sample_compare (gradient/derivative-LOD; tex_depth_cmp)",
+      "156": "read 3D (coord-register addressing; tex3d)",
+      "160": "read 1D (tex1d)",
+      "217": "read MSAA (per-sample index; tex_ms)"
+     }
+    },
+    {
+     "name": "extra_coord",
+     "start": 56,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tex_slot",
+     "start": 64,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "samp_slot_offset",
+     "start": 72,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "mode",
+     "start": 80,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "16": "filtered sample",
+      "0": "gather/read/sample_compare",
+      "32": "LOD query"
+     }
+    },
+    {
+     "name": "lod_present",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "tail",
+     "start": 96,
+     "width": 16,
+     "type": "raw"
+    }
+   ],
+   "semantics": "Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage.",
+   "provenance": "HW-VALIDATED (EXP-0016 + EXP-0034): tex_slot/samp_slot (splice flips texture/filter, EXP-0016); sample_compare (op+2 0x20/0x29, companion 0xa0) -- all 8 compareFuncs give the exact shadow pattern, dynamic per-thread ref proves a register operand, LINEAR filter yields fractional PCF (true 2x2 hardware PCF); gather component (companion+3 bits[3:5]) HW-validated r/g/b/a; gather const offset (op+5) HW-validated; LOD-query (op+6=0x20) HW-runs. Remaining op+2 dimension codes and op+3/op+5 offset sub-bits byte-diff-localized (EXP-0016/EXP-0034 mains)."
+  }
+ ],
+ "descriptorNotes": "tex_sample (low-nibble-5 texture family): (1) match RELAXED on byte+1 from ==0x80 to HIGH-NIBBLE==8 [(8,8,0x80) -> (12,4,8)] so the CHAINED companion forms (byte+1 low-nibble in {2,4,5,6,8,a}, emitted before the 2nd..Nth sample op in a multi-sample kernel) also decode; verified no collision -- no other length-14 descriptor has byte0 low-3-bits==5 with byte+2==0x0c. (2) NEW field `comp_flags` (start 8, width 4) captures the byte+1 low nibble to preserve byte-exact roundtrip. (3) `variant` (op+2) enum EXTENDED with 5 own-MSL-observed codes: 0x05 (2D implicit-LOD sample), 0x33 (sample_compare grad/deriv-LOD), 0x9c (3D read coord-reg), 0xa0 (1D read), 0xd9 (MSAA per-sample read). Result: all 40 corpus texture companions decode, variant-named, roundtrip byte-exact. mov_imm descriptor is UNCHANGED (already matches any high-nibble low-nibble-c, length 2); only its length rule was generalized (see lengthRules).",
+ "provenance": "byte-diff EXP-M4-13 (field positions from own-MSL byte-diff; texture semantics inherit HW-VALIDATED EXP-0016/EXP-0034; the 5 new variant codes' semantics are inferred from the own-MSL construct that produced them -- NOT HW-spliced). fma-continuation & mov_imm length rules: own-shader clean-tokenization + roundtrip. NO hardware dispatch performed.",
+ "validation": {
+  "samplesDecoded": 45,
+  "samplesDecodedNote": "40 texture companions (tex_sample, all variant-named + byte-exact roundtrip) + 5 mesh mov_imm (7c/8c/9c/5c/6c 02, byte-exact roundtrip). Plus fma-continuation fix makes float_arith__fma_v4 tokenize to 0 leftover.",
+  "roundtripOnSamplesPass": true,
+  "roundtripSuitePass": true,
+  "corpusRoundtripDelta": "whole-corpus asm(disasm(b))==b failures 1324 -> 796 (-528, all remaining in the UNtouched falu3/ishift families whose descriptors don't capture byte0-hi dst); tex_sample 22->40 decoded & 18->40 named; decoded instrs 34304->34495; +1 clean file (138->139). ZERO new roundtrip failures introduced.",
+  "firstDesyncInMyNibbles": "2 -> 1 shaders (mesh__mesh_grid3d CLOSED; only bitops__xor_u16v2 remains, an UNRESOLVED packed-16 logic op)."
+ },
+ "unresolved": [
+  {
+   "signature": "1e 08 00 00 00 00 (sibling and-form 1c 00 00 00 00 00)",
+   "where": "bitops__xor_u16v2 (ushort2 packed logic), the ONLY remaining first/root desync in my nibbles",
+   "note": "REAL 6-byte op in the packed-16-bit-vector logic lowering (own-MSL t_xor_us2/t_or_us2/t_and_us2 reproduce it; a length of 6 brackets it cleanly to the device_store+stop). DECLINED to add a descriptor: xor and or produce IDENTICAL bytes (1e 08 00 00 00 00), so byte0 is NOT the logic op-select -- the op-select is UPSTREAM in the mov_zext16 byte+2 (0x1e xor-base / 0x1f and/or-base). Fully decoding this would require reconstructing the multi-op packed-vector lowering, which clean-room rule 5 forbids. Length-only would still 'no-descriptor-match'. Marked UNRESOLVED with the encoding evidence above."
+  },
+  {
+   "signature": "low-nibble a/d/e desync EVENTS in raytracing & tessellation shaders (0x1a,0x4a,0x6a,0xca; 0x2d,0xbd,0xad,0xed; 0x2e,0x4e,0x6e,0x8e,0xae,0xce with byte+2 in {0x80,0x81,0xc0,0xc1})",
+   "where": "raytracing rt_query_* and tessellation pt_* shaders",
+   "note": "CASCADE DEBRIS, not root instructions. First-desync analysis over all 686 shaders shows NONE of these is the clean-prefix-breaking (root) desync of any shader -- every one lands downstream of an UPSTREAM unknown owned by another family. The corpus root-desync histogram is dominated by low-nibble-b (201 files!), then low-nibble 0/2/7/3; my nibbles head only 2 files total. The 919 'my-nibble desync events' are the resync tokenizer stepping through bytes after those upstream faults. They will resolve for free once the low-nibble-b/0/2/7/3 owners close their roots; not actionable from within my family."
+  },
+  {
+   "signature": "non-texture low-nibble-5 desyncs (15 xx / 25 xx / 45 00 / 65 02 ...) with byte+2 != 0x0c",
+   "where": "transcendental, derivatives_misc, controlflow, tessellation shaders",
+   "note": "CASCADE DEBRIS (2-4 byte fragments after an upstream desync); byte+2 != 0x0c so they are NOT texture companions. Not root desyncs. Same upstream-family root cause as above."
+  }
+ ],
+ "reproducibility": {
+  "isolatedMSL": "experiments/EXP-M4-13-full-corpus/corpus/dec_rare_e5ad/ (t_tex2d_sample/read/gather, t_fma4, t_fmul4, t_xor_us2/us1, t_and_us2/us1, t_or_us2)",
+  "extractedHex": "experiments/EXP-M4-13-full-corpus/hex/dec_*.hex",
+  "scratchDB": "experiments/EXP-M4-13-full-corpus/work/scratch/isadb.py (all edits; roundtrip_test.py ALL PASS)"
+ }
+}

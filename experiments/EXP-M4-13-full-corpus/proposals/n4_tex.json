@@ -1,0 +1,65 @@
+{
+  "lowNibble": 4,
+  "family": "low-nibble-4 = the SPECIAL-REGISTER / DATAPATH-READ family (byte0 low-3-bits == 0b100; byte0 HIGH nibble = destination register r0..r15). Members: get_sr (4B, HW-validated, already in DB, all dst), rt_intersect (8B byte+1==0xea, already in DB, all dst), and -- NEW here -- sr_read_wide (8B, the wide/indexed builtin & intersection_query PROPERTY read). Provoked with OWN-MSL (EXP-M4-13). Clean-room: field positions from byte-diffing our own compiled shaders + anchoring; NO Apple binary inspected; NO GPU dispatch (compile+extract+tokenize+byte-diff only).",
+  "distinctByte0Covered": ["0x04","0x14","0x24","0x34","0x44","0x54","0x64","0x74","0x84","0x94","0xa4","0xb4","0xc4","0xd4","0xe4","0xf4"],
+  "lengthRules": [
+    {
+      "applyWhen": "byte0 low-3-bits == 0b100 (low nibble 4 or c) AND byte+1 != 0xea AND byte+3 low-nibble == 6",
+      "length": 4,
+      "lengthBitNote": "PRE-EXISTING (EXP-0031, HW-validated): get_sr special-register read. dst = byte0 high nibble, SR# = byte+1. Checked first; unchanged."
+    },
+    {
+      "applyWhen": "byte0 low-nibble == 0x4 AND byte+1 >= 0x80 AND byte+1 != 0xea AND byte+3 == 0x00 AND (byte+2 low-nibble in {2,6})",
+      "length": 8,
+      "lengthBitNote": "NEW (EXP-M4-13): sr_read_wide, the 8-byte sibling of get_sr. Generalises to ALL dst high-nibbles the length the committed DB only produced for dst-r0 (via the b0==0x04 fragment-centroid rule). byte+1 bit7 set = selector (distinguishes from the reconverge-operand word X4 0Y 00 00, whose byte+1 < 0x80); byte+3==0x00 and byte+2 low-nibble in {2,6} exclude get_sr (byte+3 lo-nib 6), rt_intersect (byte+1==0xea), and desync-landing byte pairs like `24 8a 09 ..` (byte+2 lo-nib 9). Length anchored to 8 by the immediately-following op across the corpus (44 82 26 00 -> 8 in 147/147; 64/84 81 a2 00 & 44 83 26 00 unanimous) and hand-verified at a clean boundary right after a 14-byte rt_as_load in our own-compiled rtq_inst."
+    },
+    {
+      "applyWhen": "byte0 low-nibble == 0x4 AND byte+1 == 0xea",
+      "length": 8,
+      "lengthBitNote": "PRE-EXISTING (EXP-0023, HW-validated): rt_intersect. Checked later in the committed rule; unchanged."
+    },
+    {
+      "applyWhen": "byte0 == 0x04 AND byte+1 != 0xea (fall-through: not get_sr / sr_read_wide / rt_intersect above)",
+      "length": 8,
+      "lengthBitNote": "PRE-EXISTING (EXP-0029): FRAGMENT centroid / sample-position preamble read (byte+2 in {0x39,0x27,0x11,...}, byte+1 < 0x80). UNCHANGED and left intact. NOTE (documented, not fixed): this rule over-reads the COMPUTE/MESH reconverge-operand bytes `04 01 00 00` / `04 02 00 00` (really the 4-byte operand of a 0x0f06 pop_reconverge) to 8 when they are reached via UPSTREAM desync; the root cause is undecoded ops in OTHER families (low-nibble-b ray_move variants, RT traversal), not a missing low-nibble-4 opcode -- see unresolved[]."
+    }
+  ],
+  "opSelectMap": {
+    "note": "Within low-nibble-4 the member is selected by LENGTH + byte+1/byte+3 gates, not by a bit inside one word. dst is ALWAYS byte0 high nibble (r0..r15) for every member.",
+    "4-byte, byte+3 lo-nibble 6": "get_sr (SR read; byte+1 = SR number)  [pre-existing, HW-validated]",
+    "8-byte, byte+1 bit7 set, byte+3==0, byte+2 lo-nibble {2,6}": "sr_read_wide (wide/indexed builtin or intersection_query property read; byte+1 = selector, byte+2 = sub-selector)  [NEW]",
+    "8-byte, byte+1==0xea": "rt_intersect (HW ray-intersection primitive)  [pre-existing, HW-validated]",
+    "8-byte, byte0==0x04, byte+1<0x80, byte+2 in {0x39,0x27,0x11}": "fragment centroid/sample-position read  [pre-existing]"
+  },
+  "descriptors": [
+    {
+      "mnemonic": "sr_read_wide",
+      "length": 8,
+      "match": [[0, 4, 4], [15, 1, 1], [24, 8, 0], [16, 1, 0], [17, 1, 1]],
+      "fields": [
+        {"name": "dst", "start": 4,  "width": 4,  "type": "reg"},
+        {"name": "sel", "start": 8,  "width": 7,  "type": "raw"},
+        {"name": "sub", "start": 16, "width": 8,  "type": "raw"},
+        {"name": "op",  "start": 32, "width": 32, "type": "raw"}
+      ],
+      "semantics": "d[dst] = wide_special_read(sel, sub) ; 8-byte member of the get_sr low-nibble-4 datapath family (byte0 low-3-bits 0b100). Reads a wide/indexed builtin OR, inside the intersection_query BVH-traversal loop, a committed/candidate intersection or instance PROPERTY (type / geometry-id / primitive-id / instance-id / distance / barycentrics / object<->world transform component) into dst = byte0 high nibble. byte+1 (high bit always set) is the property/register selector; byte+2 (low-nibble 2 or 6) a sub-selector; byte+3 == 0x00; bytes+4..+7 a small operand/mask word (mostly 0x00, occasionally 0x00c0..). Emitted in bursts by every intersection_query getter and by wide-builtin reads.",
+      "provenance": "byte-diff EXP-M4-13 (OWN-SHADER: field positions from byte-diffing / anchoring our own compiled shaders). dst = byte0 high nibble is byte-diff-PROVEN (the corpus dst-nibble histogram of this signature spans r0..r15, exercised in the 395 decoded tokens). length 8 anchored by the immediately-following op (44 82 26 00 -> 8 in 147/147; 64/84 81 a2 00 and 44 83 26 00 unanimous) and hand-verified at a CLEAN boundary directly after a 14-byte rt_as_load in own-compiled rtq_inst. The byte+1 selector / byte+2 sub-selector / operand-word SEMANTICS are structural/INFERRED, NOT hardware-dispatch-validated (no GPU dispatch was performed; no Apple binary inspected). Generalises the get_sr family; strictly less specific than rt_intersect (byte+1==0xea) which keeps its bytes."
+    }
+  ],
+  "notes": "Low-nibble-4 turned out to be a SMALL, already-well-covered family, NOT a rich pool of undecoded texture/imageblock ops. The task hint ('0x54 texture-address / desync-heavy long instructions', 602 = 423 desync + 179 family) reflects the CENSUS mis-attributing desync-artifact bytes to this nibble, not real instructions. Concretely: (1) get_sr (4B) and rt_intersect (8B) already cover all dst regs. (2) The ONE genuinely-missing member is sr_read_wide (8B) -- the wide special-register / intersection-query PROPERTY read -- whose dst!=r0 forms (0x14/0x44/0x64/0x84/...) desynced because the committed length rule only reached dst-r0 via the b0==0x04 centroid rule. This proposal adds the length rule + descriptor generalising it to all dst; +398->395 tokens named, dst r0..r15, all roundtrip byte-identical. (3) The remaining 'gaps' are DESYNC ARTIFACTS, not instructions -- PROVEN, see unresolved[]. Impact on the full 825-file hex corpus (advance-2 census walk): desync 15391 -> 14522 (-869), named 38165 -> 38585 (+420), 28 files improved, 0 files regressed, roundtrip_test.py stays ALL PASS.",
+  "provenance": "OWN-SHADER byte-diff + anchoring (EXP-M4-13). Field/length positions from our own compiled MSL (corpus/dec_n4_tex/*.metal -> hex/dec_n4_tex/dec_*.hex) and the broad own-shader hex corpus. No Apple binary was disassembled or introspected. No GPU dispatch: compile + extract + tokenize + byte-diff only. dst=byte0-hi-nibble and length=8 are byte-diff/anchor-PROVEN; selector/sub/operand fields are structural/INFERRED (not HW-splice-validated).",
+  "validation": {
+    "samplesDecoded": 395,
+    "distinctByteStrings": 71,
+    "roundtripOnSamplesPass": true,
+    "roundtripSuitePass": true,
+    "method": "Scratch DB work/isadb_n4work.py (committed DB + this proposal's ONE length rule + ONE descriptor). (a) All 825 corpus hex files walked (census-style advance-2 on LEN_UNKNOWN): 395 sr_read_wide tokens named across 71 distinct byte-strings, dst nibbles r0..r15 all present. (b) assemble(disasm(b))==b for all 395 sr_read_wide tokens: 395/395 OK. (c) roundtrip_test.py against the scratch DB = ALL PASS (no regression to any other family). (d) Corpus census: desync 15391 -> 14522 (-869), named +420, family -655; 28 files improved, 0 REGRESSED. (e) The tightened byte+2-low-nibble-{2,6} gate removed the single initial regression (bf16_convert `24 8a 09 ..`, a desync-landing false positive now correctly left LEN_UNKNOWN). (f) get_sr / rt_intersect / mov_imm guards still win on their bytes; fragment centroid read (byte+1<0x80) untouched. (g) pop_reconverge still tokenizes `0f0604010000` as one 6-byte op, confirming `04 01 00 00` is its operand, not an instruction."
+  },
+  "unresolved": [
+    "NEGATIVE RESULT (not an instruction): `04 01 00 00` / `04 02 00 00` (the census's largest low-nibble-4 'gaps', ~85 + ~9 'family' hits and ~1500 total occurrences) are the 4-byte OPERAND WORD of the 6-byte 0x0f06 pop_reconverge. PROVEN: preceded by `0f 06` in 1479/1482 (`04 01 00 00`) and 511/522 (`04 02 00 00`) corpus occurrences, and own-compiled k_cf_if/k_cf_ret tokenize `0f0604010000` as ONE pop_reconverge. They appear as 'leaders' only when UPSTREAM desync (in the low-nibble-b ray_move family / RT traversal ops -- NOT low-nibble-4) exposes the boundary and the b0==0x04 centroid rule mis-lengths them. Not fixed here: the fix belongs upstream, and the fragment centroid rule must stay intact.",
+    "NEGATIVE RESULT (not an instruction): the 0x54 'leaders' the hint calls 'texture-address' (`54 1a`, `54 21`, `54 0d`, `54 0f 02 08`, `54 00 ..`, etc.) are MID-INSTRUCTION 0x54 CF-marker bytes -- byte+2/+3 of if_push (`0f 05 54 1a`), rt_as_load (`df 02 54 1a`), rt_ray_mem (`5f 02 54 0f`), iadd2 (`9f 01 54 1a`), and the threadgroup barrier. PROVEN by preceding-byte analysis (`54 1a` preceded by 0f05 x274 / df02 x102 / 9f01 x25). They are desync artifacts of undecoded neighbours, not low-nibble-4 instructions.",
+    "NEGATIVE RESULT: `44 03 e0 c0 0c 00` is the TAIL (bytes +6..+13) of a 14-byte rt_as_load (`df 02 54 .. 44 03 e0 c0 0c 00`), an operand, not an op.",
+    "UNRESOLVED (possible real 4-byte compute op, byte+1 bit7 CLEAR so OUTSIDE sr_read_wide): `04 22 20 80`, `04 02 00 80`, `04 00 00 01`, `44 01 03 40`. These have low-nibble 4 and appear at plausibly-clean boundaries in float_arith/RT kernels, but are entangled with simd/RT operand tails and cannot be isolated to a definite length/semantics without first decoding the neighbouring low-nibble-b / RT-traversal ops (other agents' families). Left undescribed rather than fabricated. `04 00 00 01` must be >=4 bytes (a 2-byte read desyncs on the trailing `00 01`), but whether it is a standalone op or another operand word is not cleanly determinable from the corpus.",
+    "sr_read_wide selector (byte+1 low 7 bits) / sub-selector (byte+2) / operand-word (bytes+4..+7) SEMANTICS are structural/INFERRED. Which selector value maps to which intersection-query property (type vs geometry_id vs primitive_id vs distance vs barycentrics vs transform) was NOT resolved: the intersection_query getter kernels (rtq_*) desync too heavily around the low-nibble-b ray-marshalling ops to byte-diff one getter against another cleanly. A per-property byte-diff is a follow-up once the ray_move/rt-traversal families are decoded. dst=byte0-hi and length=8 ARE established."
+  ]
+}

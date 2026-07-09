@@ -1,0 +1,376 @@
+{
+ "family": "low-nibble 0x?1 (16-bit-destination half/bfloat CONVERT + native bfloat ALU)",
+ "lowNibble": "0x1",
+ "familyShape": "byte0 HIGH nibble = destination register (r0..r15); byte0 LOW nibble = 0x1 selects this family. byte+2 = op-select. Parallels the low-nibble-9 fp32 float ALU but with a 16-bit (fp16/bfloat) destination. Distinct from the low-nibble-0 native fp16 arithmetic (0x10 half_alu) and low-nibble-2 half min/max (0x12).",
+ "highNibbleTest": "CONFIRMED byte0 high nibble = dst reg via p_f2h_multi (4 independent float->half converts): byte0 high nibbles 0,0,1,1 track dst 32-bit regs r0,r0,r1,r1 (two fp16 halves packed per 32-bit reg; the .lo/.hi half within the reg is byte+4 bit2). Consistent with the established high-nibble=dst convention for low-nibble 2/3/9.",
+ "opSelectMap_byte2": {
+  "0x1c": "convert-to-half (cvt_f2h) / bfloat-add (bf_add) / bfloat convert base (add-form op-select; low nibble 0xc)",
+  "0x1d": "bfloat-multiply (bf_mul)  [byte+2 bit0 = add->mul, single-bit byte-diff proven]",
+  "0x1e": "bfloat-fma (bf_fma)  [byte+2 bit1 = fma length bit -> 10-byte 3-source form]",
+  "0x3c": "convert-to-half with source-mode bit set (byte+2 bit5); same 6-byte cvt_f2h, alternate source addressing (seen in cvt_half corpus)"
+ },
+ "subFields": {
+  "dst": "byte0 bits[4:8] = destination register r0..r15",
+  "byte+1": "CONVERT: source register/format (odd = src reg index: 0x01,0x03,0x05,0x07...; 0x02 = fp16 source, 0x03 = fp32 source).  BFLOAT ALU: 0x02 = scalar bfloat, 0x04 = bfloat2-packed lane.",
+  "byte+2": "op-select (see opSelectMap_byte2)",
+  "byte+3": "CONVERT: 0x81 = single-source convert descriptor marker (discriminates convert from ALU).  BFLOAT ALU: srcA register.",
+  "byte+4": "CONVERT: format/width -- bit0 SET = bfloat destination (8-byte form), CLEAR = fp16 destination (6-byte form); bit2 = dst fp16 half within the 32-bit reg.  BFLOAT ALU: srcB register.",
+  "byte+6": "CONVERT (8-byte bfloat form only): direction -- 0x40 = result bfloat (float->bf / half->bf), 0x80 = result half (bf->half)."
+ },
+ "lengthRules": [
+  {
+   "applyWhen": "byte0 == 0x11 AND byte+1 == 0x03",
+   "length": "8 if (byte+4 & 0x01) else 6",
+   "lengthBitNote": "FIX of the documented EXP-O2D 6-vs-8 sub-split: 32-bit-source convert to HALF = 6B (cvt_f2h, byte+4 bit0 clear), to BFLOAT = 8B (cvt_f2bf, byte+4 bit0 set). Old flat '->6' mis-lengthed float->bfloat."
+  },
+  {
+   "applyWhen": "byte0 == 0x11 AND byte+1 in {0x02,0x04}",
+   "length": "10 if (byte+2 & 0x02) else 8",
+   "lengthBitNote": "unchanged from EXP-O2D: bf_add/bf_mul/h<->bf-convert = 8B, bf_fma (byte+2 0x1e) = 10B."
+  },
+  {
+   "applyWhen": "(byte0 & 0x0f)==0x01 AND byte0 != 0x11 AND byte+3==0x81 AND (byte+2 & 0x0f)==0x0c",
+   "length": "8 if (byte+4 & 0x01) else 6",
+   "lengthBitNote": "GENERAL single-source convert for all other dst regs: ->bfloat 8B / ->half 6B. Gated on byte+3==0x81 so it never claims a resync landing."
+  },
+  {
+   "applyWhen": "(byte0 & 0x0f)==0x01 AND byte0 != 0x11 AND byte+1 in {0x02,0x04} AND byte+3 != 0x81",
+   "length": "10 if (byte+2 & 0x02) else 8",
+   "lengthBitNote": "GENERAL bfloat ALU for all other dst regs: bf_fma 10B / bf_add,bf_mul 8B."
+  }
+ ],
+ "descriptors": [
+  {
+   "mnemonic": "cvt_f2h_dst",
+   "length": 6,
+   "match": [
+    [
+     0,
+     4,
+     1
+    ],
+    [
+     28,
+     4,
+     8
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcfmt",
+     "start": 8,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "28": "f2h",
+      "60": "f2h(srcmode)"
+     }
+    },
+    {
+     "name": "src",
+     "start": 24,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "dhalf",
+     "start": 32,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "tail",
+     "start": 40,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d(half) = half(a)  ; fp32 -> fp16 narrowing convert, for ANY dst register (byte0 high nibble). Generalises the byte0==0x11 (dst r1) cvt_f2h to r0..r15 (e.g. `01 01 1c 81 00 c2` dst r0, `31 05 3c 81 04 22` dst r3). byte+2 0x1c is the base convert, 0x3c the same convert with the source-mode bit (bit5) set.",
+   "provenance": "byte-diff EXP-M4-13 (field positions localised by dst-register sweep in p_f2h_multi/p_packh2/p_h2conv; op-select from own-MSL half() construct). Length 6 anchored between device_load/device_store brackets. Extends the HW-VALIDATED EXP-0013 cvt_f2h (byte0==0x11) to all dst regs; not itself hardware-splice-validated."
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     1
+    ],
+    [
+     24,
+     8,
+     129
+    ],
+    [
+     32,
+     8,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "srcw",
+     "start": 8,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "2": "src16",
+      "3": "src32"
+     }
+    },
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "src",
+     "start": 24,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "fmt",
+     "start": 32,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "raw"
+    },
+    {
+     "name": "dir",
+     "start": 48,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "64": "to_bfloat",
+      "128": "to_half"
+     }
+    },
+    {
+     "name": "b7",
+     "start": 56,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "bfloat convert (8-byte). byte+1 = source width (0x03 float32, 0x02 float16); byte+6 = direction (0x40 = result bfloat: float->bfloat / half->bfloat; 0x80 = result half: bfloat->half). byte+4 == 0x01 marks a bfloat operand. This is the 8-byte sibling of the 6-byte cvt_f2h_dst (byte+4 bit0 set = bfloat, so longer).",
+   "provenance": "byte-diff EXP-M4-13 (p_f2bf/p_h2bf/p_bf2h single-op MSL). f2h-vs-f2bf length split (byte+4 bit0) confirmed by direct byte-diff (f2h 6B vs f2bf 8B, delta at byte+4 bit0); direction byte+6 from h2bf(0x40) vs bf2h(0x80) diff. Own-MSL bfloat()/half() constructs; not hardware-splice-validated."
+  },
+  {
+   "mnemonic": "bf_add_dst",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     1
+    ],
+    [
+     16,
+     8,
+     28
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "fmt",
+     "start": 8,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "2": "bf",
+      "4": "bf2"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcB",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tail",
+     "start": 40,
+     "width": 24,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d(bfloat) = a + b  ; native bfloat add for ANY dst register. Generalises the byte0==0x11 bf_alu (dst r1) to r0..r15. byte+1 = 0x02 scalar / 0x04 bfloat2-packed lane. (Distinguished from the 8-byte convert cvt_bf16 by byte+3: a register here vs the 0x81 convert-source descriptor there.)",
+   "provenance": "byte-diff EXP-M4-13 (p_bfadd single-op MSL, dst-reg generalisation of the HW-VALIDATED EXP-O2D bf_alu). Not itself hardware-splice-validated."
+  },
+  {
+   "mnemonic": "bf_mul_dst",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     1
+    ],
+    [
+     16,
+     8,
+     29
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "fmt",
+     "start": 8,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "2": "bf",
+      "4": "bf2"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcB",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tail",
+     "start": 40,
+     "width": 24,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d(bfloat) = a * b  ; native bfloat multiply for ANY dst register. op-select byte+2 == 0x1d (vs 0x1c add) -- single-bit byte-diff (bf_add vs bf_mul).",
+   "provenance": "byte-diff EXP-M4-13 (p_bfmul; opsel bit0 = add/mul confirmed by direct byte-diff bf_add(0x1c) vs bf_mul(0x1d)). Not hardware-splice-validated."
+  },
+  {
+   "mnemonic": "bf_fma_dst",
+   "length": 10,
+   "match": [
+    [
+     0,
+     4,
+     1
+    ],
+    [
+     16,
+     8,
+     30
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "fmt",
+     "start": 8,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "2": "bf",
+      "4": "bf2"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcB",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "srcC",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tail",
+     "start": 48,
+     "width": 32,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d(bfloat) = a*b + c  ; native bfloat fused multiply-add. op-select byte+2 == 0x1e (the fma length bit, byte+2 bit1, is set) -> 10-byte 3-source form. Covers the byte0==0x11 case the EXP-O2D length rule sized as 10 but had no descriptor for, plus all other dst regs.",
+   "provenance": "byte-diff EXP-M4-13 (p_bffma single-op MSL: `11 02 1e 02 86 04 08 00 c0 81`, 10B, bracketed by three device_loads). Not hardware-splice-validated."
+  }
+ ],
+ "validation": {
+  "samplesDecoded": 18,
+  "samplesNote": "18 distinct low-nibble-1 op instances across the isolated probe programs (corpus/dec_n1_opselect) decode with sensible fields and 0 leftover; all low-nibble-1 probe programs tokenize CLEAN (the only residual desyncs in the probe set are byte0==0x10 half_alu abs/neg/fma extended forms -- low-nibble 0, a different family).",
+  "roundtripOnSamplesPass": true,
+  "roundtripOnSamplesNote": "asm(disasm(b))==b holds for all 18 low-nibble-1 ops (0 failures).",
+  "roundtripSuitePass": true,
+  "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py run against the scratch DB: ALL PASS (synth + real _agc.main tokenization + imm codec).",
+  "corpusABresyncScan": "named low-nibble-1 convert/bfloat ops across 738 corpus hex files rose 56 -> 115 (+59) over 43 -> 56 files; corpus-wide stop-at-first-desync leftover strictly decreased (309794 -> 309672 bytes). No regression."
+ },
+ "notes": [
+  "The bulk of the gaps_round1 'desync' signatures with byte0 low-nibble 0x1 (from raytracing rt_query_* kernels: 81/21/41/61/a1/... 00 63/93/23/53 ...) are NOT genuine low-nibble-1 instruction leaders. They are resync-scan landings MID-INSTRUCTION downstream of an undecoded op in ANOTHER family (verified: rt_query_abort / rt_query_committed_getters desync at a 0xNb op right after rt_intersect; clz_u16 at 0x00; bf16_convert at 0x72). Fixing those is the job of the raytracing (0xNb) and transcendental owners, not this family.",
+  "The `01 00` signature (count 124, family-only) is the SFU transcendental range-reduction 2-byte immediate WORD, already length-ruled and DELIBERATELY not bit-decoded per clean-room rule 5 (decoding it would reconstruct the range-reduction sequence). Left as length-only intentionally.",
+  "Existing HW-VALIDATED descriptors cvt_f2h (byte0==0x11) and bf_alu (byte0==0x11, byte+1==0x02) are left UNTOUCHED so their EXP-0013/O2D provenance and the roundtrip synth tests are preserved; the new *_dst / cvt_bf16 descriptors extend the SAME ops to the other 15 destination registers and to the byte+1==0x04 (bf2-packed) and byte+2==0x1e (fma) forms the byte0==0x11 descriptors did not cover.",
+  "half arithmetic (add/mul/sub/fma/abs/neg) is byte0 low-nibble 0 (0x10 half_alu), and half min/max is low-nibble 2 (0x12) -- NOT this family; int/uint->half convert is byte0 0xa7 (cvt_i2f, low-nibble 7). This family is specifically the 16-bit CONVERT + native bfloat ALU."
+ ],
+ "provenance": "byte-diff EXP-M4-13 (field positions from own-MSL single-op minimal pairs in corpus/dec_n1_opselect; op-select semantics from the own-MSL construct that produced each op). Length rules anchored by device_load/device_store brackets in isolated kernels and confirmed across >=2 shaders. op-select bit0 (add/mul) and the 6-vs-8 format bit (byte+4 bit0) confirmed by DIRECT byte-diff. NOT hardware-splice-validated (compile+extract+tokenize+byte-diff only; no GPU dispatch on this M4 host).",
+ "unresolved": [
+  "raytracing rt_query_* low-nibble-1 desync signatures (81 00 63 3a / 21 01 93 97 / 41 00 23 58 / 61 00 53 d8 / a1 00 63 a5 / 41 08 XX YY transform-read run, etc.): confirmed CASCADE artifacts -- these kernels desync at a 0xNb op immediately after rt_intersect, so the reported low-nibble-1 bytes are mid-instruction resync landings, not genuine 0x?1 leaders. Out of scope for this family; resolving them requires the raytracing (0xNb / rt_intersect result-handling) length rule.",
+  "01 00 (count 124, family-only): SFU transcendental range-reduction 2-byte immediate WORD -- deliberately left length-only, NOT bit-decoded, per clean-room rule 5 (bit-decoding would reconstruct the range-reduction sequence).",
+  "byte0==0x11 fused convert+immediate form `11 c1 15 03 80 c0` (e.g. half(f)*const): decodes+round-trips but is LABELLED cvt_f2h by the pre-existing byte0==0x11 legacy fallback (a fp16 immediate-multiply whose byte+2 op-select 0x15 overlaps the fp32 falu2i encoding). Pre-existing mislabel, not introduced here; genuine half immediate ARITHMETIC is byte0 0x10 (half_alu). Left as-is; a dedicated half-immediate descriptor is a follow-up.",
+  "bf_add_dst/bf_mul_dst match on byte+2 only (0x1c/0x1d) with byte+1 (0x02 scalar / 0x04 bf2) as a field -- the scalar-vs-bf2packed distinction is decoded but its full lane-packing semantics for bf2 were not independently splice-verified (inferred from bf2_add byte-diff).",
+  "11 04 27 00 54 06 02 0c 20 38 (mesh_maxout / sg_prefix_prod_f32, byte+2==0x27): a low-nibble-1 op with a NON-convert op-select (0x27) seen only in mesh/subgroup contexts; not reproduced by isolated compute MSL here, so not decoded. Likely a mesh/threadgroup-specific 16-bit op; flagged for the mesh owner."
+ ]
+}

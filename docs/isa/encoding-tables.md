@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-08). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 85 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-08). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 96 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -619,16 +619,17 @@
 
 ### `tex_sample` — sample/gather/read/compare/LOD-query bundle
 
-- **Length:** 14 bytes  ·  **Match:** bits[0:3]==0x5, byte+1==0x80, byte+2==0x0c  ·  **Provenance:** HW-validated
+- **Length:** 14 bytes  ·  **Match:** bits[0:3]==0x5, bits[12:16]==0x8, byte+2==0x0c  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `kind` | [0:4] (byte+0) | modifier |  |
 | `chain` | [4:8] | modifier |  |
+| `comp_flags` | [8:12] (byte+1) | modifier |  |
 | `result_desc` | [24:32] (byte+3) | modifier | `0xb8`=vec4 (full sample/read 0xb8); `0xa0`=scalar/compare/clamped-LOD (0xa0); `0xa8`=unclamped-LOD (0xa8); `0xa4`=gather comp0=r (0xa4); `0xac`=gather comp1=g (0xac); `0xb4`=gather comp2=b (0xb4); `0xbc`=gather comp3=a (0xbc) |
 | `result_sel` | [32:40] (byte+4) | register |  |
 | `coord` | [40:48] (byte+5) | register |  |
-| `variant` | [48:56] (byte+6) | opcode-select | `0x0`=sample|gather; `0x1`=sample|gather+offset; `0x4`=sample_grad; `0x7`=sample_bias; `0x9`=sample_lod|array-sample; `0x13`=cube sample; `0x17`=read 2D; `0x1b`=sample_lod+offset; `0x20`=sample_compare|gather_compare; `0x21`=sample_compare+offset; `0x29`=sample_compare level; `0x39`=3D sample; `0x3b`=sample_compare_lod+offset; `0x53`=cube-array sample; `0x79`=read 3D; `0x80`=read MSAA; `0x97`=read 2D-array (bit7=array); `0x3`=read 2D-array (const layer; op+3=(layer<<3)|3); `0x37`=read cube (face=coord imm (face<<1)@main+0x09); `0xc3`=read cube-array (face imm; op+3=(array<<3)|3) |
+| `variant` | [48:56] (byte+6) | opcode-select | `0x0`=sample|gather; `0x1`=sample|gather+offset; `0x4`=sample_grad; `0x7`=sample_bias; `0x9`=sample_lod|array-sample; `0x13`=cube sample; `0x17`=read 2D; `0x1b`=sample_lod+offset; `0x20`=sample_compare|gather_compare; `0x21`=sample_compare+offset; `0x29`=sample_compare level; `0x39`=3D sample; `0x3b`=sample_compare_lod+offset; `0x53`=cube-array sample; `0x79`=read 3D; `0x80`=read MSAA; `0x97`=read 2D-array (bit7=array); `0x3`=read 2D-array (const layer; op+3=(layer<<3)|3); `0x37`=read cube (face=coord imm (face<<1)@main+0x09); `0xc3`=read cube-array (face imm; op+3=(array<<3)|3); `0x5`=sample 2D (implicit-LOD / bias base); `0x33`=sample_compare (gradient/deriv-LOD); `0x9c`=read 3D (coord-register addressing); `0xa0`=read 1D (tex1d); `0xd9`=read MSAA (per-sample index) |
 | `extra_coord` | [56:64] (byte+7) | register |  |
 | `tex_slot` | [64:72] (byte+8) | immediate |  |
 | `samp_slot_offset` | [72:80] (byte+9) | immediate |  |
@@ -1198,6 +1199,50 @@
 
 - **Length:** 6 bytes  ·  **Match:** byte+0==0x1c, byte+1==0x02, byte+2==0x00
 
+### `pad_operand`
+
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x0
+
+### `dev_scoreboard_fence`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x80, byte+1==0x02, byte+2==0x00
+
+### `n3_mov`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x3
+
+### `n3_addr_prep`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x3, byte+2==0x27
+
+### `n3_sample_read`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x03, byte+2==0x26
+
+### `cvt_f2h_dst`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x1, bits[28:32]==0x8
+
+### `cvt_bf16`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+3==0x81, byte+4==0x01
+
+### `bf_add_dst`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1c
+
+### `bf_mul_dst`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1d
+
+### `bf_fma_dst`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1e
+
+### `sr_read_wide`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4, bits[15:16]==0x1, byte+3==0x00, bits[16:17]==0x0, bits[17:18]==0x1
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1272,4 +1317,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 85 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 96 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
