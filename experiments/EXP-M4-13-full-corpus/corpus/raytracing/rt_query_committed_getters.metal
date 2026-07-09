@@ -1,0 +1,23 @@
+#include <metal_stdlib>
+#include <metal_raytracing>
+using namespace metal;
+using namespace raytracing;
+// Exhaustive committed-side getters.
+kernel void kmain(device float* o [[buffer(0)]],
+                  instance_acceleration_structure accel [[buffer(1)]],
+                  uint i [[thread_position_in_grid]]) {
+    ray r(float3(0,0,0), float3(0,0,1));
+    intersection_query<triangle_data, instancing> q;
+    q.reset(r, accel);
+    while (q.next())
+        if (q.get_candidate_intersection_type() == intersection_type::triangle)
+            q.commit_triangle_intersection();
+    float acc = float(q.get_committed_intersection_type());
+    acc += q.get_committed_distance();
+    acc += float(q.get_committed_primitive_id());
+    acc += float(q.get_committed_geometry_id());
+    acc += float(q.get_committed_instance_id());
+    acc += float(q.get_committed_user_instance_id());
+    acc += q.get_committed_triangle_barycentric_coord().x;
+    o[i] = acc;
+}
