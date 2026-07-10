@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 155 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 165 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -333,13 +333,17 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `srcdst` | [24:48] (byte+3) | raw/unmapped |  |
+| `form` | [9:16] | modifier |  |
+| `src_cache` | [16:24] (byte+2) | modifier |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `src_class` | [32:40] (byte+4) | modifier |  |
+| `opB` | [40:48] (byte+5) | register |  |
 | `shamt` | [48:56] (byte+6) | immediate |  |
-| `tail` | [56:80] (byte+7) | raw/unmapped |  |
+| `shift_type` | [56:64] (byte+7) | modifier |  |
+| `op8` | [64:72] (byte+8) | immediate |  |
+| `pad9` | [72:80] (byte+9) | immediate |  |
 
-*d = a >> shamt  ; ARITHMETIC (sign-preserving) shift-right by an immediate. Shift amount at byte+6 encoded as (shamt<<2): 0x04->1, 0x08->2, 0x10->4, 0x20->8. (Logical >> by immediate uses the 12-byte bitfield-extract form below; register-operand shifts are multi-instr with a 0x2b prep stage.)*
+*ARITHMETIC (sign-preserving) shift-right by an immediate is the HW-VALIDATED member of this BROAD 10-byte 0xa7 bucket (byte+1 bit0==1). d = a >> shamt: shift amount at byte+6 encoded as (shamt<<2) -- CONFIRMED EXP-M4-13 R8 own-MSL: >>1/2/4/8 -> byte+6 0x04/0x08/0x10/0x20 (k_ashr1/2/4/8), with byte+7 = 0x78 (arithmetic-shift-right op-type) and byte+2 = 0x56 flipping to 0x54 when the source is a computed/consumed register (k_ashr2_srcB). byte+3/+5 carry the operand-register bits (advance in k_ashr2_two). NOTE: this descriptor is length-selected (every odd-b1 10-byte 0xa7) and so also absorbs the 0xa7 10-byte INTERPOLATION / RT datapath siblings (byte+1==0x81, byte+2==0x22 -- corpus-dominant, 138/188); for those, byte+6/+8/+9 are operand/coefficient words, not a shift amount. Logical >> by immediate uses the 12-byte bitfield-extract form (ibfe); register-operand shifts are multi-instr with a 0x2b prep stage. Per-op-select tail semantics of the non-shift siblings NOT reconstructed (rule 5).*
 
 ### `ibfe` — bitfield-extract / logical shift-right
 
@@ -420,9 +424,12 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `body` | [8:32] (byte+1) | raw/unmapped |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `subform` | [16:24] (byte+2) | modifier |  |
+| `extend` | [24:32] (byte+3) | modifier |  |
 
-*d = a & 0xFFFF  ; 16-bit zero-extend / narrow move (uint -> ushort -> uint keeps the low halfword).*
+*d(r1) = a & 0xFFFF  ; 16-bit ZERO-extend / narrow move (uint -> ushort -> uint keeps the low halfword). byte0==0x13 fixed (dst r1 form of the 0x?3 16-bit narrow family). EXP-M4-13 R8 own-MSL byte-diff: byte+1 = source register descriptor (bits0-6 reg, bit7 = uniform/special-file flag; role follows the reg_move_cb sibling where byte+1=src is PROVEN, corroborated by the corpus n=596 byte+1 46-distinct spread). byte+2 = source-class / size sub-form selector (35-distinct). byte+3 = zero-extend-width / companion descriptor: 0x01 is the low-16 ZERO-extend companion (u2us). NEGATIVE controls proving byte+3 encodes the ZERO-extend (not a generic narrow): SIGN-extend short->int does NOT use 0x13 (lowers to an iadd/bfe sign path, k_s2ss `9f01560002000008 1303`); 8-bit narrow uchar does NOT use 0x13 (lowers to ilogic AND 0xff, k_u2uc `0b011fff...`). Per-value subform/extend maps partial (needs-splice for the non-0x01 companions).*
 
 ### `pack_convert` — pack_float_to_unorm/snorm2x16 (compute)
 
@@ -529,9 +536,9 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `reserved` | [8:32] (byte+1) | raw/unmapped |  |
+| `reserved` | [8:32] (byte+1) | immediate |  |
 
-*conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator and NOT parameterized: the 24-bit body is reserved-zero and non-load-bearing -- corrupting any of it is a no-op (EXP-0003/EXP-0010 E4). The true end-of-program is out-of-band (the metadata code length), not this in-band token. There is no scope/mask/wait operand.*
+*conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator and NOT parameterized: the 24-bit body is RESERVED PAD -- HW-proven non-load-bearing (corrupting any of it is a no-op, EXP-0003/EXP-0010 E4). A driver emits 0x000000. The true end-of-program is out-of-band (the metadata code length), not this in-band token. There is NO scope/mask/wait operand: the 'end-of-program flags/scope' hypothesis is DISPROVEN by the EXP-0010 E4 splice-inertness result. Typed `imm` (reserved pad) because the bits are fully LOCATED and their role is fully KNOWN (inert padding); the rare nonzero corpus bodies are trailing-padding / mid-stream context words, not a decoded field.*
 
 ## Memory access
 
@@ -548,14 +555,15 @@
 | `index_reg` | [40:48] (byte+5) | register |  |
 | `access_desc` | [48:56] (byte+6) | modifier | `0x20`=device/global buffer (bit5); `0x0`=threadgroup/other |
 | `reserved7` | [56:64] (byte+7) | modifier |  |
-| `dst_width` | [64:72] (byte+8) | register |  |
-| `dst_ext9` | [72:79] (byte+9) | raw/unmapped |  |
+| `ld_format` | [64:70] (byte+8) | enum | `0x11`=32-bit scalar (1x u32/i32/f32); `0x1`=16-bit scalar (1x u16/i16/f16); `0x21`=8-bit scalar (1x u8/i8); `0x19`=2x 32-bit (u64 / .xy 32-bit vec2); `0x1d`=3x 32-bit (.xyz 32-bit vec3); `0x17`=4x 32-bit (.xyzw 32-bit vec4); `0x7`=4x 16-bit (.xyzw 16-bit vec4) |
+| `dst_lo` | [70:72] | register |  |
+| `dst_ext9` | [72:79] (byte+9) | register |  |
 | `idx_off` | [79:90] | immediate |  |
 | `ldform_hi11` | [90:96] | modifier |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `reserved13` | [104:112] (byte+13) | modifier |  |
 
-*load a vector (width from +8 dst_width / +12 elem_size) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit); the compiler leaves it 0 and adds a[i+k] via a prior ALU op, but the HW field exists. Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load (+3).*
+*load a vector into destination register dst = dst_lo | (dst_ext9 << 2) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * unit, base = buffer[base_slot] (+4). DEST REGISTER: byte+8 bits[6:8] = dst[0:2], byte+9 (dst_ext9) = dst[2:9] (register extension) -- together reach r0..r511. byte+8 bits[0:6] (ld_format) = the load data-format descriptor factoring as {bits[4:6]=element size (00=16b,01=32b,10=8b), bits[1:4]=vector-component code, bit0=valid}. +12 elem_size = the total-access-size code (bits[1:4]: 1=1B,2=2B,3=4B,4=8B,0=16B). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit). Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load.*
 
 ### `device_store` — store (device / threadgroup)
 
@@ -570,14 +578,14 @@
 | `index_reg` | [40:48] (byte+5) | register |  |
 | `access_desc` | [48:56] (byte+6) | modifier | `0x21`=device/global store (bit5 device | bit0 store-dir); `0x20`=device (bit5); `0x0`=threadgroup/other; `0x80`=extended |
 | `reserved7` | [56:64] (byte+7) | modifier |  |
-| `data_width` | [64:72] (byte+8) | register |  |
-| `stdata_ext9` | [72:79] (byte+9) | raw/unmapped |  |
+| `st_format` | [64:72] (byte+8) | enum | `0x11`=32-bit scalar (1x u32/i32/f32); `0x1`=16-bit scalar (1x u16/i16/f16); `0x21`=8-bit scalar (1x u8/i8); `0x19`=2x 32-bit (u64 / 32-bit vec2); `0x1d`=3x 32-bit (32-bit vec3); `0x17`=4x 32-bit (32-bit vec4) |
+| `st_format_ext` | [72:79] (byte+9) | modifier |  |
 | `idx_off` | [79:90] | immediate |  |
-| `stdata_desc_hi` | [90:96] | raw/unmapped |  |
+| `st_desc_hi` | [90:96] | modifier |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `reserved13` | [104:112] (byte+13) | modifier |  |
 
-*store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * elem_size, base = buffer[base_slot] (+4). Same field layout & element addressing as device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). Narrowing stores (char/short) set elem_size (+12).*
+*store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * unit, base = buffer[base_slot] (+4). Element addressing shared with device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). DATA REGISTER IS NOT IN THIS INSTRUCTION: byte+8/+9 encode the store DATA FORMAT, not the source register -- an 8-live-value store sweep (st_livedata/st_regsweep) with the data provably in registers r0/r1/r2/r3/r4/r5 leaves +8/+9/+11 byte-identical, so the value register is supplied implicitly by the preceding op / amode (+2 0x54=ALU-computed vs 0x56=direct load-result). st_format (+8) mirrors device_load ld_format (same code per element type). st_format_ext (+9, bit set only for the 3-component store) and st_desc_hi (+11 bits[2:8]) are the store data-format descriptor tail; +12 elem_size is the store size descriptor.*
 
 ### `vary_store` — vertex varying / [[position]] store to the UVS/parameter buffer
 
@@ -589,11 +597,12 @@
 | `hint2` | [16:24] (byte+2) | modifier |  |
 | `src` | [24:32] (byte+3) | register |  |
 | `out_slot` | [32:40] (byte+4) | immediate |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `out_slot_hi` | [40:41] (byte+5) | immediate |  |
+| `b5_tag` | [41:48] | immediate |  |
 | `hint6` | [48:56] (byte+6) | modifier |  |
-| `b7` | [56:64] (byte+7) | raw/unmapped |  |
+| `b7` | [56:64] (byte+7) | modifier |  |
 
-*uvs_buffer[out_slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR; byte+4 = DESTINATION OUTPUT SLOT (index<<5): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4+ (0x80/0xa0/0xc0/0xe0). ONE op per scalar component. Position-vs-varying is the SLOT RANGE, not a distinct opcode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.*
+*uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.*
 
 ## Atomics
 
@@ -764,15 +773,16 @@
 
 ### `frame_marker` — call-site / frame-setup marker (before every CALL)
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x43  ·  **Provenance:** inferred
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x43  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `srcA_reg` | [8:15] (byte+1) | register |  |
+| `srcA_uni` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/hi |
+| `subform` | [16:24] (byte+2) | modifier |  |
+| `companion` | [24:32] (byte+3) | modifier | `0x1`=zext_hi_zero / pre-call frame marker (43 00 00 01) |
 
-*call-site / frame-setup marker (byte0 0x43, 4 bytes). `43 00 00 01` is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages it marks the compiler-generated helper-subroutine calls (write_childcount / write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030).*
+*byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family (identical field layout to n3_mov; dst r4 is fixed by the matched byte0). TWO roles share the encoding: (1) CALL-SITE / FRAME-SETUP marker -- the special form `43 00 00 01` (srcA=0, subform=0x00, companion=0x01 = the SAME `X3 00 00 01` zero-extend-companion shape as mov_zext16 `13 00 00 01`) is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages this marker precedes the compiler helper-subroutine calls (write_childcount/write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030). (2) ORDINARY COMPACT MOVE into r4 -- the general byte+1/+2/+3 forms (e.g. `43 a6 21 00`, `43 08 0e c1`, `43 0a 07 9f`) are register moves: srcA_reg (byte+1 bits0-6) = source register, srcA_uni (byte+1 bit7) = uniform-file/high-half flag, subform (byte+2) = source-class/size sub-form, companion (byte+3) = second-operand/pack descriptor -- the same fields, values and neighbour ops (reg_move / rt_ray_mem / sr_read_wide) as n3_mov to other dst regs.*
 
 ### `call` — direct out-of-line CALL
 
@@ -897,9 +907,14 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `pred` | [12:16] | enum | `0x0`=active_mask/any/all; `0x1`=ballot(predicate) |
-| `body` | [16:80] (byte+2) | raw/unmapped |  |
+| `cache` | [16:24] (byte+2) | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `psrc` | [32:40] (byte+4) | register |  |
+| `psrctype` | [40:48] (byte+5) | modifier |  |
+| `form` | [48:56] (byte+6) | modifier |  |
+| `form_sig` | [56:80] (byte+7) | modifier |  |
 
-*produces the SIMD-group ballot / vote mask (per-lane boolean -> bitmask). byte+1 low nibble 0x7 identifies the family; the high nibble selects the form: 0x07 = simd_active_threads_mask / simd_any / simd_all (unconditional active mask), 0x17 = simd_ballot(predicate) (the 32-bit active-lane mask OF a predicate). SIMD width 32 -> low 32 bits are the mask (all-ones when all 32 active). byte+2 carries the 0x54/0x56 source cache/last-use hint (like simd_reduce/simd_shuffle).*
+*produces the SIMD-group ballot / vote mask (per-lane boolean -> 32-bit mask). byte+1 low nibble 0x7 = family; hi nibble (pred): 0x07 = simd_active_threads_mask / simd_any / simd_all, 0x17 = simd_ballot(predicate). byte+2 cache/marker; byte+3 = dest mask reg; byte+4 = predicate source reg; byte+5 = predicate operand type; byte+6..+9 = form/mask-format tail. R8 typed the former 64-bit raw body.*
 
 ## Matrix
 
@@ -1022,12 +1037,12 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `sub` | [8:16] (byte+1) | raw/unmapped |  |
-| `mem_scope` | [24:32] (byte+3) | enum | `0x61`=threadgroup; `0x85`=device |
+| `sub` | [8:16] (byte+1) | enum | `0x4`=compute threadgroup/execution barrier; `0x2`=fragment tile-access / imageblock-ordering barrier |
+| `mem_scope` | [24:32] (byte+3) | enum | `0x41`=mem_none; `0x61`=mem_threadgroup; `0x85`=mem_device; `0x51`=mem_texture; `0xd1`=mem_texture (2nd of pair) |
 | `flags` | [32:40] (byte+4) | modifier |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `b5` | [40:48] (byte+5) | immediate |  |
 
-*threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: 07 04 54 <mem_scope> <flags> 00. byte+3 = fenced memory scope: 0x61 = threadgroup (mem_threadgroup), 0x85 = device (mem_device). Makes threadgroup-memory stores by OTHER lanes visible before the barrier returns; the compiler emits it between a threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit ordering/'wait' op in the compute stream (device load/store/atomic/texture are HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent stale threadgroup reads (no fault).*
+*threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: 07 <sub> 54 <mem_scope> <flags> 00. sub (byte+1): 0x04 = compute threadgroup/execution barrier, 0x02 = fragment tile-access / imageblock-ordering barrier (byte+1==0x00 is the 8-byte link save/restore, lengthed away). mem_scope (byte+3) = fenced memory scope: 0x41 mem_none, 0x61 mem_threadgroup, 0x85 mem_device, 0x51/0xd1 mem_texture (OWN-MSL byte-diff: base 0x41, +0x20 threadgroup, +0x10 texture, device 0x85). flags (byte+4) = memory-class (0x09 tg/none, 0x08 device, 0x0e texture). b5 (byte+5) = reserved pad, const 0x00 (own-MSL + corpus). Makes threadgroup-memory stores by OTHER lanes visible before the barrier returns; the compiler emits it between a threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit ordering/'wait' op in the compute stream (device load/store/atomic/texture are HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent stale threadgroup reads (no fault).*
 
 ### `mem_fence` — device memory fence (atomic_thread_fence, no execution barrier)
 
@@ -1035,9 +1050,9 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `sub` | [8:16] (byte+1) | raw/unmapped |  |
+| `sub` | [8:16] (byte+1) | modifier |  |
 | `memclass` | [32:40] (byte+4) | modifier |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `b5` | [40:48] (byte+5) | immediate |  |
 
 *atomic_thread_fence(mem_flags::mem_device, memory_order_seq_cst[, thread_scope_device]) -- a standalone DEVICE-memory ordering fence with no execution barrier. 6 bytes: 07 04 54 84 0a 00. byte+3 == 0x84 = device-memory fence (vs threadgroup_barrier's 0x85 device = 0x84|0x01, the 0x01 being the added EXECUTION barrier); byte+4 == 0x0a = device memory-class flag. Ordering is realised by fence PRESENCE, not a bit on the 0x67 atomic RMW op: memory_order_relaxed emits NO fence, seq_cst emits this fence (acquire/release/acq_rel are REJECTED by MSL). Scope GATES emission: thread/simdgroup/threadgroup scope emit no device fence; thread_scope_device (default) does. The texture fence (mem_texture) is a byte+4==0x06 pair that decodes as pixel_order (same family).*
 
@@ -1527,6 +1542,46 @@
 
 - **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1
 
+### `rt_query_traverse2`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86
+
+### `half_alu_ext8`
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x10
+
+### `half_alu_fma12`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x10
+
+### `falu2_ext8b`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x0
+
+### `falu_srcmod12b`
+
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0
+
+### `compute_fence_scoped`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x87
+
+### `shift_amt_move`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xc
+
+### `reg_move_c2var`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[20:24]==0x2
+
+### `bf_alu8_var`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1
+
+### `frag_pos_read`
+
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1601,4 +1656,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 155 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 165 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

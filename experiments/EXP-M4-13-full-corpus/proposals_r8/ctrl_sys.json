@@ -1,0 +1,345 @@
+{
+  "group": "Control / sync / system: stop + threadgroup_barrier + mem_fence + scoreboard_fence + frame_marker + mask_op + dev_scoreboard_fence (EXP-M4-13 R8 raw-field typing)",
+  "kind": "refine-in-place (field typing only; every length rule and every match UNCHANGED -> byte-identical tokenization AND identical mnemonic labeling over the full 1024-file corpus)",
+  "descriptors": [
+    {
+      "mnemonic": "stop",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          14
+        ]
+      ],
+      "fields": [
+        {
+          "name": "reserved",
+          "start": 8,
+          "width": 24,
+          "type": "imm"
+        }
+      ],
+      "semantics": "conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator and NOT parameterized: the 24-bit body is RESERVED PAD -- HW-proven non-load-bearing (corrupting any of it is a no-op, EXP-0003/EXP-0010 E4). A driver emits 0x000000. The true end-of-program is out-of-band (the metadata code length), not this in-band token. There is NO scope/mask/wait operand: the 'end-of-program flags/scope' hypothesis is DISPROVEN by the EXP-0010 E4 splice-inertness result. Typed `imm` (reserved pad) because the bits are fully LOCATED and their role is fully KNOWN (inert padding); the rare nonzero corpus bodies are trailing-padding / mid-stream context words, not a decoded field.",
+      "provenance": "HW-confirmed non-required + inert (EXP-0003; EXP-0010 E4 splice = no-op). EXP-M4-13 R8 corpus census (n=1107): body==0x000000 in 1021/1107; the 86 nonzero are trailing-padding / context-word tails in RT/dec kernels (not a semantic field). Retyped raw->imm (reserved pad): a located+characterized pad region, per the 'pad -> imm' convention (cf. device_load reserved7/13 typed mod). Not gap-gamed -- no operand meaning is claimed; emit 0."
+    },
+    {
+      "mnemonic": "threadgroup_barrier",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          16,
+          8,
+          84
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sub",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "4": "compute threadgroup/execution barrier",
+            "2": "fragment tile-access / imageblock-ordering barrier"
+          }
+        },
+        {
+          "name": "mem_scope",
+          "start": 24,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "65": "mem_none",
+            "97": "mem_threadgroup",
+            "133": "mem_device",
+            "81": "mem_texture",
+            "209": "mem_texture (2nd of pair)"
+          }
+        },
+        {
+          "name": "flags",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "threadgroup_barrier(mem_flags) -- execution barrier + memory fence. 6 bytes: 07 <sub> 54 <mem_scope> <flags> 00. sub (byte+1): 0x04 = compute threadgroup/execution barrier, 0x02 = fragment tile-access / imageblock-ordering barrier (byte+1==0x00 is the 8-byte link save/restore, lengthed away). mem_scope (byte+3) = fenced memory scope: 0x41 mem_none, 0x61 mem_threadgroup, 0x85 mem_device, 0x51/0xd1 mem_texture (OWN-MSL byte-diff: base 0x41, +0x20 threadgroup, +0x10 texture, device 0x85). flags (byte+4) = memory-class (0x09 tg/none, 0x08 device, 0x0e texture). b5 (byte+5) = reserved pad, const 0x00 (own-MSL + corpus). Makes threadgroup-memory stores by OTHER lanes visible before the barrier returns; the compiler emits it between a threadgroup store and a cross-lane threadgroup load. It is the ONLY explicit ordering/'wait' op in the compute stream (device load/store/atomic/texture are HW-register-interlocked, not scoreboard-waited). simdgroup_barrier emits no 0x07 op (a 32-lane SIMD-group is lockstep). Removing/neutralising the fence -> silent stale threadgroup reads (no fault).",
+      "provenance": "HW-VALIDATED (EXP-0025): tgbar vs tgbar_none differ by EXACTLY these 6 bytes (threadgroup_barrier presence); tgbar_dev (mem_device) has byte+3=0x85/byte+4=0x08 vs threadgroup 0x61/0x09 -> byte+3 is the memory-scope field. SPLICE-PROVEN: on a 256-thread divergent-writer kernel, splicing byte+3 0x61->0x00 neutralises the threadgroup fence and 128/256 lanes read STALE ZEROS (STATUS OK, no fault), exactly reproducing the compiler's barrier-less race; the intact barrier reads 0 stale. byte+4 (0x09->0x00) splice was benign. EXP-M4-13 R8 own-MSL byte-diff (compile-only): compiled the four mem_flags variants -> bar_none `07 04 54 41 09 00`, bar_tg `07 04 54 61 09 00`, bar_dev `07 04 54 85 08 00`, bar_tex `07 04 54 51 0e 00`+`07 04 54 d1 0e 00` -- localizing mem_scope (byte+3) and flags (byte+4) exactly and confirming b5 (byte+5)==0x00 in every form. sub (byte+1) typed from corpus attribution: 0x04 in all compute barriers (own-MSL + 532 corpus), 0x02 only in fragment (frag_output/frag_varying/mesh/tessellation, 115 corpus) tile-ordering barriers."
+    },
+    {
+      "mnemonic": "mem_fence",
+      "length": 6,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          16,
+          8,
+          84
+        ],
+        [
+          24,
+          8,
+          132
+        ]
+      ],
+      "fields": [
+        {
+          "name": "sub",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "memclass",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "atomic_thread_fence(mem_flags::mem_device, memory_order_seq_cst[, thread_scope_device]) -- a standalone DEVICE-memory ordering fence with no execution barrier. 6 bytes: 07 04 54 84 0a 00. byte+3 == 0x84 = device-memory fence (vs threadgroup_barrier's 0x85 device = 0x84|0x01, the 0x01 being the added EXECUTION barrier); byte+4 == 0x0a = device memory-class flag. Ordering is realised by fence PRESENCE, not a bit on the 0x67 atomic RMW op: memory_order_relaxed emits NO fence, seq_cst emits this fence (acquire/release/acq_rel are REJECTED by MSL). Scope GATES emission: thread/simdgroup/threadgroup scope emit no device fence; thread_scope_device (default) does. The texture fence (mem_texture) is a byte+4==0x06 pair that decodes as pixel_order (same family).",
+      "provenance": "inferred (byte-diff, EXP-O2D): byte-diff of the atomic_thread_fence probe (flags x order x scope) against the no-fence baseline. Consistent with the HW-splice-validated EXP-0025 threadgroup_barrier / EXP-0029 pixel_order 0x07 family; the fence-only form is byte-diff-inferred (a fence's effect only manifests under contention, so not splice-validated in isolation)."
+    },
+    {
+      "mnemonic": "scoreboard_fence",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          16,
+          1,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "kind",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "CF-edge fence (break/continue)",
+            "2": "CF-edge fence (variant)",
+            "34": "pre-call / pre-atomic register+scoreboard fence",
+            "192": "wide/device-order fence (inferred)",
+            "194": "wide/device-order fence (inferred)"
+          }
+        },
+        {
+          "name": "scope",
+          "start": 17,
+          "width": 7,
+          "type": "enum",
+          "enum": {
+            "1": "ordered (byte+2 0x02: default CF/call scope)",
+            "0": "unordered (byte+2 0x00)",
+            "16": "extended scope (byte+2 0x20: nested-divergence)",
+            "17": "extended+ordered (byte+2 0x22)"
+          }
+        },
+        {
+          "name": "mask",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "compute memory / scoreboard fence (4 bytes): 07 <kind> <scope> <mask>. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.",
+      "provenance": "HW-observed byte-diff (RT-ISA-FIX): `07 22 02 00` precedes every out-of-line call in the RT-1b stress census (followed by 43 00 00 01); `07 02 00 00` / `07 00 00 00` appear around break/continue in our for/while/nested CF kernels (which run correct on HW). Length 4 gives clean whole-kernel tokenization. FIELD TYPING (EXP-M4-13 R7, own-MSL compile-only): byte-diff over own CF / atomic-fence / noinline-call / nested-loop / switch kernels localizes byte+1 (kind: 0x00/0x02 CF-edge vs 0x22 pre-call/pre-atomic vs 0xc0/0xc2 wide), byte+2 (scope: 0x00/0x02 default vs 0x20 nested-divergence), byte+3 (mask: 0x00 default vs the bit7 forms 0x80/0xa0/0xb0/0x81 emitted only around nested/switch divergence). Roles located; value->meaning partially inferred (a fence's effect only manifests under a data hazard, so not GPU-splice isolated -- M4 host is compile-only)."
+    },
+    {
+      "mnemonic": "frame_marker",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          67
+        ]
+      ],
+      "fields": [
+        {
+          "name": "srcA_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_uni",
+          "start": 15,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "gpr",
+            "1": "uniform/hi"
+          }
+        },
+        {
+          "name": "subform",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "companion",
+          "start": 24,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "1": "zext_hi_zero / pre-call frame marker (43 00 00 01)"
+          }
+        }
+      ],
+      "semantics": "byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family (identical field layout to n3_mov; dst r4 is fixed by the matched byte0). TWO roles share the encoding: (1) CALL-SITE / FRAME-SETUP marker -- the special form `43 00 00 01` (srcA=0, subform=0x00, companion=0x01 = the SAME `X3 00 00 01` zero-extend-companion shape as mov_zext16 `13 00 00 01`) is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages this marker precedes the compiler helper-subroutine calls (write_childcount/write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030). (2) ORDINARY COMPACT MOVE into r4 -- the general byte+1/+2/+3 forms (e.g. `43 a6 21 00`, `43 08 0e c1`, `43 0a 07 9f`) are register moves: srcA_reg (byte+1 bits0-6) = source register, srcA_uni (byte+1 bit7) = uniform-file/high-half flag, subform (byte+2) = source-class/size sub-form, companion (byte+3) = second-operand/pack descriptor -- the same fields, values and neighbour ops (reg_move / rt_ray_mem / sr_read_wide) as n3_mov to other dst regs.",
+      "provenance": "byte-diff EXP-M4-13 R8 (own-MSL + corpus context census, n=545): the CALL-marker role confirmed on own-MSL -- k_call (noinline call) emits `43 00 00 01` directly before the `0f 05 54 1a 8f ..` direct call. The MOVE role established by a successor/predecessor census: `43 00 00 01` (110x) is followed by if_push/call and preceded by ret/barrier (marker), whereas the general 0x43 forms are followed by ALU/half_alu/icmp/sr_read and preceded by reg_move/rt_ray_mem/n3_mov (moves), exactly the dst=r4 instance of the HW-corroborated n3_mov family (which explicitly generalises 0x43). Field layout inherited from n3_mov; per-value subform/companion meanings LOCATED but inferred (not GPU-splice isolated -- M4 host compile-only)."
+    },
+    {
+      "mnemonic": "mask_op",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mask_bank",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "4": "mask_bankA",
+            "36": "mask_bankB"
+          }
+        },
+        {
+          "name": "scope_kind",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "inner execution-mask op (0f 04 <mask_bank> <scope_kind>, 4 bytes). Appears inside nested divergence just before a 0f 01 jump_cond -- the continue-edge mask narrow / inner-scope re-mask (distinct from if_push 0f 05, byte+2==0x54, by byte+2 low form). mask_bank (byte+2) selects the execution-mask bank: 0x04 = bankA, 0x24 = bankB (0x20 bit = alternate bank), the same low-form mask-bank selector as pop_reconverge's scope field. scope_kind (byte+3) is a fixed scope-kind / level tag == 0x19 in the whole corpus (no observed variation to map a range).",
+      "provenance": "byte-diff EXP-M4-13 R8 (own-MSL corpus census, n=771): mask_bank (byte+2) is 0x04 (715x) or 0x24 (56x) -- a 2-value bank selector matching pop_reconverge's {0x04 bankA, 0x24 bankB}; the 0x24 form clusters in raytracing / ray-query geometry kernels. scope_kind (byte+3) is CONSTANT 0x19 across all 771 corpus instances (located; a fixed scope-kind/sub-form tag, value->range not further separable without a splice -- M4 host is compile-only). Length + role anchored by the following 0f 01 jump_cond leader; not GPU-dispatch validated."
+    },
+    {
+      "mnemonic": "dev_scoreboard_fence",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          128
+        ],
+        [
+          8,
+          8,
+          2
+        ],
+        [
+          16,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "scope_flag",
+          "start": 24,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "0": "default device/wide scope",
+            "4": "scope variant"
+          }
+        }
+      ],
+      "semantics": "Compute memory / scoreboard FENCE, device/wide-scope variant: `80 02 00 <scope_flag>` (4 bytes). The 0x80 sibling of the 0x07/0x87 scoreboard_fence family (high bit = wider memory/device scope). The compiler inserts it around divergent control flow and before atomics/calls. scope_flag (byte+3) is a scope/flag operand: 0x00 in the dominant form, 0x04 in a rare variant (one texture_sample occurrence). A bare `80 02` with byte+2 != 0x00 is the 2-byte compact form (pad_operand).",
+      "provenance": "byte-diff EXP-M4-13 R8 (corpus census, n=13): byte+3 is 0x00 (12x) or 0x04 (1x, texture_sample) -- retyped raw->mod (a LOCATED scope/flag field, no longer 'const-0'). Field positions from EXP-M4-01; scope semantics census-anchored. No HW dispatch -- structural / census-anchored, value->meaning inferred (not splice-validated)."
+    }
+  ],
+  "lengthRuleEdits": [],
+  "rawBitsBefore": 62440,
+  "rawBitsAfter": 0,
+  "rawBytesBefore": 7805,
+  "rawBytesAfter": 0,
+  "rawBitsBeforeBreakdown": {
+    "stop": 26568,
+    "frame_marker": 13080,
+    "mask_op": 12336,
+    "threadgroup_barrier": 10352,
+    "dev_scoreboard_fence": 104,
+    "scoreboard_fence": 0,
+    "mem_fence": 0
+  },
+  "rawBitsAfterBreakdown": {
+    "stop": 0,
+    "frame_marker": 0,
+    "mask_op": 0,
+    "threadgroup_barrier": 0,
+    "dev_scoreboard_fence": 0,
+    "scoreboard_fence": 0,
+    "mem_fence": 0
+  },
+  "validation": {
+    "tokenizationUnchanged": true,
+    "roundtripSuitePass": true,
+    "tokenizationBoundaryDiffsVsBaseline": 0,
+    "tokenizationMnemonicDiffsVsBaseline": 0,
+    "corpusHexFilesScanned": 1024,
+    "targetOpInstancesInCorpus": {
+      "stop": 1107,
+      "scoreboard_fence": 788,
+      "mask_op": 771,
+      "threadgroup_barrier": 647,
+      "frame_marker": 545,
+      "dev_scoreboard_fence": 13,
+      "mem_fence": 0
+    },
+    "targetOpInstancesRoundtripOK": 3871,
+    "targetOpInstancesRoundtripFail": 0,
+    "roundtripSuiteNote": "roundtrip_test.py copied to work/r8_ctrl_sys/ + 9 new REAL_INSTRS exercising the retyped fields (barrier mem_none/mem_texture/fragment-sub=0x02, frame_marker dst=r4 move forms 43a62100/43083fc1, mask_op bankA/bankB, stop nonzero-body 0ec20000, dev_scoreboard_fence variant 80020004) -> ALL PASS, 0 FAIL. No test weakened; no SYNTH entry references a renamed field.",
+    "ownMslByteDiff": "shdump_r8_ctrl_sys compiled bar_tg/bar_dev/bar_none/bar_tex (threadgroup_barrier mem_flags variants) and k_call (noinline out-of-line call). Localized: barrier byte+3 mem_scope 0x41/0x61/0x85/0x51/0xd1, byte+4 flags 0x09/0x08/0x0e, byte+5==0x00; frame_marker 43000001 directly precedes the 0f0554 call.",
+    "hwDispatchValidated": false
+  },
+  "unresolved": [
+    "stop reserved(24b): retyped raw->imm (reserved PAD). HW-proven non-load-bearing (EXP-0010 E4 splice=no-op); driver emits 0x000000. The task's 'end-of-program flags/scope' hypothesis is DISPROVEN -- no operand meaning is claimed. The 86/1107 nonzero corpus bodies are trailing-padding / mid-stream context-word tails, not a decoded field. Typed (located+characterized pad), not gap-gamed.",
+    "threadgroup_barrier sub(byte+1): typed enum {0x04 compute barrier, 0x02 fragment tile/imageblock-ordering barrier}. Values attributed by stage (compute own-MSL+corpus vs fragment-only corpus), not GPU-splice isolated. mem_scope(byte+3): own-MSL pins 0x41 none / 0x61 tg / 0x85 device / 0x51 texture; the corpus ALSO shows 0x08/0x48/0x0c/0xc4 (other memory/execution-scope combinations) which remain enum values with semantics needs-splice.",
+    "mask_op mask_bank(byte+2): enum {0x04 bankA, 0x24 bankB} matches pop_reconverge; role byte-diff located, not dispatch-splice validated. scope_kind(byte+3): typed mod, CONSTANT 0x19 across all 771 corpus instances -- a located fixed scope-kind/sub-form tag; no variation exists to map a value range (would need a splice; M4 host compile-only).",
+    "frame_marker byte+1/+2/+3: retyped raw->srcA_reg/srcA_uni/subform/companion (the dst=r4 instance of the n3_mov compact-move family). The 43 00 00 01 / 43 00 06 xx forms are the CALL/FRAME-marker special cases (companion=0x01 = the X3 00 00 01 zext-companion shape); per-value subform/companion meanings LOCATED but inferred (inherited from the census-corroborated n3_mov family, not GPU-splice isolated).",
+    "mem_fence sub(byte+1)->mod, b5(byte+5)->imm and dev_scoreboard_fence scope_flag(byte+3)->mod: typed for family consistency. mem_fence has 0 corpus instances (own-MSL/EXP-O2D only). dev_scoreboard_fence byte+3 now shown to VARY (0x00 x12 / 0x04 x1) -> a located scope/flag field (no longer 'const-0'); value->meaning inferred, needs-splice.",
+    "scoreboard_fence: already 0-raw from R7 (kind/scope/mask all typed); confirmed unchanged here (788 instances roundtrip byte-exact). Its enum value->meaning maps stay partial (a fence's effect only manifests under a data hazard -> needs-splice on a dispatch host)."
+  ]
+}

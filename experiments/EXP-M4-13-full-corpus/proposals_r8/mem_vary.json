@@ -1,0 +1,368 @@
+{
+  "group": "Memory + varying: device_load + device_store + vary_store (addressing/format/register tails)",
+  "kind": "refine",
+  "descriptors": [
+    {
+      "mnemonic": "device_load",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          103
+        ]
+      ],
+      "fields": [
+        {
+          "name": "space",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "addr_mode",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "68": "indexed_load (base+index; terminal/standalone)",
+            "84": "base_rel_load (non-terminal of a base-sharing group / GPR index)",
+            "4": "rare CF form",
+            "36": "rare CF form (loop_nested)",
+            "34": "rare RT form (rt_query_params)",
+            "70": "rare CF form (call_fptr)"
+          }
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "index_reg",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "access_desc",
+          "start": 48,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "32": "device/global buffer (bit5)",
+            "0": "threadgroup/other"
+          }
+        },
+        {
+          "name": "reserved7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ld_format",
+          "start": 64,
+          "width": 6,
+          "type": "enum",
+          "enum": {
+            "17": "32-bit scalar (1x u32/i32/f32)",
+            "1": "16-bit scalar (1x u16/i16/f16)",
+            "33": "8-bit scalar (1x u8/i8)",
+            "25": "2x 32-bit (u64 / .xy 32-bit vec2)",
+            "29": "3x 32-bit (.xyz 32-bit vec3)",
+            "23": "4x 32-bit (.xyzw 32-bit vec4)",
+            "7": "4x 16-bit (.xyzw 16-bit vec4)"
+          }
+        },
+        {
+          "name": "dst_lo",
+          "start": 70,
+          "width": 2,
+          "type": "reg"
+        },
+        {
+          "name": "dst_ext9",
+          "start": 72,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "idx_off",
+          "start": 79,
+          "width": 11,
+          "type": "imm"
+        },
+        {
+          "name": "ldform_hi11",
+          "start": 90,
+          "width": 6,
+          "type": "mod"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "reserved13",
+          "start": 104,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "load a vector into destination register dst = dst_lo | (dst_ext9 << 2) from the address space selected by `space` (+1 bit1: 0=device/constant, 1=threadgroup) at (index_reg + idx_off) * unit, base = buffer[base_slot] (+4). DEST REGISTER: byte+8 bits[6:8] = dst[0:2], byte+9 (dst_ext9) = dst[2:9] (register extension) -- together reach r0..r511. byte+8 bits[0:6] (ld_format) = the load data-format descriptor factoring as {bits[4:6]=element size (00=16b,01=32b,10=8b), bits[1:4]=vector-component code, bit0=valid}. +12 elem_size = the total-access-size code (bits[1:4]: 1=1B,2=2B,3=4B,4=8B,0=16B). ELEMENT addressing: +5 index_reg = the GPR holding the array index (RT-1a-FIX: NOT `count` -- sweeping +5 selects which GPR feeds the index; +6 is INERT). idx_off = the in-instruction additive IMMEDIATE element offset (RT-1a-FIX: +9 bit7=+1, +10=+2/unit, +11 low bits=+512/unit). Sub-32 signed types are sign-extended by a following ALU shift; unsigned use the zero-extend load.",
+      "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): base_slot (M6/E7), element-size/address-scale (M2 splice 46->42/44/48 changes the byte stride), data width (M2). RT-1a-FIX re-validated: +5 index_reg (a[i0] load, idxbuf {40,3,77,12}, a[j]=100j+3: +5=0x00->a[40],0x01->a[3],0x02->a[77]); +6 INERT (0x00..0xff no-op); +1 = address space (0x01/02/03->reads 0); idx_off (+9 bit7->+1, +10->+2/unit, +11->+512/unit). raw/mem_index.log. EXP-M4-13 R8 (byte-diff, own-MSL ld_regsweep/ld_highreg, compile-only): +9 dst_ext9 TYPED reg = destination-register EXTENSION -- a 12-independent-live-load register-pressure sweep proves reg = (byte+8[6:8]) | (dst_ext9<<2): (+8,ext9) pairs map bijectively to regs 0..5 (ext9 bit0 == reg bit2, PROVEN since only r4/r5 set it; higher ext9 bits continue the register by the same split as the HW-validated get_sr dst_hi). +8 split into ld_format (bits0-5, data-format enum, 7 forms observed via dev_scalar/vec2/vec3/vec4/byte/short/u64/half4 own-MSL) + dst_lo (bits6-7 = reg[0:2]). ld_format value->meaning map PARTIAL (only the emitted forms; full elem-size x count matrix needs more probes). Was previously dst_width(raw ext9)."
+    },
+    {
+      "mnemonic": "device_store",
+      "length": 14,
+      "match": [
+        [
+          0,
+          8,
+          231
+        ]
+      ],
+      "fields": [
+        {
+          "name": "space",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "addr_mode",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "84": "store (ALU-computed data / base-relative)",
+            "86": "store (direct live load-result data; bit1 set)",
+            "100": "store (mesh/extended)",
+            "4": "rare form",
+            "36": "rare form"
+          }
+        },
+        {
+          "name": "extmode",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "base_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "index_reg",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "access_desc",
+          "start": 48,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "33": "device/global store (bit5 device | bit0 store-dir)",
+            "32": "device (bit5)",
+            "0": "threadgroup/other",
+            "128": "extended"
+          }
+        },
+        {
+          "name": "reserved7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "st_format",
+          "start": 64,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "17": "32-bit scalar (1x u32/i32/f32)",
+            "1": "16-bit scalar (1x u16/i16/f16)",
+            "33": "8-bit scalar (1x u8/i8)",
+            "25": "2x 32-bit (u64 / 32-bit vec2)",
+            "29": "3x 32-bit (32-bit vec3)",
+            "23": "4x 32-bit (32-bit vec4)"
+          }
+        },
+        {
+          "name": "st_format_ext",
+          "start": 72,
+          "width": 7,
+          "type": "mod"
+        },
+        {
+          "name": "idx_off",
+          "start": 79,
+          "width": 11,
+          "type": "imm"
+        },
+        {
+          "name": "st_desc_hi",
+          "start": 90,
+          "width": 6,
+          "type": "mod"
+        },
+        {
+          "name": "elem_size",
+          "start": 96,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "reserved13",
+          "start": 104,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "store a vector to the address space in `space` (+1 bit1: 1=threadgroup) at (index_reg + idx_off) * unit, base = buffer[base_slot] (+4). Element addressing shared with device_load (RT-1a-FIX: +5 = index GPR, NOT `count`; +6 INERT; idx_off = the additive immediate element offset). DATA REGISTER IS NOT IN THIS INSTRUCTION: byte+8/+9 encode the store DATA FORMAT, not the source register -- an 8-live-value store sweep (st_livedata/st_regsweep) with the data provably in registers r0/r1/r2/r3/r4/r5 leaves +8/+9/+11 byte-identical, so the value register is supplied implicitly by the preceding op / amode (+2 0x54=ALU-computed vs 0x56=direct load-result). st_format (+8) mirrors device_load ld_format (same code per element type). st_format_ext (+9, bit set only for the 3-component store) and st_desc_hi (+11 bits[2:8]) are the store data-format descriptor tail; +12 elem_size is the store size descriptor.",
+      "provenance": "HW-VALIDATED (EXP-0012 + RT-1a-FIX): space bit (M5 threadgroup store +1 0x02->0x00 -> the roundtrip reads back zeros), base_slot by symmetry+M5. Index/offset fields shared with device_load (RT-1a-FIX re-validated). EXP-M4-13 R6 (byte-diff): +2 addr_mode enum (0x56 direct live load-result data vs 0x54 ALU-computed data vs 0x64 mesh); +6 access_desc (0x21 device store = bit5 device | bit0 store-dir; 0x00 threadgroup); +7/+13 reserved (CONST 0 across all corpus stores). EXP-M4-13 R8 (byte-diff, own-MSL st_livedata/st_regsweep/st_type/st_width, compile-only): the R6 \"store data-register\" hypothesis for +8/+9/+11 is DISPROVEN -- across stores whose data register provably varied r0..r5 these bytes stayed byte-identical and instead track the stored TYPE/WIDTH. +8 renamed data_width->st_format (enum, same per-type code as ld_format; type reg was WRONG, it carries no register). +9 stdata_ext9->st_format_ext (mod, located: const 0 except the vec3/3-component store where bit0=1). +11 stdata_desc_hi->st_desc_hi (mod, located: 0x24 for {u8,u32-scalar,vec3}, 0x04 otherwise; value->meaning map PARTIAL, needs splice). No Apple binary inspected."
+    },
+    {
+      "mnemonic": "vary_store",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          87
+        ]
+      ],
+      "fields": [
+        {
+          "name": "hint1",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "hint2",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "out_slot",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "out_slot_hi",
+          "start": 40,
+          "width": 1,
+          "type": "imm"
+        },
+        {
+          "name": "b5_tag",
+          "start": 41,
+          "width": 7,
+          "type": "imm"
+        },
+        {
+          "name": "hint6",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.",
+      "provenance": "HW-VALIDATED (EXP-0037): splice-and-render on the A18 Pro via agxrender. byte+4=out-slot proven by redirecting va.z's store slot 0xc0->0x80 (FS RED shows va.z's gradient) and by moving position out of slots 0-3 (degenerate triangle); byte+3=source proven by zeroing it (RED channel -> 0); byte+6 proven INERT. EXP-M4-13 R8 (byte-diff, own-MSL matrix_mvp/pointsize/flat_float vertex shaders, compile-only): byte+5 split -- bit0 TYPED out_slot_hi (the 9th store in an 8-varying+position shader wraps byte+4 to 0x00 with byte+5=0x41, i.e. slot 8), bits[1:8] const 0x20 tag; byte+7 TYPED mod reserved (const 0x00 across all 447 corpus VS varying stores; the two FS-stage 0x57 ops set +7 to 0x01/0x02 -- a different use of the shared opcode). src(+3) reg<<1 progression reconfirmed. Length 8 unchanged; tokenizes all VS stores byte-exact."
+    }
+  ],
+  "lengthRuleEdits": [],
+  "rawBytesBefore": 36,
+  "rawBytesAfter": 0,
+  "note_units": "rawBytes* are RAW-typed BIT counts across the three descriptors (fields are bit-granular).",
+  "validation": {
+    "tokenizationUnchanged": true,
+    "roundtripSuitePass": true,
+    "detail": "roundtrip_test.py ALL PASS on the scratch DB (155 descriptors). Full-corpus check (validate.py) over 7543 programs (own hex + thirdparty_hex): tokenization (offset,length,mnemonic) byte-IDENTICAL to the committed DB (0 mismatches); 0 leftover-worse programs; asm(disasm(b))==b for all 9217 device_load/device_store/vary_store instances. length/match UNCHANGED for all three ops."
+  },
+  "opsTouched": [
+    "device_load",
+    "device_store",
+    "vary_store"
+  ],
+  "unresolved": [
+    {
+      "op": "device_load",
+      "field": "ld_format (+8 bits0-5)",
+      "type": "enum",
+      "status": "LOCATED, value map PARTIAL",
+      "why": "Typed enum with 7 own-MSL-observed forms (u8/u16/u32/u64/vec2/vec3/vec4/half4). It factors as {bits4-5 elem-size, bits1-3 vector-count, bit0 valid} but the full elem-size x count matrix (e.g. 8-bit vectors, 3x/2x 16-bit) was not emitted by the compiler; exact per-value map beyond the observed set NEEDS more probes."
+    },
+    {
+      "op": "device_load",
+      "field": "ldform_hi11 (+11 bits2-7)",
+      "type": "mod",
+      "status": "LOCATED const 0x10",
+      "why": "Fixed tag 0x10 on every corpus load; rare 0x20/0x30 (extended forms) not emitted -> semantics NEED-SPLICE. Pre-existing; unchanged this round."
+    },
+    {
+      "op": "device_store",
+      "field": "st_format_ext (+9 bits0-6)",
+      "type": "mod",
+      "status": "LOCATED, semantics PARTIAL",
+      "why": "Disproven as the data register (R6 hypothesis): const 0 across all stores EXCEPT the 3-component (vec3) store where bit0=1. Co-varies with data FORMAT, not register. Exact meaning of the vec3-only bit NEEDS-SPLICE."
+    },
+    {
+      "op": "device_store",
+      "field": "st_desc_hi (+11 bits2-7)",
+      "type": "mod",
+      "status": "LOCATED, value map PARTIAL",
+      "why": "Store data-format descriptor high bits: 0x24 for {u8,u32-scalar,vec3}, 0x04 otherwise. Byte-diff proves it tracks stored TYPE/WIDTH not the source register, but the {0x24,0x04} discriminant (which type groups map where) is not fully explained -> NEEDS-SPLICE."
+    },
+    {
+      "op": "device_store",
+      "field": "data register (source of stored value)",
+      "type": "n/a",
+      "status": "NOT IN THIS INSTRUCTION",
+      "why": "8-live-value store sweep (data provably in r0..r5) leaves every store byte identical -> the value register is supplied IMPLICITLY by the preceding op / amode(+2). Not a field of device_store; flagged for the reader. A dispatch splice would be needed to confirm the implicit-register rule."
+    },
+    {
+      "op": "device_load/store",
+      "field": "extmode (+3), reserved7 (+7), reserved13 (+13)",
+      "type": "mod",
+      "status": "LOCATED",
+      "why": "reserved7/13 const 0 across corpus. extmode(+3) co-varies with the address-index register plumbing (address path, out of this round's scope). Value roles partial; pre-existing."
+    },
+    {
+      "op": "vary_store",
+      "field": "hint1 (+1), hint2 (+2), hint6 (+6)",
+      "type": "mod",
+      "status": "LOCATED, semantics PARTIAL",
+      "why": "hint2(+2) carries the 0x54/0x55/0x56 data-source mode (mirrors device_store amode). hint1(+1) low-nibble const 0x6, high-nibble is a per-component write/mask hint whose exact map is noisy across shaders. hint6(+6) proven splice-INERT (EXP-0037), a coefficient/allocation index. Not raw; value semantics need render-splice."
+    }
+  ]
+}

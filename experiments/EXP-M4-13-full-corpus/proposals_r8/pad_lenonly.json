@@ -1,0 +1,679 @@
+{
+  "group": "EXP-M4-13 R8 tail closure: pad_operand retype + length_only closers + desync-root 0x00 (AGX G17P / A18 Pro)",
+  "kind": "pad-retype (raw->imm) + length_only->named family-sibling catch-alls + ADDITIVE desync-root length rule (own-MSL byte-diff / family inheritance; NOT HW-splice)",
+  "method": "census hex/*.hex; byte-diff / family-sibling inheritance from HW-validated layouts (half_alu EXP-0033, falu2_ext EXP-M4-10, falu3_srcmod12 R7, reg_move_c0, rt_query_traverse, scoreboard_fence). Each length_only catch-all is LEAST-SPECIFIC (fewer match bits than every same-length existing descriptor) so existing ops keep winning (decode_one max match-bits; ties -> earlier/first descriptor). instr_length UNCHANGED for length_only work; the single desync-root length edit is STRICTLY ADDITIVE (fires only where instr_length previously returned None), proven per-offset over the whole corpus.",
+  "descriptors": [
+    {
+      "mnemonic": "pad_operand",
+      "length": 2,
+      "match": [
+        [
+          0,
+          4,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "hi",
+          "start": 4,
+          "width": 4,
+          "type": "imm"
+        },
+        {
+          "name": "word",
+          "start": 8,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "NOT A STANDALONE HARDWARE OPCODE. A 2-byte low-nibble-0 slot carrying a trailing operand / immediate / SFU-coefficient WORD of the PRECEDING instruction, or inter-op zero PADDING, or the interior bytes of one longer under-lengthed op. byte0 high nibble and byte1 are a verbatim raw passthrough; the coefficient/immediate bits are intentionally NOT semantically decoded (clean-room rule 5 -- the SFU range-reduction coefficient SEQUENCE is not reconstructed). Named only so the tokenizer resolves these vetted slots out of the unknown bucket; the more-specific frame_marker_compact (0x60) and mov_imm (0x0c) win where they apply.",
+      "provenance": "byte-diff + census EXP-M4-13 (own-MSL): NEGATIVE RESULT -- 0x00 is not an opcode. EXP-M4-13 R8: the two payload fields (byte0-hi nibble + byte1) are typed 'imm' -- the slot's ROLE is a trailing operand / immediate / SFU-coefficient DATA WORD (established negative result: not a dispatched opcode). Typing the ROLE as an immediate/data word is honest; the per-bit VALUE meanings (e.g. which SFU coefficient) remain intentionally un-decoded (clean-room rule 5). No length/match change."
+    },
+    {
+      "mnemonic": "rt_query_traverse2",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          15
+        ],
+        [
+          8,
+          8,
+          128
+        ],
+        [
+          16,
+          8,
+          134
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "getter",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "sel",
+          "start": 32,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "7": "sel0",
+            "15": "sel1"
+          }
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "8-byte low-nibble-f ray-query TRAVERSAL getter, the byte+5==0x02 sibling of rt_query_traverse (byte+5==0x22). Emitted in intersection_query traversal/getter loops (byte+1==0x80, byte+2==0x86 SFU-datapath marker). dst = byte0 high nibble (r0..r15, family convention). getter (byte+3) = the traversal step / property selector; sel (byte+4) = the sel0/sel1 result-lane selector (same enum as rt_query_traverse). b5/b6/b7 = operand/descriptor words (values partial, need splice).",
+      "provenance": "byte-diff + census EXP-M4-13 R8 (own-MSL intersection_query corpus, 59 tokens across the ray-query kernels): SAME byte+1/byte+2 marker as the HW-anchored rt_query_traverse; differs only in byte+5 (0x02 vs 0x22) -> a distinct getter sub-form the tighter rt_query_traverse match missed. dst/sel roles inherited from rt_query_traverse; getter/operand VALUE semantics need a splice."
+    },
+    {
+      "mnemonic": "half_alu_ext8",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          16
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "hadd",
+            "5": "hmul"
+          }
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "ext",
+          "start": 24,
+          "width": 40,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu (byte0==0x10). dst = byte+1, opsel/opflags = byte+2 (reused from the HW-anchored half_alu layout, EXP-0033). The 40-bit ext region (byte+3..+7) carries the second source + saturate/abs output-clamp modifier that grows the op past the 6-byte form; its sub-split is not byte-diff confirmed (kept raw, needs splice).",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033); the length rule already classifies these as fp16 (byte+2 fma bit / byte+4 low2 extended-tail selector). dst@byte+1 + opsel@byte+2 inherited from half_alu; extended operand tail intentionally raw (not splice-split)."
+    },
+    {
+      "mnemonic": "half_alu_fma12",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          16
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "hadd",
+            "5": "hmul",
+            "6": "hfma"
+          }
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "ext",
+          "start": 24,
+          "width": 72,
+          "type": "raw"
+        }
+      ],
+      "semantics": "12-byte native-half (fp16) 3-source / fma float ALU (byte0==0x10, byte+2 fma bit set, byte+4 low2 == abs/saturate extended tail). dst = byte+1, opsel/opflags = byte+2 (half_alu layout). The 72-bit ext region (byte+3..+11) = 2nd+3rd source operands + fma source-modifier tail (raw; needs splice). The fp16 analogue of falu3_srcmod12.",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half corpus, 72 tokens): same 0x10 fp16 leader as half_alu / half_alu_ext8; length 12 = fp16 fma with the abs/saturate extended tail (byte+4 low2==3, the length rule's own fp16 classification). dst/opsel inherited; operand+modifier tail raw."
+    },
+    {
+      "mnemonic": "falu2_ext8b",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          17,
+          1,
+          0
+        ],
+        [
+          18,
+          1,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_size",
+          "start": 8,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcA_reg",
+          "start": 9,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_size",
+          "start": 24,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcB_reg",
+          "start": 25,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "ext",
+          "start": 32,
+          "width": 32,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte EXTENDED 2-source float ALU, op-select {0,1} sub-form (bit17==0 AND bit18==0). Identical byte layout to the HW-validated falu2_ext (EXP-M4-10) but with the op-select high bits clear -- a distinct extended float sub-op (the falu2_ext descriptor requires bit18==1, falu3 requires bit17==1, so both miss this form). dst=byte0-hi nibble, srcA=byte+1, srcB=byte+3 (all HW-validated falu2 positions); opsel typed 'mod' because the {0,1} sub-op meanings are unconfirmed (need splice). ext (byte+4..+7) = saturate/abs modifier tail (raw).",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL float corpus, 119 tokens, all bit17==0 bit18==0): REUSES the HW-validated falu2_ext (EXP-M4-10 HW-splice) byte layout, differing only in the op-select match bit -> honest sibling. dst/srcA/srcB positions HW-validated; op-select value semantics need splice."
+    },
+    {
+      "mnemonic": "falu_srcmod12b",
+      "length": 12,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          17,
+          1,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_size",
+          "start": 8,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcA_reg",
+          "start": 9,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_size",
+          "start": 24,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcB_reg",
+          "start": 25,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "ctrl",
+          "start": 32,
+          "width": 7,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_imm",
+          "start": 39,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_lo",
+          "start": 40,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_neg",
+          "start": 43,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_hi",
+          "start": 44,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "ext_srcmod",
+          "start": 48,
+          "width": 48,
+          "type": "mod"
+        }
+      ],
+      "semantics": "12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form. Identical byte layout to the HW-anchored falu3_srcmod12 but with bit17 clear (falu3_srcmod12 requires bit17==1) -- the fadd/fmul-family (opsel {0,1,4,5}) 12-byte extended form, vs the fma-family (bit17==1) falu3_srcmod12. dst/srcA/srcB HW-validated falu2 positions; opsel typed 'mod' (sub-op values partial). ext_srcmod (byte+6..+11) = 3rd source + modifier region (values need splice).",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL float corpus, 35 tokens, all bit17==0): REUSES the falu3_srcmod12 (EXP-M4-13 R7) byte layout, differing only in the op-select bit17 match -> honest sibling of the same float-ALU family. Operand-modifier VALUE semantics need splice."
+    },
+    {
+      "mnemonic": "compute_fence_scoped",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          135
+        ]
+      ],
+      "fields": [
+        {
+          "name": "kind",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "scope",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "mask",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "4-byte compute scoreboard / memory FENCE, 0x87 high-scope family, scoped variants NOT covered by dev_scoreboard_fence (which needs byte+1==0x02, byte+2==0x00). Observed byte+1 in {0x9e,0x8e,0x90,0x86,0x00} and byte+2 in {0x26,0x80,0x02}. 0x87 = the 0x07 scoreboard_fence family with bit7 set (wider memory/device scope). kind (byte+1) = wait/scope descriptor, scope (byte+2) = memory-scope operand, mask (byte+3) = scoreboard mask; the operand VALUE maps are partial (need splice, like the HW-anchored 0x07 scoreboard_fence).",
+      "provenance": "census EXP-M4-13 R8 (own-MSL, 57 tokens): the length rule already lengths 0x87 fences (EXP-M4-01); these scoped forms had no matching descriptor. Field ROLES inherited from the HW-anchored 0x07 scoreboard_fence (kind/scope/mask); scope-enum VALUES intentionally not fabricated (need splice)."
+    },
+    {
+      "mnemonic": "shift_amt_move",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          12
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "src_flag",
+          "start": 15,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "gpr",
+            "1": "uniform/class"
+          }
+        },
+        {
+          "name": "kind",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "28": "shift_amt",
+            "60": "rotate_amt"
+          }
+        },
+        {
+          "name": "op_desc",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "4-byte compact low-nibble-b move that stages a SHIFT / ROTATE amount (byte+2 low nibble == 0xc; seen as 0x1c shift, 0x3c rotate). dst = byte0 high nibble (r0..r15, lo=b family convention); src_reg/src_flag = byte+1 (source register + gpr/uniform flag, reused from reg_move_c0); op_desc (byte+3) = operand descriptor. Sibling of the reg_move_cX compact-move family.",
+      "provenance": "census EXP-M4-13 R8 (own-MSL, 52 tokens): the length rule already returns 4 for lo=b byte+2 in {0x1c,0x3c} (EXP-M4-01 'compact SHIFT/ROTATE-amount op'); no descriptor matched. dst + src field roles inherited from the reg_move_c0 compact-move layout; the kind enum names only the two observed byte+2 values."
+    },
+    {
+      "mnemonic": "reg_move_c2var",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          20,
+          4,
+          2
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "src_flag",
+          "start": 15,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "gpr",
+            "1": "uniform/class"
+          }
+        },
+        {
+          "name": "subform",
+          "start": 16,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "op_desc",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "4-byte compact low-nibble-b register move, byte+2 high-nibble==2 residual (observed byte+2 in {0x22,0x23,0x24,0x26,0x2a}). The (byte+2 hi-nibble 2) 'compact scalar / call-argument MOVE' the length rule already lengths (EXP-0036) but whose specific byte+2 low nibbles fell outside the reg_move_c0/c1/c9/cb set. dst=byte0-hi nibble, src_reg/src_flag=byte+1 (reg_move_c0 layout), subform (byte+2 low nibble) = move sub-class, op_desc (byte+3) = operand descriptor. Least-specific catch-all (8 match bits, appended after reg_move_cX so existing decodes keep the tie).",
+      "provenance": "census EXP-M4-13 R8 (own-MSL, ~51 tokens): the length rule lengths lo=b byte+2 hi-nibble-2 to 4 (EXP-0036 compact move); these low-nibble variants had no descriptor. Field roles inherited from reg_move_c0; subform/op_desc value maps partial (need splice)."
+    },
+    {
+      "mnemonic": "bf_alu8_var",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB",
+          "start": 32,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "tail",
+          "start": 40,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte native-bfloat (brain-float16) / half ALU, the byte+1 != 0x02 residual of the 0x11 group (bf_alu needs byte+1==0x02; bf_add_dst/bf_mul_dst need byte+2 in {0x1c,0x1d}; cvt_bf16 needs byte+3==0x81). dst = byte0 high nibble (lo=1 family convention, same as bf_add_dst); form (byte+1) / opsel (byte+2) select the bf/half sub-op (values partial); srcA=byte+3, srcB=byte+4 (reused from the bf_add_dst operand layout). tail (byte+5..+7) = modifier/operand (raw, needs splice).",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL bf16/half corpus, 93 tokens): least-specific lo=1 catch-all (4 match bits) -- bf_alu/bf_add_dst/bf_mul_dst/cvt_bf16 are all more specific and keep winning. dst/srcA/srcB positions inherited from bf_add_dst; form/opsel VALUE maps need splice."
+    },
+    {
+      "mnemonic": "frag_pos_read",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "mode",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "body",
+          "start": 16,
+          "width": 48,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte fragment sample-position / centroid / interpolation setup READ (byte0 low nibble 4, byte+1 != 0xea; the length rule's 'centroid-position read'). Distinct from rt_intersect (byte+1==0xea) and sr_read_wide (which are more specific and keep winning). dst = byte0 high nibble; mode (byte+1) = the read/interpolation-mode selector (observed 0x00/0x02/0x42/...). body (byte+2..+7) = the barycentric / sample-index operand block -- fragment-stage encoding not byte-diff confirmed here, kept raw (needs a fragment splice).",
+      "provenance": "census EXP-M4-13 R8 (own-MSL fragment corpus, 212 tokens): the length rule already lengths these 8 (EXP-0029 centroid/sample read); no descriptor matched -> length_only. Only the dst nibble + the byte+1 mode selector are typed; the operand body stays raw with an explicit needs-splice note (honest -- the fragment interpolation operand layout is not established by this pass)."
+    }
+  ],
+  "lengthRuleEdits": [
+    {
+      "where": "instr_length, after the 4-byte vary_slot (00 .. 40) rule",
+      "rule": "if b0 == 0x00: return 2",
+      "kind": "ADDITIVE desync-root closure (0x00)",
+      "rationale": "Every remaining `00 XX` (2 bytes) is a trailing operand/immediate/SFU-coefficient or inter-op PAD word -- the established pad_operand NEGATIVE RESULT generalised from the {00,80,84} b1-set to all other b1. Reached ONLY after the 2-byte {00,80,84} pad rule and the 4-byte vary_slot (b2==0x40) rule both fail, i.e. only for 00-led bytes that previously returned LEN_UNKNOWN. Decodes as the low-nibble-0 pad_operand descriptor (now typed imm).",
+      "safety": "STRICTLY ADDITIVE: proven per-offset over the whole corpus that instr_length is IDENTICAL wherever it was previously non-None (0 mismatches); it only converts previously-undecoded 00-words to length 2. disassemble() leftover DECREASED by 8426B (never increased). Region-size census: these resync in exactly 2 bytes; multi-byte 00 runs are consecutive 2-byte operand words (vary_slot, the only known 4-byte 00-op, is gated earlier)."
+    }
+  ],
+  "opsTouched": [
+    "pad_operand",
+    "rt_query_traverse2",
+    "half_alu_ext8",
+    "half_alu_fma12",
+    "falu2_ext8b",
+    "falu_srcmod12b",
+    "compute_fence_scoped",
+    "shift_amt_move",
+    "reg_move_c2var",
+    "bf_alu8_var",
+    "frag_pos_read"
+  ],
+  "rawBytesBefore": 78978,
+  "rawBytesAfter": 68267,
+  "notFullyNamedBreakdown": {
+    "before": {
+      "named_raw": 52020,
+      "pad_raw": 5536,
+      "lengthonly": 9548,
+      "undecoded": 11874,
+      "total": 78978
+    },
+    "after": {
+      "named_raw": 55249,
+      "pad_raw": 0,
+      "lengthonly": 2816,
+      "undecoded": 10202,
+      "total": 68267
+    },
+    "note": "named_raw rises +3229 because the newly-NAMED length_only tokens carry raw operand tails (documented in unresolved as needs-splice); this is honest raw, not fabricated. Net not-fully-named -10711B."
+  },
+  "closedBytes": {
+    "pad_operand_retyped_to_imm": 5536,
+    "lengthonly_moved_to_named": 6732,
+    "desync_root_0x00_closed": 1672,
+    "net_not_fully_named_reduction": 10711
+  },
+  "corpusTotalInstrBytes": 529502,
+  "validation": {
+    "tokenizationUnchanged": true,
+    "tokenizationProof": "instr_length identical at every offset where REAL isadb is non-None (0 mismatches over whole corpus); the one length edit is additive (None->2 only).",
+    "roundtripSuitePass": true,
+    "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py ALL PASS on the scratch isadb (real-instr + synth + tokenize-programs + imm-codec).",
+    "asmDisasmRoundtrip": "asm(disasm(b))==b verified for a real corpus token of ALL 11 new/retyped descriptors.",
+    "noNamedRegression": "0 named->different-named and 0 pad->non-pad transitions over the whole corpus.",
+    "disassembleLeftoverDelta": -8426
+  },
+  "unresolved": [
+    {
+      "item": "length_only residual ~2816B",
+      "detail": "Dominant: lo=7 len=10 (~720B) = subgroup SHUFFLE/BROADCAST (0x47) + BALLOT/VOTE (0x17) variants -- a heterogeneous multi-op group (byte+2 in {0x86 rt-marker, 0x54, 0x9f}) that needs a subgroup/RT own-MSL byte-diff to split cleanly (not a single family). Plus lo=0/1/9 len=10 mixed extended-ALU tails and small (<=30B) groups. Left length_only (honest) rather than risk a mis-typed catch-all."
+    },
+    {
+      "item": "undecoded residual ~10202B",
+      "detail": "Overwhelmingly 2-byte TRAILING OPERAND / PAD words after a cleanly-decoded op, byte0 in {0x54,0x07,0x02,0x08,0x82,0x20,0x80,0x40,0x44,0x21,0x32,0xc2,...} -- the SAME pad_operand negative-result class as the closed 0x00 words but for non-low-nibble-0 byte0. Each needs a per-(byte0,byte+1)-gated ADDITIVE length rule + a matching operand-word descriptor (each byte0 is ALSO a valid op-leader in other contexts, so per-signature gating + a splice are required to avoid mis-lengthing). OWNED-BY-UPSTREAM/follow-up: resolvable by the same additive method used for 0x00, one signature at a time. This is genuinely trailing-operand data, not an undecoded OPCODE."
+    },
+    {
+      "item": "raw tails inside newly-named ops",
+      "detail": "half_alu_ext8/half_alu_fma12 ext, falu2_ext8b/falu_srcmod12b ext_srcmod, bf_alu8_var tail, frag_pos_read body, compute_fence_scoped scope/kind values, rt_query_traverse2 getter/operand words: field ROLE typed (imm/mod/reg where family-anchored) but per-bit VALUE maps / the extended-operand sub-splits need a HW splice (clean-room rule 5 also forbids reconstructing the SFU coefficient sequence). Kept raw/mod-with-partial-enum honestly."
+    }
+  ],
+  "scratchArtifacts": {
+    "isadb": "work/r8_pad_lenonly/isadb.py (scratch copy; real isadb.py UNTOUCHED)",
+    "census": "work/r8_pad_lenonly/census.py, lenonly_detail.py, diag_lenonly.py, diag_desync.py, db_layouts.py",
+    "validation": "work/r8_pad_lenonly/validate_r8.py, roundtrip_test.py (ALL PASS)"
+  },
+  "cleanRoom": "All bytes are OWN-MSL compiled shaders from the EXP-M4-13 corpus. No Apple binary introspected. Instruction ENCODINGS typed (reg/imm/enum/mod); no compiler SEQUENCE transcribed as a recipe. Field VALUE maps left partial where a splice is needed (honest), not fabricated."
+}
