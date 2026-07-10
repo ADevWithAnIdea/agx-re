@@ -131,10 +131,11 @@
 | `dst` | [8:16] (byte+1) | register |  |
 | `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul |
 | `opflags` | [19:24] | modifier |  |
-| `srcB` | [24:32] (byte+3) | register |  |
-| `tail` | [32:48] (byte+4) | raw/unmapped |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `src_modifier` | [40:48] (byte+5) | modifier |  |
 
-*d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.)*
+*d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.) HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureadd `10 03 1c 02 00 c0`, a=[1,2,4,8] in r1(byte+3=0x02), b=[16,32,64,128] in r0(byte+4=0x00)): srcA (byte+3) is the FIRST, negatable source -- RETYPES the former 'srcB@byte+3'; sweeping byte+3 0x02->0x04/06/08 yields result=b alone (srcA read as 0). srcB (byte+4) = second source operand descriptor (baseline 0x00 reads b; low bits gate/type it, bit1 0x02 nulls the op; exact register-vs-type bit packing partially resolved). src_modifier (byte+5) = source-modifier/control byte: bits6:7 (0xc0) are a required operand-valid base (clearing -> op yields 0); bit3 (0x08) = srcA-negate (0xc8 -> -a+b, CONFIRMED); bit0 (0x01) suppresses srcB (result = srcA); bits1/2 (0x02/0x04) suppress srcA (result = srcB).*
 
 ### `falu_acc` — compact 4-byte float accumulate (reduction)
 
@@ -298,12 +299,12 @@
 | `form` | [8:16] (byte+1) | opcode-select | `0x4`=reverse; `0x5`=count/scan |
 | `cache` | [17:18] | modifier |  |
 | `dst` | [24:32] (byte+3) | register |  |
-| `optype` | [32:40] (byte+4) | modifier |  |
+| `op_enable` | [32:40] (byte+4) | modifier | `0x2`=op computes (bit1 set); `0x3`=op computes (bit1 set) |
 | `src` | [40:48] (byte+5) | register |  |
-| `srcdesc` | [48:56] (byte+6) | modifier |  |
+| `srcdesc` | [48:56] (byte+6) | modifier | `0x0`=passthrough/move (source returned raw, no count) |
 | `tail` | [56:64] (byte+7) | modifier |  |
 
-*single-op bit-count / bit-scan (8B). op = (byte0 bit7 fn_hi, byte+1 form): popcount/reverse_bits/find-MSB (op-select splice-proven EXP-0033). cache (byte+2 bit17): 0x54 result-consumed vs 0x56 standalone (OWN-MSL byte-diff: popcount vs popcount(a+a) flips byte+2 0x56->0x54). dst (byte+3) = destination reg (reg<<1) and src (byte+5) = source reg (reg<<2), BOTH OWN-MSL byte-diff located: a 4-way live-popcount chain (k_regtog pc4) steps byte+3 = 0x0c,0x0a,0x06,0x02 with the result lane and byte+5 = 0x18,0x14,0x0c,0x04 with the source lane (same dst<<1 / src<<2 scaling proven for cvt_i2f in R9). optype (byte+4, 0x02 popcount vs 0x03 find_msb) and srcdesc (byte+6, 0x5c/0x4e/0x58 source-type) role-typed; tail (byte+7, 0x04 marker).*
+*single-op bit-count / bit-scan (8B). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL iunary.metal popcount `27 05 56 00 02 00 5c 04`, inputs [15,16,65535,0x40000001], baseline popcount [4,1,16,2]): the SUB-OP is selected by (byte0 bit7 fn_hi + byte+1 form), NOT by byte+4 -- splice byte0 0x27->0xa7 -> [3,4,15,30]=find_msb; splice (0xa7, byte+1 0x05->0x04) -> reverse_bits (matches k_reverse). CORRECTION: byte+4 is an op-ENABLE gate (op_enable), NOT the sub-op selector -- splicing byte+4 0x02->0x03 KEEPS popcount [4,1,16,2] (only bit1 matters: 0x02/0x03/0x06/0x07/0x0a compute, 0x00/0x01/0x04/0x05 -> result 0); this corrects the former "optype 0x02 popcount vs 0x03 find_msb" label (correlation, not causation). cache (byte+2 bit17, writeback-enable): only 0x54/0x55 (bit1 clear) break the stored result, 0x56 standalone writes back; all other byte+2 bits inert. dst (byte+3) = destination reg (reg<<1, r0=0x00): sweeping to 0x02/04/06/08 breaks delivery ([0,0,0,0]). src (byte+5) = source reg (reg<<2, r0=0x00): non-zero points at an empty register -> popcount(0)=0. srcdesc (byte+6) = source operand descriptor: 0x00 degenerates the op to identity (returns the raw input, popcount NOT applied), bit6 (0x40) must be set for the GPR source to be read (0x3c/0x9c -> 0; 0x5c/0x4e/0x58 read normally). tail (byte+7, 0x04 marker).*
 
 ### `carry_gen` — u64 carry-generate (unsigned-overflow compare for 64-bit add)
 
@@ -870,13 +871,11 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `subop` | [8:16] (byte+1) | raw/unmapped |  |
-| `marker` | [16:24] (byte+2) | raw/unmapped |  |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
-| `b4` | [32:40] (byte+4) | raw/unmapped |  |
-| `frame_size` | [40:48] (byte+5) | immediate |  |
+| `subop` | [8:16] (byte+1) | modifier |  |
+| `marker` | [16:24] (byte+2) | modifier |  |
+| `frame_size` | [24:48] (byte+3) | immediate |  |
 
-*NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/link register around each inner call. Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. byte+1==0x03 = frame sub-op; byte+2 = 0x04/0x54 marker; byte+5 = candidate frame/scratch-size field (INFERRED).*
+*NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/link register around each inner call. Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal k_chain->mid()): subop (byte+1) is the frame sub-op selector -- only bits[1:0]==0b11 are load-bearing (0x03/0x0b/0x13/0x23/0x43 all run; 0x00/0x01/0x02/0x04 fault), bits[7:2] don't-care/reserved. marker (byte+2) is RESERVED/inert (0x04->0x00/0x54/0x55/0xff all run to baseline; corpus shows 0x04 and 0x54). frame_size (bytes+3/+4/+5, little-endian, +5 low byte) is the scratch frame/allocation size: high bytes +3/+4 must be 0 for these small frames (nonzero -> huge frame -> GPU fault); byte+5 is 16B-granular (0x20->0x30 over-alloc tolerated, 0x10/0x1f/0x21 too small/misaligned -> fault). NB byte+5 sub-encoding is not cleanly monotonic (0x40 faults while 0x30 runs), so its sub-field layout is not fully resolved -- see hypotheses. MERGES the DB's former separate b3/b4/frame_size raw fields.*
 
 ### `link_save_restore` — link-register save/restore around a nested call
 
@@ -884,13 +883,14 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `marker` | [16:24] (byte+2) | raw/unmapped |  |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
-| `scope` | [32:40] (byte+4) | raw/unmapped |  |
-| `dir_offset` | [40:64] (byte+5) | raw/unmapped |  |
+| `b1` | [8:16] (byte+1) | modifier |  |
+| `marker` | [16:24] (byte+2) | modifier |  |
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `scope` | [32:40] (byte+4) | modifier |  |
+| `dir_offset` | [40:56] (byte+5) | immediate |  |
+| `reserved7` | [56:64] (byte+7) | modifier |  |
 
-*LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; byte+5..+7 discriminate SAVE (00 00 00) from RESTORE (ff 1f 00, a scratch offset). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target).*
+*LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal): in a RACE-FREE frame (k_chain, no spills) the op is a NO-OP fence and every payload field is inert; in a SPILLING frame (k_bigframe / bigmid, 12 live temporaries around the call) the fields become load-bearing. byte0=0x07 is the fence-family opcode (0x07->0x00 corrupts the SAVE / HANGs the RESTORE when state actually spills). scope (byte+4=0x81) = scratch/stack scope: bit7 AND bit0 must both be set (0x81/0x83 pass; 0x00/0x80/0x01 corrupt; 0xff -> GPU page-fault; RESTORE-side corruption HANGs). dir_offset (bytes+5/+6, 16-bit LE) = scratch save/restore offset+direction: SAVE=0x0000, RESTORE=0x1fff; intermediate values relocate the scratch access (corruption scales with value). CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field -- byte+7 (reserved7) is RESERVED/inert on BOTH the SAVE and RESTORE instances. marker (byte+2) and b3 (byte+3) are RESERVED/inert; b1 (byte+1) is mostly reserved (low bits inert, only 0xff perturbs).*
 
 ### `spill_frame_marker` — spill/frame-setup marker (after entry get_sr in spilling kernels)
 
@@ -1073,9 +1073,9 @@
 | `dst` | [4:8] | register |  |
 | `src` | [8:16] (byte+1) | register |  |
 | `form` | [16:24] (byte+2) | enum | `0x81`=copy_reg(b3=0x08); `0x80`=zero_init(b3=0x00) |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | modifier | `0x8`=reg32 plain copy; `0x0`=zero form; `0x12`=uniform/high-class-source copy; `0x22`=uniform/high-class-source copy; `0x6`=zero variant |
 
-*RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode.*
+*RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode. b3 (byte+3) is an operand type/size/CLASS descriptor (0x08=reg32 plain copy, 0x00=zero, 0x12/0x22=uniform/high-class-source copy, 0x06=zero variant); HW-shown structurally significant (splice, A18 EXP-M4-14: b3 bit6=0x40 on a uniform-class-source copy -> CMDBUF_ERROR; inert on plain copies). NEGATIVE (splice): the b3/src VALUE-semantics could NOT be splice-resolved -- all 16 ray_move ops are INERT to committed_distance in the intersection_query testbed (the traversal re-derives origin/direction from the direct device loads of rin[], so the marshalled ray copy is not its data sink); a getter returning a marshalled ray field is needed to pin the value map (see hypotheses).*
 
 ## Barrier / ordering
 
@@ -1193,9 +1193,11 @@
 | `mode` | [32:40] (byte+4) | modifier |  |
 | `comp_off` | [40:48] (byte+5) | modifier |  |
 | `val` | [48:56] (byte+6) | immediate |  |
-| `fmt_word` | [56:80] (byte+7) | raw/unmapped |  |
+| `src_present_mask` | [56:64] (byte+7) | modifier | `0x10`=component-0 present (bit4); `0x40`=component-1 present (bit6); `0x20`=suppress component-1 (bit5); `0xd0`=both present (register-source baseline); `0x50`=both present (immediate-source baseline); `0xff`=ILLEGAL -> GPU fault |
+| `src_gate_select` | [64:72] (byte+8) | modifier | `0x4`=both-components present gate (bit2); `0x40`=component-0 present gate (bit6) |
+| `conv_scale` | [72:80] (byte+9) | modifier | `0x2`=component-1 enable (bit1); `0xc0`=per-component scale/exponent (bits6-7) |
 
-*pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. fmt_word (byte+7..+9) = attachment-format / rounding descriptor (0xd0 0x45 0xc2 typical) -- kept raw.*
+*pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. HW-VALIDATED (splice, A18 EXP-M4-14): the old raw 24-bit fmt_word (byte+7..+9) is NOT an inert attachment-format constant -- it is a LIVE per-component source-present + gate/select + conversion-scale descriptor for the two packed components, SYMMETRIC across both pack ops (pack1=R,G / pack2=B,A). src_present_mask (byte+7) = per-component source-present bitmask (0x10=comp0 only, 0x40=comp1 only, 0xd0/0x50=both present [register/immediate source baseline]; byte+7==0xff is an ILLEGAL encoding that hard-faults the GPU). byte+7 bit7 (0x80) is NON-gating for presence (it correlates with source class reg-vs-imm) and byte+7 bit5 (0x20) suppresses component-1 -- both RESERVED-ish, not independently useful. src_gate_select (byte+8) = per-component present gate + source-component select (bit2=both-present gate, bit6=comp0 gate; the low bits can reroute which source channel feeds a slot -- characterized directionally, not exhaustively bit-typed; no value in the swept range faults). conv_scale (byte+9) = per-component conversion scale/round + enable (bit1=comp1 enable, bits6-7=scale/exponent; extreme values alias/overflow across the 2-wide pair; no value in range faults).*
 
 ### `frag_tile_setup` — tile / render-target access setup
 
@@ -1626,7 +1628,7 @@
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1
 
-### `frag_pos_read`
+### `op04_len8`
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4
 

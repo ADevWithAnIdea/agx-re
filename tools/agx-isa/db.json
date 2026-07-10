@@ -1295,7 +1295,7 @@
         }
       ],
       "semantics": "d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.",
-      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=27): opsel==0x56 carries the HW-VALIDATED popcount (`27 05 56 ..`, EXP-0007) and the vertex-fetch format unpack; opsel==0x22 (byte+1==0x81) appears only in raytracing/interp kernels. b1/opsel LOCATED; operand kept raw. NOT HW-dispatch validated."
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=27): opsel==0x56 carries the HW-VALIDATED popcount (`27 05 56 ..`, EXP-0007) and the vertex-fetch format unpack; opsel==0x22 (byte+1==0x81) appears only in raytracing/interp kernels. b1/opsel LOCATED; operand kept raw. NOT HW-dispatch validated. NOTE (splice, A18 EXP-M4-14): the popcount/find_msb/reverse member of this byte0==0x27 space tokenizes to the TIGHTER ibitcount descriptor (byte+2==0x56, 15 match bits) -- there it is now HW-splice-validated: the sub-op is (byte0 bit7 fn_hi + byte+1 form), byte+4 is an op-enable gate NOT a sub-op selector, and dst=byte+3 / src=byte+5 / srcdesc=byte+6. This loose catch-all remains the RT (opsel 0x22) / interp / convert (0x10/0x26) residue, distinct datapaths not separately provoked this pass; operand kept raw as an honest residue."
     },
     {
       "mnemonic": "ishift",
@@ -2799,7 +2799,7 @@
         }
       ],
       "semantics": "d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR LOW nibble). The full destination register is dst = byte0[4:8] | (byte+3[5:8] << 4), reaching r0..r127 -- dst_hi (byte+3 bits5-7) is the register EXTENSION. byte0 low-3-bits = 0b100; bit3 (form) is a datapath/width modifier (set for the position-in-grid SR family) that does not change the SR select. byte+2 (dp_width) is a datapath width / dst-bank descriptor. byte+3 low 5 bits are a fixed 32-bit-read marker (0x06). IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.",
-      "provenance": "HW-VALIDATED (EXP-0031): SR# = byte1 splice-proven on dispatched kernels (0x82->lane, 0x85->simd_group, 0x98->threads_per_tg=64, 0xa0->pos_in_grid); dst = byte0-hi proven by multi-getsr kernels; front_facing (0xc5) both-sided via winding flip. VS/FS SR numbers from isolation byte-diff. (Corrects EXP-0010.) SR 0x84 = simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06` read then compared, byte-diff-inferred (f_helper vs f_plain fragment, EXP-O2D). SUFFIX TYPING (EXP-M4-13 R7, own-MSL compile-only): dst_hi = byte+3 bits5-7 PROVEN by an 18-SR compute kernel where (byte0-hi | byte+3-hi<<4) grows monotonically with register pressure (r8,r21,r34,...,r64,r65) independent of the SR selector and of the vector component -- it is the dst register extension, not an SR field. dp_width 0x10->0x50 flips exactly at dst>=r64. SR 0x95 (compute), 0xe0/0xe1 (mesh-only) located by corpus stage-attribution; exact meaning needs isolation."
+      "provenance": "HW-VALIDATED (EXP-0031): SR# = byte1 splice-proven on dispatched kernels (0x82->lane, 0x85->simd_group, 0x98->threads_per_tg=64, 0xa0->pos_in_grid); dst = byte0-hi proven by multi-getsr kernels; front_facing (0xc5) both-sided via winding flip. VS/FS SR numbers from isolation byte-diff. (Corrects EXP-0010.) SR 0x84 = simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06` read then compared, byte-diff-inferred (f_helper vs f_plain fragment, EXP-O2D). SUFFIX TYPING (EXP-M4-13 R7, own-MSL compile-only): dst_hi = byte+3 bits5-7 PROVEN by an 18-SR compute kernel where (byte0-hi | byte+3-hi<<4) grows monotonically with register pressure (r8,r21,r34,...,r64,r65) independent of the SR selector and of the vector component -- it is the dst register extension, not an SR field. dp_width 0x10->0x50 flips exactly at dst>=r64. SR 0x95 (compute), 0xe0/0xe1 (mesh-only) located by corpus stage-attribution; exact meaning needs isolation. HW-VALIDATED (splice, A18 EXP-M4-14): RE-CONFIRMED sr_sel (byte+1) is the special-register selector and 0xc5 = [[front_facing]] -- own-MSL frag_face.metal (bool ff [[front_facing]]?white:black), get_sr `04 c5 11 06`, baseline BLACK (facing=false); splicing sr_sel 0xc5->0x80/0xa0/0xc4/0xc6/0xe5/0xff flips the compare to WHITE (other SR reads nonzero), and 0x01->pixel 0x01 / 0x40->0x40 leaks the raw integer SR value into the packed colour channel. 0xa0/0xa1 = the [[position]] preamble SR. CROSS-OP NOTE: get_sr(sr_sel) + iter is the ACTUAL hardware mechanism that reads [[position]]/[[front_facing]] -- NOT the 8-byte byte0==0x04 residue formerly misnamed frag_pos_read (see op04_len8)."
     },
     {
       "mnemonic": "mov_imm",
@@ -4371,11 +4371,18 @@
           "name": "b3",
           "start": 24,
           "width": 8,
-          "type": "raw"
+          "type": "mod",
+          "enum": {
+            "8": "reg32 plain copy",
+            "0": "zero form",
+            "18": "uniform/high-class-source copy",
+            "34": "uniform/high-class-source copy",
+            "6": "zero variant"
+          }
         }
       ],
-      "semantics": "RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode.",
-      "provenance": "inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel marshalling the ray struct (zero-init 0x80 for const origins, copy 0x81 for device-loaded direction), and 35-38x in the matmul2d transpose kernels. Not splice-validated."
+      "semantics": "RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode. b3 (byte+3) is an operand type/size/CLASS descriptor (0x08=reg32 plain copy, 0x00=zero, 0x12/0x22=uniform/high-class-source copy, 0x06=zero variant); HW-shown structurally significant (splice, A18 EXP-M4-14: b3 bit6=0x40 on a uniform-class-source copy -> CMDBUF_ERROR; inert on plain copies). NEGATIVE (splice): the b3/src VALUE-semantics could NOT be splice-resolved -- all 16 ray_move ops are INERT to committed_distance in the intersection_query testbed (the traversal re-derives origin/direction from the direct device loads of rin[], so the marshalled ray copy is not its data sink); a getter returning a marshalled ray field is needed to pin the value map (see hypotheses).",
+      "provenance": "inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel marshalling the ray struct (zero-init 0x80 for const origins, copy 0x81 for device-loaded direction), and 35-38x in the matmul2d transpose kernels. HW observation (splice, A18 EXP-M4-14): b3 retyped raw->mod as an operand type/class descriptor (structurally significant: bit6=0x40 faults on a uniform-source copy) but its VALUE semantics are a documented NEGATIVE -- inert to the committed_distance sink for every one of the 16 ray_move ops; src (byte+1) register role likewise inert on this sink. Value map NOT splice-validated (honest limitation)."
     },
     {
       "mnemonic": "threadgroup_barrier",
@@ -5136,14 +5143,42 @@
           "type": "imm"
         },
         {
-          "name": "fmt_word",
+          "name": "src_present_mask",
           "start": 56,
-          "width": 24,
-          "type": "raw"
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "16": "component-0 present (bit4)",
+            "64": "component-1 present (bit6)",
+            "32": "suppress component-1 (bit5)",
+            "208": "both present (register-source baseline)",
+            "80": "both present (immediate-source baseline)",
+            "255": "ILLEGAL -> GPU fault"
+          }
+        },
+        {
+          "name": "src_gate_select",
+          "start": 64,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "4": "both-components present gate (bit2)",
+            "64": "component-0 present gate (bit6)"
+          }
+        },
+        {
+          "name": "conv_scale",
+          "start": 72,
+          "width": 8,
+          "type": "mod",
+          "enum": {
+            "2": "component-1 enable (bit1)",
+            "192": "per-component scale/exponent (bits6-7)"
+          }
         }
       ],
-      "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. fmt_word (byte+7..+9) = attachment-format / rounding descriptor (0xd0 0x45 0xc2 typical) -- kept raw.",
-      "provenance": "HW-VALIDATED byte (EXP-0008/0029): splicing byte+6 0x80->0x40 moved read-back green 0.502->0.251 -> byte+6 = colour component. R6 (own-MSL + corpus, n=93): src_desc/fmt_class/mode/comp_off LOCATED by covariation (fmt_class 0x54 fragment vs 0x56 compute; comp_off steps 00/04/08/18 across packed components). fmt_word kept raw. NOT further HW-dispatch validated."
+      "semantics": "pack / move a colour value into an output GPR ahead of the tilebuffer store (converts the shader's float/half output to the attachment format). src_desc (byte+1) = source/mode descriptor. fmt_class (byte+2) = 0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack. dst (byte+3) = destination GPR. mode (byte+4) = mode/size (0x02/0x03). comp_off (byte+5) = component / byte-offset selector into the packed word. val (byte+6, HW-VALIDATED) = the colour component value. HW-VALIDATED (splice, A18 EXP-M4-14): the old raw 24-bit fmt_word (byte+7..+9) is NOT an inert attachment-format constant -- it is a LIVE per-component source-present + gate/select + conversion-scale descriptor for the two packed components, SYMMETRIC across both pack ops (pack1=R,G / pack2=B,A). src_present_mask (byte+7) = per-component source-present bitmask (0x10=comp0 only, 0x40=comp1 only, 0xd0/0x50=both present [register/immediate source baseline]; byte+7==0xff is an ILLEGAL encoding that hard-faults the GPU). byte+7 bit7 (0x80) is NON-gating for presence (it correlates with source class reg-vs-imm) and byte+7 bit5 (0x20) suppresses component-1 -- both RESERVED-ish, not independently useful. src_gate_select (byte+8) = per-component present gate + source-component select (bit2=both-present gate, bit6=comp0 gate; the low bits can reroute which source channel feeds a slot -- characterized directionally, not exhaustively bit-typed; no value in the swept range faults). conv_scale (byte+9) = per-component conversion scale/round + enable (bit1=comp1 enable, bits6-7=scale/exponent; extreme values alias/overflow across the 2-wide pair; no value in range faults).",
+      "provenance": "HW-VALIDATED byte (EXP-0008/0029): splicing byte+6 0x80->0x40 moved read-back green 0.502->0.251 -> byte+6 = colour component. R6 (own-MSL + corpus, n=93): src_desc/fmt_class/mode/comp_off LOCATED by covariation (fmt_class 0x54 fragment vs 0x56 compute; comp_off steps 00/04/08/18 across packed components). HW-VALIDATED (splice, A18 EXP-M4-14): the byte+7..+9 fmt_word split into src_present_mask/src_gate_select/conv_scale, spliced live on the A18 render harness (own-MSL frag_tex.metal, texture2d sample -> float4 out, --tex-fill 64,128,192,255). pack1 fmt_word d0 45 c2: byte+7 0x10->R only / 0x40->G only / 0xd0->both / 0xff->CMDBUF_ERROR (contained GPU fault, device survived); byte+8 bit2 gates both components, bit6 gates comp0, low bits reroute source channel; byte+9 bit1=comp1 enable, bits6-7 halve/boost the packed value. Symmetric on pack2 (B,A). byte+7 bit7 tracks reg(0xd0)-vs-imm(0x50) source class (non-gating). Fine per-bit source-register indexing within byte+8 low bits left directional (not exhaustively bit-typed, see unresolved)."
     },
     {
       "mnemonic": "frag_depth_store",
@@ -5463,20 +5498,26 @@
           "type": "mod"
         },
         {
-          "name": "srcB",
+          "name": "srcA",
           "start": 24,
           "width": 8,
           "type": "reg"
         },
         {
-          "name": "tail",
+          "name": "srcB",
           "start": 32,
-          "width": 16,
-          "type": "raw"
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "src_modifier",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
         }
       ],
-      "semantics": "d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.)",
-      "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ALU and is the only byte differing between half2_add and half2_mul. Operand bit-packing follows the 0x09 model."
+      "semantics": "d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.) HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureadd `10 03 1c 02 00 c0`, a=[1,2,4,8] in r1(byte+3=0x02), b=[16,32,64,128] in r0(byte+4=0x00)): srcA (byte+3) is the FIRST, negatable source -- RETYPES the former 'srcB@byte+3'; sweeping byte+3 0x02->0x04/06/08 yields result=b alone (srcA read as 0). srcB (byte+4) = second source operand descriptor (baseline 0x00 reads b; low bits gate/type it, bit1 0x02 nulls the op; exact register-vs-type bit packing partially resolved). src_modifier (byte+5) = source-modifier/control byte: bits6:7 (0xc0) are a required operand-valid base (clearing -> op yields 0); bit3 (0x08) = srcA-negate (0xc8 -> -a+b, CONFIRMED); bit0 (0x01) suppresses srcB (result = srcA); bits1/2 (0x02/0x04) suppress srcA (result = srcB).",
+      "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ALU and is the only byte differing between half2_add and half2_mul. HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL pureh.metal k_pureadd with distinct per-lane inputs -- byte+3 sweep {0x02->a+b; 0x04/06/08->b} proves byte+3=srcA (RETYPED from srcB); byte+5 sweep {0xc0->a+b; 0xc8->-a+b (bit3 srcA-negate); 0xc1->srcA only; 0xc2/0xc4->srcB only; 0x80/0x40/0x00->0}; opsel (0x1c hadd vs 0x1d hmul, byte+2) reconfirmed against k_puremul. puresub/pureneg corroborate the byte+5 bit3 negate. The former raw 'tail' (byte+4/+5) is now split into srcB + src_modifier; src_modifier bit-pattern rule captured in semantics (not a clean value enum)."
     },
     {
       "mnemonic": "ibitcount",
@@ -5537,10 +5578,14 @@
           "type": "reg"
         },
         {
-          "name": "optype",
+          "name": "op_enable",
           "start": 32,
           "width": 8,
-          "type": "mod"
+          "type": "mod",
+          "enum": {
+            "2": "op computes (bit1 set)",
+            "3": "op computes (bit1 set)"
+          }
         },
         {
           "name": "src",
@@ -5552,7 +5597,10 @@
           "name": "srcdesc",
           "start": 48,
           "width": 8,
-          "type": "mod"
+          "type": "mod",
+          "enum": {
+            "0": "passthrough/move (source returned raw, no count)"
+          }
         },
         {
           "name": "tail",
@@ -5561,8 +5609,8 @@
           "type": "mod"
         }
       ],
-      "semantics": "single-op bit-count / bit-scan (8B). op = (byte0 bit7 fn_hi, byte+1 form): popcount/reverse_bits/find-MSB (op-select splice-proven EXP-0033). cache (byte+2 bit17): 0x54 result-consumed vs 0x56 standalone (OWN-MSL byte-diff: popcount vs popcount(a+a) flips byte+2 0x56->0x54). dst (byte+3) = destination reg (reg<<1) and src (byte+5) = source reg (reg<<2), BOTH OWN-MSL byte-diff located: a 4-way live-popcount chain (k_regtog pc4) steps byte+3 = 0x0c,0x0a,0x06,0x02 with the result lane and byte+5 = 0x18,0x14,0x0c,0x04 with the source lane (same dst<<1 / src<<2 scaling proven for cvt_i2f in R9). optype (byte+4, 0x02 popcount vs 0x03 find_msb) and srcdesc (byte+6, 0x5c/0x4e/0x58 source-type) role-typed; tail (byte+7, 0x04 marker).",
-      "provenance": "HW-VALIDATED op-select (EXP-0033: popcount/find_msb/reverse splice-proven) + EXP-M4-13 R10 own-MSL byte-diff (k_regtog pc4): 4 live popcounts step byte+3 (dst<<1) and byte+5 (src<<2) with the dst/src lanes; k_fun pc vs pc2 flips byte+2 cache 0x56->0x54. dst/src register roles OWN-MSL located."
+      "semantics": "single-op bit-count / bit-scan (8B). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL iunary.metal popcount `27 05 56 00 02 00 5c 04`, inputs [15,16,65535,0x40000001], baseline popcount [4,1,16,2]): the SUB-OP is selected by (byte0 bit7 fn_hi + byte+1 form), NOT by byte+4 -- splice byte0 0x27->0xa7 -> [3,4,15,30]=find_msb; splice (0xa7, byte+1 0x05->0x04) -> reverse_bits (matches k_reverse). CORRECTION: byte+4 is an op-ENABLE gate (op_enable), NOT the sub-op selector -- splicing byte+4 0x02->0x03 KEEPS popcount [4,1,16,2] (only bit1 matters: 0x02/0x03/0x06/0x07/0x0a compute, 0x00/0x01/0x04/0x05 -> result 0); this corrects the former \"optype 0x02 popcount vs 0x03 find_msb\" label (correlation, not causation). cache (byte+2 bit17, writeback-enable): only 0x54/0x55 (bit1 clear) break the stored result, 0x56 standalone writes back; all other byte+2 bits inert. dst (byte+3) = destination reg (reg<<1, r0=0x00): sweeping to 0x02/04/06/08 breaks delivery ([0,0,0,0]). src (byte+5) = source reg (reg<<2, r0=0x00): non-zero points at an empty register -> popcount(0)=0. srcdesc (byte+6) = source operand descriptor: 0x00 degenerates the op to identity (returns the raw input, popcount NOT applied), bit6 (0x40) must be set for the GPR source to be read (0x3c/0x9c -> 0; 0x5c/0x4e/0x58 read normally). tail (byte+7, 0x04 marker).",
+      "provenance": "HW-VALIDATED op-select (EXP-0033: popcount/find_msb/reverse splice-proven) + EXP-M4-13 R10 own-MSL byte-diff (k_regtog pc4): 4 live popcounts step byte+3 (dst<<1) and byte+5 (src<<2) with the dst/src lanes; k_fun pc vs pc2 flips byte+2 cache 0x56->0x54. HW-VALIDATED (splice, A18 EXP-M4-14): the popcount instance `27 05 56 00 02 00 5c 04` (which tokenizes to THIS descriptor, the tight 0x27/byte+2=0x56 form) had every field splice-swept on the compute harness -- sub-op = fn_hi(byte0 bit7)+form(byte+1), byte+4 = op-enable gate (bit1) NOT the sub-op selector, dst=byte+3, src=byte+5, srcdesc=byte+6 (0x00 passthrough / bit6 GPR-read), cache=byte+2 bit1 (writeback). CORRECTS the ibitcount byte+4 \"optype\" label. 0 reboots. (The loose byte0==0x27 iunary catch-all is the RT/interp/convert residue and is a distinct set of datapaths.)"
     },
     {
       "mnemonic": "irotate",
@@ -6003,35 +6051,23 @@
           "name": "subop",
           "start": 8,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "marker",
           "start": 16,
           "width": 8,
-          "type": "raw"
-        },
-        {
-          "name": "b3",
-          "start": 24,
-          "width": 8,
-          "type": "raw"
-        },
-        {
-          "name": "b4",
-          "start": 32,
-          "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "frame_size",
-          "start": 40,
-          "width": 8,
+          "start": 24,
+          "width": 24,
           "type": "imm"
         }
       ],
-      "semantics": "NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/link register around each inner call. Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. byte+1==0x03 = frame sub-op; byte+2 = 0x04/0x54 marker; byte+5 = candidate frame/scratch-size field (INFERRED).",
-      "provenance": "HW-VALIDATED role (EXP-0038): the non-leaf chains k_chain and k_deep dispatch to correct outputs; the 0x6f prologue is present verbatim in every non-leaf helper region extracted from our own compiled kernels and ABSENT from every leaf helper. Field roles are byte-diff INFERRED. Length 6 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py)."
+      "semantics": "NON-LEAF FUNCTION FRAME PROLOGUE. `6f 03 04 00 00 20` (6 bytes; the broader corpus also shows `6f 03 54 00 00 10`). Emitted at the entry of a NON-leaf callee (one that itself CALLs) to establish the per-thread SCRATCH frame in which it saves/restores its return/link register around each inner call. Leaf callees have no prologue and return via `8f 02 54 00`; a non-leaf callee has this prologue, brackets each nested CALL with the 8-byte 0x07 link save/restore, and returns via `8f 12 54 00`. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal k_chain->mid()): subop (byte+1) is the frame sub-op selector -- only bits[1:0]==0b11 are load-bearing (0x03/0x0b/0x13/0x23/0x43 all run; 0x00/0x01/0x02/0x04 fault), bits[7:2] don't-care/reserved. marker (byte+2) is RESERVED/inert (0x04->0x00/0x54/0x55/0xff all run to baseline; corpus shows 0x04 and 0x54). frame_size (bytes+3/+4/+5, little-endian, +5 low byte) is the scratch frame/allocation size: high bytes +3/+4 must be 0 for these small frames (nonzero -> huge frame -> GPU fault); byte+5 is 16B-granular (0x20->0x30 over-alloc tolerated, 0x10/0x1f/0x21 too small/misaligned -> fault). NB byte+5 sub-encoding is not cleanly monotonic (0x40 faults while 0x30 runs), so its sub-field layout is not fully resolved -- see hypotheses. MERGES the DB's former separate b3/b4/frame_size raw fields.",
+      "provenance": "HW-VALIDATED role (EXP-0038): the non-leaf chains k_chain and k_deep dispatch to correct outputs; the 0x6f prologue is present verbatim in every non-leaf helper region extracted from our own compiled kernels and ABSENT from every leaf helper. Length 6 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py). HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_chain calling non-leaf mid(), frame_prologue at l__ZL3midff@0x00 = 6f 03 04 00 00 20, baseline mid(a,b)=(a+b)+(a*b). subop byte+1 0x03->0x00/0x01/0x02/0x04 -> CMDBUF_ERROR, 0x0b/0x13/0x23/0x43 -> baseline (all pass share bits[1:0]==0b11). marker byte+2 0x04->0x00/0x54 -> baseline. frame_size byte+3/+4 nonzero -> CMDBUF_ERROR; byte+5 0x20->0x30 -> baseline, ->0x10/0x1f/0x21/0x40 -> fault. 0 reboots (contained faults). subop enum captured in semantics (bit-pattern rule, not a clean value map)."
     },
     {
       "mnemonic": "spill_frame_marker",
@@ -6143,23 +6179,23 @@
           "name": "b3",
           "start": 24,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "b4",
           "start": 32,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "b5",
           "start": 40,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         }
       ],
-      "semantics": "6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed between the low-nibble-3 threadgroup-id ops and the threadgroup device_store. Distinct from the 4-byte get_sr datapath form (byte+3 low-nibble 6).",
-      "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `1c 02 00 ..`->6 resyncs 8 clean ops to @130; other lengths resync 0-1. Role inferred (own-shader)."
+      "semantics": "6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed between the low-nibble-3 threadgroup-id ops and the threadgroup device_store. Distinct from the 4-byte get_sr datapath form (byte+3 low-nibble 6). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_thr.metal threadgroup-tile reduction): byte0 HIGH nibble [bit4:8] is a LIVE dst-register / operand selector (splicing 0x1c->0x2c/0x3c/0x5c/0x6c corrupts the tile dataflow from o[i]=2i+3 to o[i]=i+2; 0x1c/0xfc reproduce baseline) -- so the DB match (0,8,0x1c) OVER-FITS the r1 form; the true opcode key is low-nibble 0xc + the byte+1/byte+2 discriminator, high nibble a live operand (value->register map not a clean linear index -- needs more sweeps). byte+1 (fixed 0x02 in match) is likewise a LIVE source/operand selector (0x00/0x01/0x03 corrupt, 0x06/0xff reproduce), not an opcode constant. byte+2 (fixed 0x00 in match) is runtime-INERT to the computation (0x01/0x02/0x08/0xff all baseline) but is the disassembler's length discriminator (==0x00 -> 6B vs 2B mov_imm). bytes +3/+4/+5 are RESERVED/inert (spliced ff/ee/dd simultaneously -> output unchanged, op ran).",
+      "provenance": "length HW-anchored (EXP-M4-01 round-3, lenprobe): `1c 02 00 ..`->6 resyncs 8 clean ops to @130; other lengths resync 0-1. HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_thr.metal (threadgroup float tile[256]; tile[li]=a[i]; barrier; o[i]=tile[(li+1)&255]+tile[(li+2)&255], grid/tg=256, a[i]=i), op@_agc.main+0x2e = 1c 02 00 00 00 00, baseline o[i]=2i+3. byte0-hi/byte+1 LIVE (perturb -> o[i]=i+2); byte+2 inert-but-length-disc; +3/+4/+5 inert individually AND under a simultaneous ff/ee/dd splice (PIPELINE_SOURCE archive confirmed the spliced bytes ran). byte0-hi/byte+1 stay in the DB match (byte-identical tokenization preserved); the live-operand finding is documented here (full register map needs more sweeps)."
     },
     {
       "mnemonic": "link_save_restore",
@@ -6191,35 +6227,41 @@
           "name": "b1",
           "start": 8,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "marker",
           "start": 16,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "b3",
           "start": 24,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "scope",
           "start": 32,
           "width": 8,
-          "type": "raw"
+          "type": "mod"
         },
         {
           "name": "dir_offset",
           "start": 40,
-          "width": 24,
-          "type": "raw"
+          "width": 16,
+          "type": "imm"
+        },
+        {
+          "name": "reserved7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
         }
       ],
-      "semantics": "LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). byte+4==0x81 = scratch/stack scope; byte+5..+7 discriminate SAVE (00 00 00) from RESTORE (ff 1f 00, a scratch offset). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target).",
-      "provenance": "HW-VALIDATED role (EXP-0038): present (exactly bracketing each nested CALL) in every non-leaf helper region of k_chain/k_deep/k_bigframe, absent from leaf helpers; the frame dispatches correctly. byte-field roles are byte-diff INFERRED. Length 8 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py). Without the byte+1 length gate the old rule mis-lengths this as a 6-byte barrier and desyncs every non-leaf helper."
+      "semantics": "LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal): in a RACE-FREE frame (k_chain, no spills) the op is a NO-OP fence and every payload field is inert; in a SPILLING frame (k_bigframe / bigmid, 12 live temporaries around the call) the fields become load-bearing. byte0=0x07 is the fence-family opcode (0x07->0x00 corrupts the SAVE / HANGs the RESTORE when state actually spills). scope (byte+4=0x81) = scratch/stack scope: bit7 AND bit0 must both be set (0x81/0x83 pass; 0x00/0x80/0x01 corrupt; 0xff -> GPU page-fault; RESTORE-side corruption HANGs). dir_offset (bytes+5/+6, 16-bit LE) = scratch save/restore offset+direction: SAVE=0x0000, RESTORE=0x1fff; intermediate values relocate the scratch access (corruption scales with value). CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field -- byte+7 (reserved7) is RESERVED/inert on BOTH the SAVE and RESTORE instances. marker (byte+2) and b3 (byte+3) are RESERVED/inert; b1 (byte+1) is mostly reserved (low bits inert, only 0xff perturbs).",
+      "provenance": "HW-VALIDATED role (EXP-0038): present (exactly bracketing each nested CALL) in every non-leaf helper region of k_chain/k_deep/k_bigframe, absent from leaf helpers; the frame dispatches correctly. Length 8 tokenizes the non-leaf frame to 0 leftover (verify_fixes.py). Without the byte+1 length gate the old rule mis-lengths this as a 6-byte barrier and desyncs every non-leaf helper. HW-VALIDATED (splice, A18 EXP-M4-14): k_bigframe (spilling frame, l__ZL6bigmidff) SAVE @0x0e scope 0x81->0x00/0x80/0x01 corrupt, ->0x83 baseline, ->0xff kIOGPUCommandBufferCallbackErrorPageFault; RESTORE @0x2a scope perturb -> HANG. dir_offset 16-bit proven: SAVE +5 0x00->0x01->451, ->0xff->72079; +6 ->0x01->72361, ->0x1f->2.238e6; making SAVE dir_offset=RESTORE-like (ff 1f) corrupts and vice-versa. reserved7 (byte+7) 0x00->0x01/0xff -> baseline on both SAVE and RESTORE (splits a reserved high byte off the former over-wide 24-bit dir_offset). marker/b3 inert; b1 low bits inert. 0 reboots (the one HANG was auto-recovered by agxrun_persist). byte0/byte+1/byte+2/byte+4 stay in the DB match (byte-identical tokenization preserved)."
     },
     {
       "mnemonic": "half_pack",
@@ -6391,26 +6433,37 @@
           "type": "reg"
         },
         {
-          "name": "b1",
+          "name": "src_reg",
           "start": 8,
           "width": 8,
-          "type": "raw"
+          "type": "reg"
         },
         {
-          "name": "b3",
+          "name": "op_variant",
           "start": 24,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "191": "atomic_fetch_add texel-address prep",
+            "54": "atomic_fetch_max texel-address prep",
+            "34": "texture read() texel-address prep"
+          }
+        },
+        {
+          "name": "src_companion",
+          "start": 32,
           "width": 8,
           "type": "raw"
         },
         {
           "name": "tail",
-          "start": 32,
-          "width": 48,
+          "start": 40,
+          "width": 40,
           "type": "raw"
         }
       ],
-      "semantics": "d = address/coordinate prep (matrix-load / texture-address / coordinate ALU). 10-byte low-nibble-3 form, op-select byte+2 == 0x27. dst = byte0 high nibble. Distinct from the low-nibble-2 rt_transform_test (also byte+2==0x27 but with byte+3==0x81, byte+4==0x22).",
-      "provenance": "byte-diff EXP-M4-13 (length + op-select established across all dst high nibbles; dst = high nibble by family analogy; operand body kept structural/raw -- NOT HW dispatch-validated)."
+      "semantics": "d = address/coordinate prep for a 2D read_write (image) texture op (the texel-address compute that feeds an atomic_fetch_* / read on texture2d<...,access::read_write>). 10-byte low-nibble-3 form, op-select byte+2 == 0x27. dst (byte0 high nibble) = destination register for the computed texel address. src_reg (byte+1) = coordinate source register: bit7 = file flag (always 1), bits[6:0] = reg index. op_variant (byte+3) selects the image memory-op / addressing-format variant (0xbf atomic_fetch_add, 0x36 atomic_fetch_max, 0x22 texture read). src_companion (byte+4) = companion operand byte that tracks src_reg (part of the register/addressing encoding). tail (byte+5..+9) = mostly-constant operand/immediate descriptor (02 00 00 00 00; byte+5 always 0x02). Distinct from the low-nibble-2 rt_transform_test (also byte+2==0x27 but with byte+3==0x81, byte+4==0x22).",
+      "provenance": "byte-diff EXP-M4-13 (length + op-select established across all dst high nibbles). own-MSL byte-diff (A18 EXP-M4-14) -- NOT HW-splice (the compute agxrun harness binds only MTLBuffers, no setTexture, so this texture-only op cannot be reached at runtime; it appears on no instruction boundary in any buffer-only kernel). Resolved by controlled own-MSL variants: dst tracks register allocation (r3 0x33.. in k_tex_atomic, r1 0x13.. in k_add); src_reg pair differs by 2 in index (0x8a/0x8c, 0x84/0x86), bit7 always set; op_variant co-varies exactly with the texture op the prep feeds (k_add add-prep 0xbf / read-prep 0x22; k_tex_atomic max-prep 0x36); src_companion moves in lockstep with src_reg (+4 delta mirrors the +2 index delta); tail ends 02 00 00 00 00 in all instances. NOT HW-dispatch-validated."
     },
     {
       "mnemonic": "n3_sample_read",
@@ -6901,11 +6954,11 @@
           "name": "opB",
           "start": 56,
           "width": 8,
-          "type": "raw"
+          "type": "reg"
         }
       ],
-      "semantics": "8-byte special op emitted only inside intersection_query traversal / committed+candidate result getters. byte0 HIGH nibble = dst register; byte+1=0x80, byte+2=0x86 (SFU/special-function datapath marker); byte+5=0x22, byte+6=0x82 constant. byte+4 low-nibble 7 vs f is a 1-bit selector; byte+3/byte+7 are operand selectors. The trailing `[07|0f] 22 82 ZZ` (bytes +4..+7) is the SECOND HALF of THIS instruction, not a separate 0x0f op. Internal operand semantics left structural (clean-room rule 5: the getter algorithm is not lifted).",
-      "provenance": "structural (inferred) + LENGTH byte-diff (EXP-M4-13 R2, own-MSL): length 8 established by anchored resync across 76 occurrences in 5 own-compiled intersection_query shaders -- only length 8 re-tokenizes the following ops (471 clean vs <=100 for 4/6/10/12). Constant bytes +1/+2/+5/+6 and dst=byte0-hi read directly off the 76 samples. NOT HW-dispatch-validated."
+      "semantics": "8-byte special op emitted only inside intersection_query traversal / committed+candidate result getters. byte0 HIGH nibble = dst register; byte+1=0x80, byte+2=0x86 (SFU/special-function datapath marker). The trailing `[07|0f] 22 82 ZZ` (bytes +4..+7) is the SECOND HALF of THIS instruction, not a separate 0x0f op. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_dist intersection_query committed-distance, 2-triangle AS, near tri t=1 / far tri t=5, baseline committed=1.0, load-bearing op@_agc.main+0x155a = bf 80 86 1a 07 22 82 48): opB (byte+7) is a CONSUMED traversal operand-register/descriptor -- 0x48/0x42/0xc8 give the correct near hit (1.0), 0x00/0x1a/0x20/0x0f/0xff skip the near triangle (commit far=5.0), and 0x02/0x06/0x40/0x07 HANG the traversal (contained) -> a structured operand descriptor (the correct-value set {0x42,0x48,0xc8} is NOT a simple linear register index; internal class/index bit-split not fully decoded, see unresolved). sel (byte+4) is a CONSUMED result-lane/operand selector: valid 0x07=sel0 / 0x0f=sel1 preserve correctness, invalid values corrupt operand selection (only this committed-path op is load-bearing on sel; the other 17 rtq ops are inert). byte+5 (0x22) and byte+6 (0x82), pinned by the match, are OPCODE/form bytes not free operands: splicing byte+5 to 0x1a/0x50/0x07/0x0f/0xff -> CMDBUF_ERROR (illegal opcode), and byte+6 to 0x40/0x48/0x50 -> CMDBUF_ERROR while 0x20/0x60/0xff commit the far hit -> a structural opcode/descriptor byte. opA (byte+3) is INERT on this load-bearing committed-path instance (0x18/0x1a/0x00/0xff all -> 1.0 unchanged); its role is UNRESOLVED (a secondary operand not consumed on the box-test path, or a reserved/dst-related slot) and is kept raw. Internal getter algorithm not lifted (clean-room rule 5).",
+      "provenance": "structural (inferred) + LENGTH byte-diff (EXP-M4-13 R2, own-MSL): length 8 established by anchored resync across 76 occurrences in 5 own-compiled intersection_query shaders -- only length 8 re-tokenizes the following ops (471 clean vs <=100 for 4/6/10/12). Constant bytes +1/+2/+5/+6 and dst=byte0-hi read directly off the 76 samples. HW-VALIDATED (splice, A18 EXP-M4-14): opB (byte+7) and sel (byte+4) proven CONSUMED operands, byte+5/+6 proven opcode-space (illegal values fault), opA (byte+3) inert on the committed-path step -- own-MSL k_dist 2-triangle AS on the resource-binding RT runner (agxrun_rt2.m); 0 reboots (all bad splices contained CMDBUF_ERROR/HANG, device survived). opB retyped raw->reg; byte+5/+6/opA unchanged (match/raw); tokenization byte-identical."
     },
     {
       "mnemonic": "fldexp",
@@ -7254,7 +7307,9 @@
           "type": "opcode",
           "enum": {
             "1": "coord-proj",
-            "5": "sample-addr/grad"
+            "5": "sample-addr/grad",
+            "7": "raw-coord passthrough",
+            "13": "sample-addr/grad (alias of 5)"
           }
         },
         {
@@ -7264,20 +7319,65 @@
           "type": "mod"
         },
         {
-          "name": "operands",
+          "name": "op_reg",
           "start": 24,
-          "width": 40,
-          "type": "raw"
+          "width": 8,
+          "type": "reg"
         },
         {
-          "name": "tail",
+          "name": "op_hi",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "op_reg2",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "rsv6",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "op_mode",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src_desc",
           "start": 64,
-          "width": 32,
-          "type": "raw"
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "240": "register-operand (hi-nibble 0xf required)"
+          }
+        },
+        {
+          "name": "op_desc9",
+          "start": 72,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "op_cnt",
+          "start": 80,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "rsv11",
+          "start": 88,
+          "width": 8,
+          "type": "mod"
         }
       ],
-      "semantics": "texture COORDINATE-PROJECTION / sample-address / gradient SETUP feeding a following tex_sample. 12-byte form of the 0x17 group; byte+1 (form) 0x01 = coordinate projection (cube/array/depth-compare), 0x05 = sample-address / gradient descriptor. byte+2 bit1 = source cache/last-use hint (0x54/0x56).",
-      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): present (12-byte, byte+1 in {0x01,0x05}) directly before the tex_sample in our own cube/array/MSAA/depth-compare/grad texture kernels; length 12 from the committed instr_length rule (EXP-M4-12). Field roles INFERRED; the tex_sample it feeds IS HW-validated (EXP-0016/0037)."
+      "semantics": "texture COORDINATE-PROJECTION / sample-address / gradient SETUP feeding a following tex_sample. 12-byte form of the 0x17 group. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_lod texture2d.sample with explicit level(), 4x4x3 mip texture texel=1000*L+100*y+x): form (byte+1) is a genuine opcode/form select -- 0x01 = coordinate projection (no explicit LOD; samples level0), 0x05 = sample-address + explicit LOD/gradient, 0x07 = raw-coordinate passthrough (returns the U coord itself), 0x0d = alias of 0x05. cache (byte+2 bit1, 0x54/0x56) is a source-cache/last-use scheduling hint -- the WHOLE byte+2 is INERT to the sampled result (0x54/0x56/0x55/0x50/0x74/0x14 all identical output). op_reg (byte+3) = the LOD/coordinate SOURCE REGISTER selector: only 0x06 tracks the LOD input (lod=1->1100, lod=2->2000); every other value reads a zero register (-> level0=201). op_hi (byte+4) = operand high-bits/flags (bit6 inert, low bits corrupt the operand). op_reg2 (byte+5) = secondary operand-register selector affecting the sampled LOD. rsv6 (byte+6) = near-reserved (inert 0x00..0x40, only 0xff perturbs). op_mode (byte+7) = operand-present/mode gate (bit2 gates the operand: set -> active, clear -> reads 0). src_desc (byte+8=0xf0) = source-operand MODE descriptor, hi-nibble 0xf = 'operand is a register' (matches the ibfins/b_alu10 0xf0 convention; corrupting it makes the operand read 0). op_desc9 (byte+9) = structured operand descriptor (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6} preserve the operand; encodes operand class + low operand bits). op_cnt (byte+10) = operand count/immediate that shifts the resolved mip level. rsv11 (byte+11) = RESERVED pad, fully inert (every value 0x00..0xff leaves the result unchanged). byte+5/+9/+10 exact register-index-vs-shift-vs-class bit-splits not isolated to a single clean field mapping (see unresolved).",
+      "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): present (12-byte, byte+1 in {0x01,0x05}) directly before the tex_sample in our own cube/array/MSAA/depth-compare/grad texture kernels; length 12 from the committed instr_length rule (EXP-M4-12). The tex_sample it feeds IS HW-validated (EXP-0016/0037). HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_lod, op@_agc.main+0x3a = 17 05 54 06 00 0c 00 04 f0 c4 08 00, uv=(0.375,0.625) lod=1 baseline=1100. Per-byte splice on the R32Float mipmapped resource-binding runner (agxrun_tex.m): byte+1 opcode-select (0x05->1100, 0x01->201, 0x07->raw U 0.375, 0x0d->1100); byte+2 fully inert; byte+3 only 0x06 tracks LOD (cross-checked lod=2->2000); byte+7 bit2 gates the operand; byte+8 only 0xf0/0xff pass (hi-nibble 0xf); byte+11 fully inert for all 0x00..0xff. 0 reboots (contained faults). byte+5/+9/+10 proven operand-bearing but not split to a single clean field."
     },
     {
       "mnemonic": "h_alu_hi",
@@ -10013,7 +10113,8 @@
           "type": "opcode",
           "enum": {
             "4": "hadd",
-            "5": "hmul"
+            "5": "hmul",
+            "6": "hfma"
           }
         },
         {
@@ -10023,14 +10124,64 @@
           "type": "mod"
         },
         {
-          "name": "ext",
+          "name": "srcA",
           "start": 24,
-          "width": 40,
-          "type": "raw"
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcB_desc",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "rsv6",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b7_lo",
+          "start": 56,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "saturate",
+          "start": 57,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "no clamp",
+            "1": "output-clamp/saturate ON (clamps to [0,1])"
+          }
+        },
+        {
+          "name": "b7_mid",
+          "start": 58,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "op_valid_marker",
+          "start": 63,
+          "width": 1,
+          "type": "mod",
+          "enum": {
+            "0": "op nulled (result 0)",
+            "1": "op valid (required)"
+          }
         }
       ],
-      "semantics": "8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu (byte0==0x10). dst = byte+1, opsel/opflags = byte+2 (reused from the HW-anchored half_alu layout, EXP-0033). The 40-bit ext region (byte+3..+7) carries the second source + saturate/abs output-clamp modifier that grows the op past the 6-byte form; its sub-split is not byte-diff confirmed (kept raw, needs splice).",
-      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033); the length rule already classifies these as fp16 (byte+2 fma bit / byte+4 low2 extended-tail selector). dst@byte+1 + opsel@byte+2 inherited from half_alu; extended operand tail intentionally raw (not splice-split)."
+      "semantics": "8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu (byte0==0x10). dst = byte+1, opsel/opflags = byte+2 (reused from the HW-anchored half_alu layout, EXP-0033). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureaddsat `10 03 1c 02 01 00 00 82` a=8 b=1, and hfma.metal k_hfma `10 02 1e 03 81 04 00 c0`): opsel gains 6=hfma (byte+2=0x1e, half fma compiles to this 8-byte form with 3 sources in byte+3/+4/+5). srcA (byte+3) = srcA register (same as the 6-byte form). srcB_desc (byte+4) = srcB operand descriptor (required 0x01 in the add+sat instance; carries the fma srcA-negate too -- k_hfma_neg sets byte+7 0xc0->0xc8). b5 (byte+5) = largely inert (bits3/4 null in this instance). rsv6 (byte+6) = fully INERT/reserved in the add+saturate instance (every swept value 0x00..0xc0 kept the result). byte+7 carries the output-clamp and op-valid marker: saturate (byte+7 bit1) = the saturate/output-clamp that grows half_alu into this 8-byte form (0x82 clamps saturate(9)->1, 0x80 (bit1 clear) passes 9 unclamped); op_valid_marker (byte+7 bit7) is a required op-valid marker (clearing 0x80 nulls the ext8 op -> result 0). b7_lo/b7_mid = the remaining byte+7 bits (unresolved).",
+      "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033); the length rule already classifies these as fp16 (byte+2 fma bit / byte+4 low2 extended-tail selector). HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_pureaddsat byte+7 sweep {0x82->1 (saturate(9)); 0x80->9 (bit1 clear, unclamped); 0xc0->9; values without 0x80->[0,0,0,0]} isolates saturate to bit1 and the op-valid marker to bit7; byte+3=srcA (0x02 works, 0x04/06 break); byte+6 fully inert; hfma.metal k_hfma proves opsel 6 (byte+2=0x1e). Former raw ext (byte+3..+7) split into srcA/srcB_desc/b5/rsv6 + the byte+7 bit fields; byte+4 exact reg-vs-type bit packing entangled (see unresolved)."
     },
     {
       "mnemonic": "half_alu_fma12",
@@ -10067,14 +10218,20 @@
           "type": "mod"
         },
         {
-          "name": "ext",
+          "name": "srcA",
           "start": 24,
-          "width": 72,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "ext",
+          "start": 32,
+          "width": 64,
           "type": "raw"
         }
       ],
-      "semantics": "12-byte fp16 form (byte0==0x10). ext (byte+3..+11) is KEPT RAW -- NEGATIVE RESULT (EXP-M4-13 R10): own-MSL half fma compiles to the 8-byte half_alu_ext8, NOT this 12-byte form, and 121/126 corpus instances have an op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) INSIDE ext (e.g. `10 29 22 00 9f 01 54 02 ...` embeds a whole iadd) -- i.e. the 12-byte length for byte0==0x10 OVER-CONSUMES the following instruction. Typing ext as operands would fabricate coherence the data contradicts. dst/opsel typed by family; ext RAW and FLAGGED for the length-rule owner (audit byte0==0x10 12-byte classification).",
-      "provenance": "census EXP-M4-13 R8/R10 (own-MSL half corpus): NEGATIVE -- own half fma emits half_alu_ext8 (8B); 121/126 half_alu_fma12 instances embed a real op-leader in ext => candidate length-rule over-consumption. ext DELIBERATELY kept raw as an honest negative; flagged for the length-rule owner (out of scope for this raw-typing pass)."
+      "semantics": "12-byte fp16 form (byte0==0x10). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL hfma.metal k_hfma_abs): REFINES the prior pure-negative to a POSITIVE existence result -- fma(abs(a),b,c) genuinely compiles to a clean 12-byte 0x10 op `10 02 1e 03 83 04 00 00 00 80 01 00` cleanly FOLLOWED by the e7 store (a=[-8,-2,-4,-1] b=1 c=[1,2,4,8] -> [9,4,8,9]=fma(|a|,b,c)). The 0x10 family is length-polymorphic: 6B=add/mul, 8B=fma or add+saturate, 10B=fma+saturate (`10 02 1e 03 82 04 00 00 00 82`), 12B=fma+abs. opsel 6=hfma (byte+2=0x1e); srcA (byte+3) = srcA register (family-consistent); byte+4 carries the srcB descriptor + abs-modifier bit (0x81 plain-fma -> 0x83 abs). ext (byte+4..+11) is KEPT RAW: for the CLEAN own-compiled fma+abs it is the 3rd source + extended modifier region (partially resolved, entangled), but as a corpus DESCRIPTOR this 12-byte length OVER-CONSUMES -- own-MSL plain half fma is only 8B, and 121/126 corpus half_alu_fma12 instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside ext (e.g. `10 29 22 00 9f 01 54 02 ...` embeds a whole iadd). So a fixed \"always 12B for byte0==0x10\" length rule is wrong; the length must be modifier/opsel-aware. ext RAW and FLAGGED for the length-rule owner (audit byte0==0x10 12-byte classification).",
+      "provenance": "census EXP-M4-13 R8/R10 (own-MSL half corpus): 121/126 half_alu_fma12 instances embed a real op-leader in ext => candidate length-rule over-consumption. HW-VALIDATED (splice, A18 EXP-M4-14): the fma+abs member IS real -- own-MSL hfma.metal k_hfma(8B), k_hfmasat(10B), k_hfma_abs(12B `10 02 1e 03 83 04 00 00 00 80 01 00`), k_hfma_neg(8B byte+7=0xc8); k_hfma_abs baseline [9,4,8,9] with negative inputs confirms the abs modifier (byte+4 0x83). byte+3=srcA typed (family-consistent); byte+4 sweep {0x83->[9,4,8,9] abs; 0x82->|a| passthrough; 0x80->0}. ext (byte+4..+11) DELIBERATELY kept raw as an honest heterogeneous-residue/over-consumption result; the length-rule over-consumption is flagged for the length-rule owner (out of scope for this raw-typing pass)."
     },
     {
       "mnemonic": "falu2_ext8b",
@@ -10161,7 +10318,7 @@
         }
       ],
       "semantics": "8-byte extended float-ALU op-select {0,1} sub-form (bit17==0 AND bit18==0 -- a DISTINCT op class from fadd/fmul). dst/srcA(byte+1)/srcB(byte+3) inherited from the HW-validated falu2_ext layout. src2 (byte+4) = a third source register: byte+4 low bit is set in every corpus instance ((reg<<1)|b32 convention, 22 distinct register values). exttail (byte+5..+7) is KEPT RAW -- HETEROGENEOUS (193/250 distinct 32-bit tails, several containing real op-leader bytes 0xa7/...), so it cannot be honestly typed as one coherent operand block without a per-sub-op splice (candidate over-match/over-consumption, flagged).",
-      "provenance": "census EXP-M4-13 R8/R10 (own-MSL float corpus, opsel 0/1). byte+4 typed reg by the size-bit convention (lsb set corpus-wide). exttail kept raw: 193/250 distinct with embedded op-leader bytes -> honest heterogeneous-residue result, per-sub-op splice needed; op-select value semantics unconfirmed."
+      "provenance": "census EXP-M4-13 R8/R10 (own-MSL float corpus, opsel 0/1). byte+4 typed reg by the size-bit convention (lsb set corpus-wide). exttail kept raw: 193/250 distinct with embedded op-leader bytes -> honest heterogeneous-residue result, per-sub-op splice needed; op-select value semantics unconfirmed. HW-CORROBORATED NEGATIVE (splice, A18 EXP-M4-14): the over-match/over-consumption flag is confirmed on hardware -- splicing a KNOWN-GOOD fadd (`09 05 1c ..`) opsel 4->0/1/2/3 yields [0,0,0,0] in the 6-byte form, and a KNOWN-GOOD 8-byte fma (`09 01 1e ..`) opsel 6->0/1/2/3 also yields [0,0,0,0], so opsel-top-bit-clear (bit18==0) is a DISTINCT non-arithmetic class inert to float probes; across a broad own-MSL float sweep the only byte0-lo-9 opsel-0/1 8-byte token appears INSIDE the complex ldexp lowering (`49 07 39 09 1f 01 54 0a ..`) immediately adjacent to a real op-leader (0x1f) -- exactly the over-consumption the descriptor flags. exttail STAYS RAW (a dedicated single-op indirect-call splice testbed is needed to determine whether opsel 0/1 is a real datapath op or a pure length-rule artifact)."
     },
     {
       "mnemonic": "falu_srcmod12b",
@@ -10466,7 +10623,7 @@
       "provenance": "census + family inheritance EXP-M4-13 R8/R10 (own-MSL bf16/half corpus): least-specific lo=1 catch-all. dst/srcA/srcB inherited from HW-validated bf_add_dst; tail retyped raw->mod by bf-tail family role (bf_add HW tail = ..c0 81). Per-value maps need splice."
     },
     {
-      "mnemonic": "frag_pos_read",
+      "mnemonic": "op04_len8",
       "length": 8,
       "match": [
         [
@@ -10495,8 +10652,8 @@
           "type": "raw"
         }
       ],
-      "semantics": "8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4, more-specific sr_read_wide/rt_intersect win first). NEGATIVE / MIS-NAMED RESULT (EXP-M4-13 R9): despite the name, this is NOT specifically a fragment-position read -- our own [[position]]/[[front_facing]]/interpolation fragment shaders produce ZERO of these, and all 226 corpus instances have byte0==0x04 (dst nibble always r0). They appear overwhelmingly in COMPUTE contexts: subgroup product/prefix reductions (simd_product), SFU/transcendental helpers (powr/cospi), and intersection_query getters. The 6-byte body (byte+2..+7) is HETEROGENEOUS across these contexts: byte+2 alone takes {0x47,0x9f,0x27,0xe7,0x20,0x52,0x62,0x80,0x02,0x00,...} in our own compiles -- several of which (0x9f iadd, 0x47 iunary, 0x27 cvt, 0xe7 store) are themselves real op-leaders, so the 8-byte length rule for byte0==0x04 may OVER-CONSUME a following instruction's leader in compute streams. dst = byte0 high nibble (family convention); mode (byte+1) = a per-context mode selector (0x02/0x00/0x42). body (byte+2..+7) is DELIBERATELY kept raw: it is not a single coherent operand block and cannot be honestly typed without a per-sub-op splice; flagged for the length-rule owner (candidate over-consumption of byte0==0x04 in compute).",
-      "provenance": "census EXP-M4-13 R8 (own-MSL fragment corpus, 212 tokens) + R9 own-MSL byte-diff (compile-only): the length rule lengths byte0==0x04 to 8 (EXP-0029 centroid/sample read). R9 finding -- own-MSL fragment [[position]]/[[front_facing]]/[[flat]]/[[centroid]]/[[sample]] shaders emit NO frag_pos_read, while own-MSL simd_product / powr / cospi / intersection_query COMPUTE kernels reproduce the corpus byte0==0x04 patterns exactly. The body is a heterogeneous multi-sub-op residue (byte+2 spans many function/opcode-like values) and is KEPT RAW as an honest negative result -- typing it as one role would fabricate a coherence that the data contradicts, and the 8-byte length itself is flagged as possibly over-consuming a following leader in compute (needs a length-rule audit, out of scope for this raw-typing pass). dst + byte+1 mode remain the only typed fields."
+      "semantics": "8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4; more-specific get_sr / sr_read_wide / rt_intersect win first). RENAMED from the misleading 'frag_pos_read': this is NOT a fragment-position read. HW-VALIDATED NEGATIVE (splice, A18 EXP-M4-14 + census EXP-M4-13 R9): [[position]]/[[front_facing]] lower to get_sr (special-register read, 4B: sr_sel 0xa0/0xa1 position, 0xc5 front_facing) + iter (interpolation), splice-confirmed on live A18 -- see get_sr and iter. This 8-byte op materialises from NONE of 7 distinct own-MSL fragment provocations ([[position]]/[[front_facing]]/[[flat]]/[[centroid]]/[[sample]]/barycentric/sample_id); it appears only in COMPUTE / third-party byte streams (subgroup product/prefix reductions, SFU/transcendental helpers powr/cospi, intersection_query getters) that our own FRAGMENT compiler never emits. The 6-byte body (byte+2..+7) is HETEROGENEOUS: audited over the full corpus (EXP-M4-14 frag04_audit) this length-8 token fires 205x on own compute kernels + 618x on third-party, and byte+2 spans real op-leader bytes {0x00,0x9f iadd,0x1b,0x02,0xe7 store,0x20,0x80,0x62,0x72,0x52,0x39,...}. So the body CANNOT be honestly typed as one coherent operand block (typing it would fabricate a coherence the data contradicts) and the fixed 8-byte length for byte0==0x04 is a CANDIDATE OVER-CONSUMER of a following instruction leader. dst = byte0 high nibble (family convention); mode (byte+1) = per-context mode selector (0x02/0x00/0x42); body kept RAW. FLAGGED for the length-rule owner.",
+      "provenance": "census EXP-M4-13 R8/R9 (own-MSL, compile-only) + HW-VALIDATED NEGATIVE (splice, A18 EXP-M4-14): the real [[position]]/[[front_facing]] mechanism is get_sr(sr_sel 0xa0/0xa1/0xc5)+iter, splice-confirmed on the A18 render harness (own-MSL frag_face.metal, frag_pos preamble) -- so the former name frag_pos_read was WRONG. This 8-byte byte0==0x04 residue is provoked by NONE of 7 own-MSL fragment shaders and only appears in compute/third-party streams. LENGTH-RULE AUDIT (EXP-M4-14 work/frag04_audit.py): the b0==0x04 & byte+1!=0xea -> 8 rule (isadb.py) fires 205x (own) / 618x (thirdparty); byte+2 is a HETEROGENEOUS mix of real op-leaders and pad, and BOTH the length-8 boundary and candidate shorter boundaries (2/4/6) land on descriptor-named leaders in most instances -- there is NO single shorter length provably correct with ZERO regression (e.g. `04 42 9f 01 54 ..` wants length-2 with a swallowed iadd, while `04 02 00 80 00 00 62 20 bf 80` resyncs to rt_query_traverse only at the length-8 boundary). Per the conservative rule the length is LEFT UNCHANGED (no tokenization regression); the over-consumption is FLAGGED for the length-rule owner (a modifier/context-aware length is needed, out of scope for this raw-typing pass). dst + byte+1 mode remain the only typed fields; body RAW as an honest negative."
     },
     {
       "mnemonic": "operand_word_x2_h5",
