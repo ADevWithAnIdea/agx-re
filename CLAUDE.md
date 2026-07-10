@@ -1,20 +1,29 @@
-# Clean-Room RE: Apple A18 Pro GPU Userspace
+# Clean-Room RE: Apple M5 GPU Userspace
 
 ## Mission
 
 Produce **clean-room hardware documentation** of the userspace-visible side of the
-Apple A18 Pro GPU (SoC **T8140**, Metal feature family **Apple9**), sufficient for a
-*separate* implementation team to add support to the Mesa `asahi` driver **after** the
+Apple **M5** GPU (SoC **T8142**, Metal 4; exact GPU feature family to be probed), sufficient
+for a *separate* implementation team to add support to the Mesa `asahi` driver **after** the
 kernel driver (being built in parallel, out of scope here) is in place.
 
 We are the **reverse-engineering / documentation team**. We do **not** write the Mesa
 driver. We write hardware specs; someone else implements them. This split is the core of
 the clean-room defense.
 
-The A18 Pro GPU is generationally different from the M1 (Apple7) and M2 (Apple8) parts
-that Mesa currently supports. Everything about *how much* it differs is an empirical
-question this effort answers by probing hardware and tracing data — never by looking
-inside Apple's code.
+The M5 GPU is generationally different from the M1 (Apple7) and M2 (Apple8) parts that Mesa
+currently supports — and, per the project premise (pending our own probing), uses a
+**substantially different ISA from the A18 Pro (G17P / Apple9)** we characterized in the
+prior phase. Everything about *how much* it differs is an empirical question this effort
+answers by probing hardware and tracing data — never by looking inside Apple's code.
+
+> **Prior phase (reference only, already in this repo):** the immediately preceding effort
+> clean-room RE'd the **A18 Pro** GPU (SoC T8140, G17P, family Apple9), using a local **M4** as
+> the compile-only shader host and the A18 as the reboot-recoverable probe target. Its
+> artifacts — the AGX-ISA assembler/disassembler in `tools/agx-isa/`, the `docs/` specs, and the
+> `EXP-M4-*` / `EXP-0xxx` experiments — remain valid **for the A18** and are the **starting
+> scaffolding** for the M5, *not* M5 truth. Characterize the M5 ISA fresh; carry nothing over as
+> fact without re-probing it on M5 hardware. New M5 experiments go under `EXP-M5-*`.
 
 ---
 
@@ -90,7 +99,7 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
   (GenXML-style where it fits Mesa's existing conventions).
 - **We do NOT edit `mesa/` or write Mesa driver code.** `mesa/` is a *read-only reference*
   for understanding the *shape* of what a userspace driver must produce (so we know what to
-  document) and how Mesa parameterizes M1/M2. The A18 Pro implementation is someone else's job.
+  document) and how Mesa parameterizes M1/M2. The M5 implementation is someone else's job.
 - **We do NOT depend on a working kernel driver.** Where our documentation implies a
   userspace↔kernel interface, we describe what userspace needs to hand down, and flag it for
   coordination with the kernel team — we do not block on them.
@@ -99,21 +108,22 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
 
 ## Definition of Done (the acceptance gate)
 
-**Goal:** clean-room RE the MacBook Neo's A18 Pro GPU enough to **fully implement a working
-userspace GPU driver using ONLY the documentation in `docs/`.**
+**Goal:** clean-room RE the M5 GPU enough to **fully implement a working
+userspace GPU driver using ONLY the documentation in `docs/`.** (The A18 Pro phase already
+cleared this gate; its docs stay in the repo. This gate now governs the **M5** work.)
 
 **Done is defined by an acceptance test, not by our own judgment:**
 
 > The goal is complete when a **dedicated acceptance-reviewer subagent** — whose sole job is
-> to scrutinize `docs/` with a critical eye, as if it were about to implement A18 Pro support
+> to scrutinize `docs/` with a critical eye, as if it were about to implement M5 support
 > in Mesa from scratch — concludes that **everything it needs is present in this directory and
 > it would not need anything else** (no guessing, no peeking at Apple's stack, no gaps to fill
 > from outside `docs/`).
 
 Rules for that gate:
-- The reviewer's only source of **A18-specific truth is `docs/`**. It may assume general
+- The reviewer's only source of **M5-specific truth is `docs/`**. It may assume general
   knowledge of how a Mesa/Gallium+Vulkan userspace driver is structured (that's the target it's
-  implementing), but every A18 Pro hardware fact it relies on must be *in the documentation*.
+  implementing), but every M5 hardware fact it relies on must be *in the documentation*.
   If it would have to look at `gpu_knowledge/`, `mesa/`'s M1/M2 code, Apple's stack, or "just
   figure it out," that is a **gap**.
 - The reviewer must be adversarial: hunt for missing encodings, unverified claims, hand-waved
@@ -137,8 +147,9 @@ and track both to convergence:
    census over a broad shader corpus shows ~0 undecoded groups. (ROADMAP gap **G-13**.)
 2. **Capability census.** Enumerate every capability from **(a) what Metal/MSL exposes** (the full MSL
    spec, the Metal feature-set tables, and the `MTLDevice` capability probe) and **(b) what Apple
-   advertises** (WWDC / Tech Talk Family-9 / A17-A18 features — they *advertise* new hardware: ray
-   tracing, Dynamic Caching, mesh shading, hardware reorder, 2× ALU, etc.). For **each**, determine how
+   advertises** (WWDC / Tech Talk Apple-GPU features through the M5 generation — Apple *advertises* new
+   hardware each gen: ray tracing, Dynamic Caching, mesh shading, hardware reorder, wider ALUs, plus any
+   M5-generation additions). For **each**, determine how
    it is represented in hardware (which instruction / descriptor / cmdstream field / kernel-managed),
    and classify it **native / emulated / kernel-managed / NOT-YET-CHARACTERIZED**. Tracker:
    `docs/capability-completeness.md`; capability findings also feed `docs/capability-matrix.md` and
@@ -153,15 +164,17 @@ test** (see Methodology). A feature that turns out absent/emulated is a first-cl
 | | |
 |---|---|
 | Host (here) | macOS, this repo at `/Users/user/asahi_re/public/gpu`. `sshpass`, `macvdmtool` available. |
-| Target | `user@192.168.170.254`, password `Password_1`. Apple A18 Pro, SoC T8140, macOS 26.6 (25G5043d), 5 GPU cores, Metal 4 / feature family Apple9. SIP **disabled**. `user` is a sudoer (sudo needs the password). |
-| Toolchain on target | Command Line Tools only (`clang`, `python3`, `git`). **No `metal` CLI** → we use **runtime** MSL compilation (confirmed working). Full Metal offline toolchain can be installed later if needed. |
+| Target | `user@192.168.170.253`, password `Password_1`. Apple **M5**, SoC **T8142**, macOS **27.0** (26A5368g), **8 GPU cores**, **Metal 4** (GPU feature family not yet probed). SIP **enabled** (unlike the A18 — may need disabling for some interpose/probe work). `user` has **passwordless sudo** (`/etc/sudoers.d/user-nopasswd`); **auto-login is enabled**, so SSH returns unattended after a reboot. |
+| Toolchain on target | Command Line Tools **installed** (`clang` 21, `python3` 3.9, `git`). **No `metal` CLI** → we use **runtime** MSL compilation. Full Metal offline toolchain can be installed later if needed. |
 | Device workspace | `~/cleanroom_work` on the target. Keep all experiment code/data there, then pull artifacts back here to commit. |
 
 **Reboot protocol (memorize this):**
 - If the device becomes unresponsive, behaves strangely, or SSH hangs for unclear reasons,
   reboot it from the **host** with `macvdmtool reboot`. This works below the OS and always
-  succeeds.
-- After a reboot, **wait 20 seconds** before attempting SSH again.
+  succeeds (confirmed on the M5).
+- After a reboot, **wait ~20–30 seconds** before attempting SSH again. Auto-login is enabled,
+  so the machine comes back **unattended** — no password at the console — and `sshd` becomes
+  reachable on its own (validated by reboot round-trip).
 - Occasional crashes are an expected part of GPU RE. Avoid them where reasonable, don't fear
   them.
 - **Escalation:** if you reboot several times and still fail to SSH in several times, mark
@@ -222,8 +235,8 @@ if it isn't written down and committed, it didn't happen.
 
 Mirrors the userspace responsibilities of Mesa `src/asahi`. Priority order:
 
-1. **Shader ISA (AGX, A18 Pro / Apple9 variant)** — the largest target. Encoding deltas vs
-   G13/G14, register file & Dynamic-Caching implications, and new instruction families (ray
+1. **Shader ISA (AGX, M5 variant — a substantially new ISA)** — the largest target. Encoding
+   deltas vs G13/G14 **and vs the A18 (G17P)**, register file & Dynamic-Caching implications, and new instruction families (ray
    tracing, mesh shading, any matrix/cooperative ops, changed texture/atomic ops). Method:
    compile our own shaders → extract → disassemble → validate encodings by hardware round-trip.
 2. **Control / command stream** — how userspace encodes work: VDM (draw) / CDM (compute) /
