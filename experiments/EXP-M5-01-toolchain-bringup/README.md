@@ -50,6 +50,24 @@ G17P-DB tokenize (`tokenize_g17p.txt`):
   M5 effort is **delta characterization** (validate each op on M5 HW, fix leaders/lengths/fields
   that moved), not a rebuild from zero. Carry **nothing** over as fact without re-probing on M5.
 
+## Addendum — M5 GPU dispatch + splice-and-observe path validated
+
+The full hardware-validation loop (not just static decode) works on the M5. Running our own
+`add.metal` through `agxtest.py` (compile → build spliceable `MTLBinaryArchive` → dispatch →
+read back), with the pipeline forced from the archive (`FailOnBinaryArchiveMiss`):
+
+```
+PIPELINE_SOURCE archive          # the archived (spliceable) machine code ran, not a recompile
+RESULT 0 11 22 33 44 55 66 77 88 # out[i]=a[i]+b[i] over inputs 1..8 / 10..80
+COMPARE 0 MATCH
+```
+
+So splice-and-observe — the engine of every Phase-1.3 delta validation — is live on the M5.
+Splice infra built on the device: `shdump`, `agxrun`, `agxrun_persist` (fast field sweeps),
+`agxrender` (fragment→pixel). Evidence: `identity_roundtrip.txt`. **Not yet tested on M5:** the
+GPU fault-containment behavior (whether an illegal encoding is contained like G17P or forces a
+reboot) — deferred until the compile-only census subagents finish, to avoid disrupting them.
+
 ## Next (directs the fan-out)
 
 1. Build a large, diverse **M5 corpus**: compile the prior own-MSL corpus **and** the 54 MB
