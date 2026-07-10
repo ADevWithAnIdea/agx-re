@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 165 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 588 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -395,14 +395,16 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `src` | [24:40] (byte+3) | raw/unmapped |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `mode` | [16:24] (byte+2) | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `src_class` | [32:40] (byte+4) | modifier |  |
+| `src` | [40:48] (byte+5) | register |  |
 | `cvtop` | [48:56] (byte+6) | opcode-select | `0xb4`=f2int |
 | `signflag` | [56:64] (byte+7) | modifier |  |
-| `tail` | [64:80] (byte+8) | raw/unmapped |  |
+| `dst_class` | [64:72] (byte+8) | modifier |  |
+| `b9` | [72:80] (byte+9) | modifier |  |
 
-*d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint).*
+*d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane float4<->int4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (the two move in opposite directions, so dst and src are separately located). byte+2 = result-routing/source-cache mode (same field as the byte+1==0x17 sibling cvt_i2f_src: 0x54 result-consumed-by-following-ALU vs 0x56 standalone). byte+4 = source format/class descriptor; byte+8 = dest format/width descriptor; byte+9 = reserved 0x00. Mode/class exact per-VALUE maps are role-typed (byte-diff located), not independently splice-proven (no fabricated value map).*
 
 ### `cvt_i2f` — int/uint -> float/half convert
 
@@ -410,13 +412,14 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `src` | [24:40] (byte+3) | raw/unmapped |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `mode` | [16:24] (byte+2) | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `src_class` | [32:40] (byte+4) | modifier |  |
+| `src` | [40:48] (byte+5) | register |  |
 | `cvtop` | [48:56] (byte+6) | opcode-select | `0xac`=int2f[32->32]; `0xa0`=i2f[16->16]; `0xa4`=i2f[16->32]; `0xa8`=i2f[32->16]; `0xb4`=i2f[8->32]; `0x8e`=i2f[sibling] |
 | `signflag` | [56:64] (byte+7) | modifier |  |
 
-*d = float(a)  ; integer/uint -> float convert (round to nearest even). byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f).*
+*d = float(a)  ; integer/uint -> float convert (round to nearest even). byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane int4->float4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (opposite directions => the two operands are separately located). byte+2 = result-routing/source-cache mode (0x54 result-consumed vs 0x56 standalone, same field as sibling cvt_i2f_src); byte+4 = source format/class descriptor. Mode/class role-typed (located), no fabricated per-value map.*
 
 ### `mov_zext16` — 16-bit zero-extend / narrow move
 
@@ -765,11 +768,11 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `mid` | [16:24] (byte+2) | raw/unmapped |  |
+| `branch_ctrl` | [16:24] (byte+2) | modifier |  |
 | `offset` | [24:72] (byte+3) | immediate |  |
-| `tail` | [72:80] (byte+9) | raw/unmapped |  |
+| `link` | [72:80] (byte+9) | modifier |  |
 
-*PC-relative jump; offset is a signed 48-bit little-endian byte displacement (backward for loop back-edges). Taken while lanes remain active (execution-mask loop).*
+*PC-relative jump; offset is a signed 48-bit little-endian byte displacement (backward for loop back-edges). Taken while lanes remain active (execution-mask loop). byte+2 (branch_ctrl) = the branch/execution-mask FORM selector: 0x54 = the unconditional all-lane back-edge (645/646 corpus jumps + every own-MSL loop back-edge); a single corpus jump uses 0x64. byte+9 (link) = a reserved link/annul slot, const 0x00 across all 646 corpus jumps and all own-MSL loops -- never set for a plain loop back-edge (a genuine subroutine link uses the separate `call`).*
 
 ### `frame_marker` — call-site / frame-setup marker (before every CALL)
 
@@ -892,13 +895,15 @@
 | `dir` | [7:8] | enum | `0x0`=bcast/up; `0x1`=xor/down |
 | `mode` | [8:16] (byte+1) | enum | `0x0`=quad; `0x1`=quad_updown; `0x4`=simd; `0x5`=simd_updown; `0x6`=simd_rotate/fill; `0x8`=quad_frag; `0x10`=quad_dyn; `0x14`=simd_dyn; `0x15`=simd_updown_dyn |
 | `cache` | [17:18] | modifier |  |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `dst` | [24:32] (byte+3) | register |  |
 | `src` | [32:40] (byte+4) | register |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `srctype` | [40:48] (byte+5) | modifier |  |
 | `lane` | [48:56] (byte+6) | immediate |  |
-| `tail` | [56:80] (byte+7) | raw/unmapped |  |
+| `rtype` | [56:64] (byte+7) | modifier |  |
+| `dsthi` | [64:72] (byte+8) | register |  |
+| `rsv9` | [72:80] (byte+9) | modifier |  |
 
-*d = src from another lane. byte0 0x47 = broadcast / shuffle-up / fill_up, 0xc7 = shuffle-xor / shuffle-down / fill_down (bit7 = direction). byte+1 mode: 0x04 SIMD-group shuffle, 0x00 quad, 0x06 rotate / shuffle_and_fill (NEW EXP-O2D). byte+6 = source lane index (broadcast) or xor mask (shuffle_xor), encoded (value<<1). simd_broadcast_first & dynamic simd_shuffle(v,lane) use the same op with the lane index in a register. NEW (EXP-O2D): simd_shuffle_and_fill_up/down = byte+1==0x06; the FILL DATA is a SEPARATE operand loaded by a preceding 0x67 device_load before the shuffle. The modulo/rotate variant (v, fill, delta, modulo) is the same byte+1==0x06 op with byte+6 changed (fill 0x4a -> modulo 0x42) plus a tail byte (0x20 -> 0x30) carrying the modulo. simd_shuffle_up/down add edge-handling predication (0f80/0f9e) around the core op; simd_shuffle_xor is a single clean op.*
+*d = src read from another lane. byte0 0x47=broadcast/shuffle-up/fill_up, 0xc7=shuffle-xor/shuffle-down/fill_down (bit7=direction). byte+1 mode: 0x04 SIMD, 0x00 quad, 0x05 simd_updown, 0x06 rotate/shuffle_and_fill. byte+3=dst reg, byte+4=src reg, byte+5=src width/type, byte+6=lane index/xor mask (index<<1), byte+7=result width marker, byte+8=dst reg high, byte+9=reserved/rotate-tail. R9 typed the former b3/b5/tail raw region (40 bits/occ).*
 
 ### `simd_ballot` — SIMD ballot / vote mask source
 
@@ -1009,12 +1014,16 @@
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
 | `src` | [8:16] (byte+1) | register |  |
-| `marker` | [16:24] (byte+2) | raw/unmapped |  |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
-| `cmpmode` | [32:40] (byte+4) | raw/unmapped |  |
-| `body` | [40:80] (byte+5) | raw/unmapped |  |
+| `marker` | [16:24] (byte+2) | opcode-select |  |
+| `subop` | [24:32] (byte+3) | opcode-select |  |
+| `cmpmode` | [32:40] (byte+4) | opcode-select |  |
+| `opA` | [40:48] (byte+5) | register |  |
+| `opAmod` | [48:56] (byte+6) | modifier |  |
+| `opAflags` | [56:64] (byte+7) | modifier |  |
+| `mark2` | [64:72] (byte+8) | opcode-select |  |
+| `opB` | [72:80] (byte+9) | register |  |
 
-*RAY-TRACING transform / box-test companion op. byte0 low-nibble 0x2 (high nibble = dst reg), byte+2 == 0x27 (marker), byte+3 == 0x81, byte+4 == 0x22 (an ordered-compare-like mode). ~4-5 per intersector kernel; the ray-vs-node coordinate transform / AABB slab-test arithmetic executed inside the (software) traversal loop, distinct from the dedicated rt_intersect primitive. Gate on byte+2 == 0x27 to distinguish from the other low-nibble-2 ops (0x02 iminmax byte+2 0x1e, 0x12 icmpsel, 0x32 carry-gen byte+2 0x35). In motion kernels the tail differs (time-blended transform).*
+*RAY-TRACING ray-vs-node coordinate-transform / AABB slab-test companion op executed inside the (software) BVH traversal loop, distinct from the dedicated rt_intersect primitive. byte0 low-nibble 0x2 (hi nibble=result reg); byte+2/+3/+4 = fixed sub-opcode 0x27 0x81 0x22; byte+8 = fixed 0x20 marker. Operands: byte+1 primary source, plus a swapping register PAIR at byte+5(opA)/byte+9(opB), with type/flag bytes at +6/+7. ~4-5 per intersector / ray-query kernel. R9 typed the former marker/subop/cmpmode/body raw region (64 bits/occ). The per-lane transform/slab-test arithmetic sequence itself is intentionally NOT reconstructed (clean-room rule 5).*
 
 ### `ray_move` — ray register-marshalling move (also MPP matmul transpose)
 
@@ -1123,15 +1132,15 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
+| `store_mode` | [16:24] (byte+2) | modifier |  |
 | `src` | [24:32] (byte+3) | register |  |
-| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `flags` | [32:40] (byte+4) | modifier |  |
 | `rt_index` | [40:48] (byte+5) | immediate |  |
-| `b6` | [48:56] (byte+6) | raw/unmapped |  |
-| `b7` | [56:64] (byte+7) | raw/unmapped |  |
-| `tail` | [64:96] (byte+8) | raw/unmapped |  |
+| `mask` | [48:56] (byte+6) | modifier |  |
+| `fmt` | [56:64] (byte+7) | modifier |  |
+| `slice_addr` | [64:96] (byte+8) | modifier |  |
 
-*store a fragment colour output to the tilebuffer / colour attachment. Memory-family store (byte0 0xe7) with the FRAGMENT variant byte+1==0x06 (compute device store is byte+1==0x00, 14 bytes). byte+3 = source colour GPR, byte+5 = render-target index (rt<<1): RT0=0x00, RT1=0x02, RT2=0x04. Each RT store is bracketed by 0x87 tile-access setup ops. The colour values are packed into GPRs by preceding 0x97 ops. discard_fragment suppresses the store (killed fragments write nothing).*
+*store a fragment colour output to the tilebuffer / colour attachment. Memory-family store (byte0 0xe7) with the FRAGMENT variant byte+1==0x06 (compute device store is byte+1==0x00, 14 bytes). byte+3 = source colour GPR, byte+5 = render-target index (rt<<1): RT0=0x00, RT1=0x02, RT2=0x04. byte+2 = tile-store addressing MODE (const 0x54, 130/130 corpus). byte+7 (fmt) = the tilebuffer/attachment FORMAT descriptor, byte-diff PROVEN by a color-format sweep of our own single-RT fragment (float4 return, ONLY the pipeline colour-attachment format varied): RGBA8Unorm/sRGB/BGRA8=0x4e, RGBA16Float=0x0e, RGBA32Float=0x2e, R32Float=0x22, R8Unorm=0x42 (the return width was held at float4, so byte+7 tracks the ATTACHMENT format, not the shader vector width -- confirmed: float/float2/float3 returns into an R32Float target all give 0x22). byte+4 (flags) = store flags (0x00 in every plain store; 0x08 appears in the MRT/array-slice variant). byte+6 (mask) = a component/enable descriptor (0x01 in plain stores). byte+8..11 (slice_addr) = an array/layer slice-address block, const 0x00000000 in single-RT stores and carrying the layer/slice address only in array-target stores. Each RT store is bracketed by 0x87 tile-access setup ops; colour values are packed into GPRs by preceding 0x97 ops. discard_fragment suppresses the store.*
 
 ### `frag_color_pack` — pack/move colour into output GPR
 
@@ -1582,6 +1591,1698 @@
 
 - **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4
 
+### `operand_word_02_13`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x13
+
+### `operand_word_02_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x14
+
+### `operand_word_02_1c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x1c
+
+### `operand_word_02_21`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x21
+
+### `operand_word_02_23`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x23
+
+### `operand_word_02_24`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x24
+
+### `operand_word_02_26`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x26
+
+### `operand_word_02_27`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x27
+
+### `operand_word_02_28`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x28
+
+### `operand_word_02_30`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x30
+
+### `operand_word_02_36`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x36
+
+### `operand_word_02_39`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x39
+
+### `operand_word_02_3f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x3f
+
+### `operand_word_02_41`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x41
+
+### `operand_word_02_4a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x4a
+
+### `operand_word_02_4b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x4b
+
+### `operand_word_02_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x50
+
+### `operand_word_02_54`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x54
+
+### `operand_word_02_60`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x60
+
+### `operand_word_02_86`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x86
+
+### `operand_word_02_92`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x92
+
+### `operand_word_02_97`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x97
+
+### `operand_word_02_a0`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xa0
+
+### `operand_word_02_a5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xa5
+
+### `operand_word_02_a8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xa8
+
+### `operand_word_02_b9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xb9
+
+### `operand_word_02_bf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xbf
+
+### `operand_word_02_c5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0xc5
+
+### `operand_word_0c_ea`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x0c, byte+1==0xea
+
+### `operand_word_32_00`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x00
+
+### `operand_word_32_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x10
+
+### `operand_word_32_11`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x11
+
+### `operand_word_32_12`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x12
+
+### `operand_word_32_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x14
+
+### `operand_word_32_19`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x19
+
+### `operand_word_32_1e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x1e
+
+### `operand_word_32_20`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x20
+
+### `operand_word_32_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x22
+
+### `operand_word_32_25`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x25
+
+### `operand_word_32_28`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x28
+
+### `operand_word_32_2a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x2a
+
+### `operand_word_32_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x50
+
+### `operand_word_32_51`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x51
+
+### `operand_word_32_86`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x86
+
+### `operand_word_32_87`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x87
+
+### `operand_word_32_9d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0x9d
+
+### `operand_word_32_a3`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0xa3
+
+### `operand_word_32_a5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0xa5
+
+### `operand_word_32_b9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0xb9
+
+### `operand_word_32_cb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x32, byte+1==0xcb
+
+### `operand_word_42_02`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x02
+
+### `operand_word_42_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x10
+
+### `operand_word_42_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x14
+
+### `operand_word_42_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x22
+
+### `operand_word_42_26`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x26
+
+### `operand_word_42_27`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x27
+
+### `operand_word_42_2b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x2b
+
+### `operand_word_42_2c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x2c
+
+### `operand_word_42_37`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x37
+
+### `operand_word_42_49`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x49
+
+### `operand_word_42_4a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x4a
+
+### `operand_word_42_4c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x4c
+
+### `operand_word_42_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x50
+
+### `operand_word_42_51`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x51
+
+### `operand_word_42_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x52
+
+### `operand_word_42_70`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x70
+
+### `operand_word_42_93`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0x93
+
+### `operand_word_42_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0xba
+
+### `operand_word_42_c2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0xc2
+
+### `operand_word_42_c8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0xc8
+
+### `operand_word_42_cb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x42, byte+1==0xcb
+
+### `operand_word_52_24`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x24
+
+### `operand_word_52_27`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x27
+
+### `operand_word_52_28`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x28
+
+### `operand_word_52_29`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x29
+
+### `operand_word_52_2b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x2b
+
+### `operand_word_52_2d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x2d
+
+### `operand_word_52_3b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x3b
+
+### `operand_word_52_40`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x40
+
+### `operand_word_52_43`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x43
+
+### `operand_word_52_47`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x47
+
+### `operand_word_52_4b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x4b
+
+### `operand_word_52_4c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x4c
+
+### `operand_word_52_4e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x4e
+
+### `operand_word_52_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x52
+
+### `operand_word_52_55`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x55
+
+### `operand_word_52_90`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0x90
+
+### `operand_word_52_a3`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0xa3
+
+### `operand_word_52_c7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0xc7
+
+### `operand_word_52_c9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0xc9
+
+### `operand_word_52_cf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x52, byte+1==0xcf
+
+### `operand_word_62_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x10
+
+### `operand_word_62_2d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x2d
+
+### `operand_word_62_2e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x2e
+
+### `operand_word_62_36`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x36
+
+### `operand_word_62_3b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x3b
+
+### `operand_word_62_4e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x4e
+
+### `operand_word_62_55`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x55
+
+### `operand_word_62_57`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x57
+
+### `operand_word_62_70`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x70
+
+### `operand_word_62_92`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0x92
+
+### `operand_word_62_a6`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xa6
+
+### `operand_word_62_a7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xa7
+
+### `operand_word_62_b1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xb1
+
+### `operand_word_62_bc`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xbc
+
+### `operand_word_62_bf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xbf
+
+### `operand_word_62_cb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xcb
+
+### `operand_word_62_d1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x62, byte+1==0xd1
+
+### `operand_word_72_00`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x00
+
+### `operand_word_72_03`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x03
+
+### `operand_word_72_08`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x08
+
+### `operand_word_72_13`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x13
+
+### `operand_word_72_2f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x2f
+
+### `operand_word_72_37`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x37
+
+### `operand_word_72_40`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x40
+
+### `operand_word_72_42`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x42
+
+### `operand_word_72_4f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0x4f
+
+### `operand_word_72_a7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xa7
+
+### `operand_word_72_ad`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xad
+
+### `operand_word_72_c1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xc1
+
+### `operand_word_72_cb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xcb
+
+### `operand_word_72_cd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xcd
+
+### `operand_word_72_d3`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x72, byte+1==0xd3
+
+### `operand_word_82_03`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x03
+
+### `operand_word_82_04`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x04
+
+### `operand_word_82_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x06
+
+### `operand_word_82_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x0a
+
+### `operand_word_82_0c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x0c
+
+### `operand_word_82_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x14
+
+### `operand_word_82_15`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x15
+
+### `operand_word_82_18`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x18
+
+### `operand_word_82_19`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x19
+
+### `operand_word_82_1a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x1a
+
+### `operand_word_82_1c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x1c
+
+### `operand_word_82_20`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x20
+
+### `operand_word_82_26`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x26
+
+### `operand_word_82_2c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x2c
+
+### `operand_word_82_2e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x2e
+
+### `operand_word_82_31`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x31
+
+### `operand_word_82_46`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x46
+
+### `operand_word_82_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x52
+
+### `operand_word_82_54`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x54
+
+### `operand_word_82_59`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x59
+
+### `operand_word_82_90`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0x90
+
+### `operand_word_82_ad`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0xad
+
+### `operand_word_82_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0xba
+
+### `operand_word_82_c3`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x82, byte+1==0xc3
+
+### `operand_word_92_05`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x05
+
+### `operand_word_92_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x06
+
+### `operand_word_92_08`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x08
+
+### `operand_word_92_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x14
+
+### `operand_word_92_1e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x1e
+
+### `operand_word_92_21`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x21
+
+### `operand_word_92_29`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x29
+
+### `operand_word_92_30`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x30
+
+### `operand_word_92_46`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x46
+
+### `operand_word_92_53`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x53
+
+### `operand_word_92_56`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x56
+
+### `operand_word_92_5a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x5a
+
+### `operand_word_92_5c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x5c
+
+### `operand_word_92_90`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x90
+
+### `operand_word_92_92`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0x92
+
+### `operand_word_92_be`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0xbe
+
+### `operand_word_92_c5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0xc5
+
+### `operand_word_92_cf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0xcf
+
+### `operand_word_92_d1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0xd1
+
+### `operand_word_92_db`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x92, byte+1==0xdb
+
+### `operand_word_a2_01`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x01
+
+### `operand_word_a2_02`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x02
+
+### `operand_word_a2_0d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x0d
+
+### `operand_word_a2_0e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x0e
+
+### `operand_word_a2_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x10
+
+### `operand_word_a2_1e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x1e
+
+### `operand_word_a2_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x22
+
+### `operand_word_a2_23`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x23
+
+### `operand_word_a2_34`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x34
+
+### `operand_word_a2_35`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x35
+
+### `operand_word_a2_37`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x37
+
+### `operand_word_a2_3e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x3e
+
+### `operand_word_a2_44`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x44
+
+### `operand_word_a2_46`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x46
+
+### `operand_word_a2_4a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x4a
+
+### `operand_word_a2_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x50
+
+### `operand_word_a2_55`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x55
+
+### `operand_word_a2_56`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x56
+
+### `operand_word_a2_5e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x5e
+
+### `operand_word_a2_82`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x82
+
+### `operand_word_a2_84`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x84
+
+### `operand_word_a2_92`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x92
+
+### `operand_word_a2_a2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xa2
+
+### `operand_word_a2_a9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xa9
+
+### `operand_word_a2_ab`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xab
+
+### `operand_word_a2_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xba
+
+### `operand_word_a2_c7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xc7
+
+### `operand_word_a2_d2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xd2
+
+### `operand_word_a2_d7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0xd7
+
+### `operand_word_b2_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x06
+
+### `operand_word_b2_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x0a
+
+### `operand_word_b2_0b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x0b
+
+### `operand_word_b2_0c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x0c
+
+### `operand_word_b2_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x10
+
+### `operand_word_b2_12`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x12
+
+### `operand_word_b2_20`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x20
+
+### `operand_word_b2_21`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x21
+
+### `operand_word_b2_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x22
+
+### `operand_word_b2_24`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x24
+
+### `operand_word_b2_25`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x25
+
+### `operand_word_b2_2b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x2b
+
+### `operand_word_b2_2c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x2c
+
+### `operand_word_b2_30`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x30
+
+### `operand_word_b2_37`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x37
+
+### `operand_word_b2_3a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x3a
+
+### `operand_word_b2_40`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x40
+
+### `operand_word_b2_4a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x4a
+
+### `operand_word_b2_4c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x4c
+
+### `operand_word_b2_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x52
+
+### `operand_word_b2_57`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x57
+
+### `operand_word_b2_58`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x58
+
+### `operand_word_b2_84`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x84
+
+### `operand_word_b2_88`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x88
+
+### `operand_word_b2_92`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0x92
+
+### `operand_word_b2_a9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0xa9
+
+### `operand_word_b2_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0xba
+
+### `operand_word_b2_c4`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0xc4
+
+### `operand_word_b2_c9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb2, byte+1==0xc9
+
+### `operand_word_c2_02`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x02
+
+### `operand_word_c2_03`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x03
+
+### `operand_word_c2_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x06
+
+### `operand_word_c2_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x0a
+
+### `operand_word_c2_0b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x0b
+
+### `operand_word_c2_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x10
+
+### `operand_word_c2_12`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x12
+
+### `operand_word_c2_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x22
+
+### `operand_word_c2_2d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x2d
+
+### `operand_word_c2_39`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x39
+
+### `operand_word_c2_48`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x48
+
+### `operand_word_c2_4e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x4e
+
+### `operand_word_c2_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x50
+
+### `operand_word_c2_51`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x51
+
+### `operand_word_c2_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x52
+
+### `operand_word_c2_54`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x54
+
+### `operand_word_c2_59`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x59
+
+### `operand_word_c2_5a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x5a
+
+### `operand_word_c2_5c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x5c
+
+### `operand_word_c2_63`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0x63
+
+### `operand_word_c2_a2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xa2
+
+### `operand_word_c2_b7`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xb7
+
+### `operand_word_c2_bd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xbd
+
+### `operand_word_c2_cb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xcb
+
+### `operand_word_c2_d5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xd5
+
+### `operand_word_c2_dd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc2, byte+1==0xdd
+
+### `operand_word_d2_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x06
+
+### `operand_word_d2_08`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x08
+
+### `operand_word_d2_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x0a
+
+### `operand_word_d2_0b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x0b
+
+### `operand_word_d2_0d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x0d
+
+### `operand_word_d2_0f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x0f
+
+### `operand_word_d2_17`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x17
+
+### `operand_word_d2_20`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x20
+
+### `operand_word_d2_22`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x22
+
+### `operand_word_d2_27`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x27
+
+### `operand_word_d2_2c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x2c
+
+### `operand_word_d2_38`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x38
+
+### `operand_word_d2_3b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x3b
+
+### `operand_word_d2_3c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x3c
+
+### `operand_word_d2_42`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x42
+
+### `operand_word_d2_43`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x43
+
+### `operand_word_d2_45`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x45
+
+### `operand_word_d2_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x52
+
+### `operand_word_d2_8d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x8d
+
+### `operand_word_d2_91`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0x91
+
+### `operand_word_d2_a2`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xa2
+
+### `operand_word_d2_b1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xb1
+
+### `operand_word_d2_bf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xbf
+
+### `operand_word_d2_c4`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xc4
+
+### `operand_word_d2_d9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xd9
+
+### `operand_word_d2_df`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd2, byte+1==0xdf
+
+### `operand_word_e2_08`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x08
+
+### `operand_word_e2_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x0a
+
+### `operand_word_e2_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x10
+
+### `operand_word_e2_11`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x11
+
+### `operand_word_e2_36`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x36
+
+### `operand_word_e2_3a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x3a
+
+### `operand_word_e2_3b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x3b
+
+### `operand_word_e2_3d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x3d
+
+### `operand_word_e2_40`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x40
+
+### `operand_word_e2_50`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x50
+
+### `operand_word_e2_56`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x56
+
+### `operand_word_e2_88`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x88
+
+### `operand_word_e2_90`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x90
+
+### `operand_word_e2_91`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0x91
+
+### `operand_word_e2_b3`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xb3
+
+### `operand_word_e2_b9`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xb9
+
+### `operand_word_e2_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xba
+
+### `operand_word_e2_bb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xbb
+
+### `operand_word_e2_c1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xc1
+
+### `operand_word_e2_cf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe2, byte+1==0xcf
+
+### `operand_word_f2_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x06
+
+### `operand_word_f2_07`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x07
+
+### `operand_word_f2_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x0a
+
+### `operand_word_f2_0c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x0c
+
+### `operand_word_f2_10`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x10
+
+### `operand_word_f2_16`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x16
+
+### `operand_word_f2_18`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x18
+
+### `operand_word_f2_24`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x24
+
+### `operand_word_f2_3b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x3b
+
+### `operand_word_f2_3f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x3f
+
+### `operand_word_f2_40`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x40
+
+### `operand_word_f2_47`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x47
+
+### `operand_word_f2_4c`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x4c
+
+### `operand_word_f2_4e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x4e
+
+### `operand_word_f2_52`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x52
+
+### `operand_word_f2_54`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x54
+
+### `operand_word_f2_58`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x58
+
+### `operand_word_f2_5a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x5a
+
+### `operand_word_f2_5b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0x5b
+
+### `operand_word_f2_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0xba
+
+### `operand_word_f2_ca`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0xca
+
+### `operand_word_f2_db`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf2, byte+1==0xdb
+
+### `operand_word_01`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x01
+
+### `operand_word_06`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x06
+
+### `operand_word_07`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x07
+
+### `operand_word_08`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x08
+
+### `operand_word_0a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x0a
+
+### `operand_word_0b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x0b
+
+### `operand_word_0d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x0d
+
+### `operand_word_0f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x0f
+
+### `operand_word_14`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x14
+
+### `operand_word_15`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x15
+
+### `operand_word_18`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x18
+
+### `operand_word_1a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x1a
+
+### `operand_word_1b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x1b
+
+### `operand_word_1d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x1d
+
+### `operand_word_1e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x1e
+
+### `operand_word_21`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x21
+
+### `operand_word_24`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x24
+
+### `operand_word_25`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x25
+
+### `operand_word_26`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x26
+
+### `operand_word_28`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x28
+
+### `operand_word_2a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x2a
+
+### `operand_word_2b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x2b
+
+### `operand_word_2d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x2d
+
+### `operand_word_2e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x2e
+
+### `operand_word_31`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x31
+
+### `operand_word_34`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x34
+
+### `operand_word_35`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x35
+
+### `operand_word_36`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x36
+
+### `operand_word_38`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x38
+
+### `operand_word_3a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x3a
+
+### `operand_word_3d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x3d
+
+### `operand_word_3e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x3e
+
+### `operand_word_3f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x3f
+
+### `operand_word_41`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x41
+
+### `operand_word_44`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x44
+
+### `operand_word_45`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x45
+
+### `operand_word_46`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x46
+
+### `operand_word_48`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x48
+
+### `operand_word_4a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x4a
+
+### `operand_word_4d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x4d
+
+### `operand_word_4e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x4e
+
+### `operand_word_4f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x4f
+
+### `operand_word_51`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x51
+
+### `operand_word_54`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x54
+
+### `operand_word_55`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x55
+
+### `operand_word_56`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x56
+
+### `operand_word_58`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x58
+
+### `operand_word_5a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x5a
+
+### `operand_word_5b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x5b
+
+### `operand_word_5d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x5d
+
+### `operand_word_61`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x61
+
+### `operand_word_64`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x64
+
+### `operand_word_65`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x65
+
+### `operand_word_66`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x66
+
+### `operand_word_68`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x68
+
+### `operand_word_6a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x6a
+
+### `operand_word_6b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x6b
+
+### `operand_word_6d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x6d
+
+### `operand_word_6e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x6e
+
+### `operand_word_71`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x71
+
+### `operand_word_74`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x74
+
+### `operand_word_78`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x78
+
+### `operand_word_7a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x7a
+
+### `operand_word_7b`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x7b
+
+### `operand_word_7d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x7d
+
+### `operand_word_7f`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x7f
+
+### `operand_word_81`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x81
+
+### `operand_word_84`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x84
+
+### `operand_word_85`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x85
+
+### `operand_word_86`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x86
+
+### `operand_word_88`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x88
+
+### `operand_word_8a`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x8a
+
+### `operand_word_8d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x8d
+
+### `operand_word_8e`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x8e
+
+### `operand_word_91`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x91
+
+### `operand_word_94`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x94
+
+### `operand_word_95`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x95
+
+### `operand_word_96`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x96
+
+### `operand_word_9d`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x9d
+
+### `operand_word_a1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa1
+
+### `operand_word_a5`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa5
+
+### `operand_word_a6`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa6
+
+### `operand_word_a8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa8
+
+### `operand_word_aa`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xaa
+
+### `operand_word_ad`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xad
+
+### `operand_word_b1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb1
+
+### `operand_word_b4`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xb4
+
+### `operand_word_ba`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xba
+
+### `operand_word_bb`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xbb
+
+### `operand_word_bd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xbd
+
+### `operand_word_bf`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xbf
+
+### `operand_word_c1`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc1
+
+### `operand_word_c4`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc4
+
+### `operand_word_c8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xc8
+
+### `operand_word_ca`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xca
+
+### `operand_word_cd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xcd
+
+### `operand_word_d8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xd8
+
+### `operand_word_da`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xda
+
+### `operand_word_dd`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xdd
+
+### `operand_word_e8`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xe8
+
+### `operand_word_ea`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xea
+
+### `operand_word_f4`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xf4
+
+### `operand_word_fa`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xfa
+
+### `operand_word_ff`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xff
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1656,4 +3357,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 165 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 588 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

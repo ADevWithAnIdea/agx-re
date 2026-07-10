@@ -1,0 +1,424 @@
+{
+  "group": "EXP-M4-13 R9 cvt/CF/fragment raw-tail typing (AGX G17P / A18 Pro)",
+  "kind": "raw->reg/mod/imm RETYPE of located operand/mode/format bytes in named ops (length + match UNCHANGED). Own-MSL single-toggle byte-diff establishes ROLE; no fabricated per-value maps. frag_pos_read kept raw (honest negative result).",
+  "method": "OWN-MSL compile (shdump_r9_cvt_cf_frag_tail) + agxparse --extract-hex + census byte-diff over hex/**/*.hex (n=1121). For each refined op, single-toggle MSL variants isolate each previously-raw byte: (cvt_i2f/cvt_f2i) a reversed-lane int4<->float4 conversion chain PROVES byte+3=dst reg (dst<<1) and byte+5=src reg (src<<2) step in OPPOSITE directions; int/uint + width toggles pin cvtop/signflag; byte+2/byte+4/byte+8 role-typed as mode/source-class/dest-class; byte+9 const 0x00. (jump) own-MSL loops fix byte+2=0x54 branch-form and byte+9=0x00 link/annul while the offset tracks body size. (sr_read_wide) own-MSL intersection_query candidate vs committed getters PROVE byte+7 is the getter-phase flag (0x80 candidate / 0x00 committed). (frag_color_store) a pipeline color-format sweep PROVES byte+7 is the attachment FORMAT descriptor; byte+2/+4/+6 and the byte+8..11 slice block role-typed. (frag_pos_read) own-MSL fragment [[position]]/[[flat]]/[[centroid]] shaders emit NONE of these; the op is a heterogeneous low-nibble-4 COMPUTE residue -> body KEPT RAW. length_rule UNCHANGED; match UNCHANGED; only field bit-ranges re-typed within each descriptor (identical bit coverage), so decode/assemble are byte-identical.",
+  "descriptors": [
+    {
+      "mnemonic": "cvt_i2f",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          167
+        ],
+        [
+          8,
+          8,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mode",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "src_class",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "cvtop",
+          "start": 48,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "172": "int2f[32->32]",
+            "160": "i2f[16->16]",
+            "164": "i2f[16->32]",
+            "168": "i2f[32->16]",
+            "180": "i2f[8->32]",
+            "142": "i2f[sibling]"
+          }
+        },
+        {
+          "name": "signflag",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d = float(a)  ; integer/uint -> float convert (round to nearest even). byte+7 bit6 (0x40) = signed source (i2f) vs unsigned (u2f). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane int4->float4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (opposite directions => the two operands are separately located). byte+2 = result-routing/source-cache mode (0x54 result-consumed vs 0x56 standalone, same field as sibling cvt_i2f_src); byte+4 = source format/class descriptor. Mode/class role-typed (located), no fabricated per-value map.",
+      "provenance": "HW-VALIDATED (EXP-0013): float(-3)/float(1000000) exact; splicing byte+7 0x60->0x20 converts -1 as unsigned (4294967295 -> ~4.29e9) on hardware. EXP-M4-13 R9 own-MSL byte-diff (compile-only, NO GPU dispatch): reversed-lane int4->float4 chain PROVES byte+3=dst reg (dst<<1) and byte+5=src reg (src<<2) step in opposite directions; byte+2/byte+4 role-typed as mode/source-class."
+    },
+    {
+      "mnemonic": "cvt_f2i",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          39
+        ],
+        [
+          8,
+          8,
+          7
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mode",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "dst",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "src_class",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "cvtop",
+          "start": 48,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "180": "f2int"
+          }
+        },
+        {
+          "name": "signflag",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "dst_class",
+          "start": 64,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b9",
+          "start": 72,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d = (int|uint)(a)  ; float/half -> integer convert, round toward zero (truncation). byte+7 bit6 (0x40) = signed (int) vs unsigned (uint). byte+3 = dst reg (dst<<1), byte+5 = src reg (src<<2) -- BOTH byte-diff PROVEN (EXP-M4-13 R9) by a reversed-lane float4<->int4 chain: byte+3 steps 0,2,4,6 with the RESULT lane while byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane (the two move in opposite directions, so dst and src are separately located). byte+2 = result-routing/source-cache mode (same field as the byte+1==0x17 sibling cvt_i2f_src: 0x54 result-consumed-by-following-ALU vs 0x56 standalone). byte+4 = source format/class descriptor; byte+8 = dest format/width descriptor; byte+9 = reserved 0x00. Mode/class exact per-VALUE maps are role-typed (byte-diff located), not independently splice-proven (no fabricated value map).",
+      "provenance": "HW-VALIDATED (EXP-0013): int(3.9)/int(-3.9)/int(2.5) = 3/-3/2 (trunc); splicing byte+7 0x48->0x08 turns the signed f2i into the unsigned f2u convert on hardware. EXP-M4-13 R9 own-MSL byte-diff (compile-only, NO GPU dispatch): reversed-lane int4<->float4 chain PROVES byte+3=dst reg and byte+5=src reg (they step in opposite directions); byte+8 bit0 tracks dest int width/sign across s32/u32/s16/u16 kernels; byte+9 const 0x00 over 136 corpus instances. mode/src_class/dst_class typed by ROLE (located), value semantics not splice-validated."
+    },
+    {
+      "mnemonic": "jump",
+      "length": 10,
+      "match": [
+        [
+          0,
+          8,
+          15
+        ],
+        [
+          8,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "branch_ctrl",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "offset",
+          "start": 24,
+          "width": 48,
+          "type": "imm"
+        },
+        {
+          "name": "link",
+          "start": 72,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "PC-relative jump; offset is a signed 48-bit little-endian byte displacement (backward for loop back-edges). Taken while lanes remain active (execution-mask loop). byte+2 (branch_ctrl) = the branch/execution-mask FORM selector: 0x54 = the unconditional all-lane back-edge (645/646 corpus jumps + every own-MSL loop back-edge); a single corpus jump uses 0x64. byte+9 (link) = a reserved link/annul slot, const 0x00 across all 646 corpus jumps and all own-MSL loops -- never set for a plain loop back-edge (a genuine subroutine link uses the separate `call`).",
+      "provenance": "HW-VALIDATED (EXP-0010 E6): -44 back-edge in prodloop; zeroing the offset -> infinite-loop hang, off-boundary offsets -> fault. EXP-M4-13 R9 own-MSL byte-diff (compile-only): loop_big/loop_nest/loop_while each emit `0f 00 54 <off6> 00` with byte+2==0x54 and byte+9==0x00 fixed while the offset tracks the body size -- byte+2 typed as the branch-form selector (role), byte+9 as the const-0 link/annul slot; corpus census confirms byte+2 in {0x54,0x64} and byte+9==0x00 for all 646 jumps."
+    },
+    {
+      "mnemonic": "sr_read_wide",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          4
+        ],
+        [
+          15,
+          1,
+          1
+        ],
+        [
+          24,
+          8,
+          0
+        ],
+        [
+          16,
+          1,
+          0
+        ],
+        [
+          17,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "sel",
+          "start": 8,
+          "width": 7,
+          "type": "enum",
+          "enum": {
+            "127": "simd_matrix_ld/st_builtin",
+            "0": "wide_builtin_base",
+            "33": "rtq_property(a1)",
+            "1": "rtq_property(81)",
+            "72": "rtq_property(c8)"
+          }
+        },
+        {
+          "name": "width",
+          "start": 16,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "34": "w22",
+            "2": "w02",
+            "6": "w06",
+            "70": "w46",
+            "38": "w26"
+          }
+        },
+        {
+          "name": "operand",
+          "start": 32,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "marshal",
+          "start": 40,
+          "width": 16,
+          "type": "mod"
+        },
+        {
+          "name": "phase",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "d[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the sub-selector / component-WIDTH: toggles 0x02<->0x06 across successive component reads of one wide value, and 0x22/0x26/0x46 across property kinds. operand (byte+4) = an element/offset operand that STEPS with the wide-component index (0x00,0x10,0x18,.. as dst advances r0->r3). marshal (byte+5/+6) = the RT-getter / matrix element operand descriptor (typed mod: located as a getter/element operand that co-steps with the component, e.g. 0x0c/0x01/0x05; the getter/marshal SEQUENCE itself is NOT reconstructed, rule 5). phase (byte+7) = the getter-PHASE / marshal-continuation FLAG: 0x00 in the wide-builtin and COMMITTED (post-traversal) property reads; bit7 (0x80) marks the CANDIDATE (during-traversal) property read; 0x20 is a further candidate sub-variant. byte-diff PROVEN (EXP-M4-13 R9): own-MSL intersection_query CANDIDATE getters (get_candidate_primitive_id/geometry_id/triangle_distance inside the q.next() traversal loop) emit byte+7==0x80, while COMMITTED getters (get_committed_* after traversal) emit byte+7==0x00; corpus (n=996) confirms 0x80/0x20 occur only in ray-query getter files. NOT a constant reserved byte (the earlier n=26 \"const 0x00\" note was superseded by the larger corpus).",
+      "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=659): dst=byte0-hi PROVEN by nibble histogram; sel values PINNED by kernel co-occurrence (0x7f only in subgroupMatrixLoad/Store; 0xa1/0x81 only in intersection_query getters); width toggle and operand step READ off the mat2x4/mat4x4 explicit-identity sweep (byte+2 02<->06, byte+4 00/10/18/.. tracking the component). marshal kept mod. selector/width per-value SEMANTICS inferred, NOT HW-dispatch validated. Strictly less specific than rt_intersect (byte+1==0xea). EXP-M4-13 R9 own-MSL byte-diff (compile-only): byte+7 (phase) retyped raw->mod -- candidate getters produce 0x80, committed produce 0x00 across our own k_rtq intersection_query kernels; role PROVEN by getter-class byte-diff, exact bitfield semantics role-typed (not GPU-dispatch validated)."
+    },
+    {
+      "mnemonic": "frag_color_store",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          231
+        ],
+        [
+          8,
+          8,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "store_mode",
+          "start": 16,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "flags",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "rt_index",
+          "start": 40,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "mask",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "fmt",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "slice_addr",
+          "start": 64,
+          "width": 32,
+          "type": "mod"
+        }
+      ],
+      "semantics": "store a fragment colour output to the tilebuffer / colour attachment. Memory-family store (byte0 0xe7) with the FRAGMENT variant byte+1==0x06 (compute device store is byte+1==0x00, 14 bytes). byte+3 = source colour GPR, byte+5 = render-target index (rt<<1): RT0=0x00, RT1=0x02, RT2=0x04. byte+2 = tile-store addressing MODE (const 0x54, 130/130 corpus). byte+7 (fmt) = the tilebuffer/attachment FORMAT descriptor, byte-diff PROVEN by a color-format sweep of our own single-RT fragment (float4 return, ONLY the pipeline colour-attachment format varied): RGBA8Unorm/sRGB/BGRA8=0x4e, RGBA16Float=0x0e, RGBA32Float=0x2e, R32Float=0x22, R8Unorm=0x42 (the return width was held at float4, so byte+7 tracks the ATTACHMENT format, not the shader vector width -- confirmed: float/float2/float3 returns into an R32Float target all give 0x22). byte+4 (flags) = store flags (0x00 in every plain store; 0x08 appears in the MRT/array-slice variant). byte+6 (mask) = a component/enable descriptor (0x01 in plain stores). byte+8..11 (slice_addr) = an array/layer slice-address block, const 0x00000000 in single-RT stores and carrying the layer/slice address only in array-target stores. Each RT store is bracketed by 0x87 tile-access setup ops; colour values are packed into GPRs by preceding 0x97 ops. discard_fragment suppresses the store.",
+      "provenance": "HW-VALIDATED (EXP-0029): splicing byte+5 0x00->0x02 (store to the absent RT1) leaves RT0 at the clear colour -> byte+5 is the render-target index; corrupting byte+1 0x06->0x00 neutralises the store (RT0 stays clear) -> byte+1==0x06 is the fragment tile-store variant. The 3-target out_mrt kernel emits three such stores with byte+3/byte+5 = r2/0x04, r1/0x02, r0/0x00 (per-RT source reg + RT index). discard proven: the x<2 half of out_discard2 keeps the clear colour (fragment killed). EXP-M4-13 R9 own-MSL byte-diff (compile-only, NO GPU dispatch): color-format sweep (--color-format {70,71,80,115,125,55,10}) of f_one PROVES byte+7 is the attachment FORMAT descriptor (single toggle = attachment format, byte+7 changes 0x4e/0x0e/0x2e/0x22/0x42); byte+2 retyped mod (const 0x54), byte+4/byte+6 retyped mod (store flags / component-enable), byte+8..11 retyped mod (slice-addr, const 0 in every own-MSL single-RT store and 121/130 corpus). fmt/flags/mask/slice_addr typed by ROLE; per-value maps for fmt come from our own attachment-format sweep (hardware-selected, byte-observed)."
+    },
+    {
+      "mnemonic": "frag_pos_read",
+      "length": 8,
+      "match": [
+        [
+          0,
+          4,
+          4
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "mode",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "body",
+          "start": 16,
+          "width": 48,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4, more-specific sr_read_wide/rt_intersect win first). NEGATIVE / MIS-NAMED RESULT (EXP-M4-13 R9): despite the name, this is NOT specifically a fragment-position read -- our own [[position]]/[[front_facing]]/interpolation fragment shaders produce ZERO of these, and all 226 corpus instances have byte0==0x04 (dst nibble always r0). They appear overwhelmingly in COMPUTE contexts: subgroup product/prefix reductions (simd_product), SFU/transcendental helpers (powr/cospi), and intersection_query getters. The 6-byte body (byte+2..+7) is HETEROGENEOUS across these contexts: byte+2 alone takes {0x47,0x9f,0x27,0xe7,0x20,0x52,0x62,0x80,0x02,0x00,...} in our own compiles -- several of which (0x9f iadd, 0x47 iunary, 0x27 cvt, 0xe7 store) are themselves real op-leaders, so the 8-byte length rule for byte0==0x04 may OVER-CONSUME a following instruction's leader in compute streams. dst = byte0 high nibble (family convention); mode (byte+1) = a per-context mode selector (0x02/0x00/0x42). body (byte+2..+7) is DELIBERATELY kept raw: it is not a single coherent operand block and cannot be honestly typed without a per-sub-op splice; flagged for the length-rule owner (candidate over-consumption of byte0==0x04 in compute).",
+      "provenance": "census EXP-M4-13 R8 (own-MSL fragment corpus, 212 tokens) + R9 own-MSL byte-diff (compile-only): the length rule lengths byte0==0x04 to 8 (EXP-0029 centroid/sample read). R9 finding -- own-MSL fragment [[position]]/[[front_facing]]/[[flat]]/[[centroid]]/[[sample]] shaders emit NO frag_pos_read, while own-MSL simd_product / powr / cospi / intersection_query COMPUTE kernels reproduce the corpus byte0==0x04 patterns exactly. The body is a heterogeneous multi-sub-op residue (byte+2 spans many function/opcode-like values) and is KEPT RAW as an honest negative result -- typing it as one role would fabricate a coherence that the data contradicts, and the 8-byte length itself is flagged as possibly over-consuming a following leader in compute (needs a length-rule audit, out of scope for this raw-typing pass). dst + byte+1 mode remain the only typed fields."
+    }
+  ],
+  "lengthRuleEdits": [],
+  "rawOrDesyncBytesBefore": 6584,
+  "rawOrDesyncBytesAfter": 1356,
+  "rawBytesClosed": 5228,
+  "perOpBeforeAfter": {
+    "cvt_i2f": {
+      "before": 1084,
+      "after": 0,
+      "instances": 271
+    },
+    "cvt_f2i": {
+      "before": 816,
+      "after": 0,
+      "instances": 136
+    },
+    "jump": {
+      "before": 1292,
+      "after": 0,
+      "instances": 646
+    },
+    "sr_read_wide": {
+      "before": 996,
+      "after": 0,
+      "instances": 996
+    },
+    "frag_color_store": {
+      "before": 1040,
+      "after": 0,
+      "instances": 130
+    },
+    "frag_pos_read": {
+      "before": 1356,
+      "after": 1356,
+      "instances": 226,
+      "reason": "heterogeneous low-nibble-4 compute residue; body not a coherent operand block; kept raw (honest negative)."
+    }
+  },
+  "corpusRawContext": {
+    "allOpsRawBefore": 30327,
+    "allOpsRawAfter": 25099,
+    "totalDecodedBytes": 621192,
+    "rawPctBefore": 4.88,
+    "rawPctAfter": 4.04
+  },
+  "validation": {
+    "roundtripSuitePass": true,
+    "noRegression": true,
+    "tokenizationUnchangedOrAdditive": "unchanged",
+    "detail": {
+      "roundtrip_test.py": "ALL PASS (A real-instr asm(disasm(b))==b, B synthesized disasm(asm(fields))==fields, C whole-program 0-leftover, D imm codec)",
+      "corpus_tokenization_files_mismatched_vs_real": 0,
+      "named_to_different_mnemonic_transitions": 0,
+      "target_op_roundtrip_OK": 2553,
+      "target_op_roundtrip_FAIL": 0,
+      "files_with_increased_desync_or_leftover": 0,
+      "corpus_files_scanned": 1121,
+      "note": "match + length + length_rule byte-identical to the shipping isadb; only field TYPES/NAMES/bit-splits changed within each descriptor, so every byte decodes/re-encodes identically. roundtrip_test.py synth entries for cvt_f2i/cvt_i2f were updated to the new field names in lockstep (must be applied together when this proposal lands)."
+    }
+  },
+  "unresolved": [
+    "frag_pos_read body (byte+2..+7, 1356 raw bytes, 226 instances): kept RAW. The op is a MIS-NAMED heterogeneous low-nibble-4 (byte0==0x04) COMPUTE residue -- reproduced by our own simd_product / powr / cospi / intersection_query kernels but by NO fragment [[position]]/[[front_facing]]/interpolation shader -- so it is not fragment-position and its 6-byte body is not one coherent operand block. byte+2 alone spans real op-leader values (0x9f iadd / 0x47 iunary / 0x27 cvt / 0xe7 store), so the 8-byte length for byte0==0x04 may OVER-CONSUME a following instruction leader in compute streams. FLAG for the length-rule owner (audit byte0==0x04 length in non-fragment contexts) before typing.",
+    "cvt_i2f/cvt_f2i byte+2 (mode), byte+4 (src_class), byte+8 (dst_class), and frag_color_store byte+4 (flags)/byte+6 (mask): typed as mod by ROLE (byte-diff located) with the observed value sets noted, but exact per-bit VALUE maps are not GPU-dispatch splice-validated. sr_read_wide byte+7 (phase): 0x80/0x00 proven by candidate-vs-committed getter byte-diff; the 0x20 candidate sub-variant is corpus-observed only.",
+    "frag_color_store byte+7 (fmt) value map (RGBA8=0x4e / RGBA16F=0x0e / RGBA32F=0x2e / R32F=0x22 / R8=0x42) comes from our own color-format sweep (hardware-selected, byte-observed) but is a partial enumeration, not the full pixel-format table."
+  ]
+}

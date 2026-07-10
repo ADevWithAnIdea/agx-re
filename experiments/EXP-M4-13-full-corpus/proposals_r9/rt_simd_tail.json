@@ -1,0 +1,117 @@
+{
+  "group": "rt_simd_tail",
+  "kind": "refine",
+  "note": "EXP-M4-13 R9 (sub-5% tail): type EVERY remaining raw field of the RT + SIMD tail ops -- rt_transform_test (ray-vs-node transform/box-test companion), ray_move_copy6 (ray-struct register-marshalling copy), rt_ray_mem_short & rt_ray_mem_ldidx (compact/indexed ray-data memory ops, mirror of the R6 rt_ray_mem 14B memory-family template), and simd_shuffle (SIMD lane-exchange). REFINE-ONLY: every descriptor keeps its length and match bytes byte-for-byte; only raw fields are split into typed reg/imm/enum/mod/opcode fields over the IDENTICAL bit ranges. Method: own-MSL compile on LOCAL M4 (shdump, COMPILE-ONLY) -> agxparse extract-hex -> byte-diff single-variable toggles + per-field corpus scan; no GPU dispatch, no Apple binary inspected. Field ROLES are byte-diff-established; value-enum maps that would need an AS-aware splice testbed are typed by role (reg/mod) and explicitly flagged 'needs-splice' rather than fabricated.",
+  "descriptors": [
+    {
+      "mnemonic": "simd_shuffle",
+      "length": 10,
+      "match": [[0, 7, 71], [16, 1, 0], [18, 6, 21]],
+      "fields": [
+        {"name": "dir",     "start": 7,  "width": 1, "type": "enum", "enum": {"0": "bcast/up", "1": "xor/down"}},
+        {"name": "mode",    "start": 8,  "width": 8, "type": "enum", "enum": {"0x00": "quad", "0x01": "quad_updown", "0x04": "simd", "0x05": "simd_updown", "0x06": "simd_rotate/fill", "0x08": "quad_frag", "0x10": "quad_dyn", "0x14": "simd_dyn", "0x15": "simd_updown_dyn"}},
+        {"name": "cache",   "start": 17, "width": 1, "type": "mod", "note": "byte+2 bit1 = source cache/last-use hint (same role as simd_reduce byte+2 bit1); 0x54 vs 0x56."},
+        {"name": "dst",     "start": 24, "width": 8, "type": "reg", "note": "byte+3 DEST register (low). R9 PROOF: sh_two.metal writes x=simd_shuffle(v,3) then y=simd_shuffle(v,5) to two live regs -- with src(+4)=03 and width held constant, +3 moved 0x04(x) vs 0x00(y); +8 co-moved. reg-number bit-split needs-splice."},
+        {"name": "src",     "start": 32, "width": 8, "type": "reg", "note": "byte+4 SOURCE register; 0x02/0x03 tracking the shuffled value's register (0x03 when kept live across two shuffles)."},
+        {"name": "srctype", "start": 40, "width": 8, "type": "mod", "note": "byte+5 source operand width/type: 0x00=32-bit, 0x04=16-bit. R9 PROOF: sh_f16/sh_f16alive (half) -> 0x04, all u32 -> 0x00; co-varies with rtype(+7). full width map (u8/u64/vec) needs-splice."},
+        {"name": "lane",    "start": 48, "width": 8, "type": "imm", "note": "byte+6 lane index / xor mask = (index<<1). HW-VALIDATED (EXP-0018): lane3->0x06, lane5->0x0a, xor1->0x02, quad lane2->0x04."},
+        {"name": "rtype",   "start": 56, "width": 8, "type": "mod", "note": "byte+7 result width marker: 0x2c=32-bit, 0x20=16-bit (co-varies with srctype on the f16 toggle); 0x2e in the dynamic-lane form. In mode-0x06 rotate/fill this + dsthi + rsv9 instead carry the fill/delta operand (0x00 14 a2). values partial / needs-splice."},
+        {"name": "dsthi",   "start": 64, "width": 8, "type": "reg", "note": "byte+8 DEST register (high) in the primary bcast/xor/updown forms (co-moves with dst under constant width). Form-specific in broadcast_first (0x1c) and dynamic-lane (0x1a/0x12) forms; repurposed as fill/delta operand in mode-0x06. needs-splice."},
+        {"name": "rsv9",    "start": 72, "width": 8, "type": "mod", "note": "byte+9 reserved (0x00) in shuffle/bcast/xor/updown forms; carries the rotate/fill tail (e.g. 0xa2) in the mode-0x06 form."}
+      ],
+      "semantics": "d = src read from another lane. byte0 0x47=broadcast/shuffle-up/fill_up, 0xc7=shuffle-xor/shuffle-down/fill_down (bit7=direction). byte+1 mode: 0x04 SIMD, 0x00 quad, 0x05 simd_updown, 0x06 rotate/shuffle_and_fill. byte+3=dst reg, byte+4=src reg, byte+5=src width/type, byte+6=lane index/xor mask (index<<1), byte+7=result width marker, byte+8=dst reg high, byte+9=reserved/rotate-tail. R9 typed the former b3/b5/tail raw region (40 bits/occ).",
+      "provenance": "HW-VALIDATED role (EXP-0018 + RT-ISA-FIX). R9 (EXP-M4-13, own-MSL byte-diff over 16 shuffle variants sh_two/up/down/xor1/quad/rotd/bfirst/srcB/three/dyn/lane5/f16/f16alive/alive, no GPU dispatch): dst(+3) isolated by the src-and-width-constant / dst-varying sh_two pair; srctype(+5)/rtype(+7) shifted together on the u32->f16 toggle (00->04, 2c->20); lane(+6)=(index<<1) HW-proven; dsthi(+8) co-varied with dst under constant width, form-specific in bfirst/dyn; the mode-0x06 rotate form's tail (00 14 a2) round-trips clean. Reg-number bit-split and the width/marker value maps are byte-diff-inferred, not splice-dispatch-validated."
+    },
+    {
+      "mnemonic": "rt_transform_test",
+      "length": 10,
+      "match": [[0, 4, 2], [16, 8, 39], [24, 8, 129], [32, 8, 34]],
+      "fields": [
+        {"name": "dst",      "start": 4,  "width": 4, "type": "reg", "note": "byte0 hi nibble = result register."},
+        {"name": "src",      "start": 8,  "width": 8, "type": "reg", "note": "byte+1 primary source register (varies per instance)."},
+        {"name": "marker",   "start": 16, "width": 8, "type": "opcode", "note": "byte+2 == 0x27 sub-op constant (also in match)."},
+        {"name": "subop",    "start": 24, "width": 8, "type": "opcode", "note": "byte+3 == 0x81 sub-op constant (also in match)."},
+        {"name": "cmpmode",  "start": 32, "width": 8, "type": "opcode", "note": "byte+4 == 0x22 compare/transform-mode constant (also in match)."},
+        {"name": "opA",      "start": 40, "width": 8, "type": "reg", "note": "byte+5 register operand A. Proven a register (not a constant): value set {0x6a,0x6c,0x72,0x74} and it SWAPS with opB(+9) across consecutive transform_test ops within one kernel -> two distinct operands. reg-number bit-split needs-splice."},
+        {"name": "opAmod",   "start": 48, "width": 8, "type": "mod", "note": "byte+6 operand type/modifier (0x02/0x03; low bit varies per-kernel). values partial / needs-splice."},
+        {"name": "opAflags", "start": 56, "width": 8, "type": "mod", "note": "byte+7 operand flags: 0x02 base; high bits (0x40/0x60) set on the FIRST transform_test of a kernel. values partial / needs-splice."},
+        {"name": "mark2",    "start": 64, "width": 8, "type": "opcode", "note": "byte+8 == 0x20 secondary marker, invariant across all 204 corpus instances (not in match; typed as constant opcode)."},
+        {"name": "opB",      "start": 72, "width": 8, "type": "reg", "note": "byte+9 register operand B (swap-partner of opA; same {0x6a,0x6c,0x72,0x74} set)."}
+      ],
+      "semantics": "RAY-TRACING ray-vs-node coordinate-transform / AABB slab-test companion op executed inside the (software) BVH traversal loop, distinct from the dedicated rt_intersect primitive. byte0 low-nibble 0x2 (hi nibble=result reg); byte+2/+3/+4 = fixed sub-opcode 0x27 0x81 0x22; byte+8 = fixed 0x20 marker. Operands: byte+1 primary source, plus a swapping register PAIR at byte+5(opA)/byte+9(opB), with type/flag bytes at +6/+7. ~4-5 per intersector / ray-query kernel. R9 typed the former marker/subop/cmpmode/body raw region (64 bits/occ). The per-lane transform/slab-test arithmetic sequence itself is intentionally NOT reconstructed (clean-room rule 5).",
+      "provenance": "inferred role (byte-diff, EXP-O2C). R9 (EXP-M4-13, own-MSL byte-diff across rt_query_transforms / rt_world_space_transforms / rt_instancing_intersect -- 14 tabulated instances of 204 corpus-wide, no GPU dispatch): opA(+5)/opB(+9) proven register operands by their {0x6a,0x6c,0x72,0x74} set that SWAPS between the pair across consecutive ops in one kernel; mark2(+8)=0x20 invariant; opAmod(+6) in {0x02,0x03}; opAflags(+7) 0x02 base with 0x40/0x60 on the kernel's first transform_test. marker/subop/cmpmode are the match-pinned sub-opcode. Reg-number decode and the +6/+7 value semantics need an AS-aware splice testbed."
+    },
+    {
+      "mnemonic": "ray_move_copy6",
+      "length": 4,
+      "match": [[0, 4, 11], [16, 8, 65]],
+      "fields": [
+        {"name": "dst",    "start": 4,  "width": 4, "type": "reg", "note": "byte0 hi nibble = destination register."},
+        {"name": "src",    "start": 8,  "width": 8, "type": "reg", "note": "byte+1 source register descriptor."},
+        {"name": "form",   "start": 16, "width": 8, "type": "enum", "enum": {"65": "copy_b6(b3=0x08)"}},
+        {"name": "optype", "start": 24, "width": 8, "type": "mod", "enum": {"8": "reg32"}, "note": "byte+3 operand type/size = 0x08 (32-bit register operand). INVARIANT across all 711 corpus instances (16 distinct dsts x ~15 distinct srcs), so byte-diff pins the ROLE (operand-type) but only the 32-bit value; the 8/16/64-bit value map needs-splice."}
+      ],
+      "semantics": "RAY register-marshalling MOVE, bit6 copy form (4B). dst=byte0 hi nibble, src=byte+1, byte+2==0x41, byte+3==0x08 (32-bit register operand). The dominant move in the ray-struct marshalling grid after rt_intersect. R9 typed the former b3 raw byte.",
+      "provenance": "byte-diff EXP-M4-13 R9 (own-MSL): across 711 corpus occurrences byte+3 is invariant 0x08 while byte0 hi-nibble spans all 16 dst regs and byte+1 spans ~15 src regs -> byte+3 is an operand type/size descriptor (0x08=reg32), not a per-instance operand. Field bit-packing inferred, not splice-validated."
+    },
+    {
+      "mnemonic": "rt_ray_mem_short",
+      "length": 6,
+      "match": [[0, 8, 95], [8, 8, 17], [16, 8, 84]],
+      "fields": [
+        {"name": "reg",  "start": 24, "width": 8, "type": "reg", "note": "byte+3 dest/state register, x2-encoded; corpus value set {0x00,0x02,0x04,0x06,0x08}. Mirrors the R6 rt_ray_mem dst=+3 slot. exact role (dst vs field-index) and reg decode needs-splice."},
+        {"name": "rsv4", "start": 32, "width": 8, "type": "mod", "note": "byte+4 reserved = 0x00 across ALL corpus instances."},
+        {"name": "rsv5", "start": 40, "width": 8, "type": "mod", "note": "byte+5 reserved = 0x00 across ALL corpus instances."}
+      ],
+      "semantics": "RAY-TRACING ray-data memory op, SHORT form (6B). byte0 0x5f, byte+1==0x11 (the 0x67 load index+1 addressing byte), byte+2==0x54, body `<reg> 00 00`. Length 6 (R4): all corpus occurrences sit back-to-back at gap 6. R9 typed the former b3/tail raw region (24 bits/occ).",
+      "provenance": "byte-diff EXP-M4-13 R9 (own-MSL scan of rtq_inst/geom/prim/baryx + rq_pred + g_geom/g_bary/g_commit): byte+3 varies over {00,02,04,06,08} (small x2-encoded register/state selector); byte+4/+5 constant 0x00. Mirrors the R6 rt_ray_mem memory-family layout (dst=+3). Not splice-validated."
+    },
+    {
+      "mnemonic": "rt_ray_mem_ldidx",
+      "length": 12,
+      "match": [[0, 8, 95], [8, 8, 16], [16, 8, 84]],
+      "fields": [
+        {"name": "idx_dst",   "start": 24, "width": 8, "type": "reg", "note": "byte+3 index/dest register slot = 0x00 in corpus; mirrors the R6 rt_ray_mem dst=+3. needs-splice."},
+        {"name": "rsv4",      "start": 32, "width": 8, "type": "mod", "note": "byte+4 reserved/addr = 0x00 in corpus."},
+        {"name": "addr_mode", "start": 40, "width": 8, "type": "mod", "note": "byte+5 addressing mode/flag {0x01,0xc1} (bit7). memory-family; values partial / needs-splice."},
+        {"name": "marker",    "start": 48, "width": 8, "type": "mod", "note": "byte+6 memory marker {0x25,0x26}. values partial / needs-splice."},
+        {"name": "idx_lo",    "start": 56, "width": 8, "type": "reg", "note": "byte+7 index register (tracks register allocation: {0x20,0x40,0xc0}); differs between the two ldidx of a kernel and across kernels -> a register, not a field selector."},
+        {"name": "idx_hi",    "start": 64, "width": 8, "type": "reg", "note": "byte+8 index register high/scale (tracks register allocation: {0x60,0xa0,0xe0,0xe1})."},
+        {"name": "wtype",     "start": 72, "width": 8, "type": "mod", "note": "byte+9 width/type {0x4e,0x4f}. values partial / needs-splice."},
+        {"name": "scale",     "start": 80, "width": 8, "type": "mod", "note": "byte+10 element scale/field {0xc8,0xcc}. values partial / needs-splice."},
+        {"name": "rsv11",     "start": 88, "width": 8, "type": "mod", "note": "byte+11 reserved = 0x00 across corpus."}
+      ],
+      "semantics": "RAY-TRACING ray-data memory op, load-INDEX variant (12B). byte0 0x5f, byte+1==0x10 (0x67 device-load indexed addressing byte, low nibble 0 = indexed), byte+2==0x54. Computes a per-lane index/address into the traversal/query state from a register pair; WHICH query field is later read is NOT selected here (byte-diff: identical ldidx bytes for instance_id vs geometry_id loads) -- consistent with the R6 rt_ray_mem finding that the field is chosen by an immediate offset, not a per-field opcode. Length 12 (R4): all occurrences back-to-back at gap 12. R9 typed the former 72-bit body raw region.",
+      "provenance": "byte-diff EXP-M4-13 R9 (own-MSL): per-field scan (rtq_inst/geom/prim/type/uinst/dist) shows the ldidx body is IDENTICAL across different loaded fields but differs with register allocation -> idx_lo(+7)/idx_hi(+8) are the index register pair, byte+3/+4/+11 are reserved 0x00, byte+5/+6/+9/+10 are low-variance addressing/mode metadata. Mirrors the R6 rt_ray_mem 14B memory-family template. Sub-field value semantics need an AS-aware splice testbed."
+    }
+  ],
+  "lengthRuleEdits": [],
+  "rawOrDesyncBytesBefore": 3009,
+  "rawOrDesyncBytesAfter": 0,
+  "perOp": {
+    "simd_shuffle":      {"occ": 102, "rawBytesBefore": 510,  "rawBytesAfter": 0, "rawBitsPerOcc": 40, "fromRaw": ["b3", "b5", "tail"], "typed": ["dst", "srctype", "rtype", "dsthi", "rsv9"]},
+    "rt_transform_test": {"occ": 204, "rawBytesBefore": 1632, "rawBytesAfter": 0, "rawBitsPerOcc": 64, "fromRaw": ["marker", "b3", "cmpmode", "body"], "typed": ["marker", "subop", "cmpmode", "opA", "opAmod", "opAflags", "mark2", "opB"]},
+    "ray_move_copy6":    {"occ": 711, "rawBytesBefore": 711,  "rawBytesAfter": 0, "rawBitsPerOcc": 8,  "fromRaw": ["b3"], "typed": ["optype"]},
+    "rt_ray_mem_short":  {"occ": 13,  "rawBytesBefore": 39,   "rawBytesAfter": 0, "rawBitsPerOcc": 24, "fromRaw": ["b3", "tail"], "typed": ["reg", "rsv4", "rsv5"], "note": "occ counts CLEANLY-DECODED regions only; more occurrences live behind pre-existing desyncs in RT-query kernels (NOT addressed by this refine-only pass)."},
+    "rt_ray_mem_ldidx":  {"occ": 13,  "rawBytesBefore": 117,  "rawBytesAfter": 0, "rawBitsPerOcc": 72, "fromRaw": ["body"], "typed": ["idx_dst", "rsv4", "addr_mode", "marker", "idx_lo", "idx_hi", "wtype", "scale", "rsv11"], "note": "occ counts CLEANLY-DECODED regions only; more occurrences live behind pre-existing desyncs in RT-query kernels."}
+  },
+  "validation": {
+    "roundtripSuitePass": true,
+    "roundtripSuiteCount": "ALL PASS on scratch isadb copy (work/r9_rt_simd_tail/); Part-A real-instruction re-encode + Part-B synthesized-field combos + imm codec all OK. Two Part-B fixtures (simd_shuffle, rt_transform_test) updated to the new field names, producing byte-identical output.",
+    "noRegression": true,
+    "noRegressionEvidence": "Full tokenization of ALL 1041 hex/*.hex compared baseline (pre-edit) vs edited scratch isadb: full per-file (offset,mnemonic,length) sequence IDENTICAL for 1041/1041 files; total corpus leftover 405064 -> 405064 (delta 0); 0 files with increased leftover; 0 named-op -> different-name transitions. Refine-only (length+match bytes byte-for-byte unchanged) so instruction boundaries provably cannot move.",
+    "tokenizationUnchangedOrAdditive": "UNCHANGED (strictly refine: every raw field split into typed fields over the identical bit range; no length rule added, no match relaxed/tightened).",
+    "asmDisasmOnTouchedOps": "PASS -- asm(disasm(b))==b for 58/58 real own-MSL byte strings across all five ops (16 simd_shuffle variants incl. bcast/xor/up/down/rotate/quad/f16/dyn, 14 rt_transform_test instances, 16 ray_move_copy6, 5 rt_ray_mem_short, 7 rt_ray_mem_ldidx); each decodes to its own mnemonic at the correct length and re-encodes byte-identically.",
+    "cleanRoom": "own-MSL only; LOCAL M4 shdump COMPILE-ONLY; compile+extract+tokenize+byte-diff; no GPU dispatch; no Apple binary inspected; scratch isadb copy under work/r9_rt_simd_tail/, real tools/agx-isa/isadb.py untouched; no git."
+  },
+  "unresolved": [
+    "simd_shuffle.srctype(+5)/rtype(+7): source/result width markers -- byte-diff pins u32(00/2c) vs f16(04/20), but the full type/width value map (u8/u16/vec/u64) is not enumerated (needs-splice).",
+    "simd_shuffle.dst(+3)/dsthi(+8): destination register split across +3 and +8; role proven (both move with dst under constant width), but the exact reg-number bit-packing and the bfirst/dynamic-form repurposing of +8 are byte-diff-inferred, not splice-validated.",
+    "simd_shuffle mode-0x06 (rotate/shuffle_and_fill): rtype/dsthi/rsv9 repurpose to a fill/delta operand; bytes located and round-trip byte-exact, but the fill/delta/modulo sub-encoding is not decomposed (needs-splice).",
+    "rt_transform_test.opA(+5)/opB(+9): proven distinct register operands (swap within a kernel), but exact reg-number decode and which ray/transform component each selects needs an AS-aware splice testbed. The per-lane transform/slab-test arithmetic is intentionally NOT reconstructed (clean-room rule 5).",
+    "rt_transform_test.opAmod(+6)/opAflags(+7): value semantics partial (0x02/0x03; +0x40/0x60 kernel-first) -- needs-splice.",
+    "ray_move_copy6.optype(+3): role (operand type/size) proven by 711-instance invariance under dst/src variation, but only the 0x08=reg32 value is observed; the 8/16/64-bit value map needs-splice.",
+    "rt_ray_mem_short.reg(+3) / rt_ray_mem_ldidx idx/addr bytes: memory-family roles established by byte-diff (register pair vs reserved vs addressing metadata, field NOT opcode-selected), but exact reg/scale/width decode needs an AS-aware splice testbed -- consistent with the R6 rt_ray_mem residual.",
+    "rt_ray_mem_short/ldidx corpus coverage: additional occurrences live behind PRE-EXISTING tokenization desyncs in large RT-query kernels (e.g. rtq_inst at ~+856). This refine-only pass does not add a length rule to recover them; a blanket byte0->len rule is unsafe (0x5f is a real op-leader) and any such rule must be a separately-proven additive edit (out of scope here)."
+  ]
+}

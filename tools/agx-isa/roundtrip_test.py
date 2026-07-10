@@ -372,9 +372,9 @@ SYNTH = [
     ("iminmax", {"dst": 0x0, "dst_full": 0x01, "fmt": 0x3, "srcA": 0x05, "sel": 0x4, "selhi": 0, "srcB": 0xc0}),
     # ---- scalar ALU (EXP-0013) ----
     # cvt_f2i (float->int, byte+7 0x48 = signed): reproduces 27 07 56 00 02 00 b4 48 03 00
-    ("cvt_f2i", {"b2": 0x56, "src": 0x0200, "b5": 0x00, "cvtop": 0xb4, "signflag": 0x48, "tail": 0x0003}),
+    ("cvt_f2i", {"mode": 0x56, "dst": 0x0, "src_class": 0x2, "src": 0x0, "cvtop": 0xb4, "signflag": 0x48, "dst_class": 0x3, "b9": 0x0}),
     # cvt_i2f (int->float, byte+7 0x60 = signed): a7 07 56 00 02 00 ac 60
-    ("cvt_i2f", {"b2": 0x56, "src": 0x0200, "b5": 0x00, "cvtop": 0xac, "signflag": 0x60}),
+    ("cvt_i2f", {"mode": 0x56, "dst": 0x0, "src_class": 0x2, "src": 0x0, "cvtop": 0xac, "signflag": 0x60}),
     # cvt_f2h (fp32->fp16): 11 03 1c 81 00 c2
     ("cvt_f2h", {"b1": 0x03, "op": 0x1c, "src": 0x81, "b4": 0x00, "tail": 0xc2}),
     # fspecial floor (round-mode byte+8 = 0x02): 2f 00 56 00 02 00 b0 40 02 00
@@ -414,8 +414,7 @@ SYNTH = [
     ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "b3": 0x00,
                      "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1), cache=1 -> 47 04 56 00 02 00 0a 2c 04 00
-    ("simd_shuffle", {"dir": 0, "mode": 0x04, "cache": 1, "b3": 0x00, "src": 0x02, "b5": 0x00,
-                      "lane": 0x0a, "tail": 0x00042c}),
+    ("simd_shuffle", {"dir": 0x0, "mode": 0x4, "cache": 0x1, "dst": 0x0, "src": 0x2, "srctype": 0x0, "lane": 0xa, "rtype": 0x2c, "dsthi": 0x4, "rsv9": 0x0}),
     # atomic_rmw add (byte+12 = 0x20) -> 67 11 54 00 00 80 01 00 00 42 00 00 20 00
     ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,
                     "mid": 0x4200000180, "op": 0x20, "b13": 0x00}),
@@ -431,8 +430,7 @@ SYNTH = [
                       "as_type": 0xbb, "b5": 0x00, "flags": 0x00, "b7": 0x00}),
     # ---- EXP-O2C new RT ops + matrix operand decode ----
     # rt_transform_test: dst=reg14, src=0x95, byte+2=0x27 -> e2 95 27 81 22 7a 03 82 20 7c
-    ("rt_transform_test", {"dst": 0xe, "src": 0x95, "marker": 0x27, "b3": 0x81,
-                           "cmpmode": 0x22, "body": 0x7c2082037a}),
+    ("rt_transform_test", {"dst": 0xe, "src": 0x95, "marker": 0x27, "subop": 0x81, "cmpmode": 0x22, "opA": 0x7a, "opAmod": 0x3, "opAflags": 0x82, "mark2": 0x20, "opB": 0x7c}),
     # ray_move copy form (byte+2=0x81): dst=reg14, src=0x50 -> eb 50 81 08
     ("ray_move", {"dst": 0xe, "src": 0x50, "form": 0x81, "b3": 0x08}),
     # ---- EXP-O2D bfloat ALU ----
