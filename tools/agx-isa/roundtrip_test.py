@@ -347,9 +347,11 @@ SYNTH = [
     ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xc, "opsel": 0b100,
                 "imm_sign": 1, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
                 "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09c11c0180c0
-    ("falu3",   {"dst_lo": 0x0, "dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ext": 0xc002}),
+    # EXP-M4-13 R10 (falu_int_frag retype): the old raw 16-bit 'ext' field split into
+    # ctrl (byte+6) + srcmods (byte+7); same bytes (ext=0xc002 -> ctrl=0x02, srcmods=0xc0).
+    ("falu3",   {"dst_lo": 0x0, "dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ctrl": 0x02, "srcmods": 0xc0}),
     # dst_lo=r3 exercises the byte0 high-nibble dst field added in EXP-M4-13 R2 (fix_falu3_ishift):
-    ("falu3",   {"dst_lo": 0x3, "dst": 0x07, "op": 0x1e, "srcA": 0x0b, "srcB": 0x81, "srcC": 0x0e, "ext": 0x6002}),
+    ("falu3",   {"dst_lo": 0x3, "dst": 0x07, "op": 0x1e, "srcA": 0x0b, "srcB": 0x81, "srcC": 0x0e, "ctrl": 0x02, "srcmods": 0x60}),
     # EXP-M4-13 R2 (n2_intalu): float min/max UNIFIED into low-nibble-2 iminmax.
     # fmin at dst r1 (byte0 0x12) -> reproduces the old fminmax bytes 12031e0501c0:
     ("iminmax", {"dst": 0x1, "dst_full": 0x03, "fmt": 0x3, "srcA": 0x05, "sel": 0x1, "selhi": 0, "srcB": 0xc0}),
@@ -405,19 +407,25 @@ SYNTH = [
                 "z6": 0x0, "outmod": 0x80, "z8": 0x0, "z9": 0x0}),
     # ---- subgroup / quad / atomics (EXP-0018) ----
     # simd_sum: scope=1(simd), opcls=1, op=0x01(add/xor), dtype=0x03, cache=1(0x56) -> bf 01 56 00 02 00 14 03
-    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "b3": 0x00,
-                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x03}),
+    # EXP-M4-13 R10 (falu_int_frag retype): register CORRECTION b3->dst(byte+3),
+    # src->opmarker(byte+4 const marker), b5->src(byte+5 true source); identical bytes.
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 1, "op": 0x01, "dst": 0x00,
+                     "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x03}),
     # quad_min: scope=0(quad), opcls=0, op=0x02(max/min), dtype=0x07, cache=1(0x56) -> 37 02 56 00 02 00 14 07
-    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "cache": 1, "op": 0x02, "b3": 0x00,
-                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
+    ("simd_reduce", {"scope": 0, "b0hi": 0, "opcls": 0, "cache": 1, "op": 0x02, "dst": 0x00,
+                     "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_max as a LATER consumer of a shared source: cache=0 -> byte+2 0x54 (EXP-0038 cache-bit).
-    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "b3": 0x00,
-                     "src": 0x02, "b5": 0x00, "shape": 0x14, "dtype": 0x07}),
+    ("simd_reduce", {"scope": 1, "b0hi": 0, "opcls": 1, "cache": 0, "op": 0x02, "dst": 0x00,
+                     "opmarker": 0x02, "src": 0x00, "shape": 0x14, "dtype": 0x07}),
     # simd_broadcast(v,5): dir=0, mode=0x04(simd), lane=0x0a(5<<1), cache=1 -> 47 04 56 00 02 00 0a 2c 04 00
     ("simd_shuffle", {"dir": 0x0, "mode": 0x4, "cache": 0x1, "dst": 0x0, "src": 0x2, "srctype": 0x0, "lane": 0xa, "rtype": 0x2c, "dsthi": 0x4, "rsv9": 0x0}),
-    # atomic_rmw add (byte+12 = 0x20) -> 67 11 54 00 00 80 01 00 00 42 00 00 20 00
-    ("atomic_rmw", {"b2": 0x54, "b3": 0x00, "base_slot": 0x00,
-                    "mid": 0x4200000180, "op": 0x20, "b13": 0x00}),
+    # atomic_rmw add (op=16 'add' at byte+12 bits[1:6]) -> 6711540000800100004200002000
+    # EXP-M4-13 R10 (atomics_tex retype): the old raw b2/b3/mid/b13 fields were split
+    # into the typed amode/index_reg/addr_desc/idx_off/op(5b)/per_lane layout; same bytes.
+    ("atomic_rmw", {"amode": 0x54, "rsv3": 0x00, "base_slot": 0x00, "index_reg": 0x80,
+                    "addr_desc": 0x01, "ret_flag": 0x00, "ret_desc": 0x00, "idx_off": 0x42,
+                    "rsv10": 0x00, "rsv11": 0x00, "op_lsb": 0x00, "op": 0x10,
+                    "per_lane": 0x00, "op_msb": 0x00, "amode_hi": 0x00}),
     # ---- ray tracing (EXP-0023) ----
     # rt_intersect const-origin: dst=reg13, subop=0xea, mode=0x90, as_type=0x8b primitive_AS -> d4 ea 90 a6 8b 00 00 00
     ("rt_intersect", {"dst": 0xd, "subop": 0xea, "mode": 0x90, "ray_param": 0xa6,

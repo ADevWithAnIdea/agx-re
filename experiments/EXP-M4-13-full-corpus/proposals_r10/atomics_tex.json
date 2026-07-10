@@ -1,0 +1,630 @@
+{
+ "group": "EXP-M4-13 R10 field-type atomics + textures (AGX G17P / A18 Pro)",
+ "kind": "raw->reg/imm/enum/mod/opcode RETYPE of located operand/op/descriptor bytes in named ops. length + match UNCHANGED for every op (bit coverage identical => decode/assemble byte-identical, tokenization stream byte-identical). Own-MSL single-toggle byte-diff establishes ROLE; value->meaning maps are given only where a clean toggle proves them, else marked needs-splice in provenance. No fabricated per-value maps; no unlocated bit typed.",
+ "method": "OWN-MSL compile (shdump_r10_atomics_tex) + agxparse --extract-hex + census byte-diff over the committed atomics/texture_sample corpus (byte-identical to committed hex) plus authored single-toggle kernels (kern/*.metal). Key results: (1) UNIFIED 5-bit atomic op enum -- device atomic_mem/atomic_rmw byte+12 bits[1:6] (start 97) and threadgroup atomic_tg bits[86:91] decode to the SAME 12-value enum (16 add,17 and,18 cmpxchg,19 fadd,20 smax,21 smin,22 or,27 sub,28 umax,29 umin,30 xchg,31 xor), verified across all corpus instances. (2) per_lane = device byte+12 bit6, proved by a clean single-toggle dev_u_add_imm1 (&o[i]) vs dev_u_add_uniform (&o[0]) -- both byte+1==0x11 immediate operand, only the address differs; index_reg/addr_desc (byte+5/+6) collapse 0x80,0x80->0x00,0x00 for the uniform address, byte+13 bit1 co-varies. (3) ret_flag/ret_desc (device byte+7/+8; tg byte+3/+5/+8) proved by ret vs noret pairs. (4) amode (byte+2) 0x56 direct-value vs 0x54 ALU/reduced/immediate operand, cross-checked device(mem 0x56 / rmw 0x54) and tg (xchg 0x56 / RMW 0x54). (5) base_slot DISPROVEN as the Metal buffer index (buffer(0) vs buffer(3) atomics byte-identical) -- it is a base-register-table slot. (6) tex_sample tail SPLIT: tex_type (op+8) = texture-descriptor CLASS (1=2D-class,2=3D,3=buffer) LOCATED by a dimension sweep over all 33 samples; samp_extra (op+9) mod (0x0e on gather+offset). (7) tex_write CORRECTED: the old byte+3/+4 'data' reg is DISPROVEN (a data-source register sweep w_data_r0..r3 leaves it unchanged); coord_dim (byte+9) LOCATED clean (0x04 2d/2d_array, 0x08 3d, 0x0c cube); layer_reg (byte+4) LOCATED (array layer operand); texture slot DISPROVEN as an instruction field (writing to texture 0/1/2 byte-identical); write-data descriptor at byte+13/+14. Validation: work/r10_atomics_tex/{roundtrip_test.py,validate.py}.",
+ "descriptors": [
+  {
+   "mnemonic": "atomic_mem",
+   "length": 14,
+   "match": [
+    [
+     0,
+     8,
+     103
+    ],
+    [
+     8,
+     8,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "amode",
+     "start": 16,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv3",
+     "start": 24,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "base_slot",
+     "start": 32,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "index_reg",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "addr_desc",
+     "start": 48,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "ret_flag",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "ret_desc",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "idx_off",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv10",
+     "start": 80,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv11",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "op_lsb",
+     "start": 96,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "op",
+     "start": 97,
+     "width": 5,
+     "type": "opcode",
+     "enum": {
+      "16": "add",
+      "17": "and",
+      "18": "cmpxchg",
+      "19": "fadd",
+      "20": "smax",
+      "21": "smin",
+      "22": "or",
+      "27": "sub",
+      "28": "umax",
+      "29": "umin",
+      "30": "xchg",
+      "31": "xor"
+     }
+    },
+    {
+     "name": "per_lane",
+     "start": 102,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "op_msb",
+     "start": 103,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "amode_hi",
+     "start": 104,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match difference is byte+1 (0x01 register-operand vs 0x11 ALU/reduced/immediate-operand). The OP is the SAME 5-bit selector at byte+12 bits[1:6] (start 97): 16 add ... 30 xchg (also atomic_store, discards result) ... 31 xor. Emitted for atomic_store, atomic_exchange, per-lane fetch_* with a divergent address, and compare_exchange (op 18; the returned old value feeds a following icmp, NO hardware retry loop). byte+5 = per-lane index GPR; byte+7 bit0 = discard; byte+8 = return-register descriptor; the RMW operand register is implicit (supplied by the preceding op), as in the 0x67/0xe7 load/store family.",
+   "provenance": "HW-VALIDATED behaviour (EXP-0018): atomic_exchange/atomic_store -> op=xchg; compare_exchange_weak -> op=cmpxchg with a following compare and NO backward jump. EXP-M4-13 R10 (own-MSL byte-diff, compile-only): op = byte+12 bits[1:6], 5-bit enum shared with atomic_tg/atomic_rmw, established over dev_{u,s,f}_{add,and,or,xor,sub,max,min,xchg,store} (op sweep). ret_flag/ret_desc (byte+7/+8) proved by dev_u_add_ret (byte7=0x00,byte8=0x02) vs dev_u_add_noret (byte7=0x01,byte8=0x40). index_reg/addr_desc (byte+5/+6) carry the per-lane divergent-address index (0x80 when per-lane, per the atomic_rmw uniform/per-lane single-toggle). per_lane bit6 and amode_hi bit1 typed from the same atomic_rmw pair (shared encoding). No Apple binary inspected."
+  },
+  {
+   "mnemonic": "atomic_rmw",
+   "length": 14,
+   "match": [
+    [
+     0,
+     8,
+     103
+    ],
+    [
+     8,
+     8,
+     17
+    ]
+   ],
+   "fields": [
+    {
+     "name": "amode",
+     "start": 16,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv3",
+     "start": 24,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "base_slot",
+     "start": 32,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "index_reg",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "addr_desc",
+     "start": 48,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "ret_flag",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "ret_desc",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "idx_off",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv10",
+     "start": 80,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv11",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "op_lsb",
+     "start": 96,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "op",
+     "start": 97,
+     "width": 5,
+     "type": "opcode",
+     "enum": {
+      "16": "add",
+      "17": "and",
+      "18": "cmpxchg",
+      "19": "fadd",
+      "20": "smax",
+      "21": "smin",
+      "22": "or",
+      "27": "sub",
+      "28": "umax",
+      "29": "umin",
+      "30": "xchg",
+      "31": "xor"
+     }
+    },
+    {
+     "name": "per_lane",
+     "start": 102,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "op_msb",
+     "start": 103,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "amode_hi",
+     "start": 104,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg (also atomic_store, discards result), 31 xor -- the SAME 5-bit op enum used by atomic_tg (bits[86:91]) and by atomic_mem (byte+12 bits[1:6]). byte+12 bit6 (per_lane) = 1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice. byte+1==0x11 selects the ALU/reduced/immediate-operand form (bit4) in the device space (bit1=0); the register-operand form is atomic_mem (byte+1==0x01). byte+5 = per-lane index GPR (zeroed for a uniform address). byte+7 bit0 = discard/no-writeback; byte+8 = return-register descriptor. The actual RMW operand register is implicit (supplied by the preceding op / amode), as in the 0x67/0xe7 load/store family. Emitted AFTER a SIMD-group simd_reduce pre-combine; NOT a CAS/retry loop.",
+   "provenance": "HW-VALIDATED (EXP-0018): aggregate add (1024 threads -> counter 1024); byte+12 splice add->max/or proved byte+12 is the operation selector. EXP-M4-13 R10 (own-MSL byte-diff, compile-only, NO GPU dispatch): a 12-way op sweep (dev_u_{add,and,or,xor,max,min}_imm / dev_s_* / dev_f_{sub,cmpxchg} / dev_u_store_imm / dev_u_xchg_imm) proves op = byte+12 bits[1:6] with a 5-bit enum IDENTICAL to atomic_tg's (16..31); per_lane = byte+12 bit6 by a clean single-toggle dev_u_add_imm1 (&o[i], byte12=0x60,byte13=0x02) vs dev_u_add_uniform (&o[0], byte12=0x20,byte13=0x00) -- both byte+1==0x11, immediate 1u operand, only the address differs, and byte+5/+6 (index_reg/addr_desc) collapse 0x80,0x80 -> 0x00,0x00 for the uniform address; ret_flag/ret_desc (byte+7/+8) proved by dev_u_add_noret_imm (byte7=0x01,byte8=0x40) vs the returning form (byte7=0x00,byte8=0x02). base_slot is a base-register-table slot, NOT the Metal buffer index (a_slot0 vs a_slot3 buffer(0)/buffer(3) are byte-identical). No Apple binary inspected."
+  },
+  {
+   "mnemonic": "atomic_tg",
+   "length": 12,
+   "match": [
+    [
+     0,
+     8,
+     103
+    ],
+    [
+     8,
+     8,
+     3
+    ]
+   ],
+   "fields": [
+    {
+     "name": "amode",
+     "start": 16,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "ret_desc",
+     "start": 24,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv4",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "op_desc",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv6",
+     "start": 48,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "xop_desc",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "data_desc",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv9",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv10lo",
+     "start": 80,
+     "width": 6,
+     "type": "mod"
+    },
+    {
+     "name": "op",
+     "start": 86,
+     "width": 5,
+     "type": "opcode",
+     "enum": {
+      "16": "add",
+      "17": "and",
+      "18": "cmpxchg",
+      "19": "fadd",
+      "20": "smax",
+      "21": "smin",
+      "22": "or",
+      "27": "sub",
+      "28": "umax",
+      "29": "umin",
+      "30": "xchg",
+      "31": "xor"
+     }
+    },
+    {
+     "name": "op_hi_rsv",
+     "start": 91,
+     "width": 5,
+     "type": "mod"
+    }
+   ],
+   "semantics": "THREADGROUP (shared-memory) atomic read-modify-write. byte0 0x67 load/store family, threadgroup variant byte+1==0x03 (device atomics are byte+1 0x11/0x01, 14 B). Operation = the SAME 5-bit op enum used by the device atomic_mem/atomic_rmw, here at bits[86:91] (16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg, 31 xor). byte+3 = return-register descriptor (0x03 when the old value is consumed, 0x00 noret); byte+5/+8 = operand-register descriptors that step together (returning-RMW 0x02/0x22, noret-RMW 0x01/0x20, xchg&cmpxchg 0x00/0x02). byte+2==0x56 selects the direct-value amode for atomic_exchange (RMW ops use 0x54, i.e. an ALU/simd-reduced operand). A single native op preceded by a simd_reduce lane-combine, NOT a CAS retry loop.",
+   "provenance": "byte-diff EXP-M4-13 R2+R10 (own-MSL, compile-only): op-select at bits[86:91] confirmed by re-diffing tg_u_{add,sub,and,or,xor,max,min}/tg_s_min/tg_u_{cmpxchg,xchg}, and shown to be the SAME 5-bit enum as the device atomics (op value decode matches across all three). ret_desc (byte+3) proved by tg_u_add (0x03, returns) vs tg_u_add_noret (0x00); op_desc/data_desc (byte+5/+8) co-vary with return and op-class over the same corpus; amode (byte+2) 0x56 only for tg_u_xchg (direct value) vs 0x54 for all RMW ops. NOT HW-dispatch-validated; the device sibling atomic_rmw IS HW-validated (EXP-0018) and shares the model."
+  },
+  {
+   "mnemonic": "tex_sample",
+   "length": 14,
+   "match": [
+    [
+     0,
+     3,
+     5
+    ],
+    [
+     12,
+     4,
+     8
+    ],
+    [
+     16,
+     8,
+     12
+    ]
+   ],
+   "fields": [
+    {
+     "name": "kind",
+     "start": 0,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "chain",
+     "start": 4,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "comp_flags",
+     "start": 8,
+     "width": 4,
+     "type": "mod"
+    },
+    {
+     "name": "result_desc",
+     "start": 24,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "184": "vec4 (full sample/read 0xb8)",
+      "160": "scalar/compare/clamped-LOD (0xa0)",
+      "168": "unclamped-LOD (0xa8)",
+      "164": "gather comp0=r (0xa4)",
+      "172": "gather comp1=g (0xac)",
+      "180": "gather comp2=b (0xb4)",
+      "188": "gather comp3=a (0xbc)"
+     }
+    },
+    {
+     "name": "result_sel",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "coord",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "variant",
+     "start": 48,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "0": "sample|gather",
+      "1": "sample|gather+offset",
+      "4": "sample_grad",
+      "7": "sample_bias",
+      "9": "sample_lod|array-sample",
+      "19": "cube sample",
+      "23": "read 2D",
+      "27": "sample_lod+offset",
+      "32": "sample_compare|gather_compare",
+      "33": "sample_compare+offset",
+      "41": "sample_compare level",
+      "57": "3D sample",
+      "59": "sample_compare_lod+offset",
+      "83": "cube-array sample",
+      "121": "read 3D",
+      "128": "read MSAA",
+      "151": "read 2D-array (bit7=array)",
+      "3": "read 2D-array (const layer; op+3=(layer<<3)|3)",
+      "55": "read cube (face=coord imm (face<<1)@main+0x09)",
+      "195": "read cube-array (face imm; op+3=(array<<3)|3)",
+      "5": "sample 2D (implicit-LOD / bias base)",
+      "51": "sample_compare (gradient/deriv-LOD)",
+      "156": "read 3D (coord-register addressing)",
+      "160": "read 1D (tex1d)",
+      "217": "read MSAA (per-sample index)"
+     }
+    },
+    {
+     "name": "extra_coord",
+     "start": 56,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "tex_slot",
+     "start": 64,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "samp_slot_offset",
+     "start": 72,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "mode",
+     "start": 80,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "16": "filtered sample",
+      "0": "gather/read/sample_compare",
+      "32": "LOD query"
+     }
+    },
+    {
+     "name": "lod_present",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "tex_type",
+     "start": 96,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "1": "2D-class (2d/1d/cube/2d_array/ms/depth)",
+      "2": "3D (volumetric; carries a 3rd coordinate)",
+      "3": "buffer (linear texel buffer)"
+     }
+    },
+    {
+     "name": "samp_extra",
+     "start": 104,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage.",
+   "provenance": "HW-VALIDATED (EXP-0016 + EXP-0034): tex_slot/samp_slot (splice flips texture/filter, EXP-0016); sample_compare (op+2 0x20/0x29, companion 0xa0) -- all 8 compareFuncs give the exact shadow pattern, dynamic per-thread ref proves a register operand, LINEAR filter yields fractional PCF (true 2x2 hardware PCF); gather component (companion+3 bits[3:5]) HW-validated r/g/b/a; gather const offset (op+5) HW-validated; LOD-query (op+6=0x20) HW-runs. Remaining op+2 dimension codes and op+3/op+5 offset sub-bits byte-diff-localized (EXP-0016/EXP-0034 mains). EXP-M4-13 R10 (own-MSL byte-diff, compile-only): the previously-raw 16-bit op+8/+9 tail SPLIT into tex_type (op+8) + samp_extra (op+9). tex_type is the texture-descriptor CLASS, LOCATED by a texture-dimension sweep -- every 2D-class sample/read/gather/compare/cube/array/ms emits 0x01, every 3D (tex3d) sample/read emits 0x02, every texture-buffer read emits 0x03 (byte-exact, all 33 corpus samples). samp_extra = 0x00 by default and 0x0e on the gather+const-offset ops in tex_offset_gather (value->meaning map beyond {0x00,0x0e} needs-splice). No Apple binary inspected."
+  },
+  {
+   "mnemonic": "tex_write",
+   "length": 16,
+   "match": [
+    [
+     0,
+     8,
+     215
+    ]
+   ],
+   "fields": [
+    {
+     "name": "coord_pack",
+     "start": 8,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "amode",
+     "start": 16,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "seq_idx",
+     "start": 24,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "layer_reg",
+     "start": 32,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "coord_regs",
+     "start": 40,
+     "width": 24,
+     "type": "reg"
+    },
+    {
+     "name": "rsv8",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "coord_dim",
+     "start": 72,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "4": "2 coords (2d / 2d_array)",
+      "8": "3 coords (3d)",
+      "12": "cube"
+     }
+    },
+    {
+     "name": "rsv10",
+     "start": 80,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv11",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "wop",
+     "start": 96,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "136": "texture write"
+     }
+    },
+    {
+     "name": "data_desc",
+     "start": 104,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "data_desc_hi",
+     "start": 112,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "rsv15",
+     "start": 120,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "texture[slot].write(color, coord). Memory-family store (byte0 0xd7, low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct from the sampler-path read: writes go through the store path, reads through the sample op. byte+9 = coordinate dimensionality (0x04 for a 2-coordinate 2d/2d_array write, 0x08 for a 3d write, 0x0c for a cube write); byte+4 = the extra-coordinate operand register (the array layer / cube face; 0x20 present for an array/layer store, 0 for a plain 2d/3d store); byte+1/+5..+7 = the coordinate/data operand register pack; byte+12 low nibble = a per-texture-op write-sequence index (0x88 base + N for the Nth write in a shader); byte+13/+14 = the write-data (color) source-register descriptor (0x3a/0x09 for a contiguous vec4 register block, 0xfa/0x08 when the four components are assembled from scattered sources). The write-data REGISTER itself is implicit / carried by these descriptors, matching the device_store finding that the store DATA register is not a standalone field. TEXTURE SLOT is NOT in this instruction (writing to texture 0/1/2 is byte-identical) -- it is bound via texture state, resolved outside this op. Fragment or compute.",
+   "provenance": "HW-VALIDATED (EXP-0016): c_write moved buffer colours into texel[coord] exactly (read-back matched in[i]). EXP-M4-13 R10 (own-MSL single-toggle byte-diff, compile-only, NO GPU dispatch): coord_dim (byte+9) LOCATED clean -- isolated 2d write=0x04, 3d=0x08, cube=0x0c, 2d_array=0x04 (with the layer in byte+4); layer_reg (byte+4) LOCATED by w_arr (0x20, has a g.z layer operand) vs w_2d/w_3d/w_cube (0x00); texture slot DISPROVEN as an instruction field (w_2d_t0/t1/t2 to texture 0/1/2 are byte-identical); the previous 'data' field at byte+3/+4 (typed reg) is CORRECTED -- a data-source register sweep (w_data_r0..r3, color loaded from varied buffer offsets) leaves byte+3/+4 unchanged, so byte+3 is a per-write sequence index and byte+4 an extra-coordinate operand, not the color register; byte+13/+14 track the color-source shape (w_2d_t0 const/contiguous vec4 -> 0x3a/0x09 vs w_2d_datacoord scattered float4(g.x,g.y,0,1) -> 0xfa/0x08). byte+8/+10/+11/+15 const 0 across all isolated writes. No Apple binary inspected."
+  }
+ ],
+ "descriptorsToDelete": [],
+ "lengthRuleEdits": [],
+ "validation": {
+  "roundtripSuitePass": true,
+  "roundtripSuiteDetail": "roundtrip_test.py ALL PASS (22 real-instance asm(disasm(b))==b across all 7 target ops; synthesized 12-op x 2-perlane atomic op-select roundtrip; unified-op-enum cross-check mem/rmw/tg).",
+  "noRegression": true,
+  "noRegressionDetail": "validate.py vs REAL isadb over 1121 corpus hex + 400 thirdparty_hex sample: tokenization stream byte-identical (0 file mismatches), 0 named->different-mnemonic transitions, 0 files with increased desync/leftover, 684 target-op roundtrips OK / 0 FAIL. length+match unchanged so tokenization is structurally invariant.",
+  "descriptorCountAfter": 588,
+  "rawBitsEliminated": 355,
+  "rawBitsBeforeAfter": "355 -> 0 across the 5 refined descriptors (every bit located to a role: reg/imm/enum/mod/opcode)"
+ },
+ "unresolved": [
+  "atomic_mem/atomic_rmw byte+5/+6 (index_reg/addr_desc): role LOCATED as the per-lane divergent-address index register block (zeroed for a uniform address, 0x81 for the cmpxchg 2-operand form, 0x01 in the strided form) but the exact index-vs-compare-operand bit split within the pair needs a non-uniform index-register splice to fully separate.",
+  "atomic_rmw/atomic_mem byte+8 ret_desc value map: {0x02 return-to-reg, 0x40 discard, 0x44 uniform} located by ret/noret/uniform toggles; the exact return-REGISTER-number sub-field within byte+8 needs a return-register-pressure sweep (the value register is otherwise implicit, as in device_store).",
+  "atomic_tg byte+5/+8 (op_desc/data_desc): co-vary with return/op-class (returning-RMW 0x02/0x22, noret 0x01/0x20, xchg&cmpxchg 0x00/0x02) -- located as operand descriptors but per-bit meaning needs a tg register/return sweep.",
+  "tex_sample samp_extra (op+9): 0x0e observed only on the gather+const-offset ops; full value->meaning map (offset packing vs gather-component-hi) needs an offset/component splice.",
+  "tex_write byte+1/+5..+7 (coord_pack/coord_regs): coordinate operand-register region, role LOCATED (varies with dims and data source) but exact per-coordinate register split entangled with register allocation; needs a coordinate-register-pressure sweep. byte+12 low nibble = write-sequence index (per texture op), high nibble 0x8 opcode.",
+  "tex_addr_setup / tex_coord_setup: NOT refined this round (kept exactly as R2/R7). They are texture coordinate/address SETUP ALUs (0x17 12B and 0x0b 10B); form/cache/dst are already typed, but the coordinate/gradient operand-register packing only appears in the multi-op cube/array/ms/depth corpus shaders (no isolated single-texture toggle), so an exact operand split needs a non-uniform-texture coordinate splice. Listed here as an honest deferral, not a silent drop."
+ ]
+}
