@@ -100,6 +100,11 @@ REAL_INSTRS = {
     "psel  (05 22 a0 de)":                 "0522a0de",                # grid select HW
     "jump  (0f 00 54 d4 ff ff ff ff ff 00)":"0f0054d4ffffffffff00",   # -44 back-edge HW
     "get_sr(1c a0 10 06)":                 "1ca01006",                # get thread id HW
+    # EXP-M4-13 R7: two own-MSL get_sr with a high destination register, exercising the
+    # dst_hi (byte+3 bits5-7) + dp_width fields split. 24aa1046 = SR 0xaa -> r34;
+    # 0c9d5086 = SR 0x9d -> r64 (dp_width flips 0x10->0x50 at the top dst bank).
+    "get_sr r34 (24 aa 10 46)":            "24aa1046",                # threadgroups.z -> r34
+    "get_sr r64 (0c 9d 50 86)":            "0c9d5086",                # tg_pos.y -> r64 (top bank)
     # ---- SUBGROUP / QUAD / ATOMICS (EXP-0018), carved from our own compiled kernels ----
     "simd_reduce sum  (bf 01 56..14 03)":  "bf01560002001403",       # simd_sum HW
     "simd_reduce or   (bf 00 56..14 03)":  "bf00560002001403",       # simd_or  HW
@@ -373,11 +378,20 @@ SYNTH = [
     # cvt_f2h (fp32->fp16): 11 03 1c 81 00 c2
     ("cvt_f2h", {"b1": 0x03, "op": 0x1c, "src": 0x81, "b4": 0x00, "tail": 0xc2}),
     # fspecial floor (round-mode byte+8 = 0x02): 2f 00 56 00 02 00 b0 40 02 00
-    ("fspecial", {"fn_hi": 0, "fnclass": 0x00, "b2": 0x56, "src": 0x0200, "b5": 0x00,
-                  "b6": 0xb0, "b7": 0x40, "roundmode": 0x02, "b9": 0x00}),
+    # EXP-M4-13 R7 refined field names (fn_hi/fnclass/dst/src_cache/src/src_class/
+    # src_ext/fnsel/precsel/roundmode/sched_flag); SAME bytes as the old b2/b6/b7 form.
+    ("fspecial", {"fn_hi": 0, "fnclass": 0x0, "dst": 0x0, "src_cache": 0x56, "src": 0x00,
+                  "src_class": 0x02, "src_ext": 0x00, "fnsel": 0xb0, "precsel": 0x40,
+                  "roundmode": 0x02, "sched_flag": 0x00}),
     # fspecial rcp (SFU 1/x, fn_hi=1 byte0->0xaf, fnclass=0): af 00 56 00 02 00 10 48 20 00
-    ("fspecial", {"fn_hi": 1, "fnclass": 0x00, "b2": 0x56, "src": 0x0200, "b5": 0x00,
-                  "b6": 0x10, "b7": 0x48, "roundmode": 0x20, "b9": 0x00}),
+    ("fspecial", {"fn_hi": 1, "fnclass": 0x0, "dst": 0x0, "src_cache": 0x56, "src": 0x00,
+                  "src_class": 0x02, "src_ext": 0x00, "fnsel": 0x10, "precsel": 0x48,
+                  "roundmode": 0x20, "sched_flag": 0x00}),
+    # fspecial rsqrt at dst r2 (EXP-M4-13 R7): byte+1 = fnclass(1) | dst(2)<<4 = 0x21;
+    # exercises the dst field split -> af 21 56 00 02 00 b0 40 00 00.
+    ("fspecial", {"fn_hi": 1, "fnclass": 0x1, "dst": 0x2, "src_cache": 0x56, "src": 0x00,
+                  "src_class": 0x02, "src_ext": 0x00, "fnsel": 0xb0, "precsel": 0x40,
+                  "roundmode": 0x00, "sched_flag": 0x00}),
     # fspecial_est reciprocal seed (byte0 0x29, byte+2 0x25, subop 0x09): 29 81 25 09 00 c2
     ("fspecial_est", {"dst": 0x2, "srcA": 0x81, "subop": 0x09, "b4": 0x00, "b5": 0xc2}),
     # fspecial_est rsqrt seed (subop 0x0b): 29 81 25 0b 00 c2
@@ -426,6 +440,16 @@ SYNTH = [
     ("bf_alu", {"opsel": 0x1c, "srcA": 0x02, "srcB": 0x09, "tail": 0x81c000}),
     # bf_mul scalar (opsel byte+2=0x1d): -> 11 02 1d 02 09 00 c0 81
     ("bf_alu", {"opsel": 0x1d, "srcA": 0x02, "srcB": 0x09, "tail": 0x81c000}),
+    # ---- EXP-M4-13 R7: b_alu14_c83 full-coverage schema (2 real own-corpus instances).
+    # Exercises the byte+5/+8/+9 slots that the R4 schema left UNCOVERED, plus the
+    # byte+7 GPR source and byte+12/+13 uniform/state operand. -> 3f1383120300800e0000030092cb
+    ("b_alu14_c83", {"form": 3, "reg_a": 0x13, "reg_b": 0x12, "fmt4": 0x03, "src_lo": 0x00,
+                     "fmt6": 0x80, "srcB_reg": 0x0e, "rsv8": 0x00, "rsv9": 0x00, "fmt10": 0x03,
+                     "rsv11": 0x00, "srcU_reg": 0x92, "srcU_desc": 0xcb}),
+    # -> 3f0f830e0300800a000003009c01
+    ("b_alu14_c83", {"form": 3, "reg_a": 0x0f, "reg_b": 0x0e, "fmt4": 0x03, "src_lo": 0x00,
+                     "fmt6": 0x80, "srcB_reg": 0x0a, "rsv8": 0x00, "rsv9": 0x00, "fmt10": 0x03,
+                     "rsv11": 0x00, "srcU_reg": 0x9c, "srcU_desc": 0x01}),
 ]
 
 

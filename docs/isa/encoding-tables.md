@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 145 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-09). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 155 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -182,17 +182,19 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `fn_hi` | [7:8] | enum | `0x0`=0x2f(round/sqrt/log2); `0x1`=0xaf(rcp/rsqrt/exp2) |
-| `fnclass` | [8:16] (byte+1) | enum | `0x0`=rcp|round; `0x1`=rsqrt|sqrt; `0x2`=exp2|log2 |
-| `b2` | [16:24] (byte+2) | raw/unmapped |  |
-| `src` | [24:40] (byte+3) | raw/unmapped |  |
-| `b5` | [40:48] (byte+5) | raw/unmapped |  |
-| `b6` | [48:56] (byte+6) | raw/unmapped |  |
-| `b7` | [56:64] (byte+7) | raw/unmapped |  |
-| `roundmode` | [64:72] (byte+8) | enum | `0x0`=nearest; `0x2`=floor; `0x4`=ceil; `0x6`=trunc |
-| `b9` | [72:80] (byte+9) | raw/unmapped |  |
+| `fn_hi` | [7:8] | enum | `0x0`=direct (0x2f: sqrt/log2/round-family/sincos); `0x1`=reciprocal (0xaf: rcp/rsqrt/exp2) |
+| `fnclass` | [8:12] (byte+1) | opcode-select | `0x0`=rcp|round; `0x1`=rsqrt|sqrt; `0x2`=exp2|log2; `0x3`=sincos/tan primitive (inferred); `0x4`=compound intermediate (pow/exp range-reduce, inferred) |
+| `dst` | [12:16] | register |  |
+| `src_cache` | [16:24] (byte+2) | modifier | `0x56`=cached source (fresh operand); `0x54`=uncached (later consumer of a shared/computed source) |
+| `src` | [24:32] (byte+3) | register |  |
+| `src_class` | [32:40] (byte+4) | enum | `0x3`=32-bit GPR source; `0x2`=16-bit / alt operand class |
+| `src_ext` | [40:48] (byte+5) | register |  |
+| `fnsel` | [48:56] (byte+6) | opcode-select | `0x10`=rcp datapath; `0xb0`=std SFU f32 (rsqrt/exp2/log2/round); `0x92`=sqrt / sincos datapath; `0xac`=SFU f16 datapath; `0x2`=rcp alt-operand form; `0x8a`=(inferred); `0x8e`=(inferred); `0x90`=(inferred); `0x0`=(inferred); `0x20`=compound range-reduce (inferred) |
+| `precsel` | [56:64] (byte+7) | modifier | `0x40`=f32 result; `0x48`=rcp f32; `0x60`=f16 result; `0x44`=(inferred); `0xc0`=log2 negate (inferred); `0x0`=(inferred) |
+| `roundmode` | [64:72] (byte+8) | enum | `0x0`=nearest / none; `0x2`=floor; `0x4`=ceil; `0x6`=trunc; `0x20`=reciprocal-precision flag (rcp/1-op SFU) |
+| `sched_flag` | [72:80] (byte+9) | modifier |  |
 
-*d = SFU(a). Function = (byte0 bit7 fn_hi, byte+1 fnclass): (0x2f,0x00)=round[floor/ceil/trunc/rint via byte+8], (0x2f,0x01)=sqrt, (0x2f,0x02)=log2, (0xaf,0x00)=rcp(1/x), (0xaf,0x01)=rsqrt(1/sqrt x), (0xaf,0x02)=exp2(2^x). byte+6/+7 = secondary fn code. One hardware special-function op; fast-math emits it directly (~1 ULP). exp/exp10 = exp2(x*k); log/log10 = log2(x)*k; pow = exp2(b*log2(a)); a/b = a*rcp(b).*
+*d[dst] = SFU(src). Function = (byte0 bit7 fn_hi, byte+1-lo fnclass): (direct,0x0)=round[floor/ceil/trunc/rint via byte+8], (direct,0x1)=sqrt, (direct,0x2)=log2, (direct,0x3)=sincos/tan primitive; (recip,0x0)=rcp(1/x), (recip,0x1)=rsqrt(1/sqrt x), (recip,0x2)=exp2(2^x). dst = byte+1 HIGH nibble (GPR, PROVEN by a 5-way rsqrt dst sweep 0x01/0x11/0x21/0x41/0x81). Source operand = byte+3 (reg low) + byte+5 (reg ext) + byte+4 (operand class 0x03 f32 / 0x02 f16-or-alt); byte+2 = source-cache bit (0x56 fresh / 0x54 shared). byte+6/+7 = the secondary function+precision datapath descriptor (co-varies with the function & result size: rcp 0x10/0x48, std-f32 0xb0/0x40, sqrt/sincos 0x92/0x40, f16 0xac/0x60). byte+8 = round mode (round family) or the reciprocal precision flag (0x20). byte+9 = a result/last-use scheduling flag. One hardware special-function op; fast-math emits it directly (~1 ULP). exp/exp10 = exp2(x*k); log/log10 = log2(x)*k; pow = exp2(b*log2(a)); a/b = a*rcp(b).*
 
 ### `fspecial_est` — transcendental estimate seed (rcp/rsqrt/sqrt NR seed)
 
@@ -492,10 +494,12 @@
 |---|---|---|---|
 | `form` | [3:4] | modifier |  |
 | `dst` | [4:8] | register |  |
-| `sr_sel` | [8:16] (byte+1) | enum | `0x82`=thread_index_in_simdgroup (simd_lane_id); `0x84`=simd_is_helper_thread (FS); `0x85`=simdgroup_index_in_threadgroup (simd_group_id); `0x88`=base_vertex (VS); `0x8a`=base_instance (VS); `0x98`=threads_per_threadgroup.x; `0x99`=threads_per_threadgroup.y; `0x9a`=threads_per_threadgroup.z; `0x9c`=threadgroup_position_in_grid.x; `0x9d`=threadgroup_position_in_grid.y; `0x9e`=threadgroup_position_in_grid.z; `0xa0`=thread_position_in_grid.x (FS: pixel x); `0xa1`=thread_position_in_grid.y (FS: pixel y); `0xa2`=thread_position_in_grid.z; `0xa4`=thread_position_in_threadgroup.x; `0xa5`=thread_position_in_threadgroup.y; `0xa6`=thread_position_in_threadgroup.z; `0xa7`=thread_index_in_threadgroup; `0xa8`=threadgroups_per_grid.x; `0xa9`=threadgroups_per_grid.y; `0xaa`=threadgroups_per_grid.z; `0xc5`=front_facing (FS); `0xd8`=instance_id (VS); `0xdd`=vertex_id (VS) |
-| `suffix` | [16:32] (byte+2) | raw/unmapped |  |
+| `sr_sel` | [8:16] (byte+1) | enum | `0x82`=thread_index_in_simdgroup (simd_lane_id); `0x84`=simd_is_helper_thread (FS); `0x85`=simdgroup_index_in_threadgroup (simd_group_id); `0x88`=base_vertex (VS); `0x8a`=base_instance (VS); `0x98`=threads_per_threadgroup.x; `0x99`=threads_per_threadgroup.y; `0x9a`=threads_per_threadgroup.z; `0x9c`=threadgroup_position_in_grid.x; `0x9d`=threadgroup_position_in_grid.y; `0x9e`=threadgroup_position_in_grid.z; `0xa0`=thread_position_in_grid.x (FS: pixel x); `0xa1`=thread_position_in_grid.y (FS: pixel y); `0xa2`=thread_position_in_grid.z; `0xa4`=thread_position_in_threadgroup.x; `0xa5`=thread_position_in_threadgroup.y; `0xa6`=thread_position_in_threadgroup.z; `0xa7`=thread_index_in_threadgroup; `0xa8`=threadgroups_per_grid.x; `0xa9`=threadgroups_per_grid.y; `0xaa`=threadgroups_per_grid.z; `0xc5`=front_facing (FS); `0xd8`=instance_id (VS); `0xdd`=vertex_id (VS/FS-interp); `0x95`=compute SR (atomic/subgroup/threadgroup kernels; needs isolation); `0xe0`=mesh-stage SR (mesh shaders only; needs isolation); `0xe1`=mesh-stage SR (mesh shaders only; needs isolation) |
+| `dp_width` | [16:24] (byte+2) | modifier | `0x10`=std 32-bit read (dst<r64); `0x50`=top dst bank (dst>=r64); `0x11`=bool/helper-thread read (inferred); `0x14`=lane-id datapath (inferred) |
+| `dp_marker` | [24:29] (byte+3) | modifier |  |
+| `dst_hi` | [29:32] | register |  |
 
-*d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR). byte0 low-3-bits = 0b100; bit3 is a datapath/width modifier that does not change the SR select. IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.*
+*d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR LOW nibble). The full destination register is dst = byte0[4:8] | (byte+3[5:8] << 4), reaching r0..r127 -- dst_hi (byte+3 bits5-7) is the register EXTENSION. byte0 low-3-bits = 0b100; bit3 (form) is a datapath/width modifier (set for the position-in-grid SR family) that does not change the SR select. byte+2 (dp_width) is a datapath width / dst-bank descriptor. byte+3 low 5 bits are a fixed 32-bit-read marker (0x06). IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.*
 
 ### `mov_imm` — 2-byte small-immediate move (constant-folded builtins)
 
@@ -525,9 +529,9 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `body` | [8:32] (byte+1) | raw/unmapped |  |
+| `reserved` | [8:32] (byte+1) | raw/unmapped |  |
 
-*conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator: corrupting it is a no-op (EXP-0003/EXP-0010 E4); the true end-of-program is out-of-band (the metadata code length), not this in-band token.*
+*conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator and NOT parameterized: the 24-bit body is reserved-zero and non-load-bearing -- corrupting any of it is a no-op (EXP-0003/EXP-0010 E4). The true end-of-program is out-of-band (the metadata code length), not this in-band token. There is no scope/mask/wait operand.*
 
 ## Memory access
 
@@ -680,14 +684,18 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `b0hi` | [4:8] | raw/unmapped |  |
-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
-| `subop` | [16:24] (byte+2) | opcode-select | `0x27`=coord/LOD; `0x2f`=coord/interp |
-| `b3` | [24:32] (byte+3) | raw/unmapped |  |
-| `mark` | [32:40] (byte+4) | raw/unmapped |  |
-| `body` | [40:80] (byte+5) | raw/unmapped |  |
+| `dst_lo` | [4:8] | register |  |
+| `b1` | [8:16] (byte+1) | modifier |  |
+| `subop` | [16:24] (byte+2) | opcode-select | `0x2f`=setup/modifier(2f) |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `form` | [32:40] (byte+4) | enum | `0x42`=attribute-fetch/coord-address; `0x0`=float-modifier; `0x10`=bitfield/shift-prep; `0x12`=float-modifier(hi); `0x22`=float-modifier(merge) |
+| `b5` | [40:48] (byte+5) | modifier |  |
+| `b6` | [48:56] (byte+6) | modifier |  |
+| `idx` | [56:64] (byte+7) | modifier |  |
+| `b8` | [64:72] (byte+8) | modifier |  |
+| `b9` | [72:80] (byte+9) | modifier |  |
 
-*texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.)*
+*texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.) EXP-M4-13 R7 CORRECTION: this 10-byte byte+2==0x2f op is POLYMORPHIC and NOT texture-specific -- across the own corpus it appears as (a) vertex attribute-fetch / varying destination-address setup (byte+4==0x42; byte+7 = dst-slot index = dst<<2) and (b) a float-classify / modifier ALU (isnan/isnormal/frexp/modf; byte+3 = srcA, byte+4 in {0x00,0x10,0x12,0x22}). The mnemonic is retained for stability but is a misnomer.*
 
 ### `coord_madf` — coordinate / interpolation fused mul-add (leader form)
 
@@ -946,14 +954,14 @@
 | `dst` | [24:32] (byte+3) | register |  |
 | `addr_lo` | [32:40] (byte+4) | register |  |
 | `addr_hi` | [40:48] (byte+5) | register |  |
-| `flags` | [48:56] (byte+6) | modifier |  |
-| `inert7` | [56:64] (byte+7) | raw/unmapped |  |
+| `flags` | [48:56] (byte+6) | modifier | `0x20`=device/global (bit5); `0x0`=threadgroup/other; `0x80`=extended (bit7); `0xa0`=device+extended |
+| `reserved7` | [56:64] (byte+7) | modifier |  |
 | `width` | [64:72] (byte+8) | immediate |  |
 | `off_lo` | [72:80] (byte+9) | immediate |  |
 | `field_off` | [80:88] (byte+10) | immediate |  |
 | `off_hi` | [88:96] (byte+11) | immediate |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
-| `inert13` | [104:112] (byte+13) | raw/unmapped |  |
+| `reserved13` | [104:112] (byte+13) | modifier |  |
 
 *Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.*
 
@@ -967,14 +975,14 @@
 | `dst` | [24:32] (byte+3) | register |  |
 | `addr_lo` | [32:40] (byte+4) | register |  |
 | `addr_hi` | [40:48] (byte+5) | register |  |
-| `flags` | [48:56] (byte+6) | modifier |  |
-| `inert7` | [56:64] (byte+7) | raw/unmapped |  |
+| `flags` | [48:56] (byte+6) | modifier | `0x20`=device/global (bit5); `0x0`=threadgroup/other; `0x80`=extended (bit7); `0xa0`=device+extended |
+| `reserved7` | [56:64] (byte+7) | modifier |  |
 | `width` | [64:72] (byte+8) | immediate |  |
 | `off_lo` | [72:80] (byte+9) | immediate |  |
 | `field_off` | [80:88] (byte+10) | immediate |  |
 | `off_hi` | [88:96] (byte+11) | immediate |  |
 | `elem_size` | [96:104] (byte+12) | immediate |  |
-| `inert13` | [104:112] (byte+13) | raw/unmapped |  |
+| `reserved13` | [104:112] (byte+13) | modifier |  |
 
 *RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.*
 
@@ -1054,14 +1062,15 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `grp` | [0:8] (byte+0) | raw/unmapped |  |
-| `lead` | [8:16] (byte+1) | raw/unmapped |  |
+| `grp` | [0:8] (byte+0) | modifier |  |
+| `lead` | [8:16] (byte+1) | enum | `0xd`=leading; `0x5`=subsequent |
 | `dst` | [24:32] (byte+3) | register |  |
-| `c4` | [32:40] (byte+4) | raw/unmapped |  |
+| `coeff_sel` | [32:40] (byte+4) | modifier |  |
 | `src_slot` | [40:48] (byte+5) | immediate |  |
-| `mode` | [48:56] (byte+6) | enum | `0x0`=center/linear; `0x2`=centroid/sample; `0x4`=perspective-denominator(W) |
-| `c7` | [56:64] (byte+7) | raw/unmapped |  |
-| `tail` | [64:80] (byte+8) | raw/unmapped |  |
+| `mode` | [48:56] (byte+6) | enum | `0x0`=center/linear-component; `0x4`=perspective-W-denominator; `0xf`=centroid/sample-W-denominator; `0x14`=centroid/sample-component |
+| `c7` | [56:64] (byte+7) | modifier |  |
+| `loc` | [64:72] (byte+8) | enum | `0x10`=pixel-center; `0x8`=centroid/sample; `0x9`=centroid/sample-first; `0x0`=mid-component; `0x20`=last-component |
+| `b9` | [72:80] (byte+9) | modifier |  |
 
 *r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle varying/coefficient slot (slot<<1); byte+3 = destination GPR; byte+6 = interpolation location: 0x00 pixel-centre/linear, 0x02 centroid or per-sample (paired with the 8-byte iter_at setup + a 0x04/0x03 position preamble), 0x04 the perspective denominator (W) channel. PERSPECTIVE-CORRECT interpolation is a multi-instruction lowering, NOT a single mode bit: linear component iters (byte+6==0x00) + a W-denominator iter (byte+6==0x04) + a 0xaf reciprocal (rcp of interpolated 1/w) + a per-component fmul. [[flat]] uses the separate 6-byte iter_flat op instead (no barycentric interp). The pull-model interpolate_at_center/centroid/sample compile BYTE-IDENTICALLY to the matching [[*_perspective]] qualifier.*
 
@@ -1478,6 +1487,46 @@
 
 - **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x00, byte+2==0x66
 
+### `ret_luse`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x8f, byte+2==0x56
+
+### `mem_fence8`
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x07, byte+1==0x00, byte+2==0x54, byte+4==0x80
+
+### `rtq_dualsrc`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, byte+1==0x02, byte+2==0x00
+
+### `n4_cf_word`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+1==0x01, byte+2==0x00
+
+### `n4_rt_word`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+2==0x20, byte+3==0x80
+
+### `n1_word`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x01, byte+1==0x00
+
+### `n3_word`
+
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x03, byte+1==0x02
+
+### `falu_compact4`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9
+
+### `falu2_srcmod10`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1
+
+### `falu3_srcmod12`
+
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa/isadb.py`; this table summarizes it:
@@ -1552,4 +1601,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa/db.json` — 145 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa/db.json` — 155 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

@@ -1,0 +1,83 @@
+{
+  "task": "EXP-M4-13 R7 DESYNC-ROOT CLOSURE. Per-file FIRST-desync-root census over the full 1024-file OWN-MSL corpus; for each unclean program the first offset where instr_length==None. Classify each byte0 root GENUINE-fixable vs pure cascade / operand-tail owned by an upstream op. Close the single biggest genuine root by byte-diff of own-MSL so the stream re-aligns and the downstream cascade collapses. CLEAN-ROOM: only shaders WE compile from OUR OWN MSL; shdump compile-only, no GPU dispatch; every closed op reproduced byte-exact from a fresh own-MSL compile.",
+  "group": "desync-root-0x42 / n2_op6 dst>=r4 (getter_marshal)",
+  "kind": "length_only + desync-closed (length-rule EDIT extends an EXISTING typed descriptor; no new descriptor, no field weakened)",
+  "baseline": {
+    "corpusFiles": 1024,
+    "totalInstrBytes": 529502,
+    "desyncBytesBefore": 14716,
+    "desyncPctBefore": 2.779,
+    "uncleanFilesBefore": 351,
+    "method": "census_roots.py walk() (align-forward resync tokenizer, same as EXP-M4-01 census.py) run over EXP-M4-13-full-corpus/hex/*.hex; FIRST-desync root = first walk record with status=='undecoded'."
+  },
+  "firstDesyncRootCensusBefore": {
+    "0x00": {"files": 63, "downstreamDesyncB": 924, "verdict": "CASCADE owned by upstream (NOT fixed)", "note": "`00 04 00 00` (x13) = interior of the vertex 0x17 coord-transform bundle (owner = 0x21 root); `00 02 e7 ..` = half2 saturate/neg tail before device_store; `00 10 11 00` = f16 subgroup epilogue. byte+1 sets {02,08,10} are operand-tail landings of the immediately-preceding op's family, not standalone leaders."},
+    "0x42": {"files": 33, "downstreamDesyncB": 6396, "verdict": "GENUINE ROOT -- CLOSED this round", "note": "`42 XX 00 00 ZZ WW` (byte+2==0 AND byte+3==0). Upstream mov_imm is CORRECTLY lengthed (2B), so 0x42 is a genuine instruction leader missing a length rule -- NOT an operand-tail landing. It is the dst>=r4 sibling of the already-lengthed+named r0 form `02 XX 00`."},
+    "0x02": {"files": 31, "downstreamDesyncB": 598, "verdict": "MIXED cascade (NOT fixed)", "note": "`02 c2 59 87` / `02 0a 59 15` etc = operand tails of preceding falu/coord ops; low-nibble-2 dst-r0 compact forms already handled where genuine."},
+    "0x21": {"files": 30, "downstreamDesyncB": 360, "verdict": "GENUINE vertex-coord ops, resync-clean (NOT fixed -- needs own-MSL length per op)", "note": "`21 82 a6 b0 07 02 82 01` (8B) is a genuine low-nibble-1 op in the VERTEX coordinate-transform bundle, bracketed between the named vtx_coord_xform (0x17, 10B) and n2_op6; `07 02 a2 b0` (4B) likewise. These already resync cleanly (no cascade / no silent-mislength risk) so closing them is safe but requires byte-diff to length each op in the coord bundle -- deferred (vertex-coord family task)."},
+    "0x54": {"files": 26, "downstreamDesyncB": 578, "verdict": "GENUINE CASCADE but UNSAFE to force this round (needs-splice)", "note": "Root cause = an upstream low-nibble-2 SELECT op (reg-operand cmpsel `-> 10`, or the 0x22 `-> 10`, or a length_only 0x17) that over-reads by 2 and SWALLOWS a following op-leader (`0f 05` if_push / `0f 01` jump_cond / `9f 00` imad), exposing `54 XX` as spurious. Shortening those to 8 collapses the cascade -- BUT the follower byte is AMBIGUOUS: `9f 00` occurs at bytes+8..+9 of 4 GENUINE len-10 cmpsel sites too (probe_cmpsel8.py). A follower-byte heuristic would introduce SILENT mis-lengths that self-heal downstream and are invisible to the leftover metric. Correctly splitting 8-vs-10 needs own-MSL byte-diff per upstream family. Left UNRESOLVED honestly rather than gamed. (The r4 `e7/67 00`->8 gate is safe precisely because e7/67 never appears at +8 of a genuine cmpsel.)"},
+    "0x44": {"files": 24, "downstreamDesyncB": 6102, "verdict": "NOT cascade -- independent RT-traversal ops (NOT fixed)", "note": "`44 21` (2B) is a genuine small op before sr_read_wide, but the 6102B downstream is MANY independent unmodeled RT-traversal ops scattered through the query body (fulldump.py rt_frag_query: 40+ separate regions), NOT a cascade from `44 21`. Fully decoding the traversal record is RT-traversal-record-layout territory (clean-room rule 5, forbidden as a transcribed sequence). Owner = the RT-traversal family; downstream desync is genuine-gap, not collapsible by closing `44 21`."},
+    "biggestSingleRegions": {"per_sample_blend": "96B @144 (0x81) + 50B @244 (0x90) = the fragment per-sample BLEND MICROPROGRAM -- clean-room rule 5 forbids transcribing this compiler-generated sequence as a recipe; NOT touched.", "rtq_type/rt_query": "24-34B regions = RT-traversal record layout, same forbidden class."}
+  },
+  "descriptors": [
+    {
+      "mnemonic": "n2_op6",
+      "refinedInPlace": true,
+      "definitionChanged": false,
+      "length": 6,
+      "match": [[0, 4, 2]],
+      "fields": [
+        {"name": "dst", "start": 4, "width": 4, "type": "reg"},
+        {"name": "src_desc", "start": 8, "width": 8, "type": "mod"},
+        {"name": "opsel", "start": 16, "width": 8, "type": "enum", "enum": {"0": "compact_select/move", "2": "mode2", "8": "mode8", "16": "mode10", "18": "mode12", "41": "mode29"}},
+        {"name": "opA", "start": 24, "width": 8, "type": "raw"},
+        {"name": "opB", "start": 32, "width": 8, "type": "raw"},
+        {"name": "imm_sel", "start": 40, "width": 8, "type": "imm"}
+      ],
+      "semantics": "Compact 6-byte low-nibble-2 select/predicate/helper (existing descriptor, UNCHANGED). The RT intersection_query / traversal GETTER-MARSHALLING op `Xn YY 00 00 ZZ WW` is the opsel==0x00 (compact_select/move) sub-form of this op: dst = byte0 high nibble; src_desc (byte+1) = the getter/state selector (0x00 dominant, also 0x3c/0x7e/0x08 observed); byte+2 (opsel) == 0x00 = compact select/move; byte+3 (opA) == 0x00 here (the length-gate invariant); byte+4/byte+5 = operand/immediate (usually 0, byte+5 can be nonzero e.g. `42 7e 00 00 00 0c`). Round-trips byte-exact (asm(disasm(b))==b) for dst r4/r6/r8/r9/r10/r12/r14 forms.",
+      "provenance": "CLEAN-ROOM OWN-MSL. shdump_r7_desync (compile-only, no GPU dispatch) built from tools/shdump/shdump.m; MSL WE wrote (corpus/dec2_n8_eight/g_bary.metal, g_geom.metal, g_commit.metal, g_inst.metal -- intersection_query getters) recompiled and confirmed byte-IDENTICAL to the committed corpus hex. Op boundary bracket-proven in own-MSL g_bary: mov_imm(2B) @342 -> `42 3c 00 00 00 00`(6B) @344 -> mov_imm @350; and `42 7e 00 00 00 0c` @352 -> scoreboard_fence(0x07) @358, so byte+5==0x0c is an OPERAND consumed by the op (proves 6B, not 2B+pads). dst=high-nibble confirmed by the reg-sweep already in n2_op6 (r0..r15) and by the observed dst set r4/r6/r8/r9/r10/r12/r14. No Apple binary was introspected."
+    }
+  ],
+  "lengthRuleEdits": [
+    {
+      "root": "0x42 (and low-nibble-2 dst>=r4 siblings 0x52/0x62/0x82/0x92/0xa2/0xc2/0xe2)",
+      "location": "isadb.instr_length, low-nibble-2 block, at the END -- immediately after the `if b0 == 0x32: return 6 if 0 <= b2 <= 0x3f else LEN_UNKNOWN` line, BEFORE the final `return LEN_UNKNOWN`.",
+      "gate": "(b0 & 0x0f) == 0x02 and (already past the 0x02/0x12/0x22/0x32 returns, i.e. dst>=r4) and b2 == 0x00 and b3 == 0x00 and off + 5 < len(buf)",
+      "length": 6,
+      "mnemonic": "n2_op6 (getter_marshal / compact select-move sub-form)",
+      "code": "if b2 == 0x00 and b3 == 0x00 and off + 5 < len(buf):\n    return 6                   # getter_marshal / n2_op6 dst>=r4 (EXP-M4-13 R7)",
+      "change": "ADD: length 6 for the dst>=r4 low-nibble-2 compact op with byte+2==0 AND byte+3==0. Reaches this fallback ONLY for dst>=r4 (0x02/0x12/0x22/0x32 return earlier), where instr_length previously returned LEN_UNKNOWN -- so PURELY ADDITIVE. It is the exact dst>=r4 analogue of the existing `if b0==0x02: if 0<=b2<=0x3f: return 6` rule (dst r0). The now-lengthed bytes decode as the existing n2_op6 descriptor (named, typed).",
+      "safety": "Gate is LOAD-BEARING and MINIMAL: the b3==0x00 requirement is required -- dropping it (b2==0 only) regresses 6 tessellation vertex files (b3!=0 forms are genuinely 8/10B); broadening to any b2<=0x3f regresses 13 files. With b2==0 AND b3==0: 44 files improved, 0 files worse (no per-file leftover increase anywhere), roundtrip suite ALL PASS, 1024/1024 corpus files disassemble with 0 exceptions. 346 ops now length+named across 44 files."
+    }
+  ],
+  "opsTouched": ["n2_op6"],
+  "rawBitsBefore": 16608,
+  "rawBitsAfter": 5536,
+  "rawBitsAccounting": "346 closed ops x 48 bits = 16608 bits were entirely UNLOCATED before (length unknown, no field typing). After: each op is length+named as n2_op6 with 28 bits located+typed (dst 4b, src_desc 8b, opsel 8b, imm_sel 8b) and 16 bits (opA byte+3, opB byte+4) kept RAW per n2_op6's EXISTING deliberate-raw policy -> 346 x 16 = 5536 bits still raw. In the getter_marshal sub-form opA(byte+3)==0x00 is the fixed length-gate invariant; opB(byte+4) is the operand descriptor whose value-semantics need a splice to map (unchanged from n2_op6's standing policy).",
+  "closedBytes": 808,
+  "desyncAfter": {"desyncBytesAfter": 13908, "desyncPctAfter": 2.627, "reclaimed": 808, "note": "808B > the ~692B of raw `42 XX` 2-byte leaders (346 x 2) -> ~116B of genuine downstream CASCADE COLLAPSE from re-alignment. files_with_desync unchanged (351) because the closed files retain other independent gaps (RT-traversal / half2 / vertex-coord)."},
+  "validation": {
+    "tokenizationUnchanged": true,
+    "tokenizationUnchangedNote": "Edit fires ONLY where instr_length previously returned LEN_UNKNOWN (low-nibble-2 dst>=r4, b2==0, b3==0); no previously-lengthed op changes length or mnemonic. Verified: 0 files got worse.",
+    "roundtripSuitePass": true,
+    "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py on the scratch isadb: ALL PASS (real asm(disasm)==bytes, synth, whole-program tokenization, imm codec). No synth/test entry needed changing (n2_op6 descriptor definition unchanged).",
+    "noRegression": true,
+    "noRegressionNote": "compare.py over all 1024 files: 44 improved, 0 worse (+0B). No per-file leftover INCREASE anywhere.",
+    "asmDisasmOnTouchedOps": true,
+    "asmDisasmNote": "asm(disasm(b))==b byte-exact and length==6 for 420000000000 / 423c00000000 / 427e0000000c and the dst siblings 62../82../92../a2../c2../e2..0000.",
+    "fullCorpusDisassembleExceptions": 0,
+    "occurrencesClosed": 346,
+    "filesImproved": 44,
+    "dstByte0Distribution": {"0x42": 143, "0x82": 79, "0xa2": 58, "0x62": 55, "0xe2": 5, "0xc2": 5, "0x92": 1}
+  },
+  "unresolved": [
+    "0x54 cascade (26 files, 578B): GENUINE upstream-over-length cascade (select op swallows `0f 05`/`0f 01`/`9f 00` op-leader). Correct 8-vs-10 split needs own-MSL byte-diff per upstream family -- the follower byte alone is ambiguous (`9f 00` sits at +8 of 4 genuine len-10 cmpsels), so a heuristic would create SILENT mis-lengths invisible to the leftover metric. Deferred as needs-splice; NOT force-sliced. M4-recoverable-later.",
+    "0x21 / 0x02 vertex-coord bundle (~30 files): genuine low-nibble-1/low-nibble-7 ops (`21 82 a6 b0 07 02 82 01` 8B, `07 02 a2 b0` 4B) in the VERTEX position/varying computation. Resync-clean (no cascade), so closable safely by byte-diff, but each op in the coord bundle needs its own length established -- deferred to a vertex-coord-family task. M4-recoverable-later.",
+    "0x44 RT-traversal (24 files, 6102B): NOT cascade -- many independent unmodeled RT-traversal ops. Fully decoding is RT-traversal-record-layout (clean-room rule 5 forbids transcribing the sequence). Owner = RT-traversal family; genuine-gap, not collapsible. needs-splice / partly out-of-scope.",
+    "per_sample_blend 96B+50B: fragment BLEND MICROPROGRAM -- clean-room rule 5 forbids transcribing this compiler-generated sequence. Genuinely out-of-scope for op-level closure.",
+    "half2 compact ALU family (`28 05 38 08 20 04 ...` runs, ~30B in half_minmax/tile_resolve/bf16 files): a legit packed-half compact ALU family (low-nibble 8/0) not yet length-modelled; interleaved 2-byte compact ops need own-MSL byte-diff to length each -- deferred (half2-compact family). M4-recoverable-later.",
+    "byte+1 (src_desc) selector value->meaning and opB (byte+4) operand-descriptor semantics of the getter_marshal n2_op6 sub-form: field ROLE is located+typed (mod / raw per existing n2_op6), but exhaustive VALUE mapping needs a splice -- kept per n2_op6's standing deliberate-raw policy; NOT invented."
+  ],
+  "provenance": "CLEAN-ROOM OWN-MSL end-to-end. shdump_r7_desync compiled from tools/shdump/shdump.m (compile-only; the tool never dispatches to the GPU). Own MSL we wrote (intersection_query getters) recompiled at runtime, AGX bytes extracted with our own agxparse.py, tokenized/byte-diffed with our own isadb + census_roots.py + bytediff.py. Fresh g_bary compile is byte-IDENTICAL to the committed corpus hex (reproducibility proven). No Apple binary was introspected; no disassembly of any Apple binary. NEVER committed; all work under experiments/EXP-M4-13-full-corpus/work/r7_desync_roots/ scratch. Only a length-rule extension of an already-typed op was authored -- no compiler-generated SEQUENCE (RT-traversal record, blend microprogram, SFU reduction) was transcribed.",
+  "scratchArtifacts": "experiments/EXP-M4-13-full-corpus/work/r7_desync_roots/: census_roots.py (per-file first-desync root census), diag_root.py, shape.py, bigregions.py, fulldump.py, probe42.py, probe_marshal.py, probe_cmpsel8.py, harness.py+baseline.json+compare.py (empirical desync/regression harness), isadb.py (scratch copy with the R7 edit), roundtrip_test.py, shdump_r7_desync + g_bary/g_geom/g_commit/g_inst .bin/.hex fresh own-MSL compiles."
+}

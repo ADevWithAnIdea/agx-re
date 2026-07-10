@@ -1,0 +1,453 @@
+{
+ "group": "SFU + system/control: fspecial + get_sr + sr_read_wide + stop + scoreboard_fence + dev_scoreboard_fence (EXP-M4-13 R7 encoding field typing)",
+ "kind": "refine-in-place (field typing; no length/match change)",
+ "descriptors": [
+  {
+   "mnemonic": "fspecial",
+   "length": 10,
+   "match": [
+    [
+     0,
+     7,
+     47
+    ]
+   ],
+   "fields": [
+    {
+     "name": "fn_hi",
+     "start": 7,
+     "width": 1,
+     "type": "enum",
+     "enum": {
+      "0": "direct (0x2f: sqrt/log2/round-family/sincos)",
+      "1": "reciprocal (0xaf: rcp/rsqrt/exp2)"
+     }
+    },
+    {
+     "name": "fnclass",
+     "start": 8,
+     "width": 4,
+     "type": "opcode",
+     "enum": {
+      "0": "rcp|round",
+      "1": "rsqrt|sqrt",
+      "2": "exp2|log2",
+      "3": "sincos/tan primitive (inferred)",
+      "4": "compound intermediate (pow/exp range-reduce, inferred)"
+     }
+    },
+    {
+     "name": "dst",
+     "start": 12,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "src_cache",
+     "start": 16,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "86": "cached source (fresh operand)",
+      "84": "uncached (later consumer of a shared/computed source)"
+     }
+    },
+    {
+     "name": "src",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "src_class",
+     "start": 32,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "3": "32-bit GPR source",
+      "2": "16-bit / alt operand class"
+     }
+    },
+    {
+     "name": "src_ext",
+     "start": 40,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "fnsel",
+     "start": 48,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "16": "rcp datapath",
+      "176": "std SFU f32 (rsqrt/exp2/log2/round)",
+      "146": "sqrt / sincos datapath",
+      "172": "SFU f16 datapath",
+      "2": "rcp alt-operand form",
+      "138": "(inferred)",
+      "142": "(inferred)",
+      "144": "(inferred)",
+      "0": "(inferred)",
+      "32": "compound range-reduce (inferred)"
+     }
+    },
+    {
+     "name": "precsel",
+     "start": 56,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "64": "f32 result",
+      "72": "rcp f32",
+      "96": "f16 result",
+      "68": "(inferred)",
+      "192": "log2 negate (inferred)",
+      "0": "(inferred)"
+     }
+    },
+    {
+     "name": "roundmode",
+     "start": 64,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "0": "nearest / none",
+      "2": "floor",
+      "4": "ceil",
+      "6": "trunc",
+      "32": "reciprocal-precision flag (rcp/1-op SFU)"
+     }
+    },
+    {
+     "name": "sched_flag",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d[dst] = SFU(src). Function = (byte0 bit7 fn_hi, byte+1-lo fnclass): (direct,0x0)=round[floor/ceil/trunc/rint via byte+8], (direct,0x1)=sqrt, (direct,0x2)=log2, (direct,0x3)=sincos/tan primitive; (recip,0x0)=rcp(1/x), (recip,0x1)=rsqrt(1/sqrt x), (recip,0x2)=exp2(2^x). dst = byte+1 HIGH nibble (GPR, PROVEN by a 5-way rsqrt dst sweep 0x01/0x11/0x21/0x41/0x81). Source operand = byte+3 (reg low) + byte+5 (reg ext) + byte+4 (operand class 0x03 f32 / 0x02 f16-or-alt); byte+2 = source-cache bit (0x56 fresh / 0x54 shared). byte+6/+7 = the secondary function+precision datapath descriptor (co-varies with the function & result size: rcp 0x10/0x48, std-f32 0xb0/0x40, sqrt/sincos 0x92/0x40, f16 0xac/0x60). byte+8 = round mode (round family) or the reciprocal precision flag (0x20). byte+9 = a result/last-use scheduling flag. One hardware special-function op; fast-math emits it directly (~1 ULP). exp/exp10 = exp2(x*k); log/log10 = log2(x)*k; pow = exp2(b*log2(a)); a/b = a*rcp(b).",
+   "provenance": "HW-VALIDATED (EXP-0013 exp2/log2/round; EXP-0026 rcp/rsqrt/sqrt): exp2/log2 exact on powers of two, 1 ULP elsewhere; floor/ceil/trunc/rint via byte+8 round-mode; under fast-math 1/x,rsqrt,sqrt each compile to a single op of this group at ~0-1 ULP, and a/b=a*rcp(b), pow=exp2(b*log2(a)). OPERAND/CONTROL FIELDS byte-diff PROVEN (EXP-M4-13 R7, own-MSL, compile-only): dst=byte+1-hi PROVEN by a 5-destination rsqrt sweep (byte+1 0x01->0x11->0x21->0x41->0x81 tracks r0/r1/r2/r4/r8); src register located by a per-source rsqrt sweep (byte+3 & byte+5 step together, byte+4 const 0x03); fnclass 0x3 (tan/sincos) & 0x4 (pow range-reduce) + src_class 0x02 (half rsqrt: byte+4/+6/+7 shift to 0x02/0xac/0x60) read off own exp/log/pow/tan/half-rsqrt compiles. fnsel/precsel/sched_flag VALUES partially mapped -- roles located, some value->meaning inferred (needs GPU-dispatch splice; M4 host is compile-only)."
+  },
+  {
+   "mnemonic": "get_sr",
+   "length": 4,
+   "match": [
+    [
+     0,
+     3,
+     4
+    ]
+   ],
+   "fields": [
+    {
+     "name": "form",
+     "start": 3,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "sr_sel",
+     "start": 8,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "130": "thread_index_in_simdgroup (simd_lane_id)",
+      "132": "simd_is_helper_thread (FS)",
+      "133": "simdgroup_index_in_threadgroup (simd_group_id)",
+      "136": "base_vertex (VS)",
+      "138": "base_instance (VS)",
+      "152": "threads_per_threadgroup.x",
+      "153": "threads_per_threadgroup.y",
+      "154": "threads_per_threadgroup.z",
+      "156": "threadgroup_position_in_grid.x",
+      "157": "threadgroup_position_in_grid.y",
+      "158": "threadgroup_position_in_grid.z",
+      "160": "thread_position_in_grid.x (FS: pixel x)",
+      "161": "thread_position_in_grid.y (FS: pixel y)",
+      "162": "thread_position_in_grid.z",
+      "164": "thread_position_in_threadgroup.x",
+      "165": "thread_position_in_threadgroup.y",
+      "166": "thread_position_in_threadgroup.z",
+      "167": "thread_index_in_threadgroup",
+      "168": "threadgroups_per_grid.x",
+      "169": "threadgroups_per_grid.y",
+      "170": "threadgroups_per_grid.z",
+      "197": "front_facing (FS)",
+      "216": "instance_id (VS)",
+      "221": "vertex_id (VS/FS-interp)",
+      "149": "compute SR (atomic/subgroup/threadgroup kernels; needs isolation)",
+      "224": "mesh-stage SR (mesh shaders only; needs isolation)",
+      "225": "mesh-stage SR (mesh shaders only; needs isolation)"
+     }
+    },
+    {
+     "name": "dp_width",
+     "start": 16,
+     "width": 8,
+     "type": "mod",
+     "enum": {
+      "16": "std 32-bit read (dst<r64)",
+      "80": "top dst bank (dst>=r64)",
+      "17": "bool/helper-thread read (inferred)",
+      "20": "lane-id datapath (inferred)"
+     }
+    },
+    {
+     "name": "dp_marker",
+     "start": 24,
+     "width": 5,
+     "type": "mod"
+    },
+    {
+     "name": "dst_hi",
+     "start": 29,
+     "width": 3,
+     "type": "reg"
+    }
+   ],
+   "semantics": "d[dst] = special_register[sr_sel]  ; read a built-in/special register (thread/threadgroup/simd IDs & dimensions; VS vertex_id/instance_id/base_*; FS position/front_facing) into a GPR. sr_sel = BYTE1 is the SR number (NOT byte0-hi, which is the dst GPR LOW nibble). The full destination register is dst = byte0[4:8] | (byte+3[5:8] << 4), reaching r0..r127 -- dst_hi (byte+3 bits5-7) is the register EXTENSION. byte0 low-3-bits = 0b100; bit3 (form) is a datapath/width modifier (set for the position-in-grid SR family) that does not change the SR select. byte+2 (dp_width) is a datapath width / dst-bank descriptor. byte+3 low 5 bits are a fixed 32-bit-read marker (0x06). IDs are read on demand -- no stage preloads them into GPRs. Constant-folded builtins (e.g. threads_per_simdgroup=32) use the 2-byte mov_imm instead.",
+   "provenance": "HW-VALIDATED (EXP-0031): SR# = byte1 splice-proven on dispatched kernels (0x82->lane, 0x85->simd_group, 0x98->threads_per_tg=64, 0xa0->pos_in_grid); dst = byte0-hi proven by multi-getsr kernels; front_facing (0xc5) both-sided via winding flip. VS/FS SR numbers from isolation byte-diff. (Corrects EXP-0010.) SR 0x84 = simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06` read then compared, byte-diff-inferred (f_helper vs f_plain fragment, EXP-O2D). SUFFIX TYPING (EXP-M4-13 R7, own-MSL compile-only): dst_hi = byte+3 bits5-7 PROVEN by an 18-SR compute kernel where (byte0-hi | byte+3-hi<<4) grows monotonically with register pressure (r8,r21,r34,...,r64,r65) independent of the SR selector and of the vector component -- it is the dst register extension, not an SR field. dp_width 0x10->0x50 flips exactly at dst>=r64. SR 0x95 (compute), 0xe0/0xe1 (mesh-only) located by corpus stage-attribution; exact meaning needs isolation."
+  },
+  {
+   "mnemonic": "sr_read_wide",
+   "length": 8,
+   "match": [
+    [
+     0,
+     4,
+     4
+    ],
+    [
+     15,
+     1,
+     1
+    ],
+    [
+     24,
+     8,
+     0
+    ],
+    [
+     16,
+     1,
+     0
+    ],
+    [
+     17,
+     1,
+     1
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "sel",
+     "start": 8,
+     "width": 7,
+     "type": "enum",
+     "enum": {
+      "127": "simd_matrix_ld/st_builtin",
+      "0": "wide_builtin_base",
+      "33": "rtq_property(a1)",
+      "1": "rtq_property(81)",
+      "72": "rtq_property(c8)"
+     }
+    },
+    {
+     "name": "width",
+     "start": 16,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "34": "w22",
+      "2": "w02",
+      "6": "w06",
+      "70": "w46",
+      "38": "w26"
+     }
+    },
+    {
+     "name": "operand",
+     "start": 32,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "marshal",
+     "start": 40,
+     "width": 16,
+     "type": "mod"
+    },
+    {
+     "name": "reserved",
+     "start": 56,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "d[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the sub-selector / component-WIDTH: toggles 0x02<->0x06 across successive component reads of one wide value, and 0x22/0x26/0x46 across property kinds. operand (byte+4) = an element/offset operand that STEPS with the wide-component index (0x00,0x10,0x18,.. as dst advances r0->r3). marshal (byte+5/+6) = the RT-getter / matrix element operand descriptor (typed mod: located as a getter/element operand that co-steps with the component, e.g. 0x0c/0x01/0x05; the getter/marshal SEQUENCE itself is NOT reconstructed, rule 5). reserved (byte+7) = const 0x00 in all 26 corpus instances.",
+   "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=659): dst=byte0-hi PROVEN by nibble histogram; sel values PINNED by kernel co-occurrence (0x7f only in subgroupMatrixLoad/Store; 0xa1/0x81 only in intersection_query getters); width toggle and operand step READ off the mat2x4/mat4x4 explicit-identity sweep (byte+2 02<->06, byte+4 00/10/18/.. tracking the component). marshal kept raw. selector/width per-value SEMANTICS inferred, NOT HW-dispatch validated. Strictly less specific than rt_intersect (byte+1==0xea)."
+  },
+  {
+   "mnemonic": "stop",
+   "length": 4,
+   "match": [
+    [
+     0,
+     8,
+     14
+    ]
+   ],
+   "fields": [
+    {
+     "name": "reserved",
+     "start": 8,
+     "width": 24,
+     "type": "raw"
+    }
+   ],
+   "semantics": "conventional program-end word (whole body of an empty kernel). NOT a strictly-enforced terminator and NOT parameterized: the 24-bit body is reserved-zero and non-load-bearing -- corrupting any of it is a no-op (EXP-0003/EXP-0010 E4). The true end-of-program is out-of-band (the metadata code length), not this in-band token. There is no scope/mask/wait operand.",
+   "provenance": "HW-confirmed non-required (EXP-0003; EXP-0010 E4 splice = no-op). EXP-M4-13 R7 corpus census: body==0x000000 in 615/617 instances (2 nonzero are padding). The reserved body is genuinely-unlocatable (never legitimately varies), so it stays raw -- a documented negative result, not an untyped gap."
+  },
+  {
+   "mnemonic": "scoreboard_fence",
+   "length": 4,
+   "match": [
+    [
+     0,
+     8,
+     7
+    ],
+    [
+     16,
+     1,
+     0
+    ]
+   ],
+   "fields": [
+    {
+     "name": "kind",
+     "start": 8,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "0": "CF-edge fence (break/continue)",
+      "2": "CF-edge fence (variant)",
+      "34": "pre-call / pre-atomic register+scoreboard fence",
+      "192": "wide/device-order fence (inferred)",
+      "194": "wide/device-order fence (inferred)"
+     }
+    },
+    {
+     "name": "scope",
+     "start": 17,
+     "width": 7,
+     "type": "enum",
+     "enum": {
+      "1": "ordered (byte+2 0x02: default CF/call scope)",
+      "0": "unordered (byte+2 0x00)",
+      "16": "extended scope (byte+2 0x20: nested-divergence)",
+      "17": "extended+ordered (byte+2 0x22)"
+     }
+    },
+    {
+     "name": "mask",
+     "start": 24,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "compute memory / scoreboard fence (4 bytes): 07 <kind> <scope> <mask>. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.",
+   "provenance": "HW-observed byte-diff (RT-ISA-FIX): `07 22 02 00` precedes every out-of-line call in the RT-1b stress census (followed by 43 00 00 01); `07 02 00 00` / `07 00 00 00` appear around break/continue in our for/while/nested CF kernels (which run correct on HW). Length 4 gives clean whole-kernel tokenization. FIELD TYPING (EXP-M4-13 R7, own-MSL compile-only): byte-diff over own CF / atomic-fence / noinline-call / nested-loop / switch kernels localizes byte+1 (kind: 0x00/0x02 CF-edge vs 0x22 pre-call/pre-atomic vs 0xc0/0xc2 wide), byte+2 (scope: 0x00/0x02 default vs 0x20 nested-divergence), byte+3 (mask: 0x00 default vs the bit7 forms 0x80/0xa0/0xb0/0x81 emitted only around nested/switch divergence). Roles located; value->meaning partially inferred (a fence's effect only manifests under a data hazard, so not GPU-splice isolated -- M4 host is compile-only)."
+  },
+  {
+   "mnemonic": "dev_scoreboard_fence",
+   "length": 4,
+   "match": [
+    [
+     0,
+     8,
+     128
+    ],
+    [
+     8,
+     8,
+     2
+    ],
+    [
+     16,
+     8,
+     0
+    ]
+   ],
+   "fields": [
+    {
+     "name": "reserved",
+     "start": 24,
+     "width": 8,
+     "type": "raw"
+    }
+   ],
+   "semantics": "Compute memory / scoreboard FENCE, device/wide-scope variant: `80 02 00 00` (4 bytes). The 0x80 sibling of the 0x07/0x87 scoreboard_fence family (high bit = wider memory/device scope). The compiler inserts it around divergent control flow and before atomics/calls. byte+3 is a scope/flag operand (0x00 in observed forms). A bare `80 02` with byte+2 != 0x00 is the 2-byte compact form (pad_operand).",
+   "provenance": "byte-diff EXP-M4-13 (field positions; scope semantics from EXP-M4-01 census anchoring). No HW dispatch -- structural / census-anchored, not splice-validated."
+  }
+ ],
+ "lengthRuleEdits": [],
+ "rawBitsBefore": 152,
+ "rawBitsAfter": 40,
+ "rawBitsBeforeBreakdown": {
+  "fspecial": 56,
+  "get_sr": 16,
+  "sr_read_wide": 24,
+  "stop": 24,
+  "scoreboard_fence": 24,
+  "dev_scoreboard_fence": 8
+ },
+ "rawBitsAfterBreakdown": {
+  "fspecial": 0,
+  "get_sr": 0,
+  "sr_read_wide": 8,
+  "stop": 24,
+  "scoreboard_fence": 0,
+  "dev_scoreboard_fence": 8,
+  "note": "remaining 40 raw bits are ALL honest: stop 24 (non-load-bearing program-end body, EXP-0010 E4 splice=no-op, never legitimately varies); sr_read_wide 8 (byte+7 const-0 marshal tail, getter SEQUENCE not reconstructed per clean-room rule 5); dev_scoreboard_fence 8 (byte+3 const-0 in all 11 corpus instances, byte0/+1/+2 already match-pinned). None are gameable placeholders."
+ },
+ "validation": {
+  "tokenizationUnchanged": true,
+  "roundtripSuitePass": true,
+  "noRegression": true,
+  "corpusHexFilesScanned": 1024,
+  "tokenizationDifferencesVsBaseDB": 0,
+  "targetOpInstancesInCorpus": {
+   "get_sr": 1047,
+   "stop": 617,
+   "fspecial": 154,
+   "scoreboard_fence": 97,
+   "sr_read_wide": 26,
+   "dev_scoreboard_fence": 11
+  },
+  "targetOpInstancesRoundtripOK": 1952,
+  "targetOpInstancesRoundtripFail": 0,
+  "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py copied to work/r7_sfu_sys/ with the 2 fspecial SYNTH entries updated to the R7 field names (fn_hi/fnclass/dst/src_cache/src/src_class/src_ext/fnsel/precsel/roundmode/sched_flag) + 1 new dst-r2 rsqrt SYNTH probe, and 2 new own-MSL get_sr REAL_INSTRS (24aa1046 dst-r34, 0c9d5086 dst-r64) to exercise dst_hi/dp_width -> ALL PASS. No test weakened.",
+  "hwDispatchValidated": false
+ },
+ "unresolved": [
+  "fspecial fnsel(byte+6)/precsel(byte+7)/sched_flag(byte+9): ROLES located (secondary function+precision datapath descriptor co-varying with function & result size; sched_flag a result/last-use flag 0x00/0x01), but several value->meaning maps are inferred, not GPU-splice isolated (M4 host compile-only). M4-recoverable-later via own-MSL is exhausted; exact per-value meaning needs-splice.",
+  "get_sr dp_width(byte+2) low-nibble variants (0x11 helper-thread, 0x14 lane-id): LOCATED as a datapath width/type descriptor; per-value meaning inferred (needs-splice). dst_hi(byte+3 bits5-7) is byte-diff PROVEN as the dst register extension. sr_sel new values 0x95(compute)/0xe0/0xe1(mesh) located by stage-attribution; exact builtin needs isolation.",
+  "scoreboard_fence kind/scope/mask value->meaning partially inferred: a fence's effect only manifests under a data hazard, so not GPU-splice isolated -- needs-splice. Roles (kind=wait-scope, scope=ordering-subscope, mask=nested-divergence scoreboard target) are byte-diff located.",
+  "sr_read_wide marshal(byte+5/+6): typed mod (element/getter operand descriptor) but the getter/marshal SEQUENCE is deliberately NOT reconstructed (clean-room rule 5). byte+7 reserved const-0 kept raw.",
+  "stop reserved(24b) and dev_scoreboard_fence reserved(8b): GENUINELY-UNLOCATABLE -- constant-zero and (for stop) HW-proven non-load-bearing (EXP-0010 E4). No field for byte-diff to type; kept raw as documented negative results, not gap-gamed."
+ ]
+}

@@ -1,0 +1,133 @@
+{
+  "group": "RT finish: b_alu14_c83 (14B low-nibble-f int/simd ALU) + rt_ray_mem/rt_as_load residual raw",
+  "experiment": "EXP-M4-13 round-7 encoding field refinement (own-MSL, clean-room, compile-only on local Apple M4; NO GPU dispatch)",
+  "kind": "refine",
+  "summary": "Closed ALL residual raw bits on the three targeted RT/int-ALU ops by byte-diffing own-MSL variants and mapping the HW-validated memory/int-ALU family templates onto the byte-identical shapes. (1) b_alu14_c83 was mostly raw (hi/c4/c6/zz/tail = 59 raw bits + 3 byte-slots uncovered): a register-reallocation byte-diff (own-MSL fma-pressure variant) proved byte+7 is a GPR source (it SHIFTS with the reg-pair when the compiler relocates registers) while byte+12/+13 stay FIXED under the same realloc (a separate uniform/traversal-state source operand); byte+4/+6/+10 are fixed format bytes and byte+5/+8/+9/+11 reserved const-0 slots (imad family positions). (2) rt_ray_mem/rt_as_load had 16 raw bits each = the +7/+13 inert padding; retyped to reserved (mod) exactly as the HW-validated device_load reserved7/reserved13, CONST 0x00 across all corpus + own-MSL instances; flags(+6) annotated with the device_load access_desc enum. Result: 0 type=raw bits on all three ops; tokenization byte-identical to baseline over 7474 corpus files; every corpus + own-MSL instance roundtrips asm(disasm(b))==b.",
+  "method": "Built shdump_r7_rt from tools/shdump/shdump.m (compile-only, never dispatches). Recompiled the corpus producers (s_loopacc, rq_pred, raytracing/*) plus own-MSL variants that add register pressure (a preceding fma / dot chain) to force the compiler to reallocate GPRs around the traversal loop. Extracted AGX via agxparse.py --extract-hex, tokenized with a SCRATCH isadb copy, and byte-diffed. KEY R7 realloc diff: base s_loopacc emits `3f 19 83 18 03 00 80 0e ... c2 8b` (reg-pair r12, byte+7 0x0e=r7, byte+12/13 c2/8b); the fma-pressure variant emits `3f 1d 83 1c 03 00 80 14 ... c2 8b` (reg-pair r14, byte+7 0x14=r10, byte+12/13 UNCHANGED c2/8b) -- so byte+1/+3 and byte+7 are register operands that track allocation, and byte+12/+13 are a separate (uniform/state) operand. Frame/reserved bytes are CONST across all 71 corpus + all own-MSL b_alu14_c83 instances. For rt_ray_mem/rt_as_load, +7/+13 verified const 0x00 across 134/596 corpus + 32/119 own-MSL instances (device_load reserved analogue).",
+  "refinedDescriptors": [
+    {
+      "mnemonic": "b_alu14_c83",
+      "length": 14,
+      "match": [[0, 4, 15], [7, 1, 0], [16, 8, 131]],
+      "fields": [
+        {"name": "form",      "start": 4,   "width": 3, "type": "enum", "enum": {"3": "form_3f"}},
+        {"name": "reg_a",     "start": 8,   "width": 8, "type": "reg"},
+        {"name": "reg_b",     "start": 24,  "width": 8, "type": "reg"},
+        {"name": "fmt4",      "start": 32,  "width": 8, "type": "mod"},
+        {"name": "src_lo",    "start": 40,  "width": 8, "type": "mod"},
+        {"name": "fmt6",      "start": 48,  "width": 8, "type": "mod"},
+        {"name": "srcB_reg",  "start": 56,  "width": 8, "type": "reg"},
+        {"name": "rsv8",      "start": 64,  "width": 8, "type": "mod"},
+        {"name": "rsv9",      "start": 72,  "width": 8, "type": "mod"},
+        {"name": "fmt10",     "start": 80,  "width": 8, "type": "mod"},
+        {"name": "rsv11",     "start": 88,  "width": 8, "type": "mod"},
+        {"name": "srcU_reg",  "start": 96,  "width": 8, "type": "reg"},
+        {"name": "srcU_desc", "start": 104, "width": 8, "type": "mod"}
+      ],
+      "fieldNotes": {
+        "form": "byte0 high nibble bits[4:7] = variant/form selector (0x3f/0x5f/0x7f route to this len-14 rule; 0x5f handled in the 0x5f length block). Only 0x3f (form==3) occurs in own-MSL corpus; 5/7 inferred (same length rule).",
+        "reg_a": "byte+1: register operand, bits[1:8]=register number r, bit0=1 (size/width flag). CONFIRMED (R7 own-MSL realloc byte-diff): SHIFTS r12->r14 under GPR reallocation.",
+        "reg_b": "byte+3: SAME register number r as reg_a across all 71 corpus instances (b3 == b1 & 0xfe), bit0=0. The in-place dst/srcA pair. CONFIRMED co-varies with reg_a under realloc.",
+        "fmt4": "byte+4 fixed format byte, CONST 0x03 across all corpus + own-MSL instances (imad opmode-slot position).",
+        "src_lo": "byte+5 reserved/unused source slot, CONST 0x00 (imad srcB-slot position). Previously an UNCOVERED byte-slot; now an explicit field.",
+        "fmt6": "byte+6 fixed format byte, CONST 0x80 (imad srcC_lo-slot position).",
+        "srcB_reg": "byte+7: GPR SOURCE register (reg<<1, all corpus values even). CONFIRMED (R7 realloc byte-diff): SHIFTS r7->r10 together with the reg-pair when the compiler relocates GPRs -- a fixed frame byte would not move.",
+        "rsv8": "byte+8 reserved, CONST 0x00 (imad mulsel-slot position). Previously UNCOVERED; now explicit.",
+        "rsv9": "byte+9 reserved, CONST 0x00 (imad b9-slot position). Previously UNCOVERED; now explicit.",
+        "fmt10": "byte+10 fixed format byte, CONST 0x03.",
+        "rsv11": "byte+11 reserved, CONST 0x00.",
+        "srcU_reg": "byte+12: source-operand register number (reg<<1 | size bit; mostly even, occasionally odd). STABLE under GPR reallocation (unchanged c2/8b across the fma-pressure realloc while the GPRs moved) -> a uniform / traversal-state register file, NOT a GPR. Varies per instance within a kernel (distinct state operands).",
+        "srcU_desc": "byte+13: source-operand descriptor (uniform register high bits + operand type/size). Pairs with srcU_reg as a 16-bit source-operand word."
+      },
+      "semantics": "Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form), distinct from the iadd2/imad 0x9f/0x1f family (byte+2==0x54). ENCODING (typed, no traversal recipe): form-selector (byte0 hi), a register PAIR naming one register in-place (byte+1/+3), a GPR source (byte+7), a uniform/traversal-state source operand (byte+12/+13), fixed format bytes (byte+4/+6/+10 = 03/80/03) and reserved const-0 slots (byte+5/+8/+9/+11). Appears back-to-back in RT-traversal coordinate/index getters and the log2(N) shuffle+multiply integer simd-prefix/product reduction trees. Exact arithmetic NOT resolved (needs splice); operand/format bit TYPES resolved.",
+      "provenance": "byte-diff EXP-M4-13 R4+R7 (own-MSL, compile-only, NO GPU dispatch). R7 register-realloc byte-diff (s_loopacc base vs fma-pressure variant g_pre) isolated byte+7 as a GPR source and byte+12/+13 as a separate uniform/state operand; frame/reserved bytes CONST across all 71 corpus + all own-MSL instances. No Apple binary inspected."
+    },
+    {
+      "mnemonic": "rt_as_load",
+      "length": 14,
+      "match": [[0, 8, 223]],
+      "fields": [
+        {"name": "sub_space", "start": 8,  "width": 8, "type": "enum", "enum": {"2": "as_load", "18": "as_load_idx1", "34": "as_load_idx2"}},
+        {"name": "mode",      "start": 16, "width": 8, "type": "enum", "enum": {"84": "amode_54", "86": "amode_56", "4": "amode_04", "129": "amode_81"}},
+        {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
+        {"name": "addr_lo",   "start": 32, "width": 8, "type": "reg"},
+        {"name": "addr_hi",   "start": 40, "width": 8, "type": "reg"},
+        {"name": "flags",     "start": 48, "width": 8, "type": "mod", "enum": {"32": "device/global (bit5)", "0": "threadgroup/other", "128": "extended (bit7)", "160": "device+extended"}},
+        {"name": "reserved7", "start": 56, "width": 8, "type": "mod"},
+        {"name": "width",     "start": 64, "width": 8, "type": "imm"},
+        {"name": "off_lo",    "start": 72, "width": 8, "type": "imm"},
+        {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+        {"name": "off_hi",    "start": 88, "width": 8, "type": "imm"},
+        {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+        {"name": "reserved13","start": 104,"width": 8, "type": "mod"}
+      ],
+      "fieldNotes": {
+        "reserved7": "+7 RETYPED raw->reserved (mod). CONST 0x00 across all 596 hex-corpus + 70 own-MSL instances; identical to the HW-validated device_load reserved7 inert byte.",
+        "reserved13": "+13 RETYPED raw->reserved (mod). CONST 0x00 across all instances; device_load reserved13 analogue.",
+        "flags": "+6 cache/coherence/addressing flags. Annotated with the device_load access_desc enum: bit5 (0x20) = device/global vs 0x00 = threadgroup. Only 0x20/0x00 observed in this corpus; 0x80/0xa0 carried from the R6 wider corpus, inferred. Exact coherence/scope semantics need splice.",
+        "width": "+8 data width/type descriptor (device_load dst_width analogue). Discrete {0x44,0x5c,0x64}; exact bit subfields (element-width vs type) inferred, needs splice.",
+        "off_lo/field_off/off_hi": "+9/+10/+11 immediate element-offset (idx_off). field_off(+10) is the dominant struct-field selector (device_load idx_off analogue). Kept as whole-byte imm; device_load itself leaves the +9 low bits RAW (register-plumbing mixed with idx_off) -> exact bit decomposition needs splice."
+      },
+      "semantics": "Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf memory-family sibling of 0x67/0xe7 and 0x5f rt_ray_mem; byte+2==0x54 marker). dst=+3, source addr=(addr_lo/addr_hi)+idx_off*elem_size, mode=+2, width=+8, flags=+6, +7/+13 reserved const-0. WHICH field is fetched is selected by field_off(+10); no per-field opcode.",
+      "provenance": "device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX HW splice) mapped onto the byte-identical 0xdf shape; per-field confirmed by own-MSL byte-diff (R6). R7: +7/+13 retyped raw->reserved (const 0x00 across 596 corpus + 70 own instances, device_load-analogue); flags annotated. NOT dispatch-validated for 0xdf (M4 compile-only). No Apple binary inspected."
+    },
+    {
+      "mnemonic": "rt_ray_mem",
+      "length": 14,
+      "match": [[0, 8, 95], [8, 8, 2]],
+      "fields": [
+        {"name": "mode",      "start": 16, "width": 8, "type": "enum", "enum": {"84": "mem_54", "86": "mem_56", "4": "mode_04", "100": "mode_64"}},
+        {"name": "dst",       "start": 24, "width": 8, "type": "reg"},
+        {"name": "addr_lo",   "start": 32, "width": 8, "type": "reg"},
+        {"name": "addr_hi",   "start": 40, "width": 8, "type": "reg"},
+        {"name": "flags",     "start": 48, "width": 8, "type": "mod", "enum": {"32": "device/global (bit5)", "0": "threadgroup/other", "128": "extended (bit7)", "160": "device+extended"}},
+        {"name": "reserved7", "start": 56, "width": 8, "type": "mod"},
+        {"name": "width",     "start": 64, "width": 8, "type": "imm"},
+        {"name": "off_lo",    "start": 72, "width": 8, "type": "imm"},
+        {"name": "field_off", "start": 80, "width": 8, "type": "imm"},
+        {"name": "off_hi",    "start": 88, "width": 8, "type": "imm"},
+        {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+        {"name": "reserved13","start": 104,"width": 8, "type": "mod"}
+      ],
+      "fieldNotes": {
+        "reserved7": "+7 RETYPED raw->reserved (mod). CONST 0x00 across all 134 hex-corpus + 32 own-MSL instances; device_load reserved7 analogue.",
+        "reserved13": "+13 RETYPED raw->reserved (mod). CONST 0x00 across all instances; device_load reserved13 analogue.",
+        "flags": "+6 flags. bit5 (0x20)=device vs 0x00=threadgroup (device_load access_desc analogue). Only 0x20/0x00 observed here; 0x80/0xa0 from R6 wider corpus, inferred. Semantics need splice.",
+        "width": "+8 data width/type descriptor. CONST 0x40 in this corpus; exact bit subfields inferred, needs splice.",
+        "off_lo/field_off/off_hi": "+9/+10/+11 immediate element-offset; field_off(+10) is the struct-field selector. Whole-byte imm; exact bit decomposition needs splice."
+      },
+      "semantics": "RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f, byte+1==0x02, byte+2==mode). Store/spill+reload side of the 0xdf AS-load. Same 14-byte memory-family shape as rt_as_load; +7/+13 reserved const-0. WHICH ray/stack field is accessed is selected by field_off(+10); no per-field opcode.",
+      "provenance": "device_load/device_store template mapped onto the byte-identical 0x5f shape; per-field confirmed by own-MSL byte-diff (R6). R7: +7/+13 retyped raw->reserved (const 0x00 across 134 corpus + 32 own instances); flags annotated. NOT dispatch-validated for 0x5f. No Apple binary inspected."
+    }
+  ],
+  "lengthRuleEdits": [],
+  "rawBitsBefore": 15869,
+  "rawBitsAfter": 0,
+  "rawBitsNote": "Corpus-wide type=raw bits over all instances in the committed corpus (own hex/ + thirdparty_hex): b_alu14_c83 71 x 59 = 4189 (plus 71 x 24 = 1704 previously-UNCOVERED byte-slots, now explicit reserved/format fields); rt_as_load 596 x 16 = 9536; rt_ray_mem 134 x 16 = 2144. Total 15869 raw bits (1983 bytes) -> 0. Per-descriptor-schema: b_alu14_c83 59->0 raw bits (and 24 uncovered bits/instance now tiled), rt_as_load 16->0, rt_ray_mem 16->0.",
+  "notes": [
+    "b_alu14_c83 REGISTER-REALLOC byte-diff (R7, own-MSL, the load-bearing new evidence): base s_loopacc `3f 19 83 18 03 00 80 0e 00 00 03 00 c2 8b` vs an fma-pressure variant `3f 1d 83 1c 03 00 80 14 00 00 03 00 c2 8b`. The register pair (byte+1/+3: r12->r14) AND byte+7 (0x0e=r7 -> 0x14=r10) both SHIFT when the compiler reallocates GPRs, proving both are register operands; byte+12/+13 (c2/8b) stay FIXED under the same realloc, proving they are a separate uniform/traversal-state source operand (not a GPR).",
+    "b_alu14_c83 register PAIR: byte+1 = (r<<1)|1, byte+3 = (r<<1)|0; both name the SAME register r across all 71 corpus instances (in-place dst/srcA). The three previously-UNCOVERED byte-slots (byte+5/+8/+9) are now explicit reserved const-0 fields, so the schema tiles all 112 bits (roundtrip is now robust rather than accidentally-passing on zero bytes).",
+    "rt_ray_mem/rt_as_load: the only residual raw was the +7/+13 inert padding (R6 left it raw). It is retyped to reserved (mod), matching the HW-validated device_load reserved7/reserved13 typing for the identical memory-family template. CONST 0x00 across the entire corpus (134/596) and all own-MSL compiles (32/119). flags(+6) additionally annotated with the device_load access_desc enum.",
+    "Length/match/boundaries UNCHANGED for all three ops (only field names/types edited) -> tokenization is byte-identical to baseline across all 1024 own + 6450 thirdparty hex files (0 mismatches).",
+    "CLEAN-ROOM: all evidence from OUR OWN compiled MSL (s_loopacc/rq_pred/raytracing family + R7 pressure variants) and the HW-validated device_load memory-family template. No Apple binary inspected. No GPU dispatch. Real isadb.py and git untouched; all work under a scratch copy in work/r7_rt_finish/.",
+    "HONESTY: byte+7 GPR-source and the byte+1/+3 register pair are CONFIRMED by realloc byte-diff. byte+12/+13 (srcU) are typed reg+mod by encoding shape and their stability-under-realloc (uniform-or-immediate) -- reg-vs-immediate and value semantics are inferred/needs-splice. The fixed-format (fmt4/6/10) and reserved (src_lo/rsv8/9/11) bytes are typed by corpus-invariance + imad family position; exact role (true opcode-format vs reserved) needs-splice. form-enum only value 3 observed. The exact arithmetic of b_alu14_c83 and the per-field ray/BVH record offset table are deliberately NOT reconstructed (encoding only; no traversal-record recipe)."
+  ],
+  "validation": {
+    "tokenizationUnchanged": true,
+    "tokenizationDetail": "instr_length and match bits untouched; 0 tokenization mismatch (same #instrs, same per-instr lengths, same leftover) across all 7474 committed hex files (1024 own + 6450 thirdparty) vs baseline isadb.",
+    "roundtripSuitePass": true,
+    "roundtripSuiteDetail": "Canonical tools/agx-isa/roundtrip_test.py run against the scratch isadb, STRENGTHENED with 2 new b_alu14_c83 synth entries (never weakened) = ALL PASS: (A) rt_as_load / rt_ray_mem / rt_ops real-program roundtrip, (B) synth incl. the 2 b_alu14_c83 entries, (C) whole-program tokenization 0-leftover, (D) imm codec.",
+    "noRegression": true,
+    "opsReassembled": {"decoded": 801, "asm_disasm_OK": 801, "asm_disasm_BAD": 0,
+      "detail": "801 corpus instances (b_alu14_c83 71 + rt_ray_mem 134 + rt_as_load 596) every one decodes and re-encodes byte-identically; plus 164 own-MSL bd/ instances (13 + 32 + 119) all roundtrip. All three descriptors tile their full 112 bits with no gaps/overlap."}
+  },
+  "unresolved": [
+    "b_alu14_c83 srcU_reg/srcU_desc (byte+12/+13): typed reg+mod (a source operand stable under GPR realloc = uniform-register OR immediate). reg-vs-immediate and value semantics inferred -- needs-splice.",
+    "b_alu14_c83 form enum (byte0 hi): only value 3 (0x3f) observed in own-MSL; 5/7 (0x5f/0x7f) inferred from the length rule -- needs a shader that emits them to map values.",
+    "b_alu14_c83 fmt4/fmt6/fmt10 + src_lo/rsv8/rsv9/rsv11: typed mod (fixed-format / reserved) by corpus-invariance (CONST across 71 corpus + all own-MSL) + imad family position; exact role (opcode-format vs truly-reserved) inferred -- needs-splice. The op's exact ARITHMETIC is intentionally not reconstructed (encoding only).",
+    "rt_ray_mem/rt_as_load flags(+6): bit5 device/threadgroup annotated (device_load analogue); 0x80/0xa0 values and exact coherence/scope semantics inferred -- needs-splice.",
+    "rt_ray_mem/rt_as_load width(+8) + idx_off aux (off_lo +9 / off_hi +11): typed imm; exact bit subfields (element-width/type; +9 register-plumbing vs idx_off split) inferred from the device_load analogue -- needs-splice. (device_load itself leaves the homologous +9 low bits RAW.)",
+    "rt_ray_mem_ldidx (12B) and rt_ray_mem_short (6B) sibling variants: bodies still raw. OUT OF this round's scope (0 instances in the committed hex/ corpus; present only in the wider census). M4-recoverable-later via the same byte-diff method."
+  ],
+  "provenance": "byte-diff on OWN-MSL (clean-room) + HW-validated device_load/imad family templates. EXP-M4-13 R7. shdump compile-only on local Apple M4 (never dispatches), extracted via agxparse.py; tokenized/roundtripped with a scratch copy of isadb.py under work/r7_rt_finish/. No Apple binary inspected. No GPU dispatch. Real isadb.py and git untouched."
+}

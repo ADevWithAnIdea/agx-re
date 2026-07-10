@@ -1,0 +1,605 @@
+{
+  "group": "EXP-M4-13 R7 length_only -> named (AGX G17P / A18 Pro)",
+  "kind": "length_only-closure + desync-root length fixes (compile-only, byte-diff over OWN-MSL corpus)",
+  "descriptors": [
+    {
+      "mnemonic": "ret_luse",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          143
+        ],
+        [
+          16,
+          8,
+          86
+        ]
+      ],
+      "fields": [
+        {
+          "name": "linkmode",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "2": "leaf",
+            "18": "nonleaf_restore_link",
+            "4": "cf_merge",
+            "5": "cf_merge_push"
+          }
+        },
+        {
+          "name": "tail",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "function RETURN / CF merge, LAST-USE variant: `8f <lm> 56 <t>` (4 B). Identical to ret except byte+2 == 0x56 (0x54 | bit17): bit17 is the source cache/last-use hint the compiler sets when the merge consumes a value for the last time -- a scheduling hint, not an op change (same bit toggles 0x54<->0x56 on simd_reduce / rt_ray_mem / if_push). byte+1 selects leaf/nonleaf/cf-merge exactly as ret. NO encoded target.",
+      "provenance": "byte-diff (EXP-M4-13 R7): `8f 04 56 02` is byte-invariant across every intersection_query kernel (rq_pred/g_*/s_*/rtq_*), always at the traversal-loop merge immediately before the `0f 00 54 ..` back-edge jump -- the last-use sibling of the HW-VALIDATED ret (EXP-0035). Field roles inherited from ret; bit17=last-use inferred."
+    },
+    {
+      "mnemonic": "mem_fence8",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          7
+        ],
+        [
+          8,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          84
+        ],
+        [
+          32,
+          8,
+          128
+        ]
+      ],
+      "fields": [
+        {
+          "name": "mask",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "tail",
+          "start": 40,
+          "width": 24,
+          "type": "raw"
+        }
+      ],
+      "semantics": "8-byte 0x07-family memory / scoreboard FENCE, device/traversal-buffer scope (`07 00 54 <mask> 80 00 00 00`). Same fence/ordering family as threadgroup_barrier (6B, byte+1 0x04) and link_save_restore (8B, byte+4 0x81); this is the byte+4==0x80 scope form the intersection_query traversal emits to order accesses to the ray-query state buffer around its address arithmetic. byte+3 = a scope/mask selector (0x14/0x0c observed).",
+      "provenance": "byte-diff (EXP-M4-13 R7): appears (length 8, byte+1==0x00 gate already HW-VALIDATED for the 0x81 link sibling, EXP-0038) between the ray-query int-address ops in g_commit / s_commitbbox / rq_pred; +8 anchors on a clean imad/ibfe. byte+3 mask role and byte+4 scope value map inferred (need splice)."
+    },
+    {
+      "mnemonic": "rtq_dualsrc",
+      "length": 12,
+      "match": [
+        [
+          0,
+          8,
+          23
+        ],
+        [
+          8,
+          8,
+          2
+        ],
+        [
+          16,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "opA",
+          "start": 32,
+          "width": 32,
+          "type": "reg"
+        },
+        {
+          "name": "opB",
+          "start": 64,
+          "width": 32,
+          "type": "reg"
+        }
+      ],
+      "semantics": "intersection_query traversal dual-source op (12 B): reads two operands (opA at +4..+7, opB at +8..+11), each a 4-byte source-operand descriptor, and updates ray-query state inside the `while(q.next())` loop. byte0/1/2 = `17 02 00` opcode; byte+3 a mode byte (0x00, rarely 0x86/0x88). The two operand words vary as register indices across the get_committed_* / candidate / commit kernels. Exact operand sub-fields and precise semantics (which traversal quantity) need an isolating splice; NOT the traversal record layout, just this single op's encoding.",
+      "provenance": "byte-diff (EXP-M4-13 R7) over the OWN-MSL intersection_query corpus (rq_pred, g_bary, g_geom, g_commit, s_commitbbox, rtq_*, rq_bary/rq_xform): 343 occurrences, byte0/1/2 invariant, +4..+11 vary as a parallel operand pair. Length 12 is anchored -- +12 lands on a clean op leader (n3_mov/jump_cond/if_push/icmp_pred) in every occurrence while the old +10 landed on UNDEC. Operand-field roles byte-diff-located; sub-split needs splice."
+    },
+    {
+      "mnemonic": "n4_cf_word",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          4
+        ],
+        [
+          8,
+          8,
+          1
+        ],
+        [
+          16,
+          8,
+          0
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "4-byte compute/intersection_query compact control word `04 01 00 00`. Emitted immediately before a pop_reconverge / rt_ray_mem / threadgroup_barrier in the divergent-CF and ray-query kernels -- a reconverge/predicate-prep marker in the 0x04 group. (The flat 0x04->8 centroid rule previously over-read it by 4 and hid the following op.) Precise role needs a splice; length 4 is anchored (+4 lands on the next op leader in every corpus occurrence).",
+      "provenance": "byte-diff (EXP-M4-13 R7): 68 occurrences, byte0/1/2 invariant, +4 lands on a NAMED op leader (pop_reconverge 60 / rt_ray_mem 5 / threadgroup_barrier 1) 68/68 while the old +8 straddled the next op. Compute/RT only (no fragment centroid read has byte+1==0x01)."
+    },
+    {
+      "mnemonic": "n4_rt_word",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          4
+        ],
+        [
+          16,
+          8,
+          32
+        ],
+        [
+          24,
+          8,
+          128
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "4-byte intersection_query-context compact op `04 <d> 20 80` (byte+1 = 0x22/0x42 destination selector). Emitted before an if_push / frame_marker / reg_move in the ray-query traversal setup. (The flat 0x04->8 rule previously over-read it by 4.) byte+3==0x80 distinguishes it from the fragment reads (byte+3==0x00). Role needs a splice; length 4 anchored (+4 -> next op leader in all occurrences).",
+      "provenance": "byte-diff (EXP-M4-13 R7): 57 occurrences, byte0/+2/+3 invariant, +4 lands NAMED (if_push 46 / reg_move 7 / frame_marker 2 ...) 57/57. byte+1 varies over the dst selectors 0x22/0x42. RT kernels only."
+    },
+    {
+      "mnemonic": "n1_word",
+      "length": 2,
+      "match": [
+        [
+          0,
+          8,
+          1
+        ],
+        [
+          8,
+          8,
+          0
+        ]
+      ],
+      "fields": [],
+      "semantics": "2-byte compact control/scheduling word `01 00` (low-nibble-1 group). Appears between full ops before a wide variety of leaders (jump / convert / frame_marker / falu / fspecial / store / icmp) -- a no-op-like scheduling / predicate-reset word, the low-nibble-1 sibling of pad_operand. byte+1==0x00 invariant (no decoded payload). Exact role needs a splice.",
+      "provenance": "byte-diff (EXP-M4-13 R7): 150 occurrences; byte+2 is always the NEXT op's leader (proving the 2-byte boundary). Length 2 from the HW `01 00 -> 2` rule."
+    },
+    {
+      "mnemonic": "n3_word",
+      "length": 2,
+      "match": [
+        [
+          0,
+          8,
+          3
+        ],
+        [
+          8,
+          8,
+          2
+        ]
+      ],
+      "fields": [],
+      "semantics": "2-byte compact word `03 02` (low-nibble-3 group). The SFU range-reduction / predicate operand marker the transcendental and select paths emit between full ops (byte+1==0x02 invariant). Named as a 2-byte token ONLY -- its coefficient payload (in the longer SFU forms) is intentionally NOT bit-decoded (clean-room rule 5: no range-reduction recipe). Sibling of pad_operand.",
+      "provenance": "byte-diff (EXP-M4-13 R7): 105 occurrences; byte+2 is the next op leader. Length 2 from the HW `03 02 -> 2` rule. No payload transcribed."
+    },
+    {
+      "mnemonic": "falu_compact4",
+      "length": 4,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "fadd",
+            "5": "fmul",
+            "6": "fma",
+            "7": "fmul_interp"
+          }
+        },
+        {
+          "name": "opmode",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "operand",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "4-byte COMPACT float ALU (accumulate / move; arithmetic-enable bit clear). The compiler emits it interleaved with the 6-byte falu2 forms for reductions and fast-math seeds. byte+2 = compact-op mode selector (0x18/0x38/0x19/0x21/0x30/0x31/0x39 observed; the 0x30/0x31 pair carries the source cache/last-use hint bit). dst=b0 hi nibble, src=byte+1, operand=byte+3. Sibling of the HW-VALIDATED falu_acc (EXP-0025), covering the compact modes falu_acc's specific match does not.",
+      "provenance": "byte-diff (EXP-M4-13 R7): low-nibble-9 length-4 tokens across the corpus; +4 anchors on a clean falu2/cvt_f2i leader. Float-ALU group identity + operand positions are HW-VALIDATED (EXP-0006/0025); byte+2 compact-mode value map partially observed (inferred)."
+    },
+    {
+      "mnemonic": "falu2_srcmod10",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          17,
+          1,
+          0
+        ],
+        [
+          18,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_size",
+          "start": 8,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcA_reg",
+          "start": 9,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "fadd",
+            "5": "fmul",
+            "6": "fma",
+            "7": "fmul_interp"
+          }
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_size",
+          "start": 24,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcB_reg",
+          "start": 25,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "ctrl",
+          "start": 32,
+          "width": 7,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_imm",
+          "start": 39,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_lo",
+          "start": 40,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_neg",
+          "start": 43,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_hi",
+          "start": 44,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "ext_srcmod",
+          "start": 48,
+          "width": 32,
+          "type": "mod"
+        }
+      ],
+      "semantics": "10-byte EXTENDED 2-source float ALU (abs-source form): the falu2 op in bits [0:48] (opsel 4=fadd / 5=fmul, bit17=0/bit18=1 -- identical to the 8-byte falu2_ext) plus a 32-bit source-modifier / trailing-operand word (byte+6..+9). Length 10 = base 6 + 4 modifier bytes (HW model 6+2*(byte+4&3), byte+4 low2==2 => abs source slot). The abs()-around-a-source sibling of falu2_ext.",
+      "provenance": "byte-diff (EXP-M4-13 R7): SAME match bits as the HW-VALIDATED falu2_ext (EXP-M4-10), one modifier word longer. [0:48] = HW-VALIDATED falu2 layout; ext_srcmod located (the abs/coord modifier region that grows the op to 10 bytes), exact sub-split/values inferred (need splice). Tight match => no false resync landings."
+    },
+    {
+      "mnemonic": "falu3_srcmod12",
+      "length": 12,
+      "match": [
+        [
+          0,
+          4,
+          9
+        ],
+        [
+          17,
+          1,
+          1
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "srcA_size",
+          "start": 8,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcA_reg",
+          "start": 9,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "opcode",
+          "enum": {
+            "4": "fadd",
+            "5": "fmul",
+            "6": "fma",
+            "7": "fmul_interp"
+          }
+        },
+        {
+          "name": "opflags",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_size",
+          "start": 24,
+          "width": 1,
+          "type": "enum",
+          "enum": {
+            "1": "b32",
+            "0": "b16"
+          }
+        },
+        {
+          "name": "srcB_reg",
+          "start": 25,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "ctrl",
+          "start": 32,
+          "width": 7,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_imm",
+          "start": 39,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_lo",
+          "start": 40,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "srcB_neg",
+          "start": 43,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "mod_hi",
+          "start": 44,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "ext_srcmod",
+          "start": 48,
+          "width": 48,
+          "type": "mod"
+        }
+      ],
+      "semantics": "12-byte float ALU: the fma op in bits [0:48] (bit17=1 3-source form, as falu3/falu3_ext) plus a 48-bit third-source + source-modifier region (byte+6..+11) -- fma with abs/saturate source modifiers, and the extended coordinate fma. Length 12 = base 6 + 6 bytes (3rd source operand + modifier), the longest float-ALU form.",
+      "provenance": "byte-diff (EXP-M4-13 R7): SAME match bits as the HW-VALIDATED falu3/falu3_ext (bit17=1). [0:48] = HW-VALIDATED falu2 layout; the 48-bit tail is the located 3rd-source + modifier region (why the op is 12 bytes), exact sub-split/values inferred (need splice). +12 anchors on pad_operand across the corpus. Tight match => no false resync landings."
+    }
+  ],
+  "lengthRuleEdits": [
+    {
+      "signature": "byte0=0x17, byte+1=0x02, byte+2=0x00",
+      "op": "rtq_dualsrc",
+      "from": 10,
+      "to": 12,
+      "why": "intersection_query traversal dual-source op carries TWO 4-byte source-operand descriptors (+4..+7,+8..+11); the flat 0x17->10 under-read it, exposing the 2nd operand word (`41 01`/`00 00`) as a spurious UNDEC/pad. +12 anchors on a clean op leader in all 343 occurrences; +10 lands UNDEC.",
+      "gate": "tight: only byte+1==0x02 && byte+2==0x00 (simd_ballot / 17 02 54 / 17 02 82 keep length 10)"
+    },
+    {
+      "signature": "byte0=0x04, byte+1=0x01, byte+2=0x00",
+      "op": "n4_cf_word",
+      "from": 8,
+      "to": 4,
+      "why": "compute/RT compact CF word; flat 0x04->8 centroid rule over-read it by 4 and swallowed the following pop_reconverge/rt_ray_mem. +4 lands a NAMED op leader 68/68.",
+      "gate": "compute/RT only; fragment centroid reads are byte+1 high-bit (0x8X), byte+1==0x01 excludes them"
+    },
+    {
+      "signature": "byte0=0x04, byte+1 in {0x22,0x42}, byte+2=0x20, byte+3=0x80",
+      "op": "n4_rt_word",
+      "from": 8,
+      "to": 4,
+      "why": "intersection_query-context compact op; flat 0x04->8 over-read it by 4 and swallowed if_push/frame_marker. +4 lands NAMED 57/57.",
+      "gate": "byte+3==0x80 distinguishes from fragment reads (byte+3==0x00)"
+    }
+  ],
+  "rawBitsBefore": 93376,
+  "rawBitsAfter": 34768,
+  "bytesClosed_lengthOnly": 7326,
+  "bytesClosed_undecoded": 824,
+  "totals": {
+    "baseline": {
+      "named_bytes": 437206,
+      "length_only_bytes": 11672,
+      "undecoded_bytes": 12606,
+      "total_bytes": 461484,
+      "length_only_pct": 2.529
+    },
+    "after_r7": {
+      "named_bytes": 445356,
+      "length_only_bytes": 4346,
+      "undecoded_bytes": 11782,
+      "total_bytes": 461484,
+      "length_only_pct": 0.942
+    }
+  },
+  "validation": {
+    "tokenizationUnchanged": false,
+    "tokenizationNote": "descriptor ADDITIONS are boundary-preserving; the 3 lengthRuleEdits deliberately re-tokenize their desync roots. Validated: 0 files with ANY per-file undecoded OR length_only INCREASE vs baseline (788 unique streams).",
+    "roundtripSuitePass": true,
+    "roundtripSuiteNote": "roundtrip_test.py ALL PASS on the scratch isadb (real + synth + whole-program tokenize + imm codec). asm(disasm(b))==b verified on ALL 1327 real corpus instances of the 10 new descriptors: 0 failures.",
+    "noRegression": true,
+    "descriptorCount": {
+      "before": 145,
+      "after": 155
+    },
+    "namedInstancesAdded": 1327
+  },
+  "unresolved": [
+    {
+      "sig": "10 00 9f .. L8",
+      "count": 43,
+      "reason": "needs-splice",
+      "note": "12-byte region `10 00 9f 00 54 0X 03 0X 82 10 10 29` is currently split 8-lenonly + 4-undec; the 8-vs-12 op boundary cannot be resolved by anchoring (both land cleanly) and it is an RT-context op -- deferred rather than guess a split."
+    },
+    {
+      "sig": "04 02 00/20/80/9f/00.. L8",
+      "count": 88,
+      "reason": "needs-splice",
+      "note": "the 0x04 `04 02 XX` sub-family has mixed true lengths (some 6, some 8); a per-signature length differs and one transcendental fast-bundle occurrence regresses if forced to 6. Needs a splice/isolated compile per sub-signature."
+    },
+    {
+      "sig": "low-nibble-9 len-8, byte+2 opsel 0/1 (e.g. 49 8e 20)",
+      "count": "~60",
+      "reason": "needs-splice",
+      "note": "byte+2 is not a valid float opsel (4-7); most likely operand windows of an adjacent undecoded op rather than a clean float-ALU op. A loose catch-all here created false resync landings, so left length-only (honest over gamed)."
+    },
+    {
+      "sig": "0x0b compact (0b 01 1c/3c, 0b 09 3c), 2b b1 26, 6b 88 26 -- L4",
+      "count": "~25",
+      "reason": "M4-recoverable-later",
+      "note": "low-nibble-b/2b/6b compact move/convert forms; nameable by extending the reg_move family with targeted byte+2 gates, but small and lower-priority than the big closures this round."
+    },
+    {
+      "sig": "0x17 other (17 01 9f, 17 02 54, 17 02 82, 17 02 22) -- L10/L12",
+      "count": "~18",
+      "reason": "needs-splice",
+      "note": "other 0x17 sub-ops (byte+2 != 0x00); distinct operand structure from rtq_dualsrc; need isolation."
+    },
+    {
+      "sig": "87 00 80 L4, 59 05 01 L10, 18 00 d0 L2, ab 35 4f L2, 11 05 df L8",
+      "count": "~26",
+      "reason": "M4-recoverable-later",
+      "note": "scoped compute fence (87 00 80), and assorted single/low-count compact forms; recoverable with targeted descriptors in a follow-up census pass."
+    }
+  ]
+}

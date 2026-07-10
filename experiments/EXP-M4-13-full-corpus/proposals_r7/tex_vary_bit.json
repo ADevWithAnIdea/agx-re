@@ -1,0 +1,364 @@
+{
+ "group": "Texture/varying/bitfield: tex_coord_setup + iter + ibfins (EXP-M4-13 R7 encoding field refinement)",
+ "kind": "tex_vary_bit",
+ "descriptors": [
+  {
+   "mnemonic": "tex_coord_setup",
+   "length": 10,
+   "match": [
+    [
+     0,
+     4,
+     11
+    ],
+    [
+     16,
+     8,
+     47
+    ]
+   ],
+   "fields": [
+    {
+     "name": "dst_lo",
+     "start": 4,
+     "width": 4,
+     "type": "reg"
+    },
+    {
+     "name": "b1",
+     "start": 8,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "subop",
+     "start": 16,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "47": "setup/modifier(2f)"
+     }
+    },
+    {
+     "name": "srcA",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "form",
+     "start": 32,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "66": "attribute-fetch/coord-address",
+      "0": "float-modifier",
+      "16": "bitfield/shift-prep",
+      "18": "float-modifier(hi)",
+      "34": "float-modifier(merge)"
+     }
+    },
+    {
+     "name": "b5",
+     "start": 40,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b6",
+     "start": 48,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "idx",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b8",
+     "start": 64,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b9",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.) EXP-M4-13 R7 CORRECTION: this 10-byte byte+2==0x2f op is POLYMORPHIC and NOT texture-specific -- across the own corpus it appears as (a) vertex attribute-fetch / varying destination-address setup (byte+4==0x42; byte+7 = dst-slot index = dst<<2) and (b) a float-classify / modifier ALU (isnan/isnormal/frexp/modf; byte+3 = srcA, byte+4 in {0x00,0x10,0x12,0x22}). The mnemonic is retained for stability but is a misnomer.",
+   "provenance": "inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length makes k_tex_gather/lod/compare/array_cube tokenize to the 0e stop with byte-exact re-serialization. The coordinate-feeding role reuses EXP-0016's HW-validated op+1/op+3 coordinate operands; fields not individually splice-decoded (a coord splice needs a non-uniform texture). EXP-M4-13 R7 (own-MSL byte-diff, compile-only): dst_lo(byte0-hi) PROVEN dst by an isnan source sweep (dst r0/r1/r2 -> byte0-hi 0/1/2, byte+1 (dst<<1)|1); byte+4 form selector and byte+7 index (=dst<<2 in the 0x42 attr form, PROVEN across 90+ corpus occurrences) typed; byte+5/+6/+8/+9 LOCATED (const/flag), value roles need splice."
+  },
+  {
+   "mnemonic": "iter",
+   "length": 10,
+   "match": [
+    [
+     0,
+     7,
+     47
+    ],
+    [
+     16,
+     8,
+     84
+    ],
+    [
+     56,
+     8,
+     2
+    ]
+   ],
+   "fields": [
+    {
+     "name": "grp",
+     "start": 0,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "lead",
+     "start": 8,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "13": "leading",
+      "5": "subsequent"
+     }
+    },
+    {
+     "name": "dst",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "coeff_sel",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "src_slot",
+     "start": 40,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "mode",
+     "start": 48,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "0": "center/linear-component",
+      "4": "perspective-W-denominator",
+      "15": "centroid/sample-W-denominator",
+      "20": "centroid/sample-component"
+     }
+    },
+    {
+     "name": "c7",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "loc",
+     "start": 64,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "16": "pixel-center",
+      "8": "centroid/sample",
+      "9": "centroid/sample-first",
+      "0": "mid-component",
+      "32": "last-component"
+     }
+    },
+    {
+     "name": "b9",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle varying/coefficient slot (slot<<1); byte+3 = destination GPR; byte+6 = interpolation location: 0x00 pixel-centre/linear, 0x02 centroid or per-sample (paired with the 8-byte iter_at setup + a 0x04/0x03 position preamble), 0x04 the perspective denominator (W) channel. PERSPECTIVE-CORRECT interpolation is a multi-instruction lowering, NOT a single mode bit: linear component iters (byte+6==0x00) + a W-denominator iter (byte+6==0x04) + a 0xaf reciprocal (rcp of interpolated 1/w) + a per-component fmul. [[flat]] uses the separate 6-byte iter_flat op instead (no barycentric interp). The pull-model interpolate_at_center/centroid/sample compile BYTE-IDENTICALLY to the matching [[*_perspective]] qualifier.",
+   "provenance": "HW-VALIDATED (EXP-0029): splicing byte+5 0x00->0x02 on interp_noperspective switched the red output from color.x (x-gradient) to color.y (y-gradient) -> byte+5 selects the source varying coefficient (splice-and-render). flat vs interpolated proven behaviourally (flat = constant provoking-vertex value at all pixels; interpolated = gradient). perspective/no-perspective/centroid/sample all differentiated by differential compilation; perspective/linear/flat produce three distinct pixels under w-varying geometry (persp_* kernels). byte+6 mode values and the byte+8 last/location bits are byte-diff-localised. EXP-M4-13 R7 (own-MSL byte-diff, compile-only): byte+1 lead/subsequent selector (0x0d first, 0x05 rest) and byte+3 dst reg PROVEN by a persp+linear 8-varying fragment; byte+6 gains observed centroid/sample values 0x0f/0x14 (centroid_perspective/sample_perspective kernel), byte+8 gains 0x08/0x09/0x00/0x20 location flags -- values LOCATED, exact meaning needs splice."
+  },
+  {
+   "mnemonic": "ibfins",
+   "length": 12,
+   "match": [
+    [
+     0,
+     8,
+     39
+    ],
+    [
+     16,
+     1,
+     0
+    ],
+    [
+     18,
+     6,
+     21
+    ]
+   ],
+   "fields": [
+    {
+     "name": "form",
+     "start": 8,
+     "width": 8,
+     "type": "opcode",
+     "enum": {
+      "16": "shl(reg)",
+      "0": "insert/mask/narrow",
+      "2": "addr/matrix-prep",
+      "32": "shl/merge(var)",
+      "17": "insert(var)"
+     }
+    },
+    {
+     "name": "cache",
+     "start": 17,
+     "width": 1,
+     "type": "mod"
+    },
+    {
+     "name": "dst",
+     "start": 24,
+     "width": 8,
+     "type": "reg"
+    },
+    {
+     "name": "b4",
+     "start": 32,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "mask_imm",
+     "start": 40,
+     "width": 8,
+     "type": "imm"
+    },
+    {
+     "name": "mask_hi",
+     "start": 48,
+     "width": 1,
+     "type": "imm"
+    },
+    {
+     "name": "b6hi",
+     "start": 49,
+     "width": 7,
+     "type": "mod"
+    },
+    {
+     "name": "b7",
+     "start": 56,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "srcdesc",
+     "start": 64,
+     "width": 8,
+     "type": "enum",
+     "enum": {
+      "240": "reg-operand(loaded)",
+      "208": "reg-operand(computed)",
+      "192": "imm-operand"
+     }
+    },
+    {
+     "name": "srcC",
+     "start": 72,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b10",
+     "start": 80,
+     "width": 8,
+     "type": "mod"
+    },
+    {
+     "name": "b11",
+     "start": 88,
+     "width": 8,
+     "type": "mod"
+    }
+   ],
+   "semantics": "d = shift-left / bitfield-insert (integer). The byte0-bit7 LEFT/INSERT mirror of the 0xa7 ibfe (right/extract) family -- shl_reg (`27 10 54 ..`) is byte-identical to shr_log (`a7 10 54 ..`) except byte0. 12-byte operand-descriptor form (byte+8 = 0xf0 register / 0xc0 immediate). byte+1 (form) selects the sub-op. byte+2 bit1 (cache) = source last-use hint.",
+   "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): the shl_reg(0x27)/shr_log(0xa7) 12-byte ops are byte-identical except byte0 -> byte0 bit7 = direction; 0x27 = the shift-LEFT / bitfield-INSERT sibling of the HW-validated 0xa7 ibfe (EXP-0013). Field bit-packing / form map INFERRED (no GPU dispatch); direction diff-proven. EXP-M4-13 R7 (own-MSL byte-diff, compile-only): dst(byte+3) PROVEN reg by cross-kernel sweep; the INSERT width is encoded as a MASK immediate at byte+5 (+byte+6 bit0 for bit8), ((1<<count)-1)<<1, PROVEN by insert_bits count sweep 1/2/4/8 -> 0x02/0x06/0x1e/0xfe -- this DIFFERS from ibfe's count field at byte+10 (the shl_reg form is byte-identical to ibfe shr, but the insert-mask form is not); the insert OFFSET is NOT in this op (applied by a companion shl). srcdesc(byte+8) 0xf0/0xd0/0xc0 = operand mode. Remaining mod bytes (b4/b6hi/b7/srcC/b10/b11) LOCATED, values need splice."
+  }
+ ],
+ "lengthRuleEdits": [],
+ "rawBitsBefore": 180,
+ "rawBitsAfter": 0,
+ "rawBitsBeforeBreakdown": {
+  "tex_coord_setup": 68,
+  "iter": 48,
+  "ibfins": 64
+ },
+ "rawBitsAfterBreakdown": {
+  "tex_coord_setup": 0,
+  "iter": 0,
+  "ibfins": 0
+ },
+ "modBitsAfterBreakdown": {
+  "tex_coord_setup": 48,
+  "iter": 32,
+  "ibfins": 48
+ },
+ "notes": [
+  "PROVEN by own-MSL byte-diff (compile-only on local Apple M4, NO GPU dispatch):",
+  "ibfins: dst(byte+3) reg PROVEN by cross-kernel sweep (0x00/0x04/0x06/0x08/0x0a=reg<<1). INSERT WIDTH is a MASK immediate at byte+5 (+byte+6 bit0 for bit8): insert_bits count 1/2/4/8 -> byte+5 0x02/0x06/0x1e/0xfe = ((1<<count)-1)<<1. This DIFFERS from ibfe (count field at byte+10): the shl_reg form (byte+1==0x10) is byte-identical to ibfe shr except byte0, but the insert-mask form (byte+1==0x00) encodes a mask, not a count. Insert OFFSET is applied by a companion shl, not in this op (offset sweep left the ibfins bytes unchanged). srcdesc(byte+8) 0xf0/0xd0/0xc0 operand-mode enum.",
+  "iter: byte+1 lead selector 0x0d(leading)/0x05(subsequent) PROVEN (first iter in a bundle 0x0d, rest 0x05); byte+3 dst reg PROVEN; byte+5 slot HW-VALIDATED (EXP-0029 splice). byte+6 interp-mode gains observed centroid/sample values 0x0f/0x14 (from a centroid_perspective/sample_perspective fragment) alongside 0x00(center/linear component)/0x04(perspective W-denominator); byte+8 loc-flags 0x10/0x08/0x09/0x00/0x20. flat -> separate iter_flat op; centroid/sample -> iter_at setup + iter (byte+6 0x14/0x0f). byte+6/byte+8 VALUE meanings inferred (LOCATED) -- exact map needs splice.",
+  "tex_coord_setup: R7 CORRECTION -- this 10-byte byte+2==0x2f op is POLYMORPHIC, NOT texture-specific. Across the own corpus it is (a) vertex attribute-fetch/varying dest-address setup (byte+4==0x42, byte+7=dst<<2 PROVEN across 90+ occurrences) and (b) float-classify/modifier ALU (isnan/isnormal/frexp/modf: byte+3=srcA, byte+4 in {0x00,0x10,0x12,0x22}). dst_lo(byte0-hi) PROVEN dst by isnan source sweep (r0/r1/r2 -> 0/1/2, byte+1=(dst<<1)|1). Mnemonic retained for cross-file stability; it is a misnomer. Remaining bytes (b1/b5/b6/b8/b9) LOCATED, value roles need splice.",
+  "rawBitsAfter=0 for all three; 128 bits are typed \"mod\" (LOCATED but value-role inferred, needs splice) -- consistent with the round-6 ibfe standard (a located+typed field is not raw)."
+ ],
+ "validation": {
+  "tokenizationUnchanged": true,
+  "roundtripSuitePass": true,
+  "noRegression": true,
+  "corpusHexFilesScanned": 1024,
+  "tokenizationStreamDifferencesVsBaseDB": 0,
+  "corpusReserializationFailures": 0,
+  "myOpInstancesInCorpus": 662,
+  "myOpReserializeByteExact": 662,
+  "probeEncodingsRoundtrip": "51/51 OK (tex_coord_setup 7 [isnan a/b/2, vfetch], iter 22 [persp+linear, centroid/sample/flat], ibfins 22 [shl/shr var, insert offset/width sweeps])",
+  "roundtripSuiteNote": "tools/agx-isa/roundtrip_test.py ALL PASS on the scratch isadb copy (length/match unchanged; only field TYPES refined).",
+  "corpusRawBitsClosed_mainCorpus": 37964,
+  "corpusRawBytesClosed_mainCorpus": 4746,
+  "corpusRawBytesClosed_thirdparty": 5112,
+  "perOpCorpusOccurrences": {
+   "tex_coord_setup": {
+    "main": 243,
+    "thirdparty": 545
+   },
+   "iter": {
+    "main": 336,
+    "thirdparty": 4
+   },
+   "ibfins": {
+    "main": 83,
+    "thirdparty": 57
+   }
+  }
+ },
+ "unresolved": [
+  "ibfins b4/b6hi/b7/srcC/b10/b11 typed \"mod\": LOCATED (fixed byte positions, constant/flag values across own corpus) but per-value role NOT splice-isolated (M4 compile-only, no GPU dispatch). needs-splice.",
+  "ibfins insert-mask byte+5 is a mask, not a clean count; count>=16 uses a distinct form (byte+5=0x10, byte+9 bit0 set) -- half-word insert path only partially characterized. M4-recoverable-later (more count values) or needs-splice for the width-class bit semantics.",
+  "iter byte+6 mode + byte+8 loc: enum VALUES observed (0x00/0x04/0x0f/0x14 and 0x10/0x08/0x09/0x00/0x20) but their exact interpolation-location semantics are inferred; byte+5 slot is the only HW-splice-VALIDATED selector. needs-splice for the byte+6/byte+8 value map.",
+  "iter grp bit7 (fn_hi, 0xaf variant) never observed set for the 10-byte iter op in own corpus -- typed mod; the 0xaf iter variant (if any) is genuinely-unobserved. M4-recoverable-later.",
+  "iter coeff_sel (byte+4, 0x02/0x03) role inferred (coefficient/attribute-buffer select); needs-splice.",
+  "tex_coord_setup is polymorphic; b1 packs dst-size+srcA/slot with a scattered split not cleanly separable compile-only (register allocator pinned srcA). The float-modifier-form operand descriptors (b5/b6) are located-but-role-inferred. needs-splice.",
+  "tex_coord_setup byte+7 idx typed mod because polymorphic (attr form = dst<<2 index PROVEN; float form = 0x80 flag) -- single field, two roles; a clean per-form split needs the length-rule/match to distinguish forms (out of R7 scope: match must stay unchanged)."
+ ]
+}
