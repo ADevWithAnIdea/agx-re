@@ -1,0 +1,138 @@
+==== IDENTITY ====
+name                                           = Apple M5
+registryID                                     = 0x1000003de (4294968286)
+peerGroupID                                    = 0x0 (0)
+peerCount                                      = 0
+peerIndex                                      = 0
+architecture.name                              = applegpu_g17g
+locationNumber                                 = 0
+location                                       = 0
+maxTransferRate                                = 0
+
+==== MEMORY ====
+hasUnifiedMemory                               = YES
+lowPower                                       = NO
+headless                                       = NO
+removable                                      = NO
+recommendedMaxWorkingSetSize                   = 0x2f5c2c000 (12713115648)
+maxBufferLength                                = 0x238520000 (9534832640)
+currentAllocatedSize                           = 0x10000 (65536)
+
+==== THREADGROUP / COMPUTE LIMITS ====
+maxThreadsPerThreadgroup                       = (1024, 1024, 1024)
+maxThreadgroupMemoryLength                     = 0x8000 (32768)
+maxArgumentBufferSamplerCount                  = 500000
+
+==== ARGUMENT BUFFERS / RW TEXTURES ====
+argumentBuffersSupport(0=Tier1,1=Tier2)        = 1
+readWriteTextureSupport(0=None,1=T1,2=T2)      = 2
+
+==== RAYTRACING / FUNCTION POINTERS / DYNAMIC LIBS ====
+supportsRaytracing                             = YES
+supportsRaytracingFromRender                   = YES
+supportsPrimitiveMotionBlur                    = YES
+supportsFunctionPointers                       = YES
+supportsFunctionPointersFromRender             = YES
+supportsDynamicLibraries                       = YES
+supportsRenderDynamicLibraries                 = YES
+
+==== TEXTURE / RENDER FEATURE FLAGS ====
+supports32BitFloatFiltering                    = YES
+supports32BitMSAA                              = YES
+supportsBCTextureCompression                   = YES
+supportsPullModelInterpolation                 = YES
+supportsShaderBarycentricCoordinates           = YES
+barycentricCoordsSupported                     = YES
+programmableSamplePositionsSupported           = YES
+rasterOrderGroupsSupported                     = YES
+supportsQueryTextureLOD                        = YES
+depth24Stencil8PixelFormatSupported            = NO
+
+==== TEXTURE SAMPLE-COUNT SUPPORT ====
+supportsTextureSampleCount( 1)                 = YES
+supportsTextureSampleCount( 2)                 = YES
+supportsTextureSampleCount( 4)                 = YES
+supportsTextureSampleCount( 8)                 = YES
+supportsTextureSampleCount(16)                 = NO
+
+==== SPARSE / TENSOR ====
+sparseTileSizeInBytes                          = 0x4000 (16384)
+sparseTileSizeInBytesForSparsePageSize(16KB(101))= 0x4000 (16384)
+sparseTileSizeInBytesForSparsePageSize(64KB(102))= 0x10000 (65536)
+sparseTileSizeInBytesForSparsePageSize(256KB(103))= 0x40000 (262144)
+respondsTo:newTensorWithDescriptor:offset:error: = NO
+respondsTo:newTensorWithDescriptor:error:      = YES
+
+==== COUNTER SAMPLING (MTLCounterSamplingPoint 0..4) ====
+supportsCounterSampling(AtStageBoundary         ) = YES
+supportsCounterSampling(AtDrawBoundary          ) = NO
+supportsCounterSampling(AtDispatchBoundary      ) = NO
+supportsCounterSampling(AtTileDispatchBoundary  ) = NO
+supportsCounterSampling(AtBlitBoundary          ) = NO
+counterSets:
+  counterSet = timestamp
+
+==== VERTEX AMPLIFICATION ====
+supportsVertexAmplificationCount(1)           = YES
+supportsVertexAmplificationCount(2)           = YES
+supportsVertexAmplificationCount(4)           = YES
+supportsVertexAmplificationCount(8)           = YES
+
+==== PIPELINE-DERIVED (our own 1-line kernel; no GPU submission) ====
+threadExecutionWidth                           = 32
+maxTotalThreadsPerThreadgroup                  = 1024
+staticThreadgroupMemoryLength                  = 0
+
+==== MESH SHADING (our own object/mesh/fragment; build-only) ====
+objMain.functionType   = 8 (expect 8=Object)
+meshMain.functionType  = 7 (expect 7=Mesh)
+mesh_pipeline_build = SUCCESS  (maxTotalThreadsPerThreadgroup=0)
+
+==== supportsFamily (incl. speculative future families) ====
+supportsFamily(Apple1         / 1001)      = YES
+supportsFamily(Apple2         / 1002)      = YES
+supportsFamily(Apple3         / 1003)      = YES
+supportsFamily(Apple4         / 1004)      = YES
+supportsFamily(Apple5         / 1005)      = YES
+supportsFamily(Apple6         / 1006)      = YES
+supportsFamily(Apple7         / 1007)      = YES
+supportsFamily(Apple8         / 1008)      = YES
+supportsFamily(Apple9         / 1009)      = YES
+supportsFamily(Apple10        / 1010)      = YES
+supportsFamily(Apple11        / 1011)      = NO
+supportsFamily(Apple12        / 1012)      = NO
+supportsFamily(Mac1           / 2001)      = YES
+supportsFamily(Mac2           / 2002)      = YES
+supportsFamily(Common1        / 3001)      = YES
+supportsFamily(Common2        / 3002)      = YES
+supportsFamily(Common3        / 3003)      = YES
+supportsFamily(MacCatalyst1   / 4001)      = NO
+supportsFamily(MacCatalyst2   / 4002)      = NO
+supportsFamily(Metal3         / 5001)      = YES
+supportsFamily(Metal4         / 5002)      = YES
+supportsFamily(Metal5(spec)   / 5003)      = NO
+
+==== max MSL language version accepted (our own trivial shader) ====
+MSL 3.0  = ACCEPTED
+MSL 3.1  = ACCEPTED
+MSL 3.2  = ACCEPTED
+MSL 4.0  = ACCEPTED
+MSL 4.1  = ACCEPTED
+MSL 4.2  = REJECTED  :: error: invalid value 'metal4.2' in '-std=metal4.2'
+
+==== Metal-4 / newer selector presence (respondsToSelector on MTLDevice) ====
+respondsToSelector(supportsFamily:                                     ) = YES
+respondsToSelector(sparseTileSizeInBytesForSparsePageSize:             ) = YES
+respondsToSelector(sparsePageSize                                      ) = NO
+respondsToSelector(newTensorWithDescriptor:offset:error:               ) = NO
+respondsToSelector(newResidencySetWithDescriptor:error:                ) = YES
+respondsToSelector(newIOCommandQueueWithDescriptor:error:              ) = YES
+respondsToSelector(sizeOfCounterHeapEntry:                             ) = YES
+respondsToSelector(newCommandQueueWithDescriptor:                      ) = YES
+respondsToSelector(newCommandQueueWithDescriptor:error:                ) = NO
+respondsToSelector(newLibraryWithStitchedDescriptor:error:             ) = YES
+respondsToSelector(newArgumentTableWithDescriptor:error:               ) = YES
+respondsToSelector(newComputePipelineStateWithDescriptor:options:reflection:error:) = YES
+respondsToSelector(functionHandleWithFunction:                         ) = YES
+
+==== DONE ====

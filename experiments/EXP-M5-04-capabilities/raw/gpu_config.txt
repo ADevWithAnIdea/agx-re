@@ -1,0 +1,32 @@
+--- sw_vers / uname ---
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A5368g
+Darwin macbookairm5.lan 27.0.0 Darwin Kernel Version 27.0.0: Mon Jun 15 23:01:45 PDT 2026; root:xnu-13432.0.5.501.1~2/RELEASE_ARM64_T8142 arm64
+
+--- hw.model / memsize / pagesize / gpu core count ---
+hw.model: Mac17,3
+hw.memsize: 17179869184
+hw.pagesize: 16384
+
+--- AGXAccelerator textual props ---
+  |   "model" = "Apple M5"
+  |   "gpu-core-count" = 8
+  |   "IOClass" = "AGXAcceleratorG17G"
+
+--- system_profiler SPDisplaysDataType ---
+      Chipset Model: Apple M5
+      Total Number of Cores: 8
+      Vendor: Apple (0x106b)
+      Metal Support: Metal 4
+
+--- MTLGPUFamily Apple enum from public SDK header (evidence Apple10 is a named constant) ---
+241:    MTLGPUFamilyApple9  = 1009,
+242:    MTLGPUFamilyApple10 = 1010,
+254:    MTLGPUFamilyMetal3 API_AVAILABLE(macos(13.0), ios(16.0)) = 5001,
+255:    MTLGPUFamilyMetal4 API_AVAILABLE(macos(26.0), ios(26.0)) = 5002,
+
+--- MTLSparsePageSize enum from public SDK header ---
+196:    MTLSparsePageSize16 = 101,
+197:    MTLSparsePageSize64 = 102,
+198:    MTLSparsePageSize256 = 103,
