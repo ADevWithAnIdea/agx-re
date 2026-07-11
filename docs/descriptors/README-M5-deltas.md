@@ -1,0 +1,25 @@
+# M5 (Apple10 / G17g) resource-descriptor deltas vs A18 (G17P)
+
+Delta-form: "same as `descriptors/README.md` (A18/G17P) except as noted." Source: EXP-M5-06 (own-process
+DATA-TRACE, change-one-parameter). HW-validated unless marked ⏳. No Apple binary introspected.
+
+## Texture descriptor (32 B) — ONE delta: width/height bit split shifted +1 bit
+- **DELTA:** **width−1 = word0[28:31] ‖ word1[0:10]**; **height−1 = word1[11:24]**.
+  (A18 was width−1 = word0[28:31]‖word1[0:9], height−1 = word1[10:23].) HW-validated across
+  64/128/256/512/1024/2048/4096 (e.g. 256×128 → W−1=255, H−1=127).
+- **SAME:** type byte0[0:2] (1D=0,2D=2,2DArray=3,…); channel-arrangement byte0 hi-nibble; format code
+  byte1 = `numtype<<5 | sizeclass` (rgba8=`0x0a`, r8=`0x00`, r32f=`0x88`, rgba16f=`0x8c`, rgba8i=`0x6a`,
+  rgb10a2=`0x09`); swizzle word0[16:27] (4×3-bit R0G1B2A3One4Zero5); base **VA>>4** = word2‖word3[0:11];
+  sRGB word3[12]; depth/arrayLen−1 word3[14:24]; sampleCount word1[24:25].
+
+## Sampler descriptor (8 B) — BYTE-IDENTICAL to A18
+All fields at the same bit positions (address S[29:31]/T[32:34]/R[35:37] edge0/repeat1/mirror2/border3;
+maxAniso[20:22] log2; magFilter@23; minFilter@25; mipFilter[27:28]; compare/border as A18). HW-confirmed
+by address-mode + filter sweeps.
+
+## Buffer binding — SAME
+`device T*` = bare inline 8-byte GPU VA in the arg-buffer slot (no length/format word).
+
+## Open (not probed on M5 this run) ⏳
+PBE / storage-image descriptor, render-target attachment packed-format word + 3-segment load/render/store,
+sparse/heap flags, texel-buffer path, tiling/twiddle + lossless compression per format.

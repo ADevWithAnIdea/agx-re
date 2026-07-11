@@ -1,0 +1,86 @@
+EXP-M5-06 raw decoded evidence (M5 / T8142 / AGXAcceleratorG17G). Own-process DATA-TRACE.
+
+== CDM launch descriptor 0x100000b0000, grid/tg sweep (bytes @+0x10 grid.x, @+0x1c tg.x) ==
+g64t32 : +0x10 40000000(=64)  +0x1c 20000000(=32)
+g128t64: +0x10 80000000(=128) +0x1c 40000000(=64)
+g256t32: +0x10 00010000(=256) +0x1c 20000000(=32)
+g96t48 : +0x10 60000000(=96)  +0x1c 40000000(=64  <- barrier-free repack 48->64, = A18 behavior)
+
+== CDM +0x00 config word: occupancy tier (bit23) ==
+light kernel : 00000000   (bit23 clear)
+heavy kernel : 00008000   (bytes) = 0x00800000 = bit23 SET
+  (A18 baseline was 0x00080000 clear / 0x00880000 set: bit19 base + bit23. M5 drops the bit19 base.)
+
+== Threadgroup-memory size: shader BO 0x10000090000 +0x38 word (LE) ==
+tgmem  word(+0x38)   fine<<11   coarse<<19
+    0  0x0c000007   (has-tgmem flag clear: low nibble 7)
+   16  0x0c00080f   fine=1 (round_up16->64 /64)
+   48  0x0c00080f   fine=1
+   64  0x0c00080f   fine=1
+  100  0x0c00100f   fine=2 (round_up100->128 /64)
+  256  0x0c00200f   fine=4
+  512  0x0c00400f   fine=8
+  768  0x0c00600f   fine=12
+ 1024  0x0c00800f   fine=16
+ 1536  0x0c00c00f   fine=24
+ 2048  0x0c08000f   coarse=1
+ 2112  0x0c08080f   coarse=1 fine=1     (cross-check: predicted then observed)
+ 3072  0x0c08800f   coarse=1 fine=16
+ 4096  0x0c10000f   coarse=2
+ 4608  0x0c10400f   coarse=2 fine=8     (cross-check: predicted then observed)
+ 6144  0x0c18000f   coarse=3
+ 8192  0x0c20000f   coarse=4
+12288  0x0c30000f   coarse=6
+16384  0x0c40000f   coarse=8
+32768  0x0c80000f   coarse=16
+Formula: word = 0x0c00000f | (round_up(tgmem&0x7FF,64)/64 << 11) | (tgmem>>11 << 19)   [bits 16:18 reserved]
+
+== VDM draw record (0x18000) primitive/opcode/count sweep (16 bytes @+0x88) ==
+d_tri3   ac810500 0006c469 03000000 01000000   prim=06 op=0x69c4 vcount=3 icount=1
+d_tri6   ac810500 0006c469 06000000 01000000   vcount=6
+d_point  ac810500 0000c469 04000000 01000000   prim=00 (point)
+d_line   ac810500 0001c469 04000000 01000000   prim=01 (line)
+d_lstrip ac810500 0003c469 05000000 01000000   prim=03 (lineStrip)
+d_tstrip ac810500 0009c469 05000000 01000000   prim=09 (triStrip)
+d_inst3  ac810500 0006c469 03000000 07000000   icount=7
+  => non-indexed opcode 0x69c4 (A18 0x61c4); primitive enum identical.
+
+== Indexed draw (0x18000 diff vs non-indexed base) ==
+u16: +0x8c 0x40000001(cfg) | +0x90 ffff0000(restart 0xffff) | +0x94 0006f269(prim06 op=0x69f2) | +0x9c indexCount=3 | +0xa0 inst=1
+u32: +0x8c 0x40000001      | +0x90 ffffffff(restart)        | +0x94 0006f469(op=0x69f4)          | +0x9c indexCount=3
+  => indexed opcode 0x69f2 | strip | (u32<<1)  (A18 0x61f2). +0xac: u16=1 / u32=2 (index element size).
+
+== Fixed-function pool 0x58000 diffs vs stateless base ==
+DEPTH(lessEqual,write): +0x134 1c4e0000->1c520000  +0x16c 00020400->00020000  +0x170/+0x174 000f2007->000f0003
+CULL(back,CCW)        : +0x1a8 80040000->82040100   (cull bits[1:0]=2 back, winding bit16 CCW)
+  (A18 had flags+0x34/depth+0x38/stencil+0x3c/raster+0x70 -> reorganized/shifted on M5.)
+
+== Viewport transform 0x68000+0x9d0 diff, setViewport(x=8,y=16,w=32,h=48) ==
++0x9d0 00000042->0000c041 (24.0 = x+w/2 = tx)
++0x9d4 00000042->00008041 (16.0 = w/2   = sx)
++0x9d8 00000042->00002042 (40.0 = y+h/2 = ty)
++0x9dc 000000c2->0000c0c1 (-24.0 = -h/2 = sy, Y-flip)
+default full 64x64 target = {32,32,32,-32}. (A18 viewport at +0x910.)
+
+== Texture descriptor 32B (arg buffer +0x14a0 resource table -> tex ptr) ==
+fmt      tex(32B hex)                                                     type byte1 swz         W-1  H-1(M5)
+rgba8    220a88f603f80120008000001000008000840000100000000000000000000000  2  0x0a [0,1,2,3]  63   63(64x64)
+bgra8    220a0af603f80120008000001000008000840000100000000000000000000000  2  0x0a [2,1,0,3]  63   63
+r8       220068f903f80120003500001000008000360000100000000000000000000000  2  0x00 [0,5,5,4]  63   63
+r32f     628868f903f80120008000001000008000840000100000000000000000000000  2  0x88 [0,5,5,4]  63   63
+rgba16f  a28c88f603f80120008000001000008000880000100000000000000000000000  2  0x8c [0,1,2,3]  63   63
+rgba8i   226a88f603f80120008000001000008000840000100000000000000000000000  2  0x6a [0,1,2,3]  63   63
+rgb10a2  a20988f603f80120008000001000008000840000100000000000000000000000  2  0x09 [0,1,2,3]  63   63
+w256     220a88f60ff80320008000001000008000a00000100000000000000000000000  2  0x0a [0,1,2,3]  255  127(256x128)
+w1024    220a88f63ff80f20008000001000008000800200100000000000000000000000  2  0x0a          1023  511(1024x512)
+w4096    220a88f6fff83f20008000001000008000802000100000000000000000000000  2  0x0a          4095  2047(4096x2048)
+arr6     230a88f603f8012000800000104001c000980000100000000000000000000000  3(2DArray) arrayLen-1=5 (word3[14:24])
+  => width-1 = word0[28:31] || word1[0:10] ; height-1 = word1[11:24]   (A18: word1[0:9] / word1[10:23])
+
+== Sampler descriptor 8B (LE u64) sweep ==
+edge   00000f0080070000  u64=0x00000780000f0000  (baseline: clampToEdge, nearest, aniso1)
+repeat 00000f2089070000  diff bits {29,32,35}  -> addr S/T/R = 1 (repeat)
+mirror 00000f4092070000  diff bits {30,33,36}  -> addr S/T/R = 2 (mirror)
+border 00000f609b070000  diff bits {29,30,32,33,35,36} -> addr S/T/R = 3 (clampToBorder)
+lin    0000af1280070000  diff bits {21,23,25,28} -> aniso4(=2)@[20:22], magF@23, minF@25, mipF=2@[27:28]
+  => sampler byte-identical to A18 (all fields, same bit positions).
