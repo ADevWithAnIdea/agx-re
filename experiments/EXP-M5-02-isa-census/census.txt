@@ -1,0 +1,426 @@
+============================================================================
+EXP-M5-02  BYTE0 INSTRUCTION CENSUS  --  Apple M5 (T8142) corpus vs G17P/A18 DB
+============================================================================
+corpus: 1085 extracted stage programs (842 unique, 243 duplicate stages)
+instructions walked (unique streams): 112707
+  named (matched a G17P descriptor):     86555  (76.80%)
+  length-only (length known, unnamed):    4073  (3.61%)
+  UNDECODED regions (desync/unknown):    22079  (19.59%)
+  --> cleanly tokenized (length known): 90628/112707 = 80.41% of tokens
+  --> FULLY-NAMED:                      86555/112707 = 76.80% of tokens
+  --> BYTE COVERAGE (named+lenonly):    452260/536960 = 84.23% of bytes
+      undecoded bytes:                  84700/536960 = 15.77%
+
+distinct byte0 groups seen: 240
+  byte0 groups the DB CAN length/name somewhere: 199
+  byte0 groups NEVER decoded (pure gaps):        41  ['0x2d', '0x46', '0x55', '0x56', '0x5e', '0x65', '0x66', '0x6d', '0x75', '0x77', '0x7d', '0x7e', '0x85', '0x95', '0x96', '0x98', '0x9d', '0x9e', '0xa5', '0xae', '0xb5', '0xb6', '0xb7', '0xb8', '0xbe', '0xc5', '0xc6', '0xc8', '0xd0', '0xd8', '0xdd', '0xde', '0xe1', '0xe4', '0xe6', '0xe8', '0xef', '0xf8', '0xfa', '0xfd', '0xfe']
+
+----------------------------------------------------------------------------
+(b) UNDECODED/DESYNC byte0 HISTOGRAM (ranked by resync-region count)
+    columns: byte0 | undec_regions | undec_bytes | also_named_elsewhere | also_lenonly
+----------------------------------------------------------------------------
+  0x3e | regions= 1863 | bytes= 12550 | named_elsewhere=   11 | lenonly=   0
+  0xb7 | regions= 1671 | bytes=  8532 | named_elsewhere=    0 | lenonly=   0
+  0x01 | regions= 1247 | bytes=  5156 | named_elsewhere= 6135 | lenonly= 603
+  0x32 | regions= 1004 | bytes=  2632 | named_elsewhere=  310 | lenonly=   0
+  0xa0 | regions=  915 | bytes=  3136 | named_elsewhere=  408 | lenonly=   0
+  0xfe | regions=  807 | bytes=  4010 | named_elsewhere=    0 | lenonly=   0
+  0x20 | regions=  760 | bytes=  1780 | named_elsewhere=  783 | lenonly=   1
+  0x5e | regions=  731 | bytes=  3528 | named_elsewhere=    0 | lenonly=   0
+  0xbe | regions=  691 | bytes=  1766 | named_elsewhere=    0 | lenonly=   0
+  0x02 | regions=  647 | bytes=  2564 | named_elsewhere= 1133 | lenonly=   0
+  0x42 | regions=  629 | bytes=  2632 | named_elsewhere=  351 | lenonly=   0
+  0x9e | regions=  512 | bytes=  1046 | named_elsewhere=    0 | lenonly=   0
+  0xa8 | regions=  448 | bytes=  1602 | named_elsewhere=    9 | lenonly=   0
+  0x07 | regions=  442 | bytes=  1756 | named_elsewhere=  924 | lenonly=   0
+  0xe0 | regions=  420 | bytes=   872 | named_elsewhere=   31 | lenonly=   1
+  0x38 | regions=  397 | bytes=  1302 | named_elsewhere=  204 | lenonly=   0
+  0x1e | regions=  378 | bytes=   766 | named_elsewhere= 1656 | lenonly=   0
+  0x3f | regions=  372 | bytes=  1358 | named_elsewhere=   16 | lenonly=   0
+  0xa1 | regions=  367 | bytes=  1430 | named_elsewhere=  466 | lenonly=   1
+  0x30 | regions=  306 | bytes=   928 | named_elsewhere=   31 | lenonly=  47
+  0xff | regions=  290 | bytes=  2656 | named_elsewhere=    7 | lenonly=   0
+  0x18 | regions=  288 | bytes=   606 | named_elsewhere=  105 | lenonly=   0
+  0x52 | regions=  281 | bytes=   606 | named_elsewhere=   87 | lenonly=   0
+  0x3a | regions=  279 | bytes=   798 | named_elsewhere=   24 | lenonly=   0
+  0x81 | regions=  276 | bytes=  1224 | named_elsewhere=  161 | lenonly=  30
+  0x40 | regions=  271 | bytes=   692 | named_elsewhere=  416 | lenonly=   0
+  0x21 | regions=  223 | bytes=  1022 | named_elsewhere= 2453 | lenonly=  38
+  0xc0 | regions=  222 | bytes=   462 | named_elsewhere=   56 | lenonly=   0
+  0xa2 | regions=  203 | bytes=   714 | named_elsewhere=  329 | lenonly=   0
+  0x80 | regions=  200 | bytes=   534 | named_elsewhere=  900 | lenonly=   2
+  0xa5 | regions=  196 | bytes=   412 | named_elsewhere=    0 | lenonly=   0
+  0x2e | regions=  190 | bytes=   656 | named_elsewhere=   19 | lenonly=   0
+  0x2a | regions=  174 | bytes=   648 | named_elsewhere=  909 | lenonly=   0
+  0x26 | regions=  171 | bytes=   940 | named_elsewhere=  215 | lenonly=   0
+  0x41 | regions=  155 | bytes=   348 | named_elsewhere=   35 | lenonly=   2
+  0x82 | regions=  155 | bytes=   486 | named_elsewhere=  273 | lenonly=   0
+  0xa4 | regions=  142 | bytes=   456 | named_elsewhere=   79 | lenonly=   0
+  0x88 | regions=  127 | bytes=   556 | named_elsewhere=    9 | lenonly=   0
+  0x0b | regions=  125 | bytes=   344 | named_elsewhere=  582 | lenonly=   0
+  0x62 | regions=  111 | bytes=   274 | named_elsewhere=  222 | lenonly=   0
+  0x24 | regions=  108 | bytes=   424 | named_elsewhere=  156 | lenonly=   0
+  0x10 | regions=  107 | bytes=   214 | named_elsewhere= 1013 | lenonly=  62
+  0x2b | regions=  107 | bytes=   512 | named_elsewhere=  793 | lenonly=   0
+  0xbf | regions=  103 | bytes=   386 | named_elsewhere=  137 | lenonly=   0
+  0x08 | regions=  100 | bytes=   276 | named_elsewhere=  314 | lenonly=   0
+  0xb8 | regions=   98 | bytes=   226 | named_elsewhere=    0 | lenonly=   0
+  0xa6 | regions=   97 | bytes=   338 | named_elsewhere=    9 | lenonly=   0
+  0xc1 | regions=   96 | bytes=   208 | named_elsewhere=    1 | lenonly=   4
+  0x61 | regions=   95 | bytes=   224 | named_elsewhere=    8 | lenonly=   0
+  0x4a | regions=   94 | bytes=   352 | named_elsewhere=  478 | lenonly=   0
+  0x90 | regions=   90 | bytes=   244 | named_elsewhere=   20 | lenonly=   3
+  0x78 | regions=   85 | bytes=   202 | named_elsewhere=    2 | lenonly=   0
+  0xb2 | regions=   83 | bytes=   318 | named_elsewhere=   82 | lenonly=   0
+  0x15 | regions=   77 | bytes=   930 | named_elsewhere=  150 | lenonly=   0
+  0x35 | regions=   74 | bytes=   168 | named_elsewhere=   13 | lenonly=   0
+  0x0f | regions=   64 | bytes=   128 | named_elsewhere=  845 | lenonly=   0
+  0x5a | regions=   64 | bytes=   138 | named_elsewhere=   10 | lenonly=   0
+  0x70 | regions=   63 | bytes=   130 | named_elsewhere=    1 | lenonly=   0
+  0x2d | regions=   62 | bytes=   142 | named_elsewhere=    0 | lenonly=   0
+  0x5f | regions=   62 | bytes=   124 | named_elsewhere=   13 | lenonly=   0
+  0x4f | regions=   60 | bytes=   158 | named_elsewhere=   55 | lenonly=   0
+  0x06 | regions=   60 | bytes=   356 | named_elsewhere=  191 | lenonly=   0
+  0x84 | regions=   59 | bytes=   230 | named_elsewhere=   15 | lenonly=   0
+  0xde | regions=   57 | bytes=   140 | named_elsewhere=    0 | lenonly=   0
+  0x67 | regions=   53 | bytes=   106 | named_elsewhere=  155 | lenonly=   0
+  0x92 | regions=   53 | bytes=   190 | named_elsewhere=   76 | lenonly=   0
+  0x45 | regions=   52 | bytes=   120 | named_elsewhere=    5 | lenonly=   0
+  0x86 | regions=   50 | bytes=   204 | named_elsewhere=   17 | lenonly=   0
+  0x34 | regions=   49 | bytes=   162 | named_elsewhere=   80 | lenonly=   0
+  0x28 | regions=   46 | bytes=   116 | named_elsewhere=   63 | lenonly=   0
+  0x14 | regions=   46 | bytes=   200 | named_elsewhere=   71 | lenonly=   0
+  0x44 | regions=   43 | bytes=    98 | named_elsewhere=  398 | lenonly=   0
+  0xf8 | regions=   41 | bytes=    94 | named_elsewhere=    0 | lenonly=   0
+  0x50 | regions=   40 | bytes=   170 | named_elsewhere=    3 | lenonly=   0
+  0xef | regions=   39 | bytes=    78 | named_elsewhere=    0 | lenonly=   0
+  0x31 | regions=   39 | bytes=   124 | named_elsewhere=   34 | lenonly=   1
+  0xd2 | regions=   37 | bytes=   206 | named_elsewhere=   33 | lenonly=   0
+  0x75 | regions=   36 | bytes=    72 | named_elsewhere=    0 | lenonly=   0
+  0xbd | regions=   30 | bytes=    60 | named_elsewhere=   29 | lenonly=   0
+  0x25 | regions=   29 | bytes=    62 | named_elsewhere=  204 | lenonly=   0
+  0xc2 | regions=   29 | bytes=    80 | named_elsewhere=   40 | lenonly=   0
+  0x7f | regions=   29 | bytes=    58 | named_elsewhere=   78 | lenonly=   0
+  0xe2 | regions=   29 | bytes=    92 | named_elsewhere=   38 | lenonly=   0
+  0x36 | regions=   26 | bytes=    58 | named_elsewhere=    2 | lenonly=   0
+  0xf2 | regions=   26 | bytes=    64 | named_elsewhere=   42 | lenonly=   0
+  0xe6 | regions=   26 | bytes=    52 | named_elsewhere=    0 | lenonly=   0
+  0x66 | regions=   25 | bytes=    50 | named_elsewhere=    0 | lenonly=   0
+  0x3b | regions=   24 | bytes=    82 | named_elsewhere=  701 | lenonly=   0
+  0x1b | regions=   22 | bytes=    48 | named_elsewhere= 1059 | lenonly=   0
+  0x0a | regions=   21 | bytes=   104 | named_elsewhere= 1721 | lenonly=   0
+  0x46 | regions=   20 | bytes=    72 | named_elsewhere=    0 | lenonly=   0
+  0xab | regions=   19 | bytes=    68 | named_elsewhere=  435 | lenonly=   0
+  0xbb | regions=   19 | bytes=    90 | named_elsewhere=  409 | lenonly=   0
+  0x91 | regions=   18 | bytes=    74 | named_elsewhere=    5 | lenonly=   0
+  0xad | regions=   18 | bytes=    48 | named_elsewhere=    3 | lenonly=   0
+  0x1a | regions=   18 | bytes=    62 | named_elsewhere=  158 | lenonly=   0
+  0x4b | regions=   17 | bytes=    74 | named_elsewhere=  223 | lenonly=   0
+  0xaa | regions=   17 | bytes=    72 | named_elsewhere=   93 | lenonly=   0
+  0x72 | regions=   17 | bytes=    38 | named_elsewhere=  181 | lenonly=   0
+  0xd0 | regions=   16 | bytes=    32 | named_elsewhere=    0 | lenonly=   0
+  0x64 | regions=   14 | bytes=    28 | named_elsewhere=    7 | lenonly=   0
+  0xc6 | regions=   14 | bytes=    28 | named_elsewhere=    0 | lenonly=   0
+  0x96 | regions=   13 | bytes=    60 | named_elsewhere=    0 | lenonly=   0
+  0xb0 | regions=   13 | bytes=    40 | named_elsewhere=    0 | lenonly=   1
+  0xe4 | regions=   12 | bytes=    44 | named_elsewhere=    0 | lenonly=   0
+  0x5b | regions=   12 | bytes=    30 | named_elsewhere=  459 | lenonly=   0
+  0xb4 | regions=   11 | bytes=    28 | named_elsewhere=   17 | lenonly=   0
+  0x58 | regions=   10 | bytes=    26 | named_elsewhere=    8 | lenonly=   0
+  0xc8 | regions=   10 | bytes=    24 | named_elsewhere=    0 | lenonly=   0
+  0xf4 | regions=   10 | bytes=    20 | named_elsewhere=    3 | lenonly=   0
+  0xae | regions=    9 | bytes=    38 | named_elsewhere=    0 | lenonly=   0
+  0x98 | regions=    8 | bytes=    18 | named_elsewhere=    0 | lenonly=   0
+  0x51 | regions=    8 | bytes=    20 | named_elsewhere=    6 | lenonly=   0
+  0x54 | regions=    8 | bytes=    20 | named_elsewhere=   13 | lenonly=   0
+  0x48 | regions=    7 | bytes=    24 | named_elsewhere=   16 | lenonly=   0
+  0x95 | regions=    7 | bytes=    34 | named_elsewhere=    0 | lenonly=   0
+  0x94 | regions=    7 | bytes=    32 | named_elsewhere=   15 | lenonly=   0
+  0x6b | regions=    7 | bytes=    16 | named_elsewhere=  287 | lenonly=   0
+  0x7a | regions=    7 | bytes=    28 | named_elsewhere=    3 | lenonly=   0
+  0x6d | regions=    7 | bytes=    14 | named_elsewhere=    0 | lenonly=   0
+  0x7b | regions=    6 | bytes=    26 | named_elsewhere=  562 | lenonly=   0
+  0x74 | regions=    6 | bytes=    18 | named_elsewhere=   17 | lenonly=   0
+  0x77 | regions=    6 | bytes=    26 | named_elsewhere=    0 | lenonly=   0
+  0xb1 | regions=    6 | bytes=    34 | named_elsewhere=    2 | lenonly=   0
+  0x68 | regions=    6 | bytes=    28 | named_elsewhere=    8 | lenonly=   0
+  0x9b | regions=    5 | bytes=    18 | named_elsewhere=  269 | lenonly=   0
+  0x9d | regions=    5 | bytes=    10 | named_elsewhere=    0 | lenonly=   0
+  0x7d | regions=    5 | bytes=    10 | named_elsewhere=    0 | lenonly=   0
+  0x55 | regions=    5 | bytes=    12 | named_elsewhere=    0 | lenonly=   0
+  0x85 | regions=    4 | bytes=    18 | named_elsewhere=    0 | lenonly=   0
+  0x4e | regions=    4 | bytes=    12 | named_elsewhere=    1 | lenonly=   0
+  0x3d | regions=    4 | bytes=     8 | named_elsewhere=    2 | lenonly=   0
+  0xc4 | regions=    3 | bytes=     8 | named_elsewhere=   11 | lenonly=   0
+  0x8b | regions=    3 | bytes=     6 | named_elsewhere=  224 | lenonly=   0
+  0xcd | regions=    3 | bytes=    18 | named_elsewhere=    2 | lenonly=   0
+  0xcb | regions=    3 | bytes=    14 | named_elsewhere=  151 | lenonly=   0
+  0xeb | regions=    3 | bytes=    10 | named_elsewhere=  264 | lenonly=   0
+  0xfb | regions=    3 | bytes=    10 | named_elsewhere=  324 | lenonly=   0
+  0xac | regions=    2 | bytes=     4 | named_elsewhere=  136 | lenonly=   0
+  0xb6 | regions=    2 | bytes=    10 | named_elsewhere=    0 | lenonly=   0
+  0x65 | regions=    2 | bytes=     6 | named_elsewhere=    0 | lenonly=   0
+  0xd4 | regions=    2 | bytes=     4 | named_elsewhere=    3 | lenonly=   0
+  0x8a | regions=    2 | bytes=     8 | named_elsewhere=   15 | lenonly=   0
+  0xfd | regions=    2 | bytes=     4 | named_elsewhere=    0 | lenonly=   0
+  0xc5 | regions=    2 | bytes=     4 | named_elsewhere=    0 | lenonly=   0
+  0xdb | regions=    2 | bytes=    14 | named_elsewhere=  538 | lenonly=   0
+  0xe8 | regions=    2 | bytes=     4 | named_elsewhere=    0 | lenonly=   0
+  0xb5 | regions=    2 | bytes=     8 | named_elsewhere=    0 | lenonly=   0
+  0x7e | regions=    1 | bytes=     2 | named_elsewhere=    0 | lenonly=   0
+  0xda | regions=    1 | bytes=     6 | named_elsewhere=    2 | lenonly=   0
+  0xfa | regions=    1 | bytes=     4 | named_elsewhere=    0 | lenonly=   0
+  0x9a | regions=    1 | bytes=     6 | named_elsewhere=    1 | lenonly=   0
+  0x56 | regions=    1 | bytes=     2 | named_elsewhere=    0 | lenonly=   0
+  0xba | regions=    1 | bytes=     6 | named_elsewhere=    1 | lenonly=   0
+  0xd8 | regions=    1 | bytes=     2 | named_elsewhere=    0 | lenonly=   0
+  0x1d | regions=    1 | bytes=     2 | named_elsewhere=    1 | lenonly=   0
+  0xe1 | regions=    1 | bytes=     2 | named_elsewhere=    0 | lenonly=   0
+  0x71 | regions=    1 | bytes=     2 | named_elsewhere=    5 | lenonly=   0
+  0x6a | regions=    1 | bytes=     6 | named_elsewhere=  143 | lenonly=   0
+  0xd1 | regions=    1 | bytes=     2 | named_elsewhere=    1 | lenonly=   0
+  0xf0 | regions=    1 | bytes=     2 | named_elsewhere=    1 | lenonly=   0
+  0xdd | regions=    1 | bytes=     2 | named_elsewhere=    0 | lenonly=   0
+  0x0d | regions=    1 | bytes=     2 | named_elsewhere=  122 | lenonly=   0
+
+----------------------------------------------------------------------------
+(c) TOP DIVERGING byte0 LEADERS  (prioritized delta list)
+----------------------------------------------------------------------------
+[ 1] byte0=0x3e  regions=1863  bytes=12550
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x3e decodes+NAMES in 11 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 3e 03 40 0e
+     ctx: 3e 03 40 0e 27 02
+     ctx: 3e 02 e0 0e
+     (same byte0 NAMED elsewhere as 'operand_word': 3e 21)
+
+[ 2] byte0=0xb7  regions=1671  bytes=8532
+     hypothesis: UNKNOWN LEADER: byte0 0xb7 is never length-resolved anywhere in the M5 corpus. Candidate NEW opcode/leader on M5, or a G17P op whose length rule no longer fires (relocated match bits).
+     ctx: b7 00
+     ctx: b7 80
+     ctx: b7 80
+
+[ 3] byte0=0x01  regions=1247  bytes=5156
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x01 decodes+NAMES in 6135 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 01 26 10 40
+     ctx: 01 06 10 40
+     ctx: 01 06 10 c0
+     (same byte0 NAMED elsewhere as 'n1_word': 01 00)
+
+[ 4] byte0=0x32  regions=1004  bytes=2632
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x32 decodes+NAMES in 310 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 32 04 47 23
+     ctx: 32 80 47 4b
+     ctx: 32 80 47 0a 2b 00
+     (same byte0 NAMED elsewhere as 'operand_word': 32 28)
+
+[ 5] byte0=0xa0  regions=915  bytes=3136
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0xa0 decodes+NAMES in 408 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: a0 02
+     ctx: a0 02
+     ctx: a0 82
+     (same byte0 NAMED elsewhere as 'pad_operand': a0 0a)
+
+[ 6] byte0=0xfe  regions=807  bytes=4010
+     hypothesis: UNKNOWN LEADER: byte0 0xfe is never length-resolved anywhere in the M5 corpus. Candidate NEW opcode/leader on M5, or a G17P op whose length rule no longer fires (relocated match bits).
+     ctx: fe 00 62 0e 5e 4f
+     ctx: fe 7f
+     ctx: fe 00 02 0e
+
+[ 7] byte0=0x20  regions=760  bytes=1780
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x20 decodes+NAMES in 783 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 20 03 a0 12
+     ctx: 20 03 a1 1a
+     ctx: 20 03
+     (same byte0 NAMED elsewhere as 'pad_operand': 20 02)
+
+[ 8] byte0=0x5e  regions=731  bytes=3528
+     hypothesis: UNKNOWN LEADER: byte0 0x5e is never length-resolved anywhere in the M5 corpus. Candidate NEW opcode/leader on M5, or a G17P op whose length rule no longer fires (relocated match bits).
+     ctx: 5e 1f
+     ctx: 5e 63 40 0e
+     ctx: 5e 63 40 0e
+
+[ 9] byte0=0xbe  regions=691  bytes=1766
+     hypothesis: UNKNOWN LEADER: byte0 0xbe is never length-resolved anywhere in the M5 corpus. Candidate NEW opcode/leader on M5, or a G17P op whose length rule no longer fires (relocated match bits).
+     ctx: be 60
+     ctx: be 20
+     ctx: be 70
+
+[10] byte0=0x02  regions=647  bytes=2564
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x02 decodes+NAMES in 1133 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 02 02
+     ctx: 02 02
+     ctx: 02 02
+     (same byte0 NAMED elsewhere as 'n2_op6': 02 02 0b 80 26 80)
+
+[11] byte0=0x42  regions=629  bytes=2632
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x42 decodes+NAMES in 351 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 42 1c
+     ctx: 42 00
+     ctx: 42 00
+     (same byte0 NAMED elsewhere as 'n2_op6': 42 87 23 80 96 08)
+
+[12] byte0=0x9e  regions=512  bytes=1046
+     hypothesis: UNKNOWN LEADER: byte0 0x9e is never length-resolved anywhere in the M5 corpus. Candidate NEW opcode/leader on M5, or a G17P op whose length rule no longer fires (relocated match bits).
+     ctx: 9e 60
+     ctx: 9e 60
+     ctx: 9e 60
+
+[13] byte0=0xa8  regions=448  bytes=1602
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0xa8 decodes+NAMES in 9 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: a8 82
+     ctx: a8 0a
+     ctx: a8 0a
+     (same byte0 NAMED elsewhere as 'operand_word': a8 91)
+
+[14] byte0=0x07  regions=442  bytes=1756
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x07 decodes+NAMES in 924 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 07 02 82 00
+     ctx: 07 02
+     ctx: 07 02
+     (same byte0 NAMED elsewhere as 'scoreboard_fence': 07 22 02 00)
+
+[15] byte0=0xe0  regions=420  bytes=872
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0xe0 decodes+NAMES in 31 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: e0 0e
+     ctx: e0 0e
+     ctx: e0 0e
+     (same byte0 NAMED elsewhere as 'pad_operand': e0 00)
+
+[16] byte0=0x38  regions=397  bytes=1302
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x38 decodes+NAMES in 204 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 38 00 27 00
+     ctx: 38 e0
+     ctx: 38 70 a1 0a 84 86
+     (same byte0 NAMED elsewhere as 'operand_word': 38 30)
+
+[17] byte0=0x1e  regions=378  bytes=766
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x1e decodes+NAMES in 1656 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 1e 11
+     ctx: 1e 27 07 a0
+     ctx: 1e 10
+     (same byte0 NAMED elsewhere as 'operand_word': 1e 00)
+
+[18] byte0=0x3f  regions=372  bytes=1358
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x3f decodes+NAMES in 16 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 3f 00
+     ctx: 3f 00
+     ctx: 3f 02
+     (same byte0 NAMED elsewhere as 'operand_word': 3f 08)
+
+[19] byte0=0xa1  regions=367  bytes=1430
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0xa1 decodes+NAMES in 466 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: a1 1a
+     ctx: a1 0a 38 86
+     ctx: a1 0a
+     (same byte0 NAMED elsewhere as 'bf_alu8_var': a1 02 04 04 17 00 03 00)
+
+[20] byte0=0x30  regions=306  bytes=928
+     hypothesis: KNOWN LEADER, VARIANT DIVERGES: byte0 0x30 decodes+NAMES in 31 other contexts but desyncs here -> a specific sub-encoding (op-select/modifier) or the length of a variant changed on M5.
+     ctx: 30 70
+     ctx: 30 30 a1 22 84 a4
+     ctx: 30 87 08 44
+     (same byte0 NAMED elsewhere as 'pad_operand': 30 00)
+
+----------------------------------------------------------------------------
+(d) SILENT-DELTA CANDIDATES  (NAMED ops that systematically precede a desync;
+    a mis-length/mis-decode on M5 would corrupt the FOLLOWING token)
+    columns: mnemonic | pre_desync / total | ratio
+----------------------------------------------------------------------------
+  b_alu10_lof               275/275    100%
+  operand_word_x2_h5         63/68     93%
+  mask_op                   252/279    90%
+  sr_read_wide              370/440    84%
+  falu3_ext                 136/175    78%
+  reg_move_c2var            101/131    77%
+  compute_fence_scoped      199/297    67%
+  operand_word_x2_h7          2/3      67%
+  falu_srcmod12b            132/236    56%
+  iunary                    484/866    56%
+  n3_word                   122/232    53%
+  packed_half2_hi             6/12     50%
+  rt_intersect               54/110    49%
+  ray_move                  132/270    49%
+  falu3_srcmod12            141/290    49%
+  psel                      226/466    48%
+  n3_addr_prep               17/36     47%
+  vary_store                  3/7      43%
+  isel10                    344/806    43%
+  n2_op10                   732/1753   42%
+  pop_reconverge              4/10     40%
+  iadd2                       2/5      40%
+  rt_query_traverse2         24/61     39%
+  tex_deriv                1455/3762   39%
+  b_alu10_loe                 3/8      38%
+
+    length-only byte0 groups (length known but NO descriptor names them -> decode-but-unnamed, candidate silent deltas):
+      0x01: length_only= 603  named=6135
+      0x09: length_only=   7  named= 494
+      0x10: length_only=  62  named=1013
+      0x17: length_only= 714  named= 402
+      0x19: length_only=   4  named= 664
+      0x20: length_only=   1  named= 783
+      0x21: length_only=  38  named=2453
+      0x27: length_only=2391  named= 869
+      0x29: length_only=   8  named= 657
+      0x30: length_only=  47  named=  31
+      0x31: length_only=   1  named=  34
+      0x37: length_only=  26  named=3762
+      0x39: length_only=   5  named= 284
+      0x41: length_only=   2  named=  35
+      0x47: length_only=  21  named=   0
+      0x49: length_only=   3  named= 158
+      0x60: length_only=   1  named= 532
+      0x69: length_only=   3  named= 160
+      0x79: length_only=   2  named= 326
+      0x80: length_only=   2  named= 900
+      0x81: length_only=  30  named= 161
+      0x89: length_only=   2  named= 115
+      0x8f: length_only=  51  named=   8
+      0x90: length_only=   3  named=  20
+      0x99: length_only=   2  named= 101
+      0xa1: length_only=   1  named= 466
+      0xa7: length_only=  16  named=1768
+      0xa9: length_only=   7  named=1090
+      0xb0: length_only=   1  named=   0
+      0xb9: length_only=   1  named= 130
+      0xc1: length_only=   4  named=   1
+      0xc7: length_only=   5  named=   0
+      0xc9: length_only=   2  named=  97
+      0xe0: length_only=   1  named=  31
+      0xe9: length_only=   2  named=  61
+      0xf9: length_only=   4  named= 104
+
+----------------------------------------------------------------------------
+top NAMED mnemonics (sanity check the decode is meaningful)
+----------------------------------------------------------------------------
+  pad_operand                22158
+  operand_word               11729
+  n3_mov                     9153
+  tex_deriv                  3762
+  icmp_pred                  3502
+  falu2                      2056
+  n2_op6                     2053
+  bf_alu8_var                1878
+  n2_op10                    1753
+  reg_move_c0                1629
+  op04_len8                  1461
+  ibfe                       1439
+  mov_imm                    1262
+  b_alu10_lo7                1028
+  reg_move_c9                1026
+  fspecial                   1015
+  get_sr                     982
+  reg_move_c1                955
+  scoreboard_fence           871
+  iunary                     866
+  isel10                     806
+  ray_move_copy6             736
+  mov_zext16                 696
+  frame_marker               626
+  falu3                      617
+  stop                       542
+  frame_marker_compact       505
+  uniform_mov                490
+  psel                       466
+  sr_read_wide               440
+
