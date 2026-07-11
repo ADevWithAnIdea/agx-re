@@ -5,8 +5,9 @@ first for the rules. The A18 Pro roadmap (`ROADMAP.md`) and its `docs/`, `tools/
 `EXP-M4-*`/`EXP-0xxx` experiments are the **prior phase** — valid for the A18 and used here as
 **starting scaffolding**, never as M5 truth.
 
-Target: **Apple M5, SoC T8142, macOS 27.0 (26A5368g), 8 GPU cores, Metal 4, SIMD width 32.**
-GPU feature family (Apple9 vs Apple10) — **being probed (EXP-M5-04).** SIP **enabled** on this box.
+Target: **Apple M5, SoC T8142, macOS 27.0 (26A5368g), 8 GPU cores, Metal 4, MSL 4.1, SIMD width 32.**
+GPU: **`MTLGPUFamilyApple10` / arch `applegpu_g17g` / IOKit `AGXAcceleratorG17G`** (EXP-M5-04) — a
+**G17-family sibling of the A18 (G17P / Apple9)**, hence ~84% ISA byte-overlap. SIP **enabled** on this box.
 Baseline for comparison: the A18 Pro (**G17P / Apple9**) DB, and Mesa's M1 (Apple7/G13) / M2 (Apple8/G14).
 
 Legend: ☐ not started · ◐ in progress · ☑ documented & provenance-cited · ⚠ blocked
@@ -43,7 +44,10 @@ the reboot-recoverable M5** → document with provenance → commit. New experim
 ## Phase 1 — Full M5 AGX (dis)assembler + ISA spec  ◐
 Build a complete, **HW-validated on M5**, machine-readable M5 instruction DB (fork/extend the A18
 DB). Round-trip identity across the M5 corpus; splice-validate every changed encoding on M5 HW.
-- ◐ **1.1 Corpus census (own)** — quantify A18-DB coverage on M5 bytes; ranked delta list. *In flight: EXP-M5-02.*
+- ☑ **1.1 Corpus census (own)** — EXP-M5-02: 1085 stage programs, G17P DB = **76.8% named / 84.1% byte
+  coverage**; root-cause delta list (first-desync): 0x18 memory-load (#1, 204 kernels), 0x41/0xc1 store,
+  0x24, 0x3f, 0xa0, 0x07, 0x78/0x58/0x50 typed, 0x3e/0xbe short-ALU, 0xef/0xff call; length-rule deltas on
+  multi-word ops. **Delta, not rebuild.**
 - ◐ **1.2 Corpus census (third-party 54 MB)** — build reusable M5 hex corpus; real-program coverage. *In flight: EXP-M5-03.*
 - ☐ **1.3 Per-family delta characterization** — for each diverging byte0 leader: byte-diff + splice-and-
   observe on M5, fix leader/length/fields, provenance-cite. Families: memory load/store, ALU (float/int/half),
@@ -76,11 +80,13 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 ---
 
 ## Experiment log & resume point
-- **EXP-M5-01** ☑ bring-up + baseline delta (byte0=0x18 desync; get_sr transfers).
-- **EXP-M5-02** ◐ own-corpus ISA census (fan-out wave 1).
-- **EXP-M5-03** ◐ third-party corpus build + baseline census (fan-out wave 1; OBJ-3 corpus).
-- **EXP-M5-04** ◐ MTLDevice capability + hardware baseline (fan-out wave 1; OBJ-2 foundation).
-- **Next:** integrate wave-1 census → prioritized delta list → fan out Phase 1.3 per-family splice waves.
+- **EXP-M5-01** ☑ bring-up + baseline delta (byte0=0x18 desync; get_sr transfers); GPU dispatch+splice validated.
+- **EXP-M5-02** ☑ own-corpus ISA census — 84.2% byte coverage; **0xNe column broken**, `n3_mov` length-delta = top lever.
+- **EXP-M5-03** ◐ third-party corpus build + baseline census (OBJ-3 corpus). *agent running.*
+- **EXP-M5-04** ☑ MTLDevice capability baseline — **M5 = Apple10 / G17g / T8142**, RT+mesh+tensors; OBJ-2 seed.
+- **Next (Phase 1.3):** coverage-restoration (compile-only, safe alongside EXP-M5-03) — fix length rules
+  (`n3_mov`/`n2_op10`/`tex_deriv`/`b_alu10_lof`) + add leaders (`0xb7`, the `0xNe` column) in a copy of
+  `isadb.py`, re-census to convergence; then splice-and-observe semantics waves.
 
 ## Known premises (given, not to be re-questioned)
 - Clean-room above all; only our own compiled shaders / committed permissive MSL; never introspect Apple binaries.

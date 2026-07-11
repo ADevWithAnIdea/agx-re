@@ -55,8 +55,27 @@ never decoded, named_elsewhere≈0), and (b) **length-rule/field deltas** on kno
 Each: author own-MSL provocations, byte-diff, splice-and-observe on M5, propose isadb.py patch;
 main agent integrates + re-censuses to convergence. See `../M5-DELTA-SUBAGENT-BRIEF.md`.
 
+## Refined analysis (final census run — 112,707 tokens / 536,960 bytes)
+- **Structural finding: the low-nibble-`e` byte0 column is systematically broken** —
+  `0x3e/0x5e/0x7e/0x9e/0xbe/0xde/0xfe/0xae` are *all* heavy undecoded leaders (5 of top-12; `0x3e`
+  alone = 12.5 KB undecoded). A whole byte0 diagonal the G17P length rule no longer resolves ⇒ the
+  **`0xNe` instruction format changed G17P→G17g**. Highest-value structural target.
+- **Length-delta lever ranking** (fix the *predecessor* op's length rule, reclaims the tail):
+  `n3_mov` is #1 (real-op count 9,153; dominant predecessor of `0x32`/`0x42`/`0x38`/`0x30` desyncs,
+  ~2,300 regions — one fix, largest slice); then `n2_op10`→`0x01` (+~4B), `tex_deriv`+`b_alu10_lof`→`0xe0`
+  (+~2B), `icmp_pred`→`0x1e` (+2B), `isel10`→`0xa1`/`0xa8` (operand delta).
+- **Silent deltas (decode-but-wrong: named op systematically precedes a desync):** `b_alu10_lof`
+  **100%** mis-lengthed (cleanest), `operand_word_x2_h5` 93%, `mask_op` 90%, `sr_read_wide` 84%,
+  `falu3_ext` 78%, `n2_op10` 42%, `tex_deriv` 39% (highest volume, 1,455). **Length-only relocations**
+  (matched length, lost name → match bits moved): `0x27` (2391 vs 869 named), `0x17`, `0x81`, `0x8f`.
+- **Recommended next-wave order:** (1) `n3_mov` length/operand delta; (2) new `0xNe` leader column;
+  (3) `0xb7` new opcode family; (4) `n2_op10` +4B (`0x01`); (5) `tex_deriv`+`b_alu10_lof` +2B (`0xe0`);
+  (6) `icmp_pred`/`isel10` (`0x1e`/`0xa1`); (7) relocated match bits on `0x27`/`0x17`.
+- Caveat (honest): `pad_operand` (22k) + `operand_word` (12k) tokens inflate the "named %" identically
+  on A18 and M5, so **byte-coverage / undecoded-rate are the truer metrics** than fully-named %.
+
 ## Files
-`census.py` / `census.txt` (full census), `first_desync.py` / `first_desync.txt` (root-cause),
+`census.py` / `census.txt` (full census), `first_desync.py` / `first_desync.txt` (root-cause; main-agent pass),
 `predecessor_analysis.txt` (length-delta signal), `build_m5.py` / `build_summary.json` / `manifest.txt`
 (corpus build), `hex_sample.tgz` (sample). Bulk hex on device (gitignored).
 
