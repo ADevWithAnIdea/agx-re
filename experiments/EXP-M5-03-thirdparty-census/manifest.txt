@@ -1,0 +1,39 @@
+EXP-M5-03 — third-party MSL corpus + G17P-DB baseline census on the M5
+=======================================================================
+
+DEVICE: user@192.168.170.253  Apple M5 / T8142 / macOS 27.0 (xnu-13432.0.5.501.1_T8142)
+DB USED: tools/agx-isa, UNMODIFIED G17P (A18) DB — verified byte-identical to repo:
+  db.json  sha256 = 27d0e64755634963fdf2f2adaf4b534b1c7b0a0efb827236f75e5625ddd6743f
+  isadb.py sha256 = b805190921c62c8c9d6135b2547c63369cd279d0b5ecf43fbee7bd9146302115
+  (device copies match the host repo copies exactly)
+
+REUSABLE CORPUS (kept on device, gitignored here):
+  ~/cleanroom_work/EXP-M5-03/tp_hex/        3095 hex programs, 12 MB, 5 of 6 projects
+  ~/cleanroom_work/EXP-M5-03/src/           13039 third-party .metal/.msl sources (copy of repo thirdparty/)
+  Re-census after DB fixes:  python3 census_m5.py tp_hex --out census
+
+COMMITTED ARTIFACTS (this dir):
+  report.md               written by main agent from subagent final message
+  census_m5.py            byte-weighted resync census (any hex dir + G17P DB)
+  m5_tp_compile.py        compile+extract harness (runs on device)
+  census.txt / .json      third-party corpus census (full byte0 histograms)
+  own_census.txt / .json  subagent-A own M5 corpus census (EXP-M5-02/hex) for cross-check
+  compile_summary.json    per-project compile pass/fail
+  compile_run.log         harness stdout summary
+  manifest.txt            this file
+  .gitignore              excludes tp_hex/ and *.bin
+  sample_hex/             one small representative hex per compiled project (evidence)
+
+HEADLINE NUMBERS (third-party M5 corpus, 709 unique programs, 285972 instr bytes):
+  fully-named 80.60 %   raw 5.46 %   desync 13.94 %   (cleanly tokenized 86.06 %)
+  232 distinct byte0 groups; desync collapses to ~13 low-nibble families (_6 _e _0 _f _7 ...)
+
+CROSS-CHECK (own M5 corpus, subagent A, 842 unique, same DB/tokenizer):
+  fully-named 75.86 %   raw 8.37 %   desync 15.77 %
+  143/149 third-party desync leaders also desync in own corpus (strong agreement)
+  byte0 only in third-party (not own): 0x6e 0x8d 0x8e 0xd7 0xf7  (high-dst variants of known families)
+
+CLEAN-ROOM: all hex = compiled permissive third-party MSL (SPIRV-Cross Apache-2.0,
+Dawn/Tint BSD-3, wgpu/naga MIT/Apache, PyTorch BSD-3, ToyPathTracer Unlicense),
+compiled+extracted with our own shdump/agxparse. No Apple binary introspected.
+COMPILE/EXTRACT/DECODE only — no GPU dispatch, no reboots.
