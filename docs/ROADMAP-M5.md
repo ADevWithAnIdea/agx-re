@@ -48,28 +48,34 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
   coverage**; root-cause delta list (first-desync): 0x18 memory-load (#1, 204 kernels), 0x41/0xc1 store,
   0x24, 0x3f, 0xa0, 0x07, 0x78/0x58/0x50 typed, 0x3e/0xbe short-ALU, 0xef/0xff call; length-rule deltas on
   multi-word ops. **Delta, not rebuild.**
-- ◐ **1.2 Corpus census (third-party 54 MB)** — build reusable M5 hex corpus; real-program coverage. *In flight: EXP-M5-03.*
-- ☐ **1.3 Per-family delta characterization** — for each diverging byte0 leader: byte-diff + splice-and-
-  observe on M5, fix leader/length/fields, provenance-cite. Families: memory load/store, ALU (float/int/half),
-  control flow, textures, atomics/subgroup/quad, matrix, ray-tracing, mesh, fragment/varying, SR/ABI.
+- ☑ **1.2 Corpus census (third-party 54 MB)** — EXP-M5-03: 3095-program M5 corpus (OBJ-3 set); G17P DB
+  80.6% named / 86.1% byte-cov; **143/149 desync leaders corroborate** the own corpus; family `_6` #1 in real code.
+- ◐ **1.3 Delta characterization** — EXP-M5-05: leader+length deltas **FIXED** (fork `tools/agx-isa-m5`),
+  tokenization **96.6% own / 98.0% tp** byte-cov, round-trip green, `instr_length` recursion-hang fixed.
+  **Remaining = SEMANTICS of the M5-specific ops (splice-TODO, next wave):** memory `0x18`/`0x41`, typed/sample,
+  the `0xNe` family, `0xb7`, call `0xef`/`0xff`, matrix/RT/mesh field maps.
 - ☐ **1.4 Machine model** — GPRs/uniforms/spill, Dynamic Caching, register width — re-confirm on M5.
 - ☐ **1.5 Extrapolate & test** — sweep undocumented opcode/modifier space on M5; log in `hypotheses` (M5).
-- ☐ **1.6 Census to convergence** — ~0 undecoded byte0 groups on both corpora; round-trip green.
+- ◐ **1.6 Tokenization converged** — ≤3.5% desync both corpora (own 3.45% / tp 2.02%), round-trip green, 0 hangs.
+  Residual tail + per-op semantics remain.
 
-## Phase 2 — Control / command stream & state  ☐
-- ☐ VDM/CDM/tiler/fragment command lists, USC binding words, state packets — re-trace on M5 (iotrace),
-  diff vs A18 cmdstream. Blend programmable? PPP header? tgmem/CDM config deltas?
+## Phase 2 — Control / command stream & state  ◐ (EXP-M5-06)
+- ◐ EXP-M5-06: submission model **identical to A18** (49/58 IOKit calls, `AGXAcceleratorG17G`, shared-mem+doorbell);
+  **DYLD injection works under SIP**. Deltas → `docs/cmdstream/README-M5-deltas.md`: compute config bit19 dropped;
+  tgmem MOVED +0x40→+0x38 (new segmented encoding); draw opcodes +0x0800; viewport +0x9d0; FF-state 0x58000
+  reorganized. **Open:** FF-pool per-bit enums, USC bind grammar, attachment/PBE, indirect/mesh/tess records.
 
-## Phase 3 — Resource descriptors & texture layout  ☐
-- ☐ Texture/sampler/buffer/PBE descriptor bit layouts; argument-buffer model; tiling/twiddle + compression
-  per format — probe on M5, diff vs A18 descriptors/tiling.
+## Phase 3 — Resource descriptors & texture layout  ◐ (EXP-M5-06)
+- ◐ EXP-M5-06 → `docs/descriptors/README-M5-deltas.md`: texture width/height split shifted +1 bit; **sampler +
+  buffer byte-identical to A18**. **Open:** PBE/storage-image, attachment packed-format, tiling/twiddle + compression.
 
 ## Phase 4 — TBDR & compute specifics  ☐
 - ☐ Tile size, imageblock/tile-memory budget, MSAA sample positions, memoryless, dispatch encoding,
   tiler param buffer — re-measure on M5 (8 GPU cores vs A18's 5).
 
 ## Phase 5 — Capability census + synthesis + ACCEPTANCE GATES  ◐
-- ◐ **5.1 Capability baseline** — MTLDevice probe: family, RT/mesh/argbuffers/limits. *In flight: EXP-M5-04.*
+- ☑ **5.1 Capability baseline** — EXP-M5-04: Apple10/G17g/T8142; RT+mesh+tensors+funcptrs+argbuf-Tier2; SIMD32,
+  32KiB tgmem. → `experiments/EXP-M5-04-capabilities/m5-capability-matrix.md`.
 - ☐ **5.2 Capability census** — every Metal-exposed + Apple-advertised feature → native/emulated/kernel/NYC
   for M5. (OBJ-2)
 - ☐ **5.3 M5 porting guide** — per Mesa `src/asahi` module, M5 deltas with experiment citations.
@@ -82,11 +88,14 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 ## Experiment log & resume point
 - **EXP-M5-01** ☑ bring-up + baseline delta (byte0=0x18 desync; get_sr transfers); GPU dispatch+splice validated.
 - **EXP-M5-02** ☑ own-corpus ISA census — 84.2% byte coverage; **0xNe column broken**, `n3_mov` length-delta = top lever.
-- **EXP-M5-03** ◐ third-party corpus build + baseline census (OBJ-3 corpus). *agent running.*
+- **EXP-M5-03** ☑ third-party 3095-program M5 corpus + census (OBJ-3 set); delta list corroborated (143/149 leaders).
 - **EXP-M5-04** ☑ MTLDevice capability baseline — **M5 = Apple10 / G17g / T8142**, RT+mesh+tensors; OBJ-2 seed.
-- **Next (Phase 1.3):** coverage-restoration (compile-only, safe alongside EXP-M5-03) — fix length rules
-  (`n3_mov`/`n2_op10`/`tex_deriv`/`b_alu10_lof`) + add leaders (`0xb7`, the `0xNe` column) in a copy of
-  `isadb.py`, re-census to convergence; then splice-and-observe semantics waves.
+- **EXP-M5-05** ☑ ISA DB fork `tools/agx-isa-m5` — tokenization **96.6% own / 98.0% tp**, round-trip green, hang fixed.
+- **EXP-M5-06** ☑ cmdstream + descriptor deltas vs A18 (DYLD works under SIP); → `docs/*/README-M5-deltas.md`.
+- **Next (resume point):** (1) **splice-and-observe semantics** for the M5-specific ISA ops (device now SIP-off,
+  fault-recoverable) — memory/typed/`0xNe`/`0xb7`/call/matrix/RT/mesh; (2) render M5 DB into `docs/isa/` for OBJ-1;
+  (3) close cmdstream/descriptor open items (FF-pool enums, PBE, tiling); (4) OBJ-2 capability census; then the
+  three acceptance gates. Timeouts on all device probes (see global memory).
 
 ## Known premises (given, not to be re-questioned)
 - Clean-room above all; only our own compiled shaders / committed permissive MSL; never introspect Apple binaries.
