@@ -36,10 +36,12 @@ Base: `docs/isa/README.md` + `encoding-tables.md` (A18). M5 deltas (all HW-valid
   `0xcf`); only MPP tensor keeps `0xcf`. **There is no dedicated neural opcode** — the Apple10 Neural
   Accelerator rides the matrix family.
 - **Atomics + subgroup/quad** share a reduction selector `2f 00 <scope> 0a 27 80 <OP>` (byte+6 op:
-  and/or/xor/add/min/max/float-add; scope byte+2; reduce/scan byte+9). **Texture** sample family =
-  byte0 low-nibble `0xf` + byte+2 (`0x12` sample / `0x1a` read). **RT** `rt_intersect` transfers unchanged.
-- *(Integration status: the M5 field maps for these are being finalized into `db.json` — see
-  `docs/ROADMAP-M5.md` §1.3 and the EXP-M5-11 report for the current state and any residual opens.)*
+  and/or/xor/add/min/max/float-add; scope byte+2; reduce/scan byte+9) — `m5_reduce`; divergent-address atomics
+  = `m5_atomic_div`/`m5_atomic_xchg`. **Texture** sample/read fully emittable — `m5_tex`/`m5_tex_read` with the
+  coord/tex-slot/samp-slot/LOD byte map (EXP-M5-17; see §8 + `README-M5.md`). **RT** `rt_intersect` transfers unchanged.
+- *(Integration status: the M5-specific op families — memory split, subgroup/atomics/shuffle, compute ALU,
+  matrix MAC, and texture sample/read — are INTEGRATED into `db.json` (189 descriptors, round-trip-green,
+  97.4%/98.4% corpus coverage). Residual opens are extension-gateable — see §8.)*
 
 ## 2. Command / control stream — `docs/cmdstream/README-M5-deltas.md`
 Base: `docs/cmdstream/README.md`. **Submission model identical to A18** (shared-mem + doorbell, client
@@ -77,7 +79,7 @@ firmware-managed items). The M5 client is `AGXAcceleratorG17G`; DYLD interpositi
 works with SIP on (irrelevant to the driver, relevant to tracing).
 
 ## 7. Capabilities — native vs emulate — `docs/capability-matrix-m5.md` + `capability-completeness-m5.md`
-170 rows: **84 native / 61 NYC (encoding-unmapped, present) / 13 emulated / 7 kernel-managed / 5 microarch.**
+175 rows: **85 native · 64 NYC (present, encoding-unmapped) · 13 emulated · 8 kernel-managed · 5 microarch** (see `capability-matrix-m5.md` Addenda 2–5: memory/atomics/subgroup/texture/matrix reclassified NYC→native). DB = **189 descriptors**.
 **Must software-emulate on M5** (Metal wants / Vulkan-GL needs, absent HW): fp64; **all 64-bit atomics**;
 float atomic min/max; int8/integer `simdgroup_matrix`; packed depth24-stencil8; sampleCount 16;
 arbitrary sampler border color; geometry shaders; transform feedback; cull distance; wide/polygon-point
@@ -89,13 +91,15 @@ Accelerator / `MTLTensor` (incl. int8 matmul) is **present but NYC** — no dedi
 matrix family.
 
 ## 8. Gaps a driver author must know (honestly-open — with the fallback for each)
-- **Texture sample/gather/read/compare/LOD-query encoding** (`0x0f/0x1f` + byte+2 `0x12`/`0x1a` on M5, distinct
-  from the A18 `0x5` `tex_sample` which is **superseded on M5**) — leaders identified, the per-variant length rule
-  is in active integration (EXP-M5-16); until it lands, the coordinate/sampler/LOD operand fields ride the
-  memory-load family. **This blocks textured fragment shaders — the highest-priority residual item.** Fallback:
-  EXP-M5-09 `hex_extractions.txt` has the leaders + example bytes; `db.json` carries the shipped detail once integrated.
-- **Divergent-address device atomics** (`atomic_fetch_add(&buf[gid],x)`) — the A18 per-lane `0x67` path is gone on
-  M5; only uniform-address atomics migrated to `m5_reduce`. Divergent form being integrated (EXP-M5-16).
+- **Texture sample/gather/read — EMITTABLE (EXP-M5-17, resolved).** `m5_tex` (byte+2 `0x12` compute / `0x16`
+  fragment) / `m5_tex_read` (`0x1a`); operand byte map pixel-splice-validated: coordinate register = **byte+3**
+  (reg32<<1), texture slot = **byte+6** (slot0=0x60, +0x08/slot), sampler slot = **byte+5[6:0]**, LOD/bias =
+  **byte+12** (round(level·64)); lengths sample 22B / gather 14B / read 8B. See `docs/isa/README-M5.md` §texture +
+  `db.json` `m5_tex`. The A18 `0x5` `tex_sample` is **superseded on M5** — do not emit it. Still raw (rule 5):
+  the descriptor-bank nibble (byte+4) for dense binding slots ≥2 (single-texture / slots 0–1 fully work) — an
+  extension-gateable detail, not a core blocker.
+- **Divergent-address device atomics — EMITTABLE (EXP-M5-16, resolved).** `m5_atomic_div` (12B) / `m5_atomic_xchg`
+  (10B), `0f 00 03 … c0` form (the A18 per-lane `0x67` path is gone; uniform-address atomics use `m5_reduce`).
 - **`simdgroup_matrix` cooperative-matrix MAC** (`2f 00 05`, EXP-M5-16), **function-call ABI** (`0xef`/`0xff` —
   needs a pipeline-`linkedFunctions` extraction; intra-shader control flow is fully green), **RT
   acceleration-structure load** (migrated off `0xdf` — needs an AS-bound splice testbed): documented-open with

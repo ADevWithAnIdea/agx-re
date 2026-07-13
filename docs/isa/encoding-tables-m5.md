@@ -1338,435 +1338,1508 @@
 
 ### `falu2_ext`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_size` | [8:9] (byte+1) | enum | `0x0`=b16; `0x1`=b32 |
+| `srcA_reg` | [9:16] | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
+| `opflags` | [19:24] | modifier |  |
+| `srcB_size` | [24:25] (byte+3) | enum | `0x0`=b16; `0x1`=b32 |
+| `srcB_reg` | [25:32] | register |  |
+| `ctrl` | [32:39] (byte+4) | modifier |  |
+| `srcB_imm` | [39:40] | modifier |  |
+| `mod_lo` | [40:43] (byte+5) | modifier |  |
+| `srcB_neg` | [43:44] | modifier |  |
+| `mod_hi` | [44:48] | modifier |  |
+| `ext_tail` | [48:64] (byte+6) | modifier |  |
+
+*d = saturate?( op(srcA,[+/-]srcB) ) ; 8-byte extended 2-source float ALU. op=opsel (0b100 fadd/0b101 fmul). Tail bytes inherit the HW-validated falu2_srcmod10 layout: ctrl (byte+4 low7), srcB_imm (bit39), mod_lo/srcB_neg/mod_hi (byte+5) -- srcB_neg (bit43, 0x08) = negate srcB (OWN-MSL byte-diff: saturate(a-b) sets byte+5=0x08); ext_tail (byte+6,+7) = the saturate/output-cache tail: byte+7 bit1 (0x02) = SATURATE clamp to [0,1] (OWN-MSL byte-diff: saturate(a+b)/saturate(a*b) set byte+7=0x82), bit7 (0x80) = output cache. Per-bit map beyond srcB_neg/saturate inherited from the srcmod family (needs splice).*
 
 ### `falu3_ext`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst_lo` | [4:8] | register |  |
+| `dst` | [8:16] (byte+1) | register |  |
+| `op` | [16:24] (byte+2) | opcode-select | `0x1e`=fma; `0x36`=fma; `0x26`=fma_coord; `0x2e`=fma_coord; `0x66`=fma; `0x6e`=fma_coord; `0x3e`=fma |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `srcC` | [40:48] (byte+5) | register |  |
+| `ext` | [48:80] (byte+6) | raw/unmapped |  |
+
+*d = saturate?( a*b + c )  ; the 10-byte EXTENDED fma. Same op-select as the 8-byte falu3 (opsel 0b110; dst=byte+1, srcA=byte+3, srcB=byte+4, srcC=byte+5). The 2-byte tail (byte+6..+9) carries the saturate / source modifier; length = EXP-M4-10 `6 + 2*(byte+4 & 3)` with byte+4 low2 == 10. op-select 0x26/0x2e/0x6e are the fused mul-add COORDINATE forms.*
 
 ### `hminmax`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x1c
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x1c  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `dst_full` | [8:16] (byte+1) | register |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `sel` | [32:35] (byte+4) | opcode-select | `0x0`=hmax; `0x1`=hmin |
+| `selhi` | [35:40] | modifier |  |
+| `srcB` | [40:48] (byte+5) | register |  |
+
+*d = min/max(a,b), 16-bit (half/half2). Identical layout to iminmax but byte+2==0x1c. byte+4 low 3 bits = op-select (0=hmax 1=hmin).*
 
 ### `isel_reg`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x2f
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x2f  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `cmpA` | [8:16] (byte+1) | register |  |
+| `cmpB` | [24:32] (byte+3) | register |  |
+| `cmp_mode` | [32:40] (byte+4) | modifier |  |
+| `selTrue` | [40:48] (byte+5) | register |  |
+| `cc` | [48:56] (byte+6) | enum | `0x2`=fcmp_gt; `0x3`=fcmp_lt; `0x4`=ucmp_gt; `0x5`=ucmp_lt; `0x6`=scmp_gt; `0x7`=scmp_lt; `0x0`=eq_form |
+| `flags` | [56:64] (byte+7) | modifier |  |
+| `selFalse_file` | [64:72] (byte+8) | modifier |  |
+| `selFalse` | [72:80] (byte+9) | register |  |
+
+*d = (cmpA CC cmpB) ? selTrue : selFalse ; register-operand compare-SELECT, 10-byte form (byte+2==0x2f). Emitted in integer division/modulo correction. Adopts the isel10 field layout (byte+1/+3 = compare sources, byte+4 = compare-mode, byte+5 = selTrue, byte+6 = condition code, byte+7 = flags, byte+8:9 = false-operand word, byte+9 = selFalse register). dst = byte0 high nibble. The division algorithm is NOT reconstructed (rule 5).*
 
 ### `isel_reg8`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x25
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, byte+2==0x25  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `cmpA` | [8:16] (byte+1) | register |  |
+| `cmpB` | [24:32] (byte+3) | register |  |
+| `cmp_mode` | [32:40] (byte+4) | modifier |  |
+| `selTrue` | [40:48] (byte+5) | register |  |
+| `cc` | [48:56] (byte+6) | enum | `0x2`=fcmp_gt; `0x3`=fcmp_lt; `0x4`=ucmp_gt; `0x5`=ucmp_lt; `0x6`=scmp_gt; `0x7`=scmp_lt; `0x0`=eq_form |
+| `flags` | [56:64] (byte+7) | modifier |  |
+
+*d = (cmpA CC cmpB) ? selTrue : <folded-false> ; register-operand SELECT, 8-byte form (byte+2==0x25, register operands, no trailing false-operand word). Adopts the isel8 field layout: byte+1/+3 = compare sources, byte+4 = compare-mode, byte+5 = selTrue, byte+6 = condition code, byte+7 = flags. dst = byte0 high nibble.*
 
 ### `n2_op6`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x2  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_desc` | [8:16] (byte+1) | modifier |  |
+| `opsel` | [16:24] (byte+2) | enum | `0x0`=compact_select/move; `0x2`=mode2; `0x8`=mode8; `0x10`=mode10; `0x12`=mode12; `0x29`=mode29 |
+| `opA` | [24:32] (byte+3) | register |  |
+| `opB` | [32:40] (byte+4) | modifier |  |
+| `imm_sel` | [40:48] (byte+5) | immediate |  |
+
+*Compact 6-byte low-nibble-2 select/predicate/helper. dst = byte0 high nibble (reg-sweep PROVEN across r0..r15). src_desc (byte+1) = source/mode descriptor (bit7 = uniform/special-file flag). opsel (byte+2) = op/mode selector: 0x00 = compact select/move (dominant), others select the sub-op. imm_sel (byte+6) = trailing small index/immediate -- in the output-write-mask helper family (SPIRV-Cross masking_write_outputs kernels) it steps the mask/location index 0..0xd; in the shuffle-helper family the tail is a lane/mode word; in the transcendental family it is an SFU coefficient/select. opA (byte+3) = the second operand / source-register descriptor (bit7 = uniform/special-file flag, like src_desc; corpus n=1747 shows the bit7-set files 0x80/0x82/0x81 dominant) -- TYPED reg. opB (byte+4) = the compare-mode / operand-mode descriptor (0x2x compare-mode-like values 0x20/0x22/0x24/0x26 dominant, matching the isel8 byte+4 cmp_mode slot; also SFU/shuffle mode words) -- TYPED mod. n2_op6 is a genuine catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); opA/opB are the two operand/mode SLOTS (located and typed) but their per-sub-op value maps are mixed and needs-splice; the SFU coefficient SEQUENCE is NOT reconstructed (clean-room rule 5).*
 
 ### `jump_cond`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x01
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x01  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `cf_scope` | [16:24] (byte+2) | enum | `0x54`=scope54(guard/exit); `0x64`=scope64(else-skip) |
+| `offset` | [24:72] (byte+3) | immediate |  |
+| `reserved` | [72:80] (byte+9) | modifier |  |
+
+*CONDITIONAL PC-relative jump (masked branch). offset = signed 48-bit little-endian byte displacement; target = jump_addr + 4 + offset (same convention as the 0f 00 unconditional jump). Taken while the divergent execution mask still has active lanes; used for if/else forward skips and while/for loop-exit guards. cf_scope (byte+2) selects the reconvergence mask bank (0x54 / 0x56) the branch condition is drawn from.*
 
 ### `if_push`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x05
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x05  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `scope` | [16:24] (byte+2) | enum | `0x54`=mask_bankA(outer/even); `0x56`=mask_bankB(nested/odd) |
+| `scope_kind` | [24:32] (byte+3) | enum | `0x1`=cond_skip(if/loop-guard); `0x1a`=loop_iter; `0x5`=cond_skip+b2; `0x21`=cond_skip+b5; `0x25`=cond_skip+b2+b5 |
+
+*execution-mask PUSH: enters a divergent region, saving the reconvergence point and narrowing the active-lane mask. scope (byte+2) selects the reconvergence mask bank -- it ping-pongs 0x54/0x56 with nesting parity (outer even = 0x54, nested odd = 0x56); the low 0x04 form is the inner mask-op variant. scope_kind (byte+3) names the KIND of region: 0x01 for a conditional-skip scope (a plain if / loop-entry guard) and 0x1a for a loop-iteration scope. Paired with a later 0f 06 pop_reconverge. Shares the 0f 05 leader with the direct CALL (14 bytes, 0x8f link at byte+4; disambiguated by length). The predicate-register PUSH variant sets a non-zero byte+1 high nibble (see if_push_pred).*
 
 ### `pop_reconverge`
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x06
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x06  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `scope` | [16:24] (byte+2) | enum | `0x4`=mask_bankA; `0x24`=mask_bankB |
+| `scope_kind` | [24:32] (byte+3) | enum | `0x1`=guard/outermost; `0x2`=loop_body |
+| `reserved` | [32:48] (byte+4) | modifier |  |
+
+*execution-mask POP / reconverge: re-enables the lanes masked off by the matching if_push (0f 05) or loop scope, restoring the active mask at a block/loop end. scope_kind (byte+3) names the reconvergence scope popped -- 0x02 for a loop-body scope, 0x01 for the outermost / loop-entry guard scope. Every loop back-edge is immediately followed by a scope_kind 0x02 pop; the final reconverge is 0x01. scope (byte+2) is the mask-bank selector (low 0x04 form).*
 
 ### `mask_op`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x04, byte+3==0x19
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x04, byte+3==0x19  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `mask_bank` | [16:24] (byte+2) | enum | `0x4`=mask_bankA; `0x24`=mask_bankB |
+| `scope_kind` | [24:32] (byte+3) | modifier |  |
+
+*inner execution-mask op (0f 04 <mask_bank> <scope_kind>, 4 bytes). Appears inside nested divergence just before a 0f 01 jump_cond -- the continue-edge mask narrow / inner-scope re-mask (distinct from if_push 0f 05, byte+2==0x54, by byte+2 low form). mask_bank (byte+2) selects the execution-mask bank: 0x04 = bankA, 0x24 = bankB (0x20 bit = alternate bank), the same low-form mask-bank selector as pop_reconverge's scope field. scope_kind (byte+3) is a fixed scope-kind / level tag == 0x19 in the whole corpus (no observed variation to map a range).*
 
 ### `rt_ray_mem_ldidx`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x10, byte+2==0x54
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x10, byte+2==0x54  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `idx_dst` | [24:32] (byte+3) | register |  |
+| `rsv4` | [32:40] (byte+4) | modifier |  |
+| `addr_mode` | [40:48] (byte+5) | modifier |  |
+| `marker` | [48:56] (byte+6) | modifier |  |
+| `idx_lo` | [56:64] (byte+7) | register |  |
+| `idx_hi` | [64:72] (byte+8) | register |  |
+| `wtype` | [72:80] (byte+9) | modifier |  |
+| `scale` | [80:88] (byte+10) | modifier |  |
+| `rsv11` | [88:96] (byte+11) | modifier |  |
+
+*RAY-TRACING ray-data memory op, load-INDEX variant (12B). byte0 0x5f, byte+1==0x10 (0x67 device-load indexed addressing byte, low nibble 0 = indexed), byte+2==0x54. Computes a per-lane index/address into the traversal/query state from a register pair; WHICH query field is later read is NOT selected here (byte-diff: identical ldidx bytes for instance_id vs geometry_id loads) -- consistent with the R6 rt_ray_mem finding that the field is chosen by an immediate offset, not a per-field opcode. Length 12 (R4): all occurrences back-to-back at gap 12. R9 typed the former 72-bit body raw region.*
 
 ### `rt_ray_mem_short`
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x11, byte+2==0x54
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x5f, byte+1==0x11, byte+2==0x54  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `reg` | [24:32] (byte+3) | register |  |
+| `rsv4` | [32:40] (byte+4) | modifier |  |
+| `rsv5` | [40:48] (byte+5) | modifier |  |
+
+*RAY-TRACING ray-data memory op, SHORT form (6B). byte0 0x5f, byte+1==0x11 (the 0x67 load index+1 addressing byte), byte+2==0x54, body `<reg> 00 00`. Length 6 (R4): all corpus occurrences sit back-to-back at gap 6. R9 typed the former b3/tail raw region (24 bits/occ).*
 
 ### `scoreboard_fence`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, bits[16:17]==0x0
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, bits[16:17]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `kind` | [8:16] (byte+1) | enum | `0x0`=CF-edge fence (break/continue); `0x2`=CF-edge fence (variant); `0x22`=pre-call / pre-atomic register+scoreboard fence; `0xc0`=wide/device-order fence (inferred); `0xc2`=wide/device-order fence (inferred) |
+| `scope` | [17:24] | enum | `0x1`=ordered (byte+2 0x02: default CF/call scope); `0x0`=unordered (byte+2 0x00); `0x10`=extended scope (byte+2 0x20: nested-divergence); `0x11`=extended+ordered (byte+2 0x22) |
+| `mask` | [24:32] (byte+3) | modifier |  |
+
+*compute memory / scoreboard fence (4 bytes): 07 <kind> <scope> <mask>. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.*
 
 ### `frame_marker_compact`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x60
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x60  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+
+*2-byte compact frame/scope marker (byte0 0x60, byte+2 != 0x00). Precedes a threadgroup-atomic store or a divergent control-flow block; the following op is a full 14-byte threadgroup device_store or a CF op. Distinct from the 4-byte spill_frame_marker (byte+2==0x00).*
 
 ### `cubearray_coord_const`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0xf0, byte+1==0xc0, byte+2==0x04
+- **Length:** 4 bytes  ·  **Match:** byte+0==0xf0, byte+1==0xc0, byte+2==0x04  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*4-byte constant / reciprocal-of-major-axis load feeding the cube/cube-array face-select coordinate math (`f0 c0 04 00`, k_tex_array_cube@48). Precedes the fspecial + coord_madf chain that normalizes the cube face coordinate.*
 
 ### `tg_addr_compute`
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x1c, byte+1==0x02, byte+2==0x00
+- **Length:** 6 bytes  ·  **Match:** byte+0==0x1c, byte+1==0x02, byte+2==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | modifier |  |
+
+*6-byte threadgroup-buffer base/offset compute (`1c 02 00 00 00 00`, k_threadgroup@46), bracketed between the low-nibble-3 threadgroup-id ops and the threadgroup device_store. Distinct from the 4-byte get_sr datapath form (byte+3 low-nibble 6). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_thr.metal threadgroup-tile reduction): byte0 HIGH nibble [bit4:8] is a LIVE dst-register / operand selector (splicing 0x1c->0x2c/0x3c/0x5c/0x6c corrupts the tile dataflow from o[i]=2i+3 to o[i]=i+2; 0x1c/0xfc reproduce baseline) -- so the DB match (0,8,0x1c) OVER-FITS the r1 form; the true opcode key is low-nibble 0xc + the byte+1/byte+2 discriminator, high nibble a live operand (value->register map not a clean linear index -- needs more sweeps). byte+1 (fixed 0x02 in match) is likewise a LIVE source/operand selector (0x00/0x01/0x03 corrupt, 0x06/0xff reproduce), not an opcode constant. byte+2 (fixed 0x00 in match) is runtime-INERT to the computation (0x01/0x02/0x08/0xff all baseline) but is the disassembler's length discriminator (==0x00 -> 6B vs 2B mov_imm). bytes +3/+4/+5 are RESERVED/inert (spliced ff/ee/dd simultaneously -> output unchanged, op ran).*
 
 ### `pad_operand`
 
-- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x0
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `hi` | [4:8] | immediate |  |
+| `word` | [8:16] (byte+1) | immediate |  |
+
+*NOT A STANDALONE HARDWARE OPCODE. A 2-byte low-nibble-0 slot carrying a trailing operand / immediate / SFU-coefficient WORD of the PRECEDING instruction, or inter-op zero PADDING, or the interior bytes of one longer under-lengthed op. byte0 high nibble and byte1 are a verbatim raw passthrough; the coefficient/immediate bits are intentionally NOT semantically decoded (clean-room rule 5 -- the SFU range-reduction coefficient SEQUENCE is not reconstructed). Named only so the tokenizer resolves these vetted slots out of the unknown bucket; the more-specific frame_marker_compact (0x60) and mov_imm (0x0c) win where they apply.*
 
 ### `dev_scoreboard_fence`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x80, byte+1==0x02, byte+2==0x00
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x80, byte+1==0x02, byte+2==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `scope_flag` | [24:32] (byte+3) | modifier | `0x0`=default device/wide scope; `0x4`=scope variant |
+
+*Compute memory / scoreboard FENCE, device/wide-scope variant: `80 02 00 <scope_flag>` (4 bytes). The 0x80 sibling of the 0x07/0x87 scoreboard_fence family (high bit = wider memory/device scope). The compiler inserts it around divergent control flow and before atomics/calls. scope_flag (byte+3) is a scope/flag operand: 0x00 in the dominant form, 0x04 in a rare variant (one texture_sample occurrence). A bare `80 02` with byte+2 != 0x00 is the 2-byte compact form (pad_operand).*
 
 ### `n3_mov`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x3
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x3  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_reg` | [8:15] (byte+1) | register |  |
+| `srcA_uni` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/hi |
+| `subform` | [16:24] (byte+2) | modifier |  |
+| `companion` | [24:32] (byte+3) | modifier | `0x1`=zext_hi_zero |
+
+*d = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15) PROVEN by parallel-extend diffs. srcA_reg (byte+1 bits0-6) = source register; srcA_uni (byte+1 bit7) = uniform-file/high-half flag. subform (byte+2) = source-class / size sub-form selector (0x00 full-word move; 0x20 a source-class variant; 0x01/0x02 half/size selects). companion (byte+3) = companion / second-operand descriptor: value 0x01 with subform 0x00 is the ZERO-EXTEND high-half-zero companion `X3 00 00 01` (emitted after the low-half move to zero the upper 16 bits, matching the HW-validated mov_zext16 lowering); other values carry a second-source / shuffle-move descriptor. Generalises mov_zext16 (0x13) and frame_marker (0x43) to all dst regs.*
 
 ### `n3_addr_prep`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x3, byte+2==0x27
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x3, byte+2==0x27  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:16] (byte+1) | register |  |
+| `op_variant` | [24:32] (byte+3) | enum | `0xbf`=atomic_fetch_add texel-address prep; `0x36`=atomic_fetch_max texel-address prep; `0x22`=texture read() texel-address prep |
+| `src_companion` | [32:40] (byte+4) | raw/unmapped |  |
+| `tail` | [40:80] (byte+5) | raw/unmapped |  |
+
+*d = address/coordinate prep for a 2D read_write (image) texture op (the texel-address compute that feeds an atomic_fetch_* / read on texture2d<...,access::read_write>). 10-byte low-nibble-3 form, op-select byte+2 == 0x27. dst (byte0 high nibble) = destination register for the computed texel address. src_reg (byte+1) = coordinate source register: bit7 = file flag (always 1), bits[6:0] = reg index. op_variant (byte+3) selects the image memory-op / addressing-format variant (0xbf atomic_fetch_add, 0x36 atomic_fetch_max, 0x22 texture read). src_companion (byte+4) = companion operand byte that tracks src_reg (part of the register/addressing encoding). tail (byte+5..+9) = mostly-constant operand/immediate descriptor (02 00 00 00 00; byte+5 always 0x02). Distinct from the low-nibble-2 rt_transform_test (also byte+2==0x27 but with byte+3==0x81, byte+4==0x22).*
 
 ### `n3_sample_read`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x03, byte+2==0x26
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x03, byte+2==0x26  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+| `tail` | [32:80] (byte+4) | raw/unmapped |  |
+
+*fragment sample-id / sample-position read (byte0 0x03, op-select byte+2 == 0x26). 10-byte low-nibble-3 form.*
 
 ### `cvt_f2h_dst`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x1, bits[28:32]==0x8
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x1, bits[28:32]==0x8  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcfmt` | [8:16] (byte+1) | raw/unmapped |  |
+| `opsel` | [16:24] (byte+2) | opcode-select | `0x1c`=f2h; `0x3c`=f2h(srcmode) |
+| `src` | [24:32] (byte+3) | raw/unmapped |  |
+| `dhalf` | [32:40] (byte+4) | raw/unmapped |  |
+| `tail` | [40:48] (byte+5) | raw/unmapped |  |
+
+*d(half) = half(a)  ; fp32 -> fp16 narrowing convert, for ANY dst register (byte0 high nibble). Generalises the byte0==0x11 (dst r1) cvt_f2h to r0..r15. byte+2 0x1c is the base convert, 0x3c the same convert with the source-mode bit (bit5) set. byte+3 hi-nibble 8 (== 0x8x) is the single-source convert descriptor marker.*
 
 ### `cvt_bf16`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+3==0x81, byte+4==0x01
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+3==0x81, byte+4==0x01  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcw` | [8:16] (byte+1) | opcode-select | `0x2`=src16; `0x3`=src32 |
+| `opsel` | [16:24] (byte+2) | raw/unmapped |  |
+| `src` | [24:32] (byte+3) | raw/unmapped |  |
+| `fmt` | [32:40] (byte+4) | raw/unmapped |  |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `dir` | [48:56] (byte+6) | opcode-select | `0x40`=to_bfloat; `0x80`=to_half |
+| `b7` | [56:64] (byte+7) | raw/unmapped |  |
+
+*bfloat convert (8-byte). byte+1 = source width (0x03 float32, 0x02 float16); byte+6 = direction (0x40 = result bfloat: float->bfloat / half->bfloat; 0x80 = result half: bfloat->half). byte+4 == 0x01 marks a bfloat operand. 8-byte sibling of the 6-byte cvt_f2h_dst (byte+4 bit0 set = bfloat, so longer).*
 
 ### `bf_add_dst`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1c
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1c  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `fmt` | [8:16] (byte+1) | opcode-select | `0x2`=bf; `0x4`=bf2 |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `tail` | [40:64] (byte+5) | raw/unmapped |  |
+
+*d(bfloat) = a + b  ; native bfloat add for ANY dst register. Generalises the byte0==0x11 bf_alu (dst r1) to r0..r15. byte+1 = 0x02 scalar / 0x04 bfloat2-packed lane. Distinguished from the 8-byte convert cvt_bf16 by byte+3 (a register here vs the 0x81 convert-source descriptor there). The byte0==0x11 bf_alu (16 match bits) wins its own bytes.*
 
 ### `bf_mul_dst`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1d
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1d  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `fmt` | [8:16] (byte+1) | opcode-select | `0x2`=bf; `0x4`=bf2 |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `tail` | [40:64] (byte+5) | raw/unmapped |  |
+
+*d(bfloat) = a * b  ; native bfloat multiply for ANY dst register. op-select byte+2 == 0x1d (vs 0x1c add) -- single-bit byte-diff (bf_add vs bf_mul).*
 
 ### `bf_fma_dst`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1e
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x1, byte+2==0x1e  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `fmt` | [8:16] (byte+1) | opcode-select | `0x2`=bf; `0x4`=bf2 |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `srcC` | [40:48] (byte+5) | register |  |
+| `tail` | [48:80] (byte+6) | raw/unmapped |  |
+
+*d(bfloat) = a*b + c  ; native bfloat fused multiply-add. op-select byte+2 == 0x1e (the fma length bit, byte+2 bit1, is set) -> 10-byte 3-source form. Covers the byte0==0x11 case the EXP-O2D length rule sized as 10 but had no descriptor for, plus all other dst regs.*
 
 ### `sr_read_wide`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4, bits[15:16]==0x1, byte+3==0x00, bits[16:17]==0x0, bits[17:18]==0x1
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4, bits[15:16]==0x1, byte+3==0x00, bits[16:17]==0x0, bits[17:18]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `sel` | [8:15] (byte+1) | enum | `0x7f`=simd_matrix_ld/st_builtin; `0x0`=wide_builtin_base; `0x21`=rtq_property(a1); `0x1`=rtq_property(81); `0x48`=rtq_property(c8) |
+| `width` | [16:24] (byte+2) | enum | `0x22`=w22; `0x2`=w02; `0x6`=w06; `0x46`=w46; `0x26`=w26 |
+| `operand` | [32:40] (byte+4) | immediate |  |
+| `marshal` | [40:56] (byte+5) | modifier |  |
+| `phase` | [56:64] (byte+7) | modifier |  |
+
+*d[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the sub-selector / component-WIDTH: toggles 0x02<->0x06 across successive component reads of one wide value, and 0x22/0x26/0x46 across property kinds. operand (byte+4) = an element/offset operand that STEPS with the wide-component index (0x00,0x10,0x18,.. as dst advances r0->r3). marshal (byte+5/+6) = the RT-getter / matrix element operand descriptor (typed mod: located as a getter/element operand that co-steps with the component, e.g. 0x0c/0x01/0x05; the getter/marshal SEQUENCE itself is NOT reconstructed, rule 5). phase (byte+7) = the getter-PHASE / marshal-continuation FLAG: 0x00 in the wide-builtin and COMMITTED (post-traversal) property reads; bit7 (0x80) marks the CANDIDATE (during-traversal) property read; 0x20 is a further candidate sub-variant. byte-diff PROVEN (EXP-M4-13 R9): own-MSL intersection_query CANDIDATE getters (get_candidate_primitive_id/geometry_id/triangle_distance inside the q.next() traversal loop) emit byte+7==0x80, while COMMITTED getters (get_committed_* after traversal) emit byte+7==0x00; corpus (n=996) confirms 0x80/0x20 occur only in ray-query getter files. NOT a constant reserved byte (the earlier n=26 "const 0x00" note was superseded by the larger corpus).*
 
 ### `rt_query_traverse`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86, byte+5==0x22, byte+6==0x82
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86, byte+5==0x22, byte+6==0x82  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `opA` | [24:32] (byte+3) | raw/unmapped |  |
+| `sel` | [32:40] (byte+4) | enum | `0x7`=sel0; `0xf`=sel1 |
+| `opB` | [56:64] (byte+7) | register |  |
+
+*8-byte special op emitted only inside intersection_query traversal / committed+candidate result getters. byte0 HIGH nibble = dst register; byte+1=0x80, byte+2=0x86 (SFU/special-function datapath marker). The trailing `[07|0f] 22 82 ZZ` (bytes +4..+7) is the SECOND HALF of THIS instruction, not a separate 0x0f op. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_dist intersection_query committed-distance, 2-triangle AS, near tri t=1 / far tri t=5, baseline committed=1.0, load-bearing op@_agc.main+0x155a = bf 80 86 1a 07 22 82 48): opB (byte+7) is a CONSUMED traversal operand-register/descriptor -- 0x48/0x42/0xc8 give the correct near hit (1.0), 0x00/0x1a/0x20/0x0f/0xff skip the near triangle (commit far=5.0), and 0x02/0x06/0x40/0x07 HANG the traversal (contained) -> a structured operand descriptor (the correct-value set {0x42,0x48,0xc8} is NOT a simple linear register index; internal class/index bit-split not fully decoded, see unresolved). sel (byte+4) is a CONSUMED result-lane/operand selector: valid 0x07=sel0 / 0x0f=sel1 preserve correctness, invalid values corrupt operand selection (only this committed-path op is load-bearing on sel; the other 17 rtq ops are inert). byte+5 (0x22) and byte+6 (0x82), pinned by the match, are OPCODE/form bytes not free operands: splicing byte+5 to 0x1a/0x50/0x07/0x0f/0xff -> CMDBUF_ERROR (illegal opcode), and byte+6 to 0x40/0x48/0x50 -> CMDBUF_ERROR while 0x20/0x60/0xff commit the far hit -> a structural opcode/descriptor byte. opA (byte+3) is INERT on this load-bearing committed-path instance (0x18/0x1a/0x00/0xff all -> 1.0 unchanged); its role is UNRESOLVED (a secondary operand not consumed on the box-test path, or a reserved/dst-related slot) and is kept raw. Internal getter algorithm not lifted (clean-room rule 5).*
 
 ### `fldexp`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x15, byte+2==0x80
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x15, byte+2==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `operand` | [24:32] (byte+3) | raw/unmapped |  |
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+
+*fldexp: d = ldexp(a, n) = a * 2^n for a RUNTIME integer exponent n (float scale-by-power-of-two). byte0 low-nibble 0xf, high-nibble = dst; byte+1=0x15 sub-op, byte+2=0x80 constant; byte+3 = operand descriptor. Only emitted for the dynamic-exponent ldexp -- the constant-exponent form folds to an fmul by a power-of-two literal.*
 
 ### `ibfins`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[16:17]==0x0, bits[18:24]==0x15
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `form` | [8:16] (byte+1) | opcode-select | `0x10`=shl(reg); `0x0`=insert/mask/narrow; `0x2`=addr/matrix-prep; `0x20`=shl/merge(var); `0x11`=insert(var) |
+| `cache` | [17:18] | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `mask_imm` | [40:48] (byte+5) | immediate |  |
+| `mask_hi` | [48:49] (byte+6) | immediate |  |
+| `b6hi` | [49:56] | modifier |  |
+| `b7` | [56:64] (byte+7) | modifier |  |
+| `srcdesc` | [64:72] (byte+8) | enum | `0xf0`=reg-operand(loaded); `0xd0`=reg-operand(computed); `0xc0`=imm-operand |
+| `srcC` | [72:80] (byte+9) | modifier |  |
+| `b10` | [80:88] (byte+10) | modifier |  |
+| `b11` | [88:96] (byte+11) | modifier |  |
+
+*d = shift-left / bitfield-insert (integer). The byte0-bit7 LEFT/INSERT mirror of the 0xa7 ibfe (right/extract) family -- shl_reg (`27 10 54 ..`) is byte-identical to shr_log (`a7 10 54 ..`) except byte0. 12-byte operand-descriptor form (byte+8 = 0xf0 register / 0xc0 immediate). byte+1 (form) selects the sub-op. byte+2 bit1 (cache) = source last-use hint.*
 
 ### `atomic_tg`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x03
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x03  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `amode` | [16:24] (byte+2) | modifier |  |
+| `ret_desc` | [24:32] (byte+3) | modifier |  |
+| `rsv4` | [32:40] (byte+4) | modifier |  |
+| `op_desc` | [40:48] (byte+5) | modifier |  |
+| `rsv6` | [48:56] (byte+6) | modifier |  |
+| `xop_desc` | [56:64] (byte+7) | modifier |  |
+| `data_desc` | [64:72] (byte+8) | modifier |  |
+| `rsv9` | [72:80] (byte+9) | modifier |  |
+| `rsv10lo` | [80:86] (byte+10) | modifier |  |
+| `op` | [86:91] | opcode-select | `0x10`=add; `0x11`=and; `0x12`=cmpxchg; `0x13`=fadd; `0x14`=smax; `0x15`=smin; `0x16`=or; `0x1b`=sub; `0x1c`=umax; `0x1d`=umin; `0x1e`=xchg; `0x1f`=xor |
+| `op_hi_rsv` | [91:96] | modifier |  |
+
+*THREADGROUP (shared-memory) atomic read-modify-write. byte0 0x67 load/store family, threadgroup variant byte+1==0x03 (device atomics are byte+1 0x11/0x01, 14 B). Operation = the SAME 5-bit op enum used by the device atomic_mem/atomic_rmw, here at bits[86:91] (16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg, 31 xor). byte+3 = return-register descriptor (0x03 when the old value is consumed, 0x00 noret); byte+5/+8 = operand-register descriptors that step together (returning-RMW 0x02/0x22, noret-RMW 0x01/0x20, xchg&cmpxchg 0x00/0x02). byte+2==0x56 selects the direct-value amode for atomic_exchange (RMW ops use 0x54, i.e. an ALU/simd-reduced operand). A single native op preceded by a simd_reduce lane-combine, NOT a CAS retry loop.*
 
 ### `tile_read_mrt`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x06, byte+2==0x54
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x67, byte+1==0x06, byte+2==0x54  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [24:32] (byte+3) | register |  |
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `rt_index` | [40:48] (byte+5) | immediate |  |
+| `b6` | [48:56] (byte+6) | raw/unmapped |  |
+| `fmt` | [56:64] (byte+7) | raw/unmapped |  |
+| `tail` | [64:96] (byte+8) | raw/unmapped |  |
+
+*fragment tilebuffer / attachment READ (byte+1==0x06). The plain-read sibling of tile_read (0x0e programmable-blend) and imageblock_load (0x16 first-access). byte+3 = destination GPR, byte+5 = render-target / imageblock-slice selector, byte+7 = slot format.*
 
 ### `tex_addr_setup`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, bits[16:17]==0x0, bits[18:24]==0x15
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `form` | [8:16] (byte+1) | opcode-select | `0x1`=coord-proj; `0x5`=sample-addr/grad; `0x7`=raw-coord passthrough; `0xd`=sample-addr/grad (alias of 5) |
+| `cache` | [17:18] | modifier |  |
+| `op_reg` | [24:32] (byte+3) | register |  |
+| `op_hi` | [32:40] (byte+4) | modifier |  |
+| `op_reg2` | [40:48] (byte+5) | register |  |
+| `rsv6` | [48:56] (byte+6) | modifier |  |
+| `op_mode` | [56:64] (byte+7) | modifier |  |
+| `src_desc` | [64:72] (byte+8) | enum | `0xf0`=register-operand (hi-nibble 0xf required) |
+| `op_desc9` | [72:80] (byte+9) | modifier |  |
+| `op_cnt` | [80:88] (byte+10) | modifier |  |
+| `rsv11` | [88:96] (byte+11) | modifier |  |
+
+*texture COORDINATE-PROJECTION / sample-address / gradient SETUP feeding a following tex_sample. 12-byte form of the 0x17 group. HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL k_lod texture2d.sample with explicit level(), 4x4x3 mip texture texel=1000*L+100*y+x): form (byte+1) is a genuine opcode/form select -- 0x01 = coordinate projection (no explicit LOD; samples level0), 0x05 = sample-address + explicit LOD/gradient, 0x07 = raw-coordinate passthrough (returns the U coord itself), 0x0d = alias of 0x05. cache (byte+2 bit1, 0x54/0x56) is a source-cache/last-use scheduling hint -- the WHOLE byte+2 is INERT to the sampled result (0x54/0x56/0x55/0x50/0x74/0x14 all identical output). op_reg (byte+3) = the LOD/coordinate SOURCE REGISTER selector: only 0x06 tracks the LOD input (lod=1->1100, lod=2->2000); every other value reads a zero register (-> level0=201). op_hi (byte+4) = operand high-bits/flags (bit6 inert, low bits corrupt the operand). op_reg2 (byte+5) = secondary operand-register selector affecting the sampled LOD. rsv6 (byte+6) = near-reserved (inert 0x00..0x40, only 0xff perturbs). op_mode (byte+7) = operand-present/mode gate (bit2 gates the operand: set -> active, clear -> reads 0). src_desc (byte+8=0xf0) = source-operand MODE descriptor, hi-nibble 0xf = 'operand is a register' (matches the ibfins/b_alu10 0xf0 convention; corrupting it makes the operand read 0). op_desc9 (byte+9) = structured operand descriptor (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6} preserve the operand; encodes operand class + low operand bits). op_cnt (byte+10) = operand count/immediate that shifts the resolved mip level. rsv11 (byte+11) = RESERVED pad, fully inert (every value 0x00..0xff leaves the result unchanged). byte+5/+9/+10 exact register-index-vs-shift-vs-class bit-splits not isolated to a single clean field mapping (see unresolved).*
 
 ### `h_alu_hi`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul; `0x6`=hfma |
+| `opflags` | [19:24] | modifier |  |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `ctrl` | [32:40] (byte+4) | modifier |  |
+| `mods` | [40:48] (byte+5) | modifier |  |
+
+*d.hi(half) = op(a, b) ; NATIVE fp16 float ALU writing the HIGH 16-bit half of the destination register (the .y lane of a packed half2). byte0 low-nibble 0x8 is the high-half sibling of the 0x10 low-half half_alu; byte0 high nibble = dst reg. op-select byte+2 low-3 bits (0x1c hadd / 0x1d hmul / 0x1e hfma) is the SAME enum as the 0x09/0x10 float families.*
 
 ### `h_alu_hi_ext`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[18:21]==0x7  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul; `0x6`=hfma |
+| `opflags` | [19:24] | modifier |  |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `ext` | [32:40] (byte+4) | modifier |  |
+| `srcC` | [40:48] (byte+5) | register |  |
+| `tail` | [48:64] (byte+6) | raw/unmapped |  |
+
+*d.hi(half) = a*b + c (fma) or op(a,b) with an extended saturate/abs source tail, writing the HIGH 16-bit half. 8-byte member of the low-nibble-8 half ALU: byte+4 low-2 bits set selects the extended encoding (fma addend srcC at byte+5), like the 0x09 fp32 polymorphism.*
 
 ### `h_coord_hi`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:24] (byte+2) | opcode-select | `0x26`=hmul_coord; `0x2e`=hfma_coord |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `ctrl` | [32:40] (byte+4) | modifier |  |
+| `mods` | [40:48] (byte+5) | modifier |  |
+
+*d.hi(half) = fused-multiply[-add] coordinate op writing the HIGH 16-bit half; op-select 0x26 (hmul_coord, 2-source) / 0x2e (hfma_coord, fused mul-add). Emitted by half-precision geometry / interpolation. 6-byte 2-source form.*
 
 ### `h_coord_hi_ext`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x8, bits[16:19]==0x6, bits[21:22]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:24] (byte+2) | opcode-select | `0x26`=hmul_coord; `0x2e`=hfma_coord |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `ext` | [32:40] (byte+4) | modifier |  |
+| `srcC` | [40:48] (byte+5) | register |  |
+| `tail` | [48:64] (byte+6) | raw/unmapped |  |
+
+*d.hi(half) = fused-mul[-add] coordinate op (0x26/0x2e) writing the HIGH 16-bit half, 8-byte extended form (byte+4 low2==1: 3rd source / ext tail at byte+5). See h_coord_hi.*
 
 ### `packed_half2_hi`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, byte+2==0x24
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x8, byte+2==0x24  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:24] (byte+2) | opcode-select | `0x24`=hpack2_alu |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `mods` | [32:48] (byte+4) | modifier |  |
+
+*d(half2) = op(a, b) on a PACKED 2xfp16 register (both lanes in ONE op), op-select 0x24. The low-nibble-8 member (byte0 high nibble = dst) of the packed-half2 ALU already sized by the packed-half2 length rule; this descriptor names it.*
 
 ### `rtq_pred`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x06, byte+1==0xc2, bits[16:32]==0x0
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x06, byte+1==0xc2, bits[16:32]==0x0  ·  **Provenance:** mixed
+
+*Ray-query traversal predicate/condition word. Byte-INVARIANT 4-byte token (06 c2 00 00) the intersection_query compiler emits immediately after the candidate-status compare (icmp_pred, byte0 0x0a) and before its consumer (if_push conditional branch, or a predicated iadd2). Exclusively emitted inside intersection_query / ray-query traversal loops. Exact micro-op NOT-YET-CHARACTERIZED; documented as a fixed encoding + length only.*
 
 ### `sfu_marker`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x06, byte+1==0x02
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x06, byte+1==0x02  ·  **Provenance:** mixed
+
+*SFU / transcendental helper marker word. Byte-INVARIANT 2-byte token (06 02) the compiler emits adjacent to special-function-unit and varying/mesh output ops -- after a 6-byte low-nibble-2 min/max range-reduction op and before an fspecial (2f/af) SFU op or a 0x80 output word. Fixed control token with no operand bits; exact micro-op NOT-YET-CHARACTERIZED. Per clean-room rule 5 the adjacent range-reduction coefficient words are left raw.*
 
 ### `ray_move_copy6`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x41
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x41  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x41`=copy_b6(b3=0x08) |
+| `optype` | [24:32] (byte+3) | modifier | `0x8`=reg32 |
+
+*RAY register-marshalling MOVE, bit6 copy form (4B). dst=byte0 hi nibble, src=byte+1, byte+2==0x41, byte+3==0x08 (32-bit register operand). The dominant move in the ray-struct marshalling grid after rt_intersect. R9 typed the former b3 raw byte.*
 
 ### `ray_move_zero6`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x40
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x40  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x40`=zero_b6(b3=0x00) |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*RAY register-marshalling MOVE, bit6 zero form (4B). byte+2==0x40 -> writes a zero/const component in the bit6 source-class (the no-source counterpart of the 0x41 copy form).*
 
 ### `ray_move_zinit`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x80
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x80`=zero_init |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*RAY register-marshalling MOVE, zero-init form (4B). byte+2==0x80 -> zero/const component (e.g. const origin float3(0,0,0)) in the bit7 source-class. Sibling of ray_move (0x81).*
 
 ### `rtq_state_move`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x09, byte+3==0x00
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x09, byte+3==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x9`=query_state_read |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*Intersection-query compact register move (4B). byte+2==0x09, byte+3==0x00, byte+1 = source selector. Emitted once per intersection_query kernel, reading a fixed query-state / result register into a GPR.*
 
 ### `funary_imm`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x0f
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x0f  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0xf`=modifier_imm |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `lut_a` | [32:40] (byte+4) | modifier |  |
+| `mod` | [40:48] (byte+5) | modifier |  |
+| `modtail` | [48:80] (byte+6) | modifier |  |
+
+*Float source-modifier / integer-logic move with an immediate/operand tail (10B, byte+2==0x0f). src (byte+1) = primary source register: byte+1 low bit = size (b32=1) is set in 760/763 corpus instances (OWN-MSL+thirdparty), the (reg<<1)|size register convention -- so byte+1 is the source operand, not byte+3. srcB (byte+3) = secondary operand/immediate (mostly 0x00). lut_a/mod (byte+4,+5) = LUT/source modifier. modtail (byte+6..+9) = immediate/modifier tail (byte+8,+9 observed 0x00 corpus-wide). OWN-MSL orimm (a|0x100) reproduces the byte+2==0x0f form byte-exact.*
 
 ### `b_alu10_lo7`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x7
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x7  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `opsel_hi` | [20:24] | enum | `0x0`=0x07; `0x1`=and_mask(0x17); `0x2`=tex/operand_setup(0x27); `0x4`=0x47; `0x5`=0x57; `0x6`=0x67; `0x7`=0x77; `0xc`=0xc7; `0xd`=0xd7; `0xe`=0xe7 |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `modA` | [32:40] (byte+4) | modifier |  |
+| `modB` | [40:48] (byte+5) | modifier |  |
+| `z6` | [48:56] (byte+6) | immediate |  |
+| `outmod` | [56:64] (byte+7) | modifier |  |
+| `ext8` | [64:72] (byte+8) | immediate |  |
+| `ext9` | [72:80] (byte+9) | immediate |  |
+
+*0x?b 10-byte modifier/convert/setup ALU, byte+2 low-nibble 0x7. dst = byte0 high nibble (reg-sweep PROVEN). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (covaries with dst across the subgroup-matrix load/store sweep: byte+1 low = 0x0c/0x0a/0x06/0x04 tracks srcA reg 6/5/3/2 as dst steps r2/r2/r1/r1). opsel_hi (byte+2 high nibble) = the op-select family: 0x27 tex/operand-setup (dominant), 0x17 `& mask`, 0x07 base, 0x47/0x57/0x67. srcA (byte+3) = second source descriptor (0x81 = single-source marker). modA/modB (byte+4/+5) = modifier/mode words (0x10/0x02 dominant). z6 (byte+6) = reserved/pad (const 0 across all 919 corpus instances) -- TYPED imm. outmod (byte+7) = output/rounding modifier (bit7/nibble). ext8 (byte+8) = operand/output-extension coefficient (0x00 dominant, 0x10 in 176/919) -- TYPED imm; ext9 (byte+9) = reserved/pad (const 0) -- TYPED imm. EXP-M4-13 R8: z6/ext8/ext9 RE-TYPED raw->imm (pad/operand-coefficient words per the schema convention). Exact per-op-select tail coefficient meanings NOT characterised (family-level; convert/setup coefficient words not reconstructed).*
 
 ### `b_alu10_loe`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xe
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xe  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `opsel_hi` | [20:24] | enum | `0x2`=0x2e; `0x3`=0x3e; `0x6`=0x6e |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `modA` | [32:40] (byte+4) | modifier |  |
+| `modB` | [40:48] (byte+5) | modifier |  |
+| `z6` | [48:56] (byte+6) | immediate |  |
+| `outmod` | [56:64] (byte+7) | modifier |  |
+| `ext8` | [64:72] (byte+8) | immediate |  |
+| `ext9` | [72:80] (byte+9) | immediate |  |
+
+*0x?b 10-byte modifier/logic ALU, byte+2 low-nibble 0xe (funary/ilogic/shift-prep base with a non-zero dst register; named forms funary(0x0e)/ilogic(0x1e) win by specificity, this covers 0x2e/0x3e/0x6e). SAME 10-byte operand layout as the HW-family sibling b_alu10_lo7 (differs only in the byte+2 op-family low-nibble): dst = byte0 high nibble (reg); src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (=0 gpr in all 25 corpus instances); opsel_hi (byte+2 high nibble) = op-select family (0x2e dominant); srcA (byte+3) = second source descriptor (bit7 = single-source marker, set in 11/25); modA/modB (byte+4/+5) = modifier/mode words; z6 (byte+6) = reserved/pad (const 0, all 648) -- TYPED imm; outmod (byte+7) = output/rounding modifier; ext8/ext9 (byte+8/+9) = operand/coefficient tail (const 0 in-corpus) -- TYPED imm (pad/coefficient words). EXP-M4-13 R8: z6/ext8/ext9 RE-TYPED raw->imm. Per-op-select tail semantics NOT characterised (family-level; convert coefficient words not reconstructed).*
 
 ### `b_alu10_lof`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xf
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xf  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `opsel_hi` | [20:24] | enum | `0x1`=0x1f; `0x3`=0x3f; `0x4`=0x4f; `0x6`=0x6f; `0x8`=0x8f; `0xc`=0xcf |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `modA` | [32:40] (byte+4) | modifier |  |
+| `modB` | [40:48] (byte+5) | modifier |  |
+| `z6` | [48:56] (byte+6) | immediate |  |
+| `outmod` | [56:64] (byte+7) | modifier |  |
+| `ext8` | [64:72] (byte+8) | immediate |  |
+| `ext9` | [72:80] (byte+9) | immediate |  |
+
+*0x?b 10-byte modifier/logic ALU, byte+2 low-nibble 0xf (funary_imm 0x0f / ilogic 0x1f base with a non-zero dst; named forms win by specificity, this covers 0x1f/0x3f/0x4f/0x6f/0x8f/0xcf). SAME 10-byte operand layout as the HW-family sibling b_alu10_lo7 (differs only in the byte+2 op-family low-nibble): dst = byte0 high nibble (reg); src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (=0 gpr in all 484 corpus instances); opsel_hi (byte+2 high nibble) = op-select family (0x4f dominant, then 0xcf/0x8f/0x3f); srcA (byte+3) = second source descriptor (bit7 = single-source marker, set in 10/484); modA/modB (byte+4/+5) = modifier/mode words (byte+4 0x22 dominant); z6 (byte+6) = reserved/pad (const 0, all 491) -- TYPED imm; outmod (byte+7) = output/rounding modifier (0x10/0x04/0x80); ext8/ext9 (byte+8/+9) = operand/coefficient tail (const 0 in-corpus) -- TYPED imm (pad/coefficient words). EXP-M4-13 R8: z6/ext8/ext9 RE-TYPED raw->imm. Per-op-select tail semantics NOT characterised (family-level).*
 
 ### `reg_move_c0`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x0
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `src_class` | [20:24] | enum | `0x0`=0x00 const-zero/scope-prep; `0x2`=0x20; `0x6`=0x60 |
+| `op_desc` | [24:32] (byte+3) | enum | `0x0`=plain; `0x2`=src-class-0x02 (std140 uniform->storage); `0x4`=size/type-04 |
+
+*Compact 4-byte register move, byte+2 low-nibble 0 (const-zero / scope-prep source-class family). dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register -- ALWAYS 0 in all 1545 corpus instances (this low-nibble-0 form is the const-zero / scope-prep move; src_flag byte+1 bit7 also always 0). src_class (byte+2 high nibble) = source register-bank / operand-class selector: 0x0 (const-zero, dominant), 0x2, 0x6. op_desc (byte+3) = operand/size descriptor (0x00 plain dominant; 0x02 is the std140 uniform->storage matrix-column variant; 0x04 a size/type code) -- located operand-descriptor field, per-value size/type meaning inferred.*
 
 ### `reg_move_c1`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x1
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `src_class` | [20:24] | enum | `0x0`=0x01; `0x2`=0x21; `0x6`=0x61; `0xa`=0xa1; `0xc`=0xc1; `0xe`=0xe1 |
+| `op_desc` | [24:32] (byte+3) | enum | `0xc`=desc-0c; `0x4`=desc-04; `0x8`=desc-08; `0x0`=plain; `0x2`=src-class-0x02 |
+
+*Compact 4-byte register move, byte+2 low-nibble 1. dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag (set for uniform-bank sources, e.g. byte+1 0x80/0x82). src_class (byte+2 high nibble) = source register-bank / operand-class selector: 0x2 (0x21, dominant), 0x0, 0x6, 0xa, 0xc, 0xe. op_desc (byte+3) = operand/size descriptor: 0x0c dominant, then 0x04/0x08/0x00/0x02 -- tightly covaries with src_class (src_class 0x2 -> op_desc {0c,04,08}). Located operand-descriptor field; per-value size/type meaning inferred.*
 
 ### `reg_move_c9`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x9
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0x9  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `src_class` | [20:24] | enum | `0x0`=0x09; `0x2`=0x29; `0x4`=0x49; `0x6`=0x69; `0x8`=0x89; `0xc`=0xc9 |
+| `op_desc` | [24:32] (byte+3) | enum | `0x4`=desc-04; `0x8`=desc-08; `0x2`=src-class-0x02; `0x0`=plain |
+
+*Compact 4-byte register move, byte+2 low-nibble 9 (RT-query / matrix-marshalling source-class family). dst = byte0 high nibble (reg). src_reg (byte+1 bits0-6) = source register; src_flag (byte+1 bit7) = source-class / uniform flag. src_class (byte+2 high nibble) = source register-bank / operand-class selector: 0x2 (0x29, dominant), 0x0, 0x4, 0x8, 0xc, 0x6. op_desc (byte+3) = operand/size descriptor: 0x04 dominant, then 0x08/0x02 -- covaries with src_class (src_class 0x2 -> op_desc {04,08}). Located operand-descriptor field; per-value size/type meaning inferred.*
 
 ### `reg_move_cb`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xb
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xb  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | raw/unmapped |  |
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*Compact 4-byte pack / bitcast / convert move, byte+2 low-nibble 0xb (0x0b/0x1b/0x2b/0x3b). Appears in conversions_pack / bitcast_vec / pack_norm and the 64-bit int helpers. Family-level.*
 
 ### `tg_atomic_prep`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x06
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+2==0x06  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `form` | [16:24] (byte+2) | enum | `0x6`=tg_atomic_rmw_prep |
+| `body` | [24:64] (byte+3) | raw/unmapped |  |
+
+*Threadgroup-atomic RMW descriptor prep (8B). byte0 low-nibble 0xb, byte+2==0x06; sets up the atomic-value / descriptor for a threadgroup atomic RMW. dst=byte0 hi nibble (scope/reg).*
 
 ### `b_alu14_c83`
 
-- **Length:** 14 bytes  ·  **Match:** bits[0:4]==0xf, bits[7:8]==0x0, byte+2==0x83
+- **Length:** 14 bytes  ·  **Match:** bits[0:4]==0xf, bits[7:8]==0x0, byte+2==0x83  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `form` | [4:7] | enum | `0x3`=form_3f |
+| `reg_a` | [8:16] (byte+1) | register |  |
+| `reg_b` | [24:32] (byte+3) | register |  |
+| `fmt4` | [32:40] (byte+4) | modifier |  |
+| `src_lo` | [40:48] (byte+5) | modifier |  |
+| `fmt6` | [48:56] (byte+6) | modifier |  |
+| `srcB_reg` | [56:64] (byte+7) | register |  |
+| `rsv8` | [64:72] (byte+8) | modifier |  |
+| `rsv9` | [72:80] (byte+9) | modifier |  |
+| `fmt10` | [80:88] (byte+10) | modifier |  |
+| `rsv11` | [88:96] (byte+11) | modifier |  |
+| `srcU_reg` | [96:104] (byte+12) | register |  |
+| `srcU_desc` | [104:112] (byte+13) | modifier |  |
+
+*Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form), distinct from the iadd2/imad 0x9f/0x1f family (byte+2==0x54). ENCODING (typed, no traversal recipe): form-selector (byte0 hi), a register PAIR naming one register in-place (byte+1/+3), a GPR source (byte+7), a uniform/traversal-state source operand (byte+12/+13), fixed format bytes (byte+4/+6/+10 = 03/80/03) and reserved const-0 slots (byte+5/+8/+9/+11). Appears back-to-back in RT-traversal coordinate/index getters and the log2(N) shuffle+multiply integer simd-prefix/product reduction trees. Exact arithmetic NOT resolved (needs splice); operand/format bit TYPES resolved.*
 
 ### `if_push_pred`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, bits[8:12]==0x5
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x0f, bits[8:12]==0x5  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `pred` | [12:16] | raw/unmapped |  |
+| `scope` | [16:24] (byte+2) | raw/unmapped |  |
+| `level` | [24:32] (byte+3) | raw/unmapped |  |
+
+*Execution-mask PUSH / if-enter, PREDICATE variant (4B). byte0 0x0f, byte+1 low nibble == 5 with a non-zero HIGH nibble selecting a predicate/condition register (the plain 0x05 base is if_push). byte+2 = CF marker (0x54 outer / 0x56 last-use), byte+3 = nesting level. Pairs with the following 0f 01 jump_cond as the if/loop test-and-branch in the RT-query and integer simd-prefix kernels; paired with a later 0f 06 pop_reconverge.*
 
 ### `b_alu14_prep2`
 
-- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `sel` | [8:16] (byte+1) | raw/unmapped |  |
+
+*2-byte compact PREP word preceding a b_alu14 (byte+2==0x83 int/simd ALU). byte0 low nibble 2, high nibble = dst reg; byte+1 = (dst<<1)|1 (the compact register field, size bit set). A per-operand register declaration / high-half select emitted right before the 14-byte ALU op in the RT getter and integer simd-reduction trees. Distinct from the 6-byte low-nibble-2 min/max (whose byte+2 is a min/max op-select, not a b_alu14 leader).*
 
 ### `int_alu_ehi`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0xef, byte+2==0x54, byte+9==0x40
+- **Length:** 10 bytes  ·  **Match:** byte+0==0xef, byte+2==0x54, byte+9==0x40  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `flags` | [8:16] (byte+1) | modifier |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `opmode` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | modifier |  |
+| `srcdesc` | [48:56] (byte+6) | modifier |  |
+| `srcB` | [56:64] (byte+7) | modifier |  |
+| `srcC` | [64:72] (byte+8) | modifier |  |
+
+*Integer address/index ALU (0xef, 10B), the std140 uniform->storage matrix-copy form. dst=byte+3 (reg). All other bytes are LOCATED but role-typed 'mod' (flag/op-select/source-descriptor): flags (byte+1, {0x00,0x10,0x20}), opmode (byte+4, 6 op-select values), b5 (byte+5, {0x02,0x0a}), srcdesc (byte+6, {0x21,0x27,0x29,0x2d}), srcB (byte+7, low nibble always 0x2 = a source-descriptor+register nibble), srcC (byte+8, operand/immediate). NEGATIVE reproduction result: own hand-written MSL emits 0x9f (iadd) for equivalent integer address math -- 0xef could NOT be own-MSL-reproduced, so the operand bytes are typed by LOCATED role only (from committed permissive Dawn/Tint std140 shaders), NOT own-MSL single-toggle. srcB/srcC register interpretation needs splice.*
 
 ### `vtx_out_pos`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+1==0x00, byte+2==0x26, byte+3==0x00, byte+4==0x40, byte+5==0x00, byte+6==0x00
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xb, byte+1==0x00, byte+2==0x26, byte+3==0x00, byte+4==0x40, byte+5==0x00, byte+6==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `slot` | [56:64] (byte+7) | immediate |  |
+
+*Vertex-stage output-position / attribute op. byte0 high nibble = dst reg; byte+7 = varying/output slot (0x04/0x08/0x0c/0x10/0x14). Bytes +4..+7 (`40 00 00 SS`) were the dominant spurious 0x40 root desync before this op was lengthed 8.*
 
 ### `vary_slot`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x00, byte+2==0x40
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x00, byte+2==0x40  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `sel` | [8:16] (byte+1) | raw/unmapped |  |
+| `slot` | [24:32] (byte+3) | immediate |  |
+
+*Vertex varying-output SLOT descriptor emitted immediately before each `57 SS 54 ..` vary_store; byte+3 = the varying slot (monotone, tracks the store slot). byte+1 (sel) in {0x04,0x0a,0x0c} = the output-class form.*
 
 ### `vtx_coord_xform`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, byte+2==0xa2, byte+3==0xb0
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x17, byte+2==0xa2, byte+3==0xb0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `mode` | [8:16] (byte+1) | raw/unmapped |  |
+| `sel` | [32:40] (byte+4) | raw/unmapped |  |
+| `operand` | [40:80] (byte+5) | raw/unmapped |  |
+
+*VERTEX-stage coordinate / position transform op. Reads a vertex-array / constant-indexed coordinate and produces the clip-space position or a varying coordinate. byte+2==0xa2, byte+3==0xb0 are the fixed operand-selector pair that statically distinguish it from the compute-stage 0x17 simd_ballot (byte+2==0x54/0x56) with which it shares byte0 and length (10). The operand bytes are left raw (the coordinate-select sequence is not reconstructed, clean-room rule 5).*
 
 ### `mesh_out_src`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x04
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x04  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `sel` | [8:16] (byte+1) | raw/unmapped |  |
+
+*MESH-stage compact source op feeding the immediately-following device store (byte+2==0xe7) of a mesh vertex/primitive output. Occupies the same structural slot as the 8-byte sr_read_wide (mesh_point `04 88 06 ..`) but is a distinct 2-byte compact encoding (byte+1 < 0x80). byte+1 left raw.*
 
 ### `isel8`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `cmpA` | [8:16] (byte+1) | register |  |
+| `opsel` | [19:24] | opcode-select | `0x4`=sel(0x27); `0x5`=sel(0x2f); `0x1`=sel(0x0f); `0x3`=sel(0x1f); `0x0`=sel(0x07) |
+| `cmpB` | [24:32] (byte+3) | register |  |
+| `cmp_mode` | [32:40] (byte+4) | modifier |  |
+| `selTrue` | [40:48] (byte+5) | register |  |
+| `cc` | [48:56] (byte+6) | enum | `0x2`=fcmp_gt; `0x3`=fcmp_lt; `0x4`=ucmp_gt; `0x5`=ucmp_lt; `0x6`=scmp_gt; `0x7`=scmp_lt; `0x0`=eq_form |
+| `flags` | [56:64] (byte+7) | modifier |  |
+
+*d = (cmpA CC cmpB) ? selTrue : <folded-false> ; register-operand integer/float compare-SELECT, NARROW 8-byte form (no trailing false-operand word -- the false value is implicit/folded, e.g. a 0/1 result or a reused comparand). byte0 low-nibble 2 = group; byte0 HIGH nibble = dst r0..r15; byte+1/+3 = the two compare/predicate SOURCE registers (cmpA/cmpB); byte+2 low 3 bits == 0b111 identifies the register-select forms (op variants 0x07/0x0f/0x1f/0x27/0x2f, upper 5 bits = opsel); byte+4 = compare-mode descriptor; byte+5 = selTrue register; byte+6 = condition-code selector; byte+7 = control/scheduling flags. The 0x25 8-byte sibling (isel_reg8) and 0x2f 10-byte sibling (isel_reg) are more-specific and still win their signatures.*
 
 ### `isel10`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x7  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `cmpA` | [8:16] (byte+1) | register |  |
+| `opsel` | [19:24] | opcode-select | `0x4`=sel(0x27); `0x0`=sel(0x07); `0x1`=sel(0x0f); `0x3`=sel(0x1f); `0x7`=sel(0x3f) |
+| `cmpB` | [24:32] (byte+3) | register |  |
+| `cmp_mode` | [32:40] (byte+4) | modifier |  |
+| `selTrue` | [40:48] (byte+5) | register |  |
+| `cc` | [48:56] (byte+6) | enum | `0x2`=fcmp_gt; `0x3`=fcmp_lt; `0x4`=ucmp_gt; `0x5`=ucmp_lt; `0x6`=scmp_gt; `0x7`=scmp_lt; `0x0`=eq_form |
+| `flags` | [56:64] (byte+7) | modifier |  |
+| `selFalse_file` | [64:72] (byte+8) | modifier |  |
+| `selFalse` | [72:80] (byte+9) | register |  |
+
+*d = (cmpA CC cmpB) ? selTrue : selFalse ; register-operand compare-SELECT, WIDE 10-byte form carrying the trailing false-operand word (byte+8:9). byte+2 low 3 bits == 0b111. byte+1/+3 = compare source registers; byte+4 = compare-mode descriptor; byte+5 = selTrue; byte+6 = condition code; byte+7 = scheduling flags; byte+8:9 = false-operand descriptor (byte+9 = selFalse register, or a small immediate in the 0/1-const select sub-form). The already-named 0x2f (isel_reg) and 0x27/0x81/0x22 (rt_transform_test) forms are more-specific and still win.*
 
 ### `isel10_c`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x5
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2, bits[16:19]==0x5  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `cmpA` | [8:16] (byte+1) | register |  |
+| `opsel` | [19:24] | opcode-select | `0x4`=sel(0x25); `0x5`=sel(0x2d); `0x0`=sel(0x05); `0x2`=sel(0x15); `0x1`=sel(0x0d) |
+| `cmpB` | [24:32] (byte+3) | register |  |
+| `cmp_mode` | [32:40] (byte+4) | modifier |  |
+| `selTrue` | [40:48] (byte+5) | register |  |
+| `cc` | [48:56] (byte+6) | enum | `0x2`=fcmp_gt; `0x3`=fcmp_lt; `0x4`=ucmp_gt; `0x5`=ucmp_lt; `0x6`=scmp_gt; `0x7`=scmp_lt; `0x0`=eq_form |
+| `flags` | [56:64] (byte+7) | modifier |  |
+| `selFalse_file` | [64:72] (byte+8) | modifier |  |
+| `selFalse` | [72:80] (byte+9) | register |  |
+
+*d = (cmpA CC cmpB) ? selTrue : selFalse ; register/immediate-operand compare-SELECT, WIDE 10-byte form with byte+2 low 3 bits == 0b101 (op variants 0x05/0x0d/0x15/0x25/0x2d). Structurally identical to isel10 (same field layout): byte+1/+3 = compare sources, byte+4 = compare-mode, byte+5 = selTrue, byte+6 = condition code, byte+7 = flags, byte+8:9 = false-operand word (byte+9 = selFalse register, or a small immediate). 0x25 = the wide (immediate-operand) select; 0x2d = the integer division/modulo QUOTIENT correction select. The division algorithm is NOT reconstructed (rule 5).*
 
 ### `n2_compact2`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x00
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x02, byte+1==0x00  ·  **Provenance:** mixed
+
+*2-byte compact low-nibble-2 helper `02 00` (dst r0, byte+1 == 0x00). A compiler-internal select/predicate/frame marker emitted between other ops (e.g. after a fence before a frame-marker, or between a subgroup-shuffle and an iadd). Distinct from the b_alu14_prep2 compact word (byte+1 bit0 == 1) and the 6-byte iminmax (real op-select in byte+2). Length-only; semantics deliberately NOT reconstructed (clean-room rule 5).*
 
 ### `n2_op8`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x2  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_desc` | [8:16] (byte+1) | raw/unmapped |  |
+| `opsel` | [16:24] (byte+2) | raw/unmapped |  |
+| `body` | [24:64] (byte+3) | raw/unmapped |  |
+
+*Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 8-byte forms that are NOT the register-operand SELECTs (isel8, byte+2 low3==7) nor the 0x25 isel_reg8. In practice the transcendental SFU RANGE-REDUCTION select (byte+1 == 0xc2, byte+2 in {0x19,0x29,0x49,0x59}, tail `.. 80 08`): a compiler-generated argument-reduction step. Length-classified only; SFU per-op-select semantics deliberately NOT reconstructed (clean-room rule 5).*
 
 ### `n2_op10`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x2  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:24] (byte+2) | enum | `0x21`=sfu_roundmode_marshal; `0x0`=zero_pad_overread |
+| `opdesc` | [24:32] (byte+3) | modifier |  |
+| `immword` | [32:80] (byte+4) | immediate |  |
+
+*10-byte low-nibble-2 op (dst = byte0 high nibble), the catch-all for 10-byte forms not covered by the named selects (isel10/isel10_c/isel_reg/rt_transform_test). Dominant real member: the SFU transcendental range-reduction / round-mode MARSHALLING op (byte+2==0x21) -- byte+1 = source register, byte+3 = sub-op descriptor, byte+4:9 = a coefficient/marshalling immediate word. Also absorbs the all-zero `X2 00 00 ..` OVER-READ artifact (byte+2==0x00) of the byte0==0x22 default-to-10 length rule. The SFU / RT-getter marshalling SEQUENCE is deliberately NOT reconstructed (rule 5).*
 
 ### `cvt_i2f_src`
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0xa7, byte+1==0x17
+- **Length:** 8 bytes  ·  **Match:** byte+0==0xa7, byte+1==0x17  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `src_cache` | [16:24] (byte+2) | modifier |  |
+| `dst_desc` | [24:32] (byte+3) | register |  |
+| `src_class` | [32:40] (byte+4) | modifier |  |
+| `src` | [40:48] (byte+5) | register |  |
+| `cvtop` | [48:56] (byte+6) | opcode-select | `0xac`=int2f[32->32]; `0xa0`=i2f[16->16]; `0xa4`=i2f[16->32]; `0xa8`=i2f[32->16]; `0xb4`=i2f[8->32]; `0x8e`=i2f[sibling]; `0x8c`=i2f[sibling2] |
+| `signflag` | [56:64] (byte+7) | modifier |  |
+
+*d = float(a) ; integer/uint -> float/half convert (round to nearest even). The byte+1==0x17 sibling of cvt_i2f (byte+1==0x07): byte+1 bit4 marks the SOURCE-CONSUMED-BY-A-FOLLOWING-ALU-OP routing (byte+2==0x54 result-consumed vs 0x56 standalone/last-use); the convert itself and the byte+6 width / byte+7 sign (bit6=signed i2f vs unsigned u2f) fields are IDENTICAL to the HW-VALIDATED cvt_i2f.*
 
 ### `copysign`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, byte+1==0xc2, byte+2==0x88
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x07, byte+1==0xc2, byte+2==0x88  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `operands` | [24:32] (byte+3) | raw/unmapped |  |
+
+*d = copysign(a, b) = |a| with the sign bit of b (float). 4 bytes: 07 c2 88 <ops>. byte0 0x07 low-nibble-7 sign-combine ALU op; byte+3 carries the src/dst register operand descriptor. The half (fp16) copysign is a separate byte0-0x0f op, not this one. MORE SPECIFIC than scoreboard_fence (24 vs 9 match bits) so decode_one prefers it for `07 c2 88 xx`; semantically it is ALU, not a memory fence.*
 
 ### `ibfe_mesh_attr`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x00, byte+2==0x66
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, byte+1==0x00, byte+2==0x66  ·  **Provenance:** inferred
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `operands` | [24:64] (byte+3) | raw/unmapped |  |
+| `opdesc` | [64:72] (byte+8) | enum | `0xf0`=reg-operand; `0xc0`=imm-operand |
+| `tail` | [72:96] (byte+9) | raw/unmapped |  |
+
+*d = extract_bits(packed_attr, off, cnt) -- bitfield-extract of a packed flat PER-PRIMITIVE mesh attribute in the fragment stage (source-address mode byte+2==0x66). 12-byte operand form (byte+8==0xf0 register-operand tail), the same bitfield-extract family as the 0xa7 ibfe / 0x27 ibfins but with the mesh packed-attribute source mode.*
 
 ### `ret_luse`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x8f, byte+2==0x56
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x8f, byte+2==0x56  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `linkmode` | [8:16] (byte+1) | enum | `0x2`=leaf; `0x12`=nonleaf_restore_link; `0x4`=cf_merge; `0x5`=cf_merge_push |
+| `tail` | [24:32] (byte+3) | raw/unmapped |  |
+
+*function RETURN / CF merge, LAST-USE variant: `8f <lm> 56 <t>` (4 B). Identical to ret except byte+2 == 0x56 (0x54 | bit17): bit17 is the source cache/last-use hint the compiler sets when the merge consumes a value for the last time -- a scheduling hint, not an op change (same bit toggles 0x54<->0x56 on simd_reduce / rt_ray_mem / if_push). byte+1 selects leaf/nonleaf/cf-merge exactly as ret. NO encoded target.*
 
 ### `mem_fence8`
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0x07, byte+1==0x00, byte+2==0x54, byte+4==0x80
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x07, byte+1==0x00, byte+2==0x54, byte+4==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `mask` | [24:32] (byte+3) | modifier |  |
+| `tail` | [40:64] (byte+5) | raw/unmapped |  |
+
+*8-byte 0x07-family memory / scoreboard FENCE, device/traversal-buffer scope (`07 00 54 <mask> 80 00 00 00`). Same fence/ordering family as threadgroup_barrier (6B, byte+1 0x04) and link_save_restore (8B, byte+4 0x81); this is the byte+4==0x80 scope form the intersection_query traversal emits to order accesses to the ray-query state buffer around its address arithmetic. byte+3 = a scope/mask selector (0x14/0x0c observed).*
 
 ### `rtq_dualsrc`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, byte+1==0x02, byte+2==0x00
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x17, byte+1==0x02, byte+2==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `opA` | [32:64] (byte+4) | register |  |
+| `opB` | [64:96] (byte+8) | register |  |
+
+*intersection_query traversal dual-source op (12 B): reads two operands (opA at +4..+7, opB at +8..+11), each a 4-byte source-operand descriptor, and updates ray-query state inside the `while(q.next())` loop. byte0/1/2 = `17 02 00` opcode; byte+3 a mode byte (0x00, rarely 0x86/0x88). The two operand words vary as register indices across the get_committed_* / candidate / commit kernels. Exact operand sub-fields and precise semantics (which traversal quantity) need an isolating splice; NOT the traversal record layout, just this single op's encoding.*
 
 ### `n4_cf_word`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+1==0x01, byte+2==0x00
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+1==0x01, byte+2==0x00  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b3` | [24:32] (byte+3) | raw/unmapped |  |
+
+*4-byte compute/intersection_query compact control word `04 01 00 00`. Emitted immediately before a pop_reconverge / rt_ray_mem / threadgroup_barrier in the divergent-CF and ray-query kernels -- a reconverge/predicate-prep marker in the 0x04 group. (The flat 0x04->8 centroid rule previously over-read it by 4 and hid the following op.) Precise role needs a splice; length 4 is anchored (+4 lands on the next op leader in every corpus occurrence).*
 
 ### `n4_rt_word`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+2==0x20, byte+3==0x80
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x04, byte+2==0x20, byte+3==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [8:16] (byte+1) | register |  |
+
+*4-byte intersection_query-context compact op `04 <d> 20 80` (byte+1 = 0x22/0x42 destination selector). Emitted before an if_push / frame_marker / reg_move in the ray-query traversal setup. (The flat 0x04->8 rule previously over-read it by 4.) byte+3==0x80 distinguishes it from the fragment reads (byte+3==0x00). Role needs a splice; length 4 anchored (+4 -> next op leader in all occurrences).*
 
 ### `n1_word`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x01, byte+1==0x00
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x01, byte+1==0x00  ·  **Provenance:** mixed
+
+*2-byte compact control/scheduling word `01 00` (low-nibble-1 group). Appears between full ops before a wide variety of leaders (jump / convert / frame_marker / falu / fspecial / store / icmp) -- a no-op-like scheduling / predicate-reset word, the low-nibble-1 sibling of pad_operand. byte+1==0x00 invariant (no decoded payload). Exact role needs a splice.*
 
 ### `n3_word`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0x03, byte+1==0x02
+- **Length:** 2 bytes  ·  **Match:** byte+0==0x03, byte+1==0x02  ·  **Provenance:** mixed
+
+*2-byte compact word `03 02` (low-nibble-3 group). The SFU range-reduction / predicate operand marker the transcendental and select paths emit between full ops (byte+1==0x02 invariant). Named as a 2-byte token ONLY -- its coefficient payload (in the longer SFU forms) is intentionally NOT bit-decoded (clean-room rule 5: no range-reduction recipe). Sibling of pad_operand.*
 
 ### `falu_compact4`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0x9  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
+| `opmode` | [19:24] | modifier |  |
+| `operand` | [24:32] (byte+3) | register |  |
+
+*4-byte COMPACT float ALU (accumulate / move; arithmetic-enable bit clear). The compiler emits it interleaved with the 6-byte falu2 forms for reductions and fast-math seeds. byte+2 = compact-op mode selector (0x18/0x38/0x19/0x21/0x30/0x31/0x39 observed; the 0x30/0x31 pair carries the source cache/last-use hint bit). dst=b0 hi nibble, src=byte+1, operand=byte+3. Sibling of the HW-VALIDATED falu_acc (EXP-0025), covering the compact modes falu_acc's specific match does not.*
 
 ### `falu2_srcmod10`
 
-- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_size` | [8:9] (byte+1) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcA_reg` | [9:16] | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
+| `opflags` | [19:24] | modifier |  |
+| `srcB_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcB_reg` | [25:32] | register |  |
+| `ctrl` | [32:39] (byte+4) | modifier |  |
+| `srcB_imm` | [39:40] | modifier |  |
+| `mod_lo` | [40:43] (byte+5) | modifier |  |
+| `srcB_neg` | [43:44] | modifier |  |
+| `mod_hi` | [44:48] | modifier |  |
+| `ext_srcmod` | [48:80] (byte+6) | modifier |  |
+
+*10-byte EXTENDED 2-source float ALU (abs-source form): the falu2 op in bits [0:48] (opsel 4=fadd / 5=fmul, bit17=0/bit18=1 -- identical to the 8-byte falu2_ext) plus a 32-bit source-modifier / trailing-operand word (byte+6..+9). Length 10 = base 6 + 4 modifier bytes (HW model 6+2*(byte+4&3), byte+4 low2==2 => abs source slot). The abs()-around-a-source sibling of falu2_ext.*
 
 ### `falu3_srcmod12`
 
-- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_size` | [8:9] (byte+1) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcA_reg` | [9:16] | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=fadd; `0x5`=fmul; `0x6`=fma; `0x7`=fmul_interp |
+| `opflags` | [19:24] | modifier |  |
+| `srcB_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcB_reg` | [25:32] | register |  |
+| `ctrl` | [32:39] (byte+4) | modifier |  |
+| `srcB_imm` | [39:40] | modifier |  |
+| `mod_lo` | [40:43] (byte+5) | modifier |  |
+| `srcB_neg` | [43:44] | modifier |  |
+| `mod_hi` | [44:48] | modifier |  |
+| `ext_srcmod` | [48:96] (byte+6) | modifier |  |
+
+*12-byte float ALU: the fma op in bits [0:48] (bit17=1 3-source form, as falu3/falu3_ext) plus a 48-bit third-source + source-modifier region (byte+6..+11) -- fma with abs/saturate source modifiers, and the extended coordinate fma. Length 12 = base 6 + 6 bytes (3rd source operand + modifier), the longest float-ALU form.*
 
 ### `rt_query_traverse2`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+1==0x80, byte+2==0x86  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `getter` | [24:32] (byte+3) | modifier |  |
+| `sel` | [32:40] (byte+4) | enum | `0x7`=sel0; `0xf`=sel1 |
+| `b5` | [40:48] (byte+5) | immediate |  |
+| `b6` | [48:56] (byte+6) | modifier |  |
+| `b7` | [56:64] (byte+7) | immediate |  |
+
+*8-byte low-nibble-f ray-query TRAVERSAL getter, the byte+5==0x02 sibling of rt_query_traverse (byte+5==0x22). Emitted in intersection_query traversal/getter loops (byte+1==0x80, byte+2==0x86 SFU-datapath marker). dst = byte0 high nibble (r0..r15, family convention). getter (byte+3) = the traversal step / property selector; sel (byte+4) = the sel0/sel1 result-lane selector (same enum as rt_query_traverse). b5/b6/b7 = operand/descriptor words (values partial, need splice).*
 
 ### `half_alu_ext8`
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0x10
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x10  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul; `0x6`=hfma |
+| `opflags` | [19:24] | modifier |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB_desc` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | modifier |  |
+| `rsv6` | [48:56] (byte+6) | modifier |  |
+| `b7_lo` | [56:57] (byte+7) | modifier |  |
+| `saturate` | [57:58] | modifier | `0x0`=no clamp; `0x1`=output-clamp/saturate ON (clamps to [0,1]) |
+| `b7_mid` | [58:63] | modifier |  |
+| `op_valid_marker` | [63:64] | modifier | `0x0`=op nulled (result 0); `0x1`=op valid (required) |
+
+*8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu (byte0==0x10). dst = byte+1, opsel/opflags = byte+2 (reused from the HW-anchored half_alu layout, EXP-0033). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureaddsat `10 03 1c 02 01 00 00 82` a=8 b=1, and hfma.metal k_hfma `10 02 1e 03 81 04 00 c0`): opsel gains 6=hfma (byte+2=0x1e, half fma compiles to this 8-byte form with 3 sources in byte+3/+4/+5). srcA (byte+3) = srcA register (same as the 6-byte form). srcB_desc (byte+4) = srcB operand descriptor (required 0x01 in the add+sat instance; carries the fma srcA-negate too -- k_hfma_neg sets byte+7 0xc0->0xc8). b5 (byte+5) = largely inert (bits3/4 null in this instance). rsv6 (byte+6) = fully INERT/reserved in the add+saturate instance (every swept value 0x00..0xc0 kept the result). byte+7 carries the output-clamp and op-valid marker: saturate (byte+7 bit1) = the saturate/output-clamp that grows half_alu into this 8-byte form (0x82 clamps saturate(9)->1, 0x80 (bit1 clear) passes 9 unclamped); op_valid_marker (byte+7 bit7) is a required op-valid marker (clearing 0x80 nulls the ext8 op -> result 0). b7_lo/b7_mid = the remaining byte+7 bits (unresolved).*
 
 ### `half_alu_fma12`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x10
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x10  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [8:16] (byte+1) | register |  |
+| `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul; `0x6`=hfma |
+| `opflags` | [19:24] | modifier |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `ext` | [32:96] (byte+4) | raw/unmapped |  |
+
+*12-byte fp16 form (byte0==0x10). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL hfma.metal k_hfma_abs): REFINES the prior pure-negative to a POSITIVE existence result -- fma(abs(a),b,c) genuinely compiles to a clean 12-byte 0x10 op `10 02 1e 03 83 04 00 00 00 80 01 00` cleanly FOLLOWED by the e7 store (a=[-8,-2,-4,-1] b=1 c=[1,2,4,8] -> [9,4,8,9]=fma(|a|,b,c)). The 0x10 family is length-polymorphic: 6B=add/mul, 8B=fma or add+saturate, 10B=fma+saturate (`10 02 1e 03 82 04 00 00 00 82`), 12B=fma+abs. opsel 6=hfma (byte+2=0x1e); srcA (byte+3) = srcA register (family-consistent); byte+4 carries the srcB descriptor + abs-modifier bit (0x81 plain-fma -> 0x83 abs). ext (byte+4..+11) is KEPT RAW: for the CLEAN own-compiled fma+abs it is the 3rd source + extended modifier region (partially resolved, entangled), but as a corpus DESCRIPTOR this 12-byte length OVER-CONSUMES -- own-MSL plain half fma is only 8B, and 121/126 corpus half_alu_fma12 instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside ext (e.g. `10 29 22 00 9f 01 54 02 ...` embeds a whole iadd). So a fixed "always 12B for byte0==0x10" length rule is wrong; the length must be modifier/opsel-aware. ext RAW and FLAGGED for the length-rule owner (audit byte0==0x10 12-byte classification).*
 
 ### `falu2_ext8b`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x0
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0, bits[18:19]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_size` | [8:9] (byte+1) | enum | `0x0`=b16; `0x1`=b32 |
+| `srcA_reg` | [9:16] | register |  |
+| `opsel` | [16:19] (byte+2) | modifier |  |
+| `opflags` | [19:24] | modifier |  |
+| `srcB_size` | [24:25] (byte+3) | enum | `0x0`=b16; `0x1`=b32 |
+| `srcB_reg` | [25:32] | register |  |
+| `src2` | [32:40] (byte+4) | register |  |
+| `exttail` | [40:64] (byte+5) | raw/unmapped |  |
+
+*8-byte extended float-ALU op-select {0,1} sub-form (bit17==0 AND bit18==0 -- a DISTINCT op class from fadd/fmul). dst/srcA(byte+1)/srcB(byte+3) inherited from the HW-validated falu2_ext layout. src2 (byte+4) = a third source register: byte+4 low bit is set in every corpus instance ((reg<<1)|b32 convention, 22 distinct register values). exttail (byte+5..+7) is KEPT RAW -- HETEROGENEOUS (193/250 distinct 32-bit tails, several containing real op-leader bytes 0xa7/...), so it cannot be honestly typed as one coherent operand block without a per-sub-op splice (candidate over-match/over-consumption, flagged).*
 
 ### `falu_srcmod12b`
 
-- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x9, bits[17:18]==0x0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `srcA_size` | [8:9] (byte+1) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcA_reg` | [9:16] | register |  |
+| `opsel` | [16:19] (byte+2) | modifier |  |
+| `opflags` | [19:24] | modifier |  |
+| `srcB_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
+| `srcB_reg` | [25:32] | register |  |
+| `ctrl` | [32:39] (byte+4) | modifier |  |
+| `srcB_imm` | [39:40] | modifier |  |
+| `mod_lo` | [40:43] (byte+5) | modifier |  |
+| `srcB_neg` | [43:44] | modifier |  |
+| `mod_hi` | [44:48] | modifier |  |
+| `ext_srcmod` | [48:96] (byte+6) | modifier |  |
+
+*12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form. Identical byte layout to the HW-anchored falu3_srcmod12 but with bit17 clear (falu3_srcmod12 requires bit17==1) -- the fadd/fmul-family (opsel {0,1,4,5}) 12-byte extended form, vs the fma-family (bit17==1) falu3_srcmod12. dst/srcA/srcB HW-validated falu2 positions; opsel typed 'mod' (sub-op values partial). ext_srcmod (byte+6..+11) = 3rd source + modifier region (values need splice).*
 
 ### `compute_fence_scoped`
 
-- **Length:** 4 bytes  ·  **Match:** byte+0==0x87
+- **Length:** 4 bytes  ·  **Match:** byte+0==0x87  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `kind` | [8:16] (byte+1) | modifier |  |
+| `scope` | [16:24] (byte+2) | modifier |  |
+| `mask` | [24:32] (byte+3) | modifier |  |
+
+*4-byte compute scoreboard / memory FENCE, 0x87 high-scope family, scoped variants NOT covered by dev_scoreboard_fence (which needs byte+1==0x02, byte+2==0x00). Observed byte+1 in {0x9e,0x8e,0x90,0x86,0x00} and byte+2 in {0x26,0x80,0x02}. 0x87 = the 0x07 scoreboard_fence family with bit7 set (wider memory/device scope). kind (byte+1) = wait/scope descriptor, scope (byte+2) = memory-scope operand, mask (byte+3) = scoreboard mask; the operand VALUE maps are partial (need splice, like the HW-anchored 0x07 scoreboard_fence).*
 
 ### `shift_amt_move`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xc
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[16:20]==0xc  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `kind` | [16:24] (byte+2) | enum | `0x1c`=shift_amt; `0x3c`=rotate_amt |
+| `op_desc` | [24:32] (byte+3) | modifier |  |
+
+*4-byte compact low-nibble-b move that stages a SHIFT / ROTATE amount (byte+2 low nibble == 0xc; seen as 0x1c shift, 0x3c rotate). dst = byte0 high nibble (r0..r15, lo=b family convention); src_reg/src_flag = byte+1 (source register + gpr/uniform flag, reused from reg_move_c0); op_desc (byte+3) = operand descriptor. Sibling of the reg_move_cX compact-move family.*
 
 ### `reg_move_c2var`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[20:24]==0x2
+- **Length:** 4 bytes  ·  **Match:** bits[0:4]==0xb, bits[20:24]==0x2  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `src_reg` | [8:15] (byte+1) | register |  |
+| `src_flag` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/class |
+| `subform` | [16:20] (byte+2) | modifier |  |
+| `op_desc` | [24:32] (byte+3) | modifier |  |
+
+*4-byte compact low-nibble-b register move, byte+2 high-nibble==2 residual (observed byte+2 in {0x22,0x23,0x24,0x26,0x2a}). The (byte+2 hi-nibble 2) 'compact scalar / call-argument MOVE' the length rule already lengths (EXP-0036) but whose specific byte+2 low nibbles fell outside the reg_move_c0/c1/c9/cb set. dst=byte0-hi nibble, src_reg/src_flag=byte+1 (reg_move_c0 layout), subform (byte+2 low nibble) = move sub-class, op_desc (byte+3) = operand descriptor. Least-specific catch-all (8 match bits, appended after reg_move_cX so existing decodes keep the tie).*
 
 ### `bf_alu8_var`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `form` | [8:16] (byte+1) | modifier |  |
+| `opsel` | [16:24] (byte+2) | modifier |  |
+| `srcA` | [24:32] (byte+3) | register |  |
+| `srcB` | [32:40] (byte+4) | register |  |
+| `tail` | [40:64] (byte+5) | modifier |  |
+
+*8-byte native-bfloat/half ALU, the byte+1 != 0x02 residual of the 0x11 group. dst=byte0-hi, form(byte+1)/opsel(byte+2) select the bf/half sub-op, srcA=byte+3, srcB=byte+4 (inherited from the HW-validated bf_add_dst operand layout). tail (byte+5..+7) = source-modifier/output-cache tail (same family as bf_add_dst's tail; the HW-validated bf_add scalar has tail byte+6=0xc0 cache, byte+7=0x81 bf-marker). Role-typed 'mod'; the byte+1/byte+2 op-select VALUE map and the per-bit tail map need splice.*
 
 ### `op04_len8`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x4  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst` | [4:8] | register |  |
+| `mode` | [8:16] (byte+1) | modifier |  |
+| `body` | [16:64] (byte+2) | raw/unmapped |  |
+
+*8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4; more-specific get_sr / sr_read_wide / rt_intersect win first). RENAMED from the misleading 'frag_pos_read': this is NOT a fragment-position read. HW-VALIDATED NEGATIVE (splice, A18 EXP-M4-14 + census EXP-M4-13 R9): [[position]]/[[front_facing]] lower to get_sr (special-register read, 4B: sr_sel 0xa0/0xa1 position, 0xc5 front_facing) + iter (interpolation), splice-confirmed on live A18 -- see get_sr and iter. This 8-byte op materialises from NONE of 7 distinct own-MSL fragment provocations ([[position]]/[[front_facing]]/[[flat]]/[[centroid]]/[[sample]]/barycentric/sample_id); it appears only in COMPUTE / third-party byte streams (subgroup product/prefix reductions, SFU/transcendental helpers powr/cospi, intersection_query getters) that our own FRAGMENT compiler never emits. The 6-byte body (byte+2..+7) is HETEROGENEOUS: audited over the full corpus (EXP-M4-14 frag04_audit) this length-8 token fires 205x on own compute kernels + 618x on third-party, and byte+2 spans real op-leader bytes {0x00,0x9f iadd,0x1b,0x02,0xe7 store,0x20,0x80,0x62,0x72,0x52,0x39,...}. So the body CANNOT be honestly typed as one coherent operand block (typing it would fabricate a coherence the data contradicts) and the fixed 8-byte length for byte0==0x04 is a CANDIDATE OVER-CONSUMER of a following instruction leader. dst = byte0 high nibble (family convention); mode (byte+1) = per-context mode selector (0x02/0x00/0x42); body kept RAW. FLAGGED for the length-rule owner.*
 
 ### `operand_word_x2_h5`
 
-- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[13:14]==0x1
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[13:14]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b0` | [0:8] (byte+0) | immediate |  |
+| `b1` | [8:16] (byte+1) | immediate |  |
+
+*NOT A STANDALONE HARDWARE OPCODE. A 2-byte trailing operand / immediate / data WORD whose byte0 low-nibble is 0x2 and byte+1 is an OUT-OF-RANGE operand byte (>=0x20, i.e. one of bits 5/6/7 set). This out-specifies the loosely-matched b_alu14_prep2 (match low-nib-2 + byte+1 bit0=1, whose SEMANTIC invariant byte+1==(dst<<1)|1 forces byte+1<=0x1f), so a genuine compact PREP word (byte+1<=0x1f) still decodes as b_alu14_prep2 while these data words decode as pad. byte0 hi-nibble + byte+1 typed imm; value NOT decoded (rule 5).*
 
 ### `operand_word_x2_h6`
 
-- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[14:15]==0x1
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[14:15]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b0` | [0:8] (byte+0) | immediate |  |
+| `b1` | [8:16] (byte+1) | immediate |  |
+
+*NOT A STANDALONE HARDWARE OPCODE. A 2-byte trailing operand / immediate / data WORD whose byte0 low-nibble is 0x2 and byte+1 is an OUT-OF-RANGE operand byte (>=0x20, i.e. one of bits 5/6/7 set). This out-specifies the loosely-matched b_alu14_prep2 (match low-nib-2 + byte+1 bit0=1, whose SEMANTIC invariant byte+1==(dst<<1)|1 forces byte+1<=0x1f), so a genuine compact PREP word (byte+1<=0x1f) still decodes as b_alu14_prep2 while these data words decode as pad. byte0 hi-nibble + byte+1 typed imm; value NOT decoded (rule 5).*
 
 ### `operand_word_x2_h7`
 
-- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[15:16]==0x1
+- **Length:** 2 bytes  ·  **Match:** bits[0:4]==0x2, bits[8:9]==0x1, bits[15:16]==0x1  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b0` | [0:8] (byte+0) | immediate |  |
+| `b1` | [8:16] (byte+1) | immediate |  |
+
+*NOT A STANDALONE HARDWARE OPCODE. A 2-byte trailing operand / immediate / data WORD whose byte0 low-nibble is 0x2 and byte+1 is an OUT-OF-RANGE operand byte (>=0x20, i.e. one of bits 5/6/7 set). This out-specifies the loosely-matched b_alu14_prep2 (match low-nib-2 + byte+1 bit0=1, whose SEMANTIC invariant byte+1==(dst<<1)|1 forces byte+1<=0x1f), so a genuine compact PREP word (byte+1<=0x1f) still decodes as b_alu14_prep2 while these data words decode as pad. byte0 hi-nibble + byte+1 typed imm; value NOT decoded (rule 5).*
 
 ### `operand_word_a2_01`
 
-- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x01
+- **Length:** 2 bytes  ·  **Match:** byte+0==0xa2, byte+1==0x01  ·  **Provenance:** mixed
+
+*NOT A STANDALONE HARDWARE OPCODE. The single IN-RANGE (byte+1<=0x1f) low-nibble-2 odd operand word that occurs in the corpus (`a2 01`, byte0=0xa2 dst-nibble=10 but byte+1=0x01 which is the compact-reg for dst=0 -- inconsistent with b_alu14_prep2's byte+1==(dst<<1)|1=0x15, so it is NOT a valid prep word). Pinned on the full 16-bit signature (spec 16) so it stays pad without shadowing a legit b_alu14_prep2 (`a2 15`, which never occurs). Value NOT decoded (rule 5).*
 
 ### `operand_word`
 
-- **Length:** 2 bytes  ·  **Match:** (none)
+- **Length:** 2 bytes  ·  **Match:** (none)  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b0` | [0:8] (byte+0) | immediate |  |
+| `b1` | [8:16] (byte+1) | immediate |  |
+
+*NOT A STANDALONE HARDWARE OPCODE. Least-specific 2-byte trailing operand / immediate / SFU-coefficient / inter-op PAD WORD fallback. Reached only after every real 2-byte op (higher match specificity) fails to match, so real ops always win. b0 (byte0) and b1 (byte+1) are raw data bytes typed imm (ROLE is a data word; per-bit value NOT decoded, clean-room rule 5). Consolidates 419 of R9's per-signature operand_word_* descriptors.*
 
 ### `m5_reduce`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+4==0x27, byte+5==0x80
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+4==0x27, byte+5==0x80  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `scope` | [16:24] (byte+2) | enum | `0x4`=simd / device-atomic; `0x0`=quad |
+| `datapath` | [24:32] (byte+3) | enum | `0xa`=integer; `0x8`=float |
+| `op` | [48:56] (byte+6) | opcode-select | `0xa0`=and; `0xa1`=or; `0xa2`=xor; `0xa3`=add; `0xa6`=min; `0xa7`=max; `0xac`=fadd; `0xae`=fmin; `0xaf`=fmax |
+| `opmarker` | [56:64] (byte+7) | modifier |  |
+| `b8` | [64:72] (byte+8) | modifier |  |
+| `mode` | [72:80] (byte+9) | enum | `0x2`=reduce (full); `0x0`=exclusive-scan (prefix) |
+
+*M5 SIMD-group / quad REDUCE or PREFIX-SCAN (and the device-atomic-on-uniform-address pre-combine, which lowers to the same op). Unified form `2f 00 <scope> <datapath> 27 80 <OP> 02 <b8> <mode>`. byte+2 (scope) = 0x04 SIMD-group / device-atomic, 0x00 quad. byte+3 (datapath) = 0x0a integer, 0x08 float. byte+6 (OP) = a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac float-add (byte+3=0x08 + byte+8=0x08 select the fp datapath). byte+9 (mode) = 0x02 full reduce, 0x00 exclusive prefix-scan. Replaces the A18 0xbf/0x3f/0xb7 reduce op. For a uniform-address atomic the RMW writeback is a separate following memory op; for a divergent per-lane atomic the compiler emits the full memory-family form.*
 
 ### `m5_shuffle`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x21, byte+3==0x1a, byte+4==0x20
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x21, byte+3==0x1a, byte+4==0x20  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `op` | [48:56] (byte+6) | opcode-select | `0xa8`=simd_shuffle / broadcast; `0xa9`=simd_shuffle_xor; `0xa0`=quad_shuffle; `0xa1`=quad_shuffle_xor |
+| `opmarker` | [56:64] (byte+7) | modifier |  |
+| `lane` | [64:72] (byte+8) | immediate |  |
+| `b9` | [72:80] (byte+9) | modifier |  |
+
+*M5 SIMD-group / quad SHUFFLE / BROADCAST. Form `2f 00 21 1a 20 00 <OP> 02 <lane> 00`. byte+6 (OP) = a8 simd_shuffle / simd_broadcast, a0 quad_shuffle, a1 quad_shuffle_xor. byte+8 = lane index / xor mask. Distinct op-family from m5_reduce (byte+2==0x21 vs the reducer's scope byte); replaces the A18 0x47/0xc7 shuffle op.*
 
 ### `m5_iadd`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x04, byte+6==0xa3
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x04, byte+6==0xa3  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `src_form` | [24:32] (byte+3) | enum | `0x3a`=register source; `0x1a`=immediate source |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `op` | [48:56] (byte+6) | opcode-select | `0xa3`=add |
+| `opmarker` | [56:64] (byte+7) | modifier |  |
+| `b8` | [64:72] (byte+8) | modifier |  |
+| `operand` | [72:96] (byte+9) | raw/unmapped |  |
+
+*M5 (G17g) split-memory INDEX INTEGER ADD, 12-byte form `2f 00 04 <src_form> 21 00 a3 02 28 ..`. Emitted for the address-index arithmetic of the split memory model (e.g. gid+K feeding m5_addr_gen). byte+3 = 0x3a register-source / 0x1a immediate-source; byte+6==0xa3 = add. Distinct 12-byte opcode from the inherited 0x9f/0x1f iadd2 and from the 10-byte m5_reduce (which has byte+4==0x27). Fixes the fspecial(10) mis-length that desynced ld_2sum.*
 
 ### `m5_alu`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[52:56]==0xa
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[52:56]==0xa  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `mode` | [8:16] (byte+1) | modifier |  |
+| `sub` | [16:24] (byte+2) | modifier |  |
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `b5` | [40:48] (byte+5) | modifier |  |
+| `op` | [48:56] (byte+6) | opcode-select | `0xa0`=and; `0xa1`=or; `0xa2`=xor; `0xa3`=add; `0xa6`=min; `0xa7`=max; `0xa8`=shift/shuffle-class (inferred); `0xa9`=op-a9 (inferred); `0xab`=op-ab (inferred); `0xac`=fadd; `0xae`=op-ae (inferred); `0xaf`=op-af (inferred) |
+| `opmarker` | [56:64] (byte+7) | modifier |  |
+| `operand` | [64:96] (byte+8) | raw/unmapped |  |
+
+*M5 (G17g) general COMPUTE-ALU op, 12-byte form. byte0==0x27 = the integer/general datapath leader (sibling of the 0x2f reduce/shuffle/iadd leader). byte+6 = OPERATION selector, hi-nibble 0xa: a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac float-add -- the SAME enum HW-splice-validated for m5_reduce (EXP-M5-09). byte+1 = form/dst descriptor (0x00/0x01/0x02); byte+2..+5 = operand/mode descriptors; byte+7..+11 = operand/immediate word. This descriptor NAMES the family and its op-selector; the exact operand register/immediate bit-packing is byte-diff-located but NOT individually splice-validated (and the SFU/coefficient words are intentionally kept raw, clean-room rule 5).*
 
 ### `m5_tex`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `result_reg` | [4:8] | register |  |
+| `op` | [8:16] (byte+1) | opcode-select | `0x4`=sample (explicit-LOD); `0x5`=bias / sample_compare; `0x6`=sample (implicit) / gather / lod_query; `0x7`=sample (register-LOD) |
+| `coord_reg` | [24:32] (byte+3) | register |  |
+| `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+
+*M5 (G17g) TEXTURE sample-class op (filtered sample / gather / lod-query / sample_compare / bias). EMITTABLE byte map (HW-VALIDATED EXP-M5-17 by agxrender fragment->pixel splice-and-observe; every field below flipped an observed pixel): off0 byte0 low-nibble 0xf = tex op, HIGH-nibble = RESULT register. off1 (op): 0x04 explicit-LOD sample, 0x05 bias/sample_compare, 0x06 implicit-LOD sample|gather|calculate_clamped_lod, 0x07 register-LOD sample. off2 (class): 0x12 compute sample, 0x16 fragment implicit-derivative sample, 0x1a image read. off3 = COORDINATE REGISTER (16-bit-half index = reg32<<1; adjacent float2 coords -> +0x04). **HW-CONFIRMED: splicing off3 0x00->0x04 switched the sampled texel (RED->BLUE).** off4 = texture/sampler descriptor-state word (single-texture form 0x41; low-nibble = sampler-present/array/MSAA; co-varies with the binding-table bank for dense slot>=2 -- partially raw). off5 bits[6:0] = SAMPLER slot index, bit7 = last-in-group/scoreboard flag (**HW-CONFIRMED: byte-diff samplers 0/1/2/3 -> 0x00/0x01/0x02/0x03; splice off5 0x00->0x01 switched sampler (BLUE->RED)**). off6 = TEXTURE slot selector (**HW-CONFIRMED: slot0=0x60, slot1=0x68 (+0x08 per dense binding slot); splice off6 0x60->0x68 switched which bound texture was read (RED->GREEN); an unbound slot faults**; slot>=2 also bumps the off4 bank). off7 = coordinate-producer scoreboard token (splice-proven INERT to the sampled value). off8..11 = 01 18 01 00 operand tail (off9 = 0x18 implicit-LOD / 0x00 explicit-LOD|bias). off12 = LOD/BIAS immediate = round(level*0x40) (Q?.6: level 0/1/2 -> 0x00/0x40/0x80) (**HW-CONFIRMED: splice off12 0x00->0x40 selected mip level 0->1 (RED->BLUE)**). off13..21 = 00 00 00 00 80 00 00 00 00 gradient/pad words. FULL LENGTH per variant (own-MSL, HW): fragment sample (implicit/explicit LOD/bias) = 22 B; gather = 14 B; compute const-coord sample = 22 B. The DB tokenizes only the 6-byte EMITTABLE LEADER (op-class + coord + descriptor markers); the coord/LOD/gradient operand words fall through as raw words (rule 5), which is <= every observed op length so it never over-reads.*
 
 ### `m5_tex`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x16, bits[36:40]==0x4, byte+5==0x80
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x16, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `result_reg` | [4:8] | register |  |
+| `op` | [8:16] (byte+1) | opcode-select | `0x4`=sample (explicit-LOD); `0x5`=bias / sample_compare; `0x6`=sample (implicit) / gather / lod_query; `0x7`=sample (register-LOD) |
+| `coord_reg` | [24:32] (byte+3) | register |  |
+| `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+
+*M5 (G17g) FRAGMENT-stage TEXTURE sample (byte+2==0x16 = compute 0x12 | derivative-LOD bit 0x04). Same emittable byte map as the m5_tex compute form (see the 0x12 descriptor): off3=coord reg, off5[6:0]=sampler slot, off6=texture slot, off12=LOD/bias imm -- all HW-VALIDATED EXP-M5-17. This is the most common texture op in real fragment shaders and was previously absent from the M5 leader gate (byte+2==0x16 not recognized).*
 
 ### `m5_tex_read`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `result_reg` | [4:8] | register |  |
+| `op` | [8:16] (byte+1) | opcode-select | `0x4`=read (MSAA / by-sample); `0x6`=read (image load) |
+| `coord_reg` | [24:32] (byte+3) | register |  |
+| `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+
+*M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate). Form `<rr>f <op> 1a <coord> 40 80 60 <sb>` (8 bytes total; DB tokenizes the 6-byte leader, 2 operand bytes fall through raw). byte0 low-nibble 0xf, HIGH-nibble = RESULT register. byte+1 0x06 = texture.read, 0x04 = MSAA/by-sample read. byte+2==0x1a = image-READ class (no sampler). **off3 = integer COORDINATE register (HW-CONFIRMED EXP-M5-17: same coord-register field position as the sample form). off6 = TEXTURE slot selector (0x60=slot0, +0x08 per slot; HW-CONFIRMED).** byte+4==0x40 = no-sampler descriptor marker; byte+5==0x80 last/scoreboard. own-MSL tex_read is 8 bytes total (`0f 06 1a 00 40 80 60 29`).*
 
 ### `m5_store_texresult`
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:5]==0x1, bits[12:16]==0x2, byte+2==0x10
+- **Length:** 4 bytes  ·  **Match:** bits[0:5]==0x1, bits[12:16]==0x2, byte+2==0x10  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `ncomp_m1` | [5:7] | immediate |  |
+| `src_class` | [8:12] (byte+1) | modifier |  |
+| `st_fmt` | [24:32] (byte+3) | modifier |  |
+
+*M5 (G17g) STORE of a TEXTURE / sampled value to the output buffer. 4-byte store `<n>1 <2X> 10 <00|20>`: byte0 = 0x01|0x21|0x41|0x61 (1/2/3/4-component, here the sampled floatN), byte+1 = texture-result SOURCE CLASS (hi-nibble 0x2, low-nibble 4/6/c/e), byte+2==0x10 store-enable, byte+3 = store format (0x00/0x20). Distinct from the ALU/load-result m5_store (byte+1 hi-nibble 0/2 low 2/6, byte+3 in 0x40..0xe0). Completes the texture path: m5_tex(_read) produces the sampled value; this store writes it out. Address comes from the preceding m5_addr_gen.*
 
 ### `m5_atomic_div`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+7==0xc0
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+7==0xc0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `idx_mode` | [24:32] (byte+3) | enum | `0x2`=per-lane RMW; `0x4`=compare-exchange |
+| `opsel_a` | [32:40] (byte+4) | modifier |  |
+| `opsel_b` | [40:48] (byte+5) | modifier |  |
+| `opsel_c` | [48:56] (byte+6) | opcode-select | `0x4`=add/and/fadd/cmpxchg-class; `0xc`=min/max/or/xor-class |
+| `datapath` | [64:72] (byte+8) | enum | `0x80`=integer; `0x90`=float; `0x0`=exchange |
+| `operand` | [72:88] (byte+9) | raw/unmapped |  |
+| `opsel_d` | [88:96] (byte+11) | modifier |  |
+
+*M5 (G17g) DIVERGENT-ADDRESS device ATOMIC (per-lane `atomic_fetch_<op>(&buf[gid], x)` / exchange / compare_exchange). 12-byte op that REUSES the low-nibble-f address-gen leader (`0f 00 03`) but carries a memory/atomic descriptor (byte+7==0xc0) and a datapath byte (byte+8: 0x80 integer, 0x90 float). The A18 per-lane atomic (0x67 byte+1 0x11/0x01) is GONE on M5; only the UNIFORM-address atomic migrated to m5_reduce (simd pre-combine + single RMW). The RMW OP is a DISTRIBUTED encoding over byte+4 (0x00/0x20), byte+5 (0x06/0x0e), byte+6 (0x04 add/and/fadd/cmpxchg-class, 0x0c min/max/or/xor-class), byte+11 (0x20/0x30) -- HW byte-diff table (each cell one op, 9 single-op own-MSL kernels): add=(b4 00,b5 06,b6 04,b11 20), and=(20,06,04,20), min=(20,06,0c,30), max=(00,06,0c,30), or=(00,0e,0c,20), xor=(20,0e,0c,30), fadd=(20,0e,04,20;b8 90 fp), cmpxchg=(00,0e,04,20; byte+3 0x04; b8 90). exchange is the 10-byte sibling m5_atomic_xchg (byte+6==0x18). Op-selector bits kept as typed raw/mod fields (rule 5, distributed encoding not collapsed into a fabricated single enum).*
 
 ### `m5_atomic_xchg`
 
-- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+6==0x18, byte+7==0xc0
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+6==0x18, byte+7==0xc0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `idx_mode` | [24:32] (byte+3) | modifier |  |
+| `opsel_a` | [32:40] (byte+4) | modifier |  |
+| `opsel_b` | [40:48] (byte+5) | modifier |  |
+| `tail` | [64:80] (byte+8) | raw/unmapped |  |
+
+*M5 (G17g) DIVERGENT-ADDRESS device atomic EXCHANGE, 10-byte sibling of m5_atomic_div (byte+6==0x18 = exchange selector; no datapath/writeback tail, so 2 bytes shorter). Form `0f 00 03 02 01 06 18 c0 00 20`. Same leader family; the swap value is positional (the preceding load's result).*
 
 ### `m5_matrix_mac`
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x05, byte+5==0x20
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x05, byte+5==0x20  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `opsel` | [24:32] (byte+3) | modifier |  |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `datapath` | [48:56] (byte+6) | enum | `0xaf`=fp (fp16/fp32/bf16); `0xab`=fp (half variant) |
+| `operand1` | [56:72] (byte+7) | raw/unmapped |  |
+| `accum` | [72:80] (byte+9) | enum | `0x6`=multiply (no accumulate); `0x8`=multiply-accumulate (load C) |
+| `operand2` | [80:112] (byte+10) | raw/unmapped |  |
+
+*M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix tile MAC). 14-byte op `2f 00 05 <opsel> <b4> 20 <af|ab> .. <accum> ..`. On A18 both simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC DIVERGES to this `2f 00 05` op (0xcf survives ONLY for the tiled MPP matmul2d path, EXP-M5-09). byte+9 (accum) = 0x06 multiply / 0x08 multiply-accumulate (load C). The tile LOAD/STORE that feed it are the `?f ..07..` family (byte+2==0x07); the Apple10 'Neural Accelerator' is NOT a new standalone opcode -- matrix work rides this low-nibble-f family. 8x8 operand bit-packing kept raw (rule 5).*
 
 ### `m5_falu2`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x29, byte+1==0x00, byte+2==0x04, bits[52:56]==0xa
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x29, byte+1==0x00, byte+2==0x04, bits[52:56]==0xa  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `src_form` | [24:32] (byte+3) | enum | `0x1a`=immediate source; `0x3a`=register source |
+| `b4` | [32:40] (byte+4) | modifier |  |
+| `op` | [48:56] (byte+6) | opcode-select | `0xa0`=op-a0; `0xa8`=op-a8; `0xa3`=add; `0xac`=fadd |
+| `opmarker` | [56:64] (byte+7) | modifier |  |
+| `operand` | [64:96] (byte+8) | raw/unmapped |  |
+
+*M5 (G17g) 12-byte compute-ALU op on the byte0==0x29 (float-datapath) leader -- the sibling of m5_alu (0x27) and m5_iadd (0x2f). Form `29 00 04 <1a|3a> <b4> 20 <ax> 02 ..`; byte+3 = immediate(0x1a)/register(0x3a) source, byte+6 = op-selector (hi-nibble 0xa, same position as m5_alu/m5_reduce). Emitted for split-memory index / fp add2-family arithmetic feeding a following m5_addr_gen. Length 12 (the inherited low-nibble-9 float rule mis-lengths it 10, after which a phantom icmpsel swallows the following m5_addr_gen). Operand word kept raw (rule 5); the byte+6 op-selector meaning on this float leader is not individually splice-proven (the 0xa0/0xa8 codes are byte-diff-observed, not confirmed to match the integer and/shift semantics).*
 
 ### `m5_tile_ldst`
 
-- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x07, byte+9==0xc0
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x07, byte+9==0xc0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `slot` | [4:8] | immediate |  |
+| `operand_sel` | [8:16] (byte+1) | modifier |  |
+| `dir` | [48:56] (byte+6) | opcode-select | `0xb8`=tile load (simdgroup_load); `0xa1`=tile store (simdgroup_store) |
+| `kind` | [64:72] (byte+8) | enum | `0x10`=load; `0x18`=store |
+| `operand` | [24:48] (byte+3) | raw/unmapped |  |
+| `tail` | [80:112] (byte+10) | raw/unmapped |  |
+
+*M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment load/store that feeds m5_matrix_mac. Form `<slot>f <opsel> 07 <..> <b8|a1> 0a <10|18> c0 ..`: byte0 low-nibble 0xf, high-nibble = matrix tile SLOT (0/2/4/6); byte+2==0x07 = the tile-family signature; byte+6 0xb8 load / 0xa1 store; byte+8 0x10 load / 0x18 store; byte+9==0xc0. Base op 12 bytes; a variant inlining an immediate base address is 16 bytes (trailing `80 00 00 00`, absorbed as pad words -- length kept at the 12-byte leader, rule 5). simdgroup_load(transpose) adds ray_move data-move ops, not a new op.*
 
 ## Length rule (byte 0)
 

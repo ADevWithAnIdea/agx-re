@@ -62,15 +62,17 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   simdgroup), `atomic_rmw`/`atomic_mem`(0x67 divergent form), `call`/`call_indirect`, `rt_as_load`(0xdf),
   `rt_ray_mem`(0x5f) — each carries a "superseded-on-M5" note in its `semantics`. (NOTE: `tex_write`0xd7 and the
   `0x67`/`0xe7` uniform/monolithic forms are RETAINED-and-valid on M5, not superseded.)
-- **Still open (documented, with fallbacks in `porting-guide-m5.md` §8):** texture coord/LOD/sampler operand
-  bit-packing (raw — needs an agxrender coord splice); the M5 `24 80 03` image-store length; matrix operand
-  packing + tile 12-vs-16 length determinant (raw); atomic op-selector not per-bit exhaustively spliced; **call
-  ABI `0xef/0xff`** (needs pipeline-`linkedFunctions` extraction — standalone archive yields a link-time stub);
-  **RT AS-load** (migrated off `0xdf` — needs an AS-bound splice testbed). Intra-shader control flow is green;
-  a driver can gate function-pointers / coop-matrix-operands / RT-traversal until these are mapped.
+- **Still open (documented, extension-gateable, with fallbacks in `porting-guide-m5.md` §8):** texture
+  descriptor-bank nibble (byte+4) for dense binding slots ≥2 (slots 0–1 fully mapped); the M5 `24 80 03`
+  image-store length; matrix `simdgroup_matrix` 8×8 operand packing + tile 12-vs-16 length determinant (raw);
+  atomic op-selector not per-bit exhaustively spliced; **call ABI `0xef/0xff`** (needs pipeline-`linkedFunctions`
+  extraction — standalone archive yields a link-time stub); **RT AS-load** (migrated off `0xdf` — needs an
+  AS-bound splice testbed). Intra-shader control flow is green; a driver can gate function-pointers /
+  coop-matrix-operands / RT-traversal until these are mapped. (Texture sample/read coord+slot+LOD are RESOLVED,
+  EXP-M5-17.)
 
 ## Status & provenance
-- **Tokenization + op families:** DB = **180 descriptors**; byte coverage **97.4% (own) / 98.4% (tp)**, named
+- **Tokenization + op families:** DB = **189 descriptors**; byte coverage **97.4% (own) / 98.4% (tp)**, named
   **93.4% / 95.5%**, round-trip green, 0 hangs (EXP-M5-05 + EXP-M5-11).
 - Everything is HW-grounded: own-shader compile→extract→disassemble, validated against 842 own + 3095
   third-party real programs, and (for changed encodings) splice-and-observe on the live M5.

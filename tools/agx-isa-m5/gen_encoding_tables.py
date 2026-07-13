@@ -238,10 +238,29 @@ def main():
         w("## Other")
         w()
         for d in leftover:
+            prov = d.get("provenance", "")
+            tag = "HW-validated" if "HW-VALIDATED" in prov[:24] else \
+                  ("inferred" if prov.startswith("inferred") else "mixed")
             w(f"### `{d['mnemonic']}`")
             w()
-            w(f"- **Length:** {d['length']} bytes  ·  **Match:** {render_match(d['match'])}")
+            w(f"- **Length:** {d['length']} bytes  ·  **Match:** {render_match(d['match'])}  ·  "
+              f"**Provenance:** {tag}")
             w()
+            if d.get("fields"):
+                w("| Field | Bits | Type | Enum / values |")
+                w("|---|---|---|---|")
+                for f in d["fields"]:
+                    bits = f"[{f['start']}:{f['start']+f['width']}]"
+                    if f['start'] % 8 == 0:
+                        bits += f" (byte+{f['start']//8})"
+                    t = TYPE_NOTE.get(f['type'], f['type'])
+                    es = enum_str(f.get("enum"))
+                    w(f"| `{f['name']}` | {bits} | {t} | {es} |")
+                w()
+            sem = d.get("semantics", "").strip()
+            if sem:
+                w(f"*{sem}*")
+                w()
 
     # length-rule appendix
     w("## Length rule (byte 0)")
