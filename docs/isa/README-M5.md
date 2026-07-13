@@ -48,13 +48,19 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   immediate offset is **folded into a preceding `m5_alu` add** (no offset field — a negative vs A18), and the
   store/load **data register is implicit/positional**. `0x67`/`0xe7` (A18 device_load/store) **still occur on
   M5** alongside the split model; A18 atomics migrated to `m5_reduce`.
-- **INTEGRATED (EXP-M5-16, HW-validated):** **texture** sample/read now emittable — `m5_tex` (sample-class) /
-  `m5_tex_read` gated on the sampler-descriptor marker (byte+4 hi-nibble 0x4 + byte+5==0x80), length = the 6-byte
-  leader (coord/LOD operands raw, rule 5), + `m5_store_texresult`; `tex_write` (`0xd7`) survives on M5.
+- **INTEGRATED (EXP-M5-16, HW-validated):** **texture** sample/read leaders **identified/tokenizable** — `m5_tex`
+  (sample-class) / `m5_tex_read` gated on the sampler-descriptor marker (byte+4 hi-nibble 0x4 + byte+5==0x80),
+  length = the 6-byte leader, + `m5_store_texresult`; `tex_write` (`0xd7`) image-store **fully specified + survives
+  on M5**. ⚠ **The sample/read OPERANDS (coordinate register, texture-slot, sampler-slot, LOD/bias/grad) are NOT
+  yet mapped** (kept raw, rule 5) — so a texture *sample/read* is **not yet emittable**; being mapped in EXP-M5-17
+  (agxrender coord/slot splice). See `porting-guide-m5.md` §8. `tex_write` IS emittable.
   **Divergent-address atomics** — `m5_atomic_div` (12B) / `m5_atomic_xchg` (10B), `0f 00 03 … c0` form,
   splice-confirmed (the A18 per-lane `0x67` path is gone). **`simdgroup_matrix` MAC** — `m5_matrix_mac`
-  (`2f 00 05`, 14B) + `m5_tile_ldst`. All 8 retained A18 descriptors the M5 supersedes carry a
-  "superseded-on-M5" note in their `semantics`.
+  (`2f 00 05`, 14B leader/accumulate) + `m5_tile_ldst`; 8×8 operand packing raw (extension-gated).
+  Retained A18 descriptors the M5 *supersedes* (do-not-emit for M5): `tex_sample`(0x5), `matrix_mac`(0xcf for
+  simdgroup), `atomic_rmw`/`atomic_mem`(0x67 divergent form), `call`/`call_indirect`, `rt_as_load`(0xdf),
+  `rt_ray_mem`(0x5f) — each carries a "superseded-on-M5" note in its `semantics`. (NOTE: `tex_write`0xd7 and the
+  `0x67`/`0xe7` uniform/monolithic forms are RETAINED-and-valid on M5, not superseded.)
 - **Still open (documented, with fallbacks in `porting-guide-m5.md` §8):** texture coord/LOD/sampler operand
   bit-packing (raw — needs an agxrender coord splice); the M5 `24 80 03` image-store length; matrix operand
   packing + tile 12-vs-16 length determinant (raw); atomic op-selector not per-bit exhaustively spliced; **call
