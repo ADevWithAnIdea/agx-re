@@ -501,3 +501,9 @@ leader — **these are superseded by Addenda 2 & 3, which reclassify them `nativ
 The authoritative summary tally is **native 85 · NYC 64 · emulated 13 · kernel 8 · microarch 5 = 175** (Addendum 1),
 + these 4 rows → **native 86 · emulated 14** where they land. When in doubt, the addenda are current, the inline §3–§7
 "NYC" cells are stale.
+
+## Addendum 5 — texture SAMPLE/READ operands mapped (EXP-M5-17)
+Texture sample/gather/read (§5) is now **fully emittable** (not just tokenizable): coordinate register (byte+3),
+texture slot (byte+6), sampler slot (byte+5[6:0]), LOD/bias (byte+12) all **pixel-splice HW-validated** on M5;
+per-variant lengths mapped. → `docs/isa/README-M5.md` texture section + `m5_tex`/`m5_tex_read` in `db.json`.
+Closes OBJ-1 blocker B-1.

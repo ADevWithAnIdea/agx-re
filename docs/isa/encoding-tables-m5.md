@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 188 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 189 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -1736,6 +1736,10 @@
 
 - **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80
 
+### `m5_tex`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x16, bits[36:40]==0x4, byte+5==0x80
+
 ### `m5_tex_read`
 
 - **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80
@@ -1841,4 +1845,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 188 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 189 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

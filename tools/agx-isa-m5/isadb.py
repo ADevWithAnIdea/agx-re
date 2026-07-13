@@ -1396,10 +1396,20 @@ def instr_length(buf, off=0, _closure=True):
     # (7 single-op kernels) + the real-corpus occurrences in EXP-M5-16 (m4_13/m4_14 tex + tp
     # dawn/wgpu/SPIRV-Cross). Gate deliberately EXCLUDES byte+2==0x03 (addr_gen/atomic) and
     # the 0x0f 04 03 addr-gen (byte+2==0x03), so those siblings are untouched.
-    if (b0 in (0x0f, 0x1f) and _b1 in (0x04, 0x05, 0x06) and _b2 in (0x12, 0x1a)
+    # EXP-M5-17 widening (agxrender splice-validated, non-regressing on both corpora):
+    #   * b0 -> ANY result register (low-nibble 0xf; was only 0x0f/0x1f = result reg 0/1).
+    #     The result register lives in byte0 high-nibble (HW-confirmed), so real tex ops
+    #     writing reg>=2 (0x2f/0x4f/0x8f/..) were previously mis-lengthed -> desync.
+    #   * b1 += 0x07 (register-LOD sample form, own-MSL f_lodreg).
+    #   * b2 += 0x16 (FRAGMENT implicit-derivative sample class; compute uses 0x12, the
+    #     fragment stage adds bit2 -> 0x16). Fragment texture sampling is the single most
+    #     common texture op in real shaders and was entirely absent from the old gate.
+    # Tight tail (byte+4 hi-nibble 0x4 AND byte+5==0x80) is UNCHANGED -> still the proven-
+    # disjoint ~24-bit signature that never fires on an operand-word landing.
+    if ((b0 & 0x0f) == 0x0f and _b1 in (0x04, 0x05, 0x06, 0x07) and _b2 in (0x12, 0x16, 0x1a)
             and off + 5 < len(buf) and (buf[off + 4] & 0xf0) == 0x40
             and buf[off + 5] == 0x80):
-        return 6                       # m5_tex LEADER (EXP-M5-16 HW; operands follow as raw words)
+        return 6                       # m5_tex LEADER (EXP-M5-16/17 HW; operands follow as raw words)
     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
     # Fires only where baseline instr_length was None at a real boundary; the
     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).
@@ -6653,35 +6663,69 @@ DB = [
     {
         "mnemonic": "m5_tex",
         "length": 6,
-        # byte0 low-nibble 0xf + byte+2==0x12 (sample-class) + byte+4 hi-nibble 0x4 + byte+5==0x80.
+        # byte0 low-nibble 0xf + byte+2==0x12 (compute sample-class) + byte+4 hi-nibble 0x4 + byte+5==0x80.
         "match": [(0, 4, 15), (16, 8, 0x12), (36, 4, 0x4), (40, 8, 0x80)],
         "fields": [
-            {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},   # byte0 hi-nibble
+            {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},   # byte0 hi-nibble = dest GPR
             {"name": "op", "start": 8, "width": 8, "type": "opcode",         # byte+1 = op sub-class
-             "enum": {0x04: "sample", 0x05: "sample_compare", 0x06: "gather / lod_query"}},
-            {"name": "b3", "start": 24, "width": 8, "type": "mod"},           # byte+3 operand descriptor
-            {"name": "sampler_lo", "start": 32, "width": 4, "type": "mod"},   # byte+4 low-nibble (sampler-desc)
+             "enum": {0x04: "sample (explicit-LOD)", 0x05: "bias / sample_compare",
+                      0x06: "sample (implicit) / gather / lod_query", 0x07: "sample (register-LOD)"}},
+            {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},    # byte+3 = COORDINATE register (reg32<<1)
+            {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},  # byte+4 low-nibble (present/array/MSAA)
         ],
-        "semantics": "M5 (G17g) TEXTURE sample-class op LEADER (filtered sample / gather / "
-                     "lod-query / sample_compare). Form `<rr>f <op> 12 <b3> <4X> 80` (6-byte "
-                     "emittable leader). byte0 low-nibble 0xf, high-nibble = result register. "
-                     "byte+1 (op) = 0x04 sample, 0x05 sample_compare, 0x06 gather / "
-                     "calculate_clamped_lod. byte+2==0x12 = the filtered-sample op class. byte+4 "
-                     "high-nibble 0x4 + byte+5==0x80 = the SAMPLER/TEXTURE descriptor marker "
-                     "(0x40 base, 0x41/0x45/0x46 = sampler present / array / MSAA). The "
-                     "COORDINATE / LOD / gradient / offset operands FOLLOW as separate operand / "
-                     "pad words (kept RAW, rule 5): e.g. a constant-coord sample folds the "
-                     "coordinate + LOD immediates into the following words (own-MSL tex_sample is "
-                     "22 bytes total, tex_gather 14). The 6-byte leader is <= every observed real "
-                     "texture-op length (min 8), so it never over-reads; this is the M5 successor "
-                     "to the A18 tex_sample (0x5) leader, which no longer applies on M5.",
-        "provenance": "HW byte-diff (M5 EXP-M5-09 tex.metal own-MSL: tex_sample `0f 04 12 00 41 80`, "
-                     "tex_gather `0f 06 12 00 41 80`, tex_lodq `1f 06 12 01 41 80`, tex_scmp "
-                     "`1f 05 12 00 40 80`; tex_sample vs tex_lod differ only at the +12 LOD immediate) "
-                     "+ EXP-M5-16 real-corpus occurrences (own m4_13/m4_14 texture_sample/rt_tex + tp "
-                     "dawn/wgpu/SPIRV-Cross). Length 6 = the emittable leader; coord/LOD operands kept "
-                     "raw (rule 5). Census non-regressing (leader naming; tail tokenization unchanged). "
-                     "Own-MSL / own-corpus only; no Apple binary inspected.",
+        "semantics": "M5 (G17g) TEXTURE sample-class op (filtered sample / gather / lod-query / "
+                     "sample_compare / bias). EMITTABLE byte map (HW-VALIDATED EXP-M5-17 by agxrender "
+                     "fragment->pixel splice-and-observe; every field below flipped an observed pixel): "
+                     "off0 byte0 low-nibble 0xf = tex op, HIGH-nibble = RESULT register. "
+                     "off1 (op): 0x04 explicit-LOD sample, 0x05 bias/sample_compare, 0x06 implicit-LOD "
+                     "sample|gather|calculate_clamped_lod, 0x07 register-LOD sample. "
+                     "off2 (class): 0x12 compute sample, 0x16 fragment implicit-derivative sample, 0x1a image read. "
+                     "off3 = COORDINATE REGISTER (16-bit-half index = reg32<<1; adjacent float2 coords -> +0x04). "
+                     "**HW-CONFIRMED: splicing off3 0x00->0x04 switched the sampled texel (RED->BLUE).** "
+                     "off4 = texture/sampler descriptor-state word (single-texture form 0x41; low-nibble = "
+                     "sampler-present/array/MSAA; co-varies with the binding-table bank for dense slot>=2 -- "
+                     "partially raw). off5 bits[6:0] = SAMPLER slot index, bit7 = last-in-group/scoreboard flag "
+                     "(**HW-CONFIRMED: byte-diff samplers 0/1/2/3 -> 0x00/0x01/0x02/0x03; splice off5 0x00->0x01 "
+                     "switched sampler (BLUE->RED)**). off6 = TEXTURE slot selector (**HW-CONFIRMED: slot0=0x60, "
+                     "slot1=0x68 (+0x08 per dense binding slot); splice off6 0x60->0x68 switched which bound "
+                     "texture was read (RED->GREEN); an unbound slot faults**; slot>=2 also bumps the off4 bank). "
+                     "off7 = coordinate-producer scoreboard token (splice-proven INERT to the sampled value). "
+                     "off8..11 = 01 18 01 00 operand tail (off9 = 0x18 implicit-LOD / 0x00 explicit-LOD|bias). "
+                     "off12 = LOD/BIAS immediate = round(level*0x40) (Q?.6: level 0/1/2 -> 0x00/0x40/0x80) "
+                     "(**HW-CONFIRMED: splice off12 0x00->0x40 selected mip level 0->1 (RED->BLUE)**). "
+                     "off13..21 = 00 00 00 00 80 00 00 00 00 gradient/pad words. "
+                     "FULL LENGTH per variant (own-MSL, HW): fragment sample (implicit/explicit LOD/bias) = 22 B; "
+                     "gather = 14 B; compute const-coord sample = 22 B. The DB tokenizes only the 6-byte EMITTABLE "
+                     "LEADER (op-class + coord + descriptor markers); the coord/LOD/gradient operand words fall "
+                     "through as raw words (rule 5), which is <= every observed op length so it never over-reads.",
+        "provenance": "HW splice-and-observe (M5 EXP-M5-17, agxrender fragment->pixel): coord_reg (off3), "
+                     "tex_slot (off6), samp_slot (off5), LOD (off12) each independently CONFIRMED by an observed "
+                     "pixel delta on OUR OWN dual-sample MSL (rtex2.metal: select(sample_a,sample_b,opaque-false) "
+                     "keeps both ops live, byte-diff isolates the field, splice flips the read-back pixel). "
+                     "Slot scale from f_samp4/f_tex3 (4 samplers / 3 textures all live). Also EXP-M5-09/16 byte-diff. "
+                     "Census non-regressing on both corpora. Own-MSL / own-corpus only; no Apple binary inspected.",
+    },
+    {
+        "mnemonic": "m5_tex",
+        "length": 6,
+        # FRAGMENT sample class: identical to the compute form but byte+2==0x16 (adds derivative-LOD bit).
+        "match": [(0, 4, 15), (16, 8, 0x16), (36, 4, 0x4), (40, 8, 0x80)],
+        "fields": [
+            {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},
+            {"name": "op", "start": 8, "width": 8, "type": "opcode",
+             "enum": {0x04: "sample (explicit-LOD)", 0x05: "bias / sample_compare",
+                      0x06: "sample (implicit) / gather / lod_query", 0x07: "sample (register-LOD)"}},
+            {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},
+            {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},
+        ],
+        "semantics": "M5 (G17g) FRAGMENT-stage TEXTURE sample (byte+2==0x16 = compute 0x12 | derivative-LOD "
+                     "bit 0x04). Same emittable byte map as the m5_tex compute form (see the 0x12 descriptor): "
+                     "off3=coord reg, off5[6:0]=sampler slot, off6=texture slot, off12=LOD/bias imm -- all "
+                     "HW-VALIDATED EXP-M5-17. This is the most common texture op in real fragment shaders and "
+                     "was previously absent from the M5 leader gate (byte+2==0x16 not recognized).",
+        "provenance": "HW splice-and-observe (M5 EXP-M5-17 agxrender): own-MSL rtex.metal/rtex2.metal fragment "
+                     "samples emit `<rr>f <op> 16 <coord> <4X> 80 ...`; coord/tex/samp/LOD fields pixel-confirmed. "
+                     "Census non-regressing. Own-MSL / own-corpus only; no Apple binary inspected.",
     },
     {
         "mnemonic": "m5_tex_read",
@@ -6692,20 +6736,22 @@ DB = [
             {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},
             {"name": "op", "start": 8, "width": 8, "type": "opcode",
              "enum": {0x04: "read (MSAA / by-sample)", 0x06: "read (image load)"}},
-            {"name": "b3", "start": 24, "width": 8, "type": "mod"},
-            {"name": "sampler_lo", "start": 32, "width": 4, "type": "mod"},
+            {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},   # byte+3 = integer COORDINATE register
+            {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},
         ],
-        "semantics": "M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate) LEADER. "
-                     "Form `<rr>f <op> 1a <b3> <4X> 80` (6-byte emittable leader). Same family as "
-                     "m5_tex but byte+2==0x1a = the image-READ op class (no sampler filtering); "
-                     "byte+1 0x06 = texture.read, 0x04 = MSAA/by-sample read. byte+4 high-nibble 0x4 "
-                     "+ byte+5==0x80 = texture-descriptor marker (0x40 = no sampler). The integer "
-                     "coordinate follows as raw operand words (rule 5). own-MSL tex_read is 8 bytes "
-                     "total (`0f 06 1a 00 40 80 60 29`). Distinct M5 op from the A18 texture read.",
+        "semantics": "M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate). Form "
+                     "`<rr>f <op> 1a <coord> 40 80 60 <sb>` (8 bytes total; DB tokenizes the 6-byte "
+                     "leader, 2 operand bytes fall through raw). byte0 low-nibble 0xf, HIGH-nibble = "
+                     "RESULT register. byte+1 0x06 = texture.read, 0x04 = MSAA/by-sample read. "
+                     "byte+2==0x1a = image-READ class (no sampler). **off3 = integer COORDINATE register "
+                     "(HW-CONFIRMED EXP-M5-17: same coord-register field position as the sample form). "
+                     "off6 = TEXTURE slot selector (0x60=slot0, +0x08 per slot; HW-CONFIRMED).** byte+4==0x40 "
+                     "= no-sampler descriptor marker; byte+5==0x80 last/scoreboard. own-MSL tex_read is 8 "
+                     "bytes total (`0f 06 1a 00 40 80 60 29`).",
         "provenance": "HW byte-diff (M5 EXP-M5-09 tex.metal tex_read `0f 06 1a 00 40 80`) + EXP-M5-16 "
-                     "real-corpus (own m4_13/m4_14 read kernels, tp SPIRV-Cross/wgpu). All observed "
-                     "reads are 8 bytes; the 6-byte leader never over-reads. Own-MSL / own-corpus "
-                     "only; no Apple binary inspected.",
+                     "real-corpus + EXP-M5-17 own-MSL f_readsel (read(0,0) vs read(1,1) byte-diff isolates "
+                     "the coord field at off3). All observed reads are 8 bytes; the 6-byte leader never "
+                     "over-reads. Own-MSL / own-corpus only; no Apple binary inspected.",
     },
     {
         "mnemonic": "m5_store_texresult",

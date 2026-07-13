@@ -48,12 +48,13 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   immediate offset is **folded into a preceding `m5_alu` add** (no offset field — a negative vs A18), and the
   store/load **data register is implicit/positional**. `0x67`/`0xe7` (A18 device_load/store) **still occur on
   M5** alongside the split model; A18 atomics migrated to `m5_reduce`.
-- **INTEGRATED (EXP-M5-16, HW-validated):** **texture** sample/read leaders **identified/tokenizable** — `m5_tex`
-  (sample-class) / `m5_tex_read` gated on the sampler-descriptor marker (byte+4 hi-nibble 0x4 + byte+5==0x80),
-  length = the 6-byte leader, + `m5_store_texresult`; `tex_write` (`0xd7`) image-store **fully specified + survives
-  on M5**. ⚠ **The sample/read OPERANDS (coordinate register, texture-slot, sampler-slot, LOD/bias/grad) are NOT
-  yet mapped** (kept raw, rule 5) — so a texture *sample/read* is **not yet emittable**; being mapped in EXP-M5-17
-  (agxrender coord/slot splice). See `porting-guide-m5.md` §8. `tex_write` IS emittable.
+- **TEXTURE — EMITTABLE (EXP-M5-17, pixel-splice HW-validated):** `m5_tex` (0x12 compute-sample / 0x16 FRAGMENT
+  sample; byte+1 op 04/05/06/07 = explicit-LOD/bias|compare/implicit|gather/register-LOD) + `m5_tex_read` (0x1a) +
+  `m5_store_texresult`. **Operand byte map, each proven by an observed pixel delta:** coordinate register = **byte+3**
+  (reg32<<1), texture slot = **byte+6** (slot0=0x60, +0x08/slot), sampler slot = **byte+5[6:0]**, LOD/bias immediate
+  = **byte+12** (round(level·64)); result reg = byte0 hi-nibble; per-variant length sample 22B / gather 14B / read
+  8B. A driver can now emit a working sample/read. Still raw (rule 5): descriptor-bank nibble (byte+4) for dense
+  slot≥2, coordinate scoreboard (byte+7, proven inert), gradient/pad words. `tex_write` (`0xd7`) image-store also fully specified.
   **Divergent-address atomics** — `m5_atomic_div` (12B) / `m5_atomic_xchg` (10B), `0f 00 03 … c0` form,
   splice-confirmed (the A18 per-lane `0x67` path is gone). **`simdgroup_matrix` MAC** — `m5_matrix_mac`
   (`2f 00 05`, 14B leader/accumulate) + `m5_tile_ldst`; 8×8 operand packing raw (extension-gated).
