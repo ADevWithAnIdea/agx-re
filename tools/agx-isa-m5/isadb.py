@@ -1311,6 +1311,35 @@ def instr_length(buf, off=0, _closure=True):
     # Every gate is anchored by an isolated OWN-SHADER compile (S1 evidence table).
     _b1 = buf[off + 1] if off + 1 < len(buf) else -1
     _b2 = buf[off + 2] if off + 2 < len(buf) else -1
+    # ---- EXP-M5-07 (HW-VALIDATED splice): M5 MEMORY-ACCESS FAMILY --------------
+    # Placed BEFORE the R9 trailing-word closure so the computed-index load `18 02 10 ..`
+    # is not mistaken for a 2-byte operand word. The M5 (G17g) memory model SPLITS the
+    # A18 monolithic 14-byte device_load(0x67) into a 4-byte ADDRESS-GENERATION op + a
+    # LOAD/STORE data op. All HW-splice-validated on M5 (EXP-M5-07 own-MSL: ld_scalar/
+    # ld_2sum/ld_buf3/st_gid/st_imm/ld_vec2..4).
+    # (a) ADDR-GEN `<dreg_hi>f <slot<<2> 03 <idxmode>` (4B). byte+2==0x03 SEPARATES it
+    #     from the jump (byte+2==0x54); any high nibble (0f/2f/3f/4f/5f/af..). byte+1 =
+    #     buffer base slot <<2 (PROVEN: ld_2sum load#2 byte+1 0x04->0x00 reads buf0 not
+    #     buf1; ld_buf3 a/b/c/out=0x00/04/08/0c). byte+3 = index/access mode (0x02
+    #     scalar-indexed PROVEN, 0x00 const-index-0 PROVEN, 0x04/06/08 vec2/3/4).
+    if lo == 0x0f and _b2 == 0x03:
+        return 4                       # m5_addr_gen (EXP-M5-07 HW)
+    # (b) LOAD byte0 0x18/0x38/0x58/0x78 = 1/2/3/4-component (n-1 in bits[5:6]). byte+1
+    #     in {0x22 gid-direct, 0x2a vec, 0x02 computed-index}. byte+2==0x10 load-bearing
+    #     enable (PROVEN 0x10->0x00 zeroes result). byte+3 = element-size/address-stride
+    #     (PROVEN 0xc0->4B a[i], 0x80->16B a[4i], 0xa0->1B a[i/4]). Terminal form 10B;
+    #     compact non-terminal (result feeds ALU) 4B with byte+3==0x40.
+    if (b0 in (0x18, 0x38, 0x58, 0x78) and _b2 == 0x10
+            and _b1 in (0x02, 0x0a, 0x22, 0x2a)):
+        return 4 if (off + 3 < len(buf) and buf[off + 3] == 0x40) else 10  # m5_load
+    # (c) STORE byte0 0x01/0x21/0x41/0x61 = 1/2/3/4-component. byte+1 = data-source/index
+    #     descriptor (0x22 gid-reg, 0x26 imm, 0x06 alu-result, 0x0e vector) load-bearing
+    #     (PROVEN). byte+3 = store format (PROVEN load-bearing). Scalar-direct 4B
+    #     (byte+3==0x40); load-forwarded/vector stores carry a `00 20` data tail -> 6B.
+    if (b0 in (0x01, 0x21, 0x41, 0x61) and _b1 in (0x06, 0x22, 0x26, 0x0e)
+            and _b2 in (0x00, 0x10)
+            and off + 3 < len(buf) and buf[off + 3] in (0x40, 0x80, 0xc0, 0xe0)):
+        return 4 if buf[off + 3] == 0x40 else 6  # m5_store (EXP-M5-07 HW)
     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
     # Fires only where baseline instr_length was None at a real boundary; the
     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).
@@ -3294,7 +3323,8 @@ DB = [
     {
         "mnemonic": "mask_op",
         "length": 4,
-        "match": [(0, 8, 15), (8, 8, 4)],
+        "match": [(0, 8, 15), (8, 8, 4), (24, 8, 25)],  # EXP-M5-07: +byte+3==0x19 so the
+        # M5 store addr-gen `0f 04 03 02` (byte+3==0x02) is NOT captured here (-> m5_addr_gen).
         "fields": [
             {"name": "mask_bank", "start": 16, "width": 8, "type": "enum", "enum": {4: 'mask_bankA', 36: 'mask_bankB'}},
             {"name": "scope_kind", "start": 24, "width": 8, "type": "mod"},
@@ -6181,6 +6211,125 @@ DB = [
         ],
         "semantics": "NOT A STANDALONE HARDWARE OPCODE. Least-specific 2-byte trailing operand / immediate / SFU-coefficient / inter-op PAD WORD fallback. Reached only after every real 2-byte op (higher match specificity) fails to match, so real ops always win. b0 (byte0) and b1 (byte+1) are raw data bytes typed imm (ROLE is a data word; per-bit value NOT decoded, clean-room rule 5). Consolidates 419 of R9's per-signature operand_word_* descriptors.",
         "provenance": "census EXP-M4-13 R10 (own-MSL + permissive-thirdparty, n=7519 files): R9's 423 per-signature operand_word_XX_YY / operand_word_XX descriptors CONSOLIDATED. NEGATIVE RESULT preserved: these (b0,b1) are never instruction LEADERS, only trailing operand / immediate / SFU-coefficient / inter-op PAD words (length closed to 2 by the UNCHANGED _R9_SIGS/_R9_TRIPLES rules). Predecessor analysis (full corpus): NO preceding op is ALWAYS followed by the word (max 0.52 for vtx_coord_xform), so these are standalone inter-op words -> option (b) single fallback, NOT tail-absorption. NOT HW-dispatch validated.",
+    },
+    # ======================================================================
+    # EXP-M5-07: M5 (Apple10 / G17g) MEMORY-ACCESS FAMILY (HW-VALIDATED splice)
+    # The A18 monolithic 14-byte device_load(0x67)/device_store(0xe7) is REPLACED on
+    # the M5 by a SPLIT model: a 4-byte ADDRESS-GENERATION op + a LOAD/STORE data op.
+    # ======================================================================
+    {
+        "mnemonic": "m5_addr_gen",
+        "length": 4,
+        "match": [(0, 4, 15), (16, 8, 3)],   # byte0 low-nibble 0xf + byte+2 == 0x03
+        "fields": [
+            {"name": "addr_reg", "start": 4, "width": 4, "type": "reg"},   # byte0 hi nibble = dest address reg
+            {"name": "base_slot", "start": 8, "width": 8, "type": "imm"},   # byte+1 = buffer slot << 2
+            {"name": "idx_mode", "start": 24, "width": 8, "type": "enum",
+             "enum": {2: "scalar thread-indexed", 0: "const index 0 (no index)",
+                      4: "vec2 indexed", 6: "vec3 indexed", 8: "vec4 indexed", 24: "store data-forward"}},
+        ],
+        "semantics": "M5 memory ADDRESS-GENERATION op: computes the effective address of "
+                     "buffer[base_slot] at the thread/const index into a register the following "
+                     "m5_load/m5_store dereferences. byte0 low-nibble 0xf; byte+2==0x03 is the "
+                     "family signature (separates it from the jump, byte+2==0x54). byte0 HIGH "
+                     "nibble = destination address register. byte+1 = BUFFER BASE SLOT << 2 "
+                     "(slot 0=0x00, 1=0x04, 2=0x08, 3=0x0c). byte+3 = index/access mode. Precedes "
+                     "EVERY M5 load(0x18/38/58/78) and store(0x01/21/41/61).",
+        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07): base_slot PROVEN by ld_2sum -- "
+                      "splicing load#2's addr-gen byte+1 0x04->0x00 makes it read buffer a "
+                      "(out=2*a) instead of b, and load#1 0x00->0x04 makes it read b (out=2*b); "
+                      "ld_buf3 a/b/c/out compile to byte+1=0x00/04/08/0c (slot<<2). idx_mode "
+                      "PROVEN by ld_2sum load#2 byte+3 0x02->0x00 -> reads b[0] for all threads "
+                      "(index disabled). The op is load-bearing: zeroing byte0 (0x0f->0x00) or "
+                      "byte+1 -> all-zero output. byte0-hi=addr reg PROVEN (2f<->0f on load#2 "
+                      "misroutes the load result -> b contributes 0). Own-MSL only; no Apple binary.",
+    },
+    {
+        "mnemonic": "m5_load",
+        "length": 10,
+        "match": [(0, 5, 24), (16, 8, 16)],   # byte0 low-5-bits==0x18 + byte+2==0x10
+        "fields": [
+            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},   # byte0 bits[5:6] = component count - 1
+            {"name": "amode", "start": 8, "width": 8, "type": "enum",
+             "enum": {0x22: "scalar gid-direct", 0x2a: "vector", 0x02: "computed-index"}},
+            {"name": "elem_size", "start": 24, "width": 8, "type": "enum",
+             "enum": {0xc0: "4-byte / 32-bit stride", 0x80: "16-byte / 128-bit stride",
+                      0xa0: "1-byte / 8-bit stride", 0xe0: "vec2 32-bit"}},
+            {"name": "fmt_desc", "start": 32, "width": 8, "type": "mod"},   # byte+4 load-bearing format/dest descriptor
+        ],
+        "semantics": "M5 device LOAD (terminal 10-byte form). byte0 = 0x18 | ((ncomp-1)<<5): "
+                     "0x18/0x38/0x58/0x78 = 1/2/3/4-component load. byte+1 (amode) selects the "
+                     "index source. byte+2==0x10 is a load-bearing enable. byte+3 (elem_size) sets "
+                     "the ADDRESS STRIDE / element size (HW: 0xc0=4B->a[i], 0x80=16B->a[4i], "
+                     "0xa0=1B->a[i/4]). byte+4 is a load-bearing format/dest descriptor. byte+5..+9 "
+                     "are inert padding in this form. The buffer base + index come from the "
+                     "preceding m5_addr_gen; there is NO base_slot in this op. Not a texture "
+                     "sample (the census 0x78/0x58 'typed/sample' guess is superseded: they are "
+                     "the vec4/vec3 LOAD leaders).",
+        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07, ld_scalar/ld_2sum): elem_size stride "
+                      "PROVEN -- splicing byte+3 0xc0->0x80 turns a[i] into a[4i] (16B stride), "
+                      "0xc0->0xa0 into a[i/4] (1B stride), reproduced on the 2nd load of ld_2sum. "
+                      "byte+2==0x10 load-bearing (0x10->0x00 -> all-zero). byte+4 load-bearing "
+                      "(0x41->0x45 -> all-zero). byte+5/+6/+7 inert (splice no-op). ncomp leader "
+                      "map from ld_scalar/ld_vec2/ld_vec3/ld_vec4 compiles (0x18/38/58/78). "
+                      "Own-MSL only; no Apple binary inspected.",
+    },
+    {
+        "mnemonic": "m5_load_compact",
+        "length": 4,
+        "match": [(0, 5, 24), (16, 8, 16), (24, 8, 0x40)],  # + byte+3==0x40 (non-terminal)
+        "fields": [
+            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},
+            {"name": "amode", "start": 8, "width": 8, "type": "mod"},
+        ],
+        "semantics": "M5 device LOAD, compact 4-byte NON-TERMINAL form (byte+3==0x40): the load "
+                     "result feeds directly into a following ALU op rather than a store. Same "
+                     "byte0 component encoding as m5_load. Emitted e.g. for a[gid] in "
+                     "out=a[gid]+b[gid] (ld_2sum load#1).",
+        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07): appears as the 4-byte `18 22 10 40` "
+                      "load#1 in ld_2sum; the base/index come from its m5_addr_gen (byte+1 swap "
+                      "redirects the buffer, PROVEN). Own-MSL only.",
+    },
+    {
+        "mnemonic": "m5_store",
+        "length": 4,
+        "match": [(0, 5, 1), (24, 8, 0x40)],   # byte0 low-5-bits==0x01 + byte+3==0x40 (scalar-direct)
+        "fields": [
+            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},
+            {"name": "dsrc", "start": 8, "width": 8, "type": "enum",
+             "enum": {0x22: "gid/register-indexed", 0x26: "immediate source", 0x06: "ALU-result source"}},
+            {"name": "st_fmt", "start": 24, "width": 8, "type": "mod"},   # byte+3 load-bearing store format
+        ],
+        "semantics": "M5 device STORE, scalar-direct 4-byte form (byte+3==0x40). byte0 = 0x01 | "
+                     "((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store. byte+1 (dsrc) "
+                     "= the data-source/index descriptor (load-bearing). byte+3 = store format "
+                     "(load-bearing). The store DATA register is implicit (supplied by dsrc / the "
+                     "preceding op), matching the A18 device_store finding. Address comes from the "
+                     "preceding m5_addr_gen. LOAD vs STORE is NOT a direction bit: 0x18 load and "
+                     "0x01 store are distinct opcodes.",
+        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07, st_gid/st_imm): st_gid writes out[gid]=gid; "
+                      "splicing byte+1 0x22->0x00 -> all-zero (dsrc load-bearing), byte+3 0x40->0xc0 "
+                      "-> all-zero (format load-bearing), byte+2 0x00->0x10 inert. st_imm proves the "
+                      "companion `04 <imm>` immediate-move (byte+1 0x2a->0x37 changes the stored "
+                      "constant 42->55). Own-MSL only; no Apple binary inspected.",
+    },
+    {
+        "mnemonic": "m5_store_ext",
+        "length": 6,
+        "match": [(0, 5, 1)],   # byte0 low-5-bits==0x01, load-forwarded/vector store (byte+3 != 0x40)
+        "fields": [
+            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},
+            {"name": "dsrc", "start": 8, "width": 8, "type": "mod"},
+            {"name": "st_fmt", "start": 24, "width": 8, "type": "mod"},
+        ],
+        "semantics": "M5 device STORE, 6-byte load-forwarded / vector form: carries a trailing "
+                     "`00 20` store-data-format word (byte+3 in {0xc0 load-forward, 0x80/0xe0 "
+                     "vector}). Emitted when the stored value is forwarded straight from a "
+                     "preceding m5_load (out=a[gid]) or is a multi-component vector "
+                     "(ld_vec2/3/4 stores 0x21/0x41/0x61).",
+        "provenance": "HW-VALIDATED length + role (splice, M5 EXP-M5-07): ld_scalar store `01 06 10 "
+                      "c0 00 20`, ld_vec2 `21 0e 10 e0 00 20`, ld_vec3 `41 0e 10 80 00 20`, ld_vec4 "
+                      "`61 0e 10 80 00 20` -- all 6B + `0e` stop. Round-trips clean. Own-MSL only.",
     },
 ]
 

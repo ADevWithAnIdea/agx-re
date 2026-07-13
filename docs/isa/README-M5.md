@@ -21,8 +21,15 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
 - **The `0xNe` byte0 column** (`0x3e/0x5e/0x7e/0x9e/0xbe/0xde/0xfe/0xae`) — a generational format change;
   re-lengthed/added on G17g.
 - **`0xb7`** — a leader the A18 DB never resolves; new/relocated on G17g.
-- Memory (`0x18` load, `0x41`/`0xc1` store), typed/sample (`0x78/0x58/0x50`), call (`0xef/0xff`) — length
-  resolved; **per-field semantics are HW-splice-validated in the EXP-M5-07 wave** (in progress).
+- **Memory access is SPLIT on M5** (HW-splice-validated, EXP-M5-07): A18's monolithic 14-byte
+  `device_load`(0x67)/`device_store`(0xe7) becomes **three ops** — an ADDRESS-GEN op (`?f <slot<<2> 03
+  <idxmode>`, 4B), a LOAD (`0x18/0x38/0x58/0x78` = 1/2/3/4-component, 10B/4B), and a STORE (`0x01/0x21/0x41/
+  0x61` = 1/2/3/4-component, 4B/6B). base-slot / index-mode / element-size / store-format fields are all
+  splice-proven; LOAD-vs-STORE is distinct opcodes, not a direction bit. (This corrected the census guesses:
+  the "0x41 store" was a load *tail*, "0x78 typed" was vec4 *load*.) See EXP-M5-07 for the field maps.
+- **Open (splice-TODO):** `0xNe` op-select map; `0xb7` (unprovoked so far); call ABI `0xef/0xff` (needs
+  visible_function_table); matrix `0xcf` + Apple10 tensor/neural path; RT/mesh field maps. Ops inherited
+  unchanged from the A18 carry A18 semantics (spot-checked on M5).
 
 ## Status & provenance
 - **Tokenization (leader+length):** DONE — 96.6%/98.0% byte coverage, round-trip green, 0 hangs (EXP-M5-05).

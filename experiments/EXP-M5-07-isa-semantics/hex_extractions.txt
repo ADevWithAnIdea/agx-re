@@ -1,0 +1,36 @@
+# EXP-M5-07 raw _agc.main hex from our own compiled MSL (M5 / Apple10 / G17g)
+# shdump -f k <src>.metal ; agxparse.py --extract-hex. Byte offsets referenced in report.md.
+
+ld_scalar (out[gid]=a[gid], uint):
+  1ca01006 0f000302 182210c04100800000 00 0f040302 010610c000200e000000
+  get_sr | addr-gen(slot0,idx) | LOAD 18 22 10 c0 41 00 80 00 00 00 | addr-gen(slot1) | STORE 01 06 10 c0 00 20 | stop
+
+ld_buf2 (out[gid]=b[gid]): IDENTICAL to ld_scalar (base bound via preloaded uniform, a optimized out)
+
+ld_off (out[gid]=a[gid+5]): ...0f000300 18 02 10 c0 41 00 80 00 00 00 ...  (byte+1=0x02 computed-index; gid+5 precomputed by a 27-op)
+ld_half  (half):  ...18 22 10 80 c1 00 80 00 00 00...   store 01 06 10 80 80 20
+ld_uchar (uchar): ...18 22 10 a0 41 04 80 00 00 00...   store 01 06 10 a0 00 24
+ld_int   (int):   IDENTICAL to ld_scalar
+ld_vec2  (uint2): addr-gen 0f000304 | LOAD 38 2a 10 e0 41 00 80 00 00 00 | STORE 21 0e 10 e0 00 20
+ld_vec3  (uint3): addr-gen 0f000306 | LOAD 58 2a 10 80 41 00 80 00 00 00 | STORE 41 0e 10 80 00 20
+ld_vec4  (uint4): addr-gen 0f000308 | LOAD 78 2a 10 80 41 00 80 00 00 00 | STORE 61 0e 10 80 00 20
+
+ld_2sum (out[gid]=a[gid]+b[gid]):
+  1ca01006 0f000302 18221040 2f040302 180210c04100800000 00 2f00043a2100a30228802100 0f080302 010610400e000000
+  addr-gen(slot0=a) | LOAD_c4 a | addr-gen(slot1=b) | LOAD b | iadd | addr-gen(slot2=out) | STORE
+
+ld_buf3 (a+b+c): addr-gens byte+1 = 0x00(a) 0x04(b) 0x08(c) 0x0c(out) = slot<<2
+
+st_imm (out[gid]=42):   1ca01006 042a 0f000302 01 26 10 40 0e000000   (04 2a = imm-move 42)
+st_gid (out[gid]=gid):  0ca01006 0f000300 01 22 00 40 0e000000
+st_vec2 (out[gid]=uint2(gid,gid+100)): ...0f000300 21 0a 00 60 0e000000
+
+callfn (out[gid]=helper(a,gid)=a*3+7, noinline INLINED):
+  cca01006 ab000108 bb020108 43000001 9e60000e 7e3ff33e 1f00ffc7ff7f be03400e af040318 010610400e000000
+  (43 00 00 01 = call/frame marker, INERT here; 9e../be../7e.. = 0xNe compact ALU/move ops)
+
+quad_max  (out=quad_max(a[gid])):  ...load... 2f00000a2780a70200 02 ...store...   (byte0 0x2f, NOT 0xb7)
+simd_sum  (out=simd_sum(a[gid])):  ...load... 2f00040a2780a30200 02 ...store...
+quad_sh   (quad_shuffle_xor):      ...load... 2f00211a2000a10278 00 ...store...
+iarith (a*3+7):  ...load... 2f00041a2900a30228802400 2703043a2500a302208021 00 ...store...  (12B imad + 12B iadd, standard)
+fmul2  (a*2+1 f32): ...load... 2900070a2020a3023090580030060080 ...store...  (16B ffma, standard)
