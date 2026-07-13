@@ -98,8 +98,18 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 ## 🎉 GOAL COMPLETE — all three acceptance gates PASS (OBJ-1 driver-from-docs · OBJ-2 capability coverage · OBJ-3 not-hallucinated).
 The M5 (Apple10/G17g) userspace is clean-room-documented end-to-end: 189-descriptor round-trip-green ISA at
 97.4%/98.4% corpus coverage, full cmdstream/descriptor/tiling/TBDR deltas off the A18, 175-row capability census,
-per-Mesa-module porting guide — all HW-measured on the device, no Apple binary introspected. Residual items are
-documented-open extension features (call ABI, RT AS-load, coop-matrix operand packing) a driver can gate.
+per-Mesa-module porting guide — all HW-measured on the device, no Apple binary introspected.
+
+### Post-goal: documented-open items closed (EXP-M5-18…23) — DB 189→194
+The "extension-gateable" tail is now closed too: **call ABI** mappable (EXP-M5-18, linked-pipeline tooling —
+direct+indirect calls round-trip); **RT AS-load** = general argument + split-memory loads, no dedicated op
+(EXP-M5-19); **cooperative-matrix** operands emittable + tile length rule + a latent negate-A·B capability
+(EXP-M5-20); **GPR file re-measured = 126** (vs A18 96, EXP-M5-21 — a 3rd structural delta); **texture
+binding-slot** = preamble `0xa0+index`, typed fields, 18B image-store, `24 80 03`=const-move correction
+(EXP-M5-22); **rate-map / mesh-amplification+ICB / USC>2** resolved, intra-tile Morton characterized-blocked
+(raw twiddled backing not CPU-observable on M5) with the allocation model byte-confirmed (EXP-M5-23). Remaining
+raw sub-fields (matrix-MAC A/B sub-bit split, dense-direct texture byte+4, image-store data packing, in-loop RT
+BVH-node loads) are honest rule-5 items a driver doesn't need to *emit* the feature.
 
 ---
 
