@@ -15,7 +15,10 @@ selector 9 (in@0x38 CPU base, in@0x48 size, out@0x00 GPU VA) unchanged.
 - **DELTA — config word `+0x00`:** the A18 always-set **bit19 base (`0x00080000`) is GONE** on M5.
   The word is `0x00000000` (clear) / **`0x00800000`** (set) — **bit23 = the same 2-tier occupancy/register
   class** as A18 (driver sets it from its register allocator's peak-GPR occupancy decision, not a `≥N` test).
-- Constant undecoded words: `+0x04=0x1`, `+0x0c=0x40000001`, `+0x28=0x60000160` ⏳.
+- **Config constants RESOLVED (EXP-M5-13):** `+0x04=0x01000000`, `+0x0c=0x40000001`, `+0x28=0x60000160`
+  are **invariant** across grid (64…1024), threadgroup (1…256), threadgroup-memory (0/256/16384 B) and
+  occupancy (`--heavy` flips only `+0x00` bit23) — structural template constants, **not parametric** on
+  any dispatch axis. (Earlier `+0x04=0x1` was an LE misread; measured value is `0x01000000`.)
 
 ## Threadgroup-memory size — MOVED to shader BO `…90000+0x38`
 A18 used `(tgmem<<2)|0x80` at shader-BO **+0x40**; on M5 +0x40 keeps only a 1-bit has-tgmem flag
@@ -57,7 +60,7 @@ per face; M5 puts both depths then both stencils). All HW-validated by change-on
 | **stencil FRONT** word | `+0x3c` | **`+0x178`** | wmask[7:0] · rmask[15:8] · **pass[18:16]·zfail[21:19]·sfail[24:22]·compare[27:25]** |
 | **stencil BACK** word | `+0x44` | **`+0x17c`** | same layout (back independent of front — HW-validated) |
 | **rasterizer** word | `+0x70` | **`+0x1a8`** | **cull[1:0]** none/front/back · **winding bit16** CW/CCW · **depth-clip/clamp[11:10]** |
-| color write-mask / store class | `+0x5c` / `+0x50` | `+0x194` / `+0x128` | full mask `0xf` = no diff; partial engages the FS store epilog (FS-covariant; per-channel packing partial ⏳) |
+| color write-mask / store class | `+0x5c` / `+0x50` | `+0x194` / `+0x128` | **RESOLVED (EXP-M5-13):** `+0x194` bits[3:0] = write mask, **STRAIGHT order R=bit0·G=bit1·B=bit2·A=bit3** (**REVERSE of A18**, which was bit-reversed R→bit3…A→bit0). HW-validated all 16 subsets. Bits[16:4]=`0x1fff` engage as a block iff the **alpha** channel is written (FS store-epilog); store-class enum `+0x128` co-varies (`0x4c0` alpha-stored / `0x480` not). |
 | **blend-const-color needed** | `+0x10` bit6 | **`+0x130` bit6** | identical `0x40` bit; set by blendColor factors |
 | blend/store program-class | `+0x08` | `+0x188` | FS-lowering-covariant enum |
 | **occlusion mode** | `+0x8c` bit14 | **`+0x1c4` bit14** | Boolean=1 / Counting=0 |
@@ -97,10 +100,50 @@ segments LOAD(+0)/RENDER(+0x300)/STORE(+0x600)**, format word at **seg+0x20**, *
   opcode/domain word `+0x8c`, **half-float factor-buffer pointer `+0x98`/`+0x9c`**). Half-float tessellation
   factor buffer as A18.
 
+## Vertex-output-select (PPP) word — MOVED to `0x58000+0x158` (A18 +0x20), bits identical (EXP-M5-13)
+Which VS system outputs are live. **Bit positions bit-identical to A18** (measured absolute LE values,
+own MSL emitting each output; HW-validated STATUS=4):
+
+| bit | output | evidence |
+|---|---|---|
+| bits[7:0] | clip-distance plane mask `(1<<N)-1` | N=1→`0x01` … N=8→`0xff` |
+| bit18 | `point_size` | `+0x158`=`0x00040000` |
+| bit19 | `viewport_array_index` | `+0x158`=`0x00080000` |
+| **bit20** | `render_target_array_index` (**layer**) | `+0x158`=`0x00180000` (co-sets bit19); **NEW — A18 never measured** |
+
+- **Layered-rendering enable = VDM `0x18000+0x20` bit6** (set by `[[render_target_array_index]]`; base
+  `0x01000000`→`0x01000040`). **Unblocks OBJ-2 layered rendering.**
+- **UVS scalar-output count** relocated **`0x58000+0x2c` (A18) → `0x58000+0x164` (M5)** = `4 + #scalar
+  outputs` (position=4; +1 per point_size / vp-index / layer / clip-plane), mirrored at VDM `0x18000+0x28`.
+
+## USC graphics bind grammar — same as A18, relocated (EXP-M5-13)
+Fragment argument buffer **`0x10000248000` (A18) → `0x10000250000` (M5)`; grammar byte-identical to
+A18/RT-2a. Header of 8-byte LE GPU VAs (high32 = `0x00000100`):
+
+    +0x600  texture-array ptr      (-> first 0x20-byte texture descriptor)
+    +0x608  sampler-array ptr      (= tex_ptr + num_textures*0x20)
+    +0x610  buffer[0] VA           (each extra bound buffer adds an 8-byte slot: buffer[1]@+0x618)
+    ...     0x20-byte texture descriptors, then 0x20-STRIDE sampler descriptors, then 0x60000000 term
+    num_textures = (samp_ptr - tex_ptr)/0x20 ; num_samplers = (terminator - samp_ptr)/0x20
+
+HW-clean over tex1/2/3 × samp1/2/3 × buf1/2. Uniform-preamble USC program relocated **`0x10000130000`
+→ `0x10000138000`** (adding a resource rewrites the `0x67`-load program body; per-stage headers as A18).
+The VS→FS varying-linkage *opcodes* are inherited from the M5 ISA work; only the count field (`+0x164`)
+was re-measured here (a dedicated user-varying-reorder render was not re-run — minor residual).
+
+## Mesh grid-dispatch record — RESOLVED (EXP-M5-13)
+The EXP-M5-10 "abort" was a **harness bug** (it called the *tile* method
+`newRenderPipelineStateWithDescriptor:options:reflection:` with a MESH descriptor; correct call =
+`newRenderPipelineStateWithMeshDescriptor:options:reflection:`). Mesh renders correctly on M5 (STATUS=4).
+- **Single unified graphics submit** — **no CDM launch BO** (`0x100000b0000` absent), as A18.
+- **Mesh-grid-dispatch record** in tiler stream `0x18000`: opcode **`0x70000600`** (**UNSHIFTED** — same
+  as A18, *not* +0x0800 like the draw opcodes), then **6 grid-dimension words** (object-grid + mesh-grid),
+  then `0xc0000000` terminator — replacing the plain draw's `0x69c4` primitive record. Header length word
+  `0x18000+0x18` grows (`0x4000002e`→`0x40000d2c`) for the larger object+mesh state block.
+- UVB intermediate in tiler-heap **`0x10000018000`**; **no separate `0x100000f8000` BO on M5** (A18 had
+  one) — the minimal mesh carries grid dims inline. (Payload-heavy / vertex-amplification meshes not probed.)
+
 ## Open (next cmdstream experiments)
-- **Mesh grid-dispatch record** (A18 `0x70000600`): the M5 mesh **pipeline-create** aborted in AGXMetalG17G
-  on our object+mesh MSL (harness/descriptor setup bug, **not** a HW fault — device recovered; tess ran after).
-  Re-probe with a corrected mesh pipeline. (Presence confirmed on M5 elsewhere; only the cmdstream record is open.)
-- USC **graphics** 2-pointer-header bind grammar (EXP-G1a analog) not re-derived on M5 (Tier-2 arg-buffer table
-  `+0x14a0` is byte-identical, EXP-M5-06); FF `0x58000` write-mask per-channel packing (`+0x194`) partial;
-  CDM `+0x04/+0x0c/+0x28` constants; sel-2 device-info struct; vertex-amplification / ICB records.
+- User-varying reorder HW-proof (A18 EXP-G1a analog) not re-run on M5; vertex-amplification and
+  payload-heavy mesh records; `0x100000f8000`'s M5 role for complex meshes; the USC `+0x610`
+  buffer-slot's inline-vs-indirect form beyond 2 buffers; sel-2 device-info struct.

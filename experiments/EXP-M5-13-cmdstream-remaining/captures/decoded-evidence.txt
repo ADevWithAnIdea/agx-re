@@ -1,0 +1,93 @@
+EXP-M5-13 — decoded absolute-byte evidence (change-one-Metal-parameter BO diffs)
+Device: Apple M5 (T8142, macOS 27.0, 8 GPU cores, AGXAcceleratorG17G).
+Method: own-process iotrace DATA-TRACE; values are LITTLE-ENDIAN u32 at the given BO offset.
+All 41 probes STATUS=4, zero GPU faults. Raw word-diffs in diffs.txt.
+
+=====================================================================
+TASK 2 — PPP vertex-output-select word  (FF pool 0x58000)
+=====================================================================
+0x58000+0x158 (LE u32), by emitted VS system output:
+  base (position only)          0x00000000
+  [[point_size]]                0x00040000   -> bit18
+  [[viewport_array_index]]      0x00080000   -> bit19
+  [[render_target_array_index]] 0x00180000   -> bit20 (+co-sets bit19)
+  [[clip_distance]][1]          0x00000001   clip mask bits[7:0] = (1<<N)-1
+  [[clip_distance]][4]          0x0000000f
+  [[clip_distance]][8]          0x000000ff
+  => bits[7:0]=clip-plane mask, bit18=point_size, bit19=viewport_array_index,
+     bit20=render_target_array_index (layer). BIT-IDENTICAL to A18 (+0x20),
+     relocated to +0x158; bit20/layer is NEW (never measured on A18).
+
+0x58000+0x164 (UVS scalar-output count = 4 + #extra scalar outputs):
+  base 4 | psize 5 | vpidx 5 | rtidx 5 | clip4 8 | clip8 12(0x0c)
+
+VDM tiler stream 0x18000+0x20 (layered-rendering enable):
+  base  0x01000000
+  rtidx 0x01000040   -> bit6 set == render_target_array_index / layered rendering
+VDM 0x18000+0x28 mirrors the UVS count (bytes 2&3 = 4+extras); +0x64 flags viewport-index active.
+
+=====================================================================
+TASK 5 — Color write-mask packing  (FF pool 0x58000+0x194)
+=====================================================================
+MTLColorWriteMask bit meaning: R=0x8 G=0x4 B=0x2 A=0x1.
+0x58000+0x194 (LE u32) per --wmask:
+  wm15 RGBA 0x0001ffff | wm8 R 0x00000001 | wm4 G 0x00000002 | wm2 B 0x00000004
+  wm14 RGB  0x00000007 | wm12 RG 0x00000003 | wm10 RB 0x00000005
+  wm1  A    0x0001fff8 | wm3 BA 0x0001fffc | wm0 none 0x00000000
+  => bits[3:0] = write mask, STRAIGHT order R=bit0 G=bit1 B=bit2 A=bit3
+     (A18 +0x5c was bit-REVERSED R->bit3..A->bit0 — genuine M5 delta).
+     bits[16:4]=0x1fff engage as a block iff the ALPHA channel is written
+     (FS store-epilog alpha block; store-class enum co-varies at +0x128:
+      0x4c0 when alpha stored / 0x480 when not).
+
+=====================================================================
+TASK 4 — CDM config constants  (compute launch record 0x100000b0000)
+=====================================================================
+Base record +0x00..+0x28 (LE u32):
+  +0x00 0x00000000 (config; bit23 -> occupancy tier: set 0x00800000 for --heavy)
+  +0x04 0x01000000 (CONSTANT)
+  +0x08 0x00002400 (shaderVA>>6)
+  +0x0c 0x40000001 (CONSTANT)
+  +0x10/14/18 grid x/y/z in threads (64/1/1)
+  +0x1c/20/24 threadgroup x/y/z (32/1/1)
+  +0x28 0x60000160 (CONSTANT)
+Invariance test: +0x04/+0x0c/+0x28 UNCHANGED across grid(64..1024), tg(1..256),
+tgmem(0/256/16384), and occupancy(--heavy flips +0x00 bit23 only). => structural
+template constants, NOT parametric on any dispatch axis. (Doc previously said
+"+0x04=0x1"; measured LE value is 0x01000000.)
+
+=====================================================================
+TASK 1 — USC graphics bind grammar  (fragment argument buffer 0x10000250000)
+=====================================================================
+Header + descriptor array (LE; VA high32 = 0x00000100):
+  +0x600  tex-array   ptr = 0x100250620  (-> +0x620)
+  +0x608  samp-array  ptr = 0x100250640 (t1) / 0x100250660 (t2) / 0x100250680 (t3)
+  +0x610  buffer[0]   VA/table ptr = 0x10001cd00  (buffer[1] -> +0x618 on 2-buf draw)
+  +0x620.. 0x20-byte texture descriptors (word0 e.g. 0xf6880a22)
+  then 0x20-STRIDE sampler descriptors (8B content 0x000f0000 0x00000780)
+  then 0x60000000 terminator
+  num_textures = (samp_ptr - tex_ptr)/0x20   [t1=1 t2=2 t3=3 confirmed]
+  num_samplers = (terminator - samp_ptr)/0x20
+  => byte-grammar identical to A18 (RT-2a), relocated 0x10000248000 -> 0x10000250000.
+Uniform preamble program relocated 0x10000130000 -> 0x10000138000 (adding a buffer
+  rewrites 37-66 program-body words = the 0x67-load preamble; per-stage headers).
+
+=====================================================================
+TASK 3 — Mesh grid-dispatch record  (tiler stream 0x18000)
+=====================================================================
+mesh_on: STATUS=4, center pixel bgra=00ff00ff (green triangle rendered).
+No CDM BO (0x100000b0000) registered => single unified graphics submit (as A18).
+Tiler stream 0x18000 record tail:
+  +0xa8 0x70000600   <- mesh-grid-dispatch opcode (UNSHIFTED; == A18, NOT +0x0800)
+  +0xac..+0xc0  6x 0x00000001  <- object-grid + mesh-grid dimension words
+  +0xc4 0xc0000000   <- terminator
+Contrast plain draw: +0x8c 0x69c40600 (draw opcode 0x69c4 + prim byte 0x06) +vtxCount.
+Header length word 0x18000+0x18 = 0x40000d2c (mesh) vs 0x4000002e (draw) — grew for
+the larger object+mesh state block. UVB intermediate in tiler-heap 0x10000018000
+(0x20000 B). No separate 0x100000f8000 dispatch-descriptor BO on M5 (A18 had one;
+M5 carries the grid dims inline in the VDM record for this minimal case).
+
+FIX NOTE: EXP-M5-10's mesh abort was a harness bug — it called the *tile* pipeline
+method newRenderPipelineStateWithDescriptor:options:reflection: with a MESH
+descriptor. Correct call = newRenderPipelineStateWithMeshDescriptor:options:
+reflection: (as A18 EXP-0030). Not a HW fault.
