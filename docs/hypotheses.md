@@ -62,4 +62,3 @@ prioritize as phases dictate.
 splicing `m5_matrix_mac` **byte+13 bit6 (0x40)** flips the result to **−(A·B)+C** (R = −6/−4/−3/−1 for
 C∈{none,r2,r4,r6}). **Outcome: WORKS** — a fused *negated* multiply-accumulate the Metal API does not surface.
 A driver targeting Vulkan cooperative-matrix (or a fast-math path) could emit it directly. HW-validated on M5.
-</MD
