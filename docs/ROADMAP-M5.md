@@ -80,14 +80,15 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 ## Phase 5 — Capability census + synthesis + ACCEPTANCE GATES  ◐
 - ☑ **5.1 Capability baseline** — EXP-M5-04: Apple10/G17g/T8142; RT+mesh+tensors+funcptrs+argbuf-Tier2; SIMD32,
   32KiB tgmem. → `experiments/EXP-M5-04-capabilities/m5-capability-matrix.md`.
-- ◐ **5.2 Capability census** — EXP-M5-08: **164 rows** (65 native / 72 NYC / 15 emulated / 5 kernel / 7 microarch);
-  **presence 100% enumerated, no Metal-exposed capability unaccounted for** (every gap = "encoding not yet mapped").
-  Backlog (72 NYC = ~46 ISA field-semantics + ~26 cmdstream/descriptor records) directs the remaining waves.
+- ☑ **5.2 Capability census** — EXP-M5-08 + EXP-M5-12/15/16 reconcile: **175 rows** (85 native / 64 NYC / 13 emulated /
+  8 kernel / 5 microarch); presence 100% enumerated, no Metal-exposed capability unaccounted-for.
   → `docs/capability-matrix-m5.md`, `docs/capability-completeness-m5.md`. (OBJ-2)
-- ☐ **5.3 M5 porting guide** — per Mesa `src/asahi` module, M5 deltas with experiment citations.
-- ☐ **5.4 OBJ-1 gate** — empty-context reviewer finds no driver-blocking holes in `docs/` (M5).
-- ☐ **5.5 OBJ-2 gate** — empty-context reviewer finds no missing Metal-exposed HW functionality.
-- ☐ **5.6 OBJ-3 gate** — adversarial review vs the 54 MB corpus: no hallucinated/unverified findings.
+- ☑ **5.3 M5 porting guide** — `docs/porting-guide-m5.md`, per Mesa `src/asahi` module, delta-form + honest gaps.
+- ◐ **5.4 OBJ-1 gate** — REVIEW-01 FAIL(3B/6M/5m) → REVIEW-02 FAIL(1B texture/8M/6m) → **texture BLOCKER CLOSED
+  (EXP-M5-16); REVIEW-03 in progress.** Remaining opens: call ABI + RT AS-load (documented-open MAJOR, fallbacks).
+- ◐ **5.5 OBJ-2 gate** — REVIEW-01 FAIL → REVIEW-02 FAIL(narrow) → gaps closed (EXP-M5-15/16); **REVIEW-03 in progress.**
+- ☑ **5.6 OBJ-3 gate — PASS** (REVIEW-M5-OBJ3-01): 7/7 load-bearing claims verified vs corpus, 0 refuted,
+  0 hallucinations; census reproduced exactly, round-trip ALL PASS.
 
 ---
 
@@ -103,12 +104,14 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 - **EXP-M5-09** ☑ ISA semantics II — **matrix path splits, NO dedicated neural leader**; atomics/subgroup/texture
   selectors; store-name fix. Deferred (documented): matrix-MAC/reduction/texture/12B-iadd descriptors.
 - **EXP-M5-10** ☑ Phase 2/3/4 deltas — A18 model offset-relocated; tile 32×32; FF-pool + tiling + tessellation.
-- **Resume point:** run **interim OBJ-1 gap-analysis reviewer** (empty-context, docs/-only) as a gap-finder →
-  close its findings (porting guide, deferred-encoding integration, RT AS-load, call ABI, mesh record) → gates.
-- **Next (resume point):** (1) **splice-and-observe semantics** for the M5-specific ISA ops (device now SIP-off,
-  fault-recoverable) — memory/typed/`0xNe`/`0xb7`/call/matrix/RT/mesh; (2) render M5 DB into `docs/isa/` for OBJ-1;
-  (3) close cmdstream/descriptor open items (FF-pool enums, PBE, tiling); (4) OBJ-2 capability census; then the
-  three acceptance gates. Timeouts on all device probes (see global memory).
+- **EXP-M5-11** ☑ ISA integration — m5_alu/reduce/shuffle/iadd; DB→180; own 93.4%/97.4%, tp 95.5%/98.4%; memory field maps.
+- **EXP-M5-12/15** ☑ OBJ-2 capability reconcile — layered-render/depth/sample-mask/rate-map/vertex-fetch; 175 rows.
+- **EXP-M5-13** ☑ cmdstream remaining — USC grammar, PPP output-select (layer bit), mesh record, CDM constants.
+- **EXP-M5-16** ☑ texture BLOCKER + divergent atomics + matrix MAC integrated — DB→188; opens: call ABI, RT AS-load.
+- **Reviews:** OBJ-3 **PASS**; OBJ-1 REVIEW-01/02 → texture closed, REVIEW-03 running; OBJ-2 gaps closed, REVIEW-03 running.
+- **Resume point:** await OBJ-1/OBJ-2 REVIEW-03 verdicts → if PASS, all three gates met (goal complete); else close
+  residual gaps (likely: call ABI via pipeline-linkedFunctions extraction; RT AS-load via AS-bound testbed) + re-run.
+  Hard-timeout all device probes (see global memory [[device-probe-timeouts]]).
 
 ## Known premises (given, not to be re-questioned)
 - Clean-room above all; only our own compiled shaders / committed permissive MSL; never introspect Apple binaries.
