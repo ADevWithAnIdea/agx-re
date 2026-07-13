@@ -1,6 +1,6 @@
 # M5 GPU Userspace — Documentation Roadmap
 
-Status board for the clean-room documentation effort on the **Apple M5**. Read `../CLAUDE.md`
+Status board for the clean-room documentation effort on the **Apple M5**. **STATUS: GOAL COMPLETE — all 3 acceptance gates PASS.** Read `../CLAUDE.md`
 first for the rules. The A18 Pro roadmap (`ROADMAP.md`) and its `docs/`, `tools/agx-isa` DB, and
 `EXP-M4-*`/`EXP-0xxx` experiments are the **prior phase** — valid for the A18 and used here as
 **starting scaffolding**, never as M5 truth.
@@ -84,11 +84,19 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
   8 kernel / 5 microarch); presence 100% enumerated, no Metal-exposed capability unaccounted-for.
   → `docs/capability-matrix-m5.md`, `docs/capability-completeness-m5.md`. (OBJ-2)
 - ☑ **5.3 M5 porting guide** — `docs/porting-guide-m5.md`, per Mesa `src/asahi` module, delta-form + honest gaps.
-- ◐ **5.4 OBJ-1 gate** — REVIEW-01 FAIL(3B/6M/5m) → REVIEW-02 FAIL(1B texture/8M/6m) → **texture BLOCKER CLOSED
-  (EXP-M5-16); REVIEW-03 in progress.** Remaining opens: call ABI + RT AS-load (documented-open MAJOR, fallbacks).
-- ◐ **5.5 OBJ-2 gate** — REVIEW-01 FAIL → REVIEW-02 FAIL(narrow) → gaps closed (EXP-M5-15/16); **REVIEW-03 in progress.**
+- ☑ **5.4 OBJ-1 gate — PASS** (REVIEW-M5-OBJ1-04, 0 blockers): 01 FAIL(3B) → 02 FAIL(1B) → 03 FAIL(1B texture-operands)
+  → texture operands mapped (EXP-M5-16/17) → **04 PASS**. Driver implementable from `docs/` alone; residual = 3
+  doc-hygiene majors (fixed) + gate-able extensions (call ABI, RT AS-load, coop-matrix operands) with fallbacks.
+- ☑ **5.5 OBJ-2 gate — PASS** (REVIEW-M5-OBJ2-03, 0 blocker/major/mis-classified): gaps closed (EXP-M5-12/15/16);
+  no Metal-exposed capability unaccounted-for; 175 rows.
 - ☑ **5.6 OBJ-3 gate — PASS** (REVIEW-M5-OBJ3-01): 7/7 load-bearing claims verified vs corpus, 0 refuted,
   0 hallucinations; census reproduced exactly, round-trip ALL PASS.
+
+## 🎉 GOAL COMPLETE — all three acceptance gates PASS (OBJ-1 driver-from-docs · OBJ-2 capability coverage · OBJ-3 not-hallucinated).
+The M5 (Apple10/G17g) userspace is clean-room-documented end-to-end: 189-descriptor round-trip-green ISA at
+97.4%/98.4% corpus coverage, full cmdstream/descriptor/tiling/TBDR deltas off the A18, 175-row capability census,
+per-Mesa-module porting guide — all HW-measured on the device, no Apple binary introspected. Residual items are
+documented-open extension features (call ABI, RT AS-load, coop-matrix operand packing) a driver can gate.
 
 ---
 
