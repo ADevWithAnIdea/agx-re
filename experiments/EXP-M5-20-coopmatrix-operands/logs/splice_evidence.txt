@@ -1,0 +1,59 @@
+# EXP-M5-20 splice-and-observe evidence (M5 / Apple10 / G17g / T8142).
+# Every row = a numeric matrix output read back from real HW via our own agxrun.
+# Kernel mad_f32: R = A*B + C, one full simdgroup (grid=32, tg=32), scaled-identity
+# inputs A=2*I (buf0/gpr2), B=3*I (buf1/gpr4), C=5*I (buf2/gpr6). Baseline R = 2*3+5 = 11.
+# CLEAN-ROOM: our own on-device-compiled MSL; no Apple binary inspected.
+
+## Compiled MAC @0xce = 2f 00 05 9a 20 20 af 0a 30 08 10 00 10 19  (14B)
+## Compiled tile ops (mad_f32):
+#   LOAD_A @0xa6 = 2f 04 07 10 08 00 b8 0a 10 c0 00 08          (tile2, gpr2, 12B)
+#   LOAD_B @0xb2 = 4f 08 07 10 08 00 b8 0a 10 c0 00 08          (tile4, gpr4, 12B)
+#   LOAD_C @0xbe = 6f 0c 07 10 08 00 b8 0a 10 c0 41 08 80 00 00 00 (tile6, gpr6, 16B)
+#   STORE  @0xe8 = 2f 00 07 10 08 00 a1 0f 18 c0 00 08          (tile2, 12B)
+
+## == TILE-LOAD byte+1 = MEMORY ADDRESS SOURCE GPR (index = byte+1>>1) ==
+# LOAD_A byte+1 (off 0xa7): redirect A's load address:
+04 (baseline gpr2=buf0=2I)  -> DIAG 11   (A=2 -> 2*3+5)
+08 (gpr4=buf1=3I)           -> DIAG 14   (A=3 -> 3*3+5)   PROVEN
+0c (gpr6=buf2=5I)           -> DIAG 20   (A=5 -> 5*3+5)   PROVEN
+00 (gpr0=zeros)             -> DIAG 5    (A=0 -> 0*3+5)   PROVEN
+
+## == TILE-LOAD byte0 hi-nibble = DESTINATION TILE REGISTER ==
+# LOAD_C dest tile6->tile3/tile5 (off 0xbe 6f->3f/5f): C leaves tile6, MAC reads stale tile6:
+3f -> DIAG [6,0,6,0,...]   (C dropped -> R=A*B=6)   PROVEN
+5f -> DIAG [6,0,6,0,...]   (C dropped)              PROVEN
+# LOAD_B dest tile4->tile5 (off 0xb2 4f->5f): B leaves tile4, product reads stale tile4=0:
+5f -> DIAG 5   (A*B=0 -> R=C=5)                     PROVEN
+
+## == MAC byte+3 (off 0xd1) = A & B OPERAND TILE REGISTERS (full 0..255 sweep, low-nibble a/e valid) ==
+# decoded via A*B = R-5:
+0x9a baseline -> 11 (A=r2,B=r4 : 2*3)
+0xca,0xce     -> 14 (A*B=9=3*3  : A->r4)
+0xda,0xde,0xea,0xee -> 20 (A*B=15=5*3 : A->r6)
+0x3a,0x3e     ->  9 (A*B=4=2*2  : B->r2)
+0x7a,0x7e,0xba,0xbe -> 15 (A*B=10=2*5 : B->r6)
+0xfa,0xfe     -> 30 (A*B=25=5*5 : A->r6 & B->r6)
+# => byte+3 selects the two multiplicands (A and B tile regs). Exact A/B sub-bit
+#    packing is distributed (co-encoded w/ byte+8/+12); kept RAW. Canonical 0x9a.
+
+## == MAC byte+13 (off 0xdb) = C OPERAND REGISTER + NEGATE (full 0..255 sweep) ==
+# bits[4:3] = C tile register (C_tile = 2*field); bit6 (0x40) = negate the A*B product.
+0x08,0x28,0x88,0xa8 (bits[4:3]=01) -> 8  (C=r2=2I : 6+2)     PROVEN
+0x10,0x30,0x90,0xb0 (bits[4:3]=10) -> 9  (C=r4=3I : 6+3)     PROVEN
+0x18,0x19,0x38,...  (bits[4:3]=11) -> 11 (C=r6=5I : 6+5)     baseline
+0x00,0x01,...       (bits[4:3]=00) -> 6  (C=none  : R=A*B)   PROVEN
+0x40..0x47 (bit6=1, C=00)          -> -6 (R = -(A*B) = -6)   PROVEN  (NEGATE capability)
+0x48,0x68,0xc8,0xe8 (bit6, C=r2)   -> -4 (-6+2)              PROVEN
+0x50,0x70,0xd0,0xf0 (bit6, C=r4)   -> -3 (-6+3)              PROVEN
+0x58,0x78,0xd8,0xf8 (bit6, C=r6)   -> -1 (-6+5)              PROVEN
+
+## == MAC byte+9 (off 0xd7) = ACCUMULATE FLAG ==  (corroborates EXP-M5-09/16)
+0x08 -> 11 (multiply-accumulate, load C)   0x02/0x0a -> 6 (multiply, no C)
+
+## == TILE 12-vs-16 length determinant = byte+10 bit 0x40 ==
+# 12B ops: byte+10 in {0x00 (fp32), 0x80 (fp16)}     (bit6 CLEAR)
+# 16B ops: byte+10 in {0x41 (fp32), 0xc1 (fp16)}     (bit6 SET) + inline `80 00 00 00`
+# The inline immediate (byte+12..15) is HW-INERT: LOAD_C byte+12 (off 0xca)
+# spliced 80->00/40/c0/84 all left R=11 (real data addr is byte+1's GPR).
+# LOAD_C byte+10 (off 0xc8): bit0 (0x01) is the extended-form load-enable
+#   (41->01 OK=11, 41->00 corrupt, 41->40 corrupt) -- co-set with bit6 in 16B form.

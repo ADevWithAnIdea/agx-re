@@ -11839,11 +11839,6 @@
           47
         ],
         [
-          8,
-          8,
-          0
-        ],
-        [
           16,
           8,
           5
@@ -11856,10 +11851,20 @@
       ],
       "fields": [
         {
-          "name": "opsel",
+          "name": "dtype_lo",
+          "start": 8,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "0": "fp32 / fp16 inputs",
+            "2": "bf16 inputs"
+          }
+        },
+        {
+          "name": "ab_operands",
           "start": 24,
           "width": 8,
-          "type": "mod"
+          "type": "raw"
         },
         {
           "name": "b4",
@@ -11873,12 +11878,12 @@
           "width": 8,
           "type": "enum",
           "enum": {
-            "175": "fp (fp16/fp32/bf16)",
-            "171": "fp (half variant)"
+            "175": "fp32 accumulate (fp32/bf16)",
+            "171": "fp16 accumulate"
           }
         },
         {
-          "name": "operand1",
+          "name": "struct78",
           "start": 56,
           "width": 16,
           "type": "raw"
@@ -11894,14 +11899,20 @@
           }
         },
         {
-          "name": "operand2",
+          "name": "struct1012",
           "start": 80,
-          "width": 32,
+          "width": 24,
+          "type": "raw"
+        },
+        {
+          "name": "c_operand",
+          "start": 104,
+          "width": 8,
           "type": "raw"
         }
       ],
-      "semantics": "M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix tile MAC). 14-byte op `2f 00 05 <opsel> <b4> 20 <af|ab> .. <accum> ..`. On A18 both simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC DIVERGES to this `2f 00 05` op (0xcf survives ONLY for the tiled MPP matmul2d path, EXP-M5-09). byte+9 (accum) = 0x06 multiply / 0x08 multiply-accumulate (load C). The tile LOAD/STORE that feed it are the `?f ..07..` family (byte+2==0x07); the Apple10 'Neural Accelerator' is NOT a new standalone opcode -- matrix work rides this low-nibble-f family. 8x8 operand bit-packing kept raw (rule 5).",
-      "provenance": "HW byte-diff (M5 EXP-M5-09 mat_simd.metal control ladder: ls_f32 -> 0 MAC ops, mul_f32/mad_f32 -> 1 MAC op; mul vs mad differ ONLY at byte+9 accumulate flag) + splice (corrupting byte0 / byte+2 05->00 drives the MAC output all-zero -> load-bearing) + EXP-M5-16 real-corpus (8 own / 4 tp `2f 00 05` occurrences, all 14 bytes: bf16/f16/f32/filled sgmat kernels). Length 14 confirmed by clean tokenization (next op `27 00 04 ..` m5_alu / `2f 00 07 ..` tile store). Operand packing raw (rule 5). Own-MSL / own-corpus only; no Apple binary inspected."
+      "semantics": "M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix 8x8 tile MAC), R = +/-(A*B) + C. 14-byte op `2f <dt> 05 <AB> <b4> 20 <af|ab> .. <accum> .. <C>`. On A18 both simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC DIVERGES to this `2f ?? 05` op (0xcf survives ONLY for the tiled MPP matmul2d path, EXP-M5-09). RESOLVED OPERAND FIELDS (EXP-M5-20 splice-and-observe, A=2I@r2 B=3I@r4 C=5I@r6): byte+9 (accum) 0x06 multiply / 0x08 multiply-accumulate; byte+6 (datapath) 0xaf fp32|bf16-accum / 0xab fp16; byte+1 0x00 fp32|fp16 / 0x02 bf16 inputs. byte+3 (ab_operands) carries the A and B operand TILE REGISTERS: spliced redirects drove A -> r4/r6 (product 3*3, 5*3) and B -> r2/r6 (2*2, 2*5), HW-proven that this byte selects the two multiplicands; the exact A/B sub-bit packing is DISTRIBUTED (co-encoded with byte+8/+12) and kept RAW (rule 5) -- canonical value 0x9a = A=r2,B=r4. byte+13 (c_operand) FULLY DECODED: bits[4:3] = C accumulator tile register (0=none/r0 -> R=A*B, 1=r2, 2=r4, 3=r6; C_tile = 2x field), and bit6 (0x40) = NEGATE the A*B product (R = -(A*B)+C, a HW capability). Canonical byte+13=0x19 -> C=r6, no negate. dtype/dest tile placed by the feeding m5_tile_ldst ops (byte0-hi = tile register). EMITTABLE: place A/B/C via tile loads (r2/r4/r6), emit this canonical MAC, adjust accum + c_operand as needed.",
+      "provenance": "HW splice-and-observe (M5 EXP-M5-20 mac_probe.metal mad_f32, one full simdgroup grid=tg=32, scaled-identity inputs A=2I B=3I C=5I read back as R=A*B+C): baseline R=11I. byte+3 sweep -> 14 (A=r4), 20 (A=r6), 9/15 (B=r2/r6). byte+13 sweep -> clean 6/8/9/11 for C in {none,r2,r4,r6} (bits[4:3]) and -6/-4/-3/-1 for the same with bit6 set (product negated). byte+9 0x06/0x08 = multiply/accumulate. Plus EXP-M5-09 control ladder (ls->0, mul/mad->1 MAC) + leader/byte+2 splice (05->00 zeros output) + EXP-M5-16 real-corpus (8 own / 4 tp, all 14B). A/B sub-bit packing raw (rule 5). Own-MSL / own-corpus only; no Apple binary inspected."
     },
     {
       "mnemonic": "m5_falu2",
@@ -11995,16 +12006,28 @@
       ],
       "fields": [
         {
-          "name": "slot",
+          "name": "tile",
           "start": 4,
           "width": 4,
           "type": "imm"
         },
         {
-          "name": "operand_sel",
+          "name": "addr_gpr",
           "start": 8,
           "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
           "type": "mod"
+        },
+        {
+          "name": "b45",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
         },
         {
           "name": "dir",
@@ -12017,6 +12040,12 @@
           }
         },
         {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
           "name": "kind",
           "start": 64,
           "width": 8,
@@ -12027,20 +12056,97 @@
           }
         },
         {
-          "name": "operand",
-          "start": 24,
-          "width": 24,
+          "name": "tail",
+          "start": 80,
+          "width": 16,
           "type": "raw"
+        }
+      ],
+      "semantics": "M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment load/store that places A/B/C tiles for m5_matrix_mac. Form `<T>f <A> 07 <..> <b8|a1> <..> <10|18> c0 <tail>`. RESOLVED (EXP-M5-20 splice-and-observe): byte0 HIGH nibble = the TILE REGISTER (destination for a load, source for a store) -- HW-proven by moving a load's dest off its tile (R lost the matrix). byte+1 = the MEMORY ADDRESS SOURCE GPR, encoded as gpr<<1 (gpr index = byte+1>>1) -- HW-proven: redirecting a load's byte+1 0x04->0x08->0x0c made A read gpr2->gpr4->gpr6 (=the next buffer), 0x00 read gpr0 (zeros). byte+6 0xb8 load / 0xa1 store; byte+8 0x10 load / 0x18 store; byte+9 0xc0 fp32 (0x80 fp16, not gated here). EMITTABLE: to load buffer whose base is in GPR g into tile register T set byte0=(T<<4)|0x0f, byte+1=g<<1, byte+6=0xb8, byte+8=0x10; store swaps 0xb8->0xa1, 0x10->0x18. Base op 12 bytes.",
+      "provenance": "HW splice-and-observe (M5 EXP-M5-20 mac_probe.metal mad_f32/st2_f32, grid=tg=32): byte+1 redirect 04/08/0c/00 -> R 11/14/20/5 (address-GPR proven); load-dest tile redirect (LOAD_C 6f->3f/5f dropped C, LOAD_B 4f->5f zeroed the product) -> byte0-hi = tile register. EXP-M5-09 control ladder (ls->2, mul->3, mad->4 tile ops) + EXP-M5-16 real-corpus (22 own / 45 tp). Structural bytes raw (rule 5). Own-MSL / own-corpus only; no Apple binary inspected."
+    },
+    {
+      "mnemonic": "m5_tile_ldst_ext",
+      "length": 16,
+      "match": [
+        [
+          0,
+          4,
+          15
+        ],
+        [
+          16,
+          8,
+          7
+        ],
+        [
+          72,
+          8,
+          192
+        ]
+      ],
+      "fields": [
+        {
+          "name": "tile",
+          "start": 4,
+          "width": 4,
+          "type": "imm"
+        },
+        {
+          "name": "addr_gpr",
+          "start": 8,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "b3",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "b45",
+          "start": 32,
+          "width": 16,
+          "type": "raw"
+        },
+        {
+          "name": "dir",
+          "start": 48,
+          "width": 8,
+          "type": "opcode",
+          "enum": {
+            "184": "tile load (simdgroup_load)",
+            "160": "tile load (inline-base)",
+            "161": "tile store (simdgroup_store)"
+          }
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "kind",
+          "start": 64,
+          "width": 8,
+          "type": "enum",
+          "enum": {
+            "16": "load",
+            "24": "store",
+            "0": "inline-base load"
+          }
         },
         {
           "name": "tail",
           "start": 80,
-          "width": 32,
+          "width": 48,
           "type": "raw"
         }
       ],
-      "semantics": "M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment load/store that feeds m5_matrix_mac. Form `<slot>f <opsel> 07 <..> <b8|a1> 0a <10|18> c0 ..`: byte0 low-nibble 0xf, high-nibble = matrix tile SLOT (0/2/4/6); byte+2==0x07 = the tile-family signature; byte+6 0xb8 load / 0xa1 store; byte+8 0x10 load / 0x18 store; byte+9==0xc0. Base op 12 bytes; a variant inlining an immediate base address is 16 bytes (trailing `80 00 00 00`, absorbed as pad words -- length kept at the 12-byte leader, rule 5). simdgroup_load(transpose) adds ray_move data-move ops, not a new op.",
-      "provenance": "HW byte-diff (M5 EXP-M5-09 mat_simd.metal control ladder: ls_f32 = load A + store R -> 2 tile ops, mul_f32 = load A/B + store -> 3, mad_f32 = load A/B/C + store -> 4, confirming `?f ..07..` = tile load/store; splice: corrupting a tile-op byte+2 (07->00) drives the MAC output all-zero -> load-bearing) + EXP-M5-16 real-corpus (22 own / 45 tp tile-signature ops). Length 12 conservative (16B variant tail absorbed) -> census non-regressing. Operand packing raw (rule 5). Own-MSL / own-corpus only; no Apple binary inspected."
+      "semantics": "M5 (G17g) simdgroup_matrix TILE LOAD/STORE, 16-byte INLINE-BASE form. Identical to m5_tile_ldst plus a trailing 4-byte inline immediate (`80 00 00 00`). Selected when byte+10 bit 0x40 is SET (12B form has it clear); the compiler emits it for (at least) the last tile load of a group. The inline immediate is HW-INERT in EXP-M5-20 splice tests (splicing byte+12 80->00/40/c0/84 left the loaded matrix unchanged) -- the actual data address is still byte+1's GPR. tile register (byte0-hi) and address GPR (byte+1) fields identical to m5_tile_ldst. Kept raw where structural (rule 5).",
+      "provenance": "HW (M5 EXP-M5-20): 12-vs-16 determinant = byte+10 bit 0x40, consistent across 6 own-MSL fp32/fp16/bf16 tile ops (12B byte+10 in {0x00,0x80}; 16B in {0x41,0xc1}). Inline-immediate inertness splice-confirmed. Own-MSL / own-corpus only; no Apple binary inspected."
     }
   ]
 }

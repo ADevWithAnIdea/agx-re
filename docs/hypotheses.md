@@ -51,3 +51,15 @@ prioritize as phases dictate.
 - ISA: integer add-with-carry / wide multiply; bitfield insert/extract variants; rounding-mode
   variants; subgroup/quad shuffle/reduce ops beyond Metal's exposed set; ray-tracing intrinsics.
 - Formats: texture/vertex/render formats the HW supports but Metal doesn't surface.
+
+---
+
+## M5 (Apple10/G17g) hypotheses
+
+### H-M5-1 — cooperative-matrix MAC can NEGATE the A·B product (Metal-unexposed)  ✅ WORKS
+**Hypothesis (extrapolate):** the `simdgroup_matrix` MAC op might have modifier bits beyond what MSL's
+`simdgroup_multiply_accumulate` exposes. **Test (EXP-M5-20, splice-and-observe, A=2·I B=3·I C=5·I → R=11·I):**
+splicing `m5_matrix_mac` **byte+13 bit6 (0x40)** flips the result to **−(A·B)+C** (R = −6/−4/−3/−1 for
+C∈{none,r2,r4,r6}). **Outcome: WORKS** — a fused *negated* multiply-accumulate the Metal API does not surface.
+A driver targeting Vulkan cooperative-matrix (or a fast-math path) could emit it directly. HW-validated on M5.
+</MD

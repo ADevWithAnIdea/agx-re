@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 191 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 192 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -2818,18 +2818,20 @@
 
 ### `m5_matrix_mac`
 
-- **Length:** 14 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x05, byte+5==0x20  ·  **Provenance:** mixed
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x2f, byte+2==0x05, byte+5==0x20  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `opsel` | [24:32] (byte+3) | modifier |  |
+| `dtype_lo` | [8:16] (byte+1) | enum | `0x0`=fp32 / fp16 inputs; `0x2`=bf16 inputs |
+| `ab_operands` | [24:32] (byte+3) | raw/unmapped |  |
 | `b4` | [32:40] (byte+4) | modifier |  |
-| `datapath` | [48:56] (byte+6) | enum | `0xaf`=fp (fp16/fp32/bf16); `0xab`=fp (half variant) |
-| `operand1` | [56:72] (byte+7) | raw/unmapped |  |
+| `datapath` | [48:56] (byte+6) | enum | `0xaf`=fp32 accumulate (fp32/bf16); `0xab`=fp16 accumulate |
+| `struct78` | [56:72] (byte+7) | raw/unmapped |  |
 | `accum` | [72:80] (byte+9) | enum | `0x6`=multiply (no accumulate); `0x8`=multiply-accumulate (load C) |
-| `operand2` | [80:112] (byte+10) | raw/unmapped |  |
+| `struct1012` | [80:104] (byte+10) | raw/unmapped |  |
+| `c_operand` | [104:112] (byte+13) | raw/unmapped |  |
 
-*M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix tile MAC). 14-byte op `2f 00 05 <opsel> <b4> 20 <af|ab> .. <accum> ..`. On A18 both simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC DIVERGES to this `2f 00 05` op (0xcf survives ONLY for the tiled MPP matmul2d path, EXP-M5-09). byte+9 (accum) = 0x06 multiply / 0x08 multiply-accumulate (load C). The tile LOAD/STORE that feed it are the `?f ..07..` family (byte+2==0x07); the Apple10 'Neural Accelerator' is NOT a new standalone opcode -- matrix work rides this low-nibble-f family. 8x8 operand bit-packing kept raw (rule 5).*
+*M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix 8x8 tile MAC), R = +/-(A*B) + C. 14-byte op `2f <dt> 05 <AB> <b4> 20 <af|ab> .. <accum> .. <C>`. On A18 both simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC DIVERGES to this `2f ?? 05` op (0xcf survives ONLY for the tiled MPP matmul2d path, EXP-M5-09). RESOLVED OPERAND FIELDS (EXP-M5-20 splice-and-observe, A=2I@r2 B=3I@r4 C=5I@r6): byte+9 (accum) 0x06 multiply / 0x08 multiply-accumulate; byte+6 (datapath) 0xaf fp32|bf16-accum / 0xab fp16; byte+1 0x00 fp32|fp16 / 0x02 bf16 inputs. byte+3 (ab_operands) carries the A and B operand TILE REGISTERS: spliced redirects drove A -> r4/r6 (product 3*3, 5*3) and B -> r2/r6 (2*2, 2*5), HW-proven that this byte selects the two multiplicands; the exact A/B sub-bit packing is DISTRIBUTED (co-encoded with byte+8/+12) and kept RAW (rule 5) -- canonical value 0x9a = A=r2,B=r4. byte+13 (c_operand) FULLY DECODED: bits[4:3] = C accumulator tile register (0=none/r0 -> R=A*B, 1=r2, 2=r4, 3=r6; C_tile = 2x field), and bit6 (0x40) = NEGATE the A*B product (R = -(A*B)+C, a HW capability). Canonical byte+13=0x19 -> C=r6, no negate. dtype/dest tile placed by the feeding m5_tile_ldst ops (byte0-hi = tile register). EMITTABLE: place A/B/C via tile loads (r2/r4/r6), emit this canonical MAC, adjust accum + c_operand as needed.*
 
 ### `m5_falu2`
 
@@ -2851,14 +2853,33 @@
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `slot` | [4:8] | immediate |  |
-| `operand_sel` | [8:16] (byte+1) | modifier |  |
+| `tile` | [4:8] | immediate |  |
+| `addr_gpr` | [8:16] (byte+1) | immediate |  |
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `b45` | [32:48] (byte+4) | raw/unmapped |  |
 | `dir` | [48:56] (byte+6) | opcode-select | `0xb8`=tile load (simdgroup_load); `0xa1`=tile store (simdgroup_store) |
+| `b7` | [56:64] (byte+7) | modifier |  |
 | `kind` | [64:72] (byte+8) | enum | `0x10`=load; `0x18`=store |
-| `operand` | [24:48] (byte+3) | raw/unmapped |  |
-| `tail` | [80:112] (byte+10) | raw/unmapped |  |
+| `tail` | [80:96] (byte+10) | raw/unmapped |  |
 
-*M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment load/store that feeds m5_matrix_mac. Form `<slot>f <opsel> 07 <..> <b8|a1> 0a <10|18> c0 ..`: byte0 low-nibble 0xf, high-nibble = matrix tile SLOT (0/2/4/6); byte+2==0x07 = the tile-family signature; byte+6 0xb8 load / 0xa1 store; byte+8 0x10 load / 0x18 store; byte+9==0xc0. Base op 12 bytes; a variant inlining an immediate base address is 16 bytes (trailing `80 00 00 00`, absorbed as pad words -- length kept at the 12-byte leader, rule 5). simdgroup_load(transpose) adds ray_move data-move ops, not a new op.*
+*M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment load/store that places A/B/C tiles for m5_matrix_mac. Form `<T>f <A> 07 <..> <b8|a1> <..> <10|18> c0 <tail>`. RESOLVED (EXP-M5-20 splice-and-observe): byte0 HIGH nibble = the TILE REGISTER (destination for a load, source for a store) -- HW-proven by moving a load's dest off its tile (R lost the matrix). byte+1 = the MEMORY ADDRESS SOURCE GPR, encoded as gpr<<1 (gpr index = byte+1>>1) -- HW-proven: redirecting a load's byte+1 0x04->0x08->0x0c made A read gpr2->gpr4->gpr6 (=the next buffer), 0x00 read gpr0 (zeros). byte+6 0xb8 load / 0xa1 store; byte+8 0x10 load / 0x18 store; byte+9 0xc0 fp32 (0x80 fp16, not gated here). EMITTABLE: to load buffer whose base is in GPR g into tile register T set byte0=(T<<4)|0x0f, byte+1=g<<1, byte+6=0xb8, byte+8=0x10; store swaps 0xb8->0xa1, 0x10->0x18. Base op 12 bytes.*
+
+### `m5_tile_ldst_ext`
+
+- **Length:** 16 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x07, byte+9==0xc0  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `tile` | [4:8] | immediate |  |
+| `addr_gpr` | [8:16] (byte+1) | immediate |  |
+| `b3` | [24:32] (byte+3) | modifier |  |
+| `b45` | [32:48] (byte+4) | raw/unmapped |  |
+| `dir` | [48:56] (byte+6) | opcode-select | `0xb8`=tile load (simdgroup_load); `0xa0`=tile load (inline-base); `0xa1`=tile store (simdgroup_store) |
+| `b7` | [56:64] (byte+7) | modifier |  |
+| `kind` | [64:72] (byte+8) | enum | `0x10`=load; `0x18`=store; `0x0`=inline-base load |
+| `tail` | [80:128] (byte+10) | raw/unmapped |  |
+
+*M5 (G17g) simdgroup_matrix TILE LOAD/STORE, 16-byte INLINE-BASE form. Identical to m5_tile_ldst plus a trailing 4-byte inline immediate (`80 00 00 00`). Selected when byte+10 bit 0x40 is SET (12B form has it clear); the compiler emits it for (at least) the last tile load of a group. The inline immediate is HW-INERT in EXP-M5-20 splice tests (splicing byte+12 80->00/40/c0/84 left the loaded matrix unchanged) -- the actual data address is still byte+1's GPR. tile register (byte0-hi) and address GPR (byte+1) fields identical to m5_tile_ldst. Kept raw where structural (rule 5).*
 
 ## Length rule (byte 0)
 
@@ -2937,4 +2958,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 191 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 192 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
