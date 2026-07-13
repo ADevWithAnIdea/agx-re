@@ -1,0 +1,6 @@
+# M5 compute image store = 18-byte `?5 ?? ?? 04 24 ?? a0 02 ?? 80 ?? 8c ?? 20 ?? 00 01 00`
+# k_wrbuf (single write): 350411042420a0020080008c002008000100  (then 0e000000 stop)
+# k_wr4same slots0-3 same color: byte+5(desc) = 60 a0 e0 20 ; tex_desc_hi(byte+8) = 00 00 01 01  (NOT a linear slot)
+# k_wrbuf_t2 slots0-2 diff color: byte+5 = 20 60 a0                                        (kernel-dependent -> descriptor reg)
+# corpus w_2d/w_3d = byte+3 0x04 ; w_arr = byte+3 0x0c, byte+11 0x84 (all 18B)
+# `24 80 03` (k_wr1 const color, v_pos vertex) = m5_const_move (10B), NOT an image store.

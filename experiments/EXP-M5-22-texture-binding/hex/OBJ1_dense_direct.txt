@@ -1,0 +1,12 @@
+# f_tex8 (8 direct [[texture(N)]] bindings) sample-op leaders: byte+4 (descriptor register) does NOT
+# increase linearly with slot -> descriptors are compiler-allocated into registers, not a raw slot field.
+# tex : byte0 +1 +2 +3 +4 +5 +6
+# t0  : 8f  06 42 00 c9 00 60
+# t1  : cf  06 42 00 c9 00 68   (pair shares byte+4=0xc9; byte+6 bit3 selects within pair)
+# t2  : 0f  06 42 00 51 20 60
+# t3  : 4f  06 42 00 51 20 68   (byte+4=0x51)
+# t4  : 8f  06 02 00 d9 10 60
+# t5  : cf  06 02 00 d9 10 68   (byte+4=0xd9)
+# t6  : 0f  06 02 00 41 30 70
+# t7  : 4f  06 16 00 41 b0 78   (byte+4=0x41)
+# f_tex2 (2 direct bindings): t0 byte+6=0x60, t1 byte+6=0x68 (matches EXP-M5-17 0x60+0x08*slot for slots 0/1)

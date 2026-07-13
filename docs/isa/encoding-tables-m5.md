@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 192 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 194 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -2738,7 +2738,7 @@
 
 ### `m5_tex`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -2746,12 +2746,16 @@
 | `op` | [8:16] (byte+1) | opcode-select | `0x4`=sample (explicit-LOD); `0x5`=bias / sample_compare; `0x6`=sample (implicit) / gather / lod_query; `0x7`=sample (register-LOD) |
 | `coord_reg` | [24:32] (byte+3) | register |  |
 | `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+| `samp_slot` | [40:47] (byte+5) | immediate |  |
+| `samp_last` | [47:48] | modifier |  |
+| `tex_slot` | [48:56] (byte+6) | immediate |  |
+| `coord_ctl` | [56:64] (byte+7) | modifier |  |
 
 *M5 (G17g) TEXTURE sample-class op (filtered sample / gather / lod-query / sample_compare / bias). EMITTABLE byte map (HW-VALIDATED EXP-M5-17 by agxrender fragment->pixel splice-and-observe; every field below flipped an observed pixel): off0 byte0 low-nibble 0xf = tex op, HIGH-nibble = RESULT register. off1 (op): 0x04 explicit-LOD sample, 0x05 bias/sample_compare, 0x06 implicit-LOD sample|gather|calculate_clamped_lod, 0x07 register-LOD sample. off2 (class): 0x12 compute sample, 0x16 fragment implicit-derivative sample, 0x1a image read. off3 = COORDINATE REGISTER (16-bit-half index = reg32<<1; adjacent float2 coords -> +0x04). **HW-CONFIRMED: splicing off3 0x00->0x04 switched the sampled texel (RED->BLUE).** off4 = texture/sampler descriptor-state word (single-texture form 0x41; low-nibble = sampler-present/array/MSAA; co-varies with the binding-table bank for dense slot>=2 -- partially raw). off5 bits[6:0] = SAMPLER slot index, bit7 = last-in-group/scoreboard flag (**HW-CONFIRMED: byte-diff samplers 0/1/2/3 -> 0x00/0x01/0x02/0x03; splice off5 0x00->0x01 switched sampler (BLUE->RED)**). off6 = TEXTURE slot selector (**HW-CONFIRMED: slot0=0x60, slot1=0x68 (+0x08 per dense binding slot); splice off6 0x60->0x68 switched which bound texture was read (RED->GREEN); an unbound slot faults**; slot>=2 also bumps the off4 bank). off7 = coordinate-producer scoreboard token (splice-proven INERT to the sampled value). off8..11 = 01 18 01 00 operand tail (off9 = 0x18 implicit-LOD / 0x00 explicit-LOD|bias). off12 = LOD/BIAS immediate = round(level*0x40) (Q?.6: level 0/1/2 -> 0x00/0x40/0x80) (**HW-CONFIRMED: splice off12 0x00->0x40 selected mip level 0->1 (RED->BLUE)**). off13..21 = 00 00 00 00 80 00 00 00 00 gradient/pad words. FULL LENGTH per variant (own-MSL, HW): fragment sample (implicit/explicit LOD/bias) = 22 B; gather = 14 B; compute const-coord sample = 22 B. The DB tokenizes only the 6-byte EMITTABLE LEADER (op-class + coord + descriptor markers); the coord/LOD/gradient operand words fall through as raw words (rule 5), which is <= every observed op length so it never over-reads.*
 
 ### `m5_tex`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x16, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x16, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -2759,12 +2763,16 @@
 | `op` | [8:16] (byte+1) | opcode-select | `0x4`=sample (explicit-LOD); `0x5`=bias / sample_compare; `0x6`=sample (implicit) / gather / lod_query; `0x7`=sample (register-LOD) |
 | `coord_reg` | [24:32] (byte+3) | register |  |
 | `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+| `samp_slot` | [40:47] (byte+5) | immediate |  |
+| `samp_last` | [47:48] | modifier |  |
+| `tex_slot` | [48:56] (byte+6) | immediate |  |
+| `coord_ctl` | [56:64] (byte+7) | modifier |  |
 
 *M5 (G17g) FRAGMENT-stage TEXTURE sample (byte+2==0x16 = compute 0x12 | derivative-LOD bit 0x04). Same emittable byte map as the m5_tex compute form (see the 0x12 descriptor): off3=coord reg, off5[6:0]=sampler slot, off6=texture slot, off12=LOD/bias imm -- all HW-VALIDATED EXP-M5-17. This is the most common texture op in real fragment shaders and was previously absent from the M5 leader gate (byte+2==0x16 not recognized).*
 
 ### `m5_tex_read`
 
-- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -2772,6 +2780,9 @@
 | `op` | [8:16] (byte+1) | opcode-select | `0x4`=read (MSAA / by-sample); `0x6`=read (image load) |
 | `coord_reg` | [24:32] (byte+3) | register |  |
 | `tex_desc_lo` | [32:36] (byte+4) | modifier |  |
+| `samp_last` | [47:48] | modifier |  |
+| `tex_slot` | [48:56] (byte+6) | immediate |  |
+| `coord_ctl` | [56:64] (byte+7) | modifier |  |
 
 *M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate). Form `<rr>f <op> 1a <coord> 40 80 60 <sb>` (8 bytes total; DB tokenizes the 6-byte leader, 2 operand bytes fall through raw). byte0 low-nibble 0xf, HIGH-nibble = RESULT register. byte+1 0x06 = texture.read, 0x04 = MSAA/by-sample read. byte+2==0x1a = image-READ class (no sampler). **off3 = integer COORDINATE register (HW-CONFIRMED EXP-M5-17: same coord-register field position as the sample form). off6 = TEXTURE slot selector (0x60=slot0, +0x08 per slot; HW-CONFIRMED).** byte+4==0x40 = no-sampler descriptor marker; byte+5==0x80 last/scoreboard. own-MSL tex_read is 8 bytes total (`0f 06 1a 00 40 80 60 29`).*
 
@@ -2786,6 +2797,34 @@
 | `st_fmt` | [24:32] (byte+3) | modifier |  |
 
 *M5 (G17g) STORE of a TEXTURE / sampled value to the output buffer. 4-byte store `<n>1 <2X> 10 <00|20>`: byte0 = 0x01|0x21|0x41|0x61 (1/2/3/4-component, here the sampled floatN), byte+1 = texture-result SOURCE CLASS (hi-nibble 0x2, low-nibble 4/6/c/e), byte+2==0x10 store-enable, byte+3 = store format (0x00/0x20). Distinct from the ALU/load-result m5_store (byte+1 hi-nibble 0/2 low 2/6, byte+3 in 0x40..0xe0). Completes the texture path: m5_tex(_read) produces the sampled value; this store writes it out. Address comes from the preceding m5_addr_gen.*
+
+### `m5_const_move`
+
+- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0x4, byte+1==0x80, bits[16:18]==0x3, bits[19:24]==0x0, byte+3==0x0a  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `dst_hi` | [4:8] | register |  |
+| `variant` | [16:24] (byte+2) | modifier |  |
+| `src_desc` | [24:32] (byte+3) | modifier |  |
+| `imm_sel` | [32:40] (byte+4) | modifier |  |
+
+*M5 (G17g) CONSTANT-MATERIALISATION MOVE. 10-byte `<r>4 80 <03|07> 0a <27|20> <src> a<x> <x> 00 00`. Loads a compile-time float/int constant into a register; emitted in ANY stage wherever an immediate is needed -- vertex [[position]] constants, fragment/compute immediate operands, and the color components of a texture2d.write(float4(1,2,3,4),..) CONST store. NOTE: this is the op the EXP-M5-16 report MIS-LABELLED an `24 80 03` image-store form -- HW-DISPROVEN here: k_wrbuf (texture2d.write of a BUFFER-sourced color) stores a texture with ZERO `?4 80` ops, and this op appears in a trivial passthrough VERTEX shader that does no image I/O. Operand packing kept raw (rule 5).*
+
+### `m5_image_store`
+
+- **Length:** 18 bytes  ·  **Match:** bits[0:4]==0x5, byte+4==0x24, byte+6==0xa0, byte+7==0x02, byte+9==0x80  ·  **Provenance:** mixed
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `fmt_class` | [4:8] | modifier |  |
+| `data_reg` | [8:16] (byte+1) | register |  |
+| `store_fmt` | [16:24] (byte+2) | modifier |  |
+| `dim` | [24:32] (byte+3) | modifier | `0x4`=2d/3d; `0xc`=2d_array |
+| `tex_desc` | [40:48] (byte+5) | modifier |  |
+| `tex_desc_hi` | [64:72] (byte+8) | modifier |  |
+
+*M5 (G17g) COMPUTE IMAGE STORE (texture2d/3d/2d_array<..,access::write>.write). 18-byte op `<fmt>5 <data> <sf> <dim> 24 <desc> a0 02 <descHi> 80 <..> 8c <..> 20 <..> 00 01 00`. STABLE 18B across 2d/3d/2d_array (array sets byte+3=0x0c, byte+11=0x84, else 0x04/0x8c); coordinate dimensionality does NOT change the length. byte0 low-nibble 0x5, hi-nibble = data-format class (float 0x3, uint 0x2). THE TEXTURE IS NOT A RAW SLOT FIELD: it is a compiler-allocated descriptor (byte+5/+8) -- writing the same color to slots 0..3 (k_wr4same) yields byte+5 {0x60,0xa0,0xe0,0x20} while another kernel writing slots 0..2 (k_wrbuf_t2) yields {0x20,0x60,0xa0}; and an argument-buffer write (k_wrab0 vs k_wrab2) is BYTE-IDENTICAL across the index (index lives in the preamble descriptor-setup op, byte 0xa0+index). SUPERSEDES the A18 0xd7 texture-write on the M5 compute path. Data/descriptor packing kept raw (rule 5).*
 
 ### `m5_atomic_div`
 
@@ -2958,4 +2997,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 192 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 194 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

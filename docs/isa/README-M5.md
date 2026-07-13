@@ -58,8 +58,16 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   `m5_store_texresult`. **Operand byte map, each proven by an observed pixel delta:** coordinate register = **byte+3**
   (reg32<<1), texture slot = **byte+6** (slot0=0x60, +0x08/slot), sampler slot = **byte+5[6:0]**, LOD/bias immediate
   = **byte+12** (round(level·64)); result reg = byte0 hi-nibble; per-variant length sample 22B / gather 14B / read
-  8B. A driver can now emit a working sample/read. Still raw (rule 5): descriptor-bank nibble (byte+4) for dense
-  slot≥2, coordinate scoreboard (byte+7, proven inert), gradient/pad words. `tex_write` (`0xd7`) image-store also fully specified.
+  8B. A driver can now emit a working sample/read. **Binding-slot selection (EXP-M5-22, pixel-proven):** for a
+  Tier-2 argument buffer the sample op is **slot-agnostic** — `tex[k].sample()` compiles byte-identical for k=0..7;
+  the slot is chosen by a **preamble descriptor-address immediate `0xa0+index`** (idx0→red…idx3→yellow observed).
+  For direct bindings, byte+6 `tex_slot` = `0x60+0x08·slot` (dense-direct byte+4 = compiler-allocated descriptor
+  regs, raw). `m5_tex`/`m5_tex_read` leader typed 6→8B so the assembler can set `tex_slot`/`samp_slot`/`coord_ctl`
+  (LOD byte+12 kept in prose — typing needs len≥13 which over-reads the 8B image-read). Coordinate scoreboard
+  (byte+7) proven inert. **Image store (EXP-M5-22):** the M5 compute image store is an **18-byte `m5_image_store`**
+  (`<fmt>5 … 24 <desc> a0 02 …`; texture = compiler-allocated descriptor, supersedes A18 `0xd7` on the compute
+  path); `tex_write`(`0xd7`) still fully specified for the graphics path. **Correction:** `24 80 03` is a 10-byte
+  constant-materialisation move (`m5_const_move`), **NOT** an image store (the EXP-M5-16 attribution was wrong).
   **Divergent-address atomics** — `m5_atomic_div` (12B) / `m5_atomic_xchg` (10B), `0f 00 03 … c0` form,
   splice-confirmed (the A18 per-lane `0x67` path is gone). **`simdgroup_matrix` MAC** — `m5_matrix_mac`
   (`2f 00 05`, 14B) + `m5_tile_ldst` — **operands EMITTABLE (EXP-M5-20):** tile register = byte0 hi-nibble,
@@ -71,13 +79,15 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   simdgroup), `atomic_rmw`/`atomic_mem`(0x67 divergent form), `call`/`call_indirect`, `rt_as_load`(0xdf),
   `rt_ray_mem`(0x5f) — each carries a "superseded-on-M5" note in its `semantics`. (NOTE: `tex_write`0xd7 and the
   `0x67`/`0xe7` uniform/monolithic forms are RETAINED-and-valid on M5, not superseded.)
-- **Still open (documented, extension-gateable, with fallbacks in `porting-guide-m5.md` §8):** texture
-  descriptor-bank nibble (byte+4) for dense binding slots ≥2 (slots 0–1 fully mapped); the M5 `24 80 03`
-  image-store length; matrix `simdgroup_matrix` 8×8 operand packing + tile 12-vs-16 length determinant (raw);
-  atomic op-selector not per-bit exhaustively spliced; the exact A/B sub-bit split inside matrix-MAC byte+3 (byte
-  proven, canonical value works). **RESOLVED this wave:** texture sample/read coord+slot+LOD (EXP-M5-17); RT AS-load
+- **Still open (documented, extension-gateable, with fallbacks in `porting-guide-m5.md` §8):** dense-direct
+  texture byte+4 descriptor-register allocation (arg-buffer slotting IS resolved — preamble `0xa0+index`); atomic
+  op-selector not per-bit exhaustively spliced; the exact A/B sub-bit split inside matrix-MAC byte+3 (byte proven,
+  canonical value works); image-store data/descriptor packing (18B length + slot-is-descriptor resolved);
+  intra-tile Morton within-tile permutation (inherited from A18 — the raw twiddled backing is not CPU-observable
+  on M5, EXP-M5-23; allocation model byte-confirmed). **RESOLVED this wave:** texture sample/read coord+slot+LOD (EXP-M5-17); RT AS-load
   / ray-data (EXP-M5-19 — general argument + split-memory forms, no dedicated op); GPR machine model 126 GPRs
-  (EXP-M5-21); function-call ABI (EXP-M5-18); **cooperative-matrix operands + tile length (EXP-M5-20)**.
+  (EXP-M5-21); function-call ABI (EXP-M5-18); cooperative-matrix operands + tile length (EXP-M5-20); **texture
+  binding-slot selection + typed fields + 18B image-store (EXP-M5-22)**.
 - **CALL ABI — MAPPABLE (EXP-M5-18, linked-pipeline extraction + splice):** out-of-line direct + indirect calls
   round-trip exactly. Sequence: `43 00 00 01` frame_marker (inherited, runtime-inert) → `9e 60 <type> 0e` call-setup
   (byte+2 = 0x00 direct / 0x01 indirect; direct embeds target PC in a `fe 1f…` tail, indirect loads the target

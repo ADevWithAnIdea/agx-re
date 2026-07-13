@@ -1,0 +1,158 @@
+--- ../../tools/agx-isa-m5/isadb.py	2026-07-13 04:28:58
++++ isadb.py	2026-07-13 04:43:13
+@@ -1426,7 +1426,31 @@
+     if ((b0 & 0x0f) == 0x0f and _b1 in (0x04, 0x05, 0x06, 0x07) and _b2 in (0x12, 0x16, 0x1a)
+             and off + 5 < len(buf) and (buf[off + 4] & 0xf0) == 0x40
+             and buf[off + 5] == 0x80):
+-        return 6                       # m5_tex LEADER (EXP-M5-16/17 HW; operands follow as raw words)
++        return 8                       # m5_tex LEADER (EXP-M5-16/17/22 HW; operands follow as raw words)
++    # ---- EXP-M5-22: M5 constant-materialisation MOVE `?4 80 0?` (10B) ---------------
++    # HW (own-MSL EXP-M5-22): a `<r>4 80 <0x03|0x07> 0a <27|20> <src> a<x> <x> 00 00`
++    # 10-byte op that materialises a compile-time constant into a register. Emitted in
++    # ANY stage wherever a float/int constant is loaded: vertex position constants
++    # (v_pos), fragment/compute immediate operands, and the color components of a
++    # texture2d.write(float4(1,2,3,4),..) const-store (k_wr1). It is NOT an image store
++    # (the EXP-M5-16 `24 80 03` "image-store" label was a MIS-ATTRIBUTION -- k_wrbuf,
++    # which sources the color from a buffer, emits ZERO `?4 80` ops yet still stores a
++    # texture). Gated on byte+1==0x80 AND byte+2 in {0x03,0x07} AND byte+3==0x0a (the
++    # third condition removes a matrix-shader false positive `24 80 07 00 22..`, census-
++    # confirmed). Closes the atomics_tex + frag_output-vertex corpus desyncs it caused.
++    if ((b0 & 0x0f) == 0x04 and _b1 == 0x80 and _b2 in (0x03, 0x07)
++            and off + 3 < len(buf) and buf[off + 3] == 0x0a):
++        return 10                      # m5_const_move (EXP-M5-22 HW byte-diff)
++    # ---- EXP-M5-22: M5 compute IMAGE STORE `?5 ?? ?? 04 24 .. a0 02 .. 80 ..` (18B) --
++    # HW (own-MSL EXP-M5-22 texture2d<..,access::write>.write): the real M5 compute
++    # image store is an 18-byte op. STABLE 18B across 2d / 3d / 2d_array writes (corpus
++    # w_2d/w_3d/w_arr). byte0 low-nibble 5, hi-nibble = data format class (float 0x3,
++    # uint 0x2). Gated on the fixed signature byte+4==0x24 AND byte+6==0xa0 AND
++    # byte+7==0x02 AND byte+9==0x80 -- disjoint from the low-nibble-5 sel/cmp family.
++    if ((b0 & 0x0f) == 0x05 and off + 9 < len(buf)
++            and buf[off + 4] == 0x24 and buf[off + 6] == 0xa0
++            and buf[off + 7] == 0x02 and buf[off + 9] == 0x80):
++        return 18                      # m5_image_store (EXP-M5-22 HW byte-diff)
+     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
+     # Fires only where baseline instr_length was None at a real boundary; the
+     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).
+@@ -6722,7 +6746,7 @@
+     # ======================================================================
+     {
+         "mnemonic": "m5_tex",
+-        "length": 6,
++        "length": 8,
+         # byte0 low-nibble 0xf + byte+2==0x12 (compute sample-class) + byte+4 hi-nibble 0x4 + byte+5==0x80.
+         "match": [(0, 4, 15), (16, 8, 0x12), (36, 4, 0x4), (40, 8, 0x80)],
+         "fields": [
+@@ -6732,6 +6756,10 @@
+                       0x06: "sample (implicit) / gather / lod_query", 0x07: "sample (register-LOD)"}},
+             {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},    # byte+3 = COORDINATE register (reg32<<1)
+             {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},  # byte+4 low-nibble (present/array/MSAA)
++            {"name": "samp_slot", "start": 40, "width": 7, "type": "imm"},    # byte+5[6:0] = SAMPLER slot (EXP-M5-17)
++            {"name": "samp_last", "start": 47, "width": 1, "type": "mod"},    # byte+5[7]  = last-in-group/scoreboard
++            {"name": "tex_slot", "start": 48, "width": 8, "type": "imm"},     # byte+6 = TEXTURE slot (0x60+0x08*slot, EXP-M5-17)
++            {"name": "coord_ctl", "start": 56, "width": 8, "type": "mod"},    # byte+7 = coord scoreboard token (splice-INERT)
+         ],
+         "semantics": "M5 (G17g) TEXTURE sample-class op (filtered sample / gather / lod-query / "
+                      "sample_compare / bias). EMITTABLE byte map (HW-VALIDATED EXP-M5-17 by agxrender "
+@@ -6767,7 +6795,7 @@
+     },
+     {
+         "mnemonic": "m5_tex",
+-        "length": 6,
++        "length": 8,
+         # FRAGMENT sample class: identical to the compute form but byte+2==0x16 (adds derivative-LOD bit).
+         "match": [(0, 4, 15), (16, 8, 0x16), (36, 4, 0x4), (40, 8, 0x80)],
+         "fields": [
+@@ -6777,6 +6805,10 @@
+                       0x06: "sample (implicit) / gather / lod_query", 0x07: "sample (register-LOD)"}},
+             {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},
+             {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},
++            {"name": "samp_slot", "start": 40, "width": 7, "type": "imm"},
++            {"name": "samp_last", "start": 47, "width": 1, "type": "mod"},
++            {"name": "tex_slot", "start": 48, "width": 8, "type": "imm"},
++            {"name": "coord_ctl", "start": 56, "width": 8, "type": "mod"},
+         ],
+         "semantics": "M5 (G17g) FRAGMENT-stage TEXTURE sample (byte+2==0x16 = compute 0x12 | derivative-LOD "
+                      "bit 0x04). Same emittable byte map as the m5_tex compute form (see the 0x12 descriptor): "
+@@ -6789,7 +6821,7 @@
+     },
+     {
+         "mnemonic": "m5_tex_read",
+-        "length": 6,
++        "length": 8,
+         # byte0 low-nibble 0xf + byte+2==0x1a (image read) + byte+4 hi-nibble 0x4 + byte+5==0x80.
+         "match": [(0, 4, 15), (16, 8, 0x1a), (36, 4, 0x4), (40, 8, 0x80)],
+         "fields": [
+@@ -6798,6 +6830,9 @@
+              "enum": {0x04: "read (MSAA / by-sample)", 0x06: "read (image load)"}},
+             {"name": "coord_reg", "start": 24, "width": 8, "type": "reg"},   # byte+3 = integer COORDINATE register
+             {"name": "tex_desc_lo", "start": 32, "width": 4, "type": "mod"},
++            {"name": "samp_last", "start": 47, "width": 1, "type": "mod"},    # byte+5[7] = last/scoreboard (no sampler on a read)
++            {"name": "tex_slot", "start": 48, "width": 8, "type": "imm"},     # byte+6 = TEXTURE slot (0x60+0x08*slot, EXP-M5-17)
++            {"name": "coord_ctl", "start": 56, "width": 8, "type": "mod"},    # byte+7 = coord scoreboard token
+         ],
+         "semantics": "M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate). Form "
+                      "`<rr>f <op> 1a <coord> 40 80 60 <sb>` (8 bytes total; DB tokenizes the 6-byte "
+@@ -6835,7 +6870,63 @@
+                      "previously DESYNCed (byte+1/byte+3 outside the m5_store gate). Own-MSL / "
+                      "own-corpus only; no Apple binary inspected.",
+     },
++    # EXP-M5-22: M5 const-materialisation MOVE + real COMPUTE IMAGE STORE. Corrects the
++    # EXP-M5-16 `24 80 03` "image-store" mis-attribution.
+     {
++        "mnemonic": "m5_const_move",
++        "length": 10,
++        "match": [(0, 4, 0x4), (8, 8, 0x80), (16, 2, 0x3), (19, 5, 0x0), (24, 8, 0x0a)],
++        "fields": [
++            {"name": "dst_hi", "start": 4, "width": 4, "type": "reg"},
++            {"name": "variant", "start": 16, "width": 8, "type": "mod"},
++            {"name": "src_desc", "start": 24, "width": 8, "type": "mod"},
++            {"name": "imm_sel", "start": 32, "width": 8, "type": "mod"},
++        ],
++        "semantics": "M5 (G17g) CONSTANT-MATERIALISATION MOVE. 10-byte `<r>4 80 <03|07> 0a "
++                     "<27|20> <src> a<x> <x> 00 00`. Loads a compile-time float/int constant into "
++                     "a register; emitted in ANY stage wherever an immediate is needed -- vertex "
++                     "[[position]] constants, fragment/compute immediate operands, and the color "
++                     "components of a texture2d.write(float4(1,2,3,4),..) CONST store. NOTE: this is "
++                     "the op the EXP-M5-16 report MIS-LABELLED an `24 80 03` image-store form -- "
++                     "HW-DISPROVEN here: k_wrbuf (texture2d.write of a BUFFER-sourced color) stores "
++                     "a texture with ZERO `?4 80` ops, and this op appears in a trivial passthrough "
++                     "VERTEX shader that does no image I/O. Operand packing kept raw (rule 5).",
++        "provenance": "HW byte-diff (M5 EXP-M5-22): own-MSL k_wr1 tiles three on a 10-byte stride; "
++                     "v_pos emits one on a 10-byte boundary; k_wrbuf emits none. Closes the "
++                     "atomics_tex_r10_w_* + frag_output-vertex corpus desyncs. Own-MSL only; no "
++                     "Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_image_store",
++        "length": 18,
++        "match": [(0, 4, 0x5), (32, 8, 0x24), (48, 8, 0xa0), (56, 8, 0x02), (72, 8, 0x80)],
++        "fields": [
++            {"name": "fmt_class", "start": 4, "width": 4, "type": "mod"},
++            {"name": "data_reg", "start": 8, "width": 8, "type": "reg"},
++            {"name": "store_fmt", "start": 16, "width": 8, "type": "mod"},
++            {"name": "dim", "start": 24, "width": 8, "type": "mod",
++             "enum": {0x04: "2d/3d", 0x0c: "2d_array"}},
++            {"name": "tex_desc", "start": 40, "width": 8, "type": "mod"},
++            {"name": "tex_desc_hi", "start": 64, "width": 8, "type": "mod"},
++        ],
++        "semantics": "M5 (G17g) COMPUTE IMAGE STORE (texture2d/3d/2d_array<..,access::write>.write). "
++                     "18-byte op `<fmt>5 <data> <sf> <dim> 24 <desc> a0 02 <descHi> 80 <..> 8c <..> "
++                     "20 <..> 00 01 00`. STABLE 18B across 2d/3d/2d_array (array sets byte+3=0x0c, "
++                     "byte+11=0x84, else 0x04/0x8c); coordinate dimensionality does NOT change the "
++                     "length. byte0 low-nibble 0x5, hi-nibble = data-format class (float 0x3, uint "
++                     "0x2). THE TEXTURE IS NOT A RAW SLOT FIELD: it is a compiler-allocated descriptor "
++                     "(byte+5/+8) -- writing the same color to slots 0..3 (k_wr4same) yields byte+5 "
++                     "{0x60,0xa0,0xe0,0x20} while another kernel writing slots 0..2 (k_wrbuf_t2) "
++                     "yields {0x20,0x60,0xa0}; and an argument-buffer write (k_wrab0 vs k_wrab2) is "
++                     "BYTE-IDENTICAL across the index (index lives in the preamble descriptor-setup "
++                     "op, byte 0xa0+index). SUPERSEDES the A18 0xd7 texture-write on the M5 compute "
++                     "path. Data/descriptor packing kept raw (rule 5).",
++        "provenance": "HW byte-diff (M5 EXP-M5-22): own-MSL texture2d.write kernels (k_wr1/k_wrbuf/"
++                     "k_wrbuf_t1/t2/k_wr4same/k_wru/k_wrab0/2). All stores 18B (consecutive writes on "
++                     "an 18-byte stride; single write followed by stop at +18). Corpus w_2d/3d/arr "
++                     "confirm 2d/3d/array. Own-MSL / own-corpus only; no Apple binary inspected.",
++    },
++    {
+         "mnemonic": "m5_atomic_div",
+         "length": 12,
+         # byte0==0x0f + byte+1==0x00 + byte+2==0x03 + byte+7==0xc0 (memory/atomic descriptor).
