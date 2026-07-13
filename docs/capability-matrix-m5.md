@@ -191,9 +191,10 @@ delta → NYC; the two absences are M5-reprobed via our own MSL and transfer fro
 | Matrix accumulate-enable / load/store/make_filled / transpose | YES | ❓ NYC | MAC field map + memory-family load/store (both ride deltas) | splice-TODO |
 | MPP `tensor_ops::matmul2d`, cooperative-tensor / other tensor ops | YES (`<metal_tensor>` compiles) | ❓ NYC | A18: all lowered to `0xcf`; **M5 lowering unverified** (see below) | MSL-probe; splice-TODO |
 | **Metal 4 `MTLTensor` / GPU Neural Accelerator path** | YES (`newTensorWithDescriptor:error:`=YES) | ❓ NYC | **UNKNOWN whether M5 keeps A18's `0xcf` lowering or adds a dedicated neural/tensor instruction path** — the single highest-value M5 OBJ-2 target | device-flag; NYC |
-| **int8 / integer cooperative matrix** | **NO** (MSL-probe REJECT char & int) | ⛔ emulated | all integer coopmat rejected by Metal (== A18) | M5-reprobed |
+| **`simdgroup_matrix<int/char>` (integer cooperative matrix)** | **NO** (MSL-probe REJECT char & int) | ⛔ emulated | `make_filled_simdgroup_matrix<char/int>` rejected by Metal (== A18; EXP-M5-08) → Vulkan int coopmat emulates via integer MAC in ALU | M5-reprobed |
+| **int8 matmul via `MTLTensor` / MPP neural path** | YES (tensor surface present) | ❓ NYC | int8 GEMM would ride the Metal-4 `MTLTensor` / `tensor_ops::matmul2d` neural path — **same bucket as the fp16/bf16 tensor path** (not the rejected `simdgroup_matrix<int>`); A18 lowered every tensor op → `0xcf`, and **whether M5 keeps that lowering or adds a dedicated neural op is unmapped** | device-flag; NYC |
 
-**§7 tally: native 0 · NYC 4 · emulated 1.**
+**§7 tally: native 0 · NYC 5 · emulated 1.**
 
 > **M5-specific escalation.** Apple markets a **Neural Accelerator in each GPU core** for the Apple-Family-10
 > / M5 generation. On the A18 (Apple9) every `MTLTensor`/MPP tensor op lowered to the `0xcf` matrix MAC with
@@ -216,10 +217,12 @@ delta → NYC; the two absences are M5-reprobed via our own MSL and transfer fro
 | `ray_data` payload address space | YES | ❓ NYC | `0x5f`-class (rides RT/memory delta) | splice-TODO |
 | **Ray tracing from render** | YES (`supportsRaytracingFromRender`) | ❓ NYC | A18: lowers identically to compute RT; M5 RT ISA splice-TODO | device-flag; splice-TODO |
 | **Primitive / instance motion blur** | YES (`supportsPrimitiveMotionBlur`) | ❓ NYC | A18: `rt_intersect` time-form; M5 RT ISA splice-TODO | device-flag; splice-TODO |
+| **Custom bounding-box (AABB) + curve primitives** (RT geometry types) | YES (MSL `bounding_box_intersection_function` / curve tags) | ✅ native (mechanism) | A18 §8: the primitive tag (bbox / curve / opacity) **does not change the intersect op** — discrimination is in the AS + `intersection_function_table`; the intersect ISA transfers, the custom-AABB intersection-function **call ABI rides the `0xef`/`0xff` call delta** (splice-TODO), AS build is kernel-managed | inherit✓ (mechanism); IFT-call splice-TODO |
+| **RT companion ops** (`rt_transform_test` / `ray_move`) | YES | ❓ NYC | A18: `rt_transform_test` (`0x?2`, byte+2 `0x27`, traversal slab-test) + `ray_move` (`0x?b`, byte+2 `0x80/81`, ray-register marshal); on M5 both **ride the RT/memory delta** — leaders present, field-semantics splice-TODO | splice-TODO |
 | **BVH build + node format** | YES | 🔥 kernel | GPU/firmware builds BVH; node format not userspace-visible; submission model identical on M5 | inherit (submit identical) |
 | **RT reorder stage** | advertised | ⚙ microarch | firmware/microarch (RT-scratch counters) | Family-10; NYC |
 
-**§8 tally: native 1 · NYC 7 · kernel 1 · microarch-NYC 1.**
+**§8 tally: native 2 · NYC 8 · kernel 1 · microarch-NYC 1.**
 
 ---
 
@@ -233,11 +236,12 @@ delta → NYC; the two absences are M5-reprobed via our own MSL and transfer fro
 | Vertex amplification 1/2/4/8 | YES (all, EXP-M5-04) | ❓ NYC | amplification cmdstream record not yet probed on M5 | device-flag; open-record |
 | **Geometry shaders** | NO (Metal no path) | ⛔ emulated | no HW GS stage → compute-emulate (== A18) | inherit |
 | **Transform feedback / streamout** | NO (Metal no path) | ⛔ emulated | no streamout unit → compute-emulate (== A18) | inherit |
-| **Tessellation** (`drawPatches`, Apple9+) | YES (family) | ❓ NYC | A18: native VDM patch-dispatch record `0x40`; **M5 tessellation record not yet probed** | inherit; open-record |
-| Tessellation compute-emulation fallback | YES | ⛔ emulated | `libagx` optional portable fallback (== A18) | inherit |
+| **Tessellation** (`drawPatches`, Apple9+) | YES (family) | ✅ native | **NATIVE HW stage on M5 (EXP-M5-10):** `drawPatches` runs with **no CDM launch descriptor** (single graphics submit) and emits a distinct **VDM patch-dispatch record** in tiler stream `0x18000` (record @~+0x80: config `+0x84`, USC bind `+0x88`, opcode/domain word `+0x8c`, **half-float factor-buffer ptr `+0x98`/`+0x9c`**) — NOT compute-emulated | M5-measured (`cmdstream/README-M5-deltas.md`) |
+| Tessellation compute-emulation fallback | YES | ⛔ emulated | `libagx` optional portable fallback (== A18; retained only as a fallback) | inherit |
 
-**§9 tally: native 0 · NYC 4 · emulated 3.** *(Mesh/tessellation/amplification are all present on M5 but
-their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records — are unmapped.)*
+**§9 tally: native 1 · NYC 4 · emulated 3.** *(Tessellation is now **native/M5-measured** (EXP-M5-10);
+mesh + object→mesh amplification remain present-but-unmapped — mesh pipeline-create aborted on M5, cmdstream
+record still open.)*
 
 ---
 
@@ -249,22 +253,26 @@ their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records
 | Viewport transform + depth range | YES | ✅ native | **`0x68000+0x9d0`** 4 floats {tx,sx,ty,sy} (measured on M5) | M5-measured/delta |
 | Indexed/non-indexed draw + primitive type + index-buffer VA | YES | ✅ native | **VDM `0x69c4`/`0x69f2`** (+0x0800 shift, measured); primitive byte / counts / restart SAME | M5-measured/delta |
 | Primitive restart (all-ones comparand) | YES | ✅ native | restart comparand tracks index width (measured on M5) | M5-measured |
-| Depth/stencil compare (8 funcs) + stencil ops (8) | YES | ❓ NYC | FF-pool depth `~+0x134/+0x16c–0x174`; **per-bit compare/stencil-op enum decode is a follow-up** | open-record |
-| **Depth clamp vs clip** (`depthClampEnable`) | YES | ❓ NYC | raster packet clip/clamp field — position in reorganized `0x58000` not yet pinned on M5 | open-record |
-| **Polygon line fill** (`POLYGON_MODE_LINE`) | YES | ❓ NYC | raster nibble+flags in reorganized FF-pool — not yet located on M5 | open-record |
-| Depth bias (constant/slope/clamp) | YES | ❓ NYC | FF-pool enable + tiler-param floats — not yet located on M5 | open-record |
+| Depth/stencil compare (8 funcs) + stencil ops (8) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** depth FRONT `0x58000+0x170` / BACK `+0x174` (compare[26:24]); stencil FRONT `+0x178` / BACK `+0x17c` (pass[18:16]·zfail[21:19]·sfail[24:22]·compare[27:25]); **enums BIT-IDENTICAL to A18** — all 8 compare + all 8 stencil ops HW-validated | M5-measured (`cmdstream/README-M5-deltas.md`) |
+| **Depth clamp vs clip** (`depthClampEnable`) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** rasterizer word `0x58000+0x1a8`, depth-clip/clamp field **bits [11:10]** (same 2-bit enum as A18) | M5-measured |
+| **Polygon line fill** (`POLYGON_MODE_LINE`) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** line-mode bit set in `+0x16c` / `+0x170` bit18 / `+0x188` — HW-supported (fill/line only, as A18) | M5-measured |
+| Depth bias (constant/slope/clamp) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** depth-bias **enable `0x58000+0x16c` bit17**; bias constant/slope/clamp floats in the tiler-param region (as A18) | M5-measured |
 | **Programmable blend** (any factor/op) / **dual-source** / **16 logic ops** | YES | ✅ native (mechanism) | compiled into fragment shader (TBDR); logic-op via `0x0b` LUT (round-trip green) | inherit✓ |
-| Color write mask | YES | ❓ NYC | FF-pool `0x58000` mask bits — reorganized offset not yet pinned on M5 | open-record |
+| Color write mask | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** write-mask / store-class at `0x58000+0x194` (`+0x128`); full mask `0xf` = no diff, partial engages the FS store epilog (per-channel packing partial ⏳) | M5-measured (per-channel packing ⏳) |
 | Provoking vertex / flat-shading (`[[flat]]`) | YES | ✅ native | `iter_flat` `0x1f` (round-trip green) | inherit✓ |
-| Alpha-to-coverage / alpha-to-one | YES | ❓ NYC | FS epilog + FF bits in reorganized `0x58000` — not yet located on M5 | open-record |
-| Point size (`[[point_size]]`) / clip distances / multi-viewport | YES | ❓ NYC | PPP output-select in reorganized `0x58000` — not yet located on M5 | open-record |
+| Alpha-to-coverage / alpha-to-one | YES | ✅ native (mechanism) | **RESOLVED on M5 (EXP-M5-10):** alpha-to-**one** has NO pool field — FS-epilog only (as A18); alpha-to-coverage = FS epilog + FF side-bit (mechanism transfers; exact M5 pool bit inherited from A18 `+0x18`/`+0x50`) | M5-measured (a-to-one); inherit✓ (a-to-cov) |
+| **Layered rendering** `[[render_target_array_index]]` (Vulkan multiview / single-pass cubemap / `gl_Layer`) | YES (MSL-probe ACCEPT) | ✅ native (mechanism) | **PPP output-select bit + per-vertex layer output — parallel to `viewport_array_index`** (A18: output-select word `0x58000+0x20`); the mechanism (a dedicated per-vertex output-select routed through the FF-pool output-select word) transfers, **exact M5 pool bit is in the reorganized `0x58000` and inherited-from-A18 / TBD** (same still-open PPP output-select word as the multi-viewport row) | M5-MSL-probe (EXP-M5-12); mechanism inherit✓; PPP bit TBD |
+| Point size (`[[point_size]]`) / clip distances / multi-viewport (`viewport_array_index`) | YES | ❓ NYC | PPP output-select in reorganized `0x58000` — not yet located on M5 (the output-select word is the last genuinely-open FF-pool record after EXP-M5-10) | open-record |
 | Polygon **point** fill | NO (Metal-unreachable) | ⛔ emulated | fill/lines only (== A18) | inherit |
 | Cull distance / custom restart index | NO (Metal-unreachable) | ⛔ emulated | MSL exposes clip only / always all-ones (== A18) | inherit |
+| **Conservative rasterization** | NO (Metal exposes no path) | ⛔ emulated | Apple/Metal has no conservative-raster API → a Vulkan/GL driver must **emulate** (shader-side bbox expansion) | inherit; Metal-unexposed |
 | Scissor test | YES | 🔥 kernel | `isp_scissor_base` submit param (submission identical) | inherit |
 | Packed depth24-stencil8 | NO (`depth24Stencil8=NO`) | ⛔ emulated | Z/S separate resources (== A18) | M5-reprobed (device flag) |
 | Wide / smooth lines; conditional rendering | Metal caps/absent | ❓ NYC | extrapolate-and-test (Metal line width fixed; cond-render CPU-emulated) | inherit; extrapolate |
 
-**§10 tally: native 6 · NYC 9 · emulated 4 · kernel 1.**
+**§10 tally: native 13 · NYC 2 · emulated 4 · kernel 1.** *(EXP-M5-10 reconciliation: depth/stencil compare,
+depth clamp/clip, polygon line fill, depth bias, color write mask, alpha-to-coverage/one moved
+NYC→**native/M5-measured**; layered rendering added native; conservative rasterization added emulated.)*
 
 ---
 
@@ -278,10 +286,12 @@ their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records
 | Fragment built-ins (primitive_id/sample_id/position/front-facing) | YES | ✅ native | `get_sr` (HW-confirmed on M5) + flat tiler load | inherit✓ |
 | Sample-rate shading (`[[sample_perspective]]`) | YES | ✅ native | `iter` mode + `iter_at` setup | inherit✓ |
 | `discard_fragment()` | YES | ✅ native | predication (round-trip green) | inherit✓ |
+| **Fragment depth output** `[[depth(any/greater/less)]]` **+ `[[early_fragment_tests]]`** | YES (MSL-probe ACCEPT all 3 depth modes + early_fragment_tests) | ✅ native (mechanism) | depth emitted from the FS via an epilog **Z-store into the ZLS/depth path**; conservative-depth direction (`greater`/`less`) is the early-Z-compatible hint, `[[early_fragment_tests]]` = the pipeline early-Z flag. **Mutually exclusive with a depth-write output** (compiler rejects `[[depth]]`+`[[early_fragment_tests]]` together — an honest MSL rule, not an absence). Exact M5 depth-emit store op rides the `0xe7` store delta (splice-TODO) | M5-MSL-probe (EXP-M5-12); mechanism inherit✓; store-op splice-TODO |
+| **Fragment `[[sample_mask]]` output + input coverage mask** | YES (MSL-probe ACCEPT output + input + sample_id combo) | ✅ native (mechanism) | **output** = FS-epilog coverage-mask write (distinct from alpha-to-coverage / Vulkan `SampleMask`); **input** = coverage read via `get_sr` (HW-confirmed on M5, EXP-M5-01). Output store-op rides the store delta (splice-TODO) | M5-MSL-probe (EXP-M5-12); get_sr inherit✓ |
 | VS→FS varying linkage (UVS slots) | YES | ❓ NYC | UVS slot layout + `0x58000+0x2c` count in reorganized FF-pool — not yet re-pinned on M5 | open-record |
 | Vertex varying store | YES | ❓ NYC | `0x57` store — rides the store/memory delta | splice-TODO |
 
-**§11 tally: native 6 · NYC 2.**
+**§11 tally: native 8 · NYC 2.**
 
 ---
 
@@ -289,23 +299,26 @@ their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records
 
 | Capability | Present on M5 | Class | HW representation (M5) | Evidence |
 |---|---|---|---|---|
-| Tile size (32×32 fixed?) | present | ❓ NYC | `0x68000` tile-count fields — **re-measure on M5 (8 cores vs A18's 5)** | open-record |
+| Tile size (32×32 fixed) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** tile stays **fixed 32×32 on the 8-core M5** (A18 shrink-tile guidance holds); tile-grid word `0x68000+0x9c4 = 0x80000000\|(ceil(W/32)−1)` / `+0x9c8 = ceil(H/32)−1` (HW-validated 1920×1080→`0x8000003b`/`0x21`) | M5-measured (`pipeline/README-M5-deltas.md`) |
 | Tile-memory budget (32 KiB) | YES (`maxThreadgroupMemoryLength=32768`) | ✅ native | budget measured (EXP-M5-04); compute tgmem encoding measured (`+0x38`) | M5-measured |
-| Memoryless render targets | YES | ❓ NYC | attachment `+0x24`-class flag — attachment record not yet probed on M5 | open-record |
-| Load/store actions (load/clear/dontCare, store/resolve) | YES | ❓ NYC | load/render/store segments — not yet probed on M5 | open-record |
+| Memoryless render targets | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** `MTLStorageModeMemoryless` = poison surface VA `0x0eeee000` + zeroed backing size/stride/offset + cleared backing-present bit at attachment `0x10000018000` record +0x24/+0x28…+0x34 — byte-for-byte the A18 behavior | M5-measured |
+| Load/store actions (load/clear/dontCare, store/resolve) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** 0x300-byte LOAD/RENDER/STORE segments; clear color float4 @`0x10000118000+0x170`; loadAction=Clear sets clear-enable byte (rec+0x14); Load injects a surface-read; storeAction=DontCare poisons the store addr | M5-measured |
 | Hidden Surface Removal (HSR) | YES | ✅ native (implicit) | automatic; no userspace encoding | inherit✓ |
-| MSAA sample count (2×/4×/8×; 16=NO) | YES (`supports32BitMSAA`; 16 NO) | ❓ NYC | attachment sample-count field — not yet probed on M5 | device-flag; open-record |
-| **Programmable MSAA sample positions** | YES (`programmableSamplePositions`) | ❓ NYC | A18: client BO @+0x40; **M5 sample-position BO not yet probed** | device-flag; open-record |
+| MSAA sample count (2×/4×; 8×/16 NO) | YES (`supports32BitMSAA`) | ✅ native | **RESOLVED on M5 (EXP-M5-10):** sample count at color-attachment **record+0x30** (`0x80\|(n<<2)`: 1×=`0x00840000`/2×=`0x00880000`/4×=`0x00900000`), texture-type nibble→4 (2DMS) + covariant bit rec+0x24; **8× Metal-rejected** (only 1×/2×/4×) | M5-measured |
+| **Programmable MSAA sample positions** | YES (`programmableSamplePositions`) | ✅ native | **RESOLVED on M5 (EXP-M5-10) — userspace-emittable, NOT kernel-managed:** client BO `0x100000d8000+0x40`, array of N `(x,y)` f32 pairs snapped to a 1/16 grid (HW-validated: 4× default = D3D pattern; custom coords decoded exactly) | M5-measured |
 | Imageblocks (explicit/implicit, `[[color(n)]]` slots) | YES | ❓ NYC | read/write = `0x67`/`0xe7` (ride memory delta); slice addressing splice-TODO | splice-TODO |
 | Tile shaders (mid-render compute) | YES | ❓ NYC | inline tile-dispatch in render stream — not yet probed on M5 | open-record |
 | Programmable-blend `[[color(m)]]` tile read | YES | ❓ NYC | `tile_read` (rides memory delta) | splice-TODO |
 | **Raster order groups** (frag interlock) | YES (`rasterOrderGroupsSupported`) | ❓ NYC | `pixel_order` rides the `0x07` fence delta | device-flag; splice-TODO |
 | Depth store-action / ZLS | YES | 🔥 kernel | `ZLS_CTRL` firmware-programmed (submission identical) | inherit |
 | Partial-render / tiler-param overflow | YES | 🔥 kernel | firmware detects overflow (submission identical) | inherit |
-| Occlusion / visibility queries | YES | ❓ NYC | result-ptr + mode bit in FF-pool — not yet re-located on M5 | open-record |
+| Occlusion / visibility queries | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** per-draw mode `0x58000+0x1c4` bit14 (Boolean=1 / Counting=0); result offset `+0x1d8` = `byteOffset<<6`; HW-validated readback (Boolean wrote **1**, Counting wrote **4096** = 64×64 passed samples) | M5-measured |
 | Timestamps / GPU counters (STAGE-boundary only) | YES (`counterSets=timestamp`) | ✅ native | u64 ns; stage-boundary only (device flags measured on M5) | M5-measured (device flag) |
+| **Pipeline-statistics queries** (primitives-generated / clipping / VS-FS-invocations) | NO (Metal exposes no path) | ⛔ emulated | Metal has no pipeline-statistics counter set (only STAGE-boundary timestamps) → a Vulkan/GL driver must **emulate** these queries | inherit; Metal-unexposed |
 
-**§12 tally: native 3 · NYC 10 · kernel 2.**
+**§12 tally: native 9 · NYC 4 · emulated 1 · kernel 2.** *(EXP-M5-10 reconciliation: tile size, memoryless,
+load/store, MSAA, sample positions, occlusion moved NYC→**native/M5-measured**; pipeline-statistics queries
+added emulated. Residual NYC: imageblocks, tile shaders, tile_read, raster-order-groups.)*
 
 ---
 
@@ -318,11 +331,13 @@ their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records
 | Threadgroup (shared) memory size | YES | ✅ native | **shader-BO `+0x38` segmented encoding** (measured on M5, HW-validated 16 B…32 KiB) | M5-measured/delta |
 | Max threads/threadgroup 1024; occupancy tier | YES | ✅ native | limit (measured); **CDM config `+0x00` bit23** occupancy tier (measured; bit19-base dropped) | M5-measured/delta |
 | Shader-code pointer (compute) | YES | ✅ native | **CDM `+0x08 = shaderVA>>6`** (measured on M5) | M5-measured |
-| Indirect dispatch (`dispatchThreadgroupsWithIndirectBuffer`) | YES | ❓ NYC | 2nd CDM + grid-setup helper — indirect record not yet probed on M5 | open-record |
-| Indirect command buffers / device-generated commands | YES | ❓ NYC | ICB inline state-block+draw — not yet probed on M5 | open-record |
+| Indirect dispatch (`dispatchThreadgroupsWithIndirectBuffer`) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** injects a **2nd CDM record + a grid-setup multiply helper shader** (grid in threads; indirect args give threadgroups → driver replicates the multiply) — same as A18 | M5-measured |
+| **Indirect draw** (`drawPrimitives:indirectBuffer:`) | YES | ✅ native | **RESOLVED on M5 (EXP-M5-10):** VDM record in tiler stream `0x18000` — non-indexed opcode **`0x6c04`**, indexed **`0x6c32`** (= A18's `0x6404`/`0x6432` shifted by the same **+0x0800** as the direct draw); args ptr inline, indexed keeps `0x40000001` config + `0xffff` restart | M5-measured (`cmdstream/README-M5-deltas.md`) |
+| Indirect command buffers / device-generated commands (full ICB) | YES | ❓ NYC | ICB inline state-block+draw record — not yet probed on M5 | open-record |
 | Draw-mesh into ICB | YES | ❓ NYC | A18: same `0x70000600` mesh record — not yet probed on M5 | open-record |
 
-**§13 tally: native 5 · NYC 3.**
+**§13 tally: native 7 · NYC 2.** *(EXP-M5-10 reconciliation: indirect dispatch moved NYC→native;
+indirect draw added native — opcodes `0x6c04`/`0x6c32` measured. Full-ICB record still open.)*
 
 ---
 
@@ -363,51 +378,67 @@ their M5 encodings — store ISA + the mesh/tess/amplification cmdstream records
 | Sampler heap (large count, bindless `gpuResourceID`) | YES (`maxArgumentBufferSamplerCount=500000`) | ✅ native | 8-byte `gpuResourceID` index (arg-buffer model measured identical) | device-flag; inherit✓ |
 | Special-register (SR) enum + preload ABI; sysvals | YES | ✅ native | `get_sr` HW-confirmed on M5 (EXP-M5-01); sysvals via `get_sr` on demand | M5-measured (get_sr) |
 | **Graphics shader-entry bind** (draw carries no `shaderVA>>N`) | YES | 🔥 kernel | code-BO base reaches firmware out-of-band (submission identical) | inherit |
+| **Metal-4 residency sets** (`MTLResidencySet`) | YES (Metal 4 API) | 🔥 kernel | userspace declares a resource set; actual page **residency (wiring)** is firmware/kernel-managed via the submit — no userspace ISA/cmdstream encoding (submission model identical on M5) | inherit (submit identical) |
+| **Metal-4 IO command queues** (`MTLIOCommandQueue`) | YES (Metal 4 API) | 🔥 kernel | **out of GPU-execution scope** — a storage→memory DMA/streaming path managed by the OS/kernel IO subsystem, not the GPU userspace driver's ISA/cmdstream; noted for completeness | out-of-scope; kernel/OS |
 
-**§15 tally: native 6 · NYC 2 · kernel 1 · microarch-NYC 1.**
+**§15 tally: native 6 · NYC 2 · kernel 3 · microarch-NYC 1.**
 
 ---
 
 ## Summary counts (M5)
 
+> **Row-level recount (EXP-M5-12).** Counts below are **table rows**. The previous summary
+> (native 65 / NYC 72 / emulated 15 / kernel 5 / microarch 7 = 164) folded some multi-capability rows into
+> single tallies; this refresh counts rows and applies the EXP-M5-12 reconciliation: **11 new rows added**
+> and **13 rows moved NYC→native** (EXP-M5-10 measured them on M5 HW). See the experiment report for the
+> full add/fix list.
+
 | Class | Count | What it means for a Vulkan/GL implementer on M5 |
 |---|---|---|
-| **✅ native** | **65** | Present on M5 and its HW representation is available: measured on M5 (EXP-M5-05/06) or inherited from A18 and confirmed transferring (round-trip-green / measured identical). Emit as documented. |
-| **❓ NYC (present, encoding unmapped)** | **72** | **The OBJ-2 backlog.** Confirmed present on M5 (device flag / MSL-accept / advertised) but the M5 HW encoding is not yet mapped — a G17g-delta ISA family whose field-semantics are splice-TODO (46), or an open cmdstream/descriptor record (26). |
-| **⛔ emulated** | **15** | Absent on M5 → software-emulate. 6 re-probed on M5 via our own MSL/device flags (float atomic min/max, all 64-bit atomics, int8/int coopmat, no-D24S8); the rest inherit from A18 (fp64, arbitrary border color, polygon-point fill, cull distance, custom restart index, geometry shaders, transform feedback, compute-tess fallback). |
-| **🔥 kernel-managed** | **5** | RT BVH build, ZLS/depth store, partial-render trigger, scissor, graphics shader-entry bind. Submission model is identical on M5 → transfer. |
-| **⚙ microarch-NYC** | **7** | 2× ALU, flexible on-chip memory, Dynamic Caching dynamic behavior, RT reorder stage, lossless compression codec, full occupancy curve — no single emittable encoding (counters only). Inherited. |
+| **✅ native** | **84** | Present on M5 and its HW representation is available: measured on M5 (EXP-M5-05/06/**10**) or inherited from A18 and confirmed transferring (round-trip-green / measured identical). Emit as documented. **+19 vs prior:** the EXP-M5-10 FF-pool / TBDR / draw reconciliation (depth-stencil, raster, line-fill, depth-bias, write-mask, alpha, tile size, memoryless, load/store, MSAA, sample positions, occlusion, tessellation, indirect dispatch/draw) + new native rows (layered rendering, fragment depth output, sample_mask, RT bbox/curve). |
+| **❓ NYC (present, encoding unmapped)** | **61** | **The OBJ-2 backlog.** Confirmed present on M5 (device flag / MSL-accept / advertised) but the M5 HW encoding is not yet mapped — a G17g-delta ISA family whose field-semantics are splice-TODO, or an open cmdstream/descriptor record. **−12 vs prior** (13 out via EXP-M5-10; +1 int8-tensor, +1 RT-companion, −1 net rounding). |
+| **⛔ emulated** | **13** | Absent on M5 → software-emulate. Re-probed on M5 (float atomic min/max, all 64-bit atomics, `simdgroup_matrix<int/char>`, no-D24S8, sampleCount 8/16); inherited from A18 (fp64, arbitrary border color, polygon-point fill, cull distance, custom restart index, geometry shaders, transform feedback, compute-tess fallback); **+2 Metal-unexposed** (conservative rasterization, pipeline-statistics queries). |
+| **🔥 kernel-managed** | **7** | RT BVH build, ZLS/depth store, partial-render trigger, scissor, graphics shader-entry bind, **+ Metal-4 residency sets + IO command queues**. Submission model is identical on M5 → transfer. |
+| **⚙ microarch-NYC** | **5** | 2× ALU, flexible on-chip memory, Dynamic Caching dynamic behavior, RT reorder stage, lossless compression codec — no single emittable encoding (counters only). Inherited. |
 
 Per-section (native / NYC / emulated / kernel / microarch-NYC):
 §1 13/0/1/0/1 · §2 5/5/0/0/0 · §3 3/6/0/0/1 · §4 0/5/2/0/0 · §5 5/8/1/0/0 · §6 6/1/0/0/0 ·
-§7 0/4/1/0/0 · §8 1/7/0/1/1 · §9 0/4/3/0/0 · §10 6/9/4/1/0 · §11 6/2/0/0/0 · §12 3/10/0/2/0 ·
-§13 5/3/0/0/0 · §14 6/7/0/0/1 · §15 6/2/0/1/1.
-**Totals: native 65 · NYC 72 · emulated 15 · kernel 5 · microarch-NYC 7 = 164 capability rows.**
+§7 0/5/1/0/0 · §8 2/8/0/1/1 · §9 1/4/3/0/0 · §10 13/2/4/1/0 · §11 8/2/0/0/0 · §12 9/4/1/2/0 ·
+§13 7/2/0/0/0 · §14 6/7/0/0/1 · §15 6/2/0/3/1.
+**Totals (row-level): native 84 · NYC 61 · emulated 13 · kernel 7 · microarch-NYC 5 = 170 capability rows.**
 (§5 aniso>16× and §10 wide-lines/cond-render counted under NYC as extrapolate-and-test items.)
 
 ### The two OBJ-2 truths for M5
 
-1. **Presence is fully mapped; encoding is partially mapped.** Every Metal-exposed and Apple-advertised
-   capability is **enumerated and its presence confirmed** on M5 (device probe EXP-M5-04 + our MSL probe
-   EXP-M5-08). No Metal-exposed capability is missing from this census.
-2. **The OBJ-2 backlog (72 NYC) is "present-but-encoding-unmapped," not "absent."** It splits into
+1. **Presence is fully mapped; encoding is now mostly mapped.** Every Metal-exposed and Apple-advertised
+   capability is **enumerated and its presence confirmed** on M5 (device probe EXP-M5-04 + our MSL probes
+   EXP-M5-08 / **EXP-M5-12**). No Metal-exposed capability is missing from this census — the OBJ-2 review
+   BLOCKER (layered rendering unenumerated) and its 4 MAJOR / 5 MINOR gaps are closed.
+2. **The OBJ-2 backlog (61 NYC) is "present-but-encoding-unmapped," not "absent."** It splits into
    (a) **ISA field-semantics splice-TODO** for the G17g-delta families (memory/atomics, texture-sample,
    matrix, RT, mesh emit, call/function, fence/barrier, subgroup-reduce) — the ISA-semantics wave; and
-   (b) **open cmdstream/descriptor records** (FF-pool enums, attachment/PBE, tessellation/mesh/indirect
-   records, tiling/compression, sparse, sample positions, tile size). Closing these is a
+   (b) **open cmdstream/descriptor records** (PPP output-select word, USC-graphics bind grammar,
+   imageblock/tile-shader dispatch, attachment/PBE storage-image, mesh/amplification records,
+   tiling/compression, sparse). EXP-M5-10 already closed the FF-pool depth-stencil/raster/blend/occlusion +
+   TBDR (tile/MSAA/sample-pos/memoryless/load-store) + tessellation + indirect records. Closing the rest is a
    re-characterization effort on M5 hardware, **not** a discovery of new missing hardware functionality.
 
 ### Absences a Vulkan/GL driver on M5 must emulate (negative results, HW-confirmed)
 
-float atomic min/max; all 64-bit atomics (add/min/max); int8/integer cooperative matrix; fp64; packed
-depth24-stencil8; sampleCount 16; arbitrary sampler border color; polygon-point fill; cull distance;
-custom primitive-restart index; geometry shaders; transform feedback. The first six are **re-confirmed on
-M5** (our own MSL / device flags, EXP-M5-08); the rest inherit from A18's HW-validated absences.
+float atomic min/max; all 64-bit atomics (add/min/max); **`simdgroup_matrix<int/char>` integer cooperative
+matrix** (note: int8 matmul via the `MTLTensor` neural path is a **present-but-NYC** row, §7 — *not* an
+absence); fp64; packed depth24-stencil8; sampleCount 8×/16; arbitrary sampler border color; polygon-point
+fill; cull distance; custom primitive-restart index; geometry shaders; transform feedback; **conservative
+rasterization** (Metal-unexposed); **pipeline-statistics queries** (Metal-unexposed). float atomic min/max,
+all 64-bit atomics, integer coopmat, no-D24S8, sampleCount 8/16 are **re-confirmed on M5** (our own MSL /
+device flags, EXP-M5-08); the rest inherit from A18's HW-validated absences or are Metal-unexposed.
 
 ## Clean-room attestation
 
 Every M5 presence fact is a value the Metal driver returned to our own program (EXP-M5-04 device probe),
-the compiler's ACCEPT/REJECT of **our own** MSL (EXP-M5-08, `raw/msl_acceptance.txt`), or a byte our own
-process observed crossing the IOKit boundary (EXP-M5-06). Every classification is either measured on M5 or
-inherited from an already-established A18 finding in `docs/` (cited). No Apple binary was disassembled,
+the compiler's ACCEPT/REJECT of **our own** MSL (EXP-M5-08 + **EXP-M5-12**, `raw/msl_acceptance*.txt`), or a
+byte our own process observed crossing the IOKit boundary (EXP-M5-06 / **EXP-M5-10**). Every classification
+is either measured on M5 or inherited from an already-established A18 finding in `docs/` (cited). The
+EXP-M5-12 additions/reconciliations cite `cmdstream/README-M5-deltas.md` + `pipeline/README-M5-deltas.md`
+(EXP-M5-10, own-process data-trace / own-MSL) and the A18 base census. No Apple binary was disassembled,
 decompiled, or introspected. Reproducible via the cited experiments' `run.sh`/probe sources.

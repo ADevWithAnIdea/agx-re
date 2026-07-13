@@ -1,0 +1,14 @@
+device = Apple M5 / macOS-runtime MSL compile probe
+ACCEPT  layer_rt_array_index_vsout
+ACCEPT  viewport_array_index_vsout
+ACCEPT  layer_and_viewport_together
+ACCEPT  frag_depth_any
+ACCEPT  frag_depth_greater
+ACCEPT  frag_depth_less
+ACCEPT  frag_early_fragment_tests
+REJECT  frag_early_fragment_tests_with_depth :: program_source:3:96: error: depth attribute cannot be used in a fragment shader with early_fragment_tests | struct FOut{float4 c[[color(0)]];float d[[depth(greater)]];};[[early_fra
+ACCEPT  frag_sample_mask_output
+ACCEPT  frag_sample_mask_input_coverage
+ACCEPT  frag_sample_id_and_mask
+ACCEPT  frag_primitive_barycentric_probe_control
+DONE
