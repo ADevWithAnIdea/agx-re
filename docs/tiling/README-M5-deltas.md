@@ -35,15 +35,32 @@ Compression-eligible = **no ShaderWrite/PixelFormatView AND W≥16 ∧ H≥16** 
 allocation rounds up to a 16-KiB page — identical to A18's `aux = paddedImageBytes/(32·bpp)`. Aux placed
 immediately after the image in the same allocation (as A18).
 
-## 3. Intra-tile Morton order — INHERITED from A18 §1.1/§1.6 (not byte-re-solved on M5) ⏳
+## 3. Intra-tile Morton order — INHERITED from A18 §1.1/§1.6; direct read-back is CPU-OPAQUE on M5 (EXP-M5-23) ⏳
 The within-tile Z-order (`morton_D(x,y)`), 3D/array/cube/MSAA plane stacking, and mip packing are **inherited
-from A18**. They are *strongly* corroborated on M5 because the §1 padding rules — which are direct
-consequences of the tiled-Morton layout — reproduce byte-for-byte. A direct GPU-write-pattern read-back of the
-Morton byte order was **attempted but not captured**: our `iotrace` interposer did not snapshot the
-compute-written texture backing BO this run (the pattern-probe backing was absent from the dump). Re-run with a
-draw-fill or blit-fill probe (as A18 EXP-0017 did) to byte-verify the curve on M5.
+from A18**. They are *strongly* corroborated on M5 because the §1 padding rules — direct consequences of the
+tiled-Morton layout — reproduce byte-for-byte over 6 formats × 8 dims.
+
+**A direct byte-order read-back is NOT possible on M5** (EXP-M5-23 pinned the root cause, superseding EXP-M5-10's
+"interposer didn't snapshot"). We wrote texel(x,y)=`(y<<16)|x` and tried every route to read the raw twiddled
+backing; the raw twiddled bytes are **never CPU-observable**:
+- **iotrace sel-9 capture:** a standalone uncompressed (ShaderWrite) `StorageModeShared` texture backing is **not
+  registered via resource-map selector 9** on M5 (unlike A18/EXP-0017) — the raw value `0x00020003` (texel(3,2))
+  appears in **zero** captured BOs, for both a draw-store and a compute image-store.
+- **heap-placed texture:** a `StorageModeShared` heap backing IS a sel-9 BO and IS captured, but M5 stores heap
+  textures **lossless-compressed even with ShaderWrite** (texSizeInHeap `0x24800` = image `0x24000` + `0x800`
+  aux; content is the HW compression codec, e.g. repeating 0x4c-byte blocks, not the raw Morton curve).
+- **self-process VM scan** (reading our OWN texture's data — clean-room OK): the full 36864 distinct texel values
+  never appear contiguously in any CPU-readable region (best window: RW 383, incl. READ-only 3688, of 36864).
+  `getBytes` returns correct texels but de-twiddles on a GPU/driver path — the twiddled bytes never materialise
+  in CPU-visible linear memory.
+
+Consequence: the exact intra-tile permutation is **not independently re-derived on M5**; it stays inherited from
+A18 (§1.1) and is strongly corroborated by the byte-for-byte allocation model. This read-back opacity is itself a
+first-class M5 result (a Mesa driver reading twiddled texels back on the CPU must go through Metal's blit/getBytes
+de-twiddle path, not a raw mmap). Tooling: `experiments/EXP-M5-23-cmdstream-opens/scripts/{mortondraw,texscan}.m`.
 
 ## Open ⏳
-Direct Morton byte-order read-back on M5 (method note above); block-compressed (BC/ASTC) tile rule on M5
-(inherited — A18 uses 32-block tiles); the compressed block codec + state-byte semantics remain HW-internal
-(documented disable-fallback, as A18).
+Direct Morton byte-order read-back on M5 is **blocked by design** (§3: texture backing is CPU-opaque —
+sel-9-invisible standalone, compressed-in-heap, absent from self-VM); within-tile order stays inherited from A18
+and corroborated structurally. Block-compressed (BC/ASTC) tile rule on M5 (inherited — A18 uses 32-block tiles);
+the compressed block codec + state-byte semantics remain HW-internal (documented disable-fallback, as A18).

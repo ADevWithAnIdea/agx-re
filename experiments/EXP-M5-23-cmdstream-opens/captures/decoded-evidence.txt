@@ -1,0 +1,104 @@
+EXP-M5-23 decoded evidence (Apple M5 / T8142 / macOS 27.0, 8 GPU cores, AGXAcceleratorG17G)
+Method: own-process IOKit DATA-TRACE (tools/iotrace, arm64e) + change-one-Metal-parameter BO diffing
++ own-MSL HW-probe + own-process self-VM scan (own texture data). No Apple binary introspected.
+Full per-run diffs: analysis.txt (in this dir). Bulk BO snapshots stay on device (gitignored).
+
+================================================================================
+TASK 1 — RASTERIZATION RATE MAP (foveated rendering)   [RESOLVED]
+================================================================================
+Harness: ratemap.m  --rate 0 (baseline) vs --rate 1 (8x8 quality zones, centre 1.0 / edge 0.25).
+Metal reports:  screenSize 256x256  ->  physicalSizeForLayer:0 = 224x224   (real foveation)
+                parameterBufferSizeAndAlign = { size=0xc030, align=4 }
+                copyParameterDataToBuffer populated (screen<->physical rate table).
+
+Decisive: TILE-COUNT words follow the PHYSICAL (rasterised) size, not the screen size:
+  0x68000 +0x9c4 : rm_off = 0x80000007   rm_on = 0x80000006   (=0x80000000|(ceil(dim/32)-1))
+  0x68000 +0x9c8 : rm_off = 0x00000007   rm_on = 0x00000006
+     screen 256 -> ceil/32-1 = 7   ;   physical 224 -> ceil/32-1 = 6   <-- rate map => physical
+
+Rate-map enable / reference in the tiler(VDM) stream:
+  0x18000 +0x38 : rm_off = 0x00000040   rm_on = 0x0000c180     (bound-rate-map field)
+  0x18000 +0x24 : rm_off = 0x00005800   rm_on = 0x00005e00     (UVS/size grows by 6)
+  0x18000 +0x40.. : USC bind addresses relocate (extra rate resource inserted)
+
+Rate-map parameter/zone data (client BO; the screen<->physical conversion table shaders read):
+  +0x100: e7909a00 00000000 | ffffff00 00ebff00 (x N zone pairs) | f982be00 7d210000
+          -> per-axis rate factors as fixed-point pairs + scale header; 0xc030 bytes total.
+New BOs appear only with the rate map (zone/rate arrays + relocated heaps):
+  va10000030000..032d00, va10000070000, va10000098000, va100000e0000, ... (see analysis.txt)
+All submits STATUS=4.
+
+================================================================================
+TASK 2 — VERTEX AMPLIFICATION + PAYLOAD-HEAVY MESH + FULL ICB   [RESOLVED]
+================================================================================
+--- Vertex amplification (amp.m, count 1 vs 2; 2-layer array RT in both) ---
+  0x18000 +0x30 : amp1 = 0x00000000   amp2 = 0x00000001     (amplification-active / factor-1)
+  0x58000 +0x160: amp1 = 0x00000000   amp2 = 0x00000001     (mirror of the above)
+  0x58000 +0x158: amp1 = 0x00190000   amp2 = 0x0d190000     (PPP word: bits[27:24]=0xd added)
+  0x58000 +0x128: amp1 = 0x000004c0   amp2 = 0x000007c0     (store-class: extra RT view outputs)
+  VS shader BO 0x10000000000: 619 words differ (amplification_id codegen)
+  RT descriptors 0x10000108000/0x10000128000 differ (per-view render_target_array_index -> layer)
+  (M5 max = supportsVertexAmplificationCount:2; 3 = NO, so factor is 1 or 2 only.)
+
+--- Payload-heavy / multi-object mesh (meshpayload.m, min=payload1/obj1x1/V3P1/TPT3
+    vs heavy=payload48/obj4x2/V64P32/TPT32) ---
+  0x18000 +0xac : min = 0x00000001   heavy = 0x00000004     OBJECT-GRID X  (=objGridX)
+  0x18000 +0xb0 : min = 0x00000001   heavy = 0x00000002     OBJECT-GRID Y  (=objGridY)
+  0x18000 +0x44 : min = 0x00400803   heavy = 0x00400820     mesh threads/tg (low byte 3 -> 32)
+  0x18000 +0x40 : min = 0x00000000   heavy = 0x0001001f     mesh prim/vert cfg (0x1f=maxP-1=31)
+  0x18000 +0x4c : min = 0x00000009   heavy = 0x00000081     packed mesh config
+  mesh shader BO 0x10000000000: 651 words differ (payload/output size)
+  *** NO 0x100000f8000 BO in EITHER min or heavy *** — the A18 mesh dispatch-descriptor BO has
+      NO M5 equivalent; grid dims + config are inlined in 0x18000, UVB in tiler heap. No CDM BO
+      (single graphics submit). Both STATUS=4.
+
+--- Full ICB (icb.m, executeCommandsInBuffer, draw N=1 vs N=4) ---
+  0x18000 +0x04 : N=1 -> 0x00000001   N=4 -> 0x00000004      COMMAND COUNT = N
+  0x18000 +0x58 : N=1 -> 0x00000001   N=4 -> 0x00000004      (count mirror)
+  N inline draw records, each with the DIRECT draw opcode 0x69c4 (NOT indirect 0x6c04):
+     0x69c4 halfword at file-off 0x1aa, 0x1ee, 0x232, 0x276  (4 records, stride 0x44)
+  Clean isolated re-run: icb1 SUBMIT status=4, icb4 SUBMIT status=4.
+
+================================================================================
+TASK 3 — INTRA-TILE MORTON BYTE ORDER   [BLOCKED on M5 — root cause characterised]
+================================================================================
+Goal: byte-verify the within-tile twiddle by writing texel(x,y)=(y<<16)|x and reading the raw
+backing. On M5 the raw twiddled backing is NOT CPU-observable through any available route:
+  (a) iotrace sel-9 BO capture: a STANDALONE StorageModeShared texture backing (0x28000, uncompressed
+      with ShaderWrite) is NOT registered via resource-map selector 9 (unlike A18/EXP-0017).
+      Grep of every captured BO for the raw value 0x00020003 (texel(3,2)) = 0 occurrences, for
+      draw-store AND compute-store.  (Only 2 sel-5 pages + buffers/heaps are captured.)
+  (b) Heap-placed texture: heap backing IS a sel-9 BO and IS captured (va10000040000 sz0x2c000),
+      but M5 stores heap textures LOSSLESS-COMPRESSED even with ShaderWrite (texSizeInHeap 0x24800 =
+      image 0x24000 + 0x800 aux; content is the HW compression codec, e.g. repeating 0x4c-byte
+      blocks "04000e25 fc040000 ffffffff ...", NOT the raw Morton curve).
+  (c) Self-process VM scan (texscan.m; reading OUR OWN texture's data — clean-room OK): the full set
+      of 36864 distinct texel values never appears contiguously in ANY CPU-readable region
+      (best window: RW 383/36864 distinct; incl. READ-only 3688/36864). getBytes returns correct
+      texels (de-twiddle happens on a GPU/driver path), but the twiddled bytes never materialise in
+      CPU-visible linear memory.
+Consequence: the exact intra-tile permutation is not independently re-derived on M5. The ALLOCATION
+model (tile edge T per bpp, page-granule G, mult-of-T padding, aux=numTexels/32) IS byte-for-byte
+confirmed (EXP-M5-10) — a direct consequence of the tiled-Morton layout — so the Morton STRUCTURE is
+strongly corroborated; the within-tile order remains inherited from A18 (docs/tiling/README.md 1.1).
+
+================================================================================
+TASK 4 — USC GRAPHICS BUFFER SLOTS > 2   [RESOLVED]
+================================================================================
+Harness: usc.m (fragment draw, 1 tex + 1 samp + K buffers). FS Tier-2 arg buffer BO 0x10000250000.
+Buffer VAs are INLINE 8-byte slots at +0x610 + k*8 (high32 = 0x00000100), confirmed k=0..3:
+  buf=1: +0x610=..01cd00                                                   (buf[0])
+  buf=2: +0x610=..01cd00  +0x618=..01ce00                                  (buf[0..1])
+  buf=3: +0x610=..01cd00  +0x618=..01ce00  +0x620=..01cf00                 (buf[0..2])
+  buf=4: +0x610=..01cd00  +0x618=..01ce00  +0x620=..01cf00  +0x628=..01d500(buf[0..3])
+The texture-array/sampler-array pointers (+0x600/+0x608) shift forward as buffers are added
+(buf1: +0x600=..250620/+0x608=..250640 ; buf3/4: +0x600=..250640/+0x608=..250660). No switch to an
+indirect form beyond 2 buffers — the inline-VA slot list simply extends. All STATUS=4.
+
+================================================================================
+FAULT BEHAVIOUR (first-class data point)
+================================================================================
+During the first combined sweep, one transient GPU fault around the mesh_heavy/ICB region discarded
+3 consecutive submits as innocent victims (kIOGPUCommandBufferCallbackErrorInnocentVictim) and errored
+one (usc_b1 STATUS=5). GPU recovery CONTAINED it with NO host reboot (macvdmtool NOT needed); all
+subsequent and all isolated re-runs completed STATUS=4. M5 GPU-fault recovery is contained.

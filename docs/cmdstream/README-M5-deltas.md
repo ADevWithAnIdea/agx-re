@@ -122,11 +122,16 @@ A18/RT-2a. Header of 8-byte LE GPU VAs (high32 = `0x00000100`):
 
     +0x600  texture-array ptr      (-> first 0x20-byte texture descriptor)
     +0x608  sampler-array ptr      (= tex_ptr + num_textures*0x20)
-    +0x610  buffer[0] VA           (each extra bound buffer adds an 8-byte slot: buffer[1]@+0x618)
+    +0x610  buffer[k] VA at +0x610 + k*8  (INLINE 8-byte GPU VA per bound buffer, high32=0x00000100)
     ...     0x20-byte texture descriptors, then 0x20-STRIDE sampler descriptors, then 0x60000000 term
     num_textures = (samp_ptr - tex_ptr)/0x20 ; num_samplers = (terminator - samp_ptr)/0x20
 
-HW-clean over tex1/2/3 × samp1/2/3 × buf1/2. Uniform-preamble USC program relocated **`0x10000130000`
+HW-clean over tex1/2/3 × samp1/2/3 × buf1/2.
+- **Buffer slots >2 RESOLVED (EXP-M5-23):** the `+0x610 + k*8` form is a plain **inline-VA list** that simply
+  extends — **no switch to an indirect form beyond 2 buffers**. HW-validated **k=0..3** (4 buffers): buf[0]@+0x610,
+  buf[1]@+0x618, buf[2]@+0x620, buf[3]@+0x628, then `0` terminator. The `+0x600`/`+0x608` texture/sampler-array
+  pointers shift **forward** as buffers are added (the buffer list precedes the descriptor arrays in the BO).
+  (4 = M5's tested range; each bound buffer = one 8-byte slot.) Uniform-preamble USC program relocated **`0x10000130000`
 → `0x10000138000`** (adding a resource rewrites the `0x67`-load program body; per-stage headers as A18).
 The VS→FS varying-linkage *opcodes* are inherited from the M5 ISA work; only the count field (`+0x164`)
 was re-measured here (a dedicated user-varying-reorder render was not re-run — minor residual).
@@ -140,10 +145,49 @@ The EXP-M5-10 "abort" was a **harness bug** (it called the *tile* method
   as A18, *not* +0x0800 like the draw opcodes), then **6 grid-dimension words** (object-grid + mesh-grid),
   then `0xc0000000` terminator — replacing the plain draw's `0x69c4` primitive record. Header length word
   `0x18000+0x18` grows (`0x4000002e`→`0x40000d2c`) for the larger object+mesh state block.
-- UVB intermediate in tiler-heap **`0x10000018000`**; **no separate `0x100000f8000` BO on M5** (A18 had
-  one) — the minimal mesh carries grid dims inline. (Payload-heavy / vertex-amplification meshes not probed.)
+- UVB intermediate in tiler-heap **`0x10000018000`**; **no separate `0x100000f8000` BO on M5** (A18 had one).
+- **Object-grid dims + config INLINE — RESOLVED (EXP-M5-23), incl. payload-heavy multi-object mesh.** Probed
+  min (payload1 / obj1×1 / maxV3·maxP1 / meshTPT3) vs heavy (payload48 / obj4×2 / maxV64·maxP32 / meshTPT32):
+  - **`0x18000+0xac` = object-grid X**, **`+0xb0` = object-grid Y** (min `1/1` → heavy `4/2`).
+  - **`+0x44` = mesh threads-per-threadgroup** (low byte, `3`→`0x20`=32); **`+0x40`** packs `maxPrim−1`
+    (`0x1f`=31 for maxP=32); `+0x4c` a packed mesh config (`0x09`→`0x81`).
+  - **`0x100000f8000` has NO M5 equivalent even for payload-heavy meshes** — absent for min AND heavy; grid dims
+    + config live inline in `0x18000`, the UVB stays in the tiler heap. Still a single graphics submit (no CDM BO).
+
+## Vertex amplification — RESOLVED (EXP-M5-23)
+`setVertexAmplificationCount:2` (M5 max; `supportsVertexAmplificationCount:3` = **NO**). Probed count 1 vs 2 with
+a 2-layer array RT in both and the VS routing each amplified view to its own layer (`[[amplification_id]]` →
+`[[render_target_array_index]]`):
+- **`0x18000+0x30` = amplification-active / factor−1** (`0`→`0x00000001`), **mirrored at `0x58000+0x160`** (`0`→`1`).
+- **PPP `0x58000+0x158`** gains **bits[27:24]=0xd** (`0x00190000`→`0x0d190000`) — the amplified-view output
+  encoding; the store-class `+0x128` co-varies (`0x4c0`→`0x7c0`, extra RT-view outputs).
+- Per-view render-target routing reuses the documented **layer** machinery (PPP bit20 `render_target_array_index`).
+  Factor is 1 or 2 only (M5 cap); count 2 sets the fields to 1 (stored as factor−1).
+
+## Full ICB (`executeCommandsInBuffer`) — RESOLVED (EXP-M5-23)
+Command count at **`0x18000+0x04` = N** (HW-validated 1→4; mirror at `+0x58`). Each command expands to an inline
+state-block + a draw record carrying the **direct** draw opcode **`0x69c4`** (NOT the indirect `0x6c04`), at
+stride **0x44** (halfwords at file-off `0x1aa/0x1ee/0x232/0x276` for N=4). Structurally identical to A18 (A18
+uses its direct opcode `0x61c4`). Mesh-in-ICB inherits the `0x70000600` record (EXP-M5-13). Submits STATUS=4.
+
+## Rasterization rate map (foveated rendering) — RESOLVED (EXP-M5-23)
+`MTLRasterizationRateMap` is present and **userspace-emittable** (`supportsRasterizationRateMapWithLayerCount:`
+1–2 = YES). Probed a plain draw vs the same draw with a bound rate map (8×8 quality zones, centre 1.0 / edge 0.25):
+- Metal reports screen 256×256 → **`physicalSizeForLayer:0` = 224×224** (real variable-rate rasterisation), and
+  `parameterBufferSizeAndAlign = {0xc030, 4}`; `copyParameterDataToBuffer` fills the screen↔physical rate table.
+- **DECISIVE — tile-count follows the PHYSICAL (rasterised) size, not the screen size:** `0x68000+0x9c4` =
+  `0x80000000|(ceil(physW/32)−1)` = **`0x80000006`** with the rate map vs `0x80000007` without; `+0x9c8` = 6 vs 7
+  (screen 256→7, physical 224→6). A Mesa driver renders foveated content into a physical-sized intermediate and
+  the tiler is programmed with the physical dims.
+- **Bound-rate-map field** in the tiler stream: **`0x18000+0x38`** = `0x40` → `0xc180` when a rate map is bound;
+  `+0x24` (UVS/size) grows `0x5800`→`0x5e00`.
+- **Parameter/zone data** (client BO the shader reads to convert coords): per-axis fixed-point rate-factor zone
+  pairs (`ffffff00`/`00ebff00` …) + a scale header, 0xc030 B total; rate-map data BOs (zone/rate arrays) appear
+  only when a rate map is bound.
 
 ## Open (next cmdstream experiments)
-- User-varying reorder HW-proof (A18 EXP-G1a analog) not re-run on M5; vertex-amplification and
-  payload-heavy mesh records; `0x100000f8000`'s M5 role for complex meshes; the USC `+0x610`
-  buffer-slot's inline-vs-indirect form beyond 2 buffers; sel-2 device-info struct.
+- User-varying reorder HW-proof (A18 EXP-G1a analog) not re-run on M5; sel-2 device-info struct.
+- **RESOLVED (EXP-M5-23):** rasterization rate map (physical-size tiling + bound field + param buffer);
+  vertex amplification (`0x18000+0x30`/`0x58000+0x160`/PPP bits[27:24]); payload-heavy/multi-object mesh
+  (object-grid dims `0x18000+0xac/+0xb0`, meshTPT `+0x44`); `0x100000f8000` has **no M5 equivalent** (inlined);
+  full ICB (count `0x18000+0x04`, N×`0x69c4`); USC buffer slots inline `+0x610+k*8` to k=3 (no indirect form).
