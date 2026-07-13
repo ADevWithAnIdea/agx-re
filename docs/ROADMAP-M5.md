@@ -76,8 +76,10 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 ## Phase 5 — Capability census + synthesis + ACCEPTANCE GATES  ◐
 - ☑ **5.1 Capability baseline** — EXP-M5-04: Apple10/G17g/T8142; RT+mesh+tensors+funcptrs+argbuf-Tier2; SIMD32,
   32KiB tgmem. → `experiments/EXP-M5-04-capabilities/m5-capability-matrix.md`.
-- ☐ **5.2 Capability census** — every Metal-exposed + Apple-advertised feature → native/emulated/kernel/NYC
-  for M5. (OBJ-2)
+- ◐ **5.2 Capability census** — EXP-M5-08: **164 rows** (65 native / 72 NYC / 15 emulated / 5 kernel / 7 microarch);
+  **presence 100% enumerated, no Metal-exposed capability unaccounted for** (every gap = "encoding not yet mapped").
+  Backlog (72 NYC = ~46 ISA field-semantics + ~26 cmdstream/descriptor records) directs the remaining waves.
+  → `docs/capability-matrix-m5.md`, `docs/capability-completeness-m5.md`. (OBJ-2)
 - ☐ **5.3 M5 porting guide** — per Mesa `src/asahi` module, M5 deltas with experiment citations.
 - ☐ **5.4 OBJ-1 gate** — empty-context reviewer finds no driver-blocking holes in `docs/` (M5).
 - ☐ **5.5 OBJ-2 gate** — empty-context reviewer finds no missing Metal-exposed HW functionality.
@@ -92,6 +94,8 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 - **EXP-M5-04** ☑ MTLDevice capability baseline — **M5 = Apple10 / G17g / T8142**, RT+mesh+tensors; OBJ-2 seed.
 - **EXP-M5-05** ☑ ISA DB fork `tools/agx-isa-m5` — tokenization **96.6% own / 98.0% tp**, round-trip green, hang fixed.
 - **EXP-M5-06** ☑ cmdstream + descriptor deltas vs A18 (DYLD works under SIP); → `docs/*/README-M5-deltas.md`.
+- **EXP-M5-08** ☑ OBJ-2 capability census — 164 rows, presence 100% enumerated; backlog = 72 NYC (encoding-unmapped).
+- **EXP-M5-07** ◐ ISA semantics splice (memory/typed/`0xNe`/`0xb7`/call) — *agent running*; closes ~46 of the NYC backlog.
 - **Next (resume point):** (1) **splice-and-observe semantics** for the M5-specific ISA ops (device now SIP-off,
   fault-recoverable) — memory/typed/`0xNe`/`0xb7`/call/matrix/RT/mesh; (2) render M5 DB into `docs/isa/` for OBJ-1;
   (3) close cmdstream/descriptor open items (FF-pool enums, PBE, tiling); (4) OBJ-2 capability census; then the
