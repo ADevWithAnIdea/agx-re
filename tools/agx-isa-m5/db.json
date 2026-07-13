@@ -5473,6 +5473,89 @@
       "provenance": "HW-VALIDATED behaviour + byte-diff (EXP-0035): visible_function_table dispatch (sel=0->vadd, 1->vmul) returns exact A+B / A*B. Exact operand fields are follow-ups (need an indirect-call splice testbed)."
     },
     {
+      "mnemonic": "m5_call",
+      "length": 8,
+      "match": [
+        [
+          0,
+          8,
+          255
+        ],
+        [
+          8,
+          8,
+          199
+        ],
+        [
+          16,
+          8,
+          255
+        ],
+        [
+          24,
+          8,
+          127
+        ]
+      ],
+      "fields": [
+        {
+          "name": "b4",
+          "start": 32,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b5",
+          "start": 40,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b6",
+          "start": 48,
+          "width": 8,
+          "type": "raw"
+        },
+        {
+          "name": "b7",
+          "start": 56,
+          "width": 8,
+          "type": "raw"
+        }
+      ],
+      "semantics": "M5 out-of-line function-CALL branch-and-link `ff c7 ff 7f be 03 40 0e` (8B). The actual control transfer for BOTH a direct([[noinline]]) and an indirect(visible_function_table) call; byte-identical and operand-invariant across arg-count and callee body. Preceded by the 0x43 frame_marker (`43 00 00 01`) and a `9e 60 <type> 0e ..` call-setup op (byte+2 type: 0x00 direct = embeds the target PC in a `fe ..` tail; 0x01 indirect = target code-VA loaded from the function table by a preceding m5_load). Callee returns via the epilogue `27 00 04 00 20 00 a5 02`. RESOLVES the EXP-M5-11 MAJOR-4 open (M5 out-of-line CALL ABI). b4(0xbe)/byte0(0xff) load-bearing (splice->CMDBUF_ERROR, redirects the branch); b6(0x40) inert; b4..b7 kept raw (rule 5).",
+      "provenance": "HW-VALIDATED (EXP-M5-18): shdumplink builds the LINKED pipeline (MTLLinkedFunctions=the [[visible]] fns) so the archive carries the real _agc.main call site + each callee; agxrunlink dispatches it FROM the archive (FailOnBinaryArchiveMiss) with a bound MTLVisibleFunctionTable. Round-trip EXACT: c_dyn8 indirect out=[10,12..24]; c_noinline direct helper(a)=3a+1. Splice sweep of _agc.main: byte0/+4 fault, the 0x43 marker leader+companion runtime-inert. experiments/EXP-M5-18-call-abi/."
+    },
+    {
+      "mnemonic": "m5_call_tail",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          251
+        ],
+        [
+          8,
+          8,
+          30
+        ],
+        [
+          16,
+          8,
+          31
+        ],
+        [
+          24,
+          8,
+          0
+        ]
+      ],
+      "fields": [],
+      "semantics": "indirect call-setup tail `fb 1e 1f 00` (4B): the last setup word before the m5_call branch on an INDIRECT (visible_function_table) call; completes materialising the return context. Absent on the direct-call path. EXP-M5-18.",
+      "provenance": "HW-VALIDATED (EXP-M5-18): present in c_dyn8/c_dyn8b/c_dynxor indirect calls between the op04 setup and the m5_call branch; length 4 makes the branch reachable (else b_alu10 swallows it). Splice: bytes load-bearing (CMDBUF_ERROR on corruption)."
+    },
+    {
       "mnemonic": "half_alu",
       "length": 6,
       "match": [

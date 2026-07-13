@@ -70,10 +70,20 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
 - **Still open (documented, extension-gateable, with fallbacks in `porting-guide-m5.md` §8):** texture
   descriptor-bank nibble (byte+4) for dense binding slots ≥2 (slots 0–1 fully mapped); the M5 `24 80 03`
   image-store length; matrix `simdgroup_matrix` 8×8 operand packing + tile 12-vs-16 length determinant (raw);
-  atomic op-selector not per-bit exhaustively spliced; **call ABI `0xef/0xff`** (needs pipeline-`linkedFunctions`
-  extraction — standalone archive yields a link-time stub). Intra-shader control flow is green; a driver can gate
-  function-pointers / coop-matrix-operands until these are mapped. (Texture sample/read coord+slot+LOD RESOLVED
-  EXP-M5-17; RT AS-load / ray-data family RESOLVED EXP-M5-19 — RT loads use the general argument + split-memory forms.)
+  atomic op-selector not per-bit exhaustively spliced; coop-matrix 8×8 operand packing (extension-gated). A driver
+  can gate coop-matrix-operands until mapped. **RESOLVED this wave:** texture sample/read coord+slot+LOD (EXP-M5-17);
+  RT AS-load / ray-data (EXP-M5-19 — RT loads use the general argument + split-memory forms, no dedicated op); GPR
+  machine model 126 GPRs (EXP-M5-21); **function-call ABI (EXP-M5-18)**.
+- **CALL ABI — MAPPABLE (EXP-M5-18, linked-pipeline extraction + splice):** out-of-line direct + indirect calls
+  round-trip exactly. Sequence: `43 00 00 01` frame_marker (inherited, runtime-inert) → `9e 60 <type> 0e` call-setup
+  (byte+2 = 0x00 direct / 0x01 indirect; direct embeds target PC in a `fe 1f…` tail, indirect loads the target
+  code-VA from the `MTLVisibleFunctionTable` via a preceding `m5_load`) → **`ff c7 ff 7f be 03 40 0e`
+  branch-and-link (`m5_call`, 8B)** [+ `m5_call_tail` `fb 1e 1f 00` 4B on indirect]; callee ret = `27 00 04 00 20
+  00 a5 02` (`a5` = ret marker). Args by-register (no per-call-site marshalling); return in a fixed reg. The A18
+  `0f 05…8f`/`0f 80`/`0x8f` forms all changed on M5; only the `43` marker + intra-shader control flow carried over.
+  NEGATIVES: Metal **inlines** most vft calls (needs ≥8 fns behind a runtime index, or `[[noinline]]`); the census
+  `ef/ff 48 43` is **RT traversal, NOT a call**. Open: intra-setup bit-typing of `9e 60`, direct target-PC tail
+  encoding, spill frame. New reusable tooling: `experiments/EXP-M5-18-call-abi/{shdumplink,agxrunlink}.m`.
 
 ## Machine model — registers / uniforms / spill (RE-MEASURED on M5, EXP-M5-21)
 The A18 machine model (`README.md` §"Machine model — registers, uniforms, Dynamic Caching") transfers

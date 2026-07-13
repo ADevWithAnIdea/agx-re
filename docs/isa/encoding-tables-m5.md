@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 189 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 191 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -1526,6 +1526,25 @@
 
 *compute memory / scoreboard fence (4 bytes): 07 <kind> <scope> <mask>. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.*
 
+### `m5_call`
+
+- **Length:** 8 bytes  ·  **Match:** byte+0==0xff, byte+1==0xc7, byte+2==0xff, byte+3==0x7f  ·  **Provenance:** HW-validated
+
+| Field | Bits | Type | Enum / values |
+|---|---|---|---|
+| `b4` | [32:40] (byte+4) | raw/unmapped |  |
+| `b5` | [40:48] (byte+5) | raw/unmapped |  |
+| `b6` | [48:56] (byte+6) | raw/unmapped |  |
+| `b7` | [56:64] (byte+7) | raw/unmapped |  |
+
+*M5 out-of-line function-CALL branch-and-link `ff c7 ff 7f be 03 40 0e` (8B). The actual control transfer for BOTH a direct([[noinline]]) and an indirect(visible_function_table) call; byte-identical and operand-invariant across arg-count and callee body. Preceded by the 0x43 frame_marker (`43 00 00 01`) and a `9e 60 <type> 0e ..` call-setup op (byte+2 type: 0x00 direct = embeds the target PC in a `fe ..` tail; 0x01 indirect = target code-VA loaded from the function table by a preceding m5_load). Callee returns via the epilogue `27 00 04 00 20 00 a5 02`. RESOLVES the EXP-M5-11 MAJOR-4 open (M5 out-of-line CALL ABI). b4(0xbe)/byte0(0xff) load-bearing (splice->CMDBUF_ERROR, redirects the branch); b6(0x40) inert; b4..b7 kept raw (rule 5).*
+
+### `m5_call_tail`
+
+- **Length:** 4 bytes  ·  **Match:** byte+0==0xfb, byte+1==0x1e, byte+2==0x1f, byte+3==0x00  ·  **Provenance:** HW-validated
+
+*indirect call-setup tail `fb 1e 1f 00` (4B): the last setup word before the m5_call branch on an INDIRECT (visible_function_table) call; completes materialising the return context. Absent on the direct-call path. EXP-M5-18.*
+
 ### `frame_marker_compact`
 
 - **Length:** 2 bytes  ·  **Match:** byte+0==0x60  ·  **Provenance:** mixed
@@ -2918,4 +2937,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 189 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 191 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
