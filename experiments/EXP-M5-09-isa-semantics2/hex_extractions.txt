@@ -1,0 +1,94 @@
+# EXP-M5-09 key _agc.main hex from our own compiled MSL (M5 / Apple10 / G17g / T8142).
+# shdump -f <fn> kernels/<src>.metal ; agxparse.py --extract-hex. Full per-kernel hex in hex/*.hex.
+# CLEAN-ROOM: every byte below is OUR OWN compiled shader; no Apple binary inspected.
+
+## ===== MARQUEE: matrix (simdgroup) vs tensor (MPP matmul2d) =====
+# CONTROL LADDER (isolates tile-load/store from the MAC):
+#   ls_f32  (load A + store R, NO multiply): TWO ?f..07.. tile ops, ZERO MAC op
+#   mul_f32 (load A,B + multiply + store R):  THREE ?f..07.. tile ops + ONE MAC op
+#   mad_f32 (load A,B,C + MAC + store R):     FOUR  ?f..07.. tile ops + ONE MAC op
+#
+# tile LOAD  (simdgroup_load):  ?f <slot?> 07 .. .. .. b8 0a 10 c0 ..   (byte+2=0x07, byte+8=0x10)
+# tile STORE (simdgroup_store): ?f <slot?> 07 .. .. .. a1 0f 18 c0 ..   (byte+2=0x07, byte+8=0x18)
+# MATRIX MAC (simdgroup_multiply[_accumulate]): 2f 00 05 9a 20 20 af 0a 30 <acc..>  (byte+2=0x05)
+#
+# ls_f32 :  ...0f00070a0800b80a10c0410880000000 (LOAD A) ... 0f04070a0800a10f18c00028 (STORE R)
+# mul_f32:  ...2f04070c0800b80a10c00008 (LOAD A) 4f08070c0800b80a10c041088... (LOAD B)
+#           2f00059a2020af0a30064000100 (MAC=multiply) ... 2f00070c0800a10f18c00008 (STORE R)
+# mad_f32:  ...2f0407100800b80a10c00008 (LOAD A) 4f0807100800b80a10c00008 (LOAD B)
+#           6f0c07100800b80a10c041088... (LOAD C) 2f00059a2020af0a30081000101 (MAC=accumulate)
+#           2f0007100800a10f18c00008 (STORE R)
+#   ** ZERO 0xcf in ANY simdgroup_matrix kernel (raw byte count). **
+#
+# TENSOR (MPP matmul2d) -- 0xcf PRESENT (survives from A18), 2-4 per kernel:
+#   mm_16 (16x16x16):  cf04070ea800e10f18c00008   cf0207000800e10f18c00008
+#   mm_mul(32x32x32):  cf040750a856e10a18c00008   cf044750a854e10e18c80008
+#                      cf02070c0800e10a18c00008   cf02470c0800e10e18c80008   (byte+5=0x56/0x54 std/tiled)
+#   mm_mac:            cf6087042864e00a00c00008   cf1c4706a80e610e18c80008
+#   The tensor 0xcf shares the ?f..07.. tile shape (byte+2 low-nibble 0x7; 07/47/87 variants).
+#
+# SPLICE-VALIDATION (mad_f32, grid 32/tg 32, A=B=ones(64) C=zeros(64) -> out buf 3; baseline
+# 2.50356e-12 REPRODUCIBLE across 2 runs; harness tile-layout gives a stable non-numeric value,
+# used for change-detection):
+#   MAC   @0xce 2f->00           -> out all ZERO   (MAC op load-bearing)
+#   MAC   @0xd0 byte+2 05->00    -> out all ZERO   (MAC byte+2 load-bearing)
+#   loadA @0xa8 byte+2 07->00    -> out all ZERO   (tile-load load-bearing)
+#   loadA @0xa7 byte+1 04->08    -> UNCHANGED      (redirect A-load to identical data = no change)
+#   store @0xea byte+2 07->00    -> out all ZERO   (tile-store load-bearing)
+# => MAC op (2f 00 05) and the ?f..07.. tile load/store ops are ALL HW-load-bearing; none is 0xcf.
+
+## ===== RAY TRACING =====
+# rt_intersect (?4 + 0xea) SURVIVES from A18: exactly TWICE per kernel (traverse + result-read).
+#   rt_isect (instance AS):   op#1 b4ea50868b000000   op#2 04ea100623040601
+#   rt_prim  (primitive AS):  op#1 04ea90865b000000   op#2 04ea100623040601
+#   rt_query (inline query):  op#1 34ea10868b000000   op#2 14ea100623060601
+#   rt_query2(query+payload): op#1 34ea50460cc20200   op#2 04ea100633040601
+#   byte+1=0xea (const sub-op), byte+4 = AS-type selector (8b/5b/... present, same slot as A18).
+# rt_as_load(0xdf)/rt_ray_mem(0x5f) do NOT survive as high-frequency leaders: 0-2 per kernel on
+#   M5 vs 14-37 on A18 -> AS/ray-data memory access migrated off the old 0xdf/0x5f leaders
+#   (into the new M5 memory family). Exact M5 AS-load encoding = OPEN.
+
+## ===== ATOMICS (device RMW) -- op-selector = byte+6 =====
+# common: 0ca01006 | 0f040300 addr-gen | 18221080.. LOAD v[i] | 2f 00 04 0a 27 80 <OP> 02 00 02 | ...
+#   a_iand 2f00040a2780a0..   OP=0xa0 = and
+#   a_ior  2f00040a2780a1..   OP=0xa1 = or
+#   a_ixor 2f00040a2780a2..   OP=0xa2 = xor
+#   a_iadd 2f00040a2780a3..   OP=0xa3 = add   (a_isub identical -> add of negation)
+#   a_umin 2f00040a2780a6..   OP=0xa6 = min
+#   a_umax 2f00040a2780a7..   OP=0xa7 = max
+#   a_fadd 2f0004082780ac0802 OP=0xac = float-add (byte+3=0x08, byte+8=0x08 = fp datapath)
+#   a_xchg / a_cmpxchg: shorter forms (exchange/compare-exchange, no 27 80 aX reducer)
+# SPLICE (a_iadd, byte+6 @0x18): a3->a7 and a3->a6 produce DISTINCT outputs (a6/min -> 0);
+#   op-selector is HW-load-bearing. Absolute magnitudes confounded by an agxtest input-binding
+#   quirk for these kernels (see report); byte-diff across 7 single-op own-MSL kernels is primary.
+
+## ===== SUBGROUP / QUAD -- SAME byte+6 op-selector, scope=byte+2 =====
+# REDUCE/SCAN: 2f 00 <SCOPE> 0a 27 80 <OP> 02 <MODE>   SCOPE:0x04 simd / 0x00 quad; MODE:0x02 reduce / 0x00 scan
+#   s_sum 2f00040a2780a3020002  s_min ..a6  s_max ..a7  s_and ..a0  s_or ..a1  s_xor ..a2
+#   q_sum 2f00000a2780a3020002  q_max 2f00000a2780a7020002        (byte+2=0x00 => quad scope)
+#   s_prefixx 2f00040a2780a3020000 (byte+9=0x00 => exclusive scan)  s_prefix uses 2f80040a2b80a3.. + 27000
+# SHUFFLE: 2f 00 21 1a 20 00 <MODE> 02 ..   MODE byte+6: a8 simd_shuffle/broadcast, a0 quad_shuffle, a1 quad_shuffle_xor
+#   s_shuffle ..a8   s_bcast ..a8   q_shuffle ..a0   q_shxor ..a1
+# SPLICE (s_sum byte+6 @0x18): a3/a7/a6/a0/a1 -> distinct outputs clustered by op semantics
+#   (and/min collapse, or/max collapse) -> op-selector HW-load-bearing.
+
+## ===== TEXTURE (sample/gather/read/lod-query/compare/write) =====
+# family: byte0 low-nibble 0xf (0x0f/0x1f), byte+2 = op-class:
+#   0f 04 12 .. sample        (tex_sample: 0f041200418060290100010000...)
+#   0f 04 12 .. sample+LOD    (tex_lod: identical to sample except LOD-immediate byte 00->80)
+#   0f 06 12 .. gather        (tex_gather: 0f0612004180002101181000...)
+#   0f 06 1a .. read/imageload(tex_read:  0f061a00408060294c...)      <- byte+2=0x1a
+#   1f 06 12 .. lod-query     (tex_lodq:  1f0612014180002100180c...)
+#   1f 05 12 .. sample_compare(tex_scmp:  1f0512004080002100...)      <- byte+1=0x05
+# tex_write (image store): 0x24-family store op (2480030a2708ae...) distinct from sample family.
+# byte-diff only (texture dispatch needs bound textures via agxrender; not splice-validated here).
+
+## ===== SMALL OPENS =====
+# 12B integer-add CONFIRMED: i_add `2f 00 04 3a 21 00 a3 02 28 80 21 00` = 12B (byte+3=0x3a);
+#   i_addk (const) `2f 00 04 1a 21 00 a3 02 28 02 03 00` = 12B (byte+3=0x1a imm form). byte+6=0xa3=add.
+#   Fork currently lengths this 10B (name 'fspecial') -> DESYNC; length rule (byte+3 in {0x1a,0x3a} -> 12B) NEEDED.
+# 0xNe compact-ALU op-select: NOT PROVOKED. Our half add/mul/mov emit the 0x38/0x2f ALU forms
+#   (h_add `38 03 04 ..` byte+2=0x04=add; h_mul `38 03 05 ..` byte+2=0x05=mul), not 0xNe. OPEN (record).
+# call ABI 0xef/0xff via visible_function_table: vft.metal compiled (fns addk + k) but shdump's
+#   single-symbol _agc.main extraction for the caller `k` returned a trivial stub (0e000000);
+#   the call op was not isolable with the current extractor. OPEN (record).

@@ -27,9 +27,22 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   0x61` = 1/2/3/4-component, 4B/6B). base-slot / index-mode / element-size / store-format fields are all
   splice-proven; LOAD-vs-STORE is distinct opcodes, not a direction bit. (This corrected the census guesses:
   the "0x41 store" was a load *tail*, "0x78 typed" was vec4 *load*.) See EXP-M5-07 for the field maps.
-- **Open (splice-TODO):** `0xNe` op-select map; `0xb7` (unprovoked so far); call ABI `0xef/0xff` (needs
-  visible_function_table); matrix `0xcf` + Apple10 tensor/neural path; RT/mesh field maps. Ops inherited
-  unchanged from the A18 carry A18 semantics (spot-checked on M5).
+- **Matrix / neural (HW-validated, EXP-M5-09 — marquee):** the matrix path **SPLITS** on M5. Unlike A18
+  (everything → `0xcf`), `simdgroup_matrix` MAC emits **zero `0xcf`** — it lowers to a low-nibble-`0xf` **tile
+  load/store family** (`?f ..07..`) plus a **`2f 00 05` MAC** op; only the MPP `tensor_ops::matmul2d` path
+  keeps `0xcf`. **There is NO new dedicated "neural" ISA leader** — the Apple10 Neural Accelerator rides the
+  existing matrix family, not a new opcode. (Op identity splice-proven; full 8×8 operand packing is splice-TODO.)
+- **Ray tracing (EXP-M5-09):** `rt_intersect` (byte0 low-nibble `0x4` + byte+1 `0xea`) **transfers unchanged
+  from A18** (traverse + result-read, 2×/kernel; inline query too). `rt_as_load`/`ray_mem` no longer distinct
+  leaders — migrated into the M5 memory family; **exact AS-load encoding OPEN**.
+- **Atomics + subgroup/quad (EXP-M5-09):** UNIFIED reduction selector `2f 00 <scope> 0a 27 80 <OP> 02 <mode>`
+  — byte+6 OP (`a0`and/`a1`or/`a2`xor/`a3`add/`a6`min/`a7`max/`ac`float-add), byte+2 scope, byte+9 reduce/scan;
+  shuffle = `2f 00 21`. **Texture (EXP-M5-09):** sample family = byte0 low-nibble `0xf` + byte+2 (`0x12`
+  sample-class / `0x1a` read). (These are documented; their DB descriptors are the next integration wave —
+  they need length disambiguation in the overloaded `0x2f`/`0x0f` space.)
+- **Still open (splice-TODO):** `0xNe` op-select map; `0xb7` (unprovoked — recorded negative); call ABI
+  `0xef/0xff` (needs whole-`__text` extraction); mesh field maps; the `2f 00 04 3a` 12B integer-add length rule.
+  Ops inherited unchanged from the A18 carry A18 semantics (spot-checked on M5).
 
 ## Status & provenance
 - **Tokenization (leader+length):** DONE — 96.6%/98.0% byte coverage, round-trip green, 0 hangs (EXP-M5-05).

@@ -6331,6 +6331,34 @@ DB = [
                       "c0 00 20`, ld_vec2 `21 0e 10 e0 00 20`, ld_vec3 `41 0e 10 80 00 20`, ld_vec4 "
                       "`61 0e 10 80 00 20` -- all 6B + `0e` stop. Round-trips clean. Own-MSL only.",
     },
+    {
+        # EXP-M5-09 follow-up #1 (naming fix): the vec3/vec4 (and half-scalar) 6-byte stores
+        # 0x41/0x61/0x01 byte-collide with the inherited cvt_f2h_dst (match [(0,4,1),(28,4,8)],
+        # 8 match bits) at length 6, so they mis-NAMED as cvt_f2h_dst. This descriptor adds
+        # byte+2==0x10 (the M5 store load-bearing enable, EXP-M5-07) to a low-5==0x01 match ->
+        # 13 match bits, out-matching cvt_f2h_dst for EVERY real 6-byte store (byte+2==0x10),
+        # while a real fp32->fp16 convert (byte+2 in {0x1c,0x3c}) is NOT captured. Purely
+        # ADDITIVE (does not touch m5_store_ext, which still covers any byte+2!=0x10 store):
+        # it only re-labels the mis-named stores from cvt_f2h_dst to m5_store.
+        "mnemonic": "m5_store",
+        "length": 6,
+        "match": [(0, 5, 1), (16, 8, 0x10)],   # byte0 low-5==0x01 + byte+2==0x10
+        "fields": [
+            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},   # byte0 bits[5:6] = component count-1
+            {"name": "dsrc", "start": 8, "width": 8, "type": "mod"},        # byte+1 data-source/index descriptor
+            {"name": "st_fmt", "start": 24, "width": 8, "type": "mod"},     # byte+3 store format (0xc0 fwd / 0x80/0xe0 vec / 0xa0 byte)
+        ],
+        "semantics": "M5 device STORE, 6-byte form (byte+2==0x10 store-enable). byte0 = 0x01 | "
+                     "((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store; byte+3 = store "
+                     "format. Names the vec3/vec4 (0x41/0x61) and half-scalar (0x01, byte+3=0x80) "
+                     "6-byte stores that otherwise byte-collided with the inherited cvt_f2h_dst; a "
+                     "real fp32->fp16 convert has byte+2 in {0x1c,0x3c} and is excluded. Same op as "
+                     "m5_store_ext, higher match specificity so it wins the length-6 tie.",
+        "provenance": "HW byte-diff (M5 EXP-M5-07 own-MSL ld_vec3/ld_vec4 `41 0e 10 80 00 20` / "
+                      "`61 0e 10 80 00 20`; ld_half `01 06 10 80 80 20`) + EXP-M5-09 naming closure: "
+                      "byte+2==0x10 separates every real store from cvt_f2h_dst (byte+2 in {0x1c,0x3c}). "
+                      "Round-trip green; census non-regressing (naming-only, additive). Own-MSL only.",
+    },
 ]
 
 # Index by mnemonic for the assembler.

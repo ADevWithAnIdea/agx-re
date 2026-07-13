@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 175 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 176 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -70,15 +70,15 @@
 
 ### `m5_store` — device/threadgroup store, 1-4 component (0x01/21/41/61)
 
-- **Length:** 4 bytes  ·  **Match:** bits[0:5]==0x1, byte+3==0x40  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:5]==0x1, byte+2==0x10  ·  **Provenance:** mixed
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `ncomp_m1` | [5:7] | immediate |  |
-| `dsrc` | [8:16] (byte+1) | enum | `0x22`=gid/register-indexed; `0x26`=immediate source; `0x6`=ALU-result source |
+| `dsrc` | [8:16] (byte+1) | modifier |  |
 | `st_fmt` | [24:32] (byte+3) | modifier |  |
 
-*M5 device STORE, scalar-direct 4-byte form (byte+3==0x40). byte0 = 0x01 | ((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store. byte+1 (dsrc) = the data-source/index descriptor (load-bearing). byte+3 = store format (load-bearing). The store DATA register is implicit (supplied by dsrc / the preceding op), matching the A18 device_store finding. Address comes from the preceding m5_addr_gen. LOAD vs STORE is NOT a direction bit: 0x18 load and 0x01 store are distinct opcodes.*
+*M5 device STORE, 6-byte form (byte+2==0x10 store-enable). byte0 = 0x01 | ((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store; byte+3 = store format. Names the vec3/vec4 (0x41/0x61) and half-scalar (0x01, byte+3=0x80) 6-byte stores that otherwise byte-collided with the inherited cvt_f2h_dst; a real fp32->fp16 convert has byte+2 in {0x1c,0x3c} and is excluded. Same op as m5_store_ext, higher match specificity so it wins the length-6 tie.*
 
 ### `m5_store_ext` — extended store form
 
@@ -1789,4 +1789,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 175 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 176 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

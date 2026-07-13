@@ -11024,6 +11024,44 @@
       ],
       "semantics": "M5 device STORE, 6-byte load-forwarded / vector form: carries a trailing `00 20` store-data-format word (byte+3 in {0xc0 load-forward, 0x80/0xe0 vector}). Emitted when the stored value is forwarded straight from a preceding m5_load (out=a[gid]) or is a multi-component vector (ld_vec2/3/4 stores 0x21/0x41/0x61).",
       "provenance": "HW-VALIDATED length + role (splice, M5 EXP-M5-07): ld_scalar store `01 06 10 c0 00 20`, ld_vec2 `21 0e 10 e0 00 20`, ld_vec3 `41 0e 10 80 00 20`, ld_vec4 `61 0e 10 80 00 20` -- all 6B + `0e` stop. Round-trips clean. Own-MSL only."
+    },
+    {
+      "mnemonic": "m5_store",
+      "length": 6,
+      "match": [
+        [
+          0,
+          5,
+          1
+        ],
+        [
+          16,
+          8,
+          16
+        ]
+      ],
+      "fields": [
+        {
+          "name": "ncomp_m1",
+          "start": 5,
+          "width": 2,
+          "type": "imm"
+        },
+        {
+          "name": "dsrc",
+          "start": 8,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "st_fmt",
+          "start": 24,
+          "width": 8,
+          "type": "mod"
+        }
+      ],
+      "semantics": "M5 device STORE, 6-byte form (byte+2==0x10 store-enable). byte0 = 0x01 | ((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store; byte+3 = store format. Names the vec3/vec4 (0x41/0x61) and half-scalar (0x01, byte+3=0x80) 6-byte stores that otherwise byte-collided with the inherited cvt_f2h_dst; a real fp32->fp16 convert has byte+2 in {0x1c,0x3c} and is excluded. Same op as m5_store_ext, higher match specificity so it wins the length-6 tie.",
+      "provenance": "HW byte-diff (M5 EXP-M5-07 own-MSL ld_vec3/ld_vec4 `41 0e 10 80 00 20` / `61 0e 10 80 00 20`; ld_half `01 06 10 80 80 20`) + EXP-M5-09 naming closure: byte+2==0x10 separates every real store from cvt_f2h_dst (byte+2 in {0x1c,0x3c}). Round-trip green; census non-regressing (naming-only, additive). Own-MSL only."
     }
   ]
 }
