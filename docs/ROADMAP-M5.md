@@ -54,7 +54,10 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
   tokenization **96.6% own / 98.0% tp** byte-cov, round-trip green, `instr_length` recursion-hang fixed.
   **Remaining = SEMANTICS of the M5-specific ops (splice-TODO, next wave):** memory `0x18`/`0x41`, typed/sample,
   the `0xNe` family, `0xb7`, call `0xef`/`0xff`, matrix/RT/mesh field maps.
-- ☐ **1.4 Machine model** — GPRs/uniforms/spill, Dynamic Caching, register width — re-confirm on M5.
+- ☑ **1.4 Machine model** — EXP-M5-21: GPR footprint **caps at 126** (vs A18 96, **+30**; slope identical,
+  spill at f0=126/K=98, 123-live-no-spill HW-proven); 2 halves/GPR + uniform file (field 31) **confirmed ==
+  A18**; occupancy tier cfg `+0x00` bit23 set for **f0≥20** (measured 19│20; A18 ~12). Physical 126-vs-128 =
+  follow-up (split-memory defeats the A18 mem-index fault probe). 0 faults, 0 reboots.
 - ☐ **1.5 Extrapolate & test** — sweep undocumented opcode/modifier space on M5; log in `hypotheses` (M5).
 - ◐ **1.6 Tokenization converged** — ≤3.5% desync both corpora (own 3.45% / tp 2.02%), round-trip green, 0 hangs.
   Residual tail + per-op semantics remain.

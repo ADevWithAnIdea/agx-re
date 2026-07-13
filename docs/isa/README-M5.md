@@ -71,6 +71,42 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   coop-matrix-operands / RT-traversal until these are mapped. (Texture sample/read coord+slot+LOD are RESOLVED,
   EXP-M5-17.)
 
+## Machine model — registers / uniforms / spill (RE-MEASURED on M5, EXP-M5-21)
+The A18 machine model (`README.md` §"Machine model — registers, uniforms, Dynamic Caching") transfers
+to M5 **except the register-file size**, which is larger. Re-measured on G17g (own-shader compile→read
+own `__GPU_METADATA`, + HW copy-correctness + iotrace occupancy correlation; 0 faults, 0 reboots):
+
+- **GPR file is LARGER than A18 — footprint caps at 126, not 96 (the marquee delta, +30 GPRs).** The
+  compiler's register footprint (metadata **field 0**, 32-bit-register units) grows with the *identical*
+  A18 slope (`f0 ≈ round(1.25·K)+3`; K=8→13, K=16→23, K=48→63 all byte-identical to A18) but **caps at
+  exactly 126** (K=98…256 all report 126). Fine ladder: K=96→**123** (zero scratch), K=98→**126** (scratch
+  appears). **HW-proven:** a kernel declaring **123 live 32-bit regs with zero scratch computes correctly**
+  (n=1 copy, exact readback), and all spilled kernels (f0=126) also compute correctly. ⇒ **a compiler must
+  target 126 GPRs before spill on M5** (vs 96 on A18). *(Physical file 126-vs-128 not yet disambiguated: the
+  A18 r96 memory-index hard-fault probe does NOT transfer — M5 memory is split, and splicing the `m5_load`
+  index-reg byte+5 across 0x00–0xff faults nothing / is inert because the index is carried by `m5_addr_gen`.
+  Most-likely-126 by analogy to A18, cap=physical, same −3 no-spill gap 123/126 vs 93/96. Follow-up: map the
+  `m5_addr_gen` index field.)*
+- **16-bit halves packed 2 per GPR — CONFIRMED, identical to A18.** Half footprint slope 0.75 (64 halves →
+  **50** GPRs; impossible if a half owned a 32-bit reg). Halves spill at the same 126-GPR ceiling.
+- **Uniform register file — CONFIRMED, identical to A18.** Metadata **field 31** = uniform footprint, ~8 B
+  per bound scalar uniform (2→32, 8→80, 16→144 B); fed by the `constant_program` uniform datapath. Exact
+  uniform-register *count* still unpinned (8-bit index ⇒ ≤128; pushing past ~30 uniforms hits Metal's
+  31-buffer binding limit, not a HW cap).
+- **Spill / Dynamic Caching — same mechanism, higher onset.** Above 126 GPRs the compiler spills to
+  per-thread **scratch (stack)**; byte size in metadata field **14/41**, appearing exactly at f0=126 (K=98)
+  and growing with pressure (96→400→1184 B). Spilled kernels compute correctly.
+- **Occupancy tier bit — MEASURED threshold f0≈20 (A18 was ≈12).** Launch compute-config word `+0x00`
+  (BO `0x100000b0000`) bit **23** is the 2-level occupancy tier (EXP-M5-13 `--heavy` flip). f0↔bit23
+  correlation: **clear for f0 ≤ 19, set for f0 ≥ 20** (directly observed 19│20 adjacent transition; tracks
+  f0, not workload). M5 base `+0x00` = `0x00000000` (**bit19 dropped** vs A18's `0x00080000`); heavy =
+  `0x00800000`. The higher tier threshold is consistent with the larger register file.
+
+**For a driver (M5):** allocate ≤ **126** 32-bit GPRs before spilling to scratch; 2 independent halves per
+GPR; uniforms/base-pointers in the separate uniform file (source picks GPR-vs-uniform via a mode bit, as
+A18); scratch/GPR/uniform footprints declared in the shader's own `__GPU_METADATA` (fields 14/41, 0, 31);
+set config `+0x00` bit23 once the footprint reaches ~20 GPRs. Evidence: `experiments/EXP-M5-21-gpr-machine-model/`.
+
 ## Status & provenance
 - **Tokenization + op families:** DB = **189 descriptors**; byte coverage **97.4% (own) / 98.4% (tp)**, named
   **93.4% / 95.5%**, round-trip green, 0 hangs (EXP-M5-05 + EXP-M5-11).

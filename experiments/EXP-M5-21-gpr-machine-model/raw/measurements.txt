@@ -1,0 +1,98 @@
+EXP-M5-21 raw measurements — M5 (T8142, macOS 27.0, Apple M5 / G17g). Device .253.
+CLEAN-ROOM: OWN-SHADER only. shdump/agxparse/agxrun/agxisa(M5) + iotrace (own-process
+DATA-TRACE). No Apple binary disassembled/introspected. Reboots: 0. GPU faults: 0.
+
+field 0  = GPR footprint (32-bit register units)              [metadata __GPU_METADATA]
+field 14/41 = per-thread scratch (spill/stack) byte size      [present only when spilling]
+field 31 = uniform-register footprint (bytes)                 [present only when uniforms used]
+
+=============================================================================
+(A) 32-bit register-pressure ladder  (gpr_ladder.py; float == int, slope 1.25)
+    K = # simultaneously-live values; copy = HW n=1 exact readback (grid=1)
+=============================================================================
+K      f0     scratch(B)   copy
+2      6      -            -
+8      13     -            PASS(int)
+16     23     -            -
+24     -                   (skipped)
+32     -                   (skipped)
+48     63     -            PASS(int)
+64     83     -            -           (from A18-formula check; matches)
+72     93     0            (no scratch)
+80     103    0            (no scratch)
+88     113    0            PASS(int)
+92     118    0            PASS(int)
+96     123    0            PASS(int)   <-- MAX no-spill footprint = 123
+98     126    96           PASS(int)   <-- f0 CAPS at 126; scratch (spill) FIRST appears
+100    126    16           PASS(int)
+102    126    128
+104    126    32
+128    126    400          PASS(int)
+256    126    1184         PASS(int)
+
+Formula (unspilled): f0 = round(1.25*K) + 3, IDENTICAL slope/intercept to A18.
+Only delta vs A18: the CAP. A18 f0 caps at 96 (spill at K~=80); M5 caps at 126 (spill at K=98).
+
+=============================================================================
+(B) 16-bit (half) register-pressure ladder — half packing
+=============================================================================
+K      half f0     (float f0 for same K)
+16     14          23
+32     26          43
+48     38          63
+64     50          83      <-- 64 halves in 50 GPRs (impossible if 1 half = 1 GPR)
+96     74          123
+128    98          -
+160    122         -        (no scratch; max no-spill)
+192    126 (spill 96)
+248    126 (spill 432)
+256    126 (spill 480)
+=> half slope 0.75 regs/value => 2 independent halves packed per 32-bit GPR (== A18).
+=> halves spill at the SAME 126-GPR ceiling.
+
+=============================================================================
+(C) Uniform-register footprint ladder (uniform_maxreg.py)  field 31 = bytes
+=============================================================================
+#uniforms(n)   field31(B)
+1              (absent; single uniform folded)
+2              32
+4              48
+8              80
+16             144
+(n>=32 = Metal 31-buffer BINDING limit COMPILE_FAIL, not a HW cap)
+=> ~8 bytes per bound scalar uniform; IDENTICAL to A18 (2->32, 8->80, 16->144).
+=> uniform file present; byte1 uniform index field 8-bit (<=128), inherited from A18.
+
+=============================================================================
+(D) Occupancy-tier bit correlation (occ_driver.sh) — launch cfg BO 0x100000b0000 +0x00
+    N = acc[] count; f0 from metadata; bit23 = (LE(+0x00) >> 23) & 1
+=============================================================================
+N    f0    cfg +0x00      bit23
+1    3     0x00000000     0
+2    5     0x00000000     0
+4    7     0x00000000     0
+6    11    0x00000000     0
+8    10    0x00000000     0
+10   15    0x00000000     0
+12   16    0x00000000     0
+14   19    0x00000000     0     <-- last CLEAR
+13   20    0x00800000     1     <-- first SET  (measured 19->20 transition)
+15   20    0x00800000     1
+16   21    0x00800000     1
+18   24    0x00800000     1
+20   23    0x00800000     1
+24   24    0x00800000     1
+=> bit23 CLEAR for f0<=19, SET for f0>=20 (DIRECTLY measured adjacent pair 19|20).
+   Tracks f0 (not N): N=13 f0=20 SET vs N=14 f0=19 CLEAR.
+=> M5 base cfg +0x00 = 0x00000000 (bit19 dropped vs A18's 0x00080000); heavy = 0x00800000.
+=> Threshold higher than A18's ~12 (A18 itself interpolated/uncertain).
+
+=============================================================================
+(E) Hard-boundary probe (boundary_sweep.sh) — m5_load byte+5 index-reg selector
+=============================================================================
+Spliced byte+5 (file off 0x0d) of `out[gid]=in[gid]` m5_load across 0x00..0xff:
+ALL values STATUS OK, output unchanged. => In the M5 SPLIT-memory model the index is
+carried by the m5_addr_gen op; this m5_load byte+5 is inert here and does NOT gate a
+register-file validation fault. The A18-style mem-index fault probe (RT-7: r96 faults)
+does NOT transfer directly. Physical 126-vs-128 disambiguation = follow-up (needs the
+m5_addr_gen index-field map / a forced monolithic 0x67 load). 0 faults, 0 reboots.

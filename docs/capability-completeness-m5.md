@@ -167,7 +167,7 @@ extract, splice-and-observe on M5 HW, decode the field map."
 
 | # | Capability | Note |
 |---|---|---|
-| 24 | **GPR count / register width / spill base** | re-confirm `__GPU_METADATA` footprint on M5 (Phase 1.4); A18 = 96 GPRs, 2 halves/GPR |
+| 24 | **GPR count / register width / spill base** | **RE-MEASURED (EXP-M5-21, Phase 1.4 CLOSED):** footprint (metadata field 0) caps at **126 GPRs** on M5 — a **+30 delta vs A18's 96** (slope identical `1.25·K+3`); spill (scratch field 14/41) begins at f0=126 (K=98); 123 live regs no-spill HW-proven. 2 halves/GPR (confirmed), uniform file field 31 ~8 B/uniform (confirmed). Occupancy tier cfg `+0x00` bit23 set for f0≥20 (measured 19│20; A18 was ~12). Physical 126-vs-128 = follow-up (split-memory defeats the A18 mem-index fault probe). |
 
 ---
 
