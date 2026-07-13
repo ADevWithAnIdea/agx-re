@@ -482,3 +482,22 @@ Moved NYC→**native** (emittable descriptors now in `db.json`, HW-validated EXP
   operand packing raw). (int8/int matrix stays emulated; int8-via-`MTLTensor` stays NYC.)
 Residual NYC ISA backlog: texture/matrix operand bit-packing (raw), call ABI (`0xef/0xff`, pipeline-linked
 extraction), RT AS-load (AS-bound testbed). Tallies unchanged in count; these rows' class → native.
+
+## Addendum 4 — REVIEW-M5-OBJ2-03 minor polish (final)
+Enumeration + currency fixes (none was a gate failure; OBJ-2 PASSED):
+- **Depth bounds test** (Vulkan `depthBoundsTestEnable`) — **emulated** (Metal-unexposed; lower to an in-shader
+  `[[early_fragment_tests]]`+discard comparison against a uniform min/max). Parity with conservative-raster / pipeline-stats.
+- **`MTLHeap`** (placement heaps / resource aliasing ≈ Vulkan `VkDeviceMemory`+aliasing) — **kernel-managed / out of
+  userspace-ISA scope** (VM allocation, like residency sets).
+- **Stencil reference value + read/write masks** (`setStencilReferenceValue:`, `readMask`/`writeMask`) — dynamic
+  sub-fields of the native stencil row; FF-pool bits: masks in the stencil word `0x58000+0x178`/`+0x17c`
+  (wmask[7:0]/rmask[15:8], EXP-M5-10), reference is a dynamic render-state word (inherit from A18).
+- **Blend constant color** — dynamic state under the native programmable-blend row; the "blend-const-color needed"
+  flag is `0x58000+0x130` bit6 (EXP-M5-10); the constant is an FS-uniform (programmable-blend model).
+
+**CURRENCY (MINOR-5):** the §3–§7 main-table cells still print "❓ NYC" for device load/store, atomics (incl.
+float-add), texture sample/gather/read/compare, subgroup reduce/scan/shuffle, and the `simdgroup_matrix` MAC
+leader — **these are superseded by Addenda 2 & 3, which reclassify them `native` (HW-validated in `db.json`).**
+The authoritative summary tally is **native 85 · NYC 64 · emulated 13 · kernel 8 · microarch 5 = 175** (Addendum 1),
++ these 4 rows → **native 86 · emulated 14** where they land. When in doubt, the addenda are current, the inline §3–§7
+"NYC" cells are stale.
