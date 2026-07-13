@@ -259,3 +259,9 @@ our own M5 MSL-acceptance probes (EXP-M5-08 `experiments/EXP-M5-08-capability-ce
 + **EXP-M5-12** `experiments/EXP-M5-12-capability-reconcile/raw/msl_acceptance_m512.txt`). Presence facts are
 driver/compiler responses to our own programs or bytes our own process observed at the IOKit boundary.
 No Apple binary was disassembled, decompiled, or otherwise introspected.
+
+## Addendum — REVIEW-M5-OBJ2-02 (EXP-M5-15)
+Added to the §B present-but-encoding-NYC backlog:
+- **Rasterization rate map / foveated rendering** — presence M5-measured (`supportsRasterizationRateMapWithLayerCount:` YES 1–2 layers); the rate-map BO layout + tiler render-control record are NOT yet probed. New probe target.
+- **Vertex attribute fetch** (`MTLVertexDescriptor`→VS-prologue) — the per-attribute load+format-convert lowering rides the `0x18` memory-load split; format-convert map completes with the memory-family field work.
+- YUV/YCbCr (⏳ untested), MSAA resolve-filter (store-record field), `MTLFence`/`MTLEvent`/`MTLSharedEvent` (kernel-managed) — enumerated in `capability-matrix-m5.md` addendum.

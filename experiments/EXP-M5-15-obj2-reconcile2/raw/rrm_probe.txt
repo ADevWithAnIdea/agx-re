@@ -1,0 +1,21 @@
+#import <Metal/Metal.h>
+#import <Foundation/Foundation.h>
+int main(){ @autoreleasepool {
+  id<MTLDevice> d = MTLCreateSystemDefaultDevice();
+  printf("device = %s\n", [[d name] UTF8String]);
+  for (int n=1;n<=4;n++){
+    BOOL s = NO;
+    if ([d respondsToSelector:@selector(supportsRasterizationRateMapWithLayerCount:)])
+      s = [d supportsRasterizationRateMapWithLayerCount:n];
+    printf("supportsRasterizationRateMapWithLayerCount:%d = %s\n", n, s?"YES":"NO");
+  }
+  if ([d respondsToSelector:@selector(supportsVertexAmplificationCount:)])
+    printf("supportsVertexAmplificationCount:2 = %s\n", [d supportsVertexAmplificationCount:2]?"YES":"NO");
+  return 0; } }
+===OUTPUT===
+device = Apple M5
+supportsRasterizationRateMapWithLayerCount:1 = YES
+supportsRasterizationRateMapWithLayerCount:2 = YES
+supportsRasterizationRateMapWithLayerCount:3 = NO
+supportsRasterizationRateMapWithLayerCount:4 = NO
+supportsVertexAmplificationCount:2 = YES

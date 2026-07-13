@@ -442,3 +442,18 @@ is either measured on M5 or inherited from an already-established A18 finding in
 EXP-M5-12 additions/reconciliations cite `cmdstream/README-M5-deltas.md` + `pipeline/README-M5-deltas.md`
 (EXP-M5-10, own-process data-trace / own-MSL) and the A18 base census. No Apple binary was disassembled,
 decompiled, or introspected. Reproducible via the cited experiments' `run.sh`/probe sources.
+
+## Addendum — REVIEW-M5-OBJ2-02 enumeration fixes (EXP-M5-15)
+
+Rows the census had omitted (all Metal-exposed; enumeration/classification completeness):
+
+| capability | class | M5 evidence / mechanism |
+|---|---|---|
+| **Variable rasterization rate map / foveated rendering** (`MTLRasterizationRateMap`; MSL `map_screen_to_physical`/`map_physical_to_screen`) — coarse side of Vulkan `VK_EXT_fragment_density_map` / `VK_KHR_fragment_shading_rate` | present, **NYC** | **M5-measured (EXP-M5-15):** `supportsRasterizationRateMapWithLayerCount:` = YES for 1–2 layers, NO for ≥3. Rate-map BO + tiler record not yet probed (open). |
+| **Vertex input state / attribute fetch** (`MTLVertexDescriptor` / `[[stage_in]]`) | native-lowered, **NYC on M5** | Metal lowers the vertex descriptor into the VS prologue as per-attribute load + format-convert, index = `get_sr vertex_id`/`instance_id` (see `isa/README.md`). On M5 this rides the `0x18` memory-load split (EXP-M5-07/11); the per-attribute format-convert map is part of that delta → NYC. |
+| **YUV / video formats + YCbCr sampler conversion** (`VK_KHR_sampler_ycbcr_conversion`) | **NYC ⏳** | Carried from A18 §14 (untested); not probed on M5. |
+| **MSAA depth/stencil resolve filter** (`MTLMultisampleDepthResolveFilter`/`StencilResolveFilter` → `VkResolveModeFlagBits`) | native | API-level; resolve *action* already documented (§12), filter choice is a store-record field (inherit from A18). |
+| **GPU sync primitives** (`MTLFence` / `MTLEvent` / `MTLSharedEvent`) | kernel-managed | Submit/queue-level sync objects (firmware/kernel-managed, like the submission model); not a userspace-emittable encoding. |
+
+**Updated tallies (row-level): native 85 · NYC 64 · emulated 13 · kernel 8 · microarch 5 = 175 rows.**
+No Metal-exposed capability is now unaccounted-for.
