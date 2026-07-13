@@ -1,0 +1,26 @@
+# EXP-M5-11 BLOCKER-2 byte-diff evidence -- _agc.main hex of OUR OWN compiled MSL (M5 / G17g / T8142).
+# shdump -f k <src>.metal ; agxparse.py --extract-hex. CLEAN-ROOM: every byte is our own compiled shader.
+#
+# ADDR-GEN / index model:
+#   ao_k0  out=a[gid]     : addr_gen `0f 00 03 02` (idx_mode 02 auto-gid) + load `18 22 10 c0 ..` (amode 22 gid)
+#   ao_k1  out=a[gid+1]   : PRECEDING add `27 05 04 1a 25 00 a3 ..` then addr_gen `0f 00 03 00` (idx_mode 00) + load `18 02 ..` (amode 02 computed)
+#   ao_k5  out=a[gid+5]   : add `27 05 04 3a ..` (byte+3 1a->3a vs k1) -- offset FOLDED into the add, not addr_gen/load
+#   ao_k100 out=a[gid+100]: add `27 04 04 3a 25 80 a3 02 a1 ..`
+#   ao_idx out=a[idx[gid]]: load#2 `18 02 10 c0 41 20 80 ..` -- byte+5=0x20 = INDEX GPR (vs 0x00 gid). SPLICE @0x15 0x20->0x00 => all lanes read a[0].
+#   ao_idxk out=a[idx[gid]+7]: add between the two loads.
+# STORE data register (positional / implicit):
+#   st_ld  out=a[gid]  : store `01 06 10 c0 00 20` (load-forward, 6B)
+#   st_sum out=a+b     : store `01 06 10 40` (4B)  ]-- BYTE-IDENTICAL stores despite different
+#   st_mul7 out=a*7    : store `01 06 10 40` (4B)  ]   producing exprs => data reg NOT encoded (positional)
+#   st_gidc out=gid    : store `01 22 00 40` (byte+1 0x22 = gid-register source class)
+#
+ao_idx.hex: 1ca010060f040302182210400f000300180210c04120800000000f080302010610c000200e000000
+ao_idxk.hex: 1ca010060f040302182210402f03043a2500a302208021000f000300180210c04100800000000f080302010610c000200e000000
+ao_k0.hex: 1ca010060f000302182210c04100800000000f040302010610c000200e000000
+ao_k1.hex: 1ca010062705041a2500a302a08001000f000300180210c04100800000000f040302010610c000200e000000
+ao_k100.hex: 1ca010062704043a2580a302a18001000f000300180210c04100800000000f040302010610c000200e000000
+ao_k5.hex: 1ca010062705043a2500a302a08001000f000300180210c04100800000000f040302010610c000200e000000
+st_gidc.hex: 0ca010060f000300012200400e000000
+st_ld.hex: 1ca010060f000302182210c04100800000000f040302010610c000200e000000
+st_mul7.hex: 1ca010060f000302182210c04100800000002f00041a2100a102e8010a0001020f040302010610400e000000
+st_sum.hex: 1ca010060f000302182210402f040302180210c04100800000002f00043a2100a302288021000f080302010610400e000000

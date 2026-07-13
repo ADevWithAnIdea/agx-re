@@ -40,14 +40,23 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   shuffle = `2f 00 21`. **Texture (EXP-M5-09):** sample family = byte0 low-nibble `0xf` + byte+2 (`0x12`
   sample-class / `0x1a` read). (These are documented; their DB descriptors are the next integration wave —
   they need length disambiguation in the overloaded `0x2f`/`0x0f` space.)
-- **Still open (splice-TODO):** `0xNe` op-select map; `0xb7` (unprovoked — recorded negative); call ABI
-  `0xef/0xff` (needs whole-`__text` extraction); mesh field maps; the `2f 00 04 3a` 12B integer-add length rule.
-  Ops inherited unchanged from the A18 carry A18 semantics (spot-checked on M5).
+- **INTEGRATED into `db.json` (EXP-M5-11, HW-validated):** the M5 op-selector families are now emittable
+  descriptors — **`m5_reduce`** (10B, subgroup/quad reduce+scan + device-atomic-on-uniform; op byte+6
+  a0/a1/a2/a3/a6/a7/ac, scope byte+2, mode byte+9), **`m5_shuffle`** (10B, `2f 00 21`), **`m5_alu`** (12B,
+  general compute ALU byte0=0x27, op byte+6 hi-nibble 0xa), **`m5_iadd`** (12B, split-memory index add). The
+  split-memory field maps are resolved: **m5_load byte+5 = index register** (splice-proven), the `a[i+k]`
+  immediate offset is **folded into a preceding `m5_alu` add** (no offset field — a negative vs A18), and the
+  store/load **data register is implicit/positional**. `0x67`/`0xe7` (A18 device_load/store) **still occur on
+  M5** alongside the split model; A18 atomics migrated to `m5_reduce`.
+- **Still open:** matrix MAC/tile operand packing + length; texture sample lengths (a regressing length variant
+  was reverted per the no-regression gate — leader/op-class documented); call ABI `0xef/0xff` (needs
+  pipeline-`linkedFunctions` extraction — the standalone archive yields a link-time stub); RT AS-load (migrated
+  off `0xdf` into the memory family — needs an AS-bound splice testbed); `m5_alu` operand bit-packing (raw).
 
 ## Status & provenance
-- **Tokenization (leader+length):** DONE — 96.6%/98.0% byte coverage, round-trip green, 0 hangs (EXP-M5-05).
-- **Semantics of M5-specific ops:** in progress via splice-and-observe on the M5 (EXP-M5-07); ops inherited
-  unchanged from the A18 carry the A18 semantics (spot-checked on M5).
+- **Tokenization + op families:** DB = **180 descriptors**; byte coverage **97.4% (own) / 98.4% (tp)**, named
+  **93.4% / 95.5%**, round-trip green, 0 hangs (EXP-M5-05 + EXP-M5-11).
 - Everything is HW-grounded: own-shader compile→extract→disassemble, validated against 842 own + 3095
   third-party real programs, and (for changed encodings) splice-and-observe on the live M5.
-- Residual undecoded tail: own 3.45% / tp 2.02% (characterized in EXP-M5-05 report).
+- Residual undecoded tail: own 2.60% / tp 1.61%. Remaining named-but-raw fields (operand packing of the
+  unified-op families) are marked raw per clean-room rule 5 rather than guessed.

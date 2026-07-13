@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 176 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 180 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -40,9 +40,9 @@
 |---|---|---|---|
 | `addr_reg` | [4:8] | register |  |
 | `base_slot` | [8:16] (byte+1) | immediate |  |
-| `idx_mode` | [24:32] (byte+3) | enum | `0x2`=scalar thread-indexed; `0x0`=const index 0 (no index); `0x4`=vec2 indexed; `0x6`=vec3 indexed; `0x8`=vec4 indexed; `0x18`=store data-forward |
+| `idx_mode` | [24:32] (byte+3) | enum | `0x2`=auto gid thread-index; `0x0`=no auto-index (index from the load's computed-index reg); `0x4`=vec2 indexed; `0x6`=vec3 indexed; `0x8`=vec4 indexed; `0x18`=store data-forward |
 
-*M5 memory ADDRESS-GENERATION op: computes the effective address of buffer[base_slot] at the thread/const index into a register the following m5_load/m5_store dereferences. byte0 low-nibble 0xf; byte+2==0x03 is the family signature (separates it from the jump, byte+2==0x54). byte0 HIGH nibble = destination address register. byte+1 = BUFFER BASE SLOT << 2 (slot 0=0x00, 1=0x04, 2=0x08, 3=0x0c). byte+3 = index/access mode. Precedes EVERY M5 load(0x18/38/58/78) and store(0x01/21/41/61).*
+*M5 memory ADDRESS-GENERATION op: computes the effective base address of buffer[base_slot] into a register the following m5_load/m5_store dereferences. byte0 low-nibble 0xf; byte+2==0x03 is the family signature (separates it from the jump, byte+2==0x54). byte0 HIGH nibble = destination address register. byte+1 = BUFFER BASE SLOT << 2 (slot 0=0x00, 1=0x04, 2=0x08, 3=0x0c). byte+3 = index/access mode: 0x02 = the op AUTO-applies the gid thread-index (simple a[gid], the following load has amode==0x22 gid-direct); 0x00 = the op does NOT auto-index -- the index is supplied by the following load's COMPUTED-INDEX register (amode==0x02, index_reg at load byte+5), used for a[idx[gid]] AND a[i+k] (EXP-M5-11: the +k immediate is folded into a preceding m5_alu/m5_iadd add, NOT an addr_gen field -- there is NO immediate-offset field in this op). 0x04/0x06/0x08 = vec2/vec3/vec4 element indexing. Precedes EVERY M5 load(0x18/38/58/78) and store(0x01/21/41/61).*
 
 ### `m5_load` — device/threadgroup load, 1-4 component (0x18/38/58/78)
 
@@ -54,8 +54,9 @@
 | `amode` | [8:16] (byte+1) | enum | `0x22`=scalar gid-direct; `0x2a`=vector; `0x2`=computed-index |
 | `elem_size` | [24:32] (byte+3) | enum | `0xc0`=4-byte / 32-bit stride; `0x80`=16-byte / 128-bit stride; `0xa0`=1-byte / 8-bit stride; `0xe0`=vec2 32-bit |
 | `fmt_desc` | [32:40] (byte+4) | modifier |  |
+| `index_reg` | [40:48] (byte+5) | register |  |
 
-*M5 device LOAD (terminal 10-byte form). byte0 = 0x18 | ((ncomp-1)<<5): 0x18/0x38/0x58/0x78 = 1/2/3/4-component load. byte+1 (amode) selects the index source. byte+2==0x10 is a load-bearing enable. byte+3 (elem_size) sets the ADDRESS STRIDE / element size (HW: 0xc0=4B->a[i], 0x80=16B->a[4i], 0xa0=1B->a[i/4]). byte+4 is a load-bearing format/dest descriptor. byte+5..+9 are inert padding in this form. The buffer base + index come from the preceding m5_addr_gen; there is NO base_slot in this op. Not a texture sample (the census 0x78/0x58 'typed/sample' guess is superseded: they are the vec4/vec3 LOAD leaders).*
+*M5 device LOAD (terminal 10-byte form). byte0 = 0x18 | ((ncomp-1)<<5): 0x18/0x38/0x58/0x78 = 1/2/3/4-component load. byte+1 (amode) selects the index source: 0x22 = gid-direct (auto thread index, from the preceding m5_addr_gen idx_mode==0x02) with byte+5 INERT; 0x02 = COMPUTED-index -- the load index comes from the GPR at byte+5 (index_reg), and the preceding m5_addr_gen has idx_mode==0x00. byte+2==0x10 is a load-bearing enable. byte+3 (elem_size) sets the ADDRESS STRIDE / element size (HW: 0xc0=4B->a[i], 0x80=16B->a[4i], 0xa0=1B->a[i/4]). byte+4 = load-bearing format/dest descriptor. byte+5 (index_reg) = the ARBITRARY INDEX REGISTER for a[computed]/a[idx[gid]] (0x00 gid/reg0, 0x20 = a loaded index GPR). NOTE (EXP-M5-11): for a CONSTANT offset a[i+k] there is NO immediate-offset field in the load -- the compiler folds i+k into a PRECEDING m5_alu/m5_iadd add (byte0 0x27/0x2f, byte+6==0xa3=add) and this load then uses computed-index mode (amode 0x02). LOAD DEST register is positional (consumed by the following store/ALU); byte+4 carries its format+reg descriptor. The buffer base comes from the preceding m5_addr_gen (no base_slot here).*
 
 ### `m5_load_compact` — compact 4-byte load (result feeds an ALU)
 
@@ -1715,6 +1716,22 @@
 
 - **Length:** 2 bytes  ·  **Match:** (none)
 
+### `m5_reduce`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+4==0x27, byte+5==0x80
+
+### `m5_shuffle`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x21, byte+3==0x1a, byte+4==0x20
+
+### `m5_iadd`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x04, byte+6==0xa3
+
+### `m5_alu`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[52:56]==0xa
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa-m5/isadb.py`; this table summarizes it:
@@ -1773,7 +1790,10 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `device_load/store +5 index_reg (RT-1a-FIX)` | +5 is the INDEX GPR that supplies a[idx] (NOT `count`; sweeping +5 selects which GPR feeds the index); +6 is INERT; +1 = address space; the additive IMMEDIATE index-offset lives at +9 bit7 (+1) / +10 (+2/unit) / +11 low (+512/unit). Vector width/count is at +8 (dst_width) / +12 (elem_size). RT-1a-FIX HW-validated. |
 | `iadd2 add/sub polarity (RT-1a-FIX)` | byte0 bit7 = ADD(1,0x9f) / SUBTRACT(0,0x1f) select. The DB previously had this INVERTED (labelled every add srcA_neg=1 and gave 0x1f d=srcA+srcB although 0x1f subtracts). Splice 0x9f->0x1f turns 10+20 into 10-20=-10. HW-validated. |
 | `0x07 (byte+1==0x00, byte+2==0x54)` | 8  [LINK-REGISTER SAVE/RESTORE around a nested call in a non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte threadgroup_barrier / pixel_order. EXP-0038] |
-| `0x18` | 4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038] |
+| `0x18 (M5 DISAMBIGUATED)` | byte0 0x18 has TWO meanings on M5 (G17g), disambiguated by signature (EXP-M5-07/11): (a) if byte+2==0x10 AND byte+1 in {0x02,0x0a,0x22,0x2a} it is the M5 device LOAD m5_load -- 10 bytes (or 4 if byte+3==0x40, the compact non-terminal m5_load_compact); byte0 0x18/0x38/0x58/0x78 = 1/2/3/4-component. (b) OTHERWISE (byte+1==0x05, byte+2 hi-nibble 1) it is the inherited A18 HALF-LANE PACK half_pack -- 4 bytes (assemble a half2's two fp16 lanes; byte0 hi nibble = dst reg). The m5_load rule is placed FIRST so the 10-byte load always wins its signature; the STALE flat `0x18 -> 4 half_pack` appendix line is hereby corrected. `18 00` (byte+1==0x00) = 2-byte compact half move. |
+| `M5 SPLIT MEMORY MODEL (EXP-M5-07/11)` | The A18 monolithic 14-byte device_load(0x67)/device_store(0xe7) is SUPPLEMENTED on M5 by a SPLIT model: a 4-byte m5_addr_gen (low-nibble-f, byte+2==0x03; base = buffer[byte+1>>2], byte+3 idx_mode) + a LOAD (0x18/38/58/78, byte+2==0x10, 10B/4B) + a STORE (0x01/21/41/61, 4B/6B). BOTH models COEXIST on M5 (census EXP-M5-11: m5_addr_gen 1636 own / 2891 tp, m5_load 424, m5_store 520 DOMINANT; device_load 0x67 still 159 own / 54 tp, device_store 0xe7 21/22 -- retained for specific cases). The A18 device-ATOMIC forms (0x67 byte+1 0x11/0x01) are GONE on M5 (0 occurrences): uniform-address atomics migrated to m5_reduce. Index model: a[gid] = addr_gen idx_mode 0x02 + load amode 0x22; a[computed]/a[idx[gid]] = addr_gen idx_mode 0x00 + load amode 0x02 with the index GPR at load byte+5 (splice-proven); a[i+k] folds +k into a preceding m5_alu/m5_iadd add (NO immediate-offset field in addr_gen or load). Store/load DATA register is positional (byte-diff proven). |
+| `M5 UNIFIED COMPUTE/REDUCE/ATOMIC op-selector (EXP-M5-09/11)` | On M5 the subgroup reduce/scan, quad reduce, device-atomic pre-combine, shuffle, and a broad integer/logic/min-max compute ALU all moved into the low-nibble-f `0x2f`/`0x27` op space with the OPERATION in an op-selector at byte+6 (hi-nibble 0xa): a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac float-add (byte+6 HW-splice-validated). Forms: m5_reduce `2f 00 <scope> <dp> 27 80 <op> 02 <b8> <mode>` (10B; scope byte+2 0x04 simd/0x00 quad, mode byte+9 0x02 reduce/0x00 scan; names the device-atomic-on-uniform pre-combine too); m5_shuffle `2f 00 21 1a 20 00 <op> 02 <lane> 00` (10B); m5_iadd `2f 00 04 <3a\|1a> 21 00 a3 02 28 ..` (12B split-memory index add); m5_alu `27 <..> <op=aX@+6> ..` (12B, the general compute datapath). These REPLACE the A18 0xbf/0x3f/0xb7 reduce, 0x47/0xc7 shuffle and the 0x67-atomic forms (which are ABSENT on M5). |
+| `M5 TEXTURE (CHARACTERIZED, length OPEN -- EXP-M5-09/11)` | Leader byte0 in {0x0f,0x1f} + op-class byte+2 (0x12 sample-class / 0x1a image-read) + sampler marker `4X 80` at byte+4/+5; byte+1 = 0x04 sample / 0x05 sample_compare / 0x06 gather\|lodq\|read. Per-op LENGTHS byte-diffed from 6 isolated own-MSL kernels (read 8, scmp 8, lodq 10, gather 14, sample 22) DO NOT generalise (they over-read the following coordinate ops on real corpus kernels, net-regressing the census), so texture is left OUT of the length rule -- integrating it needs an agxrender coordinate splice. OPEN. |
 | `0xbf/0x3f/0xb7 cache bit` | the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-reduce byte+2==0x56 disambiguation is deliberately NOT relaxed. |
 | `0x5f (byte+2 in {0x54,0x56})` | 14  [RAY-TRACING ray-data / traversal-stack memory op (rt_ray_mem); the store/spill-side sibling of the 0xdf AS-load, carries the ray_data payload copy-in/out. EXP-O2C] |
 | `0xN2 (byte+2==0x27)` | 10  [RAY-TRACING ray-vs-node transform / AABB box-test companion (rt_transform_test), byte+3==0x81 byte+4==0x22; ~4-5 per intersector. Gated on byte+2==0x27 and placed BEFORE the 0x02/0x32 handlers (which return unconditionally). EXP-O2C] |
@@ -1789,4 +1809,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 176 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 180 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

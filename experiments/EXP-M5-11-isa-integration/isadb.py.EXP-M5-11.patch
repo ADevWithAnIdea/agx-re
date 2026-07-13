@@ -1,0 +1,357 @@
+--- tools/agx-isa-m5/isadb.py	2026-07-12 18:22:09
++++ /private/tmp/claude-501/-Users-user-asahi-re-public-gpu/85a1f20b-d37b-4816-90fa-6a786dfe96ea/scratchpad/work/agx-isa-m5/isadb.py	2026-07-12 19:22:08
+@@ -1340,6 +1340,16 @@
+             and _b2 in (0x00, 0x10)
+             and off + 3 < len(buf) and buf[off + 3] in (0x40, 0x80, 0xc0, 0xe0)):
+         return 4 if buf[off + 3] == 0x40 else 6  # m5_store (EXP-M5-07 HW)
++    # ---- EXP-M5-11: M5 TEXTURE sample family -- CHARACTERIZED, NOT length-integrated ----
++    # The M5 texture leader IS identified (byte0 in {0x0f,0x1f}, op-class byte+2 0x12
++    # sample-class / 0x1a image-read, sampler marker `4X 80` at byte+4/+5; byte+1 0x04
++    # sample / 0x05 sample_compare / 0x06 gather|lodq|read). BUT the per-op LENGTHS
++    # byte-diffed from the 6 isolated EXP-M5-09 own-MSL kernels (read 8 / scmp 8 / lodq 10 /
++    # gather 14 / sample 22) DO NOT generalise: on the real census texture kernels a length
++    # rule using them OVER-READS the following (correctly-named) coordinate/operand ops and
++    # net-LOSES ~42 tp / ~50 own named bytes (EXP-M5-11 per-file regression test). The exact
++    # op/operand-word split needs an agxrender coordinate splice (EXP-M5-09 deferred it for
++    # the same reason). So it is left OUT of the length rule -- documented open, not integrated.
+     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
+     # Fires only where baseline instr_length was None at a real boundary; the
+     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).
+@@ -2066,6 +2076,20 @@
+     if (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \
+             and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x39:
+         return 10
++    # ---- EXP-M5-11: M5 (G17g) 0x2f split-memory INTEGER ADD is 12 bytes ---------
++    # On M5 the split-memory index arithmetic emits a 0x2f-led 12-byte integer add
++    # `2f 00 04 <3a|1a> 21 00 a3 02 28 ..` (byte+3 0x3a register-src / 0x1a immediate
++    # form; byte+6==0xa3 = add). The inherited fspecial rule below lengths it 10 and
++    # DESYNCs (EXP-M5-07 ld_2sum `2f 00 04 3a 21 00 a3 02 28 80 21 00`; EXP-M5-09
++    # i_addk `2f 00 04 1a 21 00 a3 02 28 02 03 00`). Tightly gated on byte+1==0x00,
++    # byte+2==0x04, byte+3 in {0x1a,0x3a} so it never touches the 10-byte m5_reduce
++    # (byte+3 in {0x0a,0x08}, byte+4==0x27) / m5_shuffle (byte+2==0x21) / matrix MAC
++    # (byte+2==0x05) which stay 10.
++    if b0 == 0x2f and _b1 == 0x00 and _b2 == 0x04 and off + 6 < len(buf) \
++            and buf[off + 3] in (0x1a, 0x3a) and buf[off + 4] == 0x21 and buf[off + 6] == 0xa3:
++        return 12                      # m5_iadd (EXP-M5-11 HW byte-diff, EXP-M5-07/09).
++                                       # Full signature (byte+4==0x21 AND byte+6==0xa3=add) so it
++                                       # NEVER mis-lengths a resync-landing 2f/operand word as 12.
+     # ---- FLOAT SPECIAL-FUNCTION unary (byte0 0x2f / 0xaf, 10B, EXP-0013) ----
+     # exp2 (0xaf), log2 (0x2f) and the round family floor/ceil/trunc/rint (0x2f, with
+     # the round-mode in byte+8) are single 10-byte ops in COMPUTE. (NB: in vertex/
+@@ -6225,16 +6249,22 @@
+             {"name": "addr_reg", "start": 4, "width": 4, "type": "reg"},   # byte0 hi nibble = dest address reg
+             {"name": "base_slot", "start": 8, "width": 8, "type": "imm"},   # byte+1 = buffer slot << 2
+             {"name": "idx_mode", "start": 24, "width": 8, "type": "enum",
+-             "enum": {2: "scalar thread-indexed", 0: "const index 0 (no index)",
++             "enum": {2: "auto gid thread-index", 0: "no auto-index (index from the load's computed-index reg)",
+                       4: "vec2 indexed", 6: "vec3 indexed", 8: "vec4 indexed", 24: "store data-forward"}},
+         ],
+-        "semantics": "M5 memory ADDRESS-GENERATION op: computes the effective address of "
+-                     "buffer[base_slot] at the thread/const index into a register the following "
+-                     "m5_load/m5_store dereferences. byte0 low-nibble 0xf; byte+2==0x03 is the "
+-                     "family signature (separates it from the jump, byte+2==0x54). byte0 HIGH "
+-                     "nibble = destination address register. byte+1 = BUFFER BASE SLOT << 2 "
+-                     "(slot 0=0x00, 1=0x04, 2=0x08, 3=0x0c). byte+3 = index/access mode. Precedes "
+-                     "EVERY M5 load(0x18/38/58/78) and store(0x01/21/41/61).",
++        "semantics": "M5 memory ADDRESS-GENERATION op: computes the effective base address of "
++                     "buffer[base_slot] into a register the following m5_load/m5_store dereferences. "
++                     "byte0 low-nibble 0xf; byte+2==0x03 is the family signature (separates it from "
++                     "the jump, byte+2==0x54). byte0 HIGH nibble = destination address register. "
++                     "byte+1 = BUFFER BASE SLOT << 2 (slot 0=0x00, 1=0x04, 2=0x08, 3=0x0c). byte+3 = "
++                     "index/access mode: 0x02 = the op AUTO-applies the gid thread-index (simple "
++                     "a[gid], the following load has amode==0x22 gid-direct); 0x00 = the op does NOT "
++                     "auto-index -- the index is supplied by the following load's COMPUTED-INDEX "
++                     "register (amode==0x02, index_reg at load byte+5), used for a[idx[gid]] AND "
++                     "a[i+k] (EXP-M5-11: the +k immediate is folded into a preceding m5_alu/m5_iadd "
++                     "add, NOT an addr_gen field -- there is NO immediate-offset field in this op). "
++                     "0x04/0x06/0x08 = vec2/vec3/vec4 element indexing. Precedes EVERY M5 "
++                     "load(0x18/38/58/78) and store(0x01/21/41/61).",
+         "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07): base_slot PROVEN by ld_2sum -- "
+                       "splicing load#2's addr-gen byte+1 0x04->0x00 makes it read buffer a "
+                       "(out=2*a) instead of b, and load#1 0x00->0x04 makes it read b (out=2*b); "
+@@ -6256,23 +6286,34 @@
+              "enum": {0xc0: "4-byte / 32-bit stride", 0x80: "16-byte / 128-bit stride",
+                       0xa0: "1-byte / 8-bit stride", 0xe0: "vec2 32-bit"}},
+             {"name": "fmt_desc", "start": 32, "width": 8, "type": "mod"},   # byte+4 load-bearing format/dest descriptor
++            {"name": "index_reg", "start": 40, "width": 8, "type": "reg"},  # byte+5 = index GPR (computed-index mode) -- EXP-M5-11 splice
+         ],
+         "semantics": "M5 device LOAD (terminal 10-byte form). byte0 = 0x18 | ((ncomp-1)<<5): "
+                      "0x18/0x38/0x58/0x78 = 1/2/3/4-component load. byte+1 (amode) selects the "
+-                     "index source. byte+2==0x10 is a load-bearing enable. byte+3 (elem_size) sets "
+-                     "the ADDRESS STRIDE / element size (HW: 0xc0=4B->a[i], 0x80=16B->a[4i], "
+-                     "0xa0=1B->a[i/4]). byte+4 is a load-bearing format/dest descriptor. byte+5..+9 "
+-                     "are inert padding in this form. The buffer base + index come from the "
+-                     "preceding m5_addr_gen; there is NO base_slot in this op. Not a texture "
+-                     "sample (the census 0x78/0x58 'typed/sample' guess is superseded: they are "
+-                     "the vec4/vec3 LOAD leaders).",
+-        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07, ld_scalar/ld_2sum): elem_size stride "
+-                      "PROVEN -- splicing byte+3 0xc0->0x80 turns a[i] into a[4i] (16B stride), "
+-                      "0xc0->0xa0 into a[i/4] (1B stride), reproduced on the 2nd load of ld_2sum. "
+-                      "byte+2==0x10 load-bearing (0x10->0x00 -> all-zero). byte+4 load-bearing "
+-                      "(0x41->0x45 -> all-zero). byte+5/+6/+7 inert (splice no-op). ncomp leader "
+-                      "map from ld_scalar/ld_vec2/ld_vec3/ld_vec4 compiles (0x18/38/58/78). "
+-                      "Own-MSL only; no Apple binary inspected.",
++                     "index source: 0x22 = gid-direct (auto thread index, from the preceding "
++                     "m5_addr_gen idx_mode==0x02) with byte+5 INERT; 0x02 = COMPUTED-index -- the "
++                     "load index comes from the GPR at byte+5 (index_reg), and the preceding "
++                     "m5_addr_gen has idx_mode==0x00. byte+2==0x10 is a load-bearing enable. byte+3 "
++                     "(elem_size) sets the ADDRESS STRIDE / element size (HW: 0xc0=4B->a[i], "
++                     "0x80=16B->a[4i], 0xa0=1B->a[i/4]). byte+4 = load-bearing format/dest descriptor. "
++                     "byte+5 (index_reg) = the ARBITRARY INDEX REGISTER for a[computed]/a[idx[gid]] "
++                     "(0x00 gid/reg0, 0x20 = a loaded index GPR). NOTE (EXP-M5-11): for a CONSTANT "
++                     "offset a[i+k] there is NO immediate-offset field in the load -- the compiler "
++                     "folds i+k into a PRECEDING m5_alu/m5_iadd add (byte0 0x27/0x2f, byte+6==0xa3=add) "
++                     "and this load then uses computed-index mode (amode 0x02). LOAD DEST register is "
++                     "positional (consumed by the following store/ALU); byte+4 carries its format+reg "
++                     "descriptor. The buffer base comes from the preceding m5_addr_gen (no base_slot here).",
++        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07 + EXP-M5-11). EXP-M5-07: elem_size stride "
++                      "PROVEN (byte+3 0xc0->0x80 turns a[i] into a[4i]; 0xc0->0xa0 into a[i/4]); "
++                      "byte+2==0x10 load-bearing (->0x00 all-zero); byte+4 load-bearing (0x41->0x45 "
++                      "all-zero). EXP-M5-11 (ao_idx a[idx[gid]] splice, grid 8): the COMPUTED-index "
++                      "load `18 02 10 c0 41 20 80` differs from the gid-direct `18 22 10 c0 41 00 80` "
++                      "at byte+1 (amode 0x02 vs 0x22) AND byte+5 (0x20 vs 0x00); splicing byte+5 "
++                      "0x20->0x00 makes EVERY lane read index 0 (out all = a[0]) -> byte+5 is the "
++                      "index register, HW-load-bearing. Immediate-offset FOLDING proven by byte-diff "
++                      "ao_k1/ao_k5/ao_k100 (a[gid+1/5/100]) each emit a separate `27 .. a3 ..` add + "
++                      "idx_mode 0x00 + amode 0x02, with NO immediate field in the load. Own-MSL only; "
++                      "no Apple binary inspected.",
+     },
+     {
+         "mnemonic": "m5_load_compact",
+@@ -6302,16 +6343,24 @@
+         ],
+         "semantics": "M5 device STORE, scalar-direct 4-byte form (byte+3==0x40). byte0 = 0x01 | "
+                      "((ncomp-1)<<5): 0x01/0x21/0x41/0x61 = 1/2/3/4-component store. byte+1 (dsrc) "
+-                     "= the data-source/index descriptor (load-bearing). byte+3 = store format "
+-                     "(load-bearing). The store DATA register is implicit (supplied by dsrc / the "
+-                     "preceding op), matching the A18 device_store finding. Address comes from the "
+-                     "preceding m5_addr_gen. LOAD vs STORE is NOT a direction bit: 0x18 load and "
+-                     "0x01 store are distinct opcodes.",
+-        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07, st_gid/st_imm): st_gid writes out[gid]=gid; "
+-                      "splicing byte+1 0x22->0x00 -> all-zero (dsrc load-bearing), byte+3 0x40->0xc0 "
+-                      "-> all-zero (format load-bearing), byte+2 0x00->0x10 inert. st_imm proves the "
+-                      "companion `04 <imm>` immediate-move (byte+1 0x2a->0x37 changes the stored "
+-                      "constant 42->55). Own-MSL only; no Apple binary inspected.",
++                     "= the data-source CLASS descriptor (load-bearing): 0x06 = ALU/load-result "
++                     "source, 0x22 = gid register, 0x26 = immediate (paired with a preceding "
++                     "`04 <imm>` immediate-move). byte+3 = store format (load-bearing). The store "
++                     "DATA REGISTER is IMPLICIT / POSITIONAL -- it is the destination register of "
++                     "the immediately-preceding producer op (load or ALU); dsrc selects the source "
++                     "CLASS, not a register number. EXP-M5-11 byte-diff PROOF: out[gid]=a[gid]+b[gid] "
++                     "and out[gid]=a[gid]*7 produce BYTE-IDENTICAL stores (`01 06 10 40`) despite "
++                     "different producing expressions/registers. Matches the A18 device_store finding. "
++                     "Address comes from the preceding m5_addr_gen. LOAD vs STORE is NOT a direction "
++                     "bit: 0x18 load and 0x01 store are distinct opcodes.",
++        "provenance": "HW-VALIDATED (splice, M5 EXP-M5-07 + byte-diff EXP-M5-11). EXP-M5-07 st_gid/"
++                      "st_imm: splicing byte+1 0x22->0x00 -> all-zero (dsrc load-bearing), byte+3 "
++                      "0x40->0xc0 -> all-zero (format load-bearing), byte+2 0x00->0x10 inert; st_imm "
++                      "proves the companion `04 <imm>` immediate-move (byte+1 0x2a->0x37 changes the "
++                      "stored constant 42->55). EXP-M5-11: st_sum (out=a+b) and st_mul7 (out=a*7) "
++                      "emit byte-identical `01 06 10 40` stores -> the store carries NO data-register "
++                      "field; the data reg is positional (the preceding producer's dst). Own-MSL only; "
++                      "no Apple binary inspected.",
+     },
+     {
+         "mnemonic": "m5_store_ext",
+@@ -6358,6 +6407,148 @@
+                       "`61 0e 10 80 00 20`; ld_half `01 06 10 80 80 20`) + EXP-M5-09 naming closure: "
+                       "byte+2==0x10 separates every real store from cvt_f2h_dst (byte+2 in {0x1c,0x3c}). "
+                       "Round-trip green; census non-regressing (naming-only, additive). Own-MSL only.",
++    },
++    # ======================================================================
++    # EXP-M5-11: M5 (Apple10 / G17g) SUBGROUP + ATOMIC REDUCTION / SHUFFLE / split-memory iadd.
++    # On M5 the A18 reduce/scan (byte0 0xbf/0x3f/0xb7) and shuffle (0x47/0xc7) MIGRATE
++    # into the low-nibble-f `2f 00 ..` op space (EXP-M5-09). The device-atomic-on-a-
++    # uniform-address pre-combine lowers to the SAME reduce op (A18 model: uniform atomic
++    # = simd_reduce + elect + single RMW), so `m5_reduce` names BOTH. These are 10-byte
++    # ops -- SAME length as the inherited fspecial (0x2f -> 10) they currently mis-name --
++    # so no length rule change is needed; the descriptors below out-match fspecial (7 bits).
++    # ======================================================================
++    {
++        "mnemonic": "m5_reduce",
++        "length": 10,
++        # byte0==0x2f, byte+1==0x00, byte+4==0x27, byte+5==0x80 (32 match bits; beats fspecial's 7).
++        "match": [(0, 8, 0x2f), (8, 8, 0x00), (32, 8, 0x27), (40, 8, 0x80)],
++        "fields": [
++            {"name": "scope", "start": 16, "width": 8, "type": "enum",       # byte+2
++             "enum": {0x04: "simd / device-atomic", 0x00: "quad"}},
++            {"name": "datapath", "start": 24, "width": 8, "type": "enum",     # byte+3
++             "enum": {0x0a: "integer", 0x08: "float"}},
++            {"name": "op", "start": 48, "width": 8, "type": "opcode",         # byte+6 = OP selector
++             "enum": {0xa0: "and", 0xa1: "or", 0xa2: "xor", 0xa3: "add",
++                      0xa6: "min", 0xa7: "max", 0xac: "fadd"}},
++            {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 (0x02)
++            {"name": "b8", "start": 64, "width": 8, "type": "mod"},           # byte+8 (0x00 int / 0x08 fp)
++            {"name": "mode", "start": 72, "width": 8, "type": "enum",         # byte+9 reduce vs scan
++             "enum": {0x02: "reduce (full)", 0x00: "exclusive-scan (prefix)"}},
++        ],
++        "semantics": "M5 SIMD-group / quad REDUCE or PREFIX-SCAN (and the device-atomic-on-uniform-"
++                     "address pre-combine, which lowers to the same op). Unified form "
++                     "`2f 00 <scope> <datapath> 27 80 <OP> 02 <b8> <mode>`. byte+2 (scope) = 0x04 "
++                     "SIMD-group / device-atomic, 0x00 quad. byte+3 (datapath) = 0x0a integer, 0x08 "
++                     "float. byte+6 (OP) = a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac float-add "
++                     "(byte+3=0x08 + byte+8=0x08 select the fp datapath). byte+9 (mode) = 0x02 full "
++                     "reduce, 0x00 exclusive prefix-scan. Replaces the A18 0xbf/0x3f/0xb7 reduce op. "
++                     "For a uniform-address atomic the RMW writeback is a separate following memory op; "
++                     "for a divergent per-lane atomic the compiler emits the full memory-family form.",
++        "provenance": "HW-VALIDATED op-selector (M5 EXP-M5-09): 22 single-op own-MSL kernels differing "
++                     "only in byte+6/+2 (a_iand/ior/ixor/iadd/umin/umax/fadd atomics + s_sum/min/max/and/"
++                     "or/xor + q_sum/max subgroup reduces + s_prefixx exclusive-scan) fix byte+6=OP, "
++                     "byte+2=scope, byte+9=reduce/scan; a_fadd `2f 00 04 08 27 80 ac 02 08 02` uses the "
++                     "0x08 fp datapath (byte+3/+8). Splice (s_sum/a_iadd byte+6 @0x18): a3/a7/a6/a0/a1 "
++                     "give distinct outputs clustered by op semantics -> byte+6 HW-load-bearing. "
++                     "a_iadd and s_sum are byte-identical (`2f 00 04 0a 27 80 a3 02 00 02`), confirming "
++                     "the uniform-atomic == simd_reduce lowering. Own-MSL only; no Apple binary.",
++    },
++    {
++        "mnemonic": "m5_shuffle",
++        "length": 10,
++        # byte0==0x2f, byte+1==0x00, byte+2==0x21, byte+3==0x1a, byte+4==0x20 (40 match bits).
++        "match": [(0, 8, 0x2f), (8, 8, 0x00), (16, 8, 0x21), (24, 8, 0x1a), (32, 8, 0x20)],
++        "fields": [
++            {"name": "op", "start": 48, "width": 8, "type": "opcode",         # byte+6 = shuffle mode
++             "enum": {0xa8: "simd_shuffle / broadcast", 0xa0: "quad_shuffle", 0xa1: "quad_shuffle_xor"}},
++            {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 (0x02)
++            {"name": "lane", "start": 64, "width": 8, "type": "imm"},         # byte+8 = lane / index
++            {"name": "b9", "start": 72, "width": 8, "type": "mod"},           # byte+9
++        ],
++        "semantics": "M5 SIMD-group / quad SHUFFLE / BROADCAST. Form `2f 00 21 1a 20 00 <OP> 02 "
++                     "<lane> 00`. byte+6 (OP) = a8 simd_shuffle / simd_broadcast, a0 quad_shuffle, "
++                     "a1 quad_shuffle_xor. byte+8 = lane index / xor mask. Distinct op-family from "
++                     "m5_reduce (byte+2==0x21 vs the reducer's scope byte); replaces the A18 0x47/0xc7 "
++                     "shuffle op.",
++        "provenance": "HW-VALIDATED family (M5 EXP-M5-09): own-MSL s_shuffle/s_bcast (byte+6=0xa8), "
++                     "q_shuffle (0xa0), q_shxor (0xa1) differ only in byte+6; byte-diff over the 4 "
++                     "shuffle kernels. Own-MSL only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_iadd",
++        "length": 12,
++        # byte0==0x2f, byte+1==0x00, byte+2==0x04, byte+6==0xa3 (add). byte+3 3a reg / 1a imm.
++        "match": [(0, 8, 0x2f), (8, 8, 0x00), (16, 8, 0x04), (48, 8, 0xa3)],
++        "fields": [
++            {"name": "src_form", "start": 24, "width": 8, "type": "enum",     # byte+3
++             "enum": {0x3a: "register source", 0x1a: "immediate source"}},
++            {"name": "b4", "start": 32, "width": 8, "type": "mod"},           # byte+4 (0x21)
++            {"name": "op", "start": 48, "width": 8, "type": "opcode",         # byte+6
++             "enum": {0xa3: "add"}},
++            {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 (0x02)
++            {"name": "b8", "start": 64, "width": 8, "type": "mod"},           # byte+8 (0x28)
++            {"name": "operand", "start": 72, "width": 24, "type": "raw"},     # byte+9..+11 operand/imm word
++        ],
++        "semantics": "M5 (G17g) split-memory INDEX INTEGER ADD, 12-byte form "
++                     "`2f 00 04 <src_form> 21 00 a3 02 28 ..`. Emitted for the address-index "
++                     "arithmetic of the split memory model (e.g. gid+K feeding m5_addr_gen). byte+3 = "
++                     "0x3a register-source / 0x1a immediate-source; byte+6==0xa3 = add. Distinct 12-byte "
++                     "opcode from the inherited 0x9f/0x1f iadd2 and from the 10-byte m5_reduce (which has "
++                     "byte+4==0x27). Fixes the fspecial(10) mis-length that desynced ld_2sum.",
++        "provenance": "HW byte-diff (M5 EXP-M5-07 ld_2sum `2f 00 04 3a 21 00 a3 02 28 80 21 00`; "
++                     "EXP-M5-09 opens i_add / i_addk `2f 00 04 1a 21 00 a3 02 28 02 03 00`). The 12-byte "
++                     "length is confirmed by clean tokenization: at 10 (fspecial) the trailing `21 00` "
++                     "desynced. Operand bit-packing (byte+9..+11) not individually splice-validated. "
++                     "Own-MSL only; no Apple binary inspected.",
++    },
++    {
++        # EXP-M5-11: the M5 general COMPUTE-ALU op-selector family. On M5 the broad
++        # integer / bitfield / logic / min-max compute ops carry the operation in an
++        # op-selector at byte+6 (hi-nibble 0xa), exactly the enum HW-splice-validated for
++        # the m5_reduce form (EXP-M5-09: a0 and / a1 or / a2 xor / a3 add / a6 min / a7 max
++        # / ac fadd). The byte0==0x27 leader is the integer/general datapath sibling of the
++        # 0x2f (reduce/shuffle/iadd) leader. This was the single largest NOMATCH bucket in
++        # the census (byte0==0x27, length 12, no descriptor -> lengthed-but-unnamed):
++        # ~3350 own / ~970 tp ops, 99%+ with byte+6 hi-nibble 0xa. Naming them is length-
++        # SAFE (no length change -> cannot introduce desync); it only moves lengthed bytes
++        # from `leftover` to `named`. Operand bit-packing is NOT reconstructed (rule 5).
++        "mnemonic": "m5_alu",
++        "length": 12,
++        # byte0==0x27 (8 bits) + byte+6 hi-nibble==0xa (4 bits) = 12 match bits. Uncontested
++        # (there is NO other length-12 byte0==0x27 descriptor -- ibfe/ishift are 0xa7).
++        "match": [(0, 8, 0x27), (52, 4, 0xa)],
++        "fields": [
++            {"name": "mode",  "start": 8,  "width": 8, "type": "mod"},        # byte+1 form/dst descriptor (0x00/0x01/0x02/..)
++            {"name": "sub",   "start": 16, "width": 8, "type": "mod"},        # byte+2 sub-mode
++            {"name": "b3",    "start": 24, "width": 8, "type": "mod"},        # byte+3 operand/mode descriptor
++            {"name": "b4",    "start": 32, "width": 8, "type": "mod"},        # byte+4
++            {"name": "b5",    "start": 40, "width": 8, "type": "mod"},        # byte+5
++            {"name": "op",    "start": 48, "width": 8, "type": "opcode",      # byte+6 = OP selector (hi-nibble 0xa)
++             "enum": {0xa0: "and", 0xa1: "or", 0xa2: "xor", 0xa3: "add",
++                      0xa6: "min", 0xa7: "max", 0xa8: "shift/shuffle-class (inferred)",
++                      0xa9: "op-a9 (inferred)", 0xab: "op-ab (inferred)",
++                      0xac: "fadd", 0xae: "op-ae (inferred)", 0xaf: "op-af (inferred)"}},
++            {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 operand descriptor
++            {"name": "operand",  "start": 64, "width": 32, "type": "raw"},    # byte+8..+11 operand/immediate word (NOT reconstructed)
++        ],
++        "semantics": "M5 (G17g) general COMPUTE-ALU op, 12-byte form. byte0==0x27 = the integer/"
++                     "general datapath leader (sibling of the 0x2f reduce/shuffle/iadd leader). "
++                     "byte+6 = OPERATION selector, hi-nibble 0xa: a0 and, a1 or, a2 xor, a3 add, "
++                     "a6 min, a7 max, ac float-add -- the SAME enum HW-splice-validated for m5_reduce "
++                     "(EXP-M5-09). byte+1 = form/dst descriptor (0x00/0x01/0x02); byte+2..+5 = "
++                     "operand/mode descriptors; byte+7..+11 = operand/immediate word. This descriptor "
++                     "NAMES the family and its op-selector; the exact operand register/immediate "
++                     "bit-packing is byte-diff-located but NOT individually splice-validated (and the "
++                     "SFU/coefficient words are intentionally kept raw, clean-room rule 5).",
++        "provenance": "HW byte-diff over the M5 census corpus (own EXP-M5-02 + tp EXP-M5-03): the "
++                     "single largest lengthed-but-unnamed bucket -- 3384 own / 1001 tp length-12 "
++                     "byte0==0x27 ops, of which 3351/3384 (own) and 969/1001 (tp) carry byte+6 "
++                     "hi-nibble 0xa. The op-selector enum (a0 and/a1 or/a2 xor/a3 add/a6 min/a7 max/"
++                     "ac fadd) is HW-SPLICE-VALIDATED in the byte-identical-position m5_reduce form "
++                     "(EXP-M5-09, byte+6 @0x18 splice a3/a7/a6/a0/a1 -> distinct outputs). Family "
++                     "naming (length-safe: no length rule change, so desync cannot regress). Operand "
++                     "packing byte-diff-inferred, not splice-proven; a8/a9/ab/ae/af selector meanings "
++                     "inferred. Own-MSL / own-corpus only; no Apple binary inspected.",
+     },
+ ]
+ 
+@@ -6499,7 +6690,7 @@
+ def to_json():
+     """Serialize the DB (and the length rule, described) to a JSON string."""
+     out = {
+-        "isa": "Apple A18 Pro / G17P AGX (clean-room, OWN-SHADER derived)",
++        "isa": "Apple M5 / Apple10 / G17g AGX (clean-room fork of the A18 Pro / G17P DB, OWN-SHADER derived; EXP-M5-05/07/09/11)",
+         "parcel_bytes": 2,
+         "length_rule": {
+             "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c "
+@@ -6634,8 +6825,41 @@
+                 "0x07 (byte+1==0x00, byte+2==0x54)": "8  [LINK-REGISTER SAVE/RESTORE around a nested call in a "
+                         "non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte "
+                         "threadgroup_barrier / pixel_order. EXP-0038]",
+-                "0x18": "4  [HALF-LANE PACK (half_pack): assemble a half2's two fp16 lanes into one packed 32-bit "
+-                        "register before the store. byte0 hi nibble = dst reg (0x08/0x18/0x28/0x38 = r0..r3). EXP-0038]",
++                "0x18 (M5 DISAMBIGUATED)": "byte0 0x18 has TWO meanings on M5 (G17g), disambiguated by "
++                        "signature (EXP-M5-07/11): (a) if byte+2==0x10 AND byte+1 in {0x02,0x0a,0x22,0x2a} it is the "
++                        "M5 device LOAD m5_load -- 10 bytes (or 4 if byte+3==0x40, the compact non-terminal "
++                        "m5_load_compact); byte0 0x18/0x38/0x58/0x78 = 1/2/3/4-component. (b) OTHERWISE (byte+1==0x05, "
++                        "byte+2 hi-nibble 1) it is the inherited A18 HALF-LANE PACK half_pack -- 4 bytes (assemble a "
++                        "half2's two fp16 lanes; byte0 hi nibble = dst reg). The m5_load rule is placed FIRST so the "
++                        "10-byte load always wins its signature; the STALE flat `0x18 -> 4 half_pack` appendix line is "
++                        "hereby corrected. `18 00` (byte+1==0x00) = 2-byte compact half move.",
++                "M5 SPLIT MEMORY MODEL (EXP-M5-07/11)": "The A18 monolithic 14-byte device_load(0x67)/device_store(0xe7) "
++                        "is SUPPLEMENTED on M5 by a SPLIT model: a 4-byte m5_addr_gen (low-nibble-f, byte+2==0x03; base = "
++                        "buffer[byte+1>>2], byte+3 idx_mode) + a LOAD (0x18/38/58/78, byte+2==0x10, 10B/4B) + a STORE "
++                        "(0x01/21/41/61, 4B/6B). BOTH models COEXIST on M5 (census EXP-M5-11: m5_addr_gen 1636 own / 2891 "
++                        "tp, m5_load 424, m5_store 520 DOMINANT; device_load 0x67 still 159 own / 54 tp, device_store 0xe7 "
++                        "21/22 -- retained for specific cases). The A18 device-ATOMIC forms (0x67 byte+1 0x11/0x01) are "
++                        "GONE on M5 (0 occurrences): uniform-address atomics migrated to m5_reduce. Index model: a[gid] = "
++                        "addr_gen idx_mode 0x02 + load amode 0x22; a[computed]/a[idx[gid]] = addr_gen idx_mode 0x00 + load "
++                        "amode 0x02 with the index GPR at load byte+5 (splice-proven); a[i+k] folds +k into a preceding "
++                        "m5_alu/m5_iadd add (NO immediate-offset field in addr_gen or load). Store/load DATA register is "
++                        "positional (byte-diff proven).",
++                "M5 UNIFIED COMPUTE/REDUCE/ATOMIC op-selector (EXP-M5-09/11)": "On M5 the subgroup reduce/scan, quad "
++                        "reduce, device-atomic pre-combine, shuffle, and a broad integer/logic/min-max compute ALU all "
++                        "moved into the low-nibble-f `0x2f`/`0x27` op space with the OPERATION in an op-selector at "
++                        "byte+6 (hi-nibble 0xa): a0 and, a1 or, a2 xor, a3 add, a6 min, a7 max, ac float-add (byte+6 "
++                        "HW-splice-validated). Forms: m5_reduce `2f 00 <scope> <dp> 27 80 <op> 02 <b8> <mode>` (10B; scope "
++                        "byte+2 0x04 simd/0x00 quad, mode byte+9 0x02 reduce/0x00 scan; names the device-atomic-on-uniform "
++                        "pre-combine too); m5_shuffle `2f 00 21 1a 20 00 <op> 02 <lane> 00` (10B); m5_iadd `2f 00 04 "
++                        "<3a|1a> 21 00 a3 02 28 ..` (12B split-memory index add); m5_alu `27 <..> <op=aX@+6> ..` (12B, the "
++                        "general compute datapath). These REPLACE the A18 0xbf/0x3f/0xb7 reduce, 0x47/0xc7 shuffle and the "
++                        "0x67-atomic forms (which are ABSENT on M5).",
++                "M5 TEXTURE (CHARACTERIZED, length OPEN -- EXP-M5-09/11)": "Leader byte0 in {0x0f,0x1f} + op-class byte+2 "
++                        "(0x12 sample-class / 0x1a image-read) + sampler marker `4X 80` at byte+4/+5; byte+1 = 0x04 sample "
++                        "/ 0x05 sample_compare / 0x06 gather|lodq|read. Per-op LENGTHS byte-diffed from 6 isolated own-MSL "
++                        "kernels (read 8, scmp 8, lodq 10, gather 14, sample 22) DO NOT generalise (they over-read the "
++                        "following coordinate ops on real corpus kernels, net-regressing the census), so texture is left "
++                        "OUT of the length rule -- integrating it needs an agxrender coordinate splice. OPEN.",
+                 "0xbf/0x3f/0xb7 cache bit": "the reduce length/match gate accepts byte+2 in {0x54,0x56} (bit17 = a "
+                         "source cache/last-use hint, not an op change; EXP-0038). NB the 0x37 derivative-vs-quad-"
+                         "reduce byte+2==0x56 disambiguation is deliberately NOT relaxed.",
