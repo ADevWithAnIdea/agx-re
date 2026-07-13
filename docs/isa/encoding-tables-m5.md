@@ -1,6 +1,6 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 180 instruction descriptors.
+> **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-12). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 188 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -705,7 +705,7 @@
 | `op_msb` | [103:104] | modifier |  |
 | `amode_hi` | [104:112] (byte+13) | modifier |  |
 
-*atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg (also atomic_store, discards result), 31 xor -- the SAME 5-bit op enum used by atomic_tg (bits[86:91]) and by atomic_mem (byte+12 bits[1:6]). byte+12 bit6 (per_lane) = 1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice. byte+1==0x11 selects the ALU/reduced/immediate-operand form (bit4) in the device space (bit1=0); the register-operand form is atomic_mem (byte+1==0x01). byte+5 = per-lane index GPR (zeroed for a uniform address). byte+7 bit0 = discard/no-writeback; byte+8 = return-register descriptor. The actual RMW operand register is implicit (supplied by the preceding op / amode), as in the 0x67/0xe7 load/store family. Emitted AFTER a SIMD-group simd_reduce pre-combine; NOT a CAS/retry loop.*
+*atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg (also atomic_store, discards result), 31 xor -- the SAME 5-bit op enum used by atomic_tg (bits[86:91]) and by atomic_mem (byte+12 bits[1:6]). byte+12 bit6 (per_lane) = 1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice. byte+1==0x11 selects the ALU/reduced/immediate-operand form (bit4) in the device space (bit1=0); the register-operand form is atomic_mem (byte+1==0x01). byte+5 = per-lane index GPR (zeroed for a uniform address). byte+7 bit0 = discard/no-writeback; byte+8 = return-register descriptor. The actual RMW operand register is implicit (supplied by the preceding op / amode), as in the 0x67/0xe7 load/store family. Emitted AFTER a SIMD-group simd_reduce pre-combine; NOT a CAS/retry loop. [M5/G17g CAVEAT (EXP-M5-16): the A18 device-atomic 0x67 (byte+1 0x11/0x01) is SUPERSEDED on M5 -- a UNIFORM-address atomic migrates to m5_reduce (simd pre-combine, byte+6 op-selector) and a DIVERGENT per-lane atomic `atomic_fetch_<op>(&buf[gid],x)` to m5_atomic_div / m5_atomic_xchg (`0f 00 03 .. c0 ..`). 0x67/0xe7 still occur on M5 for plain device load/store. See db.json m5_atomic_div / m5_reduce.]*
 
 ### `atomic_mem` — standalone atomic (exchange/cmpxchg/indexed)
 
@@ -729,7 +729,7 @@
 | `op_msb` | [103:104] | modifier |  |
 | `amode_hi` | [104:112] (byte+13) | modifier |  |
 
-*atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match difference is byte+1 (0x01 register-operand vs 0x11 ALU/reduced/immediate-operand). The OP is the SAME 5-bit selector at byte+12 bits[1:6] (start 97): 16 add ... 30 xchg (also atomic_store, discards result) ... 31 xor. Emitted for atomic_store, atomic_exchange, per-lane fetch_* with a divergent address, and compare_exchange (op 18; the returned old value feeds a following icmp, NO hardware retry loop). byte+5 = per-lane index GPR; byte+7 bit0 = discard; byte+8 = return-register descriptor; the RMW operand register is implicit (supplied by the preceding op), as in the 0x67/0xe7 load/store family.*
+*atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match difference is byte+1 (0x01 register-operand vs 0x11 ALU/reduced/immediate-operand). The OP is the SAME 5-bit selector at byte+12 bits[1:6] (start 97): 16 add ... 30 xchg (also atomic_store, discards result) ... 31 xor. Emitted for atomic_store, atomic_exchange, per-lane fetch_* with a divergent address, and compare_exchange (op 18; the returned old value feeds a following icmp, NO hardware retry loop). byte+5 = per-lane index GPR; byte+7 bit0 = discard; byte+8 = return-register descriptor; the RMW operand register is implicit (supplied by the preceding op), as in the 0x67/0xe7 load/store family. [M5/G17g CAVEAT (EXP-M5-16): A18/G17P register-operand device-atomic form; on M5 a divergent-address atomic lowers to m5_atomic_div / m5_atomic_xchg (`0f 00 03`), a uniform one to m5_reduce -- see db.json.]*
 
 ## Texture / sampler
 
@@ -754,7 +754,7 @@
 | `tex_type` | [96:104] (byte+12) | enum | `0x1`=2D-class (2d/1d/cube/2d_array/ms/depth); `0x2`=3D (volumetric; carries a 3rd coordinate); `0x3`=buffer (linear texel buffer) |
 | `samp_extra` | [104:112] (byte+13) | modifier |  |
 
-*Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage.*
+*Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage. [M5/G17g CAVEAT (EXP-M5-16): this is the A18/G17P sample bundle; on M5 the sampling op is SUPERSEDED by the m5_tex / m5_tex_read leaders (`<rr>f <op> {12,1a} <b3> <4X> 80`, 6-byte leader + raw coord/LOD operand words) -- see db.json m5_tex.]*
 
 ### `tex_write` — texture write (memory-family store)
 
@@ -776,7 +776,7 @@
 | `data_desc_hi` | [112:120] (byte+14) | modifier |  |
 | `rsv15` | [120:128] (byte+15) | modifier |  |
 
-*texture[slot].write(color, coord). Memory-family store (byte0 0xd7, low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct from the sampler-path read: writes go through the store path, reads through the sample op. byte+9 = coordinate dimensionality (0x04 for a 2-coordinate 2d/2d_array write, 0x08 for a 3d write, 0x0c for a cube write); byte+4 = the extra-coordinate operand register (the array layer / cube face; 0x20 present for an array/layer store, 0 for a plain 2d/3d store); byte+1/+5..+7 = the coordinate/data operand register pack; byte+12 low nibble = a per-texture-op write-sequence index (0x88 base + N for the Nth write in a shader); byte+13/+14 = the write-data (color) source-register descriptor (0x3a/0x09 for a contiguous vec4 register block, 0xfa/0x08 when the four components are assembled from scattered sources). The write-data REGISTER itself is implicit / carried by these descriptors, matching the device_store finding that the store DATA register is not a standalone field. TEXTURE SLOT is NOT in this instruction (writing to texture 0/1/2 is byte-identical) -- it is bound via texture state, resolved outside this op. Fragment or compute.*
+*texture[slot].write(color, coord). Memory-family store (byte0 0xd7, low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct from the sampler-path read: writes go through the store path, reads through the sample op. byte+9 = coordinate dimensionality (0x04 for a 2-coordinate 2d/2d_array write, 0x08 for a 3d write, 0x0c for a cube write); byte+4 = the extra-coordinate operand register (the array layer / cube face; 0x20 present for an array/layer store, 0 for a plain 2d/3d store); byte+1/+5..+7 = the coordinate/data operand register pack; byte+12 low nibble = a per-texture-op write-sequence index (0x88 base + N for the Nth write in a shader); byte+13/+14 = the write-data (color) source-register descriptor (0x3a/0x09 for a contiguous vec4 register block, 0xfa/0x08 when the four components are assembled from scattered sources). The write-data REGISTER itself is implicit / carried by these descriptors, matching the device_store finding that the store DATA register is not a standalone field. TEXTURE SLOT is NOT in this instruction (writing to texture 0/1/2 is byte-identical) -- it is bound via texture state, resolved outside this op. Fragment or compute. [M5/G17g NOTE (EXP-M5-16): the 0xd7 image-write STILL OCCURS on M5 (19 tp-corpus occurrences, correctly lengthed 16B) -- retained, NOT superseded. In ADDITION, M5 texture-atomic / image-store paths emit a distinct `24 80 03 0a 27 ..` write form (11 own / 2 tp occurrences, EXP-M5-16) whose full length/operand split is OPEN (documented, not yet integrated).]*
 
 ### `tex_deriv` — quad-difference derivative (dfdx/dfdy/fwidth)
 
@@ -903,7 +903,7 @@
 | `offset` | [56:104] (byte+7) | immediate |  |
 | `tail` | [104:112] (byte+13) | raw/unmapped |  |
 
-*direct out-of-line CALL: `0f 05 54 1a 8f 00 56 <off40> 00` (14 B). offset = a SIGNED little-endian PC-relative byte displacement; branch target = (call_addr + 4) + offset. Reuses the execution-mask push (0f 05) machinery -- a masked branch that saves the return context -- so byte+4=0x8f and byte+6=0x56 are the CALL/link signature (also the 14-vs-8-byte disambiguator vs a plain predication push). Bracketed by the 0x43 frame marker (before) and a 0f 06 reconverge (after). Args in r10,r11,r12..; return value in r10; return via ret (0x8f).*
+*direct out-of-line CALL: `0f 05 54 1a 8f 00 56 <off40> 00` (14 B). offset = a SIGNED little-endian PC-relative byte displacement; branch target = (call_addr + 4) + offset. Reuses the execution-mask push (0f 05) machinery -- a masked branch that saves the return context -- so byte+4=0x8f and byte+6=0x56 are the CALL/link signature (also the 14-vs-8-byte disambiguator vs a plain predication push). Bracketed by the 0x43 frame marker (before) and a 0f 06 reconverge (after). Args in r10,r11,r12..; return value in r10; return via ret (0x8f). [M5/G17g CAVEAT (EXP-M5-11 MAJOR-4): this is the A18/G17P direct-call form. INTRA-shader control flow (jump/jump_cond/if_push/reconverge/ret) is confirmed on M5, but the M5 out-of-line CALL ABI (0xef/0xff / linked-function variant) is OPEN -- a visible_function_table caller extracts to a 4-byte stub in the standalone archive (the call resolves at pipeline-link time); isolating it needs a shdump extension that builds a pipeline with linkedFunctions.]*
 
 ### `ret` — function RETURN (leaf / non-leaf)
 
@@ -927,7 +927,7 @@
 | `b4` | [32:40] (byte+4) | raw/unmapped |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 
-*INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Leader `0f 80 ..`: byte+1 0x80 selects the call-to-address variant of the control-flow group (vs 0x00 jump, 0x05 direct call). The target is a CODE VA loaded into a register from the function table (entry[i] = 8-byte code VA of function i's entry point); this op transfers control to it and returns via the same ret (0x8f). Per-lane (dynamic) targets are marshalled through a run of 0x4b move ops before the 0f 80.*
+*INDIRECT CALL through a function pointer (visible_function_table / intersection_function_table). Leader `0f 80 ..`: byte+1 0x80 selects the call-to-address variant of the control-flow group (vs 0x00 jump, 0x05 direct call). The target is a CODE VA loaded into a register from the function table (entry[i] = 8-byte code VA of function i's entry point); this op transfers control to it and returns via the same ret (0x8f). Per-lane (dynamic) targets are marshalled through a run of 0x4b move ops before the 0f 80. [M5/G17g CAVEAT (EXP-M5-11 MAJOR-4): A18/G17P indirect-call form; the M5 dynamic-dispatch / linked-function ABI is OPEN (same pipeline-link resolution as the direct call).]*
 
 ### `frame_prologue` — non-leaf function frame prologue (scratch frame setup)
 
@@ -1045,7 +1045,7 @@
 | `acc_en` | [88:89] (byte+11) | enum | `0x0`=multiply; `0x1`=multiply_accumulate |
 | `b11hi` | [89:96] | raw/unmapped |  |
 
-*d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). OPERAND SELECTORS (all HW-splice-validated, EXP-O2C, on mad_f32 read back over one 32-lane simdgroup): byte+5 = A (LEFT) multiply-operand fragment register (splice +5 to B's reg -> B*B; swap +5/+6 -> B*A -- matmul is non-commutative so all A*B/B*A/A*A/B*B distinguishable); byte+6 = B (RIGHT) operand register; byte+7 = C accumulator source register; byte+8 = destination fragment register; byte+3 = an A-operand sub-descriptor (corrupting -> ZERO result: load-bearing); byte+10 = op-enable marker 0x24 (corrupting -> C passthrough, the multiply drops out); byte+4 and byte+9 bit1 splice-inert (padding). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion; splicing 0x02->0x00 garbles fp32). mode (byte+2): 0x56 standalone, 0x54 tiled (MPP matmul2d) -- SEMANTIC, not a hint: splicing standalone 0x56->0x54 ZEROES the result (tiled mode sources its accumulator from the MPP tile context). ACCUMULATE-ENABLE = byte+11 bit0 (1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). MSL element types: half, float, bfloat (incl. mixed half/bfloat -> float accumulate); integer matrices REJECTED (no int8 cooperative matrix). Only 8x8 exposed. ALL MPP tensor ops (matmul2d multiply/multiply_accumulate/transpose/f32/16x16x16/2-simdgroup) lower to THIS SAME op -- no new tensor opcode; transpose adds 4-byte data-move ops (ray_move family), not a new op; simdgroup_load/store (incl. transpose=true) are ordinary 0x67/0xe7 memory ops.*
+*d = a*b (+ c)  ; DEDICATED 8x8 cooperative-matrix multiply-accumulate over the 32-lane SIMD-group. One 0xcf = one full 8x8x8 tile MAC (r[i][j] += sum_k a[i][k]*b[k][j], row-major). OPERAND SELECTORS (all HW-splice-validated, EXP-O2C, on mad_f32 read back over one 32-lane simdgroup): byte+5 = A (LEFT) multiply-operand fragment register (splice +5 to B's reg -> B*B; swap +5/+6 -> B*A -- matmul is non-commutative so all A*B/B*A/A*A/B*B distinguishable); byte+6 = B (RIGHT) operand register; byte+7 = C accumulator source register; byte+8 = destination fragment register; byte+3 = an A-operand sub-descriptor (corrupting -> ZERO result: load-bearing); byte+10 = op-enable marker 0x24 (corrupting -> C passthrough, the multiply drops out); byte+4 and byte+9 bit1 splice-inert (padding). dtype (byte+1): 0x00 = 16-bit (half), 0x02 = 32-bit (float; bfloat shares the 32-bit datapath with input conversion; splicing 0x02->0x00 garbles fp32). mode (byte+2): 0x56 standalone, 0x54 tiled (MPP matmul2d) -- SEMANTIC, not a hint: splicing standalone 0x56->0x54 ZEROES the result (tiled mode sources its accumulator from the MPP tile context). ACCUMULATE-ENABLE = byte+11 bit0 (1 -> a*b+c, 0 -> a*b; simdgroup_multiply clears it). MSL element types: half, float, bfloat (incl. mixed half/bfloat -> float accumulate); integer matrices REJECTED (no int8 cooperative matrix). Only 8x8 exposed. ALL MPP tensor ops (matmul2d multiply/multiply_accumulate/transpose/f32/16x16x16/2-simdgroup) lower to THIS SAME op -- no new tensor opcode; transpose adds 4-byte data-move ops (ray_move family), not a new op; simdgroup_load/store (incl. transpose=true) are ordinary 0x67/0xe7 memory ops. [M5/G17g CAVEAT (EXP-M5-16 / EXP-M5-09): on M5 the simdgroup_matrix MAC DIVERGES off 0xcf to m5_matrix_mac (`2f 00 05 .. 20 <af|ab> .. <accum> ..`, 14B) fed by the `?f ..07..` tile load/store family; 0xcf is RETAINED on M5 only for the TILED MPP tensor_ops::matmul2d path (0xcf still occurs -- 22 own / 44 tp). See db.json m5_matrix_mac.]*
 
 ## Ray tracing
 
@@ -1086,7 +1086,7 @@
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `reserved13` | [104:112] (byte+13) | modifier |  |
 
-*Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.*
+*Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query. [M5/G17g CAVEAT (EXP-M5-09/M5-16): rt_intersect (`?4 ea`) SURVIVES unchanged on M5, but the 0xdf AS-load does NOT survive as a distinct high-frequency leader (0-2/kernel on M5 vs 14-37 on A18) -- the AS/ray-data load migrated into the M5 split memory family; the exact M5 AS-load encoding is OPEN (needs an AS-bound splice testbed). See EXP-M5-11 MAJOR-5.]*
 
 ### `rt_ray_mem` — ray-data / traversal-stack memory op (payload copy-in/out)
 
@@ -1107,7 +1107,7 @@
 | `elem_size` | [96:104] (byte+12) | immediate |  |
 | `reserved13` | [104:112] (byte+13) | modifier |  |
 
-*RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.*
+*RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode. [M5/G17g CAVEAT (EXP-M5-09): the 0x5f ray-data/traversal-stack leader does NOT survive as a distinct high-frequency op on M5 (0-2/kernel vs 12-28 on A18) -- ray-data spill/reload migrated into the M5 split memory family; exact M5 encoding OPEN (EXP-M5-11 MAJOR-5).]*
 
 ### `rt_transform_test` — ray-vs-node transform / AABB box-test companion
 
@@ -1732,6 +1732,38 @@
 
 - **Length:** 12 bytes  ·  **Match:** byte+0==0x27, bits[52:56]==0xa
 
+### `m5_tex`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x12, bits[36:40]==0x4, byte+5==0x80
+
+### `m5_tex_read`
+
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x1a, bits[36:40]==0x4, byte+5==0x80
+
+### `m5_store_texresult`
+
+- **Length:** 4 bytes  ·  **Match:** bits[0:5]==0x1, bits[12:16]==0x2, byte+2==0x10
+
+### `m5_atomic_div`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+7==0xc0
+
+### `m5_atomic_xchg`
+
+- **Length:** 10 bytes  ·  **Match:** byte+0==0x0f, byte+1==0x00, byte+2==0x03, byte+6==0x18, byte+7==0xc0
+
+### `m5_matrix_mac`
+
+- **Length:** 14 bytes  ·  **Match:** byte+0==0x2f, byte+1==0x00, byte+2==0x05, byte+5==0x20
+
+### `m5_falu2`
+
+- **Length:** 12 bytes  ·  **Match:** byte+0==0x29, byte+1==0x00, byte+2==0x04, bits[52:56]==0xa
+
+### `m5_tile_ldst`
+
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0xf, byte+2==0x07, byte+9==0xc0
+
 ## Length rule (byte 0)
 
 Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a per-group length bit/signature. The authoritative rule is `instr_length()` in `tools/agx-isa-m5/isadb.py`; this table summarizes it:
@@ -1809,4 +1841,4 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 
 ---
 
-*Rendered from `tools/agx-isa-m5/db.json` — 180 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*
+*Rendered from `tools/agx-isa-m5/db.json` — 188 descriptors. The machine-readable source of truth is `db.json` / `isadb.py`; this document is its human-readable projection.*

@@ -48,10 +48,19 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   immediate offset is **folded into a preceding `m5_alu` add** (no offset field — a negative vs A18), and the
   store/load **data register is implicit/positional**. `0x67`/`0xe7` (A18 device_load/store) **still occur on
   M5** alongside the split model; A18 atomics migrated to `m5_reduce`.
-- **Still open:** matrix MAC/tile operand packing + length; texture sample lengths (a regressing length variant
-  was reverted per the no-regression gate — leader/op-class documented); call ABI `0xef/0xff` (needs
-  pipeline-`linkedFunctions` extraction — the standalone archive yields a link-time stub); RT AS-load (migrated
-  off `0xdf` into the memory family — needs an AS-bound splice testbed); `m5_alu` operand bit-packing (raw).
+- **INTEGRATED (EXP-M5-16, HW-validated):** **texture** sample/read now emittable — `m5_tex` (sample-class) /
+  `m5_tex_read` gated on the sampler-descriptor marker (byte+4 hi-nibble 0x4 + byte+5==0x80), length = the 6-byte
+  leader (coord/LOD operands raw, rule 5), + `m5_store_texresult`; `tex_write` (`0xd7`) survives on M5.
+  **Divergent-address atomics** — `m5_atomic_div` (12B) / `m5_atomic_xchg` (10B), `0f 00 03 … c0` form,
+  splice-confirmed (the A18 per-lane `0x67` path is gone). **`simdgroup_matrix` MAC** — `m5_matrix_mac`
+  (`2f 00 05`, 14B) + `m5_tile_ldst`. All 8 retained A18 descriptors the M5 supersedes carry a
+  "superseded-on-M5" note in their `semantics`.
+- **Still open (documented, with fallbacks in `porting-guide-m5.md` §8):** texture coord/LOD/sampler operand
+  bit-packing (raw — needs an agxrender coord splice); the M5 `24 80 03` image-store length; matrix operand
+  packing + tile 12-vs-16 length determinant (raw); atomic op-selector not per-bit exhaustively spliced; **call
+  ABI `0xef/0xff`** (needs pipeline-`linkedFunctions` extraction — standalone archive yields a link-time stub);
+  **RT AS-load** (migrated off `0xdf` — needs an AS-bound splice testbed). Intra-shader control flow is green;
+  a driver can gate function-pointers / coop-matrix-operands / RT-traversal until these are mapped.
 
 ## Status & provenance
 - **Tokenization + op families:** DB = **180 descriptors**; byte coverage **97.4% (own) / 98.4% (tp)**, named

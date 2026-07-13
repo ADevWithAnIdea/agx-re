@@ -472,3 +472,13 @@ integrated EXP-M5-16 — the OBJ-1 blocker), **divergent-address** atomics (§4,
 MAC `2f 00 05` (§7, EXP-M5-16), call ABI `0xef/0xff` (§2, needs pipeline-linked extraction), RT AS-load (§8,
 needs AS-bound testbed). Net effect: the residual NYC backlog is **texture + divergent-atomics + matrix-MAC +
 call + RT** — not the whole memory/subgroup surface the pre-integration matrix implied.
+
+## Addendum 3 — texture/atomics/matrix integrated (EXP-M5-16)
+Moved NYC→**native** (emittable descriptors now in `db.json`, HW-validated EXP-M5-16):
+- **Texture** sample/gather/read/compare/LOD (§5) → native (`m5_tex`/`m5_tex_read`/`m5_store_texresult`; coord
+  operand packing raw). **Image write** `tex_write 0xd7` survives on M5.
+- **Divergent-address device atomics** (§4) → native (`m5_atomic_div`/`m5_atomic_xchg`, splice-confirmed).
+- **`simdgroup_matrix` cooperative-matrix MAC** (§7) → native leader (`m5_matrix_mac 2f 00 05` + `m5_tile_ldst`;
+  operand packing raw). (int8/int matrix stays emulated; int8-via-`MTLTensor` stays NYC.)
+Residual NYC ISA backlog: texture/matrix operand bit-packing (raw), call ABI (`0xef/0xff`, pipeline-linked
+extraction), RT AS-load (AS-bound testbed). Tallies unchanged in count; these rows' class → native.

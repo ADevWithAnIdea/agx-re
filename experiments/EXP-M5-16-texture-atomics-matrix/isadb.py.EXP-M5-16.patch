@@ -1,0 +1,487 @@
+--- tools/agx-isa-m5/isadb.py.orig
++++ tools/agx-isa-m5/isadb.py
+@@ -1322,6 +1322,32 @@
+     #     buffer base slot <<2 (PROVEN: ld_2sum load#2 byte+1 0x04->0x00 reads buf0 not
+     #     buf1; ld_buf3 a/b/c/out=0x00/04/08/0c). byte+3 = index/access mode (0x02
+     #     scalar-indexed PROVEN, 0x00 const-index-0 PROVEN, 0x04/06/08 vec2/3/4).
++    # (a0) EXP-M5-16 (HW byte-diff, own-MSL datom.metal): M5 DIVERGENT-ADDRESS device
++    #      ATOMIC. The A18 per-lane atomic (0x67 byte+1 0x11/0x01) is GONE on M5; a
++    #      per-lane `atomic_fetch_<op>(&buf[gid], x)` lowers to a 12-byte op that REUSES
++    #      the low-nibble-f addr-gen leader (`0f 00 03`) but carries a memory/atomic
++    #      descriptor (byte+7==0xc0) + datapath (byte+8 0x80 int / 0x90 fp) + the op
++    #      selector distributed over byte+4/+5/+6/+11. xchg is the 10-byte form (byte+6==
++    #      0x18). Gated on byte+5 in {0x06,0x0e} AND byte+7==0xc0 AND byte+8 in {0x00,0x80,
++    #      0x90} so it can NEVER be confused with a plain 4-byte m5_addr_gen followed by a
++    #      load (that has byte+5==0x22 amode and byte+8 a load-format byte, not this set).
++    #      MUST precede the addr_gen rule below (which also matches byte+2==0x03).
++    if (b0 == 0x0f and _b1 == 0x00 and _b2 == 0x03 and off + 8 < len(buf)
++            and buf[off + 5] in (0x06, 0x0e) and buf[off + 7] == 0xc0
++            and buf[off + 8] in (0x00, 0x80, 0x90)):
++        return 10 if buf[off + 6] == 0x18 else 12   # m5_atomic_div (EXP-M5-16 HW byte-diff)
++    # (a1) EXP-M5-16: M5 simdgroup_matrix TILE LOAD / STORE (`?f ..07..`). The tile ops that
++    #      feed m5_matrix_mac: byte0 low-nibble 0xf (high-nibble = matrix slot 0/2/4/6),
++    #      byte+2==0x07, byte+6 in {0xb8 load, 0xa1 store}, byte+8 in {0x10 load, 0x18 store},
++    #      byte+9==0xc0. Base form 12 bytes; a variant that inlines an immediate base address
++    #      is 16 bytes (trailing `80 00 00 00`) -- lengthed 12 here (CONSERVATIVE, the extra 4
++    #      bytes are absorbed as pad words, rule 5) so it never OVER-reads the following op.
++    #      Gate (byte+2==0x07 AND byte+8 in {0x10,0x18} AND byte+9==0xc0) is disjoint from the
++    #      jump (byte+2==0x54), addr_gen (byte+2==0x03), m5_reduce/iadd (byte0==0x2f byte+2 in
++    #      {0x00,0x04,0x21}) and fspecial. MUST precede the 0x0f jump / 0x2f fspecial rules.
++    if ((b0 & 0x0f) == 0x0f and _b2 == 0x07 and off + 9 < len(buf)
++            and buf[off + 8] in (0x10, 0x18) and buf[off + 9] == 0xc0):
++        return 12                      # m5_tile_ldst (EXP-M5-16 HW byte-diff; 16B variant tail absorbed)
+     if lo == 0x0f and _b2 == 0x03:
+         return 4                       # m5_addr_gen (EXP-M5-07 HW)
+     # (b) LOAD byte0 0x18/0x38/0x58/0x78 = 1/2/3/4-component (n-1 in bits[5:6]). byte+1
+@@ -1340,16 +1366,40 @@
+             and _b2 in (0x00, 0x10)
+             and off + 3 < len(buf) and buf[off + 3] in (0x40, 0x80, 0xc0, 0xe0)):
+         return 4 if buf[off + 3] == 0x40 else 6  # m5_store (EXP-M5-07 HW)
+-    # ---- EXP-M5-11: M5 TEXTURE sample family -- CHARACTERIZED, NOT length-integrated ----
+-    # The M5 texture leader IS identified (byte0 in {0x0f,0x1f}, op-class byte+2 0x12
+-    # sample-class / 0x1a image-read, sampler marker `4X 80` at byte+4/+5; byte+1 0x04
+-    # sample / 0x05 sample_compare / 0x06 gather|lodq|read). BUT the per-op LENGTHS
+-    # byte-diffed from the 6 isolated EXP-M5-09 own-MSL kernels (read 8 / scmp 8 / lodq 10 /
+-    # gather 14 / sample 22) DO NOT generalise: on the real census texture kernels a length
+-    # rule using them OVER-READS the following (correctly-named) coordinate/operand ops and
+-    # net-LOSES ~42 tp / ~50 own named bytes (EXP-M5-11 per-file regression test). The exact
+-    # op/operand-word split needs an agxrender coordinate splice (EXP-M5-09 deferred it for
+-    # the same reason). So it is left OUT of the length rule -- documented open, not integrated.
++    # (c2) EXP-M5-16: TEXTURE-RESULT / sampled-value STORE. The store of an m5_tex /
++    #      m5_tex_read result to the output buffer uses a distinct source-CLASS descriptor
++    #      byte+1 (hi-nibble 0x2, low-nibble in {4,6,c,e} = texture-result source) and a
++    #      byte+3 store format in {0x00,0x20} that the (c) rule above excludes -> those
++    #      stores currently DESYNC (`61 2e 10 00` in own tex_read/tex_sample; `61 2c 10 20` /
++    #      `01 24 10 20` in the real corpus). 4 bytes (byte+2==0x10 store-enable, then stop /
++    #      next op). Tightly gated so it never touches a real m5_store (byte+3 in the 0x40..
++    #      set) nor an operand landing (requires byte+2==0x10 AND the texture-result byte+1).
++    if (b0 in (0x01, 0x21, 0x41, 0x61) and _b2 == 0x10
++            and (_b1 & 0xf0) == 0x20 and (_b1 & 0x0f) in (0x04, 0x06, 0x0c, 0x0e)
++            and off + 3 < len(buf) and buf[off + 3] in (0x00, 0x20)):
++        return 4                       # m5_store_texresult (EXP-M5-16 HW byte-diff)
++    # ---- EXP-M5-16: M5 TEXTURE sample/gather/read/lod-query/sample_compare LEADER --------
++    # The M5 texture op leader is `<rr>f <op> <class> <b3> <4X> 80` where byte0 low-nibble
++    # is 0xf (byte0 in {0x0f sample/gather/read, 0x1f lodq/scmp, ...}), byte+1 (op) in
++    # {0x04 sample, 0x05 sample_compare, 0x06 gather|read|lod_query}, byte+2 (class) in
++    # {0x12 sample-class (filtered), 0x1a image-read (unfiltered)}, and the SAMPLER/TEXTURE
++    # DESCRIPTOR marker byte+4 high-nibble==0x4 (0x40 no-sampler read/scmp, 0x41/0x45/0x46
++    # sampled) + byte+5==0x80. That ~24-bit signature fires ONLY on real texture ops -- it
++    # is DISJOINT from the operand-word landings (b2==0x12/0x1a with random byte+4/+5) that
++    # made the EXP-M5-11 fixed per-op lengths (read 8/scmp 8/lodq 10/gather 14/sample 22)
++    # over-read and net-regress the census. LENGTH = the 6-byte EMITTABLE LEADER (op-class +
++    # sampler descriptor); the coord/LOD/offset operand words FOLLOW and are absorbed by the
++    # existing 2-byte operand/pad closure EXACTLY as today (rule 5, kept raw). 6 is provably
++    # <= every observed real texture-op length (min 8), so it NEVER over-reads a texture op,
++    # and for gather/read it is already the length the stream tokenizes at today (formerly
++    # mis-named pop_reconverge) -> zero tail shift. HW-evidenced: own-MSL EXP-M5-09 tex.metal
++    # (7 single-op kernels) + the real-corpus occurrences in EXP-M5-16 (m4_13/m4_14 tex + tp
++    # dawn/wgpu/SPIRV-Cross). Gate deliberately EXCLUDES byte+2==0x03 (addr_gen/atomic) and
++    # the 0x0f 04 03 addr-gen (byte+2==0x03), so those siblings are untouched.
++    if (b0 in (0x0f, 0x1f) and _b1 in (0x04, 0x05, 0x06) and _b2 in (0x12, 0x1a)
++            and off + 5 < len(buf) and (buf[off + 4] & 0xf0) == 0x40
++            and buf[off + 5] == 0x80):
++        return 6                       # m5_tex LEADER (EXP-M5-16 HW; operands follow as raw words)
+     # ---- EXP-M4-13 R9 desync trailing-word closure (ADDITIVE, guarded) ----------
+     # Fires only where baseline instr_length was None at a real boundary; the
+     # _r9_succ_safe guard makes it provably non-regressing (never swallows a real op).
+@@ -1624,6 +1674,18 @@
+                                        # operand as a spurious UNDEC. Tight gate (byte+1==0x02 &&
+                                        # byte+2==0x00) so simd_ballot (17 02 54 / 17 02 82) keeps 10.
+         return 10                      # simd_ballot / vote mask source
++    # ---- EXP-M5-16 (OBJ-3 corroboration): M5 (G17g) byte0==0x29 12-byte compute-ALU --------
++    # The float-datapath sibling of the m5_alu (0x27) / m5_iadd (0x2f) 12-byte compute op:
++    # `29 00 04 <1a|3a> <b4> 20 <ax> 02 ..` (byte+6 op-selector hi-nibble 0xa). The inherited
++    # low-nibble-9 float-ALU rule below lengths it 10 (falu2_srcmod10), and at 10 the following
++    # `12 00 ..` icmpsel SWALLOWS the next `0f 00 03` m5_addr_gen(+m5_store) -> a phantom
++    # isel10 desync (OBJ-3 finding). 12 lands cleanly on the addr_gen. Placed BEFORE the
++    # lo==0x09 block (0x29 has low-nibble 9). Tightly gated on byte+1==0x00 AND byte+2==0x04
++    # AND byte+3 in {0x1a,0x3a} AND byte+6 hi-nibble 0xa so it never touches a real 6/8/10-byte
++    # float op (those have byte+2 in the fma/coord op-select set, not 0x04, and byte+6 != 0xax).
++    if (b0 == 0x29 and _b1 == 0x00 and _b2 == 0x04 and off + 6 < len(buf)
++            and buf[off + 3] in (0x1a, 0x3a) and (buf[off + 6] & 0xf0) == 0xa0):
++        return 12                      # m5_falu2 (EXP-M5-16; OBJ-3 sibling of m5_iadd/m5_alu)
+     if lo == 0x09:
+         # float ALU: 2-source (6B) unless the fma/3-source length bit is set.
+         # NB: the 10-byte *extended source-modifier* form (abs; EXP-0006) also
+@@ -2076,6 +2138,22 @@
+     if (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \
+             and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x39:
+         return 10
++    # ---- EXP-M5-16: M5 (G17g) simdgroup_matrix MULTIPLY-ACCUMULATE `2f 00 05` is 14B ----
++    # On A18 simdgroup_matrix MAC and MPP matmul2d both lowered to 0xcf; on M5 the
++    # simdgroup MAC DIVERGES to `2f 00 05 <opsel> <..> 20 <af|ab> ..` (byte+2==0x05,
++    # byte+5==0x20). byte-diff mul_f32 vs mad_f32: both 14 bytes, differing only at byte+9
++    # (accumulate flag 0x06 multiply vs 0x08 mac) -> the whole 14-byte unit is ONE MAC op.
++    # The inherited fspecial rule below lengths byte0==0x2f at 10 and UNDER-reads it by 4,
++    # exposing the `40 00 10 01`/`10 00 10 19` tail as spurious. Tightly gated on byte+1==0x00
++    # AND byte+2==0x05 AND byte+5==0x20 so it never touches m5_reduce (byte+2 scope 0x04/0x00,
++    # byte+4==0x27), m5_shuffle (byte+2==0x21), m5_iadd (byte+2==0x04) or the SFU (byte+2!=0x05).
++    # HW-evidenced: own-MSL EXP-M5-09 mat_simd.metal (ls/mul/mad control ladder + splice:
++    # corrupting byte0/byte+2 drives the MAC output all-zero) + real-corpus EXP-M5-16 (8 own /
++    # 4 tp `2f 00 05` occurrences, all 14B: bf16/f16/f32/filled sgmat kernels). Operand 8x8
++    # bit-packing kept raw (rule 5).
++    if (b0 == 0x2f and _b1 == 0x00 and _b2 == 0x05 and off + 5 < len(buf)
++            and buf[off + 5] == 0x20):
++        return 14                      # m5_matrix_mac (EXP-M5-16 HW byte-diff + EXP-M5-09 splice)
+     # ---- EXP-M5-11: M5 (G17g) 0x2f split-memory INTEGER ADD is 12 bytes ---------
+     # On M5 the split-memory index arithmetic emits a 0x2f-led 12-byte integer add
+     # `2f 00 04 <3a|1a> 21 00 a3 02 28 ..` (byte+3 0x3a register-src / 0x1a immediate
+@@ -3566,7 +3644,7 @@
+             {"name": 'tex_type', "start": 96, "width": 8, "type": 'enum', "enum": {1: '2D-class (2d/1d/cube/2d_array/ms/depth)', 2: '3D (volumetric; carries a 3rd coordinate)', 3: 'buffer (linear texel buffer)'}},
+             {"name": 'samp_extra', "start": 104, "width": 8, "type": 'mod'},
+         ],
+-        "semantics": 'Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage.',
++        "semantics": 'Texture sample/gather/read/compare/LOD-query bundle: a 4-byte companion (low-nibble 5 sample/gather/read, 0xd compute sample_compare) + a 10-byte sampler op. variant (op+2) selects operation/dimension/LOD-mode; op+2 bit5(0x20)=DEPTH-COMPARE (compareValue CMP sampledDepth; all 8 compareFuncs HW-validated; linear filter => native 2x2 hardware PCF), bit0(0x01)=const texel offset present. companion byte+3 = result descriptor: bit2(0x04)=GATHER, bits[3:5]=gather component r/g/b/a. op+6 = mode (0x10 filtered / 0x00 gather/read/compare / 0x20 LOD-query). tex_slot=op+4 (bit7=index bit), sampler slot + const offset in op+5. LOD/bias/grad and the depth-compare reference are register operands set up by preceding ALU. Same op in compute and fragment; implicit LOD needs a fragment stage. [M5/G17g CAVEAT (EXP-M5-16): this is the A18/G17P sample bundle; on M5 the sampling op is SUPERSEDED by the m5_tex / m5_tex_read leaders (`<rr>f <op> {12,1a} <b3> <4X> 80`, 6-byte leader + raw coord/LOD operand words) -- see db.json m5_tex.]',
+         "provenance": 'HW-VALIDATED (EXP-0016 + EXP-0034): tex_slot/samp_slot (splice flips texture/filter, EXP-0016); sample_compare (op+2 0x20/0x29, companion 0xa0) -- all 8 compareFuncs give the exact shadow pattern, dynamic per-thread ref proves a register operand, LINEAR filter yields fractional PCF (true 2x2 hardware PCF); gather component (companion+3 bits[3:5]) HW-validated r/g/b/a; gather const offset (op+5) HW-validated; LOD-query (op+6=0x20) HW-runs. Remaining op+2 dimension codes and op+3/op+5 offset sub-bits byte-diff-localized (EXP-0016/EXP-0034 mains). EXP-M4-13 R10 (own-MSL byte-diff, compile-only): the previously-raw 16-bit op+8/+9 tail SPLIT into tex_type (op+8) + samp_extra (op+9). tex_type is the texture-descriptor CLASS, LOCATED by a texture-dimension sweep -- every 2D-class sample/read/gather/compare/cube/array/ms emits 0x01, every 3D (tex3d) sample/read emits 0x02, every texture-buffer read emits 0x03 (byte-exact, all 33 corpus samples). samp_extra = 0x00 by default and 0x0e on the gather+const-offset ops in tex_offset_gather (value->meaning map beyond {0x00,0x0e} needs-splice). No Apple binary inspected.',
+     },
+     {
+@@ -3588,7 +3666,7 @@
+             {"name": 'data_desc_hi', "start": 112, "width": 8, "type": 'mod'},
+             {"name": 'rsv15', "start": 120, "width": 8, "type": 'mod'},
+         ],
+-        "semantics": 'texture[slot].write(color, coord). Memory-family store (byte0 0xd7, low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct from the sampler-path read: writes go through the store path, reads through the sample op. byte+9 = coordinate dimensionality (0x04 for a 2-coordinate 2d/2d_array write, 0x08 for a 3d write, 0x0c for a cube write); byte+4 = the extra-coordinate operand register (the array layer / cube face; 0x20 present for an array/layer store, 0 for a plain 2d/3d store); byte+1/+5..+7 = the coordinate/data operand register pack; byte+12 low nibble = a per-texture-op write-sequence index (0x88 base + N for the Nth write in a shader); byte+13/+14 = the write-data (color) source-register descriptor (0x3a/0x09 for a contiguous vec4 register block, 0xfa/0x08 when the four components are assembled from scattered sources). The write-data REGISTER itself is implicit / carried by these descriptors, matching the device_store finding that the store DATA register is not a standalone field. TEXTURE SLOT is NOT in this instruction (writing to texture 0/1/2 is byte-identical) -- it is bound via texture state, resolved outside this op. Fragment or compute.',
++        "semantics": 'texture[slot].write(color, coord). Memory-family store (byte0 0xd7, low-nibble 7, sibling of the 0x67/0xe7 buffer load/store). Distinct from the sampler-path read: writes go through the store path, reads through the sample op. byte+9 = coordinate dimensionality (0x04 for a 2-coordinate 2d/2d_array write, 0x08 for a 3d write, 0x0c for a cube write); byte+4 = the extra-coordinate operand register (the array layer / cube face; 0x20 present for an array/layer store, 0 for a plain 2d/3d store); byte+1/+5..+7 = the coordinate/data operand register pack; byte+12 low nibble = a per-texture-op write-sequence index (0x88 base + N for the Nth write in a shader); byte+13/+14 = the write-data (color) source-register descriptor (0x3a/0x09 for a contiguous vec4 register block, 0xfa/0x08 when the four components are assembled from scattered sources). The write-data REGISTER itself is implicit / carried by these descriptors, matching the device_store finding that the store DATA register is not a standalone field. TEXTURE SLOT is NOT in this instruction (writing to texture 0/1/2 is byte-identical) -- it is bound via texture state, resolved outside this op. Fragment or compute. [M5/G17g NOTE (EXP-M5-16): the 0xd7 image-write STILL OCCURS on M5 (19 tp-corpus occurrences, correctly lengthed 16B) -- retained, NOT superseded. In ADDITION, M5 texture-atomic / image-store paths emit a distinct `24 80 03 0a 27 ..` write form (11 own / 2 tp occurrences, EXP-M5-16) whose full length/operand split is OPEN (documented, not yet integrated).]',
+         "provenance": "HW-VALIDATED (EXP-0016): c_write moved buffer colours into texel[coord] exactly (read-back matched in[i]). EXP-M4-13 R10 (own-MSL single-toggle byte-diff, compile-only, NO GPU dispatch): coord_dim (byte+9) LOCATED clean -- isolated 2d write=0x04, 3d=0x08, cube=0x0c, 2d_array=0x04 (with the layer in byte+4); layer_reg (byte+4) LOCATED by w_arr (0x20, has a g.z layer operand) vs w_2d/w_3d/w_cube (0x00); texture slot DISPROVEN as an instruction field (w_2d_t0/t1/t2 to texture 0/1/2 are byte-identical); the previous 'data' field at byte+3/+4 (typed reg) is CORRECTED -- a data-source register sweep (w_data_r0..r3, color loaded from varied buffer offsets) leaves byte+3/+4 unchanged, so byte+3 is a per-write sequence index and byte+4 an extra-coordinate operand, not the color register; byte+13/+14 track the color-source shape (w_2d_t0 const/contiguous vec4 -> 0x3a/0x09 vs w_2d_datacoord scattered float4(g.x,g.y,0,1) -> 0xfa/0x08). byte+8/+10/+11/+15 const 0 across all isolated writes. No Apple binary inspected.",
+     },
+     {
+@@ -3715,7 +3793,7 @@
+             {"name": 'op_msb', "start": 103, "width": 1, "type": 'mod'},
+             {"name": 'amode_hi', "start": 104, "width": 8, "type": 'mod'},
+         ],
+-        "semantics": 'atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg (also atomic_store, discards result), 31 xor -- the SAME 5-bit op enum used by atomic_tg (bits[86:91]) and by atomic_mem (byte+12 bits[1:6]). byte+12 bit6 (per_lane) = 1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice. byte+1==0x11 selects the ALU/reduced/immediate-operand form (bit4) in the device space (bit1=0); the register-operand form is atomic_mem (byte+1==0x01). byte+5 = per-lane index GPR (zeroed for a uniform address). byte+7 bit0 = discard/no-writeback; byte+8 = return-register descriptor. The actual RMW operand register is implicit (supplied by the preceding op / amode), as in the 0x67/0xe7 load/store family. Emitted AFTER a SIMD-group simd_reduce pre-combine; NOT a CAS/retry loop.',
++        "semantics": 'atomic read-modify-write to a device buffer. The OP is a 5-bit selector at byte+12 bits[1:6] (start 97): 16 add, 17 and, 18 cmpxchg, 19 fadd, 20 smax, 21 smin, 22 or, 27 sub, 28 umax, 29 umin, 30 xchg (also atomic_store, discards result), 31 xor -- the SAME 5-bit op enum used by atomic_tg (bits[86:91]) and by atomic_mem (byte+12 bits[1:6]). byte+12 bit6 (per_lane) = 1 for a divergent per-lane address (&o[i]), 0 for a uniform address (&o[0]); byte+13 bit1 tracks the same choice. byte+1==0x11 selects the ALU/reduced/immediate-operand form (bit4) in the device space (bit1=0); the register-operand form is atomic_mem (byte+1==0x01). byte+5 = per-lane index GPR (zeroed for a uniform address). byte+7 bit0 = discard/no-writeback; byte+8 = return-register descriptor. The actual RMW operand register is implicit (supplied by the preceding op / amode), as in the 0x67/0xe7 load/store family. Emitted AFTER a SIMD-group simd_reduce pre-combine; NOT a CAS/retry loop. [M5/G17g CAVEAT (EXP-M5-16): the A18 device-atomic 0x67 (byte+1 0x11/0x01) is SUPERSEDED on M5 -- a UNIFORM-address atomic migrates to m5_reduce (simd pre-combine, byte+6 op-selector) and a DIVERGENT per-lane atomic `atomic_fetch_<op>(&buf[gid],x)` to m5_atomic_div / m5_atomic_xchg (`0f 00 03 .. c0 ..`). 0x67/0xe7 still occur on M5 for plain device load/store. See db.json m5_atomic_div / m5_reduce.]',
+         "provenance": "HW-VALIDATED (EXP-0018): aggregate add (1024 threads -> counter 1024); byte+12 splice add->max/or proved byte+12 is the operation selector. EXP-M4-13 R10 (own-MSL byte-diff, compile-only, NO GPU dispatch): a 12-way op sweep (dev_u_{add,and,or,xor,max,min}_imm / dev_s_* / dev_f_{sub,cmpxchg} / dev_u_store_imm / dev_u_xchg_imm) proves op = byte+12 bits[1:6] with a 5-bit enum IDENTICAL to atomic_tg's (16..31); per_lane = byte+12 bit6 by a clean single-toggle dev_u_add_imm1 (&o[i], byte12=0x60,byte13=0x02) vs dev_u_add_uniform (&o[0], byte12=0x20,byte13=0x00) -- both byte+1==0x11, immediate 1u operand, only the address differs, and byte+5/+6 (index_reg/addr_desc) collapse 0x80,0x80 -> 0x00,0x00 for the uniform address; ret_flag/ret_desc (byte+7/+8) proved by dev_u_add_noret_imm (byte7=0x01,byte8=0x40) vs the returning form (byte7=0x00,byte8=0x02). base_slot is a base-register-table slot, NOT the Metal buffer index (a_slot0 vs a_slot3 buffer(0)/buffer(3) are byte-identical). No Apple binary inspected.",
+     },
+     # Standalone atomic memory op (exchange / store / compare-exchange / indexed):
+@@ -3742,7 +3820,7 @@
+             {"name": 'op_msb', "start": 103, "width": 1, "type": 'mod'},
+             {"name": 'amode_hi', "start": 104, "width": 8, "type": 'mod'},
+         ],
+-        "semantics": 'atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match difference is byte+1 (0x01 register-operand vs 0x11 ALU/reduced/immediate-operand). The OP is the SAME 5-bit selector at byte+12 bits[1:6] (start 97): 16 add ... 30 xchg (also atomic_store, discards result) ... 31 xor. Emitted for atomic_store, atomic_exchange, per-lane fetch_* with a divergent address, and compare_exchange (op 18; the returned old value feeds a following icmp, NO hardware retry loop). byte+5 = per-lane index GPR; byte+7 bit0 = discard; byte+8 = return-register descriptor; the RMW operand register is implicit (supplied by the preceding op), as in the 0x67/0xe7 load/store family.',
++        "semantics": 'atomic memory op with a DIRECT register-value operand (byte+1==0x01, bit4 clear; device space, bit1 clear). Identical field layout to atomic_rmw (byte+1==0x11); the only match difference is byte+1 (0x01 register-operand vs 0x11 ALU/reduced/immediate-operand). The OP is the SAME 5-bit selector at byte+12 bits[1:6] (start 97): 16 add ... 30 xchg (also atomic_store, discards result) ... 31 xor. Emitted for atomic_store, atomic_exchange, per-lane fetch_* with a divergent address, and compare_exchange (op 18; the returned old value feeds a following icmp, NO hardware retry loop). byte+5 = per-lane index GPR; byte+7 bit0 = discard; byte+8 = return-register descriptor; the RMW operand register is implicit (supplied by the preceding op), as in the 0x67/0xe7 load/store family. [M5/G17g CAVEAT (EXP-M5-16): A18/G17P register-operand device-atomic form; on M5 a divergent-address atomic lowers to m5_atomic_div / m5_atomic_xchg (`0f 00 03`), a uniform one to m5_reduce -- see db.json.]',
+         "provenance": 'HW-VALIDATED behaviour (EXP-0018): atomic_exchange/atomic_store -> op=xchg; compare_exchange_weak -> op=cmpxchg with a following compare and NO backward jump. EXP-M4-13 R10 (own-MSL byte-diff, compile-only): op = byte+12 bits[1:6], 5-bit enum shared with atomic_tg/atomic_rmw, established over dev_{u,s,f}_{add,and,or,xor,sub,max,min,xchg,store} (op sweep). ret_flag/ret_desc (byte+7/+8) proved by dev_u_add_ret (byte7=0x00,byte8=0x02) vs dev_u_add_noret (byte7=0x01,byte8=0x40). index_reg/addr_desc (byte+5/+6) carry the per-lane divergent-address index (0x80 when per-lane, per the atomic_rmw uniform/per-lane single-toggle). per_lane bit6 and amode_hi bit1 typed from the same atomic_rmw pair (shared encoding). No Apple binary inspected.',
+     },
+     # SIMD-group cooperative-MATRIX multiply-accumulate (DEDICATED matrix HW).
+@@ -3795,7 +3873,11 @@
+                      "tensor ops (matmul2d multiply/multiply_accumulate/transpose/f32/16x16x16/2-simdgroup) "
+                      "lower to THIS SAME op -- no new tensor opcode; transpose adds 4-byte data-move ops "
+                      "(ray_move family), not a new op; simdgroup_load/store (incl. transpose=true) are "
+-                     "ordinary 0x67/0xe7 memory ops.",
++                     "ordinary 0x67/0xe7 memory ops. [M5/G17g CAVEAT (EXP-M5-16 / EXP-M5-09): on M5 "
++                     "the simdgroup_matrix MAC DIVERGES off 0xcf to m5_matrix_mac (`2f 00 05 .. 20 <af|ab> "
++                     ".. <accum> ..`, 14B) fed by the `?f ..07..` tile load/store family; 0xcf is RETAINED "
++                     "on M5 only for the TILED MPP tensor_ops::matmul2d path (0xcf still occurs -- 22 own / "
++                     "44 tp). See db.json m5_matrix_mac.]",
+         "provenance": "HW-VALIDATED (EXP-0022 core + EXP-O2C operand decode): known 8x8 A,B,C -> correct "
+                       "A*B+C for float AND half (numpy-exact, EXP-0022). EXP-O2C splice-and-observe on "
+                       "mad_f32 over one 32-lane simdgroup, classifying the read-back against every candidate "
+@@ -3887,7 +3969,7 @@
+             {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+             {"name": "reserved13", "start": 104, "width": 8, "type": "mod"},
+         ],
+-        "semantics": 'Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query.',
++        "semantics": 'Dedicated acceleration-structure / ray-data LOAD used during BVH traversal (byte0 0xdf, low-nibble 0xf memory-family sibling of the 0x67/0xe7 buffer load/store and the 0x5f rt_ray_mem; byte+2 == 0x54 memory marker). 14-byte memory-family shape: dst=+3, source address = (addr_lo:+4/addr_hi:+5 register pair) + idx_off(+9 bit7 / +10 field_off / +11 low) scaled by elem_size(+12), addressing/cache mode = +2, width/type = +8, flags = +6. WHICH BVH-node / ray / query-state FIELD is fetched is selected by the immediate offset field_off(+10) -- there is NO per-field opcode. 14-17 per intersector kernel, ~37 in an inline intersection_query. [M5/G17g CAVEAT (EXP-M5-09/M5-16): rt_intersect (`?4 ea`) SURVIVES unchanged on M5, but the 0xdf AS-load does NOT survive as a distinct high-frequency leader (0-2/kernel on M5 vs 14-37 on A18) -- the AS/ray-data load migrated into the M5 split memory family; the exact M5 AS-load encoding is OPEN (needs an AS-bound splice testbed). See EXP-M5-11 MAJOR-5.]',
+         "provenance": 'Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX splice-and-observe) mapped onto the byte-identical 0xdf shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) isolated by register-realloc cascade, addr_lo/addr_hi(+4/+5) by address perturbation, field_off(+10) by consecutive-field increments + the instance_id/user_instance_id 0x67-sibling minimal pair (elements 23 vs 24). NOT individually HW-splice-validated for this 0xdf opcode (M4 compile-only, no GPU dispatch). Byte-diff / own-MSL only; no Apple binary inspected.',
+     },
+     # ---- ray-data / traversal-stack memory op (rt_ray_mem, 14 bytes, EXP-O2C) --------
+@@ -3909,7 +3991,7 @@
+             {"name": "elem_size", "start": 96, "width": 8, "type": "imm"},
+             {"name": "reserved13", "start": 104, "width": 8, "type": "mod"},
+         ],
+-        "semantics": 'RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode.',
++        "semantics": 'RAY-TRACING ray-data / traversal-stack memory op (byte0 0x5f low-nibble 0xf, byte+1 == 0x02 addressing sub-op, byte+2 == mode). Store/spill + reload side of the 0xdf AS-load: fetches/spills the ray struct (origin/direction/tmin/tmax) + per-node BVH traversal-stack state during the software traversal loop, and carries the ray_data PAYLOAD copy-in/out (count scales with payload size). 14-byte memory-family shape identical to rt_as_load: dst=+3, address = (addr_lo:+4/addr_hi:+5) + idx_off(+9/+10/+11) * elem_size(+12), mode=+2, width=+8, flags=+6. WHICH ray/stack FIELD is read/written is selected by field_off(+10); NO per-field opcode. [M5/G17g CAVEAT (EXP-M5-09): the 0x5f ray-data/traversal-stack leader does NOT survive as a distinct high-frequency op on M5 (0-2/kernel vs 12-28 on A18) -- ray-data spill/reload migrated into the M5 split memory family; exact M5 encoding OPEN (EXP-M5-11 MAJOR-5).]',
+         "provenance": 'Field layout: HW-VALIDATED device_load/device_store memory-family template (EXP-0012 + RT-1a-FIX) mapped onto the byte-identical 0x5f shape, CONFIRMED per-field by own-MSL byte-diff (EXP-M4-13 R6): dst(+3) by register-realloc cascade, addr_lo/addr_hi(+4/+5) by ray-origin perturbation, field_off(+10) by consecutive-field increments. tmax found to be a compile-time float immediate (0x02 imm move), NOT a memory field -- negative result. NOT HW-splice-validated for this 0x5f opcode (M4 compile-only). Byte-diff / own-MSL only; no Apple binary inspected.',
+     },
+     # ---- rt_ray_mem load-INDEX variant (12B) and SHORT form (6B), EXP-M4-13 R4 ----
+@@ -4414,7 +4496,12 @@
+                      "saves the return context -- so byte+4=0x8f and byte+6=0x56 are the CALL/link signature "
+                      "(also the 14-vs-8-byte disambiguator vs a plain predication push). Bracketed by the "
+                      "0x43 frame marker (before) and a 0f 06 reconverge (after). Args in r10,r11,r12..; "
+-                     "return value in r10; return via ret (0x8f).",
++                     "return value in r10; return via ret (0x8f). [M5/G17g CAVEAT (EXP-M5-11 MAJOR-4): "
++                     "this is the A18/G17P direct-call form. INTRA-shader control flow (jump/jump_cond/"
++                     "if_push/reconverge/ret) is confirmed on M5, but the M5 out-of-line CALL ABI (0xef/"
++                     "0xff / linked-function variant) is OPEN -- a visible_function_table caller extracts "
++                     "to a 4-byte stub in the standalone archive (the call resolves at pipeline-link time); "
++                     "isolating it needs a shdump extension that builds a pipeline with linkedFunctions.]",
+         "provenance": "HW-VALIDATED + byte-diff (EXP-0035): offset model exact across 4 varied call-site "
+                      "distances (k_add off=-104, k_many -158, k_pressure -552, dynamic-lib -458); direct + "
+                      "3-level nested (k_chain) dispatch return correct results from the archived machine code.",
+@@ -4448,7 +4535,9 @@
+                      "The target is a CODE VA loaded into a register from the function table (entry[i] = "
+                      "8-byte code VA of function i's entry point); this op transfers control to it and "
+                      "returns via the same ret (0x8f). Per-lane (dynamic) targets are marshalled through a "
+-                     "run of 0x4b move ops before the 0f 80.",
++                     "run of 0x4b move ops before the 0f 80. [M5/G17g CAVEAT (EXP-M5-11 MAJOR-4): A18/"
++                     "G17P indirect-call form; the M5 dynamic-dispatch / linked-function ABI is OPEN "
++                     "(same pipeline-link resolution as the direct call).]",
+         "provenance": "HW-VALIDATED behaviour + byte-diff (EXP-0035): visible_function_table dispatch "
+                      "(sel=0->vadd, 1->vmul) returns exact A+B / A*B. Exact operand fields are follow-ups "
+                      "(need an indirect-call splice testbed).",
+@@ -6429,7 +6518,8 @@
+              "enum": {0x0a: "integer", 0x08: "float"}},
+             {"name": "op", "start": 48, "width": 8, "type": "opcode",         # byte+6 = OP selector
+              "enum": {0xa0: "and", 0xa1: "or", 0xa2: "xor", 0xa3: "add",
+-                      0xa6: "min", 0xa7: "max", 0xac: "fadd"}},
++                      0xa6: "min", 0xa7: "max", 0xac: "fadd",
++                      0xae: "fmin", 0xaf: "fmax"}},                            # fp datapath sets bit3 (int op|0x08): a6->ae fmin, a7->af fmax (OBJ-3)
+             {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 (0x02)
+             {"name": "b8", "start": 64, "width": 8, "type": "mod"},           # byte+8 (0x00 int / 0x08 fp)
+             {"name": "mode", "start": 72, "width": 8, "type": "enum",         # byte+9 reduce vs scan
+@@ -6460,7 +6550,8 @@
+         "match": [(0, 8, 0x2f), (8, 8, 0x00), (16, 8, 0x21), (24, 8, 0x1a), (32, 8, 0x20)],
+         "fields": [
+             {"name": "op", "start": 48, "width": 8, "type": "opcode",         # byte+6 = shuffle mode
+-             "enum": {0xa8: "simd_shuffle / broadcast", 0xa0: "quad_shuffle", 0xa1: "quad_shuffle_xor"}},
++             "enum": {0xa8: "simd_shuffle / broadcast", 0xa9: "simd_shuffle_xor",
++                      0xa0: "quad_shuffle", 0xa1: "quad_shuffle_xor"}},        # a9 = simd_shuffle_xor (OBJ-3)
+             {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},     # byte+7 (0x02)
+             {"name": "lane", "start": 64, "width": 8, "type": "imm"},         # byte+8 = lane / index
+             {"name": "b9", "start": 72, "width": 8, "type": "mod"},           # byte+9
+@@ -6549,7 +6640,246 @@
+                      "naming (length-safe: no length rule change, so desync cannot regress). Operand "
+                      "packing byte-diff-inferred, not splice-proven; a8/a9/ab/ae/af selector meanings "
+                      "inferred. Own-MSL / own-corpus only; no Apple binary inspected.",
++    },
++    # ======================================================================
++    # EXP-M5-16: M5 (Apple10 / G17g) TEXTURE sample/gather/read/lod-query/sample_compare
++    # LEADER + DIVERGENT-ADDRESS device ATOMIC + simdgroup_matrix MAC. Closes the OBJ-1
++    # texture BLOCKER + the divergent-atomics (M-2) and matrix-MAC (M-3) MAJORs.
++    # Length rules for all of these live in instr_length (gated tightly); these descriptors
++    # NAME the emittable leader. Coordinate/LOD/sampler-operand and 8x8 matrix operand
++    # bit-packing are kept RAW (clean-room rule 5) -- the goal is a correct emittable
++    # leader+length, not full operand reconstruction.
++    # ======================================================================
++    {
++        "mnemonic": "m5_tex",
++        "length": 6,
++        # byte0 low-nibble 0xf + byte+2==0x12 (sample-class) + byte+4 hi-nibble 0x4 + byte+5==0x80.
++        "match": [(0, 4, 15), (16, 8, 0x12), (36, 4, 0x4), (40, 8, 0x80)],
++        "fields": [
++            {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},   # byte0 hi-nibble
++            {"name": "op", "start": 8, "width": 8, "type": "opcode",         # byte+1 = op sub-class
++             "enum": {0x04: "sample", 0x05: "sample_compare", 0x06: "gather / lod_query"}},
++            {"name": "b3", "start": 24, "width": 8, "type": "mod"},           # byte+3 operand descriptor
++            {"name": "sampler_lo", "start": 32, "width": 4, "type": "mod"},   # byte+4 low-nibble (sampler-desc)
++        ],
++        "semantics": "M5 (G17g) TEXTURE sample-class op LEADER (filtered sample / gather / "
++                     "lod-query / sample_compare). Form `<rr>f <op> 12 <b3> <4X> 80` (6-byte "
++                     "emittable leader). byte0 low-nibble 0xf, high-nibble = result register. "
++                     "byte+1 (op) = 0x04 sample, 0x05 sample_compare, 0x06 gather / "
++                     "calculate_clamped_lod. byte+2==0x12 = the filtered-sample op class. byte+4 "
++                     "high-nibble 0x4 + byte+5==0x80 = the SAMPLER/TEXTURE descriptor marker "
++                     "(0x40 base, 0x41/0x45/0x46 = sampler present / array / MSAA). The "
++                     "COORDINATE / LOD / gradient / offset operands FOLLOW as separate operand / "
++                     "pad words (kept RAW, rule 5): e.g. a constant-coord sample folds the "
++                     "coordinate + LOD immediates into the following words (own-MSL tex_sample is "
++                     "22 bytes total, tex_gather 14). The 6-byte leader is <= every observed real "
++                     "texture-op length (min 8), so it never over-reads; this is the M5 successor "
++                     "to the A18 tex_sample (0x5) leader, which no longer applies on M5.",
++        "provenance": "HW byte-diff (M5 EXP-M5-09 tex.metal own-MSL: tex_sample `0f 04 12 00 41 80`, "
++                     "tex_gather `0f 06 12 00 41 80`, tex_lodq `1f 06 12 01 41 80`, tex_scmp "
++                     "`1f 05 12 00 40 80`; tex_sample vs tex_lod differ only at the +12 LOD immediate) "
++                     "+ EXP-M5-16 real-corpus occurrences (own m4_13/m4_14 texture_sample/rt_tex + tp "
++                     "dawn/wgpu/SPIRV-Cross). Length 6 = the emittable leader; coord/LOD operands kept "
++                     "raw (rule 5). Census non-regressing (leader naming; tail tokenization unchanged). "
++                     "Own-MSL / own-corpus only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_tex_read",
++        "length": 6,
++        # byte0 low-nibble 0xf + byte+2==0x1a (image read) + byte+4 hi-nibble 0x4 + byte+5==0x80.
++        "match": [(0, 4, 15), (16, 8, 0x1a), (36, 4, 0x4), (40, 8, 0x80)],
++        "fields": [
++            {"name": "result_reg", "start": 4, "width": 4, "type": "reg"},
++            {"name": "op", "start": 8, "width": 8, "type": "opcode",
++             "enum": {0x04: "read (MSAA / by-sample)", 0x06: "read (image load)"}},
++            {"name": "b3", "start": 24, "width": 8, "type": "mod"},
++            {"name": "sampler_lo", "start": 32, "width": 4, "type": "mod"},
++        ],
++        "semantics": "M5 (G17g) TEXTURE unfiltered READ (image load by integer coordinate) LEADER. "
++                     "Form `<rr>f <op> 1a <b3> <4X> 80` (6-byte emittable leader). Same family as "
++                     "m5_tex but byte+2==0x1a = the image-READ op class (no sampler filtering); "
++                     "byte+1 0x06 = texture.read, 0x04 = MSAA/by-sample read. byte+4 high-nibble 0x4 "
++                     "+ byte+5==0x80 = texture-descriptor marker (0x40 = no sampler). The integer "
++                     "coordinate follows as raw operand words (rule 5). own-MSL tex_read is 8 bytes "
++                     "total (`0f 06 1a 00 40 80 60 29`). Distinct M5 op from the A18 texture read.",
++        "provenance": "HW byte-diff (M5 EXP-M5-09 tex.metal tex_read `0f 06 1a 00 40 80`) + EXP-M5-16 "
++                     "real-corpus (own m4_13/m4_14 read kernels, tp SPIRV-Cross/wgpu). All observed "
++                     "reads are 8 bytes; the 6-byte leader never over-reads. Own-MSL / own-corpus "
++                     "only; no Apple binary inspected.",
+     },
++    {
++        "mnemonic": "m5_store_texresult",
++        "length": 4,
++        # byte0 low-5==1 (store leader) + byte+1 hi-nibble 0x2 (tex-result class) + byte+2==0x10.
++        "match": [(0, 5, 1), (12, 4, 0x2), (16, 8, 0x10)],
++        "fields": [
++            {"name": "ncomp_m1", "start": 5, "width": 2, "type": "imm"},       # byte0 bits[5:6] = comp-1
++            {"name": "src_class", "start": 8, "width": 4, "type": "mod"},       # byte+1 low-nibble source class
++            {"name": "st_fmt", "start": 24, "width": 8, "type": "mod"},         # byte+3 store format (0x00/0x20)
++        ],
++        "semantics": "M5 (G17g) STORE of a TEXTURE / sampled value to the output buffer. 4-byte "
++                     "store `<n>1 <2X> 10 <00|20>`: byte0 = 0x01|0x21|0x41|0x61 (1/2/3/4-component, "
++                     "here the sampled floatN), byte+1 = texture-result SOURCE CLASS (hi-nibble 0x2, "
++                     "low-nibble 4/6/c/e), byte+2==0x10 store-enable, byte+3 = store format (0x00/0x20). "
++                     "Distinct from the ALU/load-result m5_store (byte+1 hi-nibble 0/2 low 2/6, byte+3 "
++                     "in 0x40..0xe0). Completes the texture path: m5_tex(_read) produces the sampled "
++                     "value; this store writes it out. Address comes from the preceding m5_addr_gen.",
++        "provenance": "HW byte-diff (M5 EXP-M5-09 tex_read/tex_sample `61 2e 10 00` result store; "
++                     "EXP-M5-16 real corpus `61 2c 10 20`/`01 24 10 20` tp read kernels). These "
++                     "previously DESYNCed (byte+1/byte+3 outside the m5_store gate). Own-MSL / "
++                     "own-corpus only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_atomic_div",
++        "length": 12,
++        # byte0==0x0f + byte+1==0x00 + byte+2==0x03 + byte+7==0xc0 (memory/atomic descriptor).
++        "match": [(0, 8, 0x0f), (8, 8, 0x00), (16, 8, 0x03), (56, 8, 0xc0)],
++        "fields": [
++            {"name": "idx_mode", "start": 24, "width": 8, "type": "enum",     # byte+3
++             "enum": {0x02: "per-lane RMW", 0x04: "compare-exchange"}},
++            {"name": "opsel_a", "start": 32, "width": 8, "type": "mod"},       # byte+4  (op selector bits)
++            {"name": "opsel_b", "start": 40, "width": 8, "type": "mod"},       # byte+5  (op selector bits)
++            {"name": "opsel_c", "start": 48, "width": 8, "type": "opcode",     # byte+6  (op selector bits)
++             "enum": {0x04: "add/and/fadd/cmpxchg-class", 0x0c: "min/max/or/xor-class"}},
++            {"name": "datapath", "start": 64, "width": 8, "type": "enum",      # byte+8
++             "enum": {0x80: "integer", 0x90: "float", 0x00: "exchange"}},
++            {"name": "operand", "start": 72, "width": 16, "type": "raw"},      # byte+9..+10
++            {"name": "opsel_d", "start": 88, "width": 8, "type": "mod"},       # byte+11 (op selector bits)
++        ],
++        "semantics": "M5 (G17g) DIVERGENT-ADDRESS device ATOMIC (per-lane `atomic_fetch_<op>("
++                     "&buf[gid], x)` / exchange / compare_exchange). 12-byte op that REUSES the "
++                     "low-nibble-f address-gen leader (`0f 00 03`) but carries a memory/atomic "
++                     "descriptor (byte+7==0xc0) and a datapath byte (byte+8: 0x80 integer, 0x90 "
++                     "float). The A18 per-lane atomic (0x67 byte+1 0x11/0x01) is GONE on M5; only the "
++                     "UNIFORM-address atomic migrated to m5_reduce (simd pre-combine + single RMW). "
++                     "The RMW OP is a DISTRIBUTED encoding over byte+4 (0x00/0x20), byte+5 (0x06/0x0e), "
++                     "byte+6 (0x04 add/and/fadd/cmpxchg-class, 0x0c min/max/or/xor-class), byte+11 "
++                     "(0x20/0x30) -- HW byte-diff table (each cell one op, 9 single-op own-MSL kernels): "
++                     "add=(b4 00,b5 06,b6 04,b11 20), and=(20,06,04,20), min=(20,06,0c,30), "
++                     "max=(00,06,0c,30), or=(00,0e,0c,20), xor=(20,0e,0c,30), fadd=(20,0e,04,20;b8 90 fp), "
++                     "cmpxchg=(00,0e,04,20; byte+3 0x04; b8 90). exchange is the 10-byte sibling "
++                     "m5_atomic_xchg (byte+6==0x18). Op-selector bits kept as typed raw/mod fields "
++                     "(rule 5, distributed encoding not collapsed into a fabricated single enum).",
++        "provenance": "HW byte-diff (M5 EXP-M5-16 own-MSL datom.metal: da_{add,min,max,and,or,xor,fadd,"
++                     "cmpxchg} each vary ONLY the atomic op, isolating the byte+4/+5/+6/+11 selector + "
++                     "byte+8 datapath). Length 12 confirmed by clean tokenization (op region runs to the "
++                     "stop). Reuses the addr_gen leader family -- gated in instr_length on byte+5 in "
++                     "{0x06,0x0e} AND byte+7==0xc0 AND byte+8 in {0x00,0x80,0x90} so it never confuses a "
++                     "plain 4-byte m5_addr_gen+load. Op-selector byte-diff, not per-bit splice-proven. "
++                     "Own-MSL only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_atomic_xchg",
++        "length": 10,
++        # byte0==0x0f + byte+1==0x00 + byte+2==0x03 + byte+6==0x18 (exchange) + byte+7==0xc0.
++        "match": [(0, 8, 0x0f), (8, 8, 0x00), (16, 8, 0x03), (48, 8, 0x18), (56, 8, 0xc0)],
++        "fields": [
++            {"name": "idx_mode", "start": 24, "width": 8, "type": "mod"},      # byte+3
++            {"name": "opsel_a", "start": 32, "width": 8, "type": "mod"},       # byte+4
++            {"name": "opsel_b", "start": 40, "width": 8, "type": "mod"},       # byte+5
++            {"name": "tail", "start": 64, "width": 16, "type": "raw"},         # byte+8..+9
++        ],
++        "semantics": "M5 (G17g) DIVERGENT-ADDRESS device atomic EXCHANGE, 10-byte sibling of "
++                     "m5_atomic_div (byte+6==0x18 = exchange selector; no datapath/writeback tail, so "
++                     "2 bytes shorter). Form `0f 00 03 02 01 06 18 c0 00 20`. Same leader family; the "
++                     "swap value is positional (the preceding load's result).",
++        "provenance": "HW byte-diff (M5 EXP-M5-16 own-MSL datom.metal da_xchg `0f 00 03 02 01 06 18 c0 "
++                     "00 20`). Own-MSL only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_matrix_mac",
++        "length": 14,
++        # byte0==0x2f + byte+1==0x00 + byte+2==0x05 + byte+5==0x20 (32 match bits).
++        "match": [(0, 8, 0x2f), (8, 8, 0x00), (16, 8, 0x05), (40, 8, 0x20)],
++        "fields": [
++            {"name": "opsel", "start": 24, "width": 8, "type": "mod"},         # byte+3 8x8 operand selector
++            {"name": "b4", "start": 32, "width": 8, "type": "mod"},            # byte+4
++            {"name": "datapath", "start": 48, "width": 8, "type": "enum",      # byte+6
++             "enum": {0xaf: "fp (fp16/fp32/bf16)", 0xab: "fp (half variant)"}},
++            {"name": "operand1", "start": 56, "width": 16, "type": "raw"},     # byte+7..+8
++            {"name": "accum", "start": 72, "width": 8, "type": "enum",         # byte+9 accumulate flag
++             "enum": {0x06: "multiply (no accumulate)", 0x08: "multiply-accumulate (load C)"}},
++            {"name": "operand2", "start": 80, "width": 32, "type": "raw"},     # byte+10..+13
++        ],
++        "semantics": "M5 (G17g) simdgroup_matrix MULTIPLY[-ACCUMULATE] (cooperative-matrix tile MAC). "
++                     "14-byte op `2f 00 05 <opsel> <b4> 20 <af|ab> .. <accum> ..`. On A18 both "
++                     "simdgroup_matrix MAC and MPP matmul2d lowered to 0xcf; on M5 the simdgroup MAC "
++                     "DIVERGES to this `2f 00 05` op (0xcf survives ONLY for the tiled MPP matmul2d "
++                     "path, EXP-M5-09). byte+9 (accum) = 0x06 multiply / 0x08 multiply-accumulate "
++                     "(load C). The tile LOAD/STORE that feed it are the `?f ..07..` family (byte+2=="
++                     "0x07); the Apple10 'Neural Accelerator' is NOT a new standalone opcode -- matrix "
++                     "work rides this low-nibble-f family. 8x8 operand bit-packing kept raw (rule 5).",
++        "provenance": "HW byte-diff (M5 EXP-M5-09 mat_simd.metal control ladder: ls_f32 -> 0 MAC ops, "
++                     "mul_f32/mad_f32 -> 1 MAC op; mul vs mad differ ONLY at byte+9 accumulate flag) + "
++                     "splice (corrupting byte0 / byte+2 05->00 drives the MAC output all-zero -> "
++                     "load-bearing) + EXP-M5-16 real-corpus (8 own / 4 tp `2f 00 05` occurrences, all "
++                     "14 bytes: bf16/f16/f32/filled sgmat kernels). Length 14 confirmed by clean "
++                     "tokenization (next op `27 00 04 ..` m5_alu / `2f 00 07 ..` tile store). Operand "
++                     "packing raw (rule 5). Own-MSL / own-corpus only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_falu2",
++        "length": 12,
++        # byte0==0x29 + byte+1==0x00 + byte+2==0x04 + byte+6 hi-nibble 0xa (32 match bits).
++        "match": [(0, 8, 0x29), (8, 8, 0x00), (16, 8, 0x04), (52, 4, 0xa)],
++        "fields": [
++            {"name": "src_form", "start": 24, "width": 8, "type": "enum",      # byte+3
++             "enum": {0x1a: "immediate source", 0x3a: "register source"}},
++            {"name": "b4", "start": 32, "width": 8, "type": "mod"},            # byte+4
++            {"name": "op", "start": 48, "width": 8, "type": "opcode",          # byte+6 op selector (hi-nibble a)
++             "enum": {0xa0: "op-a0", 0xa8: "op-a8", 0xa3: "add", 0xac: "fadd"}},
++            {"name": "opmarker", "start": 56, "width": 8, "type": "mod"},      # byte+7 (0x02)
++            {"name": "operand", "start": 64, "width": 32, "type": "raw"},      # byte+8..+11 (kept raw, rule 5)
++        ],
++        "semantics": "M5 (G17g) 12-byte compute-ALU op on the byte0==0x29 (float-datapath) leader -- "
++                     "the sibling of m5_alu (0x27) and m5_iadd (0x2f). Form `29 00 04 <1a|3a> <b4> 20 "
++                     "<ax> 02 ..`; byte+3 = immediate(0x1a)/register(0x3a) source, byte+6 = op-selector "
++                     "(hi-nibble 0xa, same position as m5_alu/m5_reduce). Emitted for split-memory index "
++                     "/ fp add2-family arithmetic feeding a following m5_addr_gen. Length 12 (the "
++                     "inherited low-nibble-9 float rule mis-lengths it 10, after which a phantom icmpsel "
++                     "swallows the following m5_addr_gen). Operand word kept raw (rule 5); the byte+6 "
++                     "op-selector meaning on this float leader is not individually splice-proven (the "
++                     "0xa0/0xa8 codes are byte-diff-observed, not confirmed to match the integer "
++                     "and/shift semantics).",
++        "provenance": "HW byte-diff / corpus tokenization (M5 EXP-M5-16, OBJ-3 corroboration): 13 corpus "
++                     "occurrences (own m4_13 dec2_n9_falu/derivatives + tp), all byte0==0x29 byte+2==0x04 "
++                     "byte+3 in {0x1a,0x3a} byte+6 hi-nibble 0xa; at length 10 the following `0f 00 03` "
++                     "m5_addr_gen(+m5_store) is swallowed by a phantom isel10 (7/13). Length 12 lands "
++                     "clean on the addr_gen. Census non-regressing (validated on both corpora). Operand "
++                     "packing raw (rule 5). Own-corpus only; no Apple binary inspected.",
++    },
++    {
++        "mnemonic": "m5_tile_ldst",
++        "length": 12,
++        # byte0 low-nibble 0xf + byte+2==0x07 + byte+8 in {0x10,0x18} + byte+9==0xc0.
++        # (byte+8 exact value carried by the op field; match on byte+9 + the byte+2==0x07 sig.)
++        "match": [(0, 4, 15), (16, 8, 0x07), (72, 8, 0xc0)],
++        "fields": [
++            {"name": "slot", "start": 4, "width": 4, "type": "imm"},           # byte0 hi-nibble = matrix slot
++            {"name": "operand_sel", "start": 8, "width": 8, "type": "mod"},     # byte+1 operand/fragment selector
++            {"name": "dir", "start": 48, "width": 8, "type": "opcode",          # byte+6 0xb8 load / 0xa1 store
++             "enum": {0xb8: "tile load (simdgroup_load)", 0xa1: "tile store (simdgroup_store)"}},
++            {"name": "kind", "start": 64, "width": 8, "type": "enum",           # byte+8 0x10 load / 0x18 store
++             "enum": {0x10: "load", 0x18: "store"}},
++            {"name": "operand", "start": 24, "width": 24, "type": "raw"},       # byte+3..+5 operand descriptor
++            {"name": "tail", "start": 80, "width": 32, "type": "raw"},          # byte+10..+11 (+ inlined base in 16B variant)
++        ],
++        "semantics": "M5 (G17g) simdgroup_matrix TILE LOAD / STORE -- the cooperative-matrix fragment "
++                     "load/store that feeds m5_matrix_mac. Form `<slot>f <opsel> 07 <..> <b8|a1> 0a "
++                     "<10|18> c0 ..`: byte0 low-nibble 0xf, high-nibble = matrix tile SLOT (0/2/4/6); "
++                     "byte+2==0x07 = the tile-family signature; byte+6 0xb8 load / 0xa1 store; byte+8 "
++                     "0x10 load / 0x18 store; byte+9==0xc0. Base op 12 bytes; a variant inlining an "
++                     "immediate base address is 16 bytes (trailing `80 00 00 00`, absorbed as pad "
++                     "words -- length kept at the 12-byte leader, rule 5). simdgroup_load(transpose) "
++                     "adds ray_move data-move ops, not a new op.",
++        "provenance": "HW byte-diff (M5 EXP-M5-09 mat_simd.metal control ladder: ls_f32 = load A + store "
++                     "R -> 2 tile ops, mul_f32 = load A/B + store -> 3, mad_f32 = load A/B/C + store -> 4, "
++                     "confirming `?f ..07..` = tile load/store; splice: corrupting a tile-op byte+2 (07->00) "
++                     "drives the MAC output all-zero -> load-bearing) + EXP-M5-16 real-corpus (22 own / 45 "
++                     "tp tile-signature ops). Length 12 conservative (16B variant tail absorbed) -> "
++                     "census non-regressing. Operand packing raw (rule 5). Own-MSL / own-corpus only; "
++                     "no Apple binary inspected.",
++    },
+ ]
+ 
+ # Index by mnemonic for the assembler.
