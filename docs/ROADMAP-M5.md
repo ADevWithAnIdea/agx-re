@@ -59,19 +59,23 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 - ◐ **1.6 Tokenization converged** — ≤3.5% desync both corpora (own 3.45% / tp 2.02%), round-trip green, 0 hangs.
   Residual tail + per-op semantics remain.
 
-## Phase 2 — Control / command stream & state  ◐ (EXP-M5-06)
-- ◐ EXP-M5-06: submission model **identical to A18** (49/58 IOKit calls, `AGXAcceleratorG17G`, shared-mem+doorbell);
-  **DYLD injection works under SIP**. Deltas → `docs/cmdstream/README-M5-deltas.md`: compute config bit19 dropped;
-  tgmem MOVED +0x40→+0x38 (new segmented encoding); draw opcodes +0x0800; viewport +0x9d0; FF-state 0x58000
-  reorganized. **Open:** FF-pool per-bit enums, USC bind grammar, attachment/PBE, indirect/mesh/tess records.
+## Phase 2 — Control / command stream & state  ☑ (EXP-M5-06 + EXP-M5-10)
+- ☑ Submission model **identical to A18** (49/58 IOKit calls, `AGXAcceleratorG17G`, DYLD works under SIP).
+  → `docs/cmdstream/README-M5-deltas.md`: compute config bit19 dropped; tgmem +0x40→+0x38; draw opcodes +0x0800;
+  viewport +0x9d0. **FF-state `0x58000` per-bit RESOLVED** (depth/stencil/raster **bit-identical to A18**,
+  relocated; all 8 compares + 8 stencil-ops HW-validated); **blend PROGRAMMABLE**; indirect draw/dispatch +
+  **tessellation NATIVE**; occlusion HW-validated. **Open:** mesh grid-dispatch record, USC graphics grammar.
 
-## Phase 3 — Resource descriptors & texture layout  ◐ (EXP-M5-06)
-- ◐ EXP-M5-06 → `docs/descriptors/README-M5-deltas.md`: texture width/height split shifted +1 bit; **sampler +
-  buffer byte-identical to A18**. **Open:** PBE/storage-image, attachment packed-format, tiling/twiddle + compression.
+## Phase 3 — Resource descriptors & texture layout  ☑ (EXP-M5-06 + EXP-M5-10)
+- ☑ → `docs/descriptors/README-M5-deltas.md`: texture width/height split +1 bit; **sampler + buffer byte-identical**;
+  **PBE/storage-image + attachment format word RESOLVED** (format@byte+0x21). Tiling/twiddle + compression
+  allocation model transfers **byte-for-byte** (→ `docs/tiling/README-M5-deltas.md`). **Open:** intra-tile Morton
+  byte order, sparse/heap flags.
 
-## Phase 4 — TBDR & compute specifics  ☐
-- ☐ Tile size, imageblock/tile-memory budget, MSAA sample positions, memoryless, dispatch encoding,
-  tiler param buffer — re-measure on M5 (8 GPU cores vs A18's 5).
+## Phase 4 — TBDR & compute specifics  ☑ (EXP-M5-10)
+- ☑ **Tile size = 32×32 CONFIRMED on the 8-core M5** (`0x68000+0x9c4/+0x9c8`); MSAA sample count + **programmable
+  sample positions userspace-emittable**; memoryless (poison `0x0eeee000`); occlusion (Boolean=1/Counting=4096);
+  imageblock/tile-mem budget. → `docs/pipeline/README-M5-deltas.md`.
 
 ## Phase 5 — Capability census + synthesis + ACCEPTANCE GATES  ◐
 - ☑ **5.1 Capability baseline** — EXP-M5-04: Apple10/G17g/T8142; RT+mesh+tensors+funcptrs+argbuf-Tier2; SIMD32,
@@ -94,8 +98,13 @@ DB). Round-trip identity across the M5 corpus; splice-validate every changed enc
 - **EXP-M5-04** ☑ MTLDevice capability baseline — **M5 = Apple10 / G17g / T8142**, RT+mesh+tensors; OBJ-2 seed.
 - **EXP-M5-05** ☑ ISA DB fork `tools/agx-isa-m5` — tokenization **96.6% own / 98.0% tp**, round-trip green, hang fixed.
 - **EXP-M5-06** ☑ cmdstream + descriptor deltas vs A18 (DYLD works under SIP); → `docs/*/README-M5-deltas.md`.
+- **EXP-M5-07** ☑ ISA semantics splice — **memory model SPLIT** (addr-gen + load + store); 5 descriptors HW-validated.
 - **EXP-M5-08** ☑ OBJ-2 capability census — 164 rows, presence 100% enumerated; backlog = 72 NYC (encoding-unmapped).
-- **EXP-M5-07** ◐ ISA semantics splice (memory/typed/`0xNe`/`0xb7`/call) — *agent running*; closes ~46 of the NYC backlog.
+- **EXP-M5-09** ☑ ISA semantics II — **matrix path splits, NO dedicated neural leader**; atomics/subgroup/texture
+  selectors; store-name fix. Deferred (documented): matrix-MAC/reduction/texture/12B-iadd descriptors.
+- **EXP-M5-10** ☑ Phase 2/3/4 deltas — A18 model offset-relocated; tile 32×32; FF-pool + tiling + tessellation.
+- **Resume point:** run **interim OBJ-1 gap-analysis reviewer** (empty-context, docs/-only) as a gap-finder →
+  close its findings (porting guide, deferred-encoding integration, RT AS-load, call ABI, mesh record) → gates.
 - **Next (resume point):** (1) **splice-and-observe semantics** for the M5-specific ISA ops (device now SIP-off,
   fault-recoverable) — memory/typed/`0xNe`/`0xb7`/call/matrix/RT/mesh; (2) render M5 DB into `docs/isa/` for OBJ-1;
   (3) close cmdstream/descriptor open items (FF-pool enums, PBE, tiling); (4) OBJ-2 capability census; then the
