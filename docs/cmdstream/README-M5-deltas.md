@@ -42,12 +42,65 @@ in same BO. Byte-identical to A18.
 4 floats `{tx, sx, ty, sy}` with Y-flip in sy (`tx=x+w/2, sx=w/2, ty=y+h/2, sy=-h/2`). Default full-target
 `{w/2,h/2,w/2,-h/2}`. Same structure, offset +0xc0.
 
-## Fixed-function state pool `0x58000` — same fields, REORGANIZED offsets ⏳
-Depth/stencil block ~`+0x134`(flags)/`+0x16c–0x174`(depth); rasterizer cull+winding at **`+0x1a8`**
-(cull[1:0] none/front/back, winding bit16 CW/CCW). Not a uniform shift vs A18 (`+0x34/+0x38/+0x3c/+0x70`);
-full per-bit compare-op / stencil-op / blend-flag decode is a follow-up.
+## Fixed-function state pool `0x58000` — per-bit decode RESOLVED (EXP-M5-10)
+Delta vs A18 is **offset-only + one regrouping**: the depth/stencil/raster/blend **bit layouts and
+enums are BIT-IDENTICAL to A18** (`cmdstream/README.md` §depth-stencil/§rasterizer/§blend), only the
+byte offsets in the pool moved, and the depth/stencil block is **regrouped** (A18 interleaves depth/stencil
+per face; M5 puts both depths then both stencils). All HW-validated by change-one-Metal-state + `0x58000` diff.
+
+| field | A18 offset | **M5 offset** | encoding (SAME as A18 unless noted) |
+|---|---|---|---|
+| depth/stencil-enable flags | `+0x34` | **`+0x134`** | enable cluster (`0x1c4e`→`0x1c52` when depth/stencil engaged) |
+| depth-bias **enable** | `+0x34` bit17 | **`+0x16c` bit17** | + bias constant/slope/clamp still in tiler-param region |
+| **depth FRONT** word | `+0x38` | **`+0x170`** | stencil-ref[7:0] · depth-write-DISABLE **bit21** · **compare[26:24]** |
+| **depth BACK** word | `+0x40` | **`+0x174`** | same layout |
+| **stencil FRONT** word | `+0x3c` | **`+0x178`** | wmask[7:0] · rmask[15:8] · **pass[18:16]·zfail[21:19]·sfail[24:22]·compare[27:25]** |
+| **stencil BACK** word | `+0x44` | **`+0x17c`** | same layout (back independent of front — HW-validated) |
+| **rasterizer** word | `+0x70` | **`+0x1a8`** | **cull[1:0]** none/front/back · **winding bit16** CW/CCW · **depth-clip/clamp[11:10]** |
+| color write-mask / store class | `+0x5c` / `+0x50` | `+0x194` / `+0x128` | full mask `0xf` = no diff; partial engages the FS store epilog (FS-covariant; per-channel packing partial ⏳) |
+| **blend-const-color needed** | `+0x10` bit6 | **`+0x130` bit6** | identical `0x40` bit; set by blendColor factors |
+| blend/store program-class | `+0x08` | `+0x188` | FS-lowering-covariant enum |
+| **occlusion mode** | `+0x8c` bit14 | **`+0x1c4` bit14** | Boolean=1 / Counting=0 |
+| **occlusion result offset** | `+0xa0` (`<<14`) | **`+0x1d8`** (`byteOffset<<6`) | HW-validated 64→`0x1000`, 256→`0x4000` |
+
+- **Enums identical to A18:** compare **0–7** = never/less/equal/lessEqual/greater/notEqual/greaterEqual/always
+  (HW-validated all 8 on depth `+0x170`); stencil-op **0–7** = keep/zero/replace/incrClamp/decrClamp/invert/
+  incrWrap/decrWrap (HW-validated all 8 on **each** of pass/zfail/sfail `+0x178`).
+- **Blend is PROGRAMMABLE on M5 (confirmed).** Changing one blend factor (`srcAlpha`↔`srcColor`) rewrites
+  **49 words of the fragment-shader BO** `0x10000000000` while the `0x58000` pool shows **0 diffs** — the
+  same TBDR compile-blend-into-FS model as A18. `0x58000` carries only the orthogonal side-flags above.
+  **Alpha-to-one has NO pool field** (FS-epilog only, as A18). Polygon **line fill** is HW-supported (sets a
+  line-mode bit in `+0x16c`/`+0x170`bit18/`+0x188`).
+- **Occlusion HW-validated:** Boolean wrote **1**, Counting wrote **4096** (64×64), offset honored.
+
+## Attachment / render-target descriptor (EXP-M5-10) — same 3-segment chain, format word SAME
+Primary single-RT attachment descriptor BO **`0x10000118000`** (A18: `0x10000110000`): 3 × **0x300-byte
+segments LOAD(+0)/RENDER(+0x300)/STORE(+0x600)**, format word at **seg+0x20**, **format code = byte+0x21**
+(= texture `byte1`) — identical formula to A18 (`descriptors/README-M5-deltas.md`). STORE/PBE component byte
++0x22 = r`0x00`/rgba`0xe4`/bgra`0xc6`. Verified bgra8/rgba8/r32f/rgb10a2/rgba32f/rgba16f.
+- **Clear color** = float4 RGBA at **`0x10000118000+0x170`** (single RT) / **`0x10000128000+0x170`+k·0x10**
+  (MRT). `loadAction≠Clear` zeroes it + clears the clear-enable bit (`+0x14`); `loadAction=Load` injects a
+  surface-read; `storeAction=DontCare` poisons the store addr. Same behavior as A18.
+- **MRT** ≥2 (or any MSAA) relocates color descriptors into tiler heap **`0x10000018000`** as **0x20-byte
+  per-attachment records** (LOAD @`+0x220+k·0x20`, STORE @`+0x420+k·0x20`) — same k-stride as A18.
+
+## Indirect / tessellation records (EXP-M5-10)
+- **Indirect dispatch:** injects a **2nd CDM record + a grid-setup multiply helper shader** (grid is in
+  threads, indirect args give threadgroups) — the driver must replicate the multiply. Same as A18.
+- **Indirect draw opcodes** (VDM record, tiler stream `0x18000`): non-indexed **`0x6c04`** (direct `0x69c4`);
+  indexed **`0x6c32`** (direct `0x69f2`). = A18's `0x6404`/`0x6432` shifted by the **same +0x0800** as the
+  direct draw opcodes. Args pointer stored inline in the record; indexed keeps `0x40000001` config + `0xffff`
+  restart comparand.
+- **Tessellation = NATIVE hardware stage on M5** (like A18, NOT compute-emulated): `drawPatches` runs
+  (STATUS=Completed) with **no CDM launch descriptor** (single graphics submit) and emits a distinct **VDM
+  patch-dispatch record** in the tiler stream `0x18000` (record @~+0x80: config `+0x84`, USC bind addr `+0x88`,
+  opcode/domain word `+0x8c`, **half-float factor-buffer pointer `+0x98`/`+0x9c`**). Half-float tessellation
+  factor buffer as A18.
 
 ## Open (next cmdstream experiments)
-FF-pool per-bit decode (depth/stencil/blend enums, USC bind-pair grammar); attachment/PBE/storage-image
-records + packed format word; CDM `+0x04/+0x0c/+0x28` words; sel-2 device-info struct; indirect/mesh/
-tessellation records; tiling/compression per format.
+- **Mesh grid-dispatch record** (A18 `0x70000600`): the M5 mesh **pipeline-create** aborted in AGXMetalG17G
+  on our object+mesh MSL (harness/descriptor setup bug, **not** a HW fault — device recovered; tess ran after).
+  Re-probe with a corrected mesh pipeline. (Presence confirmed on M5 elsewhere; only the cmdstream record is open.)
+- USC **graphics** 2-pointer-header bind grammar (EXP-G1a analog) not re-derived on M5 (Tier-2 arg-buffer table
+  `+0x14a0` is byte-identical, EXP-M5-06); FF `0x58000` write-mask per-channel packing (`+0x194`) partial;
+  CDM `+0x04/+0x0c/+0x28` constants; sel-2 device-info struct; vertex-amplification / ICB records.

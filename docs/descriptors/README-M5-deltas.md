@@ -20,6 +20,25 @@ by address-mode + filter sweeps.
 ## Buffer binding — SAME
 `device T*` = bare inline 8-byte GPU VA in the arg-buffer slot (no length/format word).
 
+## Storage-image (PBE) descriptor & attachment format word — RESOLVED (EXP-M5-10)
+Both transfer from A18 with the format code at **byte+0x21** (= texture `byte1`); HW-validated by
+change-one-Metal-parameter data-trace.
+
+- **PBE / storage-image descriptor** (texture bound `access::write`/`read_write`): a **distinct descriptor**
+  from the sampled one (as A18). Shared with sampled: **format code byte+0x21** (rgba8=`0x0a`, r32u=`0x48`,
+  from the same `format-table` codes), base `VA>>4`. Differs: a **PBE-specific width/height split** (the STORE
+  word's byte+0x23 tracks width−1 low byte: 64→`0x3f`, 256→`0xff`; height−1 tracked in the companion word) —
+  same shape as A18's PBE split (width−1=word0[24:31]‖word1[0:5], height−1=word1[6:19]); observed bytes are
+  consistent with it (exact bit-solve inherited from A18). **`access::read_write` binds TWO descriptors**
+  (a read texture-desc + a PBE desc) and adds the read op to the kernel — HW-confirmed (shader BO + descriptor
+  heap both grow). Compression disabled on write textures (as A18).
+- **Render-target attachment packed-format word** (the LOAD/RENDER segment word at seg+0x20, in the attachment
+  BO `0x10000118000` / tiler-heap MRT copies): **byte+0x20 = texture byte0**, **byte+0x21 = format code**,
+  byte+0x22/+0x23 = swizzle. **STORE/PBE segment**: byte+0x21 = format code, **byte+0x22 = PBE component byte**
+  (r=`0x00`, rgba=`0xe4`, bgra=`0xc6`). HW-validated over bgra8/rgba8/r32f/rgb10a2/rgba32f/rgba16f — identical
+  to A18's `(0xf<<28)|(swizzle<<16)|(byte1<<8)|(byte0&~0x20)` formula and DESC-1 correction (format at +0x21,
+  not +0x22). See `../cmdstream/README-M5-deltas.md` for the 3-segment chain + clear-color placement.
+
 ## Open (not probed on M5 this run) ⏳
-PBE / storage-image descriptor, render-target attachment packed-format word + 3-segment load/render/store,
-sparse/heap flags, texel-buffer path, tiling/twiddle + lossless compression per format.
+Sparse/heap descriptor flags, texel-buffer (`texture_buffer<T>`) path; exact PBE width/height bit-solve on M5
+(inherited from A18, byte-consistent). Tiling/twiddle + lossless compression → `../tiling/README-M5-deltas.md`.

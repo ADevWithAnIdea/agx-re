@@ -1,0 +1,84 @@
+EXP-M5-10 decoded evidence summary (M5 / T8142 / AGXAcceleratorG17G / macOS 27.0, 8 GPU cores).
+Own-process DATA-TRACE (tools/iotrace) + own-MSL HW-probe. Raw diffs: ff_pool_diffs.txt, ff_blend_prog.txt,
+rt_analysis.txt, rt2_analysis.txt, rt3_analysis.txt, tex_sizes.txt.
+
+================================================================================
+FIXED-FUNCTION POOL 0x58000 — per-bit decode (change-one-Metal-state + 0x58000 diff)
+================================================================================
+DEPTH word 0x58000+0x170 (FRONT) / +0x174 (BACK):  [byte layout SAME as A18 depth word]
+  dcmp0..7 -> byte+0x173 = 0/1/2/3/4/5/6/7   => compare[26:24] never..always
+  dwr0 (write off) sets byte+0x172 bit5 (0x20) => depth-write-DISABLE bit21
+  sref 0x55/0xaa -> byte+0x170 = 0x55/0xaa    => stencil-ref[7:0]
+STENCIL word 0x58000+0x178 (FRONT) / +0x17c (BACK):  [byte layout BIT-IDENTICAL to A18 stencil word]
+  scmp0..6  -> byte+0x17b = cmp*2            => compare[27:25]
+  spass1..7 -> byte+0x17a bits[2:0]          => pass-op[18:16]
+  szfail1..7-> byte+0x17a bits[5:3]          => zfail-op[21:19]
+  sfail1..7 -> byte+0x17a bits[7:6] + byte+0x17b bit0 => sfail-op[24:22]
+  masks byte+0x178/+0x179 = wmask[7:0]/rmask[15:8]
+  stenB: front(always+keep)=default, back(equal+invert) -> +0x17c=ffff0504 (independent back-face) OK
+  stencil-op enum 0..7 = keep/zero/replace/incrClamp/decrClamp/invert/incrWrap/decrWrap
+RASTERIZER word 0x58000+0x1a8:               [SAME as A18 +0x70]
+  cull_front=0x81 cull_back=0x82 => cull[1:0] (0 none/1 front/2 back)
+  wind_ccw -> byte+0x1aa=0x01 => winding bit16 (CW/CCW)
+  dclip_clamp -> byte+0x1a9 0x04->0x08 => depth-clip/clamp[11:10] (clip default)
+DEPTH-BIAS enable 0x58000+0x16c bit17 (dbias: +0x16c 0x00->0x02)
+FILL line: fill_lines sets +0x16c byte0 bit2, +0x170 byte2 bit2 (=bit18), +0x188 bit2  (polygon line HW-supported)
+FLAGS 0x58000+0x134: base 0x1c4e -> 0x1c52 when depth/stencil engaged
+
+BLEND (programmable — CONFIRMED):
+  bl_f1(srcAlpha/1-srcAlpha) vs bl_f2(srcColor/1-srcColor): shader BO 0x10000000000 = 49 word-diffs,
+                                                            0x58000 pool = 0 diffs   => blend compiled into FS
+  blend-const-needed: bl_col -> 0x58000+0x130 bit6 (0x40)     [A18 had +0x10 bit6]
+  store-epilog engaged: +0x128 changes when blend/writemask/a2c engage
+  program-class: +0x188 (0x00 default / 0x20 blend / 0x44 a2c)
+  write mask: wm_f(0xf)=0 diffs; partial -> +0x194 + +0x128 (FS store-epilog covariant)
+  alpha-to-one: 0 pool diffs (FS epilog only, as A18)
+
+OCCLUSION QUERY:
+  mode: 0x58000+0x1c4 bit14  (occl_b Boolean=0xc2 / occl_c Counting=0x82)
+  offset: 0x58000+0x1d8 = byteOffset<<6  (off 64->0x1000, off 256->0x4000)
+  readback: Boolean=1, Counting=4096 (64x64 passed samples). HW-validated.
+
+================================================================================
+ATTACHMENT / RT FORMAT WORD (attachment BO 0x10000118000; MRT heap 0x10000018000)
+================================================================================
+3 segments 0x300 apart: LOAD@+0 / RENDER@+0x300 / STORE@+0x600; format word @seg+0x20:
+  bgra8    +0x20: 22 0a 0a f6   byte+0x21=0x0a (format code)
+  r32f     +0x20: 62 88 68 f9   byte+0x21=0x88
+  rgb10a2  +0x20: a2 09 88 f6   byte+0x21=0x09
+  rgba32f  +0x20: 22 8e 88 f6   byte+0x21=0x8e
+  STORE/PBE component byte+0x22: r=0x00 rgba=0xe4 bgra=0xc6
+clear color float4 RGBA @0x10000118000+0x170 (single RT) / 0x10000128000+0x170+k*0x10 (MRT)
+MRT: 0x20-byte per-attachment records in 0x10000018000 (LOAD@+0x220+k*0x20, STORE@+0x420+k*0x20)
+
+================================================================================
+TBDR RENDER-CONTROL
+================================================================================
+TILE SIZE 32x32 (8-core M5):  0x68000+0x9c4 = 0x80000000|(ceil(W/32)-1) ; +0x9c8 = ceil(H/32)-1
+  64x64 -> 0x80000001/0x1 ; 128x64 -> 0x80000003/0x1 ; 1920x1080 -> 0x8000003b/0x21 (59/33)
+MSAA sample count: attachment record+0x30 = 1x:0x00840000 / 2x:0x00880000 / 4x:0x00900000 ; tex-type nibble->4
+SAMPLE POSITIONS (userspace-emittable): BO 0x100000d8000 +0x40 + n*8, (x,y) f32, 1/16 grid
+  4x default = D3D {(.375,.125),(.875,.375),(.125,.625),(.625,.875)}
+  custom {0.1,0.2}.. -> 0.125/0.1875/0.3125/0.6875/... (1/16 snaps) OK
+MEMORYLESS: surface VA -> poison 0x0eeee000 ; backing size/stride/offset zeroed (record 0x10000018000 +0x28..)
+LOAD/STORE: clear-enable record+0x14 ; loadAction=Load injects surface-read ; storeAction=DontCare poisons store
+
+================================================================================
+INDIRECT / TESSELLATION (tiler stream 0x18000)
+================================================================================
+indirect dispatch: 2nd CDM record + grid-setup multiply helper shader (0x100000b0000 + 0x10000090000)
+indirect draw opcode:  non-indexed 0x6c04 (direct 0x69c4) ; indexed 0x6c32 (direct 0x69f2)  [A18 0x6404/0x6432]
+tessellation (drawPatches): NATIVE — no CDM, single graphics submit, VDM patch-dispatch record @0x18000+0x80
+  (config +0x84, USC-addr +0x88, opcode/domain word +0x8c=0x90000040, half-float factor-buf ptr +0x98/+0x9c)
+mesh: pipeline-create aborted in AGXMetalG17G (harness setup bug, not HW) — record OPEN
+
+================================================================================
+TILING / COMPRESSION (Metal allocatedSize matrix; image_bytes = padW*padH*bpp exactly matches A18)
+================================================================================
+writable allocatedSize = image_bytes + 0x4000 (page overhead); image_bytes follows A18 §1.1:
+  r8   (bpp1,T128,G1): 300->0x24000(padW384)  192->0x10000(padW256)
+  r16u (bpp2,T64,G2):  192->0x18000(padW256,cols4 EVEN)  300->0x3c000(cols6)
+  rgba8(bpp4,T64,G1):  300->0x64000(padW320, NOT nextpow2 512)  384->0x90000
+  rgba16f(bpp8,T32,G2):96->0x18000(cols4)  300->0xc8000(cols10)
+  rgba32f(bpp16,T32,G1):96->0x24000(cols3)  300->0x190000(padW320)
+compression (nowrite, aux=numTexels/32): 15x15 -> NO aux ; 16x16 -> aux ; 256^2 -> +0x800 aux (rgba8/16f/32f all)
