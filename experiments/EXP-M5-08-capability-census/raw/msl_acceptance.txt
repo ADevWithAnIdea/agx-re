@@ -1,0 +1,52 @@
+M5 MSL-acceptance probe (compile-only, newLibraryWithSource:, NO GPU dispatch)
+Device: Apple M5 / T8142 / applegpu_g17g / Apple10 / macOS 27.0. 2026-07-12.
+Source: raw/mslprobe.m + raw/mslprobe2.m (all MSL is ours). Clean-room: our own MSL compiled
+by the public runtime compiler; ACCEPT/REJECT are the compiler's response to our source. No
+Apple binary disassembled/introspected.
+
+==== mslprobe.m ====
+device = Apple M5 / arch check
+ACCEPT  coopmat_fp16
+ACCEPT  coopmat_fp32
+REJECT  coopmat_bf16 :: (TEST ARTIFACT: stored float8x8 accumulator into a device bfloat* buffer
+        -> simdgroup_store type mismatch; re-tested corrected below -> ACCEPT)
+REJECT  coopmat_int8_char :: no matching function for call to 'make_filled_simdgroup_matrix' (char)
+REJECT  coopmat_int32 :: no matching function for call to 'make_filled_simdgroup_matrix' (int)
+ACCEPT  atomic_int_add
+ACCEPT  atomic_uint_min
+ACCEPT  atomic_float_add
+REJECT  atomic_float_min :: no matching function for call to 'atomic_fetch_min_explicit' (float)
+REJECT  atomic_float_max :: no matching function for call to 'atomic_fetch_max_explicit' (float)
+REJECT  atomic_u64_add :: no matching function for call to 'atomic_fetch_add_explicit' (ulong)
+REJECT  atomic_u64_min :: no matching function for call to 'atomic_fetch_min_explicit' (ulong)
+REJECT  atomic_i64_max :: no matching function for call to 'atomic_fetch_max_explicit' (long)
+ACCEPT  bfloat_alu
+ACCEPT  rt_intersector_inline
+ACCEPT  rt_query_inline
+REJECT  rt_motion :: (TEST ARTIFACT: wrong type name 'instance_motion_acceleration_structure';
+        motion blur presence is device-flag-confirmed: supportsPrimitiveMotionBlur=YES, EXP-M5-04)
+ACCEPT  msl_tensor_include   (#include <metal_tensor> compiles)
+ACCEPT  simd_shuffle_and_fill
+ACCEPT  simd_prefix_inclusive
+ACCEPT  quad_shuffle
+DONE
+
+==== mslprobe2.m (corrected re-probe of the two test artifacts) ====
+ACCEPT  coopmat_bf16_fixed   (bf16 A,B; float accumulator; store to float*)
+ACCEPT  coopmat_bf16_pure    (bf16 A,B,C; store to bfloat*)
+REJECT  rt_prim_motion_tag   :: no matching member function for call to 'intersect' (wrong time-arg signature)
+REJECT  rt_inst_motion_tag   :: no matching member function for call to 'intersect' (wrong time-arg signature)
+REJECT  rt_query_world_space :: header template instantiation error (wrong tag combo for intersection_query)
+DONE
+
+==== CONCLUSIONS (M5 presence, at the MSL surface) ====
+PRESENT  cooperative matrix fp16 / fp32 / bf16  (same dtype set as A18)
+ABSENT   cooperative matrix int8 / int32        -> Vulkan int coopmat must EMULATE (== A18)
+PRESENT  int atomic add/min/max, float atomic ADD
+ABSENT   float atomic min/max                   -> EMULATE (== A18)
+ABSENT   all 64-bit atomics (add/min/max)       -> EMULATE (== A18 / EXP-O2D)
+PRESENT  bfloat general ALU
+PRESENT  RT intersector object + inline intersection_query
+PRESENT  motion blur (device flag; MSL time-arg signature not nailed here)
+PRESENT  <metal_tensor> MSL header; newTensorWithDescriptor:error: = YES (EXP-M5-04)
+PRESENT  simd_shuffle_and_fill, simd_prefix_inclusive_sum, quad_shuffle
