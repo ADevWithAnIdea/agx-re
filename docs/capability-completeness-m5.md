@@ -265,3 +265,9 @@ Added to the §B present-but-encoding-NYC backlog:
 - **Rasterization rate map / foveated rendering** — presence M5-measured (`supportsRasterizationRateMapWithLayerCount:` YES 1–2 layers); the rate-map BO layout + tiler render-control record are NOT yet probed. New probe target.
 - **Vertex attribute fetch** (`MTLVertexDescriptor`→VS-prologue) — the per-attribute load+format-convert lowering rides the `0x18` memory-load split; format-convert map completes with the memory-family field work.
 - YUV/YCbCr (⏳ untested), MSAA resolve-filter (store-record field), `MTLFence`/`MTLEvent`/`MTLSharedEvent` (kernel-managed) — enumerated in `capability-matrix-m5.md` addendum.
+
+## Addendum 2 — ISA-integration reconcile (EXP-M5-11)
+Moved from §B (NYC) to encoding-characterized: device load/store, subgroup reduce/scan/shuffle, uniform-address
+atomics (incl. float-add), compute ALU — now emittable in `tools/agx-isa-m5/db.json` (HW-validated EXP-M5-07/09/11).
+Residual §B backlog: texture sampling (EXP-M5-16), divergent-address atomics (EXP-M5-16), simdgroup-matrix MAC
+(EXP-M5-16), call ABI (pipeline-linked extraction), RT AS-load (AS-bound testbed), + the rate-map probe (EXP-M5-15).

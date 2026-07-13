@@ -89,14 +89,25 @@ Accelerator / `MTLTensor` (incl. int8 matmul) is **present but NYC** — no dedi
 matrix family.
 
 ## 8. Gaps a driver author must know (honestly-open — with the fallback for each)
-- **ISA field maps for a few M5-specific ops** still being finalized into `db.json` (EXP-M5-11): matrix
-  operand packing, RT AS-load encoding, function-call ABI (`0xef`/`0xff`). Fallback: the `docs/isa`
-  prose + EXP-M5-07/09 evidence give the leaders/lengths; check `db.json` for the shipped field detail.
-- **Mesh vertex-amplification + payload-heavy records**, USC buffer slots >2, user-varying-reorder HW
-  proof — measured minimally; extend via the EXP-M5-13 harness if needed.
-- **Intra-tile Morton byte order** not byte-verified on M5 (allocation-consistent with A18).
-- The 61 NYC capability rows are **present hardware whose exact encoding isn't mapped yet** — a driver
-  can gate those features until mapped; none is a "missing hardware" surprise.
+- **Texture sample/gather/read/compare/LOD-query encoding** (`0x0f/0x1f` + byte+2 `0x12`/`0x1a` on M5, distinct
+  from the A18 `0x5` `tex_sample` which is **superseded on M5**) — leaders identified, the per-variant length rule
+  is in active integration (EXP-M5-16); until it lands, the coordinate/sampler/LOD operand fields ride the
+  memory-load family. **This blocks textured fragment shaders — the highest-priority residual item.** Fallback:
+  EXP-M5-09 `hex_extractions.txt` has the leaders + example bytes; `db.json` carries the shipped detail once integrated.
+- **Divergent-address device atomics** (`atomic_fetch_add(&buf[gid],x)`) — the A18 per-lane `0x67` path is gone on
+  M5; only uniform-address atomics migrated to `m5_reduce`. Divergent form being integrated (EXP-M5-16).
+- **`simdgroup_matrix` cooperative-matrix MAC** (`2f 00 05`, EXP-M5-16), **function-call ABI** (`0xef`/`0xff` —
+  needs a pipeline-`linkedFunctions` extraction; intra-shader control flow is fully green), **RT
+  acceleration-structure load** (migrated off `0xdf` — needs an AS-bound splice testbed): documented-open with
+  the leader/prose in `docs/isa` + EXP-M5-09/11; a driver can gate coop-matrix / function-pointers / RT until mapped.
+- **Mesh vertex-amplification + payload-heavy records + full ICB**, USC buffer slots >2, user-varying-reorder HW
+  proof — measured minimally; extend via the EXP-M5-13 harness.
+- **Intra-tile Morton byte order** not byte-verified on M5 (allocation-consistent with A18); **M5 GPR machine
+  model** (count/width, Dynamic Caching) inherited from A18, not re-confirmed (affects register allocation).
+- The residual NYC capability rows are **present hardware whose exact encoding isn't mapped yet** — a driver
+  can gate those features until mapped; none is a "missing hardware" surprise. **Retained A18 descriptors that
+  the M5 supersedes** (`tex_sample`0x5, `matrix_mac`0xcf-for-simdgroup, `call`, `rt_as_load`0xdf, `atomic`0x67
+  divergent-form) are flagged "superseded-on-M5" in the DB/ISA doc — do not emit them for M5 shaders.
 
 ## Provenance
 Every M5 fact is HW-measured on `user@192.168.170.253` (Apple M5 / T8142): own-shader

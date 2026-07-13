@@ -457,3 +457,18 @@ Rows the census had omitted (all Metal-exposed; enumeration/classification compl
 
 **Updated tallies (row-level): native 85 · NYC 64 · emulated 13 · kernel 8 · microarch 5 = 175 rows.**
 No Metal-exposed capability is now unaccounted-for.
+
+## Addendum 2 — ISA-integration reconcile (EXP-M5-11, REVIEW-M5-OBJ1-02 M-7)
+These rows were marked NYC before the ISA integration (EXP-M5-11) but are now **native, HW-validated on M5**
+with emittable descriptors in `tools/agx-isa-m5/db.json` — the classification is updated here:
+- **Device load/store** (§3) → **native** (`m5_addr_gen`/`m5_load`/`m5_store`, EXP-M5-07/11; index-GPR splice-proven).
+- **Subgroup/quad reduce + scan** (§6) → **native** (`m5_reduce`, op byte+6, EXP-M5-09/11).
+- **Subgroup shuffle / broadcast** (§6) → **native** (`m5_shuffle` `2f 00 21`).
+- **Uniform-address atomics** incl. **float-add** (§4) → **native** (`m5_reduce` pre-combine).
+- **Compute ALU / integer arithmetic** → **native** (`m5_alu`/`m5_iadd`, byte0=0x27).
+
+**Still NYC (in active integration or documented-open):** texture sample/gather/read/compare (§5, being
+integrated EXP-M5-16 — the OBJ-1 blocker), **divergent-address** atomics (§4, EXP-M5-16), `simdgroup_matrix`
+MAC `2f 00 05` (§7, EXP-M5-16), call ABI `0xef/0xff` (§2, needs pipeline-linked extraction), RT AS-load (§8,
+needs AS-bound testbed). Net effect: the residual NYC backlog is **texture + divergent-atomics + matrix-MAC +
+call + RT** — not the whole memory/subgroup surface the pre-integration matrix implied.
