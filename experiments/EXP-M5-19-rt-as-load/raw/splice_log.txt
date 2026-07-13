@@ -1,0 +1,63 @@
+# EXP-M5-19 splice-and-observe — M5 / Apple10 / G17g / T8142 / macOS 27.0
+# Real single-triangle primitive AS: v0(-1,-1,3) v1(1,-1,3) v2(0,1,3).
+# GPU runs OUR OWN archived (byte-spliced) machine code via MTLPipelineOptionFailOnBinaryArchiveMiss.
+# rtk _agc.main = 1724 bytes. rt_intersect op#1 (traverse) @0x006a=74ea90c6cb000000 ; op#2 @0x058c=34ea1026330a0600.
+# NO hangs / NO reboots across ALL ~180 splice dispatches (incl. wild 0xff pointer values). M5 RT faults fully contained.
+
+## BASELINE (rtsplice, unspliced archive) — end-to-end HW validation
+RAY 0 org=(0,0,0)      dir=(0,0,+1) -> t=3.0000   HIT
+RAY 1 org=(0.3,-0.3,0) dir=(0,0,+1) -> t=3.0000   HIT
+RAY 2 org=(-0.3,-0.3,0)dir=(0,0,+1) -> t=3.0000   HIT
+RAY 3 org=(0,-0.5,0)   dir=(0,0,+1) -> t=3.0000   HIT
+RAY 4 org=(0,0.5,0)    dir=(0,0,+1) -> t=3.0000   HIT
+RAY 5 org=(0,0,0)      dir=(0,0,-1) -> t=-1.0000  MISS  (correct)
+PIPELINE_SOURCE archive  (proves the archived/spliceable machine code ran, not a recompile)
+
+## BASELINE (rtsplice2, origin.z-varying rays) — t = 3 - origin.z
+RAY 0 org.z=0   -> t=3.0     RAY 1 org.z=1 -> t=2.0    RAY 2 org.z=-2 -> t=5.0
+RAY 3 org.z=0.5 -> t=2.5     RAY 4 org.z=2 -> t=1.0    RAY 5 dir=-z   -> t=-1.0 (miss)
+=> baseline vector: 3,2,5,2.5,1,-1
+
+## rt_intersect SPLICES (rtsplice, baseline 3,3,3,3,3,-1) — CONFIRMS M5 rt_intersect load-bearing
+A1  op#1 @0x6b byte+1 ea->00 : 3,0,0,0,0,0     DELTA (traverse broken; miss-ray now 0 not -1)
+A2  op#1 @0x6c byte+2 90->00 : 3,3,3,3,3, 3    DELTA (miss-ray5 now HITS t=3 -> byte+2 is a functional mode)
+A3  op#1 @0x6e byte+4 cb->00 : 3,0,3,0,3,0     DELTA (ray/AS operand register broken, per-lane)
+A4  op#2 @0x58d byte+1 ea->00: 3,3,3,3,3,-1    NO delta on DISTANCE (op#2 reads a NON-distance result field;
+                                                rtk reads only res.distance, so op#2 corruption is invisible here)
+
+## SETUP-REGION SPLICE SCAN (rtsplice2, baseline 3,2,5,2.5,1,-1), byte->0x00
+# "3,0,0,0,0,0" = ray0 (origin=0) STILL hits real triangle => AS+traversal intact, per-lane ORIGIN data broken
+# "-1,-1,-1,-1,-1,-1" = even ray0 misses => DIRECTION degenerate OR AS-handle broken (whole ray dead)
+@0x20 21->00 : 0,0,0,0,0,0    (ray marshalling)
+@0x22 a9->00 : -1,0,0,0,0,0
+@0x28 a7->00 : -1,-1,-1,-1,-1,-1   (all miss)
+@0x2a 04->00 : -1,-1,-1,-1,-1,-1
+@0x2b 02->00 : -1,-1,-1,-1,-1,-1
+@0x2c 21->00 : 0,0,0,0,0,0
+@0x2d 80->00 : 3,-1,-1,-1,-1,-1
+@0x2e a9->00 : 0,0,0,0,0,0
+@0x31 03->00 : 3,2,5,2.5,1, 3    DIRECTION: ONLY ray5 flips miss->hit; origin t-values preserved
+@0x32 c2->00 : -1,-1,-1,-1,-1,-1
+@0x33 18->00 : -1,-1,-1,-1,-1,-1
+@0x34 5f->00 : 3,0,0,0,0,0    m5_addr_gen (5f 0a 03 00, byte+2=0x03) — ORIGIN addr-gen (ray0 survives)
+@0x3c 4f->00 : -1,-1,-1,-1,-1,-1   m5 LOAD (4f 10 83 00, byte+2=0x83) — DIRECTION load (even ray0 misses)
+@0x3d 10->00 : -1,0,0,0,0,0
+@0x3e 83->00 : -1,-1,-1,-1,-1,-1
+@0x40 d8->00 : -1,-1,-1,-1,-1,-1
+@0x41 0d->00 : -1,-1,-1,-1,-1,-1
+@0x44..0x4b  : 3,2,5,2.5,1,-1  (op 0f 68 43 00 60 0c 10 2a — NO delta => DEAD/redundant load)
+@0x4c 8f->00 : 3,0,0,0,0,0    m5 LOAD (8f 68 83 00, byte+2=0x83) — ORIGIN load (ray0 survives)
+@0x4e 83->00 : 3,0,0,0,0,0
+@0x53 ac->00 : 3,0,0,0,0,0
+
+## 0xff (wild-value) SCAN — reveals the frame-prologue UNIFORM/ARG loads are load-bearing
+# Frame prologue [0x04,0x1c): ?f 48 43/03 00 ..0c  (byte+1=0x48, byte+2 in {0x43,0x03}) = ARGUMENT-BUFFER loads
+@0x06 43->ff : 0,0,0,0,0,0     (uniform-load marker byte+2=0x43 corrupted -> all lanes dead)
+@0x0a 10->ff : 0,0,0,0,0,0
+@0x0e 43->ff : 0,0,0,0,0,0
+@0x16 03->ff : 0,0,0,0,0,0
+# These uniform/arg loads deliver the buffer pointers AND the AS handle. Consistent with
+# as_slot1 == as_slot3 (byte-identical): the AS handle comes from a FIXED argument slot,
+# independent of the Metal buffer BINDING INDEX (unlike plain device buffers).
+# NOTE: setting length/opcode bytes (8-byte stride) to 0xff -> PIPELINE_MISS (archive re-decode
+#       mismatch), printed as "?" — NOT a GPU fault.

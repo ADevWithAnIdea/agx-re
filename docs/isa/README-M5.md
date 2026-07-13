@@ -32,9 +32,14 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   load/store family** (`?f ..07..`) plus a **`2f 00 05` MAC** op; only the MPP `tensor_ops::matmul2d` path
   keeps `0xcf`. **There is NO new dedicated "neural" ISA leader** — the Apple10 Neural Accelerator rides the
   existing matrix family, not a new opcode. (Op identity splice-proven; full 8×8 operand packing is splice-TODO.)
-- **Ray tracing (EXP-M5-09):** `rt_intersect` (byte0 low-nibble `0x4` + byte+1 `0xea`) **transfers unchanged
-  from A18** (traverse + result-read, 2×/kernel; inline query too). `rt_as_load`/`ray_mem` no longer distinct
-  leaders — migrated into the M5 memory family; **exact AS-load encoding OPEN**.
+- **Ray tracing (EXP-M5-09 + EXP-M5-19 RESOLVED):** `rt_intersect` (byte0 low-nibble `0x4` + byte+1 `0xea`)
+  **transfers from A18 and is now splice-confirmed on M5** (byte+1 ea=traverse, byte+2 mode, byte+4 ray/AS
+  operand). The A18 dedicated `rt_as_load`(0xdf)/`rt_ray_mem`(0x5f) leaders are **gone** on M5 — RT loads
+  migrated into the `0x?f` split-memory family: the **AS handle** is an index-fixed argument/uniform load
+  (`?f 48 …`, byte+1=0x48; buffer-binding-index-independent — `as_slot1==as_slot3`), and **ray origin/dir**
+  ride `0x?f` split-memory loads (byte+2 ∈ {0x43,0x83}). So a driver emits RT via the general argument-load +
+  split-memory forms — **no dedicated RT-load opcode on M5**. (AS-aware splice testbed built; open: exact
+  0x83-load sub-field widths, op#2 result-field layout.)
 - **Atomics + subgroup/quad (EXP-M5-09):** UNIFIED reduction selector `2f 00 <scope> 0a 27 80 <OP> 02 <mode>`
   — byte+6 OP (`a0`and/`a1`or/`a2`xor/`a3`add/`a6`min/`a7`max/`ac`float-add), byte+2 scope, byte+9 reduce/scan;
   shuffle = `2f 00 21`. **Texture (EXP-M5-09):** sample family = byte0 low-nibble `0xf` + byte+2 (`0x12`
@@ -66,10 +71,9 @@ Source: EXP-M5-02 (census) + EXP-M5-05 (fork). The divergence is concentrated in
   descriptor-bank nibble (byte+4) for dense binding slots ≥2 (slots 0–1 fully mapped); the M5 `24 80 03`
   image-store length; matrix `simdgroup_matrix` 8×8 operand packing + tile 12-vs-16 length determinant (raw);
   atomic op-selector not per-bit exhaustively spliced; **call ABI `0xef/0xff`** (needs pipeline-`linkedFunctions`
-  extraction — standalone archive yields a link-time stub); **RT AS-load** (migrated off `0xdf` — needs an
-  AS-bound splice testbed). Intra-shader control flow is green; a driver can gate function-pointers /
-  coop-matrix-operands / RT-traversal until these are mapped. (Texture sample/read coord+slot+LOD are RESOLVED,
-  EXP-M5-17.)
+  extraction — standalone archive yields a link-time stub). Intra-shader control flow is green; a driver can gate
+  function-pointers / coop-matrix-operands until these are mapped. (Texture sample/read coord+slot+LOD RESOLVED
+  EXP-M5-17; RT AS-load / ray-data family RESOLVED EXP-M5-19 — RT loads use the general argument + split-memory forms.)
 
 ## Machine model — registers / uniforms / spill (RE-MEASURED on M5, EXP-M5-21)
 The A18 machine model (`README.md` §"Machine model — registers, uniforms, Dynamic Caching") transfers
