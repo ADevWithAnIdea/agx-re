@@ -1,0 +1,66 @@
+path	status	contract	existing_evidence	closure_obligation
+queue.usc_exec_base	PUBLIC-ONLY	Queue-wide USC executable window base	EXP-0044	Prove multiple VS/FS/CS programs are selected relative to this base on M4 and A18
+render.flags	OPEN	Render flags including scratch empty tiles clustering and integer dbias	EXP-0044	Exercise every defined bit and combinations; map each to observed Apple9 behavior
+render.isp_zls_pixels	OPEN	Packed depth/stencil dimensions	kernel-interface §6.1	Derive all dimension and edge encodings and validate Z/S access
+render.vdm_ctrl_stream_base	A18-PARTIAL	GPU VA of VDM stream	EXP-0014 EXP-0024	Generate relocatable M4 stream at varied addresses and prove base semantics
+render.vertex_helper.binary	OPEN	Tagged vertex-helper USC address	EXP-0041	Derive tags and execute generated spill helper
+render.vertex_helper.cfg	OPEN	Vertex-helper configuration	EXP-0041	Sweep and derive every live config bit
+render.vertex_helper.data	OPEN	Opaque vertex-helper sideband	EXP-0041	Prove helper SR input and scratch-header pointer meaning
+render.fragment_helper.binary	OPEN	Tagged fragment-helper USC address	EXP-0041	Derive tags and execute generated spill helper
+render.fragment_helper.cfg	OPEN	Fragment-helper configuration	EXP-0041	Sweep and derive every live config bit
+render.fragment_helper.data	OPEN	Opaque fragment-helper sideband	EXP-0041	Prove helper SR input and scratch-header pointer meaning
+render.isp_scissor_base	A18-PARTIAL	GPU VA of scissor-descriptor array	EXP-O2A	Derive complete descriptor array and validate multiple empty and clipped scissors on M4
+render.isp_dbias_base	A18-PARTIAL	GPU VA of depth-bias array	EXP-0019	Derive float/integer array layout indexing and limits on M4
+render.isp_oclqry_base	A18-PARTIAL	GPU VA of occlusion-query result array	EXP-0027	Derive heap slots availability reset and concurrent query rules on M4
+render.depth.base	A18-PARTIAL	Depth surface GPU VA	EXP-0019 EXP-0021	Validate load/store/partial/layer/sample address rules on M4
+render.depth.comp_base	OPEN	Depth compression metadata GPU VA	EXP-0017	Derive compression enable layout sizing and disabled sentinel on M4
+render.depth.stride	OPEN	Byte stride between depth layers	kernel-interface §6.1	Validate unit alignment range and layered addressing on M4
+render.depth.comp_stride	OPEN	Byte stride between depth metadata layers	kernel-interface §6.1	Validate unit alignment range and layered addressing on M4
+render.stencil.base	A18-PARTIAL	Stencil surface GPU VA	EXP-0019 EXP-0021	Validate load/store/partial/layer/sample address rules on M4
+render.stencil.comp_base	OPEN	Stencil compression metadata GPU VA	EXP-0017	Derive compression enable layout sizing and disabled sentinel on M4
+render.stencil.stride	OPEN	Byte stride between stencil layers	kernel-interface §6.1	Validate unit alignment range and layered addressing on M4
+render.stencil.comp_stride	OPEN	Byte stride between stencil metadata layers	kernel-interface §6.1	Validate unit alignment range and layered addressing on M4
+render.zls_ctrl	OPEN	ZLS control register value	mesa-userspace-requirements row ZLS	Decode and synthesize load/store formats tiling compression MSAA layers and partial modes
+render.ppp_multisamplectl	OPEN	PPP sample-position control value	EXP-0021 RT-4	Map client-BO sample pairs to exact mandatory UAPI word and validate 1x/2x/4x
+render.sampler_heap	A18-PARTIAL	Shared VS/FS sampler heap base	EXP-G1a EXP-O2B	Prove heap identity alignment addressing and relocation on M4
+render.ppp_ctrl	OPEN	PPP global control value	kernel-interface §6.1	Decode all required Apple9 bits and interactions on M4
+render.width_px	A18-PARTIAL	Framebuffer width in pixels	EXP-0021	Validate boundary range and tiling effects on M4
+render.height_px	A18-PARTIAL	Framebuffer height in pixels	EXP-0021	Validate boundary range and tiling effects on M4
+render.layers	A18-PARTIAL	Framebuffer layer count	EXP-0028	Validate layered render addressing limits and program ABI on M4
+render.sampler_count	A18-PARTIAL	Number of shared VS/FS samplers	EXP-G1a RT-2a	Validate 0 maximum and out-of-range behavior on M4
+render.utile_width_px	PUBLIC-ONLY	Logical tilebuffer utile width	EXP-0044	Derive Apple9 value from formats/sample size and validate boundary cases
+render.utile_height_px	PUBLIC-ONLY	Logical tilebuffer utile height	EXP-0044	Derive Apple9 value from formats/sample size and validate boundary cases
+render.samples	A18-PARTIAL	Framebuffer sample count 1 2 or 4	EXP-0021 RT-4	Validate exact UAPI-to-hardware mapping and invalid values on M4
+render.sample_size_B	A18-PARTIAL	Tilebuffer bytes per sample	EXP-0021 RT-4	Derive from all attachment combinations and validate limits on M4
+render.isp_merge_upper_x	PUBLIC-ONLY	Float bits for tan(60 degrees) times width	EXP-0044	Validate exact rounding special dimensions and observed hardware consumption
+render.isp_merge_upper_y	PUBLIC-ONLY	Float bits for tan(60 degrees) times height	EXP-0044	Validate exact rounding special dimensions and observed hardware consumption
+render.bg.usc	OPEN	Tagged USC program binding background resources and code	EXP-0044	Generate and run all load/clear BG variants on M4
+render.bg.rsrc_spec	OPEN	Packed BG register/uniform/texture/sampler resource spec	EXP-0044	Derive from generated program resource use and validate limits
+render.eot.usc	OPEN	Tagged USC program binding EOT resources and code	EXP-G1b	Generate and run store/resolve EOT variants on M4
+render.eot.rsrc_spec	OPEN	Packed EOT register/uniform/texture/sampler resource spec	EXP-G1b	Derive from generated program resource use and validate limits
+render.partial_bg.usc	OPEN	Tagged partial-render resume BG program	EXP-0044	Generate force-overflow restore path and validate data contract
+render.partial_bg.rsrc_spec	OPEN	Packed partial-BG resource spec	EXP-0044	Derive from generated program and validate limits
+render.partial_eot.usc	OPEN	Tagged partial-render pause EOT program	EXP-0044	Generate force-overflow save path and validate data contract
+render.partial_eot.rsrc_spec	OPEN	Packed partial-EOT resource spec	EXP-0044	Derive from generated program and validate limits
+render.isp_bgobjdepth	A18-PARTIAL	Depth clear value encoded in surface format	EXP-0019	Validate f32 and unorm16 packing special values and clear behavior on M4
+render.isp_bgobjvals	A18-PARTIAL	Stencil clear value in low eight bits	EXP-0019	Validate reserved bits and clear behavior on M4
+render.ts_vtx.start.handle	A18-PARTIAL	Object handle for vertex-start timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+render.ts_vtx.start.offset	A18-PARTIAL	Byte offset for vertex-start timestamp	EXP-0027	Validate alignment bounds write width and ordering
+render.ts_vtx.end.handle	A18-PARTIAL	Object handle for vertex-end timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+render.ts_vtx.end.offset	A18-PARTIAL	Byte offset for vertex-end timestamp	EXP-0027	Validate alignment bounds write width and ordering
+render.ts_frag.start.handle	A18-PARTIAL	Object handle for fragment-start timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+render.ts_frag.start.offset	A18-PARTIAL	Byte offset for fragment-start timestamp	EXP-0027	Validate alignment bounds write width and ordering
+render.ts_frag.end.handle	A18-PARTIAL	Object handle for fragment-end timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+render.ts_frag.end.offset	A18-PARTIAL	Byte offset for fragment-end timestamp	EXP-0027	Validate alignment bounds write width and ordering
+compute.flags	OPEN	Compute flags must be zero	EXP-0044	Validate MBZ rejection or harmlessness through unchanged UAPI
+compute.sampler_count	A18-PARTIAL	Compute sampler heap population count	EXP-G1a RT-2a	Validate 0 maximum and out-of-range behavior on M4
+compute.cdm_ctrl_stream_base	A18-PARTIAL	GPU VA of CDM stream start	EXP-0024 EXP-0027	Generate relocatable M4 stream at varied addresses and prove base semantics
+compute.cdm_ctrl_stream_end	OPEN	GPU VA of end of first contiguous CDM segment	EXP-0043	Prove exact end convention with links padding multiple dispatches and rollover
+compute.sampler_heap	A18-PARTIAL	Compute sampler heap base	EXP-G1a EXP-O2B	Prove heap identity alignment addressing and relocation on M4
+compute.helper.binary	OPEN	Tagged compute-helper USC address	EXP-0041	Derive tags and execute generated spill helper
+compute.helper.cfg	OPEN	Compute-helper configuration	EXP-0041	Sweep and derive every live config bit
+compute.helper.data	OPEN	Opaque compute-helper sideband	EXP-0041	Prove helper SR input and scratch-header pointer meaning
+compute.ts.start.handle	A18-PARTIAL	Object handle for compute-start timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+compute.ts.start.offset	A18-PARTIAL	Byte offset for compute-start timestamp	EXP-0027	Validate alignment bounds write width and ordering
+compute.ts.end.handle	A18-PARTIAL	Object handle for compute-end timestamp	EXP-0027	Validate optional handle mapping ordering and errors through unchanged UAPI
+compute.ts.end.offset	A18-PARTIAL	Byte offset for compute-end timestamp	EXP-0027	Validate alignment bounds write width and ordering

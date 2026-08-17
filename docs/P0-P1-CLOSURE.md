@@ -30,7 +30,7 @@ cannot close a synthesis gap.
 |---|---|---|---|---|
 | P0.1 | Userspace scratch allocator and VS/FS/CS helper-program ABI | **OPEN** | Helper binary/cfg/data fields; helper SR inputs; scratch BO headers, block lists, buckets, topology mapping, limits and failure behavior; generated helper runs spill and preamble scratch on M4 and A18 | `EXP-0041-scratch-helper-abi` |
 | P0.2 | Graphics shader selection and code-BO handoff through existing `usc_exec_base` | **OPEN** | Multiple coexisting pipelines selected without a new UAPI field; relative-address/tag derivation; complete relocatable block/entry/extent mapping; distinguish HW/FW ABI from Metal bookkeeping | `EXP-0042-graphics-code-selection` |
-| P0.3 | Apple9 value for every existing render/compute UAPI field | **OPEN** | Field-by-field generation table and live tests for flags, ZLS, PPP/sample control, scissor/dbias/query arrays, sampler heap, stream end, timestamps, dimensions and clears | `EXP-0044` baseline; probes queued |
+| P0.3 | Apple9 value for every existing render/compute UAPI field | **OPEN** | Field-by-field generation table and live tests for flags, ZLS, PPP/sample control, scissor/dbias/query arrays, sampler heap, stream end, timestamps, dimensions and clears | `EXP-0044` baseline; exhaustive 65-leaf manifest in `EXP-0045`; probes queued |
 | P0.4 | BG/EOT/partial-BG/partial-EOT programs | **OPEN** | Independently generated authored programs plus tilebuffer ABI, resource spec, tags, format conversion, load/clear/store/resolve, samples/layers, partial and empty-tile behavior | queued |
 | P0.5 | Complete relocatable VDM/CDM/PPP/USC command and state packing | **OPEN** | Machine-readable packet schema; type/length/order/alignment/reserved rules; links/calls/termination/barriers; relocations; multi-command and rollover tests | `EXP-0043-command-stream-framing` |
 | P0.6 | Compiler-ready ISA and opcode property model | **OPEN** | Every supported NIR path can generate semantic operands over legal register/immediate ranges; side-effect/control/scheduling properties; independently generated shader suite runs | queued after current operand audit |
@@ -57,10 +57,13 @@ revision used by the information-gap audit. It confirms that helpers, BG/EOT pro
 resource specifications, command-stream addresses, and render-control values are userspace
 inputs. This is a requirements result, not Apple9 hardware evidence.
 
+`EXP-0045-uapi-field-matrix` recursively expands the embedded UAPI records and checks that
+all 65 queue/render/compute leaves have exactly one explicit closure row. Its baseline has
+30 `OPEN`, 30 `A18-PARTIAL`, and 5 `PUBLIC-ONLY` rows; none is closed by the inventory itself.
+
 ## Completion gate
 
 All sixteen rows must be `CLOSED`, with target-qualified evidence and intact provenance
 chains. The final audit must positively reproduce the claimed generation paths and prove
 that no required field or supported operation depends on captured Apple templates or on
 inspection of Apple's implementation.
-
