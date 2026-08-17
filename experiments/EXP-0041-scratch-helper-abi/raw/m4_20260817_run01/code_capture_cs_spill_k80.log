@@ -1,0 +1,14 @@
+COMMAND ['/opt/homebrew/opt/python@3.14/bin/python3.14', PosixPath('/Users/user/asahi_re/public/agx-re/experiments/EXP-0041-scratch-helper-abi/harness/metadata.py'), '--source', PosixPath('/Users/user/asahi_re/public/agx-re/experiments/EXP-0041-scratch-helper-abi/kernels/cs_spill_k80.metal'), '--stage', 'cs', '--code-dir', PosixPath('/Users/user/asahi_re/public/agx-re/experiments/EXP-0041-scratch-helper-abi/raw/m4_20260817_run01/code_cs_spill_k80')]
+EXIT 0
+STDOUT
+{"archive_retained": false, "compiler_stderr": ["shdump: device = Apple M4", "shdump: functions = k_main", "shdump: chosen function = k_main", "shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024", "shdump: wrote /var/folders/yp/4sxsx2dn78nbdnfcq2_2cxzr0000gn/T/exp0041-prj7fyqi/own_shader.bin"], "own_main_code": {"compute": {"bytes": 1498, "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0041-scratch-helper-abi/raw/m4_20260817_run01/code_cs_spill_k80/compute_agc_main.hex", "provenance": "compiled _agc.main from the named authored source", "sha256": "26a5c0dc9a0ccf2d775184f550c6629c5296ee97b3d759d4dda7e5c8d6ab9135"}}, "source": "experiments/EXP-0041-scratch-helper-abi/kernels/cs_spill_k80.metal", "stages": {"compute": {"all_u32_fields": {"0": 84, "1": 8, "10": 136, "12": 136, "13": 132, "15": 21505, "16": 5505281, "2": 140, "26": 60, "27": 52, "29": 60, "3": 16, "32": 1409351939, "33": 16843521, "4": 132, "6": 136, "8": 136}, "gpr_field_0": 84, "scratch_field_41_or_14": 0}}}
+
+STDERR
+/Users/user/asahi_re/public/agx-re/tools/shdump/shdump.m:125:15: warning: 'setFastMathEnabled:' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+  125 |         [opts setFastMathEnabled:fastMath];
+      |               ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:308:39: note: property 'fastMathEnabled' is declared deprecated here
+  308 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:308:39: note: 'setFastMathEnabled:' has been explicitly marked deprecated here
+1 warning generated.

@@ -1,0 +1,23 @@
+PRE-RUN FAILURE 2026-08-17
+
+Intent: invoke metadata.py under an additional shell-level 100-second watchdog.
+Command shape:
+  timeout 100 python3 experiments/EXP-0041-scratch-helper-abi/harness/metadata.py ...
+Observation (six attempted cases):
+  zsh: command not found: timeout
+Exit: 127 for each attempt; metadata.py was not started.
+Recovery: use run.py, whose subprocess.run calls impose explicit 20/30/45/100
+second timeouts without relying on a host `timeout` executable.
+Hardware work performed: NONE by the failed commands.
+Apple binary introspection: NONE.
+
+PRE-RUN FAILURE 2026-08-17
+
+Intent: validate metadata extraction for CS/VS/FS minimal pairs.
+Observation (six cases): metadata.py raised ValueError at a non-Mach-O `MTLB`
+archive index/wrapper image before reaching the later AppleGPU Mach-O image.
+Recovery: match the established EXP-0020 parser pattern by skipping
+iter_gpu_images entries that are not Mach-O, then continue until cputype is
+AppleGPU. The temporary archives contained only our authored MSL pipelines and
+were deleted automatically by TemporaryDirectory.
+Apple binary introspection: NONE.

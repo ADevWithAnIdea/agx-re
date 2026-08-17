@@ -1,0 +1,31 @@
+METADATA (direct observations from OWN-MSL archive metadata)
+cs_nospill_k72: stage=compute gpr=76 scratchB=0
+cs_spill_k112: stage=compute gpr=95 scratchB=352
+cs_spill_k160: stage=compute gpr=94 scratchB=576
+cs_spill_k80: stage=compute gpr=84 scratchB=0
+cs_spill_k96: stage=compute gpr=96 scratchB=208
+fs_nospill_k72: stage=fragment gpr=75 scratchB=0
+fs_spill_k112: stage=fragment gpr=96 scratchB=336
+vs_nospill_k72: stage=vertex gpr=77 scratchB=0
+vs_spill_k112: stage=vertex gpr=96 scratchB=352
+
+RESOURCE MAP DIFFERENCES (class, GPU VA, bytes; CPU addresses excluded)
+cs_nospill_k72 -> cs_spill_k80: removed=[] added=[]
+cs_nospill_k72 -> cs_spill_k96: removed=[] added=[]
+cs_nospill_k72 -> cs_spill_k112: removed=[] added=[]
+cs_nospill_k72 -> cs_spill_k160: removed=[('AGXAcceleratorG16G', 1099512152064, 32768)] added=[('AGXAcceleratorG16G', 1099512152064, 49152)]
+vs_nospill_k72 -> vs_spill_k112: removed=[('AGXAcceleratorG16G', 1099511744768, 131072)] added=[('AGXAcceleratorG16G', 1099511745280, 131072)]
+fs_nospill_k72 -> fs_spill_k112: removed=[] added=[]
+
+ALLOWLISTED COMMAND/STATE BO DIFFERENCES (never follows pointer values)
+cs_nospill_k72 -> cs_spill_k80 va=0x100000b0000: sizes=32768/32768 ndiff=0 first=[]
+cs_nospill_k72 -> cs_spill_k96 va=0x100000b0000: sizes=32768/32768 ndiff=0 first=[]
+cs_nospill_k72 -> cs_spill_k112 va=0x100000b0000: sizes=32768/32768 ndiff=0 first=[]
+cs_nospill_k72 -> cs_spill_k160 va=0x100000b0000: sizes=32768/32768 ndiff=0 first=[]
+vs_nospill_k72 -> vs_spill_k112 va=0x18000: sizes=32768/32768 ndiff=1 first=['0x11']
+  +0x0010: 0x0000000000000808 -> 0x0000000000000908
+vs_nospill_k72 -> vs_spill_k112 va=0x58000: sizes=32768/32768 ndiff=0 first=[]
+vs_nospill_k72 -> vs_spill_k112 va=0x68000: sizes=35040/35040 ndiff=0 first=[]
+fs_nospill_k72 -> fs_spill_k112 va=0x18000: sizes=32768/32768 ndiff=0 first=[]
+fs_nospill_k72 -> fs_spill_k112 va=0x58000: sizes=32768/32768 ndiff=0 first=[]
+fs_nospill_k72 -> fs_spill_k112 va=0x68000: sizes=35040/35040 ndiff=0 first=[]
