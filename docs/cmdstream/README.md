@@ -102,6 +102,29 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
   - **baseInstance** is **not** in the VDM record (both indexed and non-indexed unchanged when set); it
     reaches the shader via the vertex-attribute path (`0x10000100000+0x8c`) only when the shader
     consumes `[[instance_id]]` — elided otherwise.
+
+### M4 repeated-stream framing and rollover (EXP-0043; bounded partial)
+
+Live M4 repetition/threshold probes add framing facts without promoting them to
+A18. For the tested direct-dispatch shape, each CDM record is 0x2c bytes. A first
+0x8000-byte segment holds 732 records, then `0x40000000`. Adding record 733
+replaces that terminal with `[0x20000100, 0x00158000]`, structurally naming the
+captured continuation at `0x10000158000`; the continuation terminates normally.
+
+For alternating direct non-indexed draws, the four-dword draw command has a
+variable preceding state prefix. A first 0x8000-byte VDM segment holds 328 tested
+draw/state groups, then `0xc0000000`. Draw 329 replaces that terminal with
+`[0x80000000, 0x00088000]`, structurally naming captured continuation VA
+`0x88000`. Runs of 1024 dispatches and 384 draws completed with correct final
+readback across two segments.
+
+Adjacent compute encoders coalesced into one terminated CDM stream in the tested
+case; separate render passes terminated separately; mixed compute/render
+encoders produced separately terminated engine substreams. Treat the link words
+and capacities as **STRUCTURAL** for these exact shapes until mutation/replay.
+General barriers, calls, indirect packets, pool sizing and A18 transfer remain
+open. EXP-0043's verifier restricts evidence to eight explicitly correlated
+command/state/resource VAs; generic all-BO analyses are quarantined.
 - **Viewport** = 4 transform floats @ `0x68000+0x910` (`{w/2, h/2, w/2, −h/2}` — Y-flip) + depth range
   @+0x920/+0x924; pointed to from the VDM.
 - **Attachment descriptor** (`0x10000110000`): **pixel-format code = byte @+0x21** (= sampled byte1; EXP-M4-08 DESC-1 CORRECTS the earlier +0x22, which is the swizzle low byte and only coincided for bgra8). Full format word `(0xf<<28)|(swizzle<<16)|(byte1<<8)|(byte0&~0x20)`, 43/43 formats;

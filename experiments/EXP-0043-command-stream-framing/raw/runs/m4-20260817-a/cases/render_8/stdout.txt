@@ -1,0 +1,9 @@
+DEVICE Apple M4
+CONFIG mode=render count=8 submits=1 alternate=1 pad=0 pad_bytes=4096 size=64x64 dump_final=1 dump_each=0 dump_wait_us=3000000
+VA compute_out      = 0x0000010000030200 le=0002030000010000
+VA vertices         = 0x0000010000030300 le=0003030000010000
+VA render_out       = 0x0000010000058000 le=0080050000010000
+SUBMIT 0 begin
+COMPLETE queue0 status=4 error=NONE
+READBACK submit=0 compute=00000000,00000000 pixel_bgra=6020dfff
+VERDICT completed=1

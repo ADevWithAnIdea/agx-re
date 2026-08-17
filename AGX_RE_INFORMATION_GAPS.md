@@ -121,6 +121,13 @@ Still missing or insufficiently mapped:
 
 Every field needs an authoritative “userspace value -> kernel marshaling -> observed Apple9 behavior” test. The present work mostly traces the macOS side and extrapolates the Linux contract.
 
+**M4 interim evidence (EXP-0043, still open):** for the tested direct-dispatch
+shape, 732 contiguous 0x2c CDM records are followed by `0x40000000`; record 733
+replaces that terminal with a two-word link to a second captured segment, whose
+last record terminates normally. This locates the stream end and rollover
+boundary on macOS but does not yet establish how Linux must populate
+`cdm_ctrl_stream_end` for arbitrary linked pools.
+
 ### P0.4 Background, end-of-tile, and partial-render programs are not specified
 
 The unchanged UAPI requires userspace to provide four `drm_asahi_bg_eot` records: BG, EOT, partial BG, and partial EOT. Each includes a tagged USC program address and a packed resource specifier.
@@ -159,6 +166,17 @@ Missing command/state information includes:
 - Exact indirect global/local dispatch modes and barrier forms; the current “Open items” section still carries these gaps even though some earlier direct-dispatch fields were later resolved.
 
 Captured fixed templates may bring up one workload but are not a sufficient basis for a general packer.
+
+**M4 interim evidence (EXP-0043, bounded partial):** 22 successful live cases
+establish 0x2c CDM repetition and `0x40000000` termination, variable-prefix VDM
+draw repetition and `0xc0000000` termination, plus exact rollover for the tested
+shapes. CDM record 733 replaces the first-segment terminal with
+`[0x20000100, 0x00158000]` naming captured VA `0x10000158000`; VDM draw 329
+similarly emits `[0x80000000, 0x00088000]` naming VA `0x88000`. The 1024-dispatch
+and 384-draw cases completed across both segments. Link packing remains
+STRUCTURAL until controlled mutation/replay, and no general pool-capacity,
+barrier, call, indirect, PPP/USC, or A18 rule is claimed. Generic all-BO analyses
+were quarantined; conclusions use only an eight-VA explicit evidence allowlist.
 
 ### P0.6 The ISA database is a disassembly/tokenization database, not yet a compiler-ready encoding specification
 
