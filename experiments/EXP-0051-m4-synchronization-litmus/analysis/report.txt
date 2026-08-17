@@ -1,0 +1,14 @@
+EXP-0051 strict authored-output analysis
+OBSERVATIONS
+- Both runs used identical input hashes and an identical 70,392-byte runner binary (SHA-256 839fb7ae55cce23b7768e016cfd58a2e07c59f4fa4385013678c9ed675ba4f2e).
+- All six barrier/scope cases checked 65,536 asymmetric peer values per run with zero mismatches, including both deliberately under-scoped controls.
+- Same-threadgroup publication completed 16,384 messages per case/run; cross-threadgroup publication completed 8,192 per case/run. Relaxed and fenced cases all had zero payload mismatch or timeout.
+- Nine producer-before-consumer API/CPU cases each validated 128 epochs and 524,288 words per run with no mismatch or command error.
+- Unsynchronized consumer-first two-queue run01: good=0 bad=128 stale_words=524288; run02: good=1 bad=127 stale_words=520192.
+- Atomic relaxed RMW and device-scope seq-cst fence compiled, created pipelines, and executed. Acquire-load/release-store, acquire-release RMW, and release fence identifiers were rejected in both runs.
+
+INTERPRETATION
+- Correct barrier/API cases satisfy their bounded live M4 litmus. Passing wrong-scope, mem_none, relaxed, or no-explicit-barrier controls does not establish a portable guarantee; coherence and scheduling can hide a race.
+- The unsynchronized two-queue variability (0 then 1 good epoch) demonstrates absent deterministic inter-queue order. CPU wait and shared-event cases establish the tested runtime ordering boundaries.
+- Compile rejection establishes only this Metal language/runtime exposure. It does not imply that Apple9 lacks native acquire/release encodings.
+- Results combine compiler, Metal runtime, command processing, scheduling, and cache policy. No isolated native instruction or Linux UAPI barrier semantics were tested.

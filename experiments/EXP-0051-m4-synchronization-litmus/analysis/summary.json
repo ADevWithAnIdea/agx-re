@@ -1,0 +1,302 @@
+{
+  "barriers": {
+    "simd_mem_threadgroup": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    },
+    "tg_device_mem_both": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    },
+    "tg_device_mem_device": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    },
+    "tg_device_mem_wrong_class": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    },
+    "tg_mem_none": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    },
+    "tg_mem_threadgroup": {
+      "checked": "65536",
+      "command_errors": "0",
+      "first_key": "0xffffffff",
+      "mismatch": "0",
+      "observed": "0x00000000"
+    }
+  },
+  "compile_exposure": {
+    "atomic_load_acquire_store_release.metal": {
+      "accepted": "0",
+      "executed": "0",
+      "pipeline": "0"
+    },
+    "atomic_rmw_acq_rel.metal": {
+      "accepted": "0",
+      "executed": "0",
+      "pipeline": "0"
+    },
+    "atomic_rmw_relaxed.metal": {
+      "accepted": "1",
+      "executed": "1",
+      "flag": "0x00000002",
+      "out0": "0x00000000",
+      "out1": "0x00000001",
+      "pipeline": "1"
+    },
+    "fence_release_device.metal": {
+      "accepted": "0",
+      "executed": "0",
+      "pipeline": "0"
+    },
+    "fence_seq_cst_device.metal": {
+      "accepted": "1",
+      "executed": "1",
+      "flag": "0x00000002",
+      "out0": "0xa5000000",
+      "out1": "0xa5000001",
+      "pipeline": "1"
+    }
+  },
+  "exact_input_hashes": {
+    "PRE_REGISTRATION.md": "941eb45f744f6a08b19037cfd147810954fb7365466355f50e1ad652da0d2cec",
+    "harness/litmus.m": "2deff32865980af11b4246e21f7f966be7b1e89b36cf4e860fbc5b5d8add71f8",
+    "kernels/compile_probes/atomic_load_acquire_store_release.metal": "8dbb6096d5e0f75fbc1bbd31329b0a0fd82cb994e25148bd8bb890f21142b6ea",
+    "kernels/compile_probes/atomic_rmw_acq_rel.metal": "f052ec763be365be1b63aa8fd4bc22dd9ff51c20b0c5deb771538f32f0e3e61a",
+    "kernels/compile_probes/atomic_rmw_relaxed.metal": "d8553aa09733221f06fd8c1c2373860439b85bdafd25be43f7ea1cee772dbae3",
+    "kernels/compile_probes/fence_release_device.metal": "f68e51d50b19db24e4ac11bc3d19ecb23673264ca489447edee24e0e93d047f7",
+    "kernels/compile_probes/fence_seq_cst_device.metal": "e55db34d916784fb838c98c2a45b6ebdd062b22d4780b2afdb9b2c2cc6975b0a",
+    "kernels/litmus.metal": "e4de02a6c54c963ff425564239bcd858a694783b2e9be95f930b40fd411a971e",
+    "run.py": "41422d7c8e574986114ff631f619d055abc8d9d1ffa001c35e47fff7762ce0e1"
+  },
+  "messages": {
+    "msg_cross_fence_device": {
+      "command_errors": "0",
+      "completed": "8192",
+      "consumer_timeouts": "0",
+      "expected": "8192",
+      "iterations": "8192",
+      "mismatch_words": "0",
+      "producer_timeouts": "0",
+      "topology": "cross_threadgroup"
+    },
+    "msg_cross_relaxed": {
+      "command_errors": "0",
+      "completed": "8192",
+      "consumer_timeouts": "0",
+      "expected": "8192",
+      "iterations": "8192",
+      "mismatch_words": "0",
+      "producer_timeouts": "0",
+      "topology": "cross_threadgroup"
+    },
+    "msg_tg_fence_device": {
+      "command_errors": "0",
+      "completed": "16384",
+      "consumer_timeouts": "0",
+      "expected": "16384",
+      "iterations": "256",
+      "mismatch_words": "0",
+      "producer_timeouts": "0",
+      "topology": "same_threadgroup"
+    },
+    "msg_tg_fence_tgscope": {
+      "command_errors": "0",
+      "completed": "16384",
+      "consumer_timeouts": "0",
+      "expected": "16384",
+      "iterations": "256",
+      "mismatch_words": "0",
+      "producer_timeouts": "0",
+      "topology": "same_threadgroup"
+    },
+    "msg_tg_relaxed": {
+      "command_errors": "0",
+      "completed": "16384",
+      "consumer_timeouts": "0",
+      "expected": "16384",
+      "iterations": "256",
+      "mismatch_words": "0",
+      "producer_timeouts": "0",
+      "topology": "same_threadgroup"
+    }
+  },
+  "ordered_api_cases": {
+    "adjacent_compute_encoders": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "cpu_write_to_gpu_after_commit_wait": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "gpu_write_to_cpu_after_completion_wait": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "same_encoder_buffer_barrier": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "same_encoder_no_explicit_barrier": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "same_queue_two_cb_cpu_wait": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "same_queue_two_cb_no_cpu_wait": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "two_queue_cpu_wait": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    },
+    "two_queue_shared_event": {
+      "bad": "0",
+      "command_errors": "0",
+      "first_epoch": "4294967295",
+      "first_got": "0x00000000",
+      "first_index": "4294967295",
+      "first_want": "0x00000000",
+      "good": "128",
+      "initial_source_words": "0",
+      "mismatch_words": "0",
+      "trials": "128",
+      "words": "524288"
+    }
+  },
+  "preregistration_sha256": "941eb45f744f6a08b19037cfd147810954fb7365466355f50e1ad652da0d2cec",
+  "runner": {
+    "bytes": 70392,
+    "path": "work/m4_20260817_run01/litmus",
+    "sha256": "839fb7ae55cce23b7768e016cfd58a2e07c59f4fa4385013678c9ed675ba4f2e"
+  },
+  "runs": [
+    "m4_20260817_run01",
+    "m4_20260817_run02"
+  ],
+  "scope": "local Apple M4/G16G Metal path only; no native-instruction, Vulkan/GL, Linux UAPI, or A18 claim",
+  "unsynchronized_two_queue": [
+    {
+      "bad": 128,
+      "command_errors": 0,
+      "first_epoch": 1,
+      "first_got": 3490512897,
+      "first_index": 0,
+      "first_want": 270537591,
+      "good": 0,
+      "initial_source_words": 524288,
+      "mismatch_words": 524288,
+      "run": "m4_20260817_run01",
+      "trials": 128,
+      "words": 524288
+    },
+    {
+      "bad": 127,
+      "command_errors": 0,
+      "first_epoch": 1,
+      "first_got": 3490512897,
+      "first_index": 0,
+      "first_want": 270537591,
+      "good": 1,
+      "initial_source_words": 520192,
+      "mismatch_words": 520192,
+      "run": "m4_20260817_run02",
+      "trials": 128,
+      "words": 524288
+    }
+  ]
+}
