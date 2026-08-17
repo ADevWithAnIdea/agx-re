@@ -48,7 +48,7 @@ cannot close a synthesis gap.
 | P1.5 | Robustness, sparse residency and VM conventions | **OPEN** | Runtime limits; USC window; OOB behavior; guard/zero/scratch mappings; sparse page/folio/miptail/alias/sync rules; BO constraints | VM/robustness/sparse suite |
 | P1.6 | Complete query and timestamp semantics | **OPEN** | Heap layout, allocation/reset/availability/copy; stage ordering; frequency/wrap/calibration; statistics fallback | query/timestamp suite |
 | P1.7 | Indirect and device-generated commands | **OPEN** | Direct/indirect CDM modes; multi-draw/dispatch/count/restart/bounds; writable command grammar, validation and cache transitions | DGC/indirect suite |
-| P1.8 | Conformance numerical, rasterization and limits | **OPEN** | Floating/integer corner cases, interpolation, raster/depth/sample rules, side effects/helper interaction, and driver-facing hard limits | conformance behavior suite |
+| P1.8 | Conformance numerical, rasterization and limits | **OPEN** (M4 numerical source-path partial) | EXP-0047 bounds fp32/fp16 subnormal, qNaN/minmax, signed-zero and rounding behavior for ten authored M4 Metal paths; still need native-op isolation, A18 replication, full floating/integer/raster/depth/sample/helper/limit coverage | `EXP-0047-m4-numerical-behavior` + remaining conformance suite |
 
 ## Public UAPI baseline
 

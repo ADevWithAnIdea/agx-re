@@ -438,7 +438,14 @@ DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless not
 - **Transcendental/round group** (`0x2f`/`0xaf`, 10B): exp2/log2/floor/ceil/trunc/rint, with a
   **round-mode field at byte+8** (0 nearest, 2 floor, 4 ceil, 6 trunc). frcp/frsqrt/fsqrt/fsin/fcos are
   **multi-instruction Newton-Raphson** (0x29 estimate seed) — ⏳ follow-up.
-- **fmin/fmax** (`0x12`, 6B): byte+4 bit0 = min/max; IEEE minNum/maxNum (returns the non-NaN operand).
+- **fmin/fmax** (`0x12`, 6B): byte+4 bit0 = min/max. A18 EXP-0013 and
+  M4 EXP-0047 compiler-emitted source paths both return the numeric operand for
+  tested one-qNaN cases. A18 tested `fmax` and M4 tested both `fmin`/`fmax`
+  selecting operand B for signed-zero ties; M4 additionally shows operand-B
+  selection for the tested effectively-equal subnormal and both-qNaN cases.
+  The prior universal “IEEE minNum/maxNum” shorthand was too strong. The M4
+  edge matrix is source-path evidence, not an
+  isolated native-op semantic proof.
 - **Bitwise** (`ilogic`, `0x0b`): a **full 2-input LUT covering all 16 boolean functions** (selectors
   byte+2 + byte+4/+5 inverts) — covers every Vulkan/GL logic op. See `../hypotheses.md`.
 - **Shifts:** arithmetic `>>` imm = `0xa7` 10B (amount = byte+6>>2); logical `>>` imm = `0xa7` 12B

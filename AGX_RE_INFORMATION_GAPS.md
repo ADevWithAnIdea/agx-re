@@ -322,6 +322,15 @@ Needed:
 
 ### P1.8 Conformance-relevant numerical and rasterization behavior is under-characterized
 
+`EXP-0047-m4-numerical-behavior` supplies a narrow M4/G16G source-path baseline:
+two exact repeats of authored no-fast-math Metal kernels show DAZ/FTZ-like fp32
+add/multiply behavior, preserved representable fp16 add/multiply subnormals,
+operand-B selection for tested equal/both-quiet-NaN min/max cases, and the tested
+`rint` ties-even / `round` ties-away behavior. Raw-bit identity controls exclude
+buffer transport as the source of the subnormal result. This is compiler-emitted
+Metal-path evidence, not independently generated native-instruction semantics,
+not A18 validation, and not conformance closure.
+
 Needed for honest Vulkan/GL capability advertising:
 
 - Float16/float32 rounding, denorm, NaN, signed-zero, conversion, min/max, reciprocal/transcendental accuracy, and integer overflow/shift rules.

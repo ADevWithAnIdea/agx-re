@@ -74,8 +74,8 @@ encoding AND `PROVENANCE.md` shows it was HW-exercised. "Metal accepts it" or "a
 | Free FP16↔FP32 convert | WWDC "conversion costs nothing"; MSL §8.6 | `0x11` (f32→f16); f16→f32 = falu2 16-bit srcA; `as_type` = no op | native-decoded | `isa` EXP-0013 |
 | int↔float convert (RTZ f→i) | MSL §8.6 (A6) | instruction `0x27` (f→i, RTZ), `0xa7` (i→f); sign byte+7 bit6 | native-decoded | `isa` EXP-0013 |
 | int↔uint / bit-reinterpret | MSL §2.22 (A6) | no instruction (free) | native-decoded | `isa` EXP-0013 |
-| min/max (int & float) | MSL §6.3/§6.5 (A3) | instruction `0x02` (int), `0x12` (float, IEEE minNum/maxNum) | native-decoded | `isa` EXP-0007/0013 |
-| Float round modes (floor/ceil/trunc/rint) | GL/Vulkan; MSL §6.5 | instruction `0x2f/0xaf` round-mode field byte+8 (0/2/4/6) | native-decoded | `isa` EXP-0013; `hypotheses` #2 |
+| min/max (int & float) | MSL §6.3/§6.5 (A3) | instruction `0x02` (int), `0x12` (float); A18/M4 source paths return numeric for tested one-qNaN; A18 `fmax` and M4 `fmin`/`fmax` select operand B on tested signed-zero ties; M4 also tested both-qNaN/subnormal ties | native-decoded; edge semantics partial | `isa` EXP-0007/0013; EXP-0047 M4 source-path controls |
+| Float round modes (floor/ceil/trunc/rint) | GL/Vulkan; MSL §6.5 | instruction `0x2f/0xaf` round-mode field byte+8 (0/2/4/6); M4 source paths test `rint` ties-even and compiled `round` ties-away | native-decoded; conformance semantics partial | `isa` EXP-0013; `hypotheses` #2; EXP-0047 |
 | exp2 / log2 | MSL §6.5 (A5) | instruction `0x2f/0xaf` SFU single op | native-decoded | `isa` EXP-0013/0026 |
 | Typed compare (float/sint/uint) → select | MSL §6.4 (A8) | instruction `0x12` icmpsel, type bits[1:3] byte+6 | native-decoded | `isa` EXP-0013; `hypotheses` #3 |
 | select / ternary / csel | MSL §6.4 (A8) | instruction `0x05`/`0x16` (4B) select | native-decoded | `isa` "Control flow" EXP-0010 |

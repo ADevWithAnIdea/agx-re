@@ -115,6 +115,11 @@ inserts hazard synchronization, and stitches prolog/main/epilog.
   `rt_intersect` (low-nibble `0x4`/byte+1 `0xea`), `rt_as_load` `0xdf`, `0x5f`; fragment `iter`
   `0x2f`/`0x1f` + `frag_color_store` `0xe7/06` + `tile_read` `0x67/0e`. A broad-corpus byte0 census
   tokenizes **~88%** of bytes with **no whole undecoded family remaining**.
+- **Numerical edge behavior is not closed:** EXP-0047 provides a repeatable M4
+  no-fast-math Metal source-path baseline (fp32 DAZ/FTZ-like add/mul, preserved
+  tested fp16 subnormals, operand-B min/max ties, tested rounding rules). Do not
+  treat it as native-instruction semantics or promote it to A18; retain the
+  relevant NIR lowerings until independent native-op and A18 tests pass.
 - **Transcendental / trig lowering** (`isa/README.md` "Transcendentals", EXP-0026): SFU group
   `0x2f`/`0xaf` computes rcp/rsqrt/exp2/log2/sqrt/round as **single ops** (fast-math); precise mode
   uses a `0x29` ~8-bit estimate seed + **2 Newton-Raphson iterations**. Composites: `pow =
