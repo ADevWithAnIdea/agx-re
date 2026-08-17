@@ -1,0 +1,243 @@
+{
+  "aggregate": {
+    "all_calibration_monotonic": true,
+    "all_cpu_gpu_pairs_exact": true,
+    "all_precommit_and_postcommit_prewait_zero": true,
+    "all_repeat_heavy_gt_light": true,
+    "all_stage_samples_nonzero_and_ordered": true,
+    "calibration_intervals": 128,
+    "completed_commands": 26,
+    "heavy_fragment_ns": [
+      107584,
+      297166,
+      110625,
+      107791,
+      107917,
+      112083,
+      107541,
+      110709,
+      111833,
+      112416
+    ],
+    "light_fragment_ns": [
+      5375,
+      5083,
+      5541,
+      6791,
+      5625,
+      5125,
+      6500,
+      6583,
+      6750,
+      5542
+    ],
+    "pixels": [
+      "5340bfff",
+      "5340bfff"
+    ],
+    "repeat_pairs": 10,
+    "stage_passes": 28,
+    "timestamp_pair_calls": 256,
+    "two_pass_boundary_delta_ns": [
+      -500,
+      -1000
+    ]
+  },
+  "canonical_runs": [
+    "m4_20260817_run03",
+    "m4_20260817_run04"
+  ],
+  "experiment": "EXP-0052-m4-timestamp-semantics",
+  "hypotheses": {
+    "H1": "SUPPORTED on tested M4 public API path",
+    "H2": "SUPPORTED for all ten matched warm repeat pairs",
+    "H3": "FALSIFIED: adjacent render-pass stage ranges overlap at boundary",
+    "H4": "REFINED: pre-commit and immediate post-commit/pre-wait resolves were zero; completion status at the latter resolve was not sampled",
+    "H5": "SUPPORTED only for public resolve payload shape"
+  },
+  "preserved_failed_runs": [
+    {
+      "exit": -10,
+      "gpu_probe_completed_before_harness_fault": false,
+      "last_stdout_line": "",
+      "reason": "authored full-texture readback into four-byte stack buffer",
+      "run": "m4_20260817_run01"
+    },
+    {
+      "exit": -10,
+      "gpu_probe_completed_before_harness_fault": true,
+      "last_stdout_line": "SAMPLES post-pair-4 base=48 count=8 v0=427709528689625 v1=427709528696250 v2=427709528706583 v3=427709528714208 v4=427709529465208 v5=427709529471958 v6=427709529480875 v7=427709529594500",
+      "reason": "authored full-texture readback into four-byte stack buffer",
+      "run": "m4_20260817_run02"
+    }
+  ],
+  "runs": [
+    {
+      "all_repeat_heavy_gt_light": true,
+      "all_stage_samples_nonzero": true,
+      "all_within_pass_ordered": true,
+      "calibration_intervals": 64,
+      "completed_commands": 13,
+      "cpu_gpu_delta_error_ns": [
+        0
+      ],
+      "cpu_gpu_offsets_ns": [
+        0
+      ],
+      "cpu_monotonic": true,
+      "gpu_monotonic": true,
+      "pixel": "5340bfff",
+      "postcommit_prewait_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "precommit_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "raw_postcommit_label": "in-flight (historical label; status was not sampled)",
+      "repeat_pairs": [
+        {
+          "heavy_fragment_ns": 107584,
+          "light_fragment_ns": 5375
+        },
+        {
+          "heavy_fragment_ns": 297166,
+          "light_fragment_ns": 5083
+        },
+        {
+          "heavy_fragment_ns": 110625,
+          "light_fragment_ns": 5541
+        },
+        {
+          "heavy_fragment_ns": 107791,
+          "light_fragment_ns": 6791
+        },
+        {
+          "heavy_fragment_ns": 107917,
+          "light_fragment_ns": 5625
+        }
+      ],
+      "resolved_value_counts": {
+        "in-flight": 4,
+        "post-heavy": 4,
+        "post-light": 4,
+        "post-pair-0": 8,
+        "post-pair-1": 8,
+        "post-pair-2": 8,
+        "post-pair-3": 8,
+        "post-pair-4": 8,
+        "post-two-pass": 8,
+        "pre-commit": 4
+      },
+      "run": "m4_20260817_run03",
+      "stage_passes": 14,
+      "timestamp_pair_calls": 128,
+      "two_pass_boundary_delta_ns": -500,
+      "two_pass_first_range": [
+        427790306963791,
+        427790306970333,
+        427790306978625,
+        427790306985333
+      ],
+      "two_pass_second_range": [
+        427790306984833,
+        427790306988750,
+        427790307008583,
+        427790307116541
+      ]
+    },
+    {
+      "all_repeat_heavy_gt_light": true,
+      "all_stage_samples_nonzero": true,
+      "all_within_pass_ordered": true,
+      "calibration_intervals": 64,
+      "completed_commands": 13,
+      "cpu_gpu_delta_error_ns": [
+        0
+      ],
+      "cpu_gpu_offsets_ns": [
+        0
+      ],
+      "cpu_monotonic": true,
+      "gpu_monotonic": true,
+      "pixel": "5340bfff",
+      "postcommit_prewait_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "precommit_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "raw_postcommit_label": "in-flight (historical label; status was not sampled)",
+      "repeat_pairs": [
+        {
+          "heavy_fragment_ns": 112083,
+          "light_fragment_ns": 5125
+        },
+        {
+          "heavy_fragment_ns": 107541,
+          "light_fragment_ns": 6500
+        },
+        {
+          "heavy_fragment_ns": 110709,
+          "light_fragment_ns": 6583
+        },
+        {
+          "heavy_fragment_ns": 111833,
+          "light_fragment_ns": 6750
+        },
+        {
+          "heavy_fragment_ns": 112416,
+          "light_fragment_ns": 5542
+        }
+      ],
+      "resolved_value_counts": {
+        "in-flight": 4,
+        "post-heavy": 4,
+        "post-light": 4,
+        "post-pair-0": 8,
+        "post-pair-1": 8,
+        "post-pair-2": 8,
+        "post-pair-3": 8,
+        "post-pair-4": 8,
+        "post-two-pass": 8,
+        "pre-commit": 4
+      },
+      "run": "m4_20260817_run04",
+      "stage_passes": 14,
+      "timestamp_pair_calls": 128,
+      "two_pass_boundary_delta_ns": -1000,
+      "two_pass_first_range": [
+        427790882072208,
+        427790882076333,
+        427790882080291,
+        427790882085208
+      ],
+      "two_pass_second_range": [
+        427790882084208,
+        427790882087458,
+        427790882098458,
+        427790882206041
+      ]
+    }
+  ],
+  "schema": 1,
+  "scope": {
+    "a18_pro": "UNTESTED",
+    "apple_binary_introspection": "NONE",
+    "compiled_shader_bytes_inspected": "NONE",
+    "linux_uapi_mapping": "NOT ESTABLISHED",
+    "private_counter_bo": "NOT INSPECTED",
+    "target": "Apple M4/G16G-class only"
+  }
+}
