@@ -483,10 +483,12 @@ These are observable only via throughput/occupancy microbenchmarks + Xcode count
 use the *static* model that **is** decoded (96 GPRs, spill threshold, peak-pressure occupancy tier) — it
 is correct; the dynamic curves are performance-only (wrong = slow, not broken).
 
-**Kernel-side open items** (`kernel-interface.md` §8): the exact CPU→GPU doorbell store, the
-3-segment (load/render/store) attachment grammar + store-program id `0x6f`, and the raw accel-node
-config values (`num_gps`/`num_frags`/`is_sksm`) are firmware/kernel questions to close with the
-kernel team — they do not block userspace bring-up.
+**Cross-boundary open items** (`kernel-interface.md` §8): the exact CPU→GPU doorbell store, the
+3-segment (load/render/store) attachment grammar + observed single-RT value `0x6f`, and the raw
+accel-node config values (`num_gps`/`num_frags`/`is_sksm`) still need ownership and marshaling proof.
+EXP-0048 leaves `0x6f` meaning/ownership unknown and finds no BG/EOT tag/resource ABI in its bounded
+M4 allowlist. Do not classify these values as kernel/firmware-managed from absence in a macOS capture;
+the unchanged UAPI's userspace BG/EOT obligations block a complete bring-up until satisfied.
 
 ---
 

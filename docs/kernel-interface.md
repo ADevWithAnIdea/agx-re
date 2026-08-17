@@ -340,7 +340,9 @@ Faithfully carried from the source docs — do not treat as decided:
 - **The 3-segment (load/render/store) attachment grammar** and the **store-program id `0x6f`** are
   only partially decoded — where the ZLS/store split lands between the userspace attachment
   descriptor and the kernel `zls_ctrl` field needs the segment grammar finished
-  (`cmdstream`/`pipeline` open items; `GAP-ANALYSIS-01.md` magic-value list).
+  (`cmdstream`/`pipeline` open items; `GAP-ANALYSIS-01.md` magic-value list). EXP-0048 observes
+  the prior fixed single-RT slot as zero in its relocated MRT array and does not establish
+  `0x6f` ownership. Do not infer firmware ownership from that negative macOS boundary result.
 - **BVH node format** and the RT "reorder" stage are firmware-owned and undocumented by design
   (`isa/README.md` EXP-0023 follow-ups).
 - **Raw accel-node config values** `num_gps=2`, `num_frags=6`, `is_sksm=1`,

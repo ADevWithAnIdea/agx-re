@@ -1,0 +1,31 @@
+EXP-0048 strict fixed-allowlist analysis
+OBSERVATIONS
+- 12/12 cases completed in both runs; 48 allowlisted state comparisons are byte-identical across runs.
+- Empty Clear/Store RT0,RT1: 20406080,a06030c0; empty Load/Store: 402010ff,101820ff (initialized bytes).
+- BGRA8 physical bytes bf804080; sRGB 89bce180; R32Float 0000803e; R32Uint 25000000; all uniform.
+- Atomic case counter=1024; color bytes equal the non-atomic RGBA8 baseline.
+- Blend control bytes=4080bf80; blend bytes=405068bf; PBE array is byte-identical; only fixed-state +0x53 changes 00->20.
+- Draw Clear/Store -> Load/Store control: only fixed-state +0x14 changes 19->10.
+- Clear/Store -> Clear/StoreDontCare: only fixed-state +0x14 changes 19->20; PBE records retain the same surface fields.
+- Empty Clear/Store and empty Load/Store have byte-identical contents in all four allowlisted state BOs despite different target results.
+- Clear/Store draw and DontCare/Store draw also have byte-identical allowlisted state and the same fully covered target result.
+- The prior single-RT +0x8c4 program-ID slot is zero in this relocated MRT array for every case.
+
+Descriptor records (run01; run02 exact):
+- rgba8-clear-store-draw: LOAD0 0xf6880a02 0x00007c01 0x00006000 0x0003c010; STORE0 0x1fe40a02 0x000007c0 0x00006000 0x0000f010; LOAD1 0xf6880a02 0x00007c01 0x00006800 0x0003c010; STORE1 0x1fe40a02 0x000007c0 0x00006800 0x0000f010
+- bgra8-clear-store-draw: LOAD0 0xf60a0a02 0x00007c01 0x00006000 0x0003c010; STORE0 0x1fc60a02 0x000007c0 0x00006000 0x0000f010; LOAD1 0xf6880a02 0x00007c01 0x00006800 0x0003c010; STORE1 0x1fe40a02 0x000007c0 0x00006800 0x0000f010
+- rgba8srgb-clear-store-draw: LOAD0 0xf6880a02 0x00007c01 0x00006000 0x0003d010; STORE0 0x1fe40a02 0x000007c0 0x00006000 0x2000f010; LOAD1 0xf6880a02 0x00007c01 0x00006800 0x0003c010; STORE1 0x1fe40a02 0x000007c0 0x00006800 0x0000f010
+- r32f-clear-store-draw: LOAD0 0xf9688842 0x00007c01 0x00006000 0x0003c010; STORE0 0x1f008842 0x000007c0 0x00006000 0x0000f010; LOAD1 0xf6880a02 0x00007c01 0x00006800 0x0003c010; STORE1 0x1fe40a02 0x000007c0 0x00006800 0x0000f010
+- r32u-clear-store-draw: LOAD0 0xf9684842 0x00007c01 0x00006000 0x0003c010; STORE0 0x1f004842 0x000007c0 0x00006000 0x0000f010; LOAD1 0xf6880a02 0x00007c01 0x00006800 0x0003c010; STORE1 0x1fe40a02 0x000007c0 0x00006800 0x0000f010
+- mixed-r32f-clear-store: LOAD0 0xf6880a02 0x00007c01 0x00006000 0x0003c010; STORE0 0x1fe40a02 0x000007c0 0x00006000 0x0000f010; LOAD1 0xf9688842 0x00007c01 0x00006800 0x0003c010; STORE1 0x1f008842 0x000007c0 0x00006800 0x0000f010
+
+STRUCTURAL INTERPRETATIONS (not directly observed field names)
+- STORE word0 high byte=31 and word1>>6=31 for every case, independently matching width-1 and height-1 for 32x32.
+- The low 40 bits of the packed qword at record +0x08, shifted left four, reconstruct each authored RT buffer GPU VA; its upper 24 bits are therefore reported only as a packed resource/control field.
+- RGBA/BGRA and float/uint cases produce stable distinct low-24 format/component values. sRGB instead retains RGBA8 low-24 values and changes the packed upper control field (LOAD 0x0003c0->0x0003d0; STORE 0x0000f0->0x2000f0).
+- +0x58014 is an action/path selector candidate, not a decoded field: it is 0x19 for drawn Clear/Store and DontCare/Store, 0x10 for drawn Load/Store, 0x20 for Clear/StoreDontCare, and 0x00 for both empty passes.
+- +0x58053 bit 0x20 is independently attributable to blending in this matrix. The atomic case changes other fixed/VDM state but not PBE identity.
+
+NEGATIVE BOUNDARY
+- No BG/EOT tagged program address, resource-spec bit layout, or program-ID ownership is identified. Action behavior can change while the relocated PBE array remains identical, so those ABI fields are outside or not distinguishable within this allowlist.
+- No partial render, MSAA/resolve, layer/mip, memoryless, compression, depth/stencil, or A18 behavior was exercised.

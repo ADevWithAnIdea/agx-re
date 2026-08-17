@@ -113,6 +113,14 @@ A texture bound `access::write`/`read_write` uses a **distinct 32-byte "PBE" des
 - **PBE width/height reach the full 14 bits** (EXP-M4-08 DESC-7): width−1 = word0[24:31]‖word1[0:5]
   HW-validated to **16384** (16384×4); height−1 = word1[6:19] to **16384** (4×16384). The width-high
   field (word1[0:5]), previously *inferred* (EXP-G1b tested ≤256), is now HW-validated.
+- **MRT live-control cross-check (EXP-0048, M4):** two exact repetitions place
+  LOAD records at `0x10000018200+0x20+k·0x20` and STORE/PBE records at
+  `+0x220+k·0x20` for RGBA8, BGRA8, sRGB, R32Float, R32Uint and mixed MRT.
+  For the tested records, low 40 bits of the qword at `+0x08`, shifted left four,
+  reconstruct the exact authored target VA. sRGB retains RGBA8's low-24 format
+  value but changes the opaque upper packed control. Load/store action and blend
+  controls leave the PBE arena unchanged; these controls do not decode the
+  remaining upper field or establish a Linux packing rule.
 
 ## Render-target attachment format word (EXP-M4-08 DESC-1) — derived from the sampled codes
 
@@ -144,4 +152,3 @@ PBE component byte (r=`0x00`, rg=`0x04`, rgba=`0xe4`, bgra=`0xc6`).
 (rgba32*) relocate the whole attachment to the tiler heap `0x10000018200` / `0x10000120000`, but the
 **format-word values are identical** to the formula — so every renderable format's attachment word is
 derivable; only the BO it lands in changes with imageblock size.
-

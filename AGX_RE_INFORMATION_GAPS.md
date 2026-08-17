@@ -132,6 +132,14 @@ boundary on macOS but does not yet establish how Linux must populate
 
 The unchanged UAPI requires userspace to provide four `drm_asahi_bg_eot` records: BG, EOT, partial BG, and partial EOT. Each includes a tagged USC program address and a packed resource specifier.
 
+**M4 interim evidence (EXP-0048, still open):** two exact repetitions show
+that an empty 32x32 two-attachment Clear/Store pass writes the requested clear
+bytes and an empty Load/Store pass preserves initialized bytes. Yet those two
+passes are byte-identical in all four explicitly allowlisted command/state BOs.
+No tagged BG/EOT address, resource specification, callable program ABI, or
+`0x6f` ownership was located. This bounds observable behavior and the macOS
+capture surface; it does not construct any UAPI-required program.
+
 The RE describes the high-level load/render/store attachment chain, but it does not provide enough information to construct all four programs for arbitrary render-pass state. Missing:
 
 - The BG/EOT shader ABI, inputs, outputs, tilebuffer addressing, sample/layer handling, and invocation rules.
@@ -251,11 +259,22 @@ This can be independently implemented rather than copied from Apple's microprogr
 
 The later 46-format attachment-word sweep is strong, and PBE dimensions/base/stride are known. The full 32-byte PBE/storage descriptor and the three 0x300-byte load/render/store structures are not fully specified.
 
+EXP-0048 adds a repeated M4 two-attachment control matrix. At fixed MRT offsets,
+0x20-byte LOAD and STORE/PBE records reproduce across RGBA8, BGRA8, sRGB,
+R32Float, R32Uint, and mixed RGBA8/R32Float. Their low-40 packed address field
+reconstructs the authored target VA after `<<4`; sRGB changes a packed upper
+control while retaining RGBA8's low-24 format value. Same-draw controls isolate
+`0x58000+0x14` as an action/path-correlated candidate and `+0x53` bit `0x20`
+as blend-correlated for this matrix. These are bounded captured-state
+correlations, not a complete field schema or Linux packing rule.
+
 Missing:
 
 - Every PBE field: type/layer/mip/sample/array selection, component mapping, access/control word, rotate/flip/mode, coherency, and all reserved requirements.
 - Complete layout of all bytes in each 0x300 segment, including which values are invariant hardware requirements versus Apple-driver data.
-- Meaning/ownership of store program ID `0x6f`; the docs call it firmware-managed but the exact unchanged UAPI has no store-program field.
+- Meaning/ownership of store program ID `0x6f`; EXP-0048 finds the prior fixed
+  single-RT slot zero in the relocated MRT array, so firmware ownership remains
+  unproven and the exact unchanged UAPI has no store-program field.
 - Surface offsets/strides for layers, mip levels, resolve targets, memoryless, compression, depth/stencil, and mixed MRT formats.
 - Load/store/dont-care/clear/resolve behavior over all formats and sample counts.
 

@@ -43,9 +43,15 @@ that private depth embeds.
 
 ## Load/store actions & partial render
 - The attachment descriptor is a chain of **0x300-byte segments = load / render / store**. Seg1 holds
-  clear-enable (bit24 at seg+0x168) + clear color; seg2 holds a **store-program id `0x6f`** + store surface
-  address. `loadAction=DontCare` flips 3 words / omits the load segment; `storeAction=DontCare` poisons the
-  store address. **Depth store-action / ZLS is firmware-managed** (not captured) — route via kernel.
+  clear-enable (bit24 at seg+0x168) + clear color. A prior single-RT layout places value `0x6f` and a
+  store surface in seg2; `loadAction=DontCare` changes that layout and `storeAction=DontCare` poisons its
+  store address. **This is not a universal MRT rule:** EXP-0048's M4 two-attachment layout leaves the
+  complete relocated LOAD/STORE-PBE arena byte-identical across the tested action changes. There,
+  drawn Clear/Store and Load/Store correlate with `0x58000+0x14` values `0x19` and `0x10`, while
+  Clear/StoreDontCare correlates with `0x20`; empty Clear/Store and Load/Store are identical in all four
+  allowlisted state BOs despite distinct live results. `+0x14` is only an action/path-selector candidate.
+  Value `0x6f`'s meaning and ownership remain **UNKNOWN**; its prior fixed single-RT slot is zero in the
+  relocated MRT arena. **Depth store-action / ZLS is firmware-managed** (not captured) — route via kernel.
 - **Tiler parameter buffer** (`0x10000018xxx` + sparse `0x10000140000`): buffers vertex/primitive data
   between the tiler (TA) and fragment (3D) stages. A depth-only pass still builds the full 32×32 tiling
   context + param heap with no color descriptor (Z-prepass / partial-render path). The **overflow →
@@ -54,6 +60,7 @@ that private depth embeds.
 ## Open items
 - Depth/ZLS store control (kernel-side). (Sample positions are now known userspace-emittable — RT-4.)
 - Full packed pixel-format word decode (→ `../descriptors/`); `+0x24` bits beyond 2×/4×/memoryless.
+- BG/EOT/partial program tags, resource specs, ABI, and the ownership/meaning of single-RT value `0x6f`.
 
 ## Render-target attachment descriptor — full field map (EXP-G1b)
 The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte segments: LOAD (+0x000) / RENDER (+0x300)
@@ -63,8 +70,11 @@ The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte seg
   `VA>>4`, word3[12:] = **stride/rowBytes**. HW-validated over 6 sizes (asymmetric 128×64 separates W/H) and 6 formats.
 - **LOAD/RENDER:** format word @seg+0x20; **format code = byte+0x21 (= sampled byte1), NOT byte+0x22** (EXP-M4-08 DESC-1: +0x22 is the swizzle low byte; the old '+0x22' only coincided for bgra8 where swizzle-low 0x0a==format 0x0a). Full word = `(0xf<<28)|(swizzle[11:0]<<16)|(byte1<<8)|(byte0&~0x20)`, validated 43/43 formats. config/sample @+0x24; **clear-enable = bit24 @
   seg1+0x168**, clear-color floats @+0x17c. `loadAction=Load` injects a surface-read descriptor.
-- **Store action:** store-program id `0x6f` + store surface addr (`storeAction=DontCare` poisons the addr). Store-program
-  `0x6f` semantics are firmware-managed (kernel item).
+- **Store action (single-RT layout):** observed value `0x6f` + store surface addr
+  (`storeAction=DontCare` poisons that layout's addr). EXP-0048 corrects the earlier
+  universalization: its relocated M4 MRT records are unchanged for StoreDontCare,
+  with a separate action-correlated byte at `0x58000+0x14`. `0x6f` semantics and
+  ownership are unresolved, not established as firmware-managed.
 - **MSAA:** byte0 low-nibble→4 (2DMultisample), +0x24 sample count (`0x08`=2× / `0x09`=4×); **sample positions are userspace-emittable @+0x40** (1/16-grid f32 pairs; RT-4, corrects EXP-0021).
 - **MRT:** N≥2 attachments (or any MSAA) relocate the color descriptor into the tiler geometry heap `0x10000018200`,
   arrayed as **fixed 0x20-byte per-attachment records** (LOAD @`+0x20+k·0x20`, STORE/PBE @`+0x220+k·0x20`);
@@ -72,6 +82,12 @@ The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte seg
   0x20-byte k-stride is HW-validated to k=7 (all 8 attachments), and each record's format word is genuinely
   per-attachment** (mixed-format MRT: each byte = `numtype<<5|sizeclass` per `../descriptors/format-table.md`) —
   EXP-M4-09/CMD-3.
+  - **EXP-0048 M4 action/format control:** the 0x20-byte LOAD records at
+    `+0x20+k·0x20` and STORE/PBE records at `+0x220+k·0x20` reproduce exactly
+    across two runs for RGBA8, BGRA8, sRGB, R32Float, R32Uint and mixed MRT.
+    In both record families the low 40 bits of the qword at record `+0x08`,
+    shifted left four, reconstruct the authored surface VA. sRGB retains
+    RGBA8's low-24 format value but changes the opaque upper packed control.
   - **⚠ Clear-color CORRECTION (EXP-M4-09/CMD-3, A18-cross-confirmed):** the earlier claim *"clear-color @
     `+0x500+k·0x18` inside `0x10000018200`"* was a **vertex-buffer allocator alias** — `vtxBuf` lands at
     `0x10000018700` = `0x18200+0x500`, so reading there returns the triangle verts (`-1,-1,3,-1,-1,3`; the
@@ -80,4 +96,3 @@ The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte seg
     (0,0,0,1) @ `+0x170`), **mirrored at `+0x470 + k·0x10`** (0x300 apart = the LOAD/RENDER segment spacing).
     Byte-identical on M4 and A18. The `0x18200` k·0x20 records hold LOAD/STORE descriptors only — **not** the
     clear color.
-
