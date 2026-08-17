@@ -1,6 +1,6 @@
 # A18 Pro (G17P) AGX — Instruction Encoding Tables
 
-> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-07-10). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 170 instruction descriptors.
+> **Generated** from `tools/agx-isa/db.json` by `tools/agx-isa/gen_encoding_tables.py` (2026-08-17). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit A18 Pro AGX instructions — 170 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real A18 Pro GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.
 
@@ -892,7 +892,7 @@
 
 *LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal): in a RACE-FREE frame (k_chain, no spills) the op is a NO-OP fence and every payload field is inert; in a SPILLING frame (k_bigframe / bigmid, 12 live temporaries around the call) the fields become load-bearing. byte0=0x07 is the fence-family opcode (0x07->0x00 corrupts the SAVE / HANGs the RESTORE when state actually spills). scope (byte+4=0x81) = scratch/stack scope: bit7 AND bit0 must both be set (0x81/0x83 pass; 0x00/0x80/0x01 corrupt; 0xff -> GPU page-fault; RESTORE-side corruption HANGs). dir_offset (bytes+5/+6, 16-bit LE) = scratch save/restore offset+direction: SAVE=0x0000, RESTORE=0x1fff; intermediate values relocate the scratch access (corruption scales with value). CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field -- byte+7 (reserved7) is RESERVED/inert on BOTH the SAVE and RESTORE instances. marker (byte+2) and b3 (byte+3) are RESERVED/inert; b1 (byte+1) is mostly reserved (low bits inert, only 0xff perturbs).*
 
-### `spill_frame_marker` — spill/frame-setup marker (after entry get_sr in spilling kernels)
+### `spill_frame_marker` — four-byte 0x60 form (historical name; exact role unresolved)
 
 - **Length:** 4 bytes  ·  **Match:** byte+0==0x60  ·  **Provenance:** HW-validated
 
@@ -902,7 +902,7 @@
 | `b2` | [16:24] (byte+2) | raw/unmapped |  |
 | `b3` | [24:32] (byte+3) | raw/unmapped |  |
 
-*4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / SPILLING kernels (byte0 0x60). Runtime-inert for the computation in our splice test (byte0/+1/+2 sweeps are no-ops); byte+3 is the only live byte (0xff faults). Best-understood role: scratch-frame / occupancy setup for the spill path; exact semantics a follow-up. Adding it unblocks tokenization (RT-1a-FIX: without a length rule the tokenizer halted).*
+*4-byte 0x60 form historically named spill_frame_marker after its position following entry get_sr in one prior A18 high-pressure kernel. Runtime-inert for that computation in our splice test (byte0/+1/+2 sweeps are no-ops); byte+3 is the only live byte (0xff faults). EXP-0041 found the exact word absent from nine retained M4 own mains, including 208--576 B declared scratch, so it is not a universal spill marker. Exact role unresolved. The descriptor preserves its validated four-byte tokenization.*
 
 ## SIMD-group / quad
 
@@ -1706,7 +1706,7 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `0x32` | 6  [u64 CARRY-GENERATE (carry_gen): unsigned-overflow compare (byte+2==0x35, byte+4==0x22) detecting the low-word add carry in a 64-bit ADD chain; predicate feeds a 0x05 psel. EXP-0038] |
 | `0x22 (byte+2==0x35)` | 6  [carry-generate sibling of 0x32 (intermediate carry of a 3-operand u64 add); the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038] |
 | `0x6f` | 6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch frame a non-leaf callee uses to save its link register around inner calls. EXP-0038] |
-| `0x60` | 4  [SPILL/FRAME-SETUP MARKER (spill_frame_marker): `60 00 00 00` right after the entry get_sr in high-register-pressure / SPILLING kernels. Runtime-inert for the computation (byte0/+1/+2 splices no-op), byte+3 live (0xff faults). Previously halted tokenization (no length rule). RT-1a-FIX HW: length 4; exact role a follow-up] |
+| `0x60` | 4  [FOUR-BYTE 0x60 FORM (historical name spill_frame_marker): `60 00 00 00` was observed after entry get_sr in one prior A18 high-pressure kernel. Runtime-inert for that computation (byte0/+1/+2 splices no-op), byte+3 live (0xff faults). EXP-0041 found it absent from nine M4 own mains including 208--576 B scratch, so it is not a universal spill marker. Length 4 validated; exact role unresolved] |
 | `device_load/store +5 index_reg (RT-1a-FIX)` | +5 is the INDEX GPR that supplies a[idx] (NOT `count`; sweeping +5 selects which GPR feeds the index); +6 is INERT; +1 = address space; the additive IMMEDIATE index-offset lives at +9 bit7 (+1) / +10 (+2/unit) / +11 low (+512/unit). Vector width/count is at +8 (dst_width) / +12 (elem_size). RT-1a-FIX HW-validated. |
 | `iadd2 add/sub polarity (RT-1a-FIX)` | byte0 bit7 = ADD(1,0x9f) / SUBTRACT(0,0x1f) select. The DB previously had this INVERTED (labelled every add srcA_neg=1 and gave 0x1f d=srcA+srcB although 0x1f subtracts). Splice 0x9f->0x1f turns 10+20 into 10-20=-10. HW-validated. |
 | `0x07 (byte+1==0x00, byte+2==0x54)` | 8  [LINK-REGISTER SAVE/RESTORE around a nested call in a non-leaf frame (link_save_restore); the byte+1 in {0x04,0x14} forms are the 6-byte threadgroup_barrier / pixel_order. EXP-0038] |

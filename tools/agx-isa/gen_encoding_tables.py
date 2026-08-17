@@ -86,7 +86,7 @@ FAMILY = [
         ("call_indirect", "indirect CALL (visible_function_table)"),
         ("frame_prologue", "non-leaf function frame prologue (scratch frame setup)"),
         ("link_save_restore", "link-register save/restore around a nested call"),
-        ("spill_frame_marker", "spill/frame-setup marker (after entry get_sr in spilling kernels)"),
+        ("spill_frame_marker", "four-byte 0x60 form (historical name; exact role unresolved)"),
     ]),
     ("SIMD-group / quad", [
         ("simd_reduce", "SIMD/quad reduce & prefix-scan"),

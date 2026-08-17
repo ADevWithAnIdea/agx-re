@@ -2150,15 +2150,17 @@ def instr_length(buf, off=0):
     # link register around inner calls. `6f 03 04 00 00 20`. 6 bytes.
     if b0 == 0x6f:
         return 6                       # frame_prologue (EXP-0038 HW role)
-    # ---- SPILL/FRAME-SETUP MARKER (byte0 0x60, RT-1a-FIX item 4) --------------
-    # `60 00 00 00` appears instruction-aligned right after the entry get_sr in
-    # high-register-pressure / spilling kernels (big.bin). No prior length rule ->
-    # tokenization halted here. RT-1a-FIX HW-validated the length is 4: with 0x60->4
+    # ---- FOUR-BYTE 0x60 FORM (byte0 0x60, RT-1a-FIX item 4) -------------------
+    # `60 00 00 00` appeared instruction-aligned right after the entry get_sr in
+    # one prior A18 high-register-pressure kernel. No prior length rule ->
+    # tokenization halted there. RT-1a-FIX HW-validated the length is 4: with 0x60->4
     # the following 10-byte iadd2 (`9f 11 54 ...`) aligns cleanly, and splicing the
     # op's byte+3 (=+7) to 0xff FAULTS (it is this instruction's last, live byte)
     # while byte0/+1/+2 are runtime-inert for the computation. 4 bytes.
     if b0 == 0x60:
-        # RT-1a-FIX HW: `60 00 00 00` spill_frame_marker is 4B (byte+3 live). EXP-M4-01
+        # RT-1a-FIX HW: exact `60 00 00 00` form is 4B (byte+3 live). EXP-M4-01.
+        # EXP-0041: absent from nine M4 own mains, including 208--576 B scratch;
+        # the historical spill_frame_marker name is not a universal semantic rule.
         # round-3: the `60 00 <nonzero>` form is a 2-byte compact frame/scope marker that
         # PRECEDES a threadgroup-atomic store (`60 00` + `e7 02 54..` in k_atomics_tg@26, which
         # matches the bare `e7 02 54..` threadgroup store in the isolated tg_store) or a divergent
@@ -4545,16 +4547,17 @@ DB = [
                      "-> baseline, ->0x10/0x1f/0x21/0x40 -> fault. 0 reboots (contained faults). subop enum "
                      "captured in semantics (bit-pattern rule, not a clean value map).",
     },
-    # ---- SPILL / FRAME-SETUP MARKER (byte0 0x60, 4 B, RT-1a-FIX item 4) -------
-    # `60 00 00 00` appears instruction-aligned right after the ENTRY get_sr in high-
-    # register-pressure / spilling kernels (big.bin: `8c a0 91 06 | 60 00 00 00| 9f 11
+    # ---- FOUR-BYTE 0x60 FORM (byte0 0x60, 4 B, RT-1a-FIX item 4) --------------
+    # `60 00 00 00` appeared after the ENTRY get_sr in one prior A18 high-pressure
+    # kernel (big.bin: `8c a0 91 06 | 60 00 00 00| 9f 11
     # 54 ...`). Previously had NO length rule -> tokenization halted. RT-1a-FIX gives it
     # length 4 (the following iadd2 aligns) and characterizes it as far as HW splicing
     # allows: byte0/+1/+2 are runtime-INERT for the computation (splicing them is a
     # no-op on the big kernel's output), while byte+3 is this op's live last byte
     # (splicing +3 to 0xff faults). Best-understood role: a spill/scratch-frame or
-    # occupancy setup marker emitted only in spilling kernels. Semantics beyond "4-byte,
-    # byte+3-live" not fully decoded (a documented follow-up).
+    # occupancy setup marker. EXP-0041 found the exact word absent from all nine retained
+    # M4 own mains, including programs with 208--576 B declared scratch, so that association
+    # is not universal. Semantics beyond "4-byte, byte+3-live" remain unresolved.
     {
         "mnemonic": "spill_frame_marker",
         "length": 4,
@@ -4564,15 +4567,17 @@ DB = [
             {"name": "b2", "start": 16, "width": 8, "type": "raw"},   # inert in our splice test
             {"name": "b3", "start": 24, "width": 8, "type": "raw"},   # LIVE: +3=0xff faults (HW)
         ],
-        "semantics": "4-byte spill/frame-setup marker emitted right after the entry get_sr in "
-                     "high-register-pressure / SPILLING kernels (byte0 0x60). Runtime-inert for "
-                     "the computation in our splice test (byte0/+1/+2 sweeps are no-ops); byte+3 "
-                     "is the only live byte (0xff faults). Best-understood role: scratch-frame / "
-                     "occupancy setup for the spill path; exact semantics a follow-up. Adding it "
-                     "unblocks tokenization (RT-1a-FIX: without a length rule the tokenizer halted).",
-        "provenance": "HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the "
+        "semantics": "4-byte 0x60 form historically named spill_frame_marker after its position "
+                     "following entry get_sr in one prior A18 high-pressure kernel. Runtime-inert "
+                     "for that computation in our splice test (byte0/+1/+2 sweeps are no-ops); "
+                     "byte+3 is the only live byte (0xff faults). EXP-0041 found the exact word "
+                     "absent from nine retained M4 own mains, including 208--576 B declared "
+                     "scratch, so it is not a universal spill marker. Exact role unresolved. "
+                     "The descriptor preserves its validated four-byte tokenization.",
+        "provenance": "HW-VALIDATED length, role unresolved (RT-1a-FIX item 4): 0x60->4 aligns the "
                      "following 10-byte iadd2 in big.bin; big kernel output invariant to byte0/+1/"
-                     "+2 splices, byte+3->0xff faults. raw/undecoded.log. Field semantics inferred.",
+                     "+2 splices, byte+3->0xff faults. EXP-0041 M4 negative: exact word absent from "
+                     "all nine own mains, including scratch-using cases. Field semantics unknown.",
     },
     # ---- COMPACT frame/scope marker (byte0 0x60, 2 B, EXP-M4-01 round-3) -------
     # The `60 00 <nonzero>` sibling of the 4-byte spill_frame_marker: a 2-byte compact
@@ -6345,10 +6350,11 @@ def to_json():
                         "the byte+2 lo-nibble 0x0e min3/max3/clamp form is also 6, else 10. EXP-0038]",
                 "0x6f": "6  [NON-LEAF FUNCTION FRAME PROLOGUE (frame_prologue): establishes the per-thread scratch "
                         "frame a non-leaf callee uses to save its link register around inner calls. EXP-0038]",
-                "0x60": "4  [SPILL/FRAME-SETUP MARKER (spill_frame_marker): `60 00 00 00` right after the entry "
-                        "get_sr in high-register-pressure / SPILLING kernels. Runtime-inert for the computation "
-                        "(byte0/+1/+2 splices no-op), byte+3 live (0xff faults). Previously halted tokenization "
-                        "(no length rule). RT-1a-FIX HW: length 4; exact role a follow-up]",
+                "0x60": "4  [FOUR-BYTE 0x60 FORM (historical name spill_frame_marker): `60 00 00 00` was "
+                        "observed after entry get_sr in one prior A18 high-pressure kernel. Runtime-inert for "
+                        "that computation (byte0/+1/+2 splices no-op), byte+3 live (0xff faults). EXP-0041 "
+                        "found it absent from nine M4 own mains including 208--576 B scratch, so it is not a "
+                        "universal spill marker. Length 4 validated; exact role unresolved]",
                 "device_load/store +5 index_reg (RT-1a-FIX)": "+5 is the INDEX GPR that supplies a[idx] (NOT "
                         "`count`; sweeping +5 selects which GPR feeds the index); +6 is INERT; +1 = address space; "
                         "the additive IMMEDIATE index-offset lives at +9 bit7 (+1) / +10 (+2/unit) / +11 low (+512/"

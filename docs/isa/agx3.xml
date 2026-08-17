@@ -2102,9 +2102,9 @@
     <immediate name="frame_size" bit="24:47"/>
   </ins>
 
-  <!-- spill_frame_marker: 4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / ... -->
-  <!-- provenance: HW-VALIDATED length + role bounds (RT-1a-FIX item 4): 0x60->4 aligns the following 10-byte iadd2 in big.bin; big kernel output invariant to ... -->
-  <ins name="spill_frame_marker" length="4" label="4-byte spill/frame-setup marker emitted right after the entry get_sr in high-register-pressure / ...">
+  <!-- spill_frame_marker: 4-byte 0x60 form historically named spill_frame_marker after its position following entry get_sr in ... -->
+  <!-- provenance: HW-VALIDATED length, role unresolved (RT-1a-FIX item 4): 0x60->4 aligns the following 10-byte iadd2 in big.bin; big kernel output invariant to ... -->
+  <ins name="spill_frame_marker" length="4" label="4-byte 0x60 form historically named spill_frame_marker after its position following entry get_sr in ...">
     <exact bit="0:7">01100000</exact>
     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
     <zero bit="8:15"/>

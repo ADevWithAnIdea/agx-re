@@ -201,8 +201,7 @@ ZLS, partial-render, scissor register, shader-entry bind.
   specified, but the storage-image/render-target (PBE) binding descriptor is only partly decoded (format @+0x21, samples @+0x24).
 - ☑ **G1-c Sysval→uniform = NEGATIVE (get_sr on demand, no table)** (EXP-G1a) [ISA/ABI]: the *mechanism* (USC uniform preamble) is documented; the concrete
   which-uniform-holds-which-sysval mapping is not — needed to reproduce the FF-state-into-shader ABI.
-- ☑ **G1-d Scratch/doorbell = KERNEL-MANAGED** (userspace declares scratch size in __GPU_METADATA; rest kernel) → kernel-interface.md [kernel-adjacent]: spill proven, but scratch-base location
-  + per-core doorbell are un-RE'd. Likely partly kernel-managed — decide userspace vs kernel split.
+- ◐ **G1-d Scratch/helper/doorbell — REOPENED/UNRESOLVED** → kernel-interface.md; EXP-0041 [P0.1]: M4 programs with 208–576 B scratch completed but exposed no scratch-correlated allowlisted launch/state/resource record. This is a bounded negative, not evidence of kernel ownership. The unchanged UAPI helper `binary`/`cfg`/`data`, scratch geometry, SR inputs, tags, limits, failure behavior, and exact userspace/kernel split remain open.
 - ☑ **G1-e UVS/varyings linkage** (EXP-G1a, reorder HW-proven) [ISA/cmdstream]: the VS-output-slot ↔ FS output-select ↔ CF coefficient-binding coupling
   (fragment reads coefficients, but the exact VS→FS varying-linkage encoding is thin).
 

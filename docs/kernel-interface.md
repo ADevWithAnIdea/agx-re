@@ -359,10 +359,19 @@ model and field set), `reviews/GAP-ANALYSIS-01.md` (gap #7/#13 and the G-11 cont
 field names grounded in the open-source `../mesa/include/drm-uapi/asahi_drm.h`. No new experiment;
 no Apple binary introspected.
 
-## Scratch / doorbell / uniform-heap (EXP-G1a/G1b, objective-1 gap G1-d → kernel-managed)
-Userspace declares the per-thread **scratch (spill) size** in the shader's own `__GPU_METADATA` (EXP-0020); the **scratch
-buffer allocation + per-core scratch geometry**, the **`0x0042XXXX` uniform-data heap base**, and the
-**CPU→GPU doorbell store** were not exposed in the historical client-BO study. The code-window mapping is
-separately **OPEN** after EXP-0042 and must be reconciled with queue `usc_exec_base`. A Mesa
-userspace driver emits the scratch-size metadata and buffer/USC contents; the kernel allocates scratch, binds the heaps,
-and rings the doorbell. (These correlate with the un-RE'd per-core geometry — a kernel-team RE item, not userspace.)
+## Scratch/helper / doorbell / uniform heap — unresolved (EXP-G1a/G1b, EXP-0041)
+
+The historical macOS client-BO study did not expose scratch allocation, per-core
+geometry, helper cfg/data, the `0x0042XXXX` uniform-data heap base, or the CPU doorbell
+store. EXP-0041 strengthened only that negative boundary result: authored M4 CS/VS/FS
+programs declaring 208–576 B scratch all completed, while allowlisted launch/state BOs
+and equal-allocation resource maps showed no scratch-correlated change.
+
+That absence does **not** make the helper ABI kernel-managed. The unchanged Asahi UAPI
+still assigns helper-program `binary`/`cfg`/`data` and related scratch decisions to the
+existing userspace/kernel contract. Exact helper SR inputs, scratch BO headers/block
+lists/buckets/topology, tagged pointers, limits, growth/failure behavior, and doorbell
+division remain **OPEN**. The macOS boundary is insufficient to decide the split.
+
+The code-window mapping is separately open after EXP-0042 and must be reconciled with
+queue `usc_exec_base`. Do not infer ownership for either gap from non-observation.
