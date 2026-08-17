@@ -81,9 +81,12 @@ graphics-specific submit selector). Two channel types are involved: **TA** (tile
 | `0x10000130000` | **USC shader-binding program** |
 
 - **TA** binds VDM `0x18000` + viewport `0x68000` + attr table; **3D** binds attachment `0x110000` + FF-state `0x58000`.
-- **Shader binding:** unlike compute's single `shaderVA>>6`, VS/FS are bound **indirectly through USC
-  bind-pairs** in the VDM (changing either shader touches `{0x10000000000, 0x10000130000}`). ⏳ the exact
-  graphics shader-entry word: **RESOLVED below** — draws bind shaders via a self-describing sized-block code walk (no pointer word), EXP-0024; USC bind grammar decoded in EXP-G1a.
+- **Shader binding:** unlike compute's single `shaderVA>>6`, graphics uses separable
+  selection state. On M4, a VS change emits VDM `(0x500, token)` and the FS uses a
+  32-bit code-window-relative selector at `0x58000+0x08` (EXP-0042). The earlier
+  “self-describing walk with no selector” interpretation is superseded. Exact mapping
+  of the window base to Linux `usc_exec_base` remains open; USC bind grammar was
+  partially decoded in EXP-G1a.
 - **VDM draw record — full field map (EXP-M4-09/CMD-4; all 5 prims × {non-indexed,u16,u32} RUN):**
   header (state-size @+0x0c) + USC bind-pairs (control-word, addr) + primitive word.
   - **Non-indexed:** opcode **`0x61c4`** (bytes @+0x66/+0x67); **primitive type byte @+0x65** =
@@ -160,24 +163,36 @@ cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = nat
 depth bias: enable = flags `+0x34` bit17, constant/slope/clamp = 3 floats in the tiler-param region
 (`…+0x2a8000`).
 
-### USC bind grammar + graphics shader binding (EXP-0019, resolved EXP-0024)
+### USC bind grammar + graphics shader binding (EXP-0019/0024, corrected EXP-0042)
 The VDM (`0x18000`) holds a **fixed 8-pair template** (control-word, address) into `0x58000`/viewport/
 context — invariant under state changes (only the `+0x0c` length word grows, see PPP below).
 
-**✅ How graphics binds shaders (EXP-0024) — there is NO `shaderVA>>N` word in userspace.** Unlike compute
-(CDM `+0x08 = shaderVA>>6`), a draw does **not** carry a shader pointer anywhere in the client command
-stream (exhaustive delta-search: growing FS moves the VS code entry +0x80, and the *only* words that track
-it are **sizes**, never an 8-byte pointer). Instead:
-- The **code BO `0x10000000000`** is a self-describing walk of `[size-header][machine-code]` blocks,
-  walked from the BO base: `+0x00` = `0x340` (offset to first block), `+0x340` = FS(#1) block size,
-  `+0x500` = VS(#2) size; stage order `[helpers][FS][VS]…`. Code sizes also mirror at `0x58000+0x08`
-  (FS code size) and `0x10000000000+0x340` (FS block header).
+**PARTIAL — M4 EXP-0042:** no absolute `shaderVA>>N` word was observed, but a draw does carry
+explicit separable selectors. When the VS actually changes, the VDM record includes
+`(0x500, token)` at `+0x1c/+0x20`; the two tested tokens `0x40/0xc0` follow distinct VS
+creation order, not code-record offsets. The FS selector is the 32-bit word at
+`0x58000+0x08`. For four tested FS variants:
+
+```text
+fs_selector = fs_record_header + record_size + 0x40
+```
+
+It addresses the payload of a following `0x80` record. Equal-main/equal-record-size FS
+variants select different offsets and produce different colors, disproving the old “FS
+size” reading. The consumer and complete token grammar are still unknown.
+
+- In the **code BO `0x10000000000`**, every exact authored stage match is contained by a
+  0x40-byte zero-reserved header whose word 0 is the aligned total record size, followed
+  by that stage's authored constant program, authored main and padding. This is a live
+  record layout, not proof that firmware performs a positional walk. Unknown regions were
+  retained but not decoded.
 - The **USC program `0x10000130000`** holds three `0x240`-byte per-stage **uniform-preamble programs**
   (block0 ≡ block1 = vertex, block2 = fragment), each led by config `0x008800XX` (XX = stage×0x0c);
   `+0x10/+0x18/+0x250/+0x490` = uniform-data pointers, `+0x14…` = per-shader slot ids.
-- **Driver guidance:** emit compiled code as sized blocks + emit the USC uniform-preamble programs. The
-  **code-BO-base → firmware handoff is a userspace↔kernel item** (not a client descriptor — flag for the
-  kernel team, see `kernel-interface`).
+- **Driver guidance:** maintain a queue-relative executable window and explicit VS/FS
+  selection. The observed base stayed at `0x10000000000` under ordinary allocation
+  perturbation, but its exact mapping to queue `usc_exec_base` is **INFERRED**, not proven.
+  Do not add or assume a per-render code-base submit field.
 
 ### ✅ PPP fixed-function header / emission order (EXP-0024) — length word, not a present mask
 There is **no present-bit mask**. The 8 VDM bind-pairs and pool layout are **fixed**; presence is a
@@ -285,8 +300,8 @@ clean, emittable grammar:
 - **Buffers → `0x10000100000+0xa0`:** a flat table of **8-byte LE GPU VAs**, one per bound buffer in index order.
 - **Uniform preload → USC program `0x10000130000`** per-stage header tags: `0x0088_00XX` register/shader-config
   (`XX` = stage×0x0c), `0x0042_XXXX` uniform-data pointer, `0x0020_00XX` uniform-slot count/id. The per-resource preload
-  is done by the program *body* (`0x67` loads), not a fixed tag list. *(This supersedes the EXP-0014 "USC shader-entry
-  word ⏳" note above: graphics binds shaders via the sized-block code walk (EXP-0024), not a pointer word.)*
+  is done by the program *body* (`0x67` loads), not a fixed tag list. *(EXP-0042 supersedes the earlier
+  positional-walk interpretation: graphics has separate VDM VS-token and pool FS-relative selectors.)*
 
 ## ✅ UVS / VS→FS varying linkage — RESOLVED (EXP-G1a)
 - **VS UVS output slots:** `[[position]]` = slots 0–3; user varying #k = slots 4+4k..7+4k (one slot/scalar, declaration

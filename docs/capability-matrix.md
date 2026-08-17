@@ -76,9 +76,8 @@ the value** and hands it to the kernel; the **firmware writes the register**.
 | **Depth store-action / ZLS** | 🔥 Kernel/FW | `pipeline/README.md` load/store § (EXP-0021) | ZLS control not captured in any BO; userspace computes `zls_ctrl` + depth/stencil buffers → kernel submit (`kernel-interface.md` §4.3/§6.1). |
 | **RT acceleration-structure (BVH) build + node format** | 🔥 Kernel/FW | `isa/README.md` RT § (EXP-0023) | Userspace supplies vertices + build descriptor + an 8-byte AS VA; the **GPU/firmware builds the BVH**; node format is **not userspace-visible** (`kernel-interface.md` §4.1). (The *traversal* ISA is native — see §1.) |
 | **Partial-render / tiler-param overflow trigger** | 🔥 Kernel/FW | `pipeline/README.md` partial-render § (EXP-0021) | No userspace knob for the trigger; userspace supplies `partial_bg`/`partial_eot` programs; firmware detects overflow and triggers the partial render (`kernel-interface.md` §4.4). |
-| **Graphics shader-entry bind (code-BO → firmware handoff)** | 🔥 Kernel/FW | `cmdstream/README.md` USC/EXP-0024 | A draw carries **no `shaderVA>>N`** anywhere in the client stream; userspace emits sized code blocks + USC preambles, and the code-BO base reaches the firmware out-of-band (`kernel-interface.md` §4.5). |
 
-**Count: 4 kernel/firmware-managed capabilities.** (Sample positions were moved OUT of this bucket
+**Count: 3 kernel/firmware-managed capabilities.** (Sample positions were moved OUT of this bucket
 by RT-4 → they are **userspace-emittable / native**, §1.)
 
 ---
@@ -90,6 +89,7 @@ before an implementer commits to native vs emulate.
 
 | Feature | Status | Evidence (doc §) | Note |
 |---|---|---|---|
+| **Graphics code-window / VS+FS selector mapping** | ❓ Partial/open | `cmdstream/README.md`; EXP-0042 | M4 proves separable VDM VS token and FS window-relative selector. Exact queue `usc_exec_base`, general token construction, HW/FW consumer and A18 behavior remain open; it is not proven kernel-managed. |
 | **Mesh shaders** | ✅ Native (EXP-0030) | `mesa-userspace-requirements.md` §4; `hypotheses.md` backlog; `GAP-ANALYSIS-01.md` gap #10 | **Native HW graphics pipeline** (EXP-0030): object/mesh compile as compute-style `0xe7`-store kernels + a child-count write; submission reuses the graphics TA/VDM path with a mesh-grid-dispatch record `0x70000600` (no CDM); UVB output buffer is firmware-managed. See `isa/README.md` + `cmdstream/README.md`. |
 | **Geometry shaders / transform feedback — A18-native?** | ❓ Unknown | `mesa-userspace-requirements.md` §4 | GS and transform feedback remain **Metal-unexposed → emulate** (§2), not independently re-probed on A18. **Tessellation is DECIDED: NATIVE HW (EXP-O2H) — see §1** (drawPatches → native VDM patch-dispatch record `0x40`, half-float factors, ordinary post-tess VS; compute-emulation now OPTIONAL). |
 | **Anisotropy > 16×** | ❓ Unknown (field can encode 128×) | `descriptors/README.md`; `hypotheses.md` #5 | The sampler aniso field is **3-bit log2 (→128×)** though Metal caps 16×; **>16× not yet run on hardware**. Probe candidate; don't assume >16× works. |
@@ -104,8 +104,8 @@ before an implementer commits to native vs emulate.
 |---|---|---|
 | **✅ Native** | **15** | matrix (`0xcf`), hybrid RT, programmable blend, logic ops (16-func LUT), depth clamp, dual-source blend, polygon line fill, subgroup prefix-scan, float round modes, typed compare, format/swizzle/sRGB orthogonality, separate read/write texture paths, native single-RMW atomics, **sample positions (userspace-emittable @+0x40, RT-4)**, **native tessellation (VDM patch-dispatch `0x40`, EXP-O2H)** |
 | **⛔ Emulate** | **6** | float atomic min/max, all 64-bit atomics (add/min/max), arbitrary sampler border color, int8 cooperative-matrix, geometry shaders, transform feedback |
-| **🔥 Kernel/FW** | **4** | ZLS/depth store, RT BVH build, partial render, graphics shader-entry handoff |
-| **❓ Unknown/untested** | 3 clusters | GS/XFB A18-native re-probe; aniso >16×; polygon-point & exotic gather/tex-type variants. (Mesh, **tessellation**, BC/3D/cube/MSAA tiling now ✅ native; compression codec opaque.) |
+| **🔥 Kernel/FW** | **3** | ZLS/depth store, RT BVH build, partial render |
+| **❓ Unknown/untested** | 4 clusters | Graphics code-window/selector mapping; GS/XFB A18-native re-probe; aniso >16×; polygon-point & exotic gather/tex-type variants. (Mesh, **tessellation**, BC/3D/cube/MSAA tiling now ✅ native; compression codec opaque.) |
 
 **Honesty note (per `../CLAUDE.md`).** Of the 6 "emulate" rows, **4** are HW-validated absences from
 our own probes (float atomic min/max, all 64-bit atomics, arbitrary border color, int8 coopmat); the

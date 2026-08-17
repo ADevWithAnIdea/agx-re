@@ -162,12 +162,13 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   `+0x08 = shaderVA>>6` (64-byte units), grid `+0x10/+0x14/+0x18` **in threads** (not
   threadgroups), threadgroup `+0x1c..`, config word `+0x00` bit23 = occupancy tier. Threadgroup-
   memory size lives in the **shader BO** as `(bytes<<2)|0x80`, not the CDM record (EXP-0011/0024).
-- **USC binding = sized-block shader walk; NO `shaderVA>>N` for graphics** (`cmdstream/README.md`
-  "USC bind grammar", EXP-0024): a draw carries **no shader pointer anywhere** in the client stream.
-  The code BO `0x10000000000` is a self-describing `[size-header][machine-code]` walk (stage order
-  `[helpers][FS][VS]…`); the USC program `0x10000130000` holds three `0x240`-byte per-stage uniform-
-  preamble programs (config `0x008800XX`). Driver: emit compiled code as **sized blocks** + emit the
-  **USC uniform-preamble programs**; the **code-BO-base → firmware handoff is a kernel item** (§6).
+- **Graphics selection = queue-relative code window + separate stage selectors**
+  (`cmdstream/README.md`, M4 EXP-0042): VS changes emit a VDM `(0x500, token)` pair; FS uses a
+  32-bit code-window-relative selector at `0x58000+0x08`. Authored code appears in 0x40-header,
+  aligned-size records with constant program + main + padding. The USC program
+  `0x10000130000` retains per-stage uniform-preamble programs. Exact mapping of the stable
+  `0x10000000000` window to queue `usc_exec_base`, general token synthesis, and the record
+  consumer remain open; do not assume a positional walk or a per-render code-base field.
 - **PPP header = length word, not a present mask** (`cmdstream/README.md` "PPP fixed-function
   header", EXP-0024): the 8 VDM bind-pairs/pool layout are fixed; presence is a monotonic **length
   word** (VDM `0x18000+0x0c` / pool `0x58000+0x14`, +0x400 when a depth/stencil block is appended);
@@ -200,9 +201,12 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   tile-dispatch record is appended inline to the render control stream; a draw vs
   draw+`dispatchThreadsPerTile` is byte-identical IOKit.
 
-**EMULATE / route to KERNEL** (§6 has the contract): **ZLS / depth store** (`zls_ctrl`), **scissor**
-(`isp_scissor_base`), and the **graphics shader-entry bind** (code-BO base) are **NOT emitted in the
-userspace command stream** — userspace computes the value and hands it down as a **submit parameter**.
+**EMULATE / route through the existing UAPI fields** (§6 has the contract): **ZLS / depth store**
+(`zls_ctrl`) and **scissor** (`isp_scissor_base`) are not emitted in the captured client stream;
+userspace must compute their existing render-command values. Graphics shader selection is different:
+M4 EXP-0042 observes per-draw VS-token and FS-relative selectors within a queue-wide code window.
+The exact mapping of its base to queue `usc_exec_base` remains open, and there is no per-render
+code-base field to add or assume.
 *(**Sample positions are NOT in this list — RT-4:** they are userspace-emittable to a client BO `@+0x40`,
 emitted directly, not a submit param — see §5.)*
 
@@ -366,13 +370,14 @@ firmware writes the register):
 - `zls_ctrl` + `depth`/`stencil` (**ZLS / depth
   store**), `isp_zls_pixels` / `isp_scissor_base` / `isp_dbias_base` / `isp_oclqry_base`,
   tilebuffer sizing (`samples`/`utile_*`/`width_px`/`height_px`), `isp_merge_upper_*`,
-  `vdm_ctrl_stream_base`, `bg`/`eot`/`partial_bg`/`partial_eot` programs, and the **code-BO base**
-  for the graphics shader-entry handoff (§4.5). The compute counterpart is much thinner.
+  `vdm_ctrl_stream_base` and `bg`/`eot`/`partial_bg`/`partial_eot` programs. The executable
+  window is established at queue creation by `usc_exec_base`; its exact Apple9 mapping is
+  still open (§4.5). The compute counterpart is much thinner.
 
 **Firmware-managed items to route** (§4 — userspace does NOT emit these in the command stream):
 ZLS/depth store, **RT BVH build + node format** (userspace supplies vertices +
 build descriptor + an 8-byte AS VA; the GPU builds an opaque BVH), partial-render trigger,
-**graphics shader-entry bind** (no `shaderVA>>N` in a draw), **sparse tile residency** (page table,
+**sparse tile residency** (page table,
 §3), the **doorbell/ring advance**, the **timestamp sample-buffer** address, and mesh **UVB**
 sizing. `kernel-interface.md` §6.2 has the unambiguous emit-vs-submit-vs-firmware table.
 
@@ -383,7 +388,8 @@ sizing. `kernel-interface.md` §6.2 has the unambiguous emit-vs-submit-vs-firmwa
 **Mesa modules:** the native-vs-emulated boundary drives which `libagx/` emulation engines (GS/
 tess/XFB compute lowering, `agx_streamout.c`) and which native paths a Vulkan/GL driver needs.
 `capability-matrix.md` is the **decided** matrix; `capability-completeness.md` is the full 214-row
-census (native-decoded 189 / emulated 11 / kernel-managed 5 / NOT-YET-CHARACTERIZED 9).
+census (native-decoded 189 / emulated 11 / kernel-managed 4 / NOT-YET-CHARACTERIZED 10 after
+EXP-0042 reopened graphics code-window/stage-selector integration).
 
 **Native — emit a native instruction / packet / descriptor field** (`capability-matrix.md` §1;
 census §1–§15):
@@ -414,7 +420,8 @@ census §1–§15):
   **Metal-unreachable** → emulate (`cmdstream/README.md` "Geometry-output"; §8).
 
 **Kernel/firmware-managed** (`capability-matrix.md` §3; §6): ZLS/depth store, RT BVH build, partial
-render, graphics shader-entry bind, scissor. *(Sample positions are **not** kernel-managed — RT-4:
+render, and scissor. Graphics stage selection is an **open queue/userspace mapping**, not proven
+kernel-owned (EXP-0042). *(Sample positions are **not** kernel-managed — RT-4:
 userspace-emittable to a client BO `@+0x40`.)*
 
 Use `capability-completeness.md` §16 to see **which Metal-exposed features are still NOT-YET-

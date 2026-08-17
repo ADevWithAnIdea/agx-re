@@ -413,9 +413,9 @@ Section tally: native-decoded 18 · NYC 1.
 | Sampler heap (large count) | `maxArgumentBufferSamplerCount=500000` | descriptor: bindless sampler in an arg buffer = **8-byte little-endian `gpuResourceID`** = index into a 500k device-global sampler table (stride 8); samplers are not `MTLResource`s (no residency). Arg-buffer tex/samp block @`0x10000248000` (2-ptr header, count=ptr-delta/0x20) | native-decoded | `descriptors` EXP-O2B; `cmdstream` EXP-G1a |
 | Full halfregs→max-threads occupancy curve | perf | microarch (per-op latency/throughput) — not measured | NOT-YET-CHARACTERIZED | `mesa-req` §2a |
 | Special-register (SR) enum + preload ABI | (ABI) | instruction: `get_sr` SR#=byte1 (full table decoded); no GPR ID preload; **sysvals NOT in uniform registers** (`vertex_id`/`instance_id`/`[[position]]`/`front_facing` = `get_sr` on demand — no sysval→uniform table to build); buffer/uniform bases in uniform file (vtx base=slot `0x03`) | native-decoded | `isa` EXP-0031; `cmdstream` EXP-G1c |
-| **Graphics shader-entry bind** (a draw carries no `shaderVA>>N`) | (draw dispatch) | kernel-managed (code-BO base reaches firmware out-of-band; userspace emits sized code blocks + USC preambles) | kernel-managed | `cmdstream` EXP-0024; `kernel-interface` §4.5 |
+| **Graphics code-window / stage selectors** | (draw dispatch) | M4: VDM VS token + 32-bit FS window-relative selector; exact queue `usc_exec_base`, general token, consumer and A18 mapping open | NOT-YET-CHARACTERIZED (partial) | `cmdstream` EXP-0042; `kernel-interface` §4.5 |
 
-Section tally: native-decoded 8 · kernel-managed 1 · NYC 2.
+Section tally: native-decoded 8 · NYC 3.
 
 ---
 
@@ -440,16 +440,16 @@ native-decoded above unless noted):
 - **G1-a** USC/resource bind grammar, **G1-b** PBE/render-target-attachment descriptor, **G1-c**
   sysval-negative (no sysval→uniform table), **G1-e** UVS VS→FS varying linkage (§10/§11/§15).
 
-The NYC backlog fell from **39 → 9** (two rows reclassified NYC → emulated: polygon-point fill,
+The NYC backlog previously fell from **39 → 9** (two rows reclassified NYC → emulated: polygon-point fill,
 64-bit atomic min/max; then **O2-G** closed printf / mesh-ICB / comp×mip → native, **O2-H** closed
-tessellation → native, and **RT-4** moved sample positions kernel → native). The remaining **9** NYC
-are triaged below.
+tessellation → native, and **RT-4** moved sample positions kernel → native). EXP-0042 then
+reopened graphics code-window/stage-selector integration, making the current total **10**.
 
 ### (a) Metal-exposed capabilities still NOT hardware-exercised — objective-2 residue (prioritized)
 
-**Metal-exposed residue is now 0** — every Metal-exposed capability has been HW-exercised. The three
-former residue rows below were all **CLOSED by EXP-O2G**, and **tessellation** (the last one) was
-**CLOSED by EXP-O2H (NATIVE HW)** — retained here as a closed-item log.
+**Metal-exposed residue is 1:** graphics code-window/stage-selector integration (§15). The three
+former residue rows below remain closed by EXP-O2G, and tessellation remains closed by EXP-O2H;
+they are retained here as a closed-item log.
 
 | # | (former) NYC capability | Resolution | Method |
 |---|---|---|---|
@@ -478,7 +478,7 @@ performance counters). Listed for completeness with a one-line reason each.
 - **Depth store-action / ZLS** (§12) — `ZLS_CTRL`; firmware-programmed at render-pass granularity.
 - **Partial-render / tiler-param overflow trigger** (§12) — firmware detects overflow; no userspace knob.
 - **Scissor test** (§10) — `isp_scissor_base` submit param.
-- **Graphics shader-entry bind** (§15) — a draw carries no `shaderVA>>N`; the code-BO base reaches firmware out-of-band.
+- **Graphics code-window / stage-selector mapping** (§15) — M4 selectors are partial; queue-base mapping and A18 validation remain open.
 
 ### (c) Extrapolate-and-test probes (mostly Vulkan/GL wants that Metal does NOT expose)
 > **Correction (EXP-O2H):** **tessellation** is **NATIVE HW** on Apple9 — `drawPatches` → native VDM patch-dispatch record `0x40`, half-float factor buffer, ordinary post-tess vertex fn; **NOT compute-emulated**. It is now classified **native-decoded** (§9), no longer a residue. Geometry shaders and transform feedback genuinely have no Metal path → emulate.
@@ -507,15 +507,15 @@ sub-ops; the per-section tallies below sum the row counts).
 |---|---|---|
 | **native-decoded** | **189** | HW representation decoded in `docs/` (many HW-validated; *(partial)* = principal encoding decoded, sub-fields ⏳; *(lowered)* = no dedicated silicon but the compiler expansion into native ops is decoded & HW-validated; *(mechanism)* = realized through an already-decoded path, no new opcode). Includes **sample positions** (RT-4, userspace-emittable @+0x40), **native tessellation** (EXP-O2H), and the O2-G closures (printf/os_log, mesh-in-ICB, compression×mip). |
 | **emulated** | **11** | HW-absent or no proven Metal path → Vulkan/GL must software-emulate. 5 HW-validated absences (float atomic min/max, **64-bit atomic add + min/max** — 64-bit atomics entirely absent from MSL, arbitrary border color, int8 coopmat) + fp64 + no-D24S8 + **polygon-point fill** (Metal-unreachable, EXP-O2A) + **geometry shaders** + **transform feedback** (classically-absent, not re-probed on A18) + the **compute-tessellation fallback** (A18 tessellation is NATIVE, §9, but the `libagx` compute path is retained as an optional fallback capability). |
-| **kernel-managed** | **5** | Firmware/register state routed via the kernel submit (RT BVH build, ZLS/depth store, partial-render trigger, scissor, graphics shader-entry bind) — the canonical set in `capability-matrix` §3 + `kernel-interface`. **(Sample positions moved OUT — RT-4: userspace-emittable, native.)** |
-| **NOT-YET-CHARACTERIZED** | **9** | Metal/MSL-exposed or Apple-advertised, but A18 HW representation not yet decoded — the completeness backlog (§16). **Metal-exposed residue = 0:** the former printf/mesh-ICB/comp×mip closed by EXP-O2G, and **tessellation** closed by EXP-O2H (NATIVE HW), all → native. The remaining **9** are honestly-excluded: **6** microarch-only (§16b) + **3** truly-Metal-unreachable (§16c: aniso>16×, wide/smooth lines, conditional rendering). |
+| **kernel-managed** | **4** | Firmware/register state routed via the kernel submit (RT BVH build, ZLS/depth store, partial-render trigger, scissor). Graphics selection is not proven kernel-owned. **(Sample positions moved OUT — RT-4: userspace-emittable, native.)** |
+| **NOT-YET-CHARACTERIZED** | **10** | Nine earlier backlog rows plus the Metal-exposed graphics code-window/stage-selector mapping reopened by EXP-0042. The other nine remain 6 microarch-only + 3 Metal-unreachable. |
 
 Per-section tallies (native-decoded / emulated / kernel / NYC):
 §1 ALU 28/1/0/1 · §2 CF 14/0/0/0 · §3 mem 12/0/0/1 · §4 atomics 7/3/0/0 · §5 tex/samp 19/1/0/1 ·
 §6 subgroup 9/0/0/0 · §7 matrix 8/1/0/0 · §8 RT 12/0/1/1 · §9 mesh/geo 6/3/0/0 ·
 §10 raster/blend 18/2/1/2 · §11 interp 7/0/0/0 · §12 TBDR 14/0/2/0 · §13 dispatch 9/0/0/0 ·
-§14 format/tiling 18/0/0/1 · §15 machine-model 8/0/1/2.
-**Totals: native-decoded 189 · emulated 11 · kernel-managed 5 · NYC 9.** (189+11+5+9 = 214 rows.) *(RT-4: programmable sample positions moved kernel-managed → native-decoded — they ARE userspace-emittable @+0x40.)* **Metal-exposed NOT-YET = 0** — all 9 remaining NYC are honestly-excluded (6 microarch-only + 3 Metal-unreachable: aniso>16×, wide/smooth lines, conditional rendering). *(EXP-O2G closed printf/mesh-ICB/comp×mip → native; the last Metal-exposed residue **tessellation** is now **CLOSED (EXP-O2H): NATIVE HW tessellation**. **Metal-exposed residue = 0.**)*
+§14 format/tiling 18/0/0/1 · §15 machine-model 8/0/0/3.
+**Totals: native-decoded 189 · emulated 11 · kernel-managed 4 · NYC 10.** (189+11+4+10 = 214 rows.) EXP-0042 reopens one Metal-exposed integration item: graphics code-window/stage-selector mapping. The other 9 NYC rows remain 6 microarch-only + 3 Metal-unreachable.
 
 ### Apple-advertised features and their observability
 
@@ -556,8 +556,11 @@ EXP-0002), `PROVENANCE.md` (authoritative HW-validation log), and the public WWD
 reorder stage, HW mesh shading, 2× ALU, flexible on-chip memory). No new experiment; no Apple binary
 introspected.
 
-## Update (EXP-O2G / O2-H / RT-4): Metal-exposed NOT-YET → 0; census reconciled
-The 3 Metal-exposed NOT-YET items O2-G closed are now HW-exercised (native-decoded): **shader logging/printf** (os_log MTLLogState buffer + record format), **draw-mesh-into-ICB** (→ `0x70000600` record), **compression×mipmap/NPOT** (contiguous all-level aux; W≥16 ∧ H≥16 texel threshold). **EXP-O2H** then closed the last Metal-exposed residue — **tessellation is NATIVE HW** (VDM patch-dispatch `0x40`) → native. **RT-4** moved **programmable sample positions** kernel-managed → native (userspace-emittable @+0x40). **Reconciled final counts: native 189 / emulated 11 / kernel 5 / NOT-YET 9** (= 214) — matching the §17 summary table, the per-section tallies, and the "Totals:" line. **All 9 remaining NOT-YET are honestly-excluded** (6 microarch-only + 3 Metal-unreachable). **No Metal-exposed capability remains un-exercised** → objective 2 satisfied.
+## Historical update (EXP-O2G / O2-H / RT-4), superseded for graphics integration by EXP-0042
+The three O2-G items, tessellation, and programmable sample positions remain closed as recorded.
+However, EXP-0042 falsified the claimed graphics positional-walk/FS-size model, so graphics
+code-window/stage-selector integration is again Metal-exposed and open. Current reconciled counts
+are native 189 / emulated 11 / kernel 4 / NOT-YET 10 (=214).
 
 ## Update (EXP-M4-12): instruction census COMPLETE — G-13 fully met
 The **instruction-census** axis of the secondary goal (`../CLAUDE.md` G-13: "every opcode the compiler
@@ -571,4 +574,3 @@ instruction family exists** in the A18/M4 (Apple9) compiler output. Round-trip A
 walk, 0 leftover bytes). Operand sub-fields of the SFU range-reduction words remain deliberately
 undecoded (clean-room rule 5: decoding them would transcribe a compiler sequence); they are
 family-labeled, not unknown. See `experiments/EXP-M4-12-isa-residue-closure/`.
-

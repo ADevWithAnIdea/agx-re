@@ -1,0 +1,30 @@
+container magic : 0xbebafecb
+bitcode (BC\xC0\xDE) present : True
+AIR64 image present         : False
+
+image @ 48: fat-arch[0] cputype=AIR64
+  error: not a mach-o 64 image (magic=0x424c544d)
+
+image @ 9648: fat-arch[1] cputype=AppleGPU
+  cputype : AppleGPU  filetype=13
+    section __TEXT,__reflection(off=1936,size=1040)
+    section __TEXT,__vertex(off=2976,size=2032)
+    section __TEXT,__fragment(off=5008,size=3120)
+    section __TEXT,__descriptor(off=8128,size=784)
+    section __TEXT,__metallib(off=8912,size=9552)
+
+stages present: vertex, fragment
+
+AGX extraction [vertex] (nested-mach-o) from __TEXT,__vertex:
+  nested cputype   : AppleGPU
+  __text size      : 188
+  _agc.main length : 124
+  region _agc.main.constant_program: [0:64] (64 bytes)
+  region _agc.main: [64:188] (124 bytes)
+
+AGX extraction [fragment] (nested-mach-o) from __TEXT,__fragment:
+  nested cputype   : AppleGPU
+  __text size      : 750
+  _agc.main length : 622
+  region _agc.main.constant_program: [0:128] (128 bytes)
+  region _agc.main: [128:750] (622 bytes)

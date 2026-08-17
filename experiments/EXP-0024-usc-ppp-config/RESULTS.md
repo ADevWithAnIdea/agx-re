@@ -1,5 +1,10 @@
 # EXP-0024 Results — USC shader-entry, PPP header grammar, CDM config + threadgroup memory
 
+> **SUPERSEDED IN PART (2026-08-17, EXP-0042):** the claims that graphics uses an
+> unselected positional code-block walk and that `0x58000+0x08` is an FS byte size are
+> falsified by live M4 multi-pipeline/equal-size-FS probes. The retained A18 captures remain
+> historical DATA-TRACE evidence; use EXP-0042 for the current selector/container verdict.
+
 **TL;DR.** On A18 Pro / G17P / macOS 26.6, change-one-Metal-parameter byte-diffing (36 captures,
 all `status=4`, zero reboots) closes the three acceptance-gate gaps:
 

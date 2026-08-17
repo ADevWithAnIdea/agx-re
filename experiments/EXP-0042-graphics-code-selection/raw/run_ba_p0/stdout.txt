@@ -1,0 +1,15 @@
+DEVICE Apple M4
+CONFIG compile_order=BA prealloc=0 sequences=A,B,AB,BA,ABAB,BABA,ABBA,BAAB
+SOURCE A=kernels/pipeline_a.metal B=kernels/pipeline_b.metal
+RESOURCE vertices va=0x10000018200 size=0x18
+RESOURCE params_a va=0x10000018300 size=0x100
+RESOURCE params_b va=0x10000018400 size=0x100
+RESOURCE target va=0x10000058000 size=0x4000
+RESULT submit=0 sequence=A final=A status=completed sample_bgra=2914ebff fnv1a=9beb3e68808a2383
+RESULT submit=1 sequence=B final=B status=completed sample_bgra=33cc0dff fnv1a=09e18ef7872e2383
+RESULT submit=2 sequence=AB final=B status=completed sample_bgra=33cc0dff fnv1a=09e18ef7872e2383
+RESULT submit=3 sequence=BA final=A status=completed sample_bgra=2914ebff fnv1a=9beb3e68808a2383
+RESULT submit=4 sequence=ABAB final=B status=completed sample_bgra=33cc0dff fnv1a=09e18ef7872e2383
+RESULT submit=5 sequence=BABA final=A status=completed sample_bgra=2914ebff fnv1a=9beb3e68808a2383
+RESULT submit=6 sequence=ABBA final=A status=completed sample_bgra=2914ebff fnv1a=9beb3e68808a2383
+RESULT submit=7 sequence=BAAB final=B status=completed sample_bgra=33cc0dff fnv1a=09e18ef7872e2383

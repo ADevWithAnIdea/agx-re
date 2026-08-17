@@ -1,0 +1,46 @@
+[MULTIPIPE: queue/code window and VS switch token]
+run_ab_p0 order=AB prealloc=0 code_va=0x10000000000 code_sha256=893b8b46b9b4cf9e33b079f796ce4a85252f94e51b236f90706fafe89eafe6a3 vertices=0x10000018200 A=(hdr8=0x1000000,hdr10=0x404,bind=0x500,token=0x40) B=(hdr8=0x1000040,hdr10=0x606,bind=0x500,token=0xc0)
+run_ba_p0 order=BA prealloc=0 code_va=0x10000000000 code_sha256=a962053954c09fd25f63380f39b4107837bc387404fc38dc93293aae433f22de vertices=0x10000018200 A=(hdr8=0x1000000,hdr10=0x404,bind=0x500,token=0xc0) B=(hdr8=0x1000040,hdr10=0x606,bind=0x500,token=0x40)
+run_ab_p17 order=AB prealloc=17 code_va=0x10000000000 code_sha256=893b8b46b9b4cf9e33b079f796ce4a85252f94e51b236f90706fafe89eafe6a3 vertices=0x10000031a00 A=(hdr8=0x1000000,hdr10=0x404,bind=0x500,token=0x40) B=(hdr8=0x1000040,hdr10=0x606,bind=0x500,token=0xc0)
+switch_sequence=A records=[0x0:h8=0x1000000,h10=0x404,pair=(1280, 64)]
+switch_sequence=B records=[0x0:h8=0x1000040,h10=0x606,pair=(1280, 192)]
+switch_sequence=AB records=[0x0:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0x74:h8=0x1000040,h10=0x606,pair=(1280, 192)]
+switch_sequence=BA records=[0x0:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0x74:h8=0x1000000,h10=0x404,pair=(1280, 64)]
+switch_sequence=ABAB records=[0x0:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0x74:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0xc8:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0x11c:h8=0x1000040,h10=0x606,pair=(1280, 192)]
+switch_sequence=BABA records=[0x0:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0x74:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0xc8:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0x11c:h8=0x1000000,h10=0x404,pair=(1280, 64)]
+switch_sequence=ABBA records=[0x0:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0x74:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0xc8:h8=0x1000040,h10=0x606,pair=(1792, 360660) ; 0xfc:h8=0x1000000,h10=0x404,pair=(1280, 64)]
+switch_sequence=BAAB records=[0x0:h8=0x1000040,h10=0x606,pair=(1280, 192) ; 0x74:h8=0x1000000,h10=0x404,pair=(1280, 64) ; 0xc8:h8=0x1000000,h10=0x404,pair=(1792, 360660) ; 0xfc:h8=0x1000040,h10=0x606,pair=(1280, 192)]
+
+[AUTHORED A/B exact matches inside live code BO]
+run_ab_p0 first_record_offset=0x340
+  pipeline_a.fragment.main bytes=54 main=0x3c0 header=0x340 record_size=0xc0 end=0x400 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_a.vertex.main bytes=88 main=0x480 header=0x400 record_size=0x100 end=0x500 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_b.fragment.main bytes=558 main=0x5c0 header=0x500 record_size=0x300 end=0x800 constant_program_bytes=128 cp_rel_hits=['0x40']
+  pipeline_b.vertex.main bytes=268 main=0x940 header=0x880 record_size=0x200 end=0xa80 constant_program_bytes=128 cp_rel_hits=['0x40']
+run_ba_p0 first_record_offset=0x340
+  pipeline_a.fragment.main bytes=54 main=0x940 header=0x8c0 record_size=0xc0 end=0x980 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_a.vertex.main bytes=88 main=0xa00 header=0x980 record_size=0x100 end=0xa80 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_b.fragment.main bytes=558 main=0x400 header=0x340 record_size=0x300 end=0x640 constant_program_bytes=128 cp_rel_hits=['0x40']
+  pipeline_b.vertex.main bytes=268 main=0x780 header=0x6c0 record_size=0x200 end=0x8c0 constant_program_bytes=128 cp_rel_hits=['0x40']
+run_ab_p17 first_record_offset=0x340
+  pipeline_a.fragment.main bytes=54 main=0x3c0 header=0x340 record_size=0xc0 end=0x400 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_a.vertex.main bytes=88 main=0x480 header=0x400 record_size=0x100 end=0x500 constant_program_bytes=64 cp_rel_hits=['0x40']
+  pipeline_b.fragment.main bytes=558 main=0x5c0 header=0x500 record_size=0x300 end=0x800 constant_program_bytes=128 cp_rel_hits=['0x40']
+  pipeline_b.vertex.main bytes=268 main=0x940 header=0x880 record_size=0x200 end=0xa80 constant_program_bytes=128 cp_rel_hits=['0x40']
+
+[STAGE MATRIX: separate VS token and FS relative selector]
+SS vs=small fs=small readback=RESULT submit=6 pipeline=SS vs=small fs=small sample_bgra=2e1ae5ff fnv1a=b1a4f114c07f0383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0x40) fs_selector=0x500 fs_header=0x340 fs_record_size=0x180 metadata_header=0x4c0 formula=0x500
+SF vs=small fs=large readback=RESULT submit=7 pipeline=SF vs=small fs=large sample_bgra=38c70fff fnv1a=b1ccc58e66140383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0x40) fs_selector=0x9c0 fs_header=0x640 fs_record_size=0x340 metadata_header=0x980 formula=0x9c0
+LS vs=large fs=small readback=RESULT submit=8 pipeline=LS vs=large fs=small sample_bgra=2e1ae5ff fnv1a=b1a4f114c07f0383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0xc0) fs_selector=0x500 fs_header=0x340 fs_record_size=0x180 metadata_header=0x4c0 formula=0x500
+LF vs=large fs=large readback=RESULT submit=9 pipeline=LF vs=large fs=large sample_bgra=38c70fff fnv1a=b1ccc58e66140383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0xc0) fs_selector=0x9c0 fs_header=0x640 fs_record_size=0x340 metadata_header=0x980 formula=0x9c0
+EA vs=small fs=equal_a readback=RESULT submit=10 pipeline=EA vs=small fs=equal_a sample_bgra=2e1ae5ff fnv1a=b1a4f114c07f0383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0x40) fs_selector=0xdc0 fs_header=0xc00 fs_record_size=0x180 metadata_header=0xd80 formula=0xdc0
+EB vs=small fs=equal_b readback=RESULT submit=11 pipeline=EB vs=small fs=equal_b sample_bgra=38c70fff fnv1a=b1ccc58e66140383 status=completed
+  vdm_h8=0x1000040 vdm_h10=0x606 vs_pair=(0x500,0x40) fs_selector=0xfc0 fs_header=0xe00 fs_record_size=0x180 metadata_header=0xf80 formula=0xfc0
+equal_fragment_main bytes=142 byte_identical=True sha256=1bc13bfaa1a9ec95fd884c9d9d7c59e8b4797e46b5157db5c00532488fcb2a6d live_hits=['0x400', '0xcc0', '0xec0']
+equal_fragment_constant_program bytes=128 byte_identical=False ea_sha256=bed528da0b997f721322a9d0aaa9c5b8d5e37b624d64c61d10b6969da38e1ab4 eb_sha256=62ad6da6804fb38491e1253e017eca9d8c34589e4d22856d99ae6caff0e837d3 ea_live_hits=['0x380', '0xc40'] eb_live_hits=['0xe40']
+fs_selector_payloads offsets=0x500,0x9c0,0xdc0,0xfc0 all_byte_identical=True payload_sha256=a3f5bb3d75b8c06ff3f5cd30434d249f7569dfca3b21c33d458cb7fac8b45292

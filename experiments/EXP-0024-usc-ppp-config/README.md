@@ -1,5 +1,9 @@
 # EXP-0024: USC shader-entry, PPP header grammar, CDM config + threadgroup-memory
 
+> **Current status:** graphics selection/container conclusions are partially superseded by
+> EXP-0042 (2026-08-17). Preserve this experiment as historical A18 evidence; do not use its
+> positional-walk or `0x58000+0x08 = FS size` interpretation as the current model.
+
 - **Date:** 2026-07-07
 - **Clean-room category:** DATA-TRACE + OWN-SHADER (no Apple binary inspected)
 - **Phase / question:** Phase 2 cmdstream — close acceptance-gate gaps G-3, G-7, G-8.

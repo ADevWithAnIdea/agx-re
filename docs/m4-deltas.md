@@ -113,8 +113,10 @@ REJECTED, MSL `printf` REJECTED (os_log path), only 3 sampler border presets; na
 `[[patch]]`, quad/simd scan/shuffle/ballot, texture atomics, os_log, Metal-4 `<metal_tensor>`/MPP (both parts).
 Device caps identical (arg-buffer Tier 2, RW-texture Tier 2, RT+motionBlur, funcPtrs, dynLibs, 32-bit-float
 filter/MSAA, BC, pull-model, barycentric, programmable sample positions, raster-order-groups; depth24stencil8 = NO).
-So the A18 `capability-matrix.md` / `capability-completeness.md` (189 native / 11 emulated / 5 kernel / 9 NYC)
-**apply unchanged to the M4.** Only capacity/config differs (see §0): 10 cores, maxBufferLength > 4 GiB, 16 GiB RAM.
+So the A18 `capability-matrix.md` / `capability-completeness.md` capability envelope applies to
+M4. The current integration classification is 189 native / 11 emulated / 4 proven kernel / 10 NYC
+after M4 EXP-0042 reopened graphics code-window/stage-selector mapping; that mapping still needs an
+A18 run. Only capacity/config otherwise differs (see §0): 10 cores, maxBufferLength > 4 GiB, 16 GiB RAM.
 
 ---
 

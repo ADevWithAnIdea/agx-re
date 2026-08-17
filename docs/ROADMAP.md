@@ -95,7 +95,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 **CRITICAL (blocks any real shader/draw):**
 - ☑ **G-1 Async model** — *EXP-0025 (INVERTS premise): HW register interlock, NO software scoreboard/wait (unlike G13). Compiler must NOT emit G13 waits. Only ordering op = threadgroup_barrier 0x07 (byte+3 mem-scope); splice-proven silent-corruption surface. Fragment tilebuffer ordering = follow-up.*
 - ☑ **G-2 Transcendentals** — *EXP-0026: SFU 0x2f/0xaf single-op + 0x29 estimate+NR precise; pow/div/sin/cos composites. Driver gap: large-arg trig needs SW range reduction.*
-- ☑ **G-3 Graphics shader binding** — *EXP-0024: NO shaderVA>>N in userspace; code BO = self-describing sized-block walk + USC uniform-preamble programs; code-base→fw handoff = kernel item.*
+- ◐ **G-3 Graphics shader binding — REOPENED/PARTIAL** — *M4 EXP-0042 supersedes the EXP-0024 positional-walk/FS-size interpretation: VS uses a creation-order token and FS a code-window-relative selector. Exact queue `usc_exec_base`, general token/record grammar, consumer, and A18 behavior remain open.*
 - ☐ **G-4 Fragment varying interpolation** — iter/ldcf coefficient model for interpolated FS inputs. [ISA/frag]
 - ☑ **G-5 SR enum + shader ABI** — *EXP-0031: get_sr SR#=byte1 + full table; no ID preload (get_sr on demand); VS attribute fetch = in-shader software (driver generates from vertex format). → `docs/isa/README.md`.*
 
@@ -106,7 +106,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 - ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*
 - ☑ **G-8 tgmem size + CDM config** — *EXP-0024: tgmem=(bytes<<2)|0x80 in shader BO; config bit23=occupancy tier.*
 - ☑ **G-4 fragment interpolation ✅ (EXP-0029).** **G-9 RT ✅ (EXP-0023 hybrid) + mesh shading ✅ (EXP-0030: HW pipeline, compute-store emit, 0x43 marker, graphics-path submission; UVB firmware-managed)**. [ISA]
-- ☑ **G-10 Native-vs-emulated capability matrix** → `docs/capability-matrix.md` (now **15 native / 6 emulate / 4 kernel-managed** after RT-4 sample-positions→native + EXP-O2H tessellation→native; was 13/7/5 at G-10 close).
+- ◐ **G-10 Native-vs-emulated capability matrix — PARTIAL after EXP-0042** → `docs/capability-matrix.md` (now **15 native / 6 emulate / 3 proven kernel-managed / 4 open clusters**; graphics selection moved from assumed kernel-owned to open queue/userspace mapping).
 - ☑ **G-11 Contradiction reconciled** → `docs/kernel-interface.md`: userspace *computes* value, kernel *writes register* as submit-ioctl param (not in command stream). Both docs right at different layers.
 - ☑ **G-12 Kernel-interface contract** → `docs/kernel-interface.md` (submission model, VA-space table, 5 firmware-managed items, what kernel must provide).
 
@@ -177,7 +177,7 @@ tightened as they're decoded.
 - ☐ **W4** Phase-5 synthesis: `docs/porting-guide.md` (per `src/asahi` module) + re-run acceptance reviewer
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
-### OBJECTIVE-2 — capability census re-synced (final, reconciled): **189 native / 11 emulated / 5 kernel / 9 NOT-YET**. Metal-exposed residue = **0** ✅ (EXP-O2H: tessellation is NATIVE HW; printf/mesh-ICB/comp×mip closed by EXP-O2G; RT-4: sample positions userspace-native). **OBJECTIVE 2 fully satisfied.** All 9 remaining NYC = microarch/Metal-unreachable (honestly excluded). O2-A..F all closed, ISA merged (DB 75).
+### OBJECTIVE-2 — REOPENED by EXP-0042: **189 native / 11 emulated / 4 kernel / 10 NOT-YET**. Metal-exposed residue = **1**: graphics code-window/stage-selector integration. Tessellation, printf/mesh-ICB/comp×mip, and sample positions remain closed; the earlier “fully satisfied” verdict is superseded. O2-A..F remain historical closures, ISA merged (DB 75).
 From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
 - ☑ **O2-A geometry-output pipeline** (EXP-O2A) [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.

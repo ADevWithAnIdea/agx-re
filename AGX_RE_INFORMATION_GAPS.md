@@ -91,6 +91,15 @@ The unchanged UAPI has no per-render code-BO-base field. It has only the queue-w
 
 This may be resolvable without changing UAPI—for example if `usc_exec_base` is the missing handoff—but the repository does not demonstrate that mapping. The current statement that a new submit parameter is needed is not compatible with the constraint.
 
+**M4 interim evidence (EXP-0042, still open):** 36 live multi-pipeline draws show
+separable selectors rather than an unselected positional walk. A VS change emits the VDM
+pair `(0x500, token)`; the two observed tokens follow VS creation order. The FS selector at
+`0x58000+0x08` is a 32-bit offset in the code window, not an FS byte size, and points to the
+payload of a `0x80` record immediately following the selected authored FS code record. The
+code BO remained at `0x10000000000` under a 17-allocation perturbation. This materially
+narrows selection and record framing but does not prove the Linux `usc_exec_base` mapping,
+the consumer of the adjacent record, a general VS-token rule, or A18 behavior.
+
 ### P0.3 The Apple9 meaning of every existing render/compute UAPI field is not known
 
 `kernel-interface.md:264-287` mostly repeats the current UAPI field list. Listing fields is not the same as documenting the Apple9 value userspace must compute.
@@ -187,6 +196,13 @@ Missing:
 - Complete sized-block code header and uniform-preamble container construction.
 
 Without resolving this layer, successfully compiling instruction bytes does not produce a launchable shader.
+
+**M4 interim evidence (EXP-0042, still open):** exact authored shader bytes occur in live
+records with a `0x40`-byte zero-reserved header, aligned total record size in word 0,
+authored constant program, authored main, and padding. Distinct equal-sized FS records have
+distinct relative selectors and distinct output. The adjacent `0x80` record is only
+STRUCTURAL evidence; whether hardware, firmware, or macOS userspace consumes either header
+is unknown. Resource-spec generation and an independent container writer remain missing.
 
 ### P0.8 Complete shader-stage ABI and programmable epilogs are missing
 

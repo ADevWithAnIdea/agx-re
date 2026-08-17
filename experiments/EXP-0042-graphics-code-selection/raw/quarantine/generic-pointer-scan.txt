@@ -1,0 +1,24 @@
+EXP-0042 CLEAN-ROOM QUARANTINE RECORD
+Date: 2026-08-17
+
+The first analysis draft contained an aligned-u64 search across every captured BO in
+three selected dumps. It did not disassemble, decode, dereference, or emit BO contents,
+and its only output was:
+
+  run_ab_p0/dump04 aligned_u64_hits_into_code_window=0
+  run_ba_p0/dump04 aligned_u64_hits_into_code_window=0
+  run_stage_equal/dump10 aligned_u64_hits_into_code_window=0
+
+Root audit rejected the input scope because it was broader than an explicit,
+previously correlated command/state/descriptor BO allowlist. The generic scanner was
+removed from analysis/analyze.py and the three lines were removed from the authoritative
+derived report. No claim, table, verdict, or provenance row may consume this result.
+
+Pre-audit artifact hashes:
+
+  e4865861449ed640fa5069b6bdd2129a889abecad739162f03fa0799ebc3de5d  analysis/analyze.py
+  4ecadccc971787ee524121ac51e21bf2ba06654851a0e988841a90de338d5ef0  raw/derived/analysis_summary.txt
+
+This record preserves the failed process path without preserving or promoting a generic
+scanner. The immutable boundary captures remain valid; subsequent analysis is restricted
+to explicit BO virtual addresses and exact bytes produced from committed authored MSL.

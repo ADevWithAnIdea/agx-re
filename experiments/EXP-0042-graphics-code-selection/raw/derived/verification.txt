@@ -1,0 +1,17 @@
+Verification run: 2026-08-17, local Apple M4 / macOS 26.6.2
+
+PASS  Re-extracted every A/B and six matrix VS/FS main and constant-program hex file
+      from the checked-in authored MSL; all files byte-equal to raw/own_shader*.
+PASS  analysis/analyze.py output byte-equal to raw/derived/analysis_summary.txt.
+PASS  python3 -m py_compile analysis/*.py.
+PASS  clang -arch arm64 -fobjc-arc -fsyntax-only harness/multipipe.m.
+PASS  clang -arch arm64 -fobjc-arc -fsyntax-only harness/stage_matrix.m.
+PASS  No trailing whitespace in authored source, README, RESULTS, or manifest scripts.
+PASS  SHA-256 verification of all 2052 raw files indexed before this verification
+      note was added; manifest regenerated afterward to include this note.
+PASS  No saved compact artifact contains a device serial number, hardware UUID, or UDID.
+PASS  Authoritative analysis opens only explicit BO VAs 0x18000, 0x58000, and
+      0x10000000000; no generic all-BO scan feeds RESULTS.md.
+
+The full verification commands are listed in README.md. Full map snapshots are retained
+locally and are intentionally gitignored; their per-file hashes remain in raw_manifest.sha256.

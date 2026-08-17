@@ -120,7 +120,7 @@ observed at `0x10000000000`:
 
 | GPU VA | role | content authored by |
 |---|---|---|
-| `0x10000000000` | **shader code BO** (self-describing `[size-header][machine-code]` blocks) | userspace (compiled shaders) |
+| `0x10000000000` | **shader code window BO** (authored stages in aligned sized records; selection/container grammar partial) | userspace (compiled shaders) |
 | `0x10000090000` | compute shader-code BO (threadgroup-mem size `@+0x40`) | userspace |
 | `0x100000e0000` | **Tier-2 argument buffer** (resource table `@+0x14a0`, 8 B/slot) + appended texture/sampler descriptor blocks | userspace |
 | `0x10000100000` | vertex-attribute table | userspace |
@@ -193,15 +193,16 @@ Each item below appears in the other docs as "firmware-managed / route via kerne
   **partial render** (flush tiles, resume). There is **no userspace knob** for the trigger — it is
   firmware-managed.
 
-### 4.5 Code-BO-base → firmware handoff for graphics shader dispatch — `cmdstream/README.md` (EXP-0024)
-- **Userspace provides:** the compiled code as **self-describing sized blocks** in the code BO
-  (`0x10000000000`) and the per-stage **USC uniform-preamble programs** (`0x10000130000`).
-- **Kernel/firmware does:** binds the shader for dispatch. Unlike compute (which carries an explicit
-  `shaderVA>>6` in the CDM launch record), **a draw carries NO shader pointer anywhere in the client
-  command stream** (exhaustive delta-search found only *sizes* tracking a growing shader, never an
-  8-byte pointer). The base of the code BO reaches the firmware out-of-band. → **flag as a
-  userspace↔kernel item**: the Linux submit must convey the code-BO base (analogous to
-  `vdm_ctrl_stream_base`, §6.1), and the firmware performs the actual entry bind.
+### 4.5 Queue code window and graphics stage selection — corrected by M4 EXP-0042
+- **Userspace provides:** compiled stages in the queue's executable window, the per-stage USC
+  uniform-preamble programs, and explicit per-draw selection state. M4 draws emit a VDM VS-token
+  pair and a separate 32-bit FS code-window-relative selector.
+- **Existing Linux boundary:** queue creation already provides `usc_exec_base`; render submit has no
+  per-render code-base field. EXP-0042 observed a stable 4 GiB-aligned code BO base, but did not run
+  Linux and therefore does **not** prove that it is the exact value for `usc_exec_base`.
+- **Still open:** general VS-token construction, window lifetime/multiple queues, address tags,
+  whether adjacent sized records are consumed by HW/FW, and the A18 mapping. Do not invent a new
+  render-submit parameter or classify the mapping as kernel-owned merely because macOS hid it.
 
 ---
 
@@ -297,7 +298,7 @@ compute.**
 | Tilebuffer sizing / scissor / dbias / occlusion base | **no** | **yes** (`isp_*`, `samples`, `utile_*`) | writes ISP regs |
 | RT BVH build + node format | **no** | vertices + build desc | builds BVH (opaque) |
 | Partial-render trigger | **no** | `partial_bg`/`partial_eot` programs | detects overflow, triggers |
-| Graphics shader-entry bind | **no** (no `shaderVA>>N` in draw stream) | code-BO base (out-of-band) | binds entry |
+| Graphics stage selection | **yes** (VDM VS token + pool FS-relative selector on M4) | queue `usc_exec_base` is the existing candidate; exact mapping open | consumer of selector records unknown |
 | Doorbell / ring advance | **no** | submit ioctl | rings doorbell |
 
 ---
@@ -312,7 +313,8 @@ priority per `../CLAUDE.md`, but in scope as interface notes — `mesa-userspace
    Linux `GEM_CREATE` + `VM_BIND`). 16 KiB alignment on all bind offsets/addresses/ranges; BOs
    rounded to 16 KiB (device page size = 16 KiB, `hardware-overview.md` §2).
 2. **Submit** with the **command-BO set** and the base pointers of the control streams
-   (`vdm_ctrl_stream_base`, the CDM control-stream base, the code-BO base handoff of §4.5). The
+   (`vdm_ctrl_stream_base` and the CDM control-stream base); establish the executable window through
+   queue `usc_exec_base` once the open §4.5 mapping is validated. The
    kernel advances the ring and **rings the doorbell** (§2) — userspace never touches the doorbell.
 3. **Sync / fences** — completion signalling (macOS sel `0x11` → Linux DRM sync objects) so
    userspace can order and wait on submits.
@@ -359,8 +361,8 @@ no Apple binary introspected.
 
 ## Scratch / doorbell / uniform-heap (EXP-G1a/G1b, objective-1 gap G1-d → kernel-managed)
 Userspace declares the per-thread **scratch (spill) size** in the shader's own `__GPU_METADATA` (EXP-0020); the **scratch
-buffer allocation + per-core scratch geometry**, the **`0x0042XXXX` uniform-data heap base**, the **code-BO→firmware
-shader handoff**, and the **CPU→GPU doorbell store** are all **kernel/firmware-managed** (not in any client BO). A Mesa
+buffer allocation + per-core scratch geometry**, the **`0x0042XXXX` uniform-data heap base**, and the
+**CPU→GPU doorbell store** were not exposed in the historical client-BO study. The code-window mapping is
+separately **OPEN** after EXP-0042 and must be reconciled with queue `usc_exec_base`. A Mesa
 userspace driver emits the scratch-size metadata and buffer/USC contents; the kernel allocates scratch, binds the heaps,
 and rings the doorbell. (These correlate with the un-RE'd per-core geometry — a kernel-team RE item, not userspace.)
-
