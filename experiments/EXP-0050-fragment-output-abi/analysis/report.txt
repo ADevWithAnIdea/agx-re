@@ -1,0 +1,19 @@
+EXP-0050 strict own-shader/readback analysis
+OBSERVATIONS
+- 22 cases per run x 2 runs = 44 forced-archive executions; all exact repeat evidence matches.
+- Declaration-order pairs are byte-identical: sparse RT0+RT2 (98 B), MRT0/1/2 (142 B), color+depth (156 B), and mask-5 (252 B).
+- c0 and color-fixed-depth are also byte-identical (54 B): merely attaching/writing fixed depth does not change the tested fragment main.
+- Live sparse outputs route by semantic MSL index. Own-main store selector byte +5 is compact: c0/c1-only/c2-only all 0; RT0+RT2 is [2,0]; RT0/1/2 is [4,2,0]. Separate surrounding tile-access selectors carry semantic RT values 0c/30/c0 for isolated color(0/1/2).
+- Shader depth writes exact 0.25/0.625; the no-shader-depth control writes interpolated 0.75. The exact d7 14 54 depth-store signature occurs only in shader-depth cases.
+- 4x sample masks resolve distinctly: f=a00000ff, 5=40010282, a=60010282, 0=01020304. f/5/a differ at one own-main byte (+0x2d: 1e/0a/14); mask-zero removes the color-store path (32 B main).
+- Discard kills the left two pixels. Counters are atomic-all=4, before-discard=4, after-discard=2.
+- Safe splice changed exactly one own-main byte, store selector 02->04. RT1 became unwritten and RT2 received RT1's authored value in both runs.
+- Counterexample: spliced RT1 read back 00000000, not requested clear 05060708; H5's combined clear prediction is falsified and no clear/background inference is promoted.
+
+INTERPRETATION
+- The tested compiler canonicalizes output declaration order and emits stores in descending compact active-output order.
+- The store selector is not universally semantic [[color(n)]]*2: sparse color(1)-only and color(2)-only both emit compact selector 0 while the bracket's semantic selector changes 0c->30/c0 and live output reaches RT1/RT2. Earlier contiguous-only observations conflated these two selector roles.
+- Mask and depth findings are source-path/compiler correlations. Only the checked contiguous-MRT selector mutation is live splice evidence.
+
+VERDICT
+- PARTIAL M4-only P0.8 evidence. Full FS ABI, prolog/epilog linkage, tilebuffer mapping, arbitrary formats, independent code generation, Linux mapping, and A18 remain OPEN.
