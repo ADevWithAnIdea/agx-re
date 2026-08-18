@@ -1,0 +1,258 @@
+{
+  "aggregate": {
+    "canonical_stdout_equal": true,
+    "completed_commands": 26,
+    "compute_guards_unchanged": true,
+    "draw_argument_guards_unchanged": true,
+    "successful_processes": 2
+  },
+  "canonical_runs": [
+    "m4_20260817_run05",
+    "m4_20260817_run06"
+  ],
+  "experiment": "EXP-0053-m4-indirect-api-semantics",
+  "hypotheses": {
+    "H1": "SUPPORTED for CPU pre-commit mutation and GPU prior-encoder producer",
+    "H2": "SUPPORTED for tested full/prefix/suffix/middle/empty ICB ranges",
+    "H3": "SUPPORTED for tested middle reset and one-slot restore",
+    "H4": "SUPPORTED for tested zero/nonzero compute and draw cases",
+    "H5": "SUPPORTED for tested full-range public optimization"
+  },
+  "preserved_failures": [
+    {
+      "exit": 1,
+      "phase": "build",
+      "reason": "unsupported authored convenience-property spelling",
+      "run": "m4_20260817_run01"
+    },
+    {
+      "exit": 10,
+      "later_submissions_ignored": true,
+      "page_fault_recorded": true,
+      "phase": "run",
+      "reason": "authored ICB pipeline omitted public supportIndirectCommandBuffers opt-in",
+      "run": "m4_20260817_run02"
+    }
+  ],
+  "preserved_noncanonical_successes": [
+    "m4_20260817_run03",
+    "m4_20260817_run04"
+  ],
+  "runs": [
+    {
+      "commands": 13,
+      "compute": {
+        "cpu-mutate-before-commit": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0030000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "3,1,1",
+          "counter": "24",
+          "counter_hex": "edfe0dd018000000edfe0dd0",
+          "expected_threads": "24",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "08b5d47700595c6b",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000510100005102000051030000510400005105000051060000510700005108000051090000510a0000510b0000510c0000510d0000510e0000510f0000511000005111000051120000511300005114000051150000511600005117000051edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        },
+        "gpu-producer-prior-encoder": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0040000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "4,1,1",
+          "counter": "32",
+          "counter_hex": "edfe0dd020000000edfe0dd0",
+          "expected_threads": "32",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "45481b45a99fef63",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000510100005102000051030000510400005105000051060000510700005108000051090000510a0000510b0000510c0000510d0000510e0000510f000051100000511100005112000051130000511400005115000051160000511700005118000051190000511a0000511b0000511c0000511d0000511e0000511f000051edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        },
+        "indirect-zero": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "0,1,1",
+          "counter": "0",
+          "counter_hex": "edfe0dd000000000edfe0dd0",
+          "expected_threads": "0",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "577e53ec5812a283",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        }
+      },
+      "draw": {
+        "indirect-draw-three": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd003000000010000000000000000000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "guards": "0",
+          "rgba": "11223344112233441122334411223344",
+          "vertices": "3"
+        },
+        "indirect-draw-zero": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd000000000010000000000000000000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "guards": "0",
+          "rgba": "01020304010203040102030401020304",
+          "vertices": "0"
+        }
+      },
+      "icb": {
+        "empty": {
+          "count": 0,
+          "optimize": 0,
+          "rgba": "01020304010203040102030401020304",
+          "start": 0
+        },
+        "full": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff405060ff708090ffa0b0c0ff",
+          "start": 0
+        },
+        "middle": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "01020304405060ff708090ff01020304",
+          "start": 1
+        },
+        "optimized-full": {
+          "count": 4,
+          "optimize": 1,
+          "rgba": "102030ff405060ff708090ffa0b0c0ff",
+          "start": 0
+        },
+        "prefix": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "102030ff405060ff0102030401020304",
+          "start": 0
+        },
+        "reset-middle": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff0102030401020304a0b0c0ff",
+          "start": 0
+        },
+        "restore-one": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff405060ff01020304a0b0c0ff",
+          "start": 0
+        },
+        "suffix": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "0102030401020304708090ffa0b0c0ff",
+          "start": 2
+        }
+      },
+      "run": "m4_20260817_run05"
+    },
+    {
+      "commands": 13,
+      "compute": {
+        "cpu-mutate-before-commit": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0030000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "3,1,1",
+          "counter": "24",
+          "counter_hex": "edfe0dd018000000edfe0dd0",
+          "expected_threads": "24",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "08b5d47700595c6b",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000510100005102000051030000510400005105000051060000510700005108000051090000510a0000510b0000510c0000510d0000510e0000510f0000511000005111000051120000511300005114000051150000511600005117000051edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        },
+        "gpu-producer-prior-encoder": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0040000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "4,1,1",
+          "counter": "32",
+          "counter_hex": "edfe0dd020000000edfe0dd0",
+          "expected_threads": "32",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "45481b45a99fef63",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000510100005102000051030000510400005105000051060000510700005108000051090000510a0000510b0000510c0000510d0000510e0000510f000051100000511100005112000051130000511400005115000051160000511700005118000051190000511a0000511b0000511c0000511d0000511e0000511f000051edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        },
+        "indirect-zero": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0000000000100000001000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "args": "0,1,1",
+          "counter": "0",
+          "counter_hex": "edfe0dd000000000edfe0dd0",
+          "expected_threads": "0",
+          "guards": "0",
+          "mismatches": "0",
+          "output_fnv": "577e53ec5812a283",
+          "output_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0edfe0dd0"
+        }
+      },
+      "draw": {
+        "indirect-draw-three": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd003000000010000000000000000000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "guards": "0",
+          "rgba": "11223344112233441122334411223344",
+          "vertices": "3"
+        },
+        "indirect-draw-zero": {
+          "arg_hex": "edfe0dd0edfe0dd0edfe0dd0edfe0dd000000000010000000000000000000000edfe0dd0edfe0dd0edfe0dd0edfe0dd0",
+          "guards": "0",
+          "rgba": "01020304010203040102030401020304",
+          "vertices": "0"
+        }
+      },
+      "icb": {
+        "empty": {
+          "count": 0,
+          "optimize": 0,
+          "rgba": "01020304010203040102030401020304",
+          "start": 0
+        },
+        "full": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff405060ff708090ffa0b0c0ff",
+          "start": 0
+        },
+        "middle": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "01020304405060ff708090ff01020304",
+          "start": 1
+        },
+        "optimized-full": {
+          "count": 4,
+          "optimize": 1,
+          "rgba": "102030ff405060ff708090ffa0b0c0ff",
+          "start": 0
+        },
+        "prefix": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "102030ff405060ff0102030401020304",
+          "start": 0
+        },
+        "reset-middle": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff0102030401020304a0b0c0ff",
+          "start": 0
+        },
+        "restore-one": {
+          "count": 4,
+          "optimize": 0,
+          "rgba": "102030ff405060ff01020304a0b0c0ff",
+          "start": 0
+        },
+        "suffix": {
+          "count": 2,
+          "optimize": 0,
+          "rgba": "0102030401020304708090ffa0b0c0ff",
+          "start": 2
+        }
+      },
+      "run": "m4_20260817_run06"
+    }
+  ],
+  "schema": 1,
+  "scope": {
+    "a18_pro": "UNTESTED",
+    "apple_binary_introspection": "NONE",
+    "compiled_shader_bytes_inspected": "NONE",
+    "linux_uapi_mapping": "NOT ESTABLISHED",
+    "private_command_stream": "NOT INSPECTED",
+    "target": "Apple M4/G16G-class only"
+  }
+}
