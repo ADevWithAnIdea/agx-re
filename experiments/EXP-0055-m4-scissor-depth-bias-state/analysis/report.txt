@@ -1,0 +1,48 @@
+EXP-0055 strict M4 state-boundary analysis
+
+PROCESS
+- 2 top-level runs x 38 fresh processes = 76 successful GPU processes.
+- 152 exact allowed payload pairs passed complete metadata/trace preflight before payload access.
+- Full guarded public output and every allowed payload are byte-exact across repetitions; all commands completed with zero guard/pad errors.
+
+QUALIFIED DIFFERENTIALS
+- scissor-x: NONE (bounded negative)
+- scissor-y: NONE (bounded negative)
+- scissor-width: NONE (bounded negative)
+- scissor-height: NONE (bounded negative)
+- scissor-empty-width: NONE (bounded negative)
+- scissor-empty-height: NONE (bounded negative)
+- multi-slot0-x: NONE (bounded negative)
+- multi-slot1-x: NONE (bounded negative)
+- dbias-constant-negative: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-constant-positive: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-slope-negative: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-slope-positive: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-large-negative: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-clamp-negative: NONE (bounded negative)
+- dbias-large-positive: va_58000
+  va_58000 [1 bytes] 0x36:0x00->0x02
+- dbias-clamp-positive: NONE (bounded negative)
+
+BOUNDED STRUCTURAL INTERPRETATION
+- 0x58000+0x36 changed 0x00->0x02 for every tested nonzero constant or slope input, independent of sign/magnitude/repeat/allocation schedule: nonzero-depth-bias enable candidate only.
+- No authored constant, slope, or clamp binary32 value was found at an aligned qualified differential word.
+- All scissor coordinate/extent, multi-slot x, and clamp-only pairs changed public output while both allowed BOs remained byte-identical.
+- 0x68000 remained byte-identical for every one-factor pair. This is a bounded negative, not absence elsewhere.
+- The pad64k control reproducibly changed opaque 0x58000 bytes; the exact schedule-only lists are retained and no value is treated as or followed as a pointer.
+
+HYPOTHESES
+- H1_single_scissor_stable_allowed_differentials: FALSIFIED_WITH_BOUNDED_NEGATIVE
+- H2_multi_slots_structurally_distinguishable: FALSIFIED_WITH_BOUNDED_NEGATIVE
+- H3_depth_bias_terms_stable_allowed_differentials: PARTIAL_ENABLE_ONLY_VALUES_AND_CLAMP_NOT_LOCATED
+- H4_fixed_role_boundary_survives_allocation_control: SUPPORTED
+- H5_behavioral_readback: SUPPORTED
+
+BOUNDARY
+- These are correlations inside exact preclassified M4 state mappings, not proof of hardware consumption.
+- P0.3 remains OPEN. Private base/stride semantics, integer mode, Linux mapping, and A18 Pro remain unknown.
