@@ -64,10 +64,10 @@ exactly what our `docs/` must re-derive.
 Columns: **Subsystem | Mesa location | A18 hardware facts required | Owning docs/ area | Status | RE effort | Notes**.
 Status ∈ {not-started, partial, done}. Effort ∈ {S, M, L}.
 
-> **Coverage summary (synced 2026-07-07 against `docs/`):** **done 5 · partial 39 · not-started 8** (of 52 rows).
-> The 8 still **not-started** are the real remaining gaps: fragment-only ISA ops (2a), NIR-lowering HW-workaround
-> facts (2a), UVS/varyings linkage (2b), device-generated indirect commands (2b), MSAA sample interleave in memory
-> (2d), sparse page-table/folio geometry (2d), occlusion/visibility counters (2e), timestamps (2e). Most rows are
+> **Coverage summary (synced 2026-08-17 against `docs/`):** **done 5 · partial 41 · not-started 6** (of 52 rows).
+> The 6 still **not-started** are the real remaining gaps: fragment-only ISA ops (2a),
+> UVS/varyings linkage (2b), device-generated indirect commands (2b), MSAA sample interleave in memory
+> (2d), sparse page-table/folio geometry (2d), and occlusion/visibility counters (2e). Most rows are
 > **partial** — covered with named ⏳ gaps rather than fully closed. Status cites the owning doc §; ⏳ marks the gap.
 
 ### 2a. Shader ISA & compiler backend
@@ -135,7 +135,7 @@ Status ∈ {not-started, partial, done}. Effort ∈ {S, M, L}.
 | Scratch / spill per-core geometry | `lib/agx_scratch.c`, `libagx/helper.cl` | `AGX_THREADS_PER_GROUP=32`, `AGX_SPILL_UNIT_DWORDS=8`, addr shift 8; `AGX_MAX_SUBGROUPS_PER_CORE=128` (flagged uncertain "96+8?"); `AGX_MAX_SCRATCH_BLOCK_LOG4=6`; per-core walk over clusters×cores×core_masks; doorbell/stack-map ISA mechanism (`DB_NEXT=32/ACK=48/NACK=49`, 4 block regs); `AGX_MAX_CORES_PER_CLUSTER=16`, `AGX_MAX_CLUSTERS=8` | `pipeline/` + `NEW: memory-model` | partial/open (EXP-0020 proves compiler-reported scratch; EXP-0041 runs M4 CS/VS/FS with 208–576 B scratch but finds no scratch-correlated allowlisted launch/state/resource-map change. This is a negative macOS-boundary result, not a kernel-ownership result. Helper cfg/data/binary, SR ABI, block geometry, tags, limits and failures remain un-RE'd.) | L | Public Mesa values are requirements/hypotheses, not Apple9 facts. Core/cluster geometry must be derived separately on A18 and M4; unchanged-UAPI userspace obligations remain until proven otherwise. |
 | Partial-render / spill behavior | `hk_cmd_draw.c:281`, `agx_tilebuffer_spills` | When RTs exceed tile budget → partial bg/eot store/load; `PROCESS_EMPTY_TILES` bandwidth opt | `pipeline/` | partial (pipeline/README EXP-0021 + kernel-interface §4.4 — decided **firmware-triggered**: no userspace overflow knob; userspace supplies `partial_bg`/`partial_eot` programs + allocates the tiler parameter buffer; firmware detects overflow + flushes tiles; threshold/mechanism firmware-owned) | M | Ties directly to tilebuffer sizing. |
 | Occlusion / visibility counters | `hk_query_pool.c:104`, `agx_query.c:47` | Device-wide 64-bit visibility-counter heap (`AGX_MAX_OCCLUSION_QUERIES=32768`), one active at a time; `FRAGMENT_CONTROL.visibility_mode` COUNTING/BOOLEAN; `isp_oclqry_base` | `pipeline/` | not-started | M | Native HW mechanism. |
-| Timestamps | `hk_query_pool.c:66`, `agx_batch.c:190` | Firmware-written timestamp objects (kernel handle+offset, not GEM); compute-end/fragment-end granularity; `command_timestamp_frequency_hz`; **`timestampPeriod` unknown/FIXME** | `pipeline/` + `hardware-overview.md` | not-started | S–M | Timebase is a queryable param; confirm period on A18. |
+| Timestamps | `hk_query_pool.c:66`, `agx_batch.c:190` | Firmware-written timestamp objects (kernel handle+offset, not GEM); compute-end/fragment-end granularity; `command_timestamp_frequency_hz`; **`timestampPeriod` unknown/FIXME** | `pipeline/` + `hardware-overview.md` | partial (EXP-0052, commit `cad2132b`: on M4 public Metal, 256 CPU/GPU pairs were equal and monotonic; 28 pass ranges were ordered within-pass; adjacent pass ranges overlapped; only post-completion resolve was established) | S–M | M4 public-API evidence does not determine Linux frequency/conversion, firmware object/heap packing, native availability, or A18 behavior. See `../experiments/EXP-0052-m4-timestamp-semantics/analysis/{summary.json,report.txt}`. |
 
 ### 2f. Device, memory/VM, submission
 
@@ -145,7 +145,7 @@ Status ∈ {not-started, partial, done}. Effort ∈ {S, M, L}.
 | Capability limits | `hk_physical_device.c`, `agx_pipe.c:2000` | Subgroup=32; MSAA 1/2/4; shared-mem 32 KiB; max image 16384, layers 2048, viewports 16, RTs 8, dual-source 1; align UBO 64/SSBO 16; fp16 denorm-preserve+RTE, fp32 FTZ, no fp64; line/point ranges; no depth-bounds | `hardware-overview.md` | partial (hardware-overview §3 — full Metal caps table (1024 threads, 32 KiB shared, arg-buffers Tier 2, RT/MSAA/etc.); capability-matrix cross-maps native-vs-emulated; ⏳ consolidated driver-limits table — UBO 64/SSBO 16 align, line/point ranges, fp16/fp32 denorm modes, no depth-bounds) | S–M | Metal caps captured in EXP-0002; cross-map to these driver limits. |
 | Virtual-address space layout | `lib/agx_device.c:565`, `lib/agx_va.c`, `lib/agx_bo.c` | 36-bit robustness carveout (unmapped bottom `1<<36`); 4 GiB-aligned USC/shader window (addresses are 32-bit offsets from `shader_base`, all shader mem in one 4 GiB window); zero page at `1<<32`, scratch page +16 KiB; printf buffer at `1<<36`; sparse RO/RW address-bit shadow; kernel heap top; 16 KiB guard | `NEW: memory-model` + `hardware-overview.md` | partial (kernel-interface §3.2 — observed VA regions: Region A queue-context (`0x18000`/`0x58000`/`0x68000`, VA < 0x1_0000_0000) vs Region B resource heap (≥ 0x1_0000_0000); gap: 36-bit robustness carveout, 4 GiB USC/shader window, zero/scratch/printf pages, sparse RO/RW shadow — Mesa policy not RE'd) | M | Policy is portable but depends on A18 `vm_start/vm_end` + max load shift (=4). |
 | BO / bind constraints | `lib/agx_bo.c:361`, `lib/agx_device.c:135` | 16 KiB alignment on all bind offset/addr/range; BO rounded to 16 KiB; POT cache buckets 2^14..2^22; BO flags LOW_VA/EXEC(→LOW_VA)/WRITEBACK/SHAREABLE/READONLY | `NEW: memory-model` | partial (kernel-interface §3/§7 + hardware-overview §2 — 16 KiB alignment on all bind offsets/addresses/ranges, BOs rounded to 16 KiB, device 16 KiB pages confirmed; gap: BO flags (LOW_VA/EXEC/WRITEBACK/SHAREABLE/READONLY) + POT cache buckets — Mesa-specific, not RE'd) | S | Page-size dependent; holds for A18 (16 KiB). |
-| Userspace↔kernel submission shape | `lib/agx_device.h:74`, `hk_queue.c`, `agx_batch.c:642` | UAPI: VM_CREATE/QUEUE_CREATE/GEM_CREATE/GEM_MMAP_OFFSET/VM_BIND/GEM_BIND_OBJECT/GET_TIME/SUBMIT; `drm_asahi_cmd_render`/`cmd_compute` field set; barrier model (CDM↔VDM, ioctl-relative); per-submit command limit; queue wants `usc_exec_base=shader_base` | `NEW: memory-model` (interface notes) | partial (kernel-interface.md — shared-mem ring + doorbell model, sel-9 map→GPU-VA HW-confirmed, IOKit selector inventory, `drm_asahi_cmd_render`/`cmd_compute` field sets (§6), kernel-provides list (§7); ⏳ exact CPU→GPU doorbell store + some submit-field semantics remain kernel-side open items §8) | M | Lower priority per CLAUDE.md; macOS path differs but the *fields userspace hands down* are in scope. Coordinate with kernel team. |
+| Userspace↔kernel submission shape | `lib/agx_device.h:74`, `hk_queue.c`, `agx_batch.c:642` | UAPI: VM_CREATE/QUEUE_CREATE/GEM_CREATE/GEM_MMAP_OFFSET/VM_BIND/GEM_BIND_OBJECT/GET_TIME/SUBMIT; `drm_asahi_cmd_render`/`cmd_compute` field set; barrier model (CDM↔VDM, ioctl-relative); per-submit command limit; queue wants `usc_exec_base=shader_base` | `NEW: memory-model` (interface notes) | partial (kernel-interface.md — shared-mem ring + doorbell model, sel-9 map→GPU-VA HW-confirmed, IOKit selector inventory, `drm_asahi_cmd_render`/`cmd_compute` field sets (§6), kernel-provides list (§7); EXP-0051 `adfa33b3` bounds M4 public Metal ordering only; ⏳ Linux barrier/submit semantics and exact CPU→GPU doorbell remain open) | M | EXP-0051 ordered same-queue/event/CPU cases passed, but consumer-first unsynchronized queues exposed stale data; relaxed/wrong-scope passes are non-guarantees. This is not a Linux UAPI or A18 mapping. |
 
 ### 2g. Shader ABI & the native-vs-emulated capability boundary
 
@@ -162,7 +162,8 @@ Status ∈ {not-started, partial, done}. Effort ∈ {S, M, L}.
 ## 3. Prioritized gap list (what a from-scratch A18 port needs that we have NOT documented)
 
 Ordered by how **blocking** it is. Items 1–6 block *any* working shader/draw; 7–12 block correctness/
-coverage; 13+ are refinements. Everything except the two `partial` device rows is **not-started**.
+coverage; 13+ are refinements. This narrative preserves the original work breakdown;
+the 52-row status table above is authoritative, and many items below now have partial evidence.
 
 1. **Full A18 instruction encodings (`isa/`).** Opcode map + per-instruction bit layouts + operand
    sub-encodings + semantics, hardware-validated. Nothing runs without this. **[L]** — the whole
@@ -272,7 +273,7 @@ by likelihood of divergence.
 - **Cross-workgroup barrier opcode sequence "observed on G13D"** (`agx_compile.c:1527`) — re-derive.
 - **No packed depth24-stencil8** (Metal/AGX) — EXP-0002 confirms `depth24Stencil8=NO` on A18;
   document that Z/S stay separate resources.
-- **`timestampPeriod` unknown** (`hk_physical_device.c:790`) — pin down A18 timebase.
+- **`timestampPeriod` unknown** (`hk_physical_device.c:790`) — EXP-0052 (`cad2132b`) supports a shared nanosecond-valued *public Metal* clock on M4, but does not determine the Linux `command_timestamp_frequency_hz` conversion or transfer that result to A18; pin down the A18 timebase directly.
 
 **Capabilities Metal exposes on A18 that our probing should turn into hardware facts** (Metal-subset
 heuristic, per `hypotheses.md` backlog): programmable sample positions (Metal says YES — confirm bit

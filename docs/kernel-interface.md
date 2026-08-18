@@ -328,6 +328,14 @@ priority per `../CLAUDE.md`, but in scope as interface notes — `mesa-userspace
    For this unit these correspond to G17P, 5 active cores / 1 cluster, `usc_gen=3`
    (`hardware-overview.md` §2). `mesa-userspace-requirements.md` §2f.
 
+EXP-0051 (commit `adfa33b3`) is a useful but strictly M4 public-Metal boundary
+for item 3: tested explicit event/CPU and same-queue ordering passed, while a
+consumer-first unsynchronized two-queue control exposed stale data. Its
+relaxed, `mem_none`, and wrong-memory-class passes are bounded non-guarantees.
+It does not specify Linux DRM sync objects, UAPI barrier fields, native cache
+operations, or A18 behavior; see
+`../experiments/EXP-0051-m4-synchronization-litmus/analysis/{summary.json,report.txt}`.
+
 ---
 
 ## 8. Open items (unknowns the kernel team must still close)

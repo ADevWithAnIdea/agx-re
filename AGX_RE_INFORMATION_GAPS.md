@@ -18,7 +18,7 @@ This conclusion is stricter than the repository's final `PASS` reviews for two r
 1. A byte-tokenizing disassembler or a byte-exact round trip of an observed program is not necessarily an assembler/compiler specification. A compiler must synthesize operands and state combinations that were not present in the captured corpus.
 2. The reviews classify several unknowns as “kernel-managed” and therefore non-blocking. That is incompatible with the stated constraint of retaining the existing UAPI semantics: the existing UAPI explicitly requires userspace to supply helper programs, scratch data, BG/EOT programs, ZLS control, sample control, and other render state.
 
-The repository's own master checklist corroborates the shortfall. `docs/mesa-userspace-requirements.md:67-71` still reports **5 done, 39 partial, and 8 not-started** rows. Later documents close some individual parameter sweeps, but they do not close the interface and synthesis gaps below.
+The repository's own master checklist corroborates the shortfall. `docs/mesa-userspace-requirements.md:67-71` reports **5 done, 41 partial, and 6 not-started** rows. Later documents close some individual parameter sweeps, but they do not close the interface and synthesis gaps below.
 
 ## Audit criterion and scope
 
@@ -117,7 +117,7 @@ Still missing or insufficiently mapped:
 - All Apple9 render flags corresponding to scratch, empty-tile processing, no-vertex-clustering, and integer depth bias.
 - Sampler heap base/count limits and whether the observed Apple global table is the object the existing UAPI expects.
 - Correct `cdm_ctrl_stream_end` calculation for linked/chained Apple9 streams.
-- Stage timestamp units and `command_timestamp_frequency_hz`. The docs call captured timestamps nanoseconds/period 1.0, while the UAPI explicitly requires conversion from a queried firmware tick frequency; this needs an end-to-end Linux mapping.
+- Stage timestamp units and `command_timestamp_frequency_hz`. EXP-0052 observes a nanosecond-valued public Metal clock on M4 only; the UAPI explicitly requires conversion from a queried firmware tick frequency, so this still needs an end-to-end Linux mapping and an A18 run.
 
 Every field needs an authoritative “userspace value -> kernel marshaling -> observed Apple9 behavior” test. The present work mostly traces the macOS side and extrapolates the Linux contract.
 
@@ -302,6 +302,20 @@ Although many texture families tokenize, exact synthesis and behavior are incomp
 
 The hardware-interlock finding addresses instruction result readiness; it does not replace an API memory model.
 
+**M4 interim evidence (EXP-0051, commit `adfa33b3`; still open):** two
+byte-bound full-suite repetitions passed the correctly scoped threadgroup,
+device-fence, encoder, same-queue, shared-event, and host-completion cases. They
+also passed every deliberately under-scoped or relaxed control, so those passes
+are bounded observations, not evidence that `mem_none`, the wrong memory class,
+or relaxed publication provides the required API guarantee. The deliberately
+unsynchronized consumer-first two-queue control exposed 524,288 stale words in
+run 01 and 520,192 stale words in run 02 (with one scheduler-dependent exact
+epoch), while explicit CPU/event ordering had no mismatches. See
+`experiments/EXP-0051-m4-synchronization-litmus/analysis/summary.json`,
+`analysis/report.txt`, and the two `raw/*/06_suite.json` records. This is a
+public Metal + authored-MSL observation on M4/G16G. It does not identify native
+fence bits, Linux UAPI barrier semantics, cache operations, or any A18 Pro fact.
+
 Missing:
 
 - Cache domains and visibility between USC loads/stores, textures, PBE, tile memory, tiler, fragment, compute, and host.
@@ -324,6 +338,24 @@ The Linux kernel supplies VM bounds at runtime, so fixed observed Metal VAs shou
 ### P1.6 Queries and timestamps need complete API semantics
 
 The RE locates occlusion mode/offset and observes stage-boundary timestamps, but a driver also needs:
+
+**M4 interim evidence (EXP-0052, commit `cad2132b`; still open):** canonical
+runs 03/04 retained 128 calibration intervals. All 256 public CPU/GPU timestamp
+pairs were equal and strictly monotonic, supporting a shared nanosecond-valued
+clock for this M4 Metal path. All 28 completed pass ranges were nonzero and
+ordered within each pass as
+`startVertex <= endVertex <= startFragment <= endFragment`. The strict H3
+cross-pass non-overlap hypothesis was falsified: the second pass's start-vertex
+sample preceded the first pass's end-fragment sample by 500 ns and 1,000 ns.
+Pre-commit and immediate post-commit/pre-wait resolves returned zero; because
+command-buffer status was not sampled at the latter point, this is not an
+in-flight availability guarantee. Only post-completion resolves returned the
+requested consecutive 64-bit values. See
+`experiments/EXP-0052-m4-timestamp-semantics/analysis/summary.json`,
+`analysis/report.txt`, `raw/m4_20260817_run03/run.json`, and
+`raw/m4_20260817_run04/run.json`. These public
+Metal results do not establish the Linux counter frequency/conversion, private
+heap/object layout, native counter behavior, or A18 Pro semantics.
 
 - Counter heap layout, alignment, allocation limits, accumulation, reset, availability, copy, and simultaneous-query behavior.
 - Precise start/end stage placement and ordering guarantees.

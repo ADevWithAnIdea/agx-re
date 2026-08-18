@@ -107,6 +107,13 @@ All from the read-only Metal `MTLDevice` capability properties
 | `supportsFamily` | Apple1–**Apple9** YES · Mac1/Mac2 YES · Common1–3 YES · **Metal3 & Metal4** YES |
 | counter sets | `timestamp` |
 
+The `timestamp` row is a capability advertisement on this A18 Pro, not a
+frequency, ordering, availability, or counter-layout specification. EXP-0052
+(commit `cad2132b`) bounds those public-API questions only on M4/G16G: its
+within-pass ordering and post-completion resolve results, including the
+cross-pass-overlap falsifier, must not be transferred to A18 or Linux without a
+direct run and UAPI mapping.
+
 ## 4. Userspace ↔ kernel interface surface (inventory)
 
 **Node hierarchy** (live IORegistry):

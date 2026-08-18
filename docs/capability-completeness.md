@@ -347,9 +347,9 @@ Section tally: native-decoded 7.
 | Depth store-action / ZLS | (render-pass control) | kernel-managed (`zls_ctrl`; not in any userspace BO) | kernel-managed | `pipeline` EXP-0021; `kernel-interface` §4.3 |
 | Partial-render / tiler-param overflow trigger | (TBDR) | kernel-managed (firmware detects overflow; `partial_bg`/`partial_eot`) | kernel-managed | `pipeline` EXP-0021; `kernel-interface` §4.4 |
 | Occlusion / visibility queries | Vulkan/GL; native HW mechanism | cmdstream: result ptr `@0x10000100000`; mode bit14 `@0x58000+0x8c` (bool/count); offset `@+0xa0`=byteOff<<14; per-tile summation firmware | native-decoded | `cmdstream` EXP-0027 |
-| Timestamps / GPU counters | `counter sets: timestamp` | u64 ns, period 1.0, **STAGE-boundary only** (dispatch/draw unsupported → emulate); sample-buffer addr kernel-managed | native-decoded | `cmdstream` EXP-0027 |
+| Timestamps / GPU counters | `counter sets: timestamp` | Public Metal stage samples are 64-bit and nanosecond-valued in the tested paths; EXP-0052 (`cad2132b`, M4 only) establishes within-pass order but falsifies strict cross-pass non-overlap. Immediate post-commit/pre-wait availability was not status-qualified; Linux frequency/object layout and A18 semantics remain open | partial | `cmdstream` EXP-0027; EXP-0052 `analysis/summary.json` / `analysis/report.txt` |
 
-Section tally: native-decoded 14 · kernel-managed 2.
+Section tally: native-decoded 13 · partial 1 · kernel-managed 2.
 
 ---
 

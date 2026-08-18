@@ -813,6 +813,12 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   `atomic_*_explicit`; the `0x67` RMW carries no ordering field. `atomic_thread_fence` = the **`0x07` fence family**:
   device fence `07 04 54 84 0a 00` (byte+3=`0x84` device, byte+4=`0x0a`); texture fence pair `07 04 54 50/d0 06 00`
   (byte+4=`0x06`, byte+3 bit7 = acquire/release). Relaxed / thread / simdgroup / threadgroup scope → no fence emitted.
+  **API-behavior qualification (EXP-0051, M4, commit `adfa33b3`):** correctly fenced and deliberately relaxed,
+  `mem_none`, or wrong-memory-class authored cases all passed the bounded Metal litmus, so those weak-control
+  passes do not prove a portable ordering guarantee or identify native fence necessity. Consumer-first
+  unsynchronized queues exposed stale data, while explicit event/CPU ordering passed. This adds no native-byte,
+  Linux UAPI, cache-domain, or A18 semantics; see
+  `../../experiments/EXP-0051-m4-synchronization-litmus/analysis/{summary.json,report.txt}`.
 - **⚠ 64-bit atomics are ENTIRELY absent from MSL** (all `atomic<ulong/long/uint64_t>` ops rejected) — **corrects
   EXP-0018's "min/max only".** No reachable 64-bit atomic ⇒ no width field; **Vulkan int64 atomics must be emulated.**
 - **bfloat ALU = distinct group byte0 `0x11`** (opsel byte+2 `0x1c/1d/1e` add/mul/fma; scalar byte+1=`0x02`, bfloat2

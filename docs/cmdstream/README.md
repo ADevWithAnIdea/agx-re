@@ -263,10 +263,16 @@ need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
   (EXP-M4-09/CMD-7); a tiler mirror at `0x10000258000+0x00 = byteOffset>>2` also carries it. Readback
   confirms accumulation (Counting wrote 4096 = 64×64; Boolean wrote 1). Per-tile→total summation is
   firmware-managed.
-- **GPU timestamps:** format = **uint64 nanoseconds, `timestampPeriod = 1.0`** (cpu==gpu clock; confirmed
-  by `sampleTimestamps` cpu==gpu every call). ⚠ **Only stage-boundary sampling is supported** — dispatch-
-  and draw-boundary timestamps read all-zero (a Vulkan emulation flag). Sample-buffer address is
-  firmware/kernel-managed (see `../kernel-interface.md`).
+- **GPU timestamps — public Metal observations, not a native/Linux ABI:** earlier public-API probes returned
+  64-bit values in a nanosecond-valued CPU/GPU clock and exposed stage-boundary sampling while tested
+  dispatch/draw-boundary requests resolved as zero. EXP-0052 (M4, commit `cad2132b`) strengthens only that
+  bounded public path: all 256 CPU/GPU pairs were equal and monotonic, and 28 completed pass ranges obeyed
+  `startVertex <= endVertex <= startFragment <= endFragment`. It also **falsified strict cross-pass
+  serialization**: pass 2 start-vertex preceded pass 1 end-fragment by 500 ns and 1,000 ns. Pre-commit and
+  immediate post-commit/pre-wait resolves were zero; the latter was not status-qualified as actually
+  in-flight, so only post-completion resolution is established. Do not infer a private sample-buffer layout,
+  native counter availability, Linux `command_timestamp_frequency_hz`/`GET_TIME` conversion, or A18 behavior
+  from EXP-0052. See `../../experiments/EXP-0052-m4-timestamp-semantics/analysis/{summary.json,report.txt}`.
 - **MSAA** (HW-PROBE): N independent samples with 1:1 sample-id ordering (`read(coord,s)` = sample s);
   resolve = arithmetic average; physical interleave is on-chip tile SRAM (not byte-visible). **Only 2×/4×
   exist — 8× is Metal-rejected** (EXP-M4-09/CMD-7: `supportsTextureSampleCount:` 1/2/4 = YES, 8/16/32 = NO;
