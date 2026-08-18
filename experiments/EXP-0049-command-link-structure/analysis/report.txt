@@ -1,0 +1,17 @@
+EXP-0049 M4 command-link structural summary
+OBSERVATIONS
+- 226 authored GPU processes completed status 4 with exact target readback; no process timeout or GPU error.
+- CDM direct: 732/733 boundary, link offset 0x7dd0.
+- CDM encoder-per-dispatch: identical boundary, link offset, and complete source/target hashes to direct.
+- CDM pad7: identical boundary, link offset, and command hashes while authored output moved 0x10000030200->0x1000002d200.
+- VDM state-every-draw: 328/329 boundary, link offset 0x7b18.
+- VDM pad7: identical boundary, link offset, and command hashes while authored vertices moved 0x10000030300->0x1000002d300.
+
+BOUNDED STOPS
+- CDM indirect: first retained known-target allocation at count 512 lacks the exact EXP-0043 source pair in both refinements; threshold/address encoding UNKNOWN.
+- VDM stable: the recognized direct-draw signature occurs 1024 times in the source at count 1024 and 1958 times at count 2048. This is consistent with continuation or another record shape outside the recognized source sequence, but does not prove either. Known target at 4096 lacks the exact pair; threshold/destination UNKNOWN.
+- VDM pass-per-draw: known target is allocated by count 64; the source has 64 recognized direct-draw signatures, the known target has none, and the exact pair is absent. Allocation is not promoted to a link or work-location proof.
+
+INTERPRETATION
+- DATA-TRACE-VALIDATED only for the repeated direct/state1 thresholds and unchanged command bytes under tested encoder/padding changes.
+- Link words remain STRUCTURAL. Changed-shape destinations, hardware consumption, arbitrary relocation, and A18 transfer remain UNKNOWN.
