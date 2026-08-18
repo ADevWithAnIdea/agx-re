@@ -211,6 +211,25 @@ cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = nat
 depth bias: enable = flags `+0x34` bit17, constant/slope/clamp = 3 floats in the tiler-param region
 (`…+0x2a8000`).
 
+### M4 public scissor/depth-bias behavior (EXP-0054; commit `6c342a06`)
+
+Four fresh-process public-Metal runs retain exact guarded color/depth bytes.
+The tested full/asymmetric/edge single scissors cover exactly 256/28/2 pixels;
+zero-width and zero-height cases cover none. Two viewport-indexed scissors
+write 30 and 40 pixels, and changing only slot 1 writes 15 there while slot 0
+remains byte-exact at 30. For Depth32Float, tested flat constant displacements
+correlate with `constant * 2^-24` at `-1`, `+/-100`, and `+/-100000`; a sloped
+`-1` case shifts by `-0.01875`, while flat slope-only `+/-1` controls do not.
+
+Runs01/02 preserve the H4 negative: magnitude-100 clamped and unclamped bytes
+are identical because the approximately `5.96e-6` displacement is below the
+`0.001` clamp. Separately preregistered runs03/04 use sign-matched
+`+/-100000`; both clamps engage and reduce the displacement to approximately
+`+/-0.001`. This is public M4 behavior only. EXP-0054 captures no BO and does
+not identify private `isp_scissor_base`/`isp_dbias_base` bytes, integer mode,
+native packing, Linux marshaling, or A18 behavior; P0.3 remains open. See
+`../../experiments/EXP-0054-m4-scissor-depth-bias/analysis/{summary.json,report.txt}`.
+
 ### USC bind grammar + graphics shader binding (EXP-0019/0024, corrected EXP-0042)
 The VDM (`0x18000`) holds a **fixed 8-pair template** (control-word, address) into `0x58000`/viewport/
 context — invariant under state changes (only the `+0x0c` length word grows, see PPP below).

@@ -103,6 +103,17 @@ Status ∈ {not-started, partial, done}. Effort ∈ {S, M, L}.
 | Background / EOT programs | `lib/agx_bg_eot.c/.h`, `agx_state.c:3053` | bg=fragment (load/clear each RT), eot=compute (`image_store_block` at tile offset); clear values from preamble; bg/eot USC ptr low-3-bits carry flags (`& ~0x7`) | `pipeline/` | partial/open (EXP-0048: M4 empty Clear/Store and Load/Store behavior repeats exactly, but all four allowlisted state BOs are identical between those empty passes; no BG/EOT tag, resource spec, ABI, or `0x6f` ownership located. Earlier single-RT value `0x6f` remains an observation, not a firmware-ownership proof.) | S | Unchanged UAPI requires userspace records; generate programs from tilebuffer/USC facts rather than guessing or inspecting Apple code. |
 | Device-generated commands (indirect draw/dispatch) | `libagx/libagx_dgc.h`, `libagx/draws.cl` | GPU-side emission of VDM/CDM words: barrier bit tables per chip, stream link/call/return, index robustness path | `cmdstream/` | not-started | L | Every barrier/launch bit is chip-versioned — guaranteed A18 work. EXP-0053 (`e31dfb46`) adds only an M4 public-Metal behavior baseline: canonical full-byte runs 05/06 cover tested argument timing, ranges, reset/re-encode and optimization; downgraded 03/04 and failures 01/02 are retained. It does not begin the A18/private emission grammar or Linux mapping. |
 
+**M4 public scissor/depth-bias qualification (EXP-0054, `6c342a06`; P0.3
+remains open):** runs01/02 and runs03/04 retain complete guarded bytes for exact
+tested half-open/empty single scissors and a two-viewport/two-scissor slot
+perturbation. The tested Depth32Float constant path correlates with `2^-24`, and
+the sloped `-1` path with the authored maximum derivative (`-0.01875`). The
+initial magnitude-100 H4 clamp expectation failed because the clamp was
+inactive; the separately preregistered sign-matched magnitude-100000 follow-up
+reduced both displacements to approximately `0.001`. This public M4 behavior
+does not supply the required private `isp_scissor_base`/`isp_dbias_base`
+arrays, integer-bias selection, Linux marshaling, or A18 values.
+
 ### 2c. Resource descriptors
 
 | Subsystem | Mesa location | A18 hardware facts required | Owning docs/ area | Status | RE | Notes |

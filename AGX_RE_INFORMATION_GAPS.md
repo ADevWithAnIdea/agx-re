@@ -128,6 +128,25 @@ last record terminates normally. This locates the stream end and rollover
 boundary on macOS but does not yet establish how Linux must populate
 `cdm_ctrl_stream_end` for arbitrary linked pools.
 
+**M4 public-behavior evidence (EXP-0054, commit `6c342a06`; still open):** all
+four fresh-process runs retained complete guarded color/depth bytes for 19
+corresponding public Metal cases; runs03/04 changed only the four preregistered
+large-bias magnitudes. Single scissors exactly covered the tested full,
+asymmetric, and edge half-open rectangles, while zero-width and zero-height
+rectangles covered no pixels. In the two-scissor control, changing only slot 1
+from a 40-pixel rectangle to a 15-pixel rectangle left slot 0 byte-exact at 30
+pixels. Flat Depth32Float constant displacement correlates with `constant *
+2^-24` only for the tested `-1`, `+/-100`, and `+/-100000` values; the tested
+sloped `-1` case displaced by `-0.01875`, while flat slope-only `+/-1` controls
+had no effect. Runs01/02 preserve the preregistered H4 negative: magnitude-100
+clamped and unclamped bytes were identical because the approximately `5.96e-6`
+displacement did not engage the `0.001` clamp. Separately preregistered
+runs03/04 changed only those magnitudes to sign-matched `+/-100000` and reduced
+the observed displacement to approximately `+/-0.001`. These are bounded M4
+public-path correlations, not an `isp_scissor_base`/`isp_dbias_base` layout,
+integer-bias mode, private packet, Linux mapping, or A18 Pro result. See
+`experiments/EXP-0054-m4-scissor-depth-bias/{analysis/summary.json,analysis/report.txt}`.
+
 ### P0.4 Background, end-of-tile, and partial-render programs are not specified
 
 The unchanged UAPI requires userspace to provide four `drm_asahi_bg_eot` records: BG, EOT, partial BG, and partial EOT. Each includes a tagged USC program address and a packed resource specifier.

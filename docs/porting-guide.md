@@ -190,6 +190,16 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   depth `+0x38` / stencil `+0x3c` (compare 0–7, stencil-op 0–7 tables in the doc); **rasterizer**
   `+0x70` — cull[1:0], winding bit16, **native 2-bit depth clip-vs-clamp [11:10]** (good for Vulkan),
   polygon line-fill nibble `0x5`+bit26, depth bias in the tiler-param region.
+- **M4 public scissor/depth-bias behavior is a constraint, not a packer**
+  (`cmdstream/README.md`, EXP-0054 commit `6c342a06`): all four runs retain
+  exact tested single/two-scissor coverage and bounded Depth32Float `2^-24` and
+  `-0.01875` slope correlations. Runs01/02 preserve the inactive magnitude-100
+  H4 clamp negative; separately preregistered runs03/04 support both
+  sign-matched magnitude-100000 clamps at approximately `+/-0.001`. Do not
+  derive private `isp_scissor_base`/`isp_dbias_base` layout, integer mode,
+  Linux marshaling, or A18 behavior from this public M4 result; P0.3 remains
+  open. See
+  `../experiments/EXP-0054-m4-scissor-depth-bias/analysis/{summary.json,report.txt}`.
 - **Programmable blend (compile into FS)** — blend factors/ops are lowered into the FS shader-code
   BO, not a fixed-function LUT; `0x58000` keeps only color-write-mask + blend-class/constant/enable
   flags (`cmdstream/README.md` "Blend is programmable"). Compile blend state into fragment shaders
