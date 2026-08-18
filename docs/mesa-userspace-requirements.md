@@ -114,6 +114,20 @@ reduced both displacements to approximately `0.001`. This public M4 behavior
 does not supply the required private `isp_scissor_base`/`isp_dbias_base`
 arrays, integer-bias selection, Linux marshaling, or A18 values.
 
+**M4 clean state-boundary qualification (EXP-0055, `83e29abe`; P0.3 remains
+open):** 76 fresh processes restricted DATA-TRACE to the exact preclassified
+`0x58000` and `0x68000` state mappings. Every tested nonzero constant/slope
+input changed `0x58000+0x36` from `00` to `02`, which is only an enable
+candidate. Tested single/multi-scissor and clamp-only pairs changed full public
+readback while both allowed snapshots remained pairwise byte-identical, and
+`0x68000` had no semantic one-factor delta. Pad-schedule-only bytes are opaque.
+This bounded post-completion result neither locates the private arrays elsewhere
+nor supplies a packer, hardware-consumer proof, Linux value, ownership rule, or
+A18 fact. See
+`../experiments/EXP-0055-m4-scissor-depth-bias-state/analysis/{summary.json,report.txt}`
+and
+`../experiments/EXP-0055-m4-scissor-depth-bias-state/raw/m4_20260817_run{01,02}/04_boundary_preflight.json`.
+
 ### 2c. Resource descriptors
 
 | Subsystem | Mesa location | A18 hardware facts required | Owning docs/ area | Status | RE | Notes |

@@ -208,8 +208,10 @@ Per-face blocks: FRONT depth `+0x38` / stencil `+0x3c`, BACK depth `+0x40` / ste
 ### ✅ Rasterizer packet (`0x58000+0x70`, HW-validated)
 cull[1:0] = none/front/back; winding bit16 = CW/CCW; **depth clip-vs-clamp = native 2-bit field [11:10]**
 (depth clamp is HW-supported — good for Vulkan); polygon line-fill = raster nibble `0x5` + flags bit26;
-depth bias: enable = flags `+0x34` bit17, constant/slope/clamp = 3 floats in the tiler-param region
-(`…+0x2a8000`).
+older EXP-0019 evidence correlates depth-bias enable with flags `+0x34` bit17
+(byte `+0x36` bit1) and constant/slope/clamp with 3 floats in an A18-only
+tiler-param capture (`…+0x2a8000`). EXP-0055 independently reproduces only the
+M4 enable-candidate byte; it does not transfer the A18 value location to M4.
 
 ### M4 public scissor/depth-bias behavior (EXP-0054; commit `6c342a06`)
 
@@ -229,6 +231,30 @@ are identical because the approximately `5.96e-6` displacement is below the
 not identify private `isp_scissor_base`/`isp_dbias_base` bytes, integer mode,
 native packing, Linux marshaling, or A18 behavior; P0.3 remains open. See
 `../../experiments/EXP-0054-m4-scissor-depth-bias/analysis/{summary.json,report.txt}`.
+
+### M4 clean scissor/depth-bias state boundary (EXP-0055; commit `83e29abe`)
+
+Two exact runs totaling 76 fresh processes restrict DATA-TRACE to the
+independently preclassified M4 state mappings at `0x58000` and `0x68000`, with
+complete metadata validation before payload access. Every tested nonzero
+constant or slope input changes `0x58000+0x36` from `00` to `02`, independently
+of sign, tested magnitude, repeat, and allocation schedule. This is only a
+nonzero-depth-bias enable candidate; it does not encode or locate the tested
+constant, slope, sign, magnitude, or clamp value and is not proof of hardware
+consumption.
+
+Every tested single-scissor component, both multi-scissor slot-x changes, and
+both clamp-only changes alter the public readback while the complete two allowed
+payloads remain pairwise byte-identical. `0x68000` has no semantic one-factor
+delta. The pad64k schedule changes only retained opaque bytes in `0x58000`;
+those schedule correlations are not interpreted as addresses or relocations and
+were never followed. These are exact-boundary negatives, not proof that the
+values are absent from other storage or owned by any particular layer. Private
+array/base/stride/count rules, integer mode, native packing, Linux marshaling,
+and A18 behavior remain unknown; P0.3 remains open. See
+`../../experiments/EXP-0055-m4-scissor-depth-bias-state/analysis/{summary.json,report.txt}`
+and
+`../../experiments/EXP-0055-m4-scissor-depth-bias-state/raw/m4_20260817_run{01,02}/04_boundary_preflight.json`.
 
 ### USC bind grammar + graphics shader binding (EXP-0019/0024, corrected EXP-0042)
 The VDM (`0x18000`) holds a **fixed 8-pair template** (control-word, address) into `0x58000`/viewport/
@@ -366,9 +392,13 @@ sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../
     unverified. This is the one residual can't-emit-from-Metal item, now precisely located.
 - **Alpha-to-coverage** = shader-lowered (FS epilog) + FF bits `0x58000+0x18` bit0 (MSAA-only) and `+0x50`
   bits[30,26]. **Alpha-to-one has no FF field** — realized entirely in the FS epilog (output alpha → 1.0).
-- **Kernel-managed:** the multi-scissor rectangle array is in **no** client BO — it routes via the `isp_scissor`
-  submit param (see `../kernel-interface.md`); only the scissor *enable* bit (`0x58000+0x34` bit16) + tile-grid
-  clamp (`0x68000+0x904/908`) are client-side.
+- **Multi-scissor storage remains open:** the unchanged UAPI routes an
+  `isp_scissor` submit value (see `../kernel-interface.md`). EXP-0055 finds no
+  component/slot differential in only the two exact allowlisted M4 state
+  mappings, despite changed public readback; it does not prove absence from all
+  client BOs or establish kernel/firmware ownership. The older captures
+  correlate a scissor enable bit (`0x58000+0x34` bit16) and tile-grid clamp
+  (`0x68000+0x904/908`), but the private array and Linux value remain unknown.
 - **Metal-unreachable → emulate:** cull distance (MSL has clip only), polygon-point fill (fill/lines only), a
   *custom* restart index (HW field exists at `+0x68` but Metal always uses all-ones).
 

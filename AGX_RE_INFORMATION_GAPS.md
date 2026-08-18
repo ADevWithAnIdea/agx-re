@@ -147,6 +147,24 @@ public-path correlations, not an `isp_scissor_base`/`isp_dbias_base` layout,
 integer-bias mode, private packet, Linux mapping, or A18 Pro result. See
 `experiments/EXP-0054-m4-scissor-depth-bias/{analysis/summary.json,analysis/report.txt}`.
 
+**M4 clean DATA-TRACE boundary (EXP-0055, commit `83e29abe`; still open):**
+two runs totaling 76 fresh public-Metal processes used a metadata-first exact
+allowlist containing only the previously classified `0x58000` and `0x68000`
+state mappings. Every tested nonzero constant or slope bias changed
+`0x58000 + 0x36` from `0x00` to `0x02`; this is only a nonzero-depth-bias
+enable candidate, not a value encoding or hardware-consumer proof. Tested
+single- and multi-scissor changes and clamp-only changes altered complete public
+readback while both allowlisted payloads remained pairwise byte-identical;
+`0x68000` had no semantic one-factor differential. Allocation-schedule-only
+`0x58000` bytes are retained as opaque correlations and were neither interpreted
+nor followed. This exact post-completion boundary does not establish absence
+from other storage, private `isp_scissor_base`/`isp_dbias_base` layout,
+base/stride/count rules, integer mode, ownership, Linux mapping, or A18 Pro
+behavior. Evidence:
+`experiments/EXP-0055-m4-scissor-depth-bias-state/analysis/{summary.json,report.txt}`
+and the exact boundary records
+`experiments/EXP-0055-m4-scissor-depth-bias-state/raw/m4_20260817_run{01,02}/04_boundary_preflight.json`.
+
 ### P0.4 Background, end-of-tile, and partial-render programs are not specified
 
 The unchanged UAPI requires userspace to provide four `drm_asahi_bg_eot` records: BG, EOT, partial BG, and partial EOT. Each includes a tagged USC program address and a packed resource specifier.

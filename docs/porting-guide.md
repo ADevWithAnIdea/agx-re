@@ -200,6 +200,18 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   Linux marshaling, or A18 behavior from this public M4 result; P0.3 remains
   open. See
   `../experiments/EXP-0054-m4-scissor-depth-bias/analysis/{summary.json,report.txt}`.
+- **M4 EXP-0055 adds a clean state boundary, not the missing packer** (commit
+  `83e29abe`): 76 fresh processes read only exact preclassified `0x58000` and
+  `0x68000` state mappings after metadata-first validation. Every tested nonzero
+  constant/slope input changes `0x58000+0x36` `00->02`, only a nonzero-bias
+  enable candidate. Tested single/multi-scissor and clamp-only readbacks change
+  while both allowed snapshots stay pairwise byte-identical; `0x68000` has no
+  semantic one-factor delta. Schedule-only `0x58000` bytes are opaque. Do not
+  infer other-storage absence, hardware consumption, private array layout,
+  ownership, Linux values, or A18 behavior; P0.3 stays open. See
+  `../experiments/EXP-0055-m4-scissor-depth-bias-state/analysis/{summary.json,report.txt}`
+  and
+  `../experiments/EXP-0055-m4-scissor-depth-bias-state/raw/m4_20260817_run{01,02}/04_boundary_preflight.json`.
 - **Programmable blend (compile into FS)** — blend factors/ops are lowered into the FS shader-code
   BO, not a fixed-function LUT; `0x58000` keeps only color-write-mask + blend-class/constant/enable
   flags (`cmdstream/README.md` "Blend is programmable"). Compile blend state into fragment shaders
@@ -229,9 +241,11 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   tile-dispatch record is appended inline to the render control stream; a draw vs
   draw+`dispatchThreadsPerTile` is byte-identical IOKit.
 
-**EMULATE / route through the existing UAPI fields** (§6 has the contract): **ZLS / depth store**
-(`zls_ctrl`) and **scissor** (`isp_scissor_base`) are not emitted in the captured client stream;
-userspace must compute their existing render-command values. Graphics shader selection is different:
+**EMULATE / route through the existing UAPI fields** (§6 has the contract): the
+unchanged UAPI requires userspace values for **ZLS / depth store** (`zls_ctrl`)
+and **scissor** (`isp_scissor_base`). Their private Apple9 packing and marshaling
+remain open: EXP-0055's clean M4 boundary excludes only the exact two allowlisted
+state mappings, not every client BO, and establishes no ownership rule. Graphics shader selection is different:
 M4 EXP-0042 observes per-draw VS-token and FS-relative selectors within a queue-wide code window.
 The exact mapping of its base to queue `usc_exec_base` remains open, and there is no per-render
 code-base field to add or assume.
