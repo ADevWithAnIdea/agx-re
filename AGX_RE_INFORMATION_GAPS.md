@@ -186,6 +186,25 @@ STRUCTURAL until controlled mutation/replay, and no general pool-capacity,
 barrier, call, indirect, PPP/USC, or A18 rule is claimed. Generic all-BO analyses
 were quarantined; conclusions use only an eight-VA explicit evidence allowlist.
 
+**M4 refinement evidence (EXP-0049, commit `84779ec8`; still open):** two main
+runs and two refinement runs (226 successful authored GPU processes) reproduce
+the exact direct-shape boundaries with fresh boundary pairs. Direct compute,
+compute encoder-per-dispatch, and direct compute plus seven client allocations
+all retain the 732/733 boundary, link offset `0x7dd0`, pair
+`[0x20000100, 0x00158000]`, and byte-identical tested source/target segments.
+Alternating state-every-draw VDM with and without the same allocation padding
+retains the 328/329 boundary, offset `0x7b18`, pair
+`[0x80000000, 0x00088000]`, and byte-identical tested segments. The client
+allocations moved authored resource VAs, so this is a bounded invariance result,
+not a general relocation rule. Indirect compute, stable-state VDM, and
+one-draw-per-pass VDM reached the independently allowlisted second BO without
+the exact known source pair; their first link, destination, and packing remain
+`UNKNOWN`, and no alternate target was located or inspected. See
+`experiments/EXP-0049-command-link-structure/analysis/{summary.json,report.txt}` and
+`experiments/EXP-0049-command-link-structure/manifest.json`. All links remain
+`STRUCTURAL`: no hardware consumer, arbitrary stream synthesis, Linux mapping,
+or A18 Pro behavior is established.
+
 ### P0.6 The ISA database is a disassembly/tokenization database, not yet a compiler-ready encoding specification
 
 `docs/isa/agx3.xml` is large: 329 instruction entries. It also contains 130 `inferred / not yet bit-decoded` comments and 6 placeholder/fallback entries labelled `NOT A STANDALONE HARDWARE OPCODE`. Its header warns that some `<zero>` elements represent unresolved bits rather than known hardware zeros.
@@ -363,6 +382,22 @@ heap/object layout, native counter behavior, or A18 Pro semantics.
 - Pipeline-statistics implementation/emulation and synchronization.
 
 ### P1.7 Indirect and device-generated command coverage is incomplete
+
+**M4 interim evidence (EXP-0053, commit `e31dfb46`; still open):** canonical
+runs 05/06 used the exact final authored Objective-C/MSL in two fresh processes
+and retained complete argument, counter, output, guard, and texture bytes for 13
+public Metal cases per run. The tested path consumed a CPU update made before
+commit, consumed GPU-produced compute arguments from a prior encoder, honored
+zero/nonzero indirect compute and draw arguments, and produced the expected
+full/prefix/suffix/middle/empty ICB rows. Resetting two middle commands and
+re-encoding one restored only that slot; one optimized full range was
+functionally identical to the unoptimized full range. Runs 03/04 are retained
+but downgraded because they kept hashes/aggregate checks rather than every byte;
+runs 01/02 retain the authored compile rejection and missing-public-opt-in ICB
+fault/ignored-submission history. This establishes only bounded M4 public-Metal
+behavior. It does not establish private VDM/CDM/ICB storage, helper programs,
+Linux UAPI mapping, writable-command validation, or A18 Pro behavior. See
+`experiments/EXP-0053-m4-indirect-api-semantics/{analysis/summary.json,analysis/report.txt}`.
 
 Needed:
 

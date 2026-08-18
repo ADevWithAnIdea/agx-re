@@ -364,7 +364,7 @@ Section tally: native-decoded 13 · partial 1 · kernel-managed 2.
 | Occupancy tier (register pressure) | (Dynamic Caching surface) | cmdstream CDM config word `+0x00` bit23 | native-decoded | `cmdstream` EXP-0024; `isa` EXP-0020 |
 | Shader-code pointer (compute) | (bind) | cmdstream CDM `+0x08 = shaderVA>>6` | native-decoded | `cmdstream` EXP-0011 |
 | Indirect dispatch (`dispatchThreadgroupsWithIndirectBuffer`) | Metal; Vulkan | cmdstream: 2nd CDM + grid-setup helper shader (multiply threadgroups×tpg); args VA `0x10000080000+0xb0` | native-decoded | `cmdstream` EXP-0027 |
-| Indirect command buffers / device-generated commands | WWDC GPU-driven; Metal ICB | cmdstream: indirect draw VDM `0x61c4→0x6404` (idx `0x6432`) + args ptr; full ICB = inline state-block+draw, header `+0x04` = count | native-decoded | `cmdstream` EXP-0027 |
+| Indirect command buffers / device-generated commands | WWDC GPU-driven; Metal ICB | cmdstream: indirect draw VDM `0x61c4→0x6404` (idx `0x6432`) + args ptr; full ICB = inline state-block+draw, header `+0x04` = count. EXP-0053 (`e31dfb46`) separately establishes tested M4 public argument timing, ICB ranges, reset/re-encode and one optimization-equivalence case; it does not establish writable native grammar, Linux mapping, or A18 behavior | native-decoded | `cmdstream` EXP-0027; EXP-0053 canonical full-byte runs 05/06 (03/04 downgraded; failures 01/02 retained) |
 | Draw mesh commands into ICB | WWDC §3 | cmdstream: `MTLIndirectCommandTypeDrawMeshThreadgroups` lowers to the **same mesh-grid-dispatch record `0x70000600`** (EXP-0030) in the tiler stream — no new work type; command-count `@0x18000+0x04` | native-decoded | `cmdstream` EXP-O2G |
 
 Section tally: native-decoded 9.

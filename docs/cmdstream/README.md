@@ -125,6 +125,31 @@ and capacities as **STRUCTURAL** for these exact shapes until mutation/replay.
 General barriers, calls, indirect packets, pool sizing and A18 transfer remain
 open. EXP-0043's verifier restricts evidence to eight explicitly correlated
 command/state/resource VAs; generic all-BO analyses are quarantined.
+
+### M4 exact-shape link controls (EXP-0049; commit `84779ec8`)
+
+EXP-0049 repeats the known first-boundary pairs with a stricter four-VA
+command-segment allowlist. Across two main runs and fresh boundary repetitions, direct
+compute, encoder-per-dispatch compute, and direct compute with seven client
+allocations all retain the 732/733 boundary, link offset `0x7dd0`, exact pair
+`[0x20000100, 0x00158000]`, and identical complete tested source/target hashes.
+Alternating state-every-draw VDM with and without the same padding retains the
+328/329 boundary, offset `0x7b18`, pair `[0x80000000, 0x00088000]`, and identical
+tested segment hashes. The padding moves authored client resource VAs, but this
+single perturbation is not a general relocation proof.
+
+Changed shapes deliberately stop at the clean-room boundary. Indirect CDM first
+captures the known second BO at count 512 without the exact source pair.
+Stable-state VDM and one-draw-per-pass VDM likewise capture the known second BO without
+that pair; recognized source occupancies bound those cases but do not identify
+a first link, alternate destination, or execution location. No new target was
+searched or inspected. These results therefore preserve the link words as
+**STRUCTURAL** for the exact reproduced shapes only. They do not establish a
+hardware consumer, legal arbitrary targets, general capacity/packing, Linux
+submission semantics, or A18 behavior. See
+`../../experiments/EXP-0049-command-link-structure/analysis/{summary.json,report.txt}` and
+`../../experiments/EXP-0049-command-link-structure/manifest.json`.
+
 - **Viewport** = 4 transform floats @ `0x68000+0x910` (`{w/2, h/2, w/2, −h/2}` — Y-flip) + depth range
   @+0x920/+0x924; pointed to from the VDM.
 - **Attachment descriptor** (`0x10000110000`): **pixel-format code = byte @+0x21** (= sampled byte1; EXP-M4-08 DESC-1 CORRECTS the earlier +0x22, which is the swizzle low byte and only coincided for bgra8). Full format word `(0xf<<28)|(swizzle<<16)|(byte1<<8)|(byte0&~0x20)`, 43/43 formats;
@@ -257,6 +282,16 @@ need a non-zero coefficient (≈1e-9) to survive dead-code elimination.
   (args VA staged at `0x10000080000+0xb0`). **A Mesa driver must replicate this multiply.**
 - **Full ICB** (`executeCommandsInBuffer:`): each command expands to an inline state-block + draw (same
   `0x61c4`, inline vertexCount); header `+0x04` = command count. (Distinct from the args-pointer form above.) *(RT-6: `+0x04` is the **encoded/allocated** command count — `withRange:` still shows the full count with all records materialized, range applied elsewhere. **Mesh and draw commands can coexist in one ICB** — a mixed Draw|DrawMeshThreadgroups ICB produces one `0x61c4` + one `0x70000600` record.)*
+- **M4 public-Metal behavior boundary** (EXP-0053, commit `e31dfb46`): canonical
+  full-byte runs 05/06 reproduce zero/nonzero indirect compute and draw, a
+  CPU-before-commit argument update, a GPU-produced argument from a prior
+  encoder, full/prefix/suffix/middle/empty ICB ranges, middle reset plus one-slot
+  re-encode, and one optimized-full functional-equivalence case. Hash/aggregate-
+  only successes 03/04 are downgraded, while compile/fault histories 01/02 are
+  retained. This does not decode or validate private ICB storage/count fields,
+  helper programs, writable-command grammar, Linux UAPI mapping, or A18 behavior;
+  P1.7 remains open. See
+  `../../experiments/EXP-0053-m4-indirect-api-semantics/analysis/{summary.json,report.txt}`.
 - **Occlusion query:** result-buffer base pointer at `0x10000100000+0x00`; per-draw **mode = bit14 of
   `0x58000+0x8c`** (Boolean=1 writes 1 / Counting=0 writes exact passed-sample count, both u64); per-draw
   **offset = `0x58000+0xa0` = byteOffset<<14** — HW-validated across offsets 0/8/16/64/256/1024/4096

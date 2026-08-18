@@ -167,6 +167,14 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   `+0x08 = shaderVA>>6` (64-byte units), grid `+0x10/+0x14/+0x18` **in threads** (not
   threadgroups), threadgroup `+0x1c..`, config word `+0x00` bit23 = occupancy tier. Threadgroup-
   memory size lives in the **shader BO** as `(bytes<<2)|0x80`, not the CDM record (EXP-0011/0024).
+- **Rollover links are exact-shape M4 observations, not a portable packer**
+  (`cmdstream/README.md`, EXP-0043/EXP-0049 commit `84779ec8`): direct, encoder-per-dispatch,
+  and padded compute reproduce the exact 732/733 CDM pair; state-every-draw and padded graphics
+  reproduce the exact 328/329 VDM pair. Indirect compute, stable graphics state, and pass-per-draw
+  reach bounded stops without the known pair, so their first links and destinations remain unknown.
+  Treat every observed link as STRUCTURAL: do not infer hardware consumption, arbitrary relocation,
+  Linux submission packing, or A18 behavior. See
+  `../experiments/EXP-0049-command-link-structure/analysis/{summary.json,report.txt}`.
 - **Graphics selection = queue-relative code window + separate stage selectors**
   (`cmdstream/README.md`, M4 EXP-0042): VS changes emit a VDM `(0x500, token)` pair; FS uses a
   32-bit code-window-relative selector at `0x58000+0x08`. Authored code appears in 0x40-header,
@@ -192,7 +200,12 @@ fixed-function state records they reference, plus the **USC** shader-binding pro
   `threadgroups × threadsPerThreadgroup` (the driver **must replicate this multiply**); occlusion
   mode = bit14 of `0x58000+0x8c` (Boolean vs Counting), offset `+0xa0 = byteOffset<<14`; GPU
   timestamps are u64 ns (`timestampPeriod=1.0`) but **only stage-boundary sampling works** (dispatch/
-  draw-granular reads all-zero → a Vulkan emulation flag).
+  draw-granular reads all-zero → a Vulkan emulation flag). EXP-0053 (`e31dfb46`)
+  independently bounds only M4 public-Metal indirect/ICB behavior: canonical
+  full-byte runs 05/06 cover tested argument update timing, ranges,
+  reset/re-encode and optimization; downgraded 03/04 and failures 01/02 remain
+  retained history. Do not derive a private stream, Linux mapping, or A18 rule
+  from that API-level result; P1.7 remains open.
 - **Geometry-output pipeline** (`cmdstream/README.md` "Geometry-output", EXP-O2A): **multiple
   viewports** `0x68000` (count `+0x900 = ((count-1)<<12)|0x0C00`, max 16, 6-float per-viewport
   transform); PPP **output-select word `0x58000+0x20`** — bits[7:0] = **clip-distance plane mask**

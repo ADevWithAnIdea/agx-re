@@ -44,8 +44,8 @@ observe). Correctness bar: **round-trip identity** — `disassemble(assemble(x))
 - ☐ **Extrapolate & test** — sweep undocumented opcode/modifier space; log every probe (works/no-op/faults) in `hypotheses.md`.
 - Deliverables: `../tools/agx-isa/` (the assembler+disassembler, round-trip-tested) **and** `isa/` (prose + encoding tables). The tool is the executable form of the documentation.
 
-## Phase 2 — Control / command stream & state  ✅ (compute+graphics submission, USC grammar, state packets, indirect/occlusion/timestamp)
-- ☐ VDM (draw) / CDM (compute) / tiler / fragment command lists.
+## Phase 2 — Control / command stream & state  ◐ (bounded submission/state evidence; complete USC and relocatable command grammar remain open)
+- ◐ VDM (draw) / CDM (compute) / tiler / fragment command lists — *EXP-0043 locates exact direct-shape M4 rollover pairs; EXP-0049 (`84779ec8`) repeats the 732/733 CDM and 328/329 VDM pairs under encoder/allocation controls. Alternate indirect/stable/pass-per-draw links, hardware consumption, general relocation/packing, Linux mapping and A18 remain open.*
 - ☐ USC binding words (shaders, textures, samplers, uniforms).
 - ◐ State packets — *EXP-0019: depth/stencil + rasterizer packets decoded; blend is PROGRAMMABLE (lowered into fragment shader, not a packet); USC bind template mapped.* → `docs/cmdstream/README.md`.
 - Method: black-box trace + change-one-Metal-parameter diffing. Deliverable: `cmdstream/`.
@@ -118,7 +118,7 @@ tracked in `docs/capability-completeness.md` (see `../CLAUDE.md` → Secondary g
 - **Capability census** = enumerate every Metal/MSL feature + every Apple-advertised (WWDC Family-9)
   feature → map to HW representation → classify native/emulated/kernel/NOT-YET-CHARACTERIZED → drive
   the NOT-YET list to 0.
-  **STATUS (`docs/capability-completeness.md`, 214 rows): native 189 · emulated 11 · kernel 5 · NOT-YET 9.**
+  **STATUS (`docs/capability-completeness.md`, 214 rows): native 189 · emulated 11 · kernel 4 · NOT-YET 10.**
   Top backlog: mesh shading, fragment interpolation(G-4), transcendentals(G-2), SR/preload ABI(G-5),
   imageblock/tile-shader/raster-order ISA, compression codec, wait_pix/signal_pix, RT completion,
   format codes+3D/cube/array/MSAA twiddle, indirect/ICB, bitfield/int completeness (clz/ctz/insert/
@@ -141,9 +141,9 @@ the byte0 groups seen in real shaders but not yet decoded:
 - ☐ **Misc** — `nop`, fence/barrier scope variants, device-scope barrier (`0x85`).
 Target: iterate until a byte0-group census of a broad shader corpus shows ~0 undecoded groups.
 
-**G-14 — coverage-matrix not-started rows (EXP-descriptors/matrix sync: done 5 / partial 39 / not-started 8):**
+**G-14 — coverage-matrix tracked rows (current sync: done 5 / partial 41 / not-started 6):**
 - ☐ Fragment-only ISA ops (iter/ldcf/ld_tile/st_tile/zs_emit/sample_mask) [overlaps G-13].
-- ☑ Device-generated **indirect** draw/dispatch + ICB — *EXP-0027: opcode switch + args-struct ptr; indirect dispatch needs driver grid-setup multiply.*
+- ◐ Device-generated **indirect** draw/dispatch + ICB — *EXP-0027 decodes an opcode switch, args-struct pointer and indirect-dispatch grid multiply. EXP-0053 (`e31dfb46`) adds canonical M4 public-Metal full-byte runs 05/06 for tested argument timing, ranges, reset/re-encode and optimization; 03/04 are downgraded and failures 01/02 retained. P1.7 stays OPEN for writable native grammar, validation/cache rules, Linux mapping and A18.*
 - ☑ **MSAA / occlusion / timestamps** — *EXP-0027 + EXP-0028: occlusion+timestamps decoded; MSAA sample interleave = sample-major (offset=(N*morton+sample)*bps, 2x/4x).*
 - ☐ **UVS / varyings** linkage (vertex↔fragment interface); NIR-lowering HW-workaround facts.
 - ☐ **Sparse** page-table / folio geometry (kernel-adjacent).
@@ -178,7 +178,7 @@ tightened as they're decoded.
   (REVIEW-02, read-based); close whatever it flags. Goal: reviewer returns clean.
 
 ### OBJECTIVE-2 — REOPENED by EXP-0042: **189 native / 11 emulated / 4 kernel / 10 NOT-YET**. Metal-exposed residue = **1**: graphics code-window/stage-selector integration. Tessellation, printf/mesh-ICB/comp×mip, and sample positions remain closed; the earlier “fully satisfied” verdict is superseded. O2-A..F remain historical closures, ISA merged (DB 75).
-From the re-synced `capability-completeness.md` (39 NOT-YET; these ~10 clusters are the Metal-exposed blockers):
+From the historical pre-O2 census (39 NOT-YET; these ~10 clusters were its Metal-exposed blockers):
 - ☑ **O2-A geometry-output pipeline** (EXP-O2A) [cmdstream]: multi-viewport/scissor (16), clip/cull distances (16),
   `[[point_size]]`, primitive restart, alpha-to-coverage/one, polygon-point fill.
 - ☑ **O2-B sparse/PBE/filtering/sampler-heap** (EXP-O2B) [descriptor/tiling]: sparse/tile textures, PBE-renderable flags,
@@ -225,9 +225,9 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 - ☑ **RT-ISA-2 control-flow/calls/atomics** — RT-1b (independent 2nd pass): byte+5 mem fix HOLDS, CF/calls/atomics CONFIRMED (10/10 ops, 256/256 stress); found 0x0a↔0x02 wording + census-overstatement + 0x0f-family gap (→ decode after RT-5). · ◐ RT-ISA-3/4/5 textures/subgroup/matrix/RT/fragment — RT-5: matrix/reduce/tex/fragment CONFIRMED; found ballot+shuffle decode bugs, reduce enum, RT AS-select over-claim (→ QUEUED ISA-FIX)
 - ☐ RT-ISA-4 subgroup/quad/matrix/RT · ☐ RT-ISA-5 fragment interp/output/tilebuffer/ROG
 - ☐ RT-machine-model (GPR/uniform/spill) · ☐ RT-SR/ABI/vertex-fetch
-- ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ◐ RT-cmdstream-2 — RT-6: ALL CONFIRMED, **0 discrepancies** (indirect/ICB/occlusion/timestamp/geometry all held under adversarial); cross-confirmed RT-2a indexed shift. 1 clean pass — light 2nd in final sweep
+- ◐ RT-cmdstream (RT-2a: found+fixed sampler-stride /8→/0x20, indexed-VDM instanceCount +0x78/u32 0x61f4, CDM tg=effective; state-packets+prog-blend confirmed robust — needs 2nd pass) · ◐ RT-cmdstream-2 — RT-6: all tested RT-6 claims confirmed with **0 discrepancies within that matrix** (indirect/ICB/occlusion/timestamp/geometry held under its adversarial cases); this historical result does not close P0.5/P1.7. Cross-confirmed RT-2a indexed shift. 1 clean pass — light 2nd in final sweep
 - ☑☑ RT-descriptors+format+PBE (RT-3 14-bit + RT-9 re-confirmed, no regression) · ☑☑ RT-tiling (RT-3 tiled-Morton + **RT-9 2nd pass caught cols=ceil(W/T)/mult-of-T-padding** RT-3 missed — FIXED, HW-proven 0-mismatch on non-pow2 widths; T=64/32 boundary independently re-derived; BC-tiles + narrow-case probed) · ☑ RT-pipeline/TBDR (RT-4 found+fixed; **RT-11 2nd pass CONFIRMED all**, 0 discrepancy — sample-positions-userspace re-proven with no kernel route, 32KiB=threadgroup-gate)
-- ☑ **RT-kernel-interface + RT-capability-matrix (consistency)** — RT-8 found systematic split-brain (corrections not fanned out); consistency-propagation fixed ALL: sample-pos/tess/tiling/64-bit-atomic now consistent across every derived doc; capability-completeness reconciled to 189/11/5/9; PROVENANCE + ROADMAP synced.
+- ☑ **RT-kernel-interface + RT-capability-matrix (consistency)** — RT-8 found systematic split-brain (corrections not fanned out); consistency-propagation fixed the then-known sample-pos/tess/tiling/64-bit-atomic conflicts. Its historical 189/11/5/9 tally is superseded by the current 189/11/4/10 matrix and the authoritative open-gap audit.
 **✅ ISA-FIX DONE (RT-ISA-FIX; HW-re-validated each; DB 77→82, round-trip 293 OK, census 90.6%):**
 - **RT-5:** ballot `0x17` match (DB wrongly gates byte+1==0x07 → mis-decodes as unpack_convert); shuffle `0x47/0xc7` byte+2=0x54 gate (relaxation was applied to reduce not shuffle → fails to decode); reduce byte+7 dtype enum (int=0x01 not 0x03, excl-scan=0x09); re-mark tex op+4 (folds under direct binding) + op+6 (filtered=no-op) + **RT rt_intersect AS-select sub-fields as INFERRED** (EXP-O2C's 0x8b→0x1b HW-claim did NOT reproduce — over-claim).
 - **RT-1b:** decode the `0x0f` execution-mask family (else/while/break/pop/reconverge sub-ops) + `0x07` fence byte+2=0x02 variant + verify `0x32` carry-gen tokenizes.
@@ -235,23 +235,20 @@ Legend: ☐ none · ◐ 1 pass · ☑ 2+ passes, clean. (Fixes applied centrally
 
 Objective-3 done = all ☑ + all discrepancies fixed & re-tested + round-trip green + census ~0 undecoded.
 
-### ✅ OBJECTIVE 3 COMPLETE (overlapping red-team — all 14 clusters, 2+ clean adversarial passes)
-Every cluster falsification-tested by 2+ independent subagents that RAN device tests (large/unorthodox programs + edge cases); every found error fixed centrally + re-tested; round-trip green (293 OK), census 90.6%, no undecoded instruction *family*.
+### Historical Objective 3 verdict — superseded by the current gap audit
+The following records the earlier red-team verdict: its tested clusters were falsification-tested by 2+ independent agents, fixes were re-tested, round-trip was green (293 OK), and the census reported no undecoded instruction *family*. That matrix did not satisfy the later compiler-synthesis and unchanged-UAPI criteria in `AGX_RE_INFORMATION_GAPS.md`; it is process history, not a current closure claim.
 - ISA arith/logic/memory/operand ☑☑ (RT-1a→FIX→RT-1b) · ISA CF/calls/atomics ☑☑ (RT-1b + RT-10 0x0f) · ISA tex/simd/matrix/RT/fragment ☑☑ (RT-5→FIX→RT-10)
 - machine-model+SR/ABI ☑☑ (RT-7+RT-12) · cmdstream ☑☑ (RT-2a+RT-11) · cmdstream-2 ☑☑ (RT-6+RT-12) · descriptors+tiling ☑☑ (RT-3+RT-9→RT-12) · pipeline/TBDR ☑☑ (RT-4+RT-11) · kernel-interface+capability ☑☑ (RT-8→consistency-prop, REVIEW-03/OBJ2-AUDIT-2)
 - **Real errors found & fixed:** mem-index byte+5, iadd2 polarity, uniform-source, 14-bit tex dims, **tiled-Morton cols=ceil(W/T)+mult-of-T padding** (RT-9 caught what RT-3 missed), sampler-stride 0x20, indexed-VDM shift, **sample-positions-userspace** (was mis-attributed kernel), **native tessellation** (was assumed emulate), ballot/shuffle decode, **0x0f exec-mask family decoded**, split-brain consistency. Overlapping verification also **rejected a red-teamer's own wrong claim** (RT-5 reduce-enum).
 
-### 🎉 ALL THREE OBJECTIVES SATISFIED — GOAL COMPLETE
-1. **Implementable-from-docs** ✅ (REVIEW-02 + REVIEW-03 both PASS, 0 blocking gaps).
-2. **All Metal-exposed HW exercised** ✅ (OBJ2-AUDIT + OBJ2-AUDIT-2 both PASS, Metal-exposed-not-exercised = 0, census 189/11/5/9).
-3. **Every finding overlap-verified with falsification, no surviving holes** ✅ (14/14 clusters, 2+ passes).
-103+ commits; git history is the clean-room paper trail. Clean-room integrity maintained throughout (OWN-SHADER / DATA-TRACE / HW-PROBE / PUBLIC only; no Apple binary disassembled; 0 device reboots needed).
+### Historical all-objectives verdict — SUPERSEDED
+Earlier reviews reported all three objectives complete, 0 blocking gaps, a 189/11/5/9 census, and no surviving holes. The stricter unchanged-UAPI/compiler-synthesis audit has superseded that verdict: all eight P0 and all eight P1 rows remain open, and the current capability tally is 189/11/4/10. The historical tests and 103+ commit paper trail remain useful evidence, but they do not establish current goal completion. The clean-room process restriction remains in force.
 
-### ✅ OBJECTIVE 1 RE-CONFIRMED (REVIEW-03 / GAP-ANALYSIS-03: PASS)
-- 0 blocking gaps; all 8 subsystems PASS; **red-team corrections internally consistent, no split-brain** (grep-verified: byte+5 mem-index, tiled-Morton cols=ceil(W/T), sample-pos-userspace ×6 docs, native-tess ×5 docs, 0x0f family, census 189/11/5/9 tie out). 11 acceptable-residue clusters + 5 minor polish (M1/M3/M4 now fixed; M2 finalized at completion; M5 = structural code-BO header, residue).
+### Historical Objective 1 review — superseded
+- REVIEW-03 / GAP-ANALYSIS-03 reported 0 blocking gaps and eight subsystem passes. The current audit rejects that closure standard and keeps all P0/P1 gaps open; the old consistency checks remain historical evidence only.
 
-### ✅ OBJECTIVE 2 RE-CONFIRMED (OBJ2-AUDIT-2: PASS)
-- Metal-exposed-not-exercised = **0**; totals consistent 189/11/5/9=214; all native/emulated rows PROVENANCE-backed (16/16 spot-checks); excluded set honest (6 microarch + 3 Metal-unreachable). Tessellation caveat + inconsistent-totals from OBJ2-AUDIT-1 both closed.
+### Historical Objective 2 review — superseded
+- OBJ2-AUDIT-2 reported Metal-exposed-not-exercised = 0 and 189/11/5/9=214. Current classification is 189/11/4/10, and public-Metal exercise alone does not close native generation, Linux mapping, or A18 validation gaps.
 
 ### COMPLETION CRITERIA (formal goal — mark complete only when all three hold)
 1. **Implementable-from-docs:** a *separate* acceptance-reviewer subagent, given ONLY `docs/`, confirms it
