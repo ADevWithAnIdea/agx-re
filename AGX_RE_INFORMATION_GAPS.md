@@ -343,6 +343,12 @@ Missing:
 
 A descriptor-code table does not by itself establish which API features are valid.
 
+EXP-0070 gives six exact public-Metal M4 store/typed-read observations with
+full owned backing bytes: RGBA8 `0080ff80`, BGRA8 `ff800080`, sRGB
+`0a0abc80`, R16 `0080`, RGBA16F `0080003cff7b5535`, and R32Uint
+`efbeadde`. They are not PBE descriptor, native, Linux, A18, or general
+format-capability evidence.
+
 Needed per-format data:
 
 - Sampled, filtered, storage-read, storage-write, atomic, renderable, blendable, depth/stencil, linear-layout, compressed, MSAA, resolve, and sparse support.
