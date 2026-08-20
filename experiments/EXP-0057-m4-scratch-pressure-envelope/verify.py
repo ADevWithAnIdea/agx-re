@@ -2,7 +2,9 @@
 """Fail-closed provenance and semantic verifier for the retained EXP-0057 runs."""
 import hashlib
 import json
+import subprocess
 from pathlib import Path
+from make_manifest import PREREG_COMMIT, TOOL_COMMITS, validate_raw_tree
 
 HERE = Path(__file__).resolve().parent
 RUNS = ("m4_20260819_run01", "m4_20260819_run02")
@@ -27,6 +29,10 @@ def artifact_map(items):
         require(item["path"] not in out, f"duplicate manifest path {item['path']}")
         out[item["path"]] = path
     return out
+
+
+def ancestor(commit, base):
+    return subprocess.run(["git", "merge-base", "--is-ancestor", commit, base], cwd=HERE).returncode == 0
 
 
 def capture(path):
@@ -59,11 +65,20 @@ def verify_run(name):
 
 
 def main():
+    # This must precede loading/hashing the manifest's raw artifact list.
+    validate_raw_tree()
     manifest = json.loads((HERE / "manifest.json").read_text())
     require(manifest["experiment"] == "EXP-0057-m4-scratch-pressure-envelope", "manifest experiment")
+    lineage = manifest.get("required_clean_room_commits")
+    require(lineage == {"preregistration": PREREG_COMMIT, "tooling": list(TOOL_COMMITS)}, "manifest lineage")
+    base = manifest.get("manifest_revision", "")
+    require(len(base) == 40 and all(c in "0123456789abcdef" for c in base), "manifest base revision")
+    require(ancestor(base, "HEAD"), "manifest base not ancestor of verifier")
+    require(ancestor(PREREG_COMMIT, base) and all(ancestor(commit, base) for commit in TOOL_COMMITS),
+            "required commits absent from manifest ancestry")
     require(manifest["clean_room"] == {"apple_binary_introspection": False, "apple_helper_program_bytes_inspected": False,
         "apple_command_state_code_unknown_bo_bytes_inspected": False, "compiled_non_authored_code_inspected": False}, "clean room attestation")
-    artifacts = artifact_map(manifest["raw_artifacts"] + manifest["analysis_artifacts"] + manifest["source_tools"])
+    artifacts = artifact_map(manifest["raw_artifacts"] + manifest["analysis_artifacts"] + manifest["source_tools"] + manifest["protocol_files"])
     # No binary dump, BO trace, captured code, or other payload class is accepted.
     forbidden = (".bin", ".dylib", ".metallib", "maptrace", "bo_", "command_")
     require(not any(any(word in rel.lower() for word in forbidden) for rel in artifacts), "forbidden retained artifact name")
