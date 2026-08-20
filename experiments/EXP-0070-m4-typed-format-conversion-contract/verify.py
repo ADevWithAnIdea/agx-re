@@ -13,8 +13,8 @@ def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def regular(p): return p.is_file() and not p.is_symlink()
 REC_KEYS={"argv","cwd","timeout_seconds","started_utc","timed_out","exit","stdout","stderr","exception"}
 CASE_KEYS={"case","command_buffer_status","device","error","machine","os","physical_texel_hex","render_hex","compute_hex","compute_words_le","render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard"}
-def receipt(z, argv, timeout, label):
-    req(set(z)==REC_KEYS and z["argv"]==[str(x) for x in argv] and z["cwd"]==str(HERE) and z["timeout_seconds"]==timeout and z["timed_out"] is False and z["exit"]==0 and z["exception"] is None and isinstance(z["stdout"],str) and isinstance(z["stderr"],str),label)
+def receipt(z, argv, cwd, timeout, label):
+    req(set(z)==REC_KEYS and z["argv"]==[str(x) for x in argv] and z["cwd"]==str(cwd) and z["timeout_seconds"]==timeout and z["timed_out"] is False and z["exit"]==0 and z["exception"] is None and isinstance(z["stdout"],str) and isinstance(z["stderr"],str),label)
     try: req(datetime.datetime.fromisoformat(z["started_utc"]).utcoffset()==datetime.timedelta(),label+" timestamp")
     except (TypeError,ValueError): fail(label+" timestamp")
 def bpp(case): return 2 if case=="r16unorm_midpoint" else 8 if case=="rgba16float_finite" else 4
@@ -24,10 +24,11 @@ def backing(case,p):
     req(isinstance(p["physical_texel_hex"],str) and len(p["physical_texel_hex"])==2*bpp(case) and re.fullmatch(r"[0-9a-f]+",p["physical_texel_hex"]) and isinstance(p["render_hex"],str) and len(p["render_hex"])==768 and isinstance(p["compute_hex"],str) and len(p["compute_hex"])==288 and re.fullmatch(r"[0-9a-f]+",p["render_hex"]+p["compute_hex"]),"hex grammar "+case)
     r,c=bytes.fromhex(p["render_hex"]),bytes.fromhex(p["compute_hex"]); words=[int.from_bytes(c[64+i:68+i],"little") for i in range(0,16,4)]
     req(p["physical_texel_hex"]==r[64:64+bpp(case)].hex() and p["compute_words_le"]==words,"derived texel/words "+case)
-    req(p["render_prefix_guard"]==(r[:64]==b"\\x5a"*64) and p["render_suffix_guard"]==(r[320:]==b"\\xa5"*64) and p["compute_prefix_guard"]==(c[:64]==b"\\x5a"*64) and p["compute_suffix_guard"]==(c[80:]==b"\\xa5"*64),"derived guard flags "+case)
+    req(p["render_prefix_guard"]==(r[:64]==b"\x5a"*64) and p["render_suffix_guard"]==(r[320:]==b"\xa5"*64) and p["compute_prefix_guard"]==(c[:64]==b"\x5a"*64) and p["compute_suffix_guard"]==(c[80:]==b"\xa5"*64),"derived guard flags "+case)
     req(all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")),"guard mutation "+case)
-def static():
-    req(not HERE.is_symlink() and {p.name for p in HERE.iterdir()} == ROOT,"closed root")
+def static(capture=False):
+    names={p.name for p in HERE.iterdir()}; allowed=ROOT|({"raw"} if capture else set())|({"work"} if "work" in names else set()); req(not HERE.is_symlink() and names == allowed,"closed root")
+    if "work" in names: req((HERE/"work").is_dir() and not (HERE/"work").is_symlink() and not any((HERE/"work").iterdir()),"work absent or empty")
     for p in AUTH+("manifest.json",): req(regular(HERE/p),"regular "+p)
     for d,fs in (("kernels",{"format_matrix.metal"}),("harness",{"probe.m"})):
         q=HERE/d;req(q.is_dir() and not q.is_symlink() and {p.name for p in q.iterdir()}==fs and all(regular(x) for x in q.iterdir()),"closed "+d)
@@ -48,16 +49,17 @@ def captured():
         for path,want in i["authored_sha256"].items():
             blob=subprocess.run(["git","show",rev+":experiments/EXP-0070-m4-typed-format-conversion-contract/"+path],cwd=REPO,capture_output=True).stdout
             req(hashlib.sha256(blob).hexdigest()==want,"source binding "+rid+" "+path)
-        receipt(i["sw_vers"],["sw_vers"],5,"sw_vers "+rid);receipt(i["xcrun_version"],["xcrun","--version"],5,"xcrun "+rid)
-        probe=HERE/"work"/rid/"probe"; b=json.loads((d/"01_host_build.json").read_text());receipt(b,["xcrun","clang","-fobjc-arc","-o",probe,HERE/"harness/probe.m","-framework","Metal","-framework","Foundation"],60,"build "+rid)
-        rm=json.loads((d/"run_manifest.json").read_text());req(rm=={"schema":1,"run_id":rid,"cases":list(CASES),"fresh_process_per_case":True,"runner_sha256":sha(HERE/"run.py"),"harness_sha256":sha(HERE/"harness/probe.m"),"kernel_sha256":sha(HERE/"kernels/format_matrix.metal")},"run manifest "+rid)
+        captured_cwd=i["sw_vers"].get("cwd"); req(isinstance(captured_cwd,str),"captured root type "+rid); captured_root=Path(captured_cwd); req(captured_root.is_absolute() and i["xcrun_version"].get("cwd")==str(captured_root),"captured root "+rid)
+        receipt(i["sw_vers"],["sw_vers"],captured_root,5,"sw_vers "+rid);receipt(i["xcrun_version"],["xcrun","--version"],captured_root,5,"xcrun "+rid)
+        probe=captured_root/"work"/rid/"probe"; b=json.loads((d/"01_host_build.json").read_text());receipt(b,["xcrun","clang","-fobjc-arc","-o",probe,captured_root/"harness/probe.m","-framework","Metal","-framework","Foundation"],captured_root,60,"build "+rid)
+        rm=json.loads((d/"run_manifest.json").read_text());req(rm=={"schema":1,"run_id":rid,"cases":list(CASES),"fresh_process_per_case":True,"runner_sha256":i["authored_sha256"]["run.py"],"harness_sha256":i["authored_sha256"]["harness/probe.m"],"kernel_sha256":i["authored_sha256"]["kernels/format_matrix.metal"]},"run manifest "+rid)
         rows=[]
         for case in CASES:
-            z=json.loads((d/f"case_{case}.json").read_text());receipt(z,[probe,"--source",HERE/"kernels/format_matrix.metal","--case",case],20,"case process "+case);p=json.loads(z["stdout"]);backing(case,p);rows.append(p)
+            z=json.loads((d/f"case_{case}.json").read_text());receipt(z,[probe,"--source",captured_root/"kernels/format_matrix.metal","--case",case],captured_root,20,"case process "+case);p=json.loads(z["stdout"]);backing(case,p);rows.append(p)
         compare.append(rows)
     req(compare[0]==compare[1],"byte-exact repeat")
 def main():
-    ap=argparse.ArgumentParser();g=ap.add_mutually_exclusive_group(required=True);g.add_argument("--preflight",action="store_true");g.add_argument("--captured",action="store_true");a=ap.parse_args();static()
-    if a.preflight: req(not (HERE/"raw").exists() and not (HERE/"work").exists(),"PRE_GPU tree must have no raw/work");print("PASS PRE_GPU contract; no GPU capture")
-    else: captured();print("PASS captured public-Metal owned-buffer contract")
+    ap=argparse.ArgumentParser();g=ap.add_mutually_exclusive_group(required=True);g.add_argument("--preflight",action="store_true");g.add_argument("--captured",action="store_true");a=ap.parse_args()
+    if a.preflight: static(); req(not (HERE/"raw").exists(),"PRE_GPU tree must have no raw");print("PASS PRE_GPU contract; no GPU capture")
+    else: static(capture=True);captured();print("PASS captured public-Metal owned-buffer contract")
 if __name__=="__main__": main()
