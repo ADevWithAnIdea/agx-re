@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib,json
 from pathlib import Path
 HERE=Path(__file__).resolve().parent; RAW=HERE/"raw/run01"
-ROOT={".gitignore","PRE_REGISTRATION.md","README.md","RESULTS.md","analysis","raw","make_manifest.py","manifest.json","verify.py"}
+ROOT={".gitignore","INTERPRETATION_CORRECTION.md","PRE_REGISTRATION.md","README.md","RESULTS.md","analysis","raw","make_manifest.py","manifest.json","verify.py"}
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def check_tree():
  if HERE.is_symlink() or {p.name for p in HERE.iterdir()}!=ROOT:raise SystemExit("closed experiment root")

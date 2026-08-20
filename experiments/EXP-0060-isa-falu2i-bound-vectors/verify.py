@@ -4,7 +4,7 @@ import hashlib,itertools,json,subprocess,types
 from pathlib import Path
 HERE=Path(__file__).resolve().parent; REPO=HERE.parents[1]; RAW=HERE/"raw/run01"
 INPUT_KEYS={"experiments/EXP-0060-isa-falu2i-bound-vectors/PRE_REGISTRATION.md","experiments/EXP-0060-isa-falu2i-bound-vectors/analysis/audit_falu2i.py","tools/agx-isa/isadb.py","tools/agx-isa/roundtrip_test.py","tools/agx-isa/db.json"}
-ROOT={".gitignore","PRE_REGISTRATION.md","README.md","RESULTS.md","analysis","raw","make_manifest.py","manifest.json","verify.py"}
+ROOT={".gitignore","INTERPRETATION_CORRECTION.md","PRE_REGISTRATION.md","README.md","RESULTS.md","analysis","raw","make_manifest.py","manifest.json","verify.py"}
 DOMAIN={"dst":[0,1,7,15],"imm_exp":[8,11,15],"imm_mant":[0,1,7],"imm_sign":[0,1],"opsel":[4,5],"srcA_reg":[0,1,31,63,95],"srcA_size":[0,1]}
 VECTOR_DOMAIN={"dst":[0,1,7,15],"srcA_size":[0,1],"srcA_reg":[0,1,31,63,95],"opsel":[4,5],"imm_mant":[0,1,7],"imm_exp":[8,11,15],"imm_sign":[0,1]}
 SEMANTIC=["dst","srcA_size","srcA_reg","opsel","imm_flag","imm_mant","imm_exp","imm_sign"]
@@ -31,6 +31,8 @@ for rel,want in i["inputs"].items():
 r=json.loads((RAW/"result.json").read_text())
 assert set(r)=={"schema","scope","descriptor","semantic_fields","excluded_nonsemantic_fields","domain","expected_vectors","unique_encodings","all_round_trip","encoding_sha256"}
 assert r["schema"]==1 and r["scope"]=="falu2i semantic sub-schema only; no hardware claim" and r["descriptor"]=="falu2i" and r["semantic_fields"]==SEMANTIC and r["excluded_nonsemantic_fields"]==["opflags","ctrl_lo","mods"] and r["domain"]==DOMAIN and r["expected_vectors"]==r["unique_encodings"]==1440 and r["all_round_trip"] is True
+correction=(HERE/"INTERPRETATION_CORRECTION.md").read_text()
+assert "not established by EXP-0060" in correction and "no positive claim about Apple hardware execution" in correction
 isadb=types.ModuleType("captured_isadb");exec(compile(blobs["tools/agx-isa/isadb.py"],"captured-isadb.py","exec"),isadb.__dict__)
 encodings=set(); cases=[]
 for values in itertools.product(*(VECTOR_DOMAIN[key] for key in VECTOR_DOMAIN)):
