@@ -43,6 +43,10 @@ before the host build begins.
 Run 01 begins only from the raw-free pre-GPU tree. Run 02 begins only after
 `verify.py --between-runs` accepts exactly the complete, closed run-01 tree and
 an absent or empty `work/` directory; this gate is checked by `run.py` itself.
+Before creating run 02, the runner also requires its current Git revision and
+every authored hash to equal the closed run-01 input record. Final verification
+requires the two runs to retain the same revision/hash map and `sw_vers`/`xcrun`
+stdout and stderr.
 
 ## Promotion rule and scope
 

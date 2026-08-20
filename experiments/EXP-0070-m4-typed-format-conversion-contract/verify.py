@@ -32,7 +32,7 @@ def static(capture=False):
     for p in AUTH+("manifest.json",): req(regular(HERE/p),"regular "+p)
     for d,fs in (("kernels",{"format_matrix.metal"}),("harness",{"probe.m"})):
         q=HERE/d;req(q.is_dir() and not q.is_symlink() and {p.name for p in q.iterdir()}==fs and all(regular(x) for x in q.iterdir()),"closed "+d)
-    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH and set(c["capture"]["receipt_keys"])==REC_KEYS and set(c["capture"]["case_record_keys"])==CASE_KEYS and c["capture"]["run_manifest_keys"]==["schema","run_id","cases","fresh_process_per_case","runner_sha256","harness_sha256","kernel_sha256"] and c["capture"]["between_runs_gate"]=="run01 must be a complete closed successful raw tree and work must be absent or empty before run02 is created","contract core")
+    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH and set(c["capture"]["receipt_keys"])==REC_KEYS and set(c["capture"]["case_record_keys"])==CASE_KEYS and c["capture"]["run_manifest_keys"]==["schema","run_id","cases","fresh_process_per_case","runner_sha256","harness_sha256","kernel_sha256"] and c["capture"]["between_runs_gate"]=="run01 must be a complete closed successful raw tree and work must be absent or empty before run02 is created" and c["capture"]["cross_run_provenance_gate"]=="run02 current Git revision and authored hashes must equal run01 before creation; final verification also requires identical sw_vers and xcrun stdout/stderr","contract core")
     req(c["boundary"]["accesses"]=="in-bounds 1x1 texture reads and writes only" and c["boundary"]["apple_binary_archive_bo_inspection"]=="NONE","boundary")
     req(c["backings"]["render"]["total_bytes"]==384 and c["backings"]["render"]["hex_chars"]==768 and c["backings"]["compute"]["total_bytes"]==144 and c["backings"]["compute"]["hex_chars"]==288,"backing contract")
     h=(HERE/"harness/probe.m").read_text(); k=(HERE/"kernels/format_matrix.metal").read_text();req("uint2(0, 0)" in k and "width:1 height:1" in h and "newTextureWithDescriptor:td offset:64 bytesPerRow:256" in h,"in-bounds geometry")
@@ -41,7 +41,7 @@ def static(capture=False):
     m=json.loads((HERE/"manifest.json").read_text());want={"schema":1,"state":"PRE_GPU","artifacts":[{"path":p,"bytes":(HERE/p).stat().st_size,"sha256":sha(HERE/p)} for p in AUTH]};req(m==want,"manifest")
 def captured(runs):
     raw=HERE/"raw"; req(raw.is_dir() and not raw.is_symlink() and {p.name for p in raw.iterdir()}==set(runs),"exact raw runs")
-    compare=[]
+    compare=[]; provenance=[]
     for rid in runs:
         d=raw/rid; names={"00_inputs.json","01_host_build.json","run_manifest.json"}|{f"case_{x}.json" for x in CASES};req(d.is_dir() and not d.is_symlink() and {p.name for p in d.iterdir()}==names and all(regular(p) for p in d.iterdir()),"closed raw "+rid)
         i=json.loads((d/"00_inputs.json").read_text()); rev=i.get("git_revision","")
@@ -49,6 +49,7 @@ def captured(runs):
         for path,want in i["authored_sha256"].items():
             blob=subprocess.run(["git","show",rev+":experiments/EXP-0070-m4-typed-format-conversion-contract/"+path],cwd=REPO,capture_output=True).stdout
             req(hashlib.sha256(blob).hexdigest()==want,"source binding "+rid+" "+path)
+        provenance.append({"git_revision":i["git_revision"],"authored_sha256":i["authored_sha256"],"sw_vers_output":{"stdout":i["sw_vers"].get("stdout"),"stderr":i["sw_vers"].get("stderr")},"xcrun_version_output":{"stdout":i["xcrun_version"].get("stdout"),"stderr":i["xcrun_version"].get("stderr")}})
         captured_cwd=i["sw_vers"].get("cwd"); req(isinstance(captured_cwd,str),"captured root type "+rid); captured_root=Path(captured_cwd); req(captured_root.is_absolute() and i["xcrun_version"].get("cwd")==str(captured_root),"captured root "+rid)
         receipt(i["sw_vers"],["sw_vers"],captured_root,5,"sw_vers "+rid);receipt(i["xcrun_version"],["xcrun","--version"],captured_root,5,"xcrun "+rid)
         probe=captured_root/"work"/rid/"probe"; b=json.loads((d/"01_host_build.json").read_text());receipt(b,["xcrun","clang","-fobjc-arc","-o",probe,captured_root/"harness/probe.m","-framework","Metal","-framework","Foundation"],captured_root,60,"build "+rid)
@@ -57,7 +58,9 @@ def captured(runs):
         for case in CASES:
             z=json.loads((d/f"case_{case}.json").read_text());receipt(z,[probe,"--source",captured_root/"kernels/format_matrix.metal","--case",case],captured_root,20,"case process "+case);p=json.loads(z["stdout"]);backing(case,p);rows.append(p)
         compare.append(rows)
-    if len(compare)==2: req(compare[0]==compare[1],"byte-exact repeat")
+    if len(compare)==2:
+        req(provenance[0]==provenance[1],"cross-run revision/authored/environment provenance")
+        req(compare[0]==compare[1],"byte-exact repeat")
 def main():
     ap=argparse.ArgumentParser();g=ap.add_mutually_exclusive_group(required=True);g.add_argument("--preflight",action="store_true");g.add_argument("--between-runs",action="store_true");g.add_argument("--captured",action="store_true");a=ap.parse_args()
     if a.preflight: static(); req(not (HERE/"raw").exists(),"PRE_GPU tree must have no raw");print("PASS PRE_GPU contract; no GPU capture")

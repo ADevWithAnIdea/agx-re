@@ -6,6 +6,7 @@ HERE=Path(__file__).resolve().parent; REPO=HERE.parents[1]
 CASES=("rgba8unorm_edges","bgra8unorm_edges","rgba8srgb_threshold","r16unorm_midpoint","rgba16float_finite","r32uint_exact")
 AUTH=("PRE_REGISTRATION.md","README.md","RESULTS.md","CAPTURE_CONTRACT.json","kernels/format_matrix.metal","harness/probe.m","run.py","analysis.py","make_manifest.py","verify.py")
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+def provenance(): return {"git_revision":subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,text=True,capture_output=True,check=True).stdout.strip(),"authored_sha256":{x:sha(HERE/x) for x in AUTH}}
 def put(p,o): p.write_text(json.dumps(o,indent=2,sort_keys=True)+"\n")
 def rec(argv,timeout):
     started=datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -22,11 +23,15 @@ def main():
     if not a.run_id or a.run_id not in ("m4-TODO-run01","m4-TODO-run02"): raise SystemExit("run-id must be a contracted append-only ID")
     gate="--preflight" if a.run_id=="m4-TODO-run01" else "--between-runs"
     if subprocess.run(["python3","-B","verify.py",gate],cwd=HERE).returncode: raise SystemExit("run gate failed")
+    current=provenance()
+    if a.run_id=="m4-TODO-run02":
+        first=json.loads((HERE/"raw"/"m4-TODO-run01"/"00_inputs.json").read_text())
+        if {x:first.get(x) for x in current} != current: raise SystemExit("run02 provenance differs from closed run01")
     raw=HERE/"raw"/a.run_id; work=HERE/"work"/a.run_id
     if raw.exists() or work.exists(): raise SystemExit("append-only path already exists")
     raw.mkdir(parents=True);work.mkdir(parents=True)
     try:
-        env={"schema":1,"git_revision":subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,text=True,capture_output=True,check=True).stdout.strip(),"authored_sha256":{x:sha(HERE/x) for x in AUTH},"sw_vers":rec(["sw_vers"],5),"xcrun_version":rec(["xcrun","--version"],5),"machine":platform.machine(),"boundary":"public Metal; owned in-bounds buffers; no binary/archive/BO inspection"};put(raw/"00_inputs.json",env)
+        env={"schema":1,**current,"sw_vers":rec(["sw_vers"],5),"xcrun_version":rec(["xcrun","--version"],5),"machine":platform.machine(),"boundary":"public Metal; owned in-bounds buffers; no binary/archive/BO inspection"};put(raw/"00_inputs.json",env)
         if any(z["timed_out"] or z["exit"] != 0 or z["exception"] is not None for z in (env["sw_vers"],env["xcrun_version"])): put(raw/"STOP.json",{"schema":1,"phase":"environment","automatic_retry":False});return
         build=rec(["xcrun","clang","-fobjc-arc","-o",work/"probe",HERE/"harness/probe.m","-framework","Metal","-framework","Foundation"],60);put(raw/"01_host_build.json",build)
         if build["timed_out"] or build["exit"] != 0 or build["exception"] is not None: put(raw/"STOP.json",{"schema":1,"phase":"host_build","automatic_retry":False});return
