@@ -5,6 +5,7 @@ import json
 import subprocess
 from pathlib import Path
 from make_manifest import PREREG_COMMIT, TOOL_COMMITS, validate_raw_tree
+from kernels.generate import LEVELS as REQUESTED_BYTES, source as authored_source
 
 HERE = Path(__file__).resolve().parent
 RUNS = ("m4_20260819_run01", "m4_20260819_run02")
@@ -46,6 +47,9 @@ def verify_run(name):
     require(root.is_dir() and not root.is_symlink(), f"run root {name}")
     result = {}
     for level, want_scratch in LEVELS.items():
+        raw_source = root / "sources" / f"{level}.metal"
+        require(raw_source.read_text(encoding="utf-8") == authored_source(level, REQUESTED_BYTES[level]),
+                f"non-authored source {name}/{level}")
         meta = capture(root / f"metadata_{level}.json")
         require(meta["metadata_archive_retained"] is False and meta["metadata_code_bytes_inspected"] == 0,
                 f"metadata scope {name}/{level}")
