@@ -15,6 +15,6 @@ def main():
     if a.write: dst.write_text(json.dumps(x,indent=2,sort_keys=True)+"\n")
     elif a.check:
         if not dst.exists() or json.loads(dst.read_text()) != x: raise SystemExit("manifest stale or absent")
-        print("PASS authored PRE_GPU manifest")
+        print("PASS manifest state="+x["state"])
     else: print(json.dumps(x,indent=2,sort_keys=True))
 if __name__=="__main__": main()
