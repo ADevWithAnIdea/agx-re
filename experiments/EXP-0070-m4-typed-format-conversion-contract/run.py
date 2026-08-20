@@ -20,7 +20,8 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument("--run-id");ap.add_argument("--execute",action="store_true");a=ap.parse_args()
     if not a.execute: raise SystemExit("refusing device operation: pass --execute only after approved pre-GPU review")
     if not a.run_id or a.run_id not in ("m4-TODO-run01","m4-TODO-run02"): raise SystemExit("run-id must be a contracted append-only ID")
-    if subprocess.run(["python3","-B","verify.py","--preflight"],cwd=HERE).returncode: raise SystemExit("preflight failed")
+    gate="--preflight" if a.run_id=="m4-TODO-run01" else "--between-runs"
+    if subprocess.run(["python3","-B","verify.py",gate],cwd=HERE).returncode: raise SystemExit("run gate failed")
     raw=HERE/"raw"/a.run_id; work=HERE/"work"/a.run_id
     if raw.exists() or work.exists(): raise SystemExit("append-only path already exists")
     raw.mkdir(parents=True);work.mkdir(parents=True)

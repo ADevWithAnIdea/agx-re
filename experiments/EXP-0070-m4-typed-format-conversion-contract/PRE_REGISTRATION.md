@@ -40,6 +40,10 @@ are required. The runner records Git revision, all authored SHA-256 values,
 Failure or timeout of either pre-build environment command is also a hard stop
 before the host build begins.
 
+Run 01 begins only from the raw-free pre-GPU tree. Run 02 begins only after
+`verify.py --between-runs` accepts exactly the complete, closed run-01 tree and
+an absent or empty `work/` directory; this gate is checked by `run.py` itself.
+
 ## Promotion rule and scope
 
 Before any build, `python3 -B verify.py --preflight` must pass. Before any

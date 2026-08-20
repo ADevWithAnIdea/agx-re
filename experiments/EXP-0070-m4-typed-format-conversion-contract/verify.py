@@ -32,17 +32,17 @@ def static(capture=False):
     for p in AUTH+("manifest.json",): req(regular(HERE/p),"regular "+p)
     for d,fs in (("kernels",{"format_matrix.metal"}),("harness",{"probe.m"})):
         q=HERE/d;req(q.is_dir() and not q.is_symlink() and {p.name for p in q.iterdir()}==fs and all(regular(x) for x in q.iterdir()),"closed "+d)
-    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH and set(c["capture"]["receipt_keys"])==REC_KEYS and set(c["capture"]["case_record_keys"])==CASE_KEYS and c["capture"]["run_manifest_keys"]==["schema","run_id","cases","fresh_process_per_case","runner_sha256","harness_sha256","kernel_sha256"],"contract core")
+    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH and set(c["capture"]["receipt_keys"])==REC_KEYS and set(c["capture"]["case_record_keys"])==CASE_KEYS and c["capture"]["run_manifest_keys"]==["schema","run_id","cases","fresh_process_per_case","runner_sha256","harness_sha256","kernel_sha256"] and c["capture"]["between_runs_gate"]=="run01 must be a complete closed successful raw tree and work must be absent or empty before run02 is created","contract core")
     req(c["boundary"]["accesses"]=="in-bounds 1x1 texture reads and writes only" and c["boundary"]["apple_binary_archive_bo_inspection"]=="NONE","boundary")
     req(c["backings"]["render"]["total_bytes"]==384 and c["backings"]["render"]["hex_chars"]==768 and c["backings"]["compute"]["total_bytes"]==144 and c["backings"]["compute"]["hex_chars"]==288,"backing contract")
     h=(HERE/"harness/probe.m").read_text(); k=(HERE/"kernels/format_matrix.metal").read_text();req("uint2(0, 0)" in k and "width:1 height:1" in h and "newTextureWithDescriptor:td offset:64 bytesPerRow:256" in h,"in-bounds geometry")
     req("MTLResourceStorageModeShared" in h and "newBufferWithLength:384" in h and "newBufferWithLength:144" in h,"owned buffers")
     req(not re.search(r"IOKit|objc_msgSend|MTLIO|contents\s*\+\s*[^6]",h),"forbidden inspection token")
     m=json.loads((HERE/"manifest.json").read_text());want={"schema":1,"state":"PRE_GPU","artifacts":[{"path":p,"bytes":(HERE/p).stat().st_size,"sha256":sha(HERE/p)} for p in AUTH]};req(m==want,"manifest")
-def captured():
-    raw=HERE/"raw"; req(raw.is_dir() and not raw.is_symlink() and {p.name for p in raw.iterdir()}=={"m4-TODO-run01","m4-TODO-run02"},"two exact raw runs")
+def captured(runs):
+    raw=HERE/"raw"; req(raw.is_dir() and not raw.is_symlink() and {p.name for p in raw.iterdir()}==set(runs),"exact raw runs")
     compare=[]
-    for rid in ("m4-TODO-run01","m4-TODO-run02"):
+    for rid in runs:
         d=raw/rid; names={"00_inputs.json","01_host_build.json","run_manifest.json"}|{f"case_{x}.json" for x in CASES};req(d.is_dir() and not d.is_symlink() and {p.name for p in d.iterdir()}==names and all(regular(p) for p in d.iterdir()),"closed raw "+rid)
         i=json.loads((d/"00_inputs.json").read_text()); rev=i.get("git_revision","")
         req(set(i)=={"schema","git_revision","authored_sha256","sw_vers","xcrun_version","machine","boundary"} and i["schema"]==1 and i["machine"]=="arm64" and i["boundary"]=="public Metal; owned in-bounds buffers; no binary/archive/BO inspection" and set(i["authored_sha256"])==set(AUTH) and subprocess.run(["git","cat-file","-e",rev+"^{commit}"],cwd=REPO).returncode==0 and subprocess.run(["git","merge-base","--is-ancestor",rev,"HEAD"],cwd=REPO).returncode==0,"revision "+rid)
@@ -57,9 +57,10 @@ def captured():
         for case in CASES:
             z=json.loads((d/f"case_{case}.json").read_text());receipt(z,[probe,"--source",captured_root/"kernels/format_matrix.metal","--case",case],captured_root,20,"case process "+case);p=json.loads(z["stdout"]);backing(case,p);rows.append(p)
         compare.append(rows)
-    req(compare[0]==compare[1],"byte-exact repeat")
+    if len(compare)==2: req(compare[0]==compare[1],"byte-exact repeat")
 def main():
-    ap=argparse.ArgumentParser();g=ap.add_mutually_exclusive_group(required=True);g.add_argument("--preflight",action="store_true");g.add_argument("--captured",action="store_true");a=ap.parse_args()
+    ap=argparse.ArgumentParser();g=ap.add_mutually_exclusive_group(required=True);g.add_argument("--preflight",action="store_true");g.add_argument("--between-runs",action="store_true");g.add_argument("--captured",action="store_true");a=ap.parse_args()
     if a.preflight: static(); req(not (HERE/"raw").exists(),"PRE_GPU tree must have no raw");print("PASS PRE_GPU contract; no GPU capture")
-    else: static(capture=True);captured();print("PASS captured public-Metal owned-buffer contract")
+    elif a.between_runs: static(capture=True);captured(("m4-TODO-run01",));print("PASS run01 contract; run02 may begin")
+    else: static(capture=True);captured(("m4-TODO-run01","m4-TODO-run02"));print("PASS captured public-Metal owned-buffer contract")
 if __name__=="__main__": main()
