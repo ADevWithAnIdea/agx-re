@@ -11,7 +11,11 @@ def payload(run):
         if z["timed_out"] or z["exit"] != 0: raise SystemExit("non-success case "+case)
         p=json.loads(z["stdout"])
         if set(p) != {"case","command_buffer_status","device","error","machine","os","physical_texel_hex","render_hex","compute_hex","compute_words_le","render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard"}: raise SystemExit("case schema "+case)
-        if p["case"] != case or len(p["render_hex"]) != 768 or len(p["compute_hex"]) != 288 or not all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")): raise SystemExit("invalid owned backing "+case)
+        if p["case"] != case or p["command_buffer_status"] != 4 or p["device"] != "Apple M4" or p["error"] != "" or len(p["render_hex"]) != 768 or len(p["compute_hex"]) != 288: raise SystemExit("invalid capture "+case)
+        try: r,c=bytes.fromhex(p["render_hex"]),bytes.fromhex(p["compute_hex"])
+        except ValueError: raise SystemExit("non-hex backing "+case)
+        n=2 if case=="r16unorm_midpoint" else 8 if case=="rgba16float_finite" else 4; words=[int.from_bytes(c[64+i:68+i],"little") for i in range(0,16,4)]
+        if p["physical_texel_hex"] != r[64:64+n].hex() or p["compute_words_le"] != words or (p["render_prefix_guard"],p["render_suffix_guard"],p["compute_prefix_guard"],p["compute_suffix_guard"]) != (r[:64]==b"\x5a"*64,r[320:]==b"\xa5"*64,c[:64]==b"\x5a"*64,c[80:]==b"\xa5"*64) or not all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")): raise SystemExit("derived backing mismatch "+case)
         out[case]={x:p[x] for x in ("physical_texel_hex","compute_words_le","render_hex","compute_hex","command_buffer_status","error")}
     return out
 def main():

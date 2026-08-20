@@ -16,5 +16,6 @@ kernel void k_read_float(texture2d<float, access::read> t [[texture(0)]], device
     out[0] = as_type<uint4>(t.read(uint2(0, 0)));
 }
 kernel void k_read_uint(texture2d<uint, access::read> t [[texture(0)]], device uint4 *out [[buffer(0)]]) {
-    out[0] = uint4(t.read(uint2(0, 0)), 0u, 0u, 1u);
+    uint4 v = t.read(uint2(0, 0));
+    out[0] = uint4(v.x, 0u, 0u, 1u);
 }

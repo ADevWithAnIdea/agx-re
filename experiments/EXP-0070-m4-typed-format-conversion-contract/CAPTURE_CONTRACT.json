@@ -30,8 +30,10 @@
   "capture": {
     "runs": ["m4-TODO-run01", "m4-TODO-run02"],
     "required_run_paths": ["00_inputs.json", "01_host_build.json", "case_<case>.json", "run_manifest.json"],
+    "receipt_keys": ["argv", "cwd", "timeout_seconds", "started_utc", "timed_out", "exit", "stdout", "stderr", "exception"],
+    "run_manifest_keys": ["schema", "run_id", "cases", "fresh_process_per_case", "runner_sha256", "harness_sha256", "kernel_sha256"],
     "case_record_keys": ["case", "command_buffer_status", "device", "error", "machine", "os", "physical_texel_hex", "render_hex", "compute_hex", "compute_words_le", "render_prefix_guard", "render_suffix_guard", "compute_prefix_guard", "compute_suffix_guard"],
-    "failure_record": "STOP.json is append-only and ends that run; never retry automatically"
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically. A sw_vers or xcrun failure/timeout stops before host build."
   },
   "gate": "A missing path, hash, schema field, guard byte, timeout record, or unexpected raw path stops interpretation and promotion."
 }

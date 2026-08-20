@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fail-closed static and post-capture verifier for EXP-0070."""
-import argparse, hashlib, json, re, subprocess
+import argparse, datetime, hashlib, json, re, subprocess
 from pathlib import Path
 HERE=Path(__file__).resolve().parent; REPO=HERE.parents[1]
 ROOT={"CAPTURE_CONTRACT.json","PRE_REGISTRATION.md","README.md","RESULTS.md","kernels","harness","run.py","analysis.py","make_manifest.py","verify.py","manifest.json"}
@@ -11,12 +11,27 @@ def req(v,s):
     if not v: fail(s)
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def regular(p): return p.is_file() and not p.is_symlink()
+REC_KEYS={"argv","cwd","timeout_seconds","started_utc","timed_out","exit","stdout","stderr","exception"}
+CASE_KEYS={"case","command_buffer_status","device","error","machine","os","physical_texel_hex","render_hex","compute_hex","compute_words_le","render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard"}
+def receipt(z, argv, timeout, label):
+    req(set(z)==REC_KEYS and z["argv"]==[str(x) for x in argv] and z["cwd"]==str(HERE) and z["timeout_seconds"]==timeout and z["timed_out"] is False and z["exit"]==0 and z["exception"] is None and isinstance(z["stdout"],str) and isinstance(z["stderr"],str),label)
+    try: req(datetime.datetime.fromisoformat(z["started_utc"]).utcoffset()==datetime.timedelta(),label+" timestamp")
+    except (TypeError,ValueError): fail(label+" timestamp")
+def bpp(case): return 2 if case=="r16unorm_midpoint" else 8 if case=="rgba16float_finite" else 4
+def backing(case,p):
+    req(set(p)==CASE_KEYS and p["case"]==case and p["command_buffer_status"]==4 and p["device"]=="Apple M4" and p["machine"]=="arm64" and isinstance(p["os"],str) and p["os"] and p["error"]=="","status/device/error "+case)
+    req(isinstance(p["compute_words_le"],list) and len(p["compute_words_le"])==4 and all(type(x) is int and 0<=x<2**32 for x in p["compute_words_le"]),"word grammar "+case)
+    req(isinstance(p["physical_texel_hex"],str) and len(p["physical_texel_hex"])==2*bpp(case) and re.fullmatch(r"[0-9a-f]+",p["physical_texel_hex"]) and isinstance(p["render_hex"],str) and len(p["render_hex"])==768 and isinstance(p["compute_hex"],str) and len(p["compute_hex"])==288 and re.fullmatch(r"[0-9a-f]+",p["render_hex"]+p["compute_hex"]),"hex grammar "+case)
+    r,c=bytes.fromhex(p["render_hex"]),bytes.fromhex(p["compute_hex"]); words=[int.from_bytes(c[64+i:68+i],"little") for i in range(0,16,4)]
+    req(p["physical_texel_hex"]==r[64:64+bpp(case)].hex() and p["compute_words_le"]==words,"derived texel/words "+case)
+    req(p["render_prefix_guard"]==(r[:64]==b"\\x5a"*64) and p["render_suffix_guard"]==(r[320:]==b"\\xa5"*64) and p["compute_prefix_guard"]==(c[:64]==b"\\x5a"*64) and p["compute_suffix_guard"]==(c[80:]==b"\\xa5"*64),"derived guard flags "+case)
+    req(all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")),"guard mutation "+case)
 def static():
     req(not HERE.is_symlink() and {p.name for p in HERE.iterdir()} == ROOT,"closed root")
     for p in AUTH+("manifest.json",): req(regular(HERE/p),"regular "+p)
     for d,fs in (("kernels",{"format_matrix.metal"}),("harness",{"probe.m"})):
         q=HERE/d;req(q.is_dir() and not q.is_symlink() and {p.name for p in q.iterdir()}==fs and all(regular(x) for x in q.iterdir()),"closed "+d)
-    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH,"contract core")
+    c=json.loads((HERE/"CAPTURE_CONTRACT.json").read_text());req(c["state"]=="PRE_GPU" and tuple(c["cases"])==CASES and tuple(c["required_authored_paths"])==AUTH and set(c["capture"]["receipt_keys"])==REC_KEYS and set(c["capture"]["case_record_keys"])==CASE_KEYS and c["capture"]["run_manifest_keys"]==["schema","run_id","cases","fresh_process_per_case","runner_sha256","harness_sha256","kernel_sha256"],"contract core")
     req(c["boundary"]["accesses"]=="in-bounds 1x1 texture reads and writes only" and c["boundary"]["apple_binary_archive_bo_inspection"]=="NONE","boundary")
     req(c["backings"]["render"]["total_bytes"]==384 and c["backings"]["render"]["hex_chars"]==768 and c["backings"]["compute"]["total_bytes"]==144 and c["backings"]["compute"]["hex_chars"]==288,"backing contract")
     h=(HERE/"harness/probe.m").read_text(); k=(HERE/"kernels/format_matrix.metal").read_text();req("uint2(0, 0)" in k and "width:1 height:1" in h and "newTextureWithDescriptor:td offset:64 bytesPerRow:256" in h,"in-bounds geometry")
@@ -29,14 +44,16 @@ def captured():
     for rid in ("m4-TODO-run01","m4-TODO-run02"):
         d=raw/rid; names={"00_inputs.json","01_host_build.json","run_manifest.json"}|{f"case_{x}.json" for x in CASES};req(d.is_dir() and not d.is_symlink() and {p.name for p in d.iterdir()}==names and all(regular(p) for p in d.iterdir()),"closed raw "+rid)
         i=json.loads((d/"00_inputs.json").read_text()); rev=i.get("git_revision","")
-        req(i["schema"]==1 and set(i["authored_sha256"])==set(AUTH) and subprocess.run(["git","cat-file","-e",rev+"^{commit}"],cwd=REPO).returncode==0 and subprocess.run(["git","merge-base","--is-ancestor",rev,"HEAD"],cwd=REPO).returncode==0,"revision "+rid)
+        req(set(i)=={"schema","git_revision","authored_sha256","sw_vers","xcrun_version","machine","boundary"} and i["schema"]==1 and i["machine"]=="arm64" and i["boundary"]=="public Metal; owned in-bounds buffers; no binary/archive/BO inspection" and set(i["authored_sha256"])==set(AUTH) and subprocess.run(["git","cat-file","-e",rev+"^{commit}"],cwd=REPO).returncode==0 and subprocess.run(["git","merge-base","--is-ancestor",rev,"HEAD"],cwd=REPO).returncode==0,"revision "+rid)
         for path,want in i["authored_sha256"].items():
             blob=subprocess.run(["git","show",rev+":experiments/EXP-0070-m4-typed-format-conversion-contract/"+path],cwd=REPO,capture_output=True).stdout
             req(hashlib.sha256(blob).hexdigest()==want,"source binding "+rid+" "+path)
-        b=json.loads((d/"01_host_build.json").read_text());req(b["timeout_seconds"]==60 and not b["timed_out"] and b["exit"]==0,"build "+rid)
+        receipt(i["sw_vers"],["sw_vers"],5,"sw_vers "+rid);receipt(i["xcrun_version"],["xcrun","--version"],5,"xcrun "+rid)
+        probe=HERE/"work"/rid/"probe"; b=json.loads((d/"01_host_build.json").read_text());receipt(b,["xcrun","clang","-fobjc-arc","-o",probe,HERE/"harness/probe.m","-framework","Metal","-framework","Foundation"],60,"build "+rid)
+        rm=json.loads((d/"run_manifest.json").read_text());req(rm=={"schema":1,"run_id":rid,"cases":list(CASES),"fresh_process_per_case":True,"runner_sha256":sha(HERE/"run.py"),"harness_sha256":sha(HERE/"harness/probe.m"),"kernel_sha256":sha(HERE/"kernels/format_matrix.metal")},"run manifest "+rid)
         rows=[]
         for case in CASES:
-            z=json.loads((d/f"case_{case}.json").read_text());req(z["timeout_seconds"]==20 and not z["timed_out"] and z["exit"]==0,"case process "+case);p=json.loads(z["stdout"]);req(set(p)==set(json.loads((HERE/"CAPTURE_CONTRACT.json").read_text())["capture"]["case_record_keys"]),"case schema "+case);req(len(p["render_hex"])==768 and len(p["compute_hex"])==288 and re.fullmatch(r"[0-9a-f]+",p["render_hex"]+p["compute_hex"]) and all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")),"backings "+case);rows.append(p)
+            z=json.loads((d/f"case_{case}.json").read_text());receipt(z,[probe,"--source",HERE/"kernels/format_matrix.metal","--case",case],20,"case process "+case);p=json.loads(z["stdout"]);backing(case,p);rows.append(p)
         compare.append(rows)
     req(compare[0]==compare[1],"byte-exact repeat")
 def main():

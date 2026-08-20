@@ -11,9 +11,11 @@ def rec(argv,timeout):
     started=datetime.datetime.now(datetime.timezone.utc).isoformat()
     try:
         p=subprocess.run([str(x) for x in argv],cwd=HERE,text=True,capture_output=True,timeout=timeout)
-        return {"argv":[str(x) for x in argv],"timeout_seconds":timeout,"started_utc":started,"timed_out":False,"exit":p.returncode,"stdout":p.stdout,"stderr":p.stderr}
+        return {"argv":[str(x) for x in argv],"cwd":str(HERE),"timeout_seconds":timeout,"started_utc":started,"timed_out":False,"exit":p.returncode,"stdout":p.stdout,"stderr":p.stderr,"exception":None}
     except subprocess.TimeoutExpired as e:
-        return {"argv":[str(x) for x in argv],"timeout_seconds":timeout,"started_utc":started,"timed_out":True,"exit":None,"stdout":e.stdout or "","stderr":e.stderr or ""}
+        return {"argv":[str(x) for x in argv],"cwd":str(HERE),"timeout_seconds":timeout,"started_utc":started,"timed_out":True,"exit":None,"stdout":e.stdout or "","stderr":e.stderr or "","exception":"TimeoutExpired"}
+    except OSError as e:
+        return {"argv":[str(x) for x in argv],"cwd":str(HERE),"timeout_seconds":timeout,"started_utc":started,"timed_out":False,"exit":None,"stdout":"","stderr":"","exception":type(e).__name__}
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--run-id");ap.add_argument("--execute",action="store_true");a=ap.parse_args()
     if not a.execute: raise SystemExit("refusing device operation: pass --execute only after approved pre-GPU review")
@@ -24,11 +26,12 @@ def main():
     raw.mkdir(parents=True);work.mkdir(parents=True)
     try:
         env={"schema":1,"git_revision":subprocess.run(["git","rev-parse","HEAD"],cwd=REPO,text=True,capture_output=True,check=True).stdout.strip(),"authored_sha256":{x:sha(HERE/x) for x in AUTH},"sw_vers":rec(["sw_vers"],5),"xcrun_version":rec(["xcrun","--version"],5),"machine":platform.machine(),"boundary":"public Metal; owned in-bounds buffers; no binary/archive/BO inspection"};put(raw/"00_inputs.json",env)
+        if any(z["timed_out"] or z["exit"] != 0 or z["exception"] is not None for z in (env["sw_vers"],env["xcrun_version"])): put(raw/"STOP.json",{"schema":1,"phase":"environment","automatic_retry":False});return
         build=rec(["xcrun","clang","-fobjc-arc","-o",work/"probe",HERE/"harness/probe.m","-framework","Metal","-framework","Foundation"],60);put(raw/"01_host_build.json",build)
-        if build["timed_out"] or build["exit"]: put(raw/"STOP.json",{"phase":"host_build","automatic_retry":False});return
+        if build["timed_out"] or build["exit"] != 0 or build["exception"] is not None: put(raw/"STOP.json",{"schema":1,"phase":"host_build","automatic_retry":False});return
         for case in CASES:
             z=rec([work/"probe","--source",HERE/"kernels/format_matrix.metal","--case",case],20);put(raw/f"case_{case}.json",z)
-            if z["timed_out"] or z["exit"]: put(raw/"STOP.json",{"phase":"case","case":case,"automatic_retry":False});return
-        put(raw/"run_manifest.json",{"schema":1,"run_id":a.run_id,"cases":list(CASES),"fresh_process_per_case":True})
+            if z["timed_out"] or z["exit"] != 0 or z["exception"] is not None: put(raw/"STOP.json",{"schema":1,"phase":"case","case":case,"automatic_retry":False});return
+        put(raw/"run_manifest.json",{"schema":1,"run_id":a.run_id,"cases":list(CASES),"fresh_process_per_case":True,"runner_sha256":sha(HERE/"run.py"),"harness_sha256":sha(HERE/"harness/probe.m"),"kernel_sha256":sha(HERE/"kernels/format_matrix.metal")})
     finally: shutil.rmtree(work,ignore_errors=True)
 if __name__=="__main__": main()

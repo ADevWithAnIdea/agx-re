@@ -37,6 +37,8 @@ are required. The runner records Git revision, all authored SHA-256 values,
 `sw_vers`, `xcrun --version`, device, machine, argv, exits, stdout/stderr, and the
 60-second host-build and 20-second per-case process caps. A timeout/fault writes a
 `STOP.json`, ends that run, and receives no automatic retry.
+Failure or timeout of either pre-build environment command is also a hard stop
+before the host build begins.
 
 ## Promotion rule and scope
 
