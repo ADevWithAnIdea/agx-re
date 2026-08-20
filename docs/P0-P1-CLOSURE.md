@@ -1,11 +1,10 @@
 # Apple9 P0/P1 Closure Matrix
 
 This is the live status board for closing every P0 and P1 item in
-`AGX_RE_INFORMATION_GAPS.md` for A18 Pro/G17P and M4/G16G.
-
-The current execution target is the local M4. New results are marked **M4-VALIDATED** and
-remain **A18-INFERRED** until the same load-bearing behavior is re-run on the A18. Existing
-A18 evidence remains valid where cited. No cross-target transfer is silently promoted.
+`AGX_RE_INFORMATION_GAPS.md` using the local M4/G16G as the primary operational
+target and standing A18 Pro/G17P proxy. A18-specific replication is a later
+validation task, not a closure gate; every result still records its actual M4
+target and must not be relabeled as directly observed on A18.
 
 ## Closure rules
 
