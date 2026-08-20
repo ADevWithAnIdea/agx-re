@@ -1,0 +1,37 @@
+{
+  "contract_version": 1,
+  "experiment": "EXP-0070-m4-typed-format-conversion-contract",
+  "state": "PRE_GPU",
+  "target": "M4/G16G through public Metal only",
+  "boundary": {
+    "accesses": "in-bounds 1x1 texture reads and writes only",
+    "allocation": "two owned shared buffers per case",
+    "apple_binary_archive_bo_inspection": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "cases": [
+    "rgba8unorm_edges",
+    "bgra8unorm_edges",
+    "rgba8srgb_threshold",
+    "r16unorm_midpoint",
+    "rgba16float_finite",
+    "r32uint_exact"
+  ],
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md", "README.md", "RESULTS.md", "CAPTURE_CONTRACT.json",
+    "kernels/format_matrix.metal", "harness/probe.m", "run.py", "analysis.py",
+    "make_manifest.py", "verify.py"
+  ],
+  "timeouts_seconds": {"host_build": 60, "case_process": 20},
+  "backings": {
+    "render": {"prefix_byte": "5a", "prefix_bytes": 64, "payload_bytes": 256, "suffix_byte": "a5", "suffix_bytes": 64, "total_bytes": 384, "hex_chars": 768},
+    "compute": {"prefix_byte": "5a", "prefix_bytes": 64, "payload_bytes": 16, "suffix_byte": "a5", "suffix_bytes": 64, "total_bytes": 144, "hex_chars": 288}
+  },
+  "capture": {
+    "runs": ["m4-TODO-run01", "m4-TODO-run02"],
+    "required_run_paths": ["00_inputs.json", "01_host_build.json", "case_<case>.json", "run_manifest.json"],
+    "case_record_keys": ["case", "command_buffer_status", "device", "error", "machine", "os", "physical_texel_hex", "render_hex", "compute_hex", "compute_words_le", "render_prefix_guard", "render_suffix_guard", "compute_prefix_guard", "compute_suffix_guard"],
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically"
+  },
+  "gate": "A missing path, hash, schema field, guard byte, timeout record, or unexpected raw path stops interpretation and promotion."
+}
