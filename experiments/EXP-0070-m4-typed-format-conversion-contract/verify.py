@@ -11,6 +11,9 @@ def req(v,s):
     if not v: fail(s)
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def regular(p): return p.is_file() and not p.is_symlink()
+def manifest_expected(capture):
+    paths=tuple(sorted(str(p.relative_to(HERE)) for p in HERE.rglob("*") if p.is_file() and not p.is_symlink() and p.name!="manifest.json")) if capture else AUTH
+    return {"schema":1,"state":"CAPTURED" if capture else "PRE_GPU","artifacts":[{"path":p,"bytes":(HERE/p).stat().st_size,"sha256":sha(HERE/p)} for p in paths]}
 REC_KEYS={"argv","cwd","timeout_seconds","started_utc","timed_out","exit","stdout","stderr","exception"}
 CASE_KEYS={"case","command_buffer_status","device","error","machine","os","physical_texel_hex","render_hex","compute_hex","compute_words_le","render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard"}
 def receipt(z, argv, cwd, timeout, label):
@@ -27,7 +30,8 @@ def backing(case,p):
     req(p["render_prefix_guard"]==(r[:64]==b"\x5a"*64) and p["render_suffix_guard"]==(r[320:]==b"\xa5"*64) and p["compute_prefix_guard"]==(c[:64]==b"\x5a"*64) and p["compute_suffix_guard"]==(c[80:]==b"\xa5"*64),"derived guard flags "+case)
     req(all(p[x] is True for x in ("render_prefix_guard","render_suffix_guard","compute_prefix_guard","compute_suffix_guard")),"guard mutation "+case)
 def static(capture=False):
-    names={p.name for p in HERE.iterdir()}; allowed=ROOT|({"raw"} if capture else set())|({"work"} if "work" in names else set()); req(not HERE.is_symlink() and names == allowed,"closed root")
+    names={p.name for p in HERE.iterdir()}; allowed=ROOT|({"raw","analysis.json"} if capture else set())|({"work"} if "work" in names else set()); req(not HERE.is_symlink() and names == allowed,"closed root")
+    if capture: req(regular(HERE/"analysis.json"),"derived analysis")
     if "work" in names: req((HERE/"work").is_dir() and not (HERE/"work").is_symlink() and not any((HERE/"work").iterdir()),"work absent or empty")
     for p in AUTH+("manifest.json",): req(regular(HERE/p),"regular "+p)
     for d,fs in (("kernels",{"format_matrix.metal"}),("harness",{"probe.m"})):
@@ -38,7 +42,7 @@ def static(capture=False):
     h=(HERE/"harness/probe.m").read_text(); k=(HERE/"kernels/format_matrix.metal").read_text();req("uint2(0, 0)" in k and "width:1 height:1" in h and "newTextureWithDescriptor:td offset:64 bytesPerRow:256" in h,"in-bounds geometry")
     req("MTLResourceStorageModeShared" in h and "newBufferWithLength:384" in h and "newBufferWithLength:144" in h,"owned buffers")
     req(not re.search(r"IOKit|objc_msgSend|MTLIO|contents\s*\+\s*[^6]",h),"forbidden inspection token")
-    m=json.loads((HERE/"manifest.json").read_text());want={"schema":1,"state":"PRE_GPU","artifacts":[{"path":p,"bytes":(HERE/p).stat().st_size,"sha256":sha(HERE/p)} for p in AUTH]};req(m==want,"manifest")
+    m=json.loads((HERE/"manifest.json").read_text());req(m==manifest_expected(capture),"manifest")
 def captured(runs):
     raw=HERE/"raw"; req(raw.is_dir() and not raw.is_symlink() and {p.name for p in raw.iterdir()}==set(runs),"exact raw runs")
     compare=[]; provenance=[]
