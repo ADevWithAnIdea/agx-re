@@ -1,3 +1,5 @@
 # EXP-0066 M4 sampler filter provenance probe
 
-Run exactly the two preregistered IDs after commit. Public readback only.
+Reproduce with `python3 -B run.py --run-id m4-20260820-run01` and then
+`python3 -B run.py --run-id m4-20260820-run02` only in a fresh tree. Retained
+IDs have bound input/build/run JSON; public readback only.
