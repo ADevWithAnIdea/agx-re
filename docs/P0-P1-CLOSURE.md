@@ -18,8 +18,14 @@ A row is `CLOSED` only when:
 3. the evidence chain is recorded in `PROVENANCE.md`;
 4. the normative docs contain the exact fields, ranges, fallbacks, and target status;
 5. an adversarial reproduction or second method passes; and
-6. the result is mapped to the unchanged UAPI where that UAPI assigns responsibility to
-   userspace.
+6. the relevant userspace object can be independently generated and consumed without a
+   captured Apple template: shader/container/metadata records, command/state streams,
+   render/attachment objects, or other object type required by the row.
+
+The pinned Mesa/Asahi UAPI is retained only as a compatibility inventory. It is
+not a reconstruction target and does not gate closure: this project targets the
+Apple userspace objects, ISA, command streams, and object-generation paths
+needed to drive the hardware independently.
 
 Evidence strength is defined by `CODEX.md`. Tokenization or a byte-exact round trip alone
 cannot close a synthesis gap.
@@ -50,12 +56,12 @@ cannot close a synthesis gap.
 | P1.7 | Indirect and device-generated commands | **OPEN** (M4 public-Metal partial) | EXP-0053 (`e31dfb46`) canonical full-byte runs 05/06 establish the tested indirect-argument timing, zero/nonzero work, ICB ranges, reset/re-encode and one optimization-equivalence case; downgraded runs 03/04 and failures 01/02 remain process history. Still need direct/indirect CDM modes, multi-draw/dispatch/count/restart/bounds, writable command grammar, validation/cache transitions, Linux mapping and A18 | `EXP-0053-m4-indirect-api-semantics` + native DGC/indirect suite |
 | P1.8 | Conformance numerical, rasterization and limits | **OPEN** (M4 numerical source-path partial) | EXP-0047 bounds fp32/fp16 subnormal, qNaN/minmax, signed-zero and rounding behavior for ten authored M4 Metal paths; still need native-op isolation, A18 replication, full floating/integer/raster/depth/sample/helper/limit coverage | `EXP-0047-m4-numerical-behavior` + remaining conformance suite |
 
-## Public UAPI baseline
+## Compatibility inventory (non-gating)
 
-`EXP-0044-uapi-closure-baseline` pins and hashes the exact MIT-licensed Mesa UAPI
-revision used by the information-gap audit. It confirms that helpers, BG/EOT programs,
-resource specifications, command-stream addresses, and render-control values are userspace
-inputs. This is a requirements result, not Apple9 hardware evidence.
+`EXP-0044-uapi-closure-baseline` pins and hashes a Mesa/Asahi UAPI revision used
+as a compatibility inventory. It neither defines the desired objects nor proves
+Apple9 behavior; reconstruction closure is driven by independently generated
+Apple userspace objects and hardware validation.
 
 `EXP-0045-uapi-field-matrix` recursively expands the embedded UAPI records and checks that
 all 65 queue/render/compute leaves have exactly one explicit closure row. Its baseline has
