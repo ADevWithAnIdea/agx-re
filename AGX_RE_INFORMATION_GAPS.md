@@ -359,6 +359,13 @@ small 2D address-mode matrix. Its frozen texel-center/out-of-range coordinates
 did not distinguish nearest from linear, so it supplies no filtering,
 descriptor, ISA, Linux, native, or A18 conclusion.
 
+EXP-0066 separately repeats an off-center public-Metal M4 matrix with retained
+capture-time input hashes plus build/run argv, cwd, empty environment overrides,
+timeouts, and timestamps: for its tested zero/edge/repeat modes, nearest
+returns the green texel and linear returns the red/green blend. This is still
+behavior of that public source path only; it establishes no descriptor layout,
+encoded texture instruction, Linux mapping, native semantics, or A18 transfer.
+
 - 1D array, cube array, MSAA array, buffer/typed-buffer, 3D, gather, comparison, projected, explicit/implicit LOD, derivatives, offsets, and sparse-result encodings.
 - Result component/mask/type, coordinate widths, face/layer/sample/reference operands, and high registers.
 - LOD/clamp/aniso edge behavior, unnormalized coordinates, border behavior, cube seams, integer/sRGB rules, and OOB/robust semantics.
