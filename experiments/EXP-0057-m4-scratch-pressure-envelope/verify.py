@@ -4,7 +4,7 @@ import hashlib
 import json
 import subprocess
 from pathlib import Path
-from make_manifest import PREREG_COMMIT, TOOL_COMMITS, validate_raw_tree
+from make_manifest import PREREG_COMMIT, TOOL_COMMITS, approved_nonmanifest_paths, validate_experiment_tree
 from kernels.generate import LEVELS as REQUESTED_BYTES, source as authored_source
 
 HERE = Path(__file__).resolve().parent
@@ -69,8 +69,8 @@ def verify_run(name):
 
 
 def main():
-    # This must precede loading/hashing the manifest's raw artifact list.
-    validate_raw_tree()
+    # This must precede loading/hashing any list from the manifest.
+    validate_experiment_tree()
     manifest = json.loads((HERE / "manifest.json").read_text())
     require(manifest["experiment"] == "EXP-0057-m4-scratch-pressure-envelope", "manifest experiment")
     lineage = manifest.get("required_clean_room_commits")
@@ -83,6 +83,7 @@ def main():
     require(manifest["clean_room"] == {"apple_binary_introspection": False, "apple_helper_program_bytes_inspected": False,
         "apple_command_state_code_unknown_bo_bytes_inspected": False, "compiled_non_authored_code_inspected": False}, "clean room attestation")
     artifacts = artifact_map(manifest["raw_artifacts"] + manifest["analysis_artifacts"] + manifest["source_tools"] + manifest["protocol_files"])
+    require(set(artifacts) == approved_nonmanifest_paths(), "manifest coverage does not equal authorized tree")
     # No binary dump, BO trace, captured code, or other payload class is accepted.
     forbidden = (".bin", ".dylib", ".metallib", "maptrace", "bo_", "command_")
     require(not any(any(word in rel.lower() for word in forbidden) for rel in artifacts), "forbidden retained artifact name")

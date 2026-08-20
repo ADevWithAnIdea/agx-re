@@ -13,6 +13,10 @@ LEVELS = ("baseline", "p576", "p1024", "p2048", "p4096", "p8192", "p16384")
 SHAPES = ("tg32", "tg256")
 PREREG_COMMIT = "e76f6250"
 TOOL_COMMITS = ("5055ed85", "3a0c89e5", "cdaf1709")
+TOP_FILES = {".gitignore", "PRE_REGISTRATION.md", "README.md", "RESULTS.md", "run.py", "make_manifest.py", "verify.py", "manifest.json"}
+ANALYSIS_FILES = {"analyze.py", "compare.py", "m4_20260819_run01.json", "m4_20260819_run02.json", "m4_20260819_repeat.json"}
+HARNESS_FILES = {"metadata.py", "probe.m"}
+KERNEL_FILES = {"generate.py"}
 
 
 def sha(path):
@@ -58,19 +62,46 @@ def validate_raw_tree():
         if seen != expected_raw_paths(run): raise SystemExit(f"raw matrix mismatch for {run}")
 
 
-def files(root):
+def validate_experiment_tree():
+    """Authorize every retained path before any artifact content is opened."""
+    if not HERE.is_dir() or HERE.is_symlink(): raise SystemExit("bad experiment root")
+    wanted_dirs = {"analysis", "harness", "kernels", "raw"}
+    top_dirs = {path.name for path in HERE.iterdir() if path.is_dir() and not path.is_symlink()}
+    top_files = {path.name for path in HERE.iterdir() if path.is_file() and not path.is_symlink()}
+    if top_dirs != wanted_dirs or top_files != TOP_FILES:
+        raise SystemExit(f"experiment root matrix mismatch dirs={sorted(top_dirs)} files={sorted(top_files)}")
+    for dirname, expected in (("analysis", ANALYSIS_FILES), ("harness", HARNESS_FILES), ("kernels", KERNEL_FILES)):
+        root = HERE / dirname
+        names = set()
+        for path in root.iterdir():
+            if path.is_symlink() or not regular(path): raise SystemExit(f"bad {dirname} artifact: {path.name}")
+            names.add(path.name)
+        if names != expected: raise SystemExit(f"{dirname} matrix mismatch: {sorted(names)}")
+    validate_raw_tree()
+
+
+def approved_nonmanifest_paths():
+    paths = {".gitignore", "PRE_REGISTRATION.md", "README.md", "RESULTS.md", "run.py", "make_manifest.py", "verify.py"}
+    paths |= {f"analysis/{name}" for name in ANALYSIS_FILES}
+    paths |= {f"harness/{name}" for name in HARNESS_FILES}
+    paths |= {f"kernels/{name}" for name in KERNEL_FILES}
+    for run in RUNS:
+        paths |= {f"raw/{run}/{name}" for name in expected_raw_paths(run)}
+    return paths
+
+
+def records(paths):
     answer = []
-    for path in sorted(root.rglob("*")):
-        if path.is_symlink(): raise SystemExit(f"symlink forbidden: {path}")
-        if path.is_file():
-            if not regular(path): raise SystemExit(f"non-regular artifact: {path}")
-            answer.append({"path": str(path.relative_to(HERE)), "bytes": path.stat().st_size, "sha256": sha(path)})
+    for rel in sorted(paths):
+        path = HERE / rel
+        if not regular(path): raise SystemExit(f"bad approved artifact: {rel}")
+        answer.append({"path": rel, "bytes": path.stat().st_size, "sha256": sha(path)})
     return answer
 
 
 def main():
     # Raw path/type authorization is deliberately before any raw bytes are read.
-    validate_raw_tree()
+    validate_experiment_tree()
     revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=HERE, text=True, capture_output=True, check=True).stdout.strip()
     manifest = {
         "experiment": "EXP-0057-m4-scratch-pressure-envelope",
@@ -82,13 +113,11 @@ def main():
             "apple_command_state_code_unknown_bo_bytes_inspected": False,
             "compiled_non_authored_code_inspected": False,
         },
-        "raw_artifacts": files(RAW),
-        "analysis_artifacts": files(HERE / "analysis"),
-        "source_tools": files(HERE / "harness") + files(HERE / "kernels") +
-                        [{"path": rel, "bytes": (HERE / rel).stat().st_size, "sha256": sha(HERE / rel)}
-                         for rel in ("run.py", "make_manifest.py", "verify.py")],
-        "protocol_files": [{"path": "PRE_REGISTRATION.md", "bytes": (HERE / "PRE_REGISTRATION.md").stat().st_size,
-                            "sha256": sha(HERE / "PRE_REGISTRATION.md")}],
+        "raw_artifacts": records({f"raw/{run}/{name}" for run in RUNS for name in expected_raw_paths(run)}),
+        "analysis_artifacts": records({f"analysis/{name}" for name in ANALYSIS_FILES}),
+        "source_tools": records({".gitignore", "run.py", "make_manifest.py", "verify.py"} |
+                                {f"harness/{name}" for name in HARNESS_FILES} | {f"kernels/{name}" for name in KERNEL_FILES}),
+        "protocol_files": records({"PRE_REGISTRATION.md", "README.md", "RESULTS.md"}),
     }
     (HERE / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
