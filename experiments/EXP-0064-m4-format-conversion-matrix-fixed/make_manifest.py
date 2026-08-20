@@ -8,7 +8,7 @@ def expected():
  for r in RUNS:p|={f"raw/{r}/00_environment.json",f"raw/{r}/01_build.json",f"raw/{r}/format_matrix.metal",f"raw/{r}/run_manifest.json"}|{f"raw/{r}/case_{c}.json" for c in CASES}
  return p
 def check(manifest_required=True):
- want=expected()|({"manifest.json"} if manifest_required else set()); seen=set()
+ want=expected()|{"manifest.json"}; seen=set()
  dirs={"kernels","harness","raw"}|{f"raw/{r}" for r in RUNS}
  seen_dirs=set()
  for x in HERE.rglob('*'):
