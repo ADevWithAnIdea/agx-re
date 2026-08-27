@@ -457,6 +457,18 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
   Close with a directed edge-case suite plus a large randomized comparison against an exact FP32
   reference. Record rounding mode and denormal controls.
 
+  > **Answered 2026-08-27 (EXP-0074, M4/G16G): No.** Plain `/` on `float`, runtime compile,
+  > `fastMathEnabled=NO` / Safe math. 4171 cases (75 directed + 4096 LCG); 3956 bit-exact vs a
+  > two-implementation cross-checked correctly-rounded binary32 reference (no binary64 paths).
+  > Every divergence involves subnormal operands (DAZ) or subnormal correctly-rounded results
+  > (FTZ); all normal/zero/inf/NaN/overflow/underflow-to-zero classes are bit-exact, including
+  > the exact 2^128 overflow tie. FTZ proven independently of DAZ. A single DAZ+FTZ model
+  > predicts 4171/4171 observations. All 58 NaN results are canonical quiet `0x7FC00000`;
+  > payloads never propagate. Compiler consequence: `lower_fdiv` decisions cannot assume
+  > IEEE-subnormal results from precise division on this path; subnormal-correct division needs
+  > software assistance. Evidence: `experiments/EXP-0074-m4-fp32-division-precision/`
+  > (HW-VALIDATED-equivalent behavioral readback; M4 target, no native/ISA/Linux/A18 claim).
+
 - **OPT-03 — Does Apple9 power require a distinct special-case fixup beyond
   `exp2(y * log2(x))` for source-language `pow` semantics?**
 
