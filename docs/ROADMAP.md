@@ -100,7 +100,7 @@ Full report: `reviews/GAP-ANALYSIS-01.md`. Close these to pass the acceptance ga
 - ☑ **G-5 SR enum + shader ABI** — *EXP-0031: get_sr SR#=byte1 + full table; no ID preload (get_sr on demand); VS attribute fetch = in-shader software (driver generates from vertex format). → `docs/isa/README.md`.*
 
 **STRUCTURAL (self-containment — the gate reads ONLY docs/):**
-- ☐ **G-6 Encoding tables IN docs/** — render the instruction DB into `docs/isa/encoding-tables.md` (stop deferring to tools/db.json); move the per-format Channels/sizeclass table into `docs/descriptors/`; validate the ⏳ operand widths (int src regs, bitwise/shift/cmp).
+- ☐ **G-6 Encoding tables IN docs/** — render the instruction DB into `docs/isa/encoding-tables.md` (stop deferring to tools/agx-isa/db.json); move the per-format Channels/sizeclass table into `docs/descriptors/`; validate the ⏳ operand widths (int src regs, bitwise/shift/cmp).
 
 **HIGH:**
 - ☑ **G-7 PPP header** — *EXP-0024: length word (not present-mask) + per-packet enable bits.*

@@ -8,6 +8,10 @@ non-copyrightable hardware data. No Apple binary was disassembled. See `../../CL
 > **Status: foundation established (EXP-0009).** The submission *mechanism* and the userspace↔kernel
 > IOKit interface are mapped; the individual control-stream structures are located and partially
 > correlated, with full bit-level decode deferred to follow-up cmdstream experiments.
+> *(First-pass status — superseded below by the per-structure decodes: FF state + USC grammar
+> (EXP-0019/0024, RT-2a/RT-11), indirect/occlusion/timestamps (EXP-0027), geometry output + tessellation
+> (EXP-O2A/O2H), VDM draw record + blend state pool + occupancy tier (EXP-M4-09/CMD-*), attachment format
+> word (EXP-M4-08 DESC-1).)*
 
 ## Submission model — shared-memory + doorbell (NOT per-call ioctl)
 Modern macOS 26 Metal does **not** issue one ioctl per submit (unlike the M1-era 2021
@@ -43,7 +47,8 @@ BO `gpu_va 0x100000b0000` is a stream of **0x2c-byte records** (one per dispatch
 | `+0x1c/+0x20/+0x24` | threadgroup x / y / z = **physical launch threadgroup size, in threads/axis** | **CORRECTED (EXP-M4-09/CMD-8, A18-cross-confirmed):** this is *verbatim* `threadsPerThreadgroup` whenever the group boundaries carry semantics — every **single-group** dispatch and every kernel using a **barrier or threadgroup memory** records the exact request (M4+A18: tgmem kernel 16→16, 48→48, 100→100). The earlier "round up to power of two, product ≥ 32" was a **Metal userspace occupancy *repack*** that only fires for **barrier-free / shared-mem-free** kernels with **>1** group (M4+A18: add3 16→32, 48→64, 100→128) and is **neither next-pow2 nor next-mult-32** (e.g. 34→36, 38→64, 39→39, 80→96, 200→200) — a driver heuristic, **not a hardware rule**. **A conformant driver emits the exact requested workgroup size here (verbatim).** `grid` @+0x10 is verbatim total threads. |
 
 The arg-buffer pointer is **not** in this record — binding flows via the argument buffer, whose VA
-lives in the uniform/USC BO (`0x10000000000`). ⏳ threadgroup-memory-size field is elsewhere (not here).
+lives in the uniform/USC BO (`0x10000000000`). Threadgroup-memory-size is also not here — it was later
+located in the **shader BO** (EXP-0024, see "Compute config word + threadgroup-memory size" below).
 
 ## ✅ Argument buffer (Tier-2) — decoded (EXP-0011)
 BO `gpu_va 0x100000e0000`, resource table at **+0x14a0**, **8 bytes/slot** in binding order:
@@ -454,7 +459,9 @@ the mesh path.** Decisive evidence: with CPU-written factors (no user compute en
   (no compute pre-pass); or (b) keep `libagx` **compute emulation** as a portable fallback. **Emulation is OPTIONAL on A18.**
 
 ## Open items (next cmdstream experiments)
-- Compute: decode `+0x00` config/register word; find the threadgroup-memory-size field.
+- Compute: ~~decode `+0x00` config/register word; find the threadgroup-memory-size field~~ — **RESOLVED**
+  (config word + bit23 occupancy tier: EXP-0020, tier threshold corrected EXP-M4-09/CMD-8; threadgroup-memory
+  size = `(tgmem<<2)|0x80` in shader BO `0x10000090000`: EXP-0024 — both above).
 - Graphics: **RESOLVED** — USC grammar + shader-entry (see above), per-packet depth/stencil/raster bit decode
   (RT-2a/RT-11: depth@+0x38/stencil@+0x3c/raster@+0x70 exact), attachment dims/stride + 3-segment load/render/store
   (EXP-G1b), programmable blend (compiled into FS). Remaining firmware-managed (kernel items, not userspace ⏳):

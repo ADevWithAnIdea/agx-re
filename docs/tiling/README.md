@@ -60,7 +60,7 @@ padded dimension, then append the remaining high bits of the larger dimension li
 square power-of-two texture this is a full Morton curve over all bits.
 
 ### 1.2 Tile size / within-tile order
-The tile boundary is at **T texels** (bpp1→128, bpp2/4→64, bpp8/16→32 — largest pow2 with T²·bpp≤16KiB, §1.1); tiles are laid **row-major**. Within a tile it is Morton. The
+The tile boundary is at **T texels** (bpp1→128, bpp2/4→64, bpp8/16→32 — largest pow2 with T²·bpp≤16KiB, §1.1; the bpp1=128 value HW-shown by EXP-M4-06, per-bpp coverage EXP-M4-07); tiles are laid **row-major**. Within a tile it is Morton. The
 "within-tile order" is the Z-order itself. Reference points on the curve:
 `e0=(0,0) e1=(1,0) e2=(0,1) e3=(1,1) e4=(2,0) e5=(3,0) e6=(2,1) e7=(3,1) …`.
 

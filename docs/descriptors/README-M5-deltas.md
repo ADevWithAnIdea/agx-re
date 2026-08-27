@@ -7,7 +7,7 @@ DATA-TRACE, change-one-parameter). HW-validated unless marked ⏳. No Apple bina
 - **DELTA:** **width−1 = word0[28:31] ‖ word1[0:10]**; **height−1 = word1[11:24]**.
   (A18 was width−1 = word0[28:31]‖word1[0:9], height−1 = word1[10:23].) HW-validated across
   64/128/256/512/1024/2048/4096 (e.g. 256×128 → W−1=255, H−1=127).
-- **SAME:** type byte0[0:2] (1D=0,2D=2,2DArray=3,…); channel-arrangement byte0 hi-nibble; format code
+- **SAME:** type byte0[0:3] (1D=0,2D=2,2DArray=3,… — 4-bit field per A18 EXP-0028, inherited; **not re-probed on M5**); channel-arrangement byte0 hi-nibble; format code
   byte1 = `numtype<<5 | sizeclass` (rgba8=`0x0a`, r8=`0x00`, r32f=`0x88`, rgba16f=`0x8c`, rgba8i=`0x6a`,
   rgb10a2=`0x09`); swizzle word0[16:27] (4×3-bit R0G1B2A3One4Zero5); base **VA>>4** = word2‖word3[0:11];
   sRGB word3[12]; depth/arrayLen−1 word3[14:24]; sampleCount word1[24:25].

@@ -117,7 +117,7 @@ own MSL emitting each output; HW-validated STATUS=4):
   outputs` (position=4; +1 per point_size / vp-index / layer / clip-plane), mirrored at VDM `0x18000+0x28`.
 
 ## USC graphics bind grammar — same as A18, relocated (EXP-M5-13)
-Fragment argument buffer **`0x10000248000` (A18) → `0x10000250000` (M5)`; grammar byte-identical to
+Fragment argument buffer **`0x10000248000` (A18) → `0x10000250000` (M5)**; grammar byte-identical to
 A18/RT-2a. Header of 8-byte LE GPU VAs (high32 = `0x00000100`):
 
     +0x600  texture-array ptr      (-> first 0x20-byte texture descriptor)

@@ -14,7 +14,7 @@ little-endian word at byte `4N`; `byteN` = byte at offset N. The 16-bit **format
 
 ---
 
-## 1. Texture-type codes (word0 bits[0:2] = byte0 low nibble)
+## 1. Texture-type codes (word0 bits[0:3] = byte0 low nibble — EXP-0028; supersedes EXP-0015's 3-bit `bits[0:2]` reading)
 
 | type | code | status |
 |---|---|---|
@@ -24,17 +24,19 @@ little-endian word at byte `4N`; `byteN` = byte at offset N. The 16-bit **format
 | 2DMultisample | `4` | HW-validated (`ms_2`/`ms_4`) |
 | 3D | `5` | HW-validated (`d3d_*`) |
 | Cube | `6` | HW-validated |
-| 1DArray | (likely `1`) | **untested** — extrapolated from the 1D=0/2DArray=3 pattern |
-| CubeArray | (likely `7`) | **untested** |
-| 2DMultisampleArray | (unassigned) | **untested** |
+| 1DArray | `1` | **HW-validated (EXP-0028 `type_1darray`)** — confirms the earlier extrapolation |
+| CubeArray | `7` | **HW-validated (EXP-0028 `type_cubearray`)** — confirms the earlier extrapolation |
+| 2DMultisampleArray | `8` | **HW-validated (EXP-0028 `type_2dmsarray`)** — needs bit3, i.e. the 4-bit field |
 
-Codes `1` and `7` are not confirmed; EXP-0015 §5 recommends extrapolating 1DArray=1, CubeArray=7.
+EXP-0028 HW-validated all nine codes on the A18 and widened the field to 4 bits (`word0[0:3]`); the
+EXP-0015 "bits[0:2] / 1DArray and CubeArray extrapolated / 2DMultisampleArray unassigned" wording above is
+superseded (see also §8 and "Extended format codes" below).
 
 ---
 
 ## 2. Pixel-format → descriptor-code table (31 formats, HW-validated)
 
-Format identity = the 16-bit value `(byte1<<8) | byte0`. `byte0` bits[0:2] carry the **texture type**
+Format identity = the 16-bit value `(byte1<<8) | byte0`. `byte0` bits[0:3] (low nibble) carry the **texture type**
 (shown as `2` = 2D in these captures); `byte0` high nibble = **channel arrangement**. `byte1 = (numtype<<5) | sizeclass`.
 
 | MTLPixelFormat | byte0 | byte1 | numtype | sizeclass | notes |
@@ -110,7 +112,7 @@ The `byte0` high nibble is the **channel-arrangement sub-index**. Decode (HW-val
 formats — `experiments/EXP-M4-08-descriptor-coverage/analysis/format_decode.txt`):
 
 ```
-byte0 = arrangement[4:7] | texture_type[0:2]
+byte0 = texture_type[0:3] | arrangement[5:7]<<5      # bit4 always 0 (EXP-0028 type field is 4 bits)
 ```
 - **`byte0` bit4 (0x10) is always 0** in every capture — the arrangement is effectively the **3-bit
   value `byte0[5:7]`** (so the hi-nibble only ever takes `{0,2,4,6,8,a,c,e}`, i.e. even values, and in
@@ -330,7 +332,7 @@ Reproduced here so this table file is standalone. Little-endian; `wordN` = word 
 
 | field | location | encoding |
 |---|---|---|
-| texture type | word0 bits[0:2] | §1 |
+| texture type | word0 bits[0:3] (byte0 low nibble; EXP-0028) | §1 |
 | format channel arrangement | word0 bits[4:7] (byte0 hi nibble) | §2 |
 | format code | word0 bits[8:15] (byte1) | `(numtype<<5) \| sizeclass`, §2 |
 | swizzle | word0 bits[16:27] | §3 |

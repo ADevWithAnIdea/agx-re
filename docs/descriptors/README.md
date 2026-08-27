@@ -15,7 +15,7 @@ Little-endian; `wordN` = 32-bit word at byte 4N.
 
 | field | location | encoding |
 |---|---|---|
-| **type** | byte0 bits[0:2] | 1D=0, 2D=2, 2DArray=3, 2DMS=4, 3D=5, Cube=6 (1D/CubeArray/MSArray ⏳ untested) |
+| **type** | byte0 bits[0:3] (low nibble) | 1D=0, 1DArray=1, 2D=2, 2DArray=3, 2DMS=4, 3D=5, Cube=6, CubeArray=7, 2DMSArray=8 — all HW-validated (EXP-0028; **supersedes** EXP-0015's 3-bit `bits[0:2]` reading and its "1DArray/CubeArray/2DMSArray untested" caveat). Full table: `format-table.md` §1 |
 | **channel arrangement** | byte0 hi-nibble | with byte1 forms the format |
 | **format numeric type + size** | byte1 = `numtype<<5 \| sizeclass` | numtype: unorm=0, snorm=1, uint=2, sint=3, float=4. (Full 31-format table in EXP-0015 RESULTS.) |
 | **swizzle** | word0 bits[16:27] | 4×3-bit destination order R,G,B,A; codes R=0,G=1,B=2,A=3,One=4,Zero=5 |
@@ -142,7 +142,8 @@ word = (0xf << 28) | (swizzle[11:0] << 16) | (byte1 << 8) | (byte0 & ~0x20)
 **⚠ Correction:** `../pipeline/README.md` and `../cmdstream/` **previously** stated "byte+0x22 = format" (now corrected to +0x21). That was
 **wrong** — the format code is at **byte+0x21**; byte+0x22 is the swizzle low byte. The old claim only
 coincided for **bgra8** (whose swizzle-low `0x0a` equals its format code `0x0a`). For rgba8 byte+0x22 =
-`0x88` (swizzle), not the format. *(These are not my files to edit — flag for the orchestrator.)*
+`0x88` (swizzle), not the format. (`../pipeline/README.md` and `../cmdstream/README.md` both now state the
+corrected **byte+0x21**.)
 
 **STORE word (seg2+0x20)** is a PBE descriptor: `((width−1)&0xff)<<24 | component<<16 | byte1<<8 |
 (byte0 & ~0x20)`, with `height−1 << 6` in word1. Format code again at **byte+0x21**; `component` is the
