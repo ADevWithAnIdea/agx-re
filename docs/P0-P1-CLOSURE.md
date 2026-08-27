@@ -2,10 +2,12 @@
 
 This is the live status board for closing every P0 and P1 item in
 `APPLE9_RE_IMPLEMENTATION_GAPS.md` (the authoritative task list, superseding the removed
-`AGX_RE_INFORMATION_GAPS.md` audit) using the local M4/G16G as the primary operational
-target and standing A18 Pro/G17P proxy. A18-specific replication is a later
-validation task, not a closure gate; every result still records its actual M4
-target and must not be relabeled as directly observed on A18.
+`AGX_RE_INFORMATION_GAPS.md` audit) using the local M4/G16G as the **sole test target**.
+**User directive (2026-08-27): the A18 Pro/G17P is hands-off (never SSH, probe, or reboot
+it; `macvdmtool` is never used), and all testing runs locally on the M4, which is
+Apple9-equal to the A18 Pro for every driver-emittable subsystem (`EXP-M4-*`
+byte-identity).** A18-specific replication is suspended, not a closure gate; every result
+still records its actual M4 target and must not be relabeled as directly observed on A18.
 
 Row-ID mapping (this board's legacy row IDs ↔ the task list's current IDs — same sixteen
 items, restated; the task list adds the P2/DOC rows and the Part-II compiler questionnaire,

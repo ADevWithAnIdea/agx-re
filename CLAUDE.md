@@ -24,10 +24,11 @@ check what the current UAPI requires userspace to supply.
 **Current active goal: close all sixteen P0/P1 rows** (P0.1–P0.8, P1.1–P1.8) in
 `docs/P0-P1-CLOSURE.md`, as defined by `APPLE9_RE_IMPLEMENTATION_GAPS.md` ( DRV-UAPI-01…04,
 DRV-CMD-01, DRV-ISA-01, DRV-SHADER-01, DRV-ABI-01, DRV-PBE-01…DRV-RASTER-01; plus its P2, DOC,
-and Part-II compiler-questionnaire tail). Execution strategy per that board: the **local M4 is
-the primary operational target**; A18-specific replication is a later validation task, not a
-closure gate. Every result records the target it actually ran on; no cross-target promotion
-without a recorded validation or an explicit `INFERRED` label.
+and Part-II compiler-questionnaire tail). Execution strategy per that board: **all testing runs
+locally on the M4** (user directive 2026-08-27: the A18 Pro is hands-off and the M4 —
+Apple9-equal for every driver-emittable subsystem — is the sole test target; A18 replication is
+suspended, not a closure gate). Every result records the target it actually ran on; no
+cross-target promotion without a recorded validation or an explicit `INFERRED` label.
 
 **Phase status (do not redo, do not contaminate):**
 - **A18 Pro base documentation** (`docs/`, `tools/agx-isa`, `EXP-0001…0046`) — complete;
@@ -181,20 +182,21 @@ absent/emulated is a first-class result.
 
 | | |
 |---|---|
-| Host = **primary operational target** | **This machine: Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4.** All active Apple9-closure experiments run **locally** (compile / extract / trace / public-API probe; no SSH). Keep local runs to authored public-Metal behavior probes and passive tracing — **route fault-prone byte splices to the A18**, because this host is the repo's home and has no out-of-band recovery path. |
-| A18 Pro = **primary documentation target** | `user@192.168.170.254`, password `Password_1` (`sshpass` on host), passwordless sudo, auto-login. SoC **T8140**, **G17P**, macOS **26.6**, **5 active GPU cores** (6-core die, #1 fused), CLT only — no `metal` CLI → runtime `newLibraryWithSource:`. Workspace `~/cleanroom_work/`. **Preferred for dangerous byte splices and fault-prone sweeps** (reboot-recoverable from the host). |
-| M5 (**historical, deferred**) | `user@192.168.170.253`, password `Password_1`, passwordless sudo, auto-login, SIP on. SoC **T8142**, **G17g**, macOS **27.0** (26A5368g), 8 GPU cores. Goal complete — **do not probe it for Apple9 work**; M5 results are not A18/M4 evidence. |
+| Host = **the only test target** | **This machine: Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4.** **All testing runs locally** (compile / extract / trace / probe / splice; no SSH anywhere). The M4 is **Apple9-equal to the A18 Pro** — every driver-emittable subsystem byte-identical per `EXP-M4-*` — so local M4 evidence *is* the operational Apple9 evidence; G17P-specific claims not directly observed stay `INFERRED` per CODEX target discipline. |
+| A18 Pro = documentation target, **HANDS-OFF** | `192.168.170.254`. SoC **T8140**, **G17P**, macOS **26.6**, 5 active GPU cores. **User directive (2026-08-27): never SSH, probe, or otherwise touch this machine. Never run `macvdmtool` against it — in particular NEVER `macvdmtool --neo reboot`.** It is the nominal documentation target only; no closure work depends on reaching it. |
+| M5 (**historical, deferred**) | `192.168.170.253`. SoC **T8142**, **G17g**, macOS **27.0**, 8 GPU cores. Goal complete — **do not probe it for Apple9 work**; M5 results are not A18/M4 evidence. |
 
-**Reboot protocol (memorize this):**
-- If a **remote** target becomes unresponsive, behaves strangely, or SSH hangs for unclear
-  reasons, reboot it from the **host** with `macvdmtool reboot`. This works below the OS and
-  always succeeds (confirmed on both the A18 and the M5).
-- After a reboot, **wait ~20–30 seconds** before attempting SSH again. Auto-login is
-  enabled, so the machine comes back **unattended** and `sshd` becomes reachable on its own.
-- Occasional crashes are an expected part of GPU RE. Avoid them where reasonable, don't fear
-  them.
-- **Escalation:** if you reboot several times and still fail to SSH in several times, mark
-  the current goal **BLOCKED**, write down where you were, and return — do not thrash.
+**Recovery model (memorize this):**
+- **`macvdmtool` is never used** — against any target (and `macvdmtool --neo reboot` above all).
+- Illegal shader encodings on the local M4 are usually fault-contained (per-command-buffer
+  error, no wedge). Occasional crashes are an expected part of GPU RE.
+- Because every experiment runs on the host itself, a hard host wedge has **no out-of-band
+  recovery**. Mitigate: one change per run, hard timeouts, watchdogs for sweeps, and
+  incremental on-disk progress (`PROGRESS.md` per milestone) so a kill or wedge costs at
+  most one milestone.
+- **If the host wedges or behaves strangely:** stop, mark the current goal **BLOCKED**,
+  write down where you were, and wait for the user to reboot manually — do not thrash, and
+  do not attempt any tool-based reboot.
 
 ---
 
@@ -337,9 +339,9 @@ provoking-vertex convention, depth clip vs clamp modes, geometry/tessellation/tr
 hooks, and instruction-level integer/bitfield/rounding/subgroup/quad ops beyond Metal's surface.
 
 **Safety:** capability probing *will* occasionally fault or hang the GPU — that is expected
-and is itself a data point. Follow the reboot protocol, route fault-prone splices to the
-reboot-recoverable A18, and isolate probes (one hypothesis per run where feasible) so a
-single bad encoding doesn't invalidate a batch of results.
+and is itself a data point. All probes run on the local M4 under the recovery model above
+(one change per run, hard timeouts, incremental progress); isolate probes (one hypothesis
+per run where feasible) so a single bad encoding doesn't invalidate a batch of results.
 
 ---
 

@@ -17,21 +17,22 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
   unclear, STOP and report — do not guess.
 
 ## Targets
-- **Local M4 / G16G (this host, 10 cores, macOS 26.6, Metal 4) — primary operational target.**
-  Runs locally, no SSH. Authored public-Metal behavior probes and passive tracing ONLY —
-  **no fault-prone byte splices on the host**: it is the repo's home and has no out-of-band
-  recovery path.
-- **A18 Pro / G17P — primary documentation target, splice host:** `sshpass -p Password_1 ssh -o
-  StrictHostKeyChecking=no user@192.168.170.254` (passwordless sudo). macOS 26.6, 5 active cores,
-  CLT only (NO `metal` CLI → runtime `newLibraryWithSource:`, confirmed working). Build ObjC:
-  `clang -fobjc-arc -framework Metal -framework Foundation`. Work under `~/cleanroom_work/<exp-id>/`.
-- **M5 (`192.168.170.253`) is a separate completed workstream — do not probe it for Apple9 work.**
+- **Local M4 / G16G (this host, 10 cores, macOS 26.6, Metal 4) — the ONLY test target.**
+  All testing runs locally, no SSH anywhere. The M4 is Apple9-equal to the A18 Pro
+  (byte-identical for every driver-emittable subsystem, `EXP-M4-*`), so local evidence is
+  the operational Apple9 evidence. Build ObjC: `clang -fobjc-arc -framework Metal -framework
+  Foundation`; runtime `newLibraryWithSource:` (no `metal` CLI).
+- **A18 Pro / G17P (`192.168.170.254`) is HANDS-OFF (user directive 2026-08-27): never SSH,
+  probe, or touch it.** Never run `macvdmtool` against any target — in particular NEVER
+  `macvdmtool --neo reboot`.
+- **M5 (`192.168.170.253`) is a separate completed workstream — do not probe it.**
 
-**Reboot protocol (remote targets only):** illegal shader encodings usually fault-contained
-(per-command-buffer error, no wedge). If a remote target hard-wedges / SSH stalls: from the HOST
-run `/Users/user/.local/bin/macvdmtool reboot`, wait 20–30 s, re-SSH — auto-login brings sshd back
-unattended. Isolate one change per dispatch; hard-timeout every compile/dispatch/render/trace.
-Repeated unrecoverable failure → STOP, report BLOCKED with where you were.
+**Recovery model (local host only):** illegal shader encodings are usually fault-contained
+(per-command-buffer error, no wedge). This host is the repo's home with NO out-of-band
+recovery: isolate one change per dispatch, hard-timeout every compile/dispatch/render/trace,
+and save progress incrementally (`PROGRESS.md` entry after every milestone). If the host
+wedges or behaves strangely: STOP, report BLOCKED with where you were, and wait for the user
+to reboot manually — never attempt any tool-based reboot.
 
 ## Process — the parts that most often bite (full contract: `../CODEX.md`)
 - **Pre-register before you build.** Commit-ready `PRE_REGISTRATION.md` (+ `CAPTURE_CONTRACT.json`

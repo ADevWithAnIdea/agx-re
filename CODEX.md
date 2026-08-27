@@ -74,13 +74,18 @@ is preferable to a fact that can contaminate the project.
 
 ## Target discipline
 
-- Probe A18 Pro/G17P directly for A18 facts.
-- Use M4/G16G to validate the Apple9 common model and identify explicit deltas.
-- Do not promote an A18 observation to an M4 fact, or the reverse, without a recorded
-  validation or an explicit `INFERRED` label.
-- Prefer the reboot-recoverable A18 target for dangerous byte splices or fault-prone
-  sweeps. Every device operation must have a hard timeout and a documented recovery
-  path.
+- **All live testing runs locally on the M4/G16G** (user directive 2026-08-27). The A18
+  Pro/G17P is **hands-off**: never SSH, probe, or otherwise touch it, and never run
+  `macvdmtool` against any target — in particular NEVER `macvdmtool --neo reboot`.
+- The M4 is Apple9-equal to the A18 Pro for every driver-emittable subsystem
+  (`EXP-M4-*` byte-identity), so M4 observations are the operational Apple9 evidence.
+  Do not promote an M4 observation to a G17P-specific fact without a recorded validation
+  or an explicit `INFERRED` label.
+- Dangerous byte splices and fault-prone sweeps also run locally, under strict isolation:
+  one change per run, hard timeouts, and incremental on-disk progress (`PROGRESS.md` per
+  milestone) so a kill or wedge costs at most one milestone. Every device operation must
+  have a hard timeout and a documented recovery path. A hard host wedge has no
+  out-of-band recovery: stop, mark BLOCKED, and wait for manual intervention.
 - Do not treat M5 results as evidence for A18/M4. M5 is a later, separate workstream.
 
 ## Standard experiment workflow
