@@ -15,17 +15,19 @@ the clean-room defense.
 
 **Operating contract.** `CODEX.md` is the binding process contract for every experiment
 (the 10-step loop, evidence labels, minimum experiment record, provenance audit). The
-authoritative gap analysis is `AGX_RE_INFORMATION_GAPS.md`; the live status board for the
-current goal is `docs/P0-P1-CLOSURE.md`. The acceptance bar for A18/M4 completeness is the
+authoritative task list / gap analysis is `APPLE9_RE_IMPLEMENTATION_GAPS.md`; the live status
+board for the current goal is `docs/P0-P1-CLOSURE.md`. The acceptance bar for A18/M4 completeness is the
 **unchanged Asahi UAPI** and its existing userspace/kernel division of responsibility — do
 not classify something as kernel-managed merely because it was not visible in one capture;
 check what the current UAPI requires userspace to supply.
 
 **Current active goal: close all sixteen P0/P1 rows** (P0.1–P0.8, P1.1–P1.8) in
-`docs/P0-P1-CLOSURE.md`. Execution strategy per that board: the **local M4 is the primary
-operational target**; A18-specific replication is a later validation task, not a closure
-gate. Every result records the target it actually ran on; no cross-target promotion without
-a recorded validation or an explicit `INFERRED` label.
+`docs/P0-P1-CLOSURE.md`, as defined by `APPLE9_RE_IMPLEMENTATION_GAPS.md` ( DRV-UAPI-01…04,
+DRV-CMD-01, DRV-ISA-01, DRV-SHADER-01, DRV-ABI-01, DRV-PBE-01…DRV-RASTER-01; plus its P2, DOC,
+and Part-II compiler-questionnaire tail). Execution strategy per that board: the **local M4 is
+the primary operational target**; A18-specific replication is a later validation task, not a
+closure gate. Every result records the target it actually ran on; no cross-target promotion
+without a recorded validation or an explicit `INFERRED` label.
 
 **Phase status (do not redo, do not contaminate):**
 - **A18 Pro base documentation** (`docs/`, `tools/agx-isa`, `EXP-0001…0046`) — complete;
@@ -37,7 +39,7 @@ a recorded validation or an explicit `INFERRED` label.
 - **M5 (G17g, T8142)** — **goal complete** (`docs/ROADMAP-M5.md`, `EXP-M5-*`,
   `tools/agx-isa-m5`); a separate, later workstream. **M5 is deferred unless the user
   explicitly brings it into scope. Do not treat M5 results as evidence for A18/M4.**
-- **Apple9 P0/P1 closure** (`AGX_RE_INFORMATION_GAPS.md` → `docs/P0-P1-CLOSURE.md`,
+- **Apple9 P0/P1 closure** (`APPLE9_RE_IMPLEMENTATION_GAPS.md` → `docs/P0-P1-CLOSURE.md`,
   `EXP-0047…` continuing) — **the active workstream.** New experiments take the next
   sequential `EXP-NNNN` number.
 
@@ -247,7 +249,7 @@ hypothesis + method). Run ≤2 parallel device experiments, on **disjoint files*
 ```
 /CLAUDE.md            ← this governance file (the rules)
 /CODEX.md             ← BINDING experiment process contract (10-step loop, evidence labels)
-/AGX_RE_INFORMATION_GAPS.md ← authoritative P0/P1 gap analysis (the current acceptance audit)
+/APPLE9_RE_IMPLEMENTATION_GAPS.md ← authoritative task list / gap analysis (the current acceptance audit)
 /PROVENANCE.md        ← clean-room audit log: every documented fact → how it was learned
 /gpu_knowledge/       ← READ-ONLY public reference knowledge base (do not modify)
 /mesa/                ← READ-ONLY reference: M1/M2 userspace driver + pinned Asahi UAPI

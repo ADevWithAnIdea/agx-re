@@ -1,10 +1,34 @@
 # Apple9 P0/P1 Closure Matrix
 
 This is the live status board for closing every P0 and P1 item in
-`AGX_RE_INFORMATION_GAPS.md` using the local M4/G16G as the primary operational
+`APPLE9_RE_IMPLEMENTATION_GAPS.md` (the authoritative task list, superseding the removed
+`AGX_RE_INFORMATION_GAPS.md` audit) using the local M4/G16G as the primary operational
 target and standing A18 Pro/G17P proxy. A18-specific replication is a later
 validation task, not a closure gate; every result still records its actual M4
 target and must not be relabeled as directly observed on A18.
+
+Row-ID mapping (this board's legacy row IDs ↔ the task list's current IDs — same sixteen
+items, restated; the task list adds the P2/DOC rows and the Part-II compiler questionnaire,
+which this board does not track):
+
+| Board row | Task-list ID |
+|---|---|
+| P0.1 | DRV-UAPI-01 (scratch/helper protocol) |
+| P0.2 | DRV-UAPI-02 (shader selection / code-BO handoff) |
+| P0.3 | DRV-UAPI-03 (field-by-field UAPI mapping) |
+| P0.4 | DRV-UAPI-04 (BG/EOT + partial-render programs) |
+| P0.5 | DRV-CMD-01 (relocatable command/state schemas) |
+| P0.6 | DRV-ISA-01 (compiler-ready ISA specification) |
+| P0.7 | DRV-SHADER-01 (shader container / metadata / resource specs) |
+| P0.8 | DRV-ABI-01 (stage ABI, linking, programmable epilogs) |
+| P1.1 | DRV-PBE-01 |
+| P1.2 | DRV-FMT-01 |
+| P1.3 | DRV-TEX-01 (+ Part II `TEX-*`) |
+| P1.4 | DRV-MEM-01 (+ Part II `MEM-*`/`ATOM-*`) |
+| P1.5 | DRV-ROBUST-01 |
+| P1.6 | DRV-QUERY-01 |
+| P1.7 | DRV-INDIRECT-01 |
+| P1.8 | DRV-RASTER-01 (+ Part II `FP-*`/`PACK-*`/`INT-*`/`TRIG-*`/`SFU-*`) |
 
 ## Closure rules
 

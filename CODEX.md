@@ -89,7 +89,7 @@ Every new hardware claim follows this loop.
 
 ### 1. Select a concrete question
 
-Choose a question from `AGX_RE_INFORMATION_GAPS.md`, the userspace-requirements
+Choose a question from `APPLE9_RE_IMPLEMENTATION_GAPS.md`, the userspace-requirements
 matrix, a documented unknown, or a falsifiable inconsistency. Define which exact
 driver decision or hardware field the answer will support.
 
@@ -279,8 +279,10 @@ chain. Downgrade or remove the dependent fact until the chain is restored by a n
 
 ## Acceptance standard
 
-The current authoritative gap analysis is `AGX_RE_INFORMATION_GAPS.md`. Earlier PASS reviews are
-historical evidence of broad decoding coverage, not proof of a complete driver specification.
+The current authoritative gap analysis is `APPLE9_RE_IMPLEMENTATION_GAPS.md` (which supersedes
+the removed `AGX_RE_INFORMATION_GAPS.md` audit; closure status is tracked per row in
+`docs/P0-P1-CLOSURE.md`). Earlier PASS reviews are historical evidence of broad decoding
+coverage, not proof of a complete driver specification.
 
 Completion means an implementer can generate arbitrary supported Apple9 shaders and relocatable
 command streams, populate every field assigned to userspace by the unchanged Asahi UAPI, and build
