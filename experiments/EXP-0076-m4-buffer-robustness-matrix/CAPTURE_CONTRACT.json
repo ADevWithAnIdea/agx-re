@@ -1,0 +1,1304 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "1d1e8afd11f17001cd53883f74704835a7dc3835576fe6dc797268ba283b803b",
+    "README.md": "5813849fdf87de381946deb95def68ee3ce1e3e434fd31ac01374976e463c57c",
+    "analysis.py": "f279f11f07577fca97d8ac0884d34afa3399bf6711fe550bc18f09577eafa81a",
+    "harness/probe.m": "a397ac40498435a2b7ec9a667a40865727c39bc9489ef688248b08bd8c9515cc",
+    "kernels/robustness_matrix.metal": "73f9f5e61af1d1297e127ec01a6368aa423a903bd124e6e16bf46c77c32fe4c8",
+    "make_manifest.py": "9ec9b1d8b0fac4e5a7ad6b0edea7a67cebcb9b1f35973a7232a0640bf8600de7",
+    "run.py": "670037c16c67fb844a23923241bc6ab9762969790d06c1e3d0c90995b0fb391f",
+    "verify.py": "3fd74b902524288443b52287b2164c201d52ddac02df6a448d7b9e7b5dc8e709"
+  },
+  "boundary": {
+    "accesses": "owned shared buffers sized exactly; one case per fresh process",
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "NONE",
+    "native_encoding_or_isa_claim": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed raw tree (all 106 cases, consistent envelope, no STOP) and work absent or empty before run02 is created",
+    "case_fault_policy": "a faulted, hung, or killed case is a recorded result (status watchdog/proc_fail/proc_timeout) and is never retried in place; only 3 consecutive OS-level spawn failures stop the run",
+    "case_line_keys": [
+      "buf_after",
+      "cb_status",
+      "err",
+      "exit",
+      "g1_ok",
+      "g2_ok",
+      "i",
+      "name",
+      "obs",
+      "off",
+      "op",
+      "pre_ok",
+      "res_g0_ok",
+      "res_g1_ok",
+      "status",
+      "timed_out",
+      "width"
+    ],
+    "consecutive_infra_stop": 3,
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record",
+    "cross_run_repeat_gate": "in-bounds cases (align_in, mis1, mishalf, last) must be byte-identical between the two runs and every case must have identical status; per-case byte-identity of out-of-allocation/straddle/atomic observations is reported as an observed determinism result, not gate-required",
+    "dispatch_keys": [
+      "cases_planned",
+      "cases_recorded",
+      "n_cb_error",
+      "n_ok",
+      "n_proc_fail",
+      "n_proc_timeout",
+      "n_watchdog",
+      "results_lines",
+      "results_sha256",
+      "run_id",
+      "schema"
+    ],
+    "extra_keys_policy": "Exact key-set equality for every record slot: a record carrying any key outside its frozen set fails, and a record missing any frozen key fails.",
+    "failure_record": "Pre-capture failures retain work/<run-id>/STOP.json and never create the raw tree (pre-capture repair authorized); post-capture, STOP.json is append-only and ends that run; never retry automatically",
+    "in_bound_classes": [
+      "align_in",
+      "mis1",
+      "mishalf",
+      "last"
+    ],
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "geometry",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "matrix_case_keys": [
+      "cls",
+      "i",
+      "kernel",
+      "name",
+      "off",
+      "op",
+      "store_hex",
+      "width"
+    ],
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "receipt_line_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "i",
+      "name",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_matrix.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "05_receipts.jsonl",
+      "06_run_manifest.json"
+    ],
+    "run_manifest_keys": [
+      "cases_planned",
+      "cases_recorded",
+      "harness_sha256",
+      "kernel_sha256",
+      "matrix_sha256",
+      "receipts_sha256",
+      "results_sha256",
+      "run_id",
+      "runner_sha256",
+      "schema"
+    ],
+    "runs": [
+      "m4-20260827-run01",
+      "m4-20260827-run02"
+    ],
+    "selftest_gate": "verify.py --selftest must pass immediately before every capture; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "before the append-only raw tree is created, the freshly built harness must run one scratch case (load_w32_align_in) into work/ (never promoted into raw/), and its stdout must parse as one complete JSON record with every contracted field present and a consistent shape; any payload-shape or truncation defect is a pre-capture STOP",
+    "status_values": [
+      "ok",
+      "cb_error",
+      "watchdog",
+      "proc_fail",
+      "proc_timeout"
+    ],
+    "summary_keys": [
+      "buf_after",
+      "command_buffer_status",
+      "device",
+      "dispatch_seconds",
+      "error",
+      "fast_math",
+      "g1_ok",
+      "g2_ok",
+      "kernel",
+      "language_version_raw",
+      "library_compile_seconds",
+      "machine",
+      "math_mode_raw",
+      "obs",
+      "off",
+      "op",
+      "os",
+      "pre_ok",
+      "registry_id",
+      "res_g0_ok",
+      "res_g1_ok",
+      "schema",
+      "width"
+    ]
+  },
+  "compile": {
+    "api": "newLibraryWithSource:options:",
+    "fast_math": false,
+    "language_version": "not pinned; default read back and recorded verbatim",
+    "math_mode": "MTLMathModeSafe"
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0076-m4-buffer-robustness-matrix",
+  "gate": "A missing path, hash, schema field, timeout record, guard-flag record, or unexpected raw path stops interpretation and promotion.",
+  "geometry": {
+    "align_in_offset": 32,
+    "far_offset": 1088,
+    "fill_rule": "F(i) = (0xA5 + 0x1B*i) mod 256 for i in 0..63",
+    "guard1_byte": "0x5A",
+    "guard2_byte": "0xC3",
+    "guard_bytes": 256,
+    "main_bytes": 64,
+    "mis1_offset": 33,
+    "result_guard_bytes": 64,
+    "result_payload_bytes": 32,
+    "result_post_guard_byte": "0xA5",
+    "result_pre_guard_byte": "0x5A",
+    "store_rule": "S(j) = (0xC7 + j) mod 256 for j in 0..15 (store value bytes, in order)"
+  },
+  "hypotheses": {
+    "H1_MEM06": "unaligned loads return the exact in-bounds fill bytes at the access window, no fault, no buffer change",
+    "H2_MEM07": "unaligned stores write exactly the frozen pattern bytes and leave every other allocation byte unchanged",
+    "H3_MEM08": "out-of-allocation reads return the uniform value 0x00 for every tested width and alignment",
+    "H4_MEM09": "boundary-straddling reads return the per-component mix (in-bounds fill + 0x00 OOB tail)",
+    "H5_MEM10": "out-of-allocation stores are discarded (allocation and all guard regions unchanged) or corrupt a recordable neighbor",
+    "stretch_atomic": "32-bit atomic_exchange_explicit exchanges the pre-existing word out / writes the pattern word in, with the same zero/discard expectations at offset 64"
+  },
+  "matrix": {
+    "cases": [
+      {
+        "cls": "align_in",
+        "i": 0,
+        "kernel": "k_load_w8",
+        "name": "load_w8_align_in",
+        "off": 32,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 1
+      },
+      {
+        "cls": "last",
+        "i": 1,
+        "kernel": "k_load_w8",
+        "name": "load_w8_last",
+        "off": 63,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 1
+      },
+      {
+        "cls": "oob1",
+        "i": 2,
+        "kernel": "k_load_w8",
+        "name": "load_w8_oob1",
+        "off": 64,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 1
+      },
+      {
+        "cls": "far",
+        "i": 3,
+        "kernel": "k_load_w8",
+        "name": "load_w8_far",
+        "off": 1088,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 1
+      },
+      {
+        "cls": "align_in",
+        "i": 4,
+        "kernel": "k_load_w16",
+        "name": "load_w16_align_in",
+        "off": 32,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "mis1",
+        "i": 5,
+        "kernel": "k_load_w16",
+        "name": "load_w16_mis1",
+        "off": 33,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "last",
+        "i": 6,
+        "kernel": "k_load_w16",
+        "name": "load_w16_last",
+        "off": 62,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "oob1",
+        "i": 7,
+        "kernel": "k_load_w16",
+        "name": "load_w16_oob1",
+        "off": 64,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "far",
+        "i": 8,
+        "kernel": "k_load_w16",
+        "name": "load_w16_far",
+        "off": 1088,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "straddle_1",
+        "i": 9,
+        "kernel": "k_load_w16",
+        "name": "load_w16_straddle_1",
+        "off": 63,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 2
+      },
+      {
+        "cls": "align_in",
+        "i": 10,
+        "kernel": "k_load_w32",
+        "name": "load_w32_align_in",
+        "off": 32,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "mis1",
+        "i": 11,
+        "kernel": "k_load_w32",
+        "name": "load_w32_mis1",
+        "off": 33,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "last",
+        "i": 12,
+        "kernel": "k_load_w32",
+        "name": "load_w32_last",
+        "off": 60,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "oob1",
+        "i": 13,
+        "kernel": "k_load_w32",
+        "name": "load_w32_oob1",
+        "off": 64,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "far",
+        "i": 14,
+        "kernel": "k_load_w32",
+        "name": "load_w32_far",
+        "off": 1088,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "straddle_1",
+        "i": 15,
+        "kernel": "k_load_w32",
+        "name": "load_w32_straddle_1",
+        "off": 61,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "straddle_2",
+        "i": 16,
+        "kernel": "k_load_w32",
+        "name": "load_w32_straddle_2",
+        "off": 62,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "straddle_3",
+        "i": 17,
+        "kernel": "k_load_w32",
+        "name": "load_w32_straddle_3",
+        "off": 63,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 4
+      },
+      {
+        "cls": "align_in",
+        "i": 18,
+        "kernel": "k_load_w64",
+        "name": "load_w64_align_in",
+        "off": 32,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "mis1",
+        "i": 19,
+        "kernel": "k_load_w64",
+        "name": "load_w64_mis1",
+        "off": 33,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "mishalf",
+        "i": 20,
+        "kernel": "k_load_w64",
+        "name": "load_w64_mishalf",
+        "off": 35,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "last",
+        "i": 21,
+        "kernel": "k_load_w64",
+        "name": "load_w64_last",
+        "off": 56,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "oob1",
+        "i": 22,
+        "kernel": "k_load_w64",
+        "name": "load_w64_oob1",
+        "off": 64,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "far",
+        "i": 23,
+        "kernel": "k_load_w64",
+        "name": "load_w64_far",
+        "off": 1088,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_1",
+        "i": 24,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_1",
+        "off": 57,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_2",
+        "i": 25,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_2",
+        "off": 58,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_3",
+        "i": 26,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_3",
+        "off": 59,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_4",
+        "i": 27,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_4",
+        "off": 60,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_5",
+        "i": 28,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_5",
+        "off": 61,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_6",
+        "i": 29,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_6",
+        "off": 62,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "straddle_7",
+        "i": 30,
+        "kernel": "k_load_w64",
+        "name": "load_w64_straddle_7",
+        "off": 63,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 8
+      },
+      {
+        "cls": "align_in",
+        "i": 31,
+        "kernel": "k_load_w128",
+        "name": "load_w128_align_in",
+        "off": 32,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "mis1",
+        "i": 32,
+        "kernel": "k_load_w128",
+        "name": "load_w128_mis1",
+        "off": 33,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "mishalf",
+        "i": 33,
+        "kernel": "k_load_w128",
+        "name": "load_w128_mishalf",
+        "off": 39,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "last",
+        "i": 34,
+        "kernel": "k_load_w128",
+        "name": "load_w128_last",
+        "off": 48,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "oob1",
+        "i": 35,
+        "kernel": "k_load_w128",
+        "name": "load_w128_oob1",
+        "off": 64,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "far",
+        "i": 36,
+        "kernel": "k_load_w128",
+        "name": "load_w128_far",
+        "off": 1088,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_1",
+        "i": 37,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_1",
+        "off": 49,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_2",
+        "i": 38,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_2",
+        "off": 50,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_3",
+        "i": 39,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_3",
+        "off": 51,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_4",
+        "i": 40,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_4",
+        "off": 52,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_5",
+        "i": 41,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_5",
+        "off": 53,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_6",
+        "i": 42,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_6",
+        "off": 54,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_7",
+        "i": 43,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_7",
+        "off": 55,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_8",
+        "i": 44,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_8",
+        "off": 56,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_9",
+        "i": 45,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_9",
+        "off": 57,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_10",
+        "i": 46,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_10",
+        "off": 58,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_11",
+        "i": 47,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_11",
+        "off": 59,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_12",
+        "i": 48,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_12",
+        "off": 60,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_13",
+        "i": 49,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_13",
+        "off": 61,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_14",
+        "i": 50,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_14",
+        "off": 62,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "straddle_15",
+        "i": 51,
+        "kernel": "k_load_w128",
+        "name": "load_w128_straddle_15",
+        "off": 63,
+        "op": "load",
+        "store_hex": "00000000000000000000000000000000",
+        "width": 16
+      },
+      {
+        "cls": "align_in",
+        "i": 52,
+        "kernel": "k_store_w8",
+        "name": "store_w8_align_in",
+        "off": 32,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 1
+      },
+      {
+        "cls": "last",
+        "i": 53,
+        "kernel": "k_store_w8",
+        "name": "store_w8_last",
+        "off": 63,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 1
+      },
+      {
+        "cls": "oob1",
+        "i": 54,
+        "kernel": "k_store_w8",
+        "name": "store_w8_oob1",
+        "off": 64,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 1
+      },
+      {
+        "cls": "far",
+        "i": 55,
+        "kernel": "k_store_w8",
+        "name": "store_w8_far",
+        "off": 1088,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 1
+      },
+      {
+        "cls": "align_in",
+        "i": 56,
+        "kernel": "k_store_w16",
+        "name": "store_w16_align_in",
+        "off": 32,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "mis1",
+        "i": 57,
+        "kernel": "k_store_w16",
+        "name": "store_w16_mis1",
+        "off": 33,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "last",
+        "i": 58,
+        "kernel": "k_store_w16",
+        "name": "store_w16_last",
+        "off": 62,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "oob1",
+        "i": 59,
+        "kernel": "k_store_w16",
+        "name": "store_w16_oob1",
+        "off": 64,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "far",
+        "i": 60,
+        "kernel": "k_store_w16",
+        "name": "store_w16_far",
+        "off": 1088,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "straddle_1",
+        "i": 61,
+        "kernel": "k_store_w16",
+        "name": "store_w16_straddle_1",
+        "off": 63,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 2
+      },
+      {
+        "cls": "align_in",
+        "i": 62,
+        "kernel": "k_store_w32",
+        "name": "store_w32_align_in",
+        "off": 32,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "mis1",
+        "i": 63,
+        "kernel": "k_store_w32",
+        "name": "store_w32_mis1",
+        "off": 33,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "last",
+        "i": 64,
+        "kernel": "k_store_w32",
+        "name": "store_w32_last",
+        "off": 60,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "oob1",
+        "i": 65,
+        "kernel": "k_store_w32",
+        "name": "store_w32_oob1",
+        "off": 64,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "far",
+        "i": 66,
+        "kernel": "k_store_w32",
+        "name": "store_w32_far",
+        "off": 1088,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "straddle_1",
+        "i": 67,
+        "kernel": "k_store_w32",
+        "name": "store_w32_straddle_1",
+        "off": 61,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "straddle_2",
+        "i": 68,
+        "kernel": "k_store_w32",
+        "name": "store_w32_straddle_2",
+        "off": 62,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "straddle_3",
+        "i": 69,
+        "kernel": "k_store_w32",
+        "name": "store_w32_straddle_3",
+        "off": 63,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "align_in",
+        "i": 70,
+        "kernel": "k_store_w64",
+        "name": "store_w64_align_in",
+        "off": 32,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "mis1",
+        "i": 71,
+        "kernel": "k_store_w64",
+        "name": "store_w64_mis1",
+        "off": 33,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "mishalf",
+        "i": 72,
+        "kernel": "k_store_w64",
+        "name": "store_w64_mishalf",
+        "off": 35,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "last",
+        "i": 73,
+        "kernel": "k_store_w64",
+        "name": "store_w64_last",
+        "off": 56,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "oob1",
+        "i": 74,
+        "kernel": "k_store_w64",
+        "name": "store_w64_oob1",
+        "off": 64,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "far",
+        "i": 75,
+        "kernel": "k_store_w64",
+        "name": "store_w64_far",
+        "off": 1088,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_1",
+        "i": 76,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_1",
+        "off": 57,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_2",
+        "i": 77,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_2",
+        "off": 58,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_3",
+        "i": 78,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_3",
+        "off": 59,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_4",
+        "i": 79,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_4",
+        "off": 60,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_5",
+        "i": 80,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_5",
+        "off": 61,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_6",
+        "i": 81,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_6",
+        "off": 62,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "straddle_7",
+        "i": 82,
+        "kernel": "k_store_w64",
+        "name": "store_w64_straddle_7",
+        "off": 63,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 8
+      },
+      {
+        "cls": "align_in",
+        "i": 83,
+        "kernel": "k_store_w128",
+        "name": "store_w128_align_in",
+        "off": 32,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "mis1",
+        "i": 84,
+        "kernel": "k_store_w128",
+        "name": "store_w128_mis1",
+        "off": 33,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "mishalf",
+        "i": 85,
+        "kernel": "k_store_w128",
+        "name": "store_w128_mishalf",
+        "off": 39,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "last",
+        "i": 86,
+        "kernel": "k_store_w128",
+        "name": "store_w128_last",
+        "off": 48,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "oob1",
+        "i": 87,
+        "kernel": "k_store_w128",
+        "name": "store_w128_oob1",
+        "off": 64,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "far",
+        "i": 88,
+        "kernel": "k_store_w128",
+        "name": "store_w128_far",
+        "off": 1088,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_1",
+        "i": 89,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_1",
+        "off": 49,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_2",
+        "i": 90,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_2",
+        "off": 50,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_3",
+        "i": 91,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_3",
+        "off": 51,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_4",
+        "i": 92,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_4",
+        "off": 52,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_5",
+        "i": 93,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_5",
+        "off": 53,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_6",
+        "i": 94,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_6",
+        "off": 54,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_7",
+        "i": 95,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_7",
+        "off": 55,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_8",
+        "i": 96,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_8",
+        "off": 56,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_9",
+        "i": 97,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_9",
+        "off": 57,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_10",
+        "i": 98,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_10",
+        "off": 58,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_11",
+        "i": 99,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_11",
+        "off": 59,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_12",
+        "i": 100,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_12",
+        "off": 60,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_13",
+        "i": 101,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_13",
+        "off": 61,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_14",
+        "i": 102,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_14",
+        "off": 62,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "straddle_15",
+        "i": 103,
+        "kernel": "k_store_w128",
+        "name": "store_w128_straddle_15",
+        "off": 63,
+        "op": "store",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 16
+      },
+      {
+        "cls": "align_in",
+        "i": 104,
+        "kernel": "k_axch_w32",
+        "name": "axch_w32_align_in",
+        "off": 32,
+        "op": "axch",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      },
+      {
+        "cls": "oob1",
+        "i": 105,
+        "kernel": "k_axch_w32",
+        "name": "axch_w32_oob1",
+        "off": 64,
+        "op": "axch",
+        "store_hex": "c7c8c9cacbcccdcecfd0d1d2d3d4d5d6",
+        "width": 4
+      }
+    ],
+    "note": "52 load + 52 store + 2 atomic stretch; exact offsets in each case entry; allocation = 64 bytes",
+    "total": 106,
+    "widths_bits": [
+      8,
+      16,
+      32,
+      64,
+      128
+    ]
+  },
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "question": "MEM-06..MEM-10 (+ MEM-11-adjacent observations, MEM-12 input): behavioral robustness of public-Metal owned device buffers on the local M4 -- unaligned 8/16/32/64/128-bit loads and stores, out-of-allocation reads and stores, boundary-straddling reads/writes, per-case guard and adjacent-allocation integrity, and an optional 32-bit atomic-exchange stretch",
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/robustness_matrix.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "successor_of": "EXP-0068-m4-robustness-contract (superseded scaffold; nothing captured, binds nothing)",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "case_process": 120,
+    "dispatch_readback": 100,
+    "env_command": 10,
+    "host_build": 60,
+    "library_compile": 120
+  }
+}

@@ -1,0 +1,8396 @@
+{
+  "atomic_stretch": [
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 35,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "expected_value_hex": "05203b56",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "axch_w32_align_in",
+      "observed_value_hex": "05203b56",
+      "off": 32,
+      "op": "axch",
+      "result": "divergent",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "expected_value_hex": "00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "axch_w32_oob1",
+      "observed_value_hex": "00000000",
+      "off": 64,
+      "op": "axch",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32,
+      "window_after_hex": ""
+    }
+  ],
+  "faults": [],
+  "guard_anomalies": [],
+  "hypotheses": {
+    "H1_MEM06_unaligned_loads_byte_exact": {
+      "divergent": 6,
+      "divergent_cases": [
+        "load_w16_mis1",
+        "load_w32_mis1",
+        "load_w64_mis1",
+        "load_w64_mishalf",
+        "load_w128_mis1",
+        "load_w128_mishalf"
+      ],
+      "total": 16
+    },
+    "H2_MEM07_unaligned_stores_byte_exact": {
+      "divergent": 16,
+      "divergent_cases": [
+        "store_w8_align_in",
+        "store_w8_last",
+        "store_w16_align_in",
+        "store_w16_mis1",
+        "store_w16_last",
+        "store_w32_align_in",
+        "store_w32_mis1",
+        "store_w32_last",
+        "store_w64_align_in",
+        "store_w64_mis1",
+        "store_w64_mishalf",
+        "store_w64_last",
+        "store_w128_align_in",
+        "store_w128_mis1",
+        "store_w128_mishalf",
+        "store_w128_last"
+      ],
+      "total": 16
+    },
+    "H3_MEM08_oob_reads_zero": {
+      "divergent": 0,
+      "divergent_cases": [],
+      "total": 10
+    },
+    "H4_MEM09_straddle_reads_mix": {
+      "divergent": 22,
+      "divergent_cases": [
+        "load_w16_straddle_1",
+        "load_w32_straddle_1",
+        "load_w32_straddle_2",
+        "load_w32_straddle_3",
+        "load_w64_straddle_1",
+        "load_w64_straddle_2",
+        "load_w64_straddle_3",
+        "load_w64_straddle_5",
+        "load_w64_straddle_6",
+        "load_w64_straddle_7",
+        "load_w128_straddle_1",
+        "load_w128_straddle_2",
+        "load_w128_straddle_3",
+        "load_w128_straddle_5",
+        "load_w128_straddle_6",
+        "load_w128_straddle_7",
+        "load_w128_straddle_9",
+        "load_w128_straddle_10",
+        "load_w128_straddle_11",
+        "load_w128_straddle_13",
+        "load_w128_straddle_14",
+        "load_w128_straddle_15"
+      ],
+      "total": 26
+    },
+    "H5_MEM10_oob_stores_discarded": {
+      "divergent": 0,
+      "divergent_cases": [],
+      "total": 10
+    }
+  },
+  "load_buffer_mutations": [],
+  "matrix_cases": 106,
+  "mem06_unaligned_loads": [
+    {
+      "name": "load_w16_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 16
+    },
+    {
+      "name": "load_w32_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 32
+    },
+    {
+      "name": "load_w64_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "load_w64_mishalf",
+      "off": 35,
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "load_w128_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 128
+    },
+    {
+      "name": "load_w128_mishalf",
+      "off": 39,
+      "result": "divergent",
+      "width_bits": 128
+    },
+    {
+      "name": "load_w8_align_in",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 8
+    },
+    {
+      "name": "load_w8_last",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 8
+    },
+    {
+      "name": "load_w16_align_in",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 16
+    },
+    {
+      "name": "load_w16_last",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 16
+    },
+    {
+      "name": "load_w32_align_in",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 32
+    },
+    {
+      "name": "load_w32_last",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 32
+    },
+    {
+      "name": "load_w64_align_in",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 64
+    },
+    {
+      "name": "load_w64_last",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 64
+    },
+    {
+      "name": "load_w128_align_in",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 128
+    },
+    {
+      "name": "load_w128_last",
+      "note": "control",
+      "result": "byte_exact",
+      "width_bits": 128
+    }
+  ],
+  "mem07_unaligned_stores": [
+    {
+      "name": "store_w16_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 16
+    },
+    {
+      "name": "store_w32_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 32
+    },
+    {
+      "name": "store_w64_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "store_w64_mishalf",
+      "off": 35,
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "store_w128_mis1",
+      "off": 33,
+      "result": "divergent",
+      "width_bits": 128
+    },
+    {
+      "name": "store_w128_mishalf",
+      "off": 39,
+      "result": "divergent",
+      "width_bits": 128
+    },
+    {
+      "name": "store_w8_align_in",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 8
+    },
+    {
+      "name": "store_w8_last",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 8
+    },
+    {
+      "name": "store_w16_align_in",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 16
+    },
+    {
+      "name": "store_w16_last",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 16
+    },
+    {
+      "name": "store_w32_align_in",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 32
+    },
+    {
+      "name": "store_w32_last",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 32
+    },
+    {
+      "name": "store_w64_align_in",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "store_w64_last",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 64
+    },
+    {
+      "name": "store_w128_align_in",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 128
+    },
+    {
+      "name": "store_w128_last",
+      "note": "control",
+      "result": "divergent",
+      "width_bits": 128
+    }
+  ],
+  "mem08_oob_reads": [
+    {
+      "cls": "oob1",
+      "name": "load_w8_oob1",
+      "observed_value_hex": "00",
+      "off": 64,
+      "result": "oob_read_all_zero",
+      "width_bits": 8
+    },
+    {
+      "cls": "far",
+      "name": "load_w8_far",
+      "observed_value_hex": "00",
+      "off": 1088,
+      "result": "oob_read_all_zero",
+      "width_bits": 8
+    },
+    {
+      "cls": "oob1",
+      "name": "load_w16_oob1",
+      "observed_value_hex": "0000",
+      "off": 64,
+      "result": "oob_read_all_zero",
+      "width_bits": 16
+    },
+    {
+      "cls": "far",
+      "name": "load_w16_far",
+      "observed_value_hex": "0000",
+      "off": 1088,
+      "result": "oob_read_all_zero",
+      "width_bits": 16
+    },
+    {
+      "cls": "oob1",
+      "name": "load_w32_oob1",
+      "observed_value_hex": "00000000",
+      "off": 64,
+      "result": "oob_read_all_zero",
+      "width_bits": 32
+    },
+    {
+      "cls": "far",
+      "name": "load_w32_far",
+      "observed_value_hex": "00000000",
+      "off": 1088,
+      "result": "oob_read_all_zero",
+      "width_bits": 32
+    },
+    {
+      "cls": "oob1",
+      "name": "load_w64_oob1",
+      "observed_value_hex": "0000000000000000",
+      "off": 64,
+      "result": "oob_read_all_zero",
+      "width_bits": 64
+    },
+    {
+      "cls": "far",
+      "name": "load_w64_far",
+      "observed_value_hex": "0000000000000000",
+      "off": 1088,
+      "result": "oob_read_all_zero",
+      "width_bits": 64
+    },
+    {
+      "cls": "oob1",
+      "name": "load_w128_oob1",
+      "observed_value_hex": "00000000000000000000000000000000",
+      "off": 64,
+      "result": "oob_read_all_zero",
+      "width_bits": 128
+    },
+    {
+      "cls": "far",
+      "name": "load_w128_far",
+      "observed_value_hex": "00000000000000000000000000000000",
+      "off": 1088,
+      "result": "oob_read_all_zero",
+      "width_bits": 128
+    }
+  ],
+  "mem09_straddle_reads": [
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w16_straddle_1",
+      "observed_value_hex": "2f4a",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_1",
+      "observed_value_hex": "f9142f4a",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "2f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_2",
+      "observed_value_hex": "f9142f4a",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_3",
+      "observed_value_hex": "f9142f4a",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "a8c3def9142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_1",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 57,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "c3def9142f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_2",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 58,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "def9142f4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_3",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 59,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_4",
+      "expected_value_hex": "f9142f4a00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w64_straddle_4",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 60,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "00000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_5",
+      "expected_value_hex": "142f4a0000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_5",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_6",
+      "expected_value_hex": "2f4a000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_6",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_7",
+      "expected_value_hex": "4a00000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_7",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "d0eb06213c57728da8c3def9142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_1",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 49,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "d0",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "eb",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "06",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "21",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "3c",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "57",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "72",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "8d",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "eb06213c57728da8c3def9142f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_2",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 50,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "eb",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "06",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "21",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "3c",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "57",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "72",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "8d",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "a8",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "06213c57728da8c3def9142f4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_3",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 51,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "06",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "21",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "3c",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "57",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "72",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "8d",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "a8",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "c3",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_4",
+      "expected_value_hex": "213c57728da8c3def9142f4a00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_4",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 52,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "00000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_5",
+      "expected_value_hex": "3c57728da8c3def9142f4a0000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_5",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 53,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "3c",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "57",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "72",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "8d",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_6",
+      "expected_value_hex": "57728da8c3def9142f4a000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_6",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 54,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "57",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "72",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "8d",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "a8",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_7",
+      "expected_value_hex": "728da8c3def9142f4a00000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_7",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 55,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "72",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "8d",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "a8",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "c3",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_8",
+      "expected_value_hex": "8da8c3def9142f4a0000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_8",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 56,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "0000000000000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_9",
+      "expected_value_hex": "a8c3def9142f4a000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_9",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 57,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_10",
+      "expected_value_hex": "c3def9142f4a00000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_10",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 58,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_11",
+      "expected_value_hex": "def9142f4a0000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_11",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 59,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_12",
+      "expected_value_hex": "f9142f4a000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_12",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 60,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "000000000000000000000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_13",
+      "expected_value_hex": "142f4a00000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_13",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_14",
+      "expected_value_hex": "2f4a0000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_14",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_15",
+      "expected_value_hex": "4a000000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_15",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    }
+  ],
+  "mem10_oob_stores": [
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": ""
+    }
+  ],
+  "per_case": [
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "align_in",
+      "expected_value_hex": "05",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w8_align_in",
+      "observed_value_hex": "05",
+      "off": 32,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 8
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "last",
+      "expected_value_hex": "4a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w8_last",
+      "observed_value_hex": "4a",
+      "off": 63,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 8
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "oob1",
+      "expected_value_hex": "00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w8_oob1",
+      "observed_value_hex": "00",
+      "off": 64,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 8
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "far",
+      "expected_value_hex": "00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w8_far",
+      "observed_value_hex": "00",
+      "off": 1088,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 8
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "align_in",
+      "expected_value_hex": "0520",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w16_align_in",
+      "observed_value_hex": "0520",
+      "off": 32,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mis1",
+      "expected_value_hex": "203b",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w16_mis1",
+      "observed_value_hex": "0520",
+      "off": 33,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "20",
+          "observed": "05"
+        },
+        {
+          "byte": 1,
+          "expected": "3b",
+          "observed": "20"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "last",
+      "expected_value_hex": "2f4a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w16_last",
+      "observed_value_hex": "2f4a",
+      "off": 62,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "oob1",
+      "expected_value_hex": "0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w16_oob1",
+      "observed_value_hex": "0000",
+      "off": 64,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "far",
+      "expected_value_hex": "0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w16_far",
+      "observed_value_hex": "0000",
+      "off": 1088,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w16_straddle_1",
+      "observed_value_hex": "2f4a",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 16
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "align_in",
+      "expected_value_hex": "05203b56",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w32_align_in",
+      "observed_value_hex": "05203b56",
+      "off": 32,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mis1",
+      "expected_value_hex": "203b5671",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w32_mis1",
+      "observed_value_hex": "05203b56",
+      "off": 33,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "20",
+          "observed": "05"
+        },
+        {
+          "byte": 1,
+          "expected": "3b",
+          "observed": "20"
+        },
+        {
+          "byte": 2,
+          "expected": "56",
+          "observed": "3b"
+        },
+        {
+          "byte": 3,
+          "expected": "71",
+          "observed": "56"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "last",
+      "expected_value_hex": "f9142f4a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w32_last",
+      "observed_value_hex": "f9142f4a",
+      "off": 60,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "oob1",
+      "expected_value_hex": "00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w32_oob1",
+      "observed_value_hex": "00000000",
+      "off": 64,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "far",
+      "expected_value_hex": "00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w32_far",
+      "observed_value_hex": "00000000",
+      "off": 1088,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_1",
+      "observed_value_hex": "f9142f4a",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "2f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_2",
+      "observed_value_hex": "f9142f4a",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w32_straddle_3",
+      "observed_value_hex": "f9142f4a",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 32
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "align_in",
+      "expected_value_hex": "05203b56718ca7c2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_align_in",
+      "observed_value_hex": "05203b56718ca7c2",
+      "off": 32,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mis1",
+      "expected_value_hex": "203b56718ca7c2dd",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_mis1",
+      "observed_value_hex": "05203b56718ca7c2",
+      "off": 33,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "20",
+          "observed": "05"
+        },
+        {
+          "byte": 1,
+          "expected": "3b",
+          "observed": "20"
+        },
+        {
+          "byte": 2,
+          "expected": "56",
+          "observed": "3b"
+        },
+        {
+          "byte": 3,
+          "expected": "71",
+          "observed": "56"
+        },
+        {
+          "byte": 4,
+          "expected": "8c",
+          "observed": "71"
+        },
+        {
+          "byte": 5,
+          "expected": "a7",
+          "observed": "8c"
+        },
+        {
+          "byte": 6,
+          "expected": "c2",
+          "observed": "a7"
+        },
+        {
+          "byte": 7,
+          "expected": "dd",
+          "observed": "c2"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mishalf",
+      "expected_value_hex": "56718ca7c2ddf813",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_mishalf",
+      "observed_value_hex": "05203b56718ca7c2",
+      "off": 35,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "56",
+          "observed": "05"
+        },
+        {
+          "byte": 1,
+          "expected": "71",
+          "observed": "20"
+        },
+        {
+          "byte": 2,
+          "expected": "8c",
+          "observed": "3b"
+        },
+        {
+          "byte": 3,
+          "expected": "a7",
+          "observed": "56"
+        },
+        {
+          "byte": 4,
+          "expected": "c2",
+          "observed": "71"
+        },
+        {
+          "byte": 5,
+          "expected": "dd",
+          "observed": "8c"
+        },
+        {
+          "byte": 6,
+          "expected": "f8",
+          "observed": "a7"
+        },
+        {
+          "byte": 7,
+          "expected": "13",
+          "observed": "c2"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "last",
+      "expected_value_hex": "8da8c3def9142f4a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_last",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 56,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "oob1",
+      "expected_value_hex": "0000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_oob1",
+      "observed_value_hex": "0000000000000000",
+      "off": 64,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "far",
+      "expected_value_hex": "0000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w64_far",
+      "observed_value_hex": "0000000000000000",
+      "off": 1088,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "a8c3def9142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_1",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 57,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "c3def9142f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_2",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 58,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "def9142f4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_3",
+      "observed_value_hex": "8da8c3def9142f4a",
+      "off": 59,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_4",
+      "expected_value_hex": "f9142f4a00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w64_straddle_4",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 60,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "00000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_5",
+      "expected_value_hex": "142f4a0000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_5",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_6",
+      "expected_value_hex": "2f4a000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_6",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_7",
+      "expected_value_hex": "4a00000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w64_straddle_7",
+      "observed_value_hex": "f9142f4a00000000",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 64
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "align_in",
+      "expected_value_hex": "05203b56718ca7c2ddf8132e49647f9a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_align_in",
+      "observed_value_hex": "05203b56718ca7c2ddf8132e49647f9a",
+      "off": 32,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mis1",
+      "expected_value_hex": "203b56718ca7c2ddf8132e49647f9ab5",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_mis1",
+      "observed_value_hex": "05203b56718ca7c2ddf8132e49647f9a",
+      "off": 33,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "20",
+          "observed": "05"
+        },
+        {
+          "byte": 1,
+          "expected": "3b",
+          "observed": "20"
+        },
+        {
+          "byte": 2,
+          "expected": "56",
+          "observed": "3b"
+        },
+        {
+          "byte": 3,
+          "expected": "71",
+          "observed": "56"
+        },
+        {
+          "byte": 4,
+          "expected": "8c",
+          "observed": "71"
+        },
+        {
+          "byte": 5,
+          "expected": "a7",
+          "observed": "8c"
+        },
+        {
+          "byte": 6,
+          "expected": "c2",
+          "observed": "a7"
+        },
+        {
+          "byte": 7,
+          "expected": "dd",
+          "observed": "c2"
+        },
+        {
+          "byte": 8,
+          "expected": "f8",
+          "observed": "dd"
+        },
+        {
+          "byte": 9,
+          "expected": "13",
+          "observed": "f8"
+        },
+        {
+          "byte": 10,
+          "expected": "2e",
+          "observed": "13"
+        },
+        {
+          "byte": 11,
+          "expected": "49",
+          "observed": "2e"
+        },
+        {
+          "byte": 12,
+          "expected": "64",
+          "observed": "49"
+        },
+        {
+          "byte": 13,
+          "expected": "7f",
+          "observed": "64"
+        },
+        {
+          "byte": 14,
+          "expected": "9a",
+          "observed": "7f"
+        },
+        {
+          "byte": 15,
+          "expected": "b5",
+          "observed": "9a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "mishalf",
+      "expected_value_hex": "c2ddf8132e49647f9ab5d0eb06213c57",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_mishalf",
+      "observed_value_hex": "718ca7c2ddf8132e49647f9ab5d0eb06",
+      "off": 39,
+      "op": "load",
+      "result": "divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "c2",
+          "observed": "71"
+        },
+        {
+          "byte": 1,
+          "expected": "dd",
+          "observed": "8c"
+        },
+        {
+          "byte": 2,
+          "expected": "f8",
+          "observed": "a7"
+        },
+        {
+          "byte": 3,
+          "expected": "13",
+          "observed": "c2"
+        },
+        {
+          "byte": 4,
+          "expected": "2e",
+          "observed": "dd"
+        },
+        {
+          "byte": 5,
+          "expected": "49",
+          "observed": "f8"
+        },
+        {
+          "byte": 6,
+          "expected": "64",
+          "observed": "13"
+        },
+        {
+          "byte": 7,
+          "expected": "7f",
+          "observed": "2e"
+        },
+        {
+          "byte": 8,
+          "expected": "9a",
+          "observed": "49"
+        },
+        {
+          "byte": 9,
+          "expected": "b5",
+          "observed": "64"
+        },
+        {
+          "byte": 10,
+          "expected": "d0",
+          "observed": "7f"
+        },
+        {
+          "byte": 11,
+          "expected": "eb",
+          "observed": "9a"
+        },
+        {
+          "byte": 12,
+          "expected": "06",
+          "observed": "b5"
+        },
+        {
+          "byte": 13,
+          "expected": "21",
+          "observed": "d0"
+        },
+        {
+          "byte": 14,
+          "expected": "3c",
+          "observed": "eb"
+        },
+        {
+          "byte": 15,
+          "expected": "57",
+          "observed": "06"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "last",
+      "expected_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_last",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 48,
+      "op": "load",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "oob1",
+      "expected_value_hex": "00000000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_oob1",
+      "observed_value_hex": "00000000000000000000000000000000",
+      "off": 64,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "far",
+      "expected_value_hex": "00000000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "load_w128_far",
+      "observed_value_hex": "00000000000000000000000000000000",
+      "off": 1088,
+      "op": "load",
+      "result": "oob_read_all_zero",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_1",
+      "expected_value_hex": "d0eb06213c57728da8c3def9142f4a00",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_1",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 49,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "d0",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "eb",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "06",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "21",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "3c",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "57",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "72",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "8d",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_2",
+      "expected_value_hex": "eb06213c57728da8c3def9142f4a0000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_2",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 50,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "eb",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "06",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "21",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "3c",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "57",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "72",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "8d",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "a8",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_3",
+      "expected_value_hex": "06213c57728da8c3def9142f4a000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_3",
+      "observed_value_hex": "b5d0eb06213c57728da8c3def9142f4a",
+      "off": 51,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "06",
+          "observed": "b5"
+        },
+        {
+          "byte": 1,
+          "expected": "21",
+          "observed": "d0"
+        },
+        {
+          "byte": 2,
+          "expected": "3c",
+          "observed": "eb"
+        },
+        {
+          "byte": 3,
+          "expected": "57",
+          "observed": "06"
+        },
+        {
+          "byte": 4,
+          "expected": "72",
+          "observed": "21"
+        },
+        {
+          "byte": 5,
+          "expected": "8d",
+          "observed": "3c"
+        },
+        {
+          "byte": 6,
+          "expected": "a8",
+          "observed": "57"
+        },
+        {
+          "byte": 7,
+          "expected": "c3",
+          "observed": "72"
+        },
+        {
+          "byte": 8,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 9,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 10,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 11,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 12,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 13,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 14,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 15,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_4",
+      "expected_value_hex": "213c57728da8c3def9142f4a00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_4",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 52,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "00000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_5",
+      "expected_value_hex": "3c57728da8c3def9142f4a0000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_5",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 53,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "3c",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "57",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "72",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "8d",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_6",
+      "expected_value_hex": "57728da8c3def9142f4a000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_6",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 54,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "57",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "72",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "8d",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "a8",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_7",
+      "expected_value_hex": "728da8c3def9142f4a00000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_7",
+      "observed_value_hex": "213c57728da8c3def9142f4a00000000",
+      "off": 55,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a00000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "72",
+          "observed": "21"
+        },
+        {
+          "byte": 1,
+          "expected": "8d",
+          "observed": "3c"
+        },
+        {
+          "byte": 2,
+          "expected": "a8",
+          "observed": "57"
+        },
+        {
+          "byte": 3,
+          "expected": "c3",
+          "observed": "72"
+        },
+        {
+          "byte": 4,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 5,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 6,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 7,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 8,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 9,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 10,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 11,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_8",
+      "expected_value_hex": "8da8c3def9142f4a0000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_8",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 56,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "0000000000000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_9",
+      "expected_value_hex": "a8c3def9142f4a000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_9",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 57,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "a8",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "c3",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "de",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "f9",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_10",
+      "expected_value_hex": "c3def9142f4a00000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_10",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 58,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "c3",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "de",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "f9",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "14",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_11",
+      "expected_value_hex": "def9142f4a0000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_11",
+      "observed_value_hex": "8da8c3def9142f4a0000000000000000",
+      "off": 59,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a0000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "de",
+          "observed": "8d"
+        },
+        {
+          "byte": 1,
+          "expected": "f9",
+          "observed": "a8"
+        },
+        {
+          "byte": 2,
+          "expected": "14",
+          "observed": "c3"
+        },
+        {
+          "byte": 3,
+          "expected": "2f",
+          "observed": "de"
+        },
+        {
+          "byte": 4,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 5,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 6,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 7,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_12",
+      "expected_value_hex": "f9142f4a000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": true,
+      "name": "load_w128_straddle_12",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 60,
+      "oob_part_all_zero": true,
+      "oob_part_hex": "000000000000000000000000",
+      "op": "load",
+      "result": "straddle_mix_model",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_13",
+      "expected_value_hex": "142f4a00000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_13",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 61,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "14",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "2f",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "4a",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_14",
+      "expected_value_hex": "2f4a0000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_14",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 62,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "2f4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "2f",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "4a",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_unchanged_by_load": true,
+      "cls": "straddle_15",
+      "expected_value_hex": "4a000000000000000000000000000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_matches": false,
+      "name": "load_w128_straddle_15",
+      "observed_value_hex": "f9142f4a000000000000000000000000",
+      "off": 63,
+      "oob_part_all_zero": false,
+      "oob_part_hex": "142f4a000000000000000000000000",
+      "op": "load",
+      "result": "straddle_divergent",
+      "status": "ok",
+      "value_diffs": [
+        {
+          "byte": 0,
+          "expected": "4a",
+          "observed": "f9"
+        },
+        {
+          "byte": 1,
+          "expected": "00",
+          "observed": "14"
+        },
+        {
+          "byte": 2,
+          "expected": "00",
+          "observed": "2f"
+        },
+        {
+          "byte": 3,
+          "expected": "00",
+          "observed": "4a"
+        }
+      ],
+      "value_matches_hypothesis": false,
+      "width_bits": 128
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_align_in",
+      "off": 32,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": "ca"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 63,
+          "expected": "c7",
+          "observed": "ca"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "last",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_last",
+      "off": 63,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": "ca"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w8_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 8,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_align_in",
+      "off": 32,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": "cac9"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "05",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c8",
+          "observed": "3b"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mis1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_mis1",
+      "off": 33,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": "c93b"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c9"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "last",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_last",
+      "off": 62,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": "cac9"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w16_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "ca"
+        },
+        {
+          "byte": 63,
+          "expected": "c7",
+          "observed": "c9"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w16_straddle_1",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": "c9"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 35,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_align_in",
+      "off": 32,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "05",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 35,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 36,
+          "expected": "ca",
+          "observed": "71"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mis1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_mis1",
+      "off": 33,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c9c8c771"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "last",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_last",
+      "off": 60,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w32_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w32_straddle_1",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w32_straddle_2",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w32_straddle_3",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 35,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 36,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 37,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 38,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 39,
+          "expected": "ce",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_align_in",
+      "off": 32,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "cac9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "05",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 35,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 36,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 37,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 39,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 40,
+          "expected": "ce",
+          "observed": "dd"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mis1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_mis1",
+      "off": 33,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c9c8c7cecdcccbdd"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "05",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "20",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "3b",
+          "observed": "c8"
+        },
+        {
+          "byte": 36,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 37,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 38,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 40,
+          "expected": "cc",
+          "observed": "dd"
+        },
+        {
+          "byte": 41,
+          "expected": "cd",
+          "observed": "f8"
+        },
+        {
+          "byte": 42,
+          "expected": "ce",
+          "observed": "13"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mishalf",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_mishalf",
+      "off": 35,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c7cecdcccbddf813"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "ce",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "last",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_last",
+      "off": 56,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "cac9c8c7cecdcccb"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w64_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 59,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 63,
+          "expected": "cd",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_1",
+      "off": 57,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "cc",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_2",
+      "off": 58,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c3",
+          "observed": "c8"
+        },
+        {
+          "byte": 60,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "ca",
+          "observed": "cc"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_3",
+      "off": 59,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_4",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_4",
+      "off": 60,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_5",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_5",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_6",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_6",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_7",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w64_straddle_7",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 35,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 36,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 37,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 38,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 39,
+          "expected": "ce",
+          "observed": "cb"
+        },
+        {
+          "byte": 40,
+          "expected": "cf",
+          "observed": "d2"
+        },
+        {
+          "byte": 41,
+          "expected": "d0",
+          "observed": "d1"
+        },
+        {
+          "byte": 42,
+          "expected": "d1",
+          "observed": "d0"
+        },
+        {
+          "byte": 43,
+          "expected": "d2",
+          "observed": "cf"
+        },
+        {
+          "byte": 44,
+          "expected": "d3",
+          "observed": "d6"
+        },
+        {
+          "byte": 45,
+          "expected": "d4",
+          "observed": "d5"
+        },
+        {
+          "byte": 46,
+          "expected": "d5",
+          "observed": "d4"
+        },
+        {
+          "byte": 47,
+          "expected": "d6",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_align_in",
+      "off": 32,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "05",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 35,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 36,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 37,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 39,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 40,
+          "expected": "ce",
+          "observed": "d2"
+        },
+        {
+          "byte": 41,
+          "expected": "cf",
+          "observed": "d1"
+        },
+        {
+          "byte": 43,
+          "expected": "d1",
+          "observed": "cf"
+        },
+        {
+          "byte": 44,
+          "expected": "d2",
+          "observed": "d6"
+        },
+        {
+          "byte": 45,
+          "expected": "d3",
+          "observed": "d5"
+        },
+        {
+          "byte": 47,
+          "expected": "d5",
+          "observed": "d3"
+        },
+        {
+          "byte": 48,
+          "expected": "d6",
+          "observed": "b5"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mis1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_mis1",
+      "off": 33,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccbd2d1d0cfd6d5d4d3b5"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 36,
+          "expected": "71",
+          "observed": "ca"
+        },
+        {
+          "byte": 37,
+          "expected": "8c",
+          "observed": "c9"
+        },
+        {
+          "byte": 38,
+          "expected": "a7",
+          "observed": "c8"
+        },
+        {
+          "byte": 40,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 41,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 42,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 44,
+          "expected": "cc",
+          "observed": "d2"
+        },
+        {
+          "byte": 45,
+          "expected": "cd",
+          "observed": "d1"
+        },
+        {
+          "byte": 46,
+          "expected": "ce",
+          "observed": "d0"
+        },
+        {
+          "byte": 48,
+          "expected": "d0",
+          "observed": "d6"
+        },
+        {
+          "byte": 49,
+          "expected": "d1",
+          "observed": "d5"
+        },
+        {
+          "byte": 50,
+          "expected": "d2",
+          "observed": "d4"
+        },
+        {
+          "byte": 52,
+          "expected": "d4",
+          "observed": "21"
+        },
+        {
+          "byte": 53,
+          "expected": "d5",
+          "observed": "3c"
+        },
+        {
+          "byte": 54,
+          "expected": "d6",
+          "observed": "57"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "mishalf",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_mishalf",
+      "off": 39,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccbd2d1d0cfd6d5d4d3213c57"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 50,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 51,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 52,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 54,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 55,
+          "expected": "ce",
+          "observed": "cb"
+        },
+        {
+          "byte": 56,
+          "expected": "cf",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "d0",
+          "observed": "d1"
+        },
+        {
+          "byte": 58,
+          "expected": "d1",
+          "observed": "d0"
+        },
+        {
+          "byte": 59,
+          "expected": "d2",
+          "observed": "cf"
+        },
+        {
+          "byte": 60,
+          "expected": "d3",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d4",
+          "observed": "d5"
+        },
+        {
+          "byte": 62,
+          "expected": "d5",
+          "observed": "d4"
+        },
+        {
+          "byte": 63,
+          "expected": "d6",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "last",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_last",
+      "off": 48,
+      "op": "store",
+      "result": "divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_oob1",
+      "off": 64,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "far",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "store_w128_far",
+      "off": 1088,
+      "op": "store",
+      "result": "oob_store_discarded",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": ""
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 51,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 52,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 55,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 56,
+          "expected": "ce",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "cf",
+          "observed": "d1"
+        },
+        {
+          "byte": 59,
+          "expected": "d1",
+          "observed": "cf"
+        },
+        {
+          "byte": 60,
+          "expected": "d2",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d3",
+          "observed": "d5"
+        },
+        {
+          "byte": 63,
+          "expected": "d5",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_1",
+      "off": 49,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "d0",
+          "observed": "c9"
+        },
+        {
+          "byte": 50,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 51,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 52,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 54,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 55,
+          "expected": "cc",
+          "observed": "cb"
+        },
+        {
+          "byte": 56,
+          "expected": "cd",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "ce",
+          "observed": "d1"
+        },
+        {
+          "byte": 58,
+          "expected": "cf",
+          "observed": "d0"
+        },
+        {
+          "byte": 59,
+          "expected": "d0",
+          "observed": "cf"
+        },
+        {
+          "byte": 60,
+          "expected": "d1",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d2",
+          "observed": "d5"
+        },
+        {
+          "byte": 62,
+          "expected": "d3",
+          "observed": "d4"
+        },
+        {
+          "byte": 63,
+          "expected": "d4",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_2",
+      "off": 50,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "d0",
+          "observed": "c9"
+        },
+        {
+          "byte": 50,
+          "expected": "eb",
+          "observed": "c8"
+        },
+        {
+          "byte": 52,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 54,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 56,
+          "expected": "cc",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "cd",
+          "observed": "d1"
+        },
+        {
+          "byte": 58,
+          "expected": "ce",
+          "observed": "d0"
+        },
+        {
+          "byte": 60,
+          "expected": "d0",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d1",
+          "observed": "d5"
+        },
+        {
+          "byte": 62,
+          "expected": "d2",
+          "observed": "d4"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_3",
+      "off": 51,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 55,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 59,
+          "expected": "ce",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "cf",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "d0",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "d1",
+          "observed": "d0"
+        },
+        {
+          "byte": 63,
+          "expected": "d2",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_4",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_4",
+      "off": 52,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 55,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 59,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "ce",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "cf",
+          "observed": "d1"
+        },
+        {
+          "byte": 63,
+          "expected": "d1",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_5",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_5",
+      "off": 53,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "3c",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 55,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 59,
+          "expected": "cc",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "cd",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "ce",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "cf",
+          "observed": "d0"
+        },
+        {
+          "byte": 63,
+          "expected": "d0",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_6",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_6",
+      "off": 54,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "3c",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "57",
+          "observed": "c8"
+        },
+        {
+          "byte": 56,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 60,
+          "expected": "cc",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "cd",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "ce",
+          "observed": "d0"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_7",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_7",
+      "off": 55,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "ce",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_8",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_8",
+      "off": 56,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 59,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 63,
+          "expected": "cd",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_9",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_9",
+      "off": 57,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "cc",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_10",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_10",
+      "off": 58,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c3",
+          "observed": "c8"
+        },
+        {
+          "byte": 60,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "ca",
+          "observed": "cc"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_11",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_11",
+      "off": 59,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_12",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_12",
+      "off": 60,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_13",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_13",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_14",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_14",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_15",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w128_straddle_15",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 32,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 33,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 34,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 35,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "align_in",
+      "expected_value_hex": "05203b56",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "axch_w32_align_in",
+      "observed_value_hex": "05203b56",
+      "off": 32,
+      "op": "axch",
+      "result": "divergent",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_matches_hypothesis": true,
+      "cls": "oob1",
+      "expected_value_hex": "00000000",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "name": "axch_w32_oob1",
+      "observed_value_hex": "00000000",
+      "off": 64,
+      "op": "axch",
+      "result": "byte_exact",
+      "status": "ok",
+      "value_matches_hypothesis": true,
+      "width_bits": 32,
+      "window_after_hex": ""
+    }
+  ],
+  "repeat": {
+    "all_lines_identical": true,
+    "differing_cases": [],
+    "in_bounds_identical": true
+  },
+  "runs": [
+    "m4-20260827-run01",
+    "m4-20260827-run02"
+  ],
+  "status_counts": {
+    "m4-20260827-run01": {
+      "cb_error": 0,
+      "ok": 106,
+      "proc_fail": 0,
+      "proc_timeout": 0,
+      "watchdog": 0
+    },
+    "m4-20260827-run02": {
+      "cb_error": 0,
+      "ok": 106,
+      "proc_fail": 0,
+      "proc_timeout": 0,
+      "watchdog": 0
+    }
+  },
+  "straddle_stores": [
+    {
+      "buffer_diffs": [
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "ca"
+        },
+        {
+          "byte": 63,
+          "expected": "c7",
+          "observed": "c9"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w16_straddle_1",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 16,
+      "window_after_hex": "c9"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w32_straddle_1",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w32_straddle_2",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w32_straddle_3",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 32,
+      "window_after_hex": "c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 59,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 63,
+          "expected": "cd",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_1",
+      "off": 57,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "cc",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_2",
+      "off": 58,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c3",
+          "observed": "c8"
+        },
+        {
+          "byte": 60,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "ca",
+          "observed": "cc"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_3",
+      "off": 59,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_4",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_4",
+      "off": 60,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_5",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_5",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_6",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w64_straddle_6",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_7",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w64_straddle_7",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 64,
+      "window_after_hex": "c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 51,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 52,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 55,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 56,
+          "expected": "ce",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "cf",
+          "observed": "d1"
+        },
+        {
+          "byte": 59,
+          "expected": "d1",
+          "observed": "cf"
+        },
+        {
+          "byte": 60,
+          "expected": "d2",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d3",
+          "observed": "d5"
+        },
+        {
+          "byte": 63,
+          "expected": "d5",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_1",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_1",
+      "off": 49,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "d0",
+          "observed": "c9"
+        },
+        {
+          "byte": 50,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 51,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 52,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 54,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 55,
+          "expected": "cc",
+          "observed": "cb"
+        },
+        {
+          "byte": 56,
+          "expected": "cd",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "ce",
+          "observed": "d1"
+        },
+        {
+          "byte": 58,
+          "expected": "cf",
+          "observed": "d0"
+        },
+        {
+          "byte": 59,
+          "expected": "d0",
+          "observed": "cf"
+        },
+        {
+          "byte": 60,
+          "expected": "d1",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d2",
+          "observed": "d5"
+        },
+        {
+          "byte": 62,
+          "expected": "d3",
+          "observed": "d4"
+        },
+        {
+          "byte": 63,
+          "expected": "d4",
+          "observed": "d3"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_2",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_2",
+      "off": 50,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 48,
+          "expected": "b5",
+          "observed": "ca"
+        },
+        {
+          "byte": 49,
+          "expected": "d0",
+          "observed": "c9"
+        },
+        {
+          "byte": 50,
+          "expected": "eb",
+          "observed": "c8"
+        },
+        {
+          "byte": 52,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 53,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 54,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 56,
+          "expected": "cc",
+          "observed": "d2"
+        },
+        {
+          "byte": 57,
+          "expected": "cd",
+          "observed": "d1"
+        },
+        {
+          "byte": 58,
+          "expected": "ce",
+          "observed": "d0"
+        },
+        {
+          "byte": 60,
+          "expected": "d0",
+          "observed": "d6"
+        },
+        {
+          "byte": 61,
+          "expected": "d1",
+          "observed": "d5"
+        },
+        {
+          "byte": 62,
+          "expected": "d2",
+          "observed": "d4"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_3",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_3",
+      "off": 51,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccbd2d1d0cfd6d5d4d3"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 55,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 59,
+          "expected": "ce",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "cf",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "d0",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "d1",
+          "observed": "d0"
+        },
+        {
+          "byte": 63,
+          "expected": "d2",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_4",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_4",
+      "off": 52,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 55,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 59,
+          "expected": "cd",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "ce",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "cf",
+          "observed": "d1"
+        },
+        {
+          "byte": 63,
+          "expected": "d1",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_5",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_5",
+      "off": 53,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "3c",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 55,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 56,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 59,
+          "expected": "cc",
+          "observed": "cb"
+        },
+        {
+          "byte": 60,
+          "expected": "cd",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "ce",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "cf",
+          "observed": "d0"
+        },
+        {
+          "byte": 63,
+          "expected": "d0",
+          "observed": "cf"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_6",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_6",
+      "off": 54,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 52,
+          "expected": "21",
+          "observed": "ca"
+        },
+        {
+          "byte": 53,
+          "expected": "3c",
+          "observed": "c9"
+        },
+        {
+          "byte": 54,
+          "expected": "57",
+          "observed": "c8"
+        },
+        {
+          "byte": 56,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 57,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 58,
+          "expected": "ca",
+          "observed": "cc"
+        },
+        {
+          "byte": 60,
+          "expected": "cc",
+          "observed": "d2"
+        },
+        {
+          "byte": 61,
+          "expected": "cd",
+          "observed": "d1"
+        },
+        {
+          "byte": 62,
+          "expected": "ce",
+          "observed": "d0"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_7",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_7",
+      "off": 55,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccbd2d1d0cf"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "ca",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "cb",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cc",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cd",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "ce",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_8",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_8",
+      "off": 56,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 59,
+          "expected": "c9",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "ca",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "cb",
+          "observed": "cd"
+        },
+        {
+          "byte": 63,
+          "expected": "cd",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_9",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_9",
+      "off": 57,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 59,
+          "expected": "c8",
+          "observed": "c7"
+        },
+        {
+          "byte": 60,
+          "expected": "c9",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "ca",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "cb",
+          "observed": "cc"
+        },
+        {
+          "byte": 63,
+          "expected": "cc",
+          "observed": "cb"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_10",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_10",
+      "off": 58,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 56,
+          "expected": "8d",
+          "observed": "ca"
+        },
+        {
+          "byte": 57,
+          "expected": "a8",
+          "observed": "c9"
+        },
+        {
+          "byte": 58,
+          "expected": "c3",
+          "observed": "c8"
+        },
+        {
+          "byte": 60,
+          "expected": "c8",
+          "observed": "ce"
+        },
+        {
+          "byte": 61,
+          "expected": "c9",
+          "observed": "cd"
+        },
+        {
+          "byte": 62,
+          "expected": "ca",
+          "observed": "cc"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_11",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_11",
+      "off": 59,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7cecdcccb"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "c7",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c8",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c9",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "ca",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_12",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_12",
+      "off": 60,
+      "op": "store",
+      "rest_of_buffer_unchanged": true,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "cac9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "c7",
+          "observed": "c9"
+        },
+        {
+          "byte": 63,
+          "expected": "c9",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_13",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_13",
+      "off": 61,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c9c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "c7",
+          "observed": "c8"
+        },
+        {
+          "byte": 63,
+          "expected": "c8",
+          "observed": "c7"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_14",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": false,
+      "name": "store_w128_straddle_14",
+      "off": 62,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c8c7"
+    },
+    {
+      "buffer_diffs": [
+        {
+          "byte": 60,
+          "expected": "f9",
+          "observed": "ca"
+        },
+        {
+          "byte": 61,
+          "expected": "14",
+          "observed": "c9"
+        },
+        {
+          "byte": 62,
+          "expected": "2f",
+          "observed": "c8"
+        }
+      ],
+      "buffer_matches_hypothesis": false,
+      "cls": "straddle_15",
+      "guards": {
+        "g1_ok": true,
+        "g2_ok": true,
+        "pre_ok": true,
+        "res_g0_ok": true,
+        "res_g1_ok": true
+      },
+      "in_bounds_part_written": true,
+      "name": "store_w128_straddle_15",
+      "off": 63,
+      "op": "store",
+      "rest_of_buffer_unchanged": false,
+      "result": "straddle_store_divergent",
+      "status": "ok",
+      "width_bits": 128,
+      "window_after_hex": "c7"
+    }
+  ]
+}
