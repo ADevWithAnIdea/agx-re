@@ -1,0 +1,828 @@
+{
+  "backings": {
+    "result": {
+      "hex_chars": 288,
+      "payload_bytes": 16,
+      "prefix_byte": "5a",
+      "prefix_bytes": 64,
+      "suffix_byte": "a5",
+      "suffix_bytes": 64,
+      "total_bytes": 144
+    },
+    "texture": {
+      "hex_chars": 768,
+      "payload_bytes": 256,
+      "prefix_byte": "5a",
+      "prefix_bytes": 64,
+      "suffix_byte": "a5",
+      "suffix_bytes": 64,
+      "total_bytes": 384
+    }
+  },
+  "blob_sha256": {
+    "analysis.py": "f218c417ce66f0bd822a8a92e0d4c0f72a26566aaa79e05127ea2e753991429f",
+    "harness/probe.m": "f668c521c563818b309c6930cf772809e2b4a892334be65d62bfc45f3219097a",
+    "kernels/format_batch2.metal": "84c904d5eebe4f4c85d946a25703b860d52e240463b694972b2ea05c53ebd431",
+    "make_manifest.py": "97b1e8a90bd8db96dbd820254dfadeff2330c656f13b0b9eed4488690b5d8ef8",
+    "run.py": "fef5c5a80b3f1443fc748f6a20e4b955b971e4c025e11dcfdcd1c73abfa8fe17",
+    "verify.py": "9da56bb5760e3c2933b59653d6d3e2aaf12b10695e1e43c3dca8736b9d7a3158"
+  },
+  "boundary": {
+    "accesses": "in-bounds 1x1 texture compute store and typed compute read only",
+    "allocation": "owned shared buffers only",
+    "apple_binary_archive_bo_inspection": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work must be absent or empty before run02 is created",
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal run01 before creation; final verification also requires identical sw_vers, xcrun, and hw.model stdout/stderr and byte-exact equal case payloads",
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically. An environment-command failure/timeout stops before host build.",
+    "inputs_keys": [
+      "authored_sha256",
+      "boundary",
+      "device_model",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "schema",
+      "sw_vers",
+      "xcrun_version"
+    ],
+    "payload_keys": [
+      "backing_hex",
+      "backing_prefix_guard",
+      "backing_suffix_guard",
+      "case",
+      "command_buffer_error",
+      "command_buffer_status",
+      "device",
+      "fast_math_enabled",
+      "format",
+      "library_error",
+      "library_ok",
+      "machine",
+      "os",
+      "physical_texel_hex",
+      "read_pipeline_error",
+      "read_pipeline_ok",
+      "read_words_le",
+      "reader",
+      "result_hex",
+      "result_prefix_guard",
+      "result_suffix_guard",
+      "status",
+      "storage_mode",
+      "store_pipeline_error",
+      "store_pipeline_ok",
+      "texel_bytes",
+      "texture_error",
+      "texture_ok",
+      "usage_flags"
+    ],
+    "pre_capture_gate": [
+      "python3 -B verify.py --preflight",
+      "python3 -B verify.py --selftest"
+    ],
+    "pre_second_run_gate": [
+      "python3 -B verify.py --between-runs",
+      "python3 -B verify.py --selftest"
+    ],
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_host_build.json",
+      "case_<case>.json",
+      "run_manifest.json"
+    ],
+    "run_manifest_keys": [
+      "schema",
+      "run_id",
+      "cases",
+      "fresh_process_per_case",
+      "runner_sha256",
+      "harness_sha256",
+      "kernel_sha256",
+      "contract_sha256"
+    ],
+    "runs": [
+      "m4-20260827-run01",
+      "m4-20260827-run02"
+    ],
+    "statuses_exit_zero": [
+      "ok",
+      "store_pipeline_rejected",
+      "read_pipeline_rejected",
+      "texture_rejected",
+      "command_buffer_error"
+    ]
+  },
+  "capture_bound_paths": [
+    "PRE_REGISTRATION.md",
+    "CAPTURE_CONTRACT.json",
+    "kernels/format_batch2.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "cases": [
+    {
+      "case": "r8unorm_p100",
+      "expected_read_words_le": [
+        "3f800000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "ff",
+      "format": "R8Unorm",
+      "inputs": [
+        "1.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "unorm8 encode: clamp to [0,1] then scale by 255; 1.0 -> 255; typed read fills (r,0,0,1).",
+      "texel_bytes": 1
+    },
+    {
+      "case": "r8unorm_zero",
+      "expected_read_words_le": [
+        "00000000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "00",
+      "format": "R8Unorm",
+      "inputs": [
+        "0.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "0.0 -> 0.",
+      "texel_bytes": 1
+    },
+    {
+      "case": "r8unorm_p050",
+      "expected_read_words_le": [
+        "3f008081",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "80",
+      "format": "R8Unorm",
+      "inputs": [
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "tie: 0.5*255 = 127.5. Expected 128 under round-half-even/half-up (corroborated for RGBA8Unorm on this host by EXP-0070); 127 under truncation. Read decodes 128/255 = 0x3F008081.",
+      "texel_bytes": 1
+    },
+    {
+      "case": "rg8unorm_p100_p050",
+      "expected_read_words_le": [
+        "3f800000",
+        "3f008081",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "ff80",
+      "format": "RG8Unorm",
+      "inputs": [
+        "1.0",
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "per-channel unorm8 as in r8unorm_p100/r8unorm_p050; layout R byte 0, G byte 1.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "rg8unorm_zero_p100",
+      "expected_read_words_le": [
+        "00000000",
+        "3f800000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "00ff",
+      "format": "RG8Unorm",
+      "inputs": [
+        "0.0",
+        "1.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "per-channel unorm8.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r8snorm_p100",
+      "expected_read_words_le": [
+        "3f800000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "7f",
+      "format": "R8Snorm",
+      "inputs": [
+        "1.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "+1.0 -> 127 under both candidate encode scales (x127 rounded; x128 clamped).",
+      "texel_bytes": 1
+    },
+    {
+      "case": "r8snorm_zero",
+      "expected_read_words_le": [
+        "00000000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "00",
+      "format": "R8Snorm",
+      "inputs": [
+        "0.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "0.0 -> 0.",
+      "texel_bytes": 1
+    },
+    {
+      "case": "r8snorm_p050",
+      "expected_read_words_le": [
+        "3f010204",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "40",
+      "format": "R8Snorm",
+      "inputs": [
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "tie under x127 scale: 0.5*127 = 63.5; expected 64 under round-half-even/half-up, 63 under truncation. Exact 64 under x128 scale. Read decodes 64/127 = 0x3F010204.",
+      "texel_bytes": 1
+    },
+    {
+      "case": "r8snorm_m100",
+      "expected_read_words_le": [
+        "bf800000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "80",
+      "format": "R8Snorm",
+      "inputs": [
+        "-1.0"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "competing public encode rules: [-1,1]->[-128,127] mapping gives 0x80; x127-round gives 0x81 (-127). Expected 0x80 (Metal/D3D-family). Typed read decodes to -1.0 under either byte (clamped), so the physical texel byte is the discriminator.",
+      "texel_bytes": 1
+    },
+    {
+      "case": "rg8snorm_p100_p050",
+      "expected_read_words_le": [
+        "3f800000",
+        "3f010204",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "7f40",
+      "format": "RG8Snorm",
+      "inputs": [
+        "1.0",
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "per-channel snorm8; carries both the +1.0 and 0.5-tie uncertainties of r8snorm_p100/r8snorm_p050.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "rg8snorm_m100_zero",
+      "expected_read_words_le": [
+        "bf800000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "8000",
+      "format": "RG8Snorm",
+      "inputs": [
+        "-1.0",
+        "0.0"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "carries the -1.0 encode-rule uncertainty of r8snorm_m100.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "rgba8snorm_pack",
+      "expected_read_words_le": [
+        "bf800000",
+        "00000000",
+        "3f010204",
+        "3f800000"
+      ],
+      "expected_texel_hex": "8000407f",
+      "format": "RGBA8Snorm",
+      "inputs": [
+        "-1.0",
+        "0.0",
+        "0.5",
+        "1.0"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "four distinct channels exercising all snorm8 sub-cases at once.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r16float_exact",
+      "expected_read_words_le": [
+        "3f000000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0038",
+      "format": "R16Float",
+      "inputs": [
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "0.5 is exactly representable: fp16 0x3800.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16float_mid",
+      "expected_read_words_le": [
+        "3f000000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0038",
+      "format": "R16Float",
+      "inputs": [
+        "0.4999999701976776123046875"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "literal = 0.5 - 2^-25 = exact fp32 0x3EFFFFFF, not representable in fp16; nearest fp16 under round-to-nearest-even is 0x3800 (0.5).",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16float_third",
+      "expected_read_words_le": [
+        "3eaaa000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "5535",
+      "format": "R16Float",
+      "inputs": [
+        "1.0 / 3.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "fp32 constant fold 0x3EAAAAAB converts to fp16 0x3555 (0.333251953125) under RNE (corroborated for RGBA16Float on this host by EXP-0070).",
+      "texel_bytes": 2
+    },
+    {
+      "case": "rg16float_exact_mid",
+      "expected_read_words_le": [
+        "3f000000",
+        "3f000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "00380038",
+      "format": "RG16Float",
+      "inputs": [
+        "0.5",
+        "0.4999999701976776123046875"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "R = exact fp16 0.5; G = mid literal rounding to fp16 0x3800 per r16float_mid; layout R halfword 0, G halfword 1.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rg16float_third_third",
+      "expected_read_words_le": [
+        "3eaaa000",
+        "3eaaa000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "55355535",
+      "format": "RG16Float",
+      "inputs": [
+        "1.0 / 3.0",
+        "1.0 / 3.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "both channels as r16float_third.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r32float_exact",
+      "expected_read_words_le": [
+        "3f000000",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0000803f",
+      "format": "R32Float",
+      "inputs": [
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "exact fp32 passthrough of 0.5.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r32float_mid",
+      "expected_read_words_le": [
+        "3effffff",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "ffffff3e",
+      "format": "R32Float",
+      "inputs": [
+        "0.4999999701976776123046875"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "exact fp32 passthrough of 0.5 - 2^-25 (0x3EFFFFFF).",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r32float_third",
+      "expected_read_words_le": [
+        "3eaaaaab",
+        "00000000",
+        "00000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "abaaaa3e",
+      "format": "R32Float",
+      "inputs": [
+        "1.0 / 3.0"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "fp32 round-to-nearest-even of 1/3 from the compiler constant fold.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rg11b10float_exact",
+      "expected_read_words_le": [
+        "3f000000",
+        "3f000000",
+        "3f000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0038c071",
+      "format": "RG11B10Float",
+      "inputs": [
+        "0.5",
+        "0.5",
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "fp11(0.5)=0x3800 in R[10:0] and G[21:11]; fp10(0.5)=0x1C0 in B[31:22]; word 0x71C03800. Authored alpha ignored (format has no alpha).",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rg11b10float_mid",
+      "expected_read_words_le": [
+        "3f000000",
+        "3f000000",
+        "3f000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0038c071",
+      "format": "RG11B10Float",
+      "inputs": [
+        "0.4999999701976776123046875",
+        "0.4999999701976776123046875",
+        "0.4999999701976776123046875"
+      ],
+      "reader": "float",
+      "rule": "b",
+      "rule_note": "11-bit mantissa boundary: fp32 0x3EFFFFFF lies inside the round-to-0x3800 zone of fp11 (halfway 0.4998779296875) and fp10; all channels collapse to the exact-0.5 word.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rgb9e5float_exact",
+      "expected_read_words_le": [
+        "3f000000",
+        "3f000000",
+        "3f000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0001027c",
+      "format": "RGB9E5Float",
+      "inputs": [
+        "0.5",
+        "0.5",
+        "0.5"
+      ],
+      "reader": "float",
+      "rule": "a",
+      "rule_note": "exactly representable: channel = M * 2^(E-24) with 9-bit M, shared 5-bit E; canonical MSB-set normalization gives M=256, E=15; word = R | G<<9 | B<<18 | E<<27 = 0x7C020100. Authored alpha ignored.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rgb9e5float_mid",
+      "expected_read_words_le": [
+        "3f000000",
+        "3f000000",
+        "3f000000",
+        "3f800000"
+      ],
+      "expected_texel_hex": "0001027c",
+      "format": "RGB9E5Float",
+      "inputs": [
+        "0.4999999701976776123046875",
+        "0.4999999701976776123046875",
+        "0.4999999701976776123046875"
+      ],
+      "reader": "float",
+      "rule": "c",
+      "rule_note": "shared-exponent boundary: at E=14 the mantissa is 511.99999998..., which rounds to 512 and overflows the 9-bit field; canonical renormalization (E=15, M=256) collapses to the exact-0.5 word. Uncertain: public specs do not pin the overflow-renormalization behavior, and the format cannot distinguish the two authored inputs.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r16sint_1",
+      "expected_read_words_le": [
+        "00000001",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0100",
+      "format": "R16Sint",
+      "inputs": [
+        "1"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "typed int store path; read fills (r,0,0,1) with alpha 1 (fill behavior corroborated for R32Uint on this host by EXP-0070).",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16sint_2",
+      "expected_read_words_le": [
+        "00000002",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0200",
+      "format": "R16Sint",
+      "inputs": [
+        "2"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "exact integer passthrough.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16sint_3855",
+      "expected_read_words_le": [
+        "00000f0f",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0f0f",
+      "format": "R16Sint",
+      "inputs": [
+        "3855"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "0x0F0F bit pattern passthrough.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16uint_1",
+      "expected_read_words_le": [
+        "00000001",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0100",
+      "format": "R16Uint",
+      "inputs": [
+        "1"
+      ],
+      "reader": "uint",
+      "rule": "a",
+      "rule_note": "typed uint store path.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16uint_2",
+      "expected_read_words_le": [
+        "00000002",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0200",
+      "format": "R16Uint",
+      "inputs": [
+        "2"
+      ],
+      "reader": "uint",
+      "rule": "a",
+      "rule_note": "exact integer passthrough.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r16uint_3855",
+      "expected_read_words_le": [
+        "00000f0f",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0f0f",
+      "format": "R16Uint",
+      "inputs": [
+        "3855"
+      ],
+      "reader": "uint",
+      "rule": "a",
+      "rule_note": "0x0F0F bit pattern passthrough.",
+      "texel_bytes": 2
+    },
+    {
+      "case": "r32sint_1",
+      "expected_read_words_le": [
+        "00000001",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "01000000",
+      "format": "R32Sint",
+      "inputs": [
+        "1"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "typed int store path.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r32sint_2",
+      "expected_read_words_le": [
+        "00000002",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "02000000",
+      "format": "R32Sint",
+      "inputs": [
+        "2"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "exact integer passthrough.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "r32sint_3855",
+      "expected_read_words_le": [
+        "00000f0f",
+        "00000000",
+        "00000000",
+        "00000001"
+      ],
+      "expected_texel_hex": "0f0f0000",
+      "format": "R32Sint",
+      "inputs": [
+        "3855"
+      ],
+      "reader": "int",
+      "rule": "a",
+      "rule_note": "0x0F0F bit pattern passthrough.",
+      "texel_bytes": 4
+    },
+    {
+      "case": "rgba16uint_pack",
+      "expected_read_words_le": [
+        "00000001",
+        "00000002",
+        "00000f0f",
+        "00000000"
+      ],
+      "expected_texel_hex": "010002000f0f0000",
+      "format": "RGBA16Uint",
+      "inputs": [
+        "1",
+        "2",
+        "3855",
+        "0"
+      ],
+      "reader": "uint",
+      "rule": "a",
+      "rule_note": "four channels in one texel; little-endian halfword order R,G,B,A; alpha authored 0 (real channel, no fill).",
+      "texel_bytes": 8
+    }
+  ],
+  "compile_options": {
+    "fast_math_enabled": false,
+    "runtime": "newLibraryWithSource with MTLCompileOptions"
+  },
+  "contract_version": 1,
+  "expected_value_rules": {
+    "a": "value exactly representable in the format; word derived from the documented channel bit layout only",
+    "b": "documented Metal conversion/clamp/rounding rule (round-to-nearest-even for float narrowing; x(2^b-1) scale for normalized encode) applied to an exactly-authored input",
+    "c": "explicitly-flagged uncertain: tie rounding (127.5, 63.5), competing public snorm encode scales, or shared-exponent renormalization not pinned by public specs"
+  },
+  "experiment": "EXP-0072-m4-typed-format-conversion-batch2",
+  "formats_count": 14,
+  "formats_covered": [
+    "R16Float",
+    "R16Sint",
+    "R16Uint",
+    "R32Float",
+    "R32Sint",
+    "R8Snorm",
+    "R8Unorm",
+    "RG11B10Float",
+    "RG16Float",
+    "RG8Snorm",
+    "RG8Unorm",
+    "RGB9E5Float",
+    "RGBA16Uint",
+    "RGBA8Snorm"
+  ],
+  "frozen_readback_path": "kernel 2 typed compute read (k_read_float/k_read_int/k_read_uint); no blit, no CPU copy of GPU data beyond reading the owned backing/result buffers after command-buffer completion",
+  "frozen_store_path": "compute kernel with access::write texture; integer formats stored as-typed (int4/uint4), normalized and float formats stored via float4",
+  "gate": "A missing path, hash, schema field, guard byte, timeout record, or unexpected raw path stops interpretation and promotion.",
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "RESULTS.md",
+    "PROGRESS.md",
+    "CAPTURE_CONTRACT.json",
+    "kernels/format_batch2.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "selftest_note": "verify.py --selftest is a required pre-capture gate for both runs; it proves every schema gate (receipt, inputs, payload, run manifest, run-to-run comparison) is satisfiable using a synthetic two-run capture and that tampered variants fail closed",
+  "state": "PRE_GPU",
+  "target": "M4/G16G through public Metal only",
+  "task_item": "DRV-FMT-01 second bounded increment (batch 2)",
+  "timeouts_seconds": {
+    "case_process": 300,
+    "compile_phase": 120,
+    "dispatch_phase": 300,
+    "environment": 5,
+    "host_build": 120
+  }
+}
