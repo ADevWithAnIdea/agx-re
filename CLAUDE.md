@@ -1,29 +1,45 @@
-# Clean-Room RE: Apple M5 GPU Userspace
+# Clean-Room RE: Apple A18 Pro GPU Userspace (Apple9)
 
 ## Mission
 
 Produce **clean-room hardware documentation** of the userspace-visible side of the
-Apple **M5** GPU (SoC **T8142**, Metal 4; exact GPU feature family to be probed), sufficient
-for a *separate* implementation team to add support to the Mesa `asahi` driver **after** the
-kernel driver (being built in parallel, out of scope here) is in place.
+**Apple9-generation** AGX GPUs — primary documentation target **Apple A18 Pro (SoC T8140,
+G17P)**, with the **local Apple M4 (G16G)** as the comparison, validation, and current
+operational-execution target — sufficient for a *separate* implementation team to add support
+to the Mesa `asahi` driver **after** the kernel driver (being built in parallel, out of scope
+here) is in place.
 
 We are the **reverse-engineering / documentation team**. We do **not** write the Mesa
 driver. We write hardware specs; someone else implements them. This split is the core of
 the clean-room defense.
 
-The M5 GPU is generationally different from the M1 (Apple7) and M2 (Apple8) parts that Mesa
-currently supports — and, per the project premise (pending our own probing), uses a
-**substantially different ISA from the A18 Pro (G17P / Apple9)** we characterized in the
-prior phase. Everything about *how much* it differs is an empirical question this effort
-answers by probing hardware and tracing data — never by looking inside Apple's code.
+**Operating contract.** `CODEX.md` is the binding process contract for every experiment
+(the 10-step loop, evidence labels, minimum experiment record, provenance audit). The
+authoritative gap analysis is `AGX_RE_INFORMATION_GAPS.md`; the live status board for the
+current goal is `docs/P0-P1-CLOSURE.md`. The acceptance bar for A18/M4 completeness is the
+**unchanged Asahi UAPI** and its existing userspace/kernel division of responsibility — do
+not classify something as kernel-managed merely because it was not visible in one capture;
+check what the current UAPI requires userspace to supply.
 
-> **Prior phase (reference only, already in this repo):** the immediately preceding effort
-> clean-room RE'd the **A18 Pro** GPU (SoC T8140, G17P, family Apple9), using a local **M4** as
-> the compile-only shader host and the A18 as the reboot-recoverable probe target. Its
-> artifacts — the AGX-ISA assembler/disassembler in `tools/agx-isa/`, the `docs/` specs, and the
-> `EXP-M4-*` / `EXP-0xxx` experiments — remain valid **for the A18** and are the **starting
-> scaffolding** for the M5, *not* M5 truth. Characterize the M5 ISA fresh; carry nothing over as
-> fact without re-probing it on M5 hardware. New M5 experiments go under `EXP-M5-*`.
+**Current active goal: close all sixteen P0/P1 rows** (P0.1–P0.8, P1.1–P1.8) in
+`docs/P0-P1-CLOSURE.md`. Execution strategy per that board: the **local M4 is the primary
+operational target**; A18-specific replication is a later validation task, not a closure
+gate. Every result records the target it actually ran on; no cross-target promotion without
+a recorded validation or an explicit `INFERRED` label.
+
+**Phase status (do not redo, do not contaminate):**
+- **A18 Pro base documentation** (`docs/`, `tools/agx-isa`, `EXP-0001…0046`) — complete;
+  the Apple9 baseline. `docs/ROADMAP.md` is its (historical) status board.
+- **M4 validation** (`docs/ROADMAP-M4.md`, `docs/m4-deltas.md`, `EXP-M4-*`) — complete:
+  every subsystem a driver emits is byte-identical A18↔M4; deltas are device
+  identity/capacity only (`applegpu_g16g`, `AGXAcceleratorG16G`, 10 cores,
+  `maxBufferLength` ~8.88 GiB — query, don't hard-code).
+- **M5 (G17g, T8142)** — **goal complete** (`docs/ROADMAP-M5.md`, `EXP-M5-*`,
+  `tools/agx-isa-m5`); a separate, later workstream. **M5 is deferred unless the user
+  explicitly brings it into scope. Do not treat M5 results as evidence for A18/M4.**
+- **Apple9 P0/P1 closure** (`AGX_RE_INFORMATION_GAPS.md` → `docs/P0-P1-CLOSURE.md`,
+  `EXP-0047…` continuing) — **the active workstream.** New experiments take the next
+  sequential `EXP-NNNN` number.
 
 ---
 
@@ -48,7 +64,7 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
    pattern, read it back, infer the layout. Any knowledge gained by observing what the
    *hardware* does is safe.
 3. **Compiling our OWN shaders and disassembling THOSE.** We write MSL source, compile it
-   (runtime `newLibraryWithSource:` is confirmed working on the device), extract the
+   (runtime `newLibraryWithSource:` is confirmed working on every target), extract the
    compiled AGX machine code, and disassemble it **with our own tools** to document the
    ISA. This is explicitly allowed because the source is ours.
 4. **Reading public materials only:** the `gpu_knowledge/` base, Apple's *public*
@@ -81,7 +97,7 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
    no firmware, no Apple-authored precompiled shaders / system shader caches. (Committing our
    own shader source, our own shader disassembly, and captured command-buffer/descriptor byte
    traces *is* fine and encouraged — that is non-copyrightable hardware data and evidence.)
-7. **Never leave this directory (`/Users/user/asahi_re/public/gpu`).** All host-side work stays
+7. **Never leave this directory (`/Users/user/asahi_re/public/agx-re`).** All host-side work stays
    here. Do not read, search, or operate on files elsewhere on the host filesystem.
 
 ### The one-line test
@@ -99,7 +115,8 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
   (GenXML-style where it fits Mesa's existing conventions).
 - **We do NOT edit `mesa/` or write Mesa driver code.** `mesa/` is a *read-only reference*
   for understanding the *shape* of what a userspace driver must produce (so we know what to
-  document) and how Mesa parameterizes M1/M2. The M5 implementation is someone else's job.
+  document), how Mesa parameterizes M1/M2, and the pinned Asahi UAPI compatibility
+  inventory (`EXP-0044/0045`). The implementation is someone else's job.
 - **We do NOT depend on a working kernel driver.** Where our documentation implies a
   userspace↔kernel interface, we describe what userspace needs to hand down, and flag it for
   coordination with the kernel team — we do not block on them.
@@ -108,73 +125,70 @@ These are the sanctioned clean-room methods (per the Asahi Linux copyright/RE po
 
 ## Definition of Done (the acceptance gate)
 
-**Goal:** clean-room RE the M5 GPU enough to **fully implement a working
-userspace GPU driver using ONLY the documentation in `docs/`.** (The A18 Pro phase already
-cleared this gate; its docs stay in the repo. This gate now governs the **M5** work.)
+**Goal:** an implementer can **generate** arbitrary supported Apple9 shaders and
+relocatable command streams, populate **every field the unchanged Asahi UAPI assigns to
+userspace**, and build the required helper, scratch, prolog/epilog, BG/EOT, partial-render,
+and synchronization machinery — **without guessing and without consulting Apple's
+implementation** (full statement: `CODEX.md` → Acceptance standard).
 
-**Done is defined by an acceptance test, not by our own judgment:**
+**Done is defined by the completion gate in `docs/P0-P1-CLOSURE.md`, not by our own
+judgment:**
 
-> The goal is complete when a **dedicated acceptance-reviewer subagent** — whose sole job is
-> to scrutinize `docs/` with a critical eye, as if it were about to implement M5 support
-> in Mesa from scratch — concludes that **everything it needs is present in this directory and
-> it would not need anything else** (no guessing, no peeking at Apple's stack, no gaps to fill
-> from outside `docs/`).
+- all sixteen P0/P1 rows are `CLOSED`, each under the six closure rules (value/behavior
+  *generated*, not merely decoded from a captured template; complete authored
+  probe/commands/raw observations/failures/analysis committed; `PROVENANCE.md` chain
+  intact; normative docs carry exact fields, ranges, fallbacks, and target status;
+  adversarial reproduction or second method passed; the relevant userspace object
+  independently generated and consumed without a captured Apple template);
+- the final audit **positively reproduces** the claimed generation paths and proves that no
+  required field or supported operation depends on captured Apple templates or on inspection
+  of Apple's implementation.
 
-Rules for that gate:
-- The reviewer's only source of **M5-specific truth is `docs/`**. It may assume general
-  knowledge of how a Mesa/Gallium+Vulkan userspace driver is structured (that's the target it's
-  implementing), but every M5 hardware fact it relies on must be *in the documentation*.
-  If it would have to look at `gpu_knowledge/`, `mesa/`'s M1/M2 code, Apple's stack, or "just
-  figure it out," that is a **gap**.
-- The reviewer must be adversarial: hunt for missing encodings, unverified claims, hand-waved
-  "incantations," formats without bit layouts, and capabilities that are described but not
-  shown to work. Every gap it finds becomes a new work item; iterate until the gate passes.
-- Use interim gap-analysis reviews (same reviewer, run early and often) to *steer* the work —
-  the final run is just the last one that comes back clean. See Phase 5 in `docs/ROADMAP.md`.
+A corpus round trip, a byte-exact tokenization, a captured-template replay, or a broad
+capability census **alone does not clear this gate**. Evidence strength is defined by
+`CODEX.md` (`HW-VALIDATED` > `DATA-TRACE-VALIDATED` > `OWN-SHADER-DIFF` > `STRUCTURAL` >
+`INFERRED` > `UNKNOWN`); tokenization or round-trip alone can never close a synthesis gap.
 
 Corollary for how we write `docs/`: assume the reader has **never seen the hardware** and
 cannot run any experiment. Bit layouts must be exhaustive, encodings must be exact, every
-"magic value" must be explained or at least pinned down, and anything a driver must emit must
-be specified precisely enough to emit it without further RE.
+"magic value" must be explained or at least pinned down, and anything a driver must emit
+must be specified precisely enough to emit it without further RE.
 
 ## Secondary goal: capability completeness (understand *everything* the HW can do)
 
-Beyond the primary goal (a driver implementable from `docs/`), a standing secondary goal is to map
-the **full hardware capability envelope** — not just what our current driver needs. Drive it two ways,
-and track both to convergence:
+Beyond the primary goal, a standing secondary goal is to map the **full hardware capability
+envelope** — not just what our current driver needs — along the two census axes tracked in
+`docs/capability-completeness.md` and `docs/capability-matrix.md`:
 
-1. **Instruction census.** Every opcode the compiler emits must be decoded. Metric: a byte0-group
-   census over a broad shader corpus shows ~0 undecoded groups. (ROADMAP gap **G-13**.)
-2. **Capability census.** Enumerate every capability from **(a) what Metal/MSL exposes** (the full MSL
-   spec, the Metal feature-set tables, and the `MTLDevice` capability probe) and **(b) what Apple
-   advertises** (WWDC / Tech Talk Apple-GPU features through the M5 generation — Apple *advertises* new
-   hardware each gen: ray tracing, Dynamic Caching, mesh shading, hardware reorder, wider ALUs, plus any
-   M5-generation additions). For **each**, determine how
-   it is represented in hardware (which instruction / descriptor / cmdstream field / kernel-managed),
-   and classify it **native / emulated / kernel-managed / NOT-YET-CHARACTERIZED**. Tracker:
-   `docs/capability-completeness.md`; capability findings also feed `docs/capability-matrix.md` and
-   `docs/hypotheses.md`.
+1. **Instruction census.** Every opcode the compiler emits must be decoded (byte0-group
+   census over a broad shader corpus shows ~0 undecoded groups; M4 corpus reached 100.0%
+   byte coverage in `EXP-M4-12`).
+2. **Capability census.** Enumerate every capability from what Metal/MSL exposes and what
+   Apple advertises, determine its hardware representation, and classify it
+   **native / emulated / kernel-managed / NOT-YET-CHARACTERIZED**; drive the NOT-YET list
+   toward 0 within the P0/P1 closure frame.
 
-The method for both is the same clean-room loop: provoke the feature with our own MSL (or the feature
-map), extract, decode, and — where it's a claimed capability Metal doesn't expose — **extrapolate and
-test** (see Methodology). A feature that turns out absent/emulated is a first-class result.
+The method for both is the same clean-room loop: provoke the feature with our own MSL (or
+the feature map), extract, decode, and — where it's a claimed capability Metal doesn't
+expose — **extrapolate and test** (see Methodology). A feature that turns out
+absent/emulated is a first-class result.
 
-## Target device & operational safety
+---
+
+## Target devices & operational safety
 
 | | |
 |---|---|
-| Host (here) | macOS, this repo at `/Users/user/asahi_re/public/gpu`. `sshpass`, `macvdmtool` available. |
-| Target | `user@192.168.170.253`, password `Password_1`. Apple **M5**, SoC **T8142**, macOS **27.0** (26A5368g), **8 GPU cores**, **Metal 4** (GPU feature family not yet probed). SIP **enabled** (unlike the A18 — may need disabling for some interpose/probe work). `user` has **passwordless sudo** (`/etc/sudoers.d/user-nopasswd`); **auto-login is enabled**, so SSH returns unattended after a reboot. |
-| Toolchain on target | Command Line Tools **installed** (`clang` 21, `python3` 3.9, `git`). **No `metal` CLI** → we use **runtime** MSL compilation. Full Metal offline toolchain can be installed later if needed. |
-| Device workspace | `~/cleanroom_work` on the target. Keep all experiment code/data there, then pull artifacts back here to commit. |
+| Host = **primary operational target** | **This machine: Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4.** All active Apple9-closure experiments run **locally** (compile / extract / trace / public-API probe; no SSH). Keep local runs to authored public-Metal behavior probes and passive tracing — **route fault-prone byte splices to the A18**, because this host is the repo's home and has no out-of-band recovery path. |
+| A18 Pro = **primary documentation target** | `user@192.168.170.254`, password `Password_1` (`sshpass` on host), passwordless sudo, auto-login. SoC **T8140**, **G17P**, macOS **26.6**, **5 active GPU cores** (6-core die, #1 fused), CLT only — no `metal` CLI → runtime `newLibraryWithSource:`. Workspace `~/cleanroom_work/`. **Preferred for dangerous byte splices and fault-prone sweeps** (reboot-recoverable from the host). |
+| M5 (**historical, deferred**) | `user@192.168.170.253`, password `Password_1`, passwordless sudo, auto-login, SIP on. SoC **T8142**, **G17g**, macOS **27.0** (26A5368g), 8 GPU cores. Goal complete — **do not probe it for Apple9 work**; M5 results are not A18/M4 evidence. |
 
 **Reboot protocol (memorize this):**
-- If the device becomes unresponsive, behaves strangely, or SSH hangs for unclear reasons,
-  reboot it from the **host** with `macvdmtool reboot`. This works below the OS and always
-  succeeds (confirmed on the M5).
-- After a reboot, **wait ~20–30 seconds** before attempting SSH again. Auto-login is enabled,
-  so the machine comes back **unattended** — no password at the console — and `sshd` becomes
-  reachable on its own (validated by reboot round-trip).
+- If a **remote** target becomes unresponsive, behaves strangely, or SSH hangs for unclear
+  reasons, reboot it from the **host** with `macvdmtool reboot`. This works below the OS and
+  always succeeds (confirmed on both the A18 and the M5).
+- After a reboot, **wait ~20–30 seconds** before attempting SSH again. Auto-login is
+  enabled, so the machine comes back **unattended** and `sshd` becomes reachable on its own.
 - Occasional crashes are an expected part of GPU RE. Avoid them where reasonable, don't fear
   them.
 - **Escalation:** if you reboot several times and still fail to SSH in several times, mark
@@ -184,23 +198,41 @@ test** (see Methodology). A feature that turns out absent/emulated is a first-cl
 
 ## Process & workflow
 
-The loop, repeated until the documentation is complete enough to implement from:
+The binding, detailed process is `CODEX.md` (read it before running anything). The loop,
+compressed:
 
-1. **Pick the next question** from the current phase (see `docs/ROADMAP.md`).
-2. **Spawn subagent(s)** with a specific, self-contained experiment task. Give each the
-   clean-room rules, the device credentials, the reboot protocol, and a precise hypothesis +
-   method. Independent experiments run in parallel.
-3. Subagents **run experiments on the device**, capture raw data, and **report back** with:
-   hypothesis, exact procedure, raw results, and analysis. (Subagents inherit these rules and
-   are equally bound by the Prime Directive.)
-4. The **main agent reviews** the report for clean-room compliance and technical soundness,
-   then **commits all artifacts** (scripts, raw captures, written results) into this repo.
-5. **Update `docs/`** with any facts that are now established, each with a provenance citation.
-6. Repeat.
+1. **Pick the next question** from `AGX_RE_INFORMATION_GAPS.md` / `docs/P0-P1-CLOSURE.md`
+   (or a documented unknown or falsifiable inconsistency), tied to an exact driver decision
+   or UAPI field.
+2. **Pre-register before building.** Falsifiable hypothesis, independent/controlled
+   variables, expected observation, at least one refuter, known confounders — committed as
+   `PRE_REGISTRATION.md` (+ `CAPTURE_CONTRACT.json` where used) *before* any build/run, with
+   source hashes, raw-tree schema, environment, and timeouts frozen. **An underspecified
+   frozen contract is an automatic stop.** Never repair a quarantined experiment in place —
+   a successor takes a **new experiment number** and a fresh pre-registration.
+3. **Build the smallest authored probe** (change-one-variable, asymmetric/boundary values,
+   paired controls); **capture the baseline before mutation**.
+4. **Run with hard timeouts and watchdogs**; record faults, hangs, and rejections as
+   results; never silently drop negative or inconvenient outcomes.
+5. **Preserve artifacts** in the standard `EXP-NNNN-slug/` layout (README / RESULTS /
+   manifest / harness / kernels / analysis / raw). Raw observations are **append-only
+   evidence** — never edited, overwritten, or excerpted by hand.
+6. **Separate observation from interpretation.** State what was directly observed, the exact
+   parameter range tested, which target it ran on, alternatives not excluded, and the safe
+   driver fallback. Prefer `UNKNOWN`/`PARTIAL`/`INFERRED` to unjustified certainty.
+7. **Falsify before promoting.** Adversarial tests (different registers/formats/stages/
+   boundaries) and, for load-bearing claims, an independent probe or second method.
+8. **Update `docs/` + `PROVENANCE.md` together** — no fact enters `docs/` without an
+   auditable evidence link and row, with evidence label and validated range.
+9. **Verify and commit a reviewable unit.** Re-run the documented commands; run
+   assembler/disassembler round-trip + corpus checks for ISA changes; run consistency
+   searches for superseded values; inspect the diff for accidental blobs, archives, or
+   secrets. Commits stay focused; the git history **is** the clean-room paper trail.
 
-**Every experiment is reproducible.** No fact enters `docs/` without an experiment (or public
-citation) that a third party could re-run to reproduce it. Process matters as much as outcome:
-if it isn't written down and committed, it didn't happen.
+**Orchestration:** the main agent reviews reports for clean-room compliance and technical
+soundness, owns `docs/`, `PROVENANCE.md`, and `docs/P0-P1-CLOSURE.md`, and commits all
+artifacts. Subagents get self-contained dispatches (rules, device/recovery details,
+hypothesis + method). Run ≤2 parallel device experiments, on **disjoint files**.
 
 ### Git conventions
 - Commit after each experiment and each doc update; never batch unrelated work.
@@ -214,43 +246,55 @@ if it isn't written down and committed, it didn't happen.
 
 ```
 /CLAUDE.md            ← this governance file (the rules)
+/CODEX.md             ← BINDING experiment process contract (10-step loop, evidence labels)
+/AGX_RE_INFORMATION_GAPS.md ← authoritative P0/P1 gap analysis (the current acceptance audit)
 /PROVENANCE.md        ← clean-room audit log: every documented fact → how it was learned
 /gpu_knowledge/       ← READ-ONLY public reference knowledge base (do not modify)
-/mesa/                ← READ-ONLY reference: M1/M2 userspace driver (do not edit)
+/mesa/                ← READ-ONLY reference: M1/M2 userspace driver + pinned Asahi UAPI
+                         compatibility inventory (do not edit)
 /docs/                ← THE DELIVERABLE: clean-room hardware documentation
-   /ROADMAP.md        ← phases, open questions, status
-   /isa/              ← shader ISA (encodings, registers, new instruction families)
+   /ROADMAP.md        ← A18 phase status board (historical; final-push + red-team record)
+   /ROADMAP-M4.md, /ROADMAP-M5.md ← completed M4 / M5 phase boards
+   /P0-P1-CLOSURE.md  ← LIVE status board for the active Apple9 closure goal
+   /isa/              ← shader ISA (encodings, registers, instruction families)
    /cmdstream/        ← control/command stream & state packets (GenXML-style)
    /descriptors/      ← texture/sampler/buffer descriptor layouts
    /tiling/           ← texture/image memory layout (swizzle, compression)
    /pipeline/         ← TBDR specifics, compute dispatch, tile/imageblock model
-/experiments/         ← one dir per experiment: EXP-NNNN-slug/ (see experiments/README.md)
-/tools/               ← reusable RE tooling we build (interposer, probe harness,
-                         our-own-shader compiler+extractor, disassembler extensions)
+   /m4-deltas.md      ← M4-over-A18 delta layer
+/experiments/         ← one dir per experiment: EXP-NNNN-slug/ (sequential for Apple9
+                         closure work; EXP-M4-* / EXP-M5-* are completed waves; quarantined
+                         experiments keep their QUARANTINE.md and stay append-only)
+/tools/               ← reusable RE tooling: shdump (compile+extract), agxtest (splice
+                         testbed), iotrace (IOKit interposer), agx-isa (Apple9 DB),
+                         agx-isa-m5 (M5 fork)
 ```
 
 ---
 
 ## Documentation targets (what "userspace" means here)
 
-Mirrors the userspace responsibilities of Mesa `src/asahi`. Priority order:
+Mirrors the userspace responsibilities of Mesa `src/asahi`, keyed to the P0/P1 rows:
 
-1. **Shader ISA (AGX, M5 variant — a substantially new ISA)** — the largest target. Encoding
-   deltas vs G13/G14 **and vs the A18 (G17P)**, register file & Dynamic-Caching implications, and new instruction families (ray
-   tracing, mesh shading, any matrix/cooperative ops, changed texture/atomic ops). Method:
-   compile our own shaders → extract → disassemble → validate encodings by hardware round-trip.
-2. **Control / command stream** — how userspace encodes work: VDM (draw) / CDM (compute) /
-   tiler / fragment command lists, USC binding words, and state packets. Method: black-box
-   trace + change-one-parameter diffing.
-3. **Resource descriptors** — texture/sampler/buffer descriptor bit layouts and the (bindless/
-   argument-buffer) resource model. Method: trace + probe by varying format/dims.
-4. **Texture/image memory layout** — tiling/swizzle order and lossless compression per format.
-   Method: hardware probing (known pattern in, read layout out).
-5. **TBDR & compute specifics** — tile size, imageblock/threadgroup memory, sample positions,
-   partial-render behavior, memoryless targets, dispatch encoding — especially anything changed
-   by Dynamic Caching.
-6. **Userspace↔kernel interface notes** — what userspace must hand the kernel (submit shape,
-   BO/VM expectations), for coordination with the kernel team. Lower priority.
+1. **Shader ISA (AGX Apple9 — G16G/G17P)** — the largest target. Encodings, register file,
+   spill/scratch, helper programs, prolog/epilog linkage; new instruction families (ray
+   tracing, mesh shading, matrix/cooperative ops, texture/atomic variants). Method: compile
+   our own shaders → extract → disassemble → validate encodings by hardware round-trip, and
+   prove the *encoder* can synthesize arbitrary legal combinations (not just tokenize). [P0.6, P0.8, P1.3]
+2. **Control / command stream** — VDM (draw) / CDM (compute) / tiler / fragment command
+   lists, USC binding words, state packets; **relocatable, independently packable**. Method:
+   black-box trace + change-one-parameter diffing. [P0.5, P0.3, P1.7]
+3. **Resource descriptors** — texture/sampler/buffer/PBE descriptor bit layouts and the
+   bindless/argument-buffer model. Method: trace + probe by varying format/dims. [P1.1, P1.2]
+4. **Texture/image memory layout** — tiling/swizzle order, lossless compression per format,
+   typed-format conversion behavior. Method: hardware probing (known pattern in, read
+   layout out). [P1.2]
+5. **TBDR & compute specifics** — tile size, imageblock/threadgroup memory, sample
+   positions, partial-render behavior, memoryless targets, BG/EOT programs, dispatch
+   encoding. [P0.4, P1.1]
+6. **Userspace↔kernel interface notes** — what userspace must hand the kernel (submit
+   shape, BO/VM expectations, `usc_exec_base` mapping, helper/scratch handoff), for
+   coordination with the kernel team. [P0.1, P0.2, P1.5, P1.6]
 
 ---
 
@@ -291,10 +335,14 @@ provoking-vertex convention, depth clip vs clamp modes, geometry/tessellation/tr
 hooks, and instruction-level integer/bitfield/rounding/subgroup/quad ops beyond Metal's surface.
 
 **Safety:** capability probing *will* occasionally fault or hang the GPU — that is expected
-and is itself a data point. Follow the reboot protocol, and isolate probes (one hypothesis
-per run where feasible) so a single bad encoding doesn't invalidate a batch of results.
+and is itself a data point. Follow the reboot protocol, route fault-prone splices to the
+reboot-recoverable A18, and isolate probes (one hypothesis per run where feasible) so a
+single bad encoding doesn't invalidate a batch of results.
+
+---
 
 ## After a context compaction
 
 Follow the global recovery procedure in `~/.claude/CLAUDE.md` first (read the last ~20 turns
-of the on-disk transcript), then re-read this file and `docs/ROADMAP.md` before resuming.
+of the on-disk transcript), then re-read this file, `CODEX.md`, and `docs/P0-P1-CLOSURE.md`
+before resuming.
