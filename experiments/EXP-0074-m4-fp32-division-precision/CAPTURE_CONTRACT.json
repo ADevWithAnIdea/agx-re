@@ -1,0 +1,707 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "3aa05e9d2a5654c3aeec8dd90b8c04a2ba939e2053b915ddb19fd125e7393c77",
+    "README.md": "c3730a51f6b081f6b0c0618085f8f8ba071e4091a38073ba5b6f9adb07e70fc1",
+    "analysis.py": "be831e3aca9ed28fab15a14539875e429a746b4fafd0707c73571c2d1cfffec6",
+    "harness/probe.m": "4ca8034c39a8025f287ae88a15cc4681c77863a1a0777d9b476311bf9c263d7d",
+    "kernels/fdiv_precision.metal": "64592e2ec8219703bee7e97c567cf48bdbf113796561451256e74e9ac7c2cb7b",
+    "make_manifest.py": "0c6fbde28637d21eeed0795f17cde03a061f0050b2be40799fc149189acbc188",
+    "run.py": "9111d552d54c6caa01cde4edcbdbc904075ecb8c756175b92f0f1de2d2b2cabe",
+    "verify.py": "4baa0234d4c9f4d09c7e3f639524ae29ad74bcfe43ea475fb2b22e5443d2621f"
+  },
+  "boundary": {
+    "accesses": "owned shared buffers; one compute dispatch per run; runtime MSL compile",
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "NONE",
+    "native_encoding_or_isa_claim": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "case_line_keys": [
+      "i",
+      "a",
+      "b",
+      "r"
+    ],
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record; final verification additionally requires byte-identical results files",
+    "directed_count": 75,
+    "dispatch_record_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "results_lines",
+      "results_sha256",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "summary",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "extra_keys_policy": "Exact key-set equality for every record slot: a record carrying any key outside its frozen set fails, and a record missing any frozen key fails. verify.py defines one record checker and one key set per slot; there is no second definition.",
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically",
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "randomized_count": 4096,
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "05_run_manifest.json"
+    ],
+    "runs": [
+      "m4-20260827-run01",
+      "m4-20260827-run02"
+    ],
+    "selftest_gate": "verify.py --selftest must pass immediately before every capture; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "before the real dispatch, the freshly built harness must run four frozen directed cases (indices 0, 26, 42, 47) into a scratch path under work/ that is never promoted into raw/, and its summary must parse with every expected field present and every result line must be complete and well formed; a payload-shape or truncation defect is a pre-capture STOP, not a post-capture quarantine",
+    "summary_keys": [
+      "command_buffer_status",
+      "device",
+      "dispatch_seconds",
+      "error",
+      "fast_math",
+      "in_prefix_guard",
+      "in_suffix_guard",
+      "language_version_raw",
+      "library_compile_seconds",
+      "machine",
+      "math_mode_raw",
+      "n",
+      "os",
+      "out_prefix_guard",
+      "out_suffix_guard",
+      "registry_id",
+      "results_written",
+      "schema"
+    ],
+    "total_cases": 4171
+  },
+  "compile": {
+    "api": "newLibraryWithSource:options:",
+    "fast_math": false,
+    "language_version": "not pinned; default read back and recorded verbatim",
+    "math_mode": "MTLMathModeSafe"
+  },
+  "contract_version": 1,
+  "directed_cases": [
+    {
+      "a": "0x3F800000",
+      "b": "0x40400000",
+      "name": "nn_one_third"
+    },
+    {
+      "a": "0x40000000",
+      "b": "0x40400000",
+      "name": "nn_two_thirds"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x41200000",
+      "name": "nn_one_tenth"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x40E00000",
+      "name": "nn_one_seventh"
+    },
+    {
+      "a": "0x3F800001",
+      "b": "0x3F800000",
+      "name": "nn_one_plus_eps"
+    },
+    {
+      "a": "0x3F7FFFFF",
+      "b": "0x3F800000",
+      "name": "nn_one_minus_ulp_half"
+    },
+    {
+      "a": "0x3F800001",
+      "b": "0x3F800001",
+      "name": "nn_eps_over_same"
+    },
+    {
+      "a": "0x40490FDB",
+      "b": "0x40000000",
+      "name": "nn_pi_over_two"
+    },
+    {
+      "a": "0x40E00000",
+      "b": "0x41100000",
+      "name": "nn_seven_ninths"
+    },
+    {
+      "a": "0x4E6E6B28",
+      "b": "0x40400000",
+      "name": "nn_1e9_over_three"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x4E6E6B28",
+      "name": "nn_one_over_1e9"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x40400000",
+      "name": "nn_neg_one_third"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0xC0400000",
+      "name": "nn_negneg_one_third"
+    },
+    {
+      "a": "0x49742400",
+      "b": "0x40E00000",
+      "name": "nn_1e6_over_seven"
+    },
+    {
+      "a": "0x4B3B21AF",
+      "b": "0x3EA9FB62",
+      "name": "nn_awkward_mantissas"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x3F800000",
+      "name": "nn_identity"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x3F800000",
+      "name": "sd_minsub_div_one"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x3F800000",
+      "name": "sd_maxsub_div_one"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x3F800000",
+      "name": "sd_minnorm_div_one"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x00000001",
+      "name": "sd_one_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000001",
+      "name": "sd_minsub_div_minsub"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x00000001",
+      "name": "sd_maxsub_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000003",
+      "name": "sd_minsub_div_subthree"
+    },
+    {
+      "a": "0x00000002",
+      "b": "0x00000003",
+      "name": "sd_two_sub_div_subthree"
+    },
+    {
+      "a": "0x00000003",
+      "b": "0x00000002",
+      "name": "sd_threesub_div_subtwo"
+    },
+    {
+      "a": "0x80000001",
+      "b": "0x00000001",
+      "name": "sd_neg_minsub_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x40400000",
+      "name": "sd_minsub_div_three"
+    },
+    {
+      "a": "0x00000002",
+      "b": "0x40400000",
+      "name": "sd_twosub_div_three"
+    },
+    {
+      "a": "0x00000003",
+      "b": "0x40000000",
+      "name": "sd_threesub_div_two"
+    },
+    {
+      "a": "0x00000007",
+      "b": "0x40000000",
+      "name": "sd_sevensub_div_two"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x40000000",
+      "name": "su_minnorm_div_two"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x40000000",
+      "name": "su_maxsub_div_two"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x3F000000",
+      "name": "su_minsub_div_half"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x7F000000",
+      "name": "su_minnorm_div_2p126"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x7F7FFFFF",
+      "name": "su_minnorm_div_maxfloat"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x7F7FFFFF",
+      "name": "su_maxsub_div_maxfloat"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x3F800000",
+      "name": "ez_poszero_div_one"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x3F800000",
+      "name": "ez_negzero_div_one"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0xBF800000",
+      "name": "ez_negzero_div_negone"
+    },
+    {
+      "a": "0x40400000",
+      "b": "0xC0400000",
+      "name": "ez_x_div_negx"
+    },
+    {
+      "a": "0xC0400000",
+      "b": "0x40400000",
+      "name": "ez_negx_div_x"
+    },
+    {
+      "a": "0xC0400000",
+      "b": "0xC0400000",
+      "name": "ez_negx_div_negx"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x00000000",
+      "name": "dz_one_div_pzero"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x80000000",
+      "name": "dz_one_div_nzero"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x00000000",
+      "name": "dz_negone_div_pzero"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x80000000",
+      "name": "dz_negone_div_nzero"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000000",
+      "name": "dz_minsub_div_pzero"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x00000000",
+      "name": "nz_pzero_pzero"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x00000000",
+      "name": "nz_nzero_pzero"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x80000000",
+      "name": "nz_pzero_nzero"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x80000000",
+      "name": "nz_nzero_nzero"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0x7F800000",
+      "name": "nz_inf_inf"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0x7F800000",
+      "name": "nz_neginf_inf"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0xFF800000",
+      "name": "nz_neginf_neginf"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0x40400000",
+      "name": "ix_inf_div_three"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0x40400000",
+      "name": "ix_neginf_div_three"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0xC0400000",
+      "name": "ix_inf_div_negthree"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x7F800000",
+      "name": "xi_one_div_inf"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x7F800000",
+      "name": "xi_negone_div_inf"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x7F800000",
+      "name": "xi_pzero_div_inf"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0xFF800000",
+      "name": "xi_nzero_div_neginf"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x7F800000",
+      "name": "xi_maxfloat_div_inf"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x00800000",
+      "name": "ob_maxfloat_div_minnorm"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F000000",
+      "name": "ob_maxfloat_div_half"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x40800000",
+      "name": "ob_maxfloat_div_four"
+    },
+    {
+      "a": "0x7F000000",
+      "b": "0x3F000000",
+      "name": "ob_2p127_div_half"
+    },
+    {
+      "a": "0x7F000000",
+      "b": "0x40000000",
+      "name": "ob_2p127_div_two"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F800001",
+      "name": "ob_maxfloat_div_1plus"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F7FFFFF",
+      "name": "ob_maxfloat_div_1minus"
+    },
+    {
+      "a": "0xFF7FFFFF",
+      "b": "0x3F7FFFFF",
+      "name": "ob_negmaxfloat_div_1minus"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x007FFFFF",
+      "name": "ob_maxfloat_div_maxsub"
+    },
+    {
+      "a": "0x7FC12345",
+      "b": "0x3F800000",
+      "name": "np_qnan_dividend"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x7FC54321",
+      "name": "np_qnan_divisor"
+    },
+    {
+      "a": "0xFFC12345",
+      "b": "0x40400000",
+      "name": "np_negqnan_dividend"
+    },
+    {
+      "a": "0x7FC12345",
+      "b": "0x00000000",
+      "name": "np_qnan_div_zero"
+    }
+  ],
+  "experiment": "EXP-0074-m4-fp32-division-precision",
+  "gate": "A missing path, hash, schema field, guard flag, timeout record, or unexpected raw path stops interpretation and promotion.",
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "question": "OPT-02: does precise FP32 division produce the correctly rounded result for all tested normal, subnormal, zero, infinite, NaN, overflow, and underflow cases?",
+  "randomized": {
+    "draws_per_pair": 2,
+    "first_pair": [
+      "0x1C2A32A5",
+      "0x6CDE43C0"
+    ],
+    "increment": 1013904223,
+    "last_pair": [
+      "0xED43EABB",
+      "0x44AB60DE"
+    ],
+    "modulus": 4294967296,
+    "multiplier": 1664525,
+    "pairs": 4096,
+    "seed": 1511506142,
+    "usage": "state=seed; per pair draw a then b; each draw used directly as the binary32 bit pattern"
+  },
+  "reference": {
+    "binary64_double_rounding": "forbidden; not used by either method",
+    "denormals": "gradual underflow in the reference (no flush)",
+    "hand_validation": [
+      {
+        "a": "0x3F800000",
+        "b": "0x40400000",
+        "expected": "0x3EAAAAAB",
+        "name": "1/3"
+      },
+      {
+        "a": "0x40000000",
+        "b": "0x40400000",
+        "expected": "0x3F2AAAAB",
+        "name": "2/3"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x41200000",
+        "expected": "0x3DCCCCCD",
+        "name": "1/10"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x40E00000",
+        "expected": "0x3E124925",
+        "name": "1/7"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x3F800000",
+        "expected": "0x3F800000",
+        "name": "1/1"
+      },
+      {
+        "a": "0x3F800001",
+        "b": "0x3F800000",
+        "expected": "0x3F800001",
+        "name": "(1+eps)/1"
+      },
+      {
+        "a": "0x3F7FFFFF",
+        "b": "0x3F800000",
+        "expected": "0x3F7FFFFF",
+        "name": "(1-ulp/2)/1"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x00000001",
+        "expected": "0x3F800000",
+        "name": "minsub/minsub"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x00000003",
+        "expected": "0x3EAAAAAB",
+        "name": "minsub/sub3"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x00000003",
+        "expected": "0x3F2AAAAB",
+        "name": "sub2/sub3"
+      },
+      {
+        "a": "0x00000003",
+        "b": "0x00000002",
+        "expected": "0x3FC00000",
+        "name": "sub3/sub2"
+      },
+      {
+        "a": "0x007FFFFF",
+        "b": "0x00000001",
+        "expected": "0x4AFFFFFE",
+        "name": "maxsub/minsub"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x00000001",
+        "expected": "0x40000000",
+        "name": "sub2/minsub"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x40400000",
+        "expected": "0x00000000",
+        "name": "minsub/3.0"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x40400000",
+        "expected": "0x00000001",
+        "name": "sub2/3.0"
+      },
+      {
+        "a": "0x00000003",
+        "b": "0x40000000",
+        "expected": "0x00000002",
+        "name": "sub3/2.0"
+      },
+      {
+        "a": "0x00000007",
+        "b": "0x40000000",
+        "expected": "0x00000004",
+        "name": "sub7/2.0"
+      },
+      {
+        "a": "0x00800000",
+        "b": "0x40000000",
+        "expected": "0x00400000",
+        "name": "minnorm/2.0"
+      },
+      {
+        "a": "0x007FFFFF",
+        "b": "0x40000000",
+        "expected": "0x00400000",
+        "name": "maxsub/2.0"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x3F000000",
+        "expected": "0x00000002",
+        "name": "minsub/0.5"
+      },
+      {
+        "a": "0x7F7FFFFF",
+        "b": "0x3F7FFFFF",
+        "expected": "0x7F800000",
+        "name": "max/(1-2^-24)"
+      },
+      {
+        "a": "0x7F000000",
+        "b": "0x3F000000",
+        "expected": "0x7F800000",
+        "name": "2^127/0.5"
+      },
+      {
+        "a": "0x7F000000",
+        "b": "0x40000000",
+        "expected": "0x7E800000",
+        "name": "2^127/2.0"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x7F800000",
+        "expected": "0x00000000",
+        "name": "1/inf"
+      },
+      {
+        "a": "0xBF800000",
+        "b": "0x7F800000",
+        "expected": "0x80000000",
+        "name": "-1/inf"
+      },
+      {
+        "a": "0x40E00000",
+        "b": "0x41100000",
+        "expected": "0x3F471C72",
+        "name": "7/9"
+      },
+      {
+        "a": "0x40490FDB",
+        "b": "0x40000000",
+        "expected": "0x3FC90FDB",
+        "name": "pi/2"
+      }
+    ],
+    "method_a": "exact Fraction quotient + exact bracket rounding",
+    "method_b": "integer long division, 64 guard bits + sticky, single rounding",
+    "nan_policy": "NaN cases are compared by is-NaN only; hardware payload recorded verbatim",
+    "rounding": "IEEE-754 binary32 roundTiesToEven"
+  },
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/fdiv_precision.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "successor_of": "EXP-0073-m4-fp32-division-precision (quarantined; design adopted, verifier schema repaired)",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "dispatch_readback": 300,
+    "env_command": 10,
+    "host_build": 60,
+    "library_compile": 120,
+    "probe_process": 300
+  }
+}
