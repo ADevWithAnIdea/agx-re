@@ -1,0 +1,696 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "4db0a992779bdd3db089d6e01a4dafc3f04595dfc0d3a634b8a14bf9a09c7434",
+    "README.md": "a5beb613dfa8e50a19aa13eb3bce7f026bde88265123cae8bdc0c8bab0d61227",
+    "analysis.py": "b331edc730f29b174969d3c89a05c66d65a1dfc044371b65a17deacb3dc51102",
+    "harness/probe.m": "80fe4351799fd67ecdd90e4896a676e49f35e275f07fcd1451001f270fb9fe31",
+    "kernels/fdiv_precision.metal": "3a6e0033ed6f0bb4804270fecd771033ab481b00bf20db8144246cbf5f0088b8",
+    "make_manifest.py": "343d4f9de53d2e5196f56504ea03bbb4d729d43a6fdfcb8e7dece0a0798ea232",
+    "run.py": "f1a0239564cd07e9ff23decc262e1d54efa057deb65aea24d2a221e4c9c1f60a",
+    "verify.py": "84939bfe4a9e019d3707d41f0d26bc43d1cfd5c2d640c2ad1ca9c4a58256844d"
+  },
+  "boundary": {
+    "accesses": "owned shared buffers; one compute dispatch per run; runtime MSL compile",
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "NONE",
+    "native_encoding_or_isa_claim": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "case_line_keys": [
+      "i",
+      "a",
+      "b",
+      "r"
+    ],
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record; final verification additionally requires byte-identical results files",
+    "directed_count": 75,
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically",
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "randomized_count": 4096,
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "05_run_manifest.json"
+    ],
+    "run_manifest_keys": [
+      "schema",
+      "run_id",
+      "directed_count",
+      "randomized_count",
+      "total_cases",
+      "runner_sha256",
+      "harness_sha256",
+      "kernel_sha256",
+      "cases_sha256",
+      "results_sha256"
+    ],
+    "runs": [
+      "m4-20260827-run01",
+      "m4-20260827-run02"
+    ],
+    "summary_keys": [
+      "command_buffer_status",
+      "device",
+      "dispatch_seconds",
+      "error",
+      "fast_math",
+      "in_prefix_guard",
+      "in_suffix_guard",
+      "language_version_raw",
+      "library_compile_seconds",
+      "machine",
+      "math_mode_raw",
+      "n",
+      "os",
+      "out_prefix_guard",
+      "out_suffix_guard",
+      "registry_id",
+      "results_written",
+      "schema"
+    ],
+    "total_cases": 4171
+  },
+  "compile": {
+    "api": "newLibraryWithSource:options:",
+    "fast_math": false,
+    "language_version": "not pinned; default read back and recorded verbatim",
+    "math_mode": "MTLMathModeSafe"
+  },
+  "contract_version": 1,
+  "directed_cases": [
+    {
+      "a": "0x3F800000",
+      "b": "0x40400000",
+      "name": "nn_one_third"
+    },
+    {
+      "a": "0x40000000",
+      "b": "0x40400000",
+      "name": "nn_two_thirds"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x41200000",
+      "name": "nn_one_tenth"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x40E00000",
+      "name": "nn_one_seventh"
+    },
+    {
+      "a": "0x3F800001",
+      "b": "0x3F800000",
+      "name": "nn_one_plus_eps"
+    },
+    {
+      "a": "0x3F7FFFFF",
+      "b": "0x3F800000",
+      "name": "nn_one_minus_ulp_half"
+    },
+    {
+      "a": "0x3F800001",
+      "b": "0x3F800001",
+      "name": "nn_eps_over_same"
+    },
+    {
+      "a": "0x40490FDB",
+      "b": "0x40000000",
+      "name": "nn_pi_over_two"
+    },
+    {
+      "a": "0x40E00000",
+      "b": "0x41100000",
+      "name": "nn_seven_ninths"
+    },
+    {
+      "a": "0x4E6E6B28",
+      "b": "0x40400000",
+      "name": "nn_1e9_over_three"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x4E6E6B28",
+      "name": "nn_one_over_1e9"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x40400000",
+      "name": "nn_neg_one_third"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0xC0400000",
+      "name": "nn_negneg_one_third"
+    },
+    {
+      "a": "0x49742400",
+      "b": "0x40E00000",
+      "name": "nn_1e6_over_seven"
+    },
+    {
+      "a": "0x4B3B21AF",
+      "b": "0x3EA9FB62",
+      "name": "nn_awkward_mantissas"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x3F800000",
+      "name": "nn_identity"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x3F800000",
+      "name": "sd_minsub_div_one"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x3F800000",
+      "name": "sd_maxsub_div_one"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x3F800000",
+      "name": "sd_minnorm_div_one"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x00000001",
+      "name": "sd_one_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000001",
+      "name": "sd_minsub_div_minsub"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x00000001",
+      "name": "sd_maxsub_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000003",
+      "name": "sd_minsub_div_subthree"
+    },
+    {
+      "a": "0x00000002",
+      "b": "0x00000003",
+      "name": "sd_two_sub_div_subthree"
+    },
+    {
+      "a": "0x00000003",
+      "b": "0x00000002",
+      "name": "sd_threesub_div_subtwo"
+    },
+    {
+      "a": "0x80000001",
+      "b": "0x00000001",
+      "name": "sd_neg_minsub_div_minsub"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x40400000",
+      "name": "sd_minsub_div_three"
+    },
+    {
+      "a": "0x00000002",
+      "b": "0x40400000",
+      "name": "sd_twosub_div_three"
+    },
+    {
+      "a": "0x00000003",
+      "b": "0x40000000",
+      "name": "sd_threesub_div_two"
+    },
+    {
+      "a": "0x00000007",
+      "b": "0x40000000",
+      "name": "sd_sevensub_div_two"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x40000000",
+      "name": "su_minnorm_div_two"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x40000000",
+      "name": "su_maxsub_div_two"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x3F000000",
+      "name": "su_minsub_div_half"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x7F000000",
+      "name": "su_minnorm_div_2p126"
+    },
+    {
+      "a": "0x00800000",
+      "b": "0x7F7FFFFF",
+      "name": "su_minnorm_div_maxfloat"
+    },
+    {
+      "a": "0x007FFFFF",
+      "b": "0x7F7FFFFF",
+      "name": "su_maxsub_div_maxfloat"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x3F800000",
+      "name": "ez_poszero_div_one"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x3F800000",
+      "name": "ez_negzero_div_one"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0xBF800000",
+      "name": "ez_negzero_div_negone"
+    },
+    {
+      "a": "0x40400000",
+      "b": "0xC0400000",
+      "name": "ez_x_div_negx"
+    },
+    {
+      "a": "0xC0400000",
+      "b": "0x40400000",
+      "name": "ez_negx_div_x"
+    },
+    {
+      "a": "0xC0400000",
+      "b": "0xC0400000",
+      "name": "ez_negx_div_negx"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x00000000",
+      "name": "dz_one_div_pzero"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x80000000",
+      "name": "dz_one_div_nzero"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x00000000",
+      "name": "dz_negone_div_pzero"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x80000000",
+      "name": "dz_negone_div_nzero"
+    },
+    {
+      "a": "0x00000001",
+      "b": "0x00000000",
+      "name": "dz_minsub_div_pzero"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x00000000",
+      "name": "nz_pzero_pzero"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x00000000",
+      "name": "nz_nzero_pzero"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x80000000",
+      "name": "nz_pzero_nzero"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0x80000000",
+      "name": "nz_nzero_nzero"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0x7F800000",
+      "name": "nz_inf_inf"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0x7F800000",
+      "name": "nz_neginf_inf"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0xFF800000",
+      "name": "nz_neginf_neginf"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0x40400000",
+      "name": "ix_inf_div_three"
+    },
+    {
+      "a": "0xFF800000",
+      "b": "0x40400000",
+      "name": "ix_neginf_div_three"
+    },
+    {
+      "a": "0x7F800000",
+      "b": "0xC0400000",
+      "name": "ix_inf_div_negthree"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x7F800000",
+      "name": "xi_one_div_inf"
+    },
+    {
+      "a": "0xBF800000",
+      "b": "0x7F800000",
+      "name": "xi_negone_div_inf"
+    },
+    {
+      "a": "0x00000000",
+      "b": "0x7F800000",
+      "name": "xi_pzero_div_inf"
+    },
+    {
+      "a": "0x80000000",
+      "b": "0xFF800000",
+      "name": "xi_nzero_div_neginf"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x7F800000",
+      "name": "xi_maxfloat_div_inf"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x00800000",
+      "name": "ob_maxfloat_div_minnorm"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F000000",
+      "name": "ob_maxfloat_div_half"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x40800000",
+      "name": "ob_maxfloat_div_four"
+    },
+    {
+      "a": "0x7F000000",
+      "b": "0x3F000000",
+      "name": "ob_2p127_div_half"
+    },
+    {
+      "a": "0x7F000000",
+      "b": "0x40000000",
+      "name": "ob_2p127_div_two"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F800001",
+      "name": "ob_maxfloat_div_1plus"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x3F7FFFFF",
+      "name": "ob_maxfloat_div_1minus"
+    },
+    {
+      "a": "0xFF7FFFFF",
+      "b": "0x3F7FFFFF",
+      "name": "ob_negmaxfloat_div_1minus"
+    },
+    {
+      "a": "0x7F7FFFFF",
+      "b": "0x007FFFFF",
+      "name": "ob_maxfloat_div_maxsub"
+    },
+    {
+      "a": "0x7FC12345",
+      "b": "0x3F800000",
+      "name": "np_qnan_dividend"
+    },
+    {
+      "a": "0x3F800000",
+      "b": "0x7FC54321",
+      "name": "np_qnan_divisor"
+    },
+    {
+      "a": "0xFFC12345",
+      "b": "0x40400000",
+      "name": "np_negqnan_dividend"
+    },
+    {
+      "a": "0x7FC12345",
+      "b": "0x00000000",
+      "name": "np_qnan_div_zero"
+    }
+  ],
+  "experiment": "EXP-0073-m4-fp32-division-precision",
+  "gate": "A missing path, hash, schema field, guard flag, timeout record, or unexpected raw path stops interpretation and promotion.",
+  "question": "OPT-02: does precise FP32 division produce the correctly rounded result for all tested normal, subnormal, zero, infinite, NaN, overflow, and underflow cases?",
+  "randomized": {
+    "draws_per_pair": 2,
+    "first_pair": [
+      "0x1C2A32A5",
+      "0x6CDE43C0"
+    ],
+    "increment": 1013904223,
+    "last_pair": [
+      "0xED43EABB",
+      "0x44AB60DE"
+    ],
+    "modulus": 4294967296,
+    "multiplier": 1664525,
+    "pairs": 4096,
+    "seed": 1511506142,
+    "usage": "state=seed; per pair draw a then b; each draw used directly as the binary32 bit pattern"
+  },
+  "reference": {
+    "binary64_double_rounding": "forbidden; not used by either method",
+    "denormals": "gradual underflow in the reference (no flush)",
+    "hand_validation": [
+      {
+        "a": "0x3F800000",
+        "b": "0x40400000",
+        "expected": "0x3EAAAAAB",
+        "name": "1/3"
+      },
+      {
+        "a": "0x40000000",
+        "b": "0x40400000",
+        "expected": "0x3F2AAAAB",
+        "name": "2/3"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x41200000",
+        "expected": "0x3DCCCCCD",
+        "name": "1/10"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x40E00000",
+        "expected": "0x3E124925",
+        "name": "1/7"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x3F800000",
+        "expected": "0x3F800000",
+        "name": "1/1"
+      },
+      {
+        "a": "0x3F800001",
+        "b": "0x3F800000",
+        "expected": "0x3F800001",
+        "name": "(1+eps)/1"
+      },
+      {
+        "a": "0x3F7FFFFF",
+        "b": "0x3F800000",
+        "expected": "0x3F7FFFFF",
+        "name": "(1-ulp/2)/1"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x00000001",
+        "expected": "0x3F800000",
+        "name": "minsub/minsub"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x00000003",
+        "expected": "0x3EAAAAAB",
+        "name": "minsub/sub3"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x00000003",
+        "expected": "0x3F2AAAAB",
+        "name": "sub2/sub3"
+      },
+      {
+        "a": "0x00000003",
+        "b": "0x00000002",
+        "expected": "0x3FC00000",
+        "name": "sub3/sub2"
+      },
+      {
+        "a": "0x007FFFFF",
+        "b": "0x00000001",
+        "expected": "0x4AFFFFFE",
+        "name": "maxsub/minsub"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x00000001",
+        "expected": "0x40000000",
+        "name": "sub2/minsub"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x40400000",
+        "expected": "0x00000000",
+        "name": "minsub/3.0"
+      },
+      {
+        "a": "0x00000002",
+        "b": "0x40400000",
+        "expected": "0x00000001",
+        "name": "sub2/3.0"
+      },
+      {
+        "a": "0x00000003",
+        "b": "0x40000000",
+        "expected": "0x00000002",
+        "name": "sub3/2.0"
+      },
+      {
+        "a": "0x00000007",
+        "b": "0x40000000",
+        "expected": "0x00000004",
+        "name": "sub7/2.0"
+      },
+      {
+        "a": "0x00800000",
+        "b": "0x40000000",
+        "expected": "0x00400000",
+        "name": "minnorm/2.0"
+      },
+      {
+        "a": "0x007FFFFF",
+        "b": "0x40000000",
+        "expected": "0x00400000",
+        "name": "maxsub/2.0"
+      },
+      {
+        "a": "0x00000001",
+        "b": "0x3F000000",
+        "expected": "0x00000002",
+        "name": "minsub/0.5"
+      },
+      {
+        "a": "0x7F7FFFFF",
+        "b": "0x3F7FFFFF",
+        "expected": "0x7F800000",
+        "name": "max/(1-2^-24)"
+      },
+      {
+        "a": "0x7F000000",
+        "b": "0x3F000000",
+        "expected": "0x7F800000",
+        "name": "2^127/0.5"
+      },
+      {
+        "a": "0x7F000000",
+        "b": "0x40000000",
+        "expected": "0x7E800000",
+        "name": "2^127/2.0"
+      },
+      {
+        "a": "0x3F800000",
+        "b": "0x7F800000",
+        "expected": "0x00000000",
+        "name": "1/inf"
+      },
+      {
+        "a": "0xBF800000",
+        "b": "0x7F800000",
+        "expected": "0x80000000",
+        "name": "-1/inf"
+      },
+      {
+        "a": "0x40E00000",
+        "b": "0x41100000",
+        "expected": "0x3F471C72",
+        "name": "7/9"
+      },
+      {
+        "a": "0x40490FDB",
+        "b": "0x40000000",
+        "expected": "0x3FC90FDB",
+        "name": "pi/2"
+      }
+    ],
+    "method_a": "exact Fraction quotient + exact bracket rounding",
+    "method_b": "integer long division, 64 guard bits + sticky, single rounding",
+    "nan_policy": "NaN cases are compared by is-NaN only; hardware payload recorded verbatim",
+    "rounding": "IEEE-754 binary32 roundTiesToEven"
+  },
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/fdiv_precision.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "dispatch_readback": 300,
+    "env_command": 10,
+    "host_build": 60,
+    "library_compile": 120,
+    "probe_process": 300
+  }
+}
