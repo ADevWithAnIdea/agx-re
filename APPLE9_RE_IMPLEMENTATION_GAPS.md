@@ -704,6 +704,20 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
 - **MEM-10 — Are out-of-allocation device-buffer stores discarded without corrupting another
   allocation or faulting the context?**
 
+  > **Answered 2026-08-27 (EXP-0076, M4/G16G): MEM-06 No · MEM-07 Yes · MEM-08 Yes · MEM-09 No
+  > (mix model refuted) · MEM-10 Yes.** Two byte-identical runs, 212/212 executions clean. Unified
+  > model with zero residuals: every access executes as independent units (8/16-bit = one unit;
+  > 64-bit = two 32-bit units; 128-bit = four) and each unit's effective address is rounded DOWN
+  > to its natural alignment (4 bytes for 32-bit units); in-allocation units access exact bytes,
+  > units at/past the end read 0x00 / stores discard. Unaligned loads therefore do NOT return the
+  > requested bytes (no fault); straddling reads return the aligned-down window's bytes with only
+  > fully-OOB components zero; OOB atomic exchange reads 0. MEM-11: mechanism not identifiable
+  > through public Metal (bounded behavior only). MEM-12 constraint: clamp byte addresses per
+  > component BEFORE unit decomposition. Compiler consequence: unaligned NIR global accesses must
+  > be decomposed; load_global_bounded may rely on zero-fill/discard for fully-OOB units.
+  > Evidence: `experiments/EXP-0076-m4-buffer-robustness-matrix/` (HW-PROBE + OWN-SHADER; M4
+  > target; no native/ISA/Linux/A18 claim).
+
 - **MEM-11 — Is there no descriptor-level buffer bound available to a shader memory instruction?**
 
 - **MEM-12 — Can `load_global_bounded` be implemented entirely in compiler-generated ALU/select code
