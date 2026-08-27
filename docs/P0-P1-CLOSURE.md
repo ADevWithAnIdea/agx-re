@@ -9,6 +9,13 @@ Apple9-equal to the A18 Pro for every driver-emittable subsystem (`EXP-M4-*`
 byte-identity).** A18-specific replication is suspended, not a closure gate; every result
 still records its actual M4 target and must not be relabeled as directly observed on A18.
 
+**Priority directive (user, 2026-08-27): the load/store/SSBO gaps are the compiler critical
+path and jump the queue.** Concretely: Part-II `MEM-01…MEM-22` + `ATOM-*` (element scaling,
+immediate-offset units/range/signedness, stride addressing, unaligned + out-of-allocation
+behavior, base-slot capacity/aliasing, dynamic 64-bit / descriptor-array addressing,
+atomics) and the memory subset of DRV-ISA-01. Everything else yields device slots to this
+cluster until the compiler can lower NIR buffer access end-to-end.
+
 Row-ID mapping (this board's legacy row IDs ↔ the task list's current IDs — same sixteen
 items, restated; the task list adds the P2/DOC rows and the Part-II compiler questionnaire,
 which this board does not track):
