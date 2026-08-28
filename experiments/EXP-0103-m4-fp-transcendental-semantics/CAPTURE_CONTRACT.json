@@ -1,0 +1,72 @@
+{
+  "contract_version": 1,
+  "experiment": "EXP-0103-m4-fp-transcendental-semantics",
+  "question": "APPLE9_RE_IMPLEMENTATION_GAPS.md Part II clusters FP-01..FP-14, TRIG-01..TRIG-10, SFU-01..SFU-07 (31 items); HIGH VALUE: do rcp/rsqrt/sqrt/exp2/log2 share EXP-0074's DAZ+FTZ division behavior?",
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "frozen_git_revision": "2858c20f6703e307afa84436f8d38d1fdd2a35cc",
+  "frozen_git_dirty_note": "repo HEAD may move after freeze because sibling experiments land continuously (per SUBAGENT_BRIEF.md); a capture is valid if authored blob hashes below match, not if HEAD is unchanged",
+  "authored_sha256": {
+    "kernels/probe.metal": "8b97935a33f1154cafec3da87df971df70097b64045a3085f5074eb3c8d200fc",
+    "harness/probe.m": "a41782987d232867517f839d655acff75844649c6fbad85e2707088ac66a9df9",
+    "analysis/corpus.py": "14b2a19c77572148c8822c2291e78a23d899cd0a164c177b5a489ebf121d8384",
+    "analysis/exact_ref.py": "a03eb95c1557bccb5ff1b96d022d6694556af00019aaeac3eade8f6c232fa5c3",
+    "analysis/gen_all.py": "e1ed4c5aa858fac8045726bb2dfb6d06dd4792b2afe5348987d0c8bf5de096aa",
+    "run.py": "1a2881e5dc7bde4267806df622d423836c1820b05ef0b41572784fd858c64567",
+    "verify.py": "4b8a5cc0c44f98767ba4e21cd40d322712f7a6f9bfb78bd124c4b52d037fa22c"
+  },
+  "post_freeze_verifier_fix_note": "run.py/verify.py hashes above were updated ONCE after the two hardware captures (run01/run02, both already complete and untouched) to fix a bug in verify.py's captured() gate: it hard-failed on git revision inequality between the two runs and the frozen value, which SUBAGENT_BRIEF.md explicitly identifies as a false-positive failure mode (sibling experiments commit continuously; HEAD moving is not contamination -- this exact bug caused EXP-0082 to abort incorrectly). Fixed to log revision drift as informational and gate on authored-file hashes instead (which is the actual validity question). run.py additionally gained an explicit --preflight call before capture (defense in depth; preflight had already been run manually before both captures). No corpus, kernel, harness, or captured data changed; both raw/ run directories are unmodified.",
+  "corpus_manifest_sha256": "ab53f284a469f5e0695733e04fde13cb550ceab99cadcf93ce826c87708627e4",
+  "references_sha256": "accc47f93875c94cc3c44cac11d2203c5eacce0e9f20cc3b2a920644eb7d5f66",
+  "post_freeze_exact_ref_fix_note": "analysis/exact_ref.py's floor/ceil were fixed post-freeze (bug: computed as 'round the magnitude then reapply sign', which is trunc's rule, not floor's/ceil's -- e.g. it wrongly claimed floor(-0.5)=-0 instead of the correct -1). Found by investigating an unexpectedly high round_family_f32 mismatch count; the HARDWARE value was mathematically correct and led directly to the bug. Fixed, self-test re-verified (analysis/exact_ref.py --selftest), corpus_manifest.json/references.json regenerated deterministically (hashes above updated accordingly). No corpus values, kernel, harness, or captured raw/ hardware data changed -- only the host-oracle reference computation for floor/ceil.",
+  "compile": {
+    "api": "newLibraryWithSource:options:",
+    "default_fast_math": false,
+    "default_math_mode": "MTLMathModeSafe",
+    "note": "every case compiles with fastMathEnabled=NO / mathMode=Safe EXCEPT the single FP-07 case rcp_precise_f32_fastmath_on (fastMathEnabled=YES / mathMode=Fast). fast:: vs precise:: namespace selection inside the MSL source (not the global compile flag) is what selects the approximate-vs-IEEE lowering being measured for every other case."
+  },
+  "capture": {
+    "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+    "case_count": 47,
+    "total_records": 449346,
+    "selftest_gate": "verify.py --selftest must pass immediately before every capture attempt",
+    "seqtest_gate": "verify.py --seqtest must pass immediately before every capture attempt (PRE_GPU -> RUN01_PRESENT -> RUN02_PRESENT state machine, including a simulated crash-mid-run02 case)",
+    "smoke_gate": "before any case is dispatched for real, run.py builds the harness fresh and runs it on 3 scratch (non-frozen) inputs into work/ (never raw/); the summary must parse with the exact expected key set and 3 well-formed result lines, or the run aborts before raw/ is touched",
+    "result_record_keys": ["i", "r0", "r1", "r2", "r3"],
+    "result_record_note": "zero nondeterministic fields (no timestamp, no duration) -- this is the byte-compared file between run01 and run02",
+    "receipt_keys": ["case", "kernel", "fastmath", "argv", "cwd", "started_utc", "duration_seconds", "exit_code", "timed_out", "stdout_summary", "stderr_tail", "results_sha256", "results_lines"],
+    "receipt_note": "carries nondeterministic fields (timestamps, durations) -- never byte-compared, only shape-checked",
+    "run_manifest_keys": ["run_id", "git_revision", "git_dirty", "experiment_tree_dirty_entries", "sw_vers", "xcrun_version", "python_version", "machine", "started_utc", "finished_utc", "cases", "device_name", "registry_id", "schema"],
+    "case_isolation": "each case is dispatched as its OWN subprocess invocation of work/probe (one variable == one op/precision/dtype combination == one process); a fault or timeout in one case is recorded and does not abort the remaining cases",
+    "never_reuse_run_id": "run.py refuses to write into a raw/<run-id>/ directory that already exists and is non-empty",
+    "no_post_capture_repair": "raw/<run>/ is append-only once written; a defective capture is retained and superseded by a NEW run id, never edited in place"
+  },
+  "timeouts_seconds": {
+    "host_build": 60,
+    "smoke_gate_case": 60,
+    "per_case_dispatch": 300,
+    "harness_internal_library_compile_watchdog": 120,
+    "harness_internal_dispatch_watchdog": 300
+  },
+  "preflight_sequence": [
+    "python3 verify.py --selftest",
+    "python3 verify.py --seqtest",
+    "python3 verify.py --preflight"
+  ],
+  "promotion_gate": [
+    "python3 verify.py --between-runs (after run01, before run02)",
+    "python3 verify.py --captured (after both runs; byte-exact repeat + revision binding)"
+  ],
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/probe.metal",
+    "harness/probe.m",
+    "analysis/corpus.py",
+    "analysis/exact_ref.py",
+    "analysis/gen_all.py",
+    "run.py",
+    "verify.py"
+  ],
+  "gate": "A missing path, hash mismatch, schema field, guard flag, timeout record, or unexpected raw path stops interpretation and promotion; an underspecified frozen contract at this point is an automatic STOP, not an improvisation."
+}
