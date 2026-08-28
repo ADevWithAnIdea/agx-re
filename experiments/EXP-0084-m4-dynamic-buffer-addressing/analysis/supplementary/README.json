@@ -1,0 +1,29 @@
+{
+  "agc_main_abs_off_no_fast_math": 7552,
+  "archive_no_fast_math_main_hex": "1ca0100667105404030120005101004046006700440004012000110000404600e700560401012000110000901100e7105400020121001100009011000e000000",
+  "baseline_out_hex_word0": "5a0000aa",
+  "baseline_outb_hex_word0": "5a0000bb",
+  "commands": [
+    "xcrun clang -fobjc-arc -o bin/shdump tools/shdump/shdump.m -framework Metal -framework Foundation",
+    "xcrun clang -fobjc-arc -o bin/splice_run experiments/EXP-0084-.../harness/splice_run.m -framework Metal -framework Foundation",
+    "bin/shdump --no-fast-math -o archive2.bin -f splice_target kernels/probes.metal",
+    "python3 tools/shdump/agxparse.py archive2.bin --stage compute --symbol _agc.main --extract-hex",
+    "python3 tools/shdump/agxparse.py archive2.bin --stage compute --locate _agc.main   # -> 7552 64",
+    "bin/splice_run --archive archive2.bin --source kernels/probes.metal --function splice_target   # baseline",
+    "# splice byte at abs offset 7552+4+4=7560 from 0x03 to 0x04",
+    "bin/splice_run --archive archive2_spliced.bin --source kernels/probes.metal --function splice_target   # spliced"
+  ],
+  "known_bug_found": "analysis/decode_lib.py identify() hypothesized index_reg as the divergent field (H7); actual mechanism is base_slot. Separately, splice_case.py builds the archive via decode_lib.build_archive() without --no-fast-math (matching shdump default fastMath=YES) while harness/splice_run.m compiles the identity library with fastMathEnabled=NO -- an AIR-hash mismatch that would cause PIPELINE_MISS even had H7 been confirmed. Both are successor-experiment fixes, not corrected in EXP-0084 (frozen, already captured).",
+  "l1_base_slot_field_abs_offset": 7560,
+  "l1_base_slot_original_value": 3,
+  "l1_index_reg_value": 1,
+  "l1_offset_within_main": 4,
+  "l2_base_slot_value": 4,
+  "l2_index_reg_value": 1,
+  "l2_offset_within_main": 18,
+  "note": "SUPPLEMENTARY / EXPLORATORY -- NOT part of the frozen two-run gated EXP-0084 capture. Performed manually after run01/run02 closed, to investigate the H7 refutation (index_reg was shared, base_slot differed). Single manual observation, not doubly-captured, no verify.py gate applied. See RESULTS.md \"Supplementary exploratory finding\" for full context and the successor-experiment recommendation.",
+  "result": "CONFIRMED: splicing l1 base_slot 3->4 flips out from TAG_A to TAG_B; outb unchanged. base_slot (not index_reg) causally selects which dynamically-loaded pointer a device_load dereferences.",
+  "spliced_l1_base_slot_field_to": 4,
+  "spliced_out_hex_word0": "5a0000bb",
+  "spliced_outb_hex_word0": "5a0000bb"
+}
