@@ -749,6 +749,27 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
   Test load, store, and atomic operations separately. This is fault-containment information, not a
   license for the compiler to emit an invalid slot.
 
+  > **Answered 2026-08-27 (EXP-0083, M4/G16G, commit `8d47a271`): MEM-15 partial · MEM-16 Yes for
+  > 1..30, with a 7-bit selector · MEM-17 zero/mirror, never a fault.** Two byte-identical runs,
+  > 351 cases each, zero faults in 702 executions.
+  > **MEM-16:** the selector is effectively **7-bit** — slots 128..255 mirror 0..127 on every op
+  > path (load/store/atomic), no third behavior across the full 0..255 sweep (buffer 1 is held by
+  > slots [1,129], buffer 10 by [10,138], ...). No aliasing or holes among populated slots 1..30;
+  > boundaries 7/8 and 15/16 clean. Slot 0 is a reservation candidate whose content is
+  > pipeline-configuration dependent (constant-program hoisting -> P(5,0); no hoist -> plain
+  > binding 0).
+  > **MEM-15:** 31 simultaneously usable, independently-correct slots via direct binding. This is a
+  > **direct-binding-population edge** (MSL `[[buffer(N)]]` caps at N=30), NOT a demonstrated
+  > architectural ceiling — the finite-resource capacity question stays OPEN pending the
+  > uniform/constant-program population path (MEM-18/19).
+  > **MEM-17:** LOAD -> zero (non-mirror) or the mirrored value; STORE -> silent discard
+  > (non-mirror) or redirect to binding 0 (mirror region); ATOMIC exchange -> returns 0 and
+  > discards, or redirects and discards. `byte+4` is live but is not the selector; the selector is
+  > `byte+5`. Compiler consequence: an out-of-range slot is fault-contained but silently wrong —
+  > never emit one, and never rely on 128..255 as distinct storage.
+  > Evidence: `experiments/EXP-0083-m4-base-slot-census/` (HW-PROBE + OWN-SHADER; M4 target; A18
+  > validation deferred until the device is available).
+
 - **MEM-18 — Does the instruction's `base_slot` directly index the userspace resource table, or an
   intermediate base-register/preload file populated by the USC binding program?**
 
