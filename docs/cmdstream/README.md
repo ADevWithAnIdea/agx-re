@@ -279,11 +279,36 @@ It addresses the payload of a following `0x80` record. Equal-main/equal-record-s
 variants select different offsets and produce different colors, disproving the old “FS
 size” reading. The consumer and complete token grammar are still unknown.
 
+> **EXP-0131 correction (2026-08-28, HW-PROBE, M4):** the “following `0x80` record” is
+> **not opaque** — it is simply the *next code record's own `0x40`-byte header*. Corrupting
+> it has no effect on the current draw. EXP-0131 independently reproduced EXP-0042's exact
+> “VS: header `0x400`, size `0x100`” numbers from a different shader while establishing this.
+> The **selector's own consumer and token grammar remain unknown** and are EXP-0127's
+> assigned angle.
+
 - In the **code BO `0x10000000000`**, every exact authored stage match is contained by a
   0x40-byte zero-reserved header whose word 0 is the aligned total record size, followed
   by that stage's authored constant program, authored main and padding. This is a live
   record layout, not proof that firmware performs a positional walk. Unknown regions were
   retained but not decoded.
+
+  > **EXP-0131 (2026-08-28, HW-VALIDATED, M4) — which parts of this record the hardware
+  > actually reads.** A one-byte edit to the `main` bytes **in the live post-creation code
+  > BO** (the `frag_color_pack` `val` field, located with `tools/agx-isa`) changes the
+  > rendered pixel `4080ffff`→`4040ffff` on a fresh draw reusing the existing pipeline
+  > object; the adjacent byte in the wrong field changes nothing, and neither does the
+  > unmutated baseline. So **`main` is firmware/hardware-consumed**, proven by mutation
+  > rather than inferred from layout.
+  >
+  > The **own-record `record_size` header word is NOT re-consulted at per-draw code-fetch
+  > time** — `0x0` and `0xFFFFFFFF` both render unchanged. It *is* consumed by macOS Metal
+  > userspace at teardown (`0x0` → contained SIGBUS in the harness process, both runs, never
+  > a GPU fault). Two consumers, only one of them the hardware; an emitter must satisfy the
+  > userspace one even though the draw does not depend on it.
+  >
+  > Early truncation of `main` renders the clear colour through with no fault, consistent
+  > with EXP-0003: **extent is bounded by the final store, not by a trailing stop word.**
+  > No GPU hang in any of 14 invocations.
 - The **USC program `0x10000130000`** holds three `0x240`-byte per-stage **uniform-preamble programs**
   (block0 ≡ block1 = vertex, block2 = fragment), each led by config `0x008800XX` (XX = stage×0x0c);
   `+0x10/+0x18/+0x250/+0x490` = uniform-data pointers, `+0x14…` = per-shader slot ids.
@@ -467,5 +492,14 @@ the mesh path.** Decisive evidence: with CPU-written factors (no user compute en
   (EXP-G1b), programmable blend (compiled into FS). Remaining firmware-managed (kernel items, not userspace ⏳):
   the **tiler parameter buffer** (`0x10000088000/140000`) overflow→partial-render trigger + ZLS depth-store.
 - Texture/sampler descriptor bit layouts → `../descriptors/`.
+- **Shader container (P0.7):** the hardware-consumer question is **RESOLVED** by EXP-0131
+  (live-BO `main` mutation changes the pixel; header not read at code-fetch). Still open:
+  synthesizing a container from scratch rather than editing a field in a real one, the live
+  FS/VS **selector mechanism** (EXP-0127), `constant_program` mutation, resource-bearing
+  (texture/sampler/buffer) container variants, and A18 replication.
+- **BG/EOT (P0.4):** the *program* side is **constructible** — EXP-0130 authored and ran a
+  real tilebuffer-read/attachment-write fragment program on M4. The *UAPI* side
+  (`drm_asahi_bg_eot.usc` / `.rsrc_spec`) **cannot be exercised on macOS** (no `/dev/dri`),
+  so those field values stay PUBLIC-only inference from the pinned MIT header.
 
 Source: `experiments/EXP-0009-iotrace-bringup/`. Tool: `tools/iotrace/`.
