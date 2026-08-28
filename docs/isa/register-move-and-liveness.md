@@ -190,6 +190,35 @@ matching an independent host-computed oracle.
    store-forward and one verbatim `iadd2` anchor work.
 2. **GPR-sourced moves** — see §1.0.
 
+## 2.7 Both bit-level lifetime models are refuted (EXP-0099)
+
+`HW-VALIDATED` (EXP-0099, commit `de4e4a81`, 35 cases, two runs, gates PASS). A pre-registered
+adversarial test of **both** our database's model and the external engineer's model found each
+wrong in a different way:
+
+- **Our `db.json` 7-bit register-index model: REFUTED.** Encoding `falu2`'s register field as the
+  literal value `67` (top bit set; low 6 bits = 3) still read **r3's** value, never the genuinely
+  unwritten r67's zero — in all four decisive cases, both runs.
+- **His `(bit15,bit19)` / `(bit31,bit20)` retention pairing: REFUTED.** With a later separate
+  reader, the outcome depends **only** on `opflags` bit19/bit20 — identical whether the
+  register-field top bit is 0 or 1.
+- **Net:** the register field is **6 bits load-bearing, with a top bit that is HW-tested inert and
+  whose role is `UNKNOWN`.** This reconfirms EXP-0086's `CAND_A` null result rather than explaining
+  it away.
+- **Registers 64–95 are `UNKNOWN` again** — removing the literal-index account leaves no validated
+  addressing path for them in this family, despite EXP-0092's re-confirmed 96-GPR boundary.
+- **`opflags` bit19/bit20 remain the genuine per-source control**, consistent with EXP-0090's
+  `opflags` finding and with EXP-0086/0089's corruption results.
+
+### The two blockers in §2.6 are still open
+
+`HW-VALIDATED` (EXP-0099): the consumer-route field does **not** explain the load-to-ALU blocker.
+All 8 route values fail identically for a `device_load` → `falu2` consumer, while the paired
+ALU-sourced control passes at all 8 — proving the harness and field wiring are sound. `opflags`
+bit21 does not help either. GPR-sourced `reg_move` still fails, and now also fails to read a
+`device_load`-written GPR. **New lead:** the failure returns an exact, reproducible `0x00000100`,
+not literal zero as EXP-0090 reported.
+
 ## 3. Evidence status and open items
 
 - **EXP-0087** (move synthesis): both runs closed, 49 cases each, 47/49 byte-identical across runs.

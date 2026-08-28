@@ -1,5 +1,35 @@
 # How the compiler engineer's `apple9_isa_explainer.md` interacts with our findings
 
+> ## ⚠️ CORRECTED 2026-08-28 BY HARDWARE (EXP-0099, commit `de4e4a81`) — READ THIS FIRST
+>
+> **Section 3 below over-claimed, and its central attribution is REFUTED.** This document
+> originally derived — from byte patterns alone, without a hardware test — that his bits 15/31
+> are retention flags occupying the top bits of our `srcA_reg`/`srcB_reg`. EXP-0099 pre-registered
+> and tested exactly that. The result:
+>
+> - **Our 7-bit register-index model is refuted.** Encoding the register field as literal `67`
+>   (top bit set, low 6 bits = 3) still read **r3's** value (30.0), never r67's zero, in all four
+>   decisive cases across both runs. So the top bit is *not* a register-index bit — that much of
+>   §3 stands.
+> - **His retention attribution is ALSO refuted.** With a later separate reader, the later-read
+>   value depends **only** on `opflags` bit19/bit20 — identical whether the register-field top bit
+>   is 0 or 1. **Bits 15/31 have zero observed effect on either addressing or retention.**
+> - **Net:** the field is 6 bits load-bearing with a top bit that is HW-tested **inert**, role
+>   `UNKNOWN`. A third outcome, distinct from both models. This also reconfirms EXP-0086's
+>   original CAND_A null rather than explaining it away, as §2 below claimed.
+> - **The consumer-route hope in §4 did not pay off.** All 8 route values fail identically for a
+>   `device_load` → `falu2` consumer while the ALU-sourced control passes at all 8 — the harness is
+>   sound, the blocker is real, and route does not explain it. Both EXP-0090 blockers remain open,
+>   with one new lead: the failure returns an exact reproducible `0x00000100`, not literal zero.
+>
+> What survives from his document: the *shape* of the mechanism (per-source lifetime state,
+> producer-side, silently corrupting a later consumer without faulting) is consistent with all our
+> evidence, and `opflags` bit19/bit20 genuinely are the per-source control. What does not survive
+> is the specific bit-15/31 pairing and the register-field split derived from it.
+>
+> Read the rest of this document as the superseded hypothesis it was.
+
+
 Date: 2026-08-28. Author: RE orchestrator. Status: **analysis + one confirmed decoding bug in our
 own database.** No hardware run yet — every claim below is either a byte-level derivation from the
 explainer's own examples decoded with our tooling, or a citation of already-promoted evidence.
