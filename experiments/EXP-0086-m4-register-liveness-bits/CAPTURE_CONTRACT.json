@@ -1,0 +1,111 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "3d7773d02aeb78461e1fe0fabfe045ee7b82310fff4eab957ee8b24b57dd44bd",
+    "README.md": "e731a004ad422d86edc686f4166bf26a92cbe7c1f2e5c2c113c79538c8967f56",
+    "analysis.py": "c57b5bad1e23bc00e52a299f2525868f859a8d24eec2f056e1f2f1944e92f241",
+    "baseline.py": "e69b413cf058633c39df108b3f4d2e6f05139e8bd42b270b7d162b223f4ef6ce",
+    "casematrix.py": "f4bc750c756a889f7af8726a1def31e6821085d8867c5d809054dff5953a4152",
+    "harness/build.sh": "ae7341515e3f8930fd79c26ed01dd2d405efb55e3bf2a6f2d4edcc5616d3652c",
+    "kernels/adjacent.metal": "57ca7136d4b7d0b8e991a0dd74a0e939b8b687e2ad215a0adf4571350074c5c6",
+    "kernels/far16.metal": "b8ad71a211b1c92365c88d24d31b96d7560d8f32c34967d2b8246e6e2b5730fd",
+    "kernels/far4.metal": "3c272f53b2fcace866baf3dbf245aca40d4056187234e94243ea3f61ee5f80e2",
+    "kernels/if_boundary.metal": "934fcd6d8c112661dc598828757e9342645afdbfcc9799314e8ce31f7305c7f9",
+    "kernels/loop_boundary.metal": "a38be28f4e08fbc566df62cdb5b2a64c67a11082ad3efd08d6bff0af4e4c19bf",
+    "kernels/near.metal": "e394509b7ff8271063f60258da5facd856432150e2d80baa81d5200c43286f81",
+    "kernels/pressure.metal": "b6c6c2924347ac02e1a4726e5caa1be3a5fbe159d3136f9d68fd17ef8a0cb348",
+    "make_manifest.py": "1adb053402ee5b0929f56d180cc52bb2d35c3a3582bb18851e7d157a06075c1a",
+    "run.py": "478e9f37afc80429ffe1a0e60cc32235613b2335732b1af0017aa5e4706c0ac6",
+    "verify.py": "8ef11a7f80679226c1544e98fc548ebb363c8958db38abdb22b0db365324c776"
+  },
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own compiled shader bytes (splice targets)",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool)",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "gated_case_keys": [
+      "case_name",
+      "changed_bytes",
+      "expected_values",
+      "i",
+      "item",
+      "kernel",
+      "mismatch_indices",
+      "out_values",
+      "pipeline_source",
+      "rep",
+      "splice_args",
+      "status",
+      "verdict"
+    ],
+    "nongated_case_keys": [
+      "duration_ms",
+      "exception",
+      "exit",
+      "i",
+      "stderr",
+      "stdout",
+      "timed_out"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "04_results_raw.jsonl",
+      "05_run_manifest.json"
+    ],
+    "runs": [
+      "m4-20260828-run01",
+      "m4-20260828-run02"
+    ],
+    "status_allowed": [
+      "ARCHIVE_FAIL",
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "EXTRACT_FAIL",
+      "FUNCTION_MISSING",
+      "HANG",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL",
+      "PIPELINE_MISS"
+    ],
+    "total_cases": 135,
+    "verdict_allowed": [
+      "FAULT",
+      "MATCH_EXPECTED",
+      "MISMATCH_EXPECTED"
+    ]
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0086-m4-register-liveness-bits",
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/adjacent.metal",
+    "kernels/near.metal",
+    "kernels/far4.metal",
+    "kernels/far16.metal",
+    "kernels/pressure.metal",
+    "kernels/if_boundary.metal",
+    "kernels/loop_boundary.metal",
+    "harness/build.sh",
+    "baseline.py",
+    "casematrix.py",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "baseline": 180,
+    "case_process": 60,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 60
+  }
+}
