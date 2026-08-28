@@ -1,0 +1,454 @@
+{
+  "note": "Built from REAL M4 GPU/compiler calls via run.py's own BACKEND_FN dispatch, during harness development (2026-08-27/28), before either official raw/ capture. Used by verify.py --selftest to validate gating logic against real observed shapes.",
+  "sample_records": [
+    {
+      "i": 0,
+      "id": "vsfetch_format_float4",
+      "family": "vsfetch_format",
+      "gated": {
+        "backend": "vfetch_extract",
+        "case": "vsfetch_format_float4",
+        "params": {
+          "vertex": "v_f4",
+          "fragment": "f_pass",
+          "format": 31,
+          "format_label": "Float4",
+          "offset": 0,
+          "stride": 32,
+          "step": "vertex",
+          "rate": 1
+        },
+        "status": "OK",
+        "vertex_hex": "6cdd10069f105400021882207028020067004400000000005705004022004cd81006a700540a03180a00f01021006b0d2f83100200000000a707540c0218ac20a707540a0214ac209f115408031020a81704090d2ea1a1a84202a70754080310ac20190b2ea1a2a8420200042b0026004000000800003c80233e0000000c406049013c0941000090571654000040480057265402204048005b032f004200001400006b052f004200001400007b072f004200000400005746540440404a005786540660404b005706550880404b005706560aa0404c005706540cc0404d005726540ee04049000e000000",
+        "vertex_hex_len": 234,
+        "structure": {
+          "sections": [
+            "__TEXT,__reflection(off=1936,size=1344)",
+            "__TEXT,__vertex(off=3280,size=2160)",
+            "__TEXT,__fragment(off=5440,size=2448)",
+            "__TEXT,__descriptor(off=7888,size=1344)",
+            "__TEXT,__metallib(off=9232,size=8528)"
+          ],
+          "region_names": [
+            "_agc.main.constant_program",
+            "_agc.main"
+          ]
+        }
+      },
+      "meta": {
+        "duration_ms": 261,
+        "started_utc": "FIXTURE",
+        "returncode": 0,
+        "stderr_tail": "eline OK vertex=v_f4 fmt=31 off=0 stride=32 step=vertex rate=1\nvfetch_extract: wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0109-m4-stage-abi/work/gen/fixturegen/vsfetch_format_float4.bin\n",
+        "timed_out": false
+      }
+    },
+    {
+      "i": 0,
+      "id": "fsin_interp_persp",
+      "family": "fsin_interp",
+      "gated": {
+        "backend": "mrt_extract",
+        "case": "fsin_interp_persp",
+        "params": {
+          "vertex": "v_persp",
+          "fragment": "f_persp",
+          "natt": 1
+        },
+        "status": "OK",
+        "fragment_hex": "2f0d5400030004021000af0054040300024820012f0554000302000210002f0554080304000210002f05540203060002100009012f85000100002f05540603080002100049092f850002000001011c8102020000040001091c8106020000040019032f850003000029073f050004000011031c8102020000040011051c810602000004008702540006008702540c0800e70654000000010e000000000702540c02000e000000",
+        "fragment_hex_len": 166,
+        "structure": {
+          "sections": [
+            "__TEXT,__reflection(off=1936,size=736)",
+            "__TEXT,__vertex(off=2672,size=2112)",
+            "__TEXT,__fragment(off=4784,size=2464)",
+            "__TEXT,__descriptor(off=7248,size=784)",
+            "__TEXT,__metallib(off=8032,size=8800)"
+          ],
+          "region_names": [
+            "_agc.main.constant_program",
+            "_agc.main"
+          ]
+        }
+      },
+      "meta": {
+        "duration_ms": 91,
+        "started_utc": "FIXTURE",
+        "returncode": 0,
+        "stderr_tail": "mrt_extract: pipeline OK vertex=v_persp fragment=f_persp natt=1 depthfmt=0 dualsrc=0\n",
+        "timed_out": false
+      }
+    },
+    {
+      "i": 0,
+      "id": "cs_preamble_with_constant",
+      "family": "cs_preamble",
+      "gated": {
+        "backend": "shdump_struct",
+        "case": "cs_preamble_with_constant",
+        "params": {
+          "function": "cs_with_constant"
+        },
+        "status": "OK",
+        "compute_hex": "1ca01006a717540003048c2009091601210a8200e7005400010121001100009011000e000000",
+        "compute_hex_len": 38,
+        "structure": {
+          "sections": [
+            "__TEXT,__reflection(off=1472,size=576)",
+            "__TEXT,__compute(off=2048,size=1680)",
+            "__TEXT,__descriptor(off=3728,size=416)",
+            "__TEXT,__metallib(off=4144,size=5280)"
+          ],
+          "region_names": [
+            "_agc.main.constant_program",
+            "_agc.main"
+          ]
+        }
+      },
+      "meta": {
+        "duration_ms": 58,
+        "started_utc": "FIXTURE",
+        "returncode": 0,
+        "stderr_tail": "shdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024\nshdump: wrote /Users/user/asahi_re/public/agx-re/experiments/EXP-0109-m4-stage-abi/work/gen/fixturegen/cs_preamble_with_constant.bin\n",
+        "timed_out": false
+      }
+    },
+    {
+      "i": 0,
+      "id": "vsfetch_hw_inrange",
+      "family": "vsfetch_hw",
+      "gated": {
+        "backend": "render_probe",
+        "case": "vsfetch_hw_inrange",
+        "mode": "vsfetch",
+        "params": {
+          "nvert": 6,
+          "ninst": 1,
+          "basev": 0,
+          "basei": 0,
+          "oobidx": 0,
+          "format": 9
+        },
+        "status": "OK",
+        "result": {
+          "status": "OK",
+          "mode": "vsfetch",
+          "case": "vsfetch_hw_inrange",
+          "nvert": 6,
+          "ninst": 1,
+          "nidx": 6,
+          "oobidx": 0,
+          "basev": 0,
+          "basei": 0,
+          "total_records": 6,
+          "records": [
+            {
+              "attr": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "vid": 0,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            },
+            {
+              "attr": [
+                0.00392157,
+                0.00392157,
+                0.00392157,
+                1
+              ],
+              "vid": 1,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            },
+            {
+              "attr": [
+                0.00784314,
+                0.00784314,
+                0.00784314,
+                1
+              ],
+              "vid": 2,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            },
+            {
+              "attr": [
+                0.0117647,
+                0.0117647,
+                0.0117647,
+                1
+              ],
+              "vid": 3,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            },
+            {
+              "attr": [
+                0.0156863,
+                0.0156863,
+                0.0156863,
+                1
+              ],
+              "vid": 4,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            },
+            {
+              "attr": [
+                0.0196078,
+                0.0196078,
+                0.0196078,
+                1
+              ],
+              "vid": 5,
+              "iid": 0,
+              "bv": 0,
+              "bi": 0
+            }
+          ]
+        }
+      },
+      "meta": {
+        "duration_ms": 32,
+        "started_utc": "FIXTURE",
+        "returncode": 0,
+        "stderr_tail": "",
+        "timed_out": false
+      }
+    },
+    {
+      "i": 0,
+      "id": "cstgmem_hw_sweep",
+      "family": "cs_tgmem_dynamic",
+      "gated": {
+        "backend": "compute_probe",
+        "case": "cstgmem_hw_sweep",
+        "sizes": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          32,
+          64
+        ],
+        "status": "OK",
+        "result": [
+          {
+            "N": 1,
+            "status": "OK",
+            "out": [
+              1.0
+            ]
+          },
+          {
+            "N": 2,
+            "status": "OK",
+            "out": [
+              11.0,
+              1.0
+            ]
+          },
+          {
+            "N": 4,
+            "status": "OK",
+            "out": [
+              11.0,
+              21.0,
+              31.0,
+              1.0
+            ]
+          },
+          {
+            "N": 8,
+            "status": "OK",
+            "out": [
+              11.0,
+              21.0,
+              31.0,
+              41.0,
+              51.0,
+              61.0,
+              71.0,
+              1.0
+            ]
+          },
+          {
+            "N": 16,
+            "status": "OK",
+            "out": [
+              11.0,
+              21.0,
+              31.0,
+              41.0,
+              51.0,
+              61.0,
+              71.0,
+              81.0,
+              91.0,
+              101.0,
+              111.0,
+              121.0,
+              131.0,
+              141.0,
+              151.0,
+              1.0
+            ]
+          },
+          {
+            "N": 32,
+            "status": "OK",
+            "out": [
+              11.0,
+              21.0,
+              31.0,
+              41.0,
+              51.0,
+              61.0,
+              71.0,
+              81.0,
+              91.0,
+              101.0,
+              111.0,
+              121.0,
+              131.0,
+              141.0,
+              151.0,
+              161.0,
+              171.0,
+              181.0,
+              191.0,
+              201.0,
+              211.0,
+              221.0,
+              231.0,
+              241.0,
+              251.0,
+              261.0,
+              271.0,
+              281.0,
+              291.0,
+              301.0,
+              311.0,
+              1.0
+            ]
+          },
+          {
+            "N": 64,
+            "status": "OK",
+            "out": [
+              11.0,
+              21.0,
+              31.0,
+              41.0,
+              51.0,
+              61.0,
+              71.0,
+              81.0,
+              91.0,
+              101.0,
+              111.0,
+              121.0,
+              131.0,
+              141.0,
+              151.0,
+              161.0,
+              171.0,
+              181.0,
+              191.0,
+              201.0,
+              211.0,
+              221.0,
+              231.0,
+              241.0,
+              251.0,
+              261.0,
+              271.0,
+              281.0,
+              291.0,
+              301.0,
+              311.0,
+              321.0,
+              331.0,
+              341.0,
+              351.0,
+              361.0,
+              371.0,
+              381.0,
+              391.0,
+              401.0,
+              411.0,
+              421.0,
+              431.0,
+              441.0,
+              451.0,
+              461.0,
+              471.0,
+              481.0,
+              491.0,
+              501.0,
+              511.0,
+              521.0,
+              531.0,
+              541.0,
+              551.0,
+              561.0,
+              571.0,
+              581.0,
+              591.0,
+              601.0,
+              611.0,
+              621.0,
+              631.0,
+              1.0
+            ]
+          }
+        ]
+      },
+      "meta": {
+        "duration_ms": 31,
+        "started_utc": "FIXTURE",
+        "returncode": 0,
+        "stderr_tail": "",
+        "timed_out": false
+      }
+    },
+    {
+      "i": 0,
+      "id": "fsout_bogus_negative_control",
+      "family": "fsout_stencil",
+      "gated": {
+        "backend": "mrt_extract",
+        "case": "fsout_bogus_negative_control",
+        "params": {
+          "vertex": "v_common",
+          "fragment": "f_bogus_negative",
+          "natt": 1,
+          "defines": [
+            "EXP0109_TRY_BOGUS_ATTR=1"
+          ],
+          "expect_fail": true
+        },
+        "status": "FAIL",
+        "error": "compile: program_source:175:14: warning: unknown attribute 'not_a_real_attribute_xyz123' ignored [-Wunknown-attributes]\n    uint s [[not_a_real_attribute_xyz123]];\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~\nprogram_source:177:10: error: invalid return type 'BogusOut' for fragment function\nfragment BogusOut f_bogus_negative(VOut in [[stage_in]]) {\n         ^\nprogram_source:175:10: note: 'color' attribute must be made explicit\n    uint s [[not_a_real_attribute_xyz123]];\n         ^"
+      },
+      "meta": {
+        "duration_ms": 57,
+        "started_utc": "FIXTURE",
+        "returncode": 2,
+        "stderr_tail": "",
+        "timed_out": false
+      }
+    }
+  ]
+}
