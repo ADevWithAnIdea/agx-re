@@ -96,13 +96,38 @@ The later read returned `20`, i.e. **`v` read as zero — the value was dropped.
 - **Producer/consumer:** the **earlier** instruction's bit alone determines the outcome. The later
   instruction's own bit was irrelevant. No symmetric-agreement requirement observed.
 
-### 2.3 Exact scope — read before generalizing
+### 2.3 The literal bit 17 IS load-bearing (EXP-0089)
 
-- The bit proven to corrupt is a bit **in the same conceptual role and the same float-ALU family**
-  as the literal `0x54/0x56` field — it is **not** the literal bit 17.
-- **The literal bit 17 could not be tested**: in every family it could be compiled into, splicing
-  proved bit 17 is part of the **opcode** (`opsel`), not a free bit. `0x54`/`0x56`/`0x18`/`0x38`
-  are therefore **`UNKNOWN`**, pending their own later-read test — **not** confirmed inert.
+EXP-0086 could not reach the literal bit; **EXP-0089 did**, in two independent families
+(`unpack_convert`, `cvt_i2f`) where `db.json`'s own `match` table proves bit 17 is genuinely free
+rather than opcode. Flipping it on the **earlier** instruction: `HW-VALIDATED`.
+
+| kernel | baseline | flip on earlier insn | flip on later insn |
+|---|---|---|---|
+| `lit17_unpack` | `0.50000763, 6.0000305` | **`0, 5`** | `0.50000763, 6.0000305` (no-op) |
+| `lit17_cvt` | `1244, 1254` | **`10, 20`** | `1244, 1254` (no-op) |
+
+**New signature, stronger than `opflags` bit 0:** the flip corrupts **the flipped instruction's own
+result as well as** a later reader's. `falu_acc` remains structurally opcode-fixed at bit 17 and
+still cannot be tested there.
+
+### 2.3b The mechanism — persistent producer-side writeback suppression
+
+EXP-0089's `discrim3` kernel was built to *separate* candidate models rather than confirm one. The
+evidence supports **persistent producer-side writeback suppression** over a one-shot bypass-cache
+model: corruption reaches a **third, independent later reader**, and never an earlier one.
+`HW-VALIDATED` (EXP-0089).
+
+**Scope is condition-dependent.** The corrupting bit is universal across all 7 kernels, but
+`loop_boundary` (12-byte extended form, real loop) uniquely corrupts a *third* value (the
+accumulator) and is the only context where the **consumer's** own bit matters.
+
+### 2.3c The `ctrl`/`ctrl_lo` field is not inert either
+
+`HW-VALIDATED` (EXP-0089): bits **2/4 safe** in 13/14 compact-form contexts; bits **0/1/3/5/6
+load-bearing** (fault or silent corruption); the **12-byte extended form is 0/8 safe, including a
+genuine GPU hang**. Bits 0/1 are the only genuinely nondeterministic field observed across ~1200
+executions in EXP-0086 + EXP-0089 combined. Treat the whole field as load-bearing.
 - A different candidate (`CAND_A`, a register-select top bit that tracks first/second-read order
   across 7 independent compiles) was **null in every configuration** — adjacent/near/+4/+16
   instruction distance, ~40-value register pressure, and real `if`/`for` boundaries — across 7
