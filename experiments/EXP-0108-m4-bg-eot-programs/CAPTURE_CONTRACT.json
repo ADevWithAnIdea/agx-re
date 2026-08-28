@@ -1,0 +1,169 @@
+{
+  "address_normalization": {
+    "masked_length": 5,
+    "masked_offset": 8,
+    "masked_roles": [
+      "mrt-attachment-descriptors",
+      "single-rt-color-descriptor"
+    ],
+    "policy": "the 5-byte surface-address subfield at record-relative +0x08 within each captured color-descriptor k-record (VA = low40<<4, EXP-0048/EXP-M4-08) is zeroed in the gated 03_results.jsonl k_load/k_store hex windows and recorded unmasked only in 03_timing.jsonl's named_addresses (never cross-run compared)"
+  },
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "3a97b44c6d9c58d05bc60e91ebed5a0ae125963dcbf188df0d3b218244d35280",
+    "README.md": "cd3a7211a719e860e8f421d359c1bf2c6cbe152c019f9da23fd82d636056fd56",
+    "analysis.py": "51af352d109d22aec71118c7fa0db8d77cfed0e2ddc52105af145b6af3c10f35",
+    "harness/build.sh": "68f31cb577f6f2976f137ed9723405a2b8aad90ee578ab7ad9829803cb1f4aae",
+    "harness/casematrix.py": "67dedc3e562486c20f0be1807ad40b7deadca5e01c6aabdc808f82fb9b5969f7",
+    "harness/probe.m": "46cbfc40e53dee2296b4091456c73b929e2b357c1ad12657d0de8e20bb1bad3d",
+    "harness/wtrace.c": "92b4f7020c11289c11112049fd3afc4df04f2289574af0fc43b61405f073671b",
+    "make_manifest.py": "e0d4bddec4208bd3ba154aae5e6d6197e6b9f7786b136cfcbf2464112518515d",
+    "run.py": "42684e389cfac98e4fa91314c142de5efc95bdc1ae6d126161fbf824de97ba39",
+    "verify.py": "1086faf7f8d8ccc70e704030b2b4c07dc42a63e7d12af0591c3d96df810e789d"
+  },
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own generated MSL (VS/FS compiled at runtime per case) and its own readback bytes; the interposer never inspects Metal/AGX*/IOGPU framework code",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool; local M4 only)",
+    "private_api_or_trace": "NONE (public Metal + public IOKit user-client selectors only)"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "build_keys": [
+      "harness_build",
+      "schema"
+    ],
+    "case_line_keys": [
+      "axis",
+      "cb_error",
+      "cb_status",
+      "i",
+      "name",
+      "named",
+      "probe_status",
+      "rts",
+      "status",
+      "unnamed_regions"
+    ],
+    "cross_run_byte_exact_scope": "run.records_reproducibly_equal(run_a_line, run_b_line) for every case, i.e. every CASE_KEYS field EXCEPT each named role's whole-region sha256/present_but_uncaptured and each unnamed_regions entry's sha256/content_captured (dropped by reproducible_projection) PLUS, only for a role present with matching size in both runs where content-capture success itself differed between runs (a SIGUSR1-snapshot read-timing flake, not a hardware property), that role's first64_hex/k_load/k_store -- all empirically found not cross-run deterministic by this experiment's own two gated run pairs (see run.py's docstrings). Total flakes across the 40-case matrix must be <= 5 (a systemic-reliability budget, not a license for arbitrary tolerance). 03_timing.jsonl is schema-checked every run, never byte-compared across runs.",
+    "cross_run_provenance_gate": "run02 authored-file hashes must equal the closed run01 input record (git revision is NOT required to match -- the orchestrator commits sibling experiments between runs; each run's own git_revision need only resolve to a real commit object); final verification additionally requires byte-identical 03_results.jsonl and identical status counts",
+    "dispatch_keys": [
+      "argv",
+      "cwd",
+      "duration_seconds",
+      "finished_utc",
+      "n_cases",
+      "results_lines",
+      "results_sha256",
+      "started_utc",
+      "status_counts",
+      "timing_lines",
+      "timing_sha256"
+    ],
+    "inputs_keys": [
+      "authored_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_results.jsonl",
+      "03_timing.jsonl",
+      "04_dispatch.json"
+    ],
+    "runs": [
+      "m4-20260828-run05",
+      "m4-20260828-run06"
+    ],
+    "selftest_gate": "verify.py --selftest and verify.py --seqtest must pass immediately before every capture, in every tree state; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "BEFORE any raw/ artifact is created, the freshly built harness must run ONE scratch case (CM.CASES[0]) into work/ (never promoted into raw/) whose result parses to status OK; any build or smoke defect exits 3 with the receipt printed and NO burned run id",
+    "status_allowed": [
+      "CMDBUF_ERROR",
+      "COLOR_TEXTURE_CREATE_FAIL",
+      "DEPTH_TEXTURE_CREATE_FAIL",
+      "ENCODER_CREATE_FAIL",
+      "HARNESS_CRASH",
+      "HARNESS_TIMEOUT",
+      "NO_RESULT",
+      "OK",
+      "PIPELINE_FAIL",
+      "STENCIL_TEXTURE_CREATE_FAIL"
+    ],
+    "timing_line_keys": [
+      "duration_ms",
+      "i",
+      "inventory_full",
+      "name",
+      "named_addresses",
+      "resource_gpu_addresses",
+      "stderr_raw",
+      "stdout_raw"
+    ]
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0108-m4-bg-eot-programs",
+  "gate": "A missing path, hash, schema field, record key, or unexpected raw path fails closed; see verify.py static()/captured().",
+  "gate_order": "PRE_GPU: --selftest, --seqtest, make_manifest --check, --preflight, run01; RUN01_PRESENT: --selftest, --seqtest, make_manifest --check, --between-runs, run02; RUN02_PRESENT: analysis --write, make_manifest --write + --check, --captured",
+  "matrix": {
+    "axis_counts": {
+      "action": 7,
+      "depth": 5,
+      "depth-stencil": 1,
+      "empty": 3,
+      "format": 7,
+      "memoryless": 1,
+      "mrt": 3,
+      "mrt-mixed": 1,
+      "msaa": 5,
+      "partial": 4,
+      "stencil": 3
+    },
+    "total_cases": 40
+  },
+  "post_second_run_sequence": [
+    "python3 -B analysis.py --run-a m4-20260828-run05 --run-b m4-20260828-run06 --write",
+    "python3 -B make_manifest.py --write",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --captured"
+  ],
+  "pre_second_run_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --between-runs"
+  ],
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "required_authored_paths": [
+    "README.md",
+    "PRE_REGISTRATION.md",
+    "harness/wtrace.c",
+    "harness/probe.m",
+    "harness/build.sh",
+    "harness/casematrix.py",
+    "run.py",
+    "analysis.py",
+    "verify.py",
+    "make_manifest.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal + public IOKit user-client selectors only",
+  "timeouts_seconds": {
+    "case": 90,
+    "env_command": 15,
+    "host_build": 120,
+    "smoke_case": 60
+  }
+}
