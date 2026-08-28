@@ -176,6 +176,28 @@ def main():
         oc = collections.Counter(r["outcome"] for r in recs)
         sent = collections.Counter(r.get("sentinel_state") for r in recs)
 
+        # SILENT-ZERO DISCRIMINATION (coordinator rule 4 / the EXP-0140-overturns-
+        # EXP-0128 trap). A zero in the result slot can mean "the instruction wrote
+        # zero / did not write its destination" OR "nothing was stored at all and we
+        # are reading a zero-initialised buffer". These carriers make the two
+        # separable WITHOUT assuming anything: besides the instruction's own result
+        # they store six OTHER live values through the same device_store path. If
+        # those companion slots still carry their host-predicted values, the store
+        # path demonstrably ran, so the zero is a real read of a register that holds
+        # zero. Only if the companions are ALSO wrong is the case ambiguous.
+        want_all = CM.expect(carrier, vec)
+        companions = [k for k in want_all if k not in CM.RESULT_SLOTS[carrier]]
+        sz_disc = sz_ambig = 0
+        for r in recs:
+            if r["outcome"] != "silent_zero":
+                continue
+            wl = words(r)
+            intact = all(k < len(wl) and wl[k] == want_all[k] for k in companions)
+            if intact:
+                sz_disc += 1
+            else:
+                sz_ambig += 1
+
         # what did each value actually produce?
         meanings = collections.Counter()
         opmap = {0: [], 1: []}
@@ -217,6 +239,7 @@ def main():
             "n_values_executed": len(recs), "coverage": _cov(universe),
             "outcomes": dict(oc), "sentinel_states": dict(sent),
             "bit_rule": rule, "operand_map": om,
+            "silent_zero_discriminated": sz_disc, "silent_zero_ambiguous": sz_ambig,
             "dst_redirect_slots": {str(k): sorted(v)[:16] for k, v in sorted(redirect.items())},
             "observed_meanings": dict(meanings.most_common(10)),
             "target": "M4", "evidence": ["EXP-0144"],

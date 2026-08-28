@@ -16,27 +16,31 @@
   "total_instructions": 171,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 257,
-   "isolated-byte-diff": 88,
-   "corpus-correlation": 197,
-   "tokenization-only": 227,
+   "hardware-run": 288,
+   "isolated-byte-diff": 90,
+   "corpus-correlation": 186,
+   "tokenization-only": 210,
    "single-template-inference": 15,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 252
+   "untested": 247
   },
   "by_label_pct": {
-   "hardware-run": 24.8,
-   "isolated-byte-diff": 8.5,
-   "corpus-correlation": 19.0,
-   "tokenization-only": 21.9,
+   "hardware-run": 27.8,
+   "isolated-byte-diff": 8.7,
+   "corpus-correlation": 18.0,
+   "tokenization-only": 20.3,
    "single-template-inference": 1.4,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.3
+   "untested": 23.8
   },
-  "emittable_instructions": 28,
+  "emittable_instructions": 34,
   "emittable_mnemonics": [
+   "cvt_f2h",
+   "cvt_f2i",
+   "cvt_i2f",
+   "cvt_i2f_src",
    "device_load",
    "device_store",
    "frame_prologue",
@@ -48,6 +52,7 @@
    "matrix_mac",
    "mov_imm",
    "n3_sample_read",
+   "pack_convert",
    "pixel_order",
    "psel",
    "reg_move_c0",
@@ -63,10 +68,11 @@
    "tile_read",
    "tile_read_mrt",
    "uniform_mov",
+   "unpack_convert",
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 143
+  "decodable_not_yet_emittable": 137
  },
  "instructions": {
   "falu2": {
@@ -1802,78 +1808,75 @@
    },
    "mode": {
     "label": "hardware-run",
-    "range": "byte+2 bit17 at {0,1} corrupts BOTH the instruction's own result AND a later reader; the other 7 bits of the byte re-swept individually, all with no detectable effect",
+    "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-0089",
-     "EXP-0119"
+     "EXP-0144"
     ],
-    "note": "This is the LITERAL 0x54/0x56 bit that docs once called an inert cache hint. It is load-bearing here."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 steps 0,2,4,6 with the RESULT lane in a reversed-lane vec4 chain (4 own-MSL points, compile-only)",
+    "label": "hardware-run",
+    "range": "byte+3: 244 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 211 measurements: 2 overturned by the majority vote (0.95%); where they disagree the revalidation wins."
    },
    "src_class": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "src": {
-    "label": "corpus-correlation",
-    "range": "byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane, i.e. opposite to dst (4 own-MSL points)",
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
+   },
+   "src": {
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "cvtop": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+6: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "signflag": {
-    "label": "corpus-correlation",
-    "range": "byte+7 bit6 = signed vs unsigned (2 values, own-MSL)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0013",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst_class": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+8: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "b9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+9: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "cvt_i2f": {
@@ -1888,58 +1891,57 @@
    },
    "mode": {
     "label": "hardware-run",
-    "range": "byte+2 bit17 at {0,1} corrupts BOTH the instruction's own result AND a later reader; the other 7 bits of the byte re-swept individually, all with no detectable effect",
+    "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-0089",
-     "EXP-0119"
+     "EXP-0144"
     ],
-    "note": "This is the LITERAL 0x54/0x56 bit that docs once called an inert cache hint. It is load-bearing here."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 steps 0,2,4,6 with the RESULT lane in a reversed-lane vec4 chain (4 own-MSL points, compile-only)",
+    "label": "hardware-run",
+    "range": "byte+3: 250 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 255 measurements: 1 overturned by the majority vote (0.39%); where they disagree the revalidation wins."
    },
    "src_class": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "src": {
-    "label": "corpus-correlation",
-    "range": "byte+5 steps 0x18,0x14,0x10,0x0c with the SOURCE lane, i.e. opposite to dst (4 own-MSL points)",
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
+   },
+   "src": {
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "cvtop": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+6: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "signflag": {
-    "label": "corpus-correlation",
-    "range": "byte+7 bit6 = signed vs unsigned (2 values, own-MSL)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0013",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "cvt_f2h": {
@@ -1952,59 +1954,49 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+1: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "fp32->fp16 narrowing convert; byte0 0x11 length-polymorphic on byte+1. Operand bytes located only."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "op": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+2: 254 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "fp32->fp16 narrowing convert; byte0 0x11 length-polymorphic on byte+1. Operand bytes located only."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 22 overturned by the majority vote (8.59%); where they disagree the revalidation wins."
    },
    "src": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "byte+3: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "fp32->fp16 narrowing convert; byte0 0x11 length-polymorphic on byte+1. Operand bytes located only."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "fp32->fp16 narrowing convert; byte0 0x11 length-polymorphic on byte+1. Operand bytes located only."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "fp32->fp16 narrowing convert; byte0 0x11 length-polymorphic on byte+1. Operand bytes located only."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "bf_alu": {
@@ -5864,53 +5856,49 @@
     ]
    },
    "src_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+1: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "byte+5..+9 format-conversion / rounding descriptor kept raw (n=4, not individually decoded)."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "fmt_class": {
-    "label": "corpus-correlation",
-    "range": "byte+2==0x56 gates the compute pack form",
+    "label": "hardware-run",
+    "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "src": {
-    "label": "corpus-correlation",
-    "range": "byte+3 source GPR, located",
+    "label": "hardware-run",
+    "range": "byte+3: 250 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 500 measurements: 5 overturned by the majority vote (1.00%); where they disagree the revalidation wins."
    },
    "mode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "byte+5..+9 format-conversion / rounding descriptor kept raw (n=4, not individually decoded)."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "fmt_word": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255); byte+7: 256 of 256 values (dense 0..255); byte+8: 256 of 256 values (dense 0..255); byte+9: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "byte+5..+9 format-conversion / rounding descriptor kept raw (n=4, not individually decoded)."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins."
    }
   },
   "unpack_convert": {
@@ -5924,52 +5912,49 @@
     ]
    },
    "src_class": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+1: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "Low nibble 0x04 is forced by the match."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 8 overturned by the majority vote (3.12%); where they disagree the revalidation wins."
    },
    "cache": {
     "label": "hardware-run",
-    "range": "bit17 at {0,1} corrupts BOTH the instruction's own result AND a later reader; the other 7 bits of the same byte re-swept individually, ALL with no detectable effect",
+    "range": "byte+2: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-0089",
-     "EXP-0119"
+     "EXP-0144"
     ],
-    "note": "This is the LITERAL 0x54/0x56 bit that RT-1a-FIX called an inert cache hint. It is load-bearing here. CAVEAT: db.json's own match table forces every other bit of this byte, so the 7-bit resweep constructed bytes that do not re-decode as unpack_convert - an open self-consistency question (EXP-0119 section 2.5)."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "convert_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+3: 256 of 256 values (dense 0..255); byte+4: 256 of 256 values (dense 0..255); byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "Format-conversion descriptor, kept raw."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins."
    },
    "size": {
-    "label": "corpus-correlation",
-    "range": "byte+7 low nibble, 0xa typical",
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "reg_sel": {
-    "label": "corpus-correlation",
-    "range": "byte+7 high nibble steps e/b/c/a/6/3 across successive unpacks in one kernel; most likely the result destination (role INFERRED, not splice-confirmed)",
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "vary_store": {
@@ -6687,15 +6672,21 @@
    },
    "dst": {
     "label": "untested",
-    "range": "none",
+    "range": "byte+0: 24 values: 0x00,0x01,0x11,0x21,0x31,0x3e,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc0,0xc1,0xc2,0xc3,0xc5,0xc9,0xd1,0xe1,0xf1,0xff",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 24 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. COVERAGE IS PARTIAL: the smallest covering byte executed only 24 values (see `range`)."
    },
    "srcfmt": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "byte+1: 256 of 256 values (dense 0..255)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "opsel": {
     "label": "corpus-correlation",
@@ -6709,19 +6700,28 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
    },
    "dhalf": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
    },
    "tail": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md."
    }
   },
   "cvt_bf16": {
@@ -6738,7 +6738,10 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    },
    "srcw": {
     "label": "corpus-correlation",
@@ -6752,25 +6755,37 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    },
    "src": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    },
    "fmt": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    },
    "b5": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    },
    "dir": {
     "label": "corpus-correlation",
@@ -6784,7 +6799,10 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it."
    }
   },
   "bf_add_dst": {
@@ -7724,15 +7742,19 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
    },
    "srcA": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
    },
    "opsel": {
     "label": "corpus-correlation",
@@ -7746,15 +7768,19 @@
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
    },
    "mods": {
     "label": "untested",
     "range": "none",
     "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here."
    }
   },
   "rtq_pred": {
@@ -9388,49 +9414,58 @@
     ]
    },
    "src_cache": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+2: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0086",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0144"
     ],
-    "note": "byte+1 bit4 marks source-consumed-by-a-following-ALU routing; byte+2 0x54 vs 0x56 is the literal cache bit - DOWNGRADED to UNKNOWN (EXP-0086)."
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "dst_desc": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "byte+3: 255 of 256 values (dense 0..255)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 231 measurements: 2 overturned by the majority vote (0.87%); where they disagree the revalidation wins."
    },
    "src_class": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "byte+4: 256 of 256 values (dense 0..255)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "src": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "byte+5: 256 of 256 values (dense 0..255)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "cvtop": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "byte+6: 256 of 256 values (dense 0..255)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    },
    "signflag": {
-    "label": "corpus-correlation",
-    "range": "byte+7 bit6 = signed i2f vs unsigned u2f",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "byte+7: 256 of 256 values (dense 0..255)",
+    "target": "M4",
     "evidence": [
-     "EXP-0013",
-     "EXP-M4-13"
-    ]
+     "EXP-0144"
+    ],
+    "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins."
    }
   },
   "copysign": {

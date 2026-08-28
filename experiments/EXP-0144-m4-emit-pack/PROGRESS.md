@@ -97,3 +97,28 @@
   resolved by majority -- e.g. `f_pack_convert_b0_f7` voted fault 2 / silent_zero 3.
   A single observation would have called that value `fault` ~40% of the time.
 - Launched `m4_20260828_rv01` as 9 per-instrument shards.
+- **rv01 revalidation complete for 6 of 9 instruments.** 18,088 records, 18,082
+  measured, **17,876 unanimous at 3 reps (99.4%)**, 106 escalated to 5, **0
+  indeterminate**, **176/176 baseline checks passed**, **4 genuine hangs (0.02%)**.
+  853 InnocentVictim and 312 sentinel-absent attempts discarded and re-run.
+  MTLCompilerService collapsed a SECOND time and killed the last three shards:
+  `cvt_f2h_dst` at 294/1311, `cvt_bf16` and `packed_half2_hi` never dispatched a
+  case. SCOPE.md / NOT_RUN.md written for each; no label inherited from run01-05.
+- Verified against the originals: 13,783 measurements compared, **92 overturned
+  (0.67%)**. Every headline finding survived byte-for-byte -- unpack byte+2
+  `(v&3)!=0` exact, the byte+7 format/source table identical, the pack byte+9 format
+  codes identical, the dst register maps identical. Revalidation also RECOVERED
+  `pack_convert` byte+7, which run03 lost to hangs at 8 values: 256/256 with an
+  exact rule.
+- Added the silent-zero discrimination the coordinator asked for: the carriers store
+  six companion live values through the same device_store path, so "wrote zero" is
+  separable from "wrote nothing" without assuming a poisoned buffer. **4,079
+  discriminated / 757 ambiguous**, the ambiguous ones concentrated in the byte-0
+  opcode-leader sweeps. Reported per field, not assumed.
+- **HONEST FINAL COUNT: 33 of 51 blocking fields at emitter grade** (31
+  `hardware-run`, 2 `isolated-byte-diff`), 18 `untested`. The earlier **44 is
+  WITHDRAWN** -- it rested on the contaminated window. The 11-field difference is
+  coverage, not contradiction: 13 of the 18 untested belong to the two instruments
+  that never ran plus the one that stopped at byte+1.
+- RESULTS.md rewritten on the rv01 evidence base; manifest.json updated;
+  every `untested` field carries the note the validator requires.

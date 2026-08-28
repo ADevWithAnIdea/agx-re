@@ -22,13 +22,33 @@ import casematrix as CM     # noqa: E402
 DBI = {i["mnemonic"]: i for i in json.loads(isadb.to_json())["instructions"]}
 TARGETS = {t["mnem"]: t for t in CM.TARGETS}
 
-GATED_INSTRUMENTS = {
- "pack_convert": "GATED: two independent captures (run03, run05), 6251/6255 gated "
-                 "records byte-identical (99.936%)"}
-# Everything else carries "single-observation": the second capture that would gate it
-# was prevented by a host-wide MTLCompilerService outage (RESULTS.md 6.2). A consumer
-# merging these into validation.json should either obtain that second capture
-# (harness/capture.sh) or downgrade those fields one step.
+# EVIDENCE BASE: the m4_20260828_rv01__* REVALIDATION captures ONLY. The earlier
+# run01-run05 captures are retained append-only history and back NO label here: they
+# were taken across a window in which a GPU test destabilised WindowServer and took
+# MTLCompilerService down machine-wide, and they disagree at up to 43.8% with 1,083
+# of 1,084 disagreements carrying a hang on exactly one side. Where the revalidation
+# and an original disagree, the REVALIDATION wins and the field's note says so.
+REPRO = ("majority-of-3 (escalated to 5 on disagreement) within the rv01 "
+         "revalidation; attempts with an InnocentVictim-class fault or a missing "
+         "integrity sentinel were discarded and re-run; carrier baseline "
+         "re-validated every 100 cases")
+
+NOT_COVERED = {
+ "cvt_bf16": "NOT COVERED by the revalidation. The rv01 shard for this instrument "
+             "never dispatched a single case: the host's MTLCompilerService "
+             "collapsed machine-wide before the carrier could be compiled "
+             "(raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated "
+             "run03 DID sweep all 8 bytes of this instruction densely and suggested "
+             "rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is "
+             "not admissible evidence and no label is carried forward from it.",
+ "packed_half2_hi": "NOT COVERED by the revalidation, same MTLCompilerService "
+             "collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is "
+             "also the one instrument that could not be provoked from any MSL shape "
+             "tried, so it is only reachable by a synthesised encoding; in the "
+             "contaminated run03 that synthesis executed and computed the packed-half2 "
+             "multiply for the HIGH LANE ONLY, which is worth re-testing but is not "
+             "admissible here.",
+}
 
 METHOD = (
  "A db.json field is labelled from the dense hardware sweeps of the BYTES that "
@@ -119,6 +139,7 @@ def main():
     wide = json.loads((HERE / "wide_fields.json").read_text())
     gate = json.loads((HERE / "gate_report.json").read_text())
     preds = json.loads((HERE / "predicates.json").read_text())
+    overt = json.loads((HERE / "reval_vs_original.json").read_text())
 
     by_ib = {}
     for k, v in scans.items():
@@ -138,7 +159,14 @@ def main():
             if not scs:
                 out[key] = {"label": "untested", "range": "none", "target": "M4",
                             "evidence": ["EXP-0144"], "reproducibility": "not measured",
-                            "note": "instrument not measured (see RESULTS.md)"}
+                            "note": NOT_COVERED.get(
+                                mnem,
+                                "NOT COVERED by the revalidation: the rv01 shard for "
+                                "%s stopped before reaching the byte(s) covering this "
+                                "field (the host's MTLCompilerService collapsed "
+                                "mid-shard). No label is carried forward from the "
+                                "contaminated run01-run05 captures. See RESULTS.md."
+                                % mnem)}
                 counts["untested"] = counts.get("untested", 0) + 1
                 continue
             nmin = min(s["n_values_executed"] for s in scs)
@@ -201,6 +229,13 @@ def main():
                     elif om.get("kind") == "table":
                         bits.append("byte+%d %s: source-register map measured "
                                     "(see byte_scans.json)" % (s["byte"], pos))
+                if s.get("silent_zero_discriminated") or s.get("silent_zero_ambiguous"):
+                    bits.append("byte+%d silent zeros: %d DISCRIMINATED (the six companion "
+                                "values stored through the same path were intact, so the "
+                                "store ran and the zero is a real register read) / %d "
+                                "ambiguous"
+                                % (s["byte"], s.get("silent_zero_discriminated", 0),
+                                   s.get("silent_zero_ambiguous", 0)))
                 if s.get("dst_redirect_slots"):
                     bits.append("byte+%d: DESTINATION redirection observed into %d distinct "
                                 "output slots -- this byte selects the result register"
@@ -211,10 +246,19 @@ def main():
                     if real:
                         bits.append("byte+%d FORMAT CODES: %s" % (s["byte"], json.dumps(real)))
                 sem.append(" | ".join(bits))
-            gated = GATED_INSTRUMENTS.get(mnem, "single-observation")
+            ov = [overt.get("%s.byte%d" % (mnem, s["byte"]), {}) for s in scs]
+            n_cmp = sum(x.get("compared", 0) for x in ov)
+            n_ov = sum(x.get("overturned", 0) for x in ov)
+            note = ("Derived from the rv01 REVALIDATION only. Compared against the "
+                    "contaminated run03/run05 on %d measurements: %d overturned by the "
+                    "majority vote (%.2f%%); where they disagree the revalidation wins."
+                    % (n_cmp, n_ov, 100.0 * n_ov / max(1, n_cmp)))
+            if nmin < 200:
+                note += (" COVERAGE IS PARTIAL: the smallest covering byte executed only "
+                         "%d values (see `range`)." % nmin)
             out[key] = {"label": label, "range": rng, "target": "M4",
                         "evidence": ["EXP-0144"], "semantics": "  ||  ".join(sem),
-                        "reproducibility": gated,
+                        "reproducibility": REPRO, "note": note,
                         "outcomes": {("byte%d" % s["byte"]): s["outcomes"] for s in scs}}
             counts[label] = counts.get(label, 0) + 1
 

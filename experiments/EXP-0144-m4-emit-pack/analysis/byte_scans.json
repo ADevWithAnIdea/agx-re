@@ -1,506 +1,4 @@
 {
- "cvt_bf16.byte0": {
-  "anchor_value": 1,
-  "bit_rule": {
-   "emit": "value & 0x0b == 0x01  (bits [2, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    113,
-    161,
-    177
-   ],
-   "free_bits": [
-    2,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 11,
-   "n_ok": 14,
-   "n_predicted": 17,
-   "required": 1
-  },
-  "byte": 0,
-  "coverage": "23 values: 0x00,0x01,0x02,0x03,0x05,0x09,0x11,0x21,0x31,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc1,0xd1,0xe1,0xf1,0xfe,0xff",
-  "db_fields": [
-   "dst"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 23,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 17,
-   "f2h(v0)": 1,
-   "zero": 5
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 14,
-   "silent_zero": 5,
-   "wrong_value": 4
-  },
-  "sentinel_states": {
-   "clean": 15,
-   "perturbed": 8
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte1": {
-  "anchor_value": 1,
-  "bit_rule": {
-   "emit": "value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
-   "exact": true,
-   "false_neg": [],
-   "false_pos": [],
-   "free_bits": [
-    7
-   ],
-   "kind": "bitmask",
-   "mask": 127,
-   "n_ok": 2,
-   "n_predicted": 2,
-   "required": 1
-  },
-  "byte": 1,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "srcw"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 2,
-   "unknown": 18,
-   "zero": 236
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 2,
-   "silent_zero": 236,
-   "wrong_value": 18
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte2": {
-  "anchor_value": 20,
-  "bit_rule": {
-   "emit": "value & 0x04 == 0x04  (bits [0, 1, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    5,
-    13,
-    14,
-    15,
-    21,
-    22,
-    23,
-    29,
-    30,
-    31,
-    37,
-    45,
-    46,
-    47,
-    53,
-    54
-   ],
-   "free_bits": [
-    0,
-    1,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 4,
-   "n_ok": 48,
-   "n_predicted": 128,
-   "required": 4
-  },
-  "byte": 2,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "opsel"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 48,
-   "unknown": 4,
-   "zero": 204
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 48,
-   "silent_zero": 204,
-   "wrong_value": 4
-  },
-  "sentinel_states": {
-   "clean": 128,
-   "perturbed": 128
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte3": {
-  "anchor_value": 129,
-  "bit_rule": {
-   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    130,
-    131,
-    132,
-    133,
-    134,
-    135,
-    136,
-    137,
-    138,
-    139,
-    140,
-    141,
-    142,
-    143,
-    144,
-    145
-   ],
-   "free_bits": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 0,
-   "n_ok": 130,
-   "n_predicted": 256,
-   "required": 0
-  },
-  "byte": 3,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "src"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 130,
-   "f2bf_rne(v5)": 2,
-   "f2h(v0)": 2,
-   "unknown": 120,
-   "zero": 2
-  },
-  "operand_map": {
-   "operand0": {
-    "kind": "table",
-    "map": {
-     "0": 0,
-     "1": 0,
-     "2": 0,
-     "3": 0,
-     "4": 0,
-     "5": 0,
-     "6": 0,
-     "7": 0,
-     "8": 0,
-     "9": 0,
-     "10": 0,
-     "11": 0,
-     "12": 0,
-     "13": 0,
-     "14": 0,
-     "15": 0,
-     "16": 0,
-     "17": 0,
-     "18": 0,
-     "19": 0,
-     "20": 0,
-     "21": 0,
-     "22": 0,
-     "23": 0,
-     "24": 0,
-     "25": 0,
-     "26": 0,
-     "27": 0,
-     "28": 0,
-     "29": 0,
-     "30": 0,
-     "31": 0,
-     "32": 0,
-     "33": 0,
-     "34": 0,
-     "35": 0,
-     "36": 0,
-     "37": 0,
-     "38": 0,
-     "39": 0
-    },
-    "n_points": 134
-   }
-  },
-  "outcomes": {
-   "ok": 130,
-   "silent_zero": 2,
-   "wrong_value": 124
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte4": {
-  "anchor_value": 5,
-  "bit_rule": {
-   "emit": "value & 0x03 == 0x01  (bits [2, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    1,
-    9,
-    17,
-    21,
-    25,
-    29,
-    133,
-    141,
-    145,
-    149,
-    153,
-    157
-   ],
-   "free_bits": [
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 3,
-   "n_ok": 52,
-   "n_predicted": 64,
-   "required": 1
-  },
-  "byte": 4,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "fmt"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 58,
-   "unknown": 4,
-   "zero": 194
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 52,
-   "silent_zero": 194,
-   "wrong_value": 10
-  },
-  "sentinel_states": {
-   "clean": 64,
-   "perturbed": 192
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte5": {
-  "anchor_value": 2,
-  "bit_rule": {
-   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    0,
-    3,
-    5,
-    7,
-    8,
-    9,
-    11,
-    13,
-    15,
-    16,
-    17,
-    24,
-    25,
-    32,
-    35,
-    37
-   ],
-   "free_bits": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 0,
-   "n_ok": 152,
-   "n_predicted": 256,
-   "required": 0
-  },
-  "byte": 5,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "b5"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 152,
-   "unknown": 16,
-   "zero": 88
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 152,
-   "silent_zero": 88,
-   "wrong_value": 16
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte6": {
-  "anchor_value": 64,
-  "bit_rule": {
-   "emit": "value & 0xc2 == 0x40  (bits [0, 2, 3, 4, 5] are DON'T CARE)",
-   "exact": true,
-   "false_neg": [],
-   "false_pos": [],
-   "free_bits": [
-    0,
-    2,
-    3,
-    4,
-    5
-   ],
-   "kind": "bitmask",
-   "mask": 194,
-   "n_ok": 32,
-   "n_predicted": 32,
-   "required": 64
-  },
-  "byte": 6,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "dir"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 32,
-   "f2h(v0)": 32,
-   "unknown": 128,
-   "zero": 64
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 32,
-   "silent_zero": 64,
-   "wrong_value": 160
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_bf16.byte7": {
-  "anchor_value": 0,
-  "bit_rule": {
-   "emit": "value & 0x02 == 0x00  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": true,
-   "false_neg": [],
-   "false_pos": [],
-   "free_bits": [
-    0,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask",
-   "mask": 2,
-   "n_ok": 128,
-   "n_predicted": 128,
-   "required": 0
-  },
-  "byte": 7,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "b7"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_bf16",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 128,
-   "unknown": 128
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 128,
-   "wrong_value": 128
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
  "cvt_f2h.byte0": {
   "anchor_value": 1,
   "bit_rule": {
@@ -540,9 +38,10 @@
    "wrong_value": 18
   },
   "sentinel_states": {
-   "clean": 17,
-   "perturbed": 6
+   "null": 23
   },
+  "silent_zero_ambiguous": 1,
+  "silent_zero_discriminated": 3,
   "target": "M4"
  },
  "cvt_f2h.byte1": {
@@ -584,8 +83,10 @@
    "wrong_value": 18
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 236,
   "target": "M4"
  },
  "cvt_f2h.byte2": {
@@ -607,7 +108,7 @@
    "required": 4
   },
   "byte": 2,
-  "coverage": "256 of 256 values (dense 0..255)",
+  "coverage": "254 of 256 values (dense 0..255)",
   "db_fields": [
    "op"
   ],
@@ -616,13 +117,13 @@
    "EXP-0144"
   ],
   "instr": "cvt_f2h",
-  "n_values_executed": 256,
+  "n_values_executed": 254,
   "observed_meanings": {
    "f2bf_rne(v0)": 62,
    "f2h(v0)": 8,
    "f2h(v1)": 8,
    "unknown": 4,
-   "zero": 174
+   "zero": 172
   },
   "operand_map": {
    "operand0": {
@@ -673,15 +174,16 @@
    }
   },
   "outcomes": {
-   "fault": 2,
+   "fault": 20,
    "ok": 8,
-   "silent_zero": 172,
+   "silent_zero": 152,
    "wrong_value": 74
   },
   "sentinel_states": {
-   "absent": 2,
-   "clean": 254
+   "null": 254
   },
+  "silent_zero_ambiguous": 96,
+  "silent_zero_discriminated": 56,
   "target": "M4"
  },
  "cvt_f2h.byte3": {
@@ -795,8 +297,10 @@
    "wrong_value": 124
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 2,
   "target": "M4"
  },
  "cvt_f2h.byte4": {
@@ -844,9 +348,10 @@
    "wrong_value": 92
   },
   "sentinel_states": {
-   "clean": 128,
-   "perturbed": 128
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 162,
   "target": "M4"
  },
  "cvt_f2h.byte5": {
@@ -912,8 +417,10 @@
    "wrong_value": 112
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 88,
   "target": "M4"
  },
  "cvt_f2h_dst.byte0": {
@@ -954,9 +461,10 @@
    "wrong_value": 20
   },
   "sentinel_states": {
-   "clean": 20,
-   "perturbed": 4
+   "null": 24
   },
+  "silent_zero_ambiguous": 1,
+  "silent_zero_discriminated": 2,
   "target": "M4"
  },
  "cvt_f2h_dst.byte1": {
@@ -1046,30 +554,28 @@
    "wrong_value": 254
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_f2h_dst.byte2": {
   "anchor_value": 20,
   "bit_rule": {
-   "emit": "value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE)",
+   "emit": "value & 0xff == 0x04  (bits none are DON'T CARE)",
    "exact": true,
    "false_neg": [],
    "false_pos": [],
-   "free_bits": [
-    3,
-    4,
-    5
-   ],
+   "free_bits": [],
    "kind": "bitmask",
-   "mask": 199,
-   "n_ok": 8,
-   "n_predicted": 8,
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
    "required": 4
   },
   "byte": 2,
-  "coverage": "256 of 256 values (dense 0..255)",
+  "coverage": "7 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06",
   "db_fields": [
    "opsel"
   ],
@@ -1078,246 +584,22 @@
    "EXP-0144"
   ],
   "instr": "cvt_f2h_dst",
-  "n_values_executed": 256,
+  "n_values_executed": 7,
   "observed_meanings": {
-   "f2h(v0)": 8,
-   "lo16raw(v0)": 204,
-   "unknown": 12,
-   "zero": 32
+   "f2h(v0)": 1,
+   "lo16raw(v0)": 5,
+   "unknown": 1
   },
   "operand_map": {},
   "outcomes": {
-   "ok": 8,
-   "silent_zero": 32,
-   "wrong_value": 216
+   "ok": 1,
+   "wrong_value": 6
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 7
   },
-  "target": "M4"
- },
- "cvt_f2h_dst.byte3": {
-  "anchor_value": 129,
-  "bit_rule": {
-   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    130,
-    131,
-    132,
-    133,
-    134,
-    135,
-    136,
-    137,
-    138,
-    139,
-    140,
-    141,
-    142,
-    143,
-    144,
-    145
-   ],
-   "free_bits": [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 0,
-   "n_ok": 130,
-   "n_predicted": 256,
-   "required": 0
-  },
-  "byte": 3,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "src"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_f2h_dst",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2h(v0)": 130,
-   "f2h(v5)": 2,
-   "lo16raw(v0)": 2,
-   "unknown": 122
-  },
-  "operand_map": {
-   "operand0": {
-    "kind": "table",
-    "map": {
-     "0": 0,
-     "1": 0,
-     "2": 0,
-     "3": 0,
-     "4": 0,
-     "5": 0,
-     "6": 0,
-     "7": 0,
-     "8": 0,
-     "9": 0,
-     "10": 0,
-     "11": 0,
-     "12": 0,
-     "13": 0,
-     "14": 0,
-     "15": 0,
-     "16": 0,
-     "17": 0,
-     "18": 0,
-     "19": 0,
-     "20": 0,
-     "21": 0,
-     "22": 0,
-     "23": 0,
-     "24": 0,
-     "25": 0,
-     "26": 0,
-     "27": 0,
-     "28": 0,
-     "29": 0,
-     "30": 0,
-     "31": 0,
-     "32": 0,
-     "33": 0,
-     "34": 0,
-     "35": 0,
-     "36": 0,
-     "37": 0,
-     "38": 0,
-     "39": 0
-    },
-    "n_points": 134
-   }
-  },
-  "outcomes": {
-   "ok": 130,
-   "wrong_value": 126
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_f2h_dst.byte4": {
-  "anchor_value": 4,
-  "bit_rule": {
-   "emit": "value & 0xf7 == 0x04  (bits [3] are DON'T CARE)",
-   "exact": true,
-   "false_neg": [],
-   "false_pos": [],
-   "free_bits": [
-    3
-   ],
-   "kind": "bitmask",
-   "mask": 247,
-   "n_ok": 2,
-   "n_predicted": 2,
-   "required": 4
-  },
-  "byte": 4,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "dhalf"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_f2h_dst",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2bf_rne(v0)": 2,
-   "f2h(v0)": 2,
-   "lo16raw(v0)": 122,
-   "unknown": 16,
-   "zero": 114
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 2,
-   "silent_zero": 114,
-   "wrong_value": 140
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
-  "target": "M4"
- },
- "cvt_f2h_dst.byte5": {
-  "anchor_value": 2,
-  "bit_rule": {
-   "emit": "value & 0x10 == 0x00  (bits [0, 1, 2, 3, 5, 6, 7] are DON'T CARE)",
-   "exact": false,
-   "false_neg": [],
-   "false_pos": [
-    0,
-    3,
-    5,
-    7,
-    8,
-    9,
-    11,
-    13,
-    15,
-    32,
-    35,
-    37,
-    39,
-    40,
-    41,
-    43
-   ],
-   "free_bits": [
-    0,
-    1,
-    2,
-    3,
-    5,
-    6,
-    7
-   ],
-   "kind": "bitmask_approx",
-   "mask": 16,
-   "n_ok": 56,
-   "n_predicted": 128,
-   "required": 0
-  },
-  "byte": 5,
-  "coverage": "256 of 256 values (dense 0..255)",
-  "db_fields": [
-   "tail"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "cvt_f2h_dst",
-  "n_values_executed": 256,
-  "observed_meanings": {
-   "f2h(v0)": 56,
-   "lo16raw(v0)": 184,
-   "unknown": 16
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 56,
-   "wrong_value": 200
-  },
-  "sentinel_states": {
-   "clean": 256
-  },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_f2i.byte0": {
@@ -1335,28 +617,27 @@
    "required": 39
   },
   "byte": 0,
-  "coverage": "23 values: 0x00,0x07,0x17,0x23,0x25,0x26,0x27,0x28,0x2f,0x37,0x47,0x67,0x77,0x87,0x97,0xa7,0xb7,0xc7,0xd7,0xd8,0xe7,0xf7,0xff",
+  "coverage": "24 values: 0x00,0x07,0x17,0x23,0x25,0x26,0x27,0x28,0x2f,0x37,0x47,0x57,0x67,0x77,0x87,0x97,0xa7,0xb7,0xc7,0xd7,0xd8,0xe7,0xf7,0xff",
   "db_fields": [],
   "dst_redirect_slots": {},
   "evidence": [
    "EXP-0144"
   ],
   "instr": "cvt_f2i",
-  "n_values_executed": 23,
+  "n_values_executed": 24,
   "observed_meanings": {
    "f2i(v0)": 1,
    "raw(v0)": 1,
-   "raw(v3)": 3,
+   "raw(v3)": 2,
    "raw(v4)": 1,
    "raw(v5)": 1,
    "unknown": 1,
-   "zero": 15
+   "zero": 17
   },
   "operand_map": {
    "operand0": {
     "kind": "table",
     "map": {
-     "37": 3,
      "39": 0,
      "55": 0,
      "103": 4,
@@ -1364,20 +645,20 @@
      "183": 3,
      "231": 5
     },
-    "n_points": 7
+    "n_points": 6
    }
   },
   "outcomes": {
-   "fault": 4,
+   "fault": 7,
    "ok": 1,
-   "silent_zero": 11,
-   "wrong_value": 7
+   "silent_zero": 10,
+   "wrong_value": 6
   },
   "sentinel_states": {
-   "absent": 4,
-   "clean": 10,
-   "perturbed": 9
+   "null": 24
   },
+  "silent_zero_ambiguous": 1,
+  "silent_zero_discriminated": 9,
   "target": "M4"
  },
  "cvt_f2i.byte1": {
@@ -1411,8 +692,8 @@
   "n_values_executed": 256,
   "observed_meanings": {
    "f2i(v0)": 32,
-   "raw(v3)": 64,
-   "zero": 160
+   "raw(v3)": 63,
+   "zero": 161
   },
   "operand_map": {
    "operand0": {
@@ -1433,7 +714,6 @@
      "37": 3,
      "38": 3,
      "39": 0,
-     "45": 3,
      "46": 3,
      "47": 0,
      "53": 3,
@@ -1457,20 +737,23 @@
      "101": 3,
      "102": 3,
      "103": 0,
-     "109": 3
+     "109": 3,
+     "110": 3
     },
-    "n_points": 96
+    "n_points": 95
    }
   },
   "outcomes": {
+   "fault": 8,
    "ok": 32,
-   "silent_zero": 160,
-   "wrong_value": 64
+   "silent_zero": 153,
+   "wrong_value": 63
   },
   "sentinel_states": {
-   "clean": 96,
-   "perturbed": 160
+   "null": 256
   },
+  "silent_zero_ambiguous": 91,
+  "silent_zero_discriminated": 62,
   "target": "M4"
  },
  "cvt_f2i.byte2": {
@@ -1534,9 +817,10 @@
    "silent_zero": 64
   },
   "sentinel_states": {
-   "clean": 192,
-   "perturbed": 64
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 64,
   "target": "M4"
  },
  "cvt_f2i.byte3": {
@@ -1556,7 +840,7 @@
    "required": 24
   },
   "byte": 3,
-  "coverage": "211 of 256 values (dense 0..255)",
+  "coverage": "244 of 256 values (dense 0..255)",
   "db_fields": [
    "dst"
   ],
@@ -1590,23 +874,23 @@
    "EXP-0144"
   ],
   "instr": "cvt_f2i",
-  "n_values_executed": 211,
+  "n_values_executed": 244,
   "observed_meanings": {
    "f2i(v0)": 2,
-   "zero": 209
+   "zero": 242
   },
   "operand_map": {},
   "outcomes": {
-   "fault": 17,
-   "hang": 2,
+   "fault": 51,
+   "hang": 1,
    "ok": 2,
    "silent_zero": 190
   },
   "sentinel_states": {
-   "absent": 19,
-   "clean": 186,
-   "perturbed": 6
+   "null": 244
   },
+  "silent_zero_ambiguous": 22,
+  "silent_zero_discriminated": 168,
   "target": "M4"
  },
  "cvt_f2i.byte4": {
@@ -1652,8 +936,10 @@
    "silent_zero": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "cvt_f2i.byte5": {
@@ -1731,8 +1017,10 @@
    "wrong_value": 20
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 232,
   "target": "M4"
  },
  "cvt_f2i.byte6": {
@@ -1775,9 +1063,10 @@
    "wrong_value": 8
   },
   "sentinel_states": {
-   "clean": 240,
-   "perturbed": 16
+   "null": 256
   },
+  "silent_zero_ambiguous": 8,
+  "silent_zero_discriminated": 232,
   "target": "M4"
  },
  "cvt_f2i.byte7": {
@@ -1824,8 +1113,10 @@
    "wrong_value": 32
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 160,
   "target": "M4"
  },
  "cvt_f2i.byte8": {
@@ -1871,8 +1162,10 @@
    "wrong_value": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_f2i.byte9": {
@@ -1901,8 +1194,10 @@
    "ok": 256
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f.byte0": {
@@ -1920,20 +1215,20 @@
    "required": 167
   },
   "byte": 0,
-  "coverage": "20 values: 0x00,0x17,0x27,0x37,0x47,0x57,0x58,0x77,0x97,0xa3,0xa5,0xa6,0xa7,0xa8,0xaf,0xb7,0xc7,0xe7,0xf7,0xff",
+  "coverage": "21 values: 0x00,0x17,0x27,0x37,0x47,0x57,0x58,0x77,0x87,0x97,0xa3,0xa5,0xa6,0xa7,0xa8,0xaf,0xb7,0xc7,0xe7,0xf7,0xff",
   "db_fields": [],
   "dst_redirect_slots": {},
   "evidence": [
    "EXP-0144"
   ],
   "instr": "cvt_i2f",
-  "n_values_executed": 20,
+  "n_values_executed": 21,
   "observed_meanings": {
    "i2f(v0)": 1,
-   "raw(v0)": 2,
+   "raw(v0)": 1,
    "raw(v4)": 2,
    "unknown": 3,
-   "zero": 12
+   "zero": 14
   },
   "operand_map": {
    "operand0": {
@@ -1942,23 +1237,22 @@
      "71": 0,
      "151": 4,
      "167": 0,
-     "199": 0,
      "231": 4
     },
-    "n_points": 5
+    "n_points": 4
    }
   },
   "outcomes": {
-   "fault": 5,
+   "fault": 7,
    "ok": 1,
    "silent_zero": 7,
-   "wrong_value": 7
+   "wrong_value": 6
   },
   "sentinel_states": {
-   "absent": 5,
-   "clean": 2,
-   "perturbed": 13
+   "null": 21
   },
+  "silent_zero_ambiguous": 6,
+  "silent_zero_discriminated": 1,
   "target": "M4"
  },
  "cvt_i2f.byte1": {
@@ -1992,8 +1286,8 @@
   "n_values_executed": 224,
   "observed_meanings": {
    "i2f(v0)": 32,
-   "raw(v4)": 64,
-   "zero": 128
+   "raw(v4)": 57,
+   "zero": 135
   },
   "operand_map": {
    "operand0": {
@@ -2014,7 +1308,6 @@
      "32": 4,
      "34": 4,
      "39": 0,
-     "40": 4,
      "42": 4,
      "47": 0,
      "48": 4,
@@ -2026,7 +1319,6 @@
      "64": 4,
      "66": 4,
      "71": 0,
-     "72": 4,
      "74": 4,
      "79": 0,
      "80": 4,
@@ -2038,20 +1330,24 @@
      "96": 4,
      "98": 4,
      "103": 0,
-     "104": 4
+     "106": 4,
+     "111": 0,
+     "112": 4
     },
-    "n_points": 96
+    "n_points": 89
    }
   },
   "outcomes": {
+   "fault": 13,
    "ok": 32,
-   "silent_zero": 128,
-   "wrong_value": 64
+   "silent_zero": 122,
+   "wrong_value": 57
   },
   "sentinel_states": {
-   "clean": 96,
-   "perturbed": 128
+   "null": 224
   },
+  "silent_zero_ambiguous": 58,
+  "silent_zero_discriminated": 64,
   "target": "M4"
  },
  "cvt_i2f.byte2": {
@@ -2115,9 +1411,10 @@
    "silent_zero": 64
   },
   "sentinel_states": {
-   "clean": 192,
-   "perturbed": 64
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 64,
   "target": "M4"
  },
  "cvt_i2f.byte3": {
@@ -2137,7 +1434,7 @@
    "required": 24
   },
   "byte": 3,
-  "coverage": "256 of 256 values (dense 0..255)",
+  "coverage": "250 of 256 values (dense 0..255)",
   "db_fields": [
    "dst"
   ],
@@ -2171,22 +1468,22 @@
    "EXP-0144"
   ],
   "instr": "cvt_i2f",
-  "n_values_executed": 256,
+  "n_values_executed": 250,
   "observed_meanings": {
    "i2f(v0)": 2,
-   "zero": 254
+   "zero": 248
   },
   "operand_map": {},
   "outcomes": {
-   "fault": 64,
+   "fault": 58,
    "ok": 2,
    "silent_zero": 190
   },
   "sentinel_states": {
-   "absent": 64,
-   "clean": 186,
-   "perturbed": 6
+   "null": 250
   },
+  "silent_zero_ambiguous": 24,
+  "silent_zero_discriminated": 166,
   "target": "M4"
  },
  "cvt_i2f.byte4": {
@@ -2232,8 +1529,10 @@
    "silent_zero": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "cvt_i2f.byte5": {
@@ -2331,8 +1630,10 @@
    "wrong_value": 36
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 212,
   "target": "M4"
  },
  "cvt_i2f.byte6": {
@@ -2377,9 +1678,10 @@
    "wrong_value": 48
   },
   "sentinel_states": {
-   "clean": 192,
-   "perturbed": 64
+   "null": 256
   },
+  "silent_zero_ambiguous": 32,
+  "silent_zero_discriminated": 160,
   "target": "M4"
  },
  "cvt_i2f.byte7": {
@@ -2425,8 +1727,10 @@
    "silent_zero": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "cvt_i2f_src.byte0": {
@@ -2453,11 +1757,11 @@
   "instr": "cvt_i2f_src",
   "n_values_executed": 23,
   "observed_meanings": {
-   "i2f(v0)": 16,
+   "i2f(v0)": 14,
    "i2f(v0)+i2f(v1)": 1,
    "raw(v5)": 2,
    "unknown": 1,
-   "zero": 3
+   "zero": 5
   },
   "operand_map": {
    "operand0": {
@@ -2465,8 +1769,6 @@
     "map": {
      "0": 0,
      "7": 0,
-     "23": 0,
-     "39": 0,
      "55": 0,
      "71": 0,
      "88": 0,
@@ -2482,20 +1784,19 @@
      "247": 0,
      "255": 0
     },
-    "n_points": 18
+    "n_points": 16
    }
   },
   "outcomes": {
-   "fault": 2,
+   "fault": 5,
    "ok": 1,
-   "silent_zero": 1,
-   "wrong_value": 19
+   "wrong_value": 17
   },
   "sentinel_states": {
-   "absent": 2,
-   "clean": 12,
-   "perturbed": 9
+   "null": 23
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte1": {
@@ -2528,9 +1829,10 @@
   "instr": "cvt_i2f_src",
   "n_values_executed": 224,
   "observed_meanings": {
-   "i2f(v0)": 128,
+   "i2f(v0)": 124,
    "i2f(v0)+i2f(v1)": 32,
-   "raw(v5)": 64
+   "raw(v5)": 62,
+   "zero": 6
   },
   "operand_map": {
    "operand0": {
@@ -2577,17 +1879,19 @@
      "50": 5,
      "51": 0
     },
-    "n_points": 192
+    "n_points": 186
    }
   },
   "outcomes": {
+   "fault": 6,
    "ok": 32,
-   "wrong_value": 192
+   "wrong_value": 186
   },
   "sentinel_states": {
-   "clean": 96,
-   "perturbed": 128
+   "null": 224
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte2": {
@@ -2616,8 +1920,10 @@
    "ok": 256
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte3": {
@@ -2637,7 +1943,7 @@
    "required": 24
   },
   "byte": 3,
-  "coverage": "231 of 256 values (dense 0..255)",
+  "coverage": "255 of 256 values (dense 0..255)",
   "db_fields": [
    "dst_desc"
   ],
@@ -2646,12 +1952,12 @@
    "EXP-0144"
   ],
   "instr": "cvt_i2f_src",
-  "n_values_executed": 231,
+  "n_values_executed": 255,
   "observed_meanings": {
    "i2f(v0)": 186,
    "i2f(v0)+i2f(v1)": 2,
    "i2f(v1)": 2,
-   "zero": 41
+   "zero": 65
   },
   "operand_map": {
    "operand0": {
@@ -2702,17 +2008,16 @@
    }
   },
   "outcomes": {
-   "fault": 37,
-   "hang": 2,
+   "fault": 63,
    "ok": 2,
    "silent_zero": 2,
    "wrong_value": 188
   },
   "sentinel_states": {
-   "absent": 39,
-   "clean": 186,
-   "perturbed": 6
+   "null": 255
   },
+  "silent_zero_ambiguous": 2,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte4": {
@@ -2758,8 +2063,10 @@
    "wrong_value": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte5": {
@@ -2866,8 +2173,10 @@
    "wrong_value": 248
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte6": {
@@ -2910,8 +2219,10 @@
    "wrong_value": 240
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "cvt_i2f_src.byte7": {
@@ -2957,8 +2268,10 @@
    "wrong_value": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "pack_convert.byte0": {
@@ -3007,10 +2320,10 @@
    "wrong_value": 2
   },
   "sentinel_states": {
-   "absent": 1,
-   "clean": 7,
-   "perturbed": 16
+   "null": 24
   },
+  "silent_zero_ambiguous": 10,
+  "silent_zero_discriminated": 10,
   "target": "M4"
  },
  "pack_convert.byte1": {
@@ -3055,9 +2368,10 @@
    "silent_zero": 192
   },
   "sentinel_states": {
-   "clean": 64,
-   "perturbed": 192
+   "null": 256
   },
+  "silent_zero_ambiguous": 192,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "pack_convert.byte2": {
@@ -3103,9 +2417,10 @@
    "silent_zero": 128
   },
   "sentinel_states": {
-   "clean": 128,
-   "perturbed": 128
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "pack_convert.byte3": {
@@ -3125,7 +2440,7 @@
    "required": 24
   },
   "byte": 3,
-  "coverage": "256 of 256 values (dense 0..255)",
+  "coverage": "250 of 256 values (dense 0..255)",
   "db_fields": [
    "src"
   ],
@@ -3159,23 +2474,23 @@
    "EXP-0144"
   ],
   "instr": "pack_convert",
-  "n_values_executed": 256,
+  "n_values_executed": 250,
   "observed_meanings": {
    "unorm2x16(v0,v1)": 2,
-   "zero": 254
+   "zero": 248
   },
   "operand_map": {},
   "outcomes": {
-   "fault": 63,
-   "hang": 1,
+   "fault": 56,
+   "hang": 2,
    "ok": 2,
    "silent_zero": 190
   },
   "sentinel_states": {
-   "absent": 64,
-   "clean": 186,
-   "perturbed": 6
+   "null": 250
   },
+  "silent_zero_ambiguous": 24,
+  "silent_zero_discriminated": 166,
   "target": "M4"
  },
  "pack_convert.byte4": {
@@ -3221,8 +2536,10 @@
    "silent_zero": 128
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "pack_convert.byte5": {
@@ -3299,8 +2616,10 @@
    "wrong_value": 252
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "pack_convert.byte6": {
@@ -3379,8 +2698,10 @@
    "wrong_value": 148
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 104,
   "target": "M4"
  },
  "pack_convert.byte7": {
@@ -3417,17 +2738,16 @@
   },
   "operand_map": {},
   "outcomes": {
-   "fault": 62,
-   "hang": 2,
+   "fault": 64,
    "ok": 2,
    "silent_zero": 132,
    "wrong_value": 58
   },
   "sentinel_states": {
-   "absent": 64,
-   "clean": 168,
-   "perturbed": 24
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 132,
   "target": "M4"
  },
  "pack_convert.byte8": {
@@ -3473,8 +2793,10 @@
    "wrong_value": 96
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 64,
+  "silent_zero_discriminated": 64,
   "target": "M4"
  },
  "pack_convert.byte9": {
@@ -3518,50 +2840,10 @@
    "wrong_value": 192
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
-  "target": "M4"
- },
- "packed_half2_hi.byte0": {
-  "anchor_value": 152,
-  "bit_rule": {
-   "emit": "value & 0xff == 0x90  (bits none are DON'T CARE)",
-   "exact": true,
-   "false_neg": [],
-   "false_pos": [],
-   "free_bits": [],
-   "kind": "bitmask",
-   "mask": 255,
-   "n_ok": 1,
-   "n_predicted": 1,
-   "required": 144
-  },
-  "byte": 0,
-  "coverage": "22 values: 0x00,0x08,0x18,0x28,0x38,0x48,0x58,0x67,0x68,0x78,0x88,0x90,0x98,0x99,0x9a,0xa8,0xb8,0xc8,0xd8,0xe8,0xf8,0xff",
-  "db_fields": [
-   "dst"
-  ],
-  "dst_redirect_slots": {},
-  "evidence": [
-   "EXP-0144"
-  ],
-  "instr": "packed_half2_hi",
-  "n_values_executed": 22,
-  "observed_meanings": {
-   "raw(v1)": 1,
-   "unknown": 19,
-   "zero": 2
-  },
-  "operand_map": {},
-  "outcomes": {
-   "ok": 1,
-   "silent_zero": 2,
-   "wrong_value": 19
-  },
-  "sentinel_states": {
-   "clean": 18,
-   "perturbed": 4
-  },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 60,
   "target": "M4"
  },
  "unpack_convert.byte0": {
@@ -3603,16 +2885,16 @@
    }
   },
   "outcomes": {
-   "fault": 1,
+   "fault": 3,
    "ok": 1,
-   "silent_zero": 12,
+   "silent_zero": 10,
    "wrong_value": 1
   },
   "sentinel_states": {
-   "absent": 1,
-   "clean": 4,
-   "perturbed": 10
+   "null": 15
   },
+  "silent_zero_ambiguous": 4,
+  "silent_zero_discriminated": 6,
   "target": "M4"
  },
  "unpack_convert.byte1": {
@@ -3648,9 +2930,9 @@
   "instr": "unpack_convert",
   "n_values_executed": 256,
   "observed_meanings": {
-   "raw(v4)": 96,
+   "raw(v4)": 91,
    "unorm_lo(v0)": 64,
-   "zero": 96
+   "zero": 101
   },
   "operand_map": {
    "operand0": {
@@ -3677,7 +2959,6 @@
      "29": 4,
      "30": 0,
      "32": 4,
-     "33": 4,
      "36": 0,
      "37": 4,
      "38": 0,
@@ -3695,20 +2976,23 @@
      "57": 4,
      "60": 0,
      "61": 4,
-     "62": 0
+     "62": 0,
+     "64": 4
     },
-    "n_points": 160
+    "n_points": 155
    }
   },
   "outcomes": {
+   "fault": 8,
    "ok": 64,
-   "silent_zero": 96,
-   "wrong_value": 96
+   "silent_zero": 93,
+   "wrong_value": 91
   },
   "sentinel_states": {
-   "clean": 64,
-   "perturbed": 192
+   "null": 256
   },
+  "silent_zero_ambiguous": 93,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "unpack_convert.byte2": {
@@ -3772,9 +3056,10 @@
    "silent_zero": 64
   },
   "sentinel_states": {
-   "clean": 192,
-   "perturbed": 64
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 64,
   "target": "M4"
  },
  "unpack_convert.byte3": {
@@ -3794,7 +3079,7 @@
    "required": 0
   },
   "byte": 3,
-  "coverage": "192 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f",
+  "coverage": "256 of 256 values (dense 0..255)",
   "db_fields": [
    "convert_desc"
   ],
@@ -3816,23 +3101,23 @@
    "EXP-0144"
   ],
   "instr": "unpack_convert",
-  "n_values_executed": 192,
+  "n_values_executed": 256,
   "observed_meanings": {
    "unorm_lo(v0)": 2,
-   "zero": 190
+   "zero": 254
   },
   "operand_map": {},
   "outcomes": {
-   "hang": 2,
+   "fault": 66,
    "ok": 2,
    "silent_zero": 186,
    "wrong_value": 2
   },
   "sentinel_states": {
-   "absent": 2,
-   "clean": 178,
-   "perturbed": 12
+   "null": 256
   },
+  "silent_zero_ambiguous": 28,
+  "silent_zero_discriminated": 158,
   "target": "M4"
  },
  "unpack_convert.byte4": {
@@ -3861,8 +3146,10 @@
    "ok": 256
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 0,
   "target": "M4"
  },
  "unpack_convert.byte5": {
@@ -3959,8 +3246,10 @@
    "wrong_value": 40
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 212,
   "target": "M4"
  },
  "unpack_convert.byte6": {
@@ -4005,9 +3294,10 @@
    "wrong_value": 112
   },
   "sentinel_states": {
-   "clean": 192,
-   "perturbed": 64
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 128,
   "target": "M4"
  },
  "unpack_convert.byte7": {
@@ -4076,8 +3366,10 @@
    "wrong_value": 62
   },
   "sentinel_states": {
-   "clean": 256
+   "null": 256
   },
+  "silent_zero_ambiguous": 0,
+  "silent_zero_discriminated": 192,
   "target": "M4"
  }
 }

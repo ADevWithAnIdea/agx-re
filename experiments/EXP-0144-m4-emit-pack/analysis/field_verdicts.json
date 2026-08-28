@@ -1,8 +1,8 @@
 {
  "_counts": {
-  "hardware-run": 38,
-  "isolated-byte-diff": 9,
-  "untested": 7
+  "hardware-run": 34,
+  "isolated-byte-diff": 2,
+  "untested": 18
  },
  "_gate": {
   "differing": null,
@@ -11,7 +11,7 @@
   "identical": null,
   "pct_identical": null,
   "runs": [
-   "m4_20260828_run03+m4_20260828_run05"
+   "m4_20260828_rv01"
   ]
  },
  "_method": "A db.json field is labelled from the dense hardware sweeps of the BYTES that cover its bit range. hardware-run requires (a) every covering byte swept with at least 200 of 256 values actually executed and cross-run stable, (b) the field's own encodable range fully covered when it is narrower than a byte, and (c) a stated value->behaviour rule (an exact bitmask, an operand/register map, a format table, or 'inert across the whole range'). A byte whose sweep was cut short by the two-hangs-per-area rule but still executed 150-199 values, or whose rule fits only approximately, is isolated-byte-diff. Below 150 executed values, or an instrument lost to a GPU cascade, is untested. No other label is used, and no label is issued from a record whose validity != valid.",
@@ -20,12 +20,12 @@
    "evidence": [
     "EXP-0144"
    ],
-   "n_values_executed": 97,
+   "n_values_executed": 96,
    "outcomes": {
-    "fault": 4,
+    "fault": 3,
     "ok": 13,
-    "silent_zero": 50,
-    "wrong_value": 30
+    "silent_zero": 49,
+    "wrong_value": 31
    },
    "target": "M4",
    "values_reproducing_anchor": [
@@ -48,16 +48,31 @@
    "evidence": [
     "EXP-0144"
    ],
-   "n_values_executed": 41,
+   "n_values_executed": 78,
    "outcomes": {
-    "fault": 7,
-    "ok": 1,
-    "silent_zero": 30,
-    "wrong_value": 3
+    "fault": 12,
+    "ok": 16,
+    "silent_zero": 41,
+    "wrong_value": 9
    },
    "target": "M4",
    "values_reproducing_anchor": [
-    "0xe080000"
+    "0xc080000",
+    "0xe080000",
+    "0xe080001",
+    "0xe080100",
+    "0xe080200",
+    "0xe080400",
+    "0xe080800",
+    "0xe081000",
+    "0xe082000",
+    "0xe084000",
+    "0xe088000",
+    "0xe090000",
+    "0xe0a0000",
+    "0x2e080000",
+    "0x4e080000",
+    "0x8e080000"
    ]
   }
  },
@@ -65,50 +80,30 @@
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte5": {
-    "ok": 152,
-    "silent_zero": 88,
-    "wrong_value": 16
-   }
-  },
-  "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+5: no single-bitmask rule; 152 of 256 values reproduce the result (see byte_scans/predicates)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.b7": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "hardware-run",
-  "outcomes": {
-   "byte7": {
-    "ok": 128,
-    "wrong_value": 128
-   }
-  },
-  "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+7: value & 0x02 == 0x00  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.dir": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "hardware-run",
-  "outcomes": {
-   "byte6": {
-    "ok": 32,
-    "silent_zero": 64,
-    "wrong_value": 160
-   }
-  },
-  "range": "byte+6: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+6: value & 0xc2 == 0x40  (bits [0, 2, 3, 4, 5] are DON'T CARE)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.dst": {
@@ -116,84 +111,49 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "outcomes": {
-   "byte0": {
-    "ok": 14,
-    "silent_zero": 5,
-    "wrong_value": 4
-   }
-  },
-  "range": "byte+0: 23 values: 0x00,0x01,0x02,0x03,0x05,0x09,0x11,0x21,0x31,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc1,0xd1,0xe1,0xf1,0xfe,0xff",
-  "reproducibility": "single-observation",
-  "semantics": "byte+0: no single-bitmask rule; 14 of 23 values reproduce the result (see byte_scans/predicates)",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.fmt": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte4": {
-    "ok": 52,
-    "silent_zero": 194,
-    "wrong_value": 10
-   }
-  },
-  "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+4: no single-bitmask rule; 52 of 256 values reproduce the result (see byte_scans/predicates)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.opsel": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte2": {
-    "ok": 48,
-    "silent_zero": 204,
-    "wrong_value": 4
-   }
-  },
-  "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: no single-bitmask rule; 48 of 256 values reproduce the result (see byte_scans/predicates)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.src": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte3": {
-    "ok": 130,
-    "silent_zero": 2,
-    "wrong_value": 124
-   }
-  },
-  "range": "byte+3: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_bf16.srcw": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "hardware-run",
-  "outcomes": {
-   "byte1": {
-    "ok": 2,
-    "silent_zero": 236,
-    "wrong_value": 18
-   }
-  },
-  "range": "byte+1: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation. The rv01 shard for this instrument never dispatched a single case: the host's MTLCompilerService collapsed machine-wide before the carrier could be compiled (raw/m4_20260828_rv01__cvt_bf16/NOT_RUN.md). The contaminated run03 DID sweep all 8 bytes of this instruction densely and suggested rounding is RNE and byte+6 selects half-vs-bfloat, but that capture is not admissible evidence and no label is carried forward from it.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_f2h.b1": {
@@ -201,6 +161,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte1": {
     "ok": 2,
@@ -209,8 +170,8 @@
    }
   },
   "range": "byte+1: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE) | byte+1 silent zeros: 236 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2h.b4": {
@@ -218,6 +179,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte4": {
     "ok": 2,
@@ -226,8 +188,8 @@
    }
   },
   "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+4: value & 0xf7 == 0x04  (bits [3] are DON'T CARE) | byte+4: DESTINATION redirection observed into 1 distinct output slots -- this byte selects the result register",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+4: value & 0xf7 == 0x04  (bits [3] are DON'T CARE) | byte+4 silent zeros: 162 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous | byte+4: DESTINATION redirection observed into 1 distinct output slots -- this byte selects the result register",
   "target": "M4"
  },
  "cvt_f2h.op": {
@@ -235,17 +197,18 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 22 overturned by the majority vote (8.59%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
-    "fault": 2,
+    "fault": 20,
     "ok": 8,
-    "silent_zero": 172,
+    "silent_zero": 152,
     "wrong_value": 74
    }
   },
-  "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE) | byte+2 operand0: source-register map measured (see byte_scans.json)",
+  "range": "byte+2: 254 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE) | byte+2 operand0: source-register map measured (see byte_scans.json) | byte+2 silent zeros: 56 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 96 ambiguous",
   "target": "M4"
  },
  "cvt_f2h.src": {
@@ -253,6 +216,7 @@
    "EXP-0144"
   ],
   "label": "isolated-byte-diff",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
     "ok": 130,
@@ -261,8 +225,8 @@
    }
   },
   "range": "byte+3: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json) | byte+3 silent zeros: 2 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2h.tail": {
@@ -270,6 +234,7 @@
    "EXP-0144"
   ],
   "label": "isolated-byte-diff",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte5": {
     "ok": 56,
@@ -278,25 +243,18 @@
    }
   },
   "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+5: no single-bitmask rule; 56 of 256 values reproduce the result (see byte_scans/predicates)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+5: no single-bitmask rule; 56 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 silent zeros: 88 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2h_dst.dhalf": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "hardware-run",
-  "outcomes": {
-   "byte4": {
-    "ok": 2,
-    "silent_zero": 114,
-    "wrong_value": 140
-   }
-  },
-  "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+4: value & 0xf7 == 0x04  (bits [3] are DON'T CARE)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_f2h_dst.dst": {
@@ -304,6 +262,7 @@
    "EXP-0144"
   ],
   "label": "untested",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 24 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. COVERAGE IS PARTIAL: the smallest covering byte executed only 24 values (see `range`).",
   "outcomes": {
    "byte0": {
     "ok": 1,
@@ -312,41 +271,35 @@
    }
   },
   "range": "byte+0: 24 values: 0x00,0x01,0x11,0x21,0x31,0x3e,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc0,0xc1,0xc2,0xc3,0xc5,0xc9,0xd1,0xe1,0xf1,0xff",
-  "reproducibility": "single-observation",
-  "semantics": "byte+0: value & 0xff == 0xc1  (bits none are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+0: value & 0xff == 0xc1  (bits none are DON'T CARE) | byte+0 silent zeros: 2 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 1 ambiguous",
   "target": "M4"
  },
  "cvt_f2h_dst.opsel": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "hardware-run",
+  "label": "untested",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 7 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins. COVERAGE IS PARTIAL: the smallest covering byte executed only 7 values (see `range`).",
   "outcomes": {
    "byte2": {
-    "ok": 8,
-    "silent_zero": 32,
-    "wrong_value": 216
+    "ok": 1,
+    "wrong_value": 6
    }
   },
-  "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE)",
+  "range": "byte+2: 7 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: value & 0xff == 0x04  (bits none are DON'T CARE)",
   "target": "M4"
  },
  "cvt_f2h_dst.src": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte3": {
-    "ok": 130,
-    "wrong_value": 126
-   }
-  },
-  "range": "byte+3: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_f2h_dst.srcfmt": {
@@ -354,6 +307,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte1": {
     "ok": 2,
@@ -361,7 +315,7 @@
    }
   },
   "range": "byte+1: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json)",
   "target": "M4"
  },
@@ -369,16 +323,10 @@
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
-  "outcomes": {
-   "byte5": {
-    "ok": 56,
-    "wrong_value": 200
-   }
-  },
-  "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+5: no single-bitmask rule; 56 of 256 values reproduce the result (see byte_scans/predicates)",
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation: the rv01 shard for cvt_f2h_dst stopped before reaching the byte(s) covering this field (the host's MTLCompilerService collapsed mid-shard). No label is carried forward from the contaminated run01-run05 captures. See RESULTS.md.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "cvt_f2i.b9": {
@@ -386,13 +334,14 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte9": {
     "ok": 256
    }
   },
   "range": "byte+9: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+9 INERT: all 256 values reproduce the result",
   "target": "M4"
  },
@@ -401,6 +350,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte6": {
     "ok": 8,
@@ -409,8 +359,8 @@
    }
   },
   "range": "byte+6: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+6: value & 0xb9 == 0x90  (bits [1, 2, 6] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+6: value & 0xb9 == 0x90  (bits [1, 2, 6] are DON'T CARE) | byte+6 silent zeros: 232 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 8 ambiguous",
   "target": "M4"
  },
  "cvt_f2i.dst": {
@@ -418,17 +368,18 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 211 measurements: 2 overturned by the majority vote (0.95%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
-    "fault": 17,
-    "hang": 2,
+    "fault": 51,
+    "hang": 1,
     "ok": 2,
     "silent_zero": 190
    }
   },
-  "range": "byte+3: 211 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "range": "byte+3: 244 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 silent zeros: 168 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 22 ambiguous | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
   "target": "M4"
  },
  "cvt_f2i.dst_class": {
@@ -436,6 +387,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte8": {
     "ok": 128,
@@ -443,7 +395,7 @@
    }
   },
   "range": "byte+8: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+8: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
   "target": "M4"
  },
@@ -452,6 +404,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
     "ok": 192,
@@ -459,8 +412,8 @@
    }
   },
   "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values) | byte+2 silent zeros: 64 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2i.signflag": {
@@ -468,6 +421,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte7": {
     "ok": 64,
@@ -476,8 +430,8 @@
    }
   },
   "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+7: value & 0x28 == 0x08  (bits [0, 1, 2, 4, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+7: value & 0x28 == 0x08  (bits [0, 1, 2, 4, 6, 7] are DON'T CARE) | byte+7 silent zeros: 160 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2i.src": {
@@ -485,6 +439,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte5": {
     "ok": 4,
@@ -493,8 +448,8 @@
    }
   },
   "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+5: value & 0xfc == 0x00  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+5: value & 0xfc == 0x00  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json) | byte+5 silent zeros: 232 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_f2i.src_class": {
@@ -502,6 +457,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte4": {
     "ok": 128,
@@ -509,8 +465,8 @@
    }
   },
   "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE) | byte+4 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_i2f.cvtop": {
@@ -518,6 +474,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte6": {
     "ok": 16,
@@ -526,8 +483,8 @@
    }
   },
   "range": "byte+6: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+6: value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+6: value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE) | byte+6 silent zeros: 160 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 32 ambiguous",
   "target": "M4"
  },
  "cvt_i2f.dst": {
@@ -535,16 +492,17 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 255 measurements: 1 overturned by the majority vote (0.39%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
-    "fault": 64,
+    "fault": 58,
     "ok": 2,
     "silent_zero": 190
    }
   },
-  "range": "byte+3: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "range": "byte+3: 250 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 silent zeros: 166 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 24 ambiguous | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
   "target": "M4"
  },
  "cvt_i2f.mode": {
@@ -552,6 +510,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
     "ok": 192,
@@ -559,8 +518,8 @@
    }
   },
   "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values) | byte+2 silent zeros: 64 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_i2f.signflag": {
@@ -568,6 +527,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte7": {
     "ok": 128,
@@ -575,8 +535,8 @@
    }
   },
   "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+7: value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+7: value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE) | byte+7 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_i2f.src": {
@@ -584,6 +544,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte5": {
     "ok": 8,
@@ -592,8 +553,8 @@
    }
   },
   "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+5: no single-bitmask rule; 8 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+5: no single-bitmask rule; 8 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 operand0: source-register map measured (see byte_scans.json) | byte+5 silent zeros: 212 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_i2f.src_class": {
@@ -601,6 +562,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte4": {
     "ok": 128,
@@ -608,8 +570,8 @@
    }
   },
   "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE) | byte+4 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "cvt_i2f_src.cvtop": {
@@ -617,6 +579,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte6": {
     "ok": 16,
@@ -624,7 +587,7 @@
    }
   },
   "range": "byte+6: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+6: value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
   "target": "M4"
  },
@@ -633,18 +596,18 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 231 measurements: 2 overturned by the majority vote (0.87%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
-    "fault": 37,
-    "hang": 2,
+    "fault": 63,
     "ok": 2,
     "silent_zero": 2,
     "wrong_value": 188
    }
   },
-  "range": "byte+3: 231 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "range": "byte+3: 255 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 operand0: source-register map measured (see byte_scans.json) | byte+3 silent zeros: 0 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 2 ambiguous",
   "target": "M4"
  },
  "cvt_i2f_src.signflag": {
@@ -652,6 +615,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte7": {
     "ok": 128,
@@ -659,7 +623,7 @@
    }
   },
   "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+7: value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
   "target": "M4"
  },
@@ -668,6 +632,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte5": {
     "ok": 8,
@@ -675,7 +640,7 @@
    }
   },
   "range": "byte+5: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+5: no single-bitmask rule; 8 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 operand0: source-register map measured (see byte_scans.json)",
   "target": "M4"
  },
@@ -684,13 +649,14 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
     "ok": 256
    }
   },
   "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+2 INERT: all 256 values reproduce the result",
   "target": "M4"
  },
@@ -699,6 +665,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte4": {
     "ok": 128,
@@ -706,7 +673,7 @@
    }
   },
   "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
   "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
   "target": "M4"
  },
@@ -765,6 +732,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
     "ok": 128,
@@ -772,8 +740,8 @@
    }
   },
   "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
-  "semantics": "byte+2: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE) | byte+2 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "pack_convert.fmt_word": {
@@ -781,6 +749,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte5": {
     "ok": 4,
@@ -792,8 +761,7 @@
     "wrong_value": 148
    },
    "byte7": {
-    "fault": 62,
-    "hang": 2,
+    "fault": 64,
     "ok": 2,
     "silent_zero": 132,
     "wrong_value": 58
@@ -810,8 +778,8 @@
    }
   },
   "range": "byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255); byte+7: 256 of 256 values (dense 0..255); byte+8: 256 of 256 values (dense 0..255); byte+9: 256 of 256 values (dense 0..255)",
-  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
-  "semantics": "byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)  ||  byte+6: value & 0xf9 == 0x00  (bits [1, 2] are DON'T CARE) | byte+6 operand1: source-register map measured (see byte_scans.json)  ||  byte+7: value & 0xfb == 0x50  (bits [2] are DON'T CARE)  ||  byte+8: value & 0x45 == 0x44  (bits [1, 3, 4, 5, 7] are DON'T CARE) | byte+8 FORMAT CODES: {\"0x44\": [\"unorm2x16\"], \"0x45\": [\"unorm2x16\"], \"0x46\": [\"unorm2x16\"], \"0x47\": [\"unorm2x16\"], \"0x4c\": [\"unorm2x16\"], \"0x4d\": [\"unorm2x16\"], \"0x4e\": [\"unorm2x16\"], \"0x4f\": [\"unorm2x16\"], \"0x54\": [\"unorm2x16\"], \"0x55\": [\"unorm2x16\"], \"0x56\": [\"unorm2x16\"], \"0x57\": [\"unorm2x16\"], \"0x5c\": [\"unorm2x16\"], \"0x5d\": [\"unorm2x16\"], \"0x5e\": [\"unorm2x16\"], \"0x5f\": [\"unorm2x16\"], \"0x64\": [\"unorm2x16\"], \"0x65\": [\"unorm2x16\"], \"0x66\": [\"unorm2x16\"], \"0x67\": [\"unorm2x16\"], \"0x6c\": [\"unorm2x16\"], \"0x6d\": [\"unorm2x16\"], \"0x6e\": [\"unorm2x16\"], \"0x6f\": [\"unorm2x16\"], \"0x74\": [\"unorm2x16\"], \"0x75\": [\"unorm2x16\"], \"0x76\": [\"unorm2x16\"], \"0x77\": [\"unorm2x16\"], \"0x7c\": [\"unorm2x16\"], \"0x7d\": [\"unorm2x16\"], \"0x7e\": [\"unorm2x16\"], \"0x7f\": [\"unorm2x16\"]}  ||  byte+9: value & 0xf3 == 0x82  (bits [2, 3] are DON'T CARE) | byte+9 FORMAT CODES: {\"0x42\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x46\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4a\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4e\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x82\": [\"unorm2x16\"], \"0x86\": [\"unorm2x16\"], \"0x8a\": [\"unorm2x16\"], \"0x8e\": [\"unorm2x16\"], \"0xc2\": [\"unorm8x2\"], \"0xc6\": [\"unorm8x2\"], \"0xca\": [\"unorm8x2\"], \"0xce\": [\"unorm8x2\"]}",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)  ||  byte+6: value & 0xf9 == 0x00  (bits [1, 2] are DON'T CARE) | byte+6 operand1: source-register map measured (see byte_scans.json) | byte+6 silent zeros: 104 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous  ||  byte+7: value & 0xfb == 0x50  (bits [2] are DON'T CARE) | byte+7 silent zeros: 132 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous  ||  byte+8: value & 0x45 == 0x44  (bits [1, 3, 4, 5, 7] are DON'T CARE) | byte+8 silent zeros: 64 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 64 ambiguous | byte+8 FORMAT CODES: {\"0x44\": [\"unorm2x16\"], \"0x45\": [\"unorm2x16\"], \"0x46\": [\"unorm2x16\"], \"0x47\": [\"unorm2x16\"], \"0x4c\": [\"unorm2x16\"], \"0x4d\": [\"unorm2x16\"], \"0x4e\": [\"unorm2x16\"], \"0x4f\": [\"unorm2x16\"], \"0x54\": [\"unorm2x16\"], \"0x55\": [\"unorm2x16\"], \"0x56\": [\"unorm2x16\"], \"0x57\": [\"unorm2x16\"], \"0x5c\": [\"unorm2x16\"], \"0x5d\": [\"unorm2x16\"], \"0x5e\": [\"unorm2x16\"], \"0x5f\": [\"unorm2x16\"], \"0x64\": [\"unorm2x16\"], \"0x65\": [\"unorm2x16\"], \"0x66\": [\"unorm2x16\"], \"0x67\": [\"unorm2x16\"], \"0x6c\": [\"unorm2x16\"], \"0x6d\": [\"unorm2x16\"], \"0x6e\": [\"unorm2x16\"], \"0x6f\": [\"unorm2x16\"], \"0x74\": [\"unorm2x16\"], \"0x75\": [\"unorm2x16\"], \"0x76\": [\"unorm2x16\"], \"0x77\": [\"unorm2x16\"], \"0x7c\": [\"unorm2x16\"], \"0x7d\": [\"unorm2x16\"], \"0x7e\": [\"unorm2x16\"], \"0x7f\": [\"unorm2x16\"]}  ||  byte+9: value & 0xf3 == 0x82  (bits [2, 3] are DON'T CARE) | byte+9 silent zeros: 60 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous | byte+9 FORMAT CODES: {\"0x42\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x46\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4a\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4e\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x82\": [\"unorm2x16\"], \"0x86\": [\"unorm2x16\"], \"0x8a\": [\"unorm2x16\"], \"0x8e\": [\"unorm2x16\"], \"0xc2\": [\"unorm8x2\"], \"0xc6\": [\"unorm8x2\"], \"0xca\": [\"unorm8x2\"], \"0xce\": [\"unorm8x2\"]}",
   "target": "M4"
  },
  "pack_convert.mode": {
@@ -819,6 +787,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte4": {
     "ok": 128,
@@ -826,8 +795,8 @@
    }
   },
   "range": "byte+4: 256 of 256 values (dense 0..255)",
-  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
-  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE) | byte+4 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "pack_convert.src": {
@@ -835,17 +804,18 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 500 measurements: 5 overturned by the majority vote (1.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
-    "fault": 63,
-    "hang": 1,
+    "fault": 56,
+    "hang": 2,
     "ok": 2,
     "silent_zero": 190
    }
   },
-  "range": "byte+3: 256 of 256 values (dense 0..255)",
-  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
-  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "range": "byte+3: 250 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 silent zeros: 166 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 24 ambiguous | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
   "target": "M4"
  },
  "pack_convert.src_desc": {
@@ -853,6 +823,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte1": {
     "ok": 64,
@@ -860,8 +831,8 @@
    }
   },
   "range": "byte+1: 256 of 256 values (dense 0..255)",
-  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
-  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE) | byte+1 silent zeros: 0 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 192 ambiguous",
   "target": "M4"
  },
  "packed_half2_hi.dst": {
@@ -869,16 +840,9 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "outcomes": {
-   "byte0": {
-    "ok": 1,
-    "silent_zero": 2,
-    "wrong_value": 19
-   }
-  },
-  "range": "byte+0: 22 values: 0x00,0x08,0x18,0x28,0x38,0x48,0x58,0x67,0x68,0x78,0x88,0x90,0x98,0x99,0x9a,0xa8,0xb8,0xc8,0xd8,0xe8,0xf8,0xff",
-  "reproducibility": "single-observation",
-  "semantics": "byte+0: value & 0xff == 0x90  (bits none are DON'T CARE)",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
+  "range": "none",
+  "reproducibility": "not measured",
   "target": "M4"
  },
  "packed_half2_hi.mods": {
@@ -886,7 +850,7 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "note": "instrument not measured (see RESULTS.md)",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
   "range": "none",
   "reproducibility": "not measured",
   "target": "M4"
@@ -896,7 +860,7 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "note": "instrument not measured (see RESULTS.md)",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
   "range": "none",
   "reproducibility": "not measured",
   "target": "M4"
@@ -906,7 +870,7 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "note": "instrument not measured (see RESULTS.md)",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
   "range": "none",
   "reproducibility": "not measured",
   "target": "M4"
@@ -916,7 +880,7 @@
    "EXP-0144"
   ],
   "label": "untested",
-  "note": "instrument not measured (see RESULTS.md)",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
   "range": "none",
   "reproducibility": "not measured",
   "target": "M4"
@@ -926,6 +890,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte2": {
     "ok": 192,
@@ -933,18 +898,19 @@
    }
   },
   "range": "byte+2: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values) | byte+2 silent zeros: 64 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "unpack_convert.convert_desc": {
   "evidence": [
    "EXP-0144"
   ],
-  "label": "isolated-byte-diff",
+  "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 960 measurements: 2 overturned by the majority vote (0.21%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte3": {
-    "hang": 2,
+    "fault": 66,
     "ok": 2,
     "silent_zero": 186,
     "wrong_value": 2
@@ -963,9 +929,9 @@
     "wrong_value": 112
    }
   },
-  "range": "byte+3: 192 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f; byte+4: 256 of 256 values (dense 0..255); byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+3: value & 0xfe == 0x00  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 3 distinct output slots -- this byte selects the result register  ||  byte+4 INERT: all 256 values reproduce the result  ||  byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)  ||  byte+6: value & 0x1d == 0x0c  (bits [1, 5, 6, 7] are DON'T CARE)",
+  "range": "byte+3: 256 of 256 values (dense 0..255); byte+4: 256 of 256 values (dense 0..255); byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+3: value & 0xfe == 0x00  (bits [0] are DON'T CARE) | byte+3 silent zeros: 158 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 28 ambiguous | byte+3: DESTINATION redirection observed into 3 distinct output slots -- this byte selects the result register  ||  byte+4 INERT: all 256 values reproduce the result  ||  byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json) | byte+5 silent zeros: 212 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous  ||  byte+6: value & 0x1d == 0x0c  (bits [1, 5, 6, 7] are DON'T CARE) | byte+6 silent zeros: 128 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous",
   "target": "M4"
  },
  "unpack_convert.reg_sel": {
@@ -973,6 +939,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte7": {
     "ok": 2,
@@ -981,8 +948,8 @@
    }
   },
   "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json) | byte+7 silent zeros: 192 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous | byte+7 FORMAT CODES: {\"0x0a\": [\"unorm8_lo\"], \"0x0b\": [\"unorm8_lo\"], \"0x2a\": [\"snorm2x16_lo\"], \"0x2b\": [\"snorm2x16_lo\"], \"0x3a\": [\"snorm8_lo\"], \"0x3b\": [\"snorm8_lo\"], \"0x4a\": [\"unorm2x16_lo\"], \"0x4b\": [\"unorm2x16_lo\"], \"0x6a\": [\"unorm8_lo\"], \"0x6b\": [\"unorm8_lo\"], \"0x7a\": [\"snorm8_lo\"], \"0x7b\": [\"snorm8_lo\"], \"0x8a\": [\"unorm8_lo\"], \"0x8b\": [\"unorm8_lo\"], \"0xaa\": [\"snorm2x16_lo\"], \"0xab\": [\"snorm2x16_lo\"], \"0xba\": [\"snorm8_lo\"], \"0xbb\": [\"snorm8_lo\"], \"0xca\": [\"unorm2x16_lo\"], \"0xcb\": [\"unorm2x16_lo\"], \"0xea\": [\"unorm8_lo\"], \"0xeb\": [\"unorm8_lo\"], \"0xfa\": [\"snorm8_lo\"], \"0xfb\": [\"snorm8_lo\"]}",
   "target": "M4"
  },
  "unpack_convert.size": {
@@ -990,6 +957,7 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte7": {
     "ok": 2,
@@ -998,8 +966,8 @@
    }
   },
   "range": "byte+7: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json) | byte+7 silent zeros: 192 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 0 ambiguous | byte+7 FORMAT CODES: {\"0x0a\": [\"unorm8_lo\"], \"0x0b\": [\"unorm8_lo\"], \"0x2a\": [\"snorm2x16_lo\"], \"0x2b\": [\"snorm2x16_lo\"], \"0x3a\": [\"snorm8_lo\"], \"0x3b\": [\"snorm8_lo\"], \"0x4a\": [\"unorm2x16_lo\"], \"0x4b\": [\"unorm2x16_lo\"], \"0x6a\": [\"unorm8_lo\"], \"0x6b\": [\"unorm8_lo\"], \"0x7a\": [\"snorm8_lo\"], \"0x7b\": [\"snorm8_lo\"], \"0x8a\": [\"unorm8_lo\"], \"0x8b\": [\"unorm8_lo\"], \"0xaa\": [\"snorm2x16_lo\"], \"0xab\": [\"snorm2x16_lo\"], \"0xba\": [\"snorm8_lo\"], \"0xbb\": [\"snorm8_lo\"], \"0xca\": [\"unorm2x16_lo\"], \"0xcb\": [\"unorm2x16_lo\"], \"0xea\": [\"unorm8_lo\"], \"0xeb\": [\"unorm8_lo\"], \"0xfa\": [\"snorm8_lo\"], \"0xfb\": [\"snorm8_lo\"]}",
   "target": "M4"
  },
  "unpack_convert.src_class": {
@@ -1007,16 +975,18 @@
    "EXP-0144"
   ],
   "label": "hardware-run",
+  "note": "Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 8 overturned by the majority vote (3.12%); where they disagree the revalidation wins.",
   "outcomes": {
    "byte1": {
+    "fault": 8,
     "ok": 64,
-    "silent_zero": 96,
-    "wrong_value": 96
+    "silent_zero": 93,
+    "wrong_value": 91
    }
   },
   "range": "byte+1: 256 of 256 values (dense 0..255)",
-  "reproducibility": "single-observation",
-  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json)",
+  "reproducibility": "majority-of-3 (escalated to 5 on disagreement) within the rv01 revalidation; attempts with an InnocentVictim-class fault or a missing integrity sentinel were discarded and re-run; carrier baseline re-validated every 100 cases",
+  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json) | byte+1 silent zeros: 0 DISCRIMINATED (the six companion values stored through the same path were intact, so the store ran and the zero is a real register read) / 93 ambiguous",
   "target": "M4"
  }
 }
