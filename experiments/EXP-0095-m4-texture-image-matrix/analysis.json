@@ -1,0 +1,1585 @@
+{
+  "cases": {
+    "a01_1d": {
+      "expected_out_words": [
+        486539265,
+        4,
+        1
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        486539265,
+        4,
+        1
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on 1d (r32uint canary 0x1D000001)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_1darr": {
+      "expected_out_words": [
+        486539266,
+        4,
+        2
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        486539266,
+        4,
+        2
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on 1darray (r32uint canary 0x1D000002)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2d": {
+      "expected_out_words": [
+        754974721,
+        4,
+        4
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        754974721,
+        4,
+        4
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on 2d (r32uint canary 0x2D000001)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2d_oob_read": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "2D image read at (width,0)/(0,height)/(width,height) -- first invalid coordinate on each axis and both; hypothesis: 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2d_oob_write": {
+      "expected_out_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "family": "a01",
+      "n_outputs": 16,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "2D image OOB write at (width,0) and (0,height) [both never-written, texture default-initialized to 0], then full in-bounds readback (16 texels) to detect aliasing into legal texels",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2darr": {
+      "expected_out_words": [
+        754974722,
+        4,
+        2
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        754974722,
+        4,
+        2
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on 2darray (r32uint canary 0x2D000002)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2dms_read": {
+      "expected_out_words": [
+        null,
+        4,
+        4
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        4,
+        4
+      ],
+      "rule": "c",
+      "rule_note": "2D multisample image read+size+sample-count query (no access::write path exists for MS in MSL; content left at storage default, only whether the pipeline/dispatch itself succeeds is under test)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_2dmsarr_read": {
+      "expected_out_words": [
+        null,
+        4,
+        4,
+        2
+      ],
+      "family": "a01",
+      "n_outputs": 4,
+      "observed_out_words": [
+        0,
+        4,
+        4,
+        2
+      ],
+      "rule": "c",
+      "rule_note": "2D multisample-array image read+size+sample-count+array-size query",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_3d": {
+      "expected_out_words": [
+        1023410177,
+        4,
+        2
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        1023410177,
+        4,
+        2
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on 3d (r32uint canary 0x3D000001)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_alias": {
+      "expected_out_words": [
+        2702856192
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        2702856192
+      ],
+      "rule": "c",
+      "rule_note": "same underlying MTLTexture bound simultaneously read_write at slot0 and read-only at slot1 in one kernel invocation, write-then-read with no explicit barrier -- same-thread same-invocation visibility",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_buffer": {
+      "expected_out_words": [
+        255,
+        8,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        255,
+        8,
+        4008636142
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on buffer (r32uint canary 0x000000FF)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_cube": {
+      "expected_out_words": [
+        3405774849,
+        4,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3405774849,
+        4,
+        4008636142
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on cube (r32uint canary 0xCB000001)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_cube_oob_read": {
+      "expected_out_words": [
+        null,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 2,
+      "observed_out_words": [
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube image OOB x-coordinate within a valid face, and face index 6 (first invalid face); hypothesis: 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_cubearr": {
+      "expected_out_words": [
+        3405774850,
+        4,
+        2
+      ],
+      "family": "a01",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3405774850,
+        4,
+        2
+      ],
+      "rule": "c",
+      "rule_note": "image store+load+size round trip on cubearray (r32uint canary 0xCB000002)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_r16sint": {
+      "expected_out_words": [
+        4294966062
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        4294966062
+      ],
+      "rule": "b",
+      "rule_note": "r16sint image store/load round trip, exact integer (bit pattern of -1234)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_r16uint": {
+      "expected_out_words": [
+        4321
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        4321
+      ],
+      "rule": "b",
+      "rule_note": "r16uint image store/load round trip, exact integer",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_r32float": {
+      "expected_out_words": [
+        1048576000
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        1048576000
+      ],
+      "rule": "b",
+      "rule_note": "float32 image store/load round trip",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_r8snorm": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        3204514308
+      ],
+      "rule": "c",
+      "rule_note": "r8snorm image store(-0.5)/load round trip",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_r8unorm": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        1056997505
+      ],
+      "rule": "c",
+      "rule_note": "r8unorm image store(0.5)/load round trip -- conversion rule is DRV-FMT-01's domain, this only tests the image path exists",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_fmt_rgb10a2unorm": {
+      "expected_out_words": [
+        null,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 2,
+      "observed_out_words": [
+        1065353216,
+        1065353216
+      ],
+      "rule": "c",
+      "rule_note": "rgb10a2unorm packed-format image store/load round trip (R and A channels)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_partial_write": {
+      "expected_out_words": [
+        2576980377,
+        null,
+        null,
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 4,
+      "observed_out_words": [
+        2576980377,
+        0,
+        0,
+        1
+      ],
+      "rule": "c",
+      "rule_note": "write(uint4) to a single-channel r32uint image, then read .x/.y/.z/.w -- does a single-channel format silently drop the other 3 written components on readback (hypothesis: yes, .x only)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_unbound_read": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a01",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "texture argument declared but never bound at dispatch (no debug/validation layer); hypothesis: read returns 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a01_unbound_write": {
+      "expected_out_words": [],
+      "family": "a01",
+      "n_outputs": 0,
+      "observed_out_words": [],
+      "rule": "c",
+      "rule_note": "write to an unbound texture argument; hypothesis: silently dropped, command buffer still completes",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_atomic_first_hole": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rule": "c",
+      "rule_note": "bindless atomic_fetch_add at index=8 (first_hole), then a SECOND dispatch (canary readback) that reuses the same OUT buffer -- out[] in the frozen record is the K=8 canary texture_buffer readback ONLY; the atomic's own previous-value output from the first dispatch is overwritten by the second dispatch's writes to the same buffer offsets (a known design limitation, not a claim about the atomic's return value; the readback still validly answers 'did the OOB/hole atomic corrupt a real entry')",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_atomic_first_oob": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rule": "c",
+      "rule_note": "bindless atomic_fetch_add at index=256 (first_oob), then a SECOND dispatch (canary readback) that reuses the same OUT buffer -- out[] in the frozen record is the K=8 canary texture_buffer readback ONLY; the atomic's own previous-value output from the first dispatch is overwritten by the second dispatch's writes to the same buffer offsets (a known design limitation, not a claim about the atomic's return value; the readback still validly answers 'did the OOB/hole atomic corrupt a real entry')",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_atomic_first_populated": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rule": "b",
+      "rule_note": "bindless atomic_fetch_add at index=0 (first_populated), then a SECOND dispatch (canary readback) that reuses the same OUT buffer -- out[] in the frozen record is the K=8 canary texture_buffer readback ONLY; the atomic's own previous-value output from the first dispatch is overwritten by the second dispatch's writes to the same buffer offsets (a known design limitation, not a claim about the atomic's return value; the readback still validly answers 'did the OOB/hole atomic corrupt a real entry')",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_atomic_mirror_probe": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rule": "c",
+      "rule_note": "bindless atomic_fetch_add at index=512 (mirror_probe), then a SECOND dispatch (canary readback) that reuses the same OUT buffer -- out[] in the frozen record is the K=8 canary texture_buffer readback ONLY; the atomic's own previous-value output from the first dispatch is overwritten by the second dispatch's writes to the same buffer offsets (a known design limitation, not a claim about the atomic's return value; the readback still validly answers 'did the OOB/hole atomic corrupt a real entry')",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_first_hole": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=8: first in-array, never-encoded hole (index K, < CAP); hypothesis: 0 (guard-fill 0xDE...DE does not decode to a valid resource)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_first_oob": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=256: first index beyond the declared array bound (index == CAP); C++-style array OOB, real hardware behavior under test",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_first_populated": {
+      "expected_out_words": [
+        2952790016
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        2952790016
+      ],
+      "rule": "a",
+      "rule_note": "bindless read at index=0: first populated (canary 0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_last_hole": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=255: last in-array hole (index CAP-1)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_last_populated": {
+      "expected_out_words": [
+        2952790023
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        2952790023
+      ],
+      "rule": "a",
+      "rule_note": "bindless read at index=7: last populated canary (index K-1)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_mirror_probe": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=512: OOB at exactly 2*CAP -- mirroring probe in the EXP-0083 tradition (that experiment found the buffer base-slot selector mirrors at a power-of-two period); hypothesis: either 0 (no mirroring) or equals index-0's content (period-CAP mirroring)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_oob_2x_minus1": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=511: OOB stress point just below 2*CAP",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_read_uint_max": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "bindless read at index=4294967295: UINT32_MAX, the most extreme out-of-range selector",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_write_first_hole": {
+      "expected_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "rule": "c",
+      "rule_note": "bindless write(0xC0FFEE) at index=8 (first_hole), then CPU-independent readback of all K=8 canary textures to detect aliasing/corruption",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_write_first_oob": {
+      "expected_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "rule": "c",
+      "rule_note": "bindless write(0xC0FFEE) at index=256 (first_oob), then CPU-independent readback of all K=8 canary textures to detect aliasing/corruption",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_write_first_populated": {
+      "expected_out_words": [
+        12648430,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        12648430,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "rule": "a",
+      "rule_note": "bindless write(0xC0FFEE) at index=0 (first_populated), then CPU-independent readback of all K=8 canary textures to detect aliasing/corruption",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_bindless_write_mirror_probe": {
+      "expected_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "family": "a02_bindless",
+      "n_outputs": 8,
+      "observed_out_words": [
+        2969567232,
+        2969567233,
+        2969567234,
+        2969567235,
+        2969567236,
+        2969567237,
+        2969567238,
+        2969567239
+      ],
+      "rule": "c",
+      "rule_note": "bindless write(0xC0FFEE) at index=512 (mirror_probe), then CPU-independent readback of all K=8 canary textures to detect aliasing/corruption",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_direct_atomic_boundary": {
+      "expected_out_words": [
+        7
+      ],
+      "family": "a02_direct",
+      "n_outputs": 1,
+      "observed_out_words": [
+        7
+      ],
+      "rule": "a",
+      "rule_note": "the read_write (atomic) ceiling is 8, not 128 (pre-freeze exploration: MSL rejects a 9th access::read_write texture argument at compile time). atomic_fetch_add(+1) at the last legal read_write slot (index 7, texture_buffer<uint> -- fixed from an earlier draft that mismatched the kernel's declared texture_buffer argument type with a plain texture2d resource); out[0] = the value atomic_fetch_add returns (the PRE-add value, 7, since slot i was CPU-populated with content i)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_direct_atomic_illegal": {
+      "expected_out_words": [
+        4294967295
+      ],
+      "family": "a02_direct",
+      "n_outputs": 1,
+      "observed_out_words": [
+        4294967295
+      ],
+      "rule": "a",
+      "rule_note": "atomic_fetch_add with idx=8: no compile-time branch matches any of the 8 declared read_write slots (there is no 9th slot to select -- this is the direct path's structural ceiling, not a runtime OOB read); kernel's own not-matched sentinel expected",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_direct_read_boundary": {
+      "expected_out_words": [
+        3490512896,
+        3490512959,
+        3490513023,
+        null
+      ],
+      "family": "a02_direct",
+      "n_outputs": 4,
+      "observed_out_words": [
+        3490512896,
+        3490512959,
+        3490513023,
+        4294967295
+      ],
+      "rule": "a",
+      "rule_note": "128 direct [[texture(N)]] read-access slots (the exact ceiling from pre-freeze exploration), read at index 0/63/127 (exact) and idx=UINT32_MAX (no compile-time branch matches, kernel's own 0xFFFFFFFF sentinel expected -- NOT a hardware runtime-selector overflow, since the direct index is chosen at COMPILE time, not runtime; see RESULTS for this distinction from EXP-0083's runtime byte-splice census)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a02_direct_write_and_readback": {
+      "expected_out_words": [
+        3490512896,
+        3490512897,
+        3490512898,
+        3490512899,
+        3490512900,
+        12648430,
+        3490512902,
+        3490512903
+      ],
+      "family": "a02_direct",
+      "n_outputs": 8,
+      "observed_out_words": [
+        3490512896,
+        3490512897,
+        3490512898,
+        3490512899,
+        3490512900,
+        12648430,
+        3490512902,
+        3490512903
+      ],
+      "rule": "b",
+      "rule_note": "128 direct write-access slots (access::write is NOT subject to the 8-slot read_write ceiling, per pre-freeze exploration), write at index 5, readback first 8 canaries -- only index 5 should change",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_2darr_boundary_fetch": {
+      "expected_out_words": [
+        3556769792,
+        3556769799,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3556769792,
+        3556769799,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "read() at layer 0 / AL-1 (exact) / AL(first illegal, hypothesis 0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_2darr_boundary_gather": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3556769792,
+        3556769799,
+        3556769799
+      ],
+      "rule": "c",
+      "rule_note": "gather() at layer 0 / AL-1 / AL(first illegal)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_2darr_boundary_sample": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3556769792,
+        3556769799,
+        3556769799
+      ],
+      "rule": "c",
+      "rule_note": "sample() at layer 0 / AL-1 / AL(first illegal)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_2darr_conversion": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 9,
+      "observed_out_words": [
+        3556769794,
+        3556769795,
+        3556769794,
+        3556769795,
+        3556769792,
+        3556769792,
+        3556769798,
+        3556769792,
+        3556769795
+      ],
+      "rule": "c",
+      "rule_note": "software round(layer) then uint cast, 9 candidate float layer inputs {2.0,2.5,2.4,2.6,-0.5,-0.0,6.0(=AL,illegal),0.0,3.0}; observe MSL's own round()+uint() composition, NOT a raw hardware float-coordinate instruction (none exists at the public-Metal level; see PRE_REGISTRATION.md ISA caveat)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_cubearr_boundary_fetch": {
+      "expected_out_words": [
+        3388997632,
+        3388997648,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3388997632,
+        3388997648,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube-array read() face+x at layer 0/1(last legal)/2(first illegal)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_cubearr_boundary_sample": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 3,
+      "observed_out_words": [
+        3388997632,
+        3388997648,
+        3388997648
+      ],
+      "rule": "c",
+      "rule_note": "cube-array sample() face+x at layer 0/1/2(illegal)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a04_cubearr_conversion": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a04",
+      "n_outputs": 9,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0,
+        3388997632,
+        3388997632,
+        0,
+        3388997632,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube-array analogue of a04_2darr_conversion (AL replaced by array length 2, illegal candidate is 6.0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_read_first": {
+      "expected_out_words": [
+        2768240640
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        2768240640
+      ],
+      "rule": "a",
+      "rule_note": "fetch(read) at coord=0, first texel, exact expected value from CPU-populated content",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_read_last": {
+      "expected_out_words": [
+        2768240655
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        2768240655
+      ],
+      "rule": "a",
+      "rule_note": "fetch(read) at coord=width-1, last legal texel",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_read_oob": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "fetch(read) at coord=width (first invalid coordinate) -- hypothesis: returns 0 (silent-zero pattern), refuted by any nonzero/garbage value",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_sample_first": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "implicit-LOD sample at u=0.0 (first texel, nearest, clamp-to-edge address mode)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_size": {
+      "expected_out_words": [
+        16,
+        1
+      ],
+      "family": "a05",
+      "n_outputs": 2,
+      "observed_out_words": [
+        16,
+        1
+      ],
+      "rule": "a",
+      "rule_note": "get_width()/get_num_mip_levels() on an unmipmapped 1D texture",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_write_oob": {
+      "expected_out_words": [
+        2768240640,
+        2768240641,
+        2768240642,
+        2768240643,
+        2768240644,
+        2768240645,
+        2768240646,
+        2768240647
+      ],
+      "family": "a05",
+      "n_outputs": 8,
+      "observed_out_words": [
+        2768240640,
+        2768240641,
+        2768240642,
+        2768240643,
+        2768240644,
+        2768240645,
+        2768240646,
+        2768240647
+      ],
+      "rule": "c",
+      "rule_note": "write at coord=width (first invalid write coordinate); hypothesis: dropped, no texel 0..7 changes (falsified by any changed word)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1d_write_probe": {
+      "expected_out_words": [
+        2768240640,
+        2768240641,
+        2768240642,
+        12648430,
+        2768240644,
+        2768240645,
+        2768240646,
+        2768240647
+      ],
+      "family": "a05",
+      "n_outputs": 8,
+      "observed_out_words": [
+        2768240640,
+        2768240641,
+        2768240642,
+        12648430,
+        2768240644,
+        2768240645,
+        2768240646,
+        2768240647
+      ],
+      "rule": "a",
+      "rule_note": "write(0xC0FFEE) at coord=3, then readback texels 0..7: only index 3 should change",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1darr_read_first_layer": {
+      "expected_out_words": [
+        3053453312
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        3053453312
+      ],
+      "rule": "a",
+      "rule_note": "1D-array fetch at coord=0, layer=0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1darr_read_illegal_layer": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        0
+      ],
+      "rule": "c",
+      "rule_note": "1D-array fetch at first illegal layer (layer==arrayLength); hypothesis: 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1darr_read_last_layer": {
+      "expected_out_words": [
+        3053454080
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        3053454080
+      ],
+      "rule": "a",
+      "rule_note": "1D-array fetch at coord=0, last legal layer",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1darr_sample_layer0": {
+      "expected_out_words": [
+        null
+      ],
+      "family": "a05",
+      "n_outputs": 1,
+      "observed_out_words": [
+        8
+      ],
+      "rule": "c",
+      "rule_note": "1D-array implicit-LOD sample at u=0.5 layer=0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a05_1darr_size": {
+      "expected_out_words": [
+        16,
+        4
+      ],
+      "family": "a05",
+      "n_outputs": 2,
+      "observed_out_words": [
+        16,
+        4
+      ],
+      "rule": "a",
+      "rule_note": "get_width()/get_array_size() on a 1D-array texture",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_d2darr_compare_suite": {
+      "expected_out_words": [
+        0,
+        1065353216,
+        0,
+        1065353216,
+        1065353216,
+        0,
+        1065353216,
+        0
+      ],
+      "family": "a06",
+      "n_outputs": 8,
+      "observed_out_words": [
+        0,
+        1065353216,
+        0,
+        1065353216,
+        1065353216,
+        0,
+        1065353216,
+        0
+      ],
+      "rule": "b",
+      "rule_note": "layer 8 (depth=0.5) vs ref=0.5, all 8 MTLCompareFunctions; documented rule is `ref COMPARISON storedDepth` (EXP-0034), so at the exact tie ref==depth=0.5: less=0,lessequal=1,greater=0,greaterequal=1,equal=1,notequal=0,always=1,never=0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_d2darr_forms": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a06",
+      "n_outputs": 6,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "2D-array depth: implicit/level/bias/gradient/offset sample_compare + gather_compare, same layer/ref, all should agree (depth 0.5 < ref 0.6 => 1.0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_d2darr_layer_boundary": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a06",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "compare 'less' ref=0.999 at layer=0 (depth 0.0, expect pass=1.0), layer=DL-1 (depth (DL-1)/DL, expect pass), layer=DL (first illegal layer, hypothesis: 0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_dcube_faces": {
+      "expected_out_words": [
+        0,
+        0,
+        0,
+        0,
+        1065353216,
+        1065353216
+      ],
+      "family": "a06",
+      "n_outputs": 6,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0,
+        1065353216,
+        1065353216
+      ],
+      "rule": "b",
+      "rule_note": "all 6 cube faces, distinguishable per-face depth = face/6, compare 'less' ref=0.5 evaluated as ref<storedDepth (EXP-0034 convention): faces 0-3 fail (depth<=0.5), faces 4,5 pass (depth>0.5)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_dcube_forms": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a06",
+      "n_outputs": 4,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube face +x (depth 0/6=0.0): implicit/level/bias/gather_compare vs ref=0.6, expect all pass (1.0)",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_dcubearr_faces": {
+      "expected_out_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "family": "a06",
+      "n_outputs": 6,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rule": "b",
+      "rule_note": "cube-array layer=0, all 6 faces vs ref=0.5, ref<storedDepth convention: all 6 faces at layer 0 have depth<0.5, so all fail",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_dcubearr_forms": {
+      "expected_out_words": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "family": "a06",
+      "n_outputs": 4,
+      "observed_out_words": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube-array layer=0 face+x: implicit/level/bias/gather_compare vs ref=0.6",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a06_dcubearr_layer_boundary": {
+      "expected_out_words": [
+        null,
+        null,
+        null
+      ],
+      "family": "a06",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        0,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "cube-array face +x, layer=0 / layer=CAL-1 / layer=CAL (first illegal), ref=0.999",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_descriptor_ok_16B": {
+      "bytes_needed": 4294967296,
+      "family": "a07_descriptor",
+      "rule": "a",
+      "rule_note": "16B-texel texture_buffer at the exact width ceiling 2^28=268435456: descriptor accepted",
+      "texture_ok": true,
+      "verdict": "match",
+      "width": 268435456
+    },
+    "a07_descriptor_ok_1B": {
+      "bytes_needed": 268435456,
+      "family": "a07_descriptor",
+      "rule": "a",
+      "rule_note": "1B-texel texture_buffer at the exact width ceiling 2^28=268435456: descriptor accepted",
+      "texture_ok": true,
+      "verdict": "match",
+      "width": 268435456
+    },
+    "a07_descriptor_over_16B": {
+      "family": "a07_descriptor",
+      "rule": "a",
+      "rule_note": "16B-texel texture_buffer at width 2^28+1: MTLTextureDescriptor validation aborts the process (SIGABRT) before any GPU submission, uniformly across texel size -- pre-established by pre-freeze exploration, re-confirmed here as frozen evidence",
+      "run_a_exit": -6,
+      "run_b_exit": -6,
+      "verdict": "abort_confirmed"
+    },
+    "a07_descriptor_over_1B": {
+      "family": "a07_descriptor",
+      "rule": "a",
+      "rule_note": "1B-texel texture_buffer at width 2^28+1: MTLTextureDescriptor validation aborts the process (SIGABRT) before any GPU submission, uniformly across texel size -- pre-established by pre-freeze exploration, re-confirmed here as frozen evidence",
+      "run_a_exit": -6,
+      "run_b_exit": -6,
+      "verdict": "abort_confirmed"
+    },
+    "a07_tb_r8_read3": {
+      "expected_out_words": [
+        0,
+        63,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        63,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "r8 texel-buffer read at element 0 / 63(last legal) / 64(first invalid); last-legal exact, first-invalid hypothesis 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_r8_write3": {
+      "expected_out_words": [
+        255,
+        null,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        255,
+        255,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "r8 texel-buffer write(0xC0FFEE) at element 0 / 63 / 64(OOB); readback via read3 at the same three indices to see what actually landed",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rg8_read3": {
+      "expected_out_words": [
+        0,
+        63,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        63,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rg8 texel-buffer read at element 0 / 63(last legal) / 64(first invalid); last-legal exact, first-invalid hypothesis 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rg8_write3": {
+      "expected_out_words": [
+        255,
+        null,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        255,
+        255,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rg8 texel-buffer write(0xC0FFEE) at element 0 / 63 / 64(OOB); readback via read3 at the same three indices to see what actually landed",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba16_read3": {
+      "expected_out_words": [
+        0,
+        63,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        63,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba16 texel-buffer read at element 0 / 63(last legal) / 64(first invalid); last-legal exact, first-invalid hypothesis 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba16_write3": {
+      "expected_out_words": [
+        65535,
+        null,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        65535,
+        65535,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba16 texel-buffer write(0xC0FFEE) at element 0 / 63 / 64(OOB); readback via read3 at the same three indices to see what actually landed",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba32_read3": {
+      "expected_out_words": [
+        2852126720,
+        2852126783,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        2852126720,
+        2852126783,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba32 texel-buffer read at element 0 / 63(last legal) / 64(first invalid); last-legal exact, first-invalid hypothesis 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba32_write3": {
+      "expected_out_words": [
+        12648430,
+        null,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        12648430,
+        12648430,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba32 texel-buffer write(0xC0FFEE) at element 0 / 63 / 64(OOB); readback via read3 at the same three indices to see what actually landed",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba8_read3": {
+      "expected_out_words": [
+        0,
+        63,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        0,
+        63,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba8 texel-buffer read at element 0 / 63(last legal) / 64(first invalid); last-legal exact, first-invalid hypothesis 0",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_rgba8_write3": {
+      "expected_out_words": [
+        255,
+        null,
+        null
+      ],
+      "family": "a07",
+      "n_outputs": 3,
+      "observed_out_words": [
+        255,
+        255,
+        0
+      ],
+      "rule": "c",
+      "rule_note": "rgba8 texel-buffer write(0xC0FFEE) at element 0 / 63 / 64(OOB); readback via read3 at the same three indices to see what actually landed",
+      "status": "ok",
+      "verdict": "match"
+    },
+    "a07_tb_size": {
+      "expected_out_words": [
+        64
+      ],
+      "family": "a07",
+      "n_outputs": 1,
+      "observed_out_words": [
+        64
+      ],
+      "rule": "a",
+      "rule_note": "get_width() on a texture_buffer equals the declared element count",
+      "status": "ok",
+      "verdict": "match"
+    }
+  },
+  "repeat_exact": true,
+  "runs": [
+    "m4-20260829-run01",
+    "m4-20260829-run02"
+  ],
+  "summary": {
+    "abort_confirmed": 2,
+    "deviation": 0,
+    "match": 83,
+    "total": 85
+  }
+}
