@@ -99,6 +99,52 @@ Apple userspace objects and hardware validation.
 all 65 queue/render/compute leaves have exactly one explicit closure row. Its baseline has
 30 `OPEN`, 30 `A18-PARTIAL`, and 5 `PUBLIC-ONLY` rows; none is closed by the inventory itself.
 
+## OpenGL addendum tracker (goal task 1, second half)
+
+`APPLE9_RE_OPENGL_TEXTURE_ADDENDUM.md` adds 29 OpenGL 4.6 / WineD3D-class compiler items.
+Triage and dedup: `work/ADDENDUM-TRIAGE-20260828.md` (0 already-answered, 17 partial, 12 open;
+20 of 29 collapse onto an existing OPEN primary-list row, so they are answered by ONE experiment
+each rather than duplicated). Seven items are new hardware surface with no primary-list
+counterpart. No item is blocked by the A18 hands-off directive.
+
+| Bundle | Items | Status | Experiment |
+|---|---|---|---|
+| A — fragment sample/coverage/discard/demote/helper | GLFS-A01/02/03/05/06/07 (+ `OPT-09`) | IN FLIGHT | `EXP-0091-m4-fragment-sample-discard` |
+| B — pixel/sample interlock + device-fence family | GLFS-A08 + `ATOM-07..11` | QUEUED | successor to EXP-0085 |
+| C — vertex/instance/base/draw-ID + general sysval ABI | GLIO-A02/A03/A05/A06 | IN FLIGHT | `EXP-0092-m4-sysval-abi` |
+| D — texture bias/gradient/implicit-LOD ABI | GLTEX-A01/02/03 | QUEUED | |
+| E — texture/image dimension-format operation matrix | GLTEX-A04/05/06/07 + GLIMG-A01/02 | QUEUED | |
+| F — threadgroup addressing / compute launch | GLCS-A01/A02 | QUEUED | |
+| G — varying/UVS capacity | GLIO-A01 + GLPRE items | QUEUED | |
+| H — GPU-driven compute-generated draws | GLPRE remainder | QUEUED | |
+| I — transform feedback (compositional, depends on B/H) | GLXFB-A01 | QUEUED | |
+
+Highest-value new surface flagged by triage: GLFS-A01 (the actual kill/target-mask/live-mask
+instruction — undecoded anywhere in the repo; a negative result is a legitimate outcome),
+GLFS-A04 (shader sample-mask semantics), GLIO-A01 (UVS/coefficient capacity), GLIO-A02 (general
+`get_sr` encoding), GLIO-A04 (MSAA sysval ABI incl. the unresolved `0x97` sample-ID path),
+GLIO-A05 (`load_num_workgroups`), and the operand-decode half of GLCS-A02 (`tg_addr_compute`).
+
+## Synthesis acceptance test (goal task 3)
+
+`EXP-0090-m4-handbuilt-program-suite` (IN FLIGHT) is the direct test of the project's central
+claim: four or more **hand-built non-trivial programs** — authored instruction sequences, not
+splices into compiler output — each checked against an independent host-computed oracle, with a
+systematic operand-field matrix across register indices, immediates, offset boundaries,
+element-size codes and base slots. Per-family verdicts will be CONFIRMED / REFINED / REFUTED.
+Until it passes, DRV-ISA-01 cannot be closed regardless of decode coverage.
+
+## Register-lifecycle model (goal task 2)
+
+`EXP-0086` REFUTED the "inert scheduling hint" reading of the source-cache/last-use bits: a
+producer-side bit in the float-ALU family makes a **later** separate instruction's read return
+zero, deterministically and without a fault (`docs/isa/register-move-and-liveness.md`).
+`EXP-0087` found that only `byte+2=0x01`/`op_desc=0x08` actually moves a value while most other
+encodings are silent zeroing no-ops. `EXP-0089-m4-register-lifecycle-model` (IN FLIGHT) completes
+the two-run gate, tests the literal bit 17 in a family where it is free, sweeps the corrupting
+bit across distance/pressure/control-flow, characterises the non-inert `ctrl`/`ctrl_lo` field,
+and discriminates between last-use-hint and register-cache-residency models.
+
 ## Completion gate
 
 All sixteen rows must be `CLOSED`, with target-qualified evidence and intact provenance
