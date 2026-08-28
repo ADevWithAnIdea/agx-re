@@ -210,7 +210,35 @@ wrong in a different way:
 - **`opflags` bit19/bit20 remain the genuine per-source control**, consistent with EXP-0090's
   `opflags` finding and with EXP-0086/0089's corruption results.
 
-### The two blockers in §2.6 are still open
+### UPDATE (EXP-0101, commit `2cf96b56`): blocker 1 SOLVED, blocker 2 re-characterized
+
+**Load-to-ALU bridging works.** `HW-VALIDATED`, 29 cases, two byte-identical runs, every case
+as pre-registered. The rule a compiler must follow:
+
+| requirement | value |
+|---|---|
+| register a later `falu2`/`falu2i` references | **`device_load`'s `extmode` ÷ 2** (`extmode = 2 × target_register`) — the same formula EXP-0090 found for `device_store` |
+| `dst_lo` / `dst_ext9` | a **separate, independently required** field; copy **verbatim** from a compiler-observed value (`(1,1)` for terminal scalar 32-bit loads). Never derive it from the target register — 4 adversarial cases break the load if you do, even with `extmode` correct |
+| `falu2i` with a load-sourced operand | `mods` byte must be **`0xC0`** (bits 6+7 together; neither alone) |
+
+Validated across target registers 3, 7, 16, 20 and both ALU forms, plus a compiler census where
+11/11 emitted load→ALU pairs confirm the formula.
+
+> **⚠️ Correction with wide blast radius:** EXP-M4-13's `dst = dst_lo | (dst_ext9<<2)` formula —
+> used by every prior experiment and by `tools/agx-isa/db.json` — **predicts the wrong register**.
+> That, not the consumer route, was the real cause of EXP-0099's `ROUTE_LOAD` failure. Any claim
+> resting on that formula needs re-examination.
+
+**Blocker 2: we were probing the wrong instruction.** `reg_move`'s readback is completely
+independent of the producer's value *and* of the producer's family: changing what is written to
+the source register never changes what comes back. The content depends only on `src_reg`, is
+register-pair-quantized (`reg` and `reg^1` read identically), and varies with the kernel's buffer
+signature — the signature of a fixed per-kernel **preloaded/uniform-file slot**, not a corrupted
+GPR read. `0x00000100` is simply that slot's content, not a sentinel. This also closes EXP-0087's
+`byte+2=0x21` question: it reads the same uniform content and is **not** a real move. The candidate
+real GPR move is EXP-0087's still-undecoded `byte0=0x2b`. `HW-VALIDATED` (EXP-0101).
+
+### Original statement of the two blockers (superseded above)
 
 `HW-VALIDATED` (EXP-0099): the consumer-route field does **not** explain the load-to-ALU blocker.
 All 8 route values fail identically for a `device_load` → `falu2` consumer, while the paired
