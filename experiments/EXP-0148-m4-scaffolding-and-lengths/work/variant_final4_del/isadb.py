@@ -1641,7 +1641,10 @@ def instr_length(buf, off=0):
         # stage generalised from byte0 {2b,3b,5b,8b} to ANY dst high-nibble. 0xd7/0xe7 byte+2 are
         # device-store byte0s appearing as a spurious mid-desync leader -> excluded.
         if b2 >= 0 and (b2 & 0x06) == 0x06 and b2 not in (0xd7, 0xe7):
-            return 10                  # EXP-0148 H4'
+            return 10                  # EXP-0148 H4': the 0x?b 10-byte modifier/logic/convert class
+                                       # is (byte+2 & 0x06) == 0x06 (low nibbles {6,7,e,f}), with NO
+                                       # tg_atomic_prep carve-out: `0b 00 06 ..` is 10 bytes, which
+                                       # the 34/34 trailing-2-byte-word statistic independently says.
         if b2 == 0x17 or (b2 & 0x0f) in (0x0e, 0x0f):
             return 10
         if (b2 & 0x0f) == 0x07 and b2 not in (0xd7, 0xe7):

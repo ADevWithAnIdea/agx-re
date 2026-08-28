@@ -2719,18 +2719,6 @@
     <zero bit="24:31"/>
   </ins>
 
-  <!-- tg_atomic_prep: Threadgroup-atomic RMW descriptor prep (8B) -->
-  <!-- provenance: byte-diff EXP-M4-13 R2 / round-1 EXP-M4-01: `0b 00 06 00 00 00 00 00` anchored before a clean device_store in atomics__tg_u_add. Length 8 ... -->
-  <ins name="tg_atomic_prep" length="8" label="Threadgroup-atomic RMW descriptor prep (8B)">
-    <exact bit="0:3">1011</exact>
-    <exact bit="16:23">00000110</exact>
-    <dest name="dst" bit="4:7"/>
-    <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
-    <!-- body [24:63]: inferred / not yet bit-decoded -->
-    <zero bit="24:63"/>
-  </ins>
-
   <!-- b_alu14_c83: Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form), distinct from the iadd2/imad ... -->
   <!-- provenance: byte-diff EXP-M4-13 R4+R7 (own-MSL, compile-only, NO GPU dispatch). R7 register-realloc byte-diff (s_loopacc base vs fma-pressure variant g_pre) ... -->
   <ins name="b_alu14_c83" length="14" label="Low-nibble-0xf 14-byte integer/simd ALU (byte+2 == 0x83 form), distinct from the iadd2/imad ...">
@@ -3159,24 +3147,6 @@
     <ins name="hfma" opsel="110"/>
   </group>
 
-  <!-- falu2_ext8b: 8-byte extended float-ALU op-select {0,1} sub-form (bit17==0 AND bit18==0 - a DISTINCT op class ... -->
-  <!-- provenance: census EXP-M4-13 R8/R10 (own-MSL float corpus, opsel 0/1). byte+4 typed reg by the size-bit convention (lsb set corpus-wide). exttail kept raw ... -->
-  <ins name="falu2_ext8b" length="8" label="8-byte extended float-ALU op-select {0,1} sub-form (bit17==0 AND bit18==0 -- a DISTINCT op class ...">
-    <exact bit="0:3">1001</exact>
-    <exact bit="17">0</exact>
-    <exact bit="18">0</exact>
-    <dest name="dst" bit="4:7"/>
-    <modifier name="srcA_size" bit="8" kind="opsize"/>
-    <src name="srcA_reg" bit="9:15"/>
-    <modifier name="opsel" bit="16"/>
-    <modifier name="opflags" bit="19:23"/>
-    <modifier name="srcB_size" bit="24" kind="opsize"/>
-    <src name="srcB_reg" bit="25:31"/>
-    <src name="src2" bit="32:39"/>
-    <!-- exttail [40:63]: inferred / not yet bit-decoded -->
-    <zero bit="40:63"/>
-  </ins>
-
   <!-- falu_srcmod12b: 12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form -->
   <!-- provenance: census + family inheritance EXP-M4-13 R8 (own-MSL float corpus, 35 tokens, all bit17==0): REUSES the falu3_srcmod12 (EXP-M4-13 R7) byte layout ... -->
   <ins name="falu_srcmod12b" length="12" label="12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form">
@@ -3294,6 +3264,46 @@
   <ins name="operand_word" length="2" label="NOT A STANDALONE HARDWARE OPCODE">
     <immediate name="b0" bit="0:7"/>
     <immediate name="b1" bit="8:15"/>
+  </ins>
+
+  <!-- half_compact4: EXP-0148 PROPOSED -->
+  <!-- provenance: EXP-0148 (corpus tokenization, own-MSL): required so byte0==0x10 opsel-{0,1} tokens have a length-4 descriptor to decode into. STRUCTURAL. -->
+  <ins name="half_compact4" length="4" label="EXP-0148 PROPOSED">
+    <exact bit="0:7">00010000</exact>
+    <dest name="dst" bit="8:15"/>
+    <modifier name="opsel" bit="16:18"/>
+    <modifier name="opmode" bit="19:23"/>
+    <src name="operand" bit="24:31"/>
+  </ins>
+
+  <!-- b_alu10_lo6: EXP-0148 PROPOSED -->
+  <!-- provenance: EXP-0148 (structural, from the class rule (byte+2 & 0x06) == 0x06). STRUCTURAL. -->
+  <ins name="b_alu10_lo6" length="10" label="EXP-0148 PROPOSED">
+    <exact bit="0:3">1011</exact>
+    <exact bit="16:19">0110</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="src_reg" bit="8:14"/>
+    <modifier name="src_flag" bit="15"/>
+    <modifier name="opsel_hi" bit="20:23"/>
+    <src name="srcA" bit="24:31"/>
+    <modifier name="modA" bit="32:39"/>
+    <modifier name="modB" bit="40:47"/>
+    <immediate name="z6" bit="48:55"/>
+    <modifier name="outmod" bit="56:63"/>
+    <immediate name="ext8" bit="64:71"/>
+    <immediate name="ext9" bit="72:79"/>
+  </ins>
+
+  <!-- tg_atomic_prep10: EXP-0148 PROPOSED, SUPERSEDES the 8-byte tg_atomic_prep -->
+  <!-- provenance: EXP-0148 corpus continuation test (own-MSL, n=34, 34/34 trailing word; two independent derivations agree). STRUCTURAL - not splice-validated. -->
+  <ins name="tg_atomic_prep10" length="10" label="EXP-0148 PROPOSED, SUPERSEDES the 8-byte tg_atomic_prep">
+    <exact bit="0:3">1011</exact>
+    <exact bit="8:15">00000000</exact>
+    <exact bit="16:23">00000110</exact>
+    <dest name="dst" bit="4:7"/>
+    <!-- form [16:23]: constant, pinned by match/opcode -->
+    <modifier name="body" bit="24:63"/>
+    <modifier name="tail" bit="64:79"/>
   </ins>
 
 </isa>

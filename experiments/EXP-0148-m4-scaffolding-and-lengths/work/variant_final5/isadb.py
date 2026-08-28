@@ -1492,6 +1492,13 @@ def instr_length(buf, off=0):
     # SIMD/quad shuffle & broadcast: byte0 0x47 (broadcast / up) / 0xc7 (xor / down),
     # 10 bytes (EXP-0018 HW-validated semantics).
     if b0 in (0x47, 0xc7):
+        if off + 9 < len(buf) and (buf[off + 9] & 0x80):
+            return 12                  # EXP-0148 H6: the EXTRA-OPERAND shuffle form
+                                       # (shuffle_and_fill / rotate) carries a 2-byte trailing
+                                       # operand parcel. byte+9 bit7 set in 7/127 corpus
+                                       # simd_shuffles and ALL 7 are followed by a `02 00` word
+                                       # that the flat length-10 exposed as a separate token
+                                       # (0/120 with the bit clear). Perfect separation, n=127.
         return 10                      # simd/quad shuffle / broadcast
     # ---- byte0 0x17: three length-distinct ops, disambiguated by byte+1 (EXP-M4-12) ----
     # The old flat `-> 10` was correct only for compute simd_ballot; it mis-lengthed the

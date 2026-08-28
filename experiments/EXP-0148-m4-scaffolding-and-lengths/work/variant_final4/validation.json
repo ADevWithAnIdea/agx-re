@@ -13,27 +13,27 @@
   "emittable": "an instruction qualifies only if EVERY field in its db.json descriptor is hardware-run or isolated-byte-diff (docs/evidence-classification.md section 2, the emittable rule). Field-less descriptors qualify only if the instruction itself is hardware-run / isolated-byte-diff."
  },
  "coverage": {
-  "total_instructions": 171,
-  "total_fields": 1032,
+  "total_instructions": 170,
+  "total_fields": 1026,
   "by_label": {
    "hardware-run": 118,
    "isolated-byte-diff": 51,
-   "corpus-correlation": 251,
-   "tokenization-only": 299,
+   "corpus-correlation": 233,
+   "tokenization-only": 304,
    "single-template-inference": 23,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 290
+   "untested": 297
   },
   "by_label_pct": {
-   "hardware-run": 11.4,
-   "isolated-byte-diff": 4.9,
-   "corpus-correlation": 24.3,
-   "tokenization-only": 29.0,
+   "hardware-run": 11.5,
+   "isolated-byte-diff": 5.0,
+   "corpus-correlation": 22.7,
+   "tokenization-only": 29.6,
    "single-template-inference": 2.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 28.1
+   "untested": 28.9
   },
   "emittable_instructions": 5,
   "emittable_mnemonics": [
@@ -43,7 +43,7 @@
    "stop",
    "tex_addr_setup"
   ],
-  "decodable_not_yet_emittable": 166
+  "decodable_not_yet_emittable": 165
  },
  "instructions": {
   "falu2": {
@@ -8419,6 +8419,56 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    }
   },
+  "tg_atomic_prep": {
+   "_instruction": {
+    "label": "corpus-correlation",
+    "range": "threadgroup-atomic RMW descriptor prep, located over the corpus",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ]
+   },
+   "dst": {
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ]
+   },
+   "src": {
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ]
+   },
+   "form": {
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ]
+   },
+   "body": {
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ]
+   }
+  },
   "b_alu14_c83": {
    "_instruction": {
     "label": "corpus-correlation",
@@ -9965,6 +10015,78 @@
     "note": "KEPT RAW and flagged: this descriptor's 12-byte length OVER-CONSUMES a following instruction leader in 121/126 corpus instances."
    }
   },
+  "falu2_ext8b": {
+   "_instruction": {
+    "label": "corpus-correlation",
+    "range": "8-byte op-select {0,1} sub-form (bit17==0 AND bit18==0), a distinct op class from fadd/fmul; located over the corpus",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ]
+   },
+   "dst": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "srcA_size": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "srcA_reg": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "opsel": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "opflags": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "srcB_size": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "srcB_reg": {
+    "label": "untested",
+    "range": "none",
+    "target": "M4",
+    "evidence": []
+   },
+   "src2": {
+    "label": "corpus-correlation",
+    "range": "byte+4 third source register: low bit set in every corpus instance, 22 distinct register values",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ]
+   },
+   "exttail": {
+    "label": "tokenization-only",
+    "range": "framing only (round-trips; no value semantics established)",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ],
+    "note": "KEPT RAW and FLAGGED: heterogeneous (193/250 distinct 32-bit tails, several containing real op-leader bytes such as 0xa7) - a candidate over-match / over-consumption."
+   }
+  },
   "falu_srcmod12b": {
    "_instruction": {
     "label": "hardware-run",
@@ -10482,210 +10604,6 @@
      "EXP-M4-13"
     ],
     "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
-   }
-  },
-  "half_compact4": {
-   "_instruction": {
-    "label": "corpus-correlation",
-    "range": "corpus tokenization A/B over 1080 files",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Descriptor ADDED by EXP-0148 from corpus A/B evidence (STRUCTURAL). No hardware sweep was run for this instruction -- EXP-0148 was a modelling dispatch and says so explicitly. Every field here is corpus-derived and must be swept before anything is emitted. fp16 sibling of falu_compact4; required by length patch L3"
-   },
-   "dst": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "opsel": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "opmode": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "operand": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   }
-  },
-  "b_alu10_lo6": {
-   "_instruction": {
-    "label": "corpus-correlation",
-    "range": "corpus tokenization A/B over 1080 files",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Descriptor ADDED by EXP-0148 from corpus A/B evidence (STRUCTURAL). No hardware sweep was run for this instruction -- EXP-0148 was a modelling dispatch and says so explicitly. Every field here is corpus-derived and must be swept before anything is emitted. the 0x?b 10-byte class; closes length_rule_gaps.b_alu10"
-   },
-   "dst": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "src_reg": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "src_flag": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "opsel_hi": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "srcA": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "modA": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "modB": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "z6": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "outmod": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "ext8": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "ext9": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   }
-  },
-  "tg_atomic_prep10": {
-   "_instruction": {
-    "label": "corpus-correlation",
-    "range": "corpus tokenization A/B over 1080 files",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Descriptor ADDED by EXP-0148 from corpus A/B evidence (STRUCTURAL). No hardware sweep was run for this instruction -- EXP-0148 was a modelling dispatch and says so explicitly. Every field here is corpus-derived and must be swept before anything is emitted. corrected 10-byte replacement for the deleted 8-byte tg_atomic_prep (L4)"
-   },
-   "dst": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "form": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "body": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
-   },
-   "tail": {
-    "label": "corpus-correlation",
-    "range": "observed across corpus firings only; no value was chosen and executed",
-    "target": "M4",
-    "evidence": [
-     "EXP-0148"
-    ],
-    "note": "Not swept. Do not emit."
    }
   }
  }

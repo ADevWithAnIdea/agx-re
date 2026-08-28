@@ -1,0 +1,411 @@
+{
+ "experiment": "EXP-0148-m4-scaffolding-and-lengths",
+ "generated": "2026-08-28",
+ "target": "M4 (G16G)",
+ "evidence_class": "STRUCTURAL (corpus tokenization over own-MSL shaders; NO hardware dispatch)",
+ "applies_to_db_sha256": "6f082cc470c94e345a758cc87e4177e8c706892f12a1db12ab39fa50c94f94e9",
+ "applies_to_isadb_sha256": "aa4791f63bf518aeb81a8ff982429ad2b1a78e5f7b98da53c73338ebe7751041",
+ "validated_against": {
+  "reference_variant_dir": "experiments/EXP-0148-m4-scaffolding-and-lengths/work/variant_final4",
+  "reference_variant_with_deletions": "experiments/EXP-0148-m4-scaffolding-and-lengths/work/variant_final4_del",
+  "baseline_metrics": {
+   "roundtrip_ok": 302,
+   "roundtrip_fail": 0,
+   "strict_clean_files": 803,
+   "strict_leftover_bytes": 395390,
+   "resync_gap_bytes": 4902,
+   "corpus_files": 1080
+  },
+  "post_change_metrics": {
+   "roundtrip_ok": 302,
+   "roundtrip_fail": 0,
+   "strict_clean_files": 832,
+   "strict_leftover_bytes": 389368,
+   "resync_gap_bytes": 4548,
+   "corpus_files": 1080,
+   "files_fixed": 30,
+   "files_broken": 1,
+   "broken_file_note": "dec_n8__h2_multi__compute.hex \u2014 its alignment is chained off an op04_len8 token, itself the still-unresolved over-consumer"
+  },
+  "reproduce": [
+   "cd experiments/EXP-0148-m4-scaffolding-and-lengths",
+   "bash analysis/ab_run.sh isa_copy            # baseline",
+   "bash analysis/ab_run.sh variant_final4      # all accepted changes",
+   "bash analysis/ab_run.sh variant_final4_del  # + the two deletions",
+   "python3 analysis/ab_diff.py isa_copy variant_final4"
+  ]
+ },
+ "ordering_note": "Apply length_rule_patch entries in the order given; each is a UNIQUE literal string replacement against the frozen isadb.py. make_variant.py/make_variant2.py assert uniqueness and abort if an anchor has moved.",
+ "length_rule_patches": [
+  {
+   "id": "L1",
+   "file": "tools/agx-isa/isadb.py",
+   "function": "instr_length",
+   "rule": "byte0 low-nibble 9: op-select (byte+2 bits[2:0]) in {0,1} -> length 4",
+   "why": "The op-select field selects the COMPACT 4-byte float form. The old rule fell through to 6 + 2*(byte+4 & 3); for a 4-byte op byte+4 IS THE NEXT INSTRUCTION'S LEADER, and a large share of AGX leaders end in low nibble 7/f (&3==3 -> 12) or 1/5/9/d (&3==1 -> 8). That is the whole mechanism behind falu2_ext8b's 193/250 embedded op-leaders.",
+   "anchor": "        b2 = buf[off + 2] if off + 2 < len(buf) else -1\n        if b2 in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):\n            return 4                   # compact float accumulate/move (arith-enable bit clear).",
+   "replacement": "        b2 = buf[off + 2] if off + 2 < len(buf) else -1\n        if b2 >= 0 and (b2 & 0x07) in (0x00, 0x01):\n            return 4                   # EXP-0148 H1: OP-SELECT class rule. byte+2 bits[2:0] is the\n                                       # float-ALU op-select; values {0,1} are the COMPACT 4-byte\n                                       # accumulate/move class (superset of the enumerated\n                                       # 0x18/0x19/0x21/0x30/0x31/0x38/0x39). Must be tested BEFORE\n                                       # the 6+2*(byte+4&3) extension, because for a 4-byte op\n                                       # byte+4 is the NEXT instruction's leader.\n        if b2 in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):\n            return 4                   # compact float accumulate/move (arith-enable bit clear).",
+   "effect": "falu2_ext8b 45 -> 0 firings; falu_compact4 54 -> 182",
+   "evidence": "EXP-0148 corpus A/B (raw/ab/variant_h1_lo9, variant_final4); worked example tessellation__pt_tri_linear__vertex.hex tokenizes end-to-end with zero gaps"
+  },
+  {
+   "id": "L2",
+   "file": "tools/agx-isa/isadb.py",
+   "function": "instr_length",
+   "rule": "byte0 low-nibble 9, byte+2 in {0x26,0x2e}: use the uniform 6 + 2*(byte+4 & 3)",
+   "why": "The old `8 if (byte+4 & 0x02) else 6` needed two hand-written special cases above it (byte+4==0x82 -> 10, and the 0x2e/0x87/0x23 signature -> 12). The uniform rule reproduces BOTH (0x82&3==2 -> 10; 0x23&3==3 -> 12) and additionally fixes byte+4==0x81 -> 8.",
+   "anchor": "            return 8 if (b4 & 0x02) else 6  # fused mul / mul-add coord op (EXP-0037)",
+   "replacement": "            return 6 + 2 * (b4 & 0x03)  # EXP-0148 H1b: the 0x26/0x2e coord op-selects use the\n                                        # SAME byte+4 low-2-bit extension as the rest of the group;\n                                        # the old `8 if b4&2 else 6` needed two hand-patches above\n                                        # (b4==0x82 -> 10, the 0x2e/0x87/0x23 -> 12) that this rule\n                                        # reproduces (0x82&3=2 -> 10, 0x23&3=3 -> 12).",
+   "effect": "largest single contributor: strict clean files 803 -> 825 on its own",
+   "evidence": "EXP-0148 corpus A/B (raw/ab/variant_h1b_coord)"
+  },
+  {
+   "id": "L3",
+   "file": "tools/agx-isa/isadb.py",
+   "function": "instr_length",
+   "rule": "byte0 == 0x10 (native fp16 ALU): byte+2 in the compact set -> length 4",
+   "why": "The fp16 sibling of L1. Worked example: dec2_nf_simd__sp_isum_f16__compute.hex is 48 bytes = get_sr(4) + device_load(14) + simd_reduce(8) + `10 02 18 03`(4) + device_store(14) + stop(4) \u2014 EXACT, and the store matches the canonical 14-byte device_store shape byte for byte. The old fixed 12 swallowed the store's leader.",
+   "anchor": "    if b0 == 0x10:\n        if buf[off + 2] & 0x02:",
+   "replacement": "    if b0 == 0x10:\n        if buf[off + 2] in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):\n            return 4                   # EXP-0148 H2-narrow: fp16 sibling of falu_compact4.\n        if buf[off + 2] & 0x02:",
+   "effect": "half_alu_fma12 11 -> 7 firings; requires db addition D1 (half_compact4)",
+   "note": "The BROAD form of this rule (all op-select {0,1}, mirroring L1) was tested and REFUTED: it broke 7 files. byte0 == 0x10 is an OVERLOADED byte \u2014 it is also a legal low-nibble-0 two-byte operand/pad word (`10 00` + a real 6-byte falu2i is the correct parse in tessellation__pt_tri_linear__fragment.hex @36). Do NOT widen this rule without new evidence.",
+   "evidence": "EXP-0148 corpus A/B (raw/ab/variant_h2_half_desc REFUTED, variant_h2n_desc, variant_final4)"
+  },
+  {
+   "id": "L4",
+   "file": "tools/agx-isa/isadb.py",
+   "function": "instr_length",
+   "rule": "byte0 low-nibble b: the 10-byte modifier/logic/convert class is (byte+2 & 0x06) == 0x06 (low nibbles {6,7,e,f}), excluding byte+2 in {0xd7,0xe7}, with NO tg_atomic_prep carve-out",
+   "why": "Generalises the enumerated {7,e,f} (+0x17) set by exactly one low nibble (6). This is what makes the external compiler engineer's 10-byte XOR example decodable, and it independently reproduces the tg_atomic_prep length correction that the 34/34 successor statistic implies.",
+   "anchor": "        if b2 == 0x17 or (b2 & 0x0f) in (0x0e, 0x0f):\n            return 10",
+   "replacement": "        if b2 >= 0 and (b2 & 0x06) == 0x06 and b2 not in (0xd7, 0xe7):\n            return 10                  # EXP-0148 H4'\n        if b2 == 0x17 or (b2 & 0x0f) in (0x0e, 0x0f):\n            return 10",
+   "effect": "adds b_alu10_lo6 (16 firings); tg_atomic_prep 8 -> 10 bytes, absorbing 16 frame_marker_compact + 18 pad_operand phantom tokens",
+   "closes_open_gap": "db.json length_rule_gaps.b_alu10 \u2014 EXP-0099 6.1 reported `4b 85 16 07 02 08 00 00 00 00` as decodable under NO family; it now decodes as b_alu10_lo6 (len 10). Its counterpart `4b 05 1e 07 02 08 00 80 00 00` still decodes as b_alu10_loe, unchanged.",
+   "requires": "db additions D2 (b_alu10_lo6) and D3 (tg_atomic_prep10)",
+   "evidence": "EXP-0148 corpus A/B (raw/ab/variant_h4_nb10_desc, variant_final4)"
+  }
+ ],
+ "db_descriptor_additions": [
+  {
+   "id": "D1",
+   "action": "append to db.json instructions[]",
+   "required_by": "L3",
+   "descriptor": {
+    "mnemonic": "half_compact4",
+    "length": 4,
+    "match": [
+     [
+      0,
+      8,
+      16
+     ]
+    ],
+    "fields": [
+     {
+      "name": "dst",
+      "start": 8,
+      "width": 8,
+      "type": "reg"
+     },
+     {
+      "name": "opsel",
+      "start": 16,
+      "width": 3,
+      "type": "mod"
+     },
+     {
+      "name": "opmode",
+      "start": 19,
+      "width": 5,
+      "type": "mod"
+     },
+     {
+      "name": "operand",
+      "start": 24,
+      "width": 8,
+      "type": "reg"
+     }
+    ],
+    "semantics": "EXP-0148 PROPOSED. 4-byte COMPACT native-half (fp16) float ALU: the byte0==0x10 sibling of the low-nibble-9 falu_compact4/falu_acc. Selected by op-select (byte+2 bits[2:0]) in {0,1}. Same field layout as half_alu with the 6-byte form's srcB/src_modifier tail absent.",
+    "provenance": "EXP-0148 (corpus tokenization, own-MSL): required so byte0==0x10 opsel-{0,1} tokens have a length-4 descriptor to decode into. STRUCTURAL."
+   }
+  },
+  {
+   "id": "D2",
+   "action": "append to db.json instructions[]",
+   "required_by": "L4",
+   "descriptor": {
+    "mnemonic": "b_alu10_lo6",
+    "length": 10,
+    "match": [
+     [
+      0,
+      4,
+      11
+     ],
+     [
+      16,
+      4,
+      6
+     ]
+    ],
+    "fields": [
+     {
+      "name": "dst",
+      "start": 4,
+      "width": 4,
+      "type": "reg"
+     },
+     {
+      "name": "src_reg",
+      "start": 8,
+      "width": 7,
+      "type": "reg"
+     },
+     {
+      "name": "src_flag",
+      "start": 15,
+      "width": 1,
+      "type": "mod"
+     },
+     {
+      "name": "opsel_hi",
+      "start": 20,
+      "width": 4,
+      "type": "mod"
+     },
+     {
+      "name": "srcA",
+      "start": 24,
+      "width": 8,
+      "type": "reg"
+     },
+     {
+      "name": "modA",
+      "start": 32,
+      "width": 8,
+      "type": "mod"
+     },
+     {
+      "name": "modB",
+      "start": 40,
+      "width": 8,
+      "type": "mod"
+     },
+     {
+      "name": "z6",
+      "start": 48,
+      "width": 8,
+      "type": "imm"
+     },
+     {
+      "name": "outmod",
+      "start": 56,
+      "width": 8,
+      "type": "mod"
+     },
+     {
+      "name": "ext8",
+      "start": 64,
+      "width": 8,
+      "type": "imm"
+     },
+     {
+      "name": "ext9",
+      "start": 72,
+      "width": 8,
+      "type": "imm"
+     }
+    ],
+    "semantics": "EXP-0148 PROPOSED. The byte+2-low-nibble-6 member of the 0x?b 10-byte modifier/logic/convert ALU class, same layout as the b_alu10_lo7/loe/lof siblings. Its existence is what makes the external compiler engineer's 10-byte XOR example `4b 85 16 07 02 08 00 00 00 00` (byte+2 == 0x16) decodable; EXP-0099 6.1 reported that example as decodable under NO family.",
+    "provenance": "EXP-0148 (structural, from the class rule (byte+2 & 0x06) == 0x06). STRUCTURAL."
+   }
+  },
+  {
+   "id": "D3",
+   "action": "append to db.json instructions[]",
+   "required_by": "L4",
+   "descriptor": {
+    "mnemonic": "tg_atomic_prep10",
+    "length": 10,
+    "match": [
+     [
+      0,
+      4,
+      11
+     ],
+     [
+      8,
+      8,
+      0
+     ],
+     [
+      16,
+      8,
+      6
+     ]
+    ],
+    "fields": [
+     {
+      "name": "dst",
+      "start": 4,
+      "width": 4,
+      "type": "reg"
+     },
+     {
+      "name": "form",
+      "start": 16,
+      "width": 8,
+      "type": "opcode"
+     },
+     {
+      "name": "body",
+      "start": 24,
+      "width": 40,
+      "type": "mod"
+     },
+     {
+      "name": "tail",
+      "start": 64,
+      "width": 16,
+      "type": "mod"
+     }
+    ],
+    "semantics": "EXP-0148 PROPOSED, SUPERSEDES the 8-byte tg_atomic_prep. Threadgroup/device atomic RMW descriptor prep, 10 bytes. Two corpus forms, both 34/34 followed by a 2-byte word that the 8-byte length exposed as a separate token: `0b 00 06 00 20 00 00 14 | 00 00` (device atomics, 18x) and `0b 00 06 00 00 00 00 00 | 60 00` (threadgroup atomics, 16x). The 10-byte length also falls straight out of the 0x?b class rule (byte+2 & 0x06)==0x06.",
+    "provenance": "EXP-0148 corpus continuation test (own-MSL, n=34, 34/34 trailing word; two independent derivations agree). STRUCTURAL -- not splice-validated."
+   }
+  }
+ ],
+ "db_descriptor_deletions": [
+  {
+   "id": "X1",
+   "mnemonic": "falu2_ext8b",
+   "action": "delete from db.json instructions[]",
+   "why": "UNREACHABLE after L1. Its match is exactly `byte0 low-nibble 9 AND op-select bit1==0 AND bit2==0`, i.e. precisely the op-select-{0,1} space that L1 assigns length 4 \u2014 while the descriptor declares length 8. Firings drop 45 -> 0 (strict) and 146 -> 0 (resync). It was never a hardware instruction; it was the length-rule bug given a name.",
+   "verified": "work/variant_final4_del: round-trip 302/302 and ALL tokenization metrics byte-identical to variant_final4 after deletion",
+   "supersedes": "db.json length_rule_gaps.doc02_over_consumers_20260828 entry `falu2_ext8b`"
+  },
+  {
+   "id": "X2",
+   "mnemonic": "tg_atomic_prep",
+   "action": "delete from db.json instructions[] (replaced by D3)",
+   "why": "UNREACHABLE after L4, which lengths `0b 00 06 ..` to 10; the 8-byte descriptor can no longer match. D3 (tg_atomic_prep10) is its corrected replacement.",
+   "verified": "work/variant_final4_del: round-trip 302/302, metrics byte-identical"
+  }
+ ],
+ "db_metadata_updates": [
+  {
+   "id": "M1",
+   "path": "length_rule.byte0_table['lownibble_0x9']",
+   "action": "replace value",
+   "new_value": "4 if op-select (byte+2 bits[2:0]) in {0,1} [COMPACT float accumulate/move -- falu_acc / falu_compact4]; otherwise 6 + 2*(byte+4 & 0x03) uniformly, INCLUDING the 0x26/0x2e fused-mul coordinate op-selects. The op-select test MUST precede the byte+4 test: for a 4-byte op, byte+4 is the following instruction's leader. srcB-imm form (bit39=1) and the byte+2==0x25 transcendental seed are unchanged. EXP-0148 (STRUCTURAL, corpus A/B; not splice-validated)."
+  },
+  {
+   "id": "M2",
+   "path": "length_rule.byte0_table['0x10']",
+   "action": "replace value",
+   "new_value": "4 if byte+2 in {0x18,0x19,0x21,0x30,0x31,0x38,0x39} [compact fp16 accumulate/move, half_compact4]; else 6 + 2*(byte+4 & 0x03). NOTE byte0 0x10 is OVERLOADED: it is also a legal low-nibble-0 two-byte operand/pad word, which is why the op-select-{0,1} generalisation that works for the 0x09 group is REFUTED here. EXP-0148."
+  },
+  {
+   "id": "M3",
+   "path": "length_rule.byte0_table['0xNb (byte+2 low-nibble e/f, 0x2b/3b/5b/8b)']",
+   "action": "replace value",
+   "new_value": "10 whenever (byte+2 & 0x06) == 0x06 -- low nibbles {6,7,e,f} -- excluding byte+2 in {0xd7,0xe7} (device-store leaders seen mid-desync). This is the modifier/logic/convert class and it includes the threadgroup-atomic descriptor prep `0b 00 06 ..` (10 bytes, was wrongly 8). Compact 4-byte moves keep byte+2 hi-nibble 2 / low nibbles {0,1,9,b} / {0x1c,0x3c} / {0x40,0x41,0x80,0x81}. EXP-0148."
+  },
+  {
+   "id": "M4",
+   "path": "length_rule_gaps.b_alu10",
+   "action": "mark RESOLVED",
+   "new_value": "RESOLVED by EXP-0148 (L4). The 10-byte and/or/xor form `4b 85 16 07 02 08 00 00 00 00` supplied by the external compiler engineer decodes as b_alu10_lo6 (length 10) once the 0x?b 10-byte class is expressed as (byte+2 & 0x06) == 0x06 instead of an enumerated {7,e,f} set. Its counterpart `4b 05 1e ..` still decodes as b_alu10_loe, unchanged. Coverage gap closed; the FIELD semantics of the class remain corpus-correlation."
+  },
+  {
+   "id": "M5",
+   "path": "length_rule_gaps.doc02_over_consumers_20260828",
+   "action": "update status",
+   "new_value": {
+    "status": "PARTIALLY RESOLVED by EXP-0148 (STRUCTURAL, corpus A/B, no hardware).",
+    "falu2_ext8b": "RESOLVED \u2014 was 100% a length-rule artifact; 0 firings after L1; descriptor deleted (X1).",
+    "half_alu_fma12": "PARTIALLY RESOLVED \u2014 L3 removes the compact-form over-consumption (11 -> 7 firings). The 12-byte length itself is CORRECT for arithmetic op-selects (the HW-VALIDATED k_hfma_abs `10 02 1e 03 83 ..` is a genuine 12-byte op). Residual 7 firings are desync landings; keep emit_unsafe.",
+    "op04_len8": "OPEN \u2014 see flagged_not_changed F1.",
+    "root_cause": "A length rule that reads byte+4 to choose 6/8/10/12 is only sound once the instruction is already known to be at least 6 bytes long. For the compact forms byte+4 belongs to the NEXT instruction, and AGX op leaders overwhelmingly end in low nibble 7/f (&3 == 3 -> 12) or 1/5/9/d (&3 == 1 -> 8). Any future length rule in this ISA must select the form from the LEADING parcel before consulting byte+4."
+   }
+  }
+ ],
+ "flagged_not_changed": [
+  {
+   "id": "F1",
+   "mnemonic": "op04_len8",
+   "verdict": "OPEN \u2014 keep emit_unsafe, keep length 8",
+   "finding": "The over-consumption is REAL and directly demonstrated. In frag_output__mrt8_float__fragment.hex the bytes `04 00 d9 a1 2c 83 80 00 | c9 a1 2c a1 80 00` are a 2-byte `04 00` word followed by TWO clean 6-byte falu2i ops, and `04 00 e1 19 1c 81 06 02` is `04 00` + a clean 6-byte cvt_f2h. But NO tested rule beats the current flat 8.",
+   "candidates_tested_and_rejected": [
+    {
+     "rule": "flat 2",
+     "result": "clean 830 (vs 832), round-trip 301/302 (breaks cubearray_coord_const)"
+    },
+    {
+     "rule": "flat 4",
+     "result": "clean 830, strict gaps 390046 (worse)"
+    },
+    {
+     "rule": "4 if (byte+1 & 0x02) else 2",
+     "result": "clean 831, resync gaps 4636 (worse)"
+    },
+    {
+     "rule": "2 if byte+1==0x00 else 8",
+     "result": "clean 832 but round-trip 301/302"
+    },
+    {
+     "rule": "2 if byte+1==0x00 else 4",
+     "result": "clean 831 (worse)"
+    },
+    {
+     "rule": "8 if (byte+1 & 0x02) else 2",
+     "result": "clean 831 (worse)"
+    }
+   ],
+   "conclusion": "byte+1 alone is not the discriminator. This CONFIRMS EXP-M4-14's conservative call. The group needs a splice, not more corpus fitting."
+  },
+  {
+   "id": "F2",
+   "mnemonic": "simd_shuffle",
+   "verdict": "open lead, NOT proposed",
+   "finding": "7/127 simd_shuffle firings have byte+9 bit7 set and ALL 7 are followed by `02 00` (0/120 with the bit clear) \u2014 separation 1.000. The 7 carriers are exactly the extra-operand MSL forms (simd_shuffle_and_fill / simd_rotate).",
+   "why_not_proposed": "A 12-byte variant regressed: round-trip 300/302 (the candidate descriptor's match out-specified ibfe/lshr_i) and 2 files broken. See raw/ab/variant_final5/."
+  },
+  {
+   "id": "F3",
+   "mnemonics": [
+    "operand_word_x2_h5",
+    "operand_word_x2_h6",
+    "operand_word_x2_h7"
+   ],
+   "verdict": "artifacts, but LOAD-BEARING \u2014 do not delete",
+   "finding": "These three exist only because b_alu14_prep2's match cannot express its own documented invariant byte+1 == (dst<<1)|1 \u2014 the match language is (start,width,value) triples and has no cross-field form. They encode the complement on byte+1 bits 5/6/7. Deleting them without extending the match language would let genuine data words decode as prep2."
+  },
+  {
+   "id": "F4",
+   "mnemonic": "operand_word_a2_01",
+   "verdict": "dead but not proposed for deletion",
+   "finding": "0 firings in both walks over 1080 files. Its provenance cites a 7519-file corpus including third-party shaders NOT committed to this repo, so its removal cannot be verified from committed evidence. Inert; leave it."
+  },
+  {
+   "id": "F5",
+   "mnemonic": "cubearray_coord_const",
+   "verdict": "over-fitted; flag, do not delete yet",
+   "finding": "0 firings in both walks. In k_tex_array_cube.hex \u2014 its own naming kernel \u2014 the `f0 c0 04` signature is at offset 48, INTERIOR to the 12-byte tex_addr_setup token spanning 40..52, so it can never fire. Its only exercise is the literal string in roundtrip_test.py, and that resolution depends on the _r9_succ_safe lookahead guard seeing the FOLLOWING bytes fail to decode \u2014 which made it break under two unrelated op04 length experiments here. That fragility is worth recording against the guard, not just the descriptor."
+  },
+  {
+   "id": "F6",
+   "mnemonics": [
+    "pad_operand",
+    "operand_word",
+    "operand_word_a2_01",
+    "operand_word_x2_h5",
+    "operand_word_x2_h6",
+    "operand_word_x2_h7"
+   ],
+   "verdict": "METRIC recommendation, no DB change",
+   "finding": "These six are, by their own committed semantics, NOT hardware opcodes \u2014 they are trailing operand / immediate / SFU-coefficient / pad DATA words. Counting them in the emittability denominator is a metric defect: an emitter never emits a pad word, it emits an instruction whose encoding contains those bytes. Recommend excluding them from the emittable-family denominator and marking them host-data rather than untested."
+  }
+ ]
+}

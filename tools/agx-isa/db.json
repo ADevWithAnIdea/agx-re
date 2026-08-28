@@ -8572,53 +8572,6 @@
       "provenance": "byte-diff EXP-M4-13 R2 (own-MSL): `0b 01 1b 05` bracketed 4-byte before a device_store; `4b 05 3b 09 2b 07 3b 0b` a regular 4-byte grid. Closes the 0xe7 device-store bleed. Not splice-validated."
     },
     {
-      "mnemonic": "tg_atomic_prep",
-      "length": 8,
-      "match": [
-        [
-          0,
-          4,
-          11
-        ],
-        [
-          16,
-          8,
-          6
-        ]
-      ],
-      "fields": [
-        {
-          "name": "dst",
-          "start": 4,
-          "width": 4,
-          "type": "reg"
-        },
-        {
-          "name": "src",
-          "start": 8,
-          "width": 8,
-          "type": "reg"
-        },
-        {
-          "name": "form",
-          "start": 16,
-          "width": 8,
-          "type": "enum",
-          "enum": {
-            "6": "tg_atomic_rmw_prep"
-          }
-        },
-        {
-          "name": "body",
-          "start": 24,
-          "width": 40,
-          "type": "raw"
-        }
-      ],
-      "semantics": "Threadgroup-atomic RMW descriptor prep (8B). byte0 low-nibble 0xb, byte+2==0x06; sets up the atomic-value / descriptor for a threadgroup atomic RMW. dst=byte0 hi nibble (scope/reg).",
-      "provenance": "byte-diff EXP-M4-13 R2 / round-1 EXP-M4-01: `0b 00 06 00 00 00 00 00` anchored before a clean device_store in atomics__tg_u_add. Length 8 (b1==0,b2==0x06). Not splice-validated."
-    },
-    {
       "mnemonic": "b_alu14_c83",
       "length": 14,
       "match": [
@@ -10254,94 +10207,6 @@
       "emit_unsafe": true
     },
     {
-      "mnemonic": "falu2_ext8b",
-      "length": 8,
-      "match": [
-        [
-          0,
-          4,
-          9
-        ],
-        [
-          17,
-          1,
-          0
-        ],
-        [
-          18,
-          1,
-          0
-        ]
-      ],
-      "fields": [
-        {
-          "name": "dst",
-          "start": 4,
-          "width": 4,
-          "type": "reg"
-        },
-        {
-          "name": "srcA_size",
-          "start": 8,
-          "width": 1,
-          "type": "enum",
-          "enum": {
-            "0": "b16",
-            "1": "b32"
-          }
-        },
-        {
-          "name": "srcA_reg",
-          "start": 9,
-          "width": 7,
-          "type": "reg"
-        },
-        {
-          "name": "opsel",
-          "start": 16,
-          "width": 3,
-          "type": "mod"
-        },
-        {
-          "name": "opflags",
-          "start": 19,
-          "width": 5,
-          "type": "mod"
-        },
-        {
-          "name": "srcB_size",
-          "start": 24,
-          "width": 1,
-          "type": "enum",
-          "enum": {
-            "0": "b16",
-            "1": "b32"
-          }
-        },
-        {
-          "name": "srcB_reg",
-          "start": 25,
-          "width": 7,
-          "type": "reg"
-        },
-        {
-          "name": "src2",
-          "start": 32,
-          "width": 8,
-          "type": "reg"
-        },
-        {
-          "name": "exttail",
-          "start": 40,
-          "width": 24,
-          "type": "raw"
-        }
-      ],
-      "semantics": "8-byte extended float-ALU op-select {0,1} sub-form (bit17==0 AND bit18==0 -- a DISTINCT op class from fadd/fmul). dst/srcA(byte+1)/srcB(byte+3) inherited from the HW-validated falu2_ext layout. src2 (byte+4) = a third source register: byte+4 low bit is set in every corpus instance ((reg<<1)|b32 convention, 22 distinct register values). exttail (byte+5..+7) is KEPT RAW -- HETEROGENEOUS (193/250 distinct 32-bit tails, several containing real op-leader bytes 0xa7/...), so it cannot be honestly typed as one coherent operand block without a per-sub-op splice (candidate over-match/over-consumption, flagged). LENGTH OVER-CONSUMES (DOC-02 labelling pass, 2026-08-28): 193/250 corpus instances embed a real op-leader byte INSIDE this descriptor's trailing field, i.e. the fixed length swallows the following instruction's first byte. The length rule for this byte0 group must be modifier/opsel-aware rather than fixed. Tokenization still round-trips because the swallowed byte is re-emitted verbatim -- which is exactly why this went unnoticed. DO NOT EMIT until the length rule is re-derived from hardware.",
-      "provenance": "census EXP-M4-13 R8/R10 (own-MSL float corpus, opsel 0/1). byte+4 typed reg by the size-bit convention (lsb set corpus-wide). exttail kept raw: 193/250 distinct with embedded op-leader bytes -> honest heterogeneous-residue result, per-sub-op splice needed; op-select value semantics unconfirmed. HW-CORROBORATED NEGATIVE (splice, A18 EXP-M4-14): the over-match/over-consumption flag is confirmed on hardware -- splicing a KNOWN-GOOD fadd (`09 05 1c ..`) opsel 4->0/1/2/3 yields [0,0,0,0] in the 6-byte form, and a KNOWN-GOOD 8-byte fma (`09 01 1e ..`) opsel 6->0/1/2/3 also yields [0,0,0,0], so opsel-top-bit-clear (bit18==0) is a DISTINCT non-arithmetic class inert to float probes; across a broad own-MSL float sweep the only byte0-lo-9 opsel-0/1 8-byte token appears INSIDE the complex ldexp lowering (`49 07 39 09 1f 01 54 0a ..`) immediately adjacent to a real op-leader (0x1f) -- exactly the over-consumption the descriptor flags. exttail STAYS RAW (a dedicated single-op indirect-call splice testbed is needed to determine whether opsel 0/1 is a real datapath op or a pure length-rule artifact).",
-      "emit_unsafe": true
-    },
-    {
       "mnemonic": "falu_srcmod12b",
       "length": 12,
       "match": [
@@ -10828,10 +10693,187 @@
       ],
       "semantics": "NOT A STANDALONE HARDWARE OPCODE. Least-specific 2-byte trailing operand / immediate / SFU-coefficient / inter-op PAD WORD fallback. Reached only after every real 2-byte op (higher match specificity) fails to match, so real ops always win. b0 (byte0) and b1 (byte+1) are raw data bytes typed imm (ROLE is a data word; per-bit value NOT decoded, clean-room rule 5). Consolidates 419 of R9's per-signature operand_word_* descriptors.",
       "provenance": "census EXP-M4-13 R10 (own-MSL + permissive-thirdparty, n=7519 files): R9's 423 per-signature operand_word_XX_YY / operand_word_XX descriptors CONSOLIDATED. NEGATIVE RESULT preserved: these (b0,b1) are never instruction LEADERS, only trailing operand / immediate / SFU-coefficient / inter-op PAD words (length closed to 2 by the UNCHANGED _R9_SIGS/_R9_TRIPLES rules). Predecessor analysis (full corpus): NO preceding op is ALWAYS followed by the word (max 0.52 for vtx_coord_xform), so these are standalone inter-op words -> option (b) single fallback, NOT tail-absorption. NOT HW-dispatch validated."
+    },
+    {
+      "mnemonic": "half_compact4",
+      "length": 4,
+      "match": [
+        [
+          0,
+          8,
+          16
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 8,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "opsel",
+          "start": 16,
+          "width": 3,
+          "type": "mod"
+        },
+        {
+          "name": "opmode",
+          "start": 19,
+          "width": 5,
+          "type": "mod"
+        },
+        {
+          "name": "operand",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        }
+      ],
+      "semantics": "EXP-0148 PROPOSED. 4-byte COMPACT native-half (fp16) float ALU: the byte0==0x10 sibling of the low-nibble-9 falu_compact4/falu_acc. Selected by op-select (byte+2 bits[2:0]) in {0,1}. Same field layout as half_alu with the 6-byte form's srcB/src_modifier tail absent.",
+      "provenance": "EXP-0148 (corpus tokenization, own-MSL): required so byte0==0x10 opsel-{0,1} tokens have a length-4 descriptor to decode into. STRUCTURAL."
+    },
+    {
+      "mnemonic": "b_alu10_lo6",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          16,
+          4,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "src_reg",
+          "start": 8,
+          "width": 7,
+          "type": "reg"
+        },
+        {
+          "name": "src_flag",
+          "start": 15,
+          "width": 1,
+          "type": "mod"
+        },
+        {
+          "name": "opsel_hi",
+          "start": 20,
+          "width": 4,
+          "type": "mod"
+        },
+        {
+          "name": "srcA",
+          "start": 24,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "modA",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "modB",
+          "start": 40,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "z6",
+          "start": 48,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "outmod",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "ext8",
+          "start": 64,
+          "width": 8,
+          "type": "imm"
+        },
+        {
+          "name": "ext9",
+          "start": 72,
+          "width": 8,
+          "type": "imm"
+        }
+      ],
+      "semantics": "EXP-0148 PROPOSED. The byte+2-low-nibble-6 member of the 0x?b 10-byte modifier/logic/convert ALU class, same layout as the b_alu10_lo7/loe/lof siblings. Its existence is what makes the external compiler engineer's 10-byte XOR example `4b 85 16 07 02 08 00 00 00 00` (byte+2 == 0x16) decodable; EXP-0099 6.1 reported that example as decodable under NO family.",
+      "provenance": "EXP-0148 (structural, from the class rule (byte+2 & 0x06) == 0x06). STRUCTURAL."
+    },
+    {
+      "mnemonic": "tg_atomic_prep10",
+      "length": 10,
+      "match": [
+        [
+          0,
+          4,
+          11
+        ],
+        [
+          8,
+          8,
+          0
+        ],
+        [
+          16,
+          8,
+          6
+        ]
+      ],
+      "fields": [
+        {
+          "name": "dst",
+          "start": 4,
+          "width": 4,
+          "type": "reg"
+        },
+        {
+          "name": "form",
+          "start": 16,
+          "width": 8,
+          "type": "opcode"
+        },
+        {
+          "name": "body",
+          "start": 24,
+          "width": 40,
+          "type": "mod"
+        },
+        {
+          "name": "tail",
+          "start": 64,
+          "width": 16,
+          "type": "mod"
+        }
+      ],
+      "semantics": "EXP-0148 PROPOSED, SUPERSEDES the 8-byte tg_atomic_prep. Threadgroup/device atomic RMW descriptor prep, 10 bytes. Two corpus forms, both 34/34 followed by a 2-byte word that the 8-byte length exposed as a separate token: `0b 00 06 00 20 00 00 14 | 00 00` (device atomics, 18x) and `0b 00 06 00 00 00 00 00 | 60 00` (threadgroup atomics, 16x). The 10-byte length also falls straight out of the 0x?b class rule (byte+2 & 0x06)==0x06.",
+      "provenance": "EXP-0148 corpus continuation test (own-MSL, n=34, 34/34 trailing word; two independent derivations agree). STRUCTURAL -- not splice-validated."
     }
   ],
   "length_rule_gaps": {
-    "b_alu10": "The 10-byte and/or/xor form supplied by an external compiler engineer does not decode under ANY current family -- isadb.disassemble reports unknown instruction length (EXP-0099). Coverage gap, not a wrong field map.",
+    "b_alu10": {
+      "status": "CLOSED by EXP-0148",
+      "note": "EXP-0099 6.1 reported `4b 85 16 07 02 08 00 00 00 00` decodable under NO family. The L4 rule (byte0 low-nibble b, (byte+2 & 0x06)==0x06, excluding 0xd7/0xe7) decodes it as a 10-byte b_alu10_lo6. Its counterpart `4b 05 1e 07 02 08 00 80 00 00` still decodes as b_alu10_loe, unchanged."
+    },
     "reg_move_c9": "isadb.py instr_length() has no branch for byte+2 low-nibble == 9, so byte0=0x2b fails to disassemble even though db.json's FIELD TABLE already covers it: assembling reg_move_c9 with dst=2, src_reg=0, src_flag=0, src_class=0, op_desc=0xC0 reproduces the bytes exactly (EXP-0113).",
     "falu3_8byte": "The external engineer's 8-byte FMA description has no clean correspondent here: our 8-byte falu3 uses an unrelated layout and our layout-matching family falu3_srcmod12 is 12 bytes (EXP-0099). Open discrepancy.",
     "doc02_over_consumers_20260828": {
@@ -10843,7 +10885,7 @@
       ],
       "symptom": "fixed length swallows the following instruction's leader byte; round-trip is blind to it because the byte is re-emitted verbatim",
       "required_fix": "a modifier/opsel-aware length rule for these byte0 groups, derived from hardware, not from the corpus",
-      "status": "OPEN -- descriptors flagged emit_unsafe; no length changed without evidence"
+      "status": "PARTIALLY RESOLVED by EXP-0148: falu2_ext8b was never an instruction (deleted; its match is exactly the op-select-{0,1} space L1 now lengths to 4). half_alu_fma12 partially resolved -- the 12-byte length is correct for arithmetic op-selects, the compact fp16 form was missing (D1); stays emit_unsafe. op04_len8 remains OPEN: over-consumption is demonstrated but six candidate rules all measured WORSE than the status quo."
     }
   }
 }
