@@ -1,0 +1,24 @@
+{
+  "experiment": "EXP-0127-m4-shader-selection",
+  "target": "local Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4, no SSH",
+  "a18_pro": "hands-off, not run",
+  "clean_room_categories": ["HW-PROBE", "DATA-TRACE", "OWN-SHADER"],
+  "apple_binary_introspection": "NONE",
+  "pinned_git_revision_at_pre_registration": "633cd06b0c9890bc641128ca7b49ff66eee41cb1",
+  "official_runs": ["m4_20260828_run04", "m4_20260828_run05"],
+  "official_runs_note": "the pair verify.py --captured passes on, and the pair RESULTS.md's closure-relevant claims cite",
+  "quarantined_or_disclosed_runs": {
+    "m4_20260828_run01": "partial (2/N records); crashed on a schema false-positive before any perturb/fsredirect record was written; retained, not deleted; not one of the official runs",
+    "m4_20260828_run02": "complete and internally valid; retained as the primary evidence for the racy-result_colour-on-clean-completion finding (see RESULTS.md); superseded for the closure-gate role by run04",
+    "m4_20260828_run03": "complete and internally valid; retained alongside run02 for the same finding; superseded for the closure-gate role by run05"
+  },
+  "gate_results": {
+    "verify_selftest": "16/16 PASS",
+    "verify_seqtest": "5/5 PASS",
+    "smoke_gate": "PASSED (run.py --smoke, non-recorded, work/ only, before any raw/ existed)",
+    "verify_captured_run04_run05": "PASS -- 25/25 gated records byte-identical, zero mismatches"
+  },
+  "raw_retention": {
+    "manifest": "raw_manifest.sha256 (sha256 of every file under raw/, all committed -- total raw/ size 740K, no maps/ directories retained; see README.md for why: BODUMP dump directories are scratch under work/, deleted immediately after each sub-test's derived facts are computed)"
+  }
+}

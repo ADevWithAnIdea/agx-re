@@ -1,0 +1,101 @@
+{
+  "experiment": "EXP-0127-m4-shader-selection",
+  "pre_registered": true,
+  "pre_registration_sha256": "f66910e16b4325782c42eeb24d97d7c4d03064f91c0c41058eeb8785de76618f",
+  "pinned_git_revision": "633cd06b0c9890bc641128ca7b49ff66eee41cb1",
+  "pinned_git_revision_note": "dirty tree at pre-registration time, per repo norm; captures are validated against authored_file_sha256 below, not against live HEAD",
+  "target": {
+    "device": "Apple M4 (G16G)",
+    "cores": 10,
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "ssh": false,
+    "a18_pro": "hands-off, not run"
+  },
+  "authored_file_sha256": {
+    "harness/vstoken.m": "1889c111aba784588b38aa6c6b8dd0560e19380e11553633326f3f2c0bacc181",
+    "harness/fsredirect.m": "8e761cb00ef310acfef4e0b82ba1328d4325057813e344ecb65ba19d23402490",
+    "kernels/vs_uniform.metal": "3fcef5b180a6c8813c144a54366873dd472a1d3fcb7b9e022ce5a32edac14e39",
+    "kernels/vs_varied.metal": "a7fdb7926451d7eff9e390ed47aeff70711df9d420c446b27d3aa8b1b7ae5eed",
+    "kernels/fsredirect.metal": "aedf15d002032b329ced47230584a44fe0a4250c567043048eb4e1bf0a9951b1",
+    "analysis/gen_kernels.py": "cb967d80250fa7eaa056f4d1ab97e4bd77374bf4b24e09016dab06221c63981f",
+    "schema.py": "ef9acd2c2da5abb4f64c77eaa963aa192e10c2e44084b6046ee2c05fa295312b",
+    "run.py": "9841075d87ee7a668d67615fe4d462b5a774baec9d694f6f1e22f51b6a8c1d7c",
+    "verify.py": "1f3a101c97227db5ba05519e7c681ba368c5bba8acb39cc0220e5768f544625c"
+  },
+  "case_matrix": {
+    "vstoken_varied": {
+      "order": "0,1,2,3,4,5,6,7",
+      "n": 8,
+      "purpose": "task1 H1: size-independence discrimination for the VS token step"
+    },
+    "vstoken_uniform": {
+      "count": 650,
+      "dump_first": 4,
+      "dump_stride": 50,
+      "dump_window": "495,515",
+      "purpose": "task1 H2: linear rule + capacity-boundary discontinuity"
+    },
+    "vstoken_perturb": {
+      "conditions": ["pad0 (baseline)", "pad64 (64 MiB padding)", "extraq (4 extra command queues)"],
+      "purpose": "task3 H5: code-window relocation category vs EXP-0110's CDM/VDM split"
+    },
+    "fsredirect_cases": [
+      "baseline_red_solo", "baseline_green_solo", "baseline_blue_solo",
+      "redirect_red_to_green", "redirect_red_to_blue",
+      "redirect_green_to_red", "redirect_blue_to_red",
+      "misalign_plus1", "misalign_plus2", "misalign_plus4", "misalign_plus8",
+      "misalign_minus1", "misalign_minus2", "misalign_minus4", "misalign_minus8",
+      "boundary_zero", "boundary_far_oor", "boundary_top_bit", "boundary_max",
+      "boundary_near_but_invalid"
+    ]
+  },
+  "raw_record_schema": {
+    "gated_file": "raw/<run-id>/gated.jsonl",
+    "addrs_file": "raw/<run-id>/addrs.jsonl",
+    "gated_field_lists": "see schema.py (VSTOKEN_VARIED_GATED_FIELDS, VSTOKEN_UNIFORM_GATED_FIELDS, VSTOKEN_PERTURB_GATED_FIELDS, FSREDIRECT_GATED_FIELDS)",
+    "no_address_leak_enforced_by": "schema.assert_no_address_leak, exercised in verify.py --selftest and applied live during run.py official_run() and verify.py --captured"
+  },
+  "timeouts": {
+    "fsredirect_per_commit_watchdog_sec": 10,
+    "fsredirect_per_case_process_timeout_sec": 60,
+    "fsredirect_harness_alarm_sec": 45,
+    "vstoken_varied_perturb_per_draw_watchdog_sec": 10,
+    "vstoken_varied_perturb_process_timeout_sec": 90,
+    "vstoken_uniform_process_timeout_sec": 340,
+    "vstoken_uniform_harness_alarm_sec": 300
+  },
+  "post_capture_corrections": [
+    {
+      "found_during": "m4_20260828_run01 (retained, quarantined -- see below)",
+      "bug": "schema.assert_no_address_leak's key deny-list matched the substring token 'va' inside the LEGITIMATE derived boolean field names 'code_bo_va_unchanged_vs_pad0_baseline' / 'pool_va_unchanged_vs_pad0_baseline' / 'vdm_va_unchanged_vs_pad0_baseline' (a false positive: these are booleans, not addresses), crashing official_run() partway through the vstoken_perturb_pad0 record on the FIRST official run attempt.",
+      "fix": "renamed the three fields to 'code_bo_base_unchanged_vs_pad0_baseline' / 'pool_base_unchanged_vs_pad0_baseline' / 'vdm_base_unchanged_vs_pad0_baseline' in schema.py, run.py, and verify.py's selftest fixtures (which had silently stopped exercising the intended comparison once the field names diverged from the schema, since a missing key is dropped rather than erroring -- also fixed).",
+      "raw_disposition": "raw/m4_20260828_run01/ is RETAINED AS-IS (not deleted, not repaired): it contains two complete, valid records (vstoken_varied, vstoken_uniform count=650) written before the crash, which independently reproduce the task-1 linear rule (base=704, step=128) and capacity boundary (index=506, new_region_size=262144) found during pre-registration calibration -- a FOURTH independent confirmation, consistent with every earlier one. It is NOT one of the two official runs the closure gate cites (those are captured fresh below under new ids, per CODEX 'never reuse or overwrite a run id').",
+      "hashes_changed": {
+        "schema.py": "a6c666200d65e00797a87aa709f8dd82d0223226a9676dd20e19e216e028a0be -> 0858277d51c46e0f4e7c39a4182b3262446b156bf6c1c95dad993e55bfa29ed1",
+        "run.py": "81de09eb7559a48c69ebefc9519ca83f275d9c110ef530894191440f50c20969 -> 9841075d87ee7a668d67615fe4d462b5a774baec9d694f6f1e22f51b6a8c1d7c",
+        "verify.py": "9e4afbc74f6e103b07f968dd9aa8f435df4f32567cdf770744adfdcf59a07f4b -> d70703c7c8bd0e9735328d2fe1700360e5117a76ec72f2a90ed0d02adfc52925"
+      },
+      "verified_by": "verify.py --selftest (13/13 PASS, including the now-genuinely-exercised perturb-field fixture) and --seqtest (5/5 PASS) re-run clean after the fix, before any further official capture was attempted"
+    },
+    {
+      "found_during": "verify.py --captured m4_20260828_run02 m4_20260828_run03 (both runs complete and valid; NOT a run crash)",
+      "finding": "A GENUINE HARDWARE NONDETERMINISM, not a tooling bug: result_colour differed between run02 and run03 for 2/25 fsredirect records (misalign_plus4: black vs red; misalign_minus1: black vs red) despite BOTH runs reporting final_status=4 (Completed, no fault) with byte-identical every other field including post_selector. This is racy even on a CLEAN completion, which the original schema (guarding result_colour only when final_status != Completed, mirroring EXP-0116's RACY_ON_FAULT_LINKSPLICE) did not anticipate.",
+      "fix": "schema.py's build_gated_fsredirect/build_addrs_fsredirect now route result_colour through _result_colour_is_racy(result), which excludes it from the gate whenever final_status != Completed OR the spliced value (mutate_value) is not exactly equal to one of the three independently-discovered natural selectors (S_RED/S_GREEN/S_BLUE) -- i.e. every misalignment/zero/far-OOR/top-bit/ceiling/near-but-invalid probe. result_colour remains gated for baseline (unmutated) and exact-natural-redirect cases, both of which reproduced byte-identically in run02/run03.",
+      "raw_disposition": "raw/m4_20260828_run02/ and raw/m4_20260828_run03/ are RETAINED AS-IS (both fully valid, complete official-shaped captures; NOT deleted, NOT repaired) as the primary evidence for this finding, reported in RESULTS.md. They are NOT the two runs cited for the cross-run closure gate (schema was corrected after they were captured); a fresh pair (m4_20260828_run04/run05) was captured under the corrected schema for that role.",
+      "hashes_changed": {
+        "schema.py": "0858277d51c46e0f4e7c39a4182b3262446b156bf6c1c95dad993e55bfa29ed1 -> ef9acd2c2da5abb4f64c77eaa963aa192e10c2e44084b6046ee2c05fa295312b",
+        "verify.py": "d70703c7c8bd0e9735328d2fe1700360e5117a76ec72f2a90ed0d02adfc52925 -> 1f3a101c97227db5ba05519e7c681ba368c5bba8acb39cc0220e5768f544625c"
+      },
+      "verified_by": "verify.py --selftest (16/16 PASS, with two NEW fixtures that are literal reproductions of the discovered misalign_plus4/misalign_minus1 shape) and --seqtest (5/5 PASS) re-run clean before the corrected-schema run04/run05 pair was captured"
+    }
+  ],
+  "run_plan": [
+    "verify.py --selftest",
+    "verify.py --seqtest",
+    "run.py --smoke (non-recorded, work/ only)",
+    "run.py --run-id <RUN01>",
+    "run.py --run-id <RUN02>",
+    "verify.py --captured <RUN01> <RUN02>"
+  ]
+}
