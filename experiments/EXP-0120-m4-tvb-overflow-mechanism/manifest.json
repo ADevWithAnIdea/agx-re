@@ -1,0 +1,58 @@
+{
+  "experiment": "EXP-0120-m4-tvb-overflow-mechanism",
+  "target": "local Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4",
+  "pinned_repo_head": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "contract_frozen_at_utc": "2026-08-28T07:37:58Z",
+  "clean_room_category": ["DATA-TRACE", "HW-PROBE", "bounded PUBLIC reference (mesa/, read-only)"],
+  "reused_read_only_tools": {
+    "experiments/EXP-0118-a18-pro-partial-render-workload/build/partial_render": "b6bf7e27e1ab7984eccc7c55274761ae8f988bf7435d13f83d586d0f543d3130",
+    "experiments/EXP-0118-a18-pro-partial-render-workload/build/g17ppartial.metallib": "ecd8d7103ca46b892b68a86a5e05d42ecd280f87500d5e2a04a0c81105a5c802",
+    "tools/iotrace/iotrace.c": "4c8e1cedb9cbacd2e26c1699989337b95602a7c6beeb8823b19a71d1b55a3441"
+  },
+  "public_reference_material_read_only": [
+    "mesa/src/asahi/lib/agx_device.c",
+    "mesa/src/asahi/lib/agx_device.h",
+    "mesa/src/asahi/vulkan/hk_cmd_draw.c",
+    "mesa/include/drm-uapi/asahi_drm.h",
+    "mesa/docs/relnotes/23.3.0.rst"
+  ],
+  "official_capture_runs": {
+    "m4_20260828_run01": {
+      "started_utc": "2026-08-28T07:44:07Z",
+      "n_cases": 57,
+      "n_ok": 39,
+      "n_timeout": 0,
+      "n_fault": 18,
+      "sha256_records_jsonl": "3d307f93128a3d443954ae5977da916fe2f8a999ba7c596bf44c9b61a6e6794d",
+      "note": "18 faults confined to Sweep A repeated-submission loop, root-caused in RESULTS.md section 4; Sweep B/C 0/12 faults"
+    },
+    "m4_20260828_run02": {
+      "started_utc": "2026-08-28T07:47:55Z",
+      "n_cases": 57,
+      "n_ok": 53,
+      "n_timeout": 0,
+      "n_fault": 4,
+      "sha256_records_jsonl": "a4666d7e74fab44a77e46da37be7cc6a4fcda1f9ed5a2cca39c9e2c9fd386317"
+    }
+  },
+  "derived_analysis": {
+    "analysis/m4_20260828_run01.json": "184b1f95bc93c9bf3048bf095874453fd9e6bdf29fde0bf073fb9b48b512208a",
+    "analysis/m4_20260828_run02.json": "3ad9aea8c1be4384eff28071cb80286fba042835c88c58c707c79085589182b4"
+  },
+  "gate_results": {
+    "selftest": "PASS",
+    "seqtest": "PASS",
+    "captured": "PASS (12/12 Sweep B+C cases byte-exact reproduced: size multiset + selector CALL histogram)"
+  },
+  "document_hashes": {
+    "PRE_REGISTRATION.md": "daed07da040eefa20dd20a5a23639548cf3f96cbcdf4a26222c0cd3a3d511f90",
+    "CAPTURE_CONTRACT.json": "4bdaad6dc22b3228a50d20a283ba8194160d5b59c0007f94ec3fda3403e2aa86",
+    "RESULTS.md": "e1b04b57e06829cd9d28742458f07736140e812dc7592fcc0198d7740c2811b4",
+    "README.md": "2c55edcb8c935d720679ac7e76fb1d644629ad54100e6c7af65ec2543c6a3580"
+  },
+  "no_apple_binary_introspection": true,
+  "a18_pro_touched": false,
+  "macvdmtool_used": false,
+  "git_commits_made": false,
+  "note_on_out_of_tree_writes": "none; all artifacts under experiments/EXP-0120-m4-tvb-overflow-mechanism/, scratch under work/"
+}

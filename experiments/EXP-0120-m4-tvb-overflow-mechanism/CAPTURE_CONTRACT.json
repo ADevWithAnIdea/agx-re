@@ -1,0 +1,87 @@
+{
+  "experiment": "EXP-0120-m4-tvb-overflow-mechanism",
+  "frozen_at_utc": "2026-08-28T07:37:58Z",
+  "pinned_repo_head": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "pinned_repo_head_note": "gate on authored blob hashes below, not on live HEAD (CODEX target discipline; sibling experiments commit concurrently)",
+  "target": {
+    "device": "Apple M4 (G16G)",
+    "gpu_cores": 10,
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "note": "the only device used; A18 Pro HANDS-OFF, M5 out of scope"
+  },
+  "pinned_blob_hashes_sha256": {
+    "experiments/EXP-0118-a18-pro-partial-render-workload/partial_render.m": "2d7c1238d526621e871a75f975470084ccaa7ff33a6b43d5ed178eb4bd14f8ba",
+    "experiments/EXP-0118-a18-pro-partial-render-workload/partial_render.metal": "8dd63887bc94219fa84cbed60a167e2368daa90e1d712d8932ff43673f2f6f8b",
+    "experiments/EXP-0118-a18-pro-partial-render-workload/run.sh": "593fb1ed357b80c8fc2cc8a46b545cd2512135e08d9c6f85988cb445e3123caf",
+    "experiments/EXP-0118-a18-pro-partial-render-workload/build/partial_render": "b6bf7e27e1ab7984eccc7c55274761ae8f988bf7435d13f83d586d0f543d3130",
+    "experiments/EXP-0118-a18-pro-partial-render-workload/build/g17ppartial.metallib": "ecd8d7103ca46b892b68a86a5e05d42ecd280f87500d5e2a04a0c81105a5c802",
+    "tools/iotrace/iotrace.c": "4c8e1cedb9cbacd2e26c1699989337b95602a7c6beeb8823b19a71d1b55a3441"
+  },
+  "sweeps": {
+    "A_timing": {
+      "mode": "accumulate",
+      "width": 128,
+      "height": 128,
+      "interposer": false,
+      "small_N_slope_method": {
+        "N": [1, 10, 100, 1000, 3000, 5000, 8000, 10000, 15000, 20000, 30000, 48217, 70000, 100000, 150000, 200000],
+        "S1": 8,
+        "S2": 48,
+        "formula": "marginal_ms = (t(S2)-t(S1))*1000/(S2-S1)"
+      },
+      "large_N_single": {
+        "N": [300000, 500000, 800000, 1200000, 2000000, 3000000, 5000000, 8000000, 12000000, 20000000],
+        "S": 1
+      }
+    },
+    "B_mechanism_triangle_axis": {
+      "mode": "accumulate",
+      "width": 128,
+      "height": 128,
+      "S": 1,
+      "N": [1, 1000, 48217, 200000, 2000000, 20000000],
+      "interposer": true,
+      "env": {
+        "IOTRACE_MAX_MAP": "0x4000",
+        "G17P_DUMP_BEFORE_COMMIT": "1"
+      }
+    },
+    "C_mechanism_dimension_axis": {
+      "mode": "accumulate",
+      "N": 1,
+      "S": 1,
+      "WH": [32, 64, 128, 256, 512, 1024],
+      "interposer": true,
+      "env": {
+        "IOTRACE_MAX_MAP": "0x4000",
+        "G17P_DUMP_BEFORE_COMMIT": "1"
+      }
+    },
+    "D_limits_exploratory_single_shot": {
+      "note": "NOT byte-gated across runs; overflow-mode extreme-N faults observed non-monotonic in N during pre-freeze calibration",
+      "cases": [
+        {"mode": "accumulate", "width": 128, "height": 128, "N": 50000000, "S": 1, "interposer": true},
+        {"mode": "overflow", "width": 128, "height": 128, "N": 15000000, "S": 1, "interposer": true},
+        {"mode": "overflow", "width": 128, "height": 128, "N": 20000000, "S": 1, "interposer": true}
+      ],
+      "post_case_sanity_check": {"mode": "accumulate", "width": 128, "height": 128, "N": 1000, "S": 1, "expect": "exact=1 status=Completed"}
+    }
+  },
+  "process_isolation": "one case = one OS process, never batched, never reused across cases",
+  "timeouts": {
+    "per_process_hard_timeout_s": 150
+  },
+  "gate": {
+    "byte_exact_payload": "per-case sorted (size) multiset of sel-9-registered BOs (GPU VA/CPU address excluded) + selector CALL-count histogram, for Sweep B and Sweep C only",
+    "excluded_from_gate": ["gpu_va", "cpu address", "handle", "content bytes", "Sweep A timing values", "Sweep D observations"],
+    "sequence_states": ["PRE_GPU", "RUN01_PRESENT", "RUN02_PRESENT"],
+    "smoke_gate": "NON-RECORDED dry run against work/smoke/ must pass before any raw/ capture",
+    "selftest": "synthetic fixtures drawn from work/pilot_* real log excerpts",
+    "run_id_policy": "never reuse; a defective capture is retained and superseded by a new id, never repaired in place"
+  },
+  "run_ids": {
+    "run01": "m4_20260828_run01",
+    "run02": "m4_20260828_run02"
+  }
+}

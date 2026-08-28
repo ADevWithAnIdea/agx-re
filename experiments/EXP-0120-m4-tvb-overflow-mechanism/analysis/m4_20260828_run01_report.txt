@@ -1,0 +1,49 @@
+EXP-0120 analysis report: run_id=m4_20260828_run01
+records: 60
+
+== Sweep A (timing) ==
+global linear fit: ms = 14.5112 + 0.00012703*N   R^2=0.999466
+mean per-tri ns, N in [3000,50000): 579.4052945242988
+mean per-tri ns, N >= 1e6: 144.79004939397174
+ratio (large/small): 0.24989424632863724
+N, marginal_ms, per_tri_ns, linear_fit_residual_ratio
+          10       1.3609 136086.9408 -0.9062274923828145
+         100       1.5699 15698.7309 -0.891910964623108
+        1000       1.6779  1677.8708 -0.8853773382108102
+        3000       2.2371   745.6919 -0.8497826904486262
+        5000       2.9418   588.3634 -0.8057733904160682
+       10000       4.0416   404.1606 -0.7439013102320612
+      300000      80.0457   266.8190 0.5212371469083282
+      800000     139.9350   174.9188 0.20496998435627092
+     1200000     194.3748   161.9790 0.16432733512125033
+    20000000    2552.0220   127.6011 -0.0011733720179934778
+
+== Sweep B (mechanism) ==
+distinct size multisets across sweep: 1 (invariant=True)
+distinct selector histograms across sweep: 1 (invariant=True)
+distinct >=256KiB-region multisets (own output buffers excluded): 1 (invariant=True)
+  B-N1             n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N1000          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N48217         n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N200000        n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N2000000       n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N20000000      n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+
+== Sweep C (mechanism) ==
+distinct size multisets across sweep: 6 (invariant=False)
+distinct selector histograms across sweep: 1 (invariant=True)
+distinct >=256KiB-region multisets (own output buffers excluded): 1 (invariant=True)
+  C-WH32           n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH64           n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH128          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH256          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH512          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH1024         n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+
+== Sweep D (limits, exploratory single-shot) ==
+  D-accumulate-N50000000   rc=9 timeout=False elapsed=7.339s n_bo=45 done={'status': '4', 'error': 'none', 'exact': 0}
+  D-accumulate-N50000000-sanity rc=0 timeout=False elapsed=0.047s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N15000000     rc=0 timeout=False elapsed=5.992s n_bo=45 done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N15000000-sanity rc=0 timeout=False elapsed=0.035s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N20000000     rc=0 timeout=False elapsed=7.670s n_bo=45 done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N20000000-sanity rc=0 timeout=False elapsed=0.051s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}

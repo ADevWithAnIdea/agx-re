@@ -1,0 +1,11 @@
+- 2026-08-28T07:44:07Z run=m4_20260828_run01 sweep=A started (case A-slope-N1-s1)
+- 2026-08-28T07:44:16Z run=m4_20260828_run01 sweep=B started (case B-N1)
+- 2026-08-28T07:44:25Z run=m4_20260828_run01 sweep=C started (case C-WH32)
+- 2026-08-28T07:44:38Z run=m4_20260828_run01 sweep=D started (case D-accumulate-N50000000)
+- 2026-08-28T07:44:52Z run=m4_20260828_run01 COMPLETE n_ok=39 n_timeout=0 n_fault=18
+- 2026-08-28T07:47:55Z run=m4_20260828_run02 sweep=A started (case A-slope-N1-s1)
+- 2026-08-28T07:48:09Z run=m4_20260828_run02 sweep=B started (case B-N1)
+- 2026-08-28T07:48:16Z run=m4_20260828_run02 sweep=C started (case C-WH32)
+- 2026-08-28T07:48:25Z run=m4_20260828_run02 sweep=D started (case D-accumulate-N50000000)
+- 2026-08-28T07:48:35Z run=m4_20260828_run02 COMPLETE n_ok=53 n_timeout=0 n_fault=4
+- 2026-08-28T07:55:34Z analysis complete for both runs; RESULTS.md/README.md/manifest.json written; all three gates (--selftest/--seqtest/--captured) PASS

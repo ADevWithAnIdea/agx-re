@@ -1,0 +1,64 @@
+EXP-0120 analysis report: run_id=m4_20260828_run02
+records: 60
+
+== Sweep A (timing) ==
+global linear fit: ms = 9.8013 + 0.00012817*N   R^2=0.998905
+mean per-tri ns, N in [3000,50000): 385.4490970768645
+mean per-tri ns, N >= 1e6: 136.7896427710851
+ratio (large/small): 0.35488380647005935
+N, marginal_ms, per_tri_ns, linear_fit_residual_ratio
+           1       1.7010 1701027.1549 -0.8264519641924427
+          10       1.6486 164861.0830 -0.8318195552147633
+         100       1.6107 16107.2612 -0.8358774332088517
+        1000       1.8714  1871.3593 -0.8115357102861848
+        3000       2.1188   706.2574 -0.7919887080507054
+        5000       2.3508   470.1591 -0.7748752085374314
+        8000       2.6617   332.7094 -0.7541561520550022
+       10000       2.9790   297.9028 -0.7312080357788885
+       15000       3.7644   250.9614 -0.6789095461102082
+       20000       7.5653   378.2675 -0.3881494794804713
+       30000       9.9716   332.3863 -0.26928679507869663
+       48217      15.1859   314.9489 -0.049765673038621866
+       70000      12.2729   175.3265 -0.3462527092138636
+      100000      15.0534   150.5340 -0.3344538728068203
+      150000      20.2853   135.2353 -0.3011452936717807
+      200000      26.5051   132.5255 -0.25200527347265855
+      300000      75.4292   251.4307 0.5632463690313815
+      500000      94.0650   188.1299 0.27312361093245735
+      800000     131.7871   164.7338 0.17315640096926155
+     1200000     184.2730   153.5608 0.12634581059355793
+     2000000     283.1681   141.5840 0.06399516193650458
+     3000000     408.9582   136.3194 0.03716404035304665
+     5000000     661.8681   132.3736 0.017257737265730322
+     8000000    1032.6583   129.0823 -0.0023997652526317977
+    12000000    1533.8120   127.8177 -0.009045624754277127
+
+== Sweep B (mechanism) ==
+distinct size multisets across sweep: 1 (invariant=True)
+distinct selector histograms across sweep: 1 (invariant=True)
+distinct >=256KiB-region multisets (own output buffers excluded): 1 (invariant=True)
+  B-N1             n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N1000          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N48217         n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N200000        n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N2000000       n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  B-N20000000      n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '5', 'error': 'Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)', 'exact': 0}
+
+== Sweep C (mechanism) ==
+distinct size multisets across sweep: 6 (invariant=False)
+distinct selector histograms across sweep: 1 (invariant=True)
+distinct >=256KiB-region multisets (own output buffers excluded): 1 (invariant=True)
+  C-WH32           n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH64           n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH128          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH256          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH512          n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+  C-WH1024         n_bo=45 sel9_calls=47 calls_after_bodump=4 large_excl_own=[475136, 786432, 1048576] done={'status': '4', 'error': 'none', 'exact': 1}
+
+== Sweep D (limits, exploratory single-shot) ==
+  D-accumulate-N50000000   rc=9 timeout=False elapsed=3.487s n_bo=45 done={'status': '5', 'error': 'Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)', 'exact': 0}
+  D-accumulate-N50000000-sanity rc=0 timeout=False elapsed=0.033s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N15000000     rc=9 timeout=False elapsed=2.423s n_bo=45 done={'status': '5', 'error': 'Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)', 'exact': 0}
+  D-overflow-N15000000-sanity rc=0 timeout=False elapsed=0.033s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N20000000     rc=0 timeout=False elapsed=7.595s n_bo=45 done={'status': '4', 'error': 'none', 'exact': 1}
+  D-overflow-N20000000-sanity rc=0 timeout=False elapsed=0.031s n_bo=None done={'status': '4', 'error': 'none', 'exact': 1}
