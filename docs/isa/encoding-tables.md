@@ -463,7 +463,7 @@
 
 ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x4, bits[16:17]==0x0, bits[18:24]==0x15  ·  **Provenance:** HW-validated
+- **Length:** 8 bytes  ·  **Match:** byte+0==0x17, bits[8:12]==0x4  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
@@ -473,7 +473,7 @@
 | `size` | [56:60] (byte+7) | modifier |  |
 | `reg_sel` | [60:64] | register |  |
 
-*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source cache / last-use hint (0x56 fresh vs 0x54 cache/last-use, EXP-0038). convert_desc (byte+3..+6) = the format-conversion descriptor -- kept raw. byte+7: low nibble (size) = a size/const (0xa typical); high nibble (reg_sel) = a register selector, most likely the unpack RESULT destination -- it steps e/b/c/a/6/3 across successive unpacks in one kernel (role inferred, not splice-confirmed). Distinguished from simd_ballot (byte+1 low nibble != 4) by the match.*
+*packed format UNPACK/convert: unpack_unorm2x16_to_float / snorm -> a float2. byte0 0x17, 8 bytes. src_class (byte+1, low nibble 0x04 fixed by match). cache (byte+2) bit1 = source cache / last-use hint (0x56 fresh vs 0x54 cache/last-use, EXP-0038). convert_desc (byte+3..+6) = the format-conversion descriptor -- kept raw. byte+7: low nibble (size) = a size/const (0xa typical); high nibble (reg_sel) = a register selector, most likely the unpack RESULT destination -- it steps e/b/c/a/6/3 across successive unpacks in one kernel (role inferred, not splice-confirmed). Distinguished from simd_ballot (byte+1 low nibble != 4) by the match. MATCH RELAXED (EXP-0119 defect, 2026-08-28): the match previously pinned every bit of byte+2 except bit1 (constraints [16,1,0] and [18,6,21]), so bytes EXP-0119's 7-bit re-sweep constructed -- which the HARDWARE ran, reproducing the baseline exactly -- did not re-decode as unpack_convert. Our decoder was stricter than the silicon. The byte0=0x17 + byte+1-low-nibble==4 pair already separates this from simd_ballot, so the byte+2 pins were over-fitting to the corpus rather than encoding a real constraint. Removed: [[0, 8, 23], [8, 4, 4], [16, 1, 0], [18, 6, 21]] -> [[0, 8, 23], [8, 4, 4]]*
 
 ### `half_pack` — assemble a half2's two fp16 lanes into a packed 32-bit register
 
@@ -531,9 +531,10 @@
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
 | `dst` | [4:8] | register |  |
-| `imm8` | [8:16] (byte+1) | immediate |  |
+| `imm7` | [8:15] (byte+1) | immediate |  |
+| `imm_top` | [15:16] | modifier |  |
 
-*d[dst] = imm8  ; 2-byte move of a small immediate into a GPR. The compiler uses it for constant-folded built-ins (e.g. threads_per_simdgroup = 32 = 0x20).*
+*d[dst] = imm7  ; 2-byte move of a small immediate into a GPR. The compiler uses it for constant-folded built-ins (e.g. threads_per_simdgroup = 32 = 0x20). IMM WIDTH CORRECTED (EXP-0128, HW): only SEVEN bits are load-bearing -- immediate values 128..255 SILENTLY ZERO rather than moving the requested value. `imm_top` (bit 15) is that inert 8th bit. An emitter MUST range-check to 0..127 and lower larger constants some other way; combined with iadd2's N=0 self-read this silent zero produced two real GPU hangs during EXP-0128's pilot.*
 
 ### `uniform_mov` — copy a uniform register into a GPR
 
@@ -618,7 +619,7 @@
 | `hint6` | [48:56] (byte+6) | modifier |  |
 | `b7` | [56:64] (byte+7) | modifier |  |
 
-*uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.  [MIS-TOKENIZATION FLAGGED 2026-08-28] The fragment kill/target-mask SUBMISSION op (byte0=0x57, byte+2=0x54, 6 bytes; byte+4 bits[4:0] a source-register select where 0x00 reads the real mask and any other tested value kills the fragment on colour+depth+occlusion together) is currently MIS-TOKENIZED BY THIS DESCRIPTOR as an 8-byte vertex-stage vary_store -- an opcode collision of the same shape EXP-0029 fixed elsewhere (EXP-0091). Mask width is exactly rasterSampleCount bits; excess bits are silently inert to 0xFFFFFFFF and never fault. NOTE the correction from EXP-0093: the accompanying `07 02 54 01` / `87 02 54 01` bracket is the ORDINARY UNCONDITIONAL FRAGMENT EPILOG, NOT a kill/mask companion as EXP-0091 first reported. A proper split of this collision is a pending DB change.*
+*uvs_buffer[slot] = reg[src]  ; VERTEX-stage store of a [[position]] component or a user varying to the UVS / vertex-parameter buffer the fragment stage interpolates from (the FS 0x2f iter op reads these coefficients, EXP-0029). Memory-family opcode (byte0 0x57, low-nibble 7, sibling of 0x67 load / 0xe7 store / 0xd7 texture-write). byte+3 = SOURCE GPR (reg<<1: an in-order 0,2,4,..,14 sequence over r0..r7 in a per-component store run). OUTPUT SLOT = out_slot(byte+4 bits[5:8]) | (out_slot_hi(byte+5 bit0) << 3): [[position]].xyzw = slots 0-3 (byte+4 0x00/0x20/0x40/0x60), user varyings at slots 4-7 (0x80/0xa0/0xc0/0xe0), and slots 8-15 wrap byte+4 back through 0x00 with byte+5 bit0 set. ONE op per scalar component. byte+5 bits[1:8] are a constant 0x20 tag. byte+2 (hint2) carries the same 0x54/0x55/0x56 data-source mode as the device_store amode. Mesh/object stages emit via the 0xe7 device store (EXP-0030); 0x57 is the traditional-VS path.  [MIS-TOKENIZATION FLAGGED 2026-08-28] The fragment kill/target-mask SUBMISSION op (byte0=0x57, byte+2=0x54, 6 bytes; byte+4 bits[4:0] a source-register select where 0x00 reads the real mask and any other tested value kills the fragment on colour+depth+occlusion together) is currently MIS-TOKENIZED BY THIS DESCRIPTOR as an 8-byte vertex-stage vary_store -- an opcode collision of the same shape EXP-0029 fixed elsewhere (EXP-0091). Mask width is exactly rasterSampleCount bits; excess bits are silently inert to 0xFFFFFFFF and never fault. NOTE the correction from EXP-0093: the accompanying `07 02 54 01` / `87 02 54 01` bracket is the ORDINARY UNCONDITIONAL FRAGMENT EPILOG, NOT a kill/mask companion as EXP-0091 first reported. A proper split of this collision is a pending DB change. OPCODE COLLISION, UNRESOLVED SPLIT (EXP-0091; still open as of 2026-08-28): byte0=0x57 with byte+2=0x54 is a SIX-byte fragment kill / target-mask op, not this eight-byte vertex vary_store. The fixed 8-byte length mis-tokenizes it. EXP-0093 separately corrected the companion reading: the `07 02 54 01` bracket is the ordinary fragment epilog, not a kill/mask partner. DO NOT EMIT vary_store for byte+2==0x54; the split needs a discriminating match plus a length rule that is byte+2-aware, which needs new hardware evidence.*
 
 ## Atomics
 

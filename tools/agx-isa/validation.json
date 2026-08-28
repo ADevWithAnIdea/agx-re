@@ -14,11 +14,11 @@
  },
  "coverage": {
   "total_instructions": 170,
-  "total_fields": 1025,
+  "total_fields": 1026,
   "by_label": {
-   "hardware-run": 116,
+   "hardware-run": 118,
    "isolated-byte-diff": 51,
-   "corpus-correlation": 234,
+   "corpus-correlation": 233,
    "tokenization-only": 304,
    "single-template-inference": 23,
    "api-accept-reject": 0,
@@ -26,14 +26,14 @@
    "untested": 297
   },
   "by_label_pct": {
-   "hardware-run": 11.3,
+   "hardware-run": 11.5,
    "isolated-byte-diff": 5.0,
-   "corpus-correlation": 22.8,
-   "tokenization-only": 29.7,
+   "corpus-correlation": 22.7,
+   "tokenization-only": 29.6,
    "single-template-inference": 2.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 29.0
+   "untested": 28.9
   },
   "emittable_instructions": 5,
   "emittable_mnemonics": [
@@ -2923,13 +2923,24 @@
     "target": "M4",
     "evidence": []
    },
-   "imm8": {
-    "label": "corpus-correlation",
-    "range": "0x20 (=32) is the documented occurrence; the field was not swept",
-    "target": "A18",
+   "imm7": {
+    "label": "hardware-run",
+    "range": "0..127 load-bearing (EXP-0031 point-validated 0x11/0x20/0x21/0x40; EXP-0128 established the 128..255 boundary from the other side)",
+    "target": "M4",
     "evidence": [
+     "EXP-0128",
      "EXP-0031"
-    ]
+    ],
+    "note": "WIDTH CORRECTED 8 -> 7 bits (EXP-0128). Values 128..255 SILENTLY ZERO. An emitter must range-check to 0..127; EXP-0031's original validation used only values < 128 so the 8-bit reading was never tested at the top."
+   },
+   "imm_top": {
+    "label": "hardware-run",
+    "range": "set vs clear, across the 128..255 half of the field",
+    "target": "M4",
+    "evidence": [
+     "EXP-0128"
+    ],
+    "note": "The inert 8th bit. Setting it does not add 128 to the immediate -- it silently zeroes the whole move. Combined with iadd2's N=0 self-read this produced two real GPU hangs in EXP-0128's pilot."
    }
   },
   "uniform_mov": {

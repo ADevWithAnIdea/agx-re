@@ -326,27 +326,31 @@ SYNTH = [
     #   dst reg0, srcA=reg0/32b, srcB=reg2/32b -> 09051c0100c0 (== fast-math fadd)
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcA_reg_top": 0, "srcB_reg_top": 0}),
     # fmul, same operands:
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 2, "opsel": 0b101,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 0, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcA_reg_top": 0, "srcB_reg_top": 0}),
     # fsub d = srcA + (-srcB): srcB_neg=1 (HW-validated a+b -> a-b):
     ("falu2",  {"dst": 0, "srcA_size": 1, "srcA_reg": 0, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 2, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 1, "mod_hi": 0xc}),  # -> 09011c0500c8
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 1, "mod_hi": 0xc,
+                "srcA_reg_top": 0, "srcB_reg_top": 0}),  # -> 09011c0500c8
     # dst = reg5 exercises the b0[4:8] dst field (HW-validated):
     ("falu2",  {"dst": 5, "srcA_size": 1, "srcA_reg": 4, "opsel": 0b100,
                 "opflags": 3, "srcB_size": 1, "srcB_reg": 5, "ctrl": 0,
-                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc}),  # -> 59091c0b00c0
+                "srcB_imm": 0, "mod_lo": 0, "srcB_neg": 0, "mod_hi": 0xc,
+                "srcA_reg_top": 0, "srcB_reg_top": 0}),  # -> 59091c0b00c0
     # falu2i packed immediate: a + 1.0 (exp=0xb bias11, mant=0, sign=0) HW-validated:
     ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xb, "opsel": 0b100,
                 "imm_sign": 0, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
-                "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09b1140180c0
+                "ctrl_lo": 0, "mods": 0xc0, "srcA_reg_top": 0}),             # -> 09b1140180c0
     # a + (-2.0): exp=0xc, sign=1:
     ("falu2i", {"dst": 0, "imm_flag": 1, "imm_mant": 0, "imm_exp": 0xc, "opsel": 0b100,
                 "imm_sign": 1, "opflags": 1, "srcA_size": 1, "srcA_reg": 0,
-                "ctrl_lo": 0, "mods": 0xc0}),                                # -> 09c11c0180c0
+                "ctrl_lo": 0, "mods": 0xc0, "srcA_reg_top": 0}),             # -> 09c11c0180c0
     # EXP-M4-13 R10 (falu_int_frag retype): the old raw 16-bit 'ext' field split into
     # ctrl (byte+6) + srcmods (byte+7); same bytes (ext=0xc002 -> ctrl=0x02, srcmods=0xc0).
     ("falu3",   {"dst_lo": 0x0, "dst": 0x01, "op": 0x1e, "srcA": 0x05, "srcB": 0x81, "srcC": 0x08, "ctrl": 0x02, "srcmods": 0xc0}),
