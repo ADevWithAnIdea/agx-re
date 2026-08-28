@@ -1,0 +1,87 @@
+=== 1. K family: declared scratch vs registered-BO footprint (CS, grid=64/tg=32) ===
+case                   K meta_status                probe_status     scratch_B bo_count bo_total_bytes main_bytes
+K_cs_k8                8 OK                         OK                       0       27        2428032        362
+K_cs_k32              32 OK                         OK                       0       27        2428032       1026
+K_cs_k96              96 OK                         OK                     400       27        2428032       6842
+K_cs_k192            192 OK                         OK                     784       27        2428032       2592
+K_cs_k384            384 OK                         OK                    1552       27        2428032       2720
+K_cs_k768            768 OK                         OK                    3088       27        2428032       2720
+K_cs_k1536          1536 OK                         OK                    6160       27        2428032       2720
+K_cs_k3072          3072 OK                         OK                   12304       27        2428032       2720
+K_cs_k6144          6144 OK                         OK                   24592       27        2428032       2724
+K_cs_k12288        12288 OK                         OK                   49168       27        2428032       2694
+K_cs_k24576        24576 OK                         OK                   98320       27        2428032       2694
+K_cs_k49152        49152 OK                         OK                  196624       27        2428032       2498
+K_cs_k65430        65430 OK                         OK                  261728       27        2428032       1490
+K_cs_k65440        65440 PIPELINE_FAIL_STACK_SPACE  PIPELINE_FAIL         None        0              0       None
+
+Distinct bo_total_bytes values across all successful K cases: [2428032]
+Distinct bo_count values across all successful K cases: [27]
+Scratch range covered by successful K cases: 0 .. 261728 bytes (K=8..65430)
+First/only clean failure in K family: ['K_cs_k65440'] (meta_status=['PIPELINE_FAIL_STACK_SPACE'], probe_detail=['newComputePipelineStateWithFunction'])
+
+=== 2. S family: stage variation (VS/FS) at shared K levels ===
+S_vs_k96         scratch=400 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+S_fs_k96         scratch=400 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+S_vs_k1536       scratch=6160 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+S_fs_k1536       scratch=6160 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+S_vs_k6144       scratch=24592 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+S_fs_k6144       scratch=24592 bo_count=38 bo_total_bytes=4997344 probe_status=OK
+
+=== 3. O family: occupancy/topology ladder (K=1536 fixed) ===
+O_cs_k1536_g1024_t32         grid=     1024 tg=   32 probe_status=OK       bo_count= 27 bo_total_bytes=   2428032
+O_cs_k1536_g32768_t32        grid=    32768 tg=   32 probe_status=OK       bo_count= 27 bo_total_bytes=   2428032
+O_cs_k1536_g1048576_t32      grid=  1048576 tg=   32 probe_status=OK       bo_count= 27 bo_total_bytes=   6491264
+O_cs_k1536_g32768_t256       grid=    32768 tg=  256 probe_status=OK       bo_count= 27 bo_total_bytes=   2428032
+O_cs_k1536_g32768_t1024      grid=    32768 tg= 1024 probe_status=OK       bo_count= 27 bo_total_bytes=   2428032
+O_cs_k1536_g4194304_t256     grid=  4194304 tg=  256 probe_status=OK       bo_count= 27 bo_total_bytes=  19074176
+
+=== 4. X family: compound stress (high K x large grid) ===
+X_cs_k49152_g1048576         K= 49152 grid=  1048576 scratch= 196624 probe_status=OK       bo_total_bytes=   6491264
+X_cs_k65430_g4194304         K= 65430 grid=  4194304 scratch= 261728 probe_status=OK       bo_total_bytes=  19074176
+  vs O-family same-grid case O_cs_k1536_g4194304_t256 (K=1536): bo_total_bytes/shape identical despite 1536x vs 65430x K = True
+
+=== 5. H family: hot execution (n>1) ===
+H_cs_k1536_n1000     n= 1000 probe_status=OK       checksum=195765.893 scratch=6160
+H_cs_k6144_n200      n=  200 probe_status=OK       checksum=195597.914 scratch=24592
+
+=== 6. Per-BO positional content diff (descriptive; VA used only as this run's own within-run key, never a cross-run/gate assumption) ===
+
+--- K family: no-spill (K=8) vs max-tested-spill (K=65430, 261728 B): K_cs_k8 vs K_cs_k65430 ---
+resource-map VA/size sets identical: True
+  DIFFERS va=0x10000000000 size=0x10000 captured=16384/16384 ndiff=6854 first_words_of_diff=['0x2240', '0x2280', '0x2288', '0x22c0', '0x22c8', '0x22d0', '0x22d8', '0x22e0']
+  DIFFERS va=0x10000018700 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x3e00', '0x3e08', '0x3e10', '0x3e18', '0x3e20', '0x3e28', '0x3e30', '0x3e38']
+  DIFFERS va=0x10000018800 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x3d00', '0x3d08', '0x3d10', '0x3d18', '0x3d20', '0x3d28', '0x3d30', '0x3d38']
+  DIFFERS va=0x10000018900 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x3c00', '0x3c08', '0x3c10', '0x3c18', '0x3c20', '0x3c28', '0x3c30', '0x3c38']
+  DIFFERS va=0x10000019900 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2c00', '0x2c08', '0x2c10', '0x2c18', '0x2c20', '0x2c28', '0x2c30', '0x2c38']
+  DIFFERS va=0x10000019a00 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2b00', '0x2b08', '0x2b10', '0x2b18', '0x2b20', '0x2b28', '0x2b30', '0x2b38']
+  DIFFERS va=0x10000019b00 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2a00', '0x2a08', '0x2a10', '0x2a18', '0x2a20', '0x2a28', '0x2a30', '0x2a38']
+  DIFFERS va=0x10000019c00 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2900', '0x2908', '0x2910', '0x2918', '0x2920', '0x2928', '0x2930', '0x2938']
+  DIFFERS va=0x1000001a400 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2100', '0x2108', '0x2110', '0x2118', '0x2120', '0x2128', '0x2130', '0x2138']
+  DIFFERS va=0x1000001a500 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x2000', '0x2008', '0x2010', '0x2018', '0x2020', '0x2028', '0x2030', '0x2038']
+  DIFFERS va=0x1000001c500 size=0x20000 captured=16384/16384 ndiff=256 first_words_of_diff=['0x0', '0x8', '0x10', '0x18', '0x20', '0x28', '0x30', '0x38']
+  DIFFERS va=0x10000040000 size=0x10000 captured=16384/16384 ndiff=14 first_words_of_diff=['0x160', '0x168']
+  DIFFERS va=0x10000098000 size=0x8000 captured=16384/16384 ndiff=10 first_words_of_diff=['0x78', '0x80', '0xe0', '0xe8']
+
+--- O family: grid=1024 vs grid=1048576 (K fixed at 1536): O_cs_k1536_g1024_t32 vs O_cs_k1536_g1048576_t32 ---
+resource-map VA/size sets identical: False
+  only in O_cs_k1536_g1024_t32: [(1099511743744, 131072), (1099512152064, 16384), (1099512184832, 32768), (1099512250368, 32768), (1099512315904, 32768), (1099512381440, 32768), (1099512446976, 32768), (1099512512512, 32768), (1099512578048, 38016)]
+  only in O_cs_k1536_g1048576_t32: [(1099512152064, 4194304), (1099516379136, 16384), (1099516411904, 32768), (1099516477440, 32768), (1099516542976, 32768), (1099516608512, 32768), (1099516674048, 32768), (1099516739584, 32768), (1099516805120, 38016)]
+  DIFFERS va=0x10000018700 size=0x20000 captured=16384/16384 ndiff=512 first_words_of_diff=['0x3e00', '0x3e08', '0x3e10', '0x3e18', '0x3e20', '0x3e28', '0x3e30', '0x3e38']
+  DIFFERS va=0x10000018800 size=0x20000 captured=16384/16384 ndiff=768 first_words_of_diff=['0x3d00', '0x3d08', '0x3d10', '0x3d18', '0x3d20', '0x3d28', '0x3d30', '0x3d38']
+  DIFFERS va=0x10000018900 size=0x20000 captured=16384/16384 ndiff=1024 first_words_of_diff=['0x3c00', '0x3c08', '0x3c10', '0x3c18', '0x3c20', '0x3c28', '0x3c30', '0x3c38']
+  DIFFERS va=0x10000019900 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2c00', '0x2c08', '0x2c10', '0x2c18', '0x2c20', '0x2c28', '0x2c30', '0x2c38']
+  DIFFERS va=0x10000019a00 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2b00', '0x2b08', '0x2b10', '0x2b18', '0x2b20', '0x2b28', '0x2b30', '0x2b38']
+  DIFFERS va=0x10000019b00 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2a00', '0x2a08', '0x2a10', '0x2a18', '0x2a20', '0x2a28', '0x2a30', '0x2a38']
+  DIFFERS va=0x10000019c00 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2900', '0x2908', '0x2910', '0x2918', '0x2920', '0x2928', '0x2930', '0x2938']
+  DIFFERS va=0x1000001a400 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2100', '0x2108', '0x2110', '0x2118', '0x2120', '0x2128', '0x2130', '0x2138']
+  DIFFERS va=0x1000001a500 size=0x20000 captured=16384/16384 ndiff=4096 first_words_of_diff=['0x2000', '0x2008', '0x2010', '0x2018', '0x2020', '0x2028', '0x2030', '0x2038']
+
+--- grid=1048576 fixed: K=1536 vs K=49152 (32x more declared scratch, same grid): O_cs_k1536_g1048576_t32 vs X_cs_k49152_g1048576 ---
+resource-map VA/size sets identical: True
+  DIFFERS va=0x10000000000 size=0x10000 captured=16384/16384 ndiff=6560 first_words_of_diff=['0x2240', '0x22c0', '0x22c8', '0x22d0', '0x22d8', '0x22e0', '0x22e8', '0x22f0']
+  DIFFERS va=0x10000040000 size=0x10000 captured=16384/16384 ndiff=44 first_words_of_diff=['0x160', '0x168', '0x170', '0x178', '0x180', '0x188', '0x190']
+  DIFFERS va=0x10000080000 size=0x400000 captured=16384/16384 ndiff=16384 first_words_of_diff=['0x0', '0x8', '0x10', '0x18', '0x20', '0x28', '0x30', '0x38']
+  DIFFERS va=0x100004a0000 size=0x8000 captured=16384/16384 ndiff=159 first_words_of_diff=['0x48', '0x50', '0x58', '0x60', '0x68', '0x70', '0x78', '0x80']
+  DIFFERS va=0x100004c0000 size=0x8000 captured=16384/16384 ndiff=2 first_words_of_diff=['0x18']
+  DIFFERS va=0x100004f0000 size=0x9480 captured=16384/16384 ndiff=90 first_words_of_diff=['0x0', '0x38', '0x60', '0x68', '0x70', '0x80', '0x98', '0xa0']

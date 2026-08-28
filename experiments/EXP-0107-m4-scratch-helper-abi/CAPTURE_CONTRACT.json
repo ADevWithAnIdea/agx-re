@@ -1,0 +1,51 @@
+{
+  "experiment": "EXP-0107-m4-scratch-helper-abi",
+  "gap": "APPLE9_RE_IMPLEMENTATION_GAPS.md DRV-UAPI-01 / docs/P0-P1-CLOSURE.md P0.1",
+  "successor_of": "EXP-0041-scratch-helper-abi (valid, non-quarantined negative boundary evidence); EXP-0057-m4-scratch-pressure-envelope is QUARANTINED and is NOT a predecessor -- no file, artifact, or numeric result from it is reused, cited, or copied here. This is a fresh pre-registration per its QUARANTINE.md's own requirement.",
+  "target": "local Apple M4 / G16G only (per CLAUDE.md target discipline; A18 Pro is hands-off)",
+  "frozen_git_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "frozen_revision_note": "Recorded at pre-registration time for provenance only. Per the dispatch brief ('pin the revision and do NOT gate on live HEAD') and the EXP-0082 precedent cited in experiments/SUBAGENT_BRIEF.md, this value is NEVER used as a live blocking check -- the orchestrator commits sibling experiments' work while this one runs, so repo HEAD moving is expected and is not contamination. Captures are gated on the authored EXP-0107 file hashes recorded in each run's own 00_inputs.json, compared to each other (run01 vs run02), never to this frozen revision or to live HEAD.",
+  "run_ids": ["m4-20260827-run01", "m4-20260827-run02"],
+  "run_id_policy": "append-only; a run id is used at most once ever; a partial/killed run directory is retained as-is and never topped up, repaired, or reused -- a replacement (if ever needed) takes a new experiment number per SUBAGENT_BRIEF.md, not a new run id here.",
+  "case_matrix_source_of_truth": "casematrix.py (ALL_CASES, CASE_KEYS, TIMING_KEYS, escalation policy) -- this contract does not restate the matrix, only the design constraints it must satisfy",
+  "case_matrix_design_constraints": {
+    "families": ["K", "S", "O", "X", "H"],
+    "K_purpose": "CS register/array-pressure ladder (own array-loop MSL kernels, n=1), K=8..49152 plus the compile-time boundary pair the pre-registration reconnaissance located (last known-good / first known-fail), reproducing the boundary as gated evidence rather than asserting the reconnaissance number",
+    "S_purpose": "stage variation (VS, FS) at a subset of K's own pressure levels",
+    "O_purpose": "occupancy/topology ladder at one fixed clearly-spilling K, total dispatched threads from 1,024 to 4,194,304 and threadgroup shape 32/256/1024",
+    "X_purpose": "compound stress: high per-thread declared scratch together with the largest tested total thread count",
+    "H_purpose": "genuine repeated spill/fill traffic (n>1 runtime pass count), not only the n=1 degenerate init+reduce correctness check",
+    "one_variable_per_case": "within each family, exactly one of {K, stage, grid, tg, n} differs from that family's own reference case",
+    "each_case_own_process": true,
+    "escalation_policy": "families K/O/X (ascending risk order) stop -- later entries recorded executed=false, never invoked -- after the first entry whose probe status is not OK; K gets exactly one grace case past its first non-OK entry to capture the immediate post-boundary point; a TIMEOUT or unhandled exception in ANY case, ANY family, aborts the entire remaining run immediately"
+  },
+  "clean_room_boundary": {
+    "category": "OWN-SHADER (compiled MSL we authored) + DATA-TRACE (our own process's IOKit boundary traffic, incl. BO content) + PUBLIC (Metal API surface only)",
+    "compile_path": "harness/probe.m (runtime newLibraryWithSource:, public Metal API) for live execution; tools/shdump/shdump.m (read-only, our own tool) via harness/metadata.py for archive metadata extraction -- the established, non-quarantined EXP-0041/EXP-0020 pattern",
+    "metadata_extraction": "harness/metadata.py walks the archive's OWN AppleGPU Mach-O image(s) via tools/shdump/agxparse.py (read-only) to reach the __GPU_METADATA FlatBuffer for the just-compiled stage(s); reads the two established numeric fields (GPR footprint field 0, scratch field 41/14) plus every other top-level u32 field reachable by the identical parse; optionally retains only _agc.main bytes compiled from this experiment's own authored source",
+    "boundary_trace": "harness/maptrace.c, a DYLD interposer over the public IOKit user-client surface (IOServiceOpen/IOConnectCallMethod), logging selector + scalar/struct data for our own process only",
+    "widened_capability_vs_EXP-0041": "EXP-0041 read the CONTENT of only four pre-established command/state BOs and left all other mapped BOs' bytes unread. Because this experiment's task is explicitly to locate a scratch BO if one exists, it additionally reads a bounded prefix (env MAPTRACE_PREFIX_CAP, default 16384 B) of EVERY BO our own process registers via the resource-map selector. This is still DATA-TRACE: every byte is our own process's own memory that our own process itself registered into the GPU address space; no pointer found inside a mapped BO is ever followed to open a further object; no Apple binary, framework, kext, or firmware is opened, disassembled, or introspected.",
+    "gpu_addresses_excluded_from_gated_payload": "CASE_KEYS (casematrix.py) contains no raw GPU virtual address field. Resource-map comparison across cases/runs uses `resource_map_shape` (an address-free (class,size)->count multiset) and `bo_content_seq_sha256` (content hashed in first-seen/call order, never by address). Raw VAs are retained only in the ungated `05_raw_maps.jsonl` and the maptrace .log/.hex files, for analysis use, never for the cross-run byte-gate.",
+    "forbidden": "no disassembly/decompilation/introspection of any Apple binary; no leaked/unreleased/NDA material; no code copied from Apple or incompatibly-licensed sources"
+  },
+  "standing_gates_implemented": [
+    "verify.py --selftest (synthetic fixtures from recorded reality; injected-defect rejection)",
+    "verify.py --seqtest (PRE_GPU / RUN01_PRESENT / RUN02_PRESENT state-machine walk)",
+    "run.py NON-RECORDED smoke gate before any raw/ artifact is created",
+    "no nondeterministic field in the gated payload (CASE_KEYS/TIMING_KEYS separation, enforced by exact key-set comparison)",
+    "fixtures FROM RECORDED REALITY (selftest fixtures are built from the real casematrix.ALL_CASES, not invented data)"
+  ],
+  "other_directives": [
+    "append + fflush(+fsync) each JSONL record as its case completes",
+    "PROGRESS.md gets one line per completed/skipped case and per run milestone",
+    "partial RESULTS.md sections are written as soon as their data exists",
+    "hard timeout on every subprocess (casematrix.TIMEOUTS)",
+    "one variable per case within a family",
+    "each case its own process",
+    "faults are results (a clean STATUS-reported failure is recorded and, within its family's escalation policy, does not itself stop the run; only a TIMEOUT or unhandled exception stops the run)",
+    "a run id is never reused",
+    "no post-capture repair of a raw/ artifact",
+    "tools/ is read-only (tools/shdump only, invoked as a subprocess/import; nothing under tools/ is modified)",
+    "nothing is written outside this experiment's own directory; no git commit is made by this agent"
+  ]
+}
