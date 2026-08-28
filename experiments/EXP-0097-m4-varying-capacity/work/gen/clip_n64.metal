@@ -1,0 +1,82 @@
+#include <metal_stdlib>
+using namespace metal;
+struct VOut {
+    float4 position [[position]];
+    float clip_dist [[clip_distance]] [64];
+};
+struct FIn {
+    float4 position [[position]];
+};
+vertex VOut v_main(uint vid [[vertex_id]]) {
+    VOut o;
+    float2 pos[3] = { float2(-1,-1), float2(3,-1), float2(-1,3) };
+    o.position = float4(pos[vid], 0, 1);
+    o.clip_dist[0] = 1.0;
+    o.clip_dist[1] = 1.0;
+    o.clip_dist[2] = 1.0;
+    o.clip_dist[3] = 1.0;
+    o.clip_dist[4] = 1.0;
+    o.clip_dist[5] = 1.0;
+    o.clip_dist[6] = 1.0;
+    o.clip_dist[7] = 1.0;
+    o.clip_dist[8] = 1.0;
+    o.clip_dist[9] = 1.0;
+    o.clip_dist[10] = 1.0;
+    o.clip_dist[11] = 1.0;
+    o.clip_dist[12] = 1.0;
+    o.clip_dist[13] = 1.0;
+    o.clip_dist[14] = 1.0;
+    o.clip_dist[15] = 1.0;
+    o.clip_dist[16] = 1.0;
+    o.clip_dist[17] = 1.0;
+    o.clip_dist[18] = 1.0;
+    o.clip_dist[19] = 1.0;
+    o.clip_dist[20] = 1.0;
+    o.clip_dist[21] = 1.0;
+    o.clip_dist[22] = 1.0;
+    o.clip_dist[23] = 1.0;
+    o.clip_dist[24] = 1.0;
+    o.clip_dist[25] = 1.0;
+    o.clip_dist[26] = 1.0;
+    o.clip_dist[27] = 1.0;
+    o.clip_dist[28] = 1.0;
+    o.clip_dist[29] = 1.0;
+    o.clip_dist[30] = 1.0;
+    o.clip_dist[31] = 1.0;
+    o.clip_dist[32] = 1.0;
+    o.clip_dist[33] = 1.0;
+    o.clip_dist[34] = 1.0;
+    o.clip_dist[35] = 1.0;
+    o.clip_dist[36] = 1.0;
+    o.clip_dist[37] = 1.0;
+    o.clip_dist[38] = 1.0;
+    o.clip_dist[39] = 1.0;
+    o.clip_dist[40] = 1.0;
+    o.clip_dist[41] = 1.0;
+    o.clip_dist[42] = 1.0;
+    o.clip_dist[43] = 1.0;
+    o.clip_dist[44] = 1.0;
+    o.clip_dist[45] = 1.0;
+    o.clip_dist[46] = 1.0;
+    o.clip_dist[47] = 1.0;
+    o.clip_dist[48] = 1.0;
+    o.clip_dist[49] = 1.0;
+    o.clip_dist[50] = 1.0;
+    o.clip_dist[51] = 1.0;
+    o.clip_dist[52] = 1.0;
+    o.clip_dist[53] = 1.0;
+    o.clip_dist[54] = 1.0;
+    o.clip_dist[55] = 1.0;
+    o.clip_dist[56] = 1.0;
+    o.clip_dist[57] = 1.0;
+    o.clip_dist[58] = 1.0;
+    o.clip_dist[59] = 1.0;
+    o.clip_dist[60] = 1.0;
+    o.clip_dist[61] = 1.0;
+    o.clip_dist[62] = 1.0;
+    o.clip_dist[63] = 1.0;
+    return o;
+}
+fragment float4 f_main(FIn in [[stage_in]]) {
+    return float4(1,1,1,1);
+}

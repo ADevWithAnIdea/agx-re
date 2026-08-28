@@ -1,0 +1,75 @@
+#include <metal_stdlib>
+using namespace metal;
+struct VOut {
+    float4 position [[position]];
+    float2 v0 [[user(v0)]];
+    float2 v1 [[user(v1)]];
+    float2 v2 [[user(v2)]];
+    float2 v3 [[user(v3)]];
+    float2 v4 [[user(v4)]];
+    float2 v5 [[user(v5)]];
+    float2 v6 [[user(v6)]];
+    float2 v7 [[user(v7)]];
+    float2 v8 [[user(v8)]];
+    float2 v9 [[user(v9)]];
+    float2 v10 [[user(v10)]];
+    float2 v11 [[user(v11)]];
+    float2 v12 [[user(v12)]];
+    float2 v13 [[user(v13)]];
+    float2 v14 [[user(v14)]];
+    float2 v15 [[user(v15)]];
+    float2 v16 [[user(v16)]];
+    float2 v17 [[user(v17)]];
+    float2 v18 [[user(v18)]];
+    float2 v19 [[user(v19)]];
+    float2 v20 [[user(v20)]];
+    float2 v21 [[user(v21)]];
+    float2 v22 [[user(v22)]];
+    float2 v23 [[user(v23)]];
+    float2 v24 [[user(v24)]];
+    float2 v25 [[user(v25)]];
+    float2 v26 [[user(v26)]];
+    float2 v27 [[user(v27)]];
+    float2 v28 [[user(v28)]];
+    float2 v29 [[user(v29)]];
+};
+vertex VOut v_main(uint vid [[vertex_id]]) {
+    VOut o;
+    float2 pos[3] = { float2(-1,-1), float2(3,-1), float2(-1,3) };
+    o.position = float4(pos[vid], 0, 1);
+    o.v0 = float2(0*0.0001+0*0.2, 0*0.0001+1*0.2);
+    o.v1 = float2(1*0.0001+0*0.2, 1*0.0001+1*0.2);
+    o.v2 = float2(2*0.0001+0*0.2, 2*0.0001+1*0.2);
+    o.v3 = float2(3*0.0001+0*0.2, 3*0.0001+1*0.2);
+    o.v4 = float2(4*0.0001+0*0.2, 4*0.0001+1*0.2);
+    o.v5 = float2(5*0.0001+0*0.2, 5*0.0001+1*0.2);
+    o.v6 = float2(6*0.0001+0*0.2, 6*0.0001+1*0.2);
+    o.v7 = float2(7*0.0001+0*0.2, 7*0.0001+1*0.2);
+    o.v8 = float2(8*0.0001+0*0.2, 8*0.0001+1*0.2);
+    o.v9 = float2(9*0.0001+0*0.2, 9*0.0001+1*0.2);
+    o.v10 = float2(10*0.0001+0*0.2, 10*0.0001+1*0.2);
+    o.v11 = float2(11*0.0001+0*0.2, 11*0.0001+1*0.2);
+    o.v12 = float2(12*0.0001+0*0.2, 12*0.0001+1*0.2);
+    o.v13 = float2(13*0.0001+0*0.2, 13*0.0001+1*0.2);
+    o.v14 = float2(14*0.0001+0*0.2, 14*0.0001+1*0.2);
+    o.v15 = float2(15*0.0001+0*0.2, 15*0.0001+1*0.2);
+    o.v16 = float2(16*0.0001+0*0.2, 16*0.0001+1*0.2);
+    o.v17 = float2(17*0.0001+0*0.2, 17*0.0001+1*0.2);
+    o.v18 = float2(18*0.0001+0*0.2, 18*0.0001+1*0.2);
+    o.v19 = float2(19*0.0001+0*0.2, 19*0.0001+1*0.2);
+    o.v20 = float2(20*0.0001+0*0.2, 20*0.0001+1*0.2);
+    o.v21 = float2(21*0.0001+0*0.2, 21*0.0001+1*0.2);
+    o.v22 = float2(22*0.0001+0*0.2, 22*0.0001+1*0.2);
+    o.v23 = float2(23*0.0001+0*0.2, 23*0.0001+1*0.2);
+    o.v24 = float2(24*0.0001+0*0.2, 24*0.0001+1*0.2);
+    o.v25 = float2(25*0.0001+0*0.2, 25*0.0001+1*0.2);
+    o.v26 = float2(26*0.0001+0*0.2, 26*0.0001+1*0.2);
+    o.v27 = float2(27*0.0001+0*0.2, 27*0.0001+1*0.2);
+    o.v28 = float2(28*0.0001+0*0.2, 28*0.0001+1*0.2);
+    o.v29 = float2(29*0.0001+0*0.2, 29*0.0001+1*0.2);
+    return o;
+}
+fragment float4 f_main(VOut in [[stage_in]]) {
+    float s = in.v0.x + in.v1.x + in.v2.x + in.v3.x + in.v4.x + in.v5.x + in.v6.x + in.v7.x + in.v8.x + in.v9.x + in.v10.x + in.v11.x + in.v12.x + in.v13.x + in.v14.x + in.v15.x + in.v16.x + in.v17.x + in.v18.x + in.v19.x + in.v20.x + in.v21.x + in.v22.x + in.v23.x + in.v24.x + in.v25.x + in.v26.x + in.v27.x + in.v28.x + in.v29.x;
+    return float4(s, 0, 0, 1);
+}
