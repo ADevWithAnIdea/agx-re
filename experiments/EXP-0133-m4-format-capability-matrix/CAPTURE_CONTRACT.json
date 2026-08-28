@@ -1,0 +1,1179 @@
+{
+  "blendable_ineligible_kinds": [
+    "uint",
+    "int"
+  ],
+  "blob_sha256_files": [
+    "kernels/capability.metal",
+    "kernels/conversion.metal",
+    "harness/probe.m",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py",
+    "analysis/formats_generated.json",
+    "analysis/gen_formats.py",
+    "analysis/gen_contract.py"
+  ],
+  "boundary": {
+    "accesses": "public Metal API only; 16x16 (4x4 for BC1 conversion case) owned textures; no pattern verification in the capability sweep beyond success/failure and informational readback",
+    "apple_binary_archive_bo_inspection": "NONE",
+    "private_api_or_trace": "NONE"
+  },
+  "capability_axes": [
+    "sampled",
+    "filtered",
+    "storage_read",
+    "storage_write",
+    "atomic",
+    "linear",
+    "renderable",
+    "blendable",
+    "msaa",
+    "resolve",
+    "depth_stencil"
+  ],
+  "conversion_cases": [
+    "r16unorm_sep_a",
+    "r16unorm_sep_b",
+    "r16unorm_nontie",
+    "r16snorm_m100",
+    "r16snorm_p100",
+    "rgba16unorm_sep",
+    "srgb8_low",
+    "srgb8_mid",
+    "srgb8_high",
+    "int_filter_r32uint",
+    "bc1_white_opaque",
+    "bc1_red565_opaque",
+    "split_depth_stencil"
+  ],
+  "depth_stencil_direct_attach_ineligible_families": [],
+  "device_unsupported_format_ids": [
+    255,
+    262
+  ],
+  "experiment": "EXP-0133-m4-format-capability-matrix",
+  "family_linear_ineligible": [
+    "depth",
+    "stencil",
+    "depthstencil",
+    "stencil_view",
+    "compressed_bc",
+    "compressed_pvrtc",
+    "compressed_etc",
+    "compressed_astc_ldr",
+    "compressed_astc_hdr",
+    "yuv422"
+  ],
+  "family_render_ineligible": [
+    "depth",
+    "stencil",
+    "depthstencil",
+    "stencil_view",
+    "compressed_bc",
+    "compressed_pvrtc",
+    "compressed_etc",
+    "compressed_astc_ldr",
+    "compressed_astc_hdr",
+    "yuv422"
+  ],
+  "formats": [
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 1,
+      "kind": "float",
+      "name": "A8Unorm"
+    },
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 10,
+      "kind": "float",
+      "name": "R8Unorm"
+    },
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 11,
+      "kind": "float",
+      "name": "R8Unorm_sRGB"
+    },
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 12,
+      "kind": "float",
+      "name": "R8Snorm"
+    },
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 13,
+      "kind": "uint",
+      "name": "R8Uint"
+    },
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 14,
+      "kind": "int",
+      "name": "R8Sint"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 20,
+      "kind": "float",
+      "name": "R16Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 22,
+      "kind": "float",
+      "name": "R16Snorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 23,
+      "kind": "uint",
+      "name": "R16Uint"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 24,
+      "kind": "int",
+      "name": "R16Sint"
+    },
+    {
+      "bpp": 2,
+      "family": "float_norm",
+      "id": 25,
+      "kind": "float",
+      "name": "R16Float"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 30,
+      "kind": "float",
+      "name": "RG8Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 31,
+      "kind": "float",
+      "name": "RG8Unorm_sRGB"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 32,
+      "kind": "float",
+      "name": "RG8Snorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 33,
+      "kind": "uint",
+      "name": "RG8Uint"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 34,
+      "kind": "int",
+      "name": "RG8Sint"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 40,
+      "kind": "float",
+      "name": "B5G6R5Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 41,
+      "kind": "float",
+      "name": "A1BGR5Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 42,
+      "kind": "float",
+      "name": "ABGR4Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 43,
+      "kind": "float",
+      "name": "BGR5A1Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 53,
+      "kind": "uint",
+      "name": "R32Uint"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 54,
+      "kind": "int",
+      "name": "R32Sint"
+    },
+    {
+      "bpp": 4,
+      "family": "float_norm",
+      "id": 55,
+      "kind": "float",
+      "name": "R32Float"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 60,
+      "kind": "float",
+      "name": "RG16Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 62,
+      "kind": "float",
+      "name": "RG16Snorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 63,
+      "kind": "uint",
+      "name": "RG16Uint"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 64,
+      "kind": "int",
+      "name": "RG16Sint"
+    },
+    {
+      "bpp": 4,
+      "family": "float_norm",
+      "id": 65,
+      "kind": "float",
+      "name": "RG16Float"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 70,
+      "kind": "float",
+      "name": "RGBA8Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 71,
+      "kind": "float",
+      "name": "RGBA8Unorm_sRGB"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 72,
+      "kind": "float",
+      "name": "RGBA8Snorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 73,
+      "kind": "uint",
+      "name": "RGBA8Uint"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 74,
+      "kind": "int",
+      "name": "RGBA8Sint"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 80,
+      "kind": "float",
+      "name": "BGRA8Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 81,
+      "kind": "float",
+      "name": "BGRA8Unorm_sRGB"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 90,
+      "kind": "float",
+      "name": "RGB10A2Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 91,
+      "kind": "uint",
+      "name": "RGB10A2Uint"
+    },
+    {
+      "bpp": 4,
+      "family": "float_norm",
+      "id": 92,
+      "kind": "float",
+      "name": "RG11B10Float"
+    },
+    {
+      "bpp": 4,
+      "family": "float_norm",
+      "id": 93,
+      "kind": "float",
+      "name": "RGB9E5Float"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 94,
+      "kind": "float",
+      "name": "BGR10A2Unorm"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 103,
+      "kind": "uint",
+      "name": "RG32Uint"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 104,
+      "kind": "int",
+      "name": "RG32Sint"
+    },
+    {
+      "bpp": 8,
+      "family": "float_norm",
+      "id": 105,
+      "kind": "float",
+      "name": "RG32Float"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 110,
+      "kind": "float",
+      "name": "RGBA16Unorm"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 112,
+      "kind": "float",
+      "name": "RGBA16Snorm"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 113,
+      "kind": "uint",
+      "name": "RGBA16Uint"
+    },
+    {
+      "bpp": 8,
+      "family": "int_norm",
+      "id": 114,
+      "kind": "int",
+      "name": "RGBA16Sint"
+    },
+    {
+      "bpp": 8,
+      "family": "float_norm",
+      "id": 115,
+      "kind": "float",
+      "name": "RGBA16Float"
+    },
+    {
+      "bpp": 16,
+      "family": "int_norm",
+      "id": 123,
+      "kind": "uint",
+      "name": "RGBA32Uint"
+    },
+    {
+      "bpp": 16,
+      "family": "int_norm",
+      "id": 124,
+      "kind": "int",
+      "name": "RGBA32Sint"
+    },
+    {
+      "bpp": 16,
+      "family": "float_norm",
+      "id": 125,
+      "kind": "float",
+      "name": "RGBA32Float"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 130,
+      "kind": "float",
+      "name": "BC1_RGBA"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 131,
+      "kind": "float",
+      "name": "BC1_RGBA_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 132,
+      "kind": "float",
+      "name": "BC2_RGBA"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 133,
+      "kind": "float",
+      "name": "BC2_RGBA_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 134,
+      "kind": "float",
+      "name": "BC3_RGBA"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 135,
+      "kind": "float",
+      "name": "BC3_RGBA_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 140,
+      "kind": "float",
+      "name": "BC4_RUnorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 141,
+      "kind": "float",
+      "name": "BC4_RSnorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 142,
+      "kind": "float",
+      "name": "BC5_RGUnorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 143,
+      "kind": "float",
+      "name": "BC5_RGSnorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 150,
+      "kind": "float",
+      "name": "BC6H_RGBFloat"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 151,
+      "kind": "float",
+      "name": "BC6H_RGBUfloat"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 152,
+      "kind": "float",
+      "name": "BC7_RGBAUnorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 153,
+      "kind": "float",
+      "name": "BC7_RGBAUnorm_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 160,
+      "kind": "float",
+      "name": "PVRTC_RGB_2BPP"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 161,
+      "kind": "float",
+      "name": "PVRTC_RGB_2BPP_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 162,
+      "kind": "float",
+      "name": "PVRTC_RGB_4BPP"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 163,
+      "kind": "float",
+      "name": "PVRTC_RGB_4BPP_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 164,
+      "kind": "float",
+      "name": "PVRTC_RGBA_2BPP"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 165,
+      "kind": "float",
+      "name": "PVRTC_RGBA_2BPP_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 166,
+      "kind": "float",
+      "name": "PVRTC_RGBA_4BPP"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_pvrtc",
+      "id": 167,
+      "kind": "float",
+      "name": "PVRTC_RGBA_4BPP_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 170,
+      "kind": "float",
+      "name": "EAC_R11Unorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 172,
+      "kind": "float",
+      "name": "EAC_R11Snorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 174,
+      "kind": "float",
+      "name": "EAC_RG11Unorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 176,
+      "kind": "float",
+      "name": "EAC_RG11Snorm"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 178,
+      "kind": "float",
+      "name": "EAC_RGBA8"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 179,
+      "kind": "float",
+      "name": "EAC_RGBA8_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 180,
+      "kind": "float",
+      "name": "ETC2_RGB8"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 181,
+      "kind": "float",
+      "name": "ETC2_RGB8_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 182,
+      "kind": "float",
+      "name": "ETC2_RGB8A1"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_etc",
+      "id": 183,
+      "kind": "float",
+      "name": "ETC2_RGB8A1_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 186,
+      "kind": "float",
+      "name": "ASTC_4x4_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 187,
+      "kind": "float",
+      "name": "ASTC_5x4_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 188,
+      "kind": "float",
+      "name": "ASTC_5x5_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 189,
+      "kind": "float",
+      "name": "ASTC_6x5_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 190,
+      "kind": "float",
+      "name": "ASTC_6x6_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 192,
+      "kind": "float",
+      "name": "ASTC_8x5_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 193,
+      "kind": "float",
+      "name": "ASTC_8x6_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 194,
+      "kind": "float",
+      "name": "ASTC_8x8_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 195,
+      "kind": "float",
+      "name": "ASTC_10x5_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 196,
+      "kind": "float",
+      "name": "ASTC_10x6_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 197,
+      "kind": "float",
+      "name": "ASTC_10x8_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 198,
+      "kind": "float",
+      "name": "ASTC_10x10_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 199,
+      "kind": "float",
+      "name": "ASTC_12x10_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 200,
+      "kind": "float",
+      "name": "ASTC_12x12_sRGB"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 204,
+      "kind": "float",
+      "name": "ASTC_4x4_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 205,
+      "kind": "float",
+      "name": "ASTC_5x4_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 206,
+      "kind": "float",
+      "name": "ASTC_5x5_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 207,
+      "kind": "float",
+      "name": "ASTC_6x5_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 208,
+      "kind": "float",
+      "name": "ASTC_6x6_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 210,
+      "kind": "float",
+      "name": "ASTC_8x5_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 211,
+      "kind": "float",
+      "name": "ASTC_8x6_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 212,
+      "kind": "float",
+      "name": "ASTC_8x8_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 213,
+      "kind": "float",
+      "name": "ASTC_10x5_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 214,
+      "kind": "float",
+      "name": "ASTC_10x6_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 215,
+      "kind": "float",
+      "name": "ASTC_10x8_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 216,
+      "kind": "float",
+      "name": "ASTC_10x10_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 217,
+      "kind": "float",
+      "name": "ASTC_12x10_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 218,
+      "kind": "float",
+      "name": "ASTC_12x12_LDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 222,
+      "kind": "float",
+      "name": "ASTC_4x4_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 223,
+      "kind": "float",
+      "name": "ASTC_5x4_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 224,
+      "kind": "float",
+      "name": "ASTC_5x5_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 225,
+      "kind": "float",
+      "name": "ASTC_6x5_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 226,
+      "kind": "float",
+      "name": "ASTC_6x6_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 228,
+      "kind": "float",
+      "name": "ASTC_8x5_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 229,
+      "kind": "float",
+      "name": "ASTC_8x6_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 230,
+      "kind": "float",
+      "name": "ASTC_8x8_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 231,
+      "kind": "float",
+      "name": "ASTC_10x5_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 232,
+      "kind": "float",
+      "name": "ASTC_10x6_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 233,
+      "kind": "float",
+      "name": "ASTC_10x8_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 234,
+      "kind": "float",
+      "name": "ASTC_10x10_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 235,
+      "kind": "float",
+      "name": "ASTC_12x10_HDR"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_hdr",
+      "id": 236,
+      "kind": "float",
+      "name": "ASTC_12x12_HDR"
+    },
+    {
+      "bpp": 4,
+      "family": "yuv422",
+      "id": 240,
+      "kind": "float",
+      "name": "GBGR422"
+    },
+    {
+      "bpp": 4,
+      "family": "yuv422",
+      "id": 241,
+      "kind": "float",
+      "name": "BGRG422"
+    },
+    {
+      "bpp": 2,
+      "family": "depth",
+      "id": 250,
+      "kind": "float",
+      "name": "Depth16Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "depth",
+      "id": 252,
+      "kind": "float",
+      "name": "Depth32Float"
+    },
+    {
+      "bpp": 1,
+      "family": "stencil",
+      "id": 253,
+      "kind": "uint",
+      "name": "Stencil8"
+    },
+    {
+      "bpp": 4,
+      "family": "depthstencil",
+      "id": 255,
+      "kind": "float",
+      "name": "Depth24Unorm_Stencil8"
+    },
+    {
+      "bpp": 8,
+      "family": "depthstencil",
+      "id": 260,
+      "kind": "float",
+      "name": "Depth32Float_Stencil8"
+    },
+    {
+      "bpp": 4,
+      "family": "stencil_view",
+      "id": 261,
+      "kind": "uint",
+      "name": "X32_Stencil8"
+    },
+    {
+      "bpp": 4,
+      "family": "stencil_view",
+      "id": 262,
+      "kind": "uint",
+      "name": "X24_Stencil8"
+    },
+    {
+      "bpp": 8,
+      "family": "xr",
+      "id": 552,
+      "kind": "float",
+      "name": "BGRA10_XR"
+    },
+    {
+      "bpp": 8,
+      "family": "xr",
+      "id": 553,
+      "kind": "float",
+      "name": "BGRA10_XR_sRGB"
+    },
+    {
+      "bpp": 4,
+      "family": "xr",
+      "id": 554,
+      "kind": "float",
+      "name": "BGR10_XR"
+    },
+    {
+      "bpp": 4,
+      "family": "xr",
+      "id": 555,
+      "kind": "float",
+      "name": "BGR10_XR_sRGB"
+    }
+  ],
+  "layout_below_minimum_format": {
+    "bpp": 4,
+    "family": "int_norm",
+    "id": 70,
+    "kind": "float",
+    "name": "RGBA8Unorm"
+  },
+  "layout_formats": [
+    {
+      "bpp": 1,
+      "family": "int_norm",
+      "id": 10,
+      "kind": "float",
+      "name": "R8Unorm"
+    },
+    {
+      "bpp": 2,
+      "family": "int_norm",
+      "id": 30,
+      "kind": "float",
+      "name": "RG8Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 70,
+      "kind": "float",
+      "name": "RGBA8Unorm"
+    },
+    {
+      "bpp": 8,
+      "family": "float_norm",
+      "id": 115,
+      "kind": "float",
+      "name": "RGBA16Float"
+    },
+    {
+      "bpp": 16,
+      "family": "float_norm",
+      "id": 125,
+      "kind": "float",
+      "name": "RGBA32Float"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 130,
+      "kind": "float",
+      "name": "BC1_RGBA"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 204,
+      "kind": "float",
+      "name": "ASTC_4x4_LDR"
+    },
+    {
+      "bpp": 4,
+      "family": "depth",
+      "id": 252,
+      "kind": "float",
+      "name": "Depth32Float"
+    },
+    {
+      "bpp": 1,
+      "family": "stencil",
+      "id": 253,
+      "kind": "uint",
+      "name": "Stencil8"
+    },
+    {
+      "bpp": 4,
+      "family": "yuv422",
+      "id": 240,
+      "kind": "float",
+      "name": "GBGR422"
+    },
+    {
+      "bpp": 4,
+      "family": "xr",
+      "id": 554,
+      "kind": "float",
+      "name": "BGR10_XR"
+    }
+  ],
+  "sparse_formats": [
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 70,
+      "kind": "float",
+      "name": "RGBA8Unorm"
+    },
+    {
+      "bpp": 4,
+      "family": "int_norm",
+      "id": 53,
+      "kind": "uint",
+      "name": "R32Uint"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_bc",
+      "id": 130,
+      "kind": "float",
+      "name": "BC1_RGBA"
+    },
+    {
+      "bpp": null,
+      "family": "compressed_astc_ldr",
+      "id": 204,
+      "kind": "float",
+      "name": "ASTC_4x4_LDR"
+    },
+    {
+      "bpp": 4,
+      "family": "depth",
+      "id": 252,
+      "kind": "float",
+      "name": "Depth32Float"
+    }
+  ],
+  "state": "PRE_GPU",
+  "target_matrix_size": 138,
+  "timeouts_seconds": {
+    "case_process": 60,
+    "environment": 5,
+    "host_build": 180
+  }
+}
