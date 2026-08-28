@@ -1,0 +1,29 @@
+{
+  "contract_version": 1,
+  "experiment": "EXP-0110-m4-command-container-packing",
+  "pinned_git_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "pinned_git_revision_note": "recorded at pre-registration time; later runs compare authored-file hashes below, not live HEAD (sibling-experiment commits moving HEAD are not contamination)",
+  "target": "local Apple M4 / G16G only; A18 Pro hands-off; no SSH anywhere",
+  "boundary": "public Metal API; runtime MSL compile (newLibraryWithSource:); owned shared/private buffers and textures; read-only tools/iotrace/iotrace.c interposer (unmodified) for DATA-TRACE of this process's own IOKit boundary traffic and registered-BO snapshots; read-only tools/shdump/shdump.m + tools/shdump/agxparse.py (unmodified) for OWN-SHADER container extraction; no Apple binary/framework/kernel/firmware inspection",
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "b1288793c31b366128b7548bf9451c2fb663be104bbfd0f7ac78fcf95cb06355",
+    "README.md": "5cb655b5afd1df18272e6434f5c3b74a8617a16e65e8043ee16eb879d7b7cb98",
+    "analysis/metadata.py": "6dc0a7e396c32ae7cec87202ce44cbeb2ffadb15d3974a3c10077e9e10ea315d",
+    "analysis/report.py": "a5b64570debb1d3666ef0c121efc37ec49f3d261339dc8659f01ddee8ceca056",
+    "analysis/scan.py": "71f0620cff0a2650dd932e4c0c36909dcd3d863910ccd976ec99f8da9347e256",
+    "casematrix.py": "52fdec08c5c5f5da2973be51e8dd6b8e5799b8146735cbd8e7e72f326763c929",
+    "harness/cmdprobe.m": "e5ddf83d24e642f58a5116efda4ed629ed89379992632a1d69ed8f12674468ec",
+    "harness/containerdispatch.m": "5ee10b922b6608cbe0a8bf1acb611a6d7c2df9b1acb6b28798e07c12715b2b3a",
+    "kernels/gen_container_kernels.py": "960efe22210c2bd2d9832bbbc3860085552ea0aa26102bd1d5703a757a4a9ba5",
+    "run.py": "e6ccddf8c9cb1235633df74bf2d64bb9dcbec4af143a8369fa937ccc94f802dc",
+    "schema.py": "c12b47a1f3228605bf783bb0f3849ee43e3baa68191b3715a3614858768377d2",
+    "verify.py": "da6a4fca46c221960836452c8ec1be0ea6af346ba1e9611e2ae16d05f6a344e0"
+  },
+  "tools_ro_sha256_recorded_by": "run.py provenance() at each run's 00_inputs.json (tools/iotrace/iotrace.c, tools/iotrace/README.md, tools/shdump/shdump.m, tools/shdump/agxparse.py)",
+  "run_ids": ["m4_20260827_run01", "m4_20260827_run02"],
+  "gate_order": "PRE_GPU: --selftest, --seqtest, --preflight --run-id run01, run.py run01; RUN01_PRESENT: --selftest, --seqtest, --between-runs --run01-id run01 --run02-id run02, run.py run02; RUN02_PRESENT: --selftest, --seqtest, --captured --run01-id run01 --run02-id run02",
+  "gate_smoke": "run.py's SMOKE_CASE (cdm mode, count=2) executes into work/, not raw/, and its authored CDM signature must be found intact before raw/<run-id>/ is created; a smoke failure is a pre-capture STOP with no raw/ directory left behind",
+  "gate_cross_run": "run01 and run02's 02_results.jsonl (the GATED file) must be byte-identical per case (same set of case names, and each case's JSON-decoded record equal) -- no address field is ever present in that file (schema.py:assert_no_address_leak, exercised by --selftest); raw addresses live only in the sibling 02_results_addrs.jsonl, which is NOT part of the cross-run gate and is expected to differ between runs",
+  "no_nondeterministic_field_in_gated_payload": "CDM/VDM segment facts are record counts, tail/link tags, and integer DELTAS relative to that same run's own zero-padding baseline case (schema.build_segment_records); the container-live CDM record is hex-encoded only after schema.normalize_cdm_record zeroes its one known per-dispatch-varying field (+0x08..+0x0b); state-packet bind-pair addresses are stored only as deltas from the pool base found within the same case; verify.py --selftest proves both normalizations produce byte-identical output across two synthetic runs whose absolute addresses differ by a real observed shift (0x4080000)",
+  "fixtures_note": "verify.py --selftest and --seqtest fixtures are built entirely from RECORDED REALITY: the synthetic CDM chain shape (3 segments of up to 732 records, link tag 0x20, shift 0x4080000) is a literal reproduction of this experiment's own calibration observations (see PRE_REGISTRATION.md), not an invented shape"
+}

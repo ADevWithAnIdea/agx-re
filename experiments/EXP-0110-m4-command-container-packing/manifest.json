@@ -1,0 +1,31 @@
+{
+  "experiment": "EXP-0110-m4-command-container-packing",
+  "target": "Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4",
+  "addresses_p0": ["P0.5 (DRV-CMD-01)", "P0.7 (DRV-SHADER-01)"],
+  "builds_on": ["EXP-0043-command-stream-framing", "EXP-0049-command-link-structure",
+               "EXP-0042-graphics-code-selection", "EXP-0019-state-packets",
+               "EXP-0024-usc-ppp-config", "EXP-0011-compute-cmdstream",
+               "EXP-0020-register-model", "EXP-0041-scratch-helper-abi"],
+  "tools_used_read_only": ["tools/iotrace/iotrace.c", "tools/shdump/shdump.m",
+                           "tools/shdump/agxparse.py"],
+  "gate_files": ["PRE_REGISTRATION.md", "CAPTURE_CONTRACT.json", "verify.py"],
+  "run_ids": ["m4_20260827_run01", "m4_20260827_run02"],
+  "raw_layout": ["raw/<run-id>/00_inputs.json", "raw/<run-id>/01_build.json",
+                "raw/<run-id>/02_results.jsonl (GATED, cross-run compared)",
+                "raw/<run-id>/02_results_addrs.jsonl (sibling, NOT gated, contains raw GPU VAs)",
+                "raw/<run-id>/03_run_manifest.json"],
+  "gates_passed": {
+    "selftest": "15/15 PASS",
+    "seqtest": "11/11 PASS",
+    "smoke_gate": "PASSED before raw/ created, both runs",
+    "captured_cross_run": "PASS -- 31/31 cases byte-identical, see analysis/cross_run_report.json"
+  },
+  "results_jsonl_sha256": {
+    "m4_20260827_run01": "9518a9ebe548c37795a430cefdd821caa4bd429f9827a59096cccc16c768d6a2",
+    "m4_20260827_run02": "9518a9ebe548c37795a430cefdd821caa4bd429f9827a59096cccc16c768d6a2"
+  },
+  "n_cases": 31,
+  "case_kinds": {"cdm": 4, "vdm": 3, "state": 6, "container": 13, "container_live": 5},
+  "verdict": "PARTIAL for both P0.5 and P0.7; see RESULTS.md for the full breakdown, DECODED vs GENERATABLE table, and remaining gaps",
+  "note": "manifest finalized after both runs and the --captured gate completed; see PROGRESS.md for the milestone log and the disclosed/corrected process deviation (scratch files briefly written outside the repo during pre-freeze calibration, fixed before any evidentiary capture existed)"
+}
