@@ -4,9 +4,45 @@
 session (or this one after a compaction) can read to know exactly where every in-flight experiment
 stands and what comes next. Update it whenever an experiment changes state.
 
-Last updated: 2026-08-28. **The 12-agent P0/P1 wave is fully landed and committed.** The 10-agent
-**emit-everything wave** was killed en masse by the account session limit; WIP committed at
-`4fe49a1c` and the wave is being **resumed in GPU-contention-aware batches**.
+Last updated: 2026-08-28, after commit `487caaad`. **Batch 1 fully landed.** Emittability is now
+**21 of 171 instructions, 319/1036 fields (30.8%)** — from 5 and 169 at the wave's start. A mixed
+5-agent wave is running: 3 GPU-contending + 2 desk.
+---
+
+## In flight — mixed wave, 2026-08-28 (3 GPU + 2 desk)
+
+GPU-contending capped at **three**: the contamination data says that is the safe ceiling. EXP-0147
+ran healthy (1.6% cross-run disagreement) alongside two siblings, while EXP-0144 came out at 43.8%
+in the same window as a machine-wide `MTLCompilerService` collapse. Desk agents do not contend.
+
+| Agent | Kind | State / task |
+|---|---|---|
+| `EXP-0138` FALU | **GPU** | Effectively fresh (killed before starting). Holds **`falu2.mod_lo`** — the single field blocking the ISA's most-used instruction; verified mechanically that it alone raises the emittable count |
+| `EXP-0144` PACK | **GPU** | **Revalidation pass, not a re-run.** Its runs disagree 43.8% with 1,083/1,084 disagreements having a hang on one side; run04 is 83% hangs vs run05's 0.8%. Raw retained; must re-test every disagreement and every fault/hang with majority-of-3 in fresh processes |
+| `EXP-0140` MOV+CF | *(landed)* | 11 instructions made emittable; **one more clean run likely gives 18/23** — `jump`/`ret`/`pop_reconverge`/`if_push_pred` are one capture short, not one result short |
+| `EXP-0147` pipeline | **desk** | Evidence is HEALTHY (matched pair, 1.6% disagreement) but only 5 verdicts written. Finish the analysis from existing captures; `matrix_mac` is 2 fields from emittable |
+| questionnaire closer | desk | Close as many of the 27 remaining Part-II items as committed evidence allows → `work/GAPS-ANSWER-BLOCKS-2.md` |
+| P0/P1 gap analyst | desk | Per-row gap list for all sixteen rows, separating evidence gaps from platform limitations → `work/P0-P1-GAP-ANALYSIS.md` |
+
+**Queued (batch 3):** `EXP-0142` TEX, `EXP-0143` FRAG+SIMD, `EXP-0145` bf16/half.
+
+### Four contamination modes now known (FIELD-SWEEP-PROTOCOL §7)
+
+1. **Innocent-victim command buffers** — a sibling's fault surfaces as your failure. EXP-0139: 44% of
+   gated-run faults did not reproduce; without mitigation **692 legal field values would have been
+   labelled `fault`**.
+2. **GPU error cascade** — once started, everything after it fails. Catch with periodic baseline
+   re-validation; resume in a fresh process.
+3. **`STATUS OK` with nothing executed** (EXP-0141) — the output buffer returns zero-initialised,
+   which on this ISA is the *expected signature of a wrong field value*. Mitigation: an integrity
+   sentinel written through a path independent of the instruction under test.
+4. **`MTLCompilerService` dies machine-wide** ("Reentrancy avoided") — blocks every capture while the
+   device still enumerates. Verified RECOVERED as of this update.
+
+Plus two harness traps: reusing one splice-archive path across persistent-runner requests gives
+**~8% phantom `CMDBUF_ERROR`**; and a **zero-initialised read-back buffer** cannot distinguish "not
+written" from "zero written" — EXP-0140 poisoned with `0xDEADBEEF` and overturned EXP-0128's
+`mov_imm` "silent zero" that way.
 
 ---
 
