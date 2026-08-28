@@ -95,6 +95,40 @@ Encoding is **little-endian**: instruction bit 16 = byte +2 bit 0.
 > byte+1=`0x17`, was mis-decoded as `unpack_convert`) and `simd_shuffle` (`47/c7 04 54`, byte+2=`0x54`, was undecodable).
 > Remaining residue is operand-level (the `0x2b`/`0x3b`/`0x5b` register/shift-prep family). These are naming/length gaps,
 > not correctness errors in the decoded ops.
+> [!IMPORTANT]
+> **EXP-0148 correction (2026-08-28) — the length rule was reading the NEXT instruction's opcode.**
+> The rule chooses 6/8/10/12 from **`byte+4`**, but for the **compact** forms `byte+4` *is the
+> following instruction's leader* — and AGX leaders overwhelmingly end in low nibble `7`/`f`
+> (`&3 == 3` → 12) or `1`/`5`/`9`/`d` (`&3 == 1` → 8). A 4-byte op therefore read its successor's
+> opcode and swallowed it. **The form must be selected from the leading parcel before the
+> `byte+4` extension is consulted.** Four corrections applied:
+>
+> | id | rule |
+> |---|---|
+> | **L1** | byte0 low nibble `9`, op-select (`byte+2` bits[2:0]) ∈ {0,1} → **length 4** (the compact float accumulate/move class) |
+> | **L2** | byte0 low nibble `9`, `byte+2` ∈ {`0x26`,`0x2e`} → the **uniform** `6 + 2*(byte+4 & 3)`, replacing `8 if (byte+4 & 2) else 6` plus two hand-patches |
+> | **L3** | byte0 `0x10` (native fp16) with `byte+2` in the compact set → **length 4** |
+> | **L4** | byte0 low nibble `b` → **length 10** when `(byte+2 & 0x06) == 0x06`, excluding `byte+2` ∈ {`0xd7`,`0xe7`} |
+>
+> **`falu2_ext8b` was deleted — it was never an instruction.** Its match is exactly the
+> op-select-{0,1} space L1 now lengths to 4, which is why 193 of its 250 corpus instances embedded
+> a real op leader. `tg_atomic_prep` is replaced by a corrected 10-byte `tg_atomic_prep10`; new
+> descriptors `half_compact4` and `b_alu10_lo6` were added.
+>
+> Corpus effect: files tokenizing end-to-end **803 → 832**, strict leftover bytes
+> **395,390 → 389,368**, round-trip **302/302 unchanged**. One file regressed, and its alignment
+> chains off `op04_len8` — the one over-consumer still **OPEN**, where six candidate rules all
+> measured *worse* than the status quo.
+>
+> This also closes `length_rule_gaps.b_alu10`: the 10-byte XOR example EXP-0099 §6.1 found
+> decodable under *no* family now decodes as `b_alu10_lo6`.
+>
+> **Two cautions for implementers.** The broad form of L3 was tested and **refuted** (it broke 7
+> files — byte0 `0x10` is overloaded and is also a legal two-byte operand/pad word), so do not
+> widen it. And `_r9_succ_safe` makes some lengths depend on the *following* bytes failing to
+> decode, which makes round-trip a **non-local** test: a change here can break a file whose own
+> instructions you never touched.
+
 Parcels are 2 bytes. **Unlike G13, the *first* parcel does not encode length** (e.g. `fsub` 6B
 and `fma` 8B share an identical first parcel). Length is a function of the byte-0 group, with a
 per-group length bit where needed:
