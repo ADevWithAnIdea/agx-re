@@ -1,0 +1,105 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "9b4a5820a43b3dbc8d795dbacdbdfb0ef31af2b33badabd36fd3687180d7bfa9",
+    "README.md": "cebe34b326865ccc773d6442d3a70bd50d884181f923f916557d90087b415c1b",
+    "analysis.py": "687640b6d4531c41ad9b8734c8af2b975cc26bdbcfe7064a013289ea88c1013f",
+    "baseline.py": "3c29369ed9519893d32ba1a0be3903bb9750fba68ba1fc91063be03855633c96",
+    "casematrix.py": "3adff3269bafed3335ed6927eb55cf6867dfbd589bcbf66d509e5566ba2642ff",
+    "harness/agxcdispatch.m": "69601bd5b93c24d44570eb62f6db4697b20501d0b6173526c86a7e86cac60c62",
+    "harness/agxvdraw.m": "7242befddb1f88b6111f0eaac49246dd747fae5fecdbfc7161f799d9bbf752af",
+    "harness/build.sh": "9cef88ba5841697a37e6878766ef8308d801944364f6c387cefa4fa5de650263",
+    "kernels/dstprobe.metal": "a8f9859762f37e6e93956bbebb12fe501e9a52ecb3fff535ed3cb84a1881f4ee",
+    "kernels/numwg_probe.metal": "f8aac30cc432ffa5040e1507ea7c368ab5f5ee6c82d674a9014d904903d5babf",
+    "kernels/srprobe.metal": "b4f11224e356f6bf06b947e44d2d60dd0eb15f509ce67f486a954178480f3f33",
+    "kernels/vdraw_probe.metal": "c3eab5ca28436b43fd3f02e81090cfbd6480dba6182a7505f037aa21a67e5b5c",
+    "make_manifest.py": "e9b349f16bc9f8b0b1fe6be0bf3d3c2d5a3dfd757490053f7ae0edb010bafc0e",
+    "run.py": "bac4105129c4fbdd1083e4f4183b9001f8bc2db951635a459ebfe4829d520f8a",
+    "verify.py": "874b4b8fb740c753ab22d2951bdd5d423aebbf3986150884c709a8b459ada610"
+  },
+  "capture": {
+    "gated_case_keys": [
+      "backend",
+      "case_name",
+      "changed_bytes",
+      "expected",
+      "i",
+      "item",
+      "kernel",
+      "observed",
+      "params",
+      "pipeline_source",
+      "rep",
+      "splice_args",
+      "status",
+      "verdict"
+    ],
+    "nongated_case_keys": [
+      "duration_ms",
+      "exception",
+      "exit",
+      "i",
+      "stderr",
+      "stdout",
+      "timed_out"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "04_results_raw.jsonl",
+      "05_run_manifest.json"
+    ],
+    "runs": [
+      "m4-20260828b-run01",
+      "m4-20260828b-run02"
+    ],
+    "status_allowed": [
+      "ARCHIVE_FAIL",
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "FUNCTION_MISSING",
+      "HANG",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL",
+      "PIPELINE_MISS"
+    ],
+    "total_cases": 300,
+    "verdict_allowed": [
+      "FAULT",
+      "MATCH_EXPECTED",
+      "MISMATCH_EXPECTED",
+      "OBSERVED_NO_ORACLE"
+    ]
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0092-m4-sysval-abi",
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/srprobe.metal",
+    "kernels/dstprobe.metal",
+    "kernels/vdraw_probe.metal",
+    "kernels/numwg_probe.metal",
+    "harness/build.sh",
+    "harness/agxvdraw.m",
+    "harness/agxcdispatch.m",
+    "baseline.py",
+    "casematrix.py",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "baseline": 60,
+    "case_process": 60,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 60
+  }
+}
