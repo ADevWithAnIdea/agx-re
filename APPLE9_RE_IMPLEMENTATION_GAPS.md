@@ -799,6 +799,27 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
   Compiler-output evidence answers which strategy Apple chooses, but the selected fallback still
   requires independent hardware execution validation.
 
+  > **Answered 2026-08-28 (EXP-0084, M4/G16G, commit `783fe693`): MEM-20 Yes · MEM-21 Yes · MEM-22
+  > ceiling 31 with a validated dynamic-address path past it.** Two runs, `04_results.jsonl`
+  > SHA-256 identical.
+  > **MEM-20:** loads/stores through a dynamically held 64-bit device address with NO statically
+  > encoded base slot work — four independent constructions (raw `device ulong*` cast; Metal
+  > implicit argument buffer; double indirection; raw pointer without `useResource:`), all
+  > byte-exact. Mechanism: each dynamically-loaded pointer gets its own compiler-populated
+  > `base_slot` table entry (`index_reg` is shared; `base_slot` differs) — this REFUTED the
+  > experiment's own shared-slot hypothesis.
+  > **MEM-21:** per-lane divergent selection is real, not broadcast — a selector computed only from
+  > `thread_position_in_grid` gave 32 lanes 32 distinct buffer tags, with a uniform control and a
+  > single-lane-outlier control ruling out the alternatives.
+  > **MEM-22:** MSL rejects a 32nd direct `[[buffer(31)]]` argument at compile time (0..30 ceiling);
+  > independently, the dynamic-address mechanism executed correctly at N=64 and N=256 — 2-8x past
+  > that ceiling — with every lane reading its own buffer.
+  > Compiler consequence: the bindless / descriptor-array fallback EXISTS and is hardware-validated.
+  > Direct slots are bounded (see MEM-15/16), dynamic addressing scales past them.
+  > Evidence: `experiments/EXP-0084-m4-dynamic-buffer-addressing/` (HW-PROBE + OWN-SHADER; M4
+  > target; A18 validation deferred). A non-gated single-run splice (`base_slot` 3->4 flipping the
+  > dereferenced buffer) is retained in `analysis/supplementary/` as a successor's H1, not promoted.
+
 ## P0 — Texture operations, selectors, and finite limits
 
 - **TEX-01 — Does the Apple9 coordinate-projection setup form implement exactly NIR's projective
