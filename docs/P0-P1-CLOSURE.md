@@ -62,6 +62,18 @@ needed to drive the hardware independently.
 Evidence strength is defined by `CODEX.md`. Tokenization or a byte-exact round trip alone
 cannot close a synthesis gap.
 
+> [!IMPORTANT]
+> **Target scope for closure (user directive, 2026-08-28): these rows are measured against G16G —
+> the local Apple M4 — only.** The A18 Pro / G17P is hands-off per `CLAUDE.md`, so requiring G17P
+> evidence would make every row permanently uncloseable. `APPLE9_RE_IMPLEMENTATION_GAPS.md`'s
+> whole-handoff gate item 10 has been amended to match (it previously demanded *"Independent G16G
+> and G17P evidence matrices"*).
+>
+> G17P replication is **deferred, not abandoned**, and is expected to be cheap: every experiment is
+> committed and re-runnable, so that pass is re-running them on a G17P host rather than re-deriving
+> anything. Until then, no row may silently generalize an M4 result to A18 — G17P claims stay
+> `INFERRED` per CODEX target discipline, and each row records the target it actually ran on.
+
 ## P0 — complete-driver and unchanged-UAPI blockers
 
 | ID | Requirement | Current status | Closure evidence required | Active experiment |

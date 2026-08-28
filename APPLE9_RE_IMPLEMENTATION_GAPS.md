@@ -2310,10 +2310,16 @@ feature restriction or conservative lowering rather than an assumption.
 This discovery/documentation assignment is complete only when all of the following facts and
 specifications exist. None of these items asks the RE agent to implement the production component.
 
+> **Target scope (user directive, 2026-08-28): this gate is measured against G16G (the local Apple
+> M4) only.** The A18 Pro / G17P is hands-off (`CLAUDE.md`) and its replication is a later, separate
+> pass expected to be inexpensive because every experiment here is committed and re-runnable. Where
+> an item below names both parts, read it as G16G for closure purposes; G17P evidence remains
+> welcome and, where it exists, is recorded — but its absence does not block a row.
+
 1. A field-by-field Apple9 mapping and Linux end-to-end evidence for every existing Asahi queue,
    render, and compute UAPI field, with no new or repurposed field assumed.
 2. A fully documented and experimentally validated Apple9 userspace helper/scratch protocol for VS,
-   FS, CS, and preambles, including spill exhaustion and recovery on G16G and G17P.
+   FS, CS, and preambles, including spill exhaustion and recovery on G16G (G17P deferred, per the target-scope note above).
 3. A documented unchanged-UAPI mapping for graphics code selection plus complete code-container,
    extent, metadata, and resource-specification construction rules supporting multiple pipelines.
 4. Bit-exact specifications for every userspace-emitted VDM, CDM, PPP, USC, ZLS, PBE, attachment,
@@ -2330,9 +2336,18 @@ specifications exist. None of these items asks the RE agent to implement the pro
    render, texture, PBE, and host transition.
 9. Documented robustness, sparse residency, VM, query, timestamp, indirect-command, and fault
    behavior for every feature that a later implementation may advertise.
-10. Independent G16G and G17P evidence matrices covering simple/complex compute, direct/indexed/
+10. A **G16G** evidence matrix covering simple/complex compute, direct/indexed/
     indirect draw, MRT, MSAA, depth/stencil, pipeline switches, multiple commands, links/barriers,
     spills, partial renders, exhaustion, and fault recovery.
+    > **AMENDED 2026-08-28 (user directive).** This item originally demanded *"Independent G16G and
+    > G17P evidence matrices"*. That predated the 2026-08-27 hands-off directive on the A18 Pro, and
+    > the two could not both stand: every result in this repo is M4/G16G-only by that directive, so
+    > requiring a G17P matrix made all sixteen P0/P1 rows permanently uncloseable. **Closure is now
+    > measured against G16G alone.** G17P replication is deferred, not abandoned — it is expected to
+    > be cheap precisely because the experiments are committed and re-runnable, so the work is
+    > re-running them on a G17P host rather than re-deriving anything. Until that happens, every
+    > G17P claim stays `INFERRED` per CODEX target discipline, and no row may silently generalize an
+    > M4 result to A18.
 11. A documented license/provenance path permitting a later Mesa implementation and derived tables
     to be upstreamed.
 12. A completed finite-resource table for **every** finite namespace identified by this document.
