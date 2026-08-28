@@ -1,6 +1,8 @@
 # EXP-0080 quarantine record
 
-Status: **QUARANTINED / NON-EVIDENCE** (2026-08-28).
+Status: **QUARANTINED / NON-EVIDENCE** (2026-08-27; see dating note below).
+**Dating note (orchestrator, 2026-08-27):** this record was originally dated 2026-08-28 because the capture run-id was stamped `m4-20260828-*` across the UTC midnight rollover. The authoritative capture timestamps inside `raw/*/00_inputs.json` and `02_build.json` read `2026-08-27T23:56:51`; local host time was 2026-08-27 PDT. The raw directory names are left unchanged — they are bound by the frozen contract hashes and are append-only evidence.
+
 
 MEM-01..MEM-05 splice experiment; successor to EXP-0077. Its first launch
 stopped cleanly at the smoke gate with **no burned run id**, catching two real

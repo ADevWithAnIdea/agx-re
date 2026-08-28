@@ -467,7 +467,7 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
   > payloads never propagate. Compiler consequence: `lower_fdiv` decisions cannot assume
   > IEEE-subnormal results from precise division on this path; subnormal-correct division needs
   > software assistance. Evidence: `experiments/EXP-0074-m4-fp32-division-precision/`
-  > (HW-VALIDATED-equivalent behavioral readback; M4 target, no native/ISA/Linux/A18 claim).
+  > (HW-PROBE + OWN-SHADER + PUBLIC: authored MSL compiled and dispatched on real M4 silicon with bit-exact readback against an independently implemented correctly-rounded reference — not a spliced/independently-generated encoding, so not the top `HW-VALIDATED` tier; M4 target, no native/ISA/Linux/A18 claim).
 
 - **OPT-03 — Does Apple9 power require a distinct special-case fixup beyond
   `exp2(y * log2(x))` for source-language `pow` semantics?**

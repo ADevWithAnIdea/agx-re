@@ -83,7 +83,7 @@ aniso/lod/3 border presets/8 compare funcs), PBE/storage-image (two-descriptor r
 A18-*inferred* width-high field word1[0:5]), format→code rule — **all byte-identical**. `descriptors/` applies unchanged.
 
 ## 5. Texture tiling & compression — ✅ IDENTICAL + 1 refinement (EXP-M4-04)
-Tiled Morton (T=64 bpp≤4 / 32 bpp≥8), cols=ceil(W/T), mult-of-T padding, mip (384²→0xcd600 exact), compression
+Tiled Morton (T = largest pow2 with T²·bpp≤16KiB: bpp1→128 per the correction below, bpp2/4→64, bpp8/16→32), cols=ceil(W/T), mult-of-T padding, mip (384²→0xcd600 exact), compression
 (≥16×16 threshold, **aux = numTexels/32 = paddedImageBytes/(32·bpp)** — EXP-M4-07 CORRECTS the old image_bytes/128 which over-counts 2×/4× at bpp8/16; secondaryVA=base+paddedImageBytes; ShaderWrite **and PixelFormatView** disable it)
 — all reproduce with 0 mismatch, incl. the decisive non-pow2-tile widths. **Refinement M4 surfaced, then CROSS-CONFIRMED on the real A18 (EXP-M4-05) — NOT a delta, a general AGX rule the
 A18 shares:** the tile-row stride must be a whole number of 16-KiB pages, so `cols = round_up(ceil(W/T), G)`, `G =

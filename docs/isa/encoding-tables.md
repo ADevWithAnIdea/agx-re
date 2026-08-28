@@ -210,7 +210,7 @@
 | `b4` | [32:40] (byte+4) | raw/unmapped |  |
 | `b5` | [40:48] (byte+5) | raw/unmapped |  |
 
-*d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the correctly-rounded 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead.*
+*d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the precise-path 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). **Rounding caveat (EXP-0074, 2026-08-27):** "precise" here means the non-fast-math path, NOT proven correctly rounded across all input classes. EXP-0074 showed the sibling precise FP32 divide on this same machinery is bit-exact vs a correctly-rounded reference EXCEPT for DAZ+FTZ (subnormal operands read as zero; subnormal results flush to zero). rcp/rsqrt/sqrt themselves were NOT directly tested for subnormal behavior — treat their subnormal rounding as `UNKNOWN` pending a dedicated probe. byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead.*
 
 ## Integer ALU
 
