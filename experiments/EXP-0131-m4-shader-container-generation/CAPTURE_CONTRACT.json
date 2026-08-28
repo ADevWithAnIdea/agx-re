@@ -1,0 +1,42 @@
+{
+  "experiment": "EXP-0131-m4-shader-container-generation",
+  "pinned_git_revision": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "pinned_git_dirty": true,
+  "note_on_dirty": "Sibling experiments commit continuously; captures are validated against the authored-file sha256 hashes below, not against live HEAD, per SUBAGENT_BRIEF.md.",
+  "target": {
+    "device": "Apple M4 (G16G)",
+    "gpu_cores": 10,
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "a18_pro_tested": false,
+    "note": "A18 Pro is hands-off per CLAUDE.md; M4 is Apple9-equal for driver-emittable subsystems, treated as operational Apple9 evidence, not a direct G17P observation."
+  },
+  "authored_file_hashes_sha256": {
+    "harness/codesplice.m": "8bb162c4b1d66ce77fa5f3c1938c0eed5d402c756331d9f764c22b1927a2dd7e",
+    "schema.py": "744775abd22135309ff0f49e7ef5538c4e395d8f33b1223288f4698adb4c51bb",
+    "casematrix.py": "143553dc0447f65d2558004979bf58db9484bc0bb5aa00e473b88b78ddf0a919",
+    "run.py": "69a4becfbc4e2ddf19ff90b1deb2083226f241341a012924c5bc2433a6b7e54b",
+    "verify.py": "a7a24d62d02893ac07b3359cf92cf98efc5f8a025da3947a8e8f8402651dc4a9",
+    "kernels/render_min.metal": "a3996254101cc3f2d6c138bbf0e278d696409a57a7abe3f449b9dedbca907054"
+  },
+  "readonly_tool_inputs": {
+    "tools/shdump/shdump.m": "used only during calibration (work/), not by the official harness",
+    "tools/shdump/agxparse.py": "used only during calibration (work/), not by the official harness",
+    "tools/iotrace/iotrace.c": "used by the official harness at run time (DYLD_INSERT_LIBRARIES); unmodified; hash recorded per-run in raw/<run-id>/00_inputs.json",
+    "tools/agx-isa/agxisa.py": "used only during calibration to tokenize/understand the field this experiment mutates; not invoked by the official harness or run.py"
+  },
+  "case_list": [
+    "baseline_check",
+    "splice_green_field",
+    "splice_wrong_field",
+    "header_size_zero",
+    "header_size_max",
+    "truncate_main_early",
+    "corrupt_next_record_header"
+  ],
+  "cross_run_comparison": {"schema": "schema.py", "gated_file": "02_results.jsonl", "nongated_file": "02_results_addrs.jsonl", "process_outcome_file": "01_process.jsonl"},
+  "timeouts": {"per_case_process_timeout_sec": 45, "per_commit_hardware_watchdog_sec": 15, "dump_wait_us": 1000000},
+  "known_disclosed_deviation": "header_size_zero case reproducibly crashes the harness process (SIGBUS) during teardown, strictly AFTER the --out JSON is fully written and AFTER the GPU command buffer already completed normally (MTLCommandBufferStatus=4, unchanged output). Disclosed pre-registration in PRE_REGISTRATION.md and PROGRESS.md Milestone 1 step 7; run.py always reads --out regardless of exit code/signal and separately logs the process outcome so this is never silently dropped.",
+  "post_capture_corrections": [],
+  "run_ids_used": ["m4_20260828_run01", "m4_20260828_run02"]
+}

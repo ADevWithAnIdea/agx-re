@@ -1,0 +1,62 @@
+{
+  "cases": {
+    "baseline_check": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "no mutation; reproduces baseline (control)",
+      "observed_bgra": "4080ffff",
+      "predicted_bgra": "4080ffff"
+    },
+    "corrupt_next_record_header": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "predicts no visible effect on THIS draw's fragment output (structural hypothesis under test: the 'following record' is the vertex shader's own header, not FS metadata; a null result here is consistent with, but does not by itself prove, that hypothesis)",
+      "observed_bgra": "4080ffff",
+      "predicted_bgra": "4080ffff"
+    },
+    "header_size_max": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "same prediction as header_size_zero, opposite boundary",
+      "observed_bgra": "4080ffff",
+      "predicted_bgra": "4080ffff"
+    },
+    "header_size_zero": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "predicts record_size is NOT re-consulted at draw time for code fetch (main renders unmodified/correctly)",
+      "observed_bgra": "4080ffff",
+      "predicted_bgra": "4080ffff"
+    },
+    "splice_green_field": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "own-assembler val-field edit (0x80->0x40) at live main+0x06; predicts EXP-0008's archive-level green-channel mapping reproduces at the POST-CREATION live container",
+      "observed_bgra": "4040ffff",
+      "predicted_bgra": "4040ffff"
+    },
+    "splice_wrong_field": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "adjacent byte (main+0x07, src_present_mask); no specific color predicted, only that it differs in mechanism from the val-field edit (may or may not visibly change output)",
+      "observed_bgra": "4080ffff",
+      "predicted_bgra": null
+    },
+    "truncate_main_early": {
+      "bgra_match": true,
+      "cross_run_equal": true,
+      "hang_ok": true,
+      "note": "predicts the clear color (0,0,0,0) shows through because an early stop skips frag_tile_setup/frag_color_store",
+      "observed_bgra": "00000000",
+      "predicted_bgra": "00000000"
+    }
+  },
+  "run_a": "m4_20260828_run01",
+  "run_b": "m4_20260828_run02"
+}

@@ -1,0 +1,45 @@
+{
+  "experiment": "EXP-0131-m4-shader-container-generation",
+  "gap": "P0.7 / DRV-SHADER-01: shader container, program extent, metadata, resource specifiers",
+  "target": "Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4",
+  "pinned_git_revision": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "run_ids": ["m4_20260828_run01", "m4_20260828_run02"],
+  "cases": [
+    "baseline_check",
+    "splice_green_field",
+    "splice_wrong_field",
+    "header_size_zero",
+    "header_size_max",
+    "truncate_main_early",
+    "corrupt_next_record_header"
+  ],
+  "gate_results": {
+    "verify_selftest": "9/9 PASS",
+    "verify_seqtest": "5/5 PASS",
+    "smoke_gate_run01": "PASS",
+    "smoke_gate_run02": "PASS",
+    "verify_captured": "7/7 cases byte-identical",
+    "gated_jsonl_sha256_run01": "946b5f566eb7f63239deede9c87e3cfe09674734c45919b8118e827e204eed9e",
+    "gated_jsonl_sha256_run02": "946b5f566eb7f63239deede9c87e3cfe09674734c45919b8118e827e204eed9e",
+    "note": "02_results.jsonl is byte-identical sha256 across both official runs"
+  },
+  "artifact_hashes_sha256": {
+    "harness/codesplice.m": "8bb162c4b1d66ce77fa5f3c1938c0eed5d402c756331d9f764c22b1927a2dd7e",
+    "schema.py": "744775abd22135309ff0f49e7ef5538c4e395d8f33b1223288f4698adb4c51bb",
+    "casematrix.py": "143553dc0447f65d2558004979bf58db9484bc0bb5aa00e473b88b78ddf0a919",
+    "run.py": "69a4becfbc4e2ddf19ff90b1deb2083226f241341a012924c5bc2433a6b7e54b",
+    "verify.py": "a7a24d62d02893ac07b3359cf92cf98efc5f8a025da3947a8e8f8402651dc4a9",
+    "kernels/render_min.metal": "a3996254101cc3f2d6c138bbf0e278d696409a57a7abe3f449b9dedbca907054",
+    "raw/m4_20260828_run01/02_results.jsonl": "946b5f566eb7f63239deede9c87e3cfe09674734c45919b8118e827e204eed9e",
+    "raw/m4_20260828_run02/02_results.jsonl": "946b5f566eb7f63239deede9c87e3cfe09674734c45919b8118e827e204eed9e",
+    "raw/m4_20260828_run01/02_results_addrs.jsonl": "17be34e5de675e8e4c9566185ac8356591a66a85e236a9b2ae5d94167e7361e1",
+    "raw/m4_20260828_run02/02_results_addrs.jsonl": "0f4dd5f445beabdde31e2c467c683d7797c32c6b31eb0acb3c8811fe8cd46132",
+    "raw/m4_20260828_run01/01_process.jsonl": "5c98b316aec33b630a26097fb071293d3cdcd1249e01515689dc13f39b7b5036",
+    "raw/m4_20260828_run02/01_process.jsonl": "1837bac45cb590f1063e1f9125772ecbb0877b9414e254e97c0234a0cd180e37",
+    "analysis/report.json": "fe30ae65614c78e5fbef99c5e607338e8fa8d5699e2c3123fdfce9d416b1f766"
+  },
+  "clean_room_provenance": "HW-PROBE / DATA-TRACE / OWN-SHADER",
+  "apple_binary_introspection": "NONE",
+  "a18_pro_tested": false,
+  "m5_tested": false
+}
