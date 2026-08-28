@@ -770,7 +770,21 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
 - **Non-leaf function frame** (EXP-0035 completed): `0x6f` prologue (6 B, `6f 03 04 00 00 20`, in the helper region,
   absent in leaf); each nested call bracketed by an 8-byte `0x07` **link save/restore** (`07 00 54 …`, gated by
   byte+1=`0x00`); return `8f 12 54 00` (leaf `8f 02`). HW-validated (3-level deep).
-- **`0x54↔0x56` cache bit** = byte+2 **bit 1 (instr bit 17)** = a **source cache / last-use hint** (NOT an op change):
+- **⚠️ `0x54↔0x56` cache bit — STATUS DOWNGRADED TO `UNKNOWN` (EXP-0086, 2026-08-28). DO NOT
+  TREAT AS INERT.** The former claim below ("a source cache / last-use hint, NOT an op change")
+  rested solely on RT-1a-FIX, which spliced an instruction and re-checked *that same instruction's
+  own result* — a test structurally incapable of detecting a register-liveness effect, whose
+  failure mode is a **later** instruction's read. EXP-0086 ran the missing later-read test and
+  found that **a bit in the same conceptual role, in the same float-ALU family, silently corrupts a
+  later separate instruction's read when flipped on the earlier (producer) instruction** —
+  deterministically, with no fault: the later read returned the source as **zero**. Polarity:
+  natural encoding is earlier-reader bit 0 / later-reader bit 1; forcing the *earlier* reader's bit
+  to 1 corrupts. The earlier instruction's bit alone decides the outcome. The **literal** bit 17
+  could not be tested directly — in every family it could be compiled into, splicing proved bit 17
+  is part of the **opcode** (`opsel`), not a free bit — so `0x54`/`0x56`/`0x18`/`0x38` are
+  `UNKNOWN` pending their own later-read test, **not** confirmed inert. **Implementer guidance:
+  emit these bits exactly as the pattern you copied them from; do not synthesize or "normalize"
+  them, and do not assume a wrong value is harmless.** Historical claim, retained for the record:
   a standalone `simd_reduce` emits `0x56`; the same op as a second consumer of a shared source emits `0x54`. The DB
   gated on `0x56` only (the census gap); fix relaxes the gate to bit-17-don't-care for `0xbf/0x3f/0xb7` reduce +
   `0x17` unpack (keeping the `0x37` derivative-vs-quad-reduce split). *(descriptors staged in
