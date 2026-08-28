@@ -1,0 +1,1879 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "33a89d2791b8bd55ba81d33fb92798b655ef7c6ea94e41a7939e5d3e2a7e27a8",
+    "README.md": "e07d7c60bff7d0a3bf4bfdce40b669ba28d1f9a0b77f9481b070e94bd2c0b929",
+    "analysis.py": "c38135e4c682b127fd377d9dd2b9af49d33a65129b24533f423c2fa5463da0df",
+    "baseline.py": "ea8f11fbb36ce47d576a44f23d9e3c6ec795a9c20edb03844cc46e77c417905d",
+    "casematrix.py": "9fb346b177452ccaa373c8930eeb1b072004733a9c6ddb3a613e7ec1a658c3b8",
+    "harness/build.sh": "2be201bdf81983288758abf07f77179047b9dafc233723193bc5a34e2880b5ae",
+    "kernels/ld_bank.metal": "dcfb0f8cb11b0c7e3b68c206c825acc89b6cfbe17e6cac8eb073124a09262140",
+    "kernels/st_bank.metal": "7585e066f88a7856178a31d078d805144d49ec9b9f197732bdc86d7698766dbd",
+    "make_manifest.py": "e5524642fccb14e6da527c33b37b09cfc6369225cbdce9bb4d852185ddb52bd1",
+    "run.py": "159c1b19e8778bd0959c0da307bfd6794316d7d3b3b68c99afe3cd25ce9c4407",
+    "verify.py": "88983c880be5cc2e08a844c0337c59db3ed679350bb8eb1d38eefb66802547d9"
+  },
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own compiled shader bytes (splice targets)",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool)",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "build_keys": [
+      "baseline",
+      "harness_build",
+      "schema"
+    ],
+    "case_line_keys": [
+      "changed_bytes",
+      "decoded",
+      "duration_ms",
+      "exception",
+      "exit",
+      "extra_hex",
+      "i",
+      "idx",
+      "item",
+      "kernel",
+      "name",
+      "out0_hex",
+      "pipeline_source",
+      "probe_after",
+      "probe_before",
+      "raw_note",
+      "splice_args",
+      "status",
+      "stderr",
+      "stdout",
+      "timed_out"
+    ],
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record; final verification additionally requires byte-identical results files and identical status counts",
+    "dispatch_record_keys": [
+      "argv",
+      "cwd",
+      "duration_seconds",
+      "finished_utc",
+      "n_cases",
+      "results_lines",
+      "results_sha256",
+      "started_utc",
+      "status_counts"
+    ],
+    "extra_keys_policy": "Exact key-set equality for every record slot: a record carrying any key outside its frozen set fails, and a record missing any frozen key fails. verify.py defines one record checker and one key set per slot, imported from run.py; there is no second definition.",
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically; a fault or timeout inside the sweep is a RESULT and the sweep continues in a fresh process",
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "05_run_manifest.json"
+    ],
+    "runs": [
+      "m4-20260828-run01",
+      "m4-20260828-run02"
+    ],
+    "selftest_gate": "verify.py --selftest and verify.py --seqtest must pass immediately before every capture, in every tree state; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "BEFORE any raw/ artifact is created, the freshly built harness must run ONE spliced scratch case into work/ (never promoted into raw/) whose output parses completely (STATUS OK, PIPELINE_SOURCE archive, OUT lines present, decode successful); any build, baseline or smoke defect exits 3 with the receipt printed and NO burned run id (the EXP-0077 crash class made structurally impossible)",
+    "status_allowed": [
+      "ARCHIVE_FAIL",
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "EXTRACT_FAIL",
+      "FUNCTION_MISSING",
+      "HANG",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL",
+      "PIPELINE_MISS"
+    ],
+    "total_cases": 2164
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0081-m4-mem-offset-semantics",
+  "frozen_anchors": {
+    "ld": {
+      "main_len": 114,
+      "probe_fields": {
+        "access_desc": 32,
+        "addr_mode": 68,
+        "base_slot": 2,
+        "dst_ext9": 1,
+        "dst_lo": 1,
+        "elem_size": 70,
+        "extmode": 2,
+        "idx_off": 0,
+        "index_reg": 0,
+        "ld_format": 17,
+        "ldform_hi11": 16,
+        "reserved13": 0,
+        "reserved7": 0,
+        "space": 0
+      },
+      "probe_hex": "6700440202002000510100404600",
+      "probe_main_offset": 38
+    },
+    "st": {
+      "main_len": 108,
+      "probe_fields": {
+        "access_desc": 33,
+        "addr_mode": 84,
+        "base_slot": 1,
+        "elem_size": 17,
+        "extmode": 4,
+        "idx_off": 0,
+        "index_reg": 1,
+        "reserved13": 0,
+        "reserved7": 0,
+        "space": 0,
+        "st_desc_hi": 36,
+        "st_format": 17,
+        "st_format_ext": 0
+      },
+      "probe_hex": "e700540401012100110000901100",
+      "probe_main_offset": 76
+    }
+  },
+  "gate": "A missing path, hash, schema field, record key, splice consistency, or unexpected raw path stops interpretation and promotion.",
+  "gate_order": "PRE_GPU: --selftest, --seqtest, make_manifest --check, --preflight, run01; RUN01_PRESENT: --selftest, --seqtest, make_manifest --check, --between-runs, run02; RUN02_PRESENT: analysis --write, make_manifest --write + --check, --captured",
+  "hand_validation": [
+    {
+      "expected": "0x3CA50040",
+      "name": "ld_ctrl_idx64"
+    },
+    {
+      "expected": "0x3CA50001",
+      "name": "ld_ctrl_idx1"
+    },
+    {
+      "expected": "0x013CA500",
+      "name": "ld_scale1_code1"
+    },
+    {
+      "expected": "0x00013CA5",
+      "name": "ld_scale1_code2"
+    },
+    {
+      "expected": "0x3CA50002",
+      "name": "ld_scale1_code4"
+    },
+    {
+      "expected": "0x3CA50004",
+      "name": "ld_scale1_code0"
+    },
+    {
+      "expected": "0x3CA50001",
+      "name": "ld_off1_code3_idx0"
+    },
+    {
+      "expected": "0x3CA50400",
+      "name": "ld_range_f0000"
+    },
+    {
+      "expected": "0x3CA50401",
+      "name": "ld_range_f0001"
+    },
+    {
+      "expected": "0x3CA50000",
+      "name": "ld_wrap_ffffffff_p1"
+    }
+  ],
+  "matrix": {
+    "dense_sweep": {
+      "count": 2048,
+      "family": "ld_range_f",
+      "field": "idx_off",
+      "first": 0,
+      "idx0": 1024,
+      "last": 2047
+    },
+    "explicit_cases": [
+      {
+        "fields": {},
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "ld",
+        "name": "ld_ctrl_idx64"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "ld",
+        "name": "ld_ctrl_idx1"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "ld",
+        "name": "ld_ctrl_idx0"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x000007FF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "ld",
+        "name": "ld_ctrl_idx2047"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "st",
+        "name": "st_ctrl_idx64"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "CTRL",
+        "kernel": "st",
+        "name": "st_ctrl_idx0"
+      },
+      {
+        "fields": {
+          "index_reg": 0
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r0_j"
+      },
+      {
+        "fields": {
+          "index_reg": 1
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r1"
+      },
+      {
+        "fields": {
+          "index_reg": 2
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r2"
+      },
+      {
+        "fields": {
+          "index_reg": 3
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r3"
+      },
+      {
+        "fields": {
+          "index_reg": 4
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r4"
+      },
+      {
+        "fields": {
+          "index_reg": 5
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r5_i0"
+      },
+      {
+        "fields": {
+          "index_reg": 6
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r6_i1"
+      },
+      {
+        "fields": {
+          "index_reg": 7
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r7_i2"
+      },
+      {
+        "fields": {
+          "index_reg": 128
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r0_j_b7"
+      },
+      {
+        "fields": {
+          "index_reg": 129
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r1_b7"
+      },
+      {
+        "fields": {
+          "index_reg": 133
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r5_b7"
+      },
+      {
+        "fields": {
+          "index_reg": 64
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r0x40"
+      },
+      {
+        "fields": {
+          "index_reg": 127
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r0x7f"
+      },
+      {
+        "fields": {
+          "index_reg": 255
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000001",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-IDXREG",
+        "kernel": "ld",
+        "name": "ld_idxreg_r0xff"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale1_code1"
+      },
+      {
+        "fields": {
+          "elem_size": 68
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale1_code2"
+      },
+      {
+        "fields": {
+          "elem_size": 70
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale1_code3"
+      },
+      {
+        "fields": {
+          "elem_size": 72
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale1_code4"
+      },
+      {
+        "fields": {
+          "elem_size": 64
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale1_code0"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0x00000003",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale3_code1"
+      },
+      {
+        "fields": {
+          "elem_size": 68
+        },
+        "idx": [
+          "0x00000003",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale3_code2"
+      },
+      {
+        "fields": {
+          "elem_size": 70
+        },
+        "idx": [
+          "0x00000003",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale3_code3"
+      },
+      {
+        "fields": {
+          "elem_size": 72
+        },
+        "idx": [
+          "0x00000003",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale3_code4"
+      },
+      {
+        "fields": {
+          "elem_size": 72
+        },
+        "idx": [
+          "0x00000005",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale5_code4"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0x00000011",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "ld",
+        "name": "ld_scale17_code1"
+      },
+      {
+        "fields": {
+          "elem_size": 16
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c0"
+      },
+      {
+        "fields": {
+          "elem_size": 18
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c1"
+      },
+      {
+        "fields": {
+          "elem_size": 20
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c2"
+      },
+      {
+        "fields": {
+          "elem_size": 24
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c3"
+      },
+      {
+        "fields": {
+          "elem_size": 64
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c8"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c1b"
+      },
+      {
+        "fields": {
+          "elem_size": 68
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c2b"
+      },
+      {
+        "fields": {
+          "elem_size": 70
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c3b"
+      },
+      {
+        "fields": {
+          "elem_size": 72
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c4b"
+      },
+      {
+        "fields": {
+          "elem_size": 74
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_c5b"
+      },
+      {
+        "fields": {
+          "elem_size": 0
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_zero"
+      },
+      {
+        "fields": {
+          "elem_size": 17
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-01",
+        "kernel": "st",
+        "name": "st_scale1_base_echo"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off1_code3_idx0"
+      },
+      {
+        "fields": {
+          "idx_off": 2
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off2_code3_idx0"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off1_code3_idx1"
+      },
+      {
+        "fields": {
+          "elem_size": 68,
+          "idx_off": 2
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off2_code2_idx0"
+      },
+      {
+        "fields": {
+          "elem_size": 68,
+          "idx_off": 3
+        },
+        "idx": [
+          "0x00000002",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off3_code2_idx2"
+      },
+      {
+        "fields": {
+          "elem_size": 66,
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off1_code1_idx0"
+      },
+      {
+        "fields": {
+          "elem_size": 66,
+          "idx_off": 4
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off4_code1_idx0"
+      },
+      {
+        "fields": {
+          "elem_size": 72,
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "ld",
+        "name": "ld_off1_code4_idx1"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "st",
+        "name": "st_off1_idx64"
+      },
+      {
+        "fields": {
+          "idx_off": 2
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "st",
+        "name": "st_off2_idx64"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "st",
+        "name": "st_off1_idx0"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-02",
+        "kernel": "st",
+        "name": "st_off1_idx1"
+      },
+      {
+        "fields": {
+          "idx_off": 1022
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f03fe"
+      },
+      {
+        "fields": {
+          "idx_off": 1023
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f03ff"
+      },
+      {
+        "fields": {
+          "idx_off": 1024
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f0400"
+      },
+      {
+        "fields": {
+          "idx_off": 1025
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f0401"
+      },
+      {
+        "fields": {
+          "idx_off": 1026
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f0402"
+      },
+      {
+        "fields": {
+          "idx_off": 2046
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f07fe"
+      },
+      {
+        "fields": {
+          "idx_off": 2047
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_neg_f07ff"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 17
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_b44"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 18
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_b48"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 20
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_b50"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 24
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_b60"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 48
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_bc0"
+      },
+      {
+        "fields": {
+          "ldform_hi11": 0
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail11_b00"
+      },
+      {
+        "fields": {
+          "dst_ext9": 5
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail9_dst5"
+      },
+      {
+        "fields": {
+          "dst_ext9": 0
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "ld",
+        "name": "ld_tail9_dst0"
+      },
+      {
+        "fields": {
+          "idx_off": 511
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_max_1ff"
+      },
+      {
+        "fields": {
+          "idx_off": 512
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_200"
+      },
+      {
+        "fields": {
+          "idx_off": 1023
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_3ff"
+      },
+      {
+        "fields": {
+          "idx_off": 1024
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_400"
+      },
+      {
+        "fields": {
+          "idx_off": 2047
+        },
+        "idx": [
+          "0x00000400",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_7ff"
+      },
+      {
+        "fields": {
+          "idx_off": 2047
+        },
+        "idx": [
+          "0x000003FF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-03",
+        "kernel": "st",
+        "name": "st_off_7ff_idx1023"
+      },
+      {
+        "fields": {
+          "elem_size": 74
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code5"
+      },
+      {
+        "fields": {
+          "elem_size": 76
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code6"
+      },
+      {
+        "fields": {
+          "elem_size": 78
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code7"
+      },
+      {
+        "fields": {
+          "elem_size": 80
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code8"
+      },
+      {
+        "fields": {
+          "elem_size": 88
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_c11"
+      },
+      {
+        "fields": {
+          "elem_size": 96
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_c16"
+      },
+      {
+        "fields": {
+          "elem_size": 0
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code0"
+      },
+      {
+        "fields": {
+          "elem_size": 2
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_c0b1"
+      },
+      {
+        "fields": {
+          "elem_size": 6
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_c0b3"
+      },
+      {
+        "fields": {
+          "elem_size": 65
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd0"
+      },
+      {
+        "fields": {
+          "elem_size": 67
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd1"
+      },
+      {
+        "fields": {
+          "elem_size": 69
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd2"
+      },
+      {
+        "fields": {
+          "elem_size": 71
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd3"
+      },
+      {
+        "fields": {
+          "elem_size": 73
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd4"
+      },
+      {
+        "fields": {
+          "elem_size": 79
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_odd5"
+      },
+      {
+        "fields": {
+          "elem_size": 198
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_hi_c6"
+      },
+      {
+        "fields": {
+          "elem_size": 134
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_hi_b7"
+      },
+      {
+        "fields": {
+          "elem_size": 255
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_all1"
+      },
+      {
+        "fields": {
+          "elem_size": 74
+        },
+        "idx": [
+          "0x00000003",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_elemcode_code5_idx3"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "ld",
+        "name": "ld_stride3_try"
+      },
+      {
+        "fields": {
+          "elem_size": 26
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "st",
+        "name": "st_elemcode_code5"
+      },
+      {
+        "fields": {
+          "elem_size": 28
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "st",
+        "name": "st_elemcode_code6"
+      },
+      {
+        "fields": {
+          "elem_size": 48
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "st",
+        "name": "st_elemcode_hi"
+      },
+      {
+        "fields": {
+          "elem_size": 19
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "st",
+        "name": "st_elemcode_odd"
+      },
+      {
+        "fields": {
+          "elem_size": 16
+        },
+        "idx": [
+          "0x00000001",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-04",
+        "kernel": "st",
+        "name": "st_elemcode_c0"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0xFFFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_ffffffff_p1"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0xFFFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_ffffffff_p0_1b"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x40000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_40000000"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x7FFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_7fffffff_p1"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0xC0000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_c0000000"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0x3FFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_3fffffff_p1"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x3FFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_3fffffff_p0"
+      },
+      {
+        "fields": {
+          "elem_size": 68,
+          "idx_off": 2
+        },
+        "idx": [
+          "0xFFFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_ffffffff_p2_2b"
+      },
+      {
+        "fields": {
+          "elem_size": 66
+        },
+        "idx": [
+          "0x80000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "ld",
+        "name": "ld_wrap_80000000_1b"
+      },
+      {
+        "fields": {
+          "idx_off": 1
+        },
+        "idx": [
+          "0xFFFFFFFF",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "st",
+        "name": "st_wrap_ffffffff_p1"
+      },
+      {
+        "fields": {},
+        "idx": [
+          "0x40000000",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "MEM-05",
+        "kernel": "st",
+        "name": "st_wrap_40000000"
+      },
+      {
+        "fields": {
+          "space": 2
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-EXTRA",
+        "kernel": "ld",
+        "name": "ld_space_tg02"
+      },
+      {
+        "fields": {
+          "space": 16
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-EXTRA",
+        "kernel": "ld",
+        "name": "ld_space_dev10"
+      },
+      {
+        "fields": {
+          "access_desc": 0
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-EXTRA",
+        "kernel": "ld",
+        "name": "ld_inert6_zero"
+      },
+      {
+        "fields": {
+          "access_desc": 255
+        },
+        "idx": [
+          "0x00000040",
+          "0x00000000",
+          "0x0000004D",
+          "0x0000038D"
+        ],
+        "item": "VAL-EXTRA",
+        "kernel": "ld",
+        "name": "ld_inert6_ff"
+      }
+    ],
+    "item_counts": {
+      "CTRL": 6,
+      "MEM-01": 23,
+      "MEM-02": 12,
+      "MEM-03": 2069,
+      "MEM-04": 25,
+      "MEM-05": 11,
+      "VAL-EXTRA": 4,
+      "VAL-IDXREG": 14
+    },
+    "total_cases": 2164
+  },
+  "post_second_run_sequence": [
+    "python3 -B analysis.py --run-a m4-20260828-run01 --run-b m4-20260828-run02 --write",
+    "python3 -B make_manifest.py --write",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --captured"
+  ],
+  "pre_second_run_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --between-runs"
+  ],
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "question": "MEM-01..MEM-05: element-size scaling of the GPR index, element-vs-byte units of the immediate offset, exact signedness/range/holes/first-invalid/failure-mode of the 11-bit immediate element offset (dense 0..2047), encodability of base+index*stride+offset for arbitrary strides, and exact mod-2^32 wrap of the address arithmetic, for device_load/device_store",
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/ld_bank.metal",
+    "kernels/st_bank.metal",
+    "harness/build.sh",
+    "baseline.py",
+    "casematrix.py",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "successor_of": "EXP-0080-m4-mem-offset-semantics (terminal: one complete but unverifiable run -- --between-runs re-derived splice args instruction-relative vs the runner's main-relative form; design adopted, splice_case now owns the main-relative form)",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "baseline": 180,
+    "case_process": 120,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 120
+  }
+}

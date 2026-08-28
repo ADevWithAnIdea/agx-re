@@ -1,0 +1,86 @@
+{
+  "authored_code_sha256": {
+    "analysis.py": "be855ac7f0fa7ca12e779b239eb565e4294a34d5463e5829e7eeab0d1100e0b7",
+    "harness/build.sh": "8099ee51d619351571e8bc47ab7e96b2c95e6c7cb066ff0b269ef96f2de020e6",
+    "harness/probe.m": "99e2ebb2303528a9142e1e15e4002ea6ebfa7469641f00446d88d7c83b194744",
+    "kernels/atomicprobe.metal": "f4cc98ba5ad992d5b118bd546e7245ef320ea81994d640a1f4eab9ce5b4963c4",
+    "kernels/atomicprobe_v2.metal": "d91b3f71b6eb99fd3e9c71e95f7bf2f75b6d45e0b28e145d72317f8875e437d5",
+    "kernels/capacity.metal": "3d70bccf2a87deedd5e79a156637b7348f50e3e4870c5aace3b8e590292da854",
+    "kernels/census31.metal": "65e16c0cf4ded87afb6048f1469823e05b28f91c1e84ef453241e6fd6ad623fc",
+    "kernels/census31_v2.metal": "97da35011141867826edc0f377ba19c7523aa17a8ee2ae2f14ff1474883890b0",
+    "kernels/census4.metal": "ac08a73475781a901e6483d5e43bc2526e461dfe8ad311b84d4aa1477c7be4bb",
+    "kernels/census4_v2.metal": "1f17be1b084fd069593c8f157ddee6a062d652a783179f2d902b5ed9d72bab76",
+    "kernels/storeprobe.metal": "bdc499e3dbf61ba75e6495229b49333cd31bcee25e84c0b7aae1722fb27181ab",
+    "kernels/storeprobe_v2.metal": "bede90920c67919a1d2773b50025cd749c6e4c9d6e0eefbbcab6435042ffed68",
+    "make_manifest.py": "e463b618e2d9efe5e4409f2bfd12d333196b091a3735bc9ae7825189d210885e",
+    "run.py": "93f1f52f0006c8161347dcff200a90a0d537e83f8c83eb3b78189e80b17d4f53",
+    "verify.py": "a679ef3fcd9d26042eb6dd8078d09fcf42a813c81fa5db51aeb3d682559fbb3c"
+  },
+  "authored_doc_sha256": {
+    "PRE_REGISTRATION.md": "883b41cfe8b83061ab56afb98e31537cefdfa8e70430b8b2b7eef02b2d55dcbb",
+    "README.md": "1ed85220ff5d0890df82e7228b5fa6b92a675b05b427dafe2dc600c88c91cfe2"
+  },
+  "boundary": "public Metal API only; runtime MSL compile with fastMathEnabled=YES (matching the shdump archive build); one archive per case with at most ONE spliced byte in the base-slot selector of one probe instruction of our own compiled kernel; no Apple-binary/archive-content/BO introspection beyond our own shader bytes",
+  "experiment_tree_dirty_entries": 1,
+  "geometry": {
+    "atomic_selector_rel": 5,
+    "atomicprobe_abuf_index": 29,
+    "census31_probe_source_buffer": 1,
+    "fill_rule": "word w of buffer k = P(k,w) = 0xC0DE0000 | (k<<8) | w, except the idxbuf binding whose word 0 is the frozen probe element index 5",
+    "grid": 1,
+    "idxbuf_index": {
+      "atomicprobe": 30,
+      "capacity": 30,
+      "census31": 30,
+      "census4": 3,
+      "storeprobe": 30
+    },
+    "load_store_selector_rel": 4,
+    "n_buffers": 31,
+    "out_dump_bytes": 128,
+    "probe_element_index": 5,
+    "store_value": "0x5A17C0DE",
+    "storeprobe_tgt_index": 29,
+    "threadgroup": 1,
+    "words_per_buffer": 16
+  },
+  "git_dirty": true,
+  "git_revision": "ef9899061088fa270769bf489c0ffa93c2d628cc",
+  "machine": "arm64",
+  "python": "3.14.6",
+  "schema": 1,
+  "sw_vers": {
+    "argv": [
+      "sw_vers"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0078-m4-base-slot-census",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-27T23:54:29.318435+00:00",
+    "stderr": "",
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G82\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  },
+  "timeouts_seconds": {
+    "case_process": 120,
+    "env_command": 10,
+    "host_build": 120,
+    "identify_command": 60,
+    "kernel_compile": 120
+  },
+  "xcrun_version": {
+    "argv": [
+      "xcrun",
+      "--version"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0078-m4-base-slot-census",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-27T23:54:29.324856+00:00",
+    "stderr": "",
+    "stdout": "xcrun version 72.\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  }
+}
