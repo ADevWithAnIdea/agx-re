@@ -504,6 +504,15 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
   Compiler consequence: `Yes` permits `.discard_is_demote = true`; `No` requires separate discard
   and demote lowerings.
 
+  > **Answered 2026-08-28 (EXP-0091, M4/G16G, commit `4c2df727`): YES.** A demoted lane's
+  > post-discard `uv += 1000` mutation appears in a surviving neighbour's `fwidth()` as exactly
+  > **999.0** (the predicted value), against exactly `1.0` in both a no-discard control and a
+  > statement-order control. Cross-validated by `quad_shuffle_xor` retrieving the demoted lane's own
+  > live post-discard register, and by a measurable shift in a surviving neighbour's implicit-LOD
+  > texture sample. Two runs, 78/78 cases byte-identical. **Compiler consequence: permits
+  > `.discard_is_demote = true`.** Evidence: `experiments/EXP-0091-m4-fragment-sample-discard/`
+  > (HW-PROBE + OWN-SHADER; M4 target; A18 deferred).
+
 - **OPT-10 — Does an ordinary aligned Apple9 memory load satisfy the atomic-load ordering and
   visibility requirements when surrounded by the appropriate Apple9 fences?**
 
