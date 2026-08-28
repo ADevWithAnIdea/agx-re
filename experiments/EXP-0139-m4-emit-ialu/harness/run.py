@@ -35,6 +35,11 @@ import sweeprun as S         # noqa: E402
 ARM_HANG_BUDGET = 2
 GLOBAL_HANG_BUDGET = 6
 
+# FIELD-SWEEP-PROTOCOL SS7.4 -- the sibling GPU experiments this batch was told
+# it is contending with. Recorded into every capture so a reader can tell a
+# sweep run alone from a sweep run against siblings.
+CONCURRENT = ["EXP-0141-mem", "EXP-0146-integer-misc"]
+
 
 def sha_file(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
@@ -150,6 +155,44 @@ def main():
                                    1: c.write_input("b.bin", CM.B_IN)}
         return ins_files[kind]
 
+    # --- FIELD-SWEEP-PROTOCOL SS7.3: periodic baseline re-validation ---------
+    # Every BASELINE_EVERY cases the UNMUTATED carrier is re-run. If it stops
+    # producing its own host-computed MSL answer we are in a GPU error cascade
+    # (a sibling experiment's fault splashing into our command buffers), not
+    # looking at a property of the field. The runner is then restarted (fresh
+    # process, fresh MTLDevice) and the event is recorded in 03_baseline.jsonl.
+    BASELINE_EVERY = 250
+    baselines = {c["arm"]: c for c in reversed(cases) if c["field"] == "_baseline"}
+    blog = S.Log(run_dir / "03_baseline.jsonl")
+    cascades = []
+
+    def baseline_check(case, tag):
+        b = baselines.get(case["arm"])
+        if b is None:
+            return True
+        cb = carrier_for(b)
+        bins = ins_for(b, cb)
+        nb = max(int(k) for k in b["oracle"]) + 1
+        ok = False
+        for attempt in range(3):
+            resp, iw, fw = cb.run(CM.materialize(b), bins, b["out_slot"], nb,
+                                  grid=b["grid"], tg=b["tg"])
+            obs = {int(k): iw[int(k)] if int(k) < len(iw) else None for k in b["oracle"]}
+            oc, m = S.classify(resp["status"], obs, {int(k): v for k, v in b["oracle"].items()})
+            blog.write({"arm": case["arm"], "tag": tag, "after_case": case["i"],
+                        "attempt": attempt, "status": resp["status"],
+                        "err": resp.get("error"), "victim": S.is_victim(resp.get("error")),
+                        "observed": words_hex(iw), "outcome": oc, "match": m})
+            if m:
+                ok = True
+                break
+            cb.restart()
+        if not ok:
+            cascades.append({"arm": case["arm"], "after_case": case["i"], "tag": tag})
+            print("!! BASELINE FAILED for arm %s after case %d -- cascade suspected" %
+                  (case["arm"], case["i"]))
+        return ok
+
     arm_hangs = {}
     stopped = set()
     total_hangs = 0
@@ -185,6 +228,8 @@ def main():
             "carrier": case["carrier"], "oracle_kind": case["oracle_kind"],
             "predict": case["predict"], "note": case["note"],
             "status": reps[0][0]["status"], "status2": reps[1][0]["status"],
+            "err": reps[0][0].get("error"), "err2": reps[1][0].get("error"),
+            "victim": S.is_victim(reps[0][0].get("error")) or S.is_victim(reps[1][0].get("error")),
             "observed": words_hex(reps[0][2]), "observed2": words_hex(reps[1][2]),
             "oracle": words_hex([oracle.get(k, 0) for k in range(nout)]),
             "match": match, "match2": match2, "outcome": outcome,
@@ -205,15 +250,19 @@ def main():
             if total_hangs >= GLOBAL_HANG_BUDGET:
                 print("!! GLOBAL HANG BUDGET REACHED -- aborting run")
                 break
+        if done % BASELINE_EVERY == 0:
+            baseline_check(case, "periodic")
         if done % 2000 == 0:
             print("... %d/%d cases, %.1fs, hangs=%d" % (done, len(cases), time.time() - t0, total_hangs))
     log.close()
+    blog.close()
     for c in carriers.values():
         c.close()
     (run_dir / "02_summary.json").write_text(json.dumps(
         {"cases_run": done, "arm_hangs": arm_hangs, "stopped_arms": sorted(stopped),
          "total_hangs": total_hangs, "wall_s": round(time.time() - t0, 1),
-         "matrix_sha256": matrix_sha}, indent=1, sort_keys=True))
+         "matrix_sha256": matrix_sha, "baseline_cascades": cascades,
+         "concurrent_gpu_experiments_declared": CONCURRENT}, indent=1, sort_keys=True))
     print("DONE %d cases in %.1fs, hangs=%d, stopped=%s" %
           (done, time.time() - t0, total_hangs, sorted(stopped)))
 

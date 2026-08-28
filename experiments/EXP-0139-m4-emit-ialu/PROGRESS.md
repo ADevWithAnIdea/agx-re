@@ -47,3 +47,52 @@ sha256 PRE_REGISTRATION.md = be3a1b0b7ccf96407b53a12fd02e6ac7f79c95c3ce2f69f163c
 sha256 CAPTURE_CONTRACT.json = 6449e6d859f84639ed06b15050c95f1ba121302f647f388441e7a8efd3e27511
 matrix_sha256 = 8bb3683479d3fa1540725406a2e321db7bbdccc9428ea696f7f3b16c0f19fdd5 (29,685 cases)
 Starting gated run01.
+
+## M4 — 2026-08-28 — gated run01 COMPLETE (original contract)
+`raw/m4_20260828_run01/`: **29,685 / 29,685 cases**, 340.8 s, **0 hangs**,
+matrix_sha256 matches the frozen contract. Status split: 28,554 OK /
+1,131 CMDBUF_ERROR (rep 1) and 28,612 OK / 1,073 CMDBUF_ERROR (rep 2);
+**596 cases disagreed between their two in-run repeats**.
+
+## M5 — 2026-08-28T10:55:11Z — CONTRACT AMENDMENT 01 (disclosed)
+`FIELD-SWEEP-PROTOCOL.md` gained a binding §7 (*concurrent sweeps contaminate
+each other*) after this contract was frozen and after run01 finished. Amended
+the harness to record the OS fault-classification string, re-validate the
+unmutated baseline every 250 cases with a runner restart on failure, and added
+`harness/revalidate.py` (a third pass that re-runs every non-OK case 5× in a
+fresh process with bracketing baseline checks). **The case matrix is
+byte-identical**, so `matrix_sha256` is unchanged and run01/run02 stay
+comparable. run01 is retained exactly as captured; its faults are covered by
+the revalidate pass. Concurrent GPU experiments this batch: **EXP-0141 (MEM)**
+and **EXP-0146 (integer misc)**; EXP-0148 is desk work and does not contend.
+The 596 rep-disagreements in run01 are now expected to be largely sibling
+contamination rather than field properties — the revalidate pass decides.
+
+## M6 — 2026-08-28 — gated run02 COMPLETE (amendment-01 instrumentation)
+`raw/m4_20260828_run02/`: 29,685/29,685 cases, 284.9 s, **0 hangs**, matrix_sha256 identical
+to run01. Periodic baseline re-validation fired for two arms — **both false alarms that the
+mechanism correctly surfaced**: `ISEL_REG8`'s baseline is an *extrapolated* construction
+pre-registered `mismatch`, and `ICMPSEL` was being fed the integer input vector while its host
+oracle used the float vector (a harness defect, recorded as `db_defects` DEF-0139-6; the
+captured bytes are exactly `(a<b)?1:0` over the integer vector reinterpreted as float32 with
+denormals flushed, so the arm's observations are sound). **No GPU error cascade occurred.**
+
+## M7 — 2026-08-28 — fault re-validation passes
+`reval01` (every non-OK case, 5× in a fresh process, baseline before/after): 1,580 cases,
+7,900 attempts → 811 reproducible_fault, **692 transient (did not reproduce at all)**, 66
+intermittent, 11 baseline-unhealthy. **1,552 attempts carried the OS's own
+`kIOGPUCommandBufferCallbackErrorInnocentVictim` string.**
+`reval02` (every OK-but-unstable case, 7×): 457 cases, 3,199 attempts → 388 transient, 52
+intermittent, 14 baseline-unhealthy, **only 3 genuinely nondeterministic**.
+**Without FIELD-SWEEP-PROTOCOL §7, 692 legal field values would have been labelled `fault`.**
+
+## M8 — 2026-08-28 — analysis, verdicts, write-up
+`analysis/verdicts.py` + `analysis/emit_verdicts.py` → `analysis/field_verdicts.json`
+(153 field verdicts + `db_defects` + emittability roll-up), `analysis/field_stats.json`.
+Three host-side oracle EXPRESSIONS corrected in analysis, each disclosed with the competing
+model scored on the same data; raw captures untouched. One pre-registered model REFUTED
+(`ibfe.width` is mod-32, not literal-clamp).
+**Headline: 73 of 137 blocking fields reached emitter grade (39 hardware-run, 34
+isolated-byte-diff); 64 still blocked, 44 of them operand/condition selectors.
+`ibitcount` and `iunary` are now EMITTABLE.** 129,839 GPU dispatches, 0 hangs, 0 reboots.
+`README.md`, `RESULTS.md`, `manifest.json` written. NOT committed (orchestrator owns commits).

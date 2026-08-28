@@ -55,6 +55,20 @@ persistrun = _load("persistrun", REPO / "tools" / "agxtest" / "persistrun.py")
 
 OUTCOMES = ("ok", "silent_zero", "wrong_value", "fault", "hang", "undecodable")
 
+# FIELD-SWEEP-PROTOCOL SS7.2: an `...ErrorInnocentVictim`-class command-buffer
+# failure is evidence about the MACHINE (a sibling GPU experiment's fault
+# splashing into our command buffer), not about our encoding. These substrings
+# are matched against the OS's own `[cb error] localizedDescription`, which
+# `tools/agxtest/agxrun_persist.m` prints verbatim on the `ERROR` line.
+VICTIM_MARKERS = ("InnocentVictim", "innocent victim", "Ignored (for causing prior",
+                  "IOAF code 4", "IOAF code 2", "Discarded")
+
+
+def is_victim(err):
+    if not err:
+        return False
+    return any(m.lower() in err.lower() for m in VICTIM_MARKERS)
+
 
 class Carrier:
     """One compiled carrier + one live persistent runner."""
@@ -103,6 +117,18 @@ class Carrier:
         iw = [struct.unpack_from("<I", raw, i)[0] for i in range(0, len(raw) - 3, 4)]
         fw = [struct.unpack_from("<f", raw, i)[0] for i in range(0, len(raw) - 3, 4)]
         return resp, iw, fw
+
+    def restart(self):
+        """Kill and relaunch the child runner. Used to escape a GPU error
+        cascade (FIELD-SWEEP-PROTOCOL SS7.3) -- a fresh process, fresh
+        MTLDevice, fresh command queue."""
+        try:
+            self.runner.close()
+        except Exception:
+            self.runner._kill()
+        self.runner = persistrun.PersistRunner(
+            source=str(self.source), function=self.function, fast_math=False,
+            agxrun_persist=str(BIN / "agxrun_persist"))
 
     def write_input(self, name, words, kind="I"):
         p = self.workdir / name

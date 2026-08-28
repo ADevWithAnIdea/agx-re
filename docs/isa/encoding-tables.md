@@ -288,9 +288,13 @@
 |---|---|---|---|
 | `b1` | [8:16] (byte+1) | modifier |  |
 | `opsel` | [16:24] (byte+2) | enum | `0x56`=int_unary/convert; `0x22`=rt/interp_datapath; `0x10`=convert; `0x26`=convert2; `0x7`=logic |
-| `operand` | [24:64] (byte+3) | raw/unmapped |  |
+| `dst` | [24:32] (byte+3) | register |  |
+| `op_enable` | [32:40] (byte+4) | modifier |  |
+| `src` | [40:48] (byte+5) | register |  |
+| `srcdesc` | [48:56] (byte+6) | modifier |  |
+| `tail` | [56:64] (byte+7) | modifier |  |
 
-*d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.*
+*d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length. OPERAND BLOB SPLIT (EXP-0139 DEF-0139-1, HW): the former 40-bit `operand` raw field is NOT one field. In the 8-byte byte0==0x27 space it is five one-byte sub-fields carrying EXACTLY `ibitcount`'s meanings -- byte+3 dst (reg<<1), byte+4 op_enable (bit 1 only), byte+5 src (reg<<2), byte+6 srcdesc, byte+7 tail (bit 2 only). Established on programs that tokenize as `iunary` and NOT as `ibitcount` (found via byte+1==0x2d).*
 
 ### `ibitcount` — bit-count / bit-scan (popcount/reverse_bits/find-MSB)
 

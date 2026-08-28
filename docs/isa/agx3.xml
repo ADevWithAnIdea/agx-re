@@ -990,8 +990,11 @@
     <exact bit="0:7">00100111</exact>
     <modifier name="b1" bit="8:15"/>
     <modifier name="opsel" bit="16:23" kind="iunary_opsel"/>
-    <!-- operand [24:63]: inferred / not yet bit-decoded -->
-    <zero bit="24:63"/>
+    <dest name="dst" bit="24:31"/>
+    <modifier name="op_enable" bit="32:39"/>
+    <src name="src" bit="40:47"/>
+    <modifier name="srcdesc" bit="48:55"/>
+    <modifier name="tail" bit="56:63"/>
   </ins>
 
   <!-- ishift: ARITHMETIC (sign-preserving) shift-right by an immediate is the HW-VALIDATED member of this BROAD ... -->

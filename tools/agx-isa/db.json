@@ -1309,13 +1309,37 @@
           }
         },
         {
-          "name": "operand",
+          "name": "dst",
           "start": 24,
-          "width": 40,
-          "type": "raw"
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "op_enable",
+          "start": 32,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "src",
+          "start": 40,
+          "width": 8,
+          "type": "reg"
+        },
+        {
+          "name": "srcdesc",
+          "start": 48,
+          "width": 8,
+          "type": "mod"
+        },
+        {
+          "name": "tail",
+          "start": 56,
+          "width": 8,
+          "type": "mod"
         }
       ],
-      "semantics": "d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length.",
+      "semantics": "d = unary_int/convert(srcA) ; 8-byte byte0==0x27 datapath op. b1 (byte+1) = function/source descriptor. opsel (byte+2) = mode: 0x56 = the integer-unary / format-convert datapath (popcount/bitcount HW-VALIDATED here, EXP-0007/0033; vertex-fetch format unpack shares 0x56); 0x22 = the ray-tracing / interpolation datapath (byte+1==0x81, seen only in RT + interp kernels); 0x10 = a convert form; 0x07 = logic. operand (byte+3..+7) = source + coefficient/format word, MIXED (popcount source vs SFU/interp/format-conversion coefficient) -- kept raw; the SFU/interp/format coefficient SEQUENCE is not reconstructed (rule 5). NOTE: this is a loose byte0==0x27 catch-all; the popcount claim is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length. OPERAND BLOB SPLIT (EXP-0139 DEF-0139-1, HW): the former 40-bit `operand` raw field is NOT one field. In the 8-byte byte0==0x27 space it is five one-byte sub-fields carrying EXACTLY `ibitcount`'s meanings -- byte+3 dst (reg<<1), byte+4 op_enable (bit 1 only), byte+5 src (reg<<2), byte+6 srcdesc, byte+7 tail (bit 2 only). Established on programs that tokenize as `iunary` and NOT as `ibitcount` (found via byte+1==0x2d).",
       "provenance": "byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=27): opsel==0x56 carries the HW-VALIDATED popcount (`27 05 56 ..`, EXP-0007) and the vertex-fetch format unpack; opsel==0x22 (byte+1==0x81) appears only in raytracing/interp kernels. b1/opsel LOCATED; operand kept raw. NOT HW-dispatch validated. NOTE (splice, A18 EXP-M4-14): the popcount/find_msb/reverse member of this byte0==0x27 space tokenizes to the TIGHTER ibitcount descriptor (byte+2==0x56, 15 match bits) -- there it is now HW-splice-validated: the sub-op is (byte0 bit7 fn_hi + byte+1 form), byte+4 is an op-enable gate NOT a sub-op selector, and dst=byte+3 / src=byte+5 / srcdesc=byte+6. This loose catch-all remains the RT (opsel 0x22) / interp / convert (0x10/0x26) residue, distinct datapaths not separately provoked this pass; operand kept raw as an honest residue."
     },
     {

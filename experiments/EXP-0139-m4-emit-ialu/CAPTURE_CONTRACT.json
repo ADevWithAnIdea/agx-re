@@ -1,44 +1,128 @@
 {
-  "experiment": "EXP-0139-m4-emit-ialu",
-  "frozen_utc": "2026-08-28T09:37:54Z",
-  "target": {"device": "Apple M4 (G16G)", "cores": 10, "os": "26.6.2", "build": "25G82", "note": "local host only; A18 Pro HANDS-OFF; no SSH anywhere; no M5"},
-  "git_rev_at_freeze": "c29a85b3c1ccefd4cda3560623bed40808cab9b1",
-  "git_rev_gate": "NOT a gate. Per SUBAGENT_BRIEF, captures are validated against the AUTHORED BLOB HASHES below, not against live HEAD; the orchestrator commits sibling experiments continuously.",
-  "authored_sha256": {
-    "kernels/ialu_probes.metal": "5bb28b3b9387e14f548ab96e69e1e5ac6ea3c89bb588cff11c9c8a99c0b915cf",
-    "kernels/carrier_dag.metal": "ed4b7bfef443a813d6e835efb0f34174e7d3c6e64f3e2e79db99630c089b08b4",
-    "harness/sweeprun.py": "94d05b596b4a3155c9de32cee9b8c0f61df6fec72e18a9350b2cc9b33b642f36",
-    "harness/anchors.py": "75b8aa74ec3f7b289edded9687f4a31b82cf2df0455a0cbc748a1dcaab722fec",
-    "harness/casematrix.py": "f3b90ac1f7920e08273592d5bc9baf08a9fa919e70f6771068d42a5c8ec4f548",
-    "harness/run.py": "de7ebb0dad4979c0e2feeb00fcbd50e5592976bf312227c10b77457365d86c6d",
-    "harness/verify.py": "1d5d38fcd9e05c6179790128c128eb029581acbb279b95d35a9b58c4f0bd4713",
-    "harness/isa_helpers.py": "50920bf1141e42ecd47d722b3f61101c242f2e20ce6fc9ffdd3074d5220cfbbe",
-    "harness/build.sh": "c19ba6038c205c779a6fdb697067e55169a492c8edcc218acafd4e5cd5b48889"
+ "amendment_01": {
+  "amended_authored_sha256": {
+   "harness/anchors.py": "75b8aa74ec3f7b289edded9687f4a31b82cf2df0455a0cbc748a1dcaab722fec",
+   "harness/casematrix.py": "f3b90ac1f7920e08273592d5bc9baf08a9fa919e70f6771068d42a5c8ec4f548",
+   "harness/isa_helpers.py": "50920bf1141e42ecd47d722b3f61101c242f2e20ce6fc9ffdd3074d5220cfbbe",
+   "harness/revalidate.py": "5eda5ff174a1ce0112786ec3c978037cc85a9a2a815f2e420bf9bfaaec7c6146",
+   "harness/run.py": "80649e5e93121c63895dc8b8650d9ddc2ec758c479f449108c9a91627e320d56",
+   "harness/sweeprun.py": "930f70a2b4d5495e235a1aea71185cb35a7ada6782d8a0d1c20d12db912b045c",
+   "harness/verify.py": "1d5d38fcd9e05c6179790128c128eb029581acbb279b95d35a9b58c4f0bd4713",
+   "kernels/carrier_dag.metal": "ed4b7bfef443a813d6e835efb0f34174e7d3c6e64f3e2e79db99630c089b08b4",
+   "kernels/ialu_probes.metal": "5bb28b3b9387e14f548ab96e69e1e5ac6ea3c89bb588cff11c9c8a99c0b915cf"
   },
-  "readonly_tool_sha256": {
-    "tools/agx-isa/db.json": "6f082cc470c94e345a758cc87e4177e8c706892f12a1db12ab39fa50c94f94e9",
-    "tools/agx-isa/isadb.py": "aa4791f63bf518aeb81a8ff982429ad2b1a78e5f7b98da53c73338ebe7751041",
-    "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
-    "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
-    "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
-    "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f"
-  },
-  "case_matrix": {
-    "n_cases": 29685,
-    "matrix_sha256": "8bb3683479d3fa1540725406a2e321db7bbdccc9428ea696f7f3b16c0f19fdd5",
-    "note": "matrix_sha256 is recomputed by harness/run.py at the start of every gated run and written to raw/<run>/01_anchors.json + 02_summary.json; a mismatch between the two gated runs invalidates the capture."
-  },
-  "runs": ["m4_20260828_run01", "m4_20260828_run02"],
-  "raw_schema": {
-    "path": "raw/<run_id>/sweep.jsonl",
-    "append_only": true,
-    "flush": "write + flush + fsync per record",
-    "keys": ["i","arm","instr","field","subfield","value","bytes","carrier","oracle_kind","predict","note","status","status2","observed","observed2","oracle","match","match2","outcome","outcome2","rep_agree","seq","t"],
-    "outcome_domain": ["ok","silent_zero","wrong_value","fault","hang","undecodable"],
-    "observed_encoding": "concatenated big-endian-printed hex of the little-endian 32-bit output words actually read back, in buffer order",
-    "sidecars": ["00_env.json","01_anchors.json","02_summary.json"]
-  },
-  "timeouts": {"per_dispatch_s": 8.0, "shdump_s": 180},
-  "safety": {"arm_hang_budget": 2, "global_hang_budget": 6, "on_arm_budget": "stop that arm, report PARTIAL", "on_global_budget": "abort the run", "macvdmtool": "NEVER"},
-  "repetition": {"in_run": 2, "gated_runs": 2, "rationale": "EXP-0113 found this family's spliced results nondeterministic across runs; the dispatch is repeated inside one process AND the whole capture is repeated in a second process launch."}
+  "concurrent_gpu_experiments": [
+   "EXP-0141-mem",
+   "EXP-0146-integer-misc"
+  ],
+  "fault_rule": "A field value is reported `fault` ONLY if it faults in EVERY attempt of the revalidate pass AND the baselines bracketing it were healthy. `transient_not_reproduced` / `intermittent` / `victim` outcomes are recorded but EXCLUDED from the field verdicts.",
+  "reason": "experiments/FIELD-SWEEP-PROTOCOL.md gained a new binding SS7 (`Concurrent sweeps CONTAMINATE each other`) AFTER this experiment's contract was frozen and AFTER gated run01 had already completed. EXP-0143 and EXP-0147 independently found sibling GPU experiments' contained faults surfacing as failures in an unrelated agent's command buffers.",
+  "run01_status": "COMPLETE under the ORIGINAL contract (29,685/29,685 cases, 0 hangs, matrix_sha256 match). Retained unmodified. It carries no `err`/`victim` fields and no periodic baseline log; that is a disclosed limitation of run01, and the revalidate pass covers its faults.",
+  "utc": "2026-08-28T10:55:11Z",
+  "what_changed": [
+   "harness/sweeprun.py: records the OS `[cb error] localizedDescription`; adds is_victim() classification and Carrier.restart() for cascade escape.",
+   "harness/run.py: every record now carries `err`/`err2`/`victim`; the UNMUTATED baseline of the current arm is re-validated every 250 cases into raw/<run>/03_baseline.jsonl, with up to 3 attempts and a runner restart between them; 02_summary.json records baseline_cascades and the declared concurrent experiments.",
+   "harness/revalidate.py: NEW third pass that re-executes every case that produced a non-OK status in ANY gated run, `--repeats` times in a fresh process, with a baseline check before and after each case."
+  ],
+  "what_did_NOT_change": "The CASE MATRIX. `harness/casematrix.py` and both kernel files are byte-identical to the frozen contract, so `matrix_sha256` is unchanged and run01 and run02 remain directly comparable. The amendment adds RECORDING and RE-VALIDATION only; it changes no independent variable, no oracle and no prediction."
+ },
+ "authored_sha256": {
+  "harness/anchors.py": "75b8aa74ec3f7b289edded9687f4a31b82cf2df0455a0cbc748a1dcaab722fec",
+  "harness/build.sh": "c19ba6038c205c779a6fdb697067e55169a492c8edcc218acafd4e5cd5b48889",
+  "harness/casematrix.py": "f3b90ac1f7920e08273592d5bc9baf08a9fa919e70f6771068d42a5c8ec4f548",
+  "harness/isa_helpers.py": "50920bf1141e42ecd47d722b3f61101c242f2e20ce6fc9ffdd3074d5220cfbbe",
+  "harness/run.py": "de7ebb0dad4979c0e2feeb00fcbd50e5592976bf312227c10b77457365d86c6d",
+  "harness/sweeprun.py": "94d05b596b4a3155c9de32cee9b8c0f61df6fec72e18a9350b2cc9b33b642f36",
+  "harness/verify.py": "1d5d38fcd9e05c6179790128c128eb029581acbb279b95d35a9b58c4f0bd4713",
+  "kernels/carrier_dag.metal": "ed4b7bfef443a813d6e835efb0f34174e7d3c6e64f3e2e79db99630c089b08b4",
+  "kernels/ialu_probes.metal": "5bb28b3b9387e14f548ab96e69e1e5ac6ea3c89bb588cff11c9c8a99c0b915cf"
+ },
+ "case_matrix": {
+  "matrix_sha256": "8bb3683479d3fa1540725406a2e321db7bbdccc9428ea696f7f3b16c0f19fdd5",
+  "n_cases": 29685,
+  "note": "matrix_sha256 is recomputed by harness/run.py at the start of every gated run and written to raw/<run>/01_anchors.json + 02_summary.json; a mismatch between the two gated runs invalidates the capture."
+ },
+ "experiment": "EXP-0139-m4-emit-ialu",
+ "frozen_utc": "2026-08-28T09:37:54Z",
+ "git_rev_at_freeze": "c29a85b3c1ccefd4cda3560623bed40808cab9b1",
+ "git_rev_gate": "NOT a gate. Per SUBAGENT_BRIEF, captures are validated against the AUTHORED BLOB HASHES below, not against live HEAD; the orchestrator commits sibling experiments continuously.",
+ "raw_schema": {
+  "append_only": true,
+  "flush": "write + flush + fsync per record",
+  "keys": [
+   "i",
+   "arm",
+   "instr",
+   "field",
+   "subfield",
+   "value",
+   "bytes",
+   "carrier",
+   "oracle_kind",
+   "predict",
+   "note",
+   "status",
+   "status2",
+   "observed",
+   "observed2",
+   "oracle",
+   "match",
+   "match2",
+   "outcome",
+   "outcome2",
+   "rep_agree",
+   "seq",
+   "t"
+  ],
+  "observed_encoding": "concatenated big-endian-printed hex of the little-endian 32-bit output words actually read back, in buffer order",
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "path": "raw/<run_id>/sweep.jsonl",
+  "sidecars": [
+   "00_env.json",
+   "01_anchors.json",
+   "02_summary.json"
+  ]
+ },
+ "readonly_tool_sha256": {
+  "tools/agx-isa/db.json": "6f082cc470c94e345a758cc87e4177e8c706892f12a1db12ab39fa50c94f94e9",
+  "tools/agx-isa/isadb.py": "aa4791f63bf518aeb81a8ff982429ad2b1a78e5f7b98da53c73338ebe7751041",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "repetition": {
+  "gated_runs": 2,
+  "in_run": 2,
+  "rationale": "EXP-0113 found this family's spliced results nondeterministic across runs; the dispatch is repeated inside one process AND the whole capture is repeated in a second process launch."
+ },
+ "runs": [
+  "m4_20260828_run01",
+  "m4_20260828_run02"
+ ],
+ "safety": {
+  "arm_hang_budget": 2,
+  "global_hang_budget": 6,
+  "macvdmtool": "NEVER",
+  "on_arm_budget": "stop that arm, report PARTIAL",
+  "on_global_budget": "abort the run"
+ },
+ "target": {
+  "build": "25G82",
+  "cores": 10,
+  "device": "Apple M4 (G16G)",
+  "note": "local host only; A18 Pro HANDS-OFF; no SSH anywhere; no M5",
+  "os": "26.6.2"
+ },
+ "timeouts": {
+  "per_dispatch_s": 8.0,
+  "shdump_s": 180
+ }
 }

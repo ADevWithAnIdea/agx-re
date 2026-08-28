@@ -14,36 +14,38 @@
  },
  "coverage": {
   "total_instructions": 171,
-  "total_fields": 1032,
+  "total_fields": 1036,
   "by_label": {
-   "hardware-run": 118,
-   "isolated-byte-diff": 51,
-   "corpus-correlation": 251,
-   "tokenization-only": 299,
-   "single-template-inference": 23,
+   "hardware-run": 161,
+   "isolated-byte-diff": 85,
+   "corpus-correlation": 230,
+   "tokenization-only": 270,
+   "single-template-inference": 22,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 290
+   "untested": 268
   },
   "by_label_pct": {
-   "hardware-run": 11.4,
-   "isolated-byte-diff": 4.9,
-   "corpus-correlation": 24.3,
-   "tokenization-only": 29.0,
-   "single-template-inference": 2.2,
+   "hardware-run": 15.5,
+   "isolated-byte-diff": 8.2,
+   "corpus-correlation": 22.2,
+   "tokenization-only": 26.1,
+   "single-template-inference": 2.1,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 28.1
+   "untested": 25.9
   },
-  "emittable_instructions": 5,
+  "emittable_instructions": 7,
   "emittable_mnemonics": [
    "frame_prologue",
+   "ibitcount",
+   "iunary",
    "link_save_restore",
    "spill_frame_marker",
    "stop",
    "tex_addr_setup"
   ],
-  "decodable_not_yet_emittable": 166
+  "decodable_not_yet_emittable": 164
  },
  "instructions": {
   "falu2": {
@@ -717,101 +719,94 @@
     ]
    },
    "addsub": {
-    "label": "isolated-byte-diff",
-    "range": "0,1 (splicing a real add's byte0 0x9f -> 0x1f turns 10+20 into 10-20 = -10)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "RT-1a-FIX",
-     "EXP-0007"
+     "EXP-0139"
     ],
-    "note": "Polarity CORRECTED here: 0x9f = ADD, 0x1f = SUBTRACT. The earlier `srcA_neg` framing was inverted."
+    "note": ""
    },
    "lenbit": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0007",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0139"
     ],
-    "note": "byte+1 bit0 selects 10-byte 2-src vs 12-byte 3-src for the 0x9f/0x1f/0xa7 groups."
+    "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 0"
    },
    "srcB_reg_hi": {
-    "label": "corpus-correlation",
-    "range": "srcB register number is scattered across b1/b5/b6; located by byte-diff",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "b2_bit0": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "store_en": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "b2_fmt": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "dst": {
-    "label": "corpus-correlation",
-    "range": "(reg<<1)|size located by own-MSL byte-diff; NOT independently synthesized - EXP-0112 held dst fixed on the one verbatim anchor",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13",
-     "EXP-0020"
+     "EXP-0139"
     ],
-    "note": "iadd2 register-mode (both operands GPR, independently chosen registers/dst) is an explicit open item - see EXP-0112 section 4."
+    "note": ""
+   },
+   "store_en": {
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
+   },
+   "b2_fmt": {
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
+   },
+   "dst": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "6/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 60 values: 192-193,195-214,216-217,219-222,224-255; 2 values return a silent zero"
    },
    "opmode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "srcB_imm": {
     "label": "hardware-run",
-    "range": "K = 0,1,2,63,64,65,100,127,128,129,200,255 - the full effective 0..127 range plus the exact mod-128 wraparound at K=128",
+    "range": "7 values sampled (boundaries + powers of two + interior)",
     "target": "M4",
     "evidence": [
-     "EXP-0112"
+     "EXP-0139"
     ],
-    "note": "The byte holds (K<<1); K=128 therefore behaves identically to K=0."
+    "note": ""
    },
    "srcB_imm_hi": {
-    "label": "corpus-correlation",
-    "range": "set only at K=255 in own-compiled code; never independently synthesized",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "srcB_ext": {
     "label": "corpus-correlation",
@@ -822,28 +817,31 @@
     ]
    },
    "srcA": {
-    "label": "corpus-correlation",
-    "range": "located by own-MSL byte-diff only",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 63 values: 3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159,163,167,171,175,179,183,187,191,195,199,203,207,211,215,219,227,231,235,239,243,247,..."
    },
    "opc_tail": {
-    "label": "corpus-correlation",
-    "range": "reg-srcB tail a8 17 05 vs imm-srcB tail 88 15 04 (2 observed patterns)",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "opc_tail2": {
-    "label": "corpus-correlation",
-    "range": "reg-srcB tail a8 17 05 vs imm-srcB tail 88 15 04",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "5/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    }
   },
   "imad": {
@@ -857,65 +855,58 @@
     ]
    },
    "b0bit7": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "lenbit": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0007",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 1"
    },
    "b1hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..127 dense (all 128 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "b2_bit0": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "store_en": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "b2_fmt": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "dst": {
     "label": "corpus-correlation",
@@ -926,14 +917,13 @@
     ]
    },
    "opmode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero"
    },
    "srcB": {
     "label": "tokenization-only",
@@ -972,32 +962,31 @@
     ]
    },
    "b9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "b10": {
-    "label": "corpus-correlation",
-    "range": "0x0a -> 0x1e for signed mulhi; own-MSL byte-diff",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "64 values return a silent zero"
+   },
+   "b10": {
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "b11": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    }
   },
   "iminmax": {
@@ -1011,55 +1000,66 @@
    },
    "dst": {
     "label": "isolated-byte-diff",
-    "range": "r0, r1, r4 (3 of 16) - splicing byte0's high nibble moved the result to a different register so the unchanged store read zeros",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "15 values return a silent zero"
    },
    "dst_full": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "PROVENANCE FLAG: splicing a real, in-range register field of this family produced ZERO effect (EXP-0105) and EXP-0113 found this family's spliced results NONDETERMINISTIC across runs (4/46 cases). Operand mapping is UNVALIDATED."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "fmt": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "PROVENANCE FLAG: splicing a real, in-range register field of this family produced ZERO effect (EXP-0105) and EXP-0113 found this family's spliced results NONDETERMINISTIC across runs (4/46 cases). Operand mapping is UNVALIDATED."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "12 values return a silent zero"
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "PROVENANCE FLAG: splicing a real, in-range register field of this family produced ZERO effect (EXP-0105) and EXP-0113 found this family's spliced results NONDETERMINISTIC across runs (4/46 cases). Operand mapping is UNVALIDATED."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "sel": {
-    "label": "corpus-correlation",
-    "range": "0=fmax 1=fmin 4=umax 5=umin 6=imax 7=imin (6 of 8) located by own-MSL byte-diff",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0007",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "selhi": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "PROVENANCE FLAG: splicing a real, in-range register field of this family produced ZERO effect (EXP-0105) and EXP-0113 found this family's spliced results NONDETERMINISTIC across runs (4/46 cases). Operand mapping is UNVALIDATED."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "12 values return a silent zero"
    },
    "srcB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "PROVENANCE FLAG: splicing a real, in-range register field of this family produced ZERO effect (EXP-0105) and EXP-0113 found this family's spliced results NONDETERMINISTIC across runs (4/46 cases). Operand mapping is UNVALIDATED."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "238 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (192,200); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    }
   },
   "hminmax": {
@@ -1120,39 +1120,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "cmpA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "4 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmpB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (8-9); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "4/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 191 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (38,46,54,62); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selTrue": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (10-11); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cc": {
     "label": "corpus-correlation",
@@ -1164,25 +1174,31 @@
     ]
    },
    "flags": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "selFalse_file": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "5/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 114 of 256 values reproduce the carrier's correct result (12-96,98-108,110-118,120-128); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    }
   },
   "isel_reg8": {
@@ -1195,39 +1211,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "cmpA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmpB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "4/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 122 of 256 values reproduce the carrier's correct result (8-129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (1,17,129,145); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selTrue": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (4,132); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cc": {
     "label": "corpus-correlation",
@@ -1240,10 +1266,12 @@
    },
    "flags": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "5/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 54 of 256 values reproduce the carrier's correct result (0,2,4,6,10,12,14,32,34,38,42,44,46,64,66,68,70,74,76,78,96,98,100,102,106,108,110,130,132,134,138,140,142,160,162,164,166,170,172,174,192,194,196,198,202,204,206,224,226,228,230,234,236,238); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    }
   },
   "n2_op6": {
@@ -1327,16 +1355,50 @@
     ],
     "note": "Loose byte0==0x27 catch-all: popcount is the HW-validated member, but the corpus is dominated by RT/interp/convert siblings of the same length."
    },
-   "operand": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+   "dst": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0139"
     ],
-    "note": "byte+3..+7 mixes a popcount source with SFU/interp/format coefficient words; kept raw under clean-room rule 5."
+    "note": "1/272 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 63 values: 192-241,243-255; 3 values return a silent zero"
+   },
+   "op_enable": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
+   },
+   "src": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "197 values return a silent zero"
+   },
+   "srcdesc": {
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "64 values return a silent zero"
+   },
+   "tail": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    }
   },
   "ishift": {
@@ -1350,78 +1412,85 @@
     ]
    },
    "form": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "byte+1 bit0 is the 0xa7 10-vs-12-byte length selector."
-   },
-   "src_cache": {
-    "label": "corpus-correlation",
-    "range": "0x56 -> 0x54 when the source is a computed/consumed register",
+    "label": "isolated-byte-diff",
+    "range": "0..127 dense (all 128 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "64 values return a silent zero"
+   },
+   "src_cache": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 128 values return a silent zero"
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 62 values: 192-230,232-242,244-255; 190 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (0-1); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "src_class": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero"
    },
    "opB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "252 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (0-3); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "shamt": {
-    "label": "corpus-correlation",
-    "range": ">>1/2/4/8 -> byte+6 0x04/0x08/0x10/0x20 (shamt<<2), 4 own-MSL points",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero"
    },
    "shift_type": {
-    "label": "corpus-correlation",
-    "range": "0x78 = arithmetic shift-right op-type (1 observed value)",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "op8": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0139"
     ],
-    "note": "For the corpus-dominant 0xa7 interpolation/RT siblings (138/188) byte+6/+8/+9 are operand/coefficient words, NOT a shift amount."
+    "note": "64 values return a silent zero"
    },
    "pad9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    }
   },
   "ibfe": {
@@ -1436,44 +1505,40 @@
     ]
    },
    "lenhi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..127 dense (all 128 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1/128 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 32 values return a silent zero; second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..127 dense (all 128 values))"
    },
    "b2_bit0": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "store_en": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "b2_fmt": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..63 dense (all 64 values))"
    },
    "dst": {
     "label": "corpus-correlation",
@@ -1484,14 +1549,13 @@
     ]
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 126 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..255 dense (all 256 values))"
    },
    "b5": {
     "label": "tokenization-only",
@@ -1504,82 +1568,85 @@
     ]
    },
    "b6_bit0": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "sign_ext": {
-    "label": "corpus-correlation",
-    "range": "0,1 - signed extract sets b6 bit1 and clears srcC_flags bit0",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "offset": {
-    "label": "corpus-correlation",
-    "range": "off = 1,3,4,5,6,8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20 (offset = b6>>2); own-MSL compile-only",
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "32 values return a silent zero; second independent carrier IBFE_SH DIFFERS (untested over 0..63 dense (all 64 values))"
    },
    "b7": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero; second independent carrier IBFE_SH DIFFERS (isolated-byte-diff over 0..255 dense (all 256 values))"
    },
    "srcA": {
-    "label": "corpus-correlation",
-    "range": "located by own-MSL byte-diff",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..255 dense (all 256 values))"
    },
    "srcC_flags": {
-    "label": "corpus-correlation",
-    "range": "0x11 unsigned vs 0x10 signed (2 observed values)",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "64 values return a silent zero; second independent carrier IBFE_SH DIFFERS (hardware-run over 0..255 dense (all 256 values))"
    },
    "width_lo": {
-    "label": "corpus-correlation",
-    "range": "low nibble of the same scattered width immediate",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "2 values return a silent zero; second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..15 dense (all 16 values))"
    },
    "width": {
-    "label": "corpus-correlation",
-    "range": "width = 1,4,8,12,16 -> 0x10/0x40/0x80/0xc0/0x100; width=0 means extract-to-MSB",
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBFE_SH DIFFERS (untested over 0..63 dense (all 64 values))"
    },
    "b11hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..63 dense (all 64 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..63 dense (all 64 values))"
    }
   },
   "icmpsel": {
@@ -1592,22 +1659,31 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "15 values return a silent zero"
    },
    "dst_full": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "252 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (2-3,130-131); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "fmt": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "12 values return a silent zero"
    },
    "srcA": {
     "label": "corpus-correlation",
@@ -1653,14 +1729,13 @@
     ]
    },
    "mark0": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "16 values return a silent zero"
    },
    "sel_marker": {
     "label": "tokenization-only",
@@ -2270,41 +2345,48 @@
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..127 dense (all 128 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 1 of 128 values reproduce the carrier's correct result (15); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "neg": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bit7 negates the result for le/ge/ne (own-MSL located)",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "cmpmode": {
-    "label": "corpus-correlation",
-    "range": "0x2 relational / 0x3 equality (own-MSL located)",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "opdesc_hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "srcB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (5,133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cond": {
     "label": "hardware-run",
@@ -5639,11 +5721,12 @@
    },
    "fn_hi": {
     "label": "hardware-run",
-    "range": "byte0 bit7 spliced 0x27 <-> 0xa7",
-    "target": "A18",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "form": {
     "label": "hardware-run",
@@ -5656,22 +5739,21 @@
    },
    "cache": {
     "label": "hardware-run",
-    "range": "byte+2 anchor 0x54 vs 0x56 tested at grid=1 and grid=4, with operand seeded from BOTH an ALU write and a device_load; additionally cache=0 vs cache=1 tested with srcdesc bit4 held at its retaining setting",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0129",
-     "EXP-0119",
-     "EXP-M4-14"
+     "EXP-0139"
     ],
-    "note": "CONTRADICTION RESOLVED by EXP-0129 (commit 873cb9c3) - supersedes the earlier 'A18<->M4 contradiction, unresolved' label. The discriminator is the OPERAND'S PROVENANCE, not the device and not the dispatch shape: an ALU-seeded operand retains at grid=1 AND grid=4 with cache=1 AND cache=0 (8.4078e-45 in all four), while a device_load-seeded operand gives 2.8026e-45 at cache=1 and a silent 0.0 at cache=0, identically at grid=1 and grid=4. EXP-M4-14's own literal anchor bytes break at BOTH grid sizes. So EXP-M4-14 (A18) and EXP-0119 (M4) differed because they seeded operands differently; no device difference is implied and neither prior record was wrong. SEPARATELY: this `cache` bit is NOT ibitcount's release control. EXP-0129 located the real one at srcdesc bit4, and showed cache/bit17 stays independently inert even with bit4 at its retaining setting. Do not model `cache` as the retention flag."
+    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..1 dense (all 2 values))"
    },
    "dst": {
     "label": "hardware-run",
-    "range": "byte+3 swept 0x00/0x02/0x04/0x06/0x08 (reg<<1): non-zero breaks delivery ([0,0,0,0])",
-    "target": "A18",
+    "range": "16 values sampled (boundaries + powers of two + interior)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1/16 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 1 values return a silent zero; second independent carrier IBITCOUNT_NAT DIFFERS (untested over 0..255 dense (all 256 values))"
    },
    "op_enable": {
     "label": "hardware-run",
@@ -5684,11 +5766,12 @@
    },
    "src": {
     "label": "hardware-run",
-    "range": "byte+5 swept 0x00/0x04/0x08/0x0c/0x10 (reg<<2): non-zero points at an empty register so popcount(0)=0",
-    "target": "A18",
+    "range": "16 values sampled (boundaries + powers of two + interior)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1 values return a silent zero; second independent carrier IBITCOUNT_NAT DIFFERS (untested over 0..255 dense (all 256 values))"
    },
    "srcdesc": {
     "label": "hardware-run",
@@ -5701,12 +5784,13 @@
     "note": "EXP-0129: bit4 is ibitcount's release control - the analogue of falu2's own mechanism, routed differently. Both falu2 signatures reproduce here: restore-on-rewrite (20.0 -> 28.0 when the register is rewritten before the later read) and distance-invariance (identical at 0, 1 and 4 intervening instructions). Supports ONE underlying release concept per family, not several unrelated mechanisms sharing a bit position."
    },
    "tail": {
-    "label": "single-template-inference",
-    "range": "0x04 marker in every observed instance",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0139"
+    ],
+    "note": "second independent carrier IBITCOUNT_NAT AGREES (hardware-run over 0..255 dense (all 256 values))"
    }
   },
   "irotate": {
@@ -6992,24 +7076,22 @@
     "note": "insert_bits has NO dedicated op in MSL lowering (mask + shift + combine); this is the shl/insert mirror of the extract family."
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "byte+1 sub-op select, located",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "160 values return a silent zero"
    },
    "cache": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0086",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0139"
     ],
-    "note": "Literal 0x54/0x56 bit - DOWNGRADED to UNKNOWN (EXP-0086)."
+    "note": ""
    },
    "dst": {
     "label": "corpus-correlation",
@@ -7020,10 +7102,13 @@
     ]
    },
    "b4": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero"
    },
    "mask_imm": {
     "label": "corpus-correlation",
@@ -7034,24 +7119,31 @@
     ]
    },
    "mask_hi": {
-    "label": "corpus-correlation",
-    "range": "high bit of the scattered mask immediate",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0139"
+    ],
+    "note": "1 values return a silent zero"
    },
    "b6hi": {
     "label": "untested",
-    "range": "none",
+    "range": "0..127 dense (all 128 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 4 of 128 values reproduce the carrier's correct result (8-11); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "b7": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 64 values: 3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159,163,167,171,175,179,183,187,191,195,199,203,207,211,215,219,223,227,231,235,239,243,...; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (0,4); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "srcdesc": {
     "label": "corpus-correlation",
@@ -7062,22 +7154,31 @@
     ]
    },
    "srcC": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "64 values return a silent zero"
    },
    "b10": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "32 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (5,7); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "b11": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    }
   },
   "atomic_tg": {
@@ -8851,46 +8952,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "15 values return a silent zero"
    },
    "cmpA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "12 values return a silent zero"
    },
    "cmpB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 122 of 256 values reproduce the carrier's correct result (8-129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "148 values return a silent zero; TESTED-BUT-UNEXPLAINED: 8 of 256 values reproduce the carrier's correct result (1,9,17,25,129,137,145,153); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selTrue": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cc": {
     "label": "corpus-correlation",
@@ -8903,10 +9016,12 @@
    },
    "flags": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "128 values return a silent zero; TESTED-BUT-UNEXPLAINED: 56 of 256 values reproduce the carrier's correct result (0,2,4,6,10,12,14,32,34,36,38,42,44,46,64,66,68,70,74,76,78,96,98,100,102,106,108,110,128,130,132,134,138,140,142,160,162,164,166,170,172,174,192,194,196,198,202,204,206,224,226,228,230,234,236,238); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    }
   },
   "isel10": {
@@ -8920,46 +9035,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "15 values return a silent zero"
    },
    "cmpA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "12 values return a silent zero"
    },
    "cmpB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "192 values return a silent zero; TESTED-BUT-UNEXPLAINED: 8 of 256 values reproduce the carrier's correct result (162,170,178,186,226,234,242,250); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selTrue": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 1 of 256 values reproduce the carrier's correct result (170); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cc": {
     "label": "corpus-correlation",
@@ -8972,24 +9099,30 @@
    },
    "flags": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "120 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (192,200); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selFalse_file": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 61 values: 64-78,80,82-95,192-211,213-223"
    },
    "selFalse": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "TESTED-BUT-UNEXPLAINED: 1 of 256 values reproduce the carrier's correct result (213); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    }
   },
   "isel10_c": {
@@ -9002,46 +9135,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "cmpA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 115 of 256 values reproduce the carrier's correct result (14,16-129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": ""
    },
    "cmpB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 20 of 256 values reproduce the carrier's correct result (0-3,8-11,14-15,128-131,136-139,142-143); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 64 values return a silent zero; TESTED-BUT-UNEXPLAINED: 20 of 256 values reproduce the carrier's correct result (2,10,18,26,34,42,50,58,98,106,114,122,162,170,178,186,226,234,242,250); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "selTrue": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 138 of 256 values reproduce the carrier's correct result (0-2,4-6,8-10,12,15,129-255); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
    },
    "cc": {
     "label": "corpus-correlation",
@@ -9053,25 +9198,31 @@
     ]
    },
    "flags": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse_file": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position adopted from the isel10 layout, located by own-MSL corpus; no operand of this family was independently synthesized."
+    "evidence": [
+     "EXP-0139"
+    ],
+    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    }
   },
   "n2_compact2": {

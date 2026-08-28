@@ -57,7 +57,17 @@ def check_entry(where, e, errors):
         errors.append("%s: label %r has an empty evidence list "
                       "(a label with no experiment pointer must be `untested`)" % (where, label))
     if label == "untested" and ev:
-        errors.append("%s: label `untested` must carry evidence: [] (got %r)" % (where, ev))
+        # `untested` WITH evidence is legitimate and is the stronger of the two:
+        # it means "an experiment swept this field and could not establish a model"
+        # (EXP-0139's tested-but-unexplained convention), as opposed to "nobody has
+        # looked". The distinction matters to whoever picks the field up next, so it
+        # is preserved rather than flattened -- but it must say so, in `note`, or the
+        # reader cannot tell which kind of `untested` they are holding.
+        if not (e.get("note") or "").strip():
+            errors.append("%s: label `untested` carries evidence %r but no `note`. "
+                          "A swept-but-unexplained field must record what was tried and "
+                          "what was seen; a genuinely unexamined field must have "
+                          "evidence []." % (where, ev))
     rng = e.get("range")
     if not isinstance(rng, str) or not rng.strip():
         errors.append("%s: missing or empty `range`" % where)
