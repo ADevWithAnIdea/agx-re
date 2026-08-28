@@ -1,0 +1,8 @@
+P1 baseline_sub         all_match=False ['fault', 'ok', 'ok', 'ok', 'ok']
+P1 addsub=1             all_match=True ['ok', 'ok', 'ok', 'ok', 'ok']
+P1 baseline_sub_after   all_match=True ['ok', 'ok', 'ok', 'ok', 'ok']
+P2 done
+P3 carrier seq: get_sr device_load device_load iadd2 iadd2 funary device_store stop | mov_zext16 @ None | baseline fault
+P4 sr_read_wide   found=True   device_load device_load device_load device_load rt_intersect reg_move_c0 ray_move_copy6 ray_move ibfe ray_move ray_move uniform_mov rt_as_load iadd2
+P4 int_alu_ehi    found=False  get_sr device_load tex_coord_setup imad device_load device_load device_load device_load imad device_store device_store device_store device_store stop
+TOTAL 53 records in 11.0s

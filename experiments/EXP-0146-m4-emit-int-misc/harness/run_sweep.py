@@ -31,6 +31,26 @@ K = EXP / "kernels"
 DECODERS = {"words32": S.words32, "words64": S.words64, "floats32": S.floats32}
 
 
+def fault_class(err):
+    """Classify the OS/Metal command-buffer error string. `innocent_victim` means the
+    command buffer was killed for ANOTHER process's GPU error and says nothing about our
+    bytes -- FIELD-SWEEP-PROTOCOL §7 (2026-08-28) requires these to be segregated."""
+    if not err:
+        return "none"
+    e = err.lower()
+    if "innocentvictim" in e or "innocent victim" in e:
+        return "innocent_victim"
+    if "excessive" in e or "prior" in e:
+        return "ignored_prior_errors"
+    if "hang" in e:
+        return "hang"
+    if "timeout" in e:
+        return "timeout"
+    if "fault" in e or "invalidresource" in e or "access" in e:
+        return "fault"
+    return "other"
+
+
 def hexlist(vals):
     return [("0x%x" % v) if isinstance(v, int) else round(float(v), 7) for v in vals]
 
@@ -150,6 +170,10 @@ def main():
             if cname in ("u64add", "u64sub") and r["status"] == "OK":
                 # per-row delta from the host oracle, in 64-bit units
                 observed["delta"] = ["0x%x" % ((o - e) & O.M64) for o, e in zip(obs, oracle)]
+            observed["status"] = r["status"]
+            if r.get("error"):
+                observed["err"] = r["error"][:200]
+                observed["fault_class"] = fault_class(r["error"])
             rec.record({"instr": instr, "field": fieldname, "value": value,
                         "bytes": mutated_instr.hex(), "observed": observed,
                         "oracle": {"words": hexlist(oracle)}, "match": mt, "outcome": oc,
@@ -221,7 +245,10 @@ def main():
             r = c.run_with_instr(off, mut)
             obs = dec(r["outs"].get(oidx, b""))
             oc, mt = S.classify(r["status"], obs, oracle, tol)
-            observed = {"words": hexlist(obs)}
+            observed = {"words": hexlist(obs), "status": r["status"]}
+            if r.get("error"):
+                observed["err"] = r["error"][:200]
+                observed["fault_class"] = fault_class(r["error"])
             if r["status"] == "OK":
                 lut = O.derive_lut2(O.LOGIC_A, O.LOGIC_B, obs)
                 observed["lut"] = list(lut) if lut else None

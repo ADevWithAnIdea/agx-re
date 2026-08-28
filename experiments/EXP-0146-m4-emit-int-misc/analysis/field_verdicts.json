@@ -1,0 +1,1880 @@
+{
+ "carry_gen.b5@u64add": {
+  "adjudicated_cases": 0,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels b5 'tokenization-only (framing only)'. It is load-bearing: 252 of 256 values break the result. Emit one of the four listed values.",
+  "outcomes": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x1, 0x5, 0x9, 0x81}",
+  "semantics": "Tail/operand-mode byte. Only 4 of 256 values reproduce the carry: {0x01,0x05,0x09,0x81}. There is NO clean required/free bit mask (0x0d, the bitwise OR of the working 0x05 and 0x09, does NOT work), so this byte is not a simple bit-flag set.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.byte+0@u64add": {
+  "adjudicated_cases": 17,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Raw byte probe: the low nibble is a db.json match constant, the high nibble is dst.",
+  "outcomes": {
+   "fault": 15,
+   "ok": 1,
+   "silent_zero": 9,
+   "wrong_value": 231
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x32}; exact rule (value & 0xff) == 0x32, free bits 0x00",
+  "semantics": "byte0 = (dst<<4) | 0x2. Exactly one of 256 values works (0x32). 15 values fault, 9 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.byte+2@u64add": {
+  "adjudicated_cases": 1,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Pre-registered falsifier F1 (byte+2 = 0x00) FIRED: contained command-buffer fault, reproducing EXP-0038's A18 neutralisation result on M4 by a second method.",
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x5, 0x7, 0x15, 0x17, 0x25, 0x27, 0x35, 0x37}; exact rule (value & 0xcd) == 0x05, free bits 0x32",
+  "semantics": "db.json models byte+2 as an 8-bit MATCH constant 0x35. The hardware only requires (value & 0xCD) == 0x05: bits 1, 4 and 5 are DON'T-CARE. 8 of 256 values work.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.cmpmode@u64add": {
+  "adjudicated_cases": 0,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json declares only the single enum value 34 ('ordered'). The hardware accepts 8 encodings of that same relation.",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 136,
+   "wrong_value": 112
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x22, 0x2a, 0x32, 0x3a, 0x62, 0x6a, 0x72, 0x7a}; exact rule (value & 0xa7) == 0x22, free bits 0x58",
+  "semantics": "Compare-relation selector. Exact rule: (value & 0xA7) == 0x22 -- bits 1 and 5 must be set, bits 0,2,7 clear; bits 3,4,6 are DON'T-CARE (0x58 free mask). 136 of 256 values silently zero the whole store; 112 give a different (wrong) relation.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.dst@u64add": {
+  "adjudicated_cases": 0,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "run05/P2 crossed dst 0..15 against a 32-point sweep of each psel body byte (1536 combinations) and found NO (dst, psel-byte) pair other than dst=3 that restores the result, so 'dst names a predicate register the consumer can be re-pointed to' is NOT established. Emit dst=3-equivalent only: i.e. keep producer and consumer paired as the compiler does.",
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x3}; exact rule (value & 0x0f) == 0x03, free bits 0x00",
+  "semantics": "Predicate destination of the unsigned-overflow compare. Load-bearing: of the 16 encodable nibble values exactly one (the compiler's own, 0x3) reproduces the 64-bit sum; the other 15 drop or misplace the carry.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.srcA@u64add": {
+  "adjudicated_cases": 0,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Together with subop this establishes carry_gen's two-operand shape: `p[dst] = (r[subop] <u r[srcA])` evaluated on the low-word add's operands.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x3, 0x83}; exact rule (value & 0x7f) == 0x03, free bits 0x80",
+  "semantics": "SECOND source-operand descriptor, same (reg<<1)|is32 packing: 0x03 = r1, 32-bit; bit7 INERT.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "carry_gen.subop@u64add": {
+  "adjudicated_cases": 0,
+  "carrier": "u64add",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json types byte+1 as an opaque 8-bit 'subop' raw field and its semantics text calls byte+2 the carry-generate marker. The sweep shows byte+1 is an OPERAND, not a sub-opcode: exactly the two values {0x01,0x81} work and every other value changes the carry. This closes the operand-field half of INT-14.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x1, 0x81}; exact rule (value & 0x7f) == 0x01, free bits 0x80",
+  "semantics": "FIRST source-operand descriptor, in the project-standard (reg<<1)|is32 packing: 0x01 = r0, 32-bit. Bit7 is a file-select flag that is INERT here (0x81 works identically).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "db_defects": {
+  "_what_this_is": "FIELD-SWEEP-PROTOCOL \u00a76: modelled boundaries that the hardware contradicts. tools/agx-isa/db.json was NOT edited by this experiment; the orchestrator owns it.",
+  "carry_gen.byte2_match_is_over_constrained": {
+   "corrected_model": "match should be the 5 bits {0,2,3,6,7} == 0b00000101, not a full byte.",
+   "db_claim": "carry_gen match bits [16,8,53] -- byte+2 fixed at 0x35.",
+   "evidence": [
+    "EXP-0146 arm A_carry_gen byte+2 probe"
+   ],
+   "observed": "Only (v & 0xCD) == 0x05 is required; bits 1, 4 and 5 are don't-care (8/256 ok)."
+  },
+  "carry_gen.subop_is_an_operand_not_a_subopcode": {
+   "corrected_model": "byte+1 is the FIRST source-operand descriptor. carry_gen is `p[dst] = (r[b1] <u r[b3])`, a two-operand compare, not a one-operand marker+source.",
+   "db_claim": "carry_gen byte+1 typed 'subop', width 8, type raw; corpus note calls it a marker.",
+   "evidence": [
+    "EXP-0146 arm A_carry_gen"
+   ],
+   "observed": "Exactly {0x01, 0x81} work -- the (reg<<1)|is32 operand packing with an inert bit7 -- identical in shape to byte+3 ('srcA'). Every other value changes the carry."
+  },
+  "iadd2.64bit_form_has_a_native_add": {
+   "corrected_model": "A native 64-bit register-pair ADD exists and is emittable; the Apple compiler simply does not use it.",
+   "db_claim": "iadd2 semantics: '64-bit SUB uses the single native 0x1f op' and the compiler emits an explicit iadd2->carry_gen->psel->high-add chain for 64-bit ADD.",
+   "evidence": [
+    "EXP-0146 arm C_iadd2_64",
+    "EXP-0146 run05 P1"
+   ],
+   "observed": "Flipping only the addsub bit of the 64-bit subtract (byte0 0x1f -> 0x9f) yields an EXACT single-instruction 64-bit ADD, verified on two independent 8-row boundary input sets (including 2^64-1 + 1 = 0 and 2^63 + 2^63 = 0), in both gated runs and 5/5 repetitions of run05/P1."
+  },
+  "iadd2.dst_faults_above_register_94": {
+   "corrected_model": "The destination register index is bounded at <= 94 for this form; r95..r127 are not addressable. Independently corroborates the ~96-entry GPR file of EXP-0020 from a different family and method.",
+   "db_claim": "iadd2 dst = (reg<<1)|size, 'a full 8-bit byte -> 7-bit reg (r0..r127)'.",
+   "evidence": [
+    "EXP-0146 arm C_iadd2_64 dst sweep (adjudicated 66/66 fault cases)"
+   ],
+   "observed": "dst byte 0xBE..0xFF (register index >= 95) raises a contained GPU ADDRESS FAULT."
+  },
+  "ilogic.reaches_all_16_boolean_functions": {
+   "corrected_model": "lut_a is 2 selector bits (bits 0-1) inside an 8-bit byte with bits 2-4 don't-care; lut_b's live bits are 0,1,2 and 4. EXP-0102's '10 of 16' was a statement about what MSL SOURCE reaches, not about the encoding.",
+   "db_claim": "EXP-0102 INT-12 recorded ilogic as realizing '10 of the 16' two-input functions, with the raw lut_a/lut_b field width NOT established.",
+   "evidence": [
+    "EXP-0146 arm B_ilogic",
+    "EXP-0146 arm B2_ilogic_lut2d"
+   ],
+   "observed": "All 16 functions were produced by the ilogic instruction alone, with a collision-free selector (op_base, lut_a & 3, lut_b & 0x0f). See analysis/ilogic_lut_table.md for one HW-validated encoding per function."
+  },
+  "int_alu_ehi.no_own_msl_carrier_second_attempt": {
+   "corrected_model": "EXP-M4-13's negative reproduction result REPRODUCED by a second, independent attempt. All 7 int_alu_ehi fields remain `untested`.",
+   "db_claim": "int_alu_ehi (0xef) located only in committed permissive Dawn/Tint std140 shaders.",
+   "evidence": [
+    "EXP-0146 run05 P4"
+   ],
+   "observed": "An independently authored own-MSL std140-shaped uniform->storage matrix copy (kernels/k_std140_matcopy.metal) compiled to imad/device_store and emitted no 0xef at all."
+  },
+  "mov_zext16.src_reg_is_inert_here": {
+   "corrected_model": "UNRESOLVED. Either byte+1 is not a source-register selector, or the operand is ALU-forwarded from the immediately preceding device_load making it a don't-care in this INSTANCE. run05/P3 attempted a carrier whose zext source is several instructions away; that MSL compiled to iadd2/funary and emitted no mov_zext16, so the question is OPEN. CONTRAST: shift_amt_move's byte+1, modelled the same way, IS load-bearing here (exactly 1 of 128 values works).",
+   "db_claim": "mov_zext16 byte+1 bits0-6 = 'source register descriptor', bit7 = 'uniform/special-file flag' (corpus-correlation, EXP-M4-13 R8, n=596).",
+   "evidence": [
+    "EXP-0146 arm E_mov_zext16",
+    "EXP-0146 arm F_shift_amt_move",
+    "EXP-0146 run05 P3"
+   ],
+   "observed": "ALL 128 values of bits0-6 and BOTH values of bit7 reproduce the exact zero-extend in the k_zext16 carrier, while the same instruction's subform byte faults on 26 values and silently zeros on 39 -- so the instruction is live and the field is inert."
+  },
+  "n3_mov.srcA_reg_is_inert_here": {
+   "corrected_model": "Same open question as mov_zext16: inert in this instance. A carrier whose n3_mov result is observable at register granularity is needed.",
+   "db_claim": "n3_mov byte+1 bits0-6 = source register, bit7 = uniform/high-half flag.",
+   "evidence": [
+    "EXP-0146 arm G_n3_mov"
+   ],
+   "observed": "All 128 values of srcA_reg, both values of srcA_uni and all 16 values of dst reproduce the result in the k_u64eq carrier, while subform faults on 32 values."
+  },
+  "sfu_marker.is_not_byte_invariant": {
+   "corrected_model": "A 2-byte control word with 6 don't-care bits and at least one live quadrant/sign control bit -- not an invariant token. It should carry fields, and the instruction descriptor should not be field-less.",
+   "db_claim": "sfu_marker: 'Byte-INVARIANT 2-byte token (06 02) ... Fixed control token with no operand bits' (provenance: byte-diff EXP-M4-13 R2, compile-only, 59 corpus occurrences).",
+   "evidence": [
+    "EXP-0146 run01/run03 arm K_sfu_marker (512 cases, 0 unresolved after run04)"
+   ],
+   "observed": "Both bytes are load-bearing on hardware. byte+0: only (v & 0xF7) == 0x06 works (2 of 256); 62 values return a WRONG value and 192 silently zero. byte+1: only (v & 0x13) == 0x02 works (32 of 256). Setting byte+0 to 0x00 FLIPS THE SIGN of fast::sin on exactly the rows whose argument requires range reduction (|x| > pi/2), leaving the small-argument rows correct."
+  },
+  "sr_read_wide.carrier_found_but_not_executable": {
+   "corrected_model": "Not a db defect: a TESTBED gap. All 6 sr_read_wide fields remain `untested`. Concrete next step: extend tools/agxtest/agxrun_persist.m with setAccelerationStructure: binding.",
+   "db_claim": "sr_read_wide located over an own-MSL + thirdparty corpus (EXP-M4-13, n=996).",
+   "evidence": [
+    "EXP-0146 run05 P4",
+    "EXP-0146 run06"
+   ],
+   "observed": "Our own intersection_query kernel (kernels/k_rayquery.metal) DOES emit three sr_read_wide instances (offsets 856, 864, 1494). It executes (STATUS OK) but returns all zeros, because agxrun_persist binds MTLBuffers only and cannot bind an MTLAccelerationStructure, so q.next() never enters the loop and the getters never reach the output."
+  }
+ },
+ "iadd2.addsub@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "This is the experiment's headline result. Classified 'wrong_value' by the sweep only because that arm's oracle is a-b; the observed words equal (a+b) mod 2^64 EXACTLY on both gated runs and on run05/P1's second, independent boundary input set (5/5 repetitions).",
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 1
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0}; exact rule (value & 0x01) == 0x00, free bits 0x00",
+  "semantics": "THE add/subtract selector of the 64-bit form. 0 = the compiler-emitted 64-bit SUBTRACT; 1 = a full, single-instruction 64-bit ADD (see I64_answers.md I64-01).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.b2_bit0@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0-0x1}; exact rule (value & 0x00) == 0x00, free bits 0x01",
+  "semantics": "HW-TESTED INERT: both values reproduce the exact 64-bit subtract.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.b2_fmt@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 64
+  },
+  "range": "64 values tested (full 6-bit dense); ok at {64 values}; exact rule (value & 0x00) == 0x00, free bits 0x3f",
+  "semantics": "HW-TESTED INERT: all 64 values reproduce the exact 64-bit subtract.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.byte+0@u64sub": {
+  "adjudicated_cases": 51,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Pre-registered falsifier F3 -- resolved POSITIVE. See I64_answers.md.",
+  "outcomes": {
+   "fault": 50,
+   "ok": 1,
+   "silent_zero": 195,
+   "wrong_value": 10
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x1f}; exact rule (value & 0xff) == 0x1f, free bits 0x00",
+  "semantics": "Opcode byte. Only 0x1f gives the subtract; 0x9f gives an exact 64-bit ADD (scored 'wrong_value' against this arm's subtract oracle); 50 values FAULT and 195 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.dst@u64sub": {
+  "adjudicated_cases": 66,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "The 0xBE fault boundary is a hard, independently-derived confirmation of the ~96-register addressable GPR file (EXP-0020) from a different instruction family and a different method.",
+  "outcomes": {
+   "fault": 66,
+   "ok": 2,
+   "silent_zero": 186,
+   "wrong_value": 2
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x0-0x1}; exact rule (value & 0xfe) == 0x00, free bits 0x01",
+  "semantics": "Destination register-PAIR base, (reg<<1)|size. Only {0x00,0x01} reproduce the result (bit0/size free); 0x02-0x03 give a wrong value; 0x04-0xBD SILENTLY ZERO; **0xBE-0xFF FAULT** -- i.e. destination register index >= 95 raises a contained GPU address fault.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.lenbit@u64sub": {
+  "adjudicated_cases": 1,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "fault": 1,
+   "ok": 1
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x1}; exact rule (value & 0x01) == 0x01, free bits 0x00",
+  "semantics": "Instruction-length selector: 1 = the 10-byte 2-source form (correct); 0 makes the hardware read a 12-byte instruction and FAULTS.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.opc_tail2@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {64 values}; exact rule (value & 0x05) == 0x05, free bits 0xfa",
+  "semantics": "(value & 0x05) == 0x05 -- bits 0 and 2 must be set, the other six DON'T-CARE. 64/256 ok.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.opc_tail@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 16,
+   "wrong_value": 176
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {64 values}; exact rule (value & 0x11) == 0x11, free bits 0xee",
+  "semantics": "(value & 0x11) == 0x11 -- bits 0 and 4 must be set, the other six DON'T-CARE. 64/256 ok.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.opmode@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {128 values}; exact rule (value & 0x02) == 0x02, free bits 0xfd",
+  "semantics": "Exactly ONE load-bearing bit: bit1. (value & 0x02) == 0x02 -> correct; all 128 values with bit1 clear SILENTLY ZERO. Bits 0,2..7 DON'T-CARE.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.srcA@u64sub": {
+  "adjudicated_cases": 64,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "The 32-bit form of the same instruction in the same compiler output uses srcA=0xA8, so this byte carries the operand WIDTH as well as the register. The exact width bit is not isolated (changing srcA also changes which register is read), so it is reported as an observation.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 2,
+   "wrong_value": 190
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x50, 0x54}; exact rule (value & 0xfb) == 0x50, free bits 0x04",
+  "semantics": "Source-A descriptor of the 64-bit form: {0x50,0x54} (bit2 free). EVERY value with bits 0 and 1 both set (v & 3 == 3, 64 values) raises a contained GPU address FAULT.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.srcB_ext@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 4,
+   "wrong_value": 120
+  },
+  "range": "128 values tested (full 7-bit dense); ok at {0x0-0x3}; exact rule (value & 0x7c) == 0x00, free bits 0x03",
+  "semantics": "(value & 0x7C) == 0x00; bits 0,1 DON'T-CARE. 4/128 ok.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.srcB_imm@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 4,
+   "wrong_value": 248
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x8-0xb}; exact rule (value & 0xfc) == 0x08, free bits 0x03",
+  "semantics": "(value & 0xFC) == 0x08; bits 0,1 DON'T-CARE. 4/256 ok, 4 silently zero, 248 wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.srcB_imm_hi@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 1
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0}; exact rule (value & 0x01) == 0x00, free bits 0x00",
+  "semantics": "Load-bearing: must be 0.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.srcB_reg_hi@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 64,
+   "wrong_value": 64
+  },
+  "range": "128 values tested (full 7-bit dense); ok at {64 values}; exact rule (value & 0x01) == 0x00, free bits 0x7e",
+  "semantics": "Only the LSB is load-bearing (must be 0); the remaining six bits are DON'T-CARE (64/128 ok).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "iadd2.store_en@u64sub": {
+  "adjudicated_cases": 0,
+  "carrier": "u64sub",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 1
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x1}; exact rule (value & 0x01) == 0x01, free bits 0x00",
+  "semantics": "Load-bearing: 1 = result published, 0 SILENTLY ZEROES the store.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.byte+0@logic_and": {
+  "adjudicated_cases": 52,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Pre-registered falsifier F2 (byte0 = 0x0a) FIRED with a contained command-buffer fault.",
+  "outcomes": {
+   "fault": 36,
+   "ok": 1,
+   "silent_zero": 203,
+   "wrong_value": 16
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0xb}; exact rule (value & 0xff) == 0x0b, free bits 0x00",
+  "semantics": "Opcode byte. Exactly one value works (0x0b); 36 fault, 203 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.lut_a@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "EXP-0102 (INT-12) could reach only 10 of the 16 two-input boolean functions through MSL source and left the raw field width UNKNOWN. This sweep resolves both: lut_a is 2 selector bits inside an 8-bit byte, and (op_base, lut_a&3, lut_b&0x0f) reaches ALL 16 functions with zero collisions. See analysis/ilogic_lut_table.md.",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 160,
+   "wrong_value": 88
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x0, 0x4, 0x8, 0xc, 0x10, 0x14, 0x18, 0x1c}; exact rule (value & 0xe3) == 0x00, free bits 0x1c",
+  "semantics": "Primary LUT selector. Only bits 0 and 1 select; bits 2,3,4 are DON'T-CARE (free mask 0x1c) and bits 5,6,7 must be clear. Rule for the carrier's AND: (value & 0xE3) == 0x00.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.lut_b@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Note bit3 (0x08) IS function-selecting in combination with lut_a (it turns AND into a_and_not_b on the xor base) -- it reads as free in the 1-D sweep only because with lut_a=0/op_base=1 it happens to leave AND unchanged. Use the joint table, not this mask.",
+  "outcomes": {
+   "ok": 16,
+   "silent_zero": 144,
+   "wrong_value": 96
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x0, 0x8, 0x20, 0x28, 0x40, 0x48, 0x60, 0x68, 0x80, 0x88, 0xa0, 0xa8, 0xc0, 0xc8, 0xe0, 0xe8}; exact rule (value & 0x17) == 0x00, free bits 0xe8",
+  "semantics": "Secondary LUT selector. Load-bearing bits are 0,1,2 and 4 ((value & 0x17) == 0 for AND); bits 3,5,6,7 are DON'T-CARE for the AND function.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.op_base@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Both values are legal encodings; which functions each reaches is the joint map in analysis/ilogic_lut_table.md.",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 1
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x1}; exact rule (value & 0x01) == 0x01, free bits 0x00",
+  "semantics": "Function-family base bit (byte+2 bit0). 1 = the and/or base, 0 = the xor base. With the carrier's lut_a=lut_b=0, flipping it to 0 turns AND into the constant 0.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.outmod@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json's 'bit7 = output/store flag' corpus claim is confirmed on hardware and the other 7 bits are proven inert.",
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {128 values}; exact rule (value & 0x80) == 0x80, free bits 0x7f",
+  "semantics": "Output/store enable. Exactly one load-bearing bit: bit7. (value & 0x80) == 0x80 -> correct result; all 128 values with bit7 clear SILENTLY ZERO. Bits 0-6 are DON'T-CARE.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.srcA@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 248,
+   "wrong_value": 6
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x5, 0x85}; exact rule (value & 0x7f) == 0x05, free bits 0x80",
+  "semantics": "First source-operand descriptor, (reg<<1)|is32: 0x05 = r2, 32-bit. Bit7 INERT (0x85 identical). 248 of 256 values SILENTLY ZERO the result -- the canonical Apple9 wrong-operand failure mode.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.srcB@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 248,
+   "wrong_value": 6
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x1, 0x81}; exact rule (value & 0x7f) == 0x01, free bits 0x80",
+  "semantics": "Second source-operand descriptor: 0x01 = r0, 32-bit. Bit7 INERT. 248/256 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.z6@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels z6 'tokenization-only / zero tail'. Confirmed inert on hardware over the full byte range, in a carrier where the same instruction's other fields demonstrably change the output. Role UNKNOWN; do not synthesize a meaning.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {256 values}; exact rule (value & 0x00) == 0x00, free bits 0xff",
+  "semantics": "HW-TESTED INERT: all 256 values reproduce the exact result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.z8@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Same as z6.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {256 values}; exact rule (value & 0x00) == 0x00, free bits 0xff",
+  "semantics": "HW-TESTED INERT: all 256 values reproduce the exact result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "ilogic.z9@logic_and": {
+  "adjudicated_cases": 0,
+  "carrier": "logic_and",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Same as z6.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {256 values}; exact rule (value & 0x00) == 0x00, free bits 0xff",
+  "semantics": "HW-TESTED INERT: all 256 values reproduce the exact result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.b1@rot_imm": {
+  "adjudicated_cases": 110,
+  "carrier": "rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "fault": 22,
+   "ok": 64,
+   "silent_zero": 170
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {64 values}; exact rule (value & 0x06) == 0x00, free bits 0xf9",
+  "semantics": "Only bits 1 and 2 are load-bearing ((value & 0x06) == 0x00); the other six bits are DON'T-CARE. 64 of 256 values give the exact rotate, 170 silently zero, 22 fault.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.b2@rot_imm": {
+  "adjudicated_cases": 25,
+  "carrier": "rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json carries byte+2 == 0x56 as part of the match; only bit1 of it is required.",
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {128 values}; exact rule (value & 0x02) == 0x02, free bits 0xfd",
+  "semantics": "Exactly one load-bearing bit: bit1 must be set ((value & 0x02) == 0x02). 128/256 correct, 128 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+10@rot_imm": {
+  "adjudicated_cases": 1,
+  "carrier": "rot_imm",
+  "component_of": "irotate.tail@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 68,
+   "wrong_value": 186
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x9, 0xb}; exact rule (value & 0xfd) == 0x09, free bits 0x02",
+  "semantics": "byte-wise component of the composite db field irotate.tail@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+11@rot_imm": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_imm",
+  "component_of": "irotate.tail@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "range": "256 values tested (all 256 byte values); ok at {128 values}; exact rule (value & 0x01) == 0x00, free bits 0xfe",
+  "semantics": "byte-wise component of the composite db field irotate.tail@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+3@rot_imm": {
+  "adjudicated_cases": 64,
+  "carrier": "rot_imm",
+  "component_of": "irotate.operands@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 2,
+   "silent_zero": 190
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x0-0x1}; exact rule (value & 0xfe) == 0x00, free bits 0x01",
+  "semantics": "byte-wise component of the composite db field irotate.operands@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+4@rot_imm": {
+  "adjudicated_cases": 2,
+  "carrier": "rot_imm",
+  "component_of": "irotate.operands@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "range": "256 values tested (all 256 byte values); ok at {128 values}; exact rule (value & 0x02) == 0x02, free bits 0xfd",
+  "semantics": "byte-wise component of the composite db field irotate.operands@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+5@rot_imm": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_imm",
+  "component_of": "irotate.operands@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 4,
+   "wrong_value": 248
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x0-0x3}; exact rule (value & 0xfc) == 0x00, free bits 0x03",
+  "semantics": "byte-wise component of the composite db field irotate.operands@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+6@rot_imm": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_imm",
+  "component_of": "irotate.operands@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 64,
+   "wrong_value": 190
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x6c, 0x6e}; exact rule (value & 0xfd) == 0x6c, free bits 0x02",
+  "semantics": "byte-wise component of the composite db field irotate.operands@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+7@rot_imm": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_imm",
+  "component_of": "irotate.operands@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 128,
+   "wrong_value": 120
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x0, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe}; exact rule (value & 0xf1) == 0x00, free bits 0x0e",
+  "semantics": "byte-wise component of the composite db field irotate.operands@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+8@rot_imm": {
+  "adjudicated_cases": 69,
+  "carrier": "rot_imm",
+  "component_of": "irotate.tail@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 4,
+   "wrong_value": 188
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0xb0, 0xb8, 0xf0, 0xf8}; exact rule (value & 0xb7) == 0xb0, free bits 0x48",
+  "semantics": "byte-wise component of the composite db field irotate.tail@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.byte+9@rot_imm": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_imm",
+  "component_of": "irotate.tail@rot_imm",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 96,
+   "wrong_value": 96
+  },
+  "range": "256 values tested (all 256 byte values); ok at {64 values}; exact rule (value & 0x12) == 0x10, free bits 0xed",
+  "semantics": "byte-wise component of the composite db field irotate.tail@rot_imm; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.operands@rot_imm": {
+  "adjudicated_cases": 66,
+  "carrier": "rot_imm",
+  "composed_from": [
+   "irotate.byte+3@rot_imm",
+   "irotate.byte+4@rot_imm",
+   "irotate.byte+5@rot_imm",
+   "irotate.byte+6@rot_imm",
+   "irotate.byte+7@rot_imm"
+  ],
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "The ROTATE AMOUNT is not a free operand here: byte+6 admits only {0x6c,0x6e}, so the immediate rotate count is NOT independently emittable from this carrier -- a rotate by a different constant needs a differently-compiled carrier. Reported as a bounded limitation.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 144,
+   "silent_zero": 514,
+   "wrong_value": 558
+  },
+  "range": "swept BYTE-WISE: 5 constituent bytes x all 256 values = 1280 cases",
+  "semantics": "40-bit raw field = bytes +3..+7, swept BYTE-WISE, all 256 values each. Per-byte rules: +3 (value&0xFE)==0 (2 ok, 64 fault); +4 (value&0x02)==0x02 (128 ok); +5 (value&0xFC)==0 (4 ok); +6 (value&0xFD)==0x6C (2 ok); +7 (value&0xF1)==0 (8 ok).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "irotate.tail@rot_imm": {
+  "adjudicated_cases": 70,
+  "carrier": "rot_imm",
+  "composed_from": [
+   "irotate.byte+8@rot_imm",
+   "irotate.byte+9@rot_imm",
+   "irotate.byte+10@rot_imm",
+   "irotate.byte+11@rot_imm"
+  ],
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels the whole 32-bit tail 'tokenization-only'. Three of its four bytes are load-bearing.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 198,
+   "silent_zero": 164,
+   "wrong_value": 598
+  },
+  "range": "swept BYTE-WISE: 4 constituent bytes x all 256 values = 1024 cases",
+  "semantics": "32-bit raw field = bytes +8..+11, swept BYTE-WISE, all 256 values each. Per-byte rules: +8 (value&0xB7)==0xB0 (4 ok, 64 fault); +9 (value&0x12)==0x10 (64 ok); +10 (value&0xFD)==0x09 (2 ok); +11 (value&0x01)==0x00 (128 ok, i.e. only bit0 matters).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "mov_zext16.byte+0@zext16": {
+  "adjudicated_cases": 115,
+  "carrier": "zext16",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Pre-registered falsifier F4 (byte0 = 0x12) FIRED (fault).",
+  "outcomes": {
+   "fault": 114,
+   "ok": 99,
+   "silent_zero": 38,
+   "wrong_value": 5
+  },
+  "range": "256 values tested (all 256 byte values); ok at {99 values}",
+  "semantics": "Opcode byte. 99 of 256 values still produce the exact zero-extend (the 0x?3 16-bit narrow family generalises over the dst nibble), 114 FAULT, 38 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "mov_zext16.extend@zext16": {
+  "adjudicated_cases": 3,
+  "carrier": "zext16",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json's '0x01 = the low-16 zero-extend companion' is far weaker than reality: almost the whole byte is a don't-care for this lowering.",
+  "outcomes": {
+   "ok": 252,
+   "silent_zero": 4
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {252 values}",
+  "semantics": "Companion / extend-width descriptor. 252 of 256 values reproduce the result; only 4 silently zero. Bits 3 and 4 are free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "mov_zext16.src_flag@zext16": {
+  "adjudicated_cases": 0,
+  "carrier": "zext16",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Same caveat as src_reg.",
+  "outcomes": {
+   "ok": 2
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0-0x1}; exact rule (value & 0x00) == 0x00, free bits 0x01",
+  "semantics": "HW-TESTED INERT in this carrier: both values reproduce the exact result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "mov_zext16.src_reg@zext16": {
+  "adjudicated_cases": 0,
+  "carrier": "zext16",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json (from EXP-M4-13 corpus correlation) types byte+1 bits0-6 as the SOURCE REGISTER. That is CONTRADICTED here: no value of the field changes the result. Alternative not excluded: the operand may be ALU-forwarded from the immediately preceding device_load (the known 0x56 direct-forward pattern), making the field a don't-care in this INSTANCE rather than in the encoding. run05/P3 tried to settle it with a carrier whose zext source is several instructions away, but that MSL compiled to iadd2/funary and emitted no mov_zext16 at all, so the question is OPEN. Recorded under db_defects.",
+  "outcomes": {
+   "ok": 128
+  },
+  "range": "128 values tested (full 7-bit dense); ok at {128 values}; exact rule (value & 0x00) == 0x00, free bits 0x7f",
+  "semantics": "HW-TESTED INERT in this carrier: ALL 128 values reproduce the exact zero-extend.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "mov_zext16.subform@zext16": {
+  "adjudicated_cases": 36,
+  "carrier": "zext16",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "fault": 26,
+   "ok": 80,
+   "silent_zero": 39,
+   "wrong_value": 111
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {80 values}",
+  "semantics": "Source-class / size sub-form selector. Load-bearing: 80 of 256 values give the exact zero-extend, 111 give a different value, 39 silently zero and 26 FAULT. Only bit5 is free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+4@roundmodes": {
+  "adjudicated_cases": 202,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "fault": 82,
+   "ok": 16,
+   "silent_zero": 4,
+   "wrong_value": 154
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x22, 0x26, 0x2a, 0x2e, 0x62, 0x66, 0x6a, 0x6e, 0xaa, 0xae, 0xb2, 0xb6, 0xea, 0xee, 0xf2, 0xf6}",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+5@roundmodes": {
+  "adjudicated_cases": 4,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 10,
+   "wrong_value": 246
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x9a-0xa3}",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+6@roundmodes": {
+  "adjudicated_cases": 8,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 17,
+   "wrong_value": 239
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x1-0x2, 0x9-0xa, 0x11-0x12, 0x19-0x1a, 0x81-0x82, 0x89-0x8a, 0x91-0x92, 0x99-0x9a, 0x9e}",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+7@roundmodes": {
+  "adjudicated_cases": 21,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 112,
+   "wrong_value": 144
+  },
+  "range": "256 values tested (all 256 byte values); ok at {112 values}",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+8@roundmodes": {
+  "adjudicated_cases": 14,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 160,
+   "wrong_value": 96
+  },
+  "range": "256 values tested (all 256 byte values); ok at {160 values}",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.byte+9@roundmodes": {
+  "adjudicated_cases": 37,
+  "carrier": "roundmodes",
+  "component_of": "n2_op10.immword@roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "256 values tested (all 256 byte values); ok at {256 values}; exact rule (value & 0x00) == 0x00, free bits 0xff",
+  "semantics": "byte-wise component of the composite db field n2_op10.immword@roundmodes; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.dst@roundmodes": {
+  "adjudicated_cases": 0,
+  "carrier": "roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 1,
+   "wrong_value": 14
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x3}; exact rule (value & 0x0f) == 0x03, free bits 0x00",
+  "semantics": "Destination nibble: exactly one value works, 14 wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.immword@roundmodes": {
+  "adjudicated_cases": 286,
+  "carrier": "roundmodes",
+  "composed_from": [
+   "n2_op10.byte+4@roundmodes",
+   "n2_op10.byte+5@roundmodes",
+   "n2_op10.byte+6@roundmodes",
+   "n2_op10.byte+7@roundmodes",
+   "n2_op10.byte+8@roundmodes",
+   "n2_op10.byte+9@roundmodes"
+  ],
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Per clean-room rule 5 the marshalling word's VALUE SEQUENCE is deliberately not reconstructed; only each byte's accept/reject envelope is documented.",
+  "outcomes": {
+   "fault": 82,
+   "ok": 571,
+   "silent_zero": 4,
+   "wrong_value": 879
+  },
+  "range": "swept BYTE-WISE: 6 constituent bytes x all 256 values = 1536 cases",
+  "semantics": "48-bit raw field = bytes +4..+9, swept BYTE-WISE, all 256 values each. Per-byte: +4 16/256 ok (82 FAULT); +5 10/256 ok; +6 17/256 ok; +7 112/256 ok; +8 160/256 ok; +9 HW-TESTED INERT (all 256 ok).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.opdesc@roundmodes": {
+  "adjudicated_cases": 12,
+  "carrier": "roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 189,
+   "wrong_value": 67
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {189 values}",
+  "semantics": "Sub-op descriptor: 189 of 256 values reproduce the result, 67 wrong; no clean mask rule.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.opsel@roundmodes": {
+  "adjudicated_cases": 206,
+  "carrier": "roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json's enum names 33 (0x21) 'sfu_roundmode_marshal'; 0x21 is inside the accepted set.",
+  "outcomes": {
+   "fault": 36,
+   "ok": 4,
+   "silent_zero": 10,
+   "wrong_value": 206
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x1, 0x11, 0x21, 0x31}; exact rule (value & 0xcf) == 0x01, free bits 0x30",
+  "semantics": "Form selector: (value & 0xCF) == 0x01, bits 4,5 DON'T-CARE. 4/256 ok, 36 FAULT, 206 wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op10.src@roundmodes": {
+  "adjudicated_cases": 6,
+  "carrier": "roundmodes",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Weak: this carrier sums five conversions, so a mis-sourced operand can still produce the same sum. Treated as a bounded observation.",
+  "outcomes": {
+   "ok": 254,
+   "wrong_value": 2
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {254 values}",
+  "semantics": "Source register descriptor: 254 of 256 values still reproduce the result -- effectively inert except 2 wrong values. Bit7 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.dst@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 15
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x3}; exact rule (value & 0x0f) == 0x03, free bits 0x00",
+  "semantics": "Destination register nibble on the SECOND carrier: exactly one value works, 15 silently zero -- same shape as the u64eq carrier.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.dst@u64eq": {
+  "adjudicated_cases": 1,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 15
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x0}; exact rule (value & 0x0f) == 0x00, free bits 0x00",
+  "semantics": "Destination register nibble: exactly one value works, 15 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.imm_sel@sfu_sin": {
+  "adjudicated_cases": 28,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 8,
+   "wrong_value": 244
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x6-0x7, 0x86-0x87}; exact rule (value & 0x7e) == 0x06, free bits 0x81",
+  "semantics": "Trailing index/immediate: {0x06,0x07,0x86,0x87}-shaped; (value & 0x7E) == 0x06, bits 0 and 7 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.imm_sel@u64eq": {
+  "adjudicated_cases": 0,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 120,
+   "wrong_value": 132
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x1, 0x5, 0x9, 0x81}",
+  "semantics": "Trailing index/immediate: exactly {0x01,0x05,0x09,0x81} work (the same irregular 4-value set as carry_gen.b5, no clean mask rule).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opA@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {64 values}; exact rule (value & 0x82) == 0x82, free bits 0x7d",
+  "semantics": "Second operand descriptor: (value & 0x82) == 0x82; 64/256 ok.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opA@u64eq": {
+  "adjudicated_cases": 7,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 118,
+   "silent_zero": 138
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {118 values}",
+  "semantics": "Second operand/source descriptor: 118 of 256 values reproduce the result, 138 silently zero; no clean mask rule (only bit0 free).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opB@sfu_sin": {
+  "adjudicated_cases": 117,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "fault": 87,
+   "ok": 2,
+   "silent_zero": 65,
+   "wrong_value": 102
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x15, 0x95}; exact rule (value & 0x7f) == 0x15, free bits 0x80",
+  "semantics": "Mode descriptor: {0x15,0x95} only; bit7 INERT; 87 values FAULT.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opB@u64eq": {
+  "adjudicated_cases": 0,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 16,
+   "silent_zero": 176,
+   "wrong_value": 64
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x26-0x27, 0x2e-0x2f, 0x36-0x37, 0x3e-0x3f, 0x66-0x67, 0x6e-0x6f, 0x76-0x77, 0x7e-0x7f}; exact rule (value & 0xa6) == 0x26, free bits 0x59",
+  "semantics": "Compare-mode / operand-mode descriptor: (value & 0xA6) == 0x26, bits 0,3,4,6 DON'T-CARE. 16/256 ok.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opsel@sfu_sin": {
+  "adjudicated_cases": 2,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 60,
+   "wrong_value": 188
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x3, 0xb, 0x13, 0x1b, 0x23, 0x2b, 0x33, 0x3b}; exact rule (value & 0xc7) == 0x03, free bits 0x38",
+  "semantics": "Op/mode selector on the second carrier: (value & 0xC7) == 0x03, bits 3,4,5 DON'T-CARE.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.opsel@u64eq": {
+  "adjudicated_cases": 19,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 196,
+   "wrong_value": 52
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x5, 0x7, 0xd, 0xf, 0x25, 0x27, 0x2d, 0x2f}; exact rule (value & 0xd5) == 0x05, free bits 0x2a",
+  "semantics": "Op/mode selector: (value & 0xD5) == 0x05, bits 1,3,5 DON'T-CARE. 8/256 ok, 196 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.src_desc@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Cross-carrier: the u64eq carrier requires 0x00 in the same bits, so the field is a genuine per-instance operand, not a constant.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 2,
+   "wrong_value": 250
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x4-0x5, 0x84-0x85}; exact rule (value & 0x7e) == 0x04, free bits 0x81",
+  "semantics": "Source descriptor on the second carrier: (value & 0x7E) == 0x04, bits 0 and 7 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op6.src_desc@u64eq": {
+  "adjudicated_cases": 20,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x0-0x1, 0x80-0x81}; exact rule (value & 0x7e) == 0x00, free bits 0x81",
+  "semantics": "Source descriptor: {0x00,0x01,0x80,0x81} work -- bits 0 and 7 free, bits 1-6 must be clear. 252/256 wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.body@sfu_sin": {
+  "adjudicated_cases": 51,
+  "carrier": "sfu_sin",
+  "composed_from": [
+   "n2_op8.byte+3@sfu_sin",
+   "n2_op8.byte+4@sfu_sin",
+   "n2_op8.byte+5@sfu_sin",
+   "n2_op8.byte+6@sfu_sin",
+   "n2_op8.byte+7@sfu_sin"
+  ],
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Every byte of the 'tokenization-only' body is load-bearing. Per clean-room rule 5 the SFU range-reduction COEFFICIENT SEQUENCE is deliberately not reconstructed; only the accept/reject envelope of each byte is documented.",
+  "outcomes": {
+   "fault": 6,
+   "ok": 21,
+   "silent_zero": 282,
+   "wrong_value": 971
+  },
+  "range": "swept BYTE-WISE: 5 constituent bytes x all 256 values = 1280 cases",
+  "semantics": "40-bit raw field = bytes +3..+7, swept BYTE-WISE, all 256 values each. Per-byte rules: +3 exactly 0x0b; +4 (value&0xDF)==0x04; +5 (value&0x7F)==0x05 (bit7 free); +6 (value&0xE3)==0x80; +7 (value&0x1F)==0x08 (bits 5,6,7 free).",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.byte+3@sfu_sin": {
+  "adjudicated_cases": 1,
+  "carrier": "sfu_sin",
+  "component_of": "n2_op8.body@sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0xb}; exact rule (value & 0xff) == 0x0b, free bits 0x00",
+  "semantics": "byte-wise component of the composite db field n2_op8.body@sfu_sin; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.byte+4@sfu_sin": {
+  "adjudicated_cases": 46,
+  "carrier": "sfu_sin",
+  "component_of": "n2_op8.body@sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "fault": 6,
+   "ok": 2,
+   "silent_zero": 154,
+   "wrong_value": 94
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x4, 0x24}; exact rule (value & 0xdf) == 0x04, free bits 0x20",
+  "semantics": "byte-wise component of the composite db field n2_op8.body@sfu_sin; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.byte+5@sfu_sin": {
+  "adjudicated_cases": 4,
+  "carrier": "sfu_sin",
+  "component_of": "n2_op8.body@sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x5, 0x85}; exact rule (value & 0x7f) == 0x05, free bits 0x80",
+  "semantics": "byte-wise component of the composite db field n2_op8.body@sfu_sin; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.byte+6@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "component_of": "n2_op8.body@sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 128,
+   "wrong_value": 120
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0x98, 0x9c}; exact rule (value & 0xe3) == 0x80, free bits 0x1c",
+  "semantics": "byte-wise component of the composite db field n2_op8.body@sfu_sin; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.byte+7@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "component_of": "n2_op8.body@sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Not itself a db.json field: a raw byte inside a multi-byte field.",
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x8, 0x28, 0x48, 0x68, 0x88, 0xa8, 0xc8, 0xe8}; exact rule (value & 0x1f) == 0x08, free bits 0xe0",
+  "semantics": "byte-wise component of the composite db field n2_op8.body@sfu_sin; see that entry for the per-byte rules",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.dst@sfu_sin": {
+  "adjudicated_cases": 7,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x0-0x1}; exact rule (value & 0x0e) == 0x00, free bits 0x01",
+  "semantics": "Destination nibble: {0x0,0x1} ok, 14 wrong. Bit0 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.opsel@sfu_sin": {
+  "adjudicated_cases": 13,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "fault": 11,
+   "ok": 1,
+   "silent_zero": 92,
+   "wrong_value": 152
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x49}; exact rule (value & 0xff) == 0x49, free bits 0x00",
+  "semantics": "Op selector: exactly one value (0x49) works; 11 FAULT, 92 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n2_op8.srcA_desc@sfu_sin": {
+  "adjudicated_cases": 1,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels the whole instruction 'tokenization-only'; this byte is strictly load-bearing.",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 224,
+   "wrong_value": 31
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0xc2}; exact rule (value & 0xff) == 0xc2, free bits 0x00",
+  "semantics": "Source descriptor: exactly one value (0xc2) works; 224 of 256 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n3_mov.companion@u64eq": {
+  "adjudicated_cases": 25,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 224,
+   "silent_zero": 32
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {224 values}",
+  "semantics": "Companion descriptor. 224 of 256 values reproduce the result; 32 silently zero. Bits 3-7 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n3_mov.dst@u64eq": {
+  "adjudicated_cases": 0,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "The instruction IS live here (subform faults and silently zeros), so this is an inertness observation, not a dead-code artifact. Most likely the carrier's boolean output cannot observe where the move lands. Role in this instance UNKNOWN.",
+  "outcomes": {
+   "ok": 16
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x0-0xf}; exact rule (value & 0x00) == 0x00, free bits 0x0f",
+  "semantics": "HW-TESTED INERT in this carrier: all 16 values reproduce the result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n3_mov.srcA_reg@u64eq": {
+  "adjudicated_cases": 0,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Same caveat as dst; and the same contradiction of a corpus-correlation 'source register' claim as mov_zext16.src_reg. Recorded under db_defects.",
+  "outcomes": {
+   "ok": 128
+  },
+  "range": "128 values tested (full 7-bit dense); ok at {128 values}; exact rule (value & 0x00) == 0x00, free bits 0x7f",
+  "semantics": "HW-TESTED INERT in this carrier: all 128 values reproduce the result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n3_mov.srcA_uni@u64eq": {
+  "adjudicated_cases": 0,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0-0x1}; exact rule (value & 0x00) == 0x00, free bits 0x01",
+  "semantics": "HW-TESTED INERT in this carrier: both values reproduce the result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "n3_mov.subform@u64eq": {
+  "adjudicated_cases": 63,
+  "carrier": "u64eq",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels subform 'untested'; it is the load-bearing byte of this instruction.",
+  "outcomes": {
+   "fault": 32,
+   "ok": 90,
+   "silent_zero": 118,
+   "wrong_value": 16
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {90 values}",
+  "semantics": "Source-class / size sub-form selector. Load-bearing: 90/256 ok, 118 silently zero, 32 FAULT, 16 wrong. Only bit5 free.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "sfu_marker.byte+0@sfu_sin": {
+  "adjudicated_cases": 20,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json describes sfu_marker as a 'byte-INVARIANT 2-byte token (06 02) ... fixed control token with no operand bits'. Refuted: the token carries live control. Recorded under db_defects.",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 192,
+   "wrong_value": 62
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x6, 0xe}; exact rule (value & 0xf7) == 0x06, free bits 0x08",
+  "semantics": "NOT a byte-invariant token. Rule (value & 0xF7) == 0x06 -- only bit3 is free; 2 of 256 values work, 192 silently zero, 62 give a WRONG value. Setting it to 0x00 flips the SIGN of fast::sin on the rows whose argument needs range reduction.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "sfu_marker.byte+1@sfu_sin": {
+  "adjudicated_cases": 0,
+  "carrier": "sfu_sin",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "Same db_defect as byte+0.",
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 128,
+   "wrong_value": 96
+  },
+  "range": "256 values tested (all 256 byte values); ok at {0x2, 0x6, 0xa, 0xe, 0x22, 0x26, 0x2a, 0x2e, 0x42, 0x46, 0x4a, 0x4e, 0x62, 0x66, 0x6a, 0x6e, 0x82, 0x86, 0x8a, 0x8e, 0xa2, 0xa6, 0xaa, 0xae, 0xc2, 0xc6, 0xca, 0xce, 0xe2, 0xe6, 0xea, 0xee}; exact rule (value & 0x13) == 0x02, free bits 0xec",
+  "semantics": "Rule (value & 0x13) == 0x02 -- bits 2,3,5,6,7 are DON'T-CARE; 32 of 256 values work, 128 silently zero, 96 wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "shift_amt_move.dst@rot_var": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_var",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 15
+  },
+  "range": "16 values tested (full 4-bit dense); ok at {0x0}; exact rule (value & 0x0f) == 0x00, free bits 0x00",
+  "semantics": "Destination register nibble. Load-bearing: exactly one value (0x0) works; the other 15 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "shift_amt_move.kind@rot_var": {
+  "adjudicated_cases": 76,
+  "carrier": "rot_var",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json's enum names only 0x1c 'shift_amt' and 0x3c 'rotate_amt'. The hardware accepts 16 encodings in this carrier, including 0x00, and both db values are inside the accepted set.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 16,
+   "silent_zero": 176
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x0, 0x4, 0x8, 0xc, 0x10, 0x14, 0x18, 0x1c, 0x20, 0x24, 0x28, 0x2c, 0x30, 0x34, 0x38, 0x3c}; exact rule (value & 0xc3) == 0x00, free bits 0x3c",
+  "semantics": "Shift/rotate-amount kind selector. Rule (value & 0xC3) == 0x00 -- bits 0,1,6,7 must be clear, bits 2,3,4,5 DON'T-CARE. 16 of 256 values work, 176 silently zero and 64 FAULT.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "shift_amt_move.op_desc@rot_var": {
+  "adjudicated_cases": 4,
+  "carrier": "rot_var",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "db.json labels op_desc 'untested'. It is load-bearing and follows the same (reg<<1)|is32 + inert-bit7 shape as the other operand descriptors in this cluster.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "range": "256 values tested (full 8-bit dense); ok at {0x5, 0x85}; exact rule (value & 0x7f) == 0x05, free bits 0x80",
+  "semantics": "Operand descriptor. Exactly {0x05, 0x85} work; bit7 INERT; 254 values wrong.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "shift_amt_move.src_flag@rot_var": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_var",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "",
+  "outcomes": {
+   "ok": 2
+  },
+  "range": "2 values tested (full 1-bit dense); ok at {0x0-0x1}; exact rule (value & 0x00) == 0x00, free bits 0x01",
+  "semantics": "HW-TESTED INERT: both values reproduce the result.",
+  "target": "M4",
+  "unresolved_cases": 0
+ },
+ "shift_amt_move.src_reg@rot_var": {
+  "adjudicated_cases": 0,
+  "carrier": "rot_var",
+  "evidence": [
+   "EXP-0146"
+  ],
+  "full_dense": true,
+  "label": "hardware-run",
+  "note": "This is the direct contrast that makes mov_zext16.src_reg's inertness meaningful: the same 'compact move byte+1 = source register' model IS confirmed here.",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 2,
+   "wrong_value": 125
+  },
+  "range": "128 values tested (full 7-bit dense); ok at {0x1}; exact rule (value & 0x7f) == 0x01, free bits 0x00",
+  "semantics": "Source register (byte+1 bits0-6). Load-bearing: exactly ONE of 128 values works (0x01); 125 give a wrong value and 2 silently zero.",
+  "target": "M4",
+  "unresolved_cases": 0
+ }
+}

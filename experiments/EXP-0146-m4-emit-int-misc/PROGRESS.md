@@ -26,3 +26,38 @@
   arm baselines hit exactly this. Consequence: **no single case may be promoted on one
   observation.** Mitigation: run02 is a byte-identical independent repeat, and a third
   adjudication pass (`run03`) re-tests every run01/run02 disagreement 5x.
+- **2026-08-28 M6 (post-resume)** — Re-oriented from `PROGRESS.md`, `PRE_REGISTRATION.md` and
+  `raw/`: `run01` and `run02` were both complete (18787 records each). Applied the new binding
+  `FIELD-SWEEP-PROTOCOL.md` §7 requirements: `harness/run_sweep.py` now records the OS
+  command-buffer error string and a `fault_class` per case.
+- **2026-08-28 M7** — **`run02` reclassified as CONTAMINATED** (it overlapped ~2400 of my own
+  flake-check dispatches; passes 3-4 of `raw/pilot/testbed_flake_rate.txt` measured the effect at
+  up to 22 wrong answers per 100 identical dispatches vs 0-6 per 1200 when idle). Retained
+  append-only, excluded from the gate. **`run03` captured as the clean second gated run**
+  (18787 records). Gate `run01` vs `run03`: 17924/18773 agreed (95.48%).
+  Fault classes in run03: 689 `innocent_victim`, 369 `hang`, 194 `fault`, 2 other.
+- **2026-08-28 M8** — **`run04` adjudication complete**: 1735 cases (all 849 disagreements plus
+  every case either gated run scored `fault`/`hang`), 5 serial repetitions each, verdict taken
+  from non-`innocent_victim` repetitions only, unmutated baseline re-validated 97 times with 17
+  failures each forcing a fresh runner process. **0 unresolved cases remain.**
+- **2026-08-28 M9** — **`run05` second-method probes.** P1: the native 64-bit ADD confirmed on a
+  SECOND independent boundary input set, 5/5 repetitions — falsifier F3 resolved **positive**.
+  P2: `carry_gen.dst` x `psel` (1536 combinations) found no alternative working pair, so
+  "dst names a re-pointable predicate register" is NOT established. P3: the second `mov_zext16`
+  carrier emitted no `mov_zext16` — arm void, question left open. P4: `sr_read_wide` FOUND in our
+  own ray-query kernel; `int_alu_ehi` ABSENT again (EXP-M4-13's negative reproduced).
+  **`run06`**: the ray-query carrier executes but returns all zeros (no acceleration structure
+  can be bound), so `sr_read_wide` is not live on the output path and was NOT swept.
+- **2026-08-28 M10** — Analysis and deliverables written: `analysis/field_verdicts.json`
+  (94 entries + 10 `db_defects`), `analysis/ilogic_lut_table.md`, `analysis/I64_answers.md`,
+  `analysis/field_maps.json`, `analysis/bit_rules.json`, `RESULTS.md`, `README.md`,
+  `manifest.json`. **47 of the 60 db.json fields in the dispatched cluster are `hardware-run`;
+  all six I64 items answered (I64-03 PARTIAL).** Note for the orchestrator: `raw/` totals ~29 MB
+  of plain JSONL (three 9 MB gated captures); it is append-only evidence, so the retention
+  decision is yours.
+- **2026-08-28 M11** — Housekeeping: removed `__pycache__`, documented `work/` as regenerable
+  scratch (`work/README.md`) and confirmed it contains only compiles of our own
+  `kernels/*.metal` plus plain input buffers — no Apple binary, blob or precompiled shader.
+  Verified with `git status` that **none** of `tools/`, `docs/`, `PROVENANCE.md`,
+  `APPLE9_RE_IMPLEMENTATION_GAPS.md`, `CODEX.md`, `CLAUDE.md` or the protocol files were
+  modified, and that **nothing was committed**.
