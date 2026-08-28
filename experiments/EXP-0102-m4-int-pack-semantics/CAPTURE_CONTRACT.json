@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0102-m4-int-pack-semantics",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4",
+  "boundary": "public Metal API only; runtime MSL compile of our own kernels (tools/shdump); dispatch+readback via tools/agxtest/agxtest.py+agxrun; every case a fresh process pair (run.py -> case_exec.py -> agxtest.py -> agxrun); no Apple binary, archive, BO, or command-stream inspection beyond our own compiled bytes",
+  "pinned_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "pinned_revision_note": "authored blob hashes below are what gates validity, not live HEAD (SUBAGENT_BRIEF.md target-discipline rule; HEAD may move as the orchestrator commits sibling experiments)",
+  "runs": ["m4-<UTC-timestamp>-run01", "m4-<UTC-timestamp>-run02"],
+  "n_cases": 51,
+  "items_covered": [
+    "INT-01", "INT-02", "INT-03", "INT-04", "INT-05", "INT-06", "INT-07",
+    "INT-08", "INT-09", "INT-10", "INT-11", "INT-12", "INT-13", "INT-14",
+    "PACK-01", "PACK-02", "PACK-03", "PACK-04", "PACK-05", "PACK-06",
+    "PACK-07", "PACK-08", "PACK-09", "PACK-10", "PACK-11"
+  ],
+  "items_partial_or_deferred": {
+    "INT-08": "best-effort register-pressure probe only; full 96-register independent-assembly proof blocked on the still-open register>=64 addressing question (docs/isa/register-move-and-liveness.md); see PRE_REGISTRATION.md",
+    "INT-14": "deferred; carry-generate operand-field layout not yet characterized well enough to safely splice an independent source without risking a misread silent-zero result; see PRE_REGISTRATION.md",
+    "INT-09": "COVERED but by derivation (31-clz) + structural re-confirmation, not direct primitive isolation via splice; see PRE_REGISTRATION.md",
+    "INT-02/INT-11": "COVERED at the compiler-contract tier (what Metal's compiler emits for extract_bits/insert_bits with runtime operands: ibfe/ibfins plus several helper instructions), NOT at the raw-instruction tier (whether the observed cnt==32 bypass is intrinsic to a bare ibfe/ibfins or added by the surrounding compiler-generated code) -- discovered post-freeze during analysis via tools/agx-isa tokenization, disclosed in RESULTS.md",
+    "INT-12": "COVERED for 10/16 canonical functions via a real, field-varying ilogic instruction; the other 6 (2 projections, 2 negations, 2 constants) route through different mnemonics (free passthrough / funary / mov_imm) in this compiler's output and were not tested against ilogic's raw field directly"
+  },
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight --bin-dir <run-bin-dir> --repo <repo-root>"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs --bin-dir <run-bin-dir> --repo <repo-root>"],
+    "post_capture_gate": ["python3 -B verify.py --captured --run <run-dir>", "python3 -B verify.py --captured --compare <run01-dir> <run02-dir>"],
+    "smoke_case": "a+b uint kernel, NON-RECORDED, never written under raw/",
+    "case_timeout_seconds": 40,
+    "subprocess_hard_kill_seconds": 55,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git HEAD at capture time NEVER gated on -- pinned_revision above + authored_blob_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs (see verify.py GATED_FIELDS): one JSON object per case with keys i,id,items,kernel,function,grid,status,pipeline_source,main_len,main_hash_sha256,main_hex,observed_sha256,observed_inline,compared -- no timestamp/duration/argv/stdout/stderr field",
+    "01_timing.jsonl": "NON-GATED sibling: i,id,duration_ms,argv,stdout_tail,stderr_tail -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, results_sha256 (whole-file), code hashes",
+    "full/<case_id>.json": "full per-element observed arrays for cases whose readback exceeds 200 elements (the two 65536-lane exhaustive PACK-04/06 cases); referenced by observed_full_ref in the matching 01_results.jsonl record",
+    "STOP.json": "written on any pre-capture or capture-time stop; a run directory carrying this file is NOT a complete capture"
+  },
+  "authored_blob_sha256": "see authored_hashes.json (30 files: analysis/, harness/, kernels/*.metal, verify.py) -- regenerate and diff against this file before trusting a capture if HEAD has moved. Regenerated once, post-pilot-run01-quarantine, to reflect a case_exec.py scratch-work-dir path fix (raw/m4-20260828T063741Z-run01/QUARANTINE.md) that changed no buffer/dispatch/oracle/comparison logic -- the officially promoted run01/run02 below were captured AFTER this regeneration, so this file matches what actually ran.",
+  "oracle_source": "analysis/oracle.py -- pure Python, computed from NIR/GLSL/Metal-Shading-Language-Specification/IEEE754 PUBLIC definitions and exact rational (fractions.Fraction) arithmetic; NEVER derived from a GPU run. Cross-validated against Python's own struct 'e' (binary16) codec over tens of thousands of values (0 mismatches, PROGRESS.md) as an independent sanity check, not as the oracle's source of truth.",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is the compiled form of MSL we authored (kernels/*.metal, tools/shdump). No Apple binary introspected. tools/shdump, tools/agxtest are READ-ONLY (not modified). Public sources used for definitions only (NIR op semantics, GLSL/Metal Shading Language Specification pack/unpack contracts, IEEE754), never for Apple9-specific encoding facts, which are established solely by hardware execution + host oracle comparison."
+}
