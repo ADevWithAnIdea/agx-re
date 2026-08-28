@@ -446,3 +446,202 @@ def build_cases_2():
                  {"w0": FADD if v == 0 else FMUL}, True,
                  note="db enum 0=fadd_acc 1=fmul_acc", group=G))
     return cs
+
+
+# ---------------------------------------------------------------------------
+# MODE-B live-operand tables. `desc -> value` for each carrier, read off the
+# carrier's own compiled anchor + its device_load extmodes (pilot M1.6).
+# ---------------------------------------------------------------------------
+LIVE = {
+    "half_alu":       {0x04: MEM_F16[0], 0x02: MEM_F16[1]},
+    "half_alu_ext8":  {0x04: MEM_F16S[0], 0x02: MEM_F16S[1]},
+    "half_alu_fma12": {0x04: MEM_F16S[0], 0x05: MEM_F16S[1], 0x02: MEM_F16S[2]},
+}
+
+
+def build_cases_3():
+    """MODE-B families (fp16, copysign, SFU) + the falu2_uni uniform arm."""
+    cs = []
+    add = cs.append
+
+    def caseB(instr, field, value, ib, oracle, expect, note, group=None):
+        return case(instr, field, value, "B", instr, ib, oracle, expect,
+                    note=note, group=group or ("GB_" + instr))
+
+    # ---------------- copysign (4B) -------------------------------------
+    CS_BASE = H.f32(abs(MEM_F32_CS[0]) * (-1.0 if MEM_F32_CS[1] < 0 else 1.0))   # -5.0
+    anchor = bytes.fromhex("07c28800")
+    add(caseB("copysign", "_baseline", 0, anchor, {"o0": CS_BASE}, True, "family anchor"))
+    for v in range(256):
+        add(caseB("copysign", "operands", v, anchor[:3] + bytes([v]),
+                  {"o0": CS_BASE}, False,
+                  "byte+3 operand descriptor; null hypothesis = inert"))
+    # FALSIFIER / structure probe: byte+1 and byte+2 are db MATCH constants,
+    # not fields. At least one value here MUST change the output, or the whole
+    # copysign arm proves nothing about the method's sensitivity.
+    for bi, base in ((1, 0xC2), (2, 0x88)):
+        for v in range(256):
+            b = bytearray(anchor); b[bi] = v
+            add(caseB("copysign", "_match_b%d" % bi, v, bytes(b), {"o0": CS_BASE}, False,
+                      "FALSIFIER/structure: db models byte+%d as a fixed match constant" % bi,
+                      group="GB_copysign_falsifier"))
+
+    # ---------------- half_alu (6B) --------------------------------------
+    ha = bytes.fromhex("10041c0200c0")
+    hb = LIVE["half_alu"]
+    HA_BASE = H.f32(hb[0x04] + hb[0x02])
+    add(caseB("half_alu", "_baseline", 0, ha, {"o0": HA_BASE}, True, "family anchor"))
+    for v in range(256):
+        b = bytearray(ha); b[1] = v
+        add(caseB("half_alu", "dst", v, bytes(b),
+                  {"o0": H.f32(hb.get(v, 0.0) + hb[0x02])}, True,
+                  "H-HALF-LAYOUT: byte+1 is the FIRST SOURCE descriptor, not dst "
+                  "(the destination is byte0's high nibble, exactly as in falu2)"))
+    for v in range(32):
+        b = bytearray(ha); b[2] = (ha[2] & 0x07) | (v << 3)
+        add(caseB("half_alu", "opflags", v, bytes(b), {"o0": HA_BASE}, v in (0, 1, 2, 3),
+                  "bits19..23; falu2's contract is bit19/20 = release source"))
+    for v in range(16):
+        b = bytearray(ha); b[0] = (v << 4) | 0x00
+        add(caseB("half_alu", "_byte0_hi", v, bytes(b), {"o0": HA_BASE}, v == 1,
+                  "db models byte0 as a FIXED 0x10 match; H-HALF-LAYOUT says its high "
+                  "nibble is the destination register (anchor value 1)",
+                  group="GB_half_alu_byte0"))
+
+    # ---------------- half_alu_ext8 (8B) ---------------------------------
+    he = bytes.fromhex("10041c0201000082")
+    hbe = LIVE["half_alu_ext8"]
+    HE_BASE = H.f32(min(hbe[0x04] + hbe[0x02], 1.0))
+    add(caseB("half_alu_ext8", "_baseline", 0, he, {"o0": HE_BASE}, True, "family anchor"))
+    for v in range(256):
+        b = bytearray(he); b[1] = v
+        add(caseB("half_alu_ext8", "dst", v, bytes(b),
+                  {"o0": H.f32(min(hbe.get(v, 0.0) + hbe[0x02], 1.0))}, True,
+                  "H-HALF-LAYOUT: byte+1 = first source descriptor"))
+    for v in range(32):
+        b = bytearray(he); b[2] = (he[2] & 0x07) | (v << 3)
+        add(caseB("half_alu_ext8", "opflags", v, bytes(b), {"o0": HE_BASE}, v in (0, 1, 2, 3),
+                  "bits19..23"))
+    for v in (0, 1):
+        b = bytearray(he); b[7] = (he[7] & ~0x01) | v
+        add(caseB("half_alu_ext8", "b7_lo", v, bytes(b), {"o0": HE_BASE}, v == 0,
+                  "byte+7 bit0"))
+    for v in range(32):
+        b = bytearray(he); b[7] = (he[7] & ~0x7C) | ((v & 0x1F) << 2)
+        add(caseB("half_alu_ext8", "b7_mid", v, bytes(b), {"o0": HE_BASE}, v == 0,
+                  "byte+7 bits2..6"))
+
+    # ---------------- half_alu_fma12 (12B) -------------------------------
+    # emit_unsafe: its length over-consumes the following leader, so the
+    # trailing `ext` field is NOT swept (a sweep there would really be
+    # sweeping the next instruction). Only the two leading-parcel fields.
+    hf = bytes.fromhex("10041e058302000000800100")
+    hbf = LIVE["half_alu_fma12"]
+    HF_BASE = H.f32(abs(hbf[0x04]) * hbf[0x05] + hbf[0x02])
+    add(caseB("half_alu_fma12", "_baseline", 0, hf, {"o0": HF_BASE}, True, "family anchor"))
+    for v in range(256):
+        b = bytearray(hf); b[1] = v
+        add(caseB("half_alu_fma12", "dst", v, bytes(b),
+                  {"o0": H.f32(abs(hbf.get(v, 0.0)) * hbf[0x05] + hbf[0x02])}, True,
+                  "H-HALF-LAYOUT: byte+1 = first source descriptor"))
+    for v in range(32):
+        b = bytearray(hf); b[2] = (hf[2] & 0x07) | (v << 3)
+        add(caseB("half_alu_fma12", "opflags", v, bytes(b), {"o0": HF_BASE}, v in (0, 1, 2, 3),
+                  "bits19..23"))
+
+    # ---------------- fspecial (10B, fast-math single SFU op) ------------
+    fs = bytes.fromhex("af0156020200b0400000")
+    X = MEM_F32[0]                                   # 4.0
+    import math
+    FN_MAP = {(1, 1): 1.0 / math.sqrt(X), (1, 0): 1.0 / X, (1, 2): 2.0 ** X,
+              (0, 0): math.floor(X), (0, 1): math.sqrt(X), (0, 2): math.log2(X)}
+    FS_BASE = H.f32(FN_MAP[(1, 1)])
+    add(caseB("fspecial", "_baseline", 0, fs, {"o0": FS_BASE}, True, "family anchor rsqrt(4)=0.5"))
+    for v in (0, 1):
+        b = bytearray(fs); b[0] = (fs[0] & 0x7F) | (v << 7)
+        pred = FN_MAP.get((v, 1))
+        add(caseB("fspecial", "fn_hi", v, bytes(b),
+                  {"o0": H.f32(pred) if pred is not None else FS_BASE},
+                  (v, 1) in FN_MAP,
+                  "0=direct(sqrt/log2/round) 1=reciprocal(rcp/rsqrt/exp2)"))
+    for v in range(16):
+        b = bytearray(fs); b[1] = (fs[1] & 0xF0) | v
+        pred = FN_MAP.get((1, v))
+        add(caseB("fspecial", "fnclass", v, bytes(b),
+                  {"o0": H.f32(pred) if pred is not None else FS_BASE},
+                  (1, v) in FN_MAP and v in (1, 2),
+                  "function select; the anchor's fnsel/precsel is the std-f32 datapath, "
+                  "so only the classes that share it are pre-registered"))
+    for v in range(16):
+        b = bytearray(fs); b[1] = (fs[1] & 0x0F) | (v << 4)
+        add(caseB("fspecial", "dst", v, bytes(b), {"o0": FS_BASE}, v == 0,
+                  "byte+1 high nibble = destination GPR; only dst=0 is read back "
+                  "by the carrier's own store"))
+    for name, bi in (("src_cache", 2), ("src", 3), ("src_class", 4), ("src_ext", 5),
+                     ("fnsel", 6), ("precsel", 7), ("roundmode", 8), ("sched_flag", 9)):
+        for v in range(256):
+            b = bytearray(fs); b[bi] = v
+            add(caseB("fspecial", name, v, bytes(b), {"o0": FS_BASE}, v == fs[bi],
+                      "byte+%d; null hypothesis = inert away from the anchor value 0x%02x"
+                      % (bi, fs[bi])))
+
+    # ---------------- fspecial_est (6B) ----------------------------------
+    fe = bytes.fromhex("1981250b00c2")
+    FE_BASE = H.f32(1.0 / math.sqrt(X))
+    add(caseB("fspecial_est", "_baseline", 0, fe, {"o0": FE_BASE}, True,
+              "family anchor: the NR seed inside a full no-fast-math rsqrt(4)"))
+    for v in range(16):
+        b = bytearray(fe); b[0] = (fe[0] & 0x0F) | (v << 4)
+        add(caseB("fspecial_est", "dst", v, bytes(b), {"o0": FE_BASE}, v == 1,
+                  "byte0 high nibble = destination (anchor r1)"))
+    for name, bi in (("srcA", 1), ("subop", 3), ("b4", 4), ("b5", 5)):
+        for v in range(256):
+            b = bytearray(fe); b[bi] = v
+            add(caseB("fspecial_est", name, v, bytes(b), {"o0": FE_BASE}, v == fe[bi],
+                      "byte+%d; null hypothesis = inert away from the anchor value 0x%02x"
+                      % (bi, fe[bi])))
+
+    # ---------------- falu2_uni (6B, MODE A in the uniform carrier) ------
+    # No compiler-emitted anchor exists (pilot round 4 hunted one across 42
+    # kernels and found only a MIS-TOKENIZED instance). Constructed from
+    # db.json's own descriptor: srcA = the never-written r14 (0.0), so the
+    # result is the uniform operand alone.
+    for v in REG7:
+        ib = isa_uni(v)
+        add(case("falu2_uni", "usrc", v, "A", "carrier_uni", ib,
+                 {"w0": UNI.get(v, 0.0)}, v not in (126, 127),
+                 note="constructed falu2_uni; predicted = uniform file at index v "
+                      "(6..9 hold 101/202/303/404)", group="G_falu2_uni"))
+    for name, rng in (("dst", range(16)), ("opsel", range(8)), ("opflags", range(32)),
+                      ("srcA_size", (0, 1)), ("ctrl_lo", range(128)), ("mods", range(256))):
+        for v in rng:
+            kw = {name: v}
+            ib = isa_uni(6, **kw)
+            add(case("falu2_uni", name, v, "A", "carrier_uni", ib,
+                     {"w0": UNI[6]}, name == "dst",
+                     note="constructed falu2_uni, usrc=6 (uniform 101.0)",
+                     dst_reg=(v if name == "dst" else D), group="G_falu2_uni"))
+    for v in REG7:
+        ib = isa_uni(6, srcA_reg=v)
+        add(case("falu2_uni", "srcA_reg", v, "A", "carrier_uni", ib,
+                 {"w0": H.f32(UNI[6] + reg_value(v))}, v not in (126, 127),
+                 note="srcA is the GPR operand added to the uniform", group="G_falu2_uni"))
+    return cs
+
+
+def isa_uni(usrc, dst=D, opsel=4, opflags=0, srcA_size=1, srcA_reg=14,
+            ctrl_lo=0, mods=0xC0):
+    import isadb
+    return isadb.assemble("falu2_uni", {
+        "dst": dst & 0xF, "usrc": usrc & 0xFF, "opsel": opsel & 0x7,
+        "opflags": opflags & 0x1F, "srcA_size": srcA_size & 1,
+        "srcA_reg": srcA_reg & 0x7F, "ctrl_lo": ctrl_lo & 0x7F,
+        "uni_mode": 1, "mods": mods & 0xFF,
+    })
+
+
+def all_cases():
+    cs = build_cases() + build_cases_2() + build_cases_3()
+    for i, c in enumerate(cs):
+        c["i"] = i
+    return cs

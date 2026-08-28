@@ -1,0 +1,241 @@
+{
+ "experiment": "EXP-0138-m4-emit-falu",
+ "frozen_at": "2026-08-28",
+ "repo_revision_at_preregistration": "04fc5f7dac6c55b98fcf6dd04cf217b40ade9588",
+ "revision_gate": "authored blob hashes, NOT live HEAD (SUBAGENT_BRIEF: a sibling experiment landing is not contamination)",
+ "target": {
+  "device": "Apple M4 (G16G), 10 GPU cores",
+  "os": "macOS 26.6.2 (25G82)",
+  "metal": 4,
+  "note": "local host only; no SSH; A18 Pro untouched; no M5"
+ },
+ "authored_sha256": {
+  "harness/isa_helpers.py": "91f6ad685517dff674b582ddfad3bfd5a853d33e72951a187c5902b6001b4dd1",
+  "harness/bench.py": "baab08d8bc2cf0c675b4da51030b437f09a70a4d34ddc4b119290170a24717bf",
+  "harness/families.py": "d3dad35620937bfa15c433e904dcadb3f64c093d2d2b16342e36a9f59c7fd2e3",
+  "harness/run.py": "b825fc378d6baf929584d3babcde91a0ee13b8b31bce456055aaf7dfdca883cb",
+  "harness/build.sh": "89699b3e977b060fea0767ab370bfa3386ffcce9c3f863f872f582c8002f23b9",
+  "kernels/carrier.metal": "eb6f049de8148ab56677bb95124253f31853c61116b579bf1a2def16438b9c6e",
+  "kernels/carrier_uni.metal": "d8f67fa73b082fe0a6b738c7b2390f0094eaa46260f664911ca540f7224a9f85",
+  "kernels/probes.metal": "0b125ca6298b0a9716949f94e57fda4de6819db0b11edaea0b49f2ae7100a181",
+  "PRE_REGISTRATION.md": "45f9778f40d40efe7c9c55f52b3e8ffdb3ae6f794cb18af026695ca030477f37"
+ },
+ "readonly_tool_sha256": {
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agx-isa/db.json": "7c8670ff3a49dbd1c68d60644ea70c2c16f401852d472e54026daab2f48cff6b",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d"
+ },
+ "carriers": {
+  "carrier": {
+   "file": "kernels/carrier.metal",
+   "fn": "k",
+   "main_len": 1218,
+   "mode": "A"
+  },
+  "carrier_uni": {
+   "file": "kernels/carrier_uni.metal",
+   "fn": "k",
+   "main_len": 1246,
+   "mode": "A",
+   "uniform_buffer": {
+    "index": 2,
+    "values": [
+     101.0,
+     202.0,
+     303.0,
+     404.0
+    ],
+    "observed_uniform_regs": {
+     "6": 101.0,
+     "7": 202.0,
+     "8": 303.0,
+     "9": 404.0
+    }
+   }
+  }
+ },
+ "modeB_carriers": {
+  "half_alu": {
+   "fn": "k_hadd",
+   "fast_math": false,
+   "splice_offset": 42,
+   "anchor_bytes": "10041c0200c0",
+   "input_values": [
+    5.0,
+    3.0,
+    0.5,
+    7.0,
+    9.0,
+    11.0,
+    13.0,
+    0.25
+   ],
+   "input_pack": "<e",
+   "output_bytes": 8
+  },
+  "half_alu_ext8": {
+   "fn": "k_hsat",
+   "fast_math": false,
+   "splice_offset": 42,
+   "anchor_bytes": "10041c0201000082",
+   "input_values": [
+    0.25,
+    0.5,
+    0.125,
+    0.0625,
+    0.375,
+    0.75,
+    0.1875,
+    0.03125
+   ],
+   "input_pack": "<e",
+   "output_bytes": 8
+  },
+  "half_alu_fma12": {
+   "fn": "k_hfmaabs",
+   "fast_math": false,
+   "splice_offset": 66,
+   "anchor_bytes": "10041e058302000000800100",
+   "input_values": [
+    0.25,
+    0.5,
+    0.125,
+    0.0625,
+    0.375,
+    0.75,
+    0.1875,
+    0.03125
+   ],
+   "input_pack": "<e",
+   "output_bytes": 8
+  },
+  "copysign": {
+   "fn": "k_copysign",
+   "fast_math": false,
+   "splice_offset": 48,
+   "anchor_bytes": "07c28800",
+   "input_values": [
+    5.0,
+    -3.0,
+    0.5,
+    7.0,
+    9.0,
+    11.0,
+    13.0,
+    0.25
+   ],
+   "input_pack": "<f",
+   "output_bytes": 16
+  },
+  "fspecial": {
+   "fn": "k_rsqrtf",
+   "fast_math": true,
+   "splice_offset": 18,
+   "anchor_bytes": "af0156020200b0400000",
+   "input_values": [
+    4.0,
+    3.0,
+    0.5,
+    7.0,
+    9.0,
+    11.0,
+    13.0,
+    0.25
+   ],
+   "input_pack": "<f",
+   "output_bytes": 16
+  },
+  "fspecial_est": {
+   "fn": "k_rsqrtn",
+   "fast_math": false,
+   "splice_offset": 18,
+   "anchor_bytes": "1981250b00c2",
+   "input_values": [
+    4.0,
+    3.0,
+    0.5,
+    7.0,
+    9.0,
+    11.0,
+    13.0,
+    0.25
+   ],
+   "input_pack": "<f",
+   "output_bytes": 16
+  }
+ },
+ "seed_registers": {
+  "0": 5.0,
+  "1": 1.5,
+  "2": 3.0,
+  "3": 0.5,
+  "4": 7.0,
+  "5": 9.0,
+  "6": 11.0,
+  "7": 13.0,
+  "8": 0.25,
+  "9": 18.0,
+  "10": 22.0,
+  "11": 26.0,
+  "12": 30.0
+ },
+ "poison": "0xDEADBEEF",
+ "n_cases": 16202,
+ "timeouts_s": {
+  "per_request_watchdog": 12,
+  "shdump_compile": 180
+ },
+ "controls": {
+  "unique_archive_path_per_request": true,
+  "poisoned_output_buffer": true,
+  "majority_of_3_before_fault": true,
+  "fault_class_recorded": true,
+  "victim_segregated": true,
+  "baseline_revalidation_every": 200,
+  "integrity_sentinel": "MODE A: r11==26.0 + poison intact in untouched words; MODE B: poison gone from out[0]"
+ },
+ "raw_tree_schema": {
+  "raw/<run_id>/00_env.json": "environment + case count",
+  "raw/<run_id>/sweep.jsonl": "one JSON object per case, appended and flushed immediately",
+  "raw/<run_id>/01_summary.json": "outcome counts, cascades, elapsed",
+  "raw/<run_id>/cascades.json": "baseline-revalidation failures (GPU error cascades)"
+ },
+ "case_record_keys": [
+  "i",
+  "instr",
+  "field",
+  "value",
+  "bytes",
+  "carrier",
+  "group",
+  "mode",
+  "note",
+  "expect_match",
+  "oracle",
+  "observed",
+  "match",
+  "outcome",
+  "status",
+  "fault_class",
+  "attempts",
+  "victim_retries",
+  "roundtrip",
+  "sentinel_ok",
+  "poison_intact"
+ ],
+ "gated_runs": [
+  "m4_20260828_run01",
+  "m4_20260828_run02"
+ ],
+ "non_gated_captures": {
+  "raw/smoke01": "pre-gate smoke of the priority-1 group (98 cases). RETAINED as evidence, never reused, never promoted; the same cases are re-run in both gated runs."
+ },
+ "excluded": {
+  "falu2_ext8b": "deleted from db.json by EXP-0148 -- was never an instruction",
+  "falu_srcmod12b.opsel": "opsel==4 corrupts an unrelated register (EXP-0119); not swept",
+  "half_alu_fma12.ext": "emit_unsafe: the length over-consumes the following leader, so a tail sweep would be sweeping the next instruction"
+ }
+}

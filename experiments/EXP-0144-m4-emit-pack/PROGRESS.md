@@ -71,3 +71,29 @@
   rules.py, field_verdicts.py. On run03+run05: **44 of the 51 blocking fields at
   emitter grade** (35 hardware-run, 9 isolated-byte-diff), 7 untested.
   Pending: the second capture that gates the cvt_* cluster and unpack_convert.
+
+## 2026-08-28 — REVALIDATION (coordinator: run03/04/05 disagree, do not promote)
+- Verified the host: MTLCompilerService recovered, carrier baseline reproduces the
+  oracle 3/3.
+- **Diagnosed the reported divergence.** The coordinator measured run03 vs run04
+  outcome-diff = 12,943/22,237 (58.2%) and run03 vs run05 = 43.8%. Decomposed:
+  * run03 vs run04: 12,861 of the 12,943 (99.4%) are cases where exactly ONE side
+    was a never-dispatched SKIP PLACEHOLDER. Among cases both runs actually
+    measured: **14 of 3,751 differ (0.37%)**.
+  * run03 vs run05: 2,046 of 2,057 likewise; both-measured: **4 of 6,292 (0.06%)**.
+  * run04 vs run05 share **zero** both-measured cases.
+  Cause is MY schema defect: skipped cases were written with `outcome:"hang"`, so an
+  outcome-only comparison sees catastrophic divergence. run04 is still genuinely
+  contaminated (it cascaded 57 s in and skipped 18,486 cases) and stays unused.
+- The 18 genuinely-disagreeing cases are ALL fault/hang boundary cases -- exactly
+  what majority-of-N is for. Proceeding with the revalidation as instructed.
+- Wrote `harness/revalidate.py`: majority-of-3, escalating to 5 when the reps
+  disagree; per-attempt OS fault string; InnocentVictim attempts discarded and
+  re-run; sentinel-absent attempts discarded and re-run; baseline re-validation
+  every 100 cases (EXP-0141 cadence) with a cascade stopping the shard; verdict
+  `indeterminate` when no majority exists. **Schema fixed**: a never-dispatched case
+  now records `outcome: null`, `validity: "not_run"`.
+- Smoke (250 cases, NON-RECORDED): 247 unanimous at 3 reps, 3 escalated to 5 and
+  resolved by majority -- e.g. `f_pack_convert_b0_f7` voted fault 2 / silent_zero 3.
+  A single observation would have called that value `fault` ~40% of the time.
+- Launched `m4_20260828_rv01` as 9 per-instrument shards.

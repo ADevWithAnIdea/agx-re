@@ -84,6 +84,14 @@ def main():
     r1 = a.runs[0]
     r2 = a.runs[1] if len(a.runs) > 1 else None
 
+    # A REVALIDATION run carries its own reproducibility: every case is measured
+    # N times in the same process and the verdict is the majority over attempts that
+    # were themselves clean (no InnocentVictim, sentinel present). For such a run the
+    # stability criterion is INTERNAL -- a cross-run gate would be the wrong test,
+    # because the thing being controlled for is per-attempt machine noise, not
+    # per-run drift.
+    is_reval = any("votes" in r for r in list(runs[r1].values())[:50])
+
     # ---------------- cross-run gate --------------------------------------
     gate = {"runs": a.runs, "gated_keys": GATED, "meta": meta}
     stable = set()
@@ -114,6 +122,26 @@ def main():
                     differing_by_instr=dict(per_instr), sample_differences=diffs)
         print("GATE: %d/%d byte-identical (%.3f%%); excluded %d invalid, %d innocent-victim"
               % (ident, ident + diff, gate["pct_identical"], excl_inv, excl_iv))
+    elif is_reval:
+        stable = {i for i, r in runs[r1].items()
+                  if r.get("validity") == "valid" and r.get("n_clean", 0) >= 3}
+        una = sum(1 for i in stable if runs[r1][i].get("unanimous"))
+        esc = sum(1 for i in stable if runs[r1][i].get("n_clean", 0) > 3)
+        ind = sum(1 for r in runs[r1].values() if r.get("validity") == "indeterminate")
+        nrun = sum(1 for r in runs[r1].values() if r.get("validity") == "not_run")
+        disc = collections.Counter()
+        for r in runs[r1].values():
+            for at in r.get("attempts", []):
+                if at.get("discarded"):
+                    disc[at["discarded"]] += 1
+        gate.update(mode="majority-of-N revalidation (internal stability)",
+                    n_stable=len(stable), unanimous_at_3=una, escalated_to_5=esc,
+                    indeterminate=ind, not_run=nrun,
+                    pct_unanimous=round(100.0 * una / max(1, len(stable)), 3),
+                    discarded_attempts=dict(disc))
+        print("REVALIDATION: %d stable cases, %d unanimous at 3 reps (%.2f%%), "
+              "%d escalated, %d indeterminate, %d not run"
+              % (len(stable), una, gate["pct_unanimous"], esc, ind, nrun))
     else:
         stable = set(runs[r1])
         gate["note"] = "single run -- NOT gated"

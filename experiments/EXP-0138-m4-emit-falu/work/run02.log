@@ -1,0 +1,23 @@
+      0/16202  carrier_uni  {'ok': 1}  0s
+victim_retries=17 repeats=39 hangs=4 restarts=0
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0138-m4-emit-falu/harness/run.py", line 238, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0138-m4-emit-falu/harness/run.py", line 166, in main
+    resp = bench.run(pairs, ins=ins, outs=outs)
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0138-m4-emit-falu/harness/bench.py", line 169, in run
+    resp = self._once(pairs, ins, outs, grid, tg)
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0138-m4-emit-falu/harness/bench.py", line 146, in _once
+    resp = self.runner.request(archive=str(p), grid=grid, tg=tg, ins=ins,
+                               outs=outs, timeout=self.timeout)
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 106, in request
+    self._restart_after_wedge()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 131, in _restart_after_wedge
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 49, in _start
+    raise RuntimeError(f"agxrun_persist did not become READY: {ready!r} {err}")
+RuntimeError: agxrun_persist did not become READY: '' compile failed: Unable to reach MTLCompilerService. The process is unavailable because the compiler is no longer active. Latest invalidation reason: Connection init failed at lookup with error 141 - Reentrancy avoided
+

@@ -1,0 +1,85 @@
+     500/6540  368.0/s  hangs={}
+    1000/6540  5.2/s  hangs={"('pack_convert', 3)": 2}
+    1500/6540  7.8/s  hangs={"('pack_convert', 3)": 2}
+    2000/6540  6.4/s  hangs={"('pack_convert', 3)": 2}
+    2500/6540  7.8/s  hangs={"('pack_convert', 3)": 2}
+    3000/6540  9.4/s  hangs={"('pack_convert', 3)": 2}
+    3500/6540  10.9/s  hangs={"('pack_convert', 3)": 2}
+    4000/6540  12.4/s  hangs={"('pack_convert', 3)": 2}
+    4500/6540  13.9/s  hangs={"('pack_convert', 3)": 2}
+    5000/6540  15.4/s  hangs={"('pack_convert', 3)": 2}
+    5500/6540  17.0/s  hangs={"('pack_convert', 3)": 2}
+    6000/6540  18.4/s  hangs={"('pack_convert', 3)": 2}
+    6500/6540  19.9/s  hangs={"('pack_convert', 3)": 2}
+DONE m4_20260828_rv01__pack_convert: 6540 cases in 326.0s, baselines 65/65 passed
+     500/3956  13.5/s  hangs={}
+    1000/3956  10.0/s  hangs={}
+    1500/3956  14.8/s  hangs={}
+    2000/3956  17.7/s  hangs={}
+    2500/3956  22.0/s  hangs={}
+    3000/3956  26.2/s  hangs={}
+    3500/3956  30.3/s  hangs={}
+DONE m4_20260828_rv01__unpack_convert: 3956 cases in 116.2s, baselines 39/39 passed
+     500/1825  16.3/s  hangs={}
+    1000/1825  8.1/s  hangs={"('cvt_i2f', 3)": 1}
+    1500/1825  12.1/s  hangs={"('cvt_i2f', 3)": 1}
+DONE m4_20260828_rv01__cvt_i2f: 1825 cases in 124.4s, baselines 18/18 passed
+     500/1824  21.5/s  hangs={}
+    1000/1824  10.4/s  hangs={}
+    1500/1824  15.4/s  hangs={}
+DONE m4_20260828_rv01__cvt_i2f_src: 1824 cases in 97.7s, baselines 18/18 passed
+     500/2338  17.3/s  hangs={}
+    1000/2338  5.4/s  hangs={"('cvt_f2i', 3)": 1}
+    1500/2338  8.1/s  hangs={"('cvt_f2i', 3)": 1}
+    2000/2338  10.8/s  hangs={"('cvt_f2i', 3)": 1}
+DONE m4_20260828_rv01__cvt_f2i: 2338 cases in 186.1s, baselines 23/23 passed
+     500/1311  14.2/s  hangs={}
+    1000/1311  21.7/s  hangs={}
+DONE m4_20260828_rv01__cvt_f2h: 1311 cases in 46.4s, baselines 13/13 passed
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 267, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 220, in main
+    bl = baseline_ok()
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 139, in baseline_ok
+    st, ob, sent, gt, er = bench.run(sp)
+                           ~~~~~~~~~^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/probe.py", line 133, in run
+    r = self.runner.request(archive=arch, grid=self.grid, tg=self.tg,
+                            ins={self.in_buf: str(self.in_path)},
+                            outs={self.out_buf: self.out_nbytes,
+                                  self.sent_buf: self.sent_nbytes},
+                            timeout=self.timeout)
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 106, in request
+    self._restart_after_wedge()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 131, in _restart_after_wedge
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 49, in _start
+    raise RuntimeError(f"agxrun_persist did not become READY: {ready!r} {err}")
+RuntimeError: agxrun_persist did not become READY: '' compile failed: Unable to reach MTLCompilerService. The process is unavailable because the compiler is no longer active. Latest invalidation reason: Connection init failed at lookup with error 141 - Reentrancy avoided
+
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 267, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 96, in main
+    c = probe.Carrier(src, t["carrier"], bindir, work)
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/probe.py", line 47, in __init__
+    raise RuntimeError("shdump %s failed: %s" % (function, r.stderr[:400]))
+RuntimeError: shdump c_f2bf failed: shdump: device = Apple M4
+shdump: compile failed: Unable to reach MTLCompilerService. The process is unavailable because the compiler is no longer active. Latest invalidation reason: Connection init failed at lookup with error 141 - Reentrancy avoided
+
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 267, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/revalidate.py", line 96, in main
+    c = probe.Carrier(src, t["carrier"], bindir, work)
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/probe.py", line 47, in __init__
+    raise RuntimeError("shdump %s failed: %s" % (function, r.stderr[:400]))
+RuntimeError: shdump c_ph2 failed: shdump: device = Apple M4
+shdump: compile failed: Unable to reach MTLCompilerService. The process is unavailable because the compiler is no longer active. Latest invalidation reason: Connection init failed at lookup with error 141 - Reentrancy avoided
+
