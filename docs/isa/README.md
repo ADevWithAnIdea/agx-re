@@ -425,6 +425,9 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
 - **Atomics** are in the **memory family** (byte0 `0x67`) as **native single-RMW ops** — see the
   Atomics section below. (Corrects EXP-0012's initial guess of a "`0xbf` CAS loop": `0xbf` is actually
   the SIMD-reduce op, and the surrounding `0f05`/`0f06` are elect-one-lane predication, not a retry loop.)
+- **What byte address a load/store actually touches once misaligned or out-of-allocation** (per-unit
+  align-down addressing, OOB zero-fill/discard, boundary-straddling behavior; M4/G16G, EXP-0076) is
+  documented separately in [`memory-model.md`](memory-model.md) — a normative chapter, not covered here.
 
 ### ✅ Scalar ALU completion — conversions, fma, unary, transcendentals, bitwise, shift, compare (EXP-0013)
 DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless noted):
