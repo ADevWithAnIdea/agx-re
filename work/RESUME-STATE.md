@@ -4,26 +4,38 @@
 session (or this one after a compaction) can read to know exactly where every in-flight experiment
 stands and what command comes next. Update it whenever an experiment changes state.
 
-Last updated: 2026-08-28, after commit `d94b2ce8`.
+Last updated: 2026-08-28, after commit `75eb840a` (all 9 addendum bundles closed).
 
-## In flight
+## In flight — 11-agent wave dispatched 2026-08-28 (all pre-capture as of this update)
 
-| Experiment | Bundle / items | State on disk | Next action |
-|---|---|---|---|
-| `EXP-0096-m4-threadgroup-addressing` | Addendum F — GLCS-A01/A02 | Contract frozen; `raw/m4-20260828-run01` COMPLETE (6090 records); run02 not started; RESULTS not final | between-runs gate → run02 under a **new** id → analysis → manifest → `--captured` → RESULTS |
-| `EXP-0098-m4-gpu-driven-draws` | Addendum H+I — GLPRE-A01/A02, GLXFB-A01 | Contract frozen (pinned rev `39af7f93`); `raw/m4_20260828_run01` is an INTERRUPTED PARTIAL (7 records only) | retain the partial untouched, note it, then run both official captures under **fresh** ids |
+Every one of these is in the pre-registration/authoring phase: contracts not yet frozen, no
+captures, no GPU processes. If the host dies now, the loss is authoring effort only — no evidence.
+On resume, each agent re-orients from its own `PROGRESS.md` and frozen contract.
 
-Neither is evidence yet. Nothing in either may be cited until its two-run sequence closes and its
-gates pass.
+| Experiment | Target | Scope |
+|---|---|---|
+| `EXP-0101-m4-synthesis-blockers` | **The two blockers gating all synthesis** | load→ALU bridge; GPR-sourced `reg_move`; explain the reproducible `0x00000100` |
+| `EXP-0102-m4-int-pack-semantics` | Part-II INT (14) + PACK (11) | integer semantics, bitfield ops, pack/unpack conversion |
+| `EXP-0103-m4-fp-transcendental-semantics` | Part-II FP (14) + TRIG (10) + SFU (7) | incl. whether rcp/rsqrt/sqrt/exp2/log2 share division's DAZ+FTZ |
+| `EXP-0104-m4-controlflow-simd` | Part-II CF (6) + SIMD (7) | exec-mask/reconvergence model; subgroup/quad semantics |
+| `EXP-0105-m4-encoding-registers` | Part-II ENC (16) | **owns the r64–95 addressing question EXP-0099 reopened** |
+| `EXP-0106-m4-texture-isa-semantics` | Part-II TEX (28, largest) | texture instruction operand map a compiler must emit |
+| `EXP-0107-m4-scratch-helper-abi` | **P0.1 / DRV-UAPI-01** | scratch BO layout, helper-program ABI, exhaustion behavior |
+| `EXP-0108-m4-bg-eot-programs` | **P0.4 / DRV-UAPI-04** | BG/EOT/partial program records, tilebuffer ABI, conversion split |
+| `EXP-0109-m4-stage-abi` | **P0.8 / DRV-ABI-01** | VS fetch, FS in/out, CS, prolog/epilog linkage |
+| `EXP-0110-m4-command-container-packing` | **P0.5 + P0.7** | relocation transforms, link grammar, container/metadata map |
+| `EXP-0111-m4-fragment-semantics` | Part-II FS (12) | interpolation/derivatives/tilebuffer contract; 2 EXP-0091 anomalies |
 
-## Completed this wave (promoted, committed, provenance rows in place)
+None is evidence until its two-run sequence closes and its gates pass.
+
+## Completed and promoted
 
 `EXP-0074` OPT-02 division · `EXP-0076` MEM-06..10 access model · `EXP-0079` format conversion ·
 `EXP-0082` MEM-01..05 · `EXP-0083` MEM-15..17 base slots · `EXP-0084` MEM-20..22 bindless ·
 `EXP-0085` MEM-13/14 + ATOM-01..06 · `EXP-0086` liveness refutation · `EXP-0087` move synthesis ·
 `EXP-0089` lifecycle model · `EXP-0090` hand-built program suite · `EXP-0091` addendum A ·
 `EXP-0092` addendum C · `EXP-0093` addendum B · `EXP-0094` addendum D · `EXP-0095` addendum E ·
-`EXP-0097` addendum G · `EXP-0099` dual model refutation.
+`EXP-0097` addendum G · `EXP-0098` addendum H+I (final bundle) · `EXP-0100` addendum F · `EXP-0099` dual model refutation.
 
 ## Deferred tool changes (blocked, do not apply while agents run)
 
