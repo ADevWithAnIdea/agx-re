@@ -218,11 +218,33 @@ as pre-registered. The rule a compiler must follow:
 | requirement | value |
 |---|---|
 | register a later `falu2`/`falu2i` references | **`device_load`'s `extmode` ÷ 2** (`extmode = 2 × target_register`) — the same formula EXP-0090 found for `device_store` |
-| `dst_lo` / `dst_ext9` | a **separate, independently required** field; copy **verbatim** from a compiler-observed value (`(1,1)` for terminal scalar 32-bit loads). Never derive it from the target register — 4 adversarial cases break the load if you do, even with `extmode` correct |
+| `dst_lo` / `dst_ext9` | **RULE ESTABLISHED (EXP-0141) — no longer "copy verbatim".** They carry **no register information**. `dst_lo = 1` **exactly**, and `dst_ext9` **bit 0 = 1**; that is three constrained bits across the nine the two fields span, the rest free. Correct: never derive them from the target register. Superseded: the old instruction to copy a compiler-observed `(1,1)` token — an emitter can now *choose* these |
 | `falu2i` with a load-sourced operand | `mods` byte must be **`0xC0`** (bits 6+7 together; neither alone) |
 
 Validated across target registers 3, 7, 16, 20 and both ALU forms, plus a compiler census where
 11/11 emitted load→ALU pairs confirm the formula.
+
+> **✅ EXP-0141 (2026-08-28) — `device_load`'s destination is now EMITTABLE, and the reachable
+> range is bounded.** Exhaustive sweep of `extmode` at four target registers plus the full
+> 512-value 2-D product, repeated under all 21 working `ld_format` codes:
+>
+> ```
+> to land a load in register R:
+>     extmode  = 2*R        bit 0 is a DON'T CARE
+>     dst_lo   = 1          exact
+>     dst_ext9 bit 0 = 1    upper bits ld_format-dependent
+> ```
+>
+> **`extmode` values 0..127 all work and 128..255 all fail, exactly — so R is reachable only for
+> R = 0..63. R ≥ 64 silently zeroes through this field** and must be reached another way. Two
+> facts EXP-0101 could not establish: `extmode` bit 0 is free, and r64+ is unreachable here.
+>
+> One caveat, from a pre-registered refuter that *partially fired*: how many of `dst_ext9`'s
+> **upper** bits are additionally don't-cares varies with `ld_format` (free for 16 codes, tighter
+> for codes 3/7/9/13 and 39). `dst_ext9 = 1` is valid under all 21, so emit that.
+>
+> This is what took `device_load` and `device_store` from "decodable" to **emittable**, and it
+> removes the last reason a generator had to copy compiled bytes rather than synthesize them.
 
 > **⚠️ Correction with wide blast radius:** EXP-M4-13's `dst = dst_lo | (dst_ext9<<2)` formula —
 > used by every prior experiment and by `tools/agx-isa/db.json` — **predicts the wrong register**.
