@@ -256,9 +256,28 @@ plain twiddle.
 Resolved since EXP-0017 (all EXP-M4-07): compression **aux size at bpp8/16** (§4.3, memory-safety),
 **eligibility threshold** bpp/format-family independence (§4.1), **3D/array/cube/MSAA twiddle** per bpp
 (§1.6), **block-compressed tiling** across block byte-sizes (§1.5), **mip packing** per bpp + tail align
-(§3), and compression×mipmaps (§5). Still open: the block codec bitstream, the exact **per-sample MSAA
-aux ratio** (aux exists at 2×/4× and grows with N, but the precise divisor is not pinned), and the
-compressed-state-byte numeric semantics.
+(§3), and compression×mipmaps (§5).
+
+**Resolved by EXP-0134 (2026-08-28, M4, HW-PROBE + DATA-TRACE): the per-sample MSAA aux ratio is
+now pinned.** `aux_bytes = W · H · N / 32` — exact linear scaling in sample count, confirmed 6/6
+across rgba8unorm (64², N=1/2/4 → 128/256/512 B) and r16float (128², N=1/2/4 → 512/1024/2048 B).
+This is the same `numTexels/32` rule of §4.3 with the sample count folded into the texel count, so
+there is no separate MSAA divisor to carry.
+
+EXP-0134 also refines §4.1's eligibility wording: **`ShaderWrite` and `PixelFormatView` disable
+compression INDEPENDENTLY** — either usage flag alone is sufficient, and the previous phrasing that
+reads as a conjunction is wrong. Storage mode (Private vs Shared) has no effect; linear/buffer-backed
+textures never compress at any size. Two new allocation boundaries: compressed textures under a
+16 KiB main image are suballocated from a shared heap on a 256-byte granule (an Apple *allocator*
+artifact, not a hardware or UAPI requirement), and a ~128-byte aux floor applies at bpp16 where the
+raw formula predicts less.
+
+Still open: the block codec bitstream and the compressed-state-byte numeric semantics — both
+deliberately out of bounds, since decoding them means reverse-engineering Apple's codec rather than
+observing hardware behaviour. EXP-0134 did establish that a single outlier texel produces a distinct
+fourth block state (beyond uniform `0x03` / gradient `0x15` / noise `0x7f`) whose value varies with
+delta magnitude and position, and that the state codes are **format-dependent** — gradient and noise
+differ between rgba8unorm and r32uint at identical geometry, refuting format-independence.
 
 ---
 
