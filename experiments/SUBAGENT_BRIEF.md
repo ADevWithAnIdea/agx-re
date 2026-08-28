@@ -14,7 +14,11 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
   hardware probing (HW-PROBE); black-box data tracing at the userspace↔kernel boundary (DATA-TRACE);
   reading public/open-source refs — `gpu_knowledge/`, `mesa/` (PUBLIC).
 - **Never leave `/Users/user/asahi_re/public/agx-re`** on the host. If any step's cleanliness is
-  unclear, STOP and report — do not guess.
+  unclear, STOP and report — do not guess. **This includes scratch, pilot and dry-run files: do
+  NOT write to `/tmp` or anywhere outside the repo, not even briefly.** Use a `work/` subdirectory
+  inside your own experiment directory. Two agents have already tripped this while root-causing
+  (EXP-0098, EXP-0109); both self-disclosed and relocated, which is the right response — but the
+  rule is absolute, and a quick throwaway probe is exactly when it gets broken.
 
 ## Targets
 - **Local M4 / G16G (this host, 10 cores, macOS 26.6, Metal 4) — the ONLY test target.**
