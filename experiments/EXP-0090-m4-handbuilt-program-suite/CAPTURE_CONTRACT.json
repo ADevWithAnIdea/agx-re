@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0090-m4-handbuilt-program-suite",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82)",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier kernels; binary-archive splice of our own hand-assembled AGX programs (tools/agx-isa isadb.assemble()); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "runs": ["m4-20260827-run01", "m4-20260827-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 24,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 45,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- authored_*_sha256 only)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,item,program,params,oracle,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "programs_captured": ["p1", "p2", "p3"],
+  "programs_excluded": {
+    "p4": "register-pressure/move program -- COULD NOT be made to produce correct results in the time available (reg_move failed to reliably read a GPR written by a different-family instruction, falsified 3x); reported as a first-class NEGATIVE RESULT in RESULTS.md with raw diagnostic evidence (work/pilotP4/), not captured under the formal two-run gate."
+  },
+  "field_matrix_summary": {
+    "P1": "register-index base (implicit, r0-r15 structural cap), float immediates at 0/mid/max-representable(30)/negative-max(-30), integer immediate K at 0/mid/127, one deliberate liveness-bit violation",
+    "P2": "load idx_off at 0/mid(1000)/max(2047)/first-invalid(2048, masks to 0), elem_size code at 0/1/2/3(baseline)/4, base_slot including the EXP-0083 7-bit mirror (slot+128)",
+    "P3": "loop trip count at 0/1/3(baseline)/20, if/else natural-select-false/true (data-driven), icmp_pred cond field flip (6->7), one deliberate liveness-bit violation"
+  },
+  "oracle_source": "programs.py build_p1/build_p2/build_p3 -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain and the EXP-0082 HW-validated device_load/device_store address formulas",
+  "clean_room": "OWN-SHADER + HW-PROBE. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()) or the compiled form of our own carrier MSL (tools/shdump). No Apple binary introspected."
+}
