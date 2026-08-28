@@ -1,0 +1,35 @@
+I64 u64add       ok     get_sr device_load device_load iadd2 carry_gen psel iadd2 iadd2 device_store stop
+I64 u64sub       ok     get_sr device_load device_load iadd2 device_store stop
+I64 s64add       ok     get_sr device_load device_load iadd2 carry_gen psel iadd2 iadd2 device_store stop
+I64 s64sub       ok     get_sr device_load device_load iadd2 device_store stop
+I64 u64addimm    ok     get_sr device_load iadd2 carry_gen psel iadd2 device_store stop
+I64 u64mul       ok     get_sr device_load device_load imad imad imad device_store stop
+I64 u32x32to64   ok     get_sr device_load device_load imad device_store stop
+I64 s32x32to64   fault  get_sr device_load device_load imad device_store stop
+I64 u64and       ok     get_sr device_load device_load ilogic <unknown>
+I64 u64cmp       fault  get_sr device_load device_load icmp_pred psel isel10_c n2_op6 <unknown>
+I64 s64cmp       fault  get_sr device_load device_load icmp_pred psel isel10_c n2_op6 <unknown>
+I64 u64eq        fault  get_sr device_load device_load b_alu10_loe reg_move_cb shift_amt_move n2_op6 scoreboard_fence n3_mov device_store stop
+I64 u64min       fault  get_sr device_load device_load icmp_pred psel isel10_c isel10_c isel10 isel10 device_store stop
+I64 u64shl       fault  get_sr device_load device_load tex_coord_setup iadd2 ibfe ibfins ibfins iadd2 ibfins isel10 isel10 device_store stop
+I64 u64shr       fault  get_sr device_load device_load tex_coord_setup ibfins ibfe device_store stop
+I64 u64clz       fault  get_sr device_load ibitcount ibitcount iadd2 isel10 iadd2 icmp_pred psel isel_reg isel10_c iadd2 isel10_c isel10 device_store stop
+I64 u64ctz       fault  get_sr device_load iadd2 b_alu10_loe iadd2 ibitcount b_alu10_loe ibitcount isel_reg isel10 iadd2 isel10 device_store stop
+I64 u64popcnt    fault  get_sr device_load ibitcount ibitcount iadd2 device_store stop
+I64 u64sel       fault  get_sr device_load isel10 isel10 device_load device_store stop
+A_carry_gen        carry_gen         1552 cases    5.3s  hangs=0
+B_ilogic           ilogic            2306 cases    9.9s  hangs=0
+  !! baseline mismatch for C_iadd2_64/u64sub (fault)
+C_iadd2_64         iadd2             2122 cases   25.3s  hangs=0
+D_irotate          irotate           2816 cases   41.3s  hangs=0
+E_mov_zext16       mov_zext16         898 cases    3.8s  hangs=0
+  !! baseline mismatch for F_shift_amt_move/rot_var (fault)
+F_shift_amt_move   shift_amt_move     658 cases    5.2s  hangs=0
+G_n3_mov           n3_mov             658 cases    2.8s  hangs=0
+H_n2_op6           n2_op6            1296 cases    0.6s  hangs=0
+I_n2_op8           n2_op8            1808 cases    3.3s  hangs=0
+J_n2_op10          n2_op10           2320 cases   21.6s  hangs=0
+K_sfu_marker       sfu_marker         512 cases    0.2s  hangs=0
+L_n2_op6_sfu       n2_op6            1296 cases   64.0s  hangs=0
+B2_ilogic_lut2d    ilogic             512 cases   16.6s
+TOTAL 18787 records in 203.0s -> /Users/user/asahi_re/public/agx-re/experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl

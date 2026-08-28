@@ -1,0 +1,139 @@
+{
+ "arms": [
+  {
+   "arm": "CTRL",
+   "carrier": "synth",
+   "doc": "Baselines and pre-registered falsifiers for the synthesis carrier.",
+   "field": "_controls",
+   "instr": "device_load",
+   "n_cases": 5
+  },
+  {
+   "arm": "CTRL_SPLICE",
+   "carrier": "multi",
+   "doc": "Per-carrier baselines and pre-registered falsifiers.",
+   "field": "_controls",
+   "instr": "-",
+   "n_cases": 8
+  }
+ ],
+ "carrier_oracles": {
+  "atdev": {
+   "0": [
+    7
+   ],
+   "2": [
+    1007,
+    2007,
+    3007,
+    0
+   ]
+  },
+  "atdevimm": {
+   "0": [
+    5000
+   ],
+   "2": [
+    7,
+    1007,
+    2007,
+    3007
+   ]
+  },
+  "attg": {
+   "0": [
+    120112,
+    8007
+   ]
+  },
+  "devfence": {
+   "0": [
+    65558,
+    65559,
+    65560,
+    65561,
+    65562,
+    65563,
+    65564,
+    65565
+   ],
+   "2": [
+    65558
+   ]
+  },
+  "synth": null,
+  "tgtile": "ramp(256)"
+ },
+ "mains": {
+  "atdev": {
+   "main_len": 86,
+   "main_off": 7936,
+   "main_sha256": "b57545675ed1ff00e9fd3e27587b2a37b5636e4af9ede1c46d7fea70ec09325f"
+  },
+  "atdevimm": {
+   "main_len": 86,
+   "main_off": 7968,
+   "main_sha256": "a8d86464702e23577aa65e2e43e15137df1cb0d781a49943af18136236324dcb"
+  },
+  "attg": {
+   "main_len": 178,
+   "main_off": 8016,
+   "main_sha256": "0085d3483137f0312ae6c555ad9a78dfe9ef772830a046d05bc8dcc23bbf6bfd"
+  },
+  "devfence": {
+   "main_len": 228,
+   "main_off": 8272,
+   "main_sha256": "26c76f6eb8adc5d94e83681e0a5e1ee640fd43e04c655ec977d95d653105244f"
+  },
+  "synth": {
+   "main_len": 170,
+   "main_off": 7344,
+   "main_sha256": "1738747671cae809207ddb00379429d9acadff32d02dd9d8e9af7f30af43dc1b"
+  },
+  "tgtile": {
+   "main_len": 138,
+   "main_off": 7680,
+   "main_sha256": "5a239000a59bbcad2a1bd12c34135ee54a6610bf5c48bdb501baa0ccb3352e38"
+  }
+ },
+ "n_cases": 13,
+ "run_id": "smoke",
+ "sites": {
+  "atdev": [
+   "atomic_mem",
+   48,
+   14,
+   "6701540000000000004000002000"
+  ],
+  "atdevimm": [
+   "atomic_mem",
+   48,
+   14,
+   "6701540000800200004000002000"
+  ],
+  "attg": [
+   "atomic_tg",
+   112,
+   12,
+   "670354000000000020000004"
+  ],
+  "devfence": [
+   "mem_fence",
+   48,
+   6,
+   "070454840a00"
+  ],
+  "tgtile_bar": [
+   "threadgroup_barrier",
+   76,
+   6,
+   "070454610900"
+  ],
+  "tgtile_tga": [
+   "tg_addr_compute",
+   46,
+   6,
+   "1c0200000000"
+  ]
+ }
+}

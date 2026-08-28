@@ -1,0 +1,311 @@
+== (A) asm(disasm(bytes)) == bytes  [real own-shader instructions] ==
+  [OK] fadd  (09 05 1c 01 00 c0)              09051c0100c0  ->  09051c0100c0
+  [OK] fmul  (09 05 1d 01 00 c0)              09051d0100c0  ->  09051d0100c0
+  [OK] fadd-nofast (09 01 1c 05 00 c0)        09011c0500c0  ->  09011c0500c0
+  [OK] fsub  (09 01 1c 05 00 c8)              09011c0500c8  ->  09011c0500c8
+  [OK] fadd-dst3 (39 05 04 01 00 c0)          3905040100c0  ->  3905040100c0
+  [OK] fadd-map5 (59 09 1c 0b 00 c0)          59091c0b00c0  ->  59091c0b00c0
+  [OK] faddi 1.0 (09 b1 14 01 80 c0)          09b1140180c0  ->  09b1140180c0
+  [OK] faddi 2.0 (09 c1 14 01 80 c0)          09c1140180c0  ->  09c1140180c0
+  [OK] fsubi 1.0 (09 b1 1c 01 80 c0)          09b11c0180c0  ->  09b11c0180c0
+  [OK] fma   (09 01 1e 05 81 08 02 c0)        09011e05810802c0  ->  09011e05810802c0
+  [OK] fmax  (12 03 1e 05 00 c0)              12031e0500c0  ->  12031e0500c0
+  [OK] fmin  (12 03 1e 05 01 c0)              12031e0501c0  ->  12031e0501c0
+  [OK] fneg  (0b 01 0e 09 02 0a 00 80 00 00)  0b010e09020a00800000  ->  0b010e09020a00800000
+  [OK] fabs  (0b 01 0e 09 02 02 00 80 00 00)  0b010e09020200800000  ->  0b010e09020200800000
+  [OK] load  (67 10 54 00 ...)                6710540000012000510100404600  ->  6710540000012000510100404600
+  [OK] store (e7 00 54 00 ...)                e700540002012100110000901100  ->  e700540002012100110000901100
+  [OK] load32 (copy1 device i32)              6710440001012000510100404600  ->  6710440001012000510100404600
+  [OK] load8  (ld_char device i8)             6710440001012000610100404200  ->  6710440001012000610100404200
+  [OK] load64 (ld_long device i64)            6710440001022000590100404800  ->  6710440001022000590100404800
+  [OK] load4x (vec4i device .4)               6710440001042000570100404000  ->  6710440001042000570100404000
+  [OK] store4x(vec4i device .4)               e700560000042100170000101000  ->  e700560000042100170000101000
+  [OK] tg_store (threadgroup +1=02)           e702560008080000440200300200  ->  e702560008080000440200300200
+  [OK] tg_load  (threadgroup +1=02)           6702540008088000440d00c00800  ->  6702540008088000440d00c00800
+  [OK] preamble (1c a0 10 06)                 1ca01006  ->  1ca01006
+  [OK] preamble (0c a0 10 06)                 0ca01006  ->  0ca01006
+  [OK] stop  (0e 00 00 00)                    0e000000  ->  0e000000
+  [OK] iadd  (9f 01 56 00 02 08 00 a8 17 05)  9f015600020800a81705  ->  9f015600020800a81705
+  [OK] isub  (1f 01 56 00 02 00 10 a8 17 05)  1f015600020010a81705  ->  1f015600020010a81705
+  [OK] imul  (9f 00 56 ... 12B)               9f00560002080000d0260a00  ->  9f00560002080000d0260a00
+  [OK] imad  (9f 00 56 ... 12B)               9f00560002080040d02f2a00  ->  9f00560002080040d02f2a00
+  [OK] iaddi5 (9f 01 56 00 02 0a 00 88 15 04) 9f015600020a00881504  ->  9f015600020a00881504
+  [OK] iaddi255 (... fe 01 ...)               9f01560002fe01881504  ->  9f01560002fe01881504
+  [OK] imin  (02 01 1e 05 07 c0)              02011e0507c0  ->  02011e0507c0
+  [OK] imax  (02 01 1e 05 06 c0)              02011e0506c0  ->  02011e0506c0
+  [OK] umin  (02 01 1e 05 05 c0)              02011e0505c0  ->  02011e0505c0
+  [OK] umax  (02 01 1e 05 04 c0)              02011e0504c0  ->  02011e0504c0
+  [OK] iand  (0b 05 1f 01 00 00 00 80 00 00)  0b051f01000000800000  ->  0b051f01000000800000
+  [OK] ixor  (0b 05 1e 01 02 08 00 80 00 00)  0b051e01020800800000  ->  0b051e01020800800000
+  [OK] popcnt(27 05 56 00 02 00 5c 04)        2705560002005c04  ->  2705560002005c04
+  [OK] matmad_f32 (cf 02 56 ... acc=1)        cf02560200040809d4432401  ->  cf02560200040809d4432401
+  [OK] matmul_f32 (cf 02 56 ... acc=0)        cf02560200040800d4412400  ->  cf02560200040800d4412400
+  [OK] matmad_f16 (cf 00 56 ... half)         cf005604020c080410628c00  ->  cf005604020c080410628c00
+  [OK] matmac_mpp (cf 02 54 ... tiled)        cf02540501b46f004a422401  ->  cf02540501b46f004a422401
+  [OK] ishr  (a7 01 56 00 02 00 08 78 62 00)  a7015600020008786200  ->  a7015600020008786200
+  [OK] ibfe  (a7 00 56 ... 12B)               a700560002001000f0118100  ->  a700560002001000f0118100
+  [OK] icmp  (12 03 1d 05 ... 14B)            12031d05228107c0208013000001  ->  12031d05228107c0208013000001
+  [OK] cvt_f2i (27 07 56 .. 10B)              270756000200b4480300  ->  270756000200b4480300
+  [OK] cvt_f2u (27 07 56 .. 10B)              270756000200b4080200  ->  270756000200b4080200
+  [OK] cvt_i2f (a7 07 56 .. 8B)               a70756000200ac60  ->  a70756000200ac60
+  [OK] cvt_u2f (a7 07 56 .. 8B)               a70756000200ac20  ->  a70756000200ac20
+  [OK] cvt_f2h (11 03 1c 81 00 c2)            11031c8100c2  ->  11031c8100c2
+  [OK] cvt_h2f (09 00 1c 81 00 c2)            09001c8100c2  ->  09001c8100c2
+  [OK] fspecial exp2 (af 02 56 ..)            af0256000200b0400000  ->  af0256000200b0400000
+  [OK] fspecial log2 (2f 02 56 ..)            2f0256000200b0400000  ->  2f0256000200b0400000
+  [OK] fspecial floor (2f 00 56 .. b8=02)     2f0056000200b0400200  ->  2f0056000200b0400200
+  [OK] fspecial ceil  (2f 00 56 .. b8=04)     2f0056000200b0400400  ->  2f0056000200b0400400
+  [OK] fspecial rcp  (af 00 fast 1/x)         af005600020010482000  ->  af005600020010482000
+  [OK] fspecial rsqrt(af 01 fast)             af0156000200b0400000  ->  af0156000200b0400000
+  [OK] fspecial sqrt (2f 01 fast)             2f015604030092400000  ->  2f015604030092400000
+  [OK] fspecial_est rcp  (29 81 25 09)        2981250900c2  ->  2981250900c2
+  [OK] fspecial_est rsqrt(29 81 25 0b)        2981250b00c2  ->  2981250b00c2
+  [OK] fspecial_est sqrt (29 81 25 0d)        2981250d00c2  ->  2981250d00c2
+  [OK] ilogic AND (0b 05 1f 01 ..)            0b051f01000000800000  ->  0b051f01000000800000
+  [OK] ilogic OR  (0b 05 1f 01 0208 ..)       0b051f01020800800000  ->  0b051f01020800800000
+  [OK] ilogic XOR (0b 05 1e 01 0208 ..)       0b051e01020800800000  ->  0b051e01020800800000
+  [OK] ilogic NAND(0b 05 1e 01 0308 ..)       0b051e01030800800000  ->  0b051e01030800800000
+  [OK] ashr_i (a7 01 56 .. >>2 signed 10B)    a7015600020008786200  ->  a7015600020008786200
+  [OK] lshr_i (a7 00 56 .. >>2 unsigned 12B)  a700560002000800f0110100  ->  a700560002000800f0110100
+  [OK] icmp_lt  (12 03 1d .. s< b6=07)        12031d05228107c0208013000001  ->  12031d05228107c0208013000001
+  [OK] ucmp_lt  (12 03 1d .. u< b6=05)        12031d05228105c0208013000001  ->  12031d05228105c0208013000001
+  [OK] fcmp_lt  (12 03 1d .. f< b6=03)        12031d05228103c0208013000001  ->  12031d05228103c0208013000001
+  [OK] icmp_eq  (12 03 1d .. == b4=26)        12031d05268107c0208013000001  ->  12031d05268107c0208013000001
+  [OK] icmp_pred (0a 01 22 82 14 22)          0a0122821422  ->  0a0122821422
+  [OK] sel   (16 c2 a0 c8)                    16c2a0c8  ->  16c2a0c8
+  [OK] psel  (05 22 a0 de)                    0522a0de  ->  0522a0de
+  [OK] jump  (0f 00 54 d4 ff ff ff ff ff 00)  0f0054d4ffffffffff00  ->  0f0054d4ffffffffff00
+  [OK] get_sr(1c a0 10 06)                    1ca01006  ->  1ca01006
+  [OK] get_sr r34 (24 aa 10 46)               24aa1046  ->  24aa1046
+  [OK] get_sr r64 (0c 9d 50 86)               0c9d5086  ->  0c9d5086
+  [OK] simd_reduce sum  (bf 01 56..14 03)     bf01560002001403  ->  bf01560002001403
+  [OK] simd_reduce or   (bf 00 56..14 03)     bf00560002001403  ->  bf00560002001403
+  [OK] simd_reduce and  (3f 00 56..14 03)     3f00560002001403  ->  3f00560002001403
+  [OK] simd_reduce max  (bf 02 56..14 07)     bf02560002001407  ->  bf02560002001407
+  [OK] simd_reduce fadd (3f 06 56..14 12)     3f06560002001412  ->  3f06560002001412
+  [OK] simd_reduce excl (bf 01 56..14 0b)     bf0156000200140b  ->  bf0156000200140b
+  [OK] quad_reduce sum  (b7 01 56..14 03)     b701560002001403  ->  b701560002001403
+  [OK] quad_reduce min  (37 02 56..14 07)     3702560002001407  ->  3702560002001407
+  [OK] simd_shuffle bcast0 (47 04 56..)       470456000200002c0400  ->  470456000200002c0400
+  [OK] simd_shuffle bcast5 (47 04 56..0a)     4704560002000a2c0400  ->  4704560002000a2c0400
+  [OK] simd_shuffle xor1  (c7 04 56..02)      c70456000200022c0400  ->  c70456000200022c0400
+  [OK] quad_shuffle bcast0 (47 00 56..)       470056000200002c0400  ->  470056000200002c0400
+  [OK] simd_ballot (17 07 56..)               17075600020000582204  ->  17075600020000582204
+  [OK] atomic_rmw add  (67 11 54..20)         6711540000800100004200002000  ->  6711540000800100004200002000
+  [OK] atomic_rmw smax (67 11 54..28)         6711540000800100004200002800  ->  6711540000800100004200002800
+  [OK] atomic_mem xchg (67 01 56..3c)         6701560000000000000200003c00  ->  6701560000000000000200003c00
+  [OK] rt_intersect const-origin (d4 ea 90 ..) d4ea90a68b000000  ->  d4ea90a68b000000
+  [OK] rt_intersect dyn-origin  (a4 ea 10 ..) a4ea1046cb000000  ->  a4ea1046cb000000
+  [OK] rt_intersect +fntable    (24 ea d0 ..) 24ead0a6ab008000  ->  24ead0a6ab008000
+  [OK] rt_intersect result-read (34 ea 10 ..) 34ea10266386269f  ->  34ea10266386269f
+  [OK] rt_as_load (df 02 54 ..)               df025432000000005c02044c0000  ->  df025432000000005c02044c0000
+  [OK] barrier tgmem (07 04 54 61 09 00)      070454610900  ->  070454610900
+  [OK] barrier device (07 04 54 85 08 00)     070454850800  ->  070454850800
+  [OK] falu_acc (09 01 38 11)                 09013811  ->  09013811
+  [OK] falu2_uni a+uniform (09 0d 14 01 80 c0) 090d140180c0  ->  090d140180c0
+  [OK] falu_acc 0x18 form (19 0b 18 09)       190b1809  ->  190b1809
+  [OK] spill_frame_marker (60 00 00 00)       60000000  ->  60000000
+  [OK] device_load a[i0] (67 00 46 0a ..)     6700460a02802000510100404600  ->  6700460a02802000510100404600
+  [OK] iadd2 add (9f 01 56 .. a8 17 05)       9f015600020800a81705  ->  9f015600020800a81705
+  [OK] iadd2 sub (1f 01 56 .. a8 17 05)       1f015600020010a81705  ->  1f015600020010a81705
+  [OK] iter center (2f 0d 54 .. m0)           2f0d5400030000021000  ->  2f0d5400030000021000
+  [OK] iter perspW (2f 0d 54 .. m4)           2f0d5400030004021000  ->  2f0d5400030004021000
+  [OK] iter_at centroid (af 14 54 .. 01)      af14540403000a01  ->  af14540403000a01
+  [OK] iter_at sample   (af 04 54 .. 03)      af04540403000a03  ->  af04540403000a03
+  [OK] iter_flat (1f 0b 54 0b 00 05)          1f0b540b0005  ->  1f0b540b0005
+  [OK] frag_color_store (e7 06 54 ..)         e70654000000014e00000000  ->  e70654000000014e00000000
+  [OK] tile_read (67 0e 54 ..)                670e5404000001ce02000000  ->  670e5404000001ce02000000
+  [OK] frag_tile_setup (87 02 54 0c 08)       8702540c0800  ->  8702540c0800
+  [OK] frag_color_pack (97 0c 54 ..)          970c54000250805004c8  ->  970c54000250805004c8
+  [OK] pixel_order acquire (07 14 54 50 06)   071454500600  ->  071454500600
+  [OK] pixel_order release (07 04 54 d0 06)   070454d00600  ->  070454d00600
+  [OK] get_sr tgpg (24 a8 10 06)              24a81006  ->  24a81006
+  [OK] get_sr lane (54 82 14 66)              54821466  ->  54821466
+  [OK] mov_imm 32 (0c 20)                     0c20  ->  0c20
+  [OK] half_alu hadd (10 85 24 84 00 c0)      1085248400c0  ->  1085248400c0
+  [OK] ibitcount popcount (27 05 56 ..)       2705560002005c04  ->  2705560002005c04
+  [OK] ibitcount find_msb (a7 05 56 ..)       a7055604030c4e04  ->  a7055604030c4e04
+  [OK] irotate imm (27 01 56 .. 12B)          2701560002006c00f0150900  ->  2701560002006c00f0150900
+  [OK] pack_convert (97 04 56 ..)             9704560c03102a544482  ->  9704560c03102a544482
+  [OK] unpack_convert (17 04 56 ..)           1704560000001cca  ->  1704560000001cca
+  [OK] iminmax_chain (22 01 1e 05 07 c0)      22011e0507c0  ->  22011e0507c0
+  [OK] frame_marker (43 00 00 01)             43000001  ->  43000001
+  [OK] call (0f 05 54 1a 8f 10 54 54 ..)      0f05541a8f105454ffffffffff00  ->  0f05541a8f105454ffffffffff00
+  [OK] ret leaf (8f 02 54 00)                 8f025400  ->  8f025400
+  [OK] call_indirect (0f 80 85 02 07 02)      0f8085020702  ->  0f8085020702
+  [OK] vary_store pos (57 26 54 00 00 40 49 00) 5726540000404900  ->  5726540000404900
+  [OK] vary_store varying (57 06 56 0a a0 40 48 00) 5706560aa0404800  ->  5706560aa0404800
+  [OK] tex_coord_setup (5b 03 2f 00 42 00 00 14 00 00) 5b032f00420000140000  ->  5b032f00420000140000
+  [OK] coord_madf (2e 87 23 a0 42 00 00 06 02 00) 2e8723a0420000060200  ->  2e8723a0420000060200
+  [OK] carry_gen (32 01 35 03 22 81)          320135032281  ->  320135032281
+  [OK] frame_prologue (6f 03 04 00 00 20)     6f0304000020  ->  6f0304000020
+  [OK] link_save (07 00 54 00 81 00 00 00)    0700540081000000  ->  0700540081000000
+  [OK] link_restore (07 00 54 00 81 ff 1f 00) 0700540081ff1f00  ->  0700540081ff1f00
+  [OK] half_pack (18 05 18 03)                18051803  ->  18051803
+  [OK] simd_reduce max 0x54 cache (bf 03 54 04 03 08 14 03) bf03540403081403  ->  bf03540403081403
+  [OK] unpack_convert 0x54 cache (17 04 54 ..) 1704540000001cca  ->  1704540000001cca
+  [OK] simd_ballot(pred) (17 17 54 ..)        1717540002001448220c  ->  1717540002001448220c
+  [OK] simd_active_mask (17 07 54 ..)         17075400020200080218  ->  17075400020200080218
+  [OK] simd_shuffle bcast3 0x54 (47 04 54 ..) 470454000200062c0400  ->  470454000200062c0400
+  [OK] simd_shuffle xor3  0x54 (c7 04 54 ..)  c70454000200062c0400  ->  c70454000200062c0400
+  [OK] jump back-edge (0f 00 54 ..)           0f0054c6ffffffffff00  ->  0f0054c6ffffffffff00
+  [OK] jump_cond guard (0f 01 54 5c ..)       0f01545c000000000000  ->  0f01545c000000000000
+  [OK] if_push (0f 05 54 01)                  0f055401  ->  0f055401
+  [OK] pop_reconverge (0f 06 04 02 00 00)     0f0604020000  ->  0f0604020000
+  [OK] cf_merge (8f 04 54 22)                 8f045422  ->  8f045422
+  [OK] scoreboard_fence pre-call (07 22 02 00) 07220200  ->  07220200
+  [OK] scoreboard_fence CF (07 02 00 00)      07020000  ->  07020000
+  [OK] matrix_mac mad_f32 (cf 02 56 .. dst=byte+8) cf02560200040809d4432401  ->  cf02560200040809d4432401
+  [OK] matrix_mac mul_f32 (cf 02 56 .. acc=0) cf02560200040800d4412400  ->  cf02560200040800d4412400
+  [OK] matrix_mac mad_f16 (cf 00 56 .. half)  cf005604020c080410628c00  ->  cf005604020c080410628c00
+  [OK] matrix_mac mpp_tiled (cf 02 54 ..)     cf02540501b46f004a422401  ->  cf02540501b46f004a422401
+  [OK] rt_intersect motion (a4 ea 10 46 bb ..) a4ea1046bb000000  ->  a4ea1046bb000000
+  [OK] rt_ray_mem (5f 02 54 ..)               5f02542200000000400a06300200  ->  5f02542200000000400a06300200
+  [OK] rt_transform_test (e2 95 27 81 22 ..)  e2952781227a0382207c  ->  e2952781227a0382207c
+  [OK] ray_move copy (eb 50 81 08)            eb508108  ->  eb508108
+  [OK] bf_alu bf_add (11 02 1c 02 09 00 c0 81) 11021c020900c081  ->  11021c020900c081
+  [OK] bf_alu bf_mul (11 02 1d 02 09 00 c0 81) 11021d020900c081  ->  11021d020900c081
+  [OK] imageblock_store (e7 16 54 04 05 00 01 0e ..) e71654040500010e00000004  ->  e71654040500010e00000004
+  [OK] imageblock_load (67 16 54 04 05 00 01 8e ..) 671654040500018e02000010  ->  671654040500018e02000010
+  [OK] mem_fence device (07 04 54 84 0a 00)   070454840a00  ->  070454840a00
+  [OK] get_sr helper (04 84 11 06)            04841106  ->  04841106
+  [OK] frame_marker_compact (60 00)           6000  ->  6000
+  [OK] cubearray_coord_const (f0 c0 04 00)    f0c00400  ->  f0c00400
+  [OK] tg_addr_compute (1c 02 00 00 00 00)    1c0200000000  ->  1c0200000000
+
+== (B) disasm(asm(fields)) == fields  [synthesized] ==
+  [OK] falu2({'dst': 0, 'srcA_size': 1, 'srcA_reg': 2, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 0, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}) -> 09051c0100c0 -> falu2[?] {'dst': 0, 'srcA_size': 1, 'srcA_reg': 2, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 0, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}
+  [OK] falu2({'dst': 0, 'srcA_size': 1, 'srcA_reg': 2, 'opsel': 5, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 0, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}) -> 09051d0100c0 -> falu2[?] {'dst': 0, 'srcA_size': 1, 'srcA_reg': 2, 'opsel': 5, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 0, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}
+  [OK] falu2({'dst': 0, 'srcA_size': 1, 'srcA_reg': 0, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 2, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 1, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}) -> 09011c0500c8 -> falu2[?] {'dst': 0, 'srcA_size': 1, 'srcA_reg': 0, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 2, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 1, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}
+  [OK] falu2({'dst': 5, 'srcA_size': 1, 'srcA_reg': 4, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 5, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}) -> 59091c0b00c0 -> falu2[?] {'dst': 5, 'srcA_size': 1, 'srcA_reg': 4, 'opsel': 4, 'opflags': 3, 'srcB_size': 1, 'srcB_reg': 5, 'ctrl': 0, 'srcB_imm': 0, 'mod_lo': 0, 'srcB_neg': 0, 'mod_hi': 12, 'srcA_reg_top': 0, 'srcB_reg_top': 0}
+  [OK] falu2i({'dst': 0, 'imm_flag': 1, 'imm_mant': 0, 'imm_exp': 11, 'opsel': 4, 'imm_sign': 0, 'opflags': 1, 'srcA_size': 1, 'srcA_reg': 0, 'ctrl_lo': 0, 'mods': 192, 'srcA_reg_top': 0}) -> 09b1140180c0 -> falu2i[?] {'dst': 0, 'imm_flag': 1, 'imm_mant': 0, 'imm_exp': 11, 'opsel': 4, 'imm_sign': 0, 'opflags': 1, 'srcA_size': 1, 'srcA_reg': 0, 'ctrl_lo': 0, 'mods': 192, 'srcA_reg_top': 0}
+  [OK] falu2i({'dst': 0, 'imm_flag': 1, 'imm_mant': 0, 'imm_exp': 12, 'opsel': 4, 'imm_sign': 1, 'opflags': 1, 'srcA_size': 1, 'srcA_reg': 0, 'ctrl_lo': 0, 'mods': 192, 'srcA_reg_top': 0}) -> 09c11c0180c0 -> falu2i[?] {'dst': 0, 'imm_flag': 1, 'imm_mant': 0, 'imm_exp': 12, 'opsel': 4, 'imm_sign': 1, 'opflags': 1, 'srcA_size': 1, 'srcA_reg': 0, 'ctrl_lo': 0, 'mods': 192, 'srcA_reg_top': 0}
+  [OK] falu3({'dst_lo': 0, 'dst': 1, 'op': 30, 'srcA': 5, 'srcB': 129, 'srcC': 8, 'ctrl': 2, 'srcmods': 192}) -> 09011e05810802c0 -> falu3[?] {'dst_lo': 0, 'dst': 1, 'op': 30, 'srcA': 5, 'srcB': 129, 'srcC': 8, 'ctrl': 2, 'srcmods': 192}
+  [OK] falu3({'dst_lo': 3, 'dst': 7, 'op': 30, 'srcA': 11, 'srcB': 129, 'srcC': 14, 'ctrl': 2, 'srcmods': 96}) -> 39071e0b810e0260 -> falu3[?] {'dst_lo': 3, 'dst': 7, 'op': 30, 'srcA': 11, 'srcB': 129, 'srcC': 14, 'ctrl': 2, 'srcmods': 96}
+  [OK] iminmax({'dst': 1, 'dst_full': 3, 'fmt': 3, 'srcA': 5, 'sel': 1, 'selhi': 0, 'srcB': 192}) -> 12031e0501c0 -> iminmax[?] {'dst': 1, 'dst_full': 3, 'fmt': 3, 'srcA': 5, 'sel': 1, 'selhi': 0, 'srcB': 192}
+  [OK] iadd2({'addsub': 1, 'lenbit': 1, 'srcB_reg_hi': 0, 'b2_bit0': 0, 'store_en': 1, 'b2_fmt': 21, 'dst': 0, 'opmode': 2, 'srcB_imm': 8, 'srcB_imm_hi': 0, 'srcB_ext': 0, 'srcA': 168, 'opc_tail': 23, 'opc_tail2': 5}) -> 9f015600020800a81705 -> iadd2[?] {'addsub': 1, 'lenbit': 1, 'srcB_reg_hi': 0, 'b2_bit0': 0, 'store_en': 1, 'b2_fmt': 21, 'dst': 0, 'opmode': 2, 'srcB_imm': 8, 'srcB_imm_hi': 0, 'srcB_ext': 0, 'srcA': 168, 'opc_tail': 23, 'opc_tail2': 5}
+  [OK] iadd2({'addsub': 0, 'lenbit': 1, 'srcB_reg_hi': 0, 'b2_bit0': 0, 'store_en': 1, 'b2_fmt': 21, 'dst': 0, 'opmode': 2, 'srcB_imm': 0, 'srcB_imm_hi': 0, 'srcB_ext': 8, 'srcA': 168, 'opc_tail': 23, 'opc_tail2': 5}) -> 1f015600020010a81705 -> iadd2[?] {'addsub': 0, 'lenbit': 1, 'srcB_reg_hi': 0, 'b2_bit0': 0, 'store_en': 1, 'b2_fmt': 21, 'dst': 0, 'opmode': 2, 'srcB_imm': 0, 'srcB_imm_hi': 0, 'srcB_ext': 8, 'srcA': 168, 'opc_tail': 23, 'opc_tail2': 5}
+  [OK] iminmax({'dst': 0, 'dst_full': 1, 'fmt': 3, 'srcA': 5, 'sel': 7, 'selhi': 0, 'srcB': 192}) -> 02011e0507c0 -> iminmax[?] {'dst': 0, 'dst_full': 1, 'fmt': 3, 'srcA': 5, 'sel': 7, 'selhi': 0, 'srcB': 192}
+  [OK] iminmax({'dst': 0, 'dst_full': 1, 'fmt': 3, 'srcA': 5, 'sel': 4, 'selhi': 0, 'srcB': 192}) -> 02011e0504c0 -> iminmax[?] {'dst': 0, 'dst_full': 1, 'fmt': 3, 'srcA': 5, 'sel': 4, 'selhi': 0, 'srcB': 192}
+  [OK] cvt_f2i({'mode': 86, 'dst': 0, 'src_class': 2, 'src': 0, 'cvtop': 180, 'signflag': 72, 'dst_class': 3, 'b9': 0}) -> 270756000200b4480300 -> cvt_f2i[?] {'mode': 86, 'dst': 0, 'src_class': 2, 'src': 0, 'cvtop': 180, 'signflag': 72, 'dst_class': 3, 'b9': 0}
+  [OK] cvt_i2f({'mode': 86, 'dst': 0, 'src_class': 2, 'src': 0, 'cvtop': 172, 'signflag': 96}) -> a70756000200ac60 -> cvt_i2f[?] {'mode': 86, 'dst': 0, 'src_class': 2, 'src': 0, 'cvtop': 172, 'signflag': 96}
+  [OK] cvt_f2h({'b1': 3, 'op': 28, 'src': 129, 'b4': 0, 'tail': 194}) -> 11031c8100c2 -> cvt_f2h[?] {'b1': 3, 'op': 28, 'src': 129, 'b4': 0, 'tail': 194}
+  [OK] fspecial({'fn_hi': 0, 'fnclass': 0, 'dst': 0, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 176, 'precsel': 64, 'roundmode': 2, 'sched_flag': 0}) -> 2f0056000200b0400200 -> fspecial[?] {'fn_hi': 0, 'fnclass': 0, 'dst': 0, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 176, 'precsel': 64, 'roundmode': 2, 'sched_flag': 0}
+  [OK] fspecial({'fn_hi': 1, 'fnclass': 0, 'dst': 0, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 16, 'precsel': 72, 'roundmode': 32, 'sched_flag': 0}) -> af005600020010482000 -> fspecial[?] {'fn_hi': 1, 'fnclass': 0, 'dst': 0, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 16, 'precsel': 72, 'roundmode': 32, 'sched_flag': 0}
+  [OK] fspecial({'fn_hi': 1, 'fnclass': 1, 'dst': 2, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 176, 'precsel': 64, 'roundmode': 0, 'sched_flag': 0}) -> af2156000200b0400000 -> fspecial[?] {'fn_hi': 1, 'fnclass': 1, 'dst': 2, 'src_cache': 86, 'src': 0, 'src_class': 2, 'src_ext': 0, 'fnsel': 176, 'precsel': 64, 'roundmode': 0, 'sched_flag': 0}
+  [OK] fspecial_est({'dst': 2, 'srcA': 129, 'subop': 9, 'b4': 0, 'b5': 194}) -> 2981250900c2 -> fspecial_est[?] {'dst': 2, 'srcA': 129, 'subop': 9, 'b4': 0, 'b5': 194}
+  [OK] fspecial_est({'dst': 2, 'srcA': 129, 'subop': 11, 'b4': 0, 'b5': 194}) -> 2981250b00c2 -> fspecial_est[?] {'dst': 2, 'srcA': 129, 'subop': 11, 'b4': 0, 'b5': 194}
+  [OK] ilogic({'srcA': 5, 'op_base': 1, 'srcB': 1, 'lut_a': 0, 'lut_b': 0, 'z6': 0, 'outmod': 128, 'z8': 0, 'z9': 0}) -> 0b051f01000000800000 -> ilogic[?] {'srcA': 5, 'op_base': 1, 'srcB': 1, 'lut_a': 0, 'lut_b': 0, 'z6': 0, 'outmod': 128, 'z8': 0, 'z9': 0}
+  [OK] ilogic({'srcA': 5, 'op_base': 0, 'srcB': 1, 'lut_a': 2, 'lut_b': 8, 'z6': 0, 'outmod': 128, 'z8': 0, 'z9': 0}) -> 0b051e01020800800000 -> ilogic[?] {'srcA': 5, 'op_base': 0, 'srcB': 1, 'lut_a': 2, 'lut_b': 8, 'z6': 0, 'outmod': 128, 'z8': 0, 'z9': 0}
+  [OK] simd_reduce({'scope': 1, 'b0hi': 0, 'opcls': 1, 'cache': 1, 'op': 1, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 3}) -> bf01560002001403 -> simd_reduce[?] {'scope': 1, 'b0hi': 0, 'opcls': 1, 'cache': 1, 'op': 1, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 3}
+  [OK] simd_reduce({'scope': 0, 'b0hi': 0, 'opcls': 0, 'cache': 1, 'op': 2, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 7}) -> 3702560002001407 -> simd_reduce[?] {'scope': 0, 'b0hi': 0, 'opcls': 0, 'cache': 1, 'op': 2, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 7}
+  [OK] simd_reduce({'scope': 1, 'b0hi': 0, 'opcls': 1, 'cache': 0, 'op': 2, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 7}) -> bf02540002001407 -> simd_reduce[?] {'scope': 1, 'b0hi': 0, 'opcls': 1, 'cache': 0, 'op': 2, 'dst': 0, 'opmarker': 2, 'src': 0, 'shape': 20, 'dtype': 7}
+  [OK] simd_shuffle({'dir': 0, 'mode': 4, 'cache': 1, 'dst': 0, 'src': 2, 'srctype': 0, 'lane': 10, 'rtype': 44, 'dsthi': 4, 'rsv9': 0}) -> 4704560002000a2c0400 -> simd_shuffle[?] {'dir': 0, 'mode': 4, 'cache': 1, 'dst': 0, 'src': 2, 'srctype': 0, 'lane': 10, 'rtype': 44, 'dsthi': 4, 'rsv9': 0}
+  [OK] atomic_rmw({'amode': 84, 'rsv3': 0, 'base_slot': 0, 'index_reg': 128, 'addr_desc': 1, 'ret_flag': 0, 'ret_desc': 0, 'idx_off': 66, 'rsv10': 0, 'rsv11': 0, 'op_lsb': 0, 'op': 16, 'per_lane': 0, 'op_msb': 0, 'amode_hi': 0}) -> 6711540000800100004200002000 -> atomic_rmw[?] {'amode': 84, 'rsv3': 0, 'base_slot': 0, 'index_reg': 128, 'addr_desc': 1, 'ret_flag': 0, 'ret_desc': 0, 'idx_off': 66, 'rsv10': 0, 'rsv11': 0, 'op_lsb': 0, 'op': 16, 'per_lane': 0, 'op_msb': 0, 'amode_hi': 0}
+  [OK] rt_intersect({'dst': 13, 'subop': 234, 'mode': 144, 'ray_param': 166, 'as_type': 139, 'b5': 0, 'flags': 0, 'b7': 0}) -> d4ea90a68b000000 -> rt_intersect[?] {'dst': 13, 'subop': 234, 'mode': 144, 'ray_param': 166, 'as_type': 139, 'b5': 0, 'flags': 0, 'b7': 0}
+  [OK] rt_intersect({'dst': 2, 'subop': 234, 'mode': 208, 'ray_param': 166, 'as_type': 171, 'b5': 0, 'flags': 128, 'b7': 0}) -> 24ead0a6ab008000 -> rt_intersect[?] {'dst': 2, 'subop': 234, 'mode': 208, 'ray_param': 166, 'as_type': 171, 'b5': 0, 'flags': 128, 'b7': 0}
+  [OK] rt_intersect({'dst': 10, 'subop': 234, 'mode': 16, 'ray_param': 70, 'as_type': 187, 'b5': 0, 'flags': 0, 'b7': 0}) -> a4ea1046bb000000 -> rt_intersect[?] {'dst': 10, 'subop': 234, 'mode': 16, 'ray_param': 70, 'as_type': 187, 'b5': 0, 'flags': 0, 'b7': 0}
+  [OK] rt_transform_test({'dst': 14, 'src': 149, 'marker': 39, 'subop': 129, 'cmpmode': 34, 'opA': 122, 'opAmod': 3, 'opAflags': 130, 'mark2': 32, 'opB': 124}) -> e2952781227a0382207c -> rt_transform_test[?] {'dst': 14, 'src': 149, 'marker': 39, 'subop': 129, 'cmpmode': 34, 'opA': 122, 'opAmod': 3, 'opAflags': 130, 'mark2': 32, 'opB': 124}
+  [OK] ray_move({'dst': 14, 'src': 80, 'form': 129, 'b3': 8}) -> eb508108 -> ray_move[?] {'dst': 14, 'src': 80, 'form': 129, 'b3': 8}
+  [OK] bf_alu({'opsel': 28, 'srcA': 2, 'srcB': 9, 'tail': 8503296}) -> 11021c020900c081 -> bf_alu[?] {'opsel': 28, 'srcA': 2, 'srcB': 9, 'tail': 8503296}
+  [OK] bf_alu({'opsel': 29, 'srcA': 2, 'srcB': 9, 'tail': 8503296}) -> 11021d020900c081 -> bf_alu[?] {'opsel': 29, 'srcA': 2, 'srcB': 9, 'tail': 8503296}
+  [OK] b_alu14_c83({'form': 3, 'reg_a': 19, 'reg_b': 18, 'fmt4': 3, 'src_lo': 0, 'fmt6': 128, 'srcB_reg': 14, 'rsv8': 0, 'rsv9': 0, 'fmt10': 3, 'rsv11': 0, 'srcU_reg': 146, 'srcU_desc': 203}) -> 3f1383120300800e0000030092cb -> b_alu14_c83[?] {'form': 3, 'reg_a': 19, 'reg_b': 18, 'fmt4': 3, 'src_lo': 0, 'fmt6': 128, 'srcB_reg': 14, 'rsv8': 0, 'rsv9': 0, 'fmt10': 3, 'rsv11': 0, 'srcU_reg': 146, 'srcU_desc': 203}
+  [OK] b_alu14_c83({'form': 3, 'reg_a': 15, 'reg_b': 14, 'fmt4': 3, 'src_lo': 0, 'fmt6': 128, 'srcB_reg': 10, 'rsv8': 0, 'rsv9': 0, 'fmt10': 3, 'rsv11': 0, 'srcU_reg': 156, 'srcU_desc': 1}) -> 3f0f830e0300800a000003009c01 -> b_alu14_c83[?] {'form': 3, 'reg_a': 15, 'reg_b': 14, 'fmt4': 3, 'src_lo': 0, 'fmt6': 128, 'srcB_reg': 10, 'rsv8': 0, 'rsv9': 0, 'fmt10': 3, 'rsv11': 0, 'srcU_reg': 156, 'srcU_desc': 1}
+
+== (C) tokenize whole real _agc.main programs (0 leftover) ==
+  [OK] empty     1 instrs: stop
+  [OK] fadd      6 instrs: get_sr device_load device_load falu2 device_store stop
+  [OK] fmul      6 instrs: get_sr device_load device_load falu2 device_store stop
+  [OK] fsub_ab   6 instrs: get_sr device_load device_load falu2 device_store stop
+  [OK] fadd_imm  5 instrs: get_sr device_load falu2i device_store stop
+  [OK] fma       7 instrs: get_sr device_load device_load device_load falu3 device_store stop
+  [OK] copy      4 instrs: get_sr device_load device_store stop
+  [OK] mcopy32   4 instrs: get_sr device_load device_store stop
+  [OK] mload64   4 instrs: get_sr device_load device_store stop
+  [OK] mvec4     4 instrs: get_sr device_load device_store stop
+  [OK] moff1     5 instrs: get_sr iadd2 device_load device_store stop
+  [OK] neg       5 instrs: get_sr device_load funary device_store stop
+  [OK] absf      5 instrs: get_sr device_load funary device_store stop
+  [OK] maxf      6 instrs: get_sr device_load device_load iminmax device_store stop
+  [OK] minf      6 instrs: get_sr device_load device_load iminmax device_store stop
+  [OK] iadd      6 instrs: get_sr device_load device_load iadd2 device_store stop
+  [OK] isub      6 instrs: get_sr device_load device_load iadd2 device_store stop
+  [OK] imul      6 instrs: get_sr device_load device_load imad device_store stop
+  [OK] imad      7 instrs: get_sr device_load device_load device_load imad device_store stop
+  [OK] iaddimm   5 instrs: get_sr device_load iadd2 device_store stop
+  [OK] imin      6 instrs: get_sr device_load device_load iminmax device_store stop
+  [OK] umax      6 instrs: get_sr device_load device_load iminmax device_store stop
+  [OK] iand      6 instrs: get_sr device_load device_load ilogic device_store stop
+  [OK] ixor      6 instrs: get_sr device_load device_load ilogic device_store stop
+  [OK] popcnt    5 instrs: get_sr device_load ibitcount device_store stop
+  [OK] ishr      5 instrs: get_sr device_load ishift device_store stop
+  [OK] ibfe      5 instrs: get_sr device_load ibfe device_store stop
+  [OK] icmp_lt   6 instrs: get_sr device_load device_load icmpsel device_store stop
+  [OK] idstc     8 instrs: get_sr device_load device_load iadd2 device_store device_store device_store stop
+  [OK] cv_f2h    5 instrs: get_sr device_load cvt_f2h device_store stop
+  [OK] cv_h2f    5 instrs: get_sr device_load falu2 device_store stop
+  [OK] cv_f2i    5 instrs: get_sr device_load cvt_f2i device_store stop
+  [OK] cv_i2f    5 instrs: get_sr device_load cvt_i2f device_store stop
+  [OK] cv_f2u    5 instrs: get_sr device_load cvt_f2i device_store stop
+  [OK] cv_u2f    5 instrs: get_sr device_load cvt_i2f device_store stop
+  [OK] cv_u2us   5 instrs: get_sr device_load mov_zext16 device_store stop
+  [OK] exp2      5 instrs: get_sr device_load fspecial device_store stop
+  [OK] log2      5 instrs: get_sr device_load fspecial device_store stop
+  [OK] floor     5 instrs: get_sr device_load fspecial device_store stop
+  [OK] fast_rcp  5 instrs: get_sr device_load fspecial device_store stop
+  [OK] fast_rsqrt 5 instrs: get_sr device_load fspecial device_store stop
+  [OK] fdiv_fast 7 instrs: get_sr device_load device_load fspecial falu2 device_store stop
+  [OK] expe_fast 6 instrs: get_sr device_load falu2 fspecial device_store stop
+  [OK] loge_fast 6 instrs: get_sr device_load fspecial falu2 device_store stop
+  [OK] ior       6 instrs: get_sr device_load device_load ilogic device_store stop
+  [OK] ashr_i    5 instrs: get_sr device_load ishift device_store stop
+  [OK] lshr_i    5 instrs: get_sr device_load ibfe device_store stop
+  [OK] fcmp_lt   6 instrs: get_sr device_load device_load icmpsel device_store stop
+  [OK] ucmp_lt   6 instrs: get_sr device_load device_load icmpsel device_store stop
+  [OK] gsel4     5 instrs: get_sr n2_op6 psel device_store stop
+  [OK] dsel5     6 instrs: get_sr device_load n2_op6 sel device_store stop
+  [OK] s_sum     5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] s_max     5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] s_and     5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] s_pfx_ex  5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] q_sum     5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] q_min     5 instrs: get_sr device_load simd_reduce device_store stop
+  [OK] s_bcast0  5 instrs: get_sr device_load simd_shuffle device_store stop
+  [OK] s_shufx   5 instrs: get_sr device_load simd_shuffle device_store stop
+  [OK] s_ballot  5 instrs: get_sr device_load simd_ballot device_store stop
+  [OK] manyload10 22 instrs: get_sr device_load device_load device_load device_load device_load device_load device_load device_load device_load device_load falu2 falu2 falu2 falu2 falu_acc falu_acc falu2 falu_acc falu2 device_store stop
+  [OK] frag_out_const 7 instrs: frag_color_pack frag_color_pack frag_tile_setup frag_tile_setup frag_color_store threadgroup_barrier stop
+  [OK] frag_interp_nopersp 11 instrs: iter iter iter iter frag_color_pack frag_color_pack frag_tile_setup frag_tile_setup frag_color_store threadgroup_barrier stop
+  [OK] frag_interp_flat 11 instrs: iter_flat iter_flat iter_flat iter_flat pack_convert frag_color_pack frag_tile_setup frag_tile_setup frag_color_store threadgroup_barrier stop
+  [OK] frag_out_mrt 17 instrs: frag_color_pack frag_color_pack frag_color_pack frag_color_pack frag_color_pack frag_color_pack frag_tile_setup frag_tile_setup frag_color_store threadgroup_barrier frag_tile_setup frag_color_store threadgroup_barrier frag_tile_setup frag_color_store threadgroup_barrier stop
+  [OK] merged_alu 6 instrs: get_sr half_alu ibitcount iminmax ibitcount stop
+  [OK] merged_call 7 instrs: get_sr mov_imm frame_marker call ret call_indirect stop
+  [OK] h2add     7 instrs: get_sr device_load device_load half_alu half_pack device_store stop
+  [OK] u64add    10 instrs: get_sr device_load device_load iadd2 carry_gen psel iadd2 iadd2 device_store stop
+  [OK] nonleaf_frame 4 instrs: frame_prologue link_save_restore link_save_restore ret
+  [OK] bfaddu    7 instrs: get_sr device_load device_load bf_alu mov_zext16 device_store stop
+  [OK] bfmulu    7 instrs: get_sr device_load device_load bf_alu mov_zext16 device_store stop
+  [OK] ib_tile   5 instrs: get_sr imageblock_store imageblock_load mem_fence stop
+  [OK] rt_ops    7 instrs: rt_intersect rt_ray_mem rt_transform_test ray_move rt_as_load matrix_mac stop
+
+== (D) packed float immediate codec (K -> b1/sign -> K) ==
+  [OK] K=     0.0  b1=0x81 sign=0  decode=+0
+  [OK] K=  0.0625  b1=0x85 sign=0  decode=+0.0625
+  [OK] K=   0.125  b1=0x89 sign=0  decode=+0.125
+  [OK] K=    0.25  b1=0x91 sign=0  decode=+0.25
+  [OK] K=     0.5  b1=0xa1 sign=0  decode=+0.5
+  [OK] K=    0.75  b1=0xa9 sign=0  decode=+0.75
+  [OK] K=     1.0  b1=0xb1 sign=0  decode=+1
+  [OK] K=     1.5  b1=0xb9 sign=0  decode=+1.5
+  [OK] K=     2.0  b1=0xc1 sign=0  decode=+2
+  [OK] K=     3.0  b1=0xc9 sign=0  decode=+3
+  [OK] K=     3.5  b1=0xcd sign=0  decode=+3.5
+  [OK] K=     4.0  b1=0xd1 sign=0  decode=+4
+  [OK] K=     8.0  b1=0xe1 sign=0  decode=+8
+  [OK] K=    16.0  b1=0xf1 sign=0  decode=+16
+  [OK] K=    30.0  b1=0xff sign=0  decode=+30
+  [OK] K=    -1.0  b1=0xb1 sign=1  decode=-1
+  [OK] K=    -0.5  b1=0xa1 sign=1  decode=-0.5
+  [OK] K=    -2.0  b1=0xc1 sign=1  decode=-2
+
+ALL PASS

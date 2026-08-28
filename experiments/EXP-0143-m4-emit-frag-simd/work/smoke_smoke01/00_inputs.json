@@ -1,0 +1,756 @@
+{
+ "arms": {
+  "fcp@pack0": {
+   "abs_off": 15036,
+   "all_hits": [
+    76,
+    102
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "comp_off": 0,
+    "conv_scale": 194,
+    "dst": 0,
+    "fmt_class": 84,
+    "mode": 2,
+    "src_desc": 4,
+    "src_gate_select": 69,
+    "src_present_mask": 208,
+    "val": 32
+   },
+   "instr_off": 76,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_pack",
+   "note": "packs colour channels 0/1 for the 8-bit attachment store",
+   "occ": 0,
+   "orig": "97045400020020d045c2",
+   "stage": "fragment"
+  },
+  "fcp@pack1": {
+   "abs_off": 15062,
+   "all_hits": [
+    76,
+    102
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "comp_off": 4,
+    "conv_scale": 194,
+    "dst": 1,
+    "fmt_class": 84,
+    "mode": 2,
+    "src_desc": 4,
+    "src_gate_select": 69,
+    "src_present_mask": 208,
+    "val": 16
+   },
+   "instr_off": 102,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_pack",
+   "note": "second pack op (channels 2/3) -- adversarial replicate",
+   "occ": 1,
+   "orig": "97045401020410d045c2",
+   "stage": "fragment"
+  },
+  "fcs@iter0": {
+   "abs_off": 15208,
+   "all_hits": [
+    104
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "flags": 0,
+    "fmt": 46,
+    "mask": 1,
+    "rt_index": 0,
+    "slice_addr": 0,
+    "src": 0,
+    "store_mode": 84
+   },
+   "instr_off": 104,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_store",
+   "note": "the only colour store in the program: it writes the observed pixel",
+   "occ": 0,
+   "orig": "e70654000000012e00000000",
+   "stage": "fragment"
+  },
+  "fcs@pack0": {
+   "abs_off": 15084,
+   "all_hits": [
+    124
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "flags": 0,
+    "fmt": 78,
+    "mask": 1,
+    "rt_index": 0,
+    "slice_addr": 0,
+    "src": 0,
+    "store_mode": 84
+   },
+   "instr_off": 124,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_store",
+   "note": "adversarial replicate on an 8-bit (BGRA8Unorm) attachment, where fmt differs (0x4e vs 0x2e)",
+   "occ": 0,
+   "orig": "e70654000000014e00000000",
+   "stage": "fragment"
+  },
+  "fds@depth0": {
+   "abs_off": 14210,
+   "all_hits": [
+    162
+   ],
+   "carrier": "c_depth",
+   "decoded": {
+    "b3": 0,
+    "b4": 0,
+    "b5": 3
+   },
+   "instr_off": 162,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_depth_store",
+   "note": "the only depth store; the depth attachment is read back directly",
+   "occ": 0,
+   "orig": "d71454000003",
+   "stage": "fragment"
+  },
+  "fts@iter0": {
+   "abs_off": 15196,
+   "all_hits": [
+    92,
+    98
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "access": 6,
+    "b1": 2,
+    "b5": 0,
+    "sel": 0
+   },
+   "instr_off": 92,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_tile_setup",
+   "note": "store-setup bracket immediately preceding the observed colour store",
+   "occ": 0,
+   "orig": "870254000600",
+   "stage": "fragment"
+  },
+  "fts@iter1": {
+   "abs_off": 15202,
+   "all_hits": [
+    92,
+    98
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "access": 8,
+    "b1": 2,
+    "b5": 0,
+    "sel": 12
+   },
+   "instr_off": 98,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_tile_setup",
+   "note": "second bracket (sel=0x0c, access=0x08) around the same store",
+   "occ": 1,
+   "orig": "8702540c0800",
+   "stage": "fragment"
+  },
+  "iter@cent1": {
+   "abs_off": 15158,
+   "all_hits": [
+    20,
+    38,
+    58,
+    78,
+    88,
+    98
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 4,
+    "grp": 47,
+    "lead": 5,
+    "loc": 9,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 38,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "centroid/sample-qualified iter (mode 4/5, loc 8/9/32) -- covers mode/loc values the plain-centre carrier never emits",
+   "occ": 1,
+   "orig": "2f055404030004020900",
+   "stage": "fragment"
+  },
+  "iter@cent4": {
+   "abs_off": 15178,
+   "all_hits": [
+    24,
+    42,
+    68,
+    108,
+    118,
+    136,
+    154,
+    172,
+    190,
+    208,
+    226,
+    262,
+    290,
+    308,
+    322
+   ],
+   "carrier": "c_cent4",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 6,
+    "grp": 47,
+    "lead": 5,
+    "loc": 9,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 42,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "iter",
+   "note": "same, MULTISAMPLED (4x, resolved): centroid and per-sample locations are genuinely distinct from pixel centre here",
+   "occ": 1,
+   "orig": "2f055406030004020900",
+   "stage": "fragment"
+  },
+  "iter@frag0W": {
+   "abs_off": 15104,
+   "all_hits": [
+    0,
+    20,
+    30,
+    40,
+    50
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 0,
+    "grp": 47,
+    "lead": 13,
+    "loc": 16,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 0,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "the perspective-W-denominator iter; its result feeds the rcp that scales all four channels",
+   "occ": 0,
+   "orig": "2f0d5400030004021000",
+   "stage": "fragment"
+  },
+  "iter@frag1": {
+   "abs_off": 15124,
+   "all_hits": [
+    0,
+    20,
+    30,
+    40,
+    50
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 10,
+    "grp": 47,
+    "lead": 5,
+    "loc": 16,
+    "mode": 0,
+    "src_slot": 2
+   },
+   "instr_off": 20,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "this iter produces colour channel 0 (proven: src_slot 0x02->0x08 makes channel 0 equal channel 3)",
+   "occ": 1,
+   "orig": "2f05540a030200021000",
+   "stage": "fragment"
+  },
+  "iter_at@cent1_0": {
+   "abs_off": 15128,
+   "all_hits": [
+    8,
+    30
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b5": 0,
+    "c4": 3,
+    "dst": 10,
+    "grp": 175,
+    "lead": 20,
+    "loc": 1
+   },
+   "instr_off": 8,
+   "length": 8,
+   "located_via": "tokenize",
+   "mnemonic": "iter_at",
+   "note": "interpolate-at setup for the centroid varyings; pilot-proven live (lead 0x14->0x00 changes channels 0 and 1)",
+   "occ": 0,
+   "orig": "af14540a03000a01",
+   "stage": "fragment"
+  },
+  "iter_at@cent1_1": {
+   "abs_off": 15150,
+   "all_hits": [
+    8,
+    30
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b5": 4,
+    "c4": 3,
+    "dst": 8,
+    "grp": 175,
+    "lead": 4,
+    "loc": 3
+   },
+   "instr_off": 30,
+   "length": 8,
+   "located_via": "tokenize",
+   "mnemonic": "iter_at",
+   "note": "second interpolate-at setup; pilot-proven live (lead 0x04->0x00 zeroes all four channels)",
+   "occ": 1,
+   "orig": "af04540803040a03",
+   "stage": "fragment"
+  },
+  "iter_at@cent4_0": {
+   "abs_off": 15152,
+   "all_hits": [
+    16,
+    34,
+    52,
+    128,
+    200
+   ],
+   "carrier": "c_cent4",
+   "decoded": {
+    "b5": 4,
+    "c4": 3,
+    "dst": 10,
+    "grp": 175,
+    "lead": 4,
+    "loc": 3
+   },
+   "instr_off": 16,
+   "length": 8,
+   "located_via": "scan",
+   "mnemonic": "iter_at",
+   "note": "MULTISAMPLED replicate: the loc enum (centroid vs sample) can only differ from pixel centre when rasterSampleCount > 1",
+   "occ": 0,
+   "orig": "af04540a03040a03",
+   "stage": "fragment"
+  },
+  "iter_flat@flat0": {
+   "abs_off": 15056,
+   "all_hits": [
+    0,
+    6
+   ],
+   "carrier": "c_flat",
+   "decoded": {
+    "b1": 11,
+    "b4": 0,
+    "b5": 5,
+    "sel": 137
+   },
+   "instr_off": 0,
+   "length": 6,
+   "located_via": "scan",
+   "mnemonic": "iter_flat",
+   "note": "adversarial second occurrence of the same op in the same program",
+   "occ": 0,
+   "orig": "1f0b54890005",
+   "stage": "fragment"
+  },
+  "iter_flat@flat1": {
+   "abs_off": 15062,
+   "all_hits": [
+    0,
+    6
+   ],
+   "carrier": "c_flat",
+   "decoded": {
+    "b1": 3,
+    "b4": 1,
+    "b5": 5,
+    "sel": 6
+   },
+   "instr_off": 6,
+   "length": 6,
+   "located_via": "scan",
+   "mnemonic": "iter_flat",
+   "note": "flat varying load feeding a colour channel; [[flat]] values are distinct per channel so a selector change is visible",
+   "occ": 1,
+   "orig": "1f0354060105",
+   "stage": "fragment"
+  },
+  "sballot@simd0": {
+   "abs_off": 9666,
+   "all_hits": [
+    354
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "cache": 84,
+    "dst": 6,
+    "form": 0,
+    "form_sig": 1188440,
+    "pred": 0,
+    "psrc": 2,
+    "psrctype": 12
+   },
+   "instr_off": 354,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "simd_ballot",
+   "note": "simd_ballot(predicate); the 32-bit mask is written by every lane",
+   "occ": 0,
+   "orig": "17075406020c00582212",
+   "stage": "compute"
+  },
+  "sreduce@simd0": {
+   "abs_off": 9354,
+   "all_hits": [
+    42,
+    50,
+    68,
+    76,
+    84,
+    92,
+    100,
+    108,
+    120
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "b0hi": 0,
+    "cache": 1,
+    "dst": 24,
+    "dtype": 1,
+    "op": 1,
+    "opcls": 1,
+    "opmarker": 2,
+    "scope": 1,
+    "shape": 22,
+    "src": 72
+   },
+   "instr_off": 42,
+   "length": 8,
+   "located_via": "scan",
+   "mnemonic": "simd_reduce",
+   "note": "a live SIMD-group reduction whose result is written to the output buffer by every lane",
+   "occ": 0,
+   "orig": "bf01561802481601",
+   "stage": "compute"
+  },
+  "sreduce@simd8": {
+   "abs_off": 9432,
+   "all_hits": [
+    42,
+    50,
+    68,
+    76,
+    84,
+    92,
+    100,
+    108,
+    120
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "b0hi": 0,
+    "cache": 0,
+    "dst": 10,
+    "dtype": 1,
+    "op": 1,
+    "opcls": 1,
+    "opmarker": 2,
+    "scope": 0,
+    "shape": 22,
+    "src": 72
+   },
+   "instr_off": 120,
+   "length": 8,
+   "located_via": "scan",
+   "mnemonic": "simd_reduce",
+   "note": "the QUAD-scope reduce (scope=0) -- adversarial replicate that exercises the other value of the scope bit",
+   "occ": 8,
+   "orig": "b701540a02481601",
+   "stage": "compute"
+  },
+  "sshuffle@simd1": {
+   "abs_off": 9490,
+   "all_hits": [
+    168,
+    178,
+    218,
+    278,
+    288,
+    306
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "cache": 0,
+    "dir": 0,
+    "dst": 2,
+    "dsthi": 18,
+    "lane": 10,
+    "mode": 4,
+    "rsv9": 0,
+    "rtype": 46,
+    "src": 3,
+    "srctype": 72
+   },
+   "instr_off": 178,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "simd_shuffle",
+   "note": "simd_broadcast(u,5): lane index 5 == lane field 0x0a, so a lane change is directly predictable from the input buffer",
+   "occ": 1,
+   "orig": "4704540203480a2e1200",
+   "stage": "compute"
+  },
+  "sshuffle@simd6": {
+   "error": "occurrence 6 not found (6 hits, via scan)"
+  },
+  "vary_slot@v16": {
+   "abs_off": 15906,
+   "all_hits": [
+    18
+   ],
+   "carrier": "c_vary16",
+   "decoded": {
+    "sel": 12,
+    "slot": 0
+   },
+   "instr_off": 18,
+   "length": 4,
+   "located_via": "scan",
+   "mnemonic": "vary_slot",
+   "note": "12-varying vertex program (slots 0..15) -- adversarial replicate of vary_slot@vert0 on a different shader",
+   "occ": 0,
+   "orig": "000c4000",
+   "stage": "vertex"
+  },
+  "vary_slot@vert0": {
+   "abs_off": 12914,
+   "all_hits": [
+    18
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "sel": 12,
+    "slot": 0
+   },
+   "instr_off": 18,
+   "length": 4,
+   "located_via": "tokenize",
+   "mnemonic": "vary_slot",
+   "note": "vertex program feeds every fragment varying; any change to the varying-output descriptor must show in the interpolated pixel",
+   "occ": 0,
+   "orig": "000c4000",
+   "stage": "vertex"
+  }
+ },
+ "carriers": {
+  "c_cent1": {
+   "archive_sha256": "2e5fd6b8b14836cdb8fff00ef8cfeab0f2b763d9b069a47aec8fb13e8bd63a0d",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_cent1.bin",
+   "src_sha256": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+   "stages": {
+    "fragment": {
+     "abs_off": 15120,
+     "hex": "04c2110601000000af14540a03000a01130021082f055400030005020900af04540803040a032f055404030004020900af0054020300024820012f055400030205020800af0054060308024820012f0554040306040208002f05540a0304050220002f05540803080402200009010f8300010000190b1f030002000029050f870003000039091f07000400008702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 174
+    },
+    "vertex": {
+     "abs_off": 12912,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_cent4": {
+   "archive_sha256": "589c083f8716ce0f8c2ee58a0aaca997a9f28cc77f64a55c8ae3a89e599a6778",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_cent4.bin",
+   "src_sha256": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+   "stages": {
+    "fragment": {
+     "abs_off": 15136,
+     "hex": "24c21106010000001c80220000000800af04540a03040a032f055400020005020100af14540803080a012f055406030004020900af04540c03060a031c820200000018002f055404030006020100af005410030c02482001af005400030000482001af0054040208004820012f0554060302040208002f055412030404022000af04540803040a032f05540e030605020800c9070f91000100002f055406030004020100d9131f11000200002f05540a030805022000e90f0f81000300002f05540e030606020800af04540203060a032f05540c030806022000f90b1f01000400002f055400030001020900a90f0f8500030000af005406030c00482001b90d1f05000400002f0554040306040208008b980100af0054000300004820019b9a01002f05540803080402200069050f87000300002f05540403060102080004c250062f05540203080102200079091f07000400004b9801005b9a010029050f810003000039031f01000400000b1801001b1a010013a0478114220000000013a0478300020000000003a0478504020000000003204f890002000000008702540006008702540c0800e70654180000232e08000008e70654100000222e08000008e70654080000212e08000008e70654000000202e080000080702540c02000e000000",
+     "len": 482
+    },
+    "vertex": {
+     "abs_off": 12928,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_depth": {
+   "archive_sha256": "2fd1052ba69210b366c6b3cb73edc06176e5b4af259632f804c728d43fcceadd",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_depth.bin",
+   "src_sha256": "3a0a56e2ee834fcde7580c822934789109eecf704514030f367b0d407f3f67e0",
+   "stages": {
+    "fragment": {
+     "abs_off": 14048,
+     "hex": "1f0b5400010502050f05820405c2208087025400060067004408008020005989004048002f0554000300040210001c80023e00000008af005400030000482001648410062f05540e0302000210002c80023e00000004090f1f01000100003c80023e0000000c9f11540e02183000160562012709020803c000009f015408031e38001404120d3f0b830a4200800c000010000b092f00420000001000870254010000d714540000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 202
+    },
+    "vertex": {
+     "abs_off": 11984,
+     "hex": "0cdd1006a71754000300ac200b00200429b12c818000198126811180020019a93505c100000429032ea1a298420200083c80233e0000000c406049012e912288420200105b00260040000014000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c005706560aa0404d000e000000",
+     "len": 130
+    }
+   }
+  },
+  "c_flat": {
+   "archive_sha256": "cc7d55c5f293a37eef939a279809da55a826371146aaef301144aa01c8bdc32f",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_flat.bin",
+   "src_sha256": "6741f372dea5cc8fa511bb424c2e04a97e349d76eedea0d1ff70da22f317dee2",
+   "stages": {
+    "fragment": {
+     "abs_off": 15056,
+     "hex": "1f0b548900051f03540601051f03540000051f03548301053b1609c04b1009008702540006008702540c0800e70654040000012e000000000702540c02000e000000",
+     "len": 66
+    },
+    "vertex": {
+     "abs_off": 12832,
+     "hex": "0cdd1006a71754000300ac2019b12c8180000b00200419a93503c100000419812681118002002c80233e0000000c404039032ea1a2984202000c49c92481c10000085981240041020008698124005102001479012c034102001057265402004049005786540620404b005716540040404b005746540460404b0057065408804048005706540aa0404a005706560cc0404d005706550ee0404c000e000000",
+     "len": 158
+    }
+   }
+  },
+  "c_iter": {
+   "archive_sha256": "e59ca19855ba296a7a8836202b1e73624d685ba7ce8428f899842eb8f8345308",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_iter.bin",
+   "src_sha256": "80cc3905aec0932795027a109911ea5ac7e45450ae24d7b5ceba48b6b61f99b8",
+   "stages": {
+    "fragment": {
+     "abs_off": 15104,
+     "hex": "2f0d5400030004021000af0054060300004820012f05540a0302000210002f0554040306000210002f0554020304000210002f055408030800021000090b0f870001000019030f870002000029050f870003000039091f07000400008702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 126
+    },
+    "vertex": {
+     "abs_off": 12896,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_kill": {
+   "archive_sha256": "dad702f48410c8ed62dc5938caa6b85784b7b77862b72a4013135203d85c947c",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_kill.bin",
+   "src_sha256": "a89f10c195b67549825a3589ca5afcfc8de4459004ef0db41e7242c83e2c0f98",
+   "stages": {
+    "fragment": {
+     "abs_off": 13824,
+     "hex": "2f0d5400030004021000af005400030000482001248410062f05540203020002100009033f01000100001a0125c12280030220819f1154020308100016059f0154020306080016050b0229048702540006008702540100005714540000010702540100001c800240000000072c800240000080093c8002400000800a8702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 152
+    },
+    "vertex": {
+     "abs_off": 11856,
+     "hex": "0cdd1006a71754000300ac200c80233e0000000c400029b12c818000198126811180020019a93505c100000429032ea1a298420200083b0026004000000c000049b13401c100001057265402004049005746540420404a005786540640404b0057165400604048005706550880404c000e000000",
+     "len": 116
+    }
+   }
+  },
+  "c_mask": {
+   "archive_sha256": "59a00fe2dba2203891c17e38151571530718ebbf8dee03a60745119ee953785b",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_mask.bin",
+   "src_sha256": "3c6efc49e44b827418a23ef0e437ea6e69c7b14f6106e6a1a599661c6cd56d6b",
+   "stages": {
+    "fragment": {
+     "abs_off": 13952,
+     "hex": "2f0d5400030004021000af005400030000482001248410062f05540203020002100009033f01000100001a0125c122800302208f9f1154020308100016059f0154020306080016050b0229048702540006008702540100005714540000010702540100001c800240000000072c800240000080093c8002400000800a8702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 152
+    },
+    "vertex": {
+     "abs_off": 11984,
+     "hex": "0cdd1006a71754000300ac200c80233e0000000c400029b12c818000198126811180020019a93505c100000429032ea1a298420200083b0026004000000c000049b13401c100001057265402004049005746540420404a005786540640404b0057165400604048005706550880404c000e000000",
+     "len": 116
+    }
+   }
+  },
+  "c_pack": {
+   "archive_sha256": "acc194bad2982803a26ac22eeadabb363f141ec933d388d0f965ddb8049c1f9a",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_pack.bin",
+   "src_sha256": "00798813866f305319ecf15502e0f52e81db69c989e15b4fe2d1c296c8e13475",
+   "stages": {
+    "fragment": {
+     "abs_off": 14960,
+     "hex": "2f0d5400030004021000af0054040300024820012f0554000302000210002f0554080304000210002f05540203060002100009012f85000100002f05540603080002100049092f850002000097045400020020d045c219032f850003000029073f050004000097045401020410d045c28702540006008702540c0800e70654000000014e000000000702540c02000e000000",
+     "len": 146
+    },
+    "vertex": {
+     "abs_off": 12800,
+     "hex": "0cdd10060b002600400000040000a71754000300ac201c80233e0000000c400019b12c81800009013e019100020029a93503c100000839012ea1a2984202000c4ccd233e1204660240005ccd233e1204660640006c9a233e060ccc0840a07ccd233e1204660a40805746540400404a005786540620404b005726540040404b005716540260404b0057065408804049005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 172
+    }
+   }
+  },
+  "c_simd": {
+   "archive_sha256": "a2685f5adc8f1dc7c38188e835f2a41c6d60bf3589dfd046b6705b9ab6b9b651",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_simd.bin",
+   "src_sha256": "f726a9317a8a62b5e5804e7992e7874cd93b6ed26b9eedd0cbc1fc1f2a91e932",
+   "stages": {
+    "compute": {
+     "abs_off": 9312,
+     "hex": "0ca0100667105424010020005101004046009f0154000240008815046700440001802000110000404600bf01561802481601bf03541a024816011f0154020348462811013f02541c02041407bf00541e024816013f015410024816013f16541202001602bf06541402001412bf0154160348160914825006b701540a024816019f11540003068804110423002f9f1002000000001384279d0002000000009f015405030208041104470454000348042c1a004704540203480a2e12009f0154230302140411041284278486020f0882009f015405030414001504470454000348462e12009f015408022c90ac110512222f8486000f0882024704540003480a2e12004704540c02480a2c020072041f0486000f088202470554020348042c0200c70454000248022c020012a2078201a40502c70554040348042c02009f0154200200880c100433226e9f020a000000003ba5278110020000000022260f828124050217075406020c00582212e700541800102000170000901100e700541000102000178000901100e700540800102000170001901100e7005400001021001780019011000e000000",
+     "len": 424
+    }
+   }
+  },
+  "c_vary16": {
+   "archive_sha256": "ea0ee56c3f7ae859f66a42ccb46982932a8b0019553927163c78d3decc03db5f",
+   "path": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0143-m4-emit-frag-simd/work/c_vary16.bin",
+   "src_sha256": "a4dcf05e159b542e94531efa1167d4b7b772e4c2ddee72d8483b14b0d7135a7f",
+   "stages": {
+    "fragment": {
+     "abs_off": 18560,
+     "hex": "2f0d5400030004021000af00540a0300024820012f0554120210000210002f0554020314000210002f0554060318000210002f0554080302000210002f05540c0304000210002f055400030600021000a9090f8b000100002f055408030800021000890d0f8b000200002f05540e030c0002100069010f8b000300002f05540003120002100049090f8b000400002f05541a031600021000c90f0f8b000600002f05540e030a0002100009012f8b0009000019032f8b000a0000291b0f8b000b000039070f8b000c0000b90f2f8b000500002f05540e030e00021000a9173815891938110915180119111803790f2f8b0007000059133f0b00080000690f380d490b3809290d1805390918078702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 302
+    },
+    "vertex": {
+     "abs_off": 15888,
+     "hex": "0cdd1006a71754020300ac200c80233e0000000c400009b12c8380002983218319a93501c0000985248300082b00200439012ea1a198420249b12483c00009c12d83800059e52485c000098526d5a000698336c9220040020014798124025102001489c12483c100001099f52485c1000010a98336c9220140020010b981240441020010c9c92483c1000010d9ff3405c1000010e9033ec9220240020010f9012c04510200045716540200404b005706540620404b005706540440404b005706540060404b005706540880404a005706540aa0404a005706560cc04048005706540ee0404800570655100041480057065412204148005706541440414800570654166041480057065418804148005706541aa0414d005706541cc0414c005726541ee04149000e000000",
+     "len": 298
+    }
+   }
+  }
+ },
+ "run_id": "smoke01",
+ "started_utc": "2026-08-28T09:42:53Z"
+}

@@ -1,0 +1,72 @@
+EXP-0146 testbed non-determinism log (append-only).
+Each pass = 3 fresh agxrun_persist processes x 100 IDENTICAL unmutated baseline dispatches
+per carrier, 4 carriers => 1200 dispatches per pass. Command: python3 work/pilot/flakecheck.py
+
+PASS 1 (2026-08-28): run to the terminal only and NOT captured to this file before the file was
+(re)written by PASS 2. Its numbers are therefore NOT raw evidence and are recorded here only as
+a disclosed transcription: 6 of 1200 identical dispatches mismatched (2 all-zero, 4 other),
+including 'u64eq proc0 first=fault' and 'roundmodes proc1 first=silent_zero'.
+The COMMITTED, non-transcribed evidence for the same phenomenon is in raw/run01/sweep.jsonl:
+three of the twelve arm baselines (H_n2_op6/u64eq, I_n2_op8/sfu_sin, J_n2_op10/roundmodes)
+returned all-zero on the first dispatch of a freshly started runner while the very next,
+program-identical case returned the correct value.
+
+PASS 2 (2026-08-28): 0 of 1200 mismatched.
+u64eq       proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+u64eq       proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+u64eq       proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+sfu_sin     proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+sfu_sin     proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+sfu_sin     proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+roundmodes  proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+roundmodes  proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+roundmodes  proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+logic_and   proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+logic_and   proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+logic_and   proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+
+PASS 3 (2026-08-28):
+  u64eq       proc0 first=fault        zeros=  0 other_mismatch= 10 / 100
+  u64eq       proc1 first=ok           zeros=  0 other_mismatch=  8 / 100
+  u64eq       proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+  sfu_sin     proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+  sfu_sin     proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+  sfu_sin     proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+  roundmodes  proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+  roundmodes  proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+  roundmodes  proc2 first=silent_zero  zeros=  1 other_mismatch=  3 / 100
+  logic_and   proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+  logic_and   proc1 first=silent_zero  zeros=  1 other_mismatch= 12 / 100
+  logic_and   proc2 first=fault        zeros=  0 other_mismatch=  6 / 100
+
+PASS 4 (2026-08-28):
+  u64eq       proc0 first=ok           zeros=  0 other_mismatch=  0 / 100
+  u64eq       proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+  u64eq       proc2 first=ok           zeros=  1 other_mismatch=  4 / 100
+  sfu_sin     proc0 first=ok           zeros=  0 other_mismatch=  1 / 100
+  sfu_sin     proc1 first=ok           zeros=  0 other_mismatch=  0 / 100
+  sfu_sin     proc2 first=ok           zeros=  0 other_mismatch=  0 / 100
+  roundmodes  proc0 first=fault        zeros=  2 other_mismatch= 22 / 100
+  roundmodes  proc1 first=fault        zeros=  0 other_mismatch= 22 / 100
+  roundmodes  proc2 first=silent_zero  zeros=  1 other_mismatch= 20 / 100
+  logic_and   proc0 first=fault        zeros=  0 other_mismatch=  7 / 100
+  logic_and   proc1 first=ok           zeros=  0 other_mismatch=  8 / 100
+  logic_and   proc2 first=ok           zeros=  0 other_mismatch=  8 / 100
+
+DISCLOSURE (2026-08-28, written immediately after PASS 4):
+PASS 3 and PASS 4 were executed WHILE `harness/run_sweep.py --run-id run02` was running in the
+background on the same GPU. Their sharply higher mismatch rate (up to 22/100 vs 0-6/100 when the
+device was otherwise idle) is therefore evidence of a DIFFERENT phenomenon than PASS 1/2:
+**concurrent GPU load on this host makes identical, unmutated dispatches return all-zero or
+raise contained command-buffer faults at a materially higher rate.**
+Consequences, applied for the rest of this experiment:
+  1. `run02` overlapped ~2400 of my own extra dispatches and is therefore treated as a
+     CONTAMINATED intermediate capture. It is retained (never reused, never edited) and is NOT
+     used as a promotion gate.
+  2. `run03` is captured as the clean second gated run with nothing else issued from this
+     experiment; `run01` + `run03` are the promotion gate.
+  3. Every run01/run03 disagreement is adjudicated in `run04` by re-testing that exact case
+     5 times, serially.
+  4. This host is shared with other concurrently running experiments that this experiment cannot
+     observe or control, so a low background rate of spurious zeros/faults CANNOT be excluded
+     even for run01/run03. That is exactly why single-observation promotion is refused here.

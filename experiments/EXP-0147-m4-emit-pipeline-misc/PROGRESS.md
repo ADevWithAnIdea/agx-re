@@ -1,0 +1,11 @@
+- 2026-08-28T02:41:54 run=smoke1 arm=matrix_mac done in 0.8s
+- 2026-08-28T02:42:22 run=smoke2 arm=matrix_mac done in 0.4s
+- 2026-08-28T02:42:24 run=smoke2 arm=tile_read done in 1.8s
+- 2026-08-28T02:42:26 run=smoke2 arm=tile_read_mrt done in 2.1s
+- 2026-08-28T02:42:27 run=smoke2 arm=vtx_out_pos done in 1.8s
+- 2026-08-28T02:42:29 run=smoke2 arm=vtx_coord_xform done in 1.6s
+- 2026-08-28T02:42:30 run=smoke2 arm=pixel_order done in 1.2s
+- 2026-08-28T02:42:32 run=smoke2 arm=pixel_order_rel done in 1.7s
+- 2026-08-28T02:42:34 run=smoke2 arm=n3_sample_read done in 2.3s
+- 2026-08-28T02:42:36 run=smoke2 arm=scoreboard_fence done in 1.4s
+- 2026-08-28T02:42:37 run=smoke2 arm=compute_fence_scoped done in 1.0s

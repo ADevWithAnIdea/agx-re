@@ -1,0 +1,3 @@
+#include <metal_stdlib>
+using namespace metal;
+kernel void k(device bfloat* out [[buffer(0)]], device const bfloat* a [[buffer(1)]], device const bfloat* b [[buffer(2)]], uint g [[thread_position_in_grid]]){ bfloat s=a[g]+b[g]; out[g]=s*a[g]; }

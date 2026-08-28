@@ -1,0 +1,15 @@
+#!/bin/sh
+# EXP-0146 harness build: compile OUR OWN read-only tool sources
+# (tools/shdump, tools/agxtest) into this experiment's work/bin.
+# The tools are never edited. Local M4 only; no SSH anywhere.
+set -e
+REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
+OUT="$1"
+mkdir -p "$OUT"
+xcrun clang -fobjc-arc -Wno-deprecated-declarations -o "$OUT/shdump" \
+    "$REPO/tools/shdump/shdump.m" -framework Metal -framework Foundation
+xcrun clang -fobjc-arc -Wno-deprecated-declarations -o "$OUT/agxrun_persist" \
+    "$REPO/tools/agxtest/agxrun_persist.m" -framework Metal -framework Foundation
+xcrun clang -fobjc-arc -Wno-deprecated-declarations -o "$OUT/agxrun" \
+    "$REPO/tools/agxtest/agxrun.m" -framework Metal -framework Foundation
+echo "BUILT $OUT/shdump $OUT/agxrun_persist $OUT/agxrun"
