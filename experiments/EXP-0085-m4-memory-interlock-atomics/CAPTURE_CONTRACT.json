@@ -1,0 +1,958 @@
+{
+  "amendment_2026-08-27": "Frozen contract amended AFTER the initial hash freeze but BEFORE any promotion: (1) harness/atomics_probe.m --init parsing used strtoull (big-endian numeric read) while casematrix.py stored init values as little-endian byte-hex strings (the same convention as every other *_hex field); this silently substituted the wrong bit pattern for da_smin/da_smax/da_exch*/da_store on the FIRST pair of capture runs, caught by analysis.py FAIL verdicts (never promoted, never cited). Fixed by parsing --init as LE-byte-hex like every other field (parse_le_hex()); the flawed first pair of runs was discarded before promotion (not renamed/retained -- no claim ever depended on them) and the matrix recaptured from scratch under the SAME run-ids after the fix. (2) casematrix.py case_order_sensitive_keys() excluded target_final_hex for tg_exch/tg_cmpxchg, but those shapes report their final value in tg_result_hex, not target_final_hex (a dev_*-only field) -- fixed to exclude tg_result_hex instead. (3) analysis.py check_ordering_probe substring-matched the wrong quote style against the real clang diagnostic. All three fixes are mechanical/objectively-forced (no discretion over the correct fix) and are recorded in PROGRESS.md with the full diagnostic evidence. The two promoted runs (run01, run02) were captured AFTER every fix, from byte-identical authored source (00_inputs.json authored_sha256 matches exactly).",
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "a615a22244461098542aa0f7bf75531942a9983b4fe8b5240ee8566e840d1488",
+    "README.md": "74ab07321eafd3a09c1f07d5792bd268802e3986554529c8e443252b9bc7b6d6",
+    "analysis.py": "5df5c2527b12768c4072d6a5294b78f05a69852fbbcff4a8d0cd2f6d07cefea6",
+    "casematrix.py": "f395b5cbc2b6ee12b9de8ba85066995b567b9173427645c0bac9c08ed76ee389",
+    "harness/atomics_probe.m": "6535ccf17a46d3710ad4845cbf45d07b68d105ecd21951106e66d323c6980cc4",
+    "harness/interlock_probe.m": "57a64f26a0ba85227b8b05dcf3a1dfc01abb1313bb030596b8829aac37f9a7f2",
+    "harness/interlock_tex_probe.m": "742675e5a96ac32089b737cde821865e4fcb6e18fa6d9743198d75dd264f5e5e",
+    "kernels/atomics.metal": "ac549283c0503586c05c7f32e931ab32cf2aff8422d182307fd612563f5de3c6",
+    "kernels/atomics_ordering.metal": "706dfe6e37465787c76bce34ce7cbfafe042f2441323abbfc61b0c298718cb11",
+    "kernels/interlock.metal": "481e0691968432ebfcac1bc082542c4cdbbe7cfe64ff8e39973919069f489a6b",
+    "kernels/interlock_tex.metal": "74667be1cad0482c665ccd0e72c028124ee73c9decbd504842cc26f74e5ed58c",
+    "run.py": "bb666437d02c4c13785392dd5316c15af669400c6e82b27e90e74f55907ac6f0",
+    "verify.py": "d84836120b6e1315180f759757f2659ee05d00eece66dd6ce47b2b29187c06c7"
+  },
+  "boundary": {
+    "apple_binary_or_compiled_shader_byte_inspection": "NONE (own compiled kernels only, via tools/shdump read-only)",
+    "native_encoding_isa_claim": "STRUCTURAL only, scoped to this exact sw_vers/xcrun version (see PRE_REGISTRATION.md confounders)",
+    "private_api_or_trace": "NONE"
+  },
+  "gate_order": {
+    "PRE_GPU": [
+      "verify.py --selftest",
+      "verify.py --seqtest",
+      "verify.py --preflight",
+      "run.py --execute run01"
+    ],
+    "RUN01_PRESENT": [
+      "verify.py --selftest",
+      "verify.py --seqtest",
+      "verify.py --between-runs",
+      "run.py --execute run02"
+    ],
+    "RUN02_PRESENT": [
+      "analysis.py --write",
+      "verify.py --captured"
+    ]
+  },
+  "matrix": {
+    "cases": [
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 0,
+        "init": "00000000",
+        "kernel": "da_add",
+        "n": 65536,
+        "name": "da_add_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 1,
+        "init": "00000000",
+        "kernel": "da_add",
+        "n": 65536,
+        "name": "da_add_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 2,
+        "init": "00000000",
+        "kernel": "da_sub",
+        "n": 65536,
+        "name": "da_sub_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 3,
+        "init": "00000000",
+        "kernel": "da_sub",
+        "n": 65536,
+        "name": "da_sub_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 4,
+        "init": "ffffffff",
+        "kernel": "da_and",
+        "n": 65536,
+        "name": "da_and_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 5,
+        "init": "ffffffff",
+        "kernel": "da_and",
+        "n": 65536,
+        "name": "da_and_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 6,
+        "init": "00000000",
+        "kernel": "da_or",
+        "n": 65536,
+        "name": "da_or_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 7,
+        "init": "00000000",
+        "kernel": "da_or",
+        "n": 65536,
+        "name": "da_or_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 8,
+        "init": "00000000",
+        "kernel": "da_xor",
+        "n": 65536,
+        "name": "da_xor_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 9,
+        "init": "00000000",
+        "kernel": "da_xor",
+        "n": 65536,
+        "name": "da_xor_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 10,
+        "init": "ffffffff",
+        "kernel": "da_umin",
+        "n": 65536,
+        "name": "da_umin_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 11,
+        "init": "ffffffff",
+        "kernel": "da_umin",
+        "n": 65536,
+        "name": "da_umin_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 12,
+        "init": "00000000",
+        "kernel": "da_umax",
+        "n": 65536,
+        "name": "da_umax_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 13,
+        "init": "00000000",
+        "kernel": "da_umax",
+        "n": 65536,
+        "name": "da_umax_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "i32",
+        "family": "atomic",
+        "i": 14,
+        "init": "ffffff7f",
+        "kernel": "da_smin",
+        "n": 65536,
+        "name": "da_smin_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "i32",
+        "family": "atomic",
+        "i": 15,
+        "init": "ffffff7f",
+        "kernel": "da_smin",
+        "n": 65536,
+        "name": "da_smin_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "i32",
+        "family": "atomic",
+        "i": 16,
+        "init": "00000080",
+        "kernel": "da_smax",
+        "n": 65536,
+        "name": "da_smax_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "i32",
+        "family": "atomic",
+        "i": 17,
+        "init": "00000080",
+        "kernel": "da_smax",
+        "n": 65536,
+        "name": "da_smax_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01",
+        "dtype": "f32",
+        "family": "atomic",
+        "i": 18,
+        "init": "00000000",
+        "kernel": "da_fadd",
+        "n": 65536,
+        "name": "da_fadd_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01",
+        "dtype": "f32",
+        "family": "atomic",
+        "i": 19,
+        "init": "00000000",
+        "kernel": "da_fadd",
+        "n": 65536,
+        "name": "da_fadd_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 20,
+        "init": "efbeadde",
+        "kernel": "da_exch",
+        "n": 65536,
+        "name": "da_exch_uniform",
+        "shape": "dev_exch",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 21,
+        "init": "efbeadde",
+        "kernel": "da_exch",
+        "n": 65536,
+        "name": "da_exch_indexed",
+        "shape": "dev_exch",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 22,
+        "init": "efbeadde",
+        "kernel": "da_exch_noret",
+        "n": 65536,
+        "name": "da_exch_noret_uniform",
+        "shape": "dev_exch",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 23,
+        "init": "efbeadde",
+        "kernel": "da_store",
+        "n": 65536,
+        "name": "da_store_uniform",
+        "shape": "dev_exch",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-04",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 24,
+        "init": "00000000",
+        "kernel": "da_cmpxchg",
+        "n": 65536,
+        "name": "da_cmpxchg_uniform",
+        "shape": "dev_cmpxchg",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-04",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 25,
+        "init": "00000000",
+        "kernel": "da_cmpxchg",
+        "n": 65536,
+        "name": "da_cmpxchg_indexed",
+        "shape": "dev_cmpxchg",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-05/06",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 26,
+        "init": "00000000",
+        "kernel": "da_add_static0",
+        "n": 8192,
+        "name": "da_add_static0",
+        "shape": "dev_rmw",
+        "tcount": 1
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-05/06",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 27,
+        "init": "00000000",
+        "kernel": "da_xor_static0",
+        "n": 8192,
+        "name": "da_xor_static0",
+        "shape": "dev_rmw",
+        "tcount": 1
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-05/06",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 28,
+        "init": "ffffffff",
+        "kernel": "da_umin_static0",
+        "n": 8192,
+        "name": "da_umin_static0",
+        "shape": "dev_rmw",
+        "tcount": 1
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-05/06",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 29,
+        "init": "efbeadde",
+        "kernel": "da_exch_static0",
+        "n": 8192,
+        "name": "da_exch_static0",
+        "shape": "dev_exch",
+        "tcount": 1
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-05/06",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 30,
+        "init": "00000000",
+        "kernel": "da_cmpxchg_static0",
+        "n": 8192,
+        "name": "da_cmpxchg_static0",
+        "shape": "dev_cmpxchg",
+        "tcount": 1
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 31,
+        "init": null,
+        "kernel": "ta_add",
+        "n": 256,
+        "name": "ta_add_uniform",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 32,
+        "init": null,
+        "kernel": "ta_add",
+        "n": 256,
+        "name": "ta_add_indexed",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 33,
+        "init": null,
+        "kernel": "ta_sub",
+        "n": 256,
+        "name": "ta_sub_uniform",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 34,
+        "init": null,
+        "kernel": "ta_sub",
+        "n": 256,
+        "name": "ta_sub_indexed",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 35,
+        "init": null,
+        "kernel": "ta_min",
+        "n": 256,
+        "name": "ta_min_uniform",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 36,
+        "init": null,
+        "kernel": "ta_min",
+        "n": 256,
+        "name": "ta_min_indexed",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 37,
+        "init": null,
+        "kernel": "ta_max",
+        "n": 256,
+        "name": "ta_max_uniform",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-02",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 38,
+        "init": null,
+        "kernel": "ta_max",
+        "n": 256,
+        "name": "ta_max_indexed",
+        "shape": "tg_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 39,
+        "init": "efbeadde",
+        "kernel": "ta_exch",
+        "n": 256,
+        "name": "ta_exch_uniform",
+        "shape": "tg_exch",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-03",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 40,
+        "init": "efbeadde",
+        "kernel": "ta_exch",
+        "n": 256,
+        "name": "ta_exch_indexed",
+        "shape": "tg_exch",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-04",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 41,
+        "init": "00000000",
+        "kernel": "ta_cmpxchg",
+        "n": 256,
+        "name": "ta_cmpxchg_uniform",
+        "shape": "tg_cmpxchg",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-04",
+        "dtype": "u32",
+        "family": "atomic",
+        "i": 42,
+        "init": "00000000",
+        "kernel": "ta_cmpxchg",
+        "n": 256,
+        "name": "ta_cmpxchg_indexed",
+        "shape": "tg_cmpxchg",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01(width)",
+        "dtype": "u64",
+        "family": "atomic",
+        "i": 43,
+        "init": "ffffffffffffffff",
+        "kernel": "da_umin64",
+        "n": 8192,
+        "name": "da_umin64_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01(width)",
+        "dtype": "u64",
+        "family": "atomic",
+        "i": 44,
+        "init": "ffffffffffffffff",
+        "kernel": "da_umin64",
+        "n": 8192,
+        "name": "da_umin64_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "uniform",
+        "atom_item": "ATOM-01(width)",
+        "dtype": "u64",
+        "family": "atomic",
+        "i": 45,
+        "init": "0000000000000000",
+        "kernel": "da_umax64",
+        "n": 8192,
+        "name": "da_umax64_uniform",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "addr": "indexed",
+        "atom_item": "ATOM-01(width)",
+        "dtype": "u64",
+        "family": "atomic",
+        "i": 46,
+        "init": "0000000000000000",
+        "kernel": "da_umax64",
+        "n": 8192,
+        "name": "da_umax64_indexed",
+        "shape": "dev_rmw",
+        "tcount": null
+      },
+      {
+        "atom_item": "ATOM-07(deferred;exposure-only)",
+        "family": "ordering_probe",
+        "i": 47,
+        "kernel": "da_add_seqcst",
+        "n": 8,
+        "name": "da_add_seqcst_compile_probe"
+      },
+      {
+        "afactor": 1,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 48,
+        "kernel": "il_load_alu",
+        "n": 8192,
+        "name": "il_load_alu"
+      },
+      {
+        "afactor": 1,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 49,
+        "kernel": "il_gather",
+        "n": 8192,
+        "name": "il_gather"
+      },
+      {
+        "afactor": 1,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 50,
+        "kernel": "il_atomic_alu",
+        "n": 8192,
+        "name": "il_atomic_alu"
+      },
+      {
+        "afactor": 1,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 51,
+        "kernel": "il_store_src",
+        "n": 8192,
+        "name": "il_store_src"
+      },
+      {
+        "afactor": 1,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 52,
+        "kernel": "il_atomic_src",
+        "n": 8192,
+        "name": "il_atomic_src"
+      },
+      {
+        "afactor": 48,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 53,
+        "kernel": "il_chain48",
+        "n": 4096,
+        "name": "il_chain48_n4096"
+      },
+      {
+        "afactor": 48,
+        "atom_item": "MEM-13/14",
+        "family": "interlock",
+        "i": 54,
+        "kernel": "il_chain48",
+        "n": 65536,
+        "name": "il_chain48_n65536"
+      },
+      {
+        "atom_item": "MEM-13",
+        "family": "interlock_tex",
+        "h": 64,
+        "i": 55,
+        "kernel": "il_tex_alu",
+        "name": "il_tex_alu_64x64",
+        "w": 64
+      }
+    ],
+    "order_sensitive_keys_by_case": {
+      "da_add_indexed": [],
+      "da_add_seqcst_compile_probe": [],
+      "da_add_static0": [
+        "old_out_hex"
+      ],
+      "da_add_uniform": [
+        "old_out_hex"
+      ],
+      "da_and_indexed": [],
+      "da_and_uniform": [
+        "old_out_hex"
+      ],
+      "da_cmpxchg_indexed": [],
+      "da_cmpxchg_static0": [
+        "old_out_hex",
+        "success_out",
+        "target_final_hex"
+      ],
+      "da_cmpxchg_uniform": [
+        "old_out_hex",
+        "success_out",
+        "target_final_hex"
+      ],
+      "da_exch_indexed": [],
+      "da_exch_noret_uniform": [
+        "old_out_hex",
+        "target_final_hex"
+      ],
+      "da_exch_static0": [
+        "old_out_hex",
+        "target_final_hex"
+      ],
+      "da_exch_uniform": [
+        "old_out_hex",
+        "target_final_hex"
+      ],
+      "da_fadd_indexed": [],
+      "da_fadd_uniform": [
+        "old_out_hex"
+      ],
+      "da_or_indexed": [],
+      "da_or_uniform": [
+        "old_out_hex"
+      ],
+      "da_smax_indexed": [],
+      "da_smax_uniform": [
+        "old_out_hex"
+      ],
+      "da_smin_indexed": [],
+      "da_smin_uniform": [
+        "old_out_hex"
+      ],
+      "da_store_uniform": [
+        "old_out_hex",
+        "target_final_hex"
+      ],
+      "da_sub_indexed": [],
+      "da_sub_uniform": [
+        "old_out_hex"
+      ],
+      "da_umax64_indexed": [],
+      "da_umax64_uniform": [
+        "old_out_hex"
+      ],
+      "da_umax_indexed": [],
+      "da_umax_uniform": [
+        "old_out_hex"
+      ],
+      "da_umin64_indexed": [],
+      "da_umin64_uniform": [
+        "old_out_hex"
+      ],
+      "da_umin_indexed": [],
+      "da_umin_static0": [
+        "old_out_hex"
+      ],
+      "da_umin_uniform": [
+        "old_out_hex"
+      ],
+      "da_xor_indexed": [],
+      "da_xor_static0": [
+        "old_out_hex"
+      ],
+      "da_xor_uniform": [
+        "old_out_hex"
+      ],
+      "il_atomic_alu": [
+        "out_hex"
+      ],
+      "il_atomic_src": [
+        "out_hex"
+      ],
+      "il_chain48_n4096": [],
+      "il_chain48_n65536": [],
+      "il_gather": [],
+      "il_load_alu": [],
+      "il_store_src": [],
+      "il_tex_alu_64x64": [],
+      "ta_add_indexed": [],
+      "ta_add_uniform": [
+        "old_out_hex"
+      ],
+      "ta_cmpxchg_indexed": [],
+      "ta_cmpxchg_uniform": [
+        "old_out_hex",
+        "success_out",
+        "tg_result_hex"
+      ],
+      "ta_exch_indexed": [],
+      "ta_exch_uniform": [
+        "old_out_hex",
+        "tg_result_hex"
+      ],
+      "ta_max_indexed": [],
+      "ta_max_uniform": [
+        "old_out_hex"
+      ],
+      "ta_min_indexed": [],
+      "ta_min_uniform": [
+        "old_out_hex"
+      ],
+      "ta_sub_indexed": [],
+      "ta_sub_uniform": [
+        "old_out_hex"
+      ]
+    },
+    "total": 56
+  },
+  "nondeterministic_fields_excluded_from_result_records": [
+    "argv",
+    "cwd",
+    "duration_ms",
+    "gputime_ns",
+    "started_utc"
+  ],
+  "receipt_keys": [
+    "argv",
+    "cwd",
+    "duration_ms",
+    "exit",
+    "gputime_ns",
+    "i",
+    "name",
+    "started_utc",
+    "timed_out"
+  ],
+  "result_keys_by_family": {
+    "atomic": [
+      "addr",
+      "cb_status",
+      "compile_err",
+      "deltas_hex",
+      "dtype",
+      "err",
+      "i",
+      "idx",
+      "init",
+      "kernel",
+      "n",
+      "name",
+      "old_out_hex",
+      "shape",
+      "status",
+      "success_out",
+      "tag_hex",
+      "target_final_hex",
+      "tcount",
+      "tg_result_hex"
+    ],
+    "interlock": [
+      "afactor",
+      "atom_final",
+      "cb_status",
+      "compile_err",
+      "err",
+      "i",
+      "kernel",
+      "n",
+      "name",
+      "out_hex",
+      "status"
+    ],
+    "interlock_tex": [
+      "cb_status",
+      "compile_err",
+      "err",
+      "h",
+      "i",
+      "kernel",
+      "name",
+      "out_hex",
+      "status",
+      "w"
+    ],
+    "ordering_probe": [
+      "cb_status",
+      "compile_err",
+      "err",
+      "i",
+      "kernel",
+      "n",
+      "name",
+      "status"
+    ]
+  },
+  "schema": "exp0085.capture_contract.v1",
+  "status_allowed": [
+    "cb_error",
+    "compile_fail",
+    "function_missing",
+    "no_device",
+    "ok",
+    "pipeline_fail",
+    "proc_fail",
+    "proc_timeout",
+    "read_fail"
+  ],
+  "timeouts_seconds": {
+    "build": 60,
+    "case_proc": 45,
+    "env_cmd": 10
+  }
+}
