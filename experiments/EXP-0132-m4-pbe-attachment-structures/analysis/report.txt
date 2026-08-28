@@ -1,0 +1,147 @@
+EXP-0132 analysis -- runs ['m4-20260828-run01', 'm4-20260828-run02']
+status summary A: {'OK': 16}
+status summary B: {'OK': 16}
+cross-run disagreements: []
+flake fallback used for (content_captured flake, backfilled from run B): [('m1-mip-level0', 'mrt-attachment-descriptors')]
+
+== H1: depth/stencil reuse k=ncolor(/+1) of mrt-attachment-descriptors ==
+VERDICT: SUPPORTED
+[
+  {
+    "case": "a1",
+    "k0_load_nonzero": true,
+    "k1_load_zero": true
+  },
+  {
+    "case": "g1",
+    "k1_load_nonzero": true,
+    "k1_load_prefix": "628800f8017c0008",
+    "matches_exp0108_doubly_corroborated_prefix": true
+  },
+  {
+    "case": "h1",
+    "k1_load_nonzero": true,
+    "k1_load_prefix": "224068f9017c0008",
+    "distinct_from_depth": true
+  },
+  {
+    "case": "i1",
+    "k1_matches_g1_depth_prefix": true,
+    "k2_matches_h1_stencil_prefix": true
+  },
+  {
+    "case": "i2 (ncolor=2, adversarial generalization)",
+    "k0_k1_color_nonzero": true,
+    "k2_matches_g1_depth_prefix": true,
+    "k3_matches_h1_stencil_prefix": true
+  },
+  {
+    "case": "g2 (depth memoryless)",
+    "k1_load_nonzero": true,
+    "k1_load_hex": "628800f8017c0000000000000000000000000000000000000000000000000000"
+  }
+]
+
+== H2: array slice / mip level not encoded in the k=0 record (except a coarse mipCount>1 flag) ==
+VERDICT: SUPPORTED
+{
+  "slice_records_identical_across_slice0_1_last": true,
+  "level_records_identical_across_level0_last": true,
+  "mipcount_gt1_bit26_flag": {
+    "baseline_word1_hex": "08007c01",
+    "mip_word1_hex": "0c007c01",
+    "bit26_set_in_mip": true,
+    "bit26_set_in_baseline": false
+  }
+}
+
+== H3: invalid slice/level is silently accepted (no reject/abort) ==
+VERDICT: SUPPORTED
+{
+  "l4-array-slice-invalid": {
+    "status": "OK",
+    "cb_status": 4,
+    "rts": [
+      {
+        "cells": [
+          {
+            "first4_hex": "00000000",
+            "level": 0,
+            "slice": 0
+          },
+          {
+            "first4_hex": "b0b0b0b0",
+            "level": 0,
+            "slice": 1
+          },
+          {
+            "first4_hex": "c0c0c0c0",
+            "level": 0,
+            "slice": 2
+          },
+          {
+            "first4_hex": "d0d0d0d0",
+            "level": 0,
+            "slice": 3
+          }
+        ],
+        "i": 0
+      }
+    ]
+  },
+  "m3-mip-level-invalid": {
+    "status": "OK",
+    "cb_status": 4,
+    "rts": [
+      {
+        "cells": [
+          {
+            "first4_hex": "a0a0a0a0",
+            "level": 0,
+            "slice": 0
+          },
+          {
+            "first4_hex": "a1a1a1a1",
+            "level": 1,
+            "slice": 0
+          },
+          {
+            "first4_hex": "a2a2a2a2",
+            "level": 2,
+            "slice": 0
+          }
+        ],
+        "i": 0
+      }
+    ]
+  }
+}
+
+== H4: MSAA resolve target populates k=ncolor of BOTH LOAD and STORE arrays; k<ncolor STORE (the MSAA attachment's own) is zero ==
+VERDICT: SUPPORTED
+[
+  {
+    "case": "r1-msaa4-resolve-detail",
+    "k0_load_nonzero_ms_color": true,
+    "k0_store_zero_ms_color_store_slot": true,
+    "k1_load_nonzero_resolve": true,
+    "k1_store_nonzero_resolve": true,
+    "k0_load_type_nibble": "4",
+    "k1_load_type_nibble": "2"
+  },
+  {
+    "case": "r2-msaa4-store-and-resolve",
+    "k0_load_nonzero_ms_color": true,
+    "k0_store_zero_ms_color_store_slot": true,
+    "k1_load_nonzero_resolve": true,
+    "k1_store_nonzero_resolve": true,
+    "k0_load_type_nibble": "4",
+    "k1_load_type_nibble": "2"
+  }
+]
+
+== H5: attachment-slot-b never appears in this harness's matrix ==
+VERDICT: SUPPORTED (non-reproduction)
+{
+  "present_in_cases": []
+}

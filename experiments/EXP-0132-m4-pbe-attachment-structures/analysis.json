@@ -1,0 +1,168 @@
+{
+  "cross_run_disagreements": [],
+  "flake_fallback_used_for": [
+    [
+      "m1-mip-level0",
+      "mrt-attachment-descriptors"
+    ]
+  ],
+  "h1_depth_stencil_slot_reuse": {
+    "findings": [
+      {
+        "case": "a1",
+        "k0_load_nonzero": true,
+        "k1_load_zero": true
+      },
+      {
+        "case": "g1",
+        "k1_load_nonzero": true,
+        "k1_load_prefix": "628800f8017c0008",
+        "matches_exp0108_doubly_corroborated_prefix": true
+      },
+      {
+        "case": "h1",
+        "distinct_from_depth": true,
+        "k1_load_nonzero": true,
+        "k1_load_prefix": "224068f9017c0008"
+      },
+      {
+        "case": "i1",
+        "k1_matches_g1_depth_prefix": true,
+        "k2_matches_h1_stencil_prefix": true
+      },
+      {
+        "case": "i2 (ncolor=2, adversarial generalization)",
+        "k0_k1_color_nonzero": true,
+        "k2_matches_g1_depth_prefix": true,
+        "k3_matches_h1_stencil_prefix": true
+      },
+      {
+        "case": "g2 (depth memoryless)",
+        "k1_load_hex": "628800f8017c0000000000000000000000000000000000000000000000000000",
+        "k1_load_nonzero": true
+      }
+    ],
+    "hypothesis": "H1: depth/stencil reuse k=ncolor(/+1) of mrt-attachment-descriptors",
+    "verdict": "SUPPORTED"
+  },
+  "h2_array_mip_field_mapping": {
+    "findings": {
+      "level_records_identical_across_level0_last": true,
+      "mipcount_gt1_bit26_flag": {
+        "baseline_word1_hex": "08007c01",
+        "bit26_set_in_baseline": false,
+        "bit26_set_in_mip": true,
+        "mip_word1_hex": "0c007c01"
+      },
+      "slice_records_identical_across_slice0_1_last": true
+    },
+    "hypothesis": "H2: array slice / mip level not encoded in the k=0 record (except a coarse mipCount>1 flag)",
+    "verdict": "SUPPORTED"
+  },
+  "h3_boundary_behavior": {
+    "findings": {
+      "l4-array-slice-invalid": {
+        "cb_status": 4,
+        "rts": [
+          {
+            "cells": [
+              {
+                "first4_hex": "00000000",
+                "level": 0,
+                "slice": 0
+              },
+              {
+                "first4_hex": "b0b0b0b0",
+                "level": 0,
+                "slice": 1
+              },
+              {
+                "first4_hex": "c0c0c0c0",
+                "level": 0,
+                "slice": 2
+              },
+              {
+                "first4_hex": "d0d0d0d0",
+                "level": 0,
+                "slice": 3
+              }
+            ],
+            "i": 0
+          }
+        ],
+        "status": "OK"
+      },
+      "m3-mip-level-invalid": {
+        "cb_status": 4,
+        "rts": [
+          {
+            "cells": [
+              {
+                "first4_hex": "a0a0a0a0",
+                "level": 0,
+                "slice": 0
+              },
+              {
+                "first4_hex": "a1a1a1a1",
+                "level": 1,
+                "slice": 0
+              },
+              {
+                "first4_hex": "a2a2a2a2",
+                "level": 2,
+                "slice": 0
+              }
+            ],
+            "i": 0
+          }
+        ],
+        "status": "OK"
+      }
+    },
+    "hypothesis": "H3: invalid slice/level is silently accepted (no reject/abort)",
+    "verdict": "SUPPORTED"
+  },
+  "h4_msaa_resolve_slot": {
+    "findings": [
+      {
+        "case": "r1-msaa4-resolve-detail",
+        "k0_load_nonzero_ms_color": true,
+        "k0_load_type_nibble": "4",
+        "k0_store_zero_ms_color_store_slot": true,
+        "k1_load_nonzero_resolve": true,
+        "k1_load_type_nibble": "2",
+        "k1_store_nonzero_resolve": true
+      },
+      {
+        "case": "r2-msaa4-store-and-resolve",
+        "k0_load_nonzero_ms_color": true,
+        "k0_load_type_nibble": "4",
+        "k0_store_zero_ms_color_store_slot": true,
+        "k1_load_nonzero_resolve": true,
+        "k1_load_type_nibble": "2",
+        "k1_store_nonzero_resolve": true
+      }
+    ],
+    "hypothesis": "H4: MSAA resolve target populates k=ncolor of BOTH LOAD and STORE arrays; k<ncolor STORE (the MSAA attachment's own) is zero",
+    "verdict": "SUPPORTED"
+  },
+  "h5_attachment_slot_b": {
+    "findings": {
+      "present_in_cases": []
+    },
+    "hypothesis": "H5: attachment-slot-b never appears in this harness's matrix",
+    "verdict": "SUPPORTED (non-reproduction)"
+  },
+  "n_cases": 16,
+  "runs": [
+    "m4-20260828-run01",
+    "m4-20260828-run02"
+  ],
+  "schema": 1,
+  "status_summary_run_a": {
+    "OK": 16
+  },
+  "status_summary_run_b": {
+    "OK": 16
+  }
+}

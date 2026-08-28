@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "pinned_git_revision": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "git_dirty_note": "repo working tree carries unrelated untracked sibling-experiment files at freeze time (EXP-0057/0064/0069/0118/0127/0128 etc, per `git status --porcelain`); none touch EXP-0132-m4-pbe-attachment-structures/. Per SUBAGENT_BRIEF.md this pinned revision is compared against authored-blob hashes, not live HEAD -- a sibling experiment landing between run01 and run02 is not contamination.",
+  "address_normalization": {
+    "mrt_attachment_descriptors": {
+      "policy": "the captured window (first 0x500 bytes of VA 0x10000018200, covering the arena's own two 0x20-byte header words at absolute +0x000/+0x200 plus the k=0..7 LOAD array at +0x20+k*0x20 and STORE array at +0x220+k*0x20 -- EXP-0048/EXP-M4-08/09/EXP-0108) is masked uniformly at every 0x20-byte-stride boundary: 5 bytes at record-relative +0x08..+0x0c (the low-40-bits-of-a-qword surface-address subfield, EXP-0048/EXP-M4-08's VA=low40<<4 reconstruction) are zeroed before the byte-exact cross-run comparison. Unmasked bytes go only into 03_timing.jsonl's `addresses` field (a small first-0x40-byte excerpt), never cross-run compared."
+    },
+    "clear_color_arena": {
+      "policy": "2 bytes at fixed absolute offset 0x536/0x537 within the captured window (first 0x600 bytes of VA 0x10000128000) were found nondeterministic between two SAME-CASE, SAME-CONFIG dry runs during this experiment's own pre-capture diagnostic phase (PRE_REGISTRATION.md section 2 finding 6 / PROGRESS.md M6) -- masked to zero before comparison. This role's remaining ~1534 bytes in the captured window are NOT independently characterized by this experiment (out of scope, see PRE_REGISTRATION.md section 9); they are carried through the gate only because they were empirically found stable across the diagnostic phase's own repetitions, not because their structure is understood."
+    }
+  },
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "277039a80e405f63290173db4e95d8c64cbb3da9dcf1f849106be5448bf85bfb",
+    "README.md": "cd16461c273ba46282460e57a9b6cd1b9acd9a2d55457f51b11b683d6c7f82da",
+    "harness/build.sh": "080534cf698b90c725ab86e578ac16ef6b3512fd2a0422d090b1aade1ec3f4f9",
+    "harness/casematrix.py": "baf03a09ff80d8ad3e342a29e11694d97ed5357861d0c659274b45a3571da94b",
+    "harness/probe.m": "84b0637ae2e4d697aed32656e4b8b63816721758dab470bc2c195ea410094566",
+    "harness/wtrace.c": "63b323aae130939070091a791a3824628d8522f131133ce3a3907017d7422e3c",
+    "make_manifest.py": "2ef61a93d63ad520abb5867c5322584db15f2b98206cd6953a45e92aadf02b54",
+    "run.py": "9b1d0e373c7fe6518fb74e43e60baaf9cb8ec82cbcab8363f450fcb9a32e92aa",
+    "verify.py": "fb75f0699da8cfedfa7877bb64b5b33a7ca8e79056cc70cd427b96b9885a56ff",
+    "analysis.py": "2cb13051d1a8ef2b46da6d5f3024051501ac44f81c576fd523cd8ee8eaa3060b"
+  },
+  "analysis_py_post_capture_note": "analysis.py (interpretation/reporting only, never data collection) was fixed twice AFTER both run01/run02 captures completed: (1) a little-endian byte-order bug in the H2 mipCount-flag bit26 check (the record hex string was passed straight to int(x,16) instead of being byte-reversed first, so the check silently always read the wrong bit), (2) a KeyError when the one tolerated content_captured flake (m1-mip-level0) left window_hex absent in run_a -- fixed by adding an explicit, disclosed flake-fallback merge (merge_with_flake_fallback) that backfills from whichever run actually captured the content, reported in analysis.json's own flake_fallback_used_for field rather than hidden. Neither fix touched run.py, verify.py, wtrace.c, probe.m, or casematrix.py, and neither required a recapture -- the same pattern EXP-0108's own PROGRESS.md documents for its verify.py/analysis.py iteration after an initial capture attempt. The hash above is analysis.py's POST-fix value (the version that actually produced analysis.json); the original pre-fix hash used at capture time was 94e3e9acf8216c5ed64cc52e3f3447928d9e0e4d49150373daa493aec93c295d, preserved here for the audit trail.",
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own generated MSL (VS/FS compiled at runtime per case) and its own readback bytes; the interposer never inspects Metal/AGX*/IOGPU framework code",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool; local M4 only)",
+    "private_api_or_trace": "NONE (public Metal + public IOKit user-client selectors only)"
+  },
+  "capture": {
+    "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+    "required_run_paths": [
+      "00_inputs.json", "01_cases.json", "02_build.json",
+      "03_results.jsonl", "03_timing.jsonl", "04_dispatch.json"
+    ],
+    "case_line_keys": ["axis", "boundary", "cb_error", "cb_status", "i", "name", "named", "rts", "status"],
+    "timing_line_keys": ["addresses", "duration_ms", "i", "inventory_full", "name", "returncode", "stdout_raw", "stderr_raw"],
+    "status_allowed": [
+      "CMDBUF_ERROR", "COLOR_TEXTURE_CREATE_FAIL", "DEPTH_TEXTURE_CREATE_FAIL",
+      "ENCODER_CREATE_FAIL", "HARNESS_CRASH", "HARNESS_TIMEOUT", "NO_RESULT", "OK",
+      "NSEXCEPTION_ENCODER", "NSEXCEPTION_ENCODE", "PIPELINE_FAIL", "PROCESS_ABORT",
+      "STENCIL_TEXTURE_CREATE_FAIL"
+    ],
+    "selftest_gate": "verify.py --selftest and verify.py --seqtest must pass immediately before every capture, in every tree state; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "BEFORE any raw/ artifact is created, the freshly built harness must run ONE scratch case (CM.CASES[0]) into work/ (never promoted into raw/) whose result parses to status OK; any build or smoke defect exits 3 with the receipt printed and NO burned run id",
+    "between_runs_gate": "run01 must be a complete closed successful raw tree (04_dispatch.json present, n_cases == 16) and raw/run02 absent before run02 is created",
+    "cross_run_byte_exact_scope": "for every case, every CASE_KEYS field must be identical between run01 and run02 AFTER the address_normalization masking above is applied by run.py itself (i.e. the comparison in verify.py --captured operates on the already-masked gated record, with no further projection needed) -- EXCEPT a role's `content_captured` flag is tolerated to differ (size/presence must still agree) up to a budget of 3 such flakes across the 16-case matrix, empirically justified by the widened mach_vm_read_overwrite retry budget (PROGRESS.md M5) which is expected to (but is not proven to) eliminate this class of flake entirely.",
+    "cross_run_provenance_gate": "run02 authored-file hashes must equal the closed run01 input record; git revision need only resolve to a real commit object (pinned_git_revision above is the frozen comparison point per SUBAGENT_BRIEF.md, not live HEAD)."
+  }
+}
