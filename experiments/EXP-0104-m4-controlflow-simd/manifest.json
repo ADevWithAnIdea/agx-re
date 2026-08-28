@@ -1,0 +1,36 @@
+{
+  "experiment": "EXP-0104-m4-controlflow-simd",
+  "target": "Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4, 10 GPU cores",
+  "a18_claim": false,
+  "clean_room_category": "OWN-SHADER + HW-PROBE",
+  "pinned_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "toolchain": {
+    "clang": "Apple clang version 21.0.0 (clang-2100.1.1.101), arm64-apple-darwin25.6.0",
+    "compile_api": "MTLDevice newLibraryWithSource: (runtime compile, no metal CLI)"
+  },
+  "tools_used_readonly": [
+    "tools/shdump/shdump.m", "tools/shdump/agxparse.py",
+    "tools/agxtest/agxrun.m", "tools/agxtest/agxrender.m", "tools/agxtest/agxtest.py",
+    "tools/agx-isa/agxisa.py", "tools/agx-isa/isadb.py", "tools/agx-isa/db.json"
+  ],
+  "artifact_dirs": {
+    "kernels": "kernels/*.metal -- authored MSL",
+    "harness": "harness/*.py -- authored Python matrix/runner/gates",
+    "raw": "raw/*.jsonl -- append-only gated + nongated capture records",
+    "analysis": "analysis/report.py + generated reports",
+    "work": "work/bin (local tool builds, gitignored) + work/run_<id> (per-run scratch archives)"
+  },
+  "prior_work_built_on": [
+    "experiments/EXP-0010-control-flow",
+    "experiments/EXP-0018-atomics-subgroup",
+    "experiments/RT-1b-isa-cf-atomics-falsify",
+    "experiments/EXP-0093-m4-fence-barrier-interlock",
+    "experiments/EXP-M4-13-full-corpus",
+    "docs/isa/register-move-and-liveness.md"
+  ],
+  "gap_doc_items": [
+    "CF-01", "CF-02", "CF-03", "CF-04", "CF-05", "CF-06",
+    "SIMD-01", "SIMD-02", "SIMD-03", "SIMD-04", "SIMD-05", "SIMD-06", "SIMD-07"
+  ],
+  "run_ids": ["m4_20260827_run01", "m4_20260827_run02"]
+}

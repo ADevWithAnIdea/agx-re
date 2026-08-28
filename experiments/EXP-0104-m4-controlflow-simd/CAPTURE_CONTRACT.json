@@ -1,0 +1,67 @@
+{
+  "experiment": "EXP-0104-m4-controlflow-simd",
+  "pinned_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "pinned_revision_note": "agx-re HEAD at pre-registration time. Gate on the authored blob hashes below, NOT on live HEAD -- the orchestrator commits other experiments concurrently.",
+  "repo_dirty_at_pin": true,
+  "repo_dirty_reason": "untracked sibling-experiment artifacts elsewhere in the tree (EXP-0057/0064/0069/0096/0098/0100/0101/0102/etc); none inside experiments/EXP-0104-m4-controlflow-simd/",
+  "target": {
+    "device": "Apple M4 (G16G)",
+    "gpu_cores": 10,
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "a18_pro_claim": false
+  },
+  "authored_blob_sha256": {
+    "kernels/cf_nest.metal": "02199f41e9a237aaea248208e6dfc6317250e213639c32395924b6a2f6a8a555",
+    "kernels/cf_misc.metal": "74c788c78809e8f39291e4a439e8f74280b6ee1f6dfef353206337eeaa209b40",
+    "kernels/simd_misc.metal": "b566a2a0f931862150f809d90a96b40eef29b523fcf86b482ad4aa37f21ba652",
+    "kernels/frag_misc.metal": "1f9f8993183de3b3757df8a33b718515580b8967e3d530d91d7856f7350ae3ed",
+    "harness/matrix.py": "e235fe17200851d77336309c824710e335e66c260c5ef0b02941053f08cbeff7",
+    "harness/lib.py": "bef40a3213cb59fb54f096b37f0b73447740a72349d3eab61e0d56375069300b",
+    "harness/run.py": "cfe9a572ce596180631ff6985c2743cdc05f70a3e64f1a30fa4b828a5e69fe34",
+    "harness/verify.py": "4708a80507ce8faea4ae4e404f4e6fe0461e936c1beaa8a618a46e5519bd6d55",
+    "harness/fixtures.py": "f1997a053043e8c6f51fb10d454b6095359e982c19ac15a061ee6895be87f88d",
+    "harness/gen_cf_kernels.py": "adf698fac698b481ba431beb67ea5a19a78305fd37c6cec0a3fbf0ed10d21711"
+  },
+  "matrix_case_count": 92,
+  "matrix_items_covered": [
+    "CF-01", "CF-02", "CF-03", "CF-04", "CF-05/CF-06",
+    "CF-01/02-reach",
+    "SIMD-01", "SIMD-02", "SIMD-03", "SIMD-04", "SIMD-05", "SIMD-06", "SIMD-07"
+  ],
+  "read_only_tools_used": [
+    "tools/shdump/shdump.m (compiled locally to work/bin/shdump, unmodified source)",
+    "tools/shdump/agxparse.py (copied unmodified to work/bin/agxparse.py)",
+    "tools/agxtest/agxrun.m (compiled locally to work/bin/agxrun, unmodified source)",
+    "tools/agxtest/agxrender.m (compiled locally to work/bin/agxrender, unmodified source)",
+    "tools/agxtest/agxtest.py (invoked as a subprocess via harness/lib.py, unmodified)",
+    "tools/agx-isa/agxisa.py (invoked as a subprocess for tokenize, unmodified)",
+    "tools/agx-isa/db.json / isadb.py (read indirectly via agxisa.py; not modified)"
+  ],
+  "raw_record_schema": {
+    "gated_file": "raw/<run_id>.jsonl",
+    "gated_fields": ["run_id(context only)", "seq(context only)", "case_id", "item", "kind",
+                      "note", "status", "verdict", "detail", "out(status/results/splices/main_len/_locate/pixels/lens/identical_*)",
+                      "case_params"],
+    "nongated_file": "raw/<run_id>.nongated.jsonl",
+    "nongated_fields": ["gputime_ns", "stderr_tail", "compile_out", "timed_out", "rc",
+                          "compile_timed_out", "compile_rc", "wall_seconds"],
+    "note": "the split is enforced by harness/run.py:strip_nongated() and proven non-vacuous by harness/verify.py --captured (gputime_ns must differ between runs)."
+  },
+  "timeouts": {
+    "compute_default_subprocess_timeout_s": 20.0,
+    "compute_default_gpu_run_timeout_s": 15.0,
+    "reach_loop_splice_subprocess_timeout_s": 12.0,
+    "reach_loop_splice_gpu_run_timeout_s": 8.0,
+    "render_compile_timeout_s": 25.0,
+    "render_gpu_run_timeout_s": 20.0,
+    "run_py_belt_and_suspenders_ceiling_s": 45.0
+  },
+  "run_ids": {
+    "run01": "m4_20260827_run01",
+    "run02": "m4_20260827_run02",
+    "reuse_policy": "never reused; a defective capture is retained and a NEW id is used for any replacement, never repaired in place"
+  },
+  "gates_required": ["--selftest", "--seqtest", "--smoke (non-recorded, before any raw/ file)", "--captured RUN1 RUN2"],
+  "recovery_model": "one change per case, hard timeouts, each case its own subprocess, PROGRESS.md per milestone, append+fflush+fsync per record; if the host wedges: STOP, mark BLOCKED, no tool-based reboot."
+}
