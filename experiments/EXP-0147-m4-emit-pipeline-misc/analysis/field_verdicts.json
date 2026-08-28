@@ -1,0 +1,1101 @@
+{
+  "_cross_run": {
+    "agreement_pct": 98.372,
+    "cases_in_both_runs": 12532,
+    "only_in_run01": 0,
+    "only_in_run02": 0,
+    "same_outcome": 12328
+  },
+  "_outcome_vocabulary": {
+    "fault": "OS reported 'Caused GPU Hang Error' for THIS submission after retries",
+    "hang": "watchdog expired",
+    "invalid_run": "collateral damage from another process's GPU errors ('Discarded (victim...)' / 'Ignored (for causing prior...)'); NOT evidence about the encoding",
+    "no_dispatch": "same, compute stage",
+    "no_draw": "runner returned OK but the integrity sentinel proves nothing was drawn; confirmed twice with a healthy device in between",
+    "ok": "matched the host oracle",
+    "silent_zero": "matched the zero-oracle: the instruction contributed 0",
+    "unstable": "the 3 intra-run replicates disagreed",
+    "wrong_value": "ran, produced neither the oracle nor the zero-oracle"
+  },
+  "_runs": {
+    "run01": "m4_20260828_run01",
+    "run02": "m4_20260828_run02"
+  },
+  "_spec": "docs/evidence-classification.md section 2 labels; promotion rule frozen in PRE_REGISTRATION.md section 8",
+  "db_defects": {
+    "matrix_mac.b11hi": {
+      "measured": "correct a*b+c iff bits 0 and 1 of the field (byte+11 bits 1 and 2) are both 0 -- 32/128 values, exactly those with (v & 3) == 0. Either bit alone inverts the sign of the C addend (a*b-c); both set cancel back to a*b+c. Bits 2-6 are don't-care.",
+      "severity": "typed `raw`, but two of its bits are semantic",
+      "suggested": "split into two accumulator-sign bits plus 5 don't-care bits."
+    },
+    "matrix_mac.dst_desc": {
+      "measured": "correct result iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO, 0xc0-0xff give a wrong value.",
+      "severity": "typed `raw`, but the hardware rule is simple and now known",
+      "suggested": "split into a 2-bit control (bits 6-7) plus 6 don't-care bits."
+    },
+    "pixel_order.flags": {
+      "consequence": "as modelled, every legal encoding with byte+4 != 0x06 fails to match `pixel_order` at all, so it is neither decodable nor emittable; and `flags` can never be given a value by an emitter.",
+      "db_says": "field `flags` at bits[32:40] (byte+4), while match constant [32,8,6] pins those SAME bits to 0x06",
+      "measured": "with the acquire member spliced, the program stays byte-exactly correct (texel = 8*src, pixel = clear + 36*src) for 112 of the 256 values of byte+4, and for 224 of 256 on the release member. byte+4 is therefore a REAL field with a large legal set, not a constant.",
+      "severity": "descriptor is self-contradictory AND over-constrains the hardware",
+      "suggested": "drop the [32,8,6] match constant, keep `flags` as a field, and record the measured legal sets (see fields.pixel_order.flags)."
+    },
+    "scoreboard_fence.kind": {
+      "db_says": "kind in {0x00, 0x02, 0x22, 0xc0, 0xc2}",
+      "measured": "our own MSL (kernels/pipe_compute.metal :: k_atomic, a device atomic RMW plus a device+texture fence) compiles to `07 42 02 00`, i.e. kind = 0x42, which the enum does not list.",
+      "severity": "enum incomplete",
+      "suggested": "add 0x42; its role is not established here."
+    },
+    "tile_read.b6 / tile_read_mrt.b6": {
+      "measured": "all 128 ODD values give the correct read; all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle). Bits 1-7 are don't-care. Identical on both instructions.",
+      "severity": "typed `raw` with no semantics; bit0 is an enable",
+      "suggested": "model byte+6 bit0 as a read-enable."
+    }
+  },
+  "fields": {
+    "compute_fence_scoped.kind": {
+      "carrier": "compute_fence_scoped",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "256/256",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "compute_fence_scoped.mask": {
+      "carrier": "compute_fence_scoped",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "256/256",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 246,
+        "wrong_value": 10
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x01-0x07,0x09-0x0b,0x0d-0x0f,0x11-0x17,0x19-0x7f,0x81-0x87,0x89-0x8b,0x8d-0x8f,0x91-0x97,0x99-0xff",
+        "wrong_value": "0x00,0x08,0x0c,0x10,0x18,0x80,0x88,0x8c,0x90,0x98"
+      }
+    },
+    "compute_fence_scoped.scope": {
+      "carrier": "compute_fence_scoped",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "256/256",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "matrix_mac.b11hi": {
+      "carrier": "matrix_mac",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 6,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "128/128",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "128/128",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 32,
+        "wrong_value": 96
+      },
+      "range": "full 7-bit range, dense (128 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00,0x04,0x08,0x0c,0x10,0x14,0x18,0x1c,0x20,0x24,0x28,0x2c,0x30,0x34,0x38,0x3c,0x40,0x44,0x48,0x4c,0x50,0x54,0x58,0x5c,0x60,0x64,0x68,0x6c,0x70,0x74,0x78,0x7c",
+        "wrong_value": "0x01-0x03,0x05-0x07,0x09-0x0b,0x0d-0x0f,0x11-0x13,0x15-0x17,0x19-0x1b,0x1d-0x1f,0x21-0x23,0x25-0x27,0x29-0x2b,0x2d-0x2f,0x31-0x33,0x35-0x37,0x39-0x3b,0x3d-0x3f,0x41-0x43,0x45-0x47,0x49-0x4b,0x4d-0x4f,0x51-0x53,0x55-0x57,0x59-0x5b,0x5d-0x5f,0x61-0x63,0x65-0x67,0x69-0x6b,0x6d-0x6f,0x71-0x73,0x75-0x77,0x79-0x7b,0x7d-0x7f"
+      }
+    },
+    "matrix_mac.dst_desc": {
+      "carrier": "matrix_mac",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 6,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 64,
+        "silent_zero": 128,
+        "wrong_value": 64
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x40-0x7f",
+        "silent_zero": "0x00-0x3f,0x80-0xbf",
+        "wrong_value": "0xc0-0xff"
+      }
+    },
+    "n3_sample_read.b1": {
+      "carrier": "n3_sample_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 32,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "n3_sample_read.b3": {
+      "carrier": "n3_sample_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 32,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "n3_sample_read.tail": {
+      "carrier": "n3_sample_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 32,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "1591/1603",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "1603/1603",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "fault": 56,
+        "invalid_run": 11,
+        "ok": 1536
+      },
+      "range": "full 48-bit range, dense (1603 cases) x2 runs",
+      "target": "M4"
+    },
+    "pixel_order.b5": {
+      "adversarial_second_method": {
+        "carrier": "pixel_order_rel",
+        "control_gate": {
+          "baseline_ok": true,
+          "baseline_rechecks": 12,
+          "baseline_rechecks_all_ok": true,
+          "identity_splice_ok": true,
+          "litmus_power": true,
+          "liveness_dst_alt": true,
+          "liveness_src_alt": true,
+          "sensitivity_failed_as_preregistered": false
+        },
+        "cross_run_reproduced": "256/256",
+        "label_under_frozen_rule_literal": "untested",
+        "outcomes": {
+          "ok": 256
+        },
+        "value_partition": {
+          "ok": "0x00-0xff"
+        }
+      },
+      "carrier": "pixel_order",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "pixel_order.flags": {
+      "adversarial_second_method": {
+        "carrier": "pixel_order_rel",
+        "control_gate": {
+          "baseline_ok": true,
+          "baseline_rechecks": 12,
+          "baseline_rechecks_all_ok": true,
+          "identity_splice_ok": true,
+          "litmus_power": true,
+          "liveness_dst_alt": true,
+          "liveness_src_alt": true,
+          "sensitivity_failed_as_preregistered": false
+        },
+        "cross_run_reproduced": "256/256",
+        "label_under_frozen_rule_literal": "untested",
+        "outcomes": {
+          "ok": 224,
+          "wrong_value": 32
+        },
+        "value_partition": {
+          "ok": "0x02-0x0f,0x12-0x1f,0x22-0x2f,0x32-0x3f,0x42-0x4f,0x52-0x5f,0x62-0x6f,0x72-0x7f,0x82-0x8f,0x92-0x9f,0xa2-0xaf,0xb2-0xbf,0xc2-0xcf,0xd2-0xdf,0xe2-0xef,0xf2-0xff",
+          "wrong_value": "0x00-0x01,0x10-0x11,0x20-0x21,0x30-0x31,0x40-0x41,0x50-0x51,0x60-0x61,0x70-0x71,0x80-0x81,0x90-0x91,0xa0-0xa1,0xb0-0xb1,0xc0-0xc1,0xd0-0xd1,0xe0-0xe1,0xf0-0xf1"
+        }
+      },
+      "carrier": "pixel_order",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 112,
+        "wrong_value": 144
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e,0x42,0x44,0x46,0x48,0x4a,0x4c,0x4e,0x52,0x54,0x56,0x58,0x5a,0x5c,0x5e,0x62,0x64,0x66,0x68,0x6a,0x6c,0x6e,0x72,0x74,0x76,0x78,0x7a,0x7c,0x7e,0x82,0x84,0x86,0x88,0x8a,0x8c,0x8e,0x92,0x94,0x96,0x98,0x9a,0x9c,0x9e,0xa2,0xa4,0xa6,0xa8,0xaa,0xac,0xae,0xb2,0xb4,0xb6,0xb8,0xba,0xbc,0xbe,0xc2,0xc4,0xc6,0xc8,0xca,0xcc,0xce,0xd2,0xd4,0xd6,0xd8,0xda,0xdc,0xde,0xe2,0xe4,0xe6,0xe8,0xea,0xec,0xee,0xf2,0xf4,0xf6,0xf8,0xfa,0xfc,0xfe",
+        "wrong_value": "0x00-0x01,0x03,0x05,0x07,0x09,0x0b,0x0d,0x0f-0x11,0x13,0x15,0x17,0x19,0x1b,0x1d,0x1f-0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f-0x31,0x33,0x35,0x37,0x39,0x3b,0x3d,0x3f-0x41,0x43,0x45,0x47,0x49,0x4b,0x4d,0x4f-0x51,0x53,0x55,0x57,0x59,0x5b,0x5d,0x5f-0x61,0x63,0x65,0x67,0x69,0x6b,0x6d,0x6f-0x71,0x73,0x75,0x77,0x79,0x7b,0x7d,0x7f-0x81,0x83,0x85,0x87,0x89,0x8b,0x8d,0x8f-0x91,0x93,0x95,0x97,0x99,0x9b,0x9d,0x9f-0xa1,0xa3,0xa5,0xa7,0xa9,0xab,0xad,0xaf-0xb1,0xb3,0xb5,0xb7,0xb9,0xbb,0xbd,0xbf-0xc1,0xc3,0xc5,0xc7,0xc9,0xcb,0xcd,0xcf-0xd1,0xd3,0xd5,0xd7,0xd9,0xdb,0xdd,0xdf-0xe1,0xe3,0xe5,0xe7,0xe9,0xeb,0xed,0xef-0xf1,0xf3,0xf5,0xf7,0xf9,0xfb,0xfd,0xff"
+      }
+    },
+    "pixel_order.scope": {
+      "adversarial_second_method": {
+        "carrier": "pixel_order_rel",
+        "control_gate": {
+          "baseline_ok": true,
+          "baseline_rechecks": 12,
+          "baseline_rechecks_all_ok": true,
+          "identity_splice_ok": true,
+          "litmus_power": true,
+          "liveness_dst_alt": true,
+          "liveness_src_alt": true,
+          "sensitivity_failed_as_preregistered": false
+        },
+        "cross_run_reproduced": "256/256",
+        "label_under_frozen_rule_literal": "untested",
+        "outcomes": {
+          "ok": 64,
+          "wrong_value": 192
+        },
+        "value_partition": {
+          "ok": "0x90-0x9f,0xb0-0xbf,0xd0-0xdf,0xf0-0xff",
+          "wrong_value": "0x00-0x8f,0xa0-0xaf,0xc0-0xcf,0xe0-0xef"
+        }
+      },
+      "carrier": "pixel_order",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 12,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 64,
+        "wrong_value": 192
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x50-0x5f,0x70-0x7f,0x90-0x9f,0xb0-0xbf",
+        "wrong_value": "0x00-0x4f,0x60-0x6f,0x80-0x8f,0xa0-0xaf,0xc0-0xff"
+      }
+    },
+    "scoreboard_fence.kind": {
+      "carrier": "scoreboard_fence",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 10,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "256/256",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "scoreboard_fence.mask": {
+      "carrier": "scoreboard_fence",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 10,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "256/256",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "scoreboard_fence.scope": {
+      "carrier": "scoreboard_fence",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 10,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "sensitivity_failed_as_preregistered": false
+      },
+      "cross_run_reproduced": "128/128",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": false,
+      "intra_run_replicates_stable": "128/128",
+      "label": "untested",
+      "label_under_frozen_rule_literal": "untested",
+      "outcomes": {
+        "ok": 128
+      },
+      "range": "full 7-bit range, dense (128 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0x7f"
+      }
+    },
+    "tile_read.b2": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "tile_read.b4": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "tile_read.b6": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 128,
+        "silent_zero": 128
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x01,0x03,0x05,0x07,0x09,0x0b,0x0d,0x0f,0x11,0x13,0x15,0x17,0x19,0x1b,0x1d,0x1f,0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f,0x31,0x33,0x35,0x37,0x39,0x3b,0x3d,0x3f,0x41,0x43,0x45,0x47,0x49,0x4b,0x4d,0x4f,0x51,0x53,0x55,0x57,0x59,0x5b,0x5d,0x5f,0x61,0x63,0x65,0x67,0x69,0x6b,0x6d,0x6f,0x71,0x73,0x75,0x77,0x79,0x7b,0x7d,0x7f,0x81,0x83,0x85,0x87,0x89,0x8b,0x8d,0x8f,0x91,0x93,0x95,0x97,0x99,0x9b,0x9d,0x9f,0xa1,0xa3,0xa5,0xa7,0xa9,0xab,0xad,0xaf,0xb1,0xb3,0xb5,0xb7,0xb9,0xbb,0xbd,0xbf,0xc1,0xc3,0xc5,0xc7,0xc9,0xcb,0xcd,0xcf,0xd1,0xd3,0xd5,0xd7,0xd9,0xdb,0xdd,0xdf,0xe1,0xe3,0xe5,0xe7,0xe9,0xeb,0xed,0xef,0xf1,0xf3,0xf5,0xf7,0xf9,0xfb,0xfd,0xff",
+        "silent_zero": "0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,0x20,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x30,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e,0x40,0x42,0x44,0x46,0x48,0x4a,0x4c,0x4e,0x50,0x52,0x54,0x56,0x58,0x5a,0x5c,0x5e,0x60,0x62,0x64,0x66,0x68,0x6a,0x6c,0x6e,0x70,0x72,0x74,0x76,0x78,0x7a,0x7c,0x7e,0x80,0x82,0x84,0x86,0x88,0x8a,0x8c,0x8e,0x90,0x92,0x94,0x96,0x98,0x9a,0x9c,0x9e,0xa0,0xa2,0xa4,0xa6,0xa8,0xaa,0xac,0xae,0xb0,0xb2,0xb4,0xb6,0xb8,0xba,0xbc,0xbe,0xc0,0xc2,0xc4,0xc6,0xc8,0xca,0xcc,0xce,0xd0,0xd2,0xd4,0xd6,0xd8,0xda,0xdc,0xde,0xe0,0xe2,0xe4,0xe6,0xe8,0xea,0xec,0xee,0xf0,0xf2,0xf4,0xf6,0xf8,0xfa,0xfc,0xfe"
+      }
+    },
+    "tile_read.b7": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "193/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "162/256",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "isolated-byte-diff",
+      "outcomes": {
+        "no_draw": 1,
+        "ok": 4,
+        "silent_zero": 70,
+        "unstable": 85,
+        "wrong_value": 96
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "no_draw": "0x2e",
+        "ok": "0xae-0xaf,0xee-0xef",
+        "silent_zero": "0x00-0x03,0x14-0x15,0x20-0x21,0x40-0x43,0x50-0x53,0x60-0x61,0x80-0x83,0x8a-0x8d,0x90-0x91,0x94-0x99,0x9c-0x9d,0xa0-0xa1,0xc0-0xcd,0xd0-0xe1",
+        "unstable": "0x04-0x0e,0x10-0x13,0x16,0x18,0x1a-0x1c,0x1e-0x1f,0x22-0x2c,0x2f-0x30,0x32,0x34-0x3a,0x3e-0x3f,0x44-0x49,0x4c-0x4e,0x54-0x58,0x5a-0x5b,0x5d-0x5f,0x62-0x6f,0x73,0x75-0x76,0x79,0x7b,0x7d-0x7e",
+        "wrong_value": "0x0f,0x17,0x19,0x1d,0x2d,0x31,0x33,0x3b-0x3d,0x4a-0x4b,0x4f,0x59,0x5c,0x70-0x72,0x74,0x77-0x78,0x7a,0x7c,0x7f,0x84-0x89,0x8e-0x8f,0x92-0x93,0x9a-0x9b,0x9e-0x9f,0xa2-0xad,0xb0-0xbf,0xce-0xcf,0xe2-0xed,0xf0-0xff"
+      }
+    },
+    "tile_read.dst": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "248/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "fault": 1,
+        "invalid_run": 9,
+        "ok": 4,
+        "silent_zero": 224,
+        "wrong_value": 18
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "fault": "0xf8",
+        "invalid_run": "0xf6-0xf7,0xf9-0xff",
+        "ok": "0x00-0x01,0xc0-0xc1",
+        "silent_zero": "0x08-0xb9,0xc8-0xf5",
+        "wrong_value": "0x02-0x07,0xba-0xbf,0xc2-0xc7"
+      }
+    },
+    "tile_read.rt_index": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 4,
+        "silent_zero": 240,
+        "wrong_value": 12
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0x01,0x80-0x81",
+        "silent_zero": "0x08-0x7f,0x88-0xff",
+        "wrong_value": "0x02-0x07,0x82-0x87"
+      }
+    },
+    "tile_read.tail": {
+      "carrier": "tile_read",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 40,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "996/1075",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "942/1075",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "isolated-byte-diff",
+      "outcomes": {
+        "no_draw": 13,
+        "ok": 64,
+        "silent_zero": 792,
+        "unstable": 111,
+        "wrong_value": 95
+      },
+      "range": "full 32-bit range, dense (1075 cases) x2 runs",
+      "target": "M4"
+    },
+    "tile_read_mrt.b4": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    },
+    "tile_read_mrt.b6": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 128,
+        "silent_zero": 128
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x01,0x03,0x05,0x07,0x09,0x0b,0x0d,0x0f,0x11,0x13,0x15,0x17,0x19,0x1b,0x1d,0x1f,0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f,0x31,0x33,0x35,0x37,0x39,0x3b,0x3d,0x3f,0x41,0x43,0x45,0x47,0x49,0x4b,0x4d,0x4f,0x51,0x53,0x55,0x57,0x59,0x5b,0x5d,0x5f,0x61,0x63,0x65,0x67,0x69,0x6b,0x6d,0x6f,0x71,0x73,0x75,0x77,0x79,0x7b,0x7d,0x7f,0x81,0x83,0x85,0x87,0x89,0x8b,0x8d,0x8f,0x91,0x93,0x95,0x97,0x99,0x9b,0x9d,0x9f,0xa1,0xa3,0xa5,0xa7,0xa9,0xab,0xad,0xaf,0xb1,0xb3,0xb5,0xb7,0xb9,0xbb,0xbd,0xbf,0xc1,0xc3,0xc5,0xc7,0xc9,0xcb,0xcd,0xcf,0xd1,0xd3,0xd5,0xd7,0xd9,0xdb,0xdd,0xdf,0xe1,0xe3,0xe5,0xe7,0xe9,0xeb,0xed,0xef,0xf1,0xf3,0xf5,0xf7,0xf9,0xfb,0xfd,0xff",
+        "silent_zero": "0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,0x20,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x30,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e,0x40,0x42,0x44,0x46,0x48,0x4a,0x4c,0x4e,0x50,0x52,0x54,0x56,0x58,0x5a,0x5c,0x5e,0x60,0x62,0x64,0x66,0x68,0x6a,0x6c,0x6e,0x70,0x72,0x74,0x76,0x78,0x7a,0x7c,0x7e,0x80,0x82,0x84,0x86,0x88,0x8a,0x8c,0x8e,0x90,0x92,0x94,0x96,0x98,0x9a,0x9c,0x9e,0xa0,0xa2,0xa4,0xa6,0xa8,0xaa,0xac,0xae,0xb0,0xb2,0xb4,0xb6,0xb8,0xba,0xbc,0xbe,0xc0,0xc2,0xc4,0xc6,0xc8,0xca,0xcc,0xce,0xd0,0xd2,0xd4,0xd6,0xd8,0xda,0xdc,0xde,0xe0,0xe2,0xe4,0xe6,0xe8,0xea,0xec,0xee,0xf0,0xf2,0xf4,0xf6,0xf8,0xfa,0xfc,0xfe"
+      }
+    },
+    "tile_read_mrt.dst": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "246/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "invalid_run": 10,
+        "ok": 4,
+        "silent_zero": 208,
+        "wrong_value": 34
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "invalid_run": "0xf6-0xff",
+        "ok": "0x08-0x09,0xc8-0xc9",
+        "silent_zero": "0x10-0xb9,0xd0-0xf5",
+        "wrong_value": "0x00-0x07,0x0a-0x0f,0xba-0xc7,0xca-0xcf"
+      }
+    },
+    "tile_read_mrt.fmt": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 8,
+        "silent_zero": 104,
+        "wrong_value": 144
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x2e-0x2f,0x6e-0x6f,0xae-0xaf,0xee-0xef",
+        "silent_zero": "0x00-0x03,0x0a-0x0d,0x10-0x11,0x14-0x19,0x1c-0x1d,0x20-0x21,0x40-0x4d,0x50-0x61,0x80-0x83,0x8a-0x8d,0x90-0x91,0x94-0x99,0x9c-0x9d,0xa0-0xa1,0xc0-0xcd,0xd0-0xe1",
+        "wrong_value": "0x04-0x09,0x0e-0x0f,0x12-0x13,0x1a-0x1b,0x1e-0x1f,0x22-0x2d,0x30-0x3f,0x4e-0x4f,0x62-0x6d,0x70-0x7f,0x84-0x89,0x8e-0x8f,0x92-0x93,0x9a-0x9b,0x9e-0x9f,0xa2-0xad,0xb0-0xbf,0xce-0xcf,0xe2-0xed,0xf0-0xff"
+      }
+    },
+    "tile_read_mrt.rt_index": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 4,
+        "silent_zero": 224,
+        "wrong_value": 28
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x08-0x09,0x88-0x89",
+        "silent_zero": "0x10-0x7f,0x90-0xff",
+        "wrong_value": "0x00-0x07,0x0a-0x0f,0x80-0x87,0x8a-0x8f"
+      }
+    },
+    "tile_read_mrt.tail": {
+      "carrier": "tile_read_mrt",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 36,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_dst_alt": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "1054/1075",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "1032/1075",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "isolated-byte-diff",
+      "outcomes": {
+        "ok": 126,
+        "silent_zero": 895,
+        "unstable": 30,
+        "wrong_value": 24
+      },
+      "range": "full 32-bit range, dense (1075 cases) x2 runs",
+      "target": "M4"
+    },
+    "vtx_coord_xform.mode": {
+      "carrier": "vtx_coord_xform",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 28,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "liveness_vp_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "no_draw": 240,
+        "ok": 8,
+        "wrong_value": 8
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "no_draw": "0x00-0x1f,0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f-0xdf,0xe1,0xe3,0xe5,0xe7,0xe9,0xeb,0xed,0xef-0xff",
+        "ok": "0x22,0x26,0x2a,0x2e,0xe2,0xe6,0xea,0xee",
+        "wrong_value": "0x20,0x24,0x28,0x2c,0xe0,0xe4,0xe8,0xec"
+      }
+    },
+    "vtx_coord_xform.operand": {
+      "carrier": "vtx_coord_xform",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 28,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "liveness_vp_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "1331/1339",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "1339/1339",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "fault": 18,
+        "invalid_run": 9,
+        "no_draw": 491,
+        "ok": 821
+      },
+      "range": "full 40-bit range, dense (1339 cases) x2 runs",
+      "target": "M4"
+    },
+    "vtx_coord_xform.sel": {
+      "carrier": "vtx_coord_xform",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 28,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "liveness_vp_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "253/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "255/256",
+      "label": "isolated-byte-diff",
+      "label_under_frozen_rule_literal": "isolated-byte-diff",
+      "outcomes": {
+        "fault": 19,
+        "invalid_run": 2,
+        "no_draw": 143,
+        "ok": 91,
+        "wrong_value": 1
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "fault": "0x0f,0x16,0x27,0x36,0x47,0x56,0x76,0x8f,0x96-0x97,0x9f,0xa7,0xaf,0xb6,0xc7,0xd6,0xf6-0xf7,0xff",
+        "invalid_run": "0x17,0x1f",
+        "no_draw": "0x02,0x04-0x07,0x09-0x0a,0x0c-0x0e,0x10-0x12,0x14-0x15,0x19-0x1a,0x1c-0x1e,0x22,0x24-0x26,0x2a,0x2c-0x2f,0x32,0x34-0x35,0x37,0x3a,0x3c-0x3f,0x42,0x44-0x46,0x4a,0x4c-0x4f,0x52,0x54-0x55,0x57,0x5a,0x5c-0x5f,0x62,0x64-0x67,0x6a,0x6c-0x6f,0x72,0x74-0x75,0x77,0x7a,0x7c-0x7f,0x82,0x84-0x87,0x8a,0x8c-0x8e,0x92,0x94-0x95,0x9a,0x9c-0x9e,0xa2,0xa4-0xa6,0xaa,0xac-0xae,0xb2,0xb4-0xb5,0xb7,0xba,0xbc-0xbf,0xc2,0xc4-0xc6,0xca,0xcc-0xcf,0xd2,0xd4-0xd5,0xd7,0xda,0xdc-0xdf,0xe2,0xe4-0xe7,0xea,0xec-0xef,0xf2,0xf4-0xf5,0xfa,0xfc-0xfe",
+        "ok": "0x00-0x01,0x03,0x08,0x0b,0x13,0x1b,0x20-0x21,0x23,0x28-0x29,0x2b,0x30-0x31,0x33,0x38-0x39,0x3b,0x40-0x41,0x43,0x48-0x49,0x4b,0x50-0x51,0x53,0x58-0x59,0x5b,0x60-0x61,0x63,0x68-0x69,0x6b,0x70-0x71,0x73,0x78-0x79,0x7b,0x80-0x81,0x83,0x88-0x89,0x8b,0x90-0x91,0x93,0x98-0x99,0x9b,0xa0-0xa1,0xa3,0xa8-0xa9,0xab,0xb0-0xb1,0xb3,0xb8-0xb9,0xbb,0xc0-0xc1,0xc3,0xc8-0xc9,0xcb,0xd0-0xd1,0xd3,0xd8-0xd9,0xdb,0xe0-0xe1,0xe3,0xe8-0xe9,0xeb,0xf0-0xf1,0xf3,0xf8-0xf9,0xfb",
+        "wrong_value": "0x18"
+      }
+    },
+    "vtx_out_pos.dst": {
+      "carrier": "vtx_out_pos",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 4,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "16/16",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "16/16",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 16
+      },
+      "range": "full 4-bit range, dense (16 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0x0f"
+      }
+    },
+    "vtx_out_pos.slot": {
+      "carrier": "vtx_out_pos",
+      "control_gate": {
+        "baseline_ok": true,
+        "baseline_rechecks": 4,
+        "baseline_rechecks_all_ok": true,
+        "identity_splice_ok": true,
+        "litmus_power": true,
+        "liveness_spatial": true,
+        "liveness_src_alt": true,
+        "sensitivity_failed_as_preregistered": true
+      },
+      "cross_run_reproduced": "256/256",
+      "evidence": [
+        "EXP-0147"
+      ],
+      "instruction_liveness_proven": true,
+      "intra_run_replicates_stable": "256/256",
+      "label": "hardware-run",
+      "label_under_frozen_rule_literal": "hardware-run",
+      "outcomes": {
+        "ok": 256
+      },
+      "range": "full 8-bit range, dense (256 cases) x2 runs",
+      "target": "M4",
+      "value_partition": {
+        "ok": "0x00-0xff"
+      }
+    }
+  }
+}

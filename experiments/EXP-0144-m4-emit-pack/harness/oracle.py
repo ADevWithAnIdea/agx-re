@@ -27,7 +27,37 @@ MASK32 = 0xFFFFFFFF
 # ---------- bit helpers -----------------------------------------------------
 def f32_bits(x):  return struct.unpack("<I", struct.pack("<f", float(x)))[0]
 def bits_f32(u):  return struct.unpack("<f", struct.pack("<I", u & MASK32))[0]
-def f16_bits(x):  return struct.unpack("<H", struct.pack("<e", float(x)))[0]
+def f16_bits(x):
+    """float -> IEEE binary16 bits, round-to-nearest-EVEN, in exact integer
+    arithmetic. Python's own struct.pack('<e') RAISES OverflowError instead of
+    producing +-inf, which is useless for a boundary oracle: 65520.0 is the exact
+    tie between the largest finite half (65504) and 65536, and RNE must carry it to
+    inf. Overflow, subnormals, and NaN are all handled here explicitly."""
+    u = f32_bits(x)
+    s = (u >> 16) & 0x8000
+    e = (u >> 23) & 0xFF
+    m = u & 0x7FFFFF
+    if e == 0xFF:                                  # inf / NaN
+        return s | (0x7E00 if m else 0x7C00)
+    ne = e - 127 + 15
+    if ne >= 0x1F:                                 # unconditional overflow
+        return s | 0x7C00
+    if ne > 0:                                     # normal (may round up to inf)
+        r = (ne << 10) | (m >> 13)
+        rem = m & 0x1FFF
+        if rem > 0x1000 or (rem == 0x1000 and (r & 1)):
+            r += 1
+        return (s | r) & 0xFFFF
+    shift = 14 - ne                                # subnormal / underflow
+    if shift > 31:
+        return s
+    mm = m | 0x800000
+    r = mm >> shift
+    rem = mm & ((1 << shift) - 1)
+    half = 1 << (shift - 1)
+    if rem > half or (rem == half and (r & 1)):
+        r += 1
+    return (s | r) & 0xFFFF
 def bits_f16(u):  return struct.unpack("<e", struct.pack("<H", u & 0xFFFF))[0]
 def i32(u):       return struct.unpack("<i", struct.pack("<I", u & MASK32))[0]
 
@@ -108,6 +138,10 @@ def f2i(x):
     x = float(x)
     if x != x:
         return 0
+    if x == float("inf"):
+        return (2**31 - 1) & MASK32
+    if x == float("-inf"):
+        return (-2**31) & MASK32
     t = int(x)                      # truncate toward zero
     return max(-2**31, min(2**31 - 1, t)) & MASK32
 
@@ -116,6 +150,8 @@ def f2u(x):
     x = float(x)
     if x != x or x <= 0:
         return 0
+    if x == float("inf"):
+        return MASK32
     return min(2**32 - 1, int(x)) & MASK32
 
 
@@ -167,6 +203,33 @@ def selftest():
     chk("f2i -3.9", i32(f2i(-3.9)), -3)
     chk("f2h 3.5", f2h(3.5), 0x4300)
     chk("f2h 65504", f2h(65504.0), 0x7BFF)
+    chk("f2h 65519", f2h(65519.0), 0x7BFF)
+    chk("f2h 65520 tie->inf", f2h(65520.0), 0x7C00)
+    chk("f2h 65536", f2h(65536.0), 0x7C00)
+    chk("f2h -65520", f2h(-65520.0), 0xFC00)
+    chk("f2h inf", f2h(float("inf")), 0x7C00)
+    chk("f2h nan", f2h(float("nan")), 0x7E00)
+    chk("f2h 5.96e-8", f2h(5.9604645e-8), 0x0001)
+    chk("f2h 2.98e-8 tie->0", f2h(2.9802322e-8), 0x0000)
+    chk("f2h 1e-45", f2h(1e-45), 0x0000)
+    chk("f2h 6.1e-5 subn", f2h(6.1e-5), 0x03FF)
+    chk("f2h 1+1/1024", f2h(1.0009765625), 0x3C01)
+    chk("f2h 1+1/2048 tie", f2h(1.00048828125), 0x3C00)
+    chk("f2h 1+3/2048 tie", f2h(1.00146484375), 0x3C02)
+    # cross-check against Python's own encoder everywhere it is willing to answer
+    import random as _rnd
+    _rnd.seed(144)
+    for _ in range(20000):
+        _x = struct.unpack("<f", struct.pack("<I", _rnd.getrandbits(32)))[0]
+        try:
+            _w = struct.unpack("<H", struct.pack("<e", _x))[0]
+        except (OverflowError, ValueError):
+            continue
+        if _x != _x:
+            continue
+        if f16_bits(_x) != _w:
+            fails.append("f16 xcheck %r: %04x vs %04x" % (_x, f16_bits(_x), _w))
+            break
     chk("f2bf rne 1.0", f2bf_rne(1.0), 0x3F80)
     chk("f2bf trunc pi", f2bf_trunc(3.14159265), (f32_bits(3.14159265) >> 16) & 0xFFFF)
     chk("f2bf rne pi", f2bf_rne(3.14159265), 0x4049)

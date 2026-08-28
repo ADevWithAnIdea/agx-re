@@ -1,0 +1,17 @@
+    2000/22237  136/s  hangs={}
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/run.py", line 289, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/run.py", line 187, in main
+    exp = CM.expect(c["carrier"], c["vec"])
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/casematrix.py", line 187, in expect
+    h = [O.f2h(v[0]), O.f2h(v[1]), O.f2h(v[2])] + [lo16(bf(v[i])) for i in (3, 4, 5)] \
+                      ~~~~~^^^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/oracle.py", line 122, in f2h
+    def f2h(x):   return f16_bits(x)     # IEEE RNE
+                         ~~~~~~~~^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/oracle.py", line 30, in f16_bits
+    def f16_bits(x):  return struct.unpack("<H", struct.pack("<e", float(x)))[0]
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+OverflowError: float too large to pack with e format

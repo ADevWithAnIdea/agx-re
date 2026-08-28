@@ -37,28 +37,30 @@ def bf(x):   return O.f32_bits(x)
 # --------------------------------------------------------------------------
 TARGETS = [
   dict(key="pack_convert",    carrier="c_pack",    mnem="pack_convert",    off=138,
-       anchor="97045618020800504482", mode="B"),
+       anchor="97045618020802504482", mode="B"),
   dict(key="unpack_convert",  carrier="c_unpack",  mnem="unpack_convert",  off=138,
-       anchor="1704560000080cca",     mode="B"),
+       anchor="1704560000080eca",     mode="B"),
   dict(key="cvt_i2f",         carrier="c_i2f",     mnem="cvt_i2f",         off=138,
-       anchor="a707561802008c60",     mode="B"),
+       anchor="a707561802008e60",     mode="B"),
   dict(key="cvt_i2f_src",     carrier="c_i2f_src", mnem="cvt_i2f_src",     off=146,
        anchor="a717541803008c60",     mode="B"),
   dict(key="cvt_f2i",         carrier="c_f2i",     mnem="cvt_f2i",         off=138,
-       anchor="27075618020094480300", mode="B"),
-  dict(key="cvt_f2h",         carrier="c_f2h",     mnem="cvt_f2h",         off=138,
-       anchor="0101148104c2",         mode="B"),
-  dict(key="cvt_f2h_dst",     carrier="c_f2h_dst", mnem="cvt_f2h_dst",     off=138,
-       anchor="b101148100c2",         mode="B"),
-  dict(key="cvt_bf16",        carrier="c_f2bf",    mnem="cvt_bf16",        off=138,
-       anchor="0101148105024080",     mode="B"),
+       anchor="27075618020096480300", mode="B"),
+  dict(key="cvt_f2h",         carrier="c_f2h",     mnem="cvt_f2h",         off=156,
+       anchor="010114810402",         mode="B"),
+  dict(key="cvt_f2h_dst",     carrier="c_f2h_dst", mnem="cvt_f2h_dst",     off=156,
+       anchor="c10114810402",         mode="B"),
+  dict(key="cvt_bf16",        carrier="c_f2bf",    mnem="cvt_bf16",        off=156,
+       anchor="0101148105024000",     mode="B"),
   # MODE A: the carrier's own 6-byte half_alu is REPLACED by an assembled
   # packed_half2_hi (byte0 low nibble 8, byte+2 == 0x24). Same length, so the
   # instruction stream stays aligned IFF db.json's length 6 is right for this
   # family -- itself part of what this arm tests (byte0=0x18 is a length-rule
-  # gap: isadb.instr_length() cannot length it at all).
-  dict(key="packed_half2_hi", carrier="c_ph2",     mnem="packed_half2_hi", off=90,
-       anchor="9004050000c0", mode="A", synth="9804240000c0"),
+  # gap: isadb.instr_length() cannot length it at all). packed_half2_hi could
+  # NOT be provoked from any MSL shape tried (work/pilot/carriers.log), so a
+  # synthesised encoding is the only way to reach it at all.
+  dict(key="packed_half2_hi", carrier="c_ph2",     mnem="packed_half2_hi", off=108,
+       anchor="900405000020", mode="A", synth="980424000020"),
 ]
 BY_KEY = {t["key"]: t for t in TARGETS}
 
@@ -257,11 +259,34 @@ def build_cases():
                 note="semantic vector %d" % j)
 
     # ---- arm F : dense per-byte field sweep --------------------------------
+    # Byte 0 is the OPCODE LEADER, not an operand field. The smoke run showed a
+    # dense byte0 sweep produces genuine GPU hangs (byte0=0xFF on cvt_bf16 raised
+    # kIOGPUCommandBufferCallbackErrorHang), because changing the leader changes
+    # the instruction's LENGTH and desynchronises the whole downstream stream.
+    # This host has no out-of-band recovery, so byte0 gets a BOUNDED 24-value
+    # probe instead of 256: all 16 values of its HIGH nibble with the match-forced
+    # low nibble preserved (that high nibble IS the `dst` field in cvt_f2h_dst /
+    # cvt_bf16 / packed_half2_hi), plus 8 off-match values to test whether the
+    # match's low nibble is actually load-bearing. Every OPERAND byte still gets
+    # the full dense 0..255. This deviation from "w<=8 -> sweep all 2^w" is
+    # deliberate, safety-driven, and reported as such.
+    def byte0_values(anchor0):
+        lo = anchor0 & 0x0F
+        vals = [(hi << 4) | lo for hi in range(16)]
+        vals += [anchor0 ^ (1 << k) for k in range(4)]        # flip each low-nibble bit
+        vals += [0x00, 0xFF, anchor0 ^ 0xFF, (anchor0 + 1) & 0xFF]
+        seen, outv = set(), []
+        for v in vals:
+            if v not in seen:
+                seen.add(v); outv.append(v)
+        return outv
+
     for t in TARGETS:
         c, off = t["carrier"], t["off"]
         base = bytes.fromhex(t["synth"] if t["mode"] == "A" else t["anchor"])
         for b in range(len(base)):
-            for val in range(256):
+            vlist = byte0_values(base[0]) if b == 0 else range(256)
+            for val in vlist:
                 sp = {off + i: x for i, x in enumerate(base)} if t["mode"] == "A" else {}
                 sp = dict(sp)
                 sp[off + b] = val

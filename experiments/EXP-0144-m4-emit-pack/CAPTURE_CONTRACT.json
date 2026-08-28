@@ -1,0 +1,211 @@
+{
+ "authored_hashes": {
+  "harness/build.sh": "28d3332f4380952ea5231294540ccf03aa93a4718d96550383c7e9f1b28875a3",
+  "harness/casematrix.py": "3517ab56feeba7bdcbc90e3f0cf59d30557000ed69d6bd76319804ce52fb1c95",
+  "harness/oracle.py": "7e611d04a9df29bec43f0b44ced247eb2cf9e6fd781d19417b0266329cf1c4cc",
+  "harness/probe.py": "52d9d0307a5a3036c9fcb29c5d59d5525d8c9991939de1f0fec9bc2214d99294",
+  "harness/run.py": "96fe39053833b393200432dcae27bcb3a6452d911d6a224094424d7b3ec2861b",
+  "kernels/anchors.metal": "355b9f548b5d59eb8a1bc0fe36fd713d40d2473824fc60b8f662ddceedbc0818",
+  "kernels/carriers.metal": "83608acd4b35c45af2860da60981adf2852ac9d8268eaae458f48fd455a5fb34"
+ },
+ "batch": {
+  "members": [
+   "EXP-0140",
+   "EXP-0144",
+   "EXP-0147"
+  ],
+  "n_gpu_contending": 3
+ },
+ "case_matrix": {
+  "arms": {
+   "C": 19,
+   "F": 15829,
+   "S": 70,
+   "W": 175,
+   "X": 6144
+  },
+  "n_cases": 22237,
+  "sha256": "00529a0a9f2014ed113370c874e769b554fb8ecc8fd0def8131ae0b04bddcd40"
+ },
+ "experiment": "EXP-0144-m4-emit-pack",
+ "frozen_utc": "2026-08-28",
+ "gate_exclusions": [
+  "validity != valid",
+  "err containing InnocentVictim"
+ ],
+ "gate_on": "authored blob hashes below",
+ "gate_on_head": false,
+ "gated_fields": [
+  "i",
+  "name",
+  "instr",
+  "field",
+  "value",
+  "bytes",
+  "observed",
+  "oracle",
+  "match",
+  "outcome",
+  "validity",
+  "decode"
+ ],
+ "git_rev_at_freeze": "8904a082cfb64e61c561a2a8d44aa2ddabc6899f",
+ "raw_schema": {
+  "also": [
+   "raw/<run_id>/00_env.json",
+   "raw/<run_id>/01_summary.json"
+  ],
+  "file": "raw/<run_id>/sweep.jsonl",
+  "keys": [
+   "i",
+   "arm",
+   "name",
+   "instr",
+   "field",
+   "byte",
+   "value",
+   "bytes",
+   "observed",
+   "sentinel",
+   "sentinel_state",
+   "oracle",
+   "match",
+   "outcome",
+   "validity",
+   "carrier",
+   "note",
+   "decode",
+   "status",
+   "err",
+   "attempts",
+   "confirm",
+   "retries"
+  ],
+  "mode": "append + flush + fsync per case",
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang"
+  ],
+  "sentinel_domain": [
+   "clean",
+   "perturbed",
+   "absent"
+  ],
+  "validity_domain": [
+   "valid",
+   "invalid_run",
+   "skipped_after_hangs"
+  ]
+ },
+ "readonly_tool_hashes": {
+  "tools/agx-isa/db.json": "e8d85f50d06e35393c7e696cfe514fd200cb1f299d2fb396028ebb8ee1c6b5da",
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "retained_partials": {
+  "m4_20260828_run01": "stopped at 3,137/22,237 by an OUR-ORACLE fp16 overflow (see its PARTIAL.md); no device misbehaviour",
+  "m4_20260828_run02": "stopped by hand at 5,219/22,237 after a single-sample baseline check failed inside this sweep's OWN GPU error-recovery window and was (wrongly) recorded rather than retried; see its PARTIAL.md"
+ },
+ "runs_planned": [
+  "m4_20260828_run03",
+  "m4_20260828_run04"
+ ],
+ "stopping_rules": {
+  "baseline_revalidate_every": 250,
+  "global_hang_cap": 10,
+  "hang_area": "(instr, swept_byte)",
+  "max_hangs_per_area": 2
+ },
+ "target": {
+  "device": "Apple M4 (G16G)",
+  "gpu_cores": 10,
+  "metal": "Metal 4",
+  "note": "local host only; A18 hands-off; no SSH",
+  "os": "macOS 26.6.2 (25G82)"
+ },
+ "targets": [
+  {
+   "anchor": "97045618020802504482",
+   "carrier": "c_pack",
+   "key": "pack_convert",
+   "mnem": "pack_convert",
+   "mode": "B",
+   "off": 138
+  },
+  {
+   "anchor": "1704560000080eca",
+   "carrier": "c_unpack",
+   "key": "unpack_convert",
+   "mnem": "unpack_convert",
+   "mode": "B",
+   "off": 138
+  },
+  {
+   "anchor": "a707561802008e60",
+   "carrier": "c_i2f",
+   "key": "cvt_i2f",
+   "mnem": "cvt_i2f",
+   "mode": "B",
+   "off": 138
+  },
+  {
+   "anchor": "a717541803008c60",
+   "carrier": "c_i2f_src",
+   "key": "cvt_i2f_src",
+   "mnem": "cvt_i2f_src",
+   "mode": "B",
+   "off": 146
+  },
+  {
+   "anchor": "27075618020096480300",
+   "carrier": "c_f2i",
+   "key": "cvt_f2i",
+   "mnem": "cvt_f2i",
+   "mode": "B",
+   "off": 138
+  },
+  {
+   "anchor": "010114810402",
+   "carrier": "c_f2h",
+   "key": "cvt_f2h",
+   "mnem": "cvt_f2h",
+   "mode": "B",
+   "off": 156
+  },
+  {
+   "anchor": "c10114810402",
+   "carrier": "c_f2h_dst",
+   "key": "cvt_f2h_dst",
+   "mnem": "cvt_f2h_dst",
+   "mode": "B",
+   "off": 156
+  },
+  {
+   "anchor": "0101148105024000",
+   "carrier": "c_f2bf",
+   "key": "cvt_bf16",
+   "mnem": "cvt_bf16",
+   "mode": "B",
+   "off": 156
+  },
+  {
+   "anchor": "900405000020",
+   "carrier": "c_ph2",
+   "key": "packed_half2_hi",
+   "mnem": "packed_half2_hi",
+   "mode": "A",
+   "off": 108,
+   "synth": "980424000020"
+  }
+ ],
+ "timeouts": {
+  "per_request_s": 8.0,
+  "shdump_s": 180
+ }
+}

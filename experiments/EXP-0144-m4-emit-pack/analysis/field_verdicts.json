@@ -1,0 +1,1022 @@
+{
+ "_counts": {
+  "hardware-run": 38,
+  "isolated-byte-diff": 9,
+  "untested": 7
+ },
+ "_gate": {
+  "differing": null,
+  "excluded_innocent_victim": null,
+  "excluded_invalid": null,
+  "identical": null,
+  "pct_identical": null,
+  "runs": [
+   "m4_20260828_run03+m4_20260828_run05"
+  ]
+ },
+ "_method": "A db.json field is labelled from the dense hardware sweeps of the BYTES that cover its bit range. hardware-run requires (a) every covering byte swept with at least 200 of 256 values actually executed and cross-run stable, (b) the field's own encodable range fully covered when it is narrower than a byte, and (c) a stated value->behaviour rule (an exact bitmask, an operand/register map, a format table, or 'inert across the whole range'). A byte whose sweep was cut short by the two-hangs-per-area rule but still executed 150-199 values, or whose rule fits only approximately, is isolated-byte-diff. Below 150 executed values, or an instrument lost to a GPU cascade, is untested. No other label is used, and no label is issued from a record whose validity != valid.",
+ "_wide_fields": {
+  "pack_convert.fmt_word": {
+   "evidence": [
+    "EXP-0144"
+   ],
+   "n_values_executed": 97,
+   "outcomes": {
+    "fault": 4,
+    "ok": 13,
+    "silent_zero": 50,
+    "wrong_value": 30
+   },
+   "target": "M4",
+   "values_reproducing_anchor": [
+    "0x8244500008",
+    "0x8244500208",
+    "0x8244500209",
+    "0x824450020a",
+    "0x8244500608",
+    "0x8244540208",
+    "0x8246500208",
+    "0x824c500208",
+    "0x8254500208",
+    "0x8264500208",
+    "0x82c4500208",
+    "0x8644500208",
+    "0x8a44500208"
+   ]
+  },
+  "unpack_convert.convert_desc": {
+   "evidence": [
+    "EXP-0144"
+   ],
+   "n_values_executed": 41,
+   "outcomes": {
+    "fault": 7,
+    "ok": 1,
+    "silent_zero": 30,
+    "wrong_value": 3
+   },
+   "target": "M4",
+   "values_reproducing_anchor": [
+    "0xe080000"
+   ]
+  }
+ },
+ "cvt_bf16.b5": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte5": {
+    "ok": 152,
+    "silent_zero": 88,
+    "wrong_value": 16
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: no single-bitmask rule; 152 of 256 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_bf16.b7": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 128,
+    "wrong_value": 128
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0x02 == 0x00  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_bf16.dir": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte6": {
+    "ok": 32,
+    "silent_zero": 64,
+    "wrong_value": 160
+   }
+  },
+  "range": "byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+6: value & 0xc2 == 0x40  (bits [0, 2, 3, 4, 5] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_bf16.dst": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "outcomes": {
+   "byte0": {
+    "ok": 14,
+    "silent_zero": 5,
+    "wrong_value": 4
+   }
+  },
+  "range": "byte+0: 23 values: 0x00,0x01,0x02,0x03,0x05,0x09,0x11,0x21,0x31,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc1,0xd1,0xe1,0xf1,0xfe,0xff",
+  "reproducibility": "single-observation",
+  "semantics": "byte+0: no single-bitmask rule; 14 of 23 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_bf16.fmt": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte4": {
+    "ok": 52,
+    "silent_zero": 194,
+    "wrong_value": 10
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: no single-bitmask rule; 52 of 256 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_bf16.opsel": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte2": {
+    "ok": 48,
+    "silent_zero": 204,
+    "wrong_value": 4
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: no single-bitmask rule; 48 of 256 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_bf16.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte3": {
+    "ok": 130,
+    "silent_zero": 2,
+    "wrong_value": 124
+   }
+  },
+  "range": "byte+3: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_bf16.srcw": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte1": {
+    "ok": 2,
+    "silent_zero": 236,
+    "wrong_value": 18
+   }
+  },
+  "range": "byte+1: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2h.b1": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte1": {
+    "ok": 2,
+    "silent_zero": 236,
+    "wrong_value": 18
+   }
+  },
+  "range": "byte+1: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2h.b4": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 2,
+    "silent_zero": 162,
+    "wrong_value": 92
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: value & 0xf7 == 0x04  (bits [3] are DON'T CARE) | byte+4: DESTINATION redirection observed into 1 distinct output slots -- this byte selects the result register",
+  "target": "M4"
+ },
+ "cvt_f2h.op": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "fault": 2,
+    "ok": 8,
+    "silent_zero": 172,
+    "wrong_value": 74
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE) | byte+2 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_f2h.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte3": {
+    "ok": 130,
+    "silent_zero": 2,
+    "wrong_value": 124
+   }
+  },
+  "range": "byte+3: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_f2h.tail": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte5": {
+    "ok": 56,
+    "silent_zero": 88,
+    "wrong_value": 112
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: no single-bitmask rule; 56 of 256 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.dhalf": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 2,
+    "silent_zero": 114,
+    "wrong_value": 140
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: value & 0xf7 == 0x04  (bits [3] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.dst": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "outcomes": {
+   "byte0": {
+    "ok": 1,
+    "silent_zero": 3,
+    "wrong_value": 20
+   }
+  },
+  "range": "byte+0: 24 values: 0x00,0x01,0x11,0x21,0x31,0x3e,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc0,0xc1,0xc2,0xc3,0xc5,0xc9,0xd1,0xe1,0xf1,0xff",
+  "reproducibility": "single-observation",
+  "semantics": "byte+0: value & 0xff == 0xc1  (bits none are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.opsel": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 8,
+    "silent_zero": 32,
+    "wrong_value": 216
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte3": {
+    "ok": 130,
+    "wrong_value": 126
+   }
+  },
+  "range": "byte+3: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: no single-bitmask rule; 130 of 256 values reproduce the result (see byte_scans/predicates) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.srcfmt": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte1": {
+    "ok": 2,
+    "wrong_value": 254
+   }
+  },
+  "range": "byte+1: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+1: value & 0x7f == 0x01  (bits [7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_f2h_dst.tail": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte5": {
+    "ok": 56,
+    "wrong_value": 200
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: no single-bitmask rule; 56 of 256 values reproduce the result (see byte_scans/predicates)",
+  "target": "M4"
+ },
+ "cvt_f2i.b9": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte9": {
+    "ok": 256
+   }
+  },
+  "range": "byte+9: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+9 INERT: all 256 values reproduce the result",
+  "target": "M4"
+ },
+ "cvt_f2i.cvtop": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte6": {
+    "ok": 8,
+    "silent_zero": 240,
+    "wrong_value": 8
+   }
+  },
+  "range": "byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+6: value & 0xb9 == 0x90  (bits [1, 2, 6] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2i.dst": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte3": {
+    "fault": 17,
+    "hang": 2,
+    "ok": 2,
+    "silent_zero": 190
+   }
+  },
+  "range": "byte+3: 211 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "target": "M4"
+ },
+ "cvt_f2i.dst_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte8": {
+    "ok": 128,
+    "wrong_value": 128
+   }
+  },
+  "range": "byte+8: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+8: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2i.mode": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 192,
+    "silent_zero": 64
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "target": "M4"
+ },
+ "cvt_f2i.signflag": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 64,
+    "silent_zero": 160,
+    "wrong_value": 32
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0x28 == 0x08  (bits [0, 1, 2, 4, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_f2i.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte5": {
+    "ok": 4,
+    "silent_zero": 232,
+    "wrong_value": 20
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: value & 0xfc == 0x00  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_f2i.src_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 128,
+    "silent_zero": 128
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f.cvtop": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte6": {
+    "ok": 16,
+    "silent_zero": 192,
+    "wrong_value": 48
+   }
+  },
+  "range": "byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+6: value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f.dst": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte3": {
+    "fault": 64,
+    "ok": 2,
+    "silent_zero": 190
+   }
+  },
+  "range": "byte+3: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "target": "M4"
+ },
+ "cvt_i2f.mode": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 192,
+    "silent_zero": 64
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "target": "M4"
+ },
+ "cvt_i2f.signflag": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 128,
+    "silent_zero": 128
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte5": {
+    "ok": 8,
+    "silent_zero": 212,
+    "wrong_value": 36
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: no single-bitmask rule; 8 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_i2f.src_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 128,
+    "silent_zero": 128
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f_src.cvtop": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte6": {
+    "ok": 16,
+    "wrong_value": 240
+   }
+  },
+  "range": "byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+6: value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f_src.dst_desc": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte3": {
+    "fault": 37,
+    "hang": 2,
+    "ok": 2,
+    "silent_zero": 2,
+    "wrong_value": 188
+   }
+  },
+  "range": "byte+3: 231 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_i2f_src.signflag": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 128,
+    "wrong_value": 128
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "cvt_i2f_src.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte5": {
+    "ok": 8,
+    "wrong_value": 248
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+5: no single-bitmask rule; 8 of 256 values reproduce the result (see byte_scans/predicates) | byte+5 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "cvt_i2f_src.src_cache": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 256
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2 INERT: all 256 values reproduce the result",
+  "target": "M4"
+ },
+ "cvt_i2f_src.src_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 128,
+    "wrong_value": 128
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "db_defects": {
+  "_note": "Recorded, NOT patched: db.json is owned by the orchestrator and several experiments were sweeping concurrently.",
+  "cvt_bf16_match_overfits_byte4": {
+   "db_says": "match pins byte+4 == 0x01",
+   "evidence": "work/pilot/anchors2.log (anchor 0101148105024000)",
+   "impact": "decode gap on compiler-emitted code",
+   "measured": "our own compiler emits byte+4 == 0x05 for float->bfloat in the sweep carrier, so the descriptor fails to decode its own compiler's output."
+  },
+  "cvt_f2h_and_cvt_f2h_dst_are_one_instruction": {
+   "db_says": "two separate descriptors (byte0==0x11 vs byte0 low nibble 1 + byte+3 hi nibble 8)",
+   "evidence": "analysis/byte_scans.json cvt_f2h.* vs cvt_f2h_dst.*",
+   "impact": "duplicate descriptors; the dst nibble is the only real difference",
+   "measured": "identical bit rules on every byte (+1 0x7f==0x01, +2 0xc7==0x04, +3 no bitmask, +4 0xf7==0x04, +5 0x10==0x00); they differ only in byte0's dst nibble."
+  },
+  "length_rule_gaps_observed": {
+   "evidence": "work/pilot/carriers.log",
+   "impact": "whole classes of two documented instructions do not disassemble",
+   "measured": "isadb.instr_length() cannot length byte0==0x01 (cvt_f2h_dst with dst nibble 0, emitted by our own compiler) nor byte0==0x18 (the packed_half2_hi family), so both fail to tokenize even though db.json has field tables for them."
+  },
+  "pack_convert.fmt_word_is_not_one_field": {
+   "db_says": "bytes +5..+9 are one 40-bit raw field `fmt_word`",
+   "evidence": "analysis/byte_scans.json pack_convert.byte5/6/8/9; analysis/format_maps.json",
+   "impact": "an emitter following db.json cannot choose the pack format or either source register",
+   "measured": "byte+5 = lane-0 SOURCE register (reg<<2, bits 0-1 don't care); byte+6 = lane-1 SOURCE register (reg<<3, bits 1-2 don't care, bit0=0); byte+8 = conversion enable (bits 2 and 6 both set); byte+9 = FORMAT selector (0x4x snorm2x16 / 0x8x unorm2x16 / 0xcx unorm8x2, bits 2-3 don't care). byte+7 not established (2 genuine hangs stopped it at 8 values)."
+  },
+  "pack_convert.src_is_actually_dst": {
+   "db_says": "byte+3 = `src`, the source GPR",
+   "evidence": "analysis/byte_scans.json pack_convert.byte3 dst_redirect_slots",
+   "impact": "an emitter would write the result to the wrong register",
+   "measured": "byte+3 is the DESTINATION register (reg<<1, bit0 don't care): sweeping it redirects the result into 6 distinct observed registers, an identical map to cvt_i2f/cvt_f2i `dst`. The real sources are bytes +5/+6."
+  },
+  "unpack_convert.byte2_enable_rule": {
+   "db_says": "match relaxed at commit 2b1cbc50 so only bit1 is pinned; field `cache`",
+   "evidence": "analysis/predicates.json unpack_convert.byte2",
+   "impact": "db.json's match is still not the hardware rule",
+   "measured": "the instruction reproduces its result IFF (byte+2 & 0x03) != 0 -- a TWO-bit OR enable. Bits 2-7 are inert. Exact over all 256 values. This reconciles EXP-0089 (0x56->0x54 breaks it: 0x54&3==0) with EXP-0119 (single-bit flips of 0x56 all inert: each leaves byte&3 != 0)."
+  },
+  "unpack_convert.convert_desc_is_not_one_field": {
+   "db_says": "bytes +3..+6 are one 32-bit raw field `convert_desc`",
+   "evidence": "analysis/byte_scans.json unpack_convert.byte3/4/5/6",
+   "impact": "same as above: neither operand register is reachable from db.json",
+   "measured": "byte+3 = DESTINATION register (3 distinct registers observed); byte+4 is COMPLETELY INERT over all 256 values; byte+5 = SOURCE register (reg<<3, bits 0-2 don't care); byte+6 = opcode/descriptor (bits 0,2 == 0,1 exactly)."
+  },
+  "unpack_convert.reg_sel_is_a_format_selector": {
+   "db_says": "byte+7 high nibble `reg_sel`, 'most likely the unpack RESULT destination (role INFERRED, not splice-confirmed)'",
+   "evidence": "analysis/byte_scans.json unpack_convert.byte7 operand map; the compiler's own unorm(...1cca) vs snorm(...1caa) pair",
+   "impact": "the role inference is wrong; it also mis-explains our own compiler's output",
+   "measured": "bits 6:5 select the FORMAT -- 0x0a/0x8a unorm8, 0x2a/0xaa snorm16, 0x4a/0xca unorm16, 0x6a/0xea unorm8; bit7 don't care; bit3 changes which SOURCE register is read. Not a destination."
+  }
+ },
+ "pack_convert.fmt_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 128,
+    "silent_zero": 128
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
+  "semantics": "byte+2: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "pack_convert.fmt_word": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte5": {
+    "ok": 4,
+    "wrong_value": 252
+   },
+   "byte6": {
+    "ok": 4,
+    "silent_zero": 104,
+    "wrong_value": 148
+   },
+   "byte7": {
+    "fault": 62,
+    "hang": 2,
+    "ok": 2,
+    "silent_zero": 132,
+    "wrong_value": 58
+   },
+   "byte8": {
+    "ok": 32,
+    "silent_zero": 128,
+    "wrong_value": 96
+   },
+   "byte9": {
+    "ok": 4,
+    "silent_zero": 60,
+    "wrong_value": 192
+   }
+  },
+  "range": "byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255); byte+7: 256 of 256 values (dense 0..255); byte+8: 256 of 256 values (dense 0..255); byte+9: 256 of 256 values (dense 0..255)",
+  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
+  "semantics": "byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)  ||  byte+6: value & 0xf9 == 0x00  (bits [1, 2] are DON'T CARE) | byte+6 operand1: source-register map measured (see byte_scans.json)  ||  byte+7: value & 0xfb == 0x50  (bits [2] are DON'T CARE)  ||  byte+8: value & 0x45 == 0x44  (bits [1, 3, 4, 5, 7] are DON'T CARE) | byte+8 FORMAT CODES: {\"0x44\": [\"unorm2x16\"], \"0x45\": [\"unorm2x16\"], \"0x46\": [\"unorm2x16\"], \"0x47\": [\"unorm2x16\"], \"0x4c\": [\"unorm2x16\"], \"0x4d\": [\"unorm2x16\"], \"0x4e\": [\"unorm2x16\"], \"0x4f\": [\"unorm2x16\"], \"0x54\": [\"unorm2x16\"], \"0x55\": [\"unorm2x16\"], \"0x56\": [\"unorm2x16\"], \"0x57\": [\"unorm2x16\"], \"0x5c\": [\"unorm2x16\"], \"0x5d\": [\"unorm2x16\"], \"0x5e\": [\"unorm2x16\"], \"0x5f\": [\"unorm2x16\"], \"0x64\": [\"unorm2x16\"], \"0x65\": [\"unorm2x16\"], \"0x66\": [\"unorm2x16\"], \"0x67\": [\"unorm2x16\"], \"0x6c\": [\"unorm2x16\"], \"0x6d\": [\"unorm2x16\"], \"0x6e\": [\"unorm2x16\"], \"0x6f\": [\"unorm2x16\"], \"0x74\": [\"unorm2x16\"], \"0x75\": [\"unorm2x16\"], \"0x76\": [\"unorm2x16\"], \"0x77\": [\"unorm2x16\"], \"0x7c\": [\"unorm2x16\"], \"0x7d\": [\"unorm2x16\"], \"0x7e\": [\"unorm2x16\"], \"0x7f\": [\"unorm2x16\"]}  ||  byte+9: value & 0xf3 == 0x82  (bits [2, 3] are DON'T CARE) | byte+9 FORMAT CODES: {\"0x42\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x46\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4a\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x4e\": [\"snorm2x16\", \"snorm2x16_rte\"], \"0x82\": [\"unorm2x16\"], \"0x86\": [\"unorm2x16\"], \"0x8a\": [\"unorm2x16\"], \"0x8e\": [\"unorm2x16\"], \"0xc2\": [\"unorm8x2\"], \"0xc6\": [\"unorm8x2\"], \"0xca\": [\"unorm8x2\"], \"0xce\": [\"unorm8x2\"]}",
+  "target": "M4"
+ },
+ "pack_convert.mode": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte4": {
+    "ok": 128,
+    "silent_zero": 128
+   }
+  },
+  "range": "byte+4: 256 of 256 values (dense 0..255)",
+  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
+  "semantics": "byte+4: value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "pack_convert.src": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte3": {
+    "fault": 63,
+    "hang": 1,
+    "ok": 2,
+    "silent_zero": 190
+   }
+  },
+  "range": "byte+3: 256 of 256 values (dense 0..255)",
+  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
+  "semantics": "byte+3: value & 0xfe == 0x18  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 6 distinct output slots -- this byte selects the result register",
+  "target": "M4"
+ },
+ "pack_convert.src_desc": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte1": {
+    "ok": 64,
+    "silent_zero": 192
+   }
+  },
+  "range": "byte+1: 256 of 256 values (dense 0..255)",
+  "reproducibility": "GATED: two independent captures (run03, run05), 6251/6255 gated records byte-identical (99.936%)",
+  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "packed_half2_hi.dst": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "outcomes": {
+   "byte0": {
+    "ok": 1,
+    "silent_zero": 2,
+    "wrong_value": 19
+   }
+  },
+  "range": "byte+0: 22 values: 0x00,0x08,0x18,0x28,0x38,0x48,0x58,0x67,0x68,0x78,0x88,0x90,0x98,0x99,0x9a,0xa8,0xb8,0xc8,0xd8,0xe8,0xf8,0xff",
+  "reproducibility": "single-observation",
+  "semantics": "byte+0: value & 0xff == 0x90  (bits none are DON'T CARE)",
+  "target": "M4"
+ },
+ "packed_half2_hi.mods": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "note": "instrument not measured (see RESULTS.md)",
+  "range": "none",
+  "reproducibility": "not measured",
+  "target": "M4"
+ },
+ "packed_half2_hi.opsel": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "note": "instrument not measured (see RESULTS.md)",
+  "range": "none",
+  "reproducibility": "not measured",
+  "target": "M4"
+ },
+ "packed_half2_hi.srcA": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "note": "instrument not measured (see RESULTS.md)",
+  "range": "none",
+  "reproducibility": "not measured",
+  "target": "M4"
+ },
+ "packed_half2_hi.srcB": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "untested",
+  "note": "instrument not measured (see RESULTS.md)",
+  "range": "none",
+  "reproducibility": "not measured",
+  "target": "M4"
+ },
+ "unpack_convert.cache": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte2": {
+    "ok": 192,
+    "silent_zero": 64
+   }
+  },
+  "range": "byte+2: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+2: EXACT predicate -- reproduces the result iff NOT (bits [0, 1] == [0, 0]) (192 of 256 values)",
+  "target": "M4"
+ },
+ "unpack_convert.convert_desc": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "isolated-byte-diff",
+  "outcomes": {
+   "byte3": {
+    "hang": 2,
+    "ok": 2,
+    "silent_zero": 186,
+    "wrong_value": 2
+   },
+   "byte4": {
+    "ok": 256
+   },
+   "byte5": {
+    "ok": 4,
+    "silent_zero": 212,
+    "wrong_value": 40
+   },
+   "byte6": {
+    "ok": 16,
+    "silent_zero": 128,
+    "wrong_value": 112
+   }
+  },
+  "range": "byte+3: 192 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f; byte+4: 256 of 256 values (dense 0..255); byte+5: 256 of 256 values (dense 0..255); byte+6: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+3: value & 0xfe == 0x00  (bits [0] are DON'T CARE) | byte+3: DESTINATION redirection observed into 3 distinct output slots -- this byte selects the result register  ||  byte+4 INERT: all 256 values reproduce the result  ||  byte+5: value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE) | byte+5 operand0: source-register map measured (see byte_scans.json)  ||  byte+6: value & 0x1d == 0x0c  (bits [1, 5, 6, 7] are DON'T CARE)",
+  "target": "M4"
+ },
+ "unpack_convert.reg_sel": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 2,
+    "silent_zero": 192,
+    "wrong_value": 62
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "unpack_convert.size": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte7": {
+    "ok": 2,
+    "silent_zero": 192,
+    "wrong_value": 62
+   }
+  },
+  "range": "byte+7: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+7: value & 0xfe == 0xca  (bits [0] are DON'T CARE) | byte+7 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ },
+ "unpack_convert.src_class": {
+  "evidence": [
+   "EXP-0144"
+  ],
+  "label": "hardware-run",
+  "outcomes": {
+   "byte1": {
+    "ok": 64,
+    "silent_zero": 96,
+    "wrong_value": 96
+   }
+  },
+  "range": "byte+1: 256 of 256 values (dense 0..255)",
+  "reproducibility": "single-observation",
+  "semantics": "byte+1: value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE) | byte+1 operand0: source-register map measured (see byte_scans.json)",
+  "target": "M4"
+ }
+}

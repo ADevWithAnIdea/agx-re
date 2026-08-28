@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0147-m4-emit-pipeline-misc/harness/run.py", line 605, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0147-m4-emit-pipeline-misc/harness/run.py", line 586, in main
+    record(f["name"], value, muts)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0147-m4-emit-pipeline-misc/harness/run.py", line 408, in record
+    got, raw, nres = run_case(spliced)
+                     ~~~~~~~~^^^^^^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0147-m4-emit-pipeline-misc/harness/run.py", line 394, in run_case
+    restart(); recovery["restarts"] += 1; n += 1
+    ~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0147-m4-emit-pipeline-misc/harness/run.py", line 336, in restart
+    runner._kill(); runner._start()
+                    ~~~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 49, in _start
+    raise RuntimeError(f"agxrun_persist did not become READY: {ready!r} {err}")
+RuntimeError: agxrun_persist did not become READY: '' 

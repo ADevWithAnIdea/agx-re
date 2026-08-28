@@ -1,0 +1,89 @@
+{
+ "authored": {
+  "analysis/field_verdicts.py": "e7bec4433e4afb37673dc93230116512efd35ff403412884a974a1874f02e734",
+  "analysis/predicates.py": "da942e41e9837de12887f5917f720114666e9d8e00d067364ef5d4a22fc9c194",
+  "analysis/rules.py": "67dc6f2b923ff6a4039e8519e3740018cdfaa05df849f2e677c7fd16b6213e63",
+  "analysis/verdicts.py": "2fa0175cba997c7bb78aa4ff8fe0d5e844b59a8369105bba4d8c7f18a0526f9b",
+  "harness/build.sh": "28d3332f4380952ea5231294540ccf03aa93a4718d96550383c7e9f1b28875a3",
+  "harness/capture.sh": "c4087835ce1c73b55fe5b719af86293a7a76f1732d851d668c58ab2307c46c29",
+  "harness/casematrix.py": "3517ab56feeba7bdcbc90e3f0cf59d30557000ed69d6bd76319804ce52fb1c95",
+  "harness/oracle.py": "b4961de76c184f58c1630382f81f46c08031ae9c3af46953dd70e695bdff626f",
+  "harness/probe.py": "52d9d0307a5a3036c9fcb29c5d59d5525d8c9991939de1f0fec9bc2214d99294",
+  "harness/run.py": "366cd0d0a632f6cb0c0a0db03a57e2a82252c8089e2b70e2412cb5d3744213f0",
+  "kernels/anchors.metal": "355b9f548b5d59eb8a1bc0fe36fd713d40d2473824fc60b8f662ddceedbc0818",
+  "kernels/carriers.metal": "83608acd4b35c45af2860da60981adf2852ac9d8268eaae458f48fd455a5fb34"
+ },
+ "batch": {
+  "members": [
+   "EXP-0140",
+   "EXP-0144",
+   "EXP-0147"
+  ],
+  "n_gpu_contending": 3
+ },
+ "captures": {
+  "m4_20260828_run01": {
+   "n_records": 3137,
+   "status": "RETAINED PARTIAL - not used",
+   "sweep_sha256": "0374cffae58246917eb89247bd1e60097fb49feae80e0b199acb7a1bef6e2333"
+  },
+  "m4_20260828_run02": {
+   "n_records": 5219,
+   "status": "RETAINED PARTIAL - not used",
+   "sweep_sha256": "4e353543b3928290df0ebd12994e02bc238097dfbf4cb6467761ee662c21410c"
+  },
+  "m4_20260828_run03": {
+   "n_records": 22237,
+   "status": "used",
+   "sweep_sha256": "b01e7224fb87e75ec5e5fed95580120629a03ac8e57a762a8a9d3f47dbc05740"
+  },
+  "m4_20260828_run04": {
+   "n_records": 22237,
+   "status": "RETAINED PARTIAL - not used",
+   "sweep_sha256": "3bdd698335267f42924985b5f598fbd6b2ee692a96a0b70164ab6abd88c7ec7d"
+  },
+  "m4_20260828_run05": {
+   "n_records": 8412,
+   "status": "PARTIAL but USED within the scope in its SCOPE.md",
+   "sweep_sha256": "12664f17e5fde16e2f321362e5c0ed838f669bad2551802bcc9ef0d4779c2a2c"
+  }
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": "OWN-SHADER + HW-PROBE + PUBLIC(IEEE-754/MSL defs for the host oracle only)"
+ },
+ "deliverables": [
+  "PRE_REGISTRATION.md",
+  "CAPTURE_CONTRACT.json",
+  "RESULTS.md",
+  "PROGRESS.md",
+  "analysis/field_verdicts.json",
+  "analysis/gate_report.json",
+  "analysis/byte_scans.json",
+  "analysis/predicates.json",
+  "analysis/format_maps.json",
+  "analysis/wide_fields.json"
+ ],
+ "experiment": "EXP-0144-m4-emit-pack",
+ "gate": {
+  "pack_convert": "GATED run03<->run05, 6251/6255 byte-identical (99.936%)",
+  "unpack_convert / cvt_* / packed_half2_hi": "SINGLE OBSERVATION - the gating second capture was prevented by a host-wide MTLCompilerService outage; see RESULTS.md 6.2"
+ },
+ "git_rev_at_freeze": "8904a082cfb64e61c561a2a8d44aa2ddabc6899f",
+ "git_rev_now": "5b9925e82054d2ddc91a7793d42bf5dbf0c56628",
+ "question": "Are the 51 blocking fields of the nine Apple9 pack/convert instructions EMITTABLE?",
+ "results": {
+  "blocking_fields_at_dispatch": 51,
+  "hardware_run": 35,
+  "isolated_byte_diff": 9,
+  "note": "counts over the 51 blocking fields only; field_verdicts.json _counts covers all 54 db fields",
+  "reached_emitter_grade": 44,
+  "untested": 7
+ },
+ "target": {
+  "device": "Apple M4 (G16G)",
+  "gpu_cores": 10,
+  "metal": "Metal 4",
+  "os": "macOS 26.6.2 (25G82)"
+ }
+}

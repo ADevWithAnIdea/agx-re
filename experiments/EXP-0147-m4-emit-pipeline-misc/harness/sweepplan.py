@@ -25,6 +25,15 @@ SRC_ALT  = [9.0, 0.125, -6.0, 4.0]   # liveness control: a second uniform
 
 ROG_INSTANCES = 8
 
+# Host-written poison for every compute output buffer. EXP-0141 found a third
+# failure mode -- STATUS OK with nothing actually executed, leaving the output
+# ZERO-INITIALISED, which on this ISA is exactly the signature of a wrong field
+# value. Pre-filling the output with poison and requiring the SENTINEL buffer to
+# be overwritten turns that mode into a detectable `invalid_run` instead of a
+# false "silent_zero".
+POISON_F32 = -1.2345678e30
+SENTINEL_BASE = 0xA5A50000
+
 # ---------------------------------------------------------------- oracles ---
 
 def bary(verts, px, py, W, H):
@@ -107,6 +116,10 @@ ARMS = [
                  dict(name="b11hi",    byte=11, width=7, shift=1)],
          sensitivity=dict(byte=2, value=0x54,
                           why="EXP-O2C: standalone 0x56 -> tiled 0x54 zeroes the result"),
+         power_probe=dict(pattern="cf0256", byte=10, value=0x00,
+                          why="op-enable byte+10 0x24 -> 0x00 must drop the multiply "
+                              "(C passthrough), proving the litmus can see the matrix "
+                              "unit's contribution disappear"),
          note="10 of 12 fields were already emitter-grade (DOC-02); only "
               "dst_desc and b11hi block matrix_mac."),
 
@@ -118,7 +131,12 @@ ARMS = [
                  dict(name="b6", byte=6, width=8), dict(name="b7", byte=7, width=8),
                  dict(name="tail", byte=8, width=32, nbytes=4)],
          sensitivity=dict(byte=3, value=0x02,
-                          why="destination GPR relocation must change the pixel")),
+                          why="destination GPR relocation must change the pixel"),
+         power_probe=dict(pattern="670e54", byte=7, value=0x00,
+                          why="byte+7 -> 0x00 makes the tile read return ZERO, so the pixel "
+                              "must collapse to src alone. This is the litmus-power proof "
+                              "demanded after EXP-0141: it shows the measurement can see the "
+                              "tilebuffer read's contribution vanish.")),
 
     dict(arm="tile_read_mrt", instr="tile_read_mrt", stage="fragment",
          kernel=RENDER_KERNEL, vs="v_arr", fs="f_mrt", nrt=2, samples=1,
@@ -128,7 +146,10 @@ ARMS = [
                  dict(name="fmt", byte=7, width=8),
                  dict(name="tail", byte=8, width=32, nbytes=4)],
          sensitivity=dict(byte=3, value=0x02,
-                          why="destination GPR relocation must change attachment 1")),
+                          why="destination GPR relocation must change attachment 1"),
+         power_probe=dict(pattern="670654", byte=7, value=0x00,
+                          why="byte+7 -> 0x00 must collapse attachment 1 to -src "
+                              "(tile read returns zero): litmus-power proof")),
 
     dict(arm="vtx_out_pos", instr="vtx_out_pos", stage="vertex",
          kernel=RENDER_KERNEL, vs="v_tern", fs="f_vary", nrt=1, samples=1,
@@ -136,14 +157,18 @@ ARMS = [
          fields=[dict(name="dst", byte=0, width=4, shift=4),
                  dict(name="slot", byte=7, width=8)],
          sensitivity=dict(byte=2, value=0x55,
-                          why="byte+2 is a match constant; corrupting it must change the pixel")),
+                          why="byte+2 is a match constant; corrupting it must change the pixel"),
+         power_probe=dict(pattern="0b0026004000", byte=2, value=0x00,
+                          why="LITMUS POWER: corrupt the op-select constant; the pixel must move")),
 
     dict(arm="vtx_coord_xform", instr="vtx_coord_xform", stage="vertex",
          kernel=RENDER_KERNEL, vs="v_arr", fs="f_varyc", nrt=1, samples=1,
          W=2, H=2, pattern="1722a2b0", oracle="vary_arr",
          fields=[dict(name="mode", byte=1, width=8), dict(name="sel", byte=4, width=8),
                  dict(name="operand", byte=5, width=40, nbytes=5)],
-         sensitivity=dict(byte=1, value=0x55, why="mode changed the pixel in pilot")),
+         sensitivity=dict(byte=1, value=0x55, why="mode changed the pixel in pilot"),
+         power_probe=dict(pattern="1722a2b0", byte=2, value=0x00,
+                          why="LITMUS POWER: corrupt the op-select constant; the pixel must move")),
 
     dict(arm="pixel_order", instr="pixel_order", stage="fragment",
          kernel=RENDER_KERNEL, vs="v_arr", fs="f_rog", nrt=1, samples=1,
@@ -153,6 +178,10 @@ ARMS = [
                  dict(name="b5", byte=5, width=8)],
          sensitivity=dict(byte=4, value=0x55,
                           why="pilot: corrupting byte+4 loses 7 of 8 serialised updates"),
+         power_probe=dict(pattern="071454500600", byte=1, value=0x00,
+                          why="LITMUS POWER: neuter the ACQUIRE marker itself. The read-back "
+                              "texel and the accumulated pixel must both fall below the "
+                              "fully-serialised value, proving the litmus can see lost updates."),
          note="sweeps the ACQUIRE member of the pair; the release member is left intact."),
 
     dict(arm="pixel_order_rel", instr="pixel_order", stage="fragment",
@@ -162,6 +191,8 @@ ARMS = [
          fields=[dict(name="scope", byte=3, width=8), dict(name="flags", byte=4, width=8),
                  dict(name="b5", byte=5, width=8)],
          sensitivity=dict(byte=4, value=0x55, why="same, on the release member"),
+         power_probe=dict(pattern="070454d00600", byte=1, value=0x00,
+                          why="LITMUS POWER: neuter the RELEASE marker itself."),
          note="adversarial second method: the same three fields on the RELEASE member."),
 
     dict(arm="n3_sample_read", instr="n3_sample_read", stage="fragment",
@@ -170,21 +201,35 @@ ARMS = [
          fields=[dict(name="b1", byte=1, width=8), dict(name="b3", byte=3, width=8),
                  dict(name="tail", byte=4, width=48, nbytes=6)],
          sensitivity=dict(byte=2, value=0x55,
-                          why="byte+2 is the op-select match constant; pilot showed it changes the pixel")),
+                          why="byte+2 is the op-select match constant; pilot showed it changes the pixel"),
+         power_probe=dict(pattern="030026", byte=2, value=0x00,
+                          why="LITMUS POWER: corrupt the op-select constant; the pixel must move")),
 
     dict(arm="scoreboard_fence", instr="scoreboard_fence", stage="compute",
-         kernel=COMPUTE_KERNEL, func="k_atomic", pattern="07220200",
+         kernel=COMPUTE_KERNEL, func="k_atomic", pattern="074202",
          grid=32, tg=32, oracle="atomic",
          fields=[dict(name="kind", byte=1, width=8), dict(name="scope", byte=2, width=7, shift=1),
                  dict(name="mask", byte=3, width=8)],
-         sensitivity=dict(byte=0, value=0x55, why="corrupting byte0 changes the opcode itself")),
+         sensitivity=dict(byte=0, value=0x55, why="corrupting byte0 changes the opcode itself"),
+         power_probe=dict(pattern="070454850800", byte=1, value=0x00,
+                          why="LITMUS POWER: neuter the neighbouring threadgroup_barrier "
+                              "(an ordering instruction independent of the fence under test). "
+                              "If the observable does not move, this carrier has NO power to "
+                              "see ordering at all and every fence verdict from it must stay "
+                              "`untested` (the EXP-0141 trap).")),
 
     dict(arm="compute_fence_scoped", instr="compute_fence_scoped", stage="compute",
          kernel=COMPUTE_KERNEL, func="k_tgrw", pattern="87008004",
          grid=256, tg=256, oracle="tgrw",
          fields=[dict(name="kind", byte=1, width=8), dict(name="scope", byte=2, width=8),
                  dict(name="mask", byte=3, width=8)],
-         sensitivity=dict(byte=0, value=0x55, why="corrupting byte0 changes the opcode itself")),
+         sensitivity=dict(byte=0, value=0x55, why="corrupting byte0 changes the opcode itself"),
+         power_probe=dict(pattern="070454610900", byte=1, value=0x00,
+                          why="LITMUS POWER: neuter the threadgroup_barrier that orders the "
+                              "scratch store against the far-neighbour load. Every lane reads "
+                              "a slot written by a different simdgroup, so a broken barrier "
+                              "must show stale lanes. No movement here = no power, and the "
+                              "fence verdicts stay `untested`.")),
 ]
 
 # Multi-byte fields: whole-field structured values on top of the per-byte dense

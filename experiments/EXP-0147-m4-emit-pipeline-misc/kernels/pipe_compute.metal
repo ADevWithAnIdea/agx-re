@@ -11,7 +11,13 @@ kernel void k_mad_f32(device float *out [[buffer(0)]],
                       const device float *a [[buffer(1)]],
                       const device float *b [[buffer(2)]],
                       const device float *c [[buffer(3)]],
+                      device uint *sentinel [[buffer(4)]],
                       uint tid [[thread_position_in_threadgroup]]) {
+    // INTEGRITY SENTINEL (EXP-0141): a plain scalar store on a path that does
+    // not touch the matrix unit. If the dispatch did not actually execute, the
+    // sentinel keeps its host-written poison value and the measurement is
+    // rejected as invalid_run rather than being read as a "silent zero".
+    sentinel[tid] = 0xA5A50000u + tid;
     simdgroup_float8x8 A, B, C;
     simdgroup_load(A, a, 8);
     simdgroup_load(B, b, 8);
@@ -28,7 +34,9 @@ kernel void k_mad_f32(device float *out [[buffer(0)]],
 kernel void k_atomic(device float *out [[buffer(0)]],
                      const device float *a [[buffer(1)]],
                      device atomic_uint *ac [[buffer(2)]],
+                     device uint *sentinel [[buffer(4)]],
                      uint tid [[thread_position_in_grid]]) {
+    sentinel[tid] = 0xA5A50000u + tid;   // integrity sentinel, see k_mad_f32
     uint v = atomic_fetch_add_explicit(ac, 1u, memory_order_relaxed);
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_texture);
     // The per-thread value of v depends on arrival order, but over a 32-thread
@@ -45,12 +53,19 @@ kernel void k_atomic(device float *out [[buffer(0)]],
 // out[gid] = in[(lid+1) % tgsz] + in[gid].
 kernel void k_tgrw(device float *out [[buffer(0)]],
                    const device float *in [[buffer(1)]],
+                   device uint *sentinel [[buffer(4)]],
                    uint gid [[thread_position_in_grid]],
                    uint lid [[thread_position_in_threadgroup]],
                    uint tgsz [[threads_per_threadgroup]]) {
+    sentinel[gid] = 0xA5A50000u + gid;   // integrity sentinel, see k_mad_f32
     threadgroup float scratch[256];
     scratch[lid] = in[gid];
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    uint nb = (lid + 1u) % tgsz;
+    // Offset 137 (prime, > the 32-lane simdgroup width) so EVERY lane reads a
+    // slot written by a DIFFERENT simdgroup. A +1 neighbour is lockstep-safe
+    // within a simdgroup and would give the litmus almost no power to see a
+    // broken barrier -- exactly the trap EXP-0141 hit with its first tile
+    // litmus. The litmus-power probe in the sweep plan measures this directly.
+    uint nb = (lid + 137u) % tgsz;
     out[gid] = scratch[nb] + scratch[lid];
 }

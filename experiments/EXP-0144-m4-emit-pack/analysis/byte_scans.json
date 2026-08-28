@@ -1,0 +1,4083 @@
+{
+ "cvt_bf16.byte0": {
+  "anchor_value": 1,
+  "bit_rule": {
+   "emit": "value & 0x0b == 0x01  (bits [2, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    113,
+    161,
+    177
+   ],
+   "free_bits": [
+    2,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 11,
+   "n_ok": 14,
+   "n_predicted": 17,
+   "required": 1
+  },
+  "byte": 0,
+  "coverage": "23 values: 0x00,0x01,0x02,0x03,0x05,0x09,0x11,0x21,0x31,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc1,0xd1,0xe1,0xf1,0xfe,0xff",
+  "db_fields": [
+   "dst"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 23,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 17,
+   "f2h(v0)": 1,
+   "zero": 5
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 14,
+   "silent_zero": 5,
+   "wrong_value": 4
+  },
+  "sentinel_states": {
+   "clean": 15,
+   "perturbed": 8
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte1": {
+  "anchor_value": 1,
+  "bit_rule": {
+   "emit": "value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 127,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 1
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "srcw"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 2,
+   "unknown": 18,
+   "zero": 236
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 236,
+   "wrong_value": 18
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte2": {
+  "anchor_value": 20,
+  "bit_rule": {
+   "emit": "value & 0x04 == 0x04  (bits [0, 1, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    5,
+    13,
+    14,
+    15,
+    21,
+    22,
+    23,
+    29,
+    30,
+    31,
+    37,
+    45,
+    46,
+    47,
+    53,
+    54
+   ],
+   "free_bits": [
+    0,
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 4,
+   "n_ok": 48,
+   "n_predicted": 128,
+   "required": 4
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "opsel"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 48,
+   "unknown": 4,
+   "zero": 204
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 48,
+   "silent_zero": 204,
+   "wrong_value": 4
+  },
+  "sentinel_states": {
+   "clean": 128,
+   "perturbed": 128
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte3": {
+  "anchor_value": 129,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 130,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 3,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 130,
+   "f2bf_rne(v5)": 2,
+   "f2h(v0)": 2,
+   "unknown": 120,
+   "zero": 2
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "4": 0,
+     "5": 0,
+     "6": 0,
+     "7": 0,
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "12": 0,
+     "13": 0,
+     "14": 0,
+     "15": 0,
+     "16": 0,
+     "17": 0,
+     "18": 0,
+     "19": 0,
+     "20": 0,
+     "21": 0,
+     "22": 0,
+     "23": 0,
+     "24": 0,
+     "25": 0,
+     "26": 0,
+     "27": 0,
+     "28": 0,
+     "29": 0,
+     "30": 0,
+     "31": 0,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "38": 0,
+     "39": 0
+    },
+    "n_points": 134
+   }
+  },
+  "outcomes": {
+   "ok": 130,
+   "silent_zero": 2,
+   "wrong_value": 124
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte4": {
+  "anchor_value": 5,
+  "bit_rule": {
+   "emit": "value & 0x03 == 0x01  (bits [2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    1,
+    9,
+    17,
+    21,
+    25,
+    29,
+    133,
+    141,
+    145,
+    149,
+    153,
+    157
+   ],
+   "free_bits": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 3,
+   "n_ok": 52,
+   "n_predicted": 64,
+   "required": 1
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 58,
+   "unknown": 4,
+   "zero": 194
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 52,
+   "silent_zero": 194,
+   "wrong_value": 10
+  },
+  "sentinel_states": {
+   "clean": 64,
+   "perturbed": 192
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte5": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    3,
+    5,
+    7,
+    8,
+    9,
+    11,
+    13,
+    15,
+    16,
+    17,
+    24,
+    25,
+    32,
+    35,
+    37
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 152,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "b5"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 152,
+   "unknown": 16,
+   "zero": 88
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 152,
+   "silent_zero": 88,
+   "wrong_value": 16
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte6": {
+  "anchor_value": 64,
+  "bit_rule": {
+   "emit": "value & 0xc2 == 0x40  (bits [0, 2, 3, 4, 5] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5
+   ],
+   "kind": "bitmask",
+   "mask": 194,
+   "n_ok": 32,
+   "n_predicted": 32,
+   "required": 64
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dir"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 32,
+   "f2h(v0)": 32,
+   "unknown": 128,
+   "zero": 64
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 64,
+   "wrong_value": 160
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_bf16.byte7": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x00  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 0
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "b7"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_bf16",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 128,
+   "unknown": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte0": {
+  "anchor_value": 1,
+  "bit_rule": {
+   "emit": "value & 0xff == 0x01  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 1
+  },
+  "byte": 0,
+  "coverage": "23 values: 0x00,0x01,0x02,0x03,0x05,0x09,0x11,0x21,0x31,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc1,0xd1,0xe1,0xf1,0xfe,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {
+   "2": [
+    161
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 23,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 18,
+   "f2h(v0)": 1,
+   "zero": 4
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 4,
+   "wrong_value": 18
+  },
+  "sentinel_states": {
+   "clean": 17,
+   "perturbed": 6
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte1": {
+  "anchor_value": 1,
+  "bit_rule": {
+   "emit": "value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 127,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 1
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "b1"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 2,
+   "unknown": 18,
+   "zero": 236
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 236,
+   "wrong_value": 18
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte2": {
+  "anchor_value": 20,
+  "bit_rule": {
+   "emit": "value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3,
+    4,
+    5
+   ],
+   "kind": "bitmask",
+   "mask": 199,
+   "n_ok": 8,
+   "n_predicted": 8,
+   "required": 4
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "op"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 62,
+   "f2h(v0)": 8,
+   "f2h(v1)": 8,
+   "unknown": 4,
+   "zero": 174
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "4": 0,
+     "6": 1,
+     "12": 0,
+     "14": 1,
+     "20": 0,
+     "22": 1,
+     "28": 0,
+     "30": 1,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "38": 1,
+     "44": 0,
+     "46": 1,
+     "52": 0,
+     "54": 1,
+     "60": 0,
+     "62": 1,
+     "64": 0,
+     "65": 0,
+     "66": 0,
+     "67": 0,
+     "68": 0,
+     "69": 0,
+     "70": 0,
+     "84": 0,
+     "85": 0,
+     "96": 0,
+     "97": 0,
+     "98": 0,
+     "99": 0,
+     "100": 0,
+     "101": 0,
+     "102": 0
+    },
+    "n_points": 78
+   }
+  },
+  "outcomes": {
+   "fault": 2,
+   "ok": 8,
+   "silent_zero": 172,
+   "wrong_value": 74
+  },
+  "sentinel_states": {
+   "absent": 2,
+   "clean": 254
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte3": {
+  "anchor_value": 129,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 130,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 3,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 130,
+   "f2h(v5)": 2,
+   "unknown": 122,
+   "zero": 2
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "4": 0,
+     "5": 0,
+     "6": 0,
+     "7": 0,
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "12": 0,
+     "13": 0,
+     "14": 0,
+     "15": 0,
+     "16": 0,
+     "17": 0,
+     "18": 0,
+     "19": 0,
+     "20": 0,
+     "21": 0,
+     "22": 0,
+     "23": 0,
+     "24": 0,
+     "25": 0,
+     "26": 0,
+     "27": 0,
+     "28": 0,
+     "29": 0,
+     "30": 0,
+     "31": 0,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "38": 0,
+     "39": 0
+    },
+    "n_points": 132
+   }
+  },
+  "outcomes": {
+   "ok": 130,
+   "silent_zero": 2,
+   "wrong_value": 124
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte4": {
+  "anchor_value": 4,
+  "bit_rule": {
+   "emit": "value & 0xf7 == 0x04  (bits [3] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3
+   ],
+   "kind": "bitmask",
+   "mask": 247,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 4
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "b4"
+  ],
+  "dst_redirect_slots": {
+   "3": [
+    0,
+    8
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 88,
+   "f2h(v0)": 2,
+   "unknown": 4,
+   "zero": 162
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 162,
+   "wrong_value": 92
+  },
+  "sentinel_states": {
+   "clean": 128,
+   "perturbed": 128
+  },
+  "target": "M4"
+ },
+ "cvt_f2h.byte5": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x10 == 0x00  (bits [0, 1, 2, 3, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    3,
+    5,
+    7,
+    8,
+    9,
+    11,
+    13,
+    15,
+    32,
+    35,
+    37,
+    39,
+    40,
+    41,
+    43
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 16,
+   "n_ok": 56,
+   "n_predicted": 128,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "tail"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 96,
+   "f2h(v0)": 56,
+   "unknown": 16,
+   "zero": 88
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 56,
+   "silent_zero": 88,
+   "wrong_value": 112
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte0": {
+  "anchor_value": 193,
+  "bit_rule": {
+   "emit": "value & 0xff == 0xc1  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 193
+  },
+  "byte": 0,
+  "coverage": "24 values: 0x00,0x01,0x11,0x21,0x31,0x3e,0x41,0x51,0x61,0x71,0x81,0x91,0xa1,0xb1,0xc0,0xc1,0xc2,0xc3,0xc5,0xc9,0xd1,0xe1,0xf1,0xff",
+  "db_fields": [
+   "dst"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 24,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 1,
+   "f2h(v0)": 1,
+   "lo16raw(v0)": 19,
+   "zero": 3
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 3,
+   "wrong_value": 20
+  },
+  "sentinel_states": {
+   "clean": 20,
+   "perturbed": 4
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte1": {
+  "anchor_value": 1,
+  "bit_rule": {
+   "emit": "value & 0x7f == 0x01  (bits [7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 127,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 1
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "srcfmt"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 2,
+   "f2h(v1)": 2,
+   "f2h(v2)": 2,
+   "lo16raw(v0)": 232,
+   "unknown": 18
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 2,
+     "5": 0,
+     "7": 0,
+     "9": 0,
+     "11": 0,
+     "13": 0,
+     "14": 0,
+     "15": 0,
+     "20": 0,
+     "21": 1,
+     "22": 0,
+     "23": 0,
+     "24": 0,
+     "25": 0,
+     "26": 0,
+     "27": 0,
+     "28": 0,
+     "29": 0,
+     "30": 0,
+     "31": 0,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "38": 0,
+     "39": 0,
+     "40": 0,
+     "41": 0,
+     "42": 0,
+     "43": 0,
+     "44": 0,
+     "45": 0,
+     "46": 0,
+     "47": 0,
+     "48": 0
+    },
+    "n_points": 238
+   }
+  },
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte2": {
+  "anchor_value": 20,
+  "bit_rule": {
+   "emit": "value & 0xc7 == 0x04  (bits [3, 4, 5] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3,
+    4,
+    5
+   ],
+   "kind": "bitmask",
+   "mask": 199,
+   "n_ok": 8,
+   "n_predicted": 8,
+   "required": 4
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "opsel"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 8,
+   "lo16raw(v0)": 204,
+   "unknown": 12,
+   "zero": 32
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 32,
+   "wrong_value": 216
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte3": {
+  "anchor_value": 129,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 130,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 3,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 130,
+   "f2h(v5)": 2,
+   "lo16raw(v0)": 2,
+   "unknown": 122
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "4": 0,
+     "5": 0,
+     "6": 0,
+     "7": 0,
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "12": 0,
+     "13": 0,
+     "14": 0,
+     "15": 0,
+     "16": 0,
+     "17": 0,
+     "18": 0,
+     "19": 0,
+     "20": 0,
+     "21": 0,
+     "22": 0,
+     "23": 0,
+     "24": 0,
+     "25": 0,
+     "26": 0,
+     "27": 0,
+     "28": 0,
+     "29": 0,
+     "30": 0,
+     "31": 0,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "38": 0,
+     "39": 0
+    },
+    "n_points": 134
+   }
+  },
+  "outcomes": {
+   "ok": 130,
+   "wrong_value": 126
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte4": {
+  "anchor_value": 4,
+  "bit_rule": {
+   "emit": "value & 0xf7 == 0x04  (bits [3] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3
+   ],
+   "kind": "bitmask",
+   "mask": 247,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 4
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dhalf"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2bf_rne(v0)": 2,
+   "f2h(v0)": 2,
+   "lo16raw(v0)": 122,
+   "unknown": 16,
+   "zero": 114
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 114,
+   "wrong_value": 140
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2h_dst.byte5": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x10 == 0x00  (bits [0, 1, 2, 3, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    3,
+    5,
+    7,
+    8,
+    9,
+    11,
+    13,
+    15,
+    32,
+    35,
+    37,
+    39,
+    40,
+    41,
+    43
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 16,
+   "n_ok": 56,
+   "n_predicted": 128,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "tail"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2h_dst",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2h(v0)": 56,
+   "lo16raw(v0)": 184,
+   "unknown": 16
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 56,
+   "wrong_value": 200
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte0": {
+  "anchor_value": 39,
+  "bit_rule": {
+   "emit": "value & 0xff == 0x27  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 39
+  },
+  "byte": 0,
+  "coverage": "23 values: 0x00,0x07,0x17,0x23,0x25,0x26,0x27,0x28,0x2f,0x37,0x47,0x67,0x77,0x87,0x97,0xa7,0xb7,0xc7,0xd7,0xd8,0xe7,0xf7,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 23,
+  "observed_meanings": {
+   "f2i(v0)": 1,
+   "raw(v0)": 1,
+   "raw(v3)": 3,
+   "raw(v4)": 1,
+   "raw(v5)": 1,
+   "unknown": 1,
+   "zero": 15
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "37": 3,
+     "39": 0,
+     "55": 0,
+     "103": 4,
+     "167": 3,
+     "183": 3,
+     "231": 5
+    },
+    "n_points": 7
+   }
+  },
+  "outcomes": {
+   "fault": 4,
+   "ok": 1,
+   "silent_zero": 11,
+   "wrong_value": 7
+  },
+  "sentinel_states": {
+   "absent": 4,
+   "clean": 10,
+   "perturbed": 9
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte1": {
+  "anchor_value": 7,
+  "bit_rule": {
+   "emit": "value & 0x07 == 0x07  (bits [3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 7,
+   "n_ok": 32,
+   "n_predicted": 32,
+   "required": 7
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 32,
+   "raw(v3)": 64,
+   "zero": 160
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "5": 3,
+     "6": 3,
+     "7": 0,
+     "13": 3,
+     "14": 3,
+     "15": 0,
+     "21": 3,
+     "22": 3,
+     "23": 0,
+     "29": 3,
+     "30": 3,
+     "31": 0,
+     "37": 3,
+     "38": 3,
+     "39": 0,
+     "45": 3,
+     "46": 3,
+     "47": 0,
+     "53": 3,
+     "54": 3,
+     "55": 0,
+     "61": 3,
+     "62": 3,
+     "63": 0,
+     "69": 3,
+     "70": 3,
+     "71": 0,
+     "77": 3,
+     "78": 3,
+     "79": 0,
+     "85": 3,
+     "86": 3,
+     "87": 0,
+     "93": 3,
+     "94": 3,
+     "95": 0,
+     "101": 3,
+     "102": 3,
+     "103": 0,
+     "109": 3
+    },
+    "n_points": 96
+   }
+  },
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 160,
+   "wrong_value": 64
+  },
+  "sentinel_states": {
+   "clean": 96,
+   "perturbed": 160
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte2": {
+  "anchor_value": 86,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    36,
+    40,
+    44,
+    48,
+    52,
+    56,
+    60
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 192,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "mode"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 192,
+   "zero": 64
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 192,
+   "silent_zero": 64
+  },
+  "sentinel_states": {
+   "clean": 192,
+   "perturbed": 64
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte3": {
+  "anchor_value": 24,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0x18  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 24
+  },
+  "byte": 3,
+  "coverage": "211 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dst"
+  ],
+  "dst_redirect_slots": {
+   "1": [
+    22,
+    23
+   ],
+   "2": [
+    18,
+    19
+   ],
+   "3": [
+    14,
+    15
+   ],
+   "4": [
+    10,
+    11
+   ],
+   "5": [
+    6,
+    7
+   ],
+   "6": [
+    0,
+    1
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 211,
+  "observed_meanings": {
+   "f2i(v0)": 2,
+   "zero": 209
+  },
+  "operand_map": {},
+  "outcomes": {
+   "fault": 17,
+   "hang": 2,
+   "ok": 2,
+   "silent_zero": 190
+  },
+  "sentinel_states": {
+   "absent": 19,
+   "clean": 186,
+   "perturbed": 6
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte4": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 128,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte5": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "value & 0xfc == 0x00  (bits [0, 1] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1
+   ],
+   "kind": "bitmask",
+   "mask": 252,
+   "n_ok": 4,
+   "n_predicted": 4,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 4,
+   "f2i(v1)": 4,
+   "f2i(v2)": 4,
+   "f2i(v3)": 4,
+   "f2i(v4)": 4,
+   "f2i(v5)": 4,
+   "zero": 232
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "12": 5,
+     "13": 5,
+     "14": 5,
+     "15": 5,
+     "20": 4,
+     "21": 4,
+     "22": 4,
+     "23": 4,
+     "28": 3,
+     "29": 3,
+     "30": 3,
+     "31": 3,
+     "36": 2,
+     "37": 2,
+     "38": 2,
+     "39": 2,
+     "44": 1,
+     "45": 1,
+     "46": 1,
+     "47": 1
+    },
+    "n_points": 24
+   }
+  },
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 232,
+   "wrong_value": 20
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte6": {
+  "anchor_value": 150,
+  "bit_rule": {
+   "emit": "value & 0xb9 == 0x90  (bits [1, 2, 6] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    2,
+    6
+   ],
+   "kind": "bitmask",
+   "mask": 185,
+   "n_ok": 8,
+   "n_predicted": 8,
+   "required": 144
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "cvtop"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 16,
+   "zero": 240
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 240,
+   "wrong_value": 8
+  },
+  "sentinel_states": {
+   "clean": 240,
+   "perturbed": 16
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte7": {
+  "anchor_value": 72,
+  "bit_rule": {
+   "emit": "value & 0x28 == 0x08  (bits [0, 1, 2, 4, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1,
+    2,
+    4,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 40,
+   "n_ok": 64,
+   "n_predicted": 64,
+   "required": 8
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "signflag"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 64,
+   "unknown": 32,
+   "zero": 160
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 160,
+   "wrong_value": 32
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte8": {
+  "anchor_value": 3,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 8,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dst_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 128,
+   "unknown": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_f2i.byte9": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "any value 0..255 reproduces the documented behaviour",
+   "kind": "always_ok",
+   "n_ok": 256
+  },
+  "byte": 9,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "b9"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_f2i",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "f2i(v0)": 256
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 256
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte0": {
+  "anchor_value": 167,
+  "bit_rule": {
+   "emit": "value & 0xff == 0xa7  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 167
+  },
+  "byte": 0,
+  "coverage": "20 values: 0x00,0x17,0x27,0x37,0x47,0x57,0x58,0x77,0x97,0xa3,0xa5,0xa6,0xa7,0xa8,0xaf,0xb7,0xc7,0xe7,0xf7,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 20,
+  "observed_meanings": {
+   "i2f(v0)": 1,
+   "raw(v0)": 2,
+   "raw(v4)": 2,
+   "unknown": 3,
+   "zero": 12
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "71": 0,
+     "151": 4,
+     "167": 0,
+     "199": 0,
+     "231": 4
+    },
+    "n_points": 5
+   }
+  },
+  "outcomes": {
+   "fault": 5,
+   "ok": 1,
+   "silent_zero": 7,
+   "wrong_value": 7
+  },
+  "sentinel_states": {
+   "absent": 5,
+   "clean": 2,
+   "perturbed": 13
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte1": {
+  "anchor_value": 7,
+  "bit_rule": {
+   "emit": "value & 0x07 == 0x07  (bits [3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 7,
+   "n_ok": 32,
+   "n_predicted": 32,
+   "required": 7
+  },
+  "byte": 1,
+  "coverage": "224 of 256 values (dense 0..255)",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 224,
+  "observed_meanings": {
+   "i2f(v0)": 32,
+   "raw(v4)": 64,
+   "zero": 128
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 4,
+     "2": 4,
+     "7": 0,
+     "8": 4,
+     "10": 4,
+     "15": 0,
+     "16": 4,
+     "18": 4,
+     "23": 0,
+     "24": 4,
+     "26": 4,
+     "31": 0,
+     "32": 4,
+     "34": 4,
+     "39": 0,
+     "40": 4,
+     "42": 4,
+     "47": 0,
+     "48": 4,
+     "50": 4,
+     "55": 0,
+     "56": 4,
+     "58": 4,
+     "63": 0,
+     "64": 4,
+     "66": 4,
+     "71": 0,
+     "72": 4,
+     "74": 4,
+     "79": 0,
+     "80": 4,
+     "82": 4,
+     "87": 0,
+     "88": 4,
+     "90": 4,
+     "95": 0,
+     "96": 4,
+     "98": 4,
+     "103": 0,
+     "104": 4
+    },
+    "n_points": 96
+   }
+  },
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 128,
+   "wrong_value": 64
+  },
+  "sentinel_states": {
+   "clean": 96,
+   "perturbed": 128
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte2": {
+  "anchor_value": 86,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    36,
+    40,
+    44,
+    48,
+    52,
+    56,
+    60
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 192,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "mode"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 192,
+   "zero": 64
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 192,
+   "silent_zero": 64
+  },
+  "sentinel_states": {
+   "clean": 192,
+   "perturbed": 64
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte3": {
+  "anchor_value": 24,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0x18  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 24
+  },
+  "byte": 3,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dst"
+  ],
+  "dst_redirect_slots": {
+   "1": [
+    22,
+    23
+   ],
+   "2": [
+    18,
+    19
+   ],
+   "3": [
+    14,
+    15
+   ],
+   "4": [
+    10,
+    11
+   ],
+   "5": [
+    6,
+    7
+   ],
+   "6": [
+    0,
+    1
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 2,
+   "zero": 254
+  },
+  "operand_map": {},
+  "outcomes": {
+   "fault": 64,
+   "ok": 2,
+   "silent_zero": 190
+  },
+  "sentinel_states": {
+   "absent": 64,
+   "clean": 186,
+   "perturbed": 6
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte4": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 128,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte5": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "value & 0xe4 == 0x00  (bits [0, 1, 3, 4] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    8,
+    9,
+    10,
+    11,
+    16,
+    17,
+    18,
+    19
+   ],
+   "free_bits": [
+    0,
+    1,
+    3,
+    4
+   ],
+   "kind": "bitmask_approx",
+   "mask": 228,
+   "n_ok": 8,
+   "n_predicted": 16,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 8,
+   "i2f(v1)": 8,
+   "i2f(v2)": 4,
+   "i2f(v3)": 4,
+   "i2f(v4)": 4,
+   "i2f(v5)": 4,
+   "unknown": 12,
+   "zero": 212
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 0,
+     "3": 0,
+     "8": 1,
+     "9": 1,
+     "10": 1,
+     "11": 1,
+     "12": 5,
+     "13": 5,
+     "14": 5,
+     "15": 5,
+     "20": 4,
+     "21": 4,
+     "22": 4,
+     "23": 4,
+     "24": 0,
+     "25": 0,
+     "26": 0,
+     "27": 0,
+     "28": 3,
+     "29": 3,
+     "30": 3,
+     "31": 3,
+     "36": 2,
+     "37": 2,
+     "38": 2,
+     "39": 2,
+     "44": 1,
+     "45": 1,
+     "46": 1,
+     "47": 1
+    },
+    "n_points": 32
+   }
+  },
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 212,
+   "wrong_value": 36
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte6": {
+  "anchor_value": 142,
+  "bit_rule": {
+   "emit": "value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    3,
+    4,
+    6
+   ],
+   "kind": "bitmask",
+   "mask": 165,
+   "n_ok": 16,
+   "n_predicted": 16,
+   "required": 132
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "cvtop"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 32,
+   "unknown": 32,
+   "zero": 192
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 16,
+   "silent_zero": 192,
+   "wrong_value": 48
+  },
+  "sentinel_states": {
+   "clean": 192,
+   "perturbed": 64
+  },
+  "target": "M4"
+ },
+ "cvt_i2f.byte7": {
+  "anchor_value": 96,
+  "bit_rule": {
+   "emit": "value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 32,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 32
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "signflag"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 128,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte0": {
+  "anchor_value": 167,
+  "bit_rule": {
+   "emit": "value & 0xff == 0xa7  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 167
+  },
+  "byte": 0,
+  "coverage": "23 values: 0x00,0x07,0x17,0x27,0x37,0x47,0x57,0x58,0x77,0x87,0x97,0xa3,0xa5,0xa6,0xa7,0xa8,0xaf,0xb7,0xc7,0xd7,0xe7,0xf7,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 23,
+  "observed_meanings": {
+   "i2f(v0)": 16,
+   "i2f(v0)+i2f(v1)": 1,
+   "raw(v5)": 2,
+   "unknown": 1,
+   "zero": 3
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "7": 0,
+     "23": 0,
+     "39": 0,
+     "55": 0,
+     "71": 0,
+     "88": 0,
+     "151": 5,
+     "163": 0,
+     "165": 0,
+     "166": 0,
+     "168": 0,
+     "175": 0,
+     "199": 0,
+     "215": 0,
+     "231": 5,
+     "247": 0,
+     "255": 0
+    },
+    "n_points": 18
+   }
+  },
+  "outcomes": {
+   "fault": 2,
+   "ok": 1,
+   "silent_zero": 1,
+   "wrong_value": 19
+  },
+  "sentinel_states": {
+   "absent": 2,
+   "clean": 12,
+   "perturbed": 9
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte1": {
+  "anchor_value": 23,
+  "bit_rule": {
+   "emit": "value & 0x07 == 0x07  (bits [3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 7,
+   "n_ok": 32,
+   "n_predicted": 32,
+   "required": 7
+  },
+  "byte": 1,
+  "coverage": "224 of 256 values (dense 0..255)",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 224,
+  "observed_meanings": {
+   "i2f(v0)": 128,
+   "i2f(v0)+i2f(v1)": 32,
+   "raw(v5)": 64
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 5,
+     "1": 0,
+     "2": 5,
+     "3": 0,
+     "4": 0,
+     "5": 0,
+     "8": 5,
+     "9": 0,
+     "10": 5,
+     "11": 0,
+     "12": 0,
+     "13": 0,
+     "16": 5,
+     "17": 0,
+     "18": 5,
+     "19": 0,
+     "20": 0,
+     "21": 0,
+     "24": 5,
+     "25": 0,
+     "26": 5,
+     "27": 0,
+     "28": 0,
+     "29": 0,
+     "32": 5,
+     "33": 0,
+     "34": 5,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "40": 5,
+     "41": 0,
+     "42": 5,
+     "43": 0,
+     "44": 0,
+     "45": 0,
+     "48": 5,
+     "49": 0,
+     "50": 5,
+     "51": 0
+    },
+    "n_points": 192
+   }
+  },
+  "outcomes": {
+   "ok": 32,
+   "wrong_value": 192
+  },
+  "sentinel_states": {
+   "clean": 96,
+   "perturbed": 128
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte2": {
+  "anchor_value": 84,
+  "bit_rule": {
+   "emit": "any value 0..255 reproduces the documented behaviour",
+   "kind": "always_ok",
+   "n_ok": 256
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_cache"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)+i2f(v1)": 256
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 256
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte3": {
+  "anchor_value": 24,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0x18  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 24
+  },
+  "byte": 3,
+  "coverage": "231 of 256 values (dense 0..255)",
+  "db_fields": [
+   "dst_desc"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 231,
+  "observed_meanings": {
+   "i2f(v0)": 186,
+   "i2f(v0)+i2f(v1)": 2,
+   "i2f(v1)": 2,
+   "zero": 41
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 0,
+     "1": 0,
+     "2": 1,
+     "3": 1,
+     "4": 0,
+     "5": 0,
+     "6": 0,
+     "7": 0,
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "12": 0,
+     "13": 0,
+     "14": 0,
+     "15": 0,
+     "16": 0,
+     "17": 0,
+     "18": 0,
+     "19": 0,
+     "20": 0,
+     "21": 0,
+     "22": 0,
+     "23": 0,
+     "28": 0,
+     "29": 0,
+     "30": 0,
+     "31": 0,
+     "32": 0,
+     "33": 0,
+     "34": 0,
+     "35": 0,
+     "36": 0,
+     "37": 0,
+     "38": 0,
+     "39": 0,
+     "40": 0,
+     "41": 0,
+     "42": 0,
+     "43": 0
+    },
+    "n_points": 188
+   }
+  },
+  "outcomes": {
+   "fault": 37,
+   "hang": 2,
+   "ok": 2,
+   "silent_zero": 2,
+   "wrong_value": 188
+  },
+  "sentinel_states": {
+   "absent": 39,
+   "clean": 186,
+   "perturbed": 6
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte4": {
+  "anchor_value": 3,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 128,
+   "i2f(v0)+i2f(v1)": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte5": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "value & 0xf0 == 0x00  (bits [0, 1, 2, 3] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "kind": "bitmask_approx",
+   "mask": 240,
+   "n_ok": 8,
+   "n_predicted": 16,
+   "required": 0
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 208,
+   "i2f(v0)+i2f(v0)": 8,
+   "i2f(v0)+i2f(v1)": 8,
+   "i2f(v0)+i2f(v2)": 4,
+   "i2f(v0)+i2f(v3)": 4,
+   "i2f(v0)+i2f(v4)": 4,
+   "i2f(v0)+i2f(v5)": 4,
+   "i2f(v1)": 4,
+   "i2f(v2)": 4,
+   "unknown": 8
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "16": 2,
+     "17": 2,
+     "18": 2,
+     "19": 2,
+     "32": 1,
+     "33": 1,
+     "34": 1,
+     "35": 1,
+     "48": 0,
+     "49": 0,
+     "50": 0,
+     "51": 0,
+     "52": 0,
+     "53": 0,
+     "54": 0,
+     "55": 0,
+     "56": 0,
+     "57": 0,
+     "58": 0,
+     "59": 0,
+     "60": 0,
+     "61": 0,
+     "62": 0,
+     "63": 0,
+     "64": 0,
+     "65": 0,
+     "66": 0,
+     "67": 0,
+     "68": 0,
+     "69": 0,
+     "70": 0,
+     "71": 0,
+     "72": 0,
+     "73": 0,
+     "74": 0,
+     "75": 0,
+     "76": 0,
+     "77": 0,
+     "78": 0,
+     "79": 0
+    },
+    "n_points": 216
+   }
+  },
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte6": {
+  "anchor_value": 140,
+  "bit_rule": {
+   "emit": "value & 0xa5 == 0x84  (bits [1, 3, 4, 6] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    3,
+    4,
+    6
+   ],
+   "kind": "bitmask",
+   "mask": 165,
+   "n_ok": 16,
+   "n_predicted": 16,
+   "required": 132
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "cvtop"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 224,
+   "i2f(v0)+i2f(v1)": 32
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "cvt_i2f_src.byte7": {
+  "anchor_value": 96,
+  "bit_rule": {
+   "emit": "value & 0x20 == 0x20  (bits [0, 1, 2, 3, 4, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 32,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 32
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "signflag"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "cvt_i2f_src",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "i2f(v0)": 128,
+   "i2f(v0)+i2f(v1)": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte0": {
+  "anchor_value": 151,
+  "bit_rule": {
+   "emit": "value & 0xff == 0x97  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 151
+  },
+  "byte": 0,
+  "coverage": "24 values: 0x00,0x07,0x17,0x27,0x37,0x47,0x57,0x67,0x68,0x77,0x87,0x93,0x95,0x96,0x97,0x98,0x9f,0xa7,0xb7,0xc7,0xd7,0xe7,0xf7,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 24,
+  "observed_meanings": {
+   "raw(v5)": 2,
+   "unorm2x16(v0,v1)": 1,
+   "zero": 21
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "103": 5,
+     "151": 0,
+     "231": 5
+    },
+    "n_points": 3
+   }
+  },
+  "outcomes": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 20,
+   "wrong_value": 2
+  },
+  "sentinel_states": {
+   "absent": 1,
+   "clean": 7,
+   "perturbed": 16
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte1": {
+  "anchor_value": 4,
+  "bit_rule": {
+   "emit": "value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 5,
+   "n_ok": 64,
+   "n_predicted": 64,
+   "required": 4
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_desc"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm2x16(v0,v1)": 64,
+   "zero": 192
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 192
+  },
+  "sentinel_states": {
+   "clean": 64,
+   "perturbed": 192
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte2": {
+  "anchor_value": 86,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm2x16(v0,v1)": 128,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "sentinel_states": {
+   "clean": 128,
+   "perturbed": 128
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte3": {
+  "anchor_value": 24,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0x18  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 24
+  },
+  "byte": 3,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src"
+  ],
+  "dst_redirect_slots": {
+   "1": [
+    22,
+    23
+   ],
+   "2": [
+    18,
+    19
+   ],
+   "3": [
+    14,
+    15
+   ],
+   "4": [
+    10,
+    11
+   ],
+   "5": [
+    4,
+    5
+   ],
+   "6": [
+    0,
+    1
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm2x16(v0,v1)": 2,
+   "zero": 254
+  },
+  "operand_map": {},
+  "outcomes": {
+   "fault": 63,
+   "hang": 1,
+   "ok": 2,
+   "silent_zero": 190
+  },
+  "sentinel_states": {
+   "absent": 64,
+   "clean": 186,
+   "perturbed": 6
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte4": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0x02 == 0x02  (bits [0, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 2,
+   "n_ok": 128,
+   "n_predicted": 128,
+   "required": 2
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "mode"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm2x16(v0,v1)": 128,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte5": {
+  "anchor_value": 8,
+  "bit_rule": {
+   "emit": "value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1
+   ],
+   "kind": "bitmask",
+   "mask": 252,
+   "n_ok": 4,
+   "n_predicted": 4,
+   "required": 8
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_word"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unknown": 232,
+   "unorm2x16(v0,v1)": 4,
+   "unorm2x16(v1,v1)": 4,
+   "unorm2x16(v2,v1)": 4,
+   "unorm2x16(v3,v1)": 4,
+   "unorm2x16(v4,v1)": 4,
+   "unorm2x16(v5,v1)": 4
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "20": 5,
+     "21": 5,
+     "22": 5,
+     "23": 5,
+     "28": 4,
+     "29": 4,
+     "30": 4,
+     "31": 4,
+     "36": 3,
+     "37": 3,
+     "38": 3,
+     "39": 3,
+     "44": 2,
+     "45": 2,
+     "46": 2,
+     "47": 2
+    },
+    "n_points": 24
+   }
+  },
+  "outcomes": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte6": {
+  "anchor_value": 2,
+  "bit_rule": {
+   "emit": "value & 0xf9 == 0x00  (bits [1, 2] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    2
+   ],
+   "kind": "bitmask",
+   "mask": 249,
+   "n_ok": 4,
+   "n_predicted": 4,
+   "required": 0
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_word"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unknown": 128,
+   "unorm2x16(v0,v0)": 4,
+   "unorm2x16(v0,v1)": 4,
+   "unorm2x16(v0,v2)": 4,
+   "unorm2x16(v0,v3)": 4,
+   "unorm2x16(v0,v4)": 4,
+   "unorm2x16(v0,v5)": 4,
+   "zero": 104
+  },
+  "operand_map": {
+   "operand1": {
+    "kind": "table",
+    "map": {
+     "0": 1,
+     "2": 1,
+     "4": 1,
+     "6": 1,
+     "16": 0,
+     "18": 0,
+     "20": 0,
+     "22": 0,
+     "40": 5,
+     "42": 5,
+     "44": 5,
+     "46": 5,
+     "56": 4,
+     "58": 4,
+     "60": 4,
+     "62": 4,
+     "72": 3,
+     "74": 3,
+     "76": 3,
+     "78": 3,
+     "88": 2,
+     "90": 2,
+     "92": 2,
+     "94": 2
+    },
+    "n_points": 24
+   }
+  },
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 104,
+   "wrong_value": 148
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte7": {
+  "anchor_value": 80,
+  "bit_rule": {
+   "emit": "value & 0xfb == 0x50  (bits [2] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    2
+   ],
+   "kind": "bitmask",
+   "mask": 251,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 80
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_word"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unknown": 56,
+   "unorm2x16(v0,v1)": 4,
+   "zero": 196
+  },
+  "operand_map": {},
+  "outcomes": {
+   "fault": 62,
+   "hang": 2,
+   "ok": 2,
+   "silent_zero": 132,
+   "wrong_value": 58
+  },
+  "sentinel_states": {
+   "absent": 64,
+   "clean": 168,
+   "perturbed": 24
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte8": {
+  "anchor_value": 68,
+  "bit_rule": {
+   "emit": "value & 0x45 == 0x44  (bits [1, 3, 4, 5, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    3,
+    4,
+    5,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 69,
+   "n_ok": 32,
+   "n_predicted": 32,
+   "required": 68
+  },
+  "byte": 8,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_word"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unknown": 64,
+   "unorm2x16(v0,v1)": 64,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 128,
+   "wrong_value": 96
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "pack_convert.byte9": {
+  "anchor_value": 130,
+  "bit_rule": {
+   "emit": "value & 0xf3 == 0x82  (bits [2, 3] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    2,
+    3
+   ],
+   "kind": "bitmask",
+   "mask": 243,
+   "n_ok": 4,
+   "n_predicted": 4,
+   "required": 130
+  },
+  "byte": 9,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "fmt_word"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "pack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "snorm2x16(v0,v1)": 4,
+   "unknown": 188,
+   "unorm2x16(v0,v1)": 4,
+   "zero": 60
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 60,
+   "wrong_value": 192
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "packed_half2_hi.byte0": {
+  "anchor_value": 152,
+  "bit_rule": {
+   "emit": "value & 0xff == 0x90  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 144
+  },
+  "byte": 0,
+  "coverage": "22 values: 0x00,0x08,0x18,0x28,0x38,0x48,0x58,0x67,0x68,0x78,0x88,0x90,0x98,0x99,0x9a,0xa8,0xb8,0xc8,0xd8,0xe8,0xf8,0xff",
+  "db_fields": [
+   "dst"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "packed_half2_hi",
+  "n_values_executed": 22,
+  "observed_meanings": {
+   "raw(v1)": 1,
+   "unknown": 19,
+   "zero": 2
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 2,
+   "wrong_value": 19
+  },
+  "sentinel_states": {
+   "clean": 18,
+   "perturbed": 4
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte0": {
+  "anchor_value": 23,
+  "bit_rule": {
+   "emit": "value & 0xff == 0x17  (bits none are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [],
+   "kind": "bitmask",
+   "mask": 255,
+   "n_ok": 1,
+   "n_predicted": 1,
+   "required": 23
+  },
+  "byte": 0,
+  "coverage": "15 values: 0x13,0x15,0x16,0x17,0x1f,0x27,0x37,0x47,0x77,0x97,0xa7,0xb7,0xc7,0xf7,0xff",
+  "db_fields": [],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 15,
+  "observed_meanings": {
+   "raw(v4)": 1,
+   "unorm_lo(v0)": 1,
+   "zero": 13
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "23": 0,
+     "31": 4
+    },
+    "n_points": 2
+   }
+  },
+  "outcomes": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 12,
+   "wrong_value": 1
+  },
+  "sentinel_states": {
+   "absent": 1,
+   "clean": 4,
+   "perturbed": 10
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte1": {
+  "anchor_value": 4,
+  "bit_rule": {
+   "emit": "value & 0x05 == 0x04  (bits [1, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 5,
+   "n_ok": 64,
+   "n_predicted": 64,
+   "required": 4
+  },
+  "byte": 1,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "src_class"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "raw(v4)": 96,
+   "unorm_lo(v0)": 64,
+   "zero": 96
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "0": 4,
+     "1": 4,
+     "4": 0,
+     "5": 4,
+     "6": 0,
+     "8": 4,
+     "9": 4,
+     "12": 0,
+     "13": 4,
+     "14": 0,
+     "16": 4,
+     "17": 4,
+     "20": 0,
+     "21": 4,
+     "22": 0,
+     "24": 4,
+     "25": 4,
+     "28": 0,
+     "29": 4,
+     "30": 0,
+     "32": 4,
+     "33": 4,
+     "36": 0,
+     "37": 4,
+     "38": 0,
+     "40": 4,
+     "41": 4,
+     "44": 0,
+     "45": 4,
+     "46": 0,
+     "48": 4,
+     "49": 4,
+     "52": 0,
+     "53": 4,
+     "54": 0,
+     "56": 4,
+     "57": 4,
+     "60": 0,
+     "61": 4,
+     "62": 0
+    },
+    "n_points": 160
+   }
+  },
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 96,
+   "wrong_value": 96
+  },
+  "sentinel_states": {
+   "clean": 64,
+   "perturbed": 192
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte2": {
+  "anchor_value": 86,
+  "bit_rule": {
+   "emit": "value & 0x00 == 0x00  (bits [0, 1, 2, 3, 4, 5, 6, 7] are DON'T CARE)",
+   "exact": false,
+   "false_neg": [],
+   "false_pos": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    36,
+    40,
+    44,
+    48,
+    52,
+    56,
+    60
+   ],
+   "free_bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask_approx",
+   "mask": 0,
+   "n_ok": 192,
+   "n_predicted": 256,
+   "required": 0
+  },
+  "byte": 2,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "cache"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm_lo(v0)": 192,
+   "zero": 64
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 192,
+   "silent_zero": 64
+  },
+  "sentinel_states": {
+   "clean": 192,
+   "perturbed": 64
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte3": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0x00  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 0
+  },
+  "byte": 3,
+  "coverage": "192 values: 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f",
+  "db_fields": [
+   "convert_desc"
+  ],
+  "dst_redirect_slots": {
+   "1": [
+    2,
+    3
+   ],
+   "6": [
+    8,
+    9
+   ],
+   "7": [
+    4,
+    5
+   ]
+  },
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 192,
+  "observed_meanings": {
+   "unorm_lo(v0)": 2,
+   "zero": 190
+  },
+  "operand_map": {},
+  "outcomes": {
+   "hang": 2,
+   "ok": 2,
+   "silent_zero": 186,
+   "wrong_value": 2
+  },
+  "sentinel_states": {
+   "absent": 2,
+   "clean": 178,
+   "perturbed": 12
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte4": {
+  "anchor_value": 0,
+  "bit_rule": {
+   "emit": "any value 0..255 reproduces the documented behaviour",
+   "kind": "always_ok",
+   "n_ok": 256
+  },
+  "byte": 4,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "convert_desc"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm_lo(v0)": 256
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 256
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte5": {
+  "anchor_value": 8,
+  "bit_rule": {
+   "emit": "value & 0xfc == 0x08  (bits [0, 1] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0,
+    1
+   ],
+   "kind": "bitmask",
+   "mask": 252,
+   "n_ok": 4,
+   "n_predicted": 4,
+   "required": 8
+  },
+  "byte": 5,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "convert_desc"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unorm_hi(v1)": 4,
+   "unorm_hi(v2)": 4,
+   "unorm_hi(v3)": 4,
+   "unorm_lo(v0)": 4,
+   "unorm_lo(v1)": 8,
+   "unorm_lo(v2)": 8,
+   "unorm_lo(v3)": 4,
+   "unorm_lo(v4)": 4,
+   "unorm_lo(v5)": 4,
+   "zero": 212
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "8": 0,
+     "9": 0,
+     "10": 0,
+     "11": 0,
+     "16": 5,
+     "17": 5,
+     "18": 5,
+     "19": 5,
+     "24": 4,
+     "25": 4,
+     "26": 4,
+     "27": 4,
+     "28": 3,
+     "29": 3,
+     "30": 3,
+     "31": 3,
+     "32": 3,
+     "33": 3,
+     "34": 3,
+     "35": 3,
+     "36": 2,
+     "37": 2,
+     "38": 2,
+     "39": 2,
+     "40": 2,
+     "41": 2,
+     "42": 2,
+     "43": 2,
+     "44": 2,
+     "45": 2,
+     "46": 2,
+     "47": 2,
+     "48": 1,
+     "49": 1,
+     "50": 1,
+     "51": 1,
+     "52": 1,
+     "53": 1,
+     "54": 1,
+     "55": 1
+    },
+    "n_points": 44
+   }
+  },
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 212,
+   "wrong_value": 40
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte6": {
+  "anchor_value": 14,
+  "bit_rule": {
+   "emit": "value & 0x1d == 0x0c  (bits [1, 5, 6, 7] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    1,
+    5,
+    6,
+    7
+   ],
+   "kind": "bitmask",
+   "mask": 29,
+   "n_ok": 16,
+   "n_predicted": 16,
+   "required": 12
+  },
+  "byte": 6,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "convert_desc"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "unknown": 64,
+   "unorm_lo(v0)": 64,
+   "zero": 128
+  },
+  "operand_map": {},
+  "outcomes": {
+   "ok": 16,
+   "silent_zero": 128,
+   "wrong_value": 112
+  },
+  "sentinel_states": {
+   "clean": 192,
+   "perturbed": 64
+  },
+  "target": "M4"
+ },
+ "unpack_convert.byte7": {
+  "anchor_value": 202,
+  "bit_rule": {
+   "emit": "value & 0xfe == 0xca  (bits [0] are DON'T CARE)",
+   "exact": true,
+   "false_neg": [],
+   "false_pos": [],
+   "free_bits": [
+    0
+   ],
+   "kind": "bitmask",
+   "mask": 254,
+   "n_ok": 2,
+   "n_predicted": 2,
+   "required": 202
+  },
+  "byte": 7,
+  "coverage": "256 of 256 values (dense 0..255)",
+  "db_fields": [
+   "size",
+   "reg_sel"
+  ],
+  "dst_redirect_slots": {},
+  "evidence": [
+   "EXP-0144"
+  ],
+  "instr": "unpack_convert",
+  "n_values_executed": 256,
+  "observed_meanings": {
+   "snorm_lo(v0)": 4,
+   "snorm_lo(v2)": 4,
+   "unknown": 48,
+   "unorm_lo(v0)": 4,
+   "unorm_lo(v2)": 4,
+   "zero": 192
+  },
+  "operand_map": {
+   "operand0": {
+    "kind": "table",
+    "map": {
+     "34": 2,
+     "35": 2,
+     "42": 0,
+     "43": 0,
+     "66": 2,
+     "67": 2,
+     "74": 0,
+     "75": 0,
+     "162": 2,
+     "163": 2,
+     "170": 0,
+     "171": 0,
+     "194": 2,
+     "195": 2,
+     "202": 0,
+     "203": 0
+    },
+    "n_points": 16
+   }
+  },
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 192,
+   "wrong_value": 62
+  },
+  "sentinel_states": {
+   "clean": 256
+  },
+  "target": "M4"
+ }
+}

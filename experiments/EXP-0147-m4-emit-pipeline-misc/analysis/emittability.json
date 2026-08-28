@@ -1,0 +1,188 @@
+{
+  "_note": "read-only projection; db.json/validation.json unchanged by this experiment",
+  "per_instruction": [
+    {
+      "instruction": "tile_read",
+      "n_fields": 7,
+      "blocking_before": [
+        "b2",
+        "dst",
+        "b4",
+        "rt_index",
+        "b6",
+        "b7",
+        "tail"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "b2",
+        "dst",
+        "b4",
+        "rt_index",
+        "b6",
+        "b7",
+        "tail"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "tile_read_mrt",
+      "n_fields": 6,
+      "blocking_before": [
+        "dst",
+        "b4",
+        "rt_index",
+        "b6",
+        "fmt",
+        "tail"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "dst",
+        "b4",
+        "rt_index",
+        "b6",
+        "fmt",
+        "tail"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "vtx_coord_xform",
+      "n_fields": 3,
+      "blocking_before": [
+        "mode",
+        "sel",
+        "operand"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "mode",
+        "sel",
+        "operand"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "vtx_out_pos",
+      "n_fields": 2,
+      "blocking_before": [
+        "dst",
+        "slot"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "dst",
+        "slot"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "pixel_order",
+      "n_fields": 4,
+      "blocking_before": [
+        "scope",
+        "flags",
+        "b5"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "scope",
+        "flags",
+        "b5"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "mesh_out_src",
+      "n_fields": 1,
+      "blocking_before": [
+        "sel"
+      ],
+      "blocking_after": [
+        "sel(tokenization-only)"
+      ],
+      "promoted_here": [],
+      "emittable_after": false
+    },
+    {
+      "instruction": "matrix_mac",
+      "n_fields": 12,
+      "blocking_before": [
+        "dst_desc",
+        "b11hi"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "dst_desc",
+        "b11hi"
+      ],
+      "emittable_after": true
+    },
+    {
+      "instruction": "scoreboard_fence",
+      "n_fields": 3,
+      "blocking_before": [
+        "kind",
+        "scope",
+        "mask"
+      ],
+      "blocking_after": [
+        "kind(untested)",
+        "scope(untested)",
+        "mask(untested)"
+      ],
+      "promoted_here": [],
+      "emittable_after": false
+    },
+    {
+      "instruction": "compute_fence_scoped",
+      "n_fields": 3,
+      "blocking_before": [
+        "kind",
+        "scope",
+        "mask"
+      ],
+      "blocking_after": [
+        "kind(untested)",
+        "scope(untested)",
+        "mask(untested)"
+      ],
+      "promoted_here": [],
+      "emittable_after": false
+    },
+    {
+      "instruction": "n3_sample_read",
+      "n_fields": 3,
+      "blocking_before": [
+        "b1",
+        "b3",
+        "tail"
+      ],
+      "blocking_after": [],
+      "promoted_here": [
+        "b1",
+        "b3",
+        "tail"
+      ],
+      "emittable_after": true
+    }
+  ],
+  "summary": {
+    "emittable_after": [
+      "tile_read",
+      "tile_read_mrt",
+      "vtx_coord_xform",
+      "vtx_out_pos",
+      "pixel_order",
+      "matrix_mac",
+      "n3_sample_read"
+    ],
+    "still_blocked": [
+      "mesh_out_src",
+      "scoreboard_fence",
+      "compute_fence_scoped"
+    ]
+  },
+  "fields_promoted_total": 26
+}

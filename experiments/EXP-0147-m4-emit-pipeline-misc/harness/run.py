@@ -140,6 +140,17 @@ def compute_inputs(workdir):
     p = os.path.join(workdir, "ctr.bin")
     with open(p, "wb") as f: f.write(struct.pack("<I", 0))
     COMPUTE_IN["ctr"] = p
+    # Poison-prefilled OUTPUT buffers. agxrun_persist reuses a buffer supplied
+    # as an input when the same index is also requested as an output, so
+    # handing index 0 a poison file gives us a pre-filled output for free.
+    for name, n in (("poison64", 64), ("poison32", 32), ("poison256", 256)):
+        q = os.path.join(workdir, name + ".bin")
+        with open(q, "wb") as f: f.write(struct.pack("<%df" % n, *([SP.POISON_F32] * n)))
+        COMPUTE_IN[name] = q
+    for name, n in (("sent64", 64), ("sent32", 32), ("sent256", 256)):
+        q = os.path.join(workdir, name + ".bin")
+        with open(q, "wb") as f: f.write(struct.pack("<%dI" % n, *([0xDEADBEEF] * n)))
+        COMPUTE_IN[name] = q
     COMPUTE_IN["A"], COMPUTE_IN["B"], COMPUTE_IN["C"] = A, B, C
     COMPUTE_IN["lin32v"], COMPUTE_IN["lin256v"] = lin32, lin256
     return COMPUTE_IN
@@ -156,12 +167,22 @@ def compute_oracle(arm, ci):
                 R.append(f32(s + C[i * 8 + j]))
         return {"out0": R}
     if arm["oracle"] == "tgrw":
+        # must track kernels/pipe_compute.metal: scratch[(lid + 137) % tgsz]
         a = ci["lin256v"]
-        return {"out0": [f32(a[(i + 1) % 256] + a[i]) for i in range(256)]}
+        return {"out0": [f32(a[(i + 137) % 256] + a[i]) for i in range(256)]}
     if arm["oracle"] == "atomic":
         # order-independent: the multiset of (out[tid] - 2*a[tid]) is {0..7} x4
         return {"ticket_multiset": sorted([i % 8 for i in range(32)])}
     return None
+
+
+def sentinel_ok(sent_bytes, n):
+    """The kernel writes SENTINEL_BASE+tid through a path independent of the
+    instruction under test. If the buffer still holds the host poison, the
+    dispatch did not execute and the measurement is invalid (EXP-0141)."""
+    if sent_bytes is None or len(sent_bytes) < 4 * n: return False
+    got = struct.unpack("<%dI" % n, sent_bytes[:4 * n])
+    return all(g == (SP.SENTINEL_BASE + i) & 0xFFFFFFFF for i, g in enumerate(got))
 
 
 def classify_compute(arm, ci, out_bytes):
@@ -265,17 +286,38 @@ def main():
               "pattern": arm["pattern"], "main_offset": i // 2, "abs_off": abs_off,
               "instr_hex": instr_hex, "program_hex": h, "program_len": len(h) // 2})
 
-        spliced = os.path.join(workdir, arm["arm"] + "_sp.bin")
+        spdir = os.path.join(workdir, arm["arm"] + "_sp")
+        os.makedirs(spdir, exist_ok=True)
+        spseq = [0]
+
+        def next_splice_path():
+            """A UNIQUE archive path per persistent-runner request. EXP-0141
+            measured ~8% phantom CMDBUF_ERROR when every request reuses one
+            path. Old files are unlinked lazily to bound disk use."""
+            spseq[0] += 1
+            q = os.path.join(spdir, "sp%06d.bin" % spseq[0])
+            old = os.path.join(spdir, "sp%06d.bin" % (spseq[0] - 64))
+            if os.path.exists(old):
+                try: os.unlink(old)
+                except OSError: pass
+            return q
 
         if arm["stage"] == "compute":
             runner = PersistRunner(source=os.path.join(EXP, arm["kernel"]), function=arm["func"],
                                    fast_math=False, agxrun_persist=AGXPERSIST)
+            # Only `grid` threads run, so only the first `grid` sentinel slots
+            # are written -- checking more would reject every valid run.
+            nsent = arm["grid"]
             if arm["oracle"] == "mad":
-                ins, outs, nb = {1: ci["mm_a"], 2: ci["mm_b"], 3: ci["mm_c"]}, {0: 256}, 256
+                ins = {0: ci["poison64"], 1: ci["mm_a"], 2: ci["mm_b"], 3: ci["mm_c"],
+                       4: ci["sent64"]}
+                outs = {0: 256, 4: 256}
             elif arm["oracle"] == "atomic":
-                ins, outs, nb = {1: ci["lin32"], 2: ci["ctr"]}, {0: 128}, 128
+                ins = {0: ci["poison32"], 1: ci["lin32"], 2: ci["ctr"], 4: ci["sent32"]}
+                outs = {0: 128, 4: 128}
             else:
-                ins, outs, nb = {1: ci["lin256"]}, {0: 1024}, 1024
+                ins = {0: ci["poison256"], 1: ci["lin256"], 4: ci["sent256"]}
+                outs = {0: 1024, 4: 1024}
 
             def raw_case(arcpath, **_):
                 # A fresh zeroed counter per case keeps k_atomic's oracle exact.
@@ -284,6 +326,10 @@ def main():
                 r = runner.request(archive=arcpath, grid=arm["grid"], tg=arm["tg"],
                                    ins=ins, outs=outs, timeout=REQ_TIMEOUT)
                 if r["status"] != "OK" or 0 not in r["outs"]:
+                    return None, r
+                if not sentinel_ok(r["outs"].get(4), nsent):
+                    r = dict(r); r["status"] = "SENTINEL_MISS"
+                    r["error"] = "integrity sentinel not written: dispatch did not execute"
                     return None, r
                 return r["outs"][0], r
 
@@ -303,44 +349,106 @@ def main():
                 if r.get("status") != "OK": return None, r
                 obs = {"pixels": r["pixels"]}
                 if "tex" in r: obs["tex"] = r["tex"]
+                # INTEGRITY SENTINEL for the render arms (EXP-0141 "STATUS OK,
+                # nothing executed"). The colour target is cleared by
+                # FIXED-FUNCTION hardware on a path that cannot involve the
+                # instruction under test, so if EVERY pixel still holds the
+                # exact clear colour the fragment program never wrote and the
+                # measurement is invalid rather than a "silent zero". The
+                # correct and the zeroed answers both differ from the clear
+                # colour for every carrier here (checked in the plan).
+                clears = req["clear"]
+                untouched = all(f32v(px) == f32v(clears[i // (arm["W"] * arm["H"])])
+                                for i, px in enumerate(r["pixels"]))
+                if untouched and r.get("gputime_ns", 1) is not None:
+                    r = dict(r); r["status"] = "SENTINEL_MISS"
+                    r["error"] = "every pixel still holds the clear colour: nothing was drawn"
+                    return None, r
                 return obs, r
 
             def restart():
                 runner.restart()
 
-        recovery = {"restarts": 0, "unrecovered": 0}
+        recovery = {"restarts": 0, "unrecovered": 0, "retries": 0, "collateral": 0}
 
         def healthy():
             """Is the device accepting work again? Run the UNSPLICED baseline."""
             g, r = raw_case(archive)
             return g is not None
 
-        def run_case(arcpath, **kw):
-            """One case, with recovery from the macOS GPU error cascade.
+        # macOS classifies a failed command buffer. Only the first of these is
+        # evidence about OUR encoding; the other two are collateral damage from
+        # another process's GPU errors -- and EXP-0140 / EXP-0144 are sweeping
+        # this same device right now, so collateral is the COMMON case.
+        OWN_FAULT = "Caused GPU Hang Error"
+        COLLATERAL = ("Discarded (victim", "Ignored (for causing prior")
 
-            After a contained command-buffer fault every later submission from
-            the same process comes back 'Ignored (for causing prior/excessive
-            GPU errors)' / 'InnocentVictim'. Without recovery, one bad splice
-            turns the whole remaining sweep into false faults (measured in the
-            EXP-0147 smoke run). So: on any non-OK result, restart the child,
-            re-establish health with the unspliced baseline, and re-run the case.
-            A case is only recorded as a fault if it faults AGAIN on a device
-            that has just been shown healthy."""
-            g, r = raw_case(arcpath, **kw)
-            if g is not None:
-                return g, r, 0
-            n = 0
-            for _ in range(3):
+        def is_collateral(r):
+            e = str(r.get("error", ""))
+            return any(c in e for c in COLLATERAL)
+
+        def wait_for_health():
+            """Restart the child and block until the unspliced carrier runs.
+            Only used when in-place retries have already failed."""
+            delay, waited, n = 0.2, 0.0, 0
+            while waited < 40.0:
                 restart(); recovery["restarts"] += 1; n += 1
-                time.sleep(0.2)
+                time.sleep(delay); waited += delay
                 if healthy():
+                    return n
+                delay = min(delay * 2.0, 5.0)
+            return -1
+
+        def run_case(arcpath, **kw):
+            """One case, hardened against the shared-GPU failure modes.
+
+            Measured on this host: after ANOTHER process's command buffer
+            faults, the next submission here comes back 'Discarded (victim of
+            GPU error/recovery)' and then succeeds again WITHOUT any restart.
+            Restarting first (as an earlier version did) made the fresh child's
+            first request the next victim, so the sweep never recovered. So:
+            retry IN PLACE first, restart only if that fails, and never record a
+            collateral failure as a fault. Batch 1 measured 44% of gated faults
+            failing to reproduce; this is the mechanism behind that number."""
+            n = 0
+            for attempt in range(5):
+                g, r = raw_case(arcpath, **kw)
+                if g is not None:
+                    return g, r, n
+                recovery["retries"] += 1
+                if r.get("status") == "SENTINEL_MISS":
+                    # NOT a transport failure: the runner returned OK and the
+                    # integrity sentinel says the work never executed. Confirm
+                    # once in place, then check the device is still healthy. If
+                    # it is, this is a REPRODUCIBLE property of the spliced
+                    # encoding (a value that suppresses the draw/dispatch), and
+                    # it is recorded as its own outcome -- never as `ok` and
+                    # never as `silent_zero`, which is the confusion EXP-0141
+                    # warns about. Doing this here avoids burning a 40s recovery
+                    # cycle on every such case.
                     g2, r2 = raw_case(arcpath, **kw)
-                    return g2, r2, n
-            recovery["unrecovered"] += 1
-            return None, r, n
+                    if g2 is not None:
+                        return g2, r2, n
+                    if healthy():
+                        return None, r2, n
+                    r = r2
+                if is_collateral(r):
+                    recovery["collateral"] += 1
+                if os.environ.get("EXP0147_DEBUG"):
+                    print("RETRY %d: %s | %s" % (attempt, r.get("status"),
+                          str(r.get("error"))[:120]), file=sys.stderr, flush=True)
+                time.sleep(0.05 + 0.1 * attempt)
+            # In-place retries exhausted: the child or the device really is sick.
+            n = wait_for_health()
+            if n < 0:
+                recovery["unrecovered"] += 1
+                return None, r, 99
+            g2, r2 = raw_case(arcpath, **kw)
+            return g2, r2, n
 
         def record(field, value, muts, note=""):
             nonlocal hangs
+            spliced = next_splice_path()
             splice(archive, spliced, abs_off, muts)
             with open(spliced, "rb") as f2:
                 f2.seek(abs_off); shex = f2.read(12).hex()
@@ -353,10 +461,28 @@ def main():
                       "carrier": arm["arm"], "note": note or raw.get("error", "")})
                 return
             if got is None:
+                st = raw.get("status")
+                if st == "SENTINEL_MISS":
+                    # confirmed twice with a healthy device in between
+                    oc = "no_dispatch" if arm["stage"] == "compute" else "no_draw"
+                elif is_collateral(raw):
+                    # still collateral after 5 in-place retries + a restart cycle:
+                    # this says nothing about the spliced encoding.
+                    oc = "invalid_run"
+                else:
+                    oc = "fault"
                 emit({"instr": arm["instr"], "field": field, "value": value, "bytes": shex,
-                      "observed": {"status": raw.get("status")}, "oracle": None, "match": False,
-                      "outcome": "fault", "carrier": arm["arm"],
-                      "note": (note + " " + str(raw.get("error", "")))[:300]})
+                      "observed": {"status": st}, "oracle": None, "match": False,
+                      "outcome": oc, "carrier": arm["arm"],
+                      # The OS fault-classification string distinguishes a real
+                      # illegal encoding ("Caused GPU Hang Error") from collateral
+                      # damage ("Ignored (for causing prior/excessive GPU errors)",
+                      # "Discarded (victim of GPU error/recovery)"). Batch 1 showed
+                      # 44% of gated faults were collateral, so this string is
+                      # evidence, not decoration.
+                      "os_error": str(raw.get("error", ""))[:300],
+                      "confirmations": nres,
+                      "note": (note + " [re-observed after restart+health-check]").strip()[:300]})
                 return
             if arm["stage"] == "compute":
                 obs, ok, outcome = classify_compute(arm, ci, got)
@@ -368,9 +494,47 @@ def main():
                 if not ok:
                     z = zero_oracle_for(arm)
                     if z is not None and same(arm, obs, z): outcome = "silent_zero"
+            reps, stable, obs_list, oc_list = 1, True, [obs], [outcome]
+            if outcome != "ok":
+                # NEVER conclude a non-ok outcome from ONE observation. Batch 1
+                # measured 44% of gated-run faults failing to reproduce and up to
+                # 22 wrong per 100 under concurrent GPU load; EXP-0140/EXP-0144
+                # are sweeping the same device while this runs. Re-observe on a
+                # FRESH unique archive path and keep the result only if it
+                # reproduces; otherwise mark it unstable and keep both.
+                for _ in range(2):
+                    q2 = next_splice_path()
+                    splice(archive, q2, abs_off, muts)
+                    g2, r2, _n2 = run_case(q2)
+                    reps += 1
+                    if arm["stage"] == "compute":
+                        o2, ok2, oc2 = classify_compute(arm, ci, g2) if g2 is not None \
+                                       else ({"status": r2.get("status")}, False,
+                                             "no_dispatch" if r2.get("status") == "SENTINEL_MISS"
+                                             else ("invalid_run" if is_collateral(r2) else "fault"))
+                    else:
+                        o2 = g2
+                        if g2 is None:
+                            ok2 = False
+                            oc2 = ("no_draw" if r2.get("status") == "SENTINEL_MISS"
+                                   else ("invalid_run" if is_collateral(r2) else "fault"))
+                        else:
+                            ok2 = same(arm, g2, oracle_for(arm))
+                            oc2 = "ok" if ok2 else "wrong_value"
+                            if not ok2:
+                                z2 = zero_oracle_for(arm)
+                                if z2 is not None and same(arm, g2, z2): oc2 = "silent_zero"
+                    obs_list.append(o2); oc_list.append(oc2)
+                    if oc2 != outcome: stable = False
+                if not stable:
+                    note = (note + " | replicates disagreed").strip()
+                    outcome = "unstable"
             emit({"instr": arm["instr"], "field": field, "value": value, "bytes": shex,
                   "observed": obs, "oracle": orc, "match": ok, "outcome": outcome,
-                  "carrier": arm["arm"], "note": note})
+                  "replicates": reps, "stable": stable, "status": raw.get("status"),
+                  "restarts": nres, "carrier": arm["arm"], "note": note,
+                  **({} if stable else {"replicate_observations": obs_list,
+                                        "replicate_outcomes": oc_list})})
 
         # --- baseline -------------------------------------------------------
         got, raw, nres = run_case(archive)
@@ -417,6 +581,47 @@ def main():
                               f"{arm['W']*arm['H']} pixels must differ, which proves the "
                               "vertex-stage output reaches the observed pixels"})
 
+        # --- litmus-power probe ---------------------------------------------
+        # Demanded after EXP-0141 found its first tile litmus could not detect a
+        # spliced-out barrier at all -- i.e. it would have "proven" inert
+        # something it had no power to observe. Before any field of this
+        # instruction may be promoted, the measurement must be shown able to SEE
+        # the thing under test disappear.
+        pp = arm.get("power_probe")
+        if pp:
+            ppi = h.find(pp["pattern"])
+            if ppi < 0 or ppi % 2:
+                emit({"instr": arm["instr"], "field": "_litmus_power", "value": None,
+                      "bytes": "", "observed": None, "oracle": None, "match": False,
+                      "outcome": "invalid_run", "carrier": arm["arm"],
+                      "note": "power-probe pattern not found: " + pp["pattern"]})
+            else:
+                pp_off = locate(archive, stage) + ppi // 2
+                q = next_splice_path()
+                splice(archive, q, pp_off, [(pp["byte"], (lambda v: (lambda o: v))(pp["value"]))])
+                g3, r3, _n3 = run_case(q)
+                if arm["stage"] == "compute":
+                    o3, m3, oc3 = classify_compute(arm, ci, g3) if g3 is not None \
+                                  else (None, False, "fault")
+                else:
+                    o3 = g3
+                    if g3 is None:
+                        m3, oc3 = False, "fault"
+                    else:
+                        m3 = same(arm, g3, oracle_for(arm))
+                        oc3 = "ok" if m3 else "wrong_value"
+                # "Moved" must be judged on the OUTCOME CLASS, not on the raw
+                # read-back: k_atomic's per-thread tickets are arrival-ordered and
+                # therefore differ between two identical runs, which would make a
+                # raw comparison declare power that does not exist.
+                moved = (oc3 != "ok")
+                emit({"instr": arm["instr"], "field": "_litmus_power", "value": pp["value"],
+                      "bytes": pp["pattern"], "observed": o3, "oracle": None,
+                      "match": moved,
+                      "outcome": "ok" if moved else "no_power",
+                      "carrier": arm["arm"],
+                      "note": pp["why"] + " | observable moved: " + str(moved)})
+
         # --- identity splice control ----------------------------------------
         record("_identity_splice", None, [(0, lambda o: o)],
                note="rewrite byte0 with its own value: must equal baseline")
@@ -427,9 +632,30 @@ def main():
                note="pre-registered to FAIL: " + s["why"])
 
         # --- the field sweeps -----------------------------------------------
+        ncase = [0]
         for f in arm["fields"]:
             for value, muts in field_cases(f):
+                ncase[0] += 1
+                if ncase[0] % 128 == 0:
+                    # Periodic baseline re-validation: proves the device was
+                    # still healthy for the block of cases just recorded, so a
+                    # run of "silent_zero" cannot be a quiet cascade.
+                    gb, rb, nb_ = run_case(archive)
+                    if arm["stage"] == "compute":
+                        ob, mb, ocb = classify_compute(arm, ci, gb) if gb is not None else (None, False, "fault")
+                    else:
+                        ob = gb; mb = same(arm, gb, oracle_for(arm))
+                        ocb = "ok" if mb else ("fault" if ob is None else "wrong_value")
+                    emit({"instr": arm["instr"], "field": "_baseline_recheck",
+                          "value": ncase[0], "bytes": instr_hex, "observed": ob,
+                          "oracle": None, "match": mb,
+                          "outcome": "ok" if mb else "wrong_value", "carrier": arm["arm"],
+                          "note": "device health after %d swept cases" % ncase[0]})
                 record(f["name"], value, muts)
+                if recovery["unrecovered"] >= 3:
+                    emit({"kind": "arm_stopped", "arm": arm["arm"],
+                          "reason": "device did not recover after 3 full back-off cycles"})
+                    hangs = 99
                 if hangs >= 2:
                     emit({"kind": "arm_stopped", "arm": arm["arm"], "reason": "two hangs"})
                     break
@@ -438,7 +664,7 @@ def main():
         try: runner.close()
         except Exception: pass
         emit({"kind": "arm_done", "arm": arm["arm"], "wall_s": round(time.time() - t_arm, 2),
-              "restarts": recovery["restarts"], "unrecovered": recovery["unrecovered"]})
+              **recovery})
         with open(os.path.join(EXP, "PROGRESS.md"), "a") as pg:
             pg.write(f"- {time.strftime('%Y-%m-%dT%H:%M:%S')} run={args.run_id} arm={arm['arm']} "
                      f"done in {round(time.time()-t_arm,1)}s\n")

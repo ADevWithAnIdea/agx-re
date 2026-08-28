@@ -1,0 +1,30 @@
+    2000/22237  4/s  hangs={}
+    4000/22237  8/s  hangs={}
+    6000/22237  12/s  hangs={}
+    8000/22237  15/s  hangs={"('unpack_convert', 3)": 2}
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/run.py", line 344, in <module>
+    main()
+    ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/run.py", line 263, in main
+    st2, ob2, sent2, err2, att2, val2, sst2 = measure(bench, c, vbits)
+                                              ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/run.py", line 91, in measure
+    status, ob, sent, gt, err = bench.run(case["splices"])
+                                ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0144-m4-emit-pack/harness/probe.py", line 133, in run
+    r = self.runner.request(archive=arch, grid=self.grid, tg=self.tg,
+                            ins={self.in_buf: str(self.in_path)},
+                            outs={self.out_buf: self.out_nbytes,
+                                  self.sent_buf: self.sent_nbytes},
+                            timeout=self.timeout)
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 106, in request
+    self._restart_after_wedge()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 131, in _restart_after_wedge
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/tools/agxtest/persistrun.py", line 49, in _start
+    raise RuntimeError(f"agxrun_persist did not become READY: {ready!r} {err}")
+RuntimeError: agxrun_persist did not become READY: '' compile failed: Unable to reach MTLCompilerService. The process is unavailable because the compiler is no longer active. Latest invalidation reason: Connection init failed at lookup with error 141 - Reentrancy avoided
+
