@@ -689,6 +689,27 @@ compiler passes. `Unknown` is preferable to promoting compiler-output inference 
 - **MEM-05 — Does 32-bit address/index arithmetic wrap in exactly the way required for legal NIR
   buffer offsets?**
 
+  > **Answered 2026-08-28 (EXP-0082, M4/G16G, commit `311d3f3e`) — MEM-01..MEM-05 block:**
+  > **MEM-01 PARTIAL YES** — the GPR index scales as an element index for `elem_size` codes 0/3/4
+  > (16B/4B/8B, exact linear scaling); codes 1/2 (nominal 1B/2B) do NOT give true sub-word
+  > addressing — the address rounds down to 4-byte granularity, `floor(idx*nominal_scale/4)*4`
+  > (independently echoes EXP-0076's per-unit align-down from the encoding side).
+  > **MEM-02 NO** — `idx_off` is neither element- nor byte-scaled: it is a FIXED 4-byte unit for
+  > load and a FIXED 16-byte unit for store, independent of `elem_size` (5 discriminating cases).
+  > **MEM-03** — the immediate offset is **UNSIGNED 11-bit, 0..2047, zero holes** (2048/2048 dense
+  > sweep); the signed model is refuted exactly at f=1024. No first-invalid encoded value; OOB
+  > addressing is silent zero-fill (load) / silent discard (store), never a fault.
+  > **MEM-04 NO** — no non-power-of-two stride form exists (48 load+store cases). Arbitrary strides
+  > must be lowered to ALU/IMAD before the memory instruction; this weakens the old `has_amul`
+  > rationale.
+  > **MEM-05 NO** — 11 wrap-family cases refute exact mod-2^32 wraparound; overflowing addresses
+  > behave as genuine out-of-allocation, not fold-back.
+  > Open sub-items deliberately left UNKNOWN: `byte+11` bits 2..7 are not uniformly inert (3/6
+  > probed values broke or relocated the read), and the store-side `elem_size` code space beyond
+  > the default is largely unresolved.
+  > Evidence: `experiments/EXP-0082-m4-mem-offset-semantics/` (HW-PROBE + OWN-SHADER splice; M4
+  > target; A18 deferred).
+
 - **MEM-06 — Are unaligned 8-, 16-, 32-, 64-, and 128-bit device loads supported without faults or
   byte corruption?**
 
