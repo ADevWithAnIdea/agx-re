@@ -93,7 +93,37 @@ Already known and flagged `emit_unsafe` in `db.json` — do not re-derive, but d
 `vary_store` (0x57/byte+2=0x54 collision), `tg_addr_compute` (over-fitted match, two live operand
 bytes unmodelled), `falu_srcmod12b` (`opsel==4` corrupts an unrelated register).
 
-## 7. Safety — this host has no out-of-band recovery
+## 7. Concurrent sweeps CONTAMINATE each other — mandatory mitigation
+
+**Found the hard way, 2026-08-28, by two agents independently.** EXP-0143 reported its command
+buffers becoming *"innocent victims"* of sibling agents' faults; EXP-0147's smoke run hit a GPU
+**error cascade**. Ten agents driving one GPU with deliberately illegal encodings is
+self-defeating: another agent's contained fault surfaces in *your* command buffer as a failure,
+and a spurious `fault` recorded against a legal field value becomes a confident wrong label in
+`validation.json`.
+
+This is the same class as the `...ErrorInnocentVictim` vs `...ErrorHang` distinction EXP-0136 had
+to exclude from its cross-run gate.
+
+**Required of every sweep from now on:**
+
+1. **Never treat a single `fault`/`hang` observation as a property of the field.** Re-run any
+   faulting case at least once. A value is only `fault` if it faults *reproducibly*, in isolation.
+2. **Record the OS fault classification string**, not just the status. An
+   `ErrorInnocentVictim`-class failure is evidence about the *machine*, not about your encoding —
+   segregate those from your gated comparison the way EXP-0136 did.
+3. **Re-validate the baseline periodically mid-run.** If the unmutated carrier starts failing, you
+   are in a cascade: stop, note where, and resume in a fresh process rather than recording the
+   cascade as data.
+4. **Say in `RESULTS.md` how many other GPU experiments were running concurrently.** If you cannot
+   tell, say that. A sweep run alone and a sweep run against nine siblings are not the same
+   evidence, and the reader must be able to tell which they are holding.
+
+The orchestrator schedules GPU-contending experiments in small batches for this reason. If your
+dispatch says you are in a batch, the other members are named; desk-only work (modelling,
+classification, corpus analysis) is unaffected and can run alongside anything.
+
+## 8. Safety — this host has no out-of-band recovery
 
 `mov_imm.imm7` values 128..255 silently zero, and combined with `iadd2`'s N=0 self-read this
 produced **two real GPU hangs** in EXP-0128. Expect more.
