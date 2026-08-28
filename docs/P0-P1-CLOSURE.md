@@ -101,6 +101,11 @@ all 65 queue/render/compute leaves have exactly one explicit closure row. Its ba
 
 ## OpenGL addendum tracker (goal task 1, second half)
 
+**STATUS: all 9 bundles CLOSED (2026-08-28).** All 29 addendum items have been
+answered or explicitly scoped, each with committed raw evidence and a PROVENANCE row.
+Several bundles are "closed for tested scope" with not-exercised cells named in their
+RESULTS; those are recorded as successor work, not as silent gaps.
+
 `APPLE9_RE_OPENGL_TEXTURE_ADDENDUM.md` adds 29 OpenGL 4.6 / WineD3D-class compiler items.
 Triage and dedup: `work/ADDENDUM-TRIAGE-20260828.md` (0 already-answered, 17 partial, 12 open;
 20 of 29 collapse onto an existing OPEN primary-list row, so they are answered by ONE experiment
@@ -116,8 +121,8 @@ counterpart. No item is blocked by the A18 hands-off directive.
 | E — texture/image dimension-format operation matrix | GLTEX-A04/05/06/07 + GLIMG-A01/02 | **CLOSED for tested scope** (`47954e44`): texel-buffer ceiling 2^28 texel-size-INDEPENDENT (falsifies the addendum's own formula); fetch/read zero vs sample/gather CLAMP at illegal layer; image table 128 entries (8 for read_write/atomic); bindless has NO mirroring, unlike EXP-0083 buffer slots | `EXP-0095-m4-texture-image-matrix` |
 | F — threadgroup addressing / compute launch | GLCS-A02 (A01 out of scope) | **CLOSED for 2884/2900 splice + 145/145 budget** (`f5c321c4`); PARTIAL on 16 racy byte+1 values `(v&0x17)==0x04`. Store `idx_off` x16B vs load x4 element asymmetry; **combined tgmem 65536 B ceiling is NOT API-validated — silently corrupts** | `EXP-0100-m4-threadgroup-addressing` (successor to quarantined `EXP-0096`) |
 | G — varying/UVS capacity + pre-raster outputs | GLIO-A01, GLPRE-A03 | **CLOSED** (`eef37ca8`): 124 varying scalar components (per-component, consumed-only), clip-distance 8 independent, provoking vertex FIXED to first vertex (must emulate for GL) | `EXP-0097-m4-varying-capacity` |
-| H — GPU-driven compute-generated draws | GLPRE remainder | QUEUED | |
-| I — transform feedback (compositional, depends on B/H) | GLXFB-A01 | QUEUED | |
+| H — GPU-driven compute-generated draws | GLPRE-A01/A02 | **CLOSED** (`fc804669`): encoder-order and symmetric fence safe (0/48 raced); untracked+asymmetric UNSAFE — indexed raced 8/8 every mode, to 99.997% stale. `[[instance_id]]` is ABSOLUTE; ICB `location>maxCommandCount` faults; `maxCommandCount` SIGSEGVs at 8388608 | `EXP-0098-m4-gpu-driven-draws` |
+| I — compute-emulated transform feedback | GLXFB-A01 | **CLOSED** (`fc804669`): capacity/no-partial-primitive/multistream/interleaved/discard match a closed-form model 32/32; unsafe-mode signature is a ~400x latency penalty with zero corruption, mechanism UNKNOWN | `EXP-0098-m4-gpu-driven-draws` |
 
 Highest-value new surface flagged by triage: GLFS-A01 (the actual kill/target-mask/live-mask
 instruction — undecoded anywhere in the repo; a negative result is a legitimate outcome),
