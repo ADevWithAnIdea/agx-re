@@ -1,0 +1,41 @@
+{
+  "experiment": "EXP-0134-m4-lossless-compression",
+  "closes": ["DRV-P2-01 (lossless compression) -- APPLE9_RE_IMPLEMENTATION_GAPS.md Part I P2"],
+  "extends": [
+    "EXP-0017-tiling (A18 first pass: aux placement/size formula, 0x03/0x15/0x7f states)",
+    "EXP-M4-07-tiling-coverage (M4 tiling/compression coverage, docs/tiling/README.md §4)",
+    "EXP-O2G-printf-meshicb-compmip (A18 compression x mipmap contiguous-aux finding)"
+  ],
+  "target": {
+    "device": "Apple M4 (G16G), 10 GPU cores",
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "a18_pro_tested": false
+  },
+  "clean_room_provenance": ["HW-PROBE", "OWN-SHADER", "DATA-TRACE"],
+  "official_runs": ["m4_20260828_run01", "m4_20260828_run02"],
+  "pinned_revision": "7fde43f04fe935a5fdff9e47466fe1ae9f6d57e1",
+  "case_count": 83,
+  "standing_gates": {
+    "selftest": "PASS",
+    "seqtest": "PASS",
+    "smoke_nonrecorded": "PASS",
+    "nondeterminism_exclusion": "PASS",
+    "recorded_reality_fixtures": "PASS",
+    "cross_run_captured_gate": "PASS, 0 issues"
+  },
+  "verdict_counts": {"PASS": 79, "FAIL": 2, "N/A": 2},
+  "note_on_fail_verdicts": "The 2 FAIL verdicts (a_bpp_rgba32float_32, a_bpp_rgba32float_32x64) are a genuine, reproduced minimum-aux-allocation-floor finding at bpp16 (RESULTS.md §2.4), not harness defects -- run.py's verdict logic is intentionally strict-formula so the mismatch surfaces as data, not silently passes.",
+  "note_on_na_verdicts": "The 2 N/A verdicts (e_storage_memoryless_read, e_storage_memoryless_read_rt) are method-limitation results: a standalone compute-kernel bind cannot read a MTLStorageModeMemoryless resource, so this experiment cannot observe memoryless compression eligibility (RESULTS.md §1).",
+  "headline_findings": [
+    "Escape clause ANSWERED YES: ShaderWrite, PixelFormatView (independently, new finding), or a buffer-backed/linear layout each unconditionally disable compression -- a first driver can ship fully correct with compression disabled at zero special-case cost (RESULTS.md §5).",
+    "PixelFormatView alone (without ShaderWrite) disables compression -- resolves an ambiguity in docs/descriptors/README.md's existing wording.",
+    "MSAA auxiliary ratio pinned exactly: aux_bytes = W*H*N/32 (previously unresolved per docs/tiling/README.md §4.5).",
+    "Minimum aux-allocation floor (~128B) discovered at bpp16 when the numTexels/32 formula predicts less.",
+    "State-byte alphabet is NOT format-invariant: gradient/noise codes differ between rgba8unorm and r32uint despite identical bpp/geometry (H-S4 refuted) -- refines EXP-0017's single-format 0x03/0x15/0x7f result.",
+    "A single-texel outlier in an otherwise-uniform block produces a 4th+ distinct state, sensitive to delta magnitude and block position -- confirms a partial/defect-tolerant compression mode exists, without decoding its bit-level meaning (clean-room boundary).",
+    "replaceRegion: (public CPU-write API) correctly re-derives aux state after touching compressed content -- no manual aux invalidation needed by a driver; getBytes: transparently decompresses for CPU reads; blit copies preserve eligibility; MTLStoreActionDontCare does not crash a compressed render target."
+  ],
+  "no_git_commits_made": true,
+  "tools_dir_modified": false
+}

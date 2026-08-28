@@ -1,0 +1,61 @@
+{
+  "experiment": "EXP-0134-m4-lossless-compression",
+  "pinned_revision": "7fde43f04fe935a5fdff9e47466fe1ae9f6d57e1",
+  "pinned_revision_dirty": true,
+  "pinned_revision_dirty_note": "Sibling experiments/orchestrator activity commits continuously to this repo; capture validity is gated on the authored_file_sha256 values below, not on live HEAD, per SUBAGENT_BRIEF.md / CODEX.md.",
+  "target": {
+    "device": "Apple M4 (G16G), 10 GPU cores",
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4"
+  },
+  "authored_file_sha256": {
+    "harness/schema.py": "b9f139c36c3953fe98d619146eed96b37f920e2b63196c47449bb79c0d6ea1b7",
+    "harness/casematrix.py": "016cbb1a37668181e23ac92511245d128a258fb44ccc3b91a6c7489747aa4f44",
+    "harness/run.py": "7f042b9055341c097064f9f3f13e68cdb344f6028f47684f51fbe04917969500",
+    "harness/verify.py": "f1521faabe551c12762030edb72c1bb8055b2809e9703eda0b2dfaa7af916fea",
+    "harness/auxdecode.py": "a2b7ee448da9a206401eb3f4ecef6e998edf52613431c4b8d9c4c25f61bae0fc",
+    "harness/cprobe.m": "677c4a3cb0608ee8db5b9377cf8dddd1c99a43f477b91795ac58d01e18ad4722",
+    "fixtures/recorded_reality.json": "f055790c1ffd39b818412991809078eedad2a206215c51f3c520aa8d38b683a4"
+  },
+  "tools_used_readonly": {
+    "tools/iotrace/iotrace.c": "built UNMODIFIED into work/iotrace.dylib; not edited by this experiment"
+  },
+  "schema": {
+    "gated_keys": ["case_id", "family", "kind", "observed", "params", "status", "verdict"],
+    "nongated_keys": ["case_id", "pid", "raw_tail", "raw_ticks", "wall_ms"]
+  },
+  "matrix": {
+    "total_cases": 83,
+    "families": {
+      "elig": 31,
+      "aux": 27,
+      "state": 16,
+      "cpu": 9
+    },
+    "kinds": {
+      "elig_usage": 12, "elig_storage": 4, "elig_type": 9, "elig_linear": 2, "elig_boundary": 4,
+      "aux_bpp_size": 15, "aux_msaa_ratio": 6, "aux_alloc_floor": 4, "aux_mip": 2,
+      "state_pattern": 10, "state_format_repeat": 6,
+      "cpu_replace": 3, "cpu_getbytes": 2, "cpu_blit": 2, "cpu_storeaction": 2
+    }
+  },
+  "timeouts_s": {
+    "case_timeout": 30,
+    "smoke_timeout": 20
+  },
+  "run_ids": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+  ],
+  "gates": {
+    "a_selftest": "harness/verify.py --selftest",
+    "b_seqtest": "harness/verify.py --seqtest (deterministic PRE_GPU/RUN01_PRESENT/RUN02_PRESENT scratch-dir unit test)",
+    "c_smoke_nonrecorded": "work/<run_id>_smoke.json, written and checked BEFORE any raw/ directory is created",
+    "d_nondeterminism_exclusion": "every case in this experiment is deterministic (casematrix.nondeterministic_observed_keys() always returns empty); verify.py --captured requires observed to be byte-identical across run01/run02 with no exclusions",
+    "e_recorded_reality_fixtures": "fixtures/recorded_reality.json -- 5 real M4 captures generated via harness/run.py's run_case() itself (not hand-typed), referenced by verify.py --selftest"
+  },
+  "known_expected_anomalies": {
+    "a_bpp_rgba32float_32": "formula (numTexels/32=32B) predicted to mismatch measured aux due to a minimum aux-allocation floor discovered during pipeline validation (PROGRESS.md M3); gated verdict is expected FAIL by design (strict formula check), documented as a genuine finding in RESULTS.md, not a harness defect",
+    "a_bpp_rgba32float_32x64": "same floor anomaly, second confirming data point (formula predicts 64B)"
+  }
+}
