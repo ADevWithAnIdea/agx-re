@@ -4,8 +4,9 @@
 session (or this one after a compaction) can read to know exactly where every in-flight experiment
 stands and what comes next. Update it whenever an experiment changes state.
 
-Last updated: 2026-08-28, after commit `3efd06c6`. **The 12-agent P0/P1 wave is fully landed and
-committed.** A new 10-agent **emit-everything wave** is running.
+Last updated: 2026-08-28. **The 12-agent P0/P1 wave is fully landed and committed.** The 10-agent
+**emit-everything wave** was killed en masse by the account session limit; WIP committed at
+`4fe49a1c` and the wave is being **resumed in GPU-contention-aware batches**.
 
 ---
 
@@ -34,6 +35,25 @@ the mandatory oracle + pre-registered falsifier, and one `sweep.jsonl` record sc
 | `EXP-0146` | integer misc | 12 | — | `carry_gen` **plus answering `I64-01..06`**, the only untouched questionnaire section |
 | `EXP-0147` | pipeline misc | 10 | — | `matrix_mac` is 10/12 fields done — 2 fields from emittable; `tile_read` feeds P0.4 |
 | `EXP-0148` | **scaffolding + length rules** | 23 | — | modelling, not sweeping: classify the 23 pseudo-ops; derive the modifier-aware length rule for the 3 over-consumers |
+
+### Resume batching (the session-limit kill, 2026-08-28)
+
+All ten were killed by the account session limit (one by a server error), NOT by their own work.
+Their directories are committed at `4fe49a1c`; each resumes from its own `PROGRESS.md`, frozen
+contract, and what is actually in `raw/` — never from memory.
+
+**Why batches now:** EXP-0143 and EXP-0147 independently found that concurrent GPU sweeps
+**contaminate each other** — "innocent victim" command-buffer failures and a GPU error cascade.
+A spurious fault against a legal field value becomes a confident wrong label. Recorded as a binding
+mitigation in `FIELD-SWEEP-PROTOCOL.md` §7.
+
+| Batch | Members | State at kill |
+|---|---|---|
+| **1 — RESUMED** | `EXP-0139` IALU · `EXP-0141` MEM · `EXP-0146` int-misc · `EXP-0148` scaffolding (desk-only, does not contend) | all four had FROZEN pre-registrations; 0146 had pilot/run01/run02/trial00, 0148 had baseline token data |
+| **2 — queued** | `EXP-0144` PACK (carriers validated against oracle) · `EXP-0140` MOV+CF (run driver) · `EXP-0147` pipeline (smoke found a cascade + 2 oracle bugs) | mid-harness |
+| **3 — queued** | `EXP-0142` TEX (pilot done, pre-freeze) · `EXP-0143` FRAG+SIMD (adding retry handling) · `EXP-0145` bf16/half (pilot resolved the encoding) · `EXP-0138` FALU (barely started) | mid-harness |
+
+Dispatch batch 2 only once batch 1's GPU-contending members have finished.
 
 **Merge procedure when they return** (orchestrator only): collect each
 `analysis/field_verdicts.json`, merge into `tools/agx-isa/validation.json`, recompute the
