@@ -1,5 +1,13 @@
 # M5 GPU Userspace — Documentation Roadmap
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 Status board for the clean-room documentation effort on the **Apple M5**. **STATUS: GOAL COMPLETE — all 3 acceptance gates PASS.** Read `../CLAUDE.md`
 first for the rules. The A18 Pro roadmap (`ROADMAP.md`) and its `docs/`, `tools/agx-isa` DB, and
 `EXP-M4-*`/`EXP-0xxx` experiments are the **prior phase** — valid for the A18 and used here as

@@ -1,5 +1,13 @@
 # M5 (Apple10 / G17g) command-stream deltas vs A18 (G17P)
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 Delta-form spec: "same as `cmdstream/README.md` (A18/G17P) except as noted." Source: EXP-M5-06
 (own-process iotrace DATA-TRACE on M5 / T8142 / macOS 27.0, 8 GPU cores). HW-validated unless marked ⏳.
 Clean-room: own-process IOKit data-trace only; no Apple binary introspected.

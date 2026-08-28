@@ -1,5 +1,13 @@
 # Apple M5 (Apple10 / G17g / T8142) — Capability Census & Native-vs-Emulated Matrix
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 **Objective 2 deliverable** (`ROADMAP-M5.md` §5.2). Enumerates **every** hardware capability the M5
 GPU exposes — from (a) the Metal/MSL surface and (b) Apple's advertised Family-10 features — and
 classifies how each is realized on the M5: **native / emulated / kernel-managed / NOT-YET-CHARACTERIZED**.

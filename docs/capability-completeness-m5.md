@@ -1,5 +1,13 @@
 # Apple M5 (Apple10 / G17g / T8142) — Capability Completeness Tracker (OBJ-2)
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 The **OBJ-2 tracker** for the M5 (`ROADMAP-M5.md` §5.2 / §5.5). It grades one question: *is every
 capability the M5 GPU exposes — everything Metal surfaces + everything Apple advertises for Family-10 —
 enumerated and characterized?* The full row-by-row classification lives in `capability-matrix-m5.md`;

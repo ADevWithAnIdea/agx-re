@@ -1,5 +1,14 @@
 # A18 Pro GPU Userspace — Documentation Roadmap
 
+> [!NOTE]
+> **Historical status board — non-normative.** This records the *completed* A18 Pro
+> documentation phase. It is retained as the clean-room paper trail for how that phase ran; it
+> is **not** the live status board and must not be read as current status. The live board for
+> the active Apple9 P0/P1 closure goal is [`P0-P1-CLOSURE.md`](P0-P1-CLOSURE.md), and the
+> authoritative task list is [`../APPLE9_RE_IMPLEMENTATION_GAPS.md`](../APPLE9_RE_IMPLEMENTATION_GAPS.md).
+> Facts cited here remain valid as A18 evidence where their experiment says so; the *status
+> claims* do not.
+
 Status board for the clean-room documentation effort. Read `../CLAUDE.md` first for the rules.
 
 Target: **Apple A18 Pro, SoC T8140, macOS 26.6, Metal feature family Apple9, 5 GPU cores.**

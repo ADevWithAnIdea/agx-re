@@ -1,5 +1,12 @@
 # M4 validation roadmap (repeat the A18 RE on the local Mac Mini M4)
 
+> [!NOTE]
+> **Completed phase board — non-normative for current status.** The M4 validation goal is
+> complete; this file records how it was run. The live board for the active Apple9 P0/P1
+> closure goal is [`P0-P1-CLOSURE.md`](P0-P1-CLOSURE.md). The M4 *findings* remain fully valid
+> and are, per `CLAUDE.md`, the operational Apple9 evidence — it is the *status* here that is
+> historical.
+
 **Goal (formal):** Validate the A18 Pro findings against the local **Apple M4** and document the
 differences, to the same bar as the A18 work: (1) enough clean-room docs to implement a full M4
 GPU userspace from `docs/` alone, (2) full hardware-capability coverage, (3) findings verified.

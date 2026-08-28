@@ -1,5 +1,13 @@
 # M5 (Apple10 / G17g) texture-tiling & lossless-compression deltas vs A18 (G17P)
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 Delta-form: "same as `tiling/README.md` (A18/G17P) except as noted." Source: EXP-M5-10 (own-MSL HW-probe:
 Metal-reported `allocatedSize` matrix + descriptor data-trace + GPU-write pattern). Clean-room: own MSL/API,
 we read allocation sizes Metal reports for our own textures and bytes our own process registered. No Apple

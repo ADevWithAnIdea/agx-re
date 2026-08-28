@@ -1,5 +1,13 @@
 # M5 (Apple10 / G17g) AGX — Instruction Encoding Tables
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 > **Generated** from `tools/agx-isa-m5/db.json` by `tools/agx-isa-m5/gen_encoding_tables.py` (2026-07-13). Regenerate after any DB change; do not hand-edit. This is the **authoritative, self-contained encoding table** a driver author reads to emit M5 (Apple10/G17g) AGX instructions — 194 instruction descriptors.
 
 **Clean-room:** every encoding here was learned from the compiled form of MSL **we wrote** (OWN-SHADER) — by byte-diffing our own shaders and by splicing bytes and running them on the real M5 GPU (hardware validation). No Apple binary was disassembled. See `../../CLAUDE.md`.

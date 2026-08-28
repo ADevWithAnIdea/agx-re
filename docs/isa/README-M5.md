@@ -1,5 +1,13 @@
 # M5 (Apple10 / G17g) Shader ISA
 
+> [!IMPORTANT]
+> **Scope: Apple M5 (Apple10 / G17g / T8142). NOT evidence for Apple9 (A18 Pro / M4).**
+> The M5 workstream is **complete and deferred** (`CLAUDE.md`). Nothing in this file may be
+> used to support an A18/G17P or M4/G16G claim, and no value here may be emitted by an Apple9
+> driver without being independently established on an Apple9 target. M5 is a G17-family
+> *sibling*, not the same device: treat every number as M5-only unless an `EXP-M4-*` or
+> `EXP-00NN` experiment says otherwise.
+
 The M5 GPU (`MTLGPUFamilyApple10`, arch `applegpu_g17g`, SoC T8142) runs a **G17-family sibling** of
 the A18 Pro (G17P/Apple9) ISA documented in `README.md` + `encoding-tables.md` (this dir). Empirically
 (EXP-M5-02/03) **~84% of M5 instruction bytes decode with the unmodified A18 DB**, and after fixing the
