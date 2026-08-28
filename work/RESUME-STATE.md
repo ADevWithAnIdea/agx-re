@@ -2,65 +2,97 @@
 
 **Purpose:** the host is unstable and kills agents mid-run. This file is the single place a new
 session (or this one after a compaction) can read to know exactly where every in-flight experiment
-stands and what command comes next. Update it whenever an experiment changes state.
+stands and what comes next. Update it whenever an experiment changes state.
 
-Last updated: 2026-08-28, after commit `75eb840a` (all 9 addendum bundles closed).
+Last updated: 2026-08-28, after commit `cf544b4d` (queued `tools/agx-isa/db.json` corrections applied).
 
-## In flight — 11-agent wave dispatched 2026-08-28 (all pre-capture as of this update)
+---
 
-Every one of these is in the pre-registration/authoring phase: contracts not yet frozen, no
-captures, no GPU processes. If the host dies now, the loss is authoring effort only — no evidence.
-On resume, each agent re-orients from its own `PROGRESS.md` and frozen contract.
+## In flight — 12-agent wave dispatched 2026-08-28
 
-| Experiment | Target | Scope |
-|---|---|---|
-| `EXP-0101-m4-synthesis-blockers` | **The two blockers gating all synthesis** | load→ALU bridge; GPR-sourced `reg_move`; explain the reproducible `0x00000100` |
-| `EXP-0102-m4-int-pack-semantics` | Part-II INT (14) + PACK (11) | integer semantics, bitfield ops, pack/unpack conversion |
-| `EXP-0103-m4-fp-transcendental-semantics` | Part-II FP (14) + TRIG (10) + SFU (7) | incl. whether rcp/rsqrt/sqrt/exp2/log2 share division's DAZ+FTZ |
-| `EXP-0104-m4-controlflow-simd` | Part-II CF (6) + SIMD (7) | exec-mask/reconvergence model; subgroup/quad semantics |
-| `EXP-0105-m4-encoding-registers` | Part-II ENC (16) | **owns the r64–95 addressing question EXP-0099 reopened** |
-| `EXP-0106-m4-texture-isa-semantics` | Part-II TEX (28, largest) | texture instruction operand map a compiler must emit |
-| `EXP-0107-m4-scratch-helper-abi` | **P0.1 / DRV-UAPI-01** | scratch BO layout, helper-program ABI, exhaustion behavior |
-| `EXP-0108-m4-bg-eot-programs` | **P0.4 / DRV-UAPI-04** | BG/EOT/partial program records, tilebuffer ABI, conversion split |
-| `EXP-0109-m4-stage-abi` | **P0.8 / DRV-ABI-01** | VS fetch, FS in/out, CS, prolog/epilog linkage |
-| `EXP-0110-m4-command-container-packing` | **P0.5 + P0.7** | relocation transforms, link grammar, container/metadata map |
-| `EXP-0111-m4-fragment-semantics` | Part-II FS (12) | interpolation/derivatives/tilebuffer contract; 2 EXP-0091 anomalies |
+This wave covers **every** P0 and P1 row plus the three P2 rows the user approved (P2-01, P2-03,
+P2-05). All are past pre-registration and into capture; a kill now costs at most one milestone
+per the append+fflush / `PROGRESS.md` rule.
 
-None is evidence until its two-run sequence closes and its gates pass.
+| Dispatched as | Directory on disk | Row | Scope |
+|---|---|---|---|
+| EXP-0126 | `EXP-0126-m4-uapi-field-mapping` | **P0.3** / DRV-UAPI-03 | field-by-field UAPI mapping, all 65 leaves |
+| EXP-0127 | *(TBD — agent still authoring)* | **P0.2 + P0.5** / DRV-UAPI-02 | shader selection, FS selector redirect, `usc_exec_base` |
+| EXP-0128 | `EXP-0128-m4-generator-envelope` | **P0.6** / DRV-ISA-01 | the generator's five named cannot-generate items |
+| EXP-0129 | `EXP-0126-m4-lifecycle-boundary-probe` ⚠ | **Task 2** (register lifecycle) | bits 15/31, bit-17 discrimination, A18↔M4 contradiction |
+| EXP-0130 | `EXP-0130-m4-bg-eot-construction` | **P0.4** / DRV-UAPI-04 | *construct* BG/EOT programs (no Apple template exists) |
+| EXP-0131 | `EXP-0131-m4-shader-container-generation` | **P0.7** / DRV-SHADER-01 | container construction, firmware-vs-archive field split |
+| EXP-0132 | `EXP-0132-m4-pbe-attachment-structures` | **P1.1** / DRV-PBE-01 | PBE/attachment decode + depth/stencil slot-reuse re-capture |
+| EXP-0133 | `EXP-0133-m4-format-capability-matrix` | **P1.2** / DRV-FMT-01 | full format × capability matrix |
+| EXP-0134 | `EXP-0134-m4-lossless-compression` | **P2-01** | codec states, aux geometry, can-it-stay-disabled |
+| EXP-0135 | `EXP-0135-m4-mesh-object-shading` | **P2-03** | mesh re-validation on M4 + UVB ownership |
+| EXP-0136 | `EXP-0136-m4-unreachable-encodings` | **P2-05** | Metal-unreachable encodings + capacity **promotion rule** |
+| EXP-0137 | `EXP-0129-m4-bary-split-abi` ⚠ | **P0.8** / DRV-ABI-01 | barycentric anomaly + prolog/epilog contract (last 2 of 9) |
 
-## Completed and promoted
+### ⚠ Directory-number collisions to fix at commit time (orchestrator's job, NOT the agents')
 
-`EXP-0074` OPT-02 division · `EXP-0076` MEM-06..10 access model · `EXP-0079` format conversion ·
-`EXP-0082` MEM-01..05 · `EXP-0083` MEM-15..17 base slots · `EXP-0084` MEM-20..22 bindless ·
-`EXP-0085` MEM-13/14 + ATOM-01..06 · `EXP-0086` liveness refutation · `EXP-0087` move synthesis ·
-`EXP-0089` lifecycle model · `EXP-0090` hand-built program suite · `EXP-0091` addendum A ·
-`EXP-0092` addendum C · `EXP-0093` addendum B · `EXP-0094` addendum D · `EXP-0095` addendum E ·
-`EXP-0097` addendum G · `EXP-0098` addendum H+I (final bundle) · `EXP-0100` addendum F · `EXP-0099` dual model refutation.
+Two agents chose a directory number that does not match the number they were dispatched under.
+No file conflict exists (the slugs differ), so **do not rename mid-flight** — their harnesses,
+manifests, and frozen contracts embed these paths. Rename at commit, and rewrite the embedded
+paths in `manifest.json` / `PRE_REGISTRATION.md` in the same commit:
 
-## Deferred tool changes (blocked, do not apply while agents run)
+- `EXP-0126-m4-lifecycle-boundary-probe` → **`EXP-0129-m4-lifecycle-boundary-probe`**
+- `EXP-0129-m4-bary-split-abi` → **`EXP-0137-m4-bary-split-abi`**
 
-`tools/agx-isa/db.json` needs, once EXP-0096 stops decoding against it:
-1. Retype the `falu2`/`falu2i` register-field top bit — **not** a 7-bit index (EXP-0099 H1) and
-   **not** a retention flag (EXP-0099 H2). Correct label: 6 bits load-bearing, top bit HW-tested
-   inert, role `UNKNOWN`.
-2. Collapse the five `reg_move_*` descriptors into ONE instruction with an 8-bit `byte+2` field
-   (EXP-0087).
-3. Fix the mis-tokenized fragment kill/mask op currently read as an 8-byte vertex `vary_store`
-   (EXP-0091), noting EXP-0093's correction that the `07 02 54 01` bracket is the ordinary
-   fragment epilog, not a kill/mask companion.
-4. Correct the `threadgroup_barrier(mem_texture)` provenance note: it is a genuine acquire
-   (`sub=0x14`) / release (`sub=0x04`) pair, not `sub=0x04` for both (EXP-0093).
-5. Record the `b_alu10` length-rule coverage gap: the explainer's 10-byte XOR example does not
-   decode under any current family (EXP-0099).
+Do the 0129 rename **second**, or the two will collide with each other.
 
-Every one of these changes requires a full assembler/disassembler round-trip + corpus re-validation
-before commit, because they alter how existing instructions decode.
+---
+
+## Completed and promoted (do not redo)
+
+**Part-II clusters:** `EXP-0074` OPT-02 division · `EXP-0076` MEM-06..10 · `EXP-0079` format
+conversion · `EXP-0082` MEM-01..05 · `EXP-0083` MEM-15..17 · `EXP-0084` MEM-20..22 bindless ·
+`EXP-0085` MEM-13/14 + ATOM · `EXP-0102` INT/PACK · `EXP-0103` FP/TRIG/SFU · `EXP-0104` CF/SIMD ·
+`EXP-0105` ENC · `EXP-0106` TEX · `EXP-0111` FS.
+
+**Addendum bundles A–I:** `EXP-0091` A · `EXP-0093` B · `EXP-0092` C · `EXP-0094` D · `EXP-0095` E ·
+`EXP-0100` F · `EXP-0097` G · `EXP-0098` H+I. All nine CLOSED.
+
+**Lifecycle / synthesis chain:** `EXP-0086` liveness refutation · `EXP-0087` move synthesis ·
+`EXP-0089` lifecycle model · `EXP-0090` hand-built suite · `EXP-0099` dual-model refutation ·
+`EXP-0101` **load→ALU bridge solved** · `EXP-0112`+`EXP-0116` generator 140/140 · `EXP-0113`
+nondeterminism · `EXP-0119` lifecycle field map.
+
+**Row work:** `EXP-0107` scratch ceiling · `EXP-0108` BG/EOT absence · `EXP-0109` no native
+prolog/epilog split · `EXP-0110` relocation/metadata · `EXP-0114` texture selector nibble ·
+`EXP-0115` branch-reach checkerboard · `EXP-0117` blend epilog · `EXP-0120` TVB has no userspace
+surface · `EXP-0121`/`EXP-0123` NIR contract + raster limits · `EXP-0122` 2^43 address wrap ·
+`EXP-0124` query/indirect · `EXP-0125` third P0.1 negative.
+
+---
+
+## Resolved blockers (were open in the previous index; keep them closed)
+
+- ~~General load-to-ALU bridging~~ — **SOLVED, EXP-0101.** The consumer route was never the
+  problem: `EXP-M4-13`'s `device_load` destination formula (`dst_lo | dst_ext9<<2`) is wrong.
+  The correct register is `extmode/2`; `dst_lo`/`dst_ext9` are copied verbatim. `falu2i`
+  additionally needs `mods=0xC0`. Documented in `docs/isa/register-move-and-liveness.md`.
+- ~~GPR-sourced `reg_move`~~ — **EXPLAINED, EXP-0087 + EXP-0101.** `reg_move` is one instruction,
+  not five, and only `byte+2 = 0x01` / `op_desc = 0x08` actually moves a value; 26 other field
+  values silently zero. The reproducible `0x00000100` was the silent-zero pattern, not a move.
+- ~~Registers 64–95~~ — **SOLVED, EXP-0112.** Register fields alias `r(R mod 64)` for R ∈ [64,112]
+  and fault at 126/127. That is why field value 67 read `r3`; there is no separate high bank.
 
 ## Open blockers (named, not hidden)
 
-- **General load-to-ALU bridging** — `device_load` → `falu2` fails at all 8 consumer-route values
-  while the ALU-sourced control passes at all 8 (EXP-0099 H4). Real, unexplained.
-- **GPR-sourced `reg_move`** — fails for both ALU-written and `device_load`-written GPRs; returns
-  an exact reproducible `0x00000100` (EXP-0099 H5).
-- **Registers 64–95** — no validated addressing path in the `falu2` family once the literal-index
-  model is refuted, despite EXP-0092's re-confirmed 96-GPR boundary (EXP-0099 H3).
+- **P0.1 / DRV-UAPI-01 helper protocol** — three independent methods have now returned negatives
+  (`EXP-0107`, `EXP-0125`, and the init-time trace). Mesa's pinned UAPI says the helper is
+  "internally dispatched by the hardware" out of "a static allocation shared for the whole
+  device", which explains why correlation-based tracing cannot see it. Current disposition:
+  **construct the protocol from first principles against the UAPI struct**, not trace it.
+- **A18 ↔ M4 contradiction from EXP-0119** — unresolved; it is why `EXP-0135` is instructed to
+  treat the A18-era mesh findings as *unvalidated on M4* rather than assuming transfer.
+
+## Orchestrator's own outstanding debt
+
+- Back-propagate the ~100 items the cluster experiments actually answered into
+  `APPLE9_RE_IMPLEMENTATION_GAPS.md` as formal answer blocks (only a handful exist today). This
+  is bookkeeping, not evidence — the results are committed and provenanced either way.
+- `DOC-02` (evidence classification) and `DOC-03` (license/provenance path) are untouched.
+- `P2-02` (tessellation) and `P2-04` (ray tracing/BVH) are deliberately **not** dispatched: the
+  user approved P2-01/03/05 only.
