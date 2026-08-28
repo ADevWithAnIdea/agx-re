@@ -4,9 +4,45 @@
 session (or this one after a compaction) can read to know exactly where every in-flight experiment
 stands and what comes next. Update it whenever an experiment changes state.
 
-Last updated: 2026-08-28, after commit `e359b9e4`. **Six of the 12-agent wave have landed and been audited+committed** (0130, 0131, 0126, 0132, 0135, 0134); six are still running, plus two desk agents.
+Last updated: 2026-08-28, after commit `3efd06c6`. **The 12-agent P0/P1 wave is fully landed and
+committed.** A new 10-agent **emit-everything wave** is running.
 
 ---
+
+## In flight — 10-agent EMIT wave dispatched 2026-08-28
+
+**Goal: make every REAL instruction emittable, not merely decodable.** Baseline at dispatch
+(`tools/agx-isa/validation.json`): 1026 fields, **16.3% emitter-grade, 5 of 170 instructions
+emittable**. 23 of the 170 are decode scaffolding, not real instructions; 147 are real, with 777
+blocking fields. Ray tracing (8 instr / 61 fields) is **deliberately excluded** — the user scoped
+P2-02 and P2-04 out.
+
+All ten follow `experiments/FIELD-SWEEP-PROTOCOL.md`, which fixes the sweep bar, the coverage rule,
+the mandatory oracle + pre-registered falsifier, and one `sweep.jsonl` record schema so their
+`analysis/field_verdicts.json` files merge mechanically.
+
+| Exp | Family | Instr | Blocking fields | Headline target |
+|---|---|---|---|---|
+| `EXP-0138` | FALU (float ALU) | 17 | 107 | `falu2.mod_lo` — the ONE field blocking the most-used instruction in the ISA |
+| `EXP-0139` | IALU (integer ALU) | 16 | 137 | worst family; `ibfe` (16) and `ibfins` (12) are the worst two instructions |
+| `EXP-0140` | MOV + CF | 23 | 51 | best yield in the wave — many are 1–2 fields from emittable |
+| `EXP-0141` | MEM (load/store/atomic) | 10 | 58 | **`device_load.dst_lo`/`dst_ext9`** — the largest single synthesis blocker |
+| `EXP-0142` | TEX | 7 | 46 | `tex_sample` coordinate + result registers |
+| `EXP-0143` | FRAG + SIMD | 12 | 64 | `vary_slot`, the `iter` family (ties to EXP-0137's barycentric result) |
+| `EXP-0144` | PACK / convert | 9 | 51 | `pack_convert`/`unpack_convert`; byte+2 newly open after the match relax |
+| `EXP-0145` | bf16 / half / misc float | 15 | — | nothing in this cluster is emittable; blocks FP16/BF16 codegen entirely |
+| `EXP-0146` | integer misc | 12 | — | `carry_gen` **plus answering `I64-01..06`**, the only untouched questionnaire section |
+| `EXP-0147` | pipeline misc | 10 | — | `matrix_mac` is 10/12 fields done — 2 fields from emittable; `tile_read` feeds P0.4 |
+| `EXP-0148` | **scaffolding + length rules** | 23 | — | modelling, not sweeping: classify the 23 pseudo-ops; derive the modifier-aware length rule for the 3 over-consumers |
+
+**Merge procedure when they return** (orchestrator only): collect each
+`analysis/field_verdicts.json`, merge into `tools/agx-isa/validation.json`, recompute the
+`coverage` block **honouring `EMITTABLE VETO` notes**, then run
+`python3 tools/agx-isa/validate_labels.py` (must exit 0) and
+`python3 tools/agx-isa/roundtrip_test.py` (must stay 302/302). `work/merge_verdicts.py` does the
+merge. Descriptor defects arrive under `"db_defects"` and are applied to `db.json` by hand, never
+by the agents.
+
 
 ## In flight — 12-agent wave dispatched 2026-08-28
 
