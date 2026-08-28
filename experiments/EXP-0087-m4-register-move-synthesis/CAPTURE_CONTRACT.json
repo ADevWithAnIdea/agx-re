@@ -1,0 +1,192 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "b1838d98ad5f74c6d221509a00e77905c68e129b97d6148b49353188a7e85652",
+    "README.md": "d368e70ff5fbec238be9602f221ffd966cd21a1dd390cf5cb109a0de87c78ab1",
+    "analysis.py": "269ccd9404d865217979032f1c9d5449d885e6a5b17f8589c1d7ddfa236d8b3a",
+    "baseline.py": "0552fd52343f72a69fe43105d8970afab1e80b9b498991e7fda93afff4c05536",
+    "casematrix.py": "307ec1360253485c68af72d94d7a7cd9c6b37039638a6e8fc4c5c03755b6a7cb",
+    "harness/build.sh": "ce1f7ef8578595b438ebe483e9adefb9d789e2d0c7c48f77077fca6029e95011",
+    "kernels/census.metal": "e2abfbe8a4059b3e889384e030e9ba4db0ea2a0814329076e403147475edf0c3",
+    "kernels/synth_move.metal": "f2df6b51722cef52b75943f309403aec9d8ca15fdcf8b042aa7f395ada26462d",
+    "make_manifest.py": "aba573e50750b439ba8f6dfde4ea97ea725ed8f6b1feba9ce656d6625e0274da",
+    "run.py": "343cce976bb96ab9cd356512c0fe296f449c7268be279085ed947aae0137c8a2",
+    "verify.py": "823131bd81f8a97939d0963a2987f88046d397ccd126faea8d2ceefa7b4467cd"
+  },
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own compiled shader bytes (splice targets)",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool)",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "build_keys": [
+      "baseline",
+      "harness_build",
+      "schema"
+    ],
+    "case_line_keys": [
+      "byte2",
+      "changed_bytes",
+      "diff_from_baseline",
+      "dst",
+      "duration_ms",
+      "exception",
+      "exit",
+      "hex_after",
+      "hex_before",
+      "i",
+      "item",
+      "name",
+      "op_desc",
+      "out_hex",
+      "pipeline_source",
+      "probe",
+      "raw_note",
+      "splice_args",
+      "src",
+      "status",
+      "stderr",
+      "stdout",
+      "timed_out"
+    ],
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record; final verification additionally requires byte-identical results files and identical status counts",
+    "dispatch_record_keys": [
+      "argv",
+      "cwd",
+      "duration_seconds",
+      "finished_utc",
+      "n_cases",
+      "results_lines",
+      "results_sha256",
+      "started_utc",
+      "status_counts"
+    ],
+    "extra_keys_policy": "Exact key-set equality for every record slot: an extra key or a missing key both fail the same way.",
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically; a fault or timeout inside the sweep is a RESULT and the sweep continues in a fresh process",
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "05_run_manifest.json",
+      "06_baseline.json"
+    ],
+    "runs": [
+      "m4-20260827-run01",
+      "m4-20260827-run02"
+    ],
+    "selftest_gate": "verify.py --selftest and verify.py --seqtest must pass immediately before every capture, in every tree state; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "BEFORE any raw/ artifact is created, the freshly built harness must run ONE spliced scratch case into work/ (never promoted into raw/) whose output parses completely (STATUS OK, PIPELINE_SOURCE archive, a full 16-float OUT line, at least one splice arg applied); any build, baseline or smoke defect exits 3 with the receipt printed and NO burned run id",
+    "status_allowed": [
+      "ARCHIVE_FAIL",
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "EXTRACT_FAIL",
+      "FUNCTION_MISSING",
+      "HANG",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL",
+      "PIPELINE_MISS"
+    ],
+    "total_cases": 49
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0087-m4-register-move-synthesis",
+  "frozen_anchors": {
+    "main_hex": "cb080108db0a0108eb0c0108fb0e01088b1001089b120108ab140108bb1601084b1801085b1a01086b1c01087b1e01080b2001081b2201082b2401083b260108e700541800000000170000900000e700541000000000178000900000e700540800000000170001900000e7005400000000001780019000000e000000",
+    "main_len": 124,
+    "probe_dst_fields": {
+      "dst": 3,
+      "usrc": 38
+    },
+    "probe_dst_hex": "3b260108",
+    "probe_dst_offset": 60,
+    "probe_src_fields": {
+      "dst": 12,
+      "usrc": 8
+    },
+    "probe_src_hex": "cb080108",
+    "probe_src_offset": 0
+  },
+  "gate": "A missing path, hash, schema field, record key, splice consistency, or unexpected raw path fails closed everywhere this contract is checked.",
+  "gate_order": "PRE_GPU: --selftest, --seqtest, make_manifest --check, --preflight, run01; RUN01_PRESENT: --selftest, --seqtest, make_manifest --check, --between-runs, run02; RUN02_PRESENT: analysis --write, make_manifest --write + --check, --captured",
+  "matrix": {
+    "cases_sha256": "e067afa41477a51c4356982e252a7903802456b6d287cc30b4d3a298e54e588c",
+    "item_counts": {
+      "CTRL": 2,
+      "MOVE-01": 23,
+      "MOVE-02": 8,
+      "MOVE-03": 10,
+      "MOVE-04": 4,
+      "MOVE-05": 2
+    },
+    "total_cases": 49
+  },
+  "post_second_run_sequence": [
+    "python3 -B analysis.py --run-a m4-20260827-run01 --run-b m4-20260827-run02 --write",
+    "python3 -B make_manifest.py --write",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --captured"
+  ],
+  "pre_second_run_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --between-runs"
+  ],
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/synth_move.metal",
+    "kernels/census.metal",
+    "harness/build.sh",
+    "baseline.py",
+    "casematrix.py",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "baseline": 60,
+    "case_process": 60,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 60
+  }
+}
