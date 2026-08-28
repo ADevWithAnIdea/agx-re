@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0126-m4-lifecycle-boundary-probe",
+  "target": "local Apple M4 (G16G), Mac16,10, macOS 26.6.2 (25G82), Metal 4",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier/carrier_dag/carrier_cf/iunary_popcount kernels (iunary_popcount reused verbatim from EXP-M4-14's own corpus, our own MSL); binary-archive splice of our own hand-assembled AGX programs (MODE A, tools/agx-isa isadb.assemble()) and of a field-level splice into our own compiled instructions at a symbol-relative offset (MODE B, EXP-M4-14's own literal anchor bytes -- this project's own prior hardware-derived data); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "predecessor_chain": "EXP-0086 (liveness bits not inert) -> EXP-0089 (lifecycle model, literal bit17, ctrl field) -> EXP-0099 (bits15/31 inert for addressing+retention in falu2 register-register form) -> EXP-0113 (register-file addressing model) -> EXP-0119 (bits15/31 in new contexts, per-family field map, bit17 3-signature generalization, mechanism discrimination -> A18-vs-M4 ibitcount discrepancy disclosed, not resolved) -> EXP-0126 (this experiment: bits15/31 in FURTHER new contexts -- CF boundary, load-sourced operand, half width, near-64 pressure; a genuinely discriminating test for ibitcount's release mechanism; the A18-vs-M4 root cause).",
+  "pinned_revision": "633cd06b0c9890bc641128ca7b49ff66eee41cb1",
+  "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 58,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 60,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true,
+    "hang_candidate_case": "none -- this experiment's matrix does not construct EXP-0089's known hang-risk field (12-byte extended-ctrl form inside a real loop); every case's failure mode is bounded by the standing per-case (60s)/agxtest (45s) timeouts regardless (run.py's own module docstring)"
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,kernel,grid,tg,splices,oracle,notes,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "groups_captured": [
+    "H1_CF", "H1_LOAD", "H1_HALFWIDTH", "H1_PRESSURE",
+    "H2_BYTESWEEP", "H2_INTERACTION", "H2_LATERWRITE", "H2_DISTANCE",
+    "H3_MODEB", "H3_MODEA"
+  ],
+  "hypothesis_to_group_map": {
+    "H1": "H1_CF, H1_LOAD, H1_HALFWIDTH, H1_PRESSURE (fragment stage and uniform-register operand class NOT REACHED -- see PRE_REGISTRATION.md pilot note 1 / H1 table)",
+    "H2": "H2_BYTESWEEP (exhaustive over ibitcount's non-match-forced free bits), H2_INTERACTION (does cache regain a role once the real control bit is cleared), H2_LATERWRITE (per-write-instance-suppression signature check), H2_DISTANCE (distance-invariance check)",
+    "H3": "H3_MODEB (dispatch-shape axis, EXP-M4-14's own literal bytes on a fresh M4 compile), H3_MODEA (operand-provenance x dispatch-shape 2x2, MODE A hand-built)"
+  },
+  "confirm_vs_refute": {
+    "H1_CF": "CONFIRMS bit15/31 inertness across a real control-flow boundary if all 5 cases (2 addressing pairs + 1 retention pair + positive control) match their host-computed oracle exactly; REFUTES it if the bit15-cleared variant's stored output differs from the bit15-set (natural skeleton) variant for either the TRUE-arm (addressing) or FALSE-arm (retention) parameter set.",
+    "H1_LOAD": "CONFIRMS bit15/31 inertness with a load-sourced operand if field=71's own-result equals field=7's (both read LOADVAL=42.0) and retention depends only on the opflags bit, not the field; REFUTES it if field=71 reads a different value or retention differs from field=7 at the same opflags bit.",
+    "H1_HALFWIDTH": "EXPLORATORY (oracle=None) -- answered by cross-case comparison (do X and b change anything at b16), not a fixed prediction, given the pilot-disclosed construction anomaly.",
+    "H1_PRESSURE": "CONFIRMS bit15/31 inertness under ~40-register pressure if field=67's own-result equals field=3's (both read V=30.0) and retention depends only on the opflags bit; REFUTES it otherwise.",
+    "H2_BYTESWEEP": "EXPLORATORY (oracle=None) per-case -- the group-level question (does ANY free bit make ibitcount's later-read conditional) is answered by cross-case comparison against the established 6/20.0 baseline signature in analysis.py, not a fixed per-case oracle.",
+    "H2_INTERACTION": "own-result oracle fixed (popcount=6, must stay correct); later-read (word4) EXPLORATORY -- CONFIRMS 'cache is independently inert' if word4 is the SAME (both retained) regardless of the cache value tested; REFUTES it (cache regains a role) if word4 differs between the two cache values.",
+    "H2_LATERWRITE": "CONFIRMS the per-write-instance-suppression model (matching falu2's EXP-0119 H4.2 signature) if a fresh rewrite fully restores the later reader to the NEW value; REFUTES it (permanent poison) if the reader stays corrupted despite the rewrite.",
+    "H2_DISTANCE": "CONFIRMS distance-invariance (matching falu2's own CandB finding) if adjacent/near/far all show the SAME corrupted (20.0) later-read; REFUTES it if the corruption disappears or changes at any tested distance.",
+    "H3_MODEB": "CONFIRMS dispatch-shape independence (i.e. REFUTES 'dispatch shape is the deciding axis') if EXP-M4-14's own literal bytes give the SAME qualitative signature (fresh=correct, stale=broken) at BOTH grid=1 and grid=4; would instead SUPPORT dispatch-shape-as-deciding-axis if grid=1 showed no effect while grid=4 did.",
+    "H3_MODEA": "CONFIRMS operand-provenance as the deciding axis if the device_load-sourced construction breaks at cache=0 (matching EXP-M4-14) at grid=1 (i.e. without needing multi-lane dispatch at all), while the ALU-seeded construction (EXP-0119's own) does not break at either grid size; REFUTES it if provenance makes no difference, or if only grid=4 (not grid=1) shows breakage for the load-sourced construction."
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain (H.imm_value(), independently verified exact fixed points), H.bits_f32() for integer-typed (popcount) results stored raw and read back as a denormal float32 bit-reinterpretation (EXP-0119's own established convention), and the EXP-0090/EXP-0101/EXP-M4-13/EXP-M4-14 HW-validated device_load/device_store/ibitcount address formulas. Non-trivial oracle values were directly observed on real M4 hardware during the informal pre-registration pilot (see PRE_REGISTRATION.md section 0 and PROGRESS.md) before being frozen into casematrix.py; EXPLORATORY cases (oracle=None for one or more words) are answered by cross-case comparison in analysis.py, not a fixed per-case prediction.",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()), the compiled form of our own carrier/carrier_dag/carrier_cf/iunary_popcount MSL (tools/shdump; iunary_popcount reused verbatim from EXP-M4-14's own committed, authored corpus; carrier_dag/carrier_cf reused verbatim from EXP-0112's own committed, authored kernels), or a field-level splice into that compiled output computed via isadb's own assemble()/decode_one() or copied from EXP-M4-14's own recorded, HW-derived literal anchor bytes (this project's own prior hardware-derived data, not an Apple artifact). No Apple binary introspected anywhere."
+}

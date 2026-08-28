@@ -1,0 +1,63 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "../../tools/agxtest/agxtest.py",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0126-m4-lifecycle-boundary-probe/kernels/carrier_cf.metal",
+    "--function",
+    "k",
+    "--grid",
+    "1",
+    "--tg",
+    "1",
+    "--no-fast-math",
+    "--shdump",
+    "work/bin/shdump",
+    "--agxrun",
+    "work/bin/agxrun",
+    "--agxparse",
+    "../../tools/shdump/agxparse.py",
+    "--workdir",
+    "work/fixturegen/work/case_000",
+    "--run-timeout",
+    "45",
+    "--out",
+    "0=4",
+    "--buf",
+    "1=@work/fixturegen/work/case_000/buf_1.bin",
+    "--buf",
+    "2=@work/fixturegen/work/case_000/buf_2.bin",
+    "--splice",
+    "_agc.main@0x0=0ca01006671054040200200051010040460067004402010020001100004046000a85228006c20f1554010f0154400000000000003b0020000f05541a9f0104060302188815040a87230506000700000019b9340380008f0454220f0054e2ffffffffff000f06040200000f060401000029c12583800039c92c83800012030f0c820402028006e7005402000021001100009011000e000000"
+  ],
+  "duration_ms": 0,
+  "exception": null,
+  "exit": 0,
+  "grid": 1,
+  "group": "H1_CF",
+  "i": 0,
+  "kernel": "carrier_cf",
+  "match": true,
+  "name": "h1_cf_true_base",
+  "notes": "CF skeleton, srcA_reg=0x41 on the field-varied falu2i (top-bit SET, low6=1=acc); arm_true arm selected (isel10); meta={'acc': 105.0, 'natural_select_true': True, 'arm_true': 210.0, 'arm_false': 102.0}",
+  "observed": {
+    "0": {
+      "f32": 210.0,
+      "u32": 1129447424
+    }
+  },
+  "oracle": {
+    "0": 210.0
+  },
+  "out_hex": "00005243000000000000000000000000",
+  "pipeline_source": "archive",
+  "splices": [
+    "0x0=0ca01006671054040200200051010040460067004402010020001100004046000a85228006c20f1554010f0154400000000000003b0020000f05541a9f0104060302188815040a87230506000700000019b9340380008f0454220f0054e2ffffffffff000f06040200000f060401000029c12583800039c92c83800012030f0c820402028006e7005402000021001100009011000e000000"
+  ],
+  "status": "OK",
+  "stderr": "shdump: device = Apple M4\nshdump: functions = k\nshdump: chosen function = k\nshdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024\nshdump: wrote work/fixturegen/work/case_000/arch_e5c9ff5a8708.bin\n",
+  "stdout": "MAIN_LEN 152\nSPLICE _agc.main@0x00: 0ca01006671054040200200051010040460067004402010020001100004046000a85228006c20f1554010f0154400000000000003b0020000f05541a9f0104060302188815040a87230506000700000019b9340380008f0454220f0054e2ffffffffff000f06040200000f060401000029c12583800039c92c83800012030f0c820402028006e7005402000021001100009011000e000000 -> 0ca01006671054040200200051010040460067004402010020001100004046000a85228006c20f1554010f0154400000000000003b0020000f05541a9f0104060302188815040a87230506000700000019b9340380008f0454220f0054e2ffffffffff000f06040200000f060401000029c12583800039c92c83800012030f0c820402028006e7005402000021001100009011000e000000 (abs file offset 7616)\nDEVICE Apple M4\nFUNCTION k\nPIPELINE_SOURCE archive\nGPUTIME_NS 3583\nOUT 0 00005243000000000000000000000000\nSTATUS OK\nRESULT 0 210 0 0 0\n",
+  "tg": 1,
+  "timed_out": false
+}

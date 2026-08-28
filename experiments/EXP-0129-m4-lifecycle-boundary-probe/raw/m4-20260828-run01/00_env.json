@@ -1,0 +1,72 @@
+{
+  "authored_code_sha256": {
+    "analysis.py": "5bd5b04e611e87639cb91292ca5bd965fbf634c0da639cd0e16b4def4d21bdb1",
+    "baseline.py": "a019d5fd1f12d276b8bcf280375b739b23b51db89f3b8c304e14d023ea4f9628",
+    "casematrix.py": "d97888c00e771f6fb47adc7d97aeec7eaaabb3d35d4f2fe4169415a5f4212933",
+    "harness/build.sh": "5a2c20dcf1adcdae866e09a851c95910d29947a7430eca1d0761781aee5b1fc3",
+    "harness/case_exec.py": "36cb813a140ce3da26438b2cc7a7ac2962dbdddc3d38c822336959d2fff4f72b",
+    "harness/fsrun.m": "57b5780c47ca6da9ed5fe1234a3bfe83c8c440000fd168454c2480552e40a3c2",
+    "isa_helpers.py": "78fadaedb06bd2122e3ccc507adb325ceb330f23e44846fdc35a316ad9b13db7",
+    "make_manifest.py": "ae5dc6a7dd971cce6820e098123ec51079e0e763ec2cc057fdf8cedc1a9b838f",
+    "run.py": "2b36be57fb41cb8c0911641a093eb2a31161d79957614a59ca2a0f1b5c3e2c5d",
+    "verify.py": "4cf4ee3f3a5bb3dd51840e7e61e223e21634124b9e8ca7d79e4165aac894e804"
+  },
+  "authored_doc_sha256": {
+    "CAPTURE_CONTRACT.json": "773c360ea6cc9456d4cd73a764b89d4ab51d63dfa1c2aea06418ae9b508cfb45",
+    "PRE_REGISTRATION.md": "96e757c0f2dd19eace470e60d843c56ef855e07c2ada4fb35a65e5a3a00cdc0e",
+    "README.md": "3d23b2d2ac2eec41d97ea9b8706da2c8d9b25b42bb8e1645102bda07e45b4d90"
+  },
+  "authored_kernel_sha256": {
+    "kernels/carrier.metal": "35e86514786d07b1f101c7110bc3895460b6e54bd4868c02f3fce7c5c602c7c1",
+    "kernels/carrier_cf.metal": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+    "kernels/carrier_dag.metal": "ed4b7bfef443a813d6e835efb0f34174e7d3c6e64f3e2e79db99630c089b08b4",
+    "kernels/fs_adjacent.metal": "fa315b50a07fb39041a535b16de571a28367350d95bd84013fa49be3e004a73e",
+    "kernels/iunary_popcount.metal": "38abf14e4d9f13061aac40dd5b9f9d5578b15968c6b0ae7e2dbc36a7f1d332bb"
+  },
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier/carrier_dag/carrier_cf/iunary_popcount kernels (iunary_popcount reused verbatim from EXP-M4-14's own corpus, our own MSL); binary-archive splice of our own hand-assembled AGX programs (MODE A, tools/agx-isa assemble()) and field-level splices into our own compiled instructions at a symbol-relative offset (MODE B, EXP-M4-14's own literal anchor bytes -- this project's own prior hardware-derived data, not an Apple artifact); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes. kernels/fs_adjacent.metal and harness/fsrun.m were authored/adapted for this experiment's H1 fragment-stage attempt but that axis was NOT REACHED (see RESULTS.md) -- no case in the frozen matrix uses them; both are retained for provenance/audit, not exercised by run.py.",
+  "device_model": {
+    "argv": [
+      "sysctl",
+      "-n",
+      "hw.model"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0126-m4-lifecycle-boundary-probe",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T08:52:05.355215+00:00",
+    "stderr": "",
+    "stdout": "Mac16,10\n",
+    "timed_out": false,
+    "timeout_seconds": 5
+  },
+  "git_revision_informational_only": "bb0fc6219b2dd9a19aff20f1c56cc30ef69aebf6",
+  "machine": "arm64",
+  "schema": 1,
+  "sw_vers": {
+    "argv": [
+      "sw_vers"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0126-m4-lifecycle-boundary-probe",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T08:52:05.344268+00:00",
+    "stderr": "",
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G82\n",
+    "timed_out": false,
+    "timeout_seconds": 5
+  },
+  "xcrun_version": {
+    "argv": [
+      "xcrun",
+      "--version"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0126-m4-lifecycle-boundary-probe",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T08:52:05.350854+00:00",
+    "stderr": "",
+    "stdout": "xcrun version 72.\n",
+    "timed_out": false,
+    "timeout_seconds": 5
+  }
+}
