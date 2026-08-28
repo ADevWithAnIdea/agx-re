@@ -1,0 +1,69 @@
+{
+  "experiment": "EXP-0121-m4-nir-contract",
+  "frozen_utc": "2026-08-28T00:00:00Z",
+  "pinned_revision": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "pinned_revision_note": "Repo tree was dirty at freeze time from SIBLING experiments' untracked directories (parallel agents). Validity is gated on the authored blob hashes below, not on git status of the whole tree or on live HEAD at run time, per SUBAGENT_BRIEF.md.",
+  "target": {
+    "host": "local Apple M4 / G16G",
+    "gpu_cores": 10,
+    "macos": "26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "note": "A18 Pro is HANDS-OFF; no A18 claim anywhere in this experiment."
+  },
+  "frozen_source_sha256": {
+    "harness/build.sh": "83c362f8a4d4da079d1ccbd7864ff8432b88552c180fc2f0ccc1b2d020adc052",
+    "harness/case_exec.py": "a2bceb83505f6b3928f49c64f4ad131b74f052d56b4781dc636cb39e726ea7b8",
+    "harness/casematrix.py": "85785ec884a7d917cfd16fb175eabc10e63bb75662906bcff27aeda5a3f2692d",
+    "harness/fsrun.m": "0a2bccbc17070efa0375d6f2c0e79c39039cd71ca9052ed28b9318bb573c368d",
+    "harness/oracle.py": "ae5edbd33b631f369f2548b3c7ed64e7ed8d6758e423806b59d1cf9e007d25df",
+    "kernels/opt01_div.metal": "44f7ebfc8aa6bf72c99de844494eb3a6ccf68a358b0029a15b25dd23fee983a9",
+    "kernels/opt03_pow.metal": "9c29b4df83b685d5f757da10c7a3a1dc8cac1a88084e07d8175e7792d038f2d7",
+    "kernels/opt04_ldexp.metal": "29d7291df1535dc25fa32450f019f0abf415576900e591b10a5d3ed806b89fa7",
+    "kernels/opt0506_select.metal": "79fa550739bda0f05c559bbf97b5922eea8b3a53bb8b9c9cb9a7f850e0aa26d2",
+    "kernels/opt07_varying_in.metal": "dbe038a68febd17886e946bacc5cf43300a8fc2747113573343ea66fbe1ab088",
+    "kernels/opt08_varying_out.metal": "224b93d43c63a02da511f43417c1cfc919c6cb3b86e38cbfce75bf6c18a47577",
+    "kernels/opt1011_ordering.metal": "d6b12963ba6b0d6f98b41694432dff618a7325eb6c9a3960d38f0afffc2e2fb7",
+    "run.py": "558556a0f7150adabf2ae0bd7846ade4643f183921aa715127f2cb7fc179618b",
+    "verify.py": "da4bc5df4b965714e60c53c8a260b4d5c0c6e670fdd183dc8b29296f2a65dee9"
+  },
+  "read_only_tools_used": [
+    "tools/shdump/shdump.m", "tools/shdump/agxparse.py",
+    "tools/agxtest/agxrun.m", "tools/agxtest/agxtest.py",
+    "tools/agx-isa/isadb.py", "tools/agx-isa/db.json"
+  ],
+  "case_matrix": {
+    "total_cases": 94,
+    "by_item": {"OPT-01": 4, "OPT-03": 2, "OPT-04": 2, "OPT-05/06": 18, "OPT-07": 2, "OPT-08": 2, "OPT-10/11": 64},
+    "by_kind": {"compute": 26, "render": 4, "concurrency": 64},
+    "generation": "deterministic, seeded (harness/casematrix.py SEED=0x0E1210121); byte-identical between run01 and run02"
+  },
+  "raw_record_schema": {
+    "01_results.jsonl": "ONE JSON object per case, GATED fields only (verify.py GATED_FIELDS) -- must be byte-identical across run01/run02 for a given case id",
+    "01_detail.jsonl": "ONE JSON object per case, NON-GATED (full observed arrays, raw hex, concurrency per-lane mismatch/timeout/completed counts, argv) -- legitimately nondeterministic in detail for concurrency cases per the CONCURRENCY carve-out; not byte-compared",
+    "01_timing.jsonl": "ONE JSON object per case, NON-GATED (duration_ms, stdout/stderr tails)",
+    "00_env.json": "per-run environment snapshot (informational; pinned_revision above is what gates validity)",
+    "02_dispatch.json": "per-run summary (n_cases, status_counts, results_sha256)"
+  },
+  "timeouts": {
+    "per_case_compute_render_s": 45,
+    "per_case_concurrency_s": 45,
+    "harness_subprocess_wrapper_s": "case_timeout + 30",
+    "smoke_gate_s": 40
+  },
+  "gates": {
+    "selftest": "verify.py --selftest -- pure Python, one authoritative shared key-set (oracle hand-worked vectors + casematrix structural invariants), runnable in every tree state",
+    "seqtest": "verify.py --seqtest -- PRE_GPU / RUN01_PRESENT / RUN02_PRESENT from raw/ directory presence",
+    "smoke": "verify.py --preflight (run01) / --between-runs (run02) -- NON-RECORDED compile+dispatch+compare of one known-good kernel, writes nothing under raw/",
+    "captured_compare": "verify.py --compare RUN1 RUN2 -- byte-identity of GATED_FIELDS only across the two runs",
+    "concurrency_split": "GATED_FIELDS carries only the coarse `verdict` (exact/broken/incomplete) for concurrency cases; raw per-lane mismatch/timeout/completed counts live in the sibling 01_detail.jsonl (non-gated); verify.py --selftest asserts this split by construction"
+  },
+  "process_rules": {
+    "no_raw_binary": "raw/ contains only text/JSON; scratch Metal binary archives and buffer files live under work/<run-id>/ (outside raw/)",
+    "one_case_one_process": "harness/case_exec.py is invoked once per case as a fresh subprocess from run.py",
+    "append_fflush": "run.py opens 01_results.jsonl/01_detail.jsonl/01_timing.jsonl in append mode and flushes after every case",
+    "no_run_id_reuse": "run.py refuses to start into a non-empty existing run directory",
+    "no_post_capture_repair": "raw/ captures, once written, are never hand-edited; a defective run is quarantined and a NEW run id captures the replacement",
+    "each_experiment_own_process": "tools/* are read-only; this experiment never edits them",
+    "no_git_commits": "this experiment does not call git commit; the orchestrator reviews and commits"
+  }
+}

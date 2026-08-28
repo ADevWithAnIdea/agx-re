@@ -1,0 +1,42 @@
+{
+  "experiment": "EXP-0123-m4-rasterization-limits",
+  "target": "Apple M4 (G16G), local host only, macOS 26.6.2 (25G82), 16 GB unified memory",
+  "a18_status": "HANDS-OFF, not touched, no claim made",
+  "git_revision_pinned_at_freeze": "6a8d588678a94eedafa215f9ac57bceb7fd4e36e",
+  "cases_planned": 98,
+  "families": [
+    "line_rule", "point_rounding", "polygon_fillmode", "wide_line_negative",
+    "depth_clip_clamp", "conservative_raster", "coverage_earlylate",
+    "limit_attachments", "limit_viewports", "limit_tex", "limit_bufferindex",
+    "limit_textureindex", "limit_bytesconst", "limit_bufferalign",
+    "limit_threadgroup", "limit_tgmem_dynamic", "simd_width", "simd_shuffle_oob"
+  ],
+  "gated_keys": ["case_id", "family", "kind", "params", "status", "verdict", "observed"],
+  "nongated_keys": ["case_id", "gputime_ns", "wall_ms", "pid", "raw_tail"],
+  "nondeterministic_fields_excluded_from_gate": ["gputime_ns"],
+  "hard_timeout_seconds": 25.0,
+  "run_isolation": "one case = one fresh subprocess (rasterprobe or computeprobe)",
+  "official_runs": ["m4_20260828_run01", "m4_20260828_run02"],
+  "excluded_from_matrix": {
+    "reason": "single non-reproducible crash during ad hoc exploration (3/3 later re-runs succeeded)",
+    "config": "sample_count=4, alphaToCoverageEnabled=true, alpha=1.0 (full derived coverage), depth attachment present, visibility(occlusion) buffer bound, readback mode point",
+    "disposition": "reported as a named out-of-gate observation in RESULTS.md; not part of the frozen 98-case matrix"
+  },
+  "source_hashes_sha256": {
+    "harness/casematrix.py": "c0886473d32618c2d2dbb613a7acda1152f059d8189880b4b13b17ce0779ffcb",
+    "harness/genkernels.py": "09cd53a8421699184bd87b09a70ea6670c484886aece1470a8a0abbc7328e9c0",
+    "harness/rasterprobe.m": "4590110c6f858ff305e94f87cf84a31397015cf42a43ad595ef4bd3045b16728",
+    "harness/computeprobe.m": "4d2c849688ab642e4981f4b50085a6b11929aed053b720c91451a43e2df057ce",
+    "harness/run.py": "a4bf859892fc6ba07283d49338db3be08ccc4d1c6dd2c629aea3243cb3d255c5",
+    "harness/schema.py": "68c97215883b8665cae0437d7d649c9ac7ebc71eb09e864252a5d6c2c9e23af0",
+    "harness/verify.py": "9c14aa2063f1327274c442678e0152c583a020691682bec5449b2d1f12151824",
+    "harness/fixtures/recorded_reality.json": "7bfa5ab7ebbdba2070cef4cecb0c40c6bd60540068e6cb0202e5a9278e5c4000"
+  },
+  "standing_gates": {
+    "selftest": "harness/verify.py --selftest",
+    "seqtest": "harness/verify.py --seqtest",
+    "smoke_gate_before_raw": "work/pilot_run/ (run id pilot1), non-recorded, executed before raw/ was ever touched",
+    "no_nondeterministic_field_in_gated_records": "enforced by run.py:_strip_nondeterministic and checked by verify.py --selftest",
+    "fixtures_from_recorded_reality": "harness/fixtures/recorded_reality.json, pinned from the pilot1 capture"
+  }
+}

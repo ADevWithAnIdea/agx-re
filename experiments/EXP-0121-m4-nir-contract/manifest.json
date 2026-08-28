@@ -1,0 +1,38 @@
+{
+  "experiment": "EXP-0121-m4-nir-contract",
+  "title": "M4 NIR-contract closure: OPT-01, OPT-03, OPT-04, OPT-05, OPT-06, OPT-07, OPT-08, OPT-10, OPT-11",
+  "target": "Apple M4 / G16G (local host only, no A18 Pro claim)",
+  "macos": "26.6.2 (25G82)",
+  "pinned_revision": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "tools_used_readonly": [
+    "tools/shdump/shdump.m", "tools/shdump/agxparse.py",
+    "tools/agxtest/agxrun.m", "tools/agxtest/agxtest.py",
+    "tools/agx-isa/isadb.py", "tools/agx-isa/db.json"
+  ],
+  "harness_derived_from": {
+    "harness/fsrun.m": "experiments/EXP-0111-m4-fragment-semantics/harness/fsrun.m (copied unchanged, own prior code)"
+  },
+  "runs": {
+    "m4-20260828T000000Z-run01": {
+      "n_cases": 94, "status": "94/94 OK",
+      "results_sha256": "f3047ffb8052a39352e219e7cb80e7d8aaf7fc807392ea0df56c5f13146498a6"
+    },
+    "m4-20260828T000100Z-run02": {
+      "n_cases": 94, "status": "94/94 OK",
+      "results_sha256": "f0f44009fa07fc0b9e0f2edf195e1527f712b79455a56805e6f0890e5dd43510"
+    }
+  },
+  "cross_run_gate": "PASS (verify.py --compare), all GATED_FIELDS identical after one documented concurrency broken<->incomplete coarsening (see RESULTS.md Gates section)",
+  "verdicts": {
+    "OPT-01": "YES - relaxed/precise division structurally distinct (66B vs 300B)",
+    "OPT-03": "YES - pow requires fixup beyond exp2(y*log2(x))",
+    "OPT-04": "NO (single instruction, as tested) / correctness YES modulo DAZ+FTZ",
+    "OPT-05": "YES - single fused isel8 compare-select over arbitrary values",
+    "OPT-06": "YES - covers FP32/I32/U32 x eq/ne/lt/le/gt/ge",
+    "OPT-07": "NO - iter/iter_flat slot is imm-typed; ALU-select is the working strategy",
+    "OPT-08": "UNKNOWN mechanism (positive-leaning structural clue); NO at MSL/compiler-facing level",
+    "OPT-10": "NO - plain load does not reliably see cross-thread writes even fenced",
+    "OPT-11": "YES - plain store is a faithful substitute under the documented fence"
+  },
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC (host-oracle math only). No Apple binary introspected."
+}

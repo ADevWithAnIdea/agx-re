@@ -1,0 +1,21 @@
+#include <metal_stdlib>
+using namespace metal;
+struct VOut { float4 position [[position]]; };
+vertex VOut vs_full(uint vid [[vertex_id]]) {
+    float2 pos[3] = { float2(-2.0,-2.0), float2(2.0,-2.0), float2(0.0,2.0) };
+    VOut o; o.position = float4(pos[vid], 0.0, 1.0);
+    return o;
+}
+fragment float4 fs_bytes(constant uchar* buf [[buffer(0)]], constant uint& checkIdx [[buffer(1)]]) {
+    return float4(float(buf[0])/255.0, float(buf[checkIdx])/255.0, 0,1);
+}
+fragment float4 fs_bufalign(constant uchar* buf [[buffer(0)]]) {
+    return float4(float(buf[0])/255.0, float(buf[1])/255.0, float(buf[2])/255.0, float(buf[3])/255.0);
+}
+fragment float4 fs_texbind(texture2d<float> tex [[texture(0)]]) {
+    constexpr sampler s(coord::pixel, filter::nearest);
+    return tex.sample(s, float2(0,0));
+}
+fragment float4 fs_bytes_single(constant uchar* buf [[buffer(0)]]) {
+    return float4(float(buf[0])/255.0, float(buf[1])/255.0, 0,1);
+}

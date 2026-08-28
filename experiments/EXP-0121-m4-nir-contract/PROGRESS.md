@@ -1,0 +1,32 @@
+- 2026-08-28T07:45:45Z [m4-20260828T000000Z-run01] selftest PASS
+- 2026-08-28T07:45:45Z [m4-20260828T000000Z-run01] seqtest phase=RUN01_PRESENT
+- 2026-08-28T07:45:46Z [m4-20260828T000000Z-run01] built tools into /Users/user/asahi_re/public/agx-re/experiments/EXP-0121-m4-nir-contract/work/m4-20260828T000000Z-run01/bin
+- 2026-08-28T07:45:46Z [m4-20260828T000000Z-run01] preflight smoke gate: PASS
+- 2026-08-28T07:45:48Z [m4-20260828T000000Z-run01] case 10/94 id=opt0506_sel_i32_eq status=OK
+- 2026-08-28T07:45:49Z [m4-20260828T000000Z-run01] case 20/94 id=opt0506_sel_u32_le status=OK
+- 2026-08-28T07:45:51Z [m4-20260828T000000Z-run01] case 30/94 id=opt08_dynout_3way status=OK
+- 2026-08-28T07:45:53Z [m4-20260828T000000Z-run01] case 40/94 id=opt1011_msg_AA_unfenced_p1_r1 status=OK
+- 2026-08-28T07:45:54Z [m4-20260828T000000Z-run01] case 50/94 id=opt1011_msg_PA_fenced_p4_r1 status=OK
+- 2026-08-28T07:45:56Z [m4-20260828T000000Z-run01] case 60/94 id=opt1011_msg_PA_unfenced_p8_r1 status=OK
+- 2026-08-28T07:45:58Z [m4-20260828T000000Z-run01] case 70/94 id=opt1011_msg_AP_fenced_p16_r1 status=OK
+- 2026-08-28T07:46:00Z [m4-20260828T000000Z-run01] case 80/94 id=opt1011_msg_PP_fenced_p1_r1 status=OK
+- 2026-08-28T07:46:01Z [m4-20260828T000000Z-run01] case 90/94 id=opt1011_msg_PP_unfenced_p4_r1 status=OK
+- 2026-08-28T07:46:02Z [m4-20260828T000000Z-run01] case 94/94 id=opt1011_msg_PP_unfenced_p16_r1 status=OK
+- 2026-08-28T07:46:02Z [m4-20260828T000000Z-run01] CAPTURE COMPLETE: 94 cases, status_counts={'OK': 94}, results_sha256=f3047ffb8052a393...
+- 2026-08-28T07:46:02Z [m4-20260828T000000Z-run01] post-capture --captured check: PASS
+- 2026-08-28T07:46:05Z [m4-20260828T000100Z-run02] selftest PASS
+- 2026-08-28T07:46:05Z [m4-20260828T000100Z-run02] seqtest phase=RUN02_PRESENT
+- 2026-08-28T07:46:06Z [m4-20260828T000100Z-run02] built tools into /Users/user/asahi_re/public/agx-re/experiments/EXP-0121-m4-nir-contract/work/m4-20260828T000100Z-run02/bin
+- 2026-08-28T07:46:06Z [m4-20260828T000100Z-run02] between-runs smoke gate: PASS
+- 2026-08-28T07:46:08Z [m4-20260828T000100Z-run02] case 10/94 id=opt0506_sel_i32_eq status=OK
+- 2026-08-28T07:46:10Z [m4-20260828T000100Z-run02] case 20/94 id=opt0506_sel_u32_le status=OK
+- 2026-08-28T07:46:12Z [m4-20260828T000100Z-run02] case 30/94 id=opt08_dynout_3way status=OK
+- 2026-08-28T07:46:14Z [m4-20260828T000100Z-run02] case 40/94 id=opt1011_msg_AA_unfenced_p1_r1 status=OK
+- 2026-08-28T07:46:15Z [m4-20260828T000100Z-run02] case 50/94 id=opt1011_msg_PA_fenced_p4_r1 status=OK
+- 2026-08-28T07:46:17Z [m4-20260828T000100Z-run02] case 60/94 id=opt1011_msg_PA_unfenced_p8_r1 status=OK
+- 2026-08-28T07:46:19Z [m4-20260828T000100Z-run02] case 70/94 id=opt1011_msg_AP_fenced_p16_r1 status=OK
+- 2026-08-28T07:46:21Z [m4-20260828T000100Z-run02] case 80/94 id=opt1011_msg_PP_fenced_p1_r1 status=OK
+- 2026-08-28T07:46:23Z [m4-20260828T000100Z-run02] case 90/94 id=opt1011_msg_PP_unfenced_p4_r1 status=OK
+- 2026-08-28T07:46:24Z [m4-20260828T000100Z-run02] case 94/94 id=opt1011_msg_PP_unfenced_p16_r1 status=OK
+- 2026-08-28T07:46:24Z [m4-20260828T000100Z-run02] CAPTURE COMPLETE: 94 cases, status_counts={'OK': 94}, results_sha256=f0f44009fa07fc0b...
+- 2026-08-28T07:46:24Z [m4-20260828T000100Z-run02] post-capture --captured check: PASS
