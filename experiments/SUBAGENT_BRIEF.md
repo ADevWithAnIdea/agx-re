@@ -46,6 +46,16 @@ to reboot manually — never attempt any tool-based reboot.
   never silently generalize); label evidence (`HW-VALIDATED` / `DATA-TRACE-VALIDATED` /
   `OWN-SHADER-DIFF` / `STRUCTURAL` / `INFERRED` / `UNKNOWN`). Tokenizing bytes or a round trip
   never proves an encoding can be *synthesized*.
+- **Pin the revision at pre-registration; do not gate on live `HEAD`.** Record the git revision
+  (and dirty flag) in your frozen contract at pre-registration time and compare captures against
+  **that recorded value**, not against whatever `HEAD` is when run02 starts. The orchestrator
+  commits other experiments' results continuously, so a cross-run gate written as "HEAD must not
+  move" will abort mid-sequence through no fault of your experiment (this happened to EXP-0082).
+  A capture is valid if the *authored blob hashes* match; repo `HEAD` moving because a sibling
+  experiment landed is not contamination.
+- **Never reuse or overwrite a run id.** If a capture looks defective, retain it and either
+  quarantine with a named successor or capture the replacement under a **new** id. "Nothing was
+  promoted yet" is not a licence to erase evidence (EXP-0085 did this; it cost auditability).
 - **Never repair or rerun a quarantined experiment in place** (see its `QUARANTINE.md`); a
   successor takes a NEW experiment number and a fresh pre-registration.
 
