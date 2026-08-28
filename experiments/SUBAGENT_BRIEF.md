@@ -46,6 +46,15 @@ to reboot manually — never attempt any tool-based reboot.
   never silently generalize); label evidence (`HW-VALIDATED` / `DATA-TRACE-VALIDATED` /
   `OWN-SHADER-DIFF` / `STRUCTURAL` / `INFERRED` / `UNKNOWN`). Tokenizing bytes or a round trip
   never proves an encoding can be *synthesized*.
+- **Assume the host will crash mid-run.** It has repeatedly. Design so a kill costs at most one
+  milestone: append each case record to `raw/` as it completes (never buffer results in memory to
+  write at the end), `fflush` after every record, write a timestamped `PROGRESS.md` entry after
+  every milestone, and write partial `RESULTS.md` sections as soon as their data exists. On resume,
+  re-orient from your own files — `PROGRESS.md`, the frozen contract, and what is actually in
+  `raw/` — never from memory of what you were doing.
+- **A partial capture is retained, never reused.** If a kill leaves a half-finished run directory,
+  leave it exactly as it is, note it, and capture under a **new** id. Do not top it up, delete it,
+  or reuse its id.
 - **Pin the revision at pre-registration; do not gate on live `HEAD`.** Record the git revision
   (and dirty flag) in your frozen contract at pre-registration time and compare captures against
   **that recorded value**, not against whatever `HEAD` is when run02 starts. The orchestrator
