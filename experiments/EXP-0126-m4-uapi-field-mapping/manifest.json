@@ -1,0 +1,50 @@
+{
+  "experiment": "EXP-0126-m4-uapi-field-mapping",
+  "numbering_collision_note": "experiments/EXP-0126-m4-lifecycle-boundary-probe/ also exists under EXP-0126 (concurrent orchestrator activity); this experiment keeps its dispatched path.",
+  "target": {
+    "device": "Apple M4 (G16G), Mac16,10, 10 GPU cores",
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4"
+  },
+  "pinned_revision": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "mesa_pinned_revision": "3c4d3e46d19f2f4e951f3ae059543b03592f7944",
+  "runs": {
+    "m4_20260828_run01": {
+      "records_sha256": "638e76490b2ade48f4c261b294514dc7c290ddb17bf080a2e2f629e402b6b245",
+      "n_cases": 59
+    },
+    "m4_20260828_run02": {
+      "records_sha256": "686447aeae8c965f084ebeb1b75ba00cb591edfafdb9b00059f163de22c621db",
+      "n_cases": 59
+    }
+  },
+  "note_on_run_hashes": "The two records.jsonl whole-file hashes differ by design -- they include NONGATED fields (va_vtxbuf/va_resbuf, raw_stdout, wall_ms) that are allocator/timing-dependent. The claimed fact is the GATED-field equality proven by verify.py --captured, not whole-file byte identity.",
+  "gates": {
+    "selftest": "PASS",
+    "seqtest": "PASS",
+    "smoke_nonrecorded": "PASS (both runs; work/m4_20260828_run0{1,2}_smoke.json precede raw/ creation)",
+    "captured": "PASS (0 issues, --run01 m4_20260828_run01 --run02 m4_20260828_run02)"
+  },
+  "field_matrix_status": {
+    "total_leaves": 65,
+    "MAPPED": 7,
+    "PARTIAL": 58,
+    "UNDETERMINABLE_FROM_USERSPACE": 0,
+    "supplementary_undeterminable_item": "drm_asahi_params_global.command_timestamp_frequency_hz (not one of the 65 leaves; kernel-supplied GET_PARAMS output)"
+  },
+  "new_hardware_findings": [
+    "render.ppp_multisamplectl: 1/16 sample-position grid exhaustively confirmed on M4 (16/16 X, 8/8 Y)",
+    "render.ppp_multisamplectl: exact round-half-up tie rule located at 1/32 and 3/32 boundaries (never previously bisected on any target)",
+    "render.ppp_multisamplectl: top-boundary behavior -- 0.94->0.9375, 0.99->1.0 (no ceiling clamp at the macOS float representation stage)",
+    "render.ppp_multisamplectl: Metal API hard range [0,1) enforced by a process-terminating assertion, not a catchable NSError",
+    "render.samples: supportsTextureSampleCount true only for {1,2,4} of {0,1,2,3,4,5,6,7,8,16} tested on this M4; construction at every unsupported count aborts with an assertion naming the count",
+    "isp_merge_upper_x/y: header doc comment (tan(60deg)*width) disagrees with Mesa's actual code (tan_60/width, division) -- flagged, not resolved",
+    "isp_bgobjvals: Mesa uses a fixed 0x300 baseline OR'd with the stencil clear byte, not \"bottom 8 bits\" alone as the header implies",
+    "compute.cdm_ctrl_stream_end: Mesa's own reference driver uses a hardcoded 65536 placeholder (marked XXX) for the linked/chained-stream case",
+    "EXP-0055's 0x58000+0x36 depth-bias-enable candidate cross-identified as Mesa cmdbuf.xml's 'Fragment control.Depth bias enable' bit17, convergent with EXP-0110's bit18 finding"
+  ],
+  "clean_room": {
+    "provenance": "PUBLIC + DATA-TRACE + HW-PROBE + OWN-SHADER",
+    "apple_binary_introspection": "NONE"
+  }
+}
