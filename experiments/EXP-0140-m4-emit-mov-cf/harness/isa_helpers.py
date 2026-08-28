@@ -154,25 +154,46 @@ def assert_round_trip(hexbytes):
 # perturb exactly one named field of one instruction, addressed by its index
 # in the sequence.  Nothing recomputes a displacement (the EXP-0128 hazard).
 # ---------------------------------------------------------------------------
-CF_CARRIER_LEN = 152
+CF_CARRIER_LEN = 152       # carrier_cf.metal (EXP-0112); re-derived by baseline.py
 CF_SLOT_OUT = 0
-CF_SLOT_A = 2      # buffer(1)=a   -- re-derived by harness/baseline.py, never assumed
+CF_SLOT_A = 2      # buffer(1)=a   -- re-derived from the carrier's OWN compile, never assumed
 CF_SLOT_N = 1      # buffer(2)=n
 
+# Integrity sentinel (EXP-0141): every generated program writes a known value
+# to a dedicated output word through a path that runs BEFORE, and is
+# independent of, the instruction under test.  A dispatch that reports
+# STATUS OK but never executed leaves the pre-poisoned buffer untouched, which
+# on this ISA is indistinguishable from a wrong field value -- the sentinel is
+# what separates them.  r14/r15 are used because the reused CF skeleton writes
+# only r0,r1,r2,r3,r6 and reads r5.
+SENT_VAL = 91              # must fit mov_imm's 0..127 safe range (EXP-0128)
+SENT_REG_VAL = 15
+SENT_REG_IDX = 14
 
-def cf_sequence(cond=6):
+
+def sentinel_prologue(slot_out, sent_idx):
+    if not (0 <= sent_idx <= 127):
+        raise ValueError("sentinel index must be mov_imm-seedable")
+    return [mov_imm(SENT_REG_VAL, SENT_VAL),
+            mov_imm(SENT_REG_IDX, sent_idx),
+            device_store(SENT_REG_IDX, 0, slot_out, data_reg=SENT_REG_VAL)]
+
+
+def cf_sequence(cond=6, slot_a=None, slot_n=None):
     """Returns the frozen list of (mnemonic, fields-dict) making up the
     skeleton, in program order.  EXP-0112/cf.py values, unchanged."""
+    sa = CF_SLOT_A if slot_a is None else slot_a
+    sn = CF_SLOT_N if slot_n is None else slot_n
     return [
         ("get_sr", {"form": 1, "dst": 0, "sr_sel": 0xA0, "dp_width": 0x10,
                      "dp_marker": 6, "dst_hi": 0}),
         ("device_load", {"space": 0x10, "addr_mode": 0x54, "extmode": 4,
-                          "base_slot": CF_SLOT_A, "index_reg": 0, "access_desc": 0x20,
+                          "base_slot": sa, "index_reg": 0, "access_desc": 0x20,
                           "reserved7": 0, "ld_format": 0x11, "dst_lo": 1, "dst_ext9": 1,
                           "idx_off": 0, "ldform_hi11": 0x10, "elem_size": 0x46,
                           "reserved13": 0}),
         ("device_load", {"space": 0, "addr_mode": 0x44, "extmode": 2,
-                          "base_slot": CF_SLOT_N, "index_reg": 0, "access_desc": 0x20,
+                          "base_slot": sn, "index_reg": 0, "access_desc": 0x20,
                           "reserved7": 0, "ld_format": 0x11, "dst_lo": 0, "dst_ext9": 0,
                           "idx_off": 0, "ldform_hi11": 0x10, "elem_size": 0x46,
                           "reserved13": 0}),
@@ -213,19 +234,35 @@ def cf_sequence(cond=6):
 CF_IDX = {"if_push_pred": 4, "jump_cond": 5, "reg_move_c0": 6, "if_push": 7,
           "ret": 12, "jump": 13, "pop_reconverge_a": 14, "pop_reconverge_b": 15}
 
+CF_SENT_IDX = 11           # output word the CF sentinel writes (lanes use 0..7)
+# NOTE (this experiment's own finding, recorded as a db_defect): a `mov_imm`
+# whose 7-bit immediate is exactly 12 does NOT tokenize -- byte+1 = 0x0C makes
+# the 2-byte pair look like the 4-byte `0x?c` preamble/get_sr group under the
+# current length rule, and `instr_length` returns None.  It is the ONLY
+# immediate in 0..127 with this property (checked exhaustively over all 16
+# dst values).  Every immediate this experiment emits avoids 12.
 
-def cf_program(cond=6, override=None):
-    """override = (sequence_index, field_name, value) or None."""
-    seq = cf_sequence(cond)
+
+def cf_program(cond=6, override=None, carrier_len=None, slot_a=None, slot_n=None,
+                slot_out=None, sentinel=False):
+    """override = (sequence_index, field_name, value) or None.
+
+    The skeleton's instruction SEQUENCE, every LENGTH and both branch
+    DISPLACEMENTS are frozen: an override perturbs exactly one named field of
+    one instruction, so no displacement is ever recomputed (the hazard that
+    safety-stopped EXP-0128's item (d))."""
+    L = CF_CARRIER_LEN if carrier_len is None else carrier_len
+    so = CF_SLOT_OUT if slot_out is None else slot_out
+    seq = cf_sequence(cond, slot_a, slot_n)
     if override is not None:
         i, name, val = override
         seq[i] = (seq[i][0], dict(seq[i][1], **{name: val}))
-    instrs = [isadb.assemble(m, f) for (m, f) in seq]
-    instrs.append(device_store(index_reg=0, idx_off=0, base_slot=CF_SLOT_OUT,
+    instrs = list(sentinel_prologue(so, CF_SENT_IDX)) if sentinel else []
+    instrs += [isadb.assemble(m, f) for (m, f) in seq]
+    instrs.append(device_store(index_reg=0, idx_off=0, base_slot=so,
                                data_reg=1, addr_mode=0x54))
     instrs.append(stop())
-    prog = build_program(instrs, CF_CARRIER_LEN)
-    return prog
+    return build_program(instrs, L)
 
 
 def cf_oracle(a_val, n_val, cond=6):

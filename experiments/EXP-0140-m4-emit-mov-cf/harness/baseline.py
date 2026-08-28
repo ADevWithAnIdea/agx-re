@@ -76,8 +76,13 @@ def derive(bin_dir, work_dir):
     assert facts["uni"]["load_slots"] == [C.UNI_SLOT_MEM], facts["uni"]["load_slots"]
     assert facts["uni"]["store_slots"] == [C.UNI_SLOT_OUT], facts["uni"]["store_slots"]
     import isa_helpers as H
-    assert facts["cf"]["load_slots"] == [H.CF_SLOT_A, H.CF_SLOT_N], facts["cf"]["load_slots"]
+    # the CF skeleton's base_slots are taken from THIS carrier's own compile
+    # (first load = `a`, second = `n`), never assumed -- EXP-0112's documented trap.
+    assert len(facts["cf"]["load_slots"]) == 2, facts["cf"]["load_slots"]
     assert facts["cf"]["store_slots"] == [H.CF_SLOT_OUT], facts["cf"]["store_slots"]
+    assert facts["cf"]["load_slots"] == [H.CF_SLOT_A, H.CF_SLOT_N], (
+        "carrier_cf2.metal base_slot mapping drifted from the frozen skeleton: %r"
+        % (facts["cf"]["load_slots"],))
     # the two select instructions must sit at their frozen offsets
     d5 = [t for t in facts["dsel5"]["tokens"] if t["off"] == C.SEL_INSTR_OFF]
     assert d5 and d5[0]["mnemonic"] == "sel" and d5[0]["hex"][:2] == "16", d5

@@ -1,0 +1,11 @@
+# Build products and per-run scratch. `work/` is NOT evidence: the tools are rebuilt
+# by harness/build.sh, the carriers are recompiled by harness/baseline.py, and every
+# capture's own inputs are hash-recorded in raw/<run>/00_inputs.json.
+# The .bin files here are serialized Metal binary archives compiled from OUR OWN MSL
+# (kernels/*.metal) -- they are build output, not evidence, and not Apple blobs.
+bin/
+baseline_bin/
+run_*/
+*.bin
+*.log
+pilot/*.bin

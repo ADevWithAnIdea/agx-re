@@ -16,39 +16,50 @@
   "total_instructions": 171,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 208,
+   "hardware-run": 239,
    "isolated-byte-diff": 80,
-   "corpus-correlation": 213,
-   "tokenization-only": 250,
-   "single-template-inference": 18,
+   "corpus-correlation": 204,
+   "tokenization-only": 244,
+   "single-template-inference": 16,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 267
+   "untested": 253
   },
   "by_label_pct": {
-   "hardware-run": 20.1,
+   "hardware-run": 23.1,
    "isolated-byte-diff": 7.7,
-   "corpus-correlation": 20.6,
-   "tokenization-only": 24.1,
-   "single-template-inference": 1.7,
+   "corpus-correlation": 19.7,
+   "tokenization-only": 23.6,
+   "single-template-inference": 1.5,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 25.8
+   "untested": 24.4
   },
-  "emittable_instructions": 10,
+  "emittable_instructions": 21,
   "emittable_mnemonics": [
    "device_load",
    "device_store",
    "frame_prologue",
+   "get_sr",
    "ibitcount",
+   "if_push",
    "iunary",
    "link_save_restore",
+   "mov_imm",
+   "psel",
+   "reg_move_c0",
+   "reg_move_c1",
+   "reg_move_c2var",
+   "reg_move_c9",
+   "reg_move_cb",
+   "sel",
    "spill_frame_marker",
    "stop",
    "tex_addr_setup",
-   "threadgroup_barrier"
+   "threadgroup_barrier",
+   "uniform_mov"
   ],
-  "decodable_not_yet_emittable": 161
+  "decodable_not_yet_emittable": 150
  },
  "instructions": {
   "falu2": {
@@ -2420,15 +2431,13 @@
     ]
    },
    "body": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "each of the three body bytes swept 0..255 dense (x2 input vectors), plus whole-field boundaries, all 24 powers of two and 16 interior samples",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0140"
     ],
-    "note": "4-byte branchless select; the 24-bit body is not decoded."
+    "note": "db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly."
    }
   },
   "psel": {
@@ -2441,37 +2450,31 @@
     ]
    },
    "flag": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0140"
     ],
-    "note": "Role-typed by located position over the corpus; own MSL ternaries fold to isel10, so psel was not single-toggle reproducible."
+    "note": "512/512 comparable values reproduced identically across both gated runs (of 512 swept)"
    },
    "mode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0140"
     ],
-    "note": "Role-typed by located position over the corpus; own MSL ternaries fold to isel10, so psel was not single-toggle reproducible."
+    "note": "511/511 comparable values reproduced identically across both gated runs (of 512 swept)"
    },
    "sel": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0140"
     ],
-    "note": "Role-typed by located position over the corpus; own MSL ternaries fold to isel10, so psel was not single-toggle reproducible."
+    "note": "512/512 comparable values reproduced identically across both gated runs (of 512 swept)"
    }
   },
   "jump": {
@@ -2503,12 +2506,13 @@
     "note": "Practical reach is FAR narrower and more irregular than the 48-bit encoding: delta=+1 from a valid target already faults, delta=-2 is an undocumented alias hole that still executes correctly, and past the function extent the outcome is a checkerboard of fault / hang / silent-zero. 13/162 points were run-to-run NONDETERMINISTIC (EXP-0115)."
    },
    "link": {
-    "label": "single-template-inference",
-    "range": "0x00 in all 646 corpus jumps and all own-MSL loops; no other value observed or constructed",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    }
   },
   "jump_cond": {
@@ -2561,21 +2565,22 @@
     ]
    },
    "scope": {
-    "label": "corpus-correlation",
-    "range": "0x54 outer / 0x56 nested (ping-pongs with nesting parity); 0x04 inner mask-op variant",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0104",
-     "EXP-M4-13"
-    ]
-   },
-   "scope_kind": {
-    "label": "corpus-correlation",
-    "range": "0x01 conditional-skip scope, 0x1a loop-iteration scope (2 observed)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
+   },
+   "scope_kind": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 242 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 242 of those identical"
    }
   },
   "pop_reconverge": {
@@ -2590,20 +2595,22 @@
     ]
    },
    "scope": {
-    "label": "corpus-correlation",
-    "range": "mask-bank selector, low 0x04 form",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "scope_kind": {
-    "label": "corpus-correlation",
-    "range": "0x02 loop-body scope, 0x01 outermost/loop-entry scope (2 observed)",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "reserved": {
     "label": "tokenization-only",
@@ -2928,12 +2935,13 @@
     ]
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "byte0 bit3, set for the position-in-grid SR family; does not change the SR select",
+    "label": "hardware-run",
+    "range": "2 values sampled: [0, 1]",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "2/2 values reproduced identically across both gated runs"
    },
    "dst": {
     "label": "hardware-run",
@@ -2956,23 +2964,22 @@
     "note": "Two caveats an implementer will hit: (1) 0xa8/0xa9/0xaa is NOT threadgroups_per_grid - a bare get_sr 0xa8 returns threads_per_threadgroup; the builtin is get_sr + a device_load + a divide (RT-7). (2) unclassified 0x80-0xFF values must not be treated as reserved-safe no-ops."
    },
    "dp_width": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ],
-    "note": "Datapath width / dst-bank descriptor; located, semantics not established."
-   },
-   "dp_marker": {
-    "label": "single-template-inference",
-    "range": "fixed 32-bit-read marker 0x06 in every observed instance",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values reproduced identically across both gated runs"
+   },
+   "dp_marker": {
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "32/32 values reproduced identically across both gated runs"
    },
    "dst_hi": {
     "label": "hardware-run",
@@ -2994,10 +3001,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "all 16 values executed with a host-computed oracle; four 12-register aliasing scans confirm no second register changes; 16/16 values reproduced identically across both gated runs"
    },
    "imm7": {
     "label": "hardware-run",
@@ -3029,18 +3039,22 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "usrc": {
-    "label": "corpus-correlation",
-    "range": "uniform source index located; not swept (only one uniform is ever bound)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0020"
-    ]
+     "EXP-0140"
+    ],
+    "note": "128/128 immediate-region values matched their host-computed oracle exactly; 8/8 mapped uniform indices returned the bound magic constant"
    }
   },
   "stop": {
@@ -8313,11 +8327,13 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "src_reg": {
     "label": "hardware-run",
@@ -8330,32 +8346,31 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "src_flag": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "src_class": {
     "label": "hardware-run",
-    "range": "byte+2 high nibble swept; most values are SILENT NO-OPS that zero the destination (26 raw cases)",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
    },
    "op_desc": {
     "label": "hardware-run",
-    "range": "bit2 (0x04) redirects the write to a different register; only byte+2=0x01 with op_desc=0x08 and src_flag=0 ever moved a value, and even that is UNIFORM-SOURCED ONLY",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0090",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "see analysis/field_masks.json"
    }
   },
   "reg_move_c1": {
@@ -8372,11 +8387,13 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "src_reg": {
     "label": "hardware-run",
@@ -8389,32 +8406,31 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "src_flag": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "src_class": {
     "label": "hardware-run",
-    "range": "byte+2 high nibble swept; most values are SILENT NO-OPS that zero the destination (26 raw cases)",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
    },
    "op_desc": {
     "label": "hardware-run",
-    "range": "bit2 (0x04) redirects the write to a different register; only byte+2=0x01 with op_desc=0x08 and src_flag=0 ever moved a value, and even that is UNIFORM-SOURCED ONLY",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0090",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "see analysis/field_masks.json"
    }
   },
   "reg_move_c9": {
@@ -8431,11 +8447,13 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "src_reg": {
     "label": "hardware-run",
@@ -8447,32 +8465,31 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "src_flag": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "src_class": {
     "label": "hardware-run",
-    "range": "byte+2 high nibble swept; most values are SILENT NO-OPS that zero the destination (26 raw cases)",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
    },
    "op_desc": {
     "label": "hardware-run",
-    "range": "bit2 (0x04) redirects the write to a different register; only byte+2=0x01 with op_desc=0x08 and src_flag=0 ever moved a value, and even that is UNIFORM-SOURCED ONLY",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0090",
-     "EXP-0101"
+     "EXP-0140"
     ],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "note": "see analysis/field_masks.json"
    }
   },
   "reg_move_cb": {
@@ -8489,32 +8506,40 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "src": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "form": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
    },
    "b3": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "see analysis/field_masks.json"
    }
   },
   "b_alu14_c83": {
@@ -8689,14 +8714,13 @@
     "note": "REFUTES the hypothesis that this nibble selects the predicate the push consumes."
    },
    "scope": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "level": {
     "label": "tokenization-only",
@@ -10330,40 +10354,49 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble proven a destination register by parallel-extend diffs / an own-MSL reg sweep (compile-only)",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "16/16 dense, verified by reading r_D back and checking a control register"
    },
    "src_reg": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bits0-6 source register",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "src_flag": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bit7 uniform-file / high-half flag",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0140"
+    ],
+    "note": "the whole byte was swept 0..255 in one sweep; db.json's split of this byte into src_reg + src_flag does not match the observed behaviour"
    },
    "subform": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "db.json models this byte as a 4-bit nibble per descriptor; it is one 8-bit field and the descriptors are not distinct instructions"
    },
    "op_desc": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0140"
+    ],
+    "note": "see analysis/field_masks.json"
    }
   },
   "bf_alu8_var": {

@@ -49,6 +49,24 @@ CF_A = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0]
 CF_N = [0, 1, 2, 3, 4, 8, 16, 32]
 
 CARRIER_MAINLEN_EXPECT = {"uni": 300, "dsel5": 46, "gsel4": 32, "cf": 152}
+
+# ---------------------------------------------------------------- integrity
+# EXP-0141 contamination mode: a dispatch can report STATUS OK having executed
+# nothing, leaving the output buffer at its initial contents -- which on this
+# ISA is byte-identical to the signature of a wrong field value.  Two defences,
+# both independent of the instruction under test:
+#   * buffer 0 is PRE-FILLED by run.py with POISON_WORD(i) (never a legal
+#     result), so an unwritten word is recognisable as unwritten; and
+#   * on the carriers with room (uni, cf) the generated program's FIRST three
+#     instructions store a fixed SENTINEL value, so a run that executed at all
+#     proves it.  dsel5/gsel4 are 46/32-byte compiles with no room; there the
+#     poison test alone is the integrity check (stated as a limitation).
+UNI_SENT_IDX = 30          # uni read-back uses out[0..11]
+SENT_VAL = 91
+
+
+def POISON_WORD(i):
+    return -559038737 + i    # 0xDEADBEEF + i, as int32
 SEL_INSTR_OFF = 0x18       # `sel`  inside dsel5's own compile
 PSEL_INSTR_OFF = 0x0A      # `psel` inside gsel4's own compile
 SEL_BASE_BODY = (0xC2, 0xA0, 0xC8)
@@ -90,9 +108,13 @@ def _alloc(D, scan=False):
     return pool[0], pool[1], pool[2]
 
 
+def _uni_prologue():
+    return list(H.sentinel_prologue(UNI_SLOT_OUT, UNI_SENT_IDX))
+
+
 def _mov_read2(instrs, D, idx, ctrl, mainlen):
     """append: store r_D -> out[0], store r_ctrl -> out[1]."""
-    instrs = list(instrs)
+    instrs = _uni_prologue() + list(instrs)
     instrs.append(H.mov_imm(idx, 0))
     instrs.append(H.device_store(idx, 0, UNI_SLOT_OUT, data_reg=D))
     instrs.append(H.mov_imm(idx, 1))
@@ -103,7 +125,7 @@ def _mov_read2(instrs, D, idx, ctrl, mainlen):
 
 def _mov_scan(instrs, idx, nscan, mainlen):
     """append: store r_0..r_(nscan-1) -> out[0..nscan-1] using r_idx."""
-    instrs = list(instrs)
+    instrs = _uni_prologue() + list(instrs)
     for j in range(nscan):
         instrs.append(H.mov_imm(idx, j))
         instrs.append(H.device_store(idx, 0, UNI_SLOT_OUT, data_reg=j))
@@ -150,6 +172,23 @@ def g1_mov_imm_dst(ml):
                     bytes=H.mov_imm_raw(D, 200).hex(),
                     oracle={0: 0, 1: POISON}, expect_match=True, mode="int",
                     note="imm=200 predicted to SILENTLY ZERO r_D (EXP-0128), dst still selects r_D"))
+    # Paired control for the case above.  If `mov_imm` with imm_top=1 is really
+    # a LONGER instruction on hardware (our decoder calls it 2 bytes), the
+    # unpadded form above will swallow the following `mov_imm(idx,0)` and the
+    # read-back store will address the wrong output word.  Inserting 4 bytes of
+    # inert padding between them removes that possibility, so the two cases
+    # together separate "silently zeroed the register" from "consumed the next
+    # instruction".
+    D = 6
+    idx, ctrl, _ = _alloc(D)
+    prog = _mov_read2(_seed_all() + [H.mov_imm_raw(D, 200)] + [H.mov_imm(13, 0)] * 2,
+                      D, idx, ctrl, ml)
+    cs.append(dict(group="mov_imm.dst.imm_boundary_padded", instr="mov_imm", field="dst",
+                    value=D, carrier="uni", dispatch=(1, 1), prog=prog,
+                    bytes=H.mov_imm_raw(D, 200).hex(),
+                    oracle={0: 0, 1: POISON}, expect_match=True, mode="int",
+                    note="imm=200 with 4B of inert padding after it -- paired control for "
+                         "the unpadded case; distinguishes silent-zero from length desync"))
     return cs
 
 
@@ -161,9 +200,10 @@ def g2_get_sr(ml):
     baseline_oracle = {i: i for i in range(8)}
 
     def mk(field, value, form, dpw, dpm, sr=0xA0, note="", expect=None, oracle=None):
-        instrs = [H.mov_imm(0, POISON),
-                  H.get_sr_tid(dst=0, form=form, sr_sel=sr, dp_width=dpw, dp_marker=dpm),
-                  H.device_store(0, 0, UNI_SLOT_OUT, data_reg=0), H.stop()]
+        instrs = _uni_prologue() + [
+            H.mov_imm(0, POISON),
+            H.get_sr_tid(dst=0, form=form, sr_sel=sr, dp_width=dpw, dp_marker=dpm),
+            H.device_store(0, 0, UNI_SLOT_OUT, data_reg=0), H.stop()]
         prog = H.build_program(instrs, ml)
         return dict(group="get_sr." + field, instr="get_sr", field=field, value=value,
                     carrier="uni", dispatch=(8, 8), prog=prog,
@@ -388,7 +428,7 @@ def cf_jump_cond_offsets():
     instruction START offset in the frozen skeleton expressed relative to the
     jump_cond's own address, plus small misalignments around the natural
     target, plus a handful of far probes."""
-    prog = H.cf_program()
+    prog = H.cf_program(carrier_len=CARRIER_MAINLEN_EXPECT["cf"])
     starts, off = [], 0
     while off < len(prog):
         try:
@@ -417,11 +457,11 @@ def g6_cf(ml):
     cs = []
     base = cf_baseline_oracle()
     cs.append(dict(group="cf.baseline", instr="cf_skeleton", field="-", value=0,
-                    carrier="cf", dispatch=(8, 8), prog=H.cf_program(),
+                    carrier="cf", dispatch=(8, 8), prog=H.cf_program(carrier_len=ml),
                     bytes="", oracle=base, expect_match=True, mode="float",
                     note="unmutated EXP-0090/EXP-0112 CF skeleton", arm="cf.baseline"))
     cs.append(dict(group="cf.falsifier", instr="cf_skeleton", field="-", value=0,
-                    carrier="cf", dispatch=(8, 8), prog=H.cf_program(),
+                    carrier="cf", dispatch=(8, 8), prog=H.cf_program(carrier_len=ml),
                     bytes="", oracle={i: 1.0 for i in range(8)}, expect_match=False,
                     mode="float", note="FALSIFIER: unmutated skeleton, unreachable oracle",
                     arm="cf.baseline"))
@@ -429,7 +469,7 @@ def g6_cf(ml):
         nat = CF_NATURAL.get((mnem, field))
         for v in range(1 << width):
             seq = H.cf_sequence()
-            prog = H.cf_program(override=(seqi, field, v))
+            prog = H.cf_program(override=(seqi, field, v), carrier_len=ml)
             testbytes = isadb.assemble(seq[seqi][0], dict(seq[seqi][1], **{field: v}))
             cs.append(dict(group="%s.%s@%d" % (mnem, field, seqi), instr=mnem, field=field,
                             value=v, carrier="cf", dispatch=(8, 8), prog=prog,
@@ -442,7 +482,7 @@ def g6_cf(ml):
     for seqi, tag in ((H.CF_IDX["pop_reconverge_a"], "a"), (H.CF_IDX["pop_reconverge_b"], "b")):
         for v in _wide_values(16):
             seq = H.cf_sequence()
-            prog = H.cf_program(override=(seqi, "reserved", v))
+            prog = H.cf_program(override=(seqi, "reserved", v), carrier_len=ml)
             testbytes = isadb.assemble("pop_reconverge", dict(seq[seqi][1], reserved=v))
             cs.append(dict(group="pop_reconverge.reserved@%d" % seqi, instr="pop_reconverge",
                             field="reserved", value=v, carrier="cf", dispatch=(8, 8),
@@ -456,7 +496,7 @@ def g6_cf(ml):
     for v in offs:
         seq = H.cf_sequence()
         prog = H.cf_program(override=(H.CF_IDX["jump_cond"], "offset",
-                                       v & ((1 << 48) - 1)))
+                                       v & ((1 << 48) - 1)), carrier_len=ml)
         testbytes = isadb.assemble("jump_cond", dict(seq[H.CF_IDX["jump_cond"]][1],
                                                        offset=v & ((1 << 48) - 1)))
         cs.append(dict(group="jump_cond.offset", instr="jump_cond", field="offset", value=v,
@@ -483,6 +523,20 @@ def build_cases(mainlens):
     for i, c in enumerate(cs):
         c["i"] = i
         c.setdefault("arm", c["group"])
+        if c["carrier"] == "uni":
+            c["sentinel"] = [UNI_SENT_IDX, SENT_VAL]
+        elif c["carrier"] == "cf":
+            # EXP-0112's own carrier_cf.metal compiles to exactly 152 bytes, which the
+            # reused skeleton fills exactly -- there is no room for a sentinel prologue.
+            # Lengthening the carrier was TRIED and REJECTED: work/pilot/pilot8.py shows
+            # that carrier_cf2.metal (the same kernel plus arithmetic on `acc` alone, adding
+            # NO new buffer reference -- precisely the padding technique EXP-0128 proposed)
+            # silently moves the constant the skeleton's select compares against, so every
+            # lane takes the TRUE arm, while base_slot values stay identical. On this
+            # carrier the integrity check is therefore the poisoned output buffer alone.
+            c["sentinel"] = None
+        else:
+            c["sentinel"] = None
         if "prog" in c and isinstance(c["prog"], (bytes, bytearray)):
             c["prog"] = bytes(c["prog"])
     return cs

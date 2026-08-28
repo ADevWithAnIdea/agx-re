@@ -111,21 +111,57 @@
    },
    {
     "base_slot": null,
-    "hex": "12030f0c820402028006",
-    "mnemonic": "isel10",
+    "hex": "12032f0e820402028006",
+    "mnemonic": "isel_reg",
     "off": 124
+   },
+   {
+    "base_slot": null,
+    "hex": "19032e1121a00202",
+    "mnemonic": "falu3",
+    "off": 134
+   },
+   {
+    "base_slot": null,
+    "hex": "19032e1321900202",
+    "mnemonic": "falu3",
+    "off": 142
+   },
+   {
+    "base_slot": null,
+    "hex": "19032e0d21880202",
+    "mnemonic": "falu3",
+    "off": 150
+   },
+   {
+    "base_slot": null,
+    "hex": "19032e0d21840202",
+    "mnemonic": "falu3",
+    "off": 158
+   },
+   {
+    "base_slot": null,
+    "hex": "19032e1521820202",
+    "mnemonic": "falu3",
+    "off": 166
+   },
+   {
+    "base_slot": null,
+    "hex": "19030e1721810202",
+    "mnemonic": "falu3",
+    "off": 174
    },
    {
     "base_slot": 0,
     "hex": "e700540200002100110000901100",
     "mnemonic": "device_store",
-    "off": 134
+    "off": 182
    },
    {
     "base_slot": null,
     "hex": "0e000000",
     "mnemonic": "stop",
-    "off": 148
+    "off": 196
    }
   ],
   "dsel5": [
@@ -365,15 +401,15 @@
  },
  "carriers": {
   "cf": {
-   "kernel": "carrier_cf.metal",
-   "kernel_sha256": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+   "kernel": "carrier_cf2.metal",
+   "kernel_sha256": "38fa70cb484fea25a5f16f46f1186cf862eafc3ef2ce0816241a50af4fc0eb63",
    "load_slots": [
     2,
     1
    ],
-   "main_len": 152,
-   "main_sha256": "21a9ef2358ff3d355dccc1229122b711a140fdae9a3002a3604a84834c1d89d6",
-   "region_off": 7616,
+   "main_len": 200,
+   "main_sha256": "a8b86e73a0a204cd36324475f3bdf1bbd8e7f02a2ed061b13be691f25eaddf4f",
+   "region_off": 7840,
    "store_slots": [
     0
    ]
@@ -416,17 +452,30 @@
    ]
   }
  },
- "git_rev": "c29a85b3c1ccefd4cda3560623bed40808cab9b1",
+ "defences": {
+  "baseline_every": 250,
+  "innocent_victim_retries": 4,
+  "integrity_sentinel": [
+   "uni",
+   "cf"
+  ],
+  "poisoned_output_buffer": true,
+  "replication_trials_max": 3,
+  "replication_trials_min": 2,
+  "unique_archive_path_per_request": true
+ },
+ "git_dirty": true,
+ "git_rev": "8904a082cfb64e61c561a2a8d44aa2ddabc6899f",
  "hang_budgets": {
   "cf_total": 6,
   "global": 10,
   "per_arm": 2
  },
  "harness_sha256": {
-  "baseline.py": "bdf61cb8f5360e03979f5f5c710673334df923f83ae584af40fcf8eecf705a15",
-  "cases.py": "da24380882610d42c01ffb3324333791b30f678aca1639a706b3f7986931428c",
-  "isa_helpers.py": "30f2ef7a8b178ed3b1e13cd6e545ed0ba81c64d8d9016d55160463726048dbf8",
-  "run.py": "3eef87e187799eb548d407fbe0840e136d7221acf005999e87c6ba689b309d02"
+  "baseline.py": "f619e0d8a1b9b88dc40f79bb214d44b5509b21009780c80903b6287694594673",
+  "cases.py": "ba01c9edb9b1dc0b880f119e4002d0feeb565c0401357bf18906d6575ff08900",
+  "isa_helpers.py": "9e6958affcc7471876d28bf0de99544fbaffbd12a825af157f85f52ee1762e8e",
+  "run.py": "5df9699b861c2b07a74b9e260267bdf6bcfa646b43fc533a35e1200b54ec32d4"
  },
  "inputs": {
   "cf_a": [
@@ -449,7 +498,9 @@
    16,
    32
   ],
+  "cf_sentinel_idx": 11,
   "poison": 7,
+  "poison_word0": -559038737,
   "sel_A1": [
    0,
    1,
@@ -470,37 +521,35 @@
    100,
    101
   ],
+  "sentinel_value": 91,
   "uni_magic": [
    "0xa1b2c3d4",
    "0x1e2f3040",
    "0x55aa33cc",
    "0x0f1e2d3c"
-  ]
+  ],
+  "uni_sentinel_idx": 30
  },
  "kernel_sha256": {
   "carrier_cf.metal": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+  "carrier_cf2.metal": "38fa70cb484fea25a5f16f46f1186cf862eafc3ef2ce0816241a50af4fc0eb63",
   "carrier_dag.metal": "ed4b7bfef443a813d6e835efb0f34174e7d3c6e64f3e2e79db99630c089b08b4",
   "carrier_uni.metal": "ff4f4d9044dbab385cd945907d3b5cb92da0577dabb0a4ce57a91d78f6f63c18",
   "dsel5.metal": "511cdaf8c9343db2ef2fe376c8e9f0d7dfb642fd8593c0d96ecf084a96a2ee91",
   "gsel4.metal": "e92292924157cea4c54ac40d7001b36520ddfcd0dd99dd45a1554d7b4774b0f9"
  },
- "n_cases": 22,
- "replication": {
-  "innocent_victim_retries": 4,
-  "trials_max": 3,
-  "trials_min": 2
- },
- "run": "smoke03",
+ "n_cases": 7976,
+ "run": "m4_20260828_run01",
  "target": "local Apple M4 / G16G",
  "timeouts": {
   "per_request_s": 8.0
  },
  "tool_sha256": {
   "agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
-  "db.json": "6f082cc470c94e345a758cc87e4177e8c706892f12a1db12ab39fa50c94f94e9",
-  "isadb.py": "aa4791f63bf518aeb81a8ff982429ad2b1a78e5f7b98da53c73338ebe7751041",
+  "db.json": "e8d85f50d06e35393c7e696cfe514fd200cb1f299d2fb396028ebb8ee1c6b5da",
+  "isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
   "persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
   "shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
  },
- "utc": "2026-08-28T09:43:46Z"
+ "utc": "2026-08-28T12:32:20Z"
 }

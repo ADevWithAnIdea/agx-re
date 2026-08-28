@@ -1,0 +1,703 @@
+{
+ "instructions": {
+  "call": {
+   "blocking_after": [
+    "b3",
+    "b5",
+    "b6",
+    "tail"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b3",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b5",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b6",
+     "lifted": false
+    },
+    {
+     "after": "isolated-byte-diff",
+     "before": "isolated-byte-diff",
+     "field": "offset",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "tail",
+     "lifted": false
+    }
+   ]
+  },
+  "call_indirect": {
+   "blocking_after": [
+    "b2",
+    "target_lo",
+    "b4",
+    "b5"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b2",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "target_lo",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b4",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "b5",
+     "lifted": false
+    }
+   ]
+  },
+  "frame_prologue": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": true,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "subop",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "marker",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "frame_size",
+     "lifted": false
+    }
+   ]
+  },
+  "get_sr": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "form",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "dst",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "sr_sel",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "dp_width",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "single-template-inference",
+     "field": "dp_marker",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "dst_hi",
+     "lifted": false
+    }
+   ]
+  },
+  "if_push": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "scope",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "scope_kind",
+     "lifted": true
+    }
+   ]
+  },
+  "if_push_pred": {
+   "blocking_after": [
+    "level"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "pred",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "scope",
+     "lifted": true
+    },
+    {
+     "after": "untested",
+     "before": "tokenization-only",
+     "field": "level",
+     "lifted": false
+    }
+   ]
+  },
+  "jump": {
+   "blocking_after": [
+    "branch_ctrl"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "untested",
+     "before": "corpus-correlation",
+     "field": "branch_ctrl",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "offset",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "single-template-inference",
+     "field": "link",
+     "lifted": true
+    }
+   ]
+  },
+  "jump_cond": {
+   "blocking_after": [
+    "cf_scope",
+    "offset",
+    "reserved"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "untested",
+     "before": "corpus-correlation",
+     "field": "cf_scope",
+     "lifted": false
+    },
+    {
+     "after": "untested",
+     "before": "corpus-correlation",
+     "field": "offset",
+     "lifted": false
+    },
+    {
+     "after": "untested",
+     "before": "tokenization-only",
+     "field": "reserved",
+     "lifted": false
+    }
+   ]
+  },
+  "link_save_restore": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": true,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "b1",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "marker",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "b3",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "scope",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "dir_offset",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "reserved7",
+     "lifted": false
+    }
+   ]
+  },
+  "mask_op": {
+   "blocking_after": [
+    "mask_bank",
+    "scope_kind"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "corpus-correlation",
+     "before": "corpus-correlation",
+     "field": "mask_bank",
+     "lifted": false
+    },
+    {
+     "after": "single-template-inference",
+     "before": "single-template-inference",
+     "field": "scope_kind",
+     "lifted": false
+    }
+   ]
+  },
+  "mov_imm": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "imm7",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "imm_top",
+     "lifted": false
+    }
+   ]
+  },
+  "pop_reconverge": {
+   "blocking_after": [
+    "reserved"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "scope",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "scope_kind",
+     "lifted": true
+    },
+    {
+     "after": "untested",
+     "before": "tokenization-only",
+     "field": "reserved",
+     "lifted": false
+    }
+   ]
+  },
+  "psel": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "flag",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "mode",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "sel",
+     "lifted": true
+    }
+   ]
+  },
+  "reg_move_c0": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_reg",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "src_flag",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_class",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "op_desc",
+     "lifted": false
+    }
+   ]
+  },
+  "reg_move_c1": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_reg",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "src_flag",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_class",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "op_desc",
+     "lifted": false
+    }
+   ]
+  },
+  "reg_move_c2var": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "src_reg",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "src_flag",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "subform",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "op_desc",
+     "lifted": true
+    }
+   ]
+  },
+  "reg_move_c9": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_reg",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "src_flag",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "src_class",
+     "lifted": false
+    },
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "op_desc",
+     "lifted": false
+    }
+   ]
+  },
+  "reg_move_cb": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "src",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "form",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "b3",
+     "lifted": true
+    }
+   ]
+  },
+  "ret": {
+   "blocking_after": [
+    "linkmode",
+    "scoreboard"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "untested",
+     "before": "corpus-correlation",
+     "field": "linkmode",
+     "lifted": false
+    },
+    {
+     "after": "untested",
+     "before": "corpus-correlation",
+     "field": "scoreboard",
+     "lifted": false
+    }
+   ]
+  },
+  "ret_luse": {
+   "blocking_after": [
+    "linkmode",
+    "tail"
+   ],
+   "emittable_after": false,
+   "emittable_before": false,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "corpus-correlation",
+     "before": "corpus-correlation",
+     "field": "linkmode",
+     "lifted": false
+    },
+    {
+     "after": "tokenization-only",
+     "before": "tokenization-only",
+     "field": "tail",
+     "lifted": false
+    }
+   ]
+  },
+  "sel": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "tokenization-only",
+     "field": "body",
+     "lifted": true
+    }
+   ]
+  },
+  "stop": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": true,
+   "family": "CF",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "hardware-run",
+     "field": "reserved",
+     "lifted": false
+    }
+   ]
+  },
+  "uniform_mov": {
+   "blocking_after": [],
+   "emittable_after": true,
+   "emittable_before": false,
+   "family": "MOV",
+   "fields": [
+    {
+     "after": "hardware-run",
+     "before": "untested",
+     "field": "dst",
+     "lifted": true
+    },
+    {
+     "after": "hardware-run",
+     "before": "corpus-correlation",
+     "field": "usrc",
+     "lifted": true
+    }
+   ]
+  }
+ },
+ "newly_emittable": [
+  "get_sr",
+  "if_push",
+  "mov_imm",
+  "psel",
+  "reg_move_c0",
+  "reg_move_c1",
+  "reg_move_c2var",
+  "reg_move_c9",
+  "reg_move_cb",
+  "sel",
+  "uniform_mov"
+ ],
+ "totals": {
+  "after": 14,
+  "before": 3,
+  "fields_lifted": 31
+ }
+}
