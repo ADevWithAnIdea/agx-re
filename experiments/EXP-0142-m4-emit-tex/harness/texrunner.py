@@ -58,10 +58,10 @@ class TexRunner(PersistRunner):
         except (BrokenPipeError, ValueError):
             self._restart_after_wedge()
             self.restarts += 1
-            return {"status": "HANG", "outs": {}, "tex": None, "gputime_ns": None,
-                    "error": "child pipe broken", "restarted": True}
+            return {"status": "HANG", "outs": {}, "tex": None, "errdom": None,
+                    "gputime_ns": None, "error": "child pipe broken", "restarted": True}
 
-        resp = {"status": "UNKNOWN", "outs": {}, "tex": None,
+        resp = {"status": "UNKNOWN", "outs": {}, "tex": None, "errdom": None,
                 "gputime_ns": None, "error": None, "restarted": False}
         while True:
             ln = self._read_line(timeout)
@@ -82,6 +82,8 @@ class TexRunner(PersistRunner):
                 resp["outs"][int(idx)] = bytes.fromhex(hexb)
             elif ln.startswith("TEXOUT "):
                 resp["tex"] = bytes.fromhex(ln.split(None, 1)[1])
+            elif ln.startswith("ERRDOM "):
+                resp["errdom"] = ln.split(None, 1)[1]
             elif ln.startswith("ERROR "):
                 resp["error"] = ln.split(None, 1)[1]
             elif ln.startswith("DONE "):

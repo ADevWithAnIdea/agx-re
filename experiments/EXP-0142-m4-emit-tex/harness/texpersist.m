@@ -67,7 +67,12 @@ static int gWW = 8, gWH = 8;
 static void respond_fail(const char *reqid, const char *status, const char *msg, NSError *err) {
     printf("REQ %s\n", reqid ? reqid : "?");
     printf("STATUS %s\n", status);
-    if (err)      printf("ERROR %s: %s\n", msg ? msg : "", [[err localizedDescription] UTF8String]);
+    if (err) {
+        // FIELD-SWEEP-PROTOCOL section 7.2: the OS fault CLASSIFICATION, not just the
+        // status. ...ErrorInnocentVictim is evidence about the machine, not the encoding.
+        printf("ERRDOM %s %ld\n", [[err domain] UTF8String], (long)[err code]);
+        printf("ERROR %s: %s\n", msg ? msg : "", [[err localizedDescription] UTF8String]);
+    }
     else if (msg) printf("ERROR %s\n", msg);
     printf("DONE %s\n", reqid ? reqid : "?");
     fflush(stdout);
@@ -139,7 +144,10 @@ static void handle_request(char *line) {
             if (outIdx[i] < 0 || outIdx[i] >= 64) { respond_fail(reqid, "BAD_REQUEST", "output idx range", nil); return; }
             if (!bufs[outIdx[i]]) {
                 bufs[outIdx[i]] = [gDev newBufferWithLength:outSz[i] options:MTLResourceStorageModeShared];
-                memset([bufs[outIdx[i]] contents], 0xEE, (size_t)outSz[i]);
+                // FIELD-SWEEP-PROTOCOL section 7: poison the read-back buffer so an
+                // untouched word is unmistakable (0xDEADBEEF, little-endian).
+                unsigned char *pz = (unsigned char *)[bufs[outIdx[i]] contents];
+                for (long z = 0; z < outSz[i]; z++) pz[z] = (unsigned char)"\xef\xbe\xad\xde"[z & 3];
             }
         }
         char *sflags = strtok_r(NULL, " \t\r\n", &save);

@@ -223,8 +223,9 @@ def main():
                       dict(sorted(counts.items())), time.time() - t0), flush=True)
     finally:
         if bench:
-            print("victim_retries=%d repeats=%d hangs=%d restarts=%d"
-                  % (bench.victim_retries, bench.repeats, bench.hangs, bench.restarts))
+            print("victim_retries=%d repeats=%d hangs=%d restarts=%d compiler_outages=%d"
+                  % (bench.victim_retries, bench.repeats, bench.hangs, bench.restarts,
+                     getattr(bench, "compiler_outages", 0)))
             bench.close()
         out.close()
         (run_dir / "01_summary.json").write_text(json.dumps(

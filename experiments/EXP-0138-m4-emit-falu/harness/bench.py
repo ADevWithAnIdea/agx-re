@@ -85,9 +85,20 @@ class Bench:
         if not fast_math:
             cmd.append("--no-fast-math")
         cmd.append(self.source)
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
-        if r.returncode != 0 or not base.exists():
+        self.compiler_outages = 0
+        import time as _t
+        for k in range(12):
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+            if r.returncode == 0 and base.exists():
+                break
+            # Same transient machine-wide compiler collapse as in _start().
+            if "MTLCompilerService" in r.stderr or "Reentrancy" in r.stderr:
+                self.compiler_outages += 1
+                _t.sleep(min(5 * (k + 1), 30))
+                continue
             raise RuntimeError("shdump failed for %s: %s" % (function, r.stderr))
+        else:
+            raise RuntimeError("shdump never succeeded for %s: %s" % (function, r.stderr))
         self.basebuf = base.read_bytes()
         loc = agxparse.locate_region(self.basebuf, "_agc.main")
         if loc is None:
@@ -99,11 +110,35 @@ class Bench:
         self._n = 0
         self._start()
 
-    def _start(self):
-        self.runner = PersistRunner(source=self.source, function=self.function,
-                                    fast_math=self.fast_math,
-                                    agxrun_persist=str(self.bin_dir / "agxrun_persist"))
-        self.device = self.runner.device
+    def _start(self, tries=12):
+        """Start the persistent child, retrying through a transient
+        MTLCompilerService outage.
+
+        HOST-INSTABILITY MITIGATION (2026-08-28): a GPU test on this host was
+        destabilising WindowServer, which collapses `MTLCompilerService`
+        machine-wide ("Reentrancy avoided ... compiler is no longer active").
+        That killed this experiment's run02 (253 cases) and run03 (188 cases)
+        outright. The condition is transient and machine-wide -- it says
+        nothing about our bytes -- so the child is restarted with backoff
+        instead of losing a 16k-case run. Every wait is counted and reported.
+        """
+        import time as _t
+        last = None
+        for k in range(tries):
+            try:
+                self.runner = PersistRunner(
+                    source=self.source, function=self.function,
+                    fast_math=self.fast_math,
+                    agxrun_persist=str(self.bin_dir / "agxrun_persist"))
+                self.device = self.runner.device
+                return
+            except Exception as e:                       # noqa: BLE001
+                last = e
+                if "MTLCompilerService" not in str(e) and "Reentrancy" not in str(e):
+                    raise
+                self.compiler_outages += 1
+                _t.sleep(min(5 * (k + 1), 30))
+        raise RuntimeError("agxrun_persist would not start after %d tries: %s" % (tries, last))
 
     def restart(self, why):
         """M5: leave a GPU error cascade behind by starting a fresh child."""
