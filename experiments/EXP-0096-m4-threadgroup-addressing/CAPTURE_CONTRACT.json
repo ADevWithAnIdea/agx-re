@@ -1,0 +1,327 @@
+{
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "8d20d87a981f8d59342e6f4ba956a4cf95e8079702c40e5dfbe850879bfaee4e",
+    "README.md": "236afcee063908bbcdb0a67ff1a186e454f80e473e692a5bf6907cb40070e649",
+    "analysis.py": "2d9f57a4b97a1764e9e5c93d36c53cfd485c1104b434bbfb38cfd29fbf9fe714",
+    "baseline.py": "f2657e8087d5711a6484f51d84654fe82a2c4b495419b446737ec9320e3ee2ea",
+    "casematrix.py": "d5209f1cbc8e3815b0c328f61b0053712e0e1a747d6682578ce9dac073985358",
+    "harness/build.sh": "175d1a7c92f1633b21869cf64c6b946cda83acdd1b307470b2e8a74fa13afbda",
+    "harness/tgbudget.m": "2d2a89f1ed129fc4e80fae37eabadac9237cb7be384951df3f9bffa15faeebcb",
+    "kernels/tg_ld.metal": "cede203824007a21cd1fca59e263a7d395e02cd3824b038da9793726c1a5241a",
+    "kernels/tg_st.metal": "34521b9d7ac6ed3b502099b33d965a4a575cdfa1bf998bdfba0c8d2653a6b4cf",
+    "kernels/tga.metal": "f65f2ed349ec3eac06103d961414f6d8ce78988fb77f1f133b53526c2935f555",
+    "make_manifest.py": "7c3d732bd8d296f024cd4a8cafe84a8cf4773a454f80f80aaa300ffc6e1b00bf",
+    "run.py": "1a010653508b824eae3164034ae30aca5741d368138d6203d81fa5d816ddd759",
+    "verify.py": "173e0a359832d16031c9367f158daf467d7f1374ddb6e7625288e78eb1e2679d"
+  },
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own compiled shader bytes (splice targets) or freshly-compiled own-MSL (budget sweep, no splicing)",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool)",
+    "private_api_or_trace": "NONE"
+  },
+  "capture": {
+    "between_runs_gate": "run01 must be a complete closed successful raw tree and work/ absent or empty before run02 is created",
+    "budget_line_keys": [
+      "bad_byte_count",
+      "compile_status",
+      "dispatch_status",
+      "dynamic_bytes",
+      "exception",
+      "exit",
+      "i",
+      "item",
+      "mode",
+      "name",
+      "pipeline_status",
+      "pso_static_tgmem",
+      "static_bytes",
+      "status",
+      "timed_out"
+    ],
+    "budget_status_allowed": [
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "EXCEPTION",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL"
+    ],
+    "budget_timing_line_keys": [
+      "duration_ms",
+      "i",
+      "name",
+      "stderr_raw",
+      "stdout_raw"
+    ],
+    "build_keys": [
+      "baseline",
+      "harness_build",
+      "schema"
+    ],
+    "case_line_keys": [
+      "changed_bytes",
+      "decoded",
+      "device",
+      "exception",
+      "exit",
+      "extra_hex",
+      "function",
+      "i",
+      "idx",
+      "item",
+      "kernel",
+      "main_len",
+      "name",
+      "out0_hex",
+      "pipeline_source",
+      "probe_after",
+      "probe_before",
+      "raw_note",
+      "result_sha256",
+      "splice_args",
+      "status",
+      "timed_out"
+    ],
+    "cross_run_byte_exact_scope": "04_results.jsonl and 06_budget_results.jsonl only (the two *_timing.jsonl files are schema-checked every run, never byte-compared across runs)",
+    "cross_run_provenance_gate": "run02 current Git revision and authored hashes must equal the closed run01 input record; final verification additionally requires byte-identical results files (SPLICE and BUDGET) and identical status counts",
+    "dispatch_record_keys": [
+      "argv",
+      "budget_results_lines",
+      "budget_results_sha256",
+      "budget_status_counts",
+      "budget_timing_lines",
+      "budget_timing_sha256",
+      "cwd",
+      "duration_seconds",
+      "finished_utc",
+      "n_budget_cases",
+      "n_splice_cases",
+      "results_lines",
+      "results_sha256",
+      "splice_status_counts",
+      "started_utc",
+      "timing_lines",
+      "timing_sha256"
+    ],
+    "failure_record": "STOP.json is append-only and ends that run; never retry automatically; a fault or timeout inside either sweep is a RESULT and the sweep continues in a fresh process",
+    "inputs_keys": [
+      "authored_code_sha256",
+      "authored_doc_sha256",
+      "boundary",
+      "experiment_tree_dirty_entries",
+      "git_dirty",
+      "git_revision",
+      "machine",
+      "python",
+      "schema",
+      "sw_vers",
+      "timeouts_seconds",
+      "xcrun_version"
+    ],
+    "receipt_keys": [
+      "argv",
+      "cwd",
+      "exception",
+      "exit",
+      "started_utc",
+      "stderr",
+      "stdout",
+      "timed_out",
+      "timeout_seconds"
+    ],
+    "required_run_paths": [
+      "00_inputs.json",
+      "01_cases.json",
+      "01b_budget_cases.json",
+      "02_build.json",
+      "03_dispatch.json",
+      "04_results.jsonl",
+      "04_timing.jsonl",
+      "05_run_manifest.json",
+      "06_budget_results.jsonl",
+      "06_budget_timing.jsonl"
+    ],
+    "runs": [
+      "m4-20260828-run01",
+      "m4-20260828-run02"
+    ],
+    "selftest_gate": "verify.py --selftest and verify.py --seqtest must pass immediately before every capture, in every tree state; a capture whose verifier gates are unproven is not authorized",
+    "smoke_gate": "BEFORE any raw/ artifact is created, the freshly built harness must run ONE spliced scratch SPLICE case AND one scratch BUDGET case into work/ (never promoted into raw/) whose outputs parse completely; any build, baseline or smoke defect exits 3 with the receipt printed and NO burned run id",
+    "status_allowed": [
+      "ARCHIVE_FAIL",
+      "CMDBUF_ERROR",
+      "COMPILE_FAIL",
+      "EXTRACT_FAIL",
+      "FUNCTION_MISSING",
+      "HANG",
+      "NO_STATUS",
+      "OK",
+      "PIPELINE_FAIL",
+      "PIPELINE_MISS"
+    ],
+    "timing_line_keys": [
+      "duration_ms",
+      "gputime_ns",
+      "i",
+      "name",
+      "stderr_raw",
+      "stdout_raw"
+    ]
+  },
+  "contract_version": 1,
+  "experiment": "EXP-0096-m4-threadgroup-addressing",
+  "frozen_anchors": {
+    "tg_ld": {
+      "main_len": 278,
+      "probe_fields": {
+        "access_desc": 0,
+        "addr_mode": 84,
+        "base_slot": 16,
+        "dst_ext9": 13,
+        "dst_lo": 1,
+        "elem_size": 8,
+        "extmode": 2,
+        "idx_off": 0,
+        "index_reg": 0,
+        "ld_format": 4,
+        "ldform_hi11": 48,
+        "reserved13": 0,
+        "reserved7": 0,
+        "space": 2
+      },
+      "probe_hex": "6702540210000000440d00c00800",
+      "probe_main_offset": 202
+    },
+    "tg_st": {
+      "main_len": 414,
+      "probe_fields": {
+        "access_desc": 0,
+        "addr_mode": 84,
+        "base_slot": 12,
+        "elem_size": 2,
+        "extmode": 14,
+        "idx_off": 0,
+        "index_reg": 0,
+        "reserved13": 0,
+        "reserved7": 0,
+        "space": 2,
+        "st_desc_hi": 12,
+        "st_format": 68,
+        "st_format_ext": 3
+      },
+      "probe_hex": "e702540e0c000000440300300200",
+      "probe_main_offset": 170
+    },
+    "tga": {
+      "main_len": 134,
+      "probe_fields": {
+        "b3": 0,
+        "b4": 0,
+        "b5": 0
+      },
+      "probe_hex": "1c0200000000",
+      "probe_main_offset": 46
+    }
+  },
+  "gate": "A missing path, hash, schema field, record key, splice consistency, or unexpected raw path fails closed; nothing here is auto-repaired.",
+  "gate_order": "PRE_GPU: --selftest, --seqtest, make_manifest --check, --preflight, run01; RUN01_PRESENT: --selftest, --seqtest, make_manifest --check, --between-runs, run02; RUN02_PRESENT: analysis --write, make_manifest --write + --check, --captured",
+  "hand_validation": [
+    {
+      "expected": "baseline_array",
+      "kind": "baseline_array",
+      "name": "tga_ctrl"
+    },
+    {
+      "expected": "known_ip2_corruption",
+      "kind": "known_ip2_corruption",
+      "name": "tga_dstreg_2"
+    },
+    {
+      "expected": "0x3CA50040",
+      "kind": "word",
+      "name": "ld_ctrl_idx64"
+    },
+    {
+      "expected": "0x3CA50000",
+      "kind": "word",
+      "name": "ld_range_f0000"
+    },
+    {
+      "expected": "0x3CA507FF",
+      "kind": "word",
+      "name": "ld_range_f2047"
+    },
+    {
+      "expected": 256,
+      "kind": "byte_offset",
+      "name": "st_ctrl_idx64"
+    }
+  ],
+  "matrix": {
+    "budget_item_counts": {
+      "BUDGET-COMBINED": 31,
+      "BUDGET-DYNAMIC-CAP": 42,
+      "BUDGET-STATIC-CAP": 72
+    },
+    "budget_total_cases": 145,
+    "splice_item_counts": {
+      "CTRL": 6,
+      "TGA-DSTREG": 16,
+      "TGA-LENDISC": 38,
+      "TGA-RESERVED": 94,
+      "TGA-SRCSEL": 256,
+      "TGLS-LD-01": 256,
+      "TGLS-LD-03": 2176,
+      "TGLS-LD-05": 5,
+      "TGLS-LD-EXTRA": 4,
+      "TGLS-LD-IDXREG": 10,
+      "TGLS-ST-01": 16,
+      "TGLS-ST-03": 21,
+      "TGLS-ST-05": 2
+    },
+    "splice_total_cases": 2900
+  },
+  "post_second_run_sequence": [
+    "python3 -B analysis.py --run-a m4-20260828-run01 --run-b m4-20260828-run02 --write",
+    "python3 -B make_manifest.py --write",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --captured"
+  ],
+  "pre_second_run_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --between-runs"
+  ],
+  "preflight_sequence": [
+    "python3 -B verify.py --selftest",
+    "python3 -B verify.py --seqtest",
+    "python3 -B make_manifest.py --check",
+    "python3 -B verify.py --preflight"
+  ],
+  "required_authored_paths": [
+    "PRE_REGISTRATION.md",
+    "README.md",
+    "kernels/tga.metal",
+    "kernels/tg_ld.metal",
+    "kernels/tg_st.metal",
+    "harness/build.sh",
+    "harness/tgbudget.m",
+    "baseline.py",
+    "casematrix.py",
+    "run.py",
+    "analysis.py",
+    "make_manifest.py",
+    "verify.py"
+  ],
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "timeouts_seconds": {
+    "baseline": 180,
+    "budget_process": 30,
+    "case_process": 60,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 60
+  }
+}

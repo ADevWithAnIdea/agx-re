@@ -1,0 +1,32 @@
+{
+  "_provenance": "Every value below is copied verbatim from a real dispatch on this M4 (Apple M4, macOS 26.6.2 build 25G82) via work/bin/gddraws / work/bin/xfbdraws during build-time calibration on 2026-08-28, before the frozen matrix/pre-registration were written. Standing gate (e): selftest fixtures built from RECORDED REALITY, not hand-typed constants.",
+
+  "xfb_capacity_cap_one_short": {
+    "_cmd": "xfbdraws --numprim 64 --maskmode 1 --vppa 3 --cap0 191 --replay 0 --sync encoder_order",
+    "numprim": 64, "maskmode": 1, "vppa": 3, "cap0": 191,
+    "observed_gen0": 64, "observed_wr0": 189, "observed_n_stale": 0,
+    "observed_replay_vertexCount": 189, "observed_n_invoked": 189, "observed_n_correct": 189
+  },
+
+  "h_icbrange_middle": {
+    "_cmd": "gddraws --family h_icbrange --maxcount 8 --wloc 2 --wlen 4",
+    "maxcount": 8, "wloc": 2, "wlen": 4,
+    "observed_n_executed": 4, "observed_rangeReadback_loc": 2, "observed_rangeReadback_len": 4,
+    "observed_firstExecuted": 2, "observed_lastExecuted": 5
+  },
+
+  "h_sync_unsync_split_race_observed": {
+    "_cmd": "gddraws --family h_sync --indexed 0 --sync unsync_split --n 65536 --spin 100000",
+    "_note": "one trial of five in the build-time calibration batch; the other four showed n_stale in {0, 0, 0} -- reproduces the legitimate nondeterminism this experiment's gate (d) exists to handle.",
+    "n": 65536, "sync": "unsync_split", "spin": 100000,
+    "observed_n_correct": 0, "observed_n_stale": 65536, "observed_n_other": 0, "observed_n_z_wrong": 23873
+  },
+
+  "h_icbmax_crash_boundary": {
+    "_cmd": "gddraws --family h_icbmax --trycount 8388608",
+    "trycount": 8388608,
+    "observed_status": "HARNESS_CRASH",
+    "observed_exit_signal": "SIGSEGV (process returncode 139 = 128+11)",
+    "_note": "CPU-side crash inside newIndirectCommandBufferWithDescriptor: itself, before any GPU dispatch; 4194304 (half this size) allocates successfully (alloc_ok=1, size_reported=4194304) in the same calibration batch."
+  }
+}

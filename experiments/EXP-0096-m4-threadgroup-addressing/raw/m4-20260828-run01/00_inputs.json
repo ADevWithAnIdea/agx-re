@@ -1,0 +1,61 @@
+{
+  "authored_code_sha256": {
+    "analysis.py": "2d9f57a4b97a1764e9e5c93d36c53cfd485c1104b434bbfb38cfd29fbf9fe714",
+    "baseline.py": "f2657e8087d5711a6484f51d84654fe82a2c4b495419b446737ec9320e3ee2ea",
+    "casematrix.py": "d5209f1cbc8e3815b0c328f61b0053712e0e1a747d6682578ce9dac073985358",
+    "harness/build.sh": "175d1a7c92f1633b21869cf64c6b946cda83acdd1b307470b2e8a74fa13afbda",
+    "harness/tgbudget.m": "2d2a89f1ed129fc4e80fae37eabadac9237cb7be384951df3f9bffa15faeebcb",
+    "kernels/tg_ld.metal": "cede203824007a21cd1fca59e263a7d395e02cd3824b038da9793726c1a5241a",
+    "kernels/tg_st.metal": "34521b9d7ac6ed3b502099b33d965a4a575cdfa1bf998bdfba0c8d2653a6b4cf",
+    "kernels/tga.metal": "f65f2ed349ec3eac06103d961414f6d8ce78988fb77f1f133b53526c2935f555",
+    "make_manifest.py": "7c3d732bd8d296f024cd4a8cafe84a8cf4773a454f80f80aaa300ffc6e1b00bf",
+    "run.py": "1a010653508b824eae3164034ae30aca5741d368138d6203d81fa5d816ddd759",
+    "verify.py": "173e0a359832d16031c9367f158daf467d7f1374ddb6e7625288e78eb1e2679d"
+  },
+  "authored_doc_sha256": {
+    "PRE_REGISTRATION.md": "8d20d87a981f8d59342e6f4ba956a4cf95e8079702c40e5dfbe850879bfaee4e",
+    "README.md": "236afcee063908bbcdb0a67ff1a186e454f80e473e692a5bf6907cb40070e649"
+  },
+  "boundary": "public Metal API only; runtime MSL compile of our own kernels; binary-archive splice of our own compiled shader bytes re-assembled with tools/agx-isa OR (tga byte0/byte+1/byte+2 only) direct raw byte patch where the DB's own match clause pins the byte and its assembler cannot vary it; a separate PUBLIC-Metal-API-only boundary sweep with no splicing at all (harness/tgbudget.m); owned shared buffers; every case a fresh process; no Apple binary, archive, BO or command-stream inspection beyond our own compiled shader bytes",
+  "experiment_tree_dirty_entries": 1,
+  "git_dirty": true,
+  "git_revision": "b05383c5a40653b1176b0345806af1955bb87659",
+  "machine": "arm64",
+  "python": "3.14.6",
+  "schema": 1,
+  "sw_vers": {
+    "argv": [
+      "sw_vers"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0096-m4-threadgroup-addressing",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T04:04:35.617363+00:00",
+    "stderr": "",
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G82\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  },
+  "timeouts_seconds": {
+    "baseline": 180,
+    "budget_process": 30,
+    "case_process": 60,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 60
+  },
+  "xcrun_version": {
+    "argv": [
+      "xcrun",
+      "--version"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0096-m4-threadgroup-addressing",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T04:04:35.623365+00:00",
+    "stderr": "",
+    "stdout": "xcrun version 72.\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  }
+}
