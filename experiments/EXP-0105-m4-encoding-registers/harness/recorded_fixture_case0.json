@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "/Users/user/asahi_re/public/agx-re/tools/agxtest/agxtest.py",
+    "--source",
+    "/Users/user/asahi_re/public/agx-re/experiments/EXP-0105-m4-encoding-registers/kernels/carrier.metal",
+    "--function",
+    "k",
+    "--grid",
+    "1",
+    "--tg",
+    "1",
+    "--no-fast-math",
+    "--shdump",
+    "work/pilot_bin/shdump",
+    "--agxrun",
+    "work/pilot_bin/agxrun",
+    "--agxparse",
+    "/Users/user/asahi_re/public/agx-re/tools/shdump/agxparse.py",
+    "--workdir",
+    "work/fixture_run/work/case_000",
+    "--run-timeout",
+    "30",
+    "--buf",
+    "1=@work/fixture_run/work/case_000/mem.bin",
+    "--out",
+    "0=8",
+    "--splice",
+    "_agc.main@0=fc0039ff141d8000598114078000e700540a000f21001100009011000e000000dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00"
+  ],
+  "dispatch": {
+    "grid": 1,
+    "tg": 1
+  },
+  "duration_ms": 133,
+  "exception": null,
+  "exit": 0,
+  "expect_match": true,
+  "group": "SEED_CHECK",
+  "i": 0,
+  "match": true,
+  "name": "control_r3_falu2i",
+  "notes": "Seed r3=30.0 via falu2i(srcA=UNWRITTEN,K=30.0) (EXP-0090/EXP-0099's exact HW-VALIDATED ALU-only seeding technique). Read it back via falu2i(srcA_reg=3, K=0.0) -- the SAME field this experiment's decisive case varies. Expect 30.0 (r3+0.0).",
+  "observed": {
+    "0": 30.0
+  },
+  "oracle": {
+    "0": {
+      "kind": "f32",
+      "value": 30.0
+    }
+  },
+  "out_hex": "0000f04100000000000000000000000000000000000000000000000000000000",
+  "pipeline_source": "archive",
+  "status": "OK",
+  "stderr": "shdump: device = Apple M4\nshdump: functions = k\nshdump: chosen function = k\nshdump: threadExecutionWidth = 32, maxThreadsPerThreadgroup = 1024\nshdump: wrote work/fixture_run/work/case_000/arch_7c0598d3fd53.bin\n",
+  "stdout": "MAIN_LEN 170\nSPLICE _agc.main@0x00: 7ca010069f1154080202388c11049f0154040204388c11049f01540002063888110467005406010720005101004046006700540201042000510100404600670054140102200011000040460067004410010020001100004046006987048300c05995049100283907191519031911e700540c00072100110000901100e700540a00042100110000901100e700540600022100110000901100e7005402000021001100009011000e000000 -> fc0039ff141d8000598114078000e700540a000f21001100009011000e000000dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00dc00 (abs file offset 7344)\nDEVICE Apple M4\nFUNCTION k\nPIPELINE_SOURCE archive\nGPUTIME_NS 3124\nOUT 0 0000f04100000000000000000000000000000000000000000000000000000000\nSTATUS OK\nRESULT 0 30 0 0 0 0 0 0 0\n",
+  "timed_out": false
+}

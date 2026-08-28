@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0105-m4-encoding-registers",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82)",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier kernel; binary-archive splice of our own hand-assembled AGX programs (tools/agx-isa isadb.assemble()); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "task_origin": "APPLE9_RE_IMPLEMENTATION_GAPS.md, Part II 'Register files, immediates, and instruction encoding', items ENC-01..ENC-16; dispatch instructs TOP PRIORITY on the register-64-95-addressing question EXP-0099 left open (falu2's srcA_reg/srcB_reg top bit HW-tested inert, role UNKNOWN)",
+  "pinned_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "runs": ["m4-20260827-run01", "m4-20260827-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 16,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 60,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,oracle,expect_match,notes,dispatch,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "groups_captured": ["SEED_CHECK", "REG64_FALU2I_ALIAS", "CAND_BANK_FALU2"],
+  "hypothesis_to_group_map": {
+    "H1 (ENC-02 top priority)": "REG64_FALU2I_ALIAS (falu2i_srca_high67_alias_DECISIVE) + bank_high_baseline (falu2 register-register form, an independent cross-check on the SAME question)",
+    "H2 (ENC-06/ENC-07 candidate bank-select bits)": "CAND_BANK_FALU2 group, bank_low_* and bank_high_* pairs"
+  },
+  "confirm_vs_refute": {
+    "H1": "CONFIRMS a genuine wide (>=7-bit) srcA_reg field if X=67 reads 0.0 (r67, unwritten); CONFIRMS aliasing to EXP-0099's own low-6-bit pattern if X=67 reads 30.0 (r3's seeded value); REFUTES BOTH if neither.",
+    "H2": "Per candidate bit: CONFIRMS a genuine bank-select mechanism if the reg=67 case changes from 0.0 to something else while reg=3 stays at 30.0; REFUTES the candidate as a bank selector (inert either way) if both stay at their baselines; identifies the candidate as LOAD-BEARING-BUT-NOT-A-BANK-SELECTOR if the reg=3 case ALSO changes from 30.0 (typically to 0.0, the established silent-zero pattern)."
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain (H.imm_value(), a fixed point of that codec) and EXP-0090/EXP-0099's own HW-validated falu2/falu2i/device_store field conventions",
+  "abandoned_mechanism_disclosure": "This experiment's pilot phase (PROGRESS.md Milestone 2) attempted a second, structurally different register-addressing method using `iminmax` (plain 8-bit register fields, per db.json). Two independent attempts (anchor-splice on a real compiled instance; hand-built from scratch) both produced results this experiment could not interpret safely (splicing a register field had NO effect on output even for in-range low registers; a hand-built program failed to read back a mov_imm-seeded low register at all). NEITHER attempt is part of the gated capture -- disclosed here and in PROGRESS.md/RESULTS.md as a first-class negative finding, not silently dropped.",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()) or the compiled form of our own carrier MSL (tools/shdump). EXP-0092's get_sr/device_store index_reg round-trip finding is cited as PUBLIC-to-this-experiment (prior committed repository evidence, not re-derived here) wherever referenced. No Apple binary introspected."
+}
