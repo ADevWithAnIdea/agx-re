@@ -1,0 +1,31 @@
+{
+  "experiment": "EXP-0115-m4-controlflow-simd-deferred",
+  "parent_experiment": "EXP-0104-m4-controlflow-simd",
+  "target": "local Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4, 10 GPU cores",
+  "a18_pro_claim": "NONE",
+  "m5_claim": "NONE",
+  "pinned_revision": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "clean_room_categories": ["OWN-SHADER", "HW-PROBE"],
+  "items_closed": [
+    "branch-reach exact boundary map",
+    "CF-03 exact nesting ceiling",
+    "icmp_pred.dst_pred / if_push_pred.pred mechanism",
+    "static/immediate shuffle out-of-range",
+    "full vote family under discard + popcount puzzle",
+    "fragment-stage SIMD width sweep",
+    "SIMD-06 structural vs functional independence"
+  ],
+  "run_ids": ["m4_20260828_run01", "m4_20260828_run02"],
+  "matrix_case_count": 308,
+  "artifact_layout": {
+    "README.md": "question, method, reproduce commands, clean-room statement",
+    "PRE_REGISTRATION.md": "per-item hypothesis, falsifier, frozen case list, reconnaissance disclosure",
+    "CAPTURE_CONTRACT.json": "pinned revision, blob hashes, raw schema, timeouts",
+    "PROGRESS.md": "timestamped milestone log",
+    "harness/": "gen_deep_kernels.py, lib.py, matrix.py, run.py, verify.py, fixtures.py",
+    "kernels/": "reach.metal, cf_pred.metal, shuf_static.metal, vote_frag.metal, width_frag.metal, sgbar_adv.metal, deep/*.metal (generated)",
+    "analysis/": "report.py + derived summary.json",
+    "raw/": "m4_20260828_run0{1,2}.jsonl (gated) + .nongated.jsonl companions",
+    "RESULTS.md": "observations vs interpretation per item, finite-resource tables, gate results, clean-room attestation"
+  }
+}

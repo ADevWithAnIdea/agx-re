@@ -1,0 +1,58 @@
+{
+  "experiment": "EXP-0115-m4-controlflow-simd-deferred",
+  "pinned_revision": "87d02c34f56357734f448695cf62d37ab555fcb0",
+  "pinned_revision_note": "repo HEAD at pre-registration time; dirty=true from untracked sibling-experiment files elsewhere in the tree (none inside this experiment directory). Per CODEX.md/SUBAGENT_BRIEF.md, captures are gated on the authored blob hashes below, not on live HEAD -- the orchestrator commits other experiments continuously and HEAD moving is not contamination.",
+  "target": {
+    "device": "local Apple M4 (G16G)",
+    "gpu_cores": 10,
+    "macos": "26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "a18_pro_claim": "NONE -- this experiment makes no A18 Pro/G17P claim anywhere",
+    "m5_claim": "NONE"
+  },
+  "toolchain": {
+    "shdump_source": "tools/shdump/shdump.m (read-only, built into work/bin/shdump)",
+    "agxrun_source": "tools/agxtest/agxrun.m (read-only, built into work/bin/agxrun)",
+    "agxrender_source": "tools/agxtest/agxrender.m (read-only, built into work/bin/agxrender)",
+    "agxparse_source": "tools/shdump/agxparse.py (read-only, copied into work/bin/agxparse.py)",
+    "agxtest_py": "tools/agxtest/agxtest.py (read-only, invoked as subprocess)",
+    "agxisa_py": "tools/agx-isa/agxisa.py (read-only, invoked as subprocess for tokenize only)",
+    "build_command": "clang -fobjc-arc -framework Metal -framework Foundation -O2 -o work/bin/<tool> tools/.../<tool>.m"
+  },
+  "authored_blob_hashes_sha256": {
+    "kernels/reach.metal": "e792923096af8cffa847a8dae1e38c80b39d289355a4e28007414efcac7a7b78",
+    "kernels/cf_pred.metal": "5521384952113ae8e0f8a797d9f6989160a28720f5694a3da9fd0c1c0cd7f74b",
+    "kernels/shuf_static.metal": "24d04a82e9f088ae0d2a5b318887646a193c93208db28a2944fc0bd2a1346c59",
+    "kernels/vote_frag.metal": "141751b0ed6d4054c707dece56ab1496d2a9397222f4a133fe344b8d1d94e1fc",
+    "kernels/width_frag.metal": "7af1e1d6985900a8fb59ea0a14b644466448b767ad7607c1a2225fb8fbb61f9f",
+    "kernels/sgbar_adv.metal": "7c84b69aa64ca4b3233e0876df3786036547a41c08bb525af415c09602766002",
+    "harness/matrix.py": "6bb58616cadea0054289873ccde4ebdea04e6605fe69fb75993c68bb91a0ec94",
+    "harness/lib.py": "6d2e9b1315687ff56b9369d1a9f0898164883d48bfa45f466e7637c1ddbc4f76",
+    "harness/gen_deep_kernels.py": "e5e619a8905e09ddbbf8aeb77e8074db7805dba20874b00b7a5571046bc6480c",
+    "kernels/deep/*": "27 files, one per (family,depth); full listing + hashes emitted by harness/run.py's blob_hashes() into every raw/*.nongated.jsonl _meta record"
+  },
+  "raw_record_schema": {
+    "gated_file": "raw/<run_id>.jsonl",
+    "gated_fields": ["run_id", "seq", "case_id", "item", "kind", "note", "status",
+                      "verdict", "detail", "out (gputime_ns/stderr/timing stripped)",
+                      "case_params"],
+    "nongated_file": "raw/<run_id>.nongated.jsonl",
+    "nongated_fields": ["run_id", "seq", "case_id", "wall_seconds",
+                         "out_nongated (gputime_ns, stderr_tail, compile logs, timed_out, rc)"],
+    "gate_rule": "raw/<run_id>.jsonl must be byte-identical (field-for-field, excluding run_id/seq) between run01 and run02, since every case in this matrix is a deterministic function of (fixed hardware, fixed compiled bytes, fixed splice). raw/<run_id>.nongated.jsonl is explicitly NOT gated and is expected to differ (gputime_ns, wall clock)."
+  },
+  "timeouts": {
+    "default_compile_timeout_s": 90,
+    "default_run_timeout_s": 15,
+    "reach_locate_splice_run_timeout_s": 8,
+    "reach_locate_splice_host_timeout_s": 13,
+    "sgbar_deadlock_risk_run_timeout_s": 10,
+    "compile_limit_deep_nesting_timeout_s": 90
+  },
+  "run_ids_reserved": ["m4_20260828_run01", "m4_20260828_run02"],
+  "environment": {
+    "prepared_utc": "2026-08-28T07:33:01Z",
+    "working_directory": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0115-m4-controlflow-simd-deferred",
+    "scratch_policy": "all temp/compile/dispatch artifacts under work/ inside this experiment directory; nothing written outside the repo"
+  }
+}
