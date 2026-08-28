@@ -1,0 +1,2534 @@
+{
+ "UNMODELLED_BYTES.atomic_mem.byte+1 (form selector, match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "1..253 step 4 (64 of 64)",
+  "arms": [
+   "atdev_atomic_mem_b1",
+   "atdevimm_atomic_mem_b1"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x03",
+   "pattern": "0x01",
+   "rule": "v & 0x03 == 0x01"
+  },
+  "n_accepted": 64,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "byte+1 is in db.json's `match`, not a field, so it had no label at all.",
+  "outcomes": {
+   "fault": 128,
+   "ok": 130,
+   "silent_zero": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "64 of 256 values work, exactly {v : v & 0x03 == 1}. Both db.json forms are in that set: 0x01 (atomic_mem) and 0x11 (atomic_rmw) execute identically in this carrier.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.atomic_mem.byte+5|byte+6 as one operand-register index": {
+  "accepted_sets_identical": false,
+  "accepted_values": "only 49",
+  "arms": [
+   "atdev_operand_pair"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 99.219,
+  "cross_run_agreement_pct": 98.828,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "isolated-byte-diff",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x31",
+   "rule": "v & 0xFF == 0x31"
+  },
+  "n_accepted": 1,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "The main matrix could only build indices 0, 1 and 2 because it moves one byte at a time. Two values (byte+6 = 0x30, 0x31) disagreed on acceptance between run21 and run22 and are excluded from the claim. DOWNGRADED from hardware-run: cross-run ACCEPTANCE agreement 99.219%, accepted sets identical: False, both runs covered the same case count: True (256 vs 256).",
+  "outcomes": {
+   "fault": 4,
+   "ok": 1,
+   "silent_zero": 243,
+   "wrong_value": 8
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Joint sweep with byte+5 pinned to 0x80 and byte+6 dense: index 3 selects a[3] = 3007 and zeroes its later reader, confirming index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1).",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.atomic_tg.byte+1 (form selector, match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "3..251 step 8 (32 of 32)",
+  "arms": [
+   "attg_atomic_tg_b1"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 33.463,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x07",
+   "pattern": "0x03",
+   "rule": "v & 0x07 == 0x03"
+  },
+  "n_accepted": 32,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "byte+1 is in db.json's `match`, not a field.",
+  "outcomes": {
+   "fault": 13,
+   "nondeterministic": 6,
+   "ok": 33,
+   "wrong_value": 205
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "32 of 256 values work, exactly {v : v & 0x07 == 3}.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.dev_scoreboard_fence.byte+1 / byte+2 (match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "F_dsf_b1",
+   "F_dsf_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 512,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 512,
+  "n_cases_run_b": 512,
+  "note": "NOT PROMOTED -- no ordering observable.",
+  "outcomes": {
+   "fault": 32,
+   "ok": 416,
+   "wrong_value": 64
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "byte+1: all 256 values leave the synthesised dataflow exact. byte+2: 160 of 256.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.mem_fence.byte+2 / byte+3 (match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "devfence_mem_fence_b2",
+   "devfence_mem_fence_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "NOT PROMOTED -- no ordering observable, as for the other mem_fence fields.",
+  "outcomes": {
+   "ok": 514
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT with respect to the carrier's output: all 256 values of each pass.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.tg_addr_compute.byte+1 (unmodelled operand selector)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "2,6,10,14,34,38,42,46,66,70,... (32 values)",
+  "arms": [
+   "tgtile_tg_addr_compute_b1"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x13",
+   "pattern": "0x02",
+   "rule": "v & 0x13 == 0x02"
+  },
+  "n_accepted": 32,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "First dense map of a byte db.json does not model as a field at all (EXP-M4-14 probed 5 values on A18). Still not emitter-usable while byte0 is pinned to one value.",
+  "outcomes": {
+   "nondeterministic": 16,
+   "ok": 33,
+   "wrong_value": 208
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 32 of 256 values work. The accepted set is {v : v & 0x03 == 2 and v & 0x10 == 0}, i.e. bits 0,1 must be 0b10 and bit 4 must be 0; bits 2,3,5,6,7 are don't-care.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.tg_addr_compute.byte+2 (match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_tg_addr_compute_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Confirms EXP-M4-14's 'byte+2 is runtime-INERT but is the disassembler's length discriminator' on M4 over the full byte -- a decoder constraint, not a hardware one.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT at runtime: all 256 values leave the tile dataflow exact.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.tg_addr_compute.byte0 (whole byte, incl. high nibble)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 28",
+  "arms": [
+   "tgtile_tg_addr_compute_b0"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x1C",
+   "rule": "v & 0xFF == 0x1C"
+  },
+  "n_accepted": 1,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "EXP-M4-14 (A18) found 0x1c AND 0xfc reproduce the baseline while 0x2c/0x3c/0x5c/0x6c corrupt. On M4, 0xfc does NOT reproduce. A18<->M4 divergence, reported not resolved. The db.json match still over-fits and the EMITTABLE VETO must stand.",
+  "outcomes": {
+   "invalid_run": 2,
+   "ok": 2,
+   "wrong_value": 253
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE and almost fully constrained: of 256 values ONLY 0x1c -- the compiler's own -- leaves the tile dataflow correct. On M4 the high nibble is not a freely-choosable operand: every other value breaks or faults.",
+  "target": "M4"
+ },
+ "UNMODELLED_BYTES.threadgroup_barrier.byte+2 (match-pinned)": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_threadgroup_barrier_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "byte+2 == 0x54 is in db.json's `match`; it is not load-bearing on hardware.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT: all 256 values leave the fence-sensitive litmus exact.",
+  "target": "M4"
+ },
+ "_experiment": "EXP-0141",
+ "_promotion_rule": "hardware-run requires dense coverage of the whole encodable range AND 100% cross-run outcome agreement AND a falsifier that actually failed on that carrier.",
+ "_runs": {
+  "atomic_rmw_addendum": [
+   "m4-20260828-run21",
+   "m4-20260828-run22"
+  ],
+  "main": [
+   "m4-20260828-run11",
+   "m4-20260828-run12"
+  ]
+ },
+ "_spec": "docs/evidence-classification.md section 2 labels; experiments/FIELD-SWEEP-PROTOCOL.md section 5 schema",
+ "_target": "M4 (G16G) only",
+ "atomic_mem.addr_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,2,48,50,64,66,112,114,128,130,... (16 values)",
+  "arms": [
+   "atdev_atomic_mem_b6",
+   "atdevimm_atomic_mem_b6"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x0D",
+   "pattern": "0x00",
+   "rule": "v & 0x0D == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 16,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'.",
+  "outcomes": {
+   "fault": 8,
+   "ok": 18,
+   "silent_zero": 484,
+   "wrong_value": 4
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "HIGH PART OF THE RMW OPERAND-REGISTER SELECTOR. byte+6 bit0 set (0x01, 0x41, 0x81, 0xC1 -- bits 6/7 don't care) makes the atomic add a[2] (2007) and zeroes a[2]'s later reader, exactly the byte+5 signature one register further on.",
+  "target": "M4"
+ },
+ "atomic_mem.amode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_mem_b2",
+   "atdevimm_atomic_mem_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here.",
+  "outcomes": {
+   "ok": 514
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on the device register-operand form: all 256 values leave the atomic correct.",
+  "target": "M4"
+ },
+ "atomic_mem.amode_hi": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,2,6,8,10,14,16,18,22,24,... (96 values)",
+  "arms": [
+   "atdev_atomic_mem_b13",
+   "atdevimm_atomic_mem_b13"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x01",
+   "pattern": "0x00",
+   "rule": "v & 0x01 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 96,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused.",
+  "outcomes": {
+   "ok": 130,
+   "silent_zero": 384
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 32 of 256 values work on the register-operand carrier (bits 0..2 must be 0), 96 of 256 on the immediate-operand carrier.",
+  "target": "M4"
+ },
+ "atomic_mem.base_slot": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_mem_b4",
+   "atdevimm_atomic_mem_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only.",
+  "outcomes": {
+   "ok": 514
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on this carrier: all 256 values leave the atomic correct, so the buffer address does NOT come from this byte for a single-bound-buffer atomic.",
+  "target": "M4"
+ },
+ "atomic_mem.idx_off": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-1,16-17,32-33,48-49,64-65,80-81,96-97,112-113,128-129,144-145,... (32 values)",
+  "arms": [
+   "atdev_atomic_mem_b9",
+   "atdevimm_atomic_mem_b9"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x0E",
+   "pattern": "0x00",
+   "rule": "v & 0x0E == 0x00"
+  },
+  "n_accepted": 32,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 66,
+   "silent_zero": 448
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: exactly 32 of 256 values work (bits 1..3 must be 0; bits 0 and 4..7 are don't-care).",
+  "target": "M4"
+ },
+ "atomic_mem.index_reg": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..128 step 128 (2 of 2)",
+  "arms": [
+   "atdev_atomic_mem_b5",
+   "atdevimm_atomic_mem_b5"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x7F",
+   "pattern": "0x00",
+   "rule": "v & 0x7F == 0x00"
+  },
+  "n_accepted": 2,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 509,
+   "wrong_value": 1
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LOW HALF OF THE RMW OPERAND-REGISTER SELECTOR. Only the compiler's own value keeps the baseline operand; byte+5 == 0x80 makes the atomic add a[1] (1007) instead of a[0] (7), and the later store of a[1]'s register then reads 0 -- the redirected register is consumed. Bit 7 of byte+5 is operand-register bit 0.",
+  "target": "M4"
+ },
+ "atomic_mem.op_lsb|op|per_lane|op_msb": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,4,8,12,24,28,30,32,36,40,... (56 values)",
+  "arms": [
+   "atdev_atomic_mem_b12",
+   "atdevimm_atomic_mem_b12"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x01",
+   "pattern": "0x00",
+   "rule": "v & 0x01 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 56,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "`op` itself was already `hardware-run` (EXP-0018/EXP-M4-10, 13 codes); this is the first dense sweep of the byte, covering op_lsb / per_lane / op_msb too.",
+  "outcomes": {
+   "ok": 106,
+   "silent_zero": 392,
+   "wrong_value": 16
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "The whole byte+12 operation word swept densely; 48 (register-operand carrier) / 56 (immediate-operand carrier) of 256 values leave the counter at the add result, and 0x36 (op 27 = sub) produces 0xFFFFFFF9 = -7 exactly, an independent confirmation of the op enum.",
+  "target": "M4"
+ },
+ "atomic_mem.ret_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..128 step 128 (2 of 2)",
+  "arms": [
+   "atdev_atomic_mem_b8",
+   "atdevimm_atomic_mem_b8"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x7F",
+   "pattern": "0x00",
+   "rule": "v & 0x7F == 0x00"
+  },
+  "n_accepted": 2,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `corpus-correlation`.",
+  "outcomes": {
+   "ok": 6,
+   "silent_zero": 506,
+   "wrong_value": 2
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 2 of 256 values work (0 and 128), so bit 7 is a don't-care and the remaining bits are load-bearing.",
+  "target": "M4"
+ },
+ "atomic_mem.ret_flag": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "atdev_atomic_mem_b7",
+   "atdevimm_atomic_mem_b7"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `corpus-correlation` (byte+7 bit0 = discard/no-writeback).",
+  "outcomes": {
+   "invalid_run": 2,
+   "ok": 4,
+   "silent_zero": 508
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: only the compiler's own value leaves the atomic correct; every other value of the byte breaks it.",
+  "target": "M4"
+ },
+ "atomic_mem.rsv10": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..3 step 1 (4 of 4)",
+  "arms": [
+   "atdev_atomic_mem_b10",
+   "atdevimm_atomic_mem_b10"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFC",
+   "pattern": "0x00",
+   "rule": "v & 0xFC == 0x00"
+  },
+  "n_accepted": 4,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `tokenization-only`; the name is wrong.",
+  "outcomes": {
+   "ok": 10,
+   "silent_zero": 504
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only 4 of 256 values (0..3) work.",
+  "target": "M4"
+ },
+ "atomic_mem.rsv11": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "atdev_atomic_mem_b11",
+   "atdevimm_atomic_mem_b11"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `tokenization-only`; the name is wrong.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 510
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only the value 0 works.",
+  "target": "M4"
+ },
+ "atomic_mem.rsv3": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_mem_b3",
+   "atdevimm_atomic_mem_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 514,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 514,
+  "n_cases_run_b": 514,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 514
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the atomic correct.",
+  "target": "M4"
+ },
+ "atomic_rmw.addr_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,48,64,112,128,176,192,240 (8 values)",
+  "arms": [
+   "atdev_atomic_rmw_b6"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x0F",
+   "pattern": "0x00",
+   "rule": "v & 0x0F == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 8,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "fault": 4,
+   "ok": 8,
+   "silent_zero": 240,
+   "wrong_value": 4
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "HIGH PART OF THE RMW OPERAND-REGISTER SELECTOR. byte+6 bit0 set (0x01, 0x41, 0x81, 0xC1 -- bits 6/7 don't care) makes the atomic add a[2] (2007) and zeroes a[2]'s later reader, exactly the byte+5 signature one register further on.",
+  "target": "M4"
+ },
+ "atomic_rmw.amode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_rmw_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on the device register-operand form: all 256 values leave the atomic correct.",
+  "target": "M4"
+ },
+ "atomic_rmw.amode_hi": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..248 step 8 (32 of 32)",
+  "arms": [
+   "atdev_atomic_rmw_b13"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x07",
+   "pattern": "0x00",
+   "rule": "v & 0x07 == 0x00"
+  },
+  "n_accepted": 32,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 224
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 32 of 256 values work on the register-operand carrier (bits 0..2 must be 0), 96 of 256 on the immediate-operand carrier.",
+  "target": "M4"
+ },
+ "atomic_rmw.base_slot": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_rmw_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on this carrier: all 256 values leave the atomic correct, so the buffer address does NOT come from this byte for a single-bound-buffer atomic.",
+  "target": "M4"
+ },
+ "atomic_rmw.idx_off": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-1,16-17,32-33,48-49,64-65,80-81,96-97,112-113,128-129,144-145,... (32 values)",
+  "arms": [
+   "atdev_atomic_rmw_b9"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x0E",
+   "pattern": "0x00",
+   "rule": "v & 0x0E == 0x00"
+  },
+  "n_accepted": 32,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 32,
+   "silent_zero": 224
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: exactly 32 of 256 values work (bits 1..3 must be 0; bits 0 and 4..7 are don't-care).",
+  "target": "M4"
+ },
+ "atomic_rmw.index_reg": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "atdev_atomic_rmw_b5"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 254,
+   "wrong_value": 1
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LOW HALF OF THE RMW OPERAND-REGISTER SELECTOR. Only the compiler's own value keeps the baseline operand; byte+5 == 0x80 makes the atomic add a[1] (1007) instead of a[0] (7), and the later store of a[1]'s register then reads 0 -- the redirected register is consumed. Bit 7 of byte+5 is operand-register bit 0.",
+  "target": "M4"
+ },
+ "atomic_rmw.op_lsb|op|per_lane|op_msb": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,8,12,24,28,30,32,40,44,56,... (48 values)",
+  "arms": [
+   "atdev_atomic_rmw_b12"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x01",
+   "pattern": "0x00",
+   "rule": "v & 0x01 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 48,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "`op` itself was already `hardware-run` (EXP-0018/EXP-M4-10, 13 codes); this is the first dense sweep of the byte, covering op_lsb / per_lane / op_msb too. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 48,
+   "silent_zero": 200,
+   "wrong_value": 8
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "The whole byte+12 operation word swept densely; 48 (register-operand carrier) / 56 (immediate-operand carrier) of 256 values leave the counter at the add result, and 0x36 (op 27 = sub) produces 0xFFFFFFF9 = -7 exactly, an independent confirmation of the op enum.",
+  "target": "M4"
+ },
+ "atomic_rmw.ret_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..128 step 128 (2 of 2)",
+  "arms": [
+   "atdev_atomic_rmw_b8"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x7F",
+   "pattern": "0x00",
+   "rule": "v & 0x7F == 0x00"
+  },
+  "n_accepted": 2,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `corpus-correlation`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 2,
+   "silent_zero": 252,
+   "wrong_value": 2
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 2 of 256 values work (0 and 128), so bit 7 is a don't-care and the remaining bits are load-bearing.",
+  "target": "M4"
+ },
+ "atomic_rmw.ret_flag": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "atdev_atomic_rmw_b7"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `corpus-correlation` (byte+7 bit0 = discard/no-writeback). Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "invalid_run": 1,
+   "ok": 1,
+   "silent_zero": 254
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: only the compiler's own value leaves the atomic correct; every other value of the byte breaks it.",
+  "target": "M4"
+ },
+ "atomic_rmw.rsv10": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..3 step 1 (4 of 4)",
+  "arms": [
+   "atdev_atomic_rmw_b10"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFC",
+   "pattern": "0x00",
+   "rule": "v & 0xFC == 0x00"
+  },
+  "n_accepted": 4,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 252
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only 4 of 256 values (0..3) work.",
+  "target": "M4"
+ },
+ "atomic_rmw.rsv11": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "atdev_atomic_rmw_b11"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 1,
+   "silent_zero": 255
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only the value 0 works.",
+  "target": "M4"
+ },
+ "atomic_rmw.rsv3": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "atdev_atomic_rmw_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the atomic correct.",
+  "target": "M4"
+ },
+ "atomic_tg.amode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "attg_atomic_tg_b2"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `corpus-correlation` (0x56 direct-value vs 0x54 RMW).",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT: all 256 values leave the threadgroup reduction correct.",
+  "target": "M4"
+ },
+ "atomic_tg.data_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-15,32-47,64-79,96-111,128-143,160-175,192-207,224-239 (128 values)",
+  "arms": [
+   "attg_atomic_tg_b8"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x10",
+   "pattern": "0x00",
+   "rule": "v & 0x10 == 0x00"
+  },
+  "n_accepted": 128,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `corpus-correlation`.",
+  "outcomes": {
+   "ok": 129,
+   "wrong_value": 128
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 128 of 256 values work; bit 4 must be 0 and the rest of the byte is a don't-care in this shape.",
+  "target": "M4"
+ },
+ "atomic_tg.op_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..96 step 96 (2 of 2)",
+  "arms": [
+   "attg_atomic_tg_b5"
+  ],
+  "coverage_equal": false,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 98.45,
+  "cross_run_cases": 129,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "untested",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x1F",
+   "pattern": "0x00",
+   "rule": "v & 0x1F == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 2,
+  "n_cases": 129,
+  "n_cases_run_b": 257,
+  "note": "The only hangs in ~71 000 measurements. 0x7E/0x7F are reproducibly bad in BOTH runs; only their SEVERITY differs (hang vs contained fault). DO NOT EMIT byte+5 in 0x7E..0x7F. Values 129..255 have one gated run's evidence only.",
+  "outcomes": {
+   "hang": 2,
+   "ok": 3,
+   "wrong_value": 124
+  },
+  "range": "0..127 step 1 (128 of 128)",
+  "semantics": "PARTIAL, and the only field the automatic gate refuses. Run 11 ABORTED this arm at case 129 of 257 after 2 REPRODUCED GPU hangs (byte+5 = 0x7E and 0x7F), per the protocol's 2-hang budget; run 12 did NOT hang on those values -- it returned a reproduced CMDBUF_ERROR (3/3) and completed the whole 0..255 sweep, finding {0, 96, 128, 224} accepted. The two runs therefore have no common dense sweep, so the accepted sets are not identical and the field stays below emitter grade.",
+  "target": "M4"
+ },
+ "atomic_tg.op|op_hi_rsv": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-1,3-5,7-9,11-13,15-17,19-21,23-25,27-29,31 (24 values)",
+  "arms": [
+   "attg_atomic_tg_b11"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0xE0",
+   "pattern": "0x00",
+   "rule": "v & 0xE0 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 24,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "`atomic_tg.op` was `corpus-correlation` (EXP-M4-13, compile-only). This is the first dispatched sweep of the byte that carries it.",
+  "outcomes": {
+   "ok": 25,
+   "wrong_value": 232
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 24 of 256 values work.",
+  "target": "M4"
+ },
+ "atomic_tg.ret_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "attg_atomic_tg_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `corpus-correlation` (0x03 returns / 0x00 noret). The old value is never consumed in this carrier, which is why the byte is unobservable here.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT: all 256 values leave the reduction correct.",
+  "target": "M4"
+ },
+ "atomic_tg.rsv10lo|op": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "attg_atomic_tg_b10"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `tokenization-only` + `corpus-correlation`.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 255
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: only the value 0 works, so the low half of the op word is fully constrained in this shape.",
+  "target": "M4"
+ },
+ "atomic_tg.rsv4": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-1,128-129 (4 values)",
+  "arms": [
+   "attg_atomic_tg_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x7E",
+   "pattern": "0x00",
+   "rule": "v & 0x7E == 0x00"
+  },
+  "n_accepted": 4,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `tokenization-only`; the name is wrong.",
+  "outcomes": {
+   "ok": 5,
+   "wrong_value": 252
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only 4 of 256 values work (0, 1, 128, 129).",
+  "target": "M4"
+ },
+ "atomic_tg.rsv6": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..1 step 1 (2 of 2)",
+  "arms": [
+   "attg_atomic_tg_b6"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFE",
+   "pattern": "0x00",
+   "rule": "v & 0xFE == 0x00"
+  },
+  "n_accepted": 2,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 3,
+   "wrong_value": 254
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only 0 and 1 work.",
+  "target": "M4"
+ },
+ "atomic_tg.rsv9": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 0",
+  "arms": [
+   "attg_atomic_tg_b9"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0xFF",
+   "pattern": "0x00",
+   "rule": "v & 0xFF == 0x00"
+  },
+  "n_accepted": 1,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `tokenization-only`; the name is wrong.",
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 255
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE, not reserved: only the value 0 works.",
+  "target": "M4"
+ },
+ "atomic_tg.xop_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..128 step 128 (2 of 2)",
+  "arms": [
+   "attg_atomic_tg_b7"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x7F",
+   "pattern": "0x00",
+   "rule": "v & 0x7F == 0x00"
+  },
+  "n_accepted": 2,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 3,
+   "wrong_value": 254
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "LIVE: 2 of 256 values work (0 and 128); bit 7 is a don't-care.",
+  "target": "M4"
+ },
+ "db_defects": {
+  "atomic_operand_register": {
+   "claim": "The RMW operand register of atomic_mem / atomic_rmw IS encoded in the instruction, in byte+5 bit 7 and byte+6 bits 0..5, as an index into the operand register window. db.json states it 'is implicit (supplied by the preceding op / amode)' and DOC-02 section 3 row 9 ranks it a MISSING field -- 'the worst kind of gap for an emitter'.",
+   "conflicts_with": "db.json/validation.json call byte+5 `index_reg` ('per-lane index GPR, zeroed for a uniform address') and byte+6 `addr_desc` ('framing only'). Our atdevimm carrier uses a UNIFORM address yet the compiler emits byte+5/+6 = 0x80/0x02, which the per-lane reading does not explain. The address role is not excluded for the per-lane form; the DATA role is now proven for the uniform form.",
+   "corollary": "The redirected register is CONSUMED -- its later reader gets 0 -- which is the same register-release contract EXP-0086/0089/0099 document for the ALU families.",
+   "evidence": "Carrier kernels/atomic_dev.metal keeps a[0..3] = 7/1007/2007/3007 live across atomic_fetch_add(o, a[0]). Baseline byte+5/+6 = 0x00/0x00 -> the counter is 7. byte+5 = 0x80 -> the counter is 1007 AND the later store of a[1]'s register reads 0. byte+6 = 0x01 (also 0x41/0x81/0xC1, so bits 6-7 are don't-care) -> the counter is 2007 AND a[2]'s later reader reads 0. Identical in both gated runs.",
+   "model": "operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects. PROVEN AT ALL FOUR CONSTRUCTIBLE INDICES: 0 -> a[0] = 7, 1 -> a[1] = 1007, 2 -> a[2] = 2007, and -- built for the first time by addendum arm `atdev_operand_pair` (byte+5 pinned 0x80, byte+6 swept densely) -- 3 -> a[3] = 3007, each with the redirected register's later reader zeroed. byte+6 bits 6 and 7 are DON'T CARE (0x01/0x41/0x81/0xC1 all give index 3). The `<< 1` multiplier is no longer interpolated.",
+   "residual_unknown": "With byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two cases in the addendum whose acceptance disagreed between run21 and run22. Unexplained; recorded."
+  },
+  "device_load_addr_mode_not_an_enum": {
+   "caveat": "Only the terminal scalar 32-bit shape was tested. The enum may still select behaviour for the base-sharing / CF / RT forms it names.",
+   "claim": "device_load byte+2 (`addr_mode`) is INERT for a terminal scalar 32-bit indexed load: all 256 values load correctly, including every code in db.json's enum."
+  },
+  "device_load_dst_fields": {
+   "claim": "device_load.dst_lo and dst_ext9 carry NO register information. dst_lo must be exactly 1; only bit 0 of dst_ext9 is live and must be 1. Three constrained bits out of the nine the two fields span; the other six are don't-care.",
+   "evidence": "4/4 dst_lo values and 128/128 dst_ext9 values swept at four independent target registers (3, 7, 20, 33), plus the full 512-value 2-D product at r7. The accepted set is identical at every target register.",
+   "supersedes": "EXP-M4-13's dst = dst_lo | (dst_ext9 << 2) (already retracted by EXP-0101) and EXP-0101's own operational advice to copy the pair verbatim per addr_mode/ld_format shape. The pair is a fixed 3-bit enable pattern, not a per-shape token."
+  },
+  "device_store_addr_mode_bit1_is_context_dependent": {
+   "claim": "device_store byte+2 bit 1 selects the DATA SOURCE: clear = ALU-computed, set = direct live load-result. It is inert when the data is ALU-computed (256/256 pass), which is the configuration EXP-0119 measured and reported as 'INERT here'; with a load-forwarded source only the 128 bit1-set values work and the other 128 store 0."
+  },
+  "reserved_fields_that_are_not_reserved": {
+   "claim": "atomic_mem.rsv10 (4 of 256 values work), atomic_mem.rsv11 (1 of 256), atomic_tg.rsv4 (4 of 256), atomic_tg.rsv6 (2 of 256) and atomic_tg.rsv9 (1 of 256) are LIVE, heavily constrained bytes, not reserved padding. device_load.reserved7/reserved13 and device_store.reserved7/reserved13 ARE genuinely inert (256/256 each)."
+  }
+ },
+ "dev_scoreboard_fence.scope_flag": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "F_dsf_scope_flag"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "NOT PROMOTED. No own-MSL kernel we could compile emits `80 02 00 xx`, so the instruction had to be SYNTHESISED into the load/ALU/store program, which has no scoreboard/ordering observable. What IS newly established: the instruction can be emitted from scratch and every value of the byte is accepted without fault.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "All 256 values execute and leave an adjacent synthesised load->ALU->store dataflow at its exact expected value.",
+  "target": "M4"
+ },
+ "device_load.access_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "L_access_desc"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "M4 confirmation of EXP-0012/RT-1a-FIX's A18 exhaustive result (was target A18 only).",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the loaded value unchanged.",
+  "target": "M4"
+ },
+ "device_load.addr_mode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "L_addr_mode"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "db.json models this byte as an addressing-mode ENUM (0x44 indexed / 0x54 base-rel / rare CF and RT forms). On this shape none of it is observable; the enum is a corpus correlation, not a hardware selector. See db_defects.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT for a terminal scalar 32-bit indexed load: all 256 values -- including every code db.json's enum names -- leave the load correct.",
+  "target": "M4"
+ },
+ "device_load.dst_ext9": {
+  "accepted_sets_identical": true,
+  "accepted_values": "1..127 step 2 (64 of 64)",
+  "arms": [
+   "L_dst_ext9_R3",
+   "L_dst_ext9_R7",
+   "L_dst_ext9_R20",
+   "L_dst_ext9_R33"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 512,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x01",
+   "pattern": "0x01",
+   "rule": "v & 0x01 == 0x01"
+  },
+  "n_accepted": 64,
+  "n_cases": 512,
+  "n_cases_run_b": 512,
+  "note": "Refutes the residue of EXP-M4-13's dst = dst_lo | (dst_ext9 << 2) model: the field carries no register information at all. The ld_format dependence is the addendum's pre-registered refuter PARTIALLY FIRING -- reported, not smoothed over.",
+  "outcomes": {
+   "ok": 256,
+   "silent_zero": 256
+  },
+  "range": "0..127 step 1 (128 of 128)",
+  "semantics": "BIT 0 must be 1 -- all 64 odd values work and all 64 even values silently zero, identically at target registers 3, 7, 20 and 33. Not a register extension of any kind. How many of bits 1..6 are additionally free is ld_format-DEPENDENT (addendum H8, 21 formats x the full 512-value product): for 16 of the 21 accepted formats the rule is `v & 0x181 == 0x081` (bits 1..6 all free); for ld_format 3/7/9/13 it is `v & 0x1C1 == 0x081` (bit 6 must also be 0); for ld_format 39 it is `v & 0x1E1 == 0x081` (bits 5 and 6 must be 0). `dst_ext9 = 1` satisfies ALL 21.",
+  "target": "M4"
+ },
+ "device_load.dst_lo": {
+  "accepted_sets_identical": true,
+  "accepted_values": "only 1",
+  "arms": [
+   "L_dst_lo_R3",
+   "L_dst_lo_R7",
+   "L_dst_lo_R20",
+   "L_dst_lo_R33"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 16,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x03",
+   "pattern": "0x01",
+   "rule": "v & 0x03 == 0x01"
+  },
+  "n_accepted": 1,
+  "n_cases": 16,
+  "n_cases_run_b": 16,
+  "note": "THE headline. EXP-0112's generator copied (dst_lo, dst_ext9) verbatim from a compiled shader because nobody had swept them. Swept exhaustively (4/4 values) at four independent target registers plus the full 512-value 2-D product.",
+  "outcomes": {
+   "ok": 4,
+   "silent_zero": 12
+  },
+  "range": "0..3 step 1 (4 of 4)",
+  "semantics": "NOT a register field and NOT a function of the target register: dst_lo must be EXACTLY 1. 0, 2 and 3 silently zero the load, identically at target registers 3, 7, 20 and 33.",
+  "target": "M4"
+ },
+ "device_load.dst_pair": {
+  "accepted_sets_identical": true,
+  "accepted_values": "129..255 step 2 (64 of 64)",
+  "arms": [
+   "L_dst_pair"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 512,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x181",
+   "pattern": "0x81",
+   "rule": "v & 0x181 == 0x81"
+  },
+  "n_accepted": 64,
+  "n_cases": 512,
+  "n_cases_run_b": 512,
+  "note": "Cross-check arm for dst_lo / dst_ext9; not a db.json field.",
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 448
+  },
+  "range": "0..511 step 1 (512 of 512)",
+  "semantics": "Full 2-D product: exactly 64 of the 512 encodable (dst_lo, dst_ext9) combinations work, and they are exactly {dst_lo == 1} x {dst_ext9 odd} -- the two constraints are independent, confirming the per-field results jointly.",
+  "target": "M4"
+ },
+ "device_load.elem_size": {
+  "accepted_sets_identical": true,
+  "accepted_values": "64,66,68,70,72,74,76,78,80,82,... (48 values)",
+  "arms": [
+   "L_elem_size"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x21",
+   "pattern": "0x00",
+   "rule": "v & 0x21 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 48,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Extends EXP-0082 (canonical codes plus 23 raw values) to the full byte.",
+  "outcomes": {
+   "ok": 48,
+   "silent_zero": 208
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "48 of 256 raw byte+12 values deliver the 4-byte element correctly.",
+  "target": "M4"
+ },
+ "device_load.extmode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..127 step 1 (128 of 128)",
+  "arms": [
+   "L_extmode"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x80",
+   "pattern": "0x00",
+   "rule": "v & 0x80 == 0x00"
+  },
+  "n_accepted": 128,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Confirms EXP-0101's extmode = 2*R over the FULL 8-bit field and adds two facts EXP-0101 could not: bit0 is a don't-care, and the field cannot reach r64+.",
+  "outcomes": {
+   "fault": 4,
+   "ok": 128,
+   "silent_zero": 120,
+   "wrong_value": 4
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "DESTINATION REGISTER SELECTOR. register = extmode >> 1; bit0 is a DON'T CARE (both parities of every register work). Values 128..255 -- i.e. registers 64..127 -- do NOT work: they silently zero. So the reachable destination range through this field is r0..r63.",
+  "target": "M4"
+ },
+ "device_load.index_reg": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-9,11-95,128-137,139-223 (190 values)",
+  "arms": [
+   "L_index_reg"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 190,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Adds the bit-7 mirror, which no prior experiment reports, and re-confirms the r95/r96 fault boundary (EXP-M4-10) with 3-of-3 fault reproduction.",
+  "outcomes": {
+   "fault": 64,
+   "ok": 190,
+   "silent_zero": 2
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Index GPR selector. r0..r95 work (except r10, which THIS program uses for its own integrity sentinel), r96..r127 fault REPRODUCIBLY, and bit 7 is IGNORED: values 128..255 mirror 0..127 exactly.",
+  "target": "M4"
+ },
+ "device_load.ld_format": {
+  "accepted_sets_identical": true,
+  "accepted_values": "3,7,9,13,17,19,21,23,25,27,... (21 values)",
+  "arms": [
+   "L_ld_format",
+   "L_ld_format_fwd"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 128,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x01",
+   "pattern": "0x01",
+   "rule": "v & 0x01 == 0x01  (NOT EXACT)"
+  },
+  "n_accepted": 21,
+  "n_cases": 128,
+  "n_cases_run_b": 128,
+  "note": "First execution of SYNTHESISED ld_format codes; EXP-M4-13 located the field by compile-only byte-diff and never ran one.",
+  "outcomes": {
+   "ok": 42,
+   "silent_zero": 37,
+   "wrong_value": 49
+  },
+  "range": "0..63 step 1 (64 of 64)",
+  "semantics": "Data-format descriptor. 21 of the 64 encodable values deliver the 32-bit scalar correctly, and the SAME 21 in both the ALU-consumer and the bit-exact load->store-forward program, so the set is a property of the load and not of the consumer. The remaining 43 either silently zero or deliver a different value.",
+  "target": "M4"
+ },
+ "device_load.ldform_hi11": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..56 step 8 (8 of 8)",
+  "arms": [
+   "L_ldform_hi11",
+   "L_ldform_hi11_fwd"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 128,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x07",
+   "pattern": "0x00",
+   "rule": "v & 0x07 == 0x00"
+  },
+  "n_accepted": 8,
+  "n_cases": 128,
+  "n_cases_run_b": 128,
+  "note": "Was `untested` with range `none`. EXP-0082's 6-value probe found 3 inert and 2 'undecodable'; the dense sweep resolves it to a clean low-3-bits-must-be-zero rule.",
+  "outcomes": {
+   "ok": 16,
+   "silent_zero": 112
+  },
+  "range": "0..63 step 1 (64 of 64)",
+  "semantics": "byte+11 bits 2..7. Bits 0..2 of the field are live and must be 0; bits 3..5 are DON'T CARE. Exactly the 8 multiples of 8 work, identically in both program shapes.",
+  "target": "M4"
+ },
+ "device_load.reserved13": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "L_reserved13"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the load correct.",
+  "target": "M4"
+ },
+ "device_load.reserved7": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "L_reserved7"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only` (framing only, no semantics).",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the load, its consumer and the store correct.",
+  "target": "M4"
+ },
+ "device_load.space": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..252 step 4 (64 of 64)",
+  "arms": [
+   "L_space"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x03",
+   "pattern": "0x00",
+   "rule": "v & 0x03 == 0x00"
+  },
+  "n_accepted": 64,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `isolated-byte-diff` over 2 of 256 values (0x00 device, 0x02 threadgroup).",
+  "outcomes": {
+   "ok": 64,
+   "silent_zero": 192
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Exact rule `v & 0x03 == 0x00`: bits 0 and 1 are live and must both be 0 for a device-space load; bits 2..7 are DON'T CARE (64 of 256 values work).",
+  "target": "M4"
+ },
+ "device_store.access_desc": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "S_access_desc"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "M4 confirmation of the A18 exhaustive result.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the store correct.",
+  "target": "M4"
+ },
+ "device_store.addr_mode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "S_addr_mode",
+   "S_addr_mode_fwd"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 512,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 512,
+  "n_cases_run_b": 512,
+  "note": "REFINES `validation.json`'s current range text 'bit1 ... INERT here' (EXP-0119): that measurement used an ALU-computed source, where the bit genuinely is inert. It is live exactly when the stored data is a live load result. Both halves swept densely in both source shapes.",
+  "outcomes": {
+   "ok": 384,
+   "silent_zero": 128
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "DATA-SOURCE SELECTOR, and it is bit 1: with an ALU-computed source all 256 values work, but with a DIRECT load-result source only the 128 values with bit1 SET work (0x56-class), and the 128 with bit1 clear (0x54-class) store 0.",
+  "target": "M4"
+ },
+ "device_store.elem_size": {
+  "accepted_sets_identical": true,
+  "accepted_values": "16-23,32-39,48-55,80-87,96-103,112-119,144-151,160-167,176-183,208-215,... (96 values)",
+  "arms": [
+   "S_elem_size"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x08",
+   "pattern": "0x00",
+   "rule": "v & 0x08 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 96,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Extends EXP-0082's 25 probed store-side values to the full byte.",
+  "outcomes": {
+   "ok": 96,
+   "wrong_value": 160
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "96 of 256 raw byte+12 values store correctly.",
+  "target": "M4"
+ },
+ "device_store.extmode": {
+  "accepted_sets_identical": true,
+  "accepted_values": "16..208 step 192 (2 of 2)",
+  "arms": [
+   "S_extmode"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 95.703,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x3F",
+   "pattern": "0x10",
+   "rule": "v & 0x3F == 0x10  (NOT EXACT)"
+  },
+  "n_accepted": 2,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "The 0xC0 alternative is now characterised rather than merely observed. Its MEANING is still unknown; only that it is accepted.",
+  "outcomes": {
+   "fault": 4,
+   "nondeterministic": 9,
+   "ok": 2,
+   "wrong_value": 241
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "SOURCE REGISTER SELECTOR: exactly TWO values work for a source register R, namely `2*R` and `2*R | 0xC0`. Proven by moving the source register and re-sweeping densely (addendum H10): r4 -> {8, 200}, r8 -> {16, 208}, r12 -> {24, 216}. So `extmode >> 1` is the source register (EXP-0090's formula, now dense over three registers), bit 0 is LIVE here unlike device_load.extmode, and bits 6+7 TOGETHER are an accepted alternative form -- a modifier, not register bits (neither bit alone works).",
+  "target": "M4"
+ },
+ "device_store.reserved13": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "S_reserved13"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the store correct.",
+  "target": "M4"
+ },
+ "device_store.reserved7": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "S_reserved7"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `tokenization-only`.",
+  "outcomes": {
+   "ok": 256
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT. All 256 values leave the store correct.",
+  "target": "M4"
+ },
+ "device_store.space": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0-1,4-5,8-9,12-13,16-17,20-21,24-25,28-29,32-33,36-37,... (128 values)",
+  "arms": [
+   "S_space"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 256,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x02",
+   "pattern": "0x00",
+   "rule": "v & 0x02 == 0x00"
+  },
+  "n_accepted": 128,
+  "n_cases": 256,
+  "n_cases_run_b": 256,
+  "note": "Was `isolated-byte-diff` over 2 of 256 values.",
+  "outcomes": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Exact rule `v & 0x02 == 0x00`: bit 1 is live and must be 0 for a device-space store; bit 0 and bits 2..7 are DON'T CARE (128 of 256 values work).",
+  "target": "M4"
+ },
+ "device_store.st_desc_hi": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0,2,4,6,8,10,12,14,32,34,... (16 values)",
+  "arms": [
+   "S_st_desc_hi"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 64,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x11",
+   "pattern": "0x00",
+   "rule": "v & 0x11 == 0x00"
+  },
+  "n_accepted": 16,
+  "n_cases": 64,
+  "n_cases_run_b": 64,
+  "note": "Was `corpus-correlation`, 'located only'.",
+  "outcomes": {
+   "ok": 16,
+   "wrong_value": 48
+  },
+  "range": "0..63 step 1 (64 of 64)",
+  "semantics": "byte+11 bits 2..7. Machine-derived exact rule `v & 0x11 == 0x00`: bits 0 AND 4 of the field are live and must be 0; bits 1..3 and 5 are DON'T CARE (16 of 64 values work).",
+  "target": "M4"
+ },
+ "device_store.st_format": {
+  "accepted_sets_identical": true,
+  "accepted_values": "3,7,9,13,17,19,21,23,25,27,... (84 values)",
+  "arms": [
+   "S_st_format",
+   "S_st_format_fwd"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 512,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x01",
+   "pattern": "0x01",
+   "rule": "v & 0x01 == 0x01  (NOT EXACT)"
+  },
+  "n_accepted": 84,
+  "n_cases": 512,
+  "n_cases_run_b": 512,
+  "note": "First execution of synthesised store-format codes; EXP-M4-13 was compile-only.",
+  "outcomes": {
+   "ok": 168,
+   "silent_zero": 156,
+   "wrong_value": 188
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Store data-format descriptor. 84 of 256 values store the 32-bit scalar correctly, the same 84 with an ALU-computed and with a load-forwarded source.",
+  "target": "M4"
+ },
+ "device_store.st_format_ext": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..31 step 1 (32 of 32)",
+  "arms": [
+   "S_st_format_ext"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 128,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x60",
+   "pattern": "0x00",
+   "rule": "v & 0x60 == 0x00"
+  },
+  "n_accepted": 32,
+  "n_cases": 128,
+  "n_cases_run_b": 128,
+  "note": "Was `corpus-correlation` ('bit set only for the 3-component store').",
+  "outcomes": {
+   "ok": 32,
+   "wrong_value": 96
+  },
+  "range": "0..127 step 1 (128 of 128)",
+  "semantics": "Only the low 5 bits are free: exactly 0..31 work, 32..127 break the store, so bits 5 and 6 of the field are live and must be 0.",
+  "target": "M4"
+ },
+ "mem_fence.b5": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "devfence_mem_fence_b5"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "NOT PROMOTED, same reason.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT with respect to the carrier's output: all 256 values pass.",
+  "target": "M4"
+ },
+ "mem_fence.memclass": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "devfence_mem_fence_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "NOT PROMOTED, same reason as mem_fence.sub: no ordering observable.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT with respect to the carrier's output: all 256 values pass.",
+  "target": "M4"
+ },
+ "mem_fence.sub": {
+  "accepted_sets_identical": true,
+  "accepted_values": "2-7,10-15,18-23,26-31,34-39,42-47,50-55,58-63,66-71,74-79,... (192 values)",
+  "arms": [
+   "devfence_mem_fence_b1"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "corpus-correlation",
+  "mask_rule": {
+   "exact": false,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00  (NOT EXACT)"
+  },
+  "n_accepted": 192,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "NOT PROMOTED. This carrier has no memory-ORDERING observable (a single 8-lane threadgroup with a trailing barrier), so a pass bounds acceptance and dataflow inertness only, not the fence's semantics. Recorded so nobody re-probes it blindly.",
+  "outcomes": {
+   "ok": 193,
+   "wrong_value": 64
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "192 of 256 values leave the carrier's functional output correct.",
+  "target": "M4"
+ },
+ "tg_addr_compute.b3": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_tg_addr_compute_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "M4 confirmation of EXP-M4-14's A18 result (5 values there, 256 here).",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on M4: all 256 values leave the tile dataflow exact.",
+  "target": "M4"
+ },
+ "tg_addr_compute.b4": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_tg_addr_compute_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "M4 confirmation of EXP-M4-14 (A18, 3 values).",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on M4: all 256 values pass.",
+  "target": "M4"
+ },
+ "tg_addr_compute.b5": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_tg_addr_compute_b5"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "M4 confirmation of EXP-M4-14 (A18, 3 values).",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT on M4: all 256 values pass.",
+  "target": "M4"
+ },
+ "threadgroup_barrier.b5": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_threadgroup_barrier_b5"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `single-template-inference` (0x00 in every observed instance).",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT: all 256 values leave the litmus exact.",
+  "target": "M4"
+ },
+ "threadgroup_barrier.flags": {
+  "accepted_sets_identical": true,
+  "accepted_values": "0..255 step 1 (256 of 256)",
+  "arms": [
+   "tgtile_threadgroup_barrier_b4"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 100.0,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x00",
+   "pattern": "0x00",
+   "rule": "v & 0x00 == 0x00"
+  },
+  "n_accepted": 256,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `corpus-correlation` (0x09 tg/none, 0x08 device, 0x0e texture). The litmus is proven fence-sensitive by its own falsifier (224/256 lanes read stale zeros when the barrier is neutralised), so this is a real negative, not an insensitive carrier.",
+  "outcomes": {
+   "ok": 257
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "INERT with respect to the fence: all 256 values leave the 256-lane litmus exact.",
+  "target": "M4"
+ },
+ "threadgroup_barrier.mem_scope": {
+  "accepted_sets_identical": true,
+  "accepted_values": "1..255 step 2 (128 of 128)",
+  "arms": [
+   "tgtile_threadgroup_barrier_b3"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 87.16,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x01",
+   "pattern": "0x01",
+   "rule": "v & 0x01 == 0x01"
+  },
+  "n_accepted": 128,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Dense confirmation of EXP-0093's 'byte+3 bit0 is the EXECUTION-CONVERGENCE enable, independent of the requested memory-fence class', now over all 256 values.",
+  "outcomes": {
+   "nondeterministic": 46,
+   "ok": 129,
+   "wrong_value": 82
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Only BIT 0 matters for a threadgroup-memory litmus: all 128 odd values pass and all 128 even values fail with 224/256 lanes reading stale zeros. The memory-CLASS bits are don't-care here; bit 0 is the execution-convergence enable.",
+  "target": "M4"
+ },
+ "threadgroup_barrier.sub": {
+  "accepted_sets_identical": true,
+  "accepted_values": "4-5,12-13,20-21,28-29,36-37,44-45,52-53,60-61,68-69,76-77,... (64 values)",
+  "arms": [
+   "tgtile_threadgroup_barrier_b1"
+  ],
+  "coverage_equal": true,
+  "cross_run_accept_agreement_pct": 100.0,
+  "cross_run_agreement_pct": 97.276,
+  "cross_run_cases": 257,
+  "evidence": [
+   "EXP-0141"
+  ],
+  "label": "hardware-run",
+  "mask_rule": {
+   "exact": true,
+   "mask": "0x06",
+   "pattern": "0x04",
+   "rule": "v & 0x06 == 0x04"
+  },
+  "n_accepted": 64,
+  "n_cases": 257,
+  "n_cases_run_b": 257,
+  "note": "Was `isolated-byte-diff` over 3 values.",
+  "outcomes": {
+   "nondeterministic": 7,
+   "ok": 65,
+   "wrong_value": 185
+  },
+  "range": "0..255 step 1 (256 of 256)",
+  "semantics": "Machine-derived exact rule `v & 0x06 == 0x04`: bit 2 must be 1 and bit 1 must be 0; bit 0 and bits 3..7 are DON'T CARE (64 of 256 values work, the compiler's own 0x04 and its 0x05 neighbour among them).",
+  "target": "M4"
+ }
+}

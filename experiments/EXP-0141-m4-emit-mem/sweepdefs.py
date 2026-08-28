@@ -34,18 +34,43 @@ ALU_ORACLE = {0: [V_LOAD + K_SMALL]}     # -7.0
 ALU_SILENT = {0: [K_SMALL]}              # 1.5  == srcA read as 0 (silent zero)
 FWD_ORACLE = {0: [V_LOAD]}               # -8.5, no ALU in the path
 D_ALU = 8                                # falu2i dst (4-bit field -> r0..r15)
+D_CAN = 10                               # canary register
+CANARY_WORD = 4                          # out[4] (store idx_off unit is 16 B)
+CANARY_VALUE = 8.0
+
+# INTEGRITY CANARY (added by AMENDMENT 1, see PRE_REGISTRATION.md).
+# Under concurrent sibling GPU experiments a command buffer can come back
+# `STATUS OK` having produced NOTHING -- the pre-registered baseline itself
+# read back a wrong value that way during the amendment's own smoke. So every
+# synthesised program first writes a fixed sentinel through a path that does
+# NOT involve the instruction under test:
+#     mov_imm(idx, 0); falu2i(D_CAN = r{idx} + 8.0); store out[4] = D_CAN
+# and only then runs the load/ALU/store under test. `out[4] == 8.0` therefore
+# means "our shader really executed"; its absence means the run is INVALID and
+# must be repeated, not recorded as a property of the swept value.
+# `mods` must be 0 here, not EXP-0101's 0xC0: 0xC0 is required only when the
+# falu2i operand is device_load-sourced, and it BREAKS this mov_imm-sourced
+# seed (pilot, work/canary).
 
 
 # ---------------------------------------------------------------------------
 # synthesised program shapes
 # ---------------------------------------------------------------------------
+def _canary(idx):
+    """Sentinel prologue: out[CANARY_WORD] = CANARY_VALUE, written before the
+    instruction under test and independent of it."""
+    return [H.mov_imm(idx, 0),
+            H.falu2i_raw(D_CAN, idx, CANARY_VALUE, mods=0),
+            H.device_store(idx, SLOT_OUT, data_reg=D_CAN, idx_off=1)]
+
+
 def prog_alu(R=7, dst_lo=1, dst_ext9=1, extmode=None, ld=None, st=None,
              extra=None, D=D_ALU):
     """mov_imm(idx,0); device_load -> r{R}; falu2i(D = r{R} + 1.5);
     device_store(out[0] = D). out[0] == -7.0 iff the load landed in r{R}."""
     ld = dict(ld or {})
     st = dict(st or {})
-    idx = H.pick_idx_reg(R, D)
+    idx = H.pick_idx_reg(R, D, D_CAN)
     lkw = dict(index_reg=idx, base_slot=SLOT_MEM,
                extmode=2 * R if extmode is None else extmode,
                dst_lo=dst_lo, dst_ext9=dst_ext9, idx_off=1)
@@ -56,7 +81,7 @@ def prog_alu(R=7, dst_lo=1, dst_ext9=1, extmode=None, ld=None, st=None,
         skw.pop("data_reg", None)
     load = H.device_load(**lkw)
     store = H.device_store(**skw)
-    body = [H.mov_imm(idx, 0), load] + list(extra or []) + \
+    body = _canary(idx) + [load] + list(extra or []) + \
            [H.falu2i_raw(D, R, 1.5), store]
     return H.build_program(body, CARRIER_LEN), load, store
 
@@ -70,7 +95,7 @@ def prog_fwd(R=7, dst_lo=1, dst_ext9=1, extmode=None, ld=None, st=None):
     ld = dict(ld or {})
     st = dict(st or {})
     st.setdefault("addr_mode", 0x56)
-    idx = H.pick_idx_reg(R, R)
+    idx = H.pick_idx_reg(R, R, D_CAN)
     lkw = dict(index_reg=idx, base_slot=SLOT_MEM,
                extmode=2 * R if extmode is None else extmode,
                dst_lo=dst_lo, dst_ext9=dst_ext9, idx_off=1)
@@ -81,7 +106,7 @@ def prog_fwd(R=7, dst_lo=1, dst_ext9=1, extmode=None, ld=None, st=None):
         skw.pop("data_reg", None)
     load = H.device_load(**lkw)
     store = H.device_store(**skw)
-    return H.build_program([H.mov_imm(idx, 0), load, store], CARRIER_LEN), load, store
+    return H.build_program(_canary(idx) + [load, store], CARRIER_LEN), load, store
 
 
 def _case(arm, carrier, instr, field, value, note="", oracle=None,
@@ -261,7 +286,7 @@ def build_load_store_arms():
 # ---------------------------------------------------------------------------
 import isadb  # noqa: E402  (read-only; isa_helpers already put tools/agx-isa on the path)
 
-DSF_OFF = 2 + 14        # byte offset of `extra` inside prog_alu's body
+DSF_OFF = 2 + 6 + 14 + 14   # canary(2+6+14) + device_load(14): where `extra` lands
 
 
 def build_dsf_arms():
@@ -301,12 +326,12 @@ def build_dsf_arms():
 # tools/agx-isa (analysis/locate.py re-derives every one of these fresh before
 # each capture; they are asserted, never assumed).
 SITES = {
-    "atdev":    ("atomic_mem", 0x30, 14),
-    "atdevimm": ("atomic_mem", 0x30, 14),
-    "attg":     ("atomic_tg", 0x70, 12),
-    "tgtile_bar": ("threadgroup_barrier", 0x4C, 6),
-    "tgtile_tga": ("tg_addr_compute", 0x2E, 6),
-    "devfence": ("mem_fence", 0x30, 6),
+    "atdev":    ("atomic_mem", 70, 14),
+    "atdevimm": ("atomic_mem", 70, 14),
+    "attg":     ("atomic_tg", 128, 12),
+    "tgtile_bar": ("threadgroup_barrier", 428, 6),
+    "tgtile_tga": ("tg_addr_compute", 422, 6),
+    "devfence": ("mem_fence", 90, 6),
 }
 BYTE_FIELD = {
     "atomic_mem": {1: "form_byte1", 2: "amode", 3: "rsv3", 4: "base_slot",
@@ -399,3 +424,175 @@ def build_falsifier_arms(sites):
 def build_all(sites):
     return (build_load_store_arms() + build_dsf_arms()
             + build_falsifier_arms(sites) + build_splice_arms(sites))
+
+
+# ---------------------------------------------------------------------------
+# ADDENDUM MATRIX (runs 21/22) -- the `atomic_rmw` FORM
+# ---------------------------------------------------------------------------
+# The frozen main matrix sweeps `atomic_mem` (byte+1 == 0x01), because that is
+# what BOTH of our own atomic carriers compile to. `atomic_rmw` differs from it
+# only in byte+1 (0x11), and the main matrix's `atdev_atomic_mem_b1` arm shows
+# 0x11 executes correctly in the same carrier with everything else unchanged --
+# but that is evidence about byte+1, NOT a per-field sweep of the 0x11 form.
+# Labelling atomic_rmw's 14 fields from atomic_mem's sweeps would be exactly
+# the strength mismatch `docs/evidence-classification.md` exists to prevent, so
+# this addendum re-runs the dense byte sweep with byte+1 PINNED to 0x11.
+RMW_BYTE1 = 0x11
+
+
+def build_rmw_arms(sites):
+    mnem, off, ln, orig = sites["atdev"]
+    pinned = bytearray(orig)
+    pinned[1] = RMW_BYTE1
+    arms = []
+    ctl = [_case("CTRL_RMW", "atdev", "atomic_rmw", "_baseline", RMW_BYTE1,
+                 "byte+1 pinned to 0x11 (the atomic_rmw form), everything else "
+                 "as the compiler emitted it", None, True, "splice",
+                 splice=[(off + 1, bytes([RMW_BYTE1]))], ibytes=bytes(pinned).hex())]
+    mut = bytearray(pinned); mut[12] = 0x22
+    ctl.append(_case("CTRL_RMW", "atdev", "atomic_rmw", "_falsifier_op_and", 0x22,
+                     "PRE-REGISTERED TO FAIL: op add(0x20)->and(0x22) turns 0+7 "
+                     "into 0&7 == 0.", None, False, "splice",
+                     splice=[(off + 1, bytes([RMW_BYTE1])), (off + 12, b"\x22")],
+                     ibytes=bytes(mut).hex()))
+    arms.append({"arm": "CTRL_RMW", "carrier": "atdev", "instr": "atomic_rmw",
+                 "field": "_controls", "cases": ctl,
+                 "doc": "Baseline and falsifier for the pinned 0x11 form."})
+    for boff, fname in sorted(BYTE_FIELD["atomic_mem"].items()):
+        if boff == 1:
+            continue
+        arm = "atdev_atomic_rmw_b%d" % boff
+        cases = []
+        for v in range(256):
+            mut = bytearray(pinned); mut[boff] = v
+            cases.append(_case(arm, "atdev", "atomic_rmw", fname, v, "",
+                               None, None, "splice",
+                               splice=[(off + 1, bytes([RMW_BYTE1])),
+                                       (off + boff, bytes([v]))],
+                               ibytes=bytes(mut).hex()))
+        arms.append({"arm": arm, "carrier": "atdev", "instr": "atomic_rmw",
+                     "field": fname, "cases": cases,
+                     "doc": "atomic_rmw (byte+1 pinned 0x11) byte+%d (%s) 0..255 "
+                            "DENSE." % (boff, fname)})
+    return arms
+
+
+# The 21 ld_format codes that deliver the 32-bit scalar correctly, taken from
+# run11's own L_ld_format arm (identical in the ALU and load-forward shapes).
+# Used here as a COVARIATE, not as a hypothesis: the question below is whether
+# the dst_lo/dst_ext9 rule is the same under each of them.
+LDFMT_OK = [3, 7, 9, 13, 17, 19, 21, 23, 25, 27, 29, 31, 39, 49, 51, 53, 55,
+            57, 59, 61, 63]
+
+
+def build_dst_x_ldformat_arms():
+    """H8: is the (dst_lo, dst_ext9) rule INDEPENDENT of ld_format?
+
+    EXP-0101's operational advice was to copy the pair verbatim 'from a
+    compiler-observed device_load of the same addr_mode/ld_format shape', which
+    implies the rule is per-shape. The main matrix swept the pair at four target
+    registers but at ONE ld_format (0x11). This arm re-runs the full 512-value
+    2-D product under EVERY ld_format code that works, so 'it depends on the
+    shape' is either killed or demonstrated.
+    """
+    arms = []
+    for fmt in LDFMT_OK:
+        arm = "L_dstpair_ldfmt%d" % fmt
+        cases = []
+        for lo in range(4):
+            for e9 in range(128):
+                prog, load, _ = prog_alu(R=7, dst_lo=lo, dst_ext9=e9,
+                                         ld={"ld_format": fmt})
+                cases.append(_case(arm, "synth", "device_load", "dst_pair",
+                                   (lo << 7) | e9, "ld_format=%d" % fmt,
+                                   ALU_ORACLE, None, "synth", prog,
+                                   ibytes=load.hex()))
+        arms.append({"arm": arm, "carrier": "synth", "instr": "device_load",
+                     "field": "dst_pair", "cases": cases,
+                     "doc": "Full 512-value (dst_lo, dst_ext9) product at "
+                            "ld_format=%d, target r7." % fmt})
+    return arms
+
+
+def build_operand_pair_arms(sites):
+    """H9: the atomic operand-register index is
+    (byte+5 >> 7) | ((byte+6 & 0x3F) << 1).
+
+    The main matrix moved ONE byte at a time and so only ever built indices
+    0, 1 and 2; the multiplier on byte+6 is interpolated from two points. This
+    arm pins byte+5 = 0x80 (the index-bit-0 value) and sweeps byte+6 densely, so
+    index 3 -- which must make the atomic add a[3] = 3007 -- is constructed for
+    the first time.
+    """
+    mnem, off, ln, orig = sites["atdev"]
+    base = bytearray(orig)
+    base[5] = 0x80
+    cases = []
+    for v in range(256):
+        mut = bytearray(base); mut[6] = v
+        cases.append(_case("atdev_operand_pair", "atdev", "atomic_mem",
+                           "index_reg|addr_desc", v, "byte+5 pinned 0x80",
+                           None, None, "splice",
+                           splice=[(off + 5, b"\x80"), (off + 6, bytes([v]))],
+                           ibytes=bytes(mut).hex()))
+    return [{"arm": "atdev_operand_pair", "carrier": "atdev",
+             "instr": "atomic_mem", "field": "index_reg|addr_desc",
+             "cases": cases,
+             "doc": "byte+5 pinned to 0x80, byte+6 swept 0..255 DENSE: builds "
+                    "operand-register indices 1, 3, 5, ... for the first time."}]
+
+
+def build_addendum_controls():
+    """The addendum's synth carrier needs its own pre-registered baseline and
+    falsifier, so the H8 arms are not the only thing that carrier ever runs."""
+    p, ld, _ = prog_alu(R=7)
+    ctl = [_case("CTRL_ADD", "synth", "device_load", "_baseline", 0,
+                 "canonical construction, unmutated", ALU_ORACLE, True,
+                 "synth", p, ibytes=ld.hex(), roundtrip=True)]
+    p, ld, _ = prog_alu(R=7, dst_lo=0, dst_ext9=0)
+    ctl.append(_case("CTRL_ADD", "synth", "device_load", "_falsifier_dst00", 0,
+                     "PRE-REGISTERED TO FAIL: (0,0) silently zeroes the load.",
+                     ALU_ORACLE, False, "synth", p, ibytes=ld.hex(),
+                     roundtrip=True))
+    p, ld, _ = prog_alu(R=7, ld={"ld_format": 0})
+    ctl.append(_case("CTRL_ADD", "synth", "device_load",
+                     "_falsifier_ldformat0", 0,
+                     "PRE-REGISTERED TO FAIL: ld_format 0 is not in the "
+                     "21-code accepted set found by run11.",
+                     ALU_ORACLE, False, "synth", p, ibytes=ld.hex()))
+    return [{"arm": "CTRL_ADD", "carrier": "synth", "instr": "device_load",
+             "field": "_controls", "cases": ctl,
+             "doc": "Addendum baseline + falsifiers on the synth carrier."}]
+
+
+def build_store_extmode_arms():
+    """H10: is `device_store.extmode` the SOURCE REGISTER, and what are bits 6/7?
+
+    The main matrix swept it with the data in ONE register (r8) and found only
+    {16, 208} accepted -- 16 = 2*8 as EXP-0090's formula predicts, and 208 =
+    16 | 0xC0 unexplained. This arm repeats the dense sweep with the ALU result
+    in r4 and r12 as well. If extmode >> 1 is the source register, the accepted
+    set must MOVE to {8, 8|0xC0} and {24, 24|0xC0}; if it does not move, the
+    formula is wrong for the store side and the r8 result was a coincidence of
+    that one register.
+    """
+    arms = []
+    for D in (4, 8, 12):
+        arm = "S_extmode_D%d" % D
+        cases = []
+        for v in range(256):
+            prog, _, store = prog_alu(R=7, D=D, st={"extmode": v})
+            cases.append(_case(arm, "synth", "device_store", "extmode", v,
+                               "ALU result in r%d" % D, ALU_ORACLE, None,
+                               "synth", prog, ibytes=store.hex()))
+        arms.append({"arm": arm, "carrier": "synth", "instr": "device_store",
+                     "field": "extmode", "cases": cases,
+                     "doc": "device_store.extmode 0..255 DENSE with the stored "
+                            "value in r%d." % D})
+    return arms
+
+
+def build_addendum(sites):
+    return (build_addendum_controls() + build_store_extmode_arms()
+            + build_rmw_arms(sites)
+            + build_operand_pair_arms(sites) + build_dst_x_ldformat_arms())

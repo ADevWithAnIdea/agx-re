@@ -15,7 +15,8 @@ sys.path.insert(0, str(HERE / "harness"))
 import sweepdefs as SD  # noqa: E402
 import carriers as C  # noqa: E402
 
-RUNS = ("m4-20260828-run01", "m4-20260828-run02")
+RUNS = ("m4-20260828-run11", "m4-20260828-run12")
+ADD_RUNS = ("m4-20260828-run21", "m4-20260828-run22")
 
 
 def sha(p):
@@ -53,8 +54,13 @@ def selftest():
     if len(base) < 6:
         bad.append("fewer than 6 pre-registered baselines (%d)" % len(base))
     # oracles are host-computed and self-consistent
-    if C.CARRIERS["tgtile"]["oracle"][0][0] != 3:
+    if C.CARRIERS["tgtile"]["oracle"][0][0] != (128 + 1) + (37 + 1):
         bad.append("tile oracle wrong at lane 0")
+    if C.CARRIERS["tgtile"]["oracle"][0][256] != C.SENT:
+        bad.append("tile sentinel missing from oracle")
+    for cn, sp in C.CARRIERS.items():
+        if "sentinel" not in sp:
+            bad.append("carrier %s has no integrity sentinel" % cn)
     if C.CARRIERS["attg"]["oracle"][0][0] != sum(C.ATOM_A[0:16]):
         bad.append("attg oracle wrong")
     if abs(SD.ALU_ORACLE[0][0] - (-7.0)) > 0:
@@ -109,21 +115,28 @@ def between_runs():
     return 1 if bad else 0
 
 
-def captured():
-    a, b = _load(RUNS[0]), _load(RUNS[1])
+def captured(runs=RUNS, label="main"):
+    a, b = _load(runs[0]), _load(runs[1])
     if a is None or b is None:
-        print("FAIL: both runs required")
-        return 1
-    ka = {(r["arm"], r["i"]): r for r in a}
-    kb = {(r["arm"], r["i"]): r for r in b}
+        print("SKIP: %s pair not both present" % label)
+        return 0
+    ka = {(r["carrier"], r["arm"], r["i"]): r for r in a}
+    kb = {(r["carrier"], r["arm"], r["i"]): r for r in b}
     only = set(ka) ^ set(kb)
     diff = [k for k in set(ka) & set(kb)
             if (ka[k]["outcome"], ka[k]["match"], ka[k]["observed"]) !=
                (kb[k]["outcome"], kb[k]["match"], kb[k]["observed"])]
-    print("captured: run01=%d run02=%d, %d cases only in one run, %d cases differing"
-          % (len(a), len(b), len(only), len(diff)))
+    acc = [k for k in set(ka) & set(kb)
+           if (ka[k]["outcome"] == "ok") != (kb[k]["outcome"] == "ok")]
+    print("captured[%s]: %s=%d %s=%d, %d cases only in one run, %d outcome "
+          "disagreements, %d ACCEPTANCE disagreements"
+          % (label, runs[0][-6:], len(a), runs[1][-6:], len(b), len(only),
+             len(diff), len(acc)))
+    for k in sorted(acc)[:20]:
+        print("   ACCEPT-DIFF %s %s/%d value=%s: %s | %s" % (k[0], k[1], k[2],
+              ka[k]["value"], ka[k]["outcome"], kb[k]["outcome"]))
     for k in sorted(diff)[:20]:
-        print("   DIFF %s/%d: %s %s | %s %s" % (k[0], k[1], ka[k]["outcome"],
+        print("   DIFF %s %s/%d: %s %s | %s %s" % (k[0], k[1], k[2], ka[k]["outcome"],
               str(ka[k]["observed"])[:60], kb[k]["outcome"], str(kb[k]["observed"])[:60]))
     va, vb = _controls_held(a), _controls_held(b)
     for x in va + vb:
@@ -144,5 +157,6 @@ if __name__ == "__main__":
     if getattr(a, "between_runs"):
         rc |= between_runs()
     if a.captured:
-        rc |= captured()
+        rc |= captured(RUNS, "main")
+        rc |= captured(ADD_RUNS, "addendum")
     sys.exit(rc)

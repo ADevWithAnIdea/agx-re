@@ -1,21 +1,31 @@
 {
+ "addendum_note": "AMENDMENTS 3 + 3b: atomic_rmw dense byte sweep (byte+1 pinned 0x11), the atomic operand-register two-byte pairing (H9), and the dst_lo/dst_ext9 x ld_format independence check (H8). 35 arms / 14082 cases. Frozen after run11, before run21.",
+ "addendum_runs": [
+  "m4-20260828-run21",
+  "m4-20260828-run22"
+ ],
+ "amendment": "AMENDMENT 1 (2026-08-28, raw/ empty): FIELD-SWEEP-PROTOCOL section 7 concurrency mitigation; integrity sentinels; strengthened barrier litmus. See PRE_REGISTRATION.md.",
  "authored_sha256": {
-  "PRE_REGISTRATION.md": "4e29cbaab95db9f109ab9d6cf89625dba494b6cf62a2638bf2ba821d311e5fa7",
-  "carriers.py": "b4ec13837d396db6649053a5a76f6b87f518abd9858f516f547cefa35f32a285",
+  "PRE_REGISTRATION.md": "3c39f1eb51880b8d9694b591dec0a852ae80df50aa3d0f129747016c87b3cec7",
+  "carriers.py": "084b7532976f12c7d7ee1200cf6575ae13d785723676a87a6ae3afa724cf1d5a",
   "harness/build.sh": "4492e089276f317b0430a6ff1531410ee72d3acab5698bd0ea84bbe7773e99f3",
   "harness/locate.py": "2675e6b944d70909ec2af5ce104cb97ca5c61adc7f6ed12c833cf59ed6111d05",
-  "harness/sweeprun.py": "662123cb4c26686606d884d836f2c091f993a7019a678cf9d338f1eb33cb8117",
+  "harness/sweeprun.py": "99e937edfe36c3735481f8c3e2cdef92f10f6d171dcb0053637a4f063f7fed5d",
   "isa_helpers.py": "dc2afd111741a5ef07f8ed1b74131a786b3d1f21af9e1cc015d3bf18aad50d84",
-  "kernels/atomic_dev.metal": "e9e5d3b222bb7c2e9036af8a9771cd7131aec3890c33607fcc50127ee549c686",
-  "kernels/atomic_dev_imm.metal": "967d1e54e69dbbcf42b60789eab62c9af74981ecb217a83cff2bb5d629af0dd5",
-  "kernels/atomic_tg.metal": "097987e9881b955559827c63f99566a63d21cc6003a4cba0c5cc414ac5f29e52",
+  "kernels/atomic_dev.metal": "a0474dc913cb2feb524ed4e329b1e8997e6776b6b45d9e6edcd2e5f955d414c6",
+  "kernels/atomic_dev_imm.metal": "e7ba3c9c574a46111f640df01557afc026f15509f93410d478f183597efe420b",
+  "kernels/atomic_tg.metal": "33c7e84e5c92f6ff65b24293c2b1c465b293c08c10edc89b403833cc48999f49",
   "kernels/carrier.metal": "4e6e396721fc7b6ff07c85240a71713140d2df3149cf5aefe8d5e9ce9a214b7b",
-  "kernels/dev_fence.metal": "7a988c5a60068682d08ea2ed0021b14d342195589dd3b981c0c9a3ca71cceaf4",
-  "kernels/tg_tile.metal": "97247fa6059c8f305efedd618baaa7f39fc91fcc0639ca1c4289d523135edf1b",
-  "run.py": "2fc961141bd73ecbeb818b81a7c42b576d0fced91ce2b059b835d72f8c25cf16",
-  "sweepdefs.py": "9fcfd9cadad9b69a8822823493ea3613999c2e1c6bc5eb50a1a516dd0e7f38df",
-  "verify.py": "c0fccaf04422e09df4a9cdb75bda95ff422485565dab907f7456b49c3b9633d4"
+  "kernels/dev_fence.metal": "02fe5c8fd4b920251f2bac9df4c682fcc41247b6adc45e7d45ae91811ba5da94",
+  "kernels/tg_tile.metal": "2c7c7d3a87730cfc8991400c9d2a293c9d6cccf5ff167523fe781d58d44c2860",
+  "run.py": "cf7c87e8a079f2f995d9e3a76d3ab646b4ebc11dadf0a522a0a54e0122b64825",
+  "sweepdefs.py": "9972cebc117c9a26ab0bfb04d27bf2f1952c339a1d49045515d27780319c83b9",
+  "verify.py": "bc21edadc97a503e767adb7d3819ce157c431fe49e30da0eb452a6d635080963"
  },
+ "batched_with": [
+  "EXP-0139 (IALU)",
+  "EXP-0146 (integer misc)"
+ ],
  "experiment": "EXP-0141-m4-emit-mem",
  "frozen_utc": "2026-08-28",
  "hang_budget": {
@@ -38,9 +48,12 @@
    "match",
    "outcome",
    "status",
-   "repeat_status",
-   "attempts",
-   "error",
+   "statuses",
+   "fault_classes",
+   "innocent_retries",
+   "observations",
+   "confirmed",
+   "canary_ok",
    "rt",
    "expect_match",
    "note"
@@ -52,15 +65,25 @@
    "fault",
    "hang",
    "nondeterministic",
-   "undecodable"
+   "invalid_run",
+   "cascade_suspected"
   ]
  },
  "repo_revision_recorded_not_gated": "f17938ee0105c8f1fb1e1c25be3aa22fa4a77a5c",
+ "robustness": {
+  "baseline_health_every": 100,
+  "canary_retries": 4,
+  "confirm_attempts": 3,
+  "innocent_retries": 6
+ },
  "runs": [
-  "m4-20260828-run01",
-  "m4-20260828-run02"
+  "m4-20260828-run11",
+  "m4-20260828-run12"
  ],
  "schema": 1,
+ "superseded_partial_captures": [
+  "m4-20260828-run01 (3240/20529 cases; retained, see raw/m4-20260828-run01/PARTIAL.md)"
+ ],
  "target": {
   "device": "Apple M4 / G16G",
   "hw_model": "Mac16,10",

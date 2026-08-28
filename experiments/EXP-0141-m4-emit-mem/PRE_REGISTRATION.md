@@ -194,3 +194,182 @@ Apple binary introspection: NONE
 Reproduction: python3 -B run.py --run-id <id> --execute
 Evidence: raw/<run_id>/sweep.jsonl (append-only), raw/<run_id>/00_manifest.json
 ```
+
+---
+
+# AMENDMENT 1 — 2026-08-28, BEFORE any capture (`raw/` empty)
+
+`experiments/FIELD-SWEEP-PROTOCOL.md` gained a new binding section 7
+(*"Concurrent sweeps CONTAMINATE each other"*, commit `43c7cb0d`) after this
+pre-registration was first frozen and before this experiment captured anything.
+This experiment is batched with **EXP-0139 (IALU)** and **EXP-0146 (integer
+misc)** on the same GPU. Nothing in section 2 (hypotheses) or section 4
+(oracles' arithmetic) changes; the amendment strengthens the *measurement* so a
+sibling's fault cannot become one of our labels. `raw/` was empty when this was
+written, so amending is legitimate rather than post-hoc.
+
+## A1.1 What the protocol now requires, and what was built for it
+
+1. **No `fault` from one observation.** A non-`ok` verdict of any kind is
+   re-measured until two observations agree or three have been made; the
+   verdict is the majority. `fault`/`hang` additionally require the failure to
+   reproduce in >= 2 of 3 attempts. A case with no majority is recorded
+   `nondeterministic`, never `fault`.
+2. **OS fault classification recorded.** Every record carries `fault_classes`
+   (e.g. `kIOGPUCommandBufferCallbackErrorInnocentVictim`) and
+   `innocent_retries`. Innocent-victim-class failures are retried (bounded, 6)
+   and **segregated**: they never by themselves make a case a fault.
+3. **Mid-run baseline health checks.** The unmutated carrier is re-measured at
+   every carrier's start and end and every 100 cases. A failure restarts the
+   runner process and re-checks; a second failure declares a **cascade**, stops
+   that carrier, and is recorded in `raw/<run>/01_progress.json` — the cascade
+   is not recorded as field data.
+4. **Concurrency recorded.** `raw/<run>/01_progress.json` carries a `ps`
+   snapshot of sibling GPU-runner processes at the start and end of the run.
+
+## A1.2 A THIRD contamination mode, found while implementing the above
+
+Under sibling GPU load a command buffer can return **`STATUS OK` having
+executed nothing**: the output buffer comes back at its zero-initialised
+contents. This is materially worse than an innocent-victim fault, because for
+this ISA an all-zero readback is the *expected* signature of a wrongly-encoded
+field ("silent zero"), so the artifact forges a real-looking negative result.
+It was caught by the amendment's own smoke: the **pre-registered baseline**
+`synth/_baseline` — EXP-0101's HW-VALIDATED construction — read back a wrong
+value with `STATUS OK`, and the `attg` carrier's unmutated health check
+returned all zeros with `STATUS OK`.
+
+**Mitigation: an integrity sentinel in every carrier.** Each carrier now writes
+a fixed value through a path that does not involve the instruction under test —
+`out[4] = 8.0`, written by `mov_imm`/`falu2i`/`device_store` *before* the swept
+instruction, for the synthesised programs; an unconditional first store
+(`0xA5A5A5A5`) for each own-MSL splice carrier. A measurement whose sentinel is
+absent is **INVALID**: it is repeated (up to 4 times) and, if never obtained,
+recorded `invalid_run` and excluded from verdicts. It is never read as a
+property of the swept value.
+
+The synthesised sentinel must use `falu2i` `mods = 0` and not EXP-0101's
+`0xC0`: `0xC0` is required only when the `falu2i` operand is `device_load`
+-sourced and it *breaks* the `mov_imm`-sourced seed (pilot, `work/canary`).
+
+## A1.3 The barrier litmus was too weak to falsify anything — replaced
+
+`kernels/tg_tile.metal`'s first two shapes could NOT detect a neutralised
+barrier, so the `threadgroup_barrier` arm would have proven nothing:
+
+| tile litmus shape | barrier spliced out |
+|---|---|
+| `o[li] = tile[li+1] + tile[li+2]` (every lane writes its own slot) | litmus still PASSED |
+| `o[li] = tile[li+128] + tile[li+37]` (cross-SIMD-group reads) | litmus still PASSED |
+| **lane 0 fills the whole tile, all 256 lanes read it** | **224 / 256 lanes read stale zeros, deterministically** |
+
+224 = 256 - 32 is exactly the set of lanes outside lane 0's own 32-lane SIMD
+group. Both neutralisations (`mem_scope 0x61 -> 0x00`, and physically replacing
+the 6 barrier bytes with three `mov_imm`) give the same 224. The falsifier
+`_falsifier_barrier_off` is therefore live; its *outcome label* wobbles between
+`wrong_value` and `nondeterministic` because the `mem_scope = 0` splice
+sometimes also faults, but `match = False` is stable, which is what is
+pre-registered.
+
+## A1.4 Amended acceptance state
+
+Re-verified after the amendment, three consecutive control-only runs: 13/13
+controls give an identical outcome vector each time, all 6 falsifiers fail as
+pre-registered, all baselines hold, **0 / 36 health checks failed**. All six
+carriers' host-computed oracles re-verified against the UNSPLICED kernels.
+`CAPTURE_CONTRACT.json` re-frozen over the amended blobs before run01.
+
+---
+
+# AMENDMENT 2 — 2026-08-28, after a partial capture was stopped
+
+`m4-20260828-run01` was stopped by me at 3240/20529 cases on a HARNESS defect
+introduced by AMENDMENT 1: a reproducibly faulting case has **no output at
+all**, so its integrity sentinel is trivially absent, and the canary loop
+therefore retried every real fault 12+ times and mislabelled it `invalid_run`
+instead of `fault`. `device_load.index_reg >= 96` faults reproducibly (the known
+r95/r96 boundary), so that arm became a fault storm.
+
+**Fix:** a `fault`/`hang` verdict — which `issue()` has already reproduced in
+>= 2 of 3 non-innocent attempts — short-circuits both the canary loop and the
+outer majority loop. Nothing about the hypotheses, oracles, coverage or
+falsifiers changes.
+
+**The partial capture is RETAINED and its id is NOT reused**
+(`raw/m4-20260828-run01/PARTIAL.md`). The gated runs are renamed
+`m4-20260828-run11` / `m4-20260828-run12`, and `CAPTURE_CONTRACT.json` is
+re-frozen over the amended blobs.
+
+---
+
+# AMENDMENT 3 — 2026-08-28, ADDENDUM MATRIX for `atomic_rmw`
+
+Frozen after `m4-20260828-run11` and before the addendum captures
+`m4-20260828-run21` / `run22`. It does not touch the main matrix or its
+captures.
+
+**Why.** Both of this experiment's device-atomic carriers compile to
+`atomic_mem` (byte+1 == 0x01). `atomic_rmw` differs from it only in byte+1
+(0x11) and shares its field layout in `db.json`. Run 11's
+`atdev_atomic_mem_b1` arm shows that byte+1 == 0x11 executes correctly in the
+same carrier with everything else unchanged — but that is evidence about
+**byte+1**, not a per-field sweep of the 0x11 form. Labelling `atomic_rmw`'s 14
+fields from `atomic_mem`'s sweeps would be exactly the strength mismatch
+`docs/evidence-classification.md` was written to prevent (it is the same error
+as `EXP-M4-13`'s `device_load` destination formula: a correlation promoted as
+though it had been executed).
+
+**H7.** With byte+1 pinned to 0x11, each of bytes +2..+13 swept densely over all
+256 values yields the SAME accepted-value set as the corresponding
+`atomic_mem` arm.
+*Refuter:* any byte whose accepted set differs between the two forms — which
+would mean the two mnemonics do not share a field layout and `db.json`'s
+"identical field layout" note is wrong.
+
+**Matrix.** 13 arms, 3 074 cases: one control arm (baseline + the same
+`op add -> and` falsifier, both with byte+1 pinned) and twelve dense byte
+sweeps. Same carrier, same oracle, same robustness machinery, same two-run gate.
+If the addendum is absent or fails its gates, `atomic_rmw`'s fields keep their
+prior labels and `analysis/field_verdicts.json` says so explicitly under
+`atomic_rmw._NOT_CLOSED`.
+
+## AMENDMENT 3b — two more addendum hypotheses, frozen with it
+
+**H8 — the `dst_lo`/`dst_ext9` rule is INDEPENDENT of `ld_format`.**
+`EXP-0101`'s operational advice was to copy the pair verbatim "from a
+compiler-observed `device_load` of the same `addr_mode`/`ld_format` shape",
+which implies a per-shape token. The main matrix swept the pair at four target
+registers but at ONE `ld_format` (0x11). This arm re-runs the **full 512-value
+2-D product under each of the 21 `ld_format` codes that work** (taken from
+run11's own `L_ld_format` arm as a covariate, not as a hypothesis).
+*Predicted observation:* the accepted set is `v & 0x181 == 0x81` under every one
+of the 21 codes. *Refuter:* any `ld_format` under which the accepted
+(dst_lo, dst_ext9) set differs — which would restore "it is a per-shape token"
+and mean the emitter rule in section 0 is incomplete.
+
+**H9 — the atomic operand-register index is
+`(byte+5 >> 7) | ((byte+6 & 0x3F) << 1)`.**
+The main matrix moves one byte at a time and therefore only ever built indices
+0, 1 and 2; the `<< 1` multiplier is interpolated from two points. This arm pins
+`byte+5 = 0x80` and sweeps `byte+6` densely, constructing **index 3** for the
+first time. *Predicted observation:* `byte+5 = 0x80` with `byte+6 = 0x01` makes
+the atomic add **`a[3]` = 3007**, and `a[3]`'s later reader then reads 0.
+*Refuter:* index 3 does not select `a[3]` — in which case the two-byte model is
+wrong and only the three individually-constructed points stand.
+
+Addendum matrix after 3b: **35 arms, 14 082 cases**, still two independent
+gated runs (`run21`, `run22`) with the same robustness machinery and gates.
+
+## AMENDMENT 3c — H10, frozen with the rest of the addendum
+
+**H10 — `device_store.extmode` is the SOURCE REGISTER (`extmode >> 1`), and its
+bits 6-7 are a modifier, not register bits.** The main matrix swept it with the
+stored value in ONE register (r8) and accepted only `{16, 208}`: 16 = 2*8 as
+`EXP-0090`'s formula predicts, and 208 = `16 | 0xC0` unexplained. This arm
+repeats the dense sweep with the ALU result in **r4 and r12** as well.
+*Predicted observation:* the accepted set MOVES to `{8, 8|0xC0}` and
+`{24, 24|0xC0}` respectively. *Refuter:* the accepted set does not move — which
+would mean `extmode >> 1` is not the store's source register and the r8 result
+was a coincidence of that one register.
+
+Addendum matrix after 3c: **39 arms, 14 853 cases.**

@@ -16,36 +16,39 @@
   "total_instructions": 171,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 161,
-   "isolated-byte-diff": 85,
-   "corpus-correlation": 230,
-   "tokenization-only": 270,
-   "single-template-inference": 22,
+   "hardware-run": 208,
+   "isolated-byte-diff": 80,
+   "corpus-correlation": 213,
+   "tokenization-only": 250,
+   "single-template-inference": 18,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 268
+   "untested": 267
   },
   "by_label_pct": {
-   "hardware-run": 15.5,
-   "isolated-byte-diff": 8.2,
-   "corpus-correlation": 22.2,
-   "tokenization-only": 26.1,
-   "single-template-inference": 2.1,
+   "hardware-run": 20.1,
+   "isolated-byte-diff": 7.7,
+   "corpus-correlation": 20.6,
+   "tokenization-only": 24.1,
+   "single-template-inference": 1.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 25.9
+   "untested": 25.8
   },
-  "emittable_instructions": 7,
+  "emittable_instructions": 10,
   "emittable_mnemonics": [
+   "device_load",
+   "device_store",
    "frame_prologue",
    "ibitcount",
    "iunary",
    "link_save_restore",
    "spill_frame_marker",
    "stop",
-   "tex_addr_setup"
+   "tex_addr_setup",
+   "threadgroup_barrier"
   ],
-  "decodable_not_yet_emittable": 164
+  "decodable_not_yet_emittable": 161
  },
  "instructions": {
   "falu2": {
@@ -2655,34 +2658,31 @@
     ]
    },
    "space": {
-    "label": "isolated-byte-diff",
-    "range": "0x00 device/constant and 0x02 threadgroup (2 of 256)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0012",
-     "EXP-0100"
-    ],
-    "note": "CORRECTION: byte+1 is the address space, NOT an index register (RT-1a)."
-   },
-   "addr_mode": {
-    "label": "isolated-byte-diff",
-    "range": "0x54 (ALU-computed data) and 0x56 (direct live load-result forwarding)",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0087",
-     "EXP-0090"
+     "EXP-0141"
     ],
-    "note": "The 0x56 direct load-to-store forward is a register-file-BYPASSING path and is explicitly outside the validated generation envelope (EXP-0112 section 4)."
+    "note": "Was `isolated-byte-diff` over 2 of 256 values (0x00 device, 0x02 threadgroup)."
+   },
+   "addr_mode": {
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "db.json models this byte as an addressing-mode ENUM (0x44 indexed / 0x54 base-rel / rare CF and RT forms). On this shape none of it is observable; the enum is a corpus correlation, not a hardware selector. See db_defects."
    },
    "extmode": {
     "label": "hardware-run",
-    "range": "extmode = 2*R for R swept 0,1,2,3,7,15,16,20,31,32,47,48,61,62,63 (dense 0..63) plus 64,65,66,67,68,79,80,95,96,111,112,126,127",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0101",
-     "EXP-0112"
+     "EXP-0141"
     ],
-    "note": "RETRACTION: EXP-M4-13's destination formula dst = dst_lo|(dst_ext9<<2) is REFUTED (EXP-0101). The register a later falu2/falu2i must reference is extmode/2. R in [64,112] silently ALIASES to r(R mod 64) (proven with poison controls); R in {126,127} raises CMDBUF_ERROR. A backend MUST restrict R to 0..63."
+    "note": "Confirms EXP-0101's extmode = 2*R over the FULL 8-bit field and adds two facts EXP-0101 could not: bit0 is a don't-care, and the field cannot reach r64+."
    },
    "base_slot": {
     "label": "hardware-run",
@@ -2696,62 +2696,57 @@
    },
    "index_reg": {
     "label": "hardware-run",
-    "range": "low values sweep to distinct GPRs; 0xff (r127) hard-FAULTS (CMDBUF_ERROR) with a clean r95/r96 boundary",
-    "target": "M4+A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-10",
-     "RT-1a-FIX",
-     "EXP-0012"
+     "EXP-0141"
     ],
-    "note": "The fault at 0xff REFUTES a mod-64 field: a 6-bit field would alias to r63 and read fine."
+    "note": "Adds the bit-7 mirror, which no prior experiment reports, and re-confirms the r95/r96 fault boundary (EXP-M4-10) with 3-of-3 fault reproduction."
    },
    "access_desc": {
     "label": "hardware-run",
-    "range": "0x00..0xFF EXHAUSTIVE - never changes the loaded value; HW-proven inert padding",
-    "target": "A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0012",
-     "RT-1a-FIX"
-    ]
+     "EXP-0141"
+    ],
+    "note": "M4 confirmation of EXP-0012/RT-1a-FIX's A18 exhaustive result (was target A18 only)."
    },
    "reserved7": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only` (framing only, no semantics)."
    },
    "ld_format": {
-    "label": "corpus-correlation",
-    "range": "codes located by own-MSL byte-diff (bits[4:6] element size 00=16b/01=32b/10=8b, bits[1:4] vector-component code, bit0 valid); no synthesized code was executed",
+    "label": "hardware-run",
+    "range": "0..63 step 1 (64 of 64)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13",
-     "EXP-M4-10"
-    ]
+     "EXP-0141"
+    ],
+    "note": "First execution of SYNTHESISED ld_format codes; EXP-M4-13 located the field by compile-only byte-diff and never ran one."
    },
    "dst_lo": {
-    "label": "single-template-inference",
-    "range": "the verbatim (dst_lo=1, dst_ext9=1) token observed for terminal scalar 32-bit loads; no other value was ever made to work",
+    "label": "hardware-run",
+    "range": "0..3 step 1 (4 of 4)",
     "target": "M4",
     "evidence": [
-     "EXP-0101",
-     "EXP-0112"
+     "EXP-0141"
     ],
-    "note": "MUST be copied verbatim from a compiler-observed value for the same addr_mode/ld_format shape and NEVER derived from the target register - 4 adversarial cases break the load if derived, even with extmode correct."
+    "note": "THE headline. EXP-0112's generator copied (dst_lo, dst_ext9) verbatim from a compiled shader because nobody had swept them. Swept exhaustively (4/4 values) at four independent target registers plus the full 512-value 2-D product."
    },
    "dst_ext9": {
-    "label": "single-template-inference",
-    "range": "the verbatim value 1 for terminal scalar 32-bit loads; forcing (0,0) breaks the load (silent zero)",
+    "label": "hardware-run",
+    "range": "0..127 step 1 (128 of 128)",
     "target": "M4",
     "evidence": [
-     "EXP-0101",
-     "EXP-0112"
+     "EXP-0141"
     ],
-    "note": "Same retraction as dst_lo: this is NOT the destination register."
+    "note": "Refutes the residue of EXP-M4-13's dst = dst_lo | (dst_ext9 << 2) model: the field carries no register information at all. The ld_format dependence is the addendum's pre-registered refuter PARTIALLY FIRING -- reported, not smoothed over."
    },
    "idx_off": {
     "label": "hardware-run",
@@ -2764,30 +2759,31 @@
     "note": "Unsigned 11-bit, no internal holes. The LOAD offset unit is a FIXED 4 bytes, independent of elem_size (neither element units nor byte units)."
    },
    "ldform_hi11": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..63 step 1 (64 of 64)",
     "target": "M4",
-    "evidence": [],
-    "note": "EXP-0082 swept 6 raw values of byte+11 bits2-7: 0x00/0x60/one other are inert, 0x48 and 0x50 produce undecodable output. Semantics UNKNOWN and explicitly flagged as follow-up - do not synthesize."
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Was `untested` with range `none`. EXP-0082's 6-value probe found 3 inert and 2 'undecodable'; the dense sweep resolves it to a clean low-3-bits-must-be-zero rule."
    },
    "elem_size": {
     "label": "hardware-run",
-    "range": "canonical codes 0,1,2,3,4 at representative indices plus 23 further raw byte+12 values (load); ELEM_SCALE = {0:16, 3:4, 4:8} bytes exactly",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0082"
+     "EXP-0141"
     ],
-    "note": "Codes 1 and 2 do NOT give 1-byte / 2-byte granularity - that hypothesis is falsified. No power-of-two-violating stride was ever produced."
+    "note": "Extends EXP-0082 (canonical codes plus 23 raw values) to the full byte."
    },
    "reserved13": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
    }
   },
   "device_store": {
@@ -2803,33 +2799,31 @@
     ]
    },
    "space": {
-    "label": "isolated-byte-diff",
-    "range": "0x00 device and 0x02 threadgroup",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0012",
-     "EXP-0100"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `isolated-byte-diff` over 2 of 256 values."
    },
    "addr_mode": {
     "label": "hardware-run",
-    "range": "bit1 at {0,1} (the literal 0x54/0x56 position): INERT here - neither the stored content nor the source register's later ALU reuse changed",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0119",
-     "EXP-0087"
+     "EXP-0141"
     ],
-    "note": "Genuinely different from every ALU family tested: the same literal bit is load-bearing in falu2/unpack_convert/cvt_i2f and inert here."
+    "note": "REFINES `validation.json`'s current range text 'bit1 ... INERT here' (EXP-0119): that measurement used an ALU-computed source, where the bit genuinely is inert. It is live exactly when the stored data is a live load result. Both halves swept densely in both source shapes."
    },
    "extmode": {
     "label": "hardware-run",
-    "range": "extmode = 2*(source GPR) for ALU-forwarded stores, same mechanism as the load side; validated over the generated DAG corpus",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0090",
-     "EXP-0101",
-     "EXP-0112"
-    ]
+     "EXP-0141"
+    ],
+    "note": "The 0xC0 alternative is now characterised rather than merely observed. Its MEANING is still unknown; only that it is accepted."
    },
    "base_slot": {
     "label": "hardware-run",
@@ -2850,40 +2844,39 @@
    },
    "access_desc": {
     "label": "hardware-run",
-    "range": "0x00..0xFF exhaustive on the shared load/store addressing byte - inert",
-    "target": "A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0012",
-     "RT-1a-FIX"
-    ]
+     "EXP-0141"
+    ],
+    "note": "M4 confirmation of the A18 exhaustive result."
    },
    "reserved7": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
    },
    "st_format": {
-    "label": "corpus-correlation",
-    "range": "mirrors device_load ld_format per element type; an 8-live-value store sweep with data provably in r0..r5 left byte+8/+9/+11 byte-identical, proving it is NOT the data register",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-10",
-     "EXP-M4-13"
+     "EXP-0141"
     ],
-    "note": "CORRECTION: device_store is NOT field-symmetric with device_load's dst. The store DATA register is not a standalone field in this instruction."
+    "note": "First execution of synthesised store-format codes; EXP-M4-13 was compile-only."
    },
    "st_format_ext": {
-    "label": "corpus-correlation",
-    "range": "bit set only for the 3-component store",
+    "label": "hardware-run",
+    "range": "0..127 step 1 (128 of 128)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` ('bit set only for the 3-component store')."
    },
    "idx_off": {
     "label": "isolated-byte-diff",
@@ -2896,30 +2889,31 @@
     "note": "The STORE offset unit is a FIXED 16 bytes vs the LOAD's fixed 4 bytes - a real, easy-to-miss asymmetry. Not densely swept on the store side."
    },
    "st_desc_hi": {
-    "label": "corpus-correlation",
-    "range": "byte+11 bits[2:8] store-format tail, located only",
+    "label": "hardware-run",
+    "range": "0..63 step 1 (64 of 64)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation`, 'located only'."
    },
    "elem_size": {
     "label": "hardware-run",
-    "range": "25 raw byte+12 values probed on the store side (incl. 0x00,0x10,0x11,0x12,0x14,0x18,0x1A,0x1C)",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0082"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Extends EXP-0082's 25 probed store-side values to the full byte."
    },
    "reserved13": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
    }
   },
   "get_sr": {
@@ -3626,94 +3620,94 @@
     ]
    },
    "amode": {
-    "label": "corpus-correlation",
-    "range": "0x11 selects the ALU/reduced/immediate-operand form, 0x01 the register-operand form",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "rsv3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "base_slot": {
-    "label": "corpus-correlation",
-    "range": "same base-slot model as device_load; located, not independently swept on the atomic path",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0018"
-    ]
+     "EXP-0141"
+    ],
+    "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "index_reg": {
-    "label": "corpus-correlation",
-    "range": "per-lane index GPR, zeroed for a uniform address",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "addr_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "ret_flag": {
-    "label": "corpus-correlation",
-    "range": "byte+7 bit0 = discard/no-writeback",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` (byte+7 bit0 = discard/no-writeback). Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "ret_desc": {
-    "label": "corpus-correlation",
-    "range": "byte+8 return-register descriptor",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "idx_off": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "rsv10": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "rsv11": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    },
    "op_lsb": {
     "label": "tokenization-only",
@@ -3754,14 +3748,13 @@
     ]
    },
    "amode_hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22."
    }
   },
   "atomic_mem": {
@@ -3775,94 +3768,94 @@
     ]
    },
    "amode": {
-    "label": "corpus-correlation",
-    "range": "0x11 selects the ALU/reduced/immediate-operand form, 0x01 the register-operand form",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here."
    },
    "rsv3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
    },
    "base_slot": {
-    "label": "corpus-correlation",
-    "range": "same base-slot model as device_load; located, not independently swept on the atomic path",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0018"
-    ]
+     "EXP-0141"
+    ],
+    "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only."
    },
    "index_reg": {
-    "label": "corpus-correlation",
-    "range": "per-lane index GPR, zeroed for a uniform address",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register."
    },
    "addr_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'."
    },
    "ret_flag": {
-    "label": "corpus-correlation",
-    "range": "byte+7 bit0 = discard/no-writeback",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` (byte+7 bit0 = discard/no-writeback)."
    },
    "ret_desc": {
-    "label": "corpus-correlation",
-    "range": "byte+8 return-register descriptor",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation`."
    },
    "idx_off": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
    },
    "rsv10": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong."
    },
    "rsv11": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong."
    },
    "op_lsb": {
     "label": "tokenization-only",
@@ -3903,14 +3896,13 @@
     ]
    },
    "amode_hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused."
    }
   },
   "matrix_mac": {
@@ -4669,40 +4661,40 @@
     ]
    },
    "sub": {
-    "label": "isolated-byte-diff",
-    "range": "0x04 compute threadgroup/execution barrier, 0x14 texture ACQUIRE, 0x02 fragment tile-access barrier",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0093",
-     "EXP-0025"
-    ],
-    "note": "CORRECTION (EXP-0093): compute threadgroup_barrier(mem_texture) is a genuine ACQUIRE (sub=0x14) / RELEASE (sub=0x04) instruction PAIR; an earlier note recorded sub=0x04 for both members."
-   },
-   "mem_scope": {
-    "label": "isolated-byte-diff",
-    "range": "0x41 mem_none, 0x61 mem_threadgroup, 0x85 mem_device, 0x51/0xd1 mem_texture; bidirectional splice of bit0 (0x85 <-> 0x84) both adds and removes execution convergence (128/256 vs 0/256 divergent lanes)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0093",
-     "EXP-0025"
-    ],
-    "note": "byte+3 bit0 is the EXECUTION-CONVERGENCE enable, independent of the requested memory-fence class. Splicing 0x61 -> 0x00 makes 128/256 lanes read stale zeros - the exact silent-corruption hazard a driver must get right."
-   },
-   "flags": {
-    "label": "corpus-correlation",
-    "range": "0x09 threadgroup/none, 0x08 device, 0x0e texture (own-MSL byte-diff)",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0093"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `isolated-byte-diff` over 3 values."
+   },
+   "mem_scope": {
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Dense confirmation of EXP-0093's 'byte+3 bit0 is the EXECUTION-CONVERGENCE enable, independent of the requested memory-fence class', now over all 256 values."
+   },
+   "flags": {
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` (0x09 tg/none, 0x08 device, 0x0e texture). The litmus is proven fence-sensitive by its own falsifier (224/256 lanes read stale zeros when the barrier is neutralised), so this is a real negative, not an insensitive carrier."
    },
    "b5": {
-    "label": "single-template-inference",
-    "range": "0x00 in every own-MSL compile and across the corpus",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0025"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `single-template-inference` (0x00 in every observed instance)."
    }
   },
   "mem_fence": {
@@ -4717,28 +4709,30 @@
    },
    "sub": {
     "label": "corpus-correlation",
-    "range": "byte+1 0x04 for the 6-byte fence form",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0093"
-    ]
+     "EXP-0141"
+    ],
+    "note": "NOT PROMOTED. This carrier has no memory-ORDERING observable (a single 8-lane threadgroup with a trailing barrier), so a pass bounds acceptance and dataflow inertness only, not the fence's semantics. Recorded so nobody re-probes it blindly."
    },
    "memclass": {
     "label": "corpus-correlation",
-    "range": "byte+4 0x0a device memory-class flag (byte+3 0x84 device vs the barrier's 0x85 = 0x84|0x01)",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0093",
-     "EXP-O2D"
-    ]
+     "EXP-0141"
+    ],
+    "note": "NOT PROMOTED, same reason as mem_fence.sub: no ordering observable."
    },
    "b5": {
-    "label": "single-template-inference",
-    "range": "0x00 in every observed instance",
+    "label": "corpus-correlation",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-0093"
-    ]
+     "EXP-0141"
+    ],
+    "note": "NOT PROMOTED, same reason."
    }
   },
   "scoreboard_fence": {
@@ -6351,27 +6345,30 @@
    },
    "b3": {
     "label": "hardware-run",
-    "range": "0x00, 0x01, 0x08, 0x40, 0xff individually AND ff/ee/dd on +3/+4/+5 simultaneously - output unchanged; RESERVED/inert",
-    "target": "A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0141"
+    ],
+    "note": "M4 confirmation of EXP-M4-14's A18 result (5 values there, 256 here)."
    },
    "b4": {
     "label": "hardware-run",
-    "range": "0x00, 0x01, 0xff plus the simultaneous splice - inert",
-    "target": "A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0141"
+    ],
+    "note": "M4 confirmation of EXP-M4-14 (A18, 3 values)."
    },
    "b5": {
     "label": "hardware-run",
-    "range": "0x00, 0x01, 0xff plus the simultaneous splice - inert",
-    "target": "A18",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0141"
+    ],
+    "note": "M4 confirmation of EXP-M4-14 (A18, 3 values)."
    }
   },
   "link_save_restore": {
@@ -6518,11 +6515,12 @@
    },
    "scope_flag": {
     "label": "corpus-correlation",
-    "range": "0x00 dominant, 0x04 in one rare texture_sample occurrence",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "NOT PROMOTED. No own-MSL kernel we could compile emits `80 02 00 xx`, so the instruction had to be SYNTHESISED into the load/ALU/store program, which has no scoreboard/ordering observable. What IS newly established: the instruction can be emitted from scratch and every value of the byte is accepted without fault."
    }
   },
   "n3_mov": {
@@ -7192,30 +7190,31 @@
     ]
    },
    "amode": {
-    "label": "corpus-correlation",
-    "range": "0x56 direct-value amode for atomic_exchange, 0x54 for ALU/simd-reduced RMW",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` (0x56 direct-value vs 0x54 RMW)."
    },
    "ret_desc": {
-    "label": "corpus-correlation",
-    "range": "0x03 when the old value is consumed, 0x00 noret",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation` (0x03 returns / 0x00 noret). The old value is never consumed in this carrier, which is why the byte is unobservable here."
    },
    "rsv4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong."
    },
    "op_desc": {
     "label": "corpus-correlation",
@@ -7226,42 +7225,40 @@
     ]
    },
    "rsv6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "xop_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "data_desc": {
-    "label": "corpus-correlation",
-    "range": "second half of the same stepping operand pair",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
+   },
+   "xop_desc": {
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`."
+   },
+   "data_desc": {
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0141"
+    ],
+    "note": "Was `corpus-correlation`."
    },
    "rsv9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 step 1 (256 of 256)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0141"
+    ],
+    "note": "Was `tokenization-only`; the name is wrong."
    },
    "rsv10lo": {
     "label": "tokenization-only",

@@ -1,0 +1,438 @@
+{
+ "arms": [
+  {
+   "arm": "CTRL_ADD",
+   "carrier": "synth",
+   "doc": "Addendum baseline + falsifiers on the synth carrier.",
+   "field": "_controls",
+   "instr": "device_load",
+   "n_cases": 3
+  },
+  {
+   "arm": "S_extmode_D4",
+   "carrier": "synth",
+   "doc": "device_store.extmode 0..255 DENSE with the stored value in r4.",
+   "field": "extmode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_extmode_D8",
+   "carrier": "synth",
+   "doc": "device_store.extmode 0..255 DENSE with the stored value in r8.",
+   "field": "extmode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_extmode_D12",
+   "carrier": "synth",
+   "doc": "device_store.extmode 0..255 DENSE with the stored value in r12.",
+   "field": "extmode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "CTRL_RMW",
+   "carrier": "atdev",
+   "doc": "Baseline and falsifier for the pinned 0x11 form.",
+   "field": "_controls",
+   "instr": "atomic_rmw",
+   "n_cases": 2
+  },
+  {
+   "arm": "atdev_atomic_rmw_b2",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+2 (amode) 0..255 DENSE.",
+   "field": "amode",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b3",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+3 (rsv3) 0..255 DENSE.",
+   "field": "rsv3",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b4",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+4 (base_slot) 0..255 DENSE.",
+   "field": "base_slot",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b5",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+5 (index_reg) 0..255 DENSE.",
+   "field": "index_reg",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b6",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+6 (addr_desc) 0..255 DENSE.",
+   "field": "addr_desc",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b7",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+7 (ret_flag) 0..255 DENSE.",
+   "field": "ret_flag",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b8",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+8 (ret_desc) 0..255 DENSE.",
+   "field": "ret_desc",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b9",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+9 (idx_off) 0..255 DENSE.",
+   "field": "idx_off",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b10",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+10 (rsv10) 0..255 DENSE.",
+   "field": "rsv10",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b11",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+11 (rsv11) 0..255 DENSE.",
+   "field": "rsv11",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b12",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+12 (op_lsb|op|per_lane|op_msb) 0..255 DENSE.",
+   "field": "op_lsb|op|per_lane|op_msb",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_atomic_rmw_b13",
+   "carrier": "atdev",
+   "doc": "atomic_rmw (byte+1 pinned 0x11) byte+13 (amode_hi) 0..255 DENSE.",
+   "field": "amode_hi",
+   "instr": "atomic_rmw",
+   "n_cases": 256
+  },
+  {
+   "arm": "atdev_operand_pair",
+   "carrier": "atdev",
+   "doc": "byte+5 pinned to 0x80, byte+6 swept 0..255 DENSE: builds operand-register indices 1, 3, 5, ... for the first time.",
+   "field": "index_reg|addr_desc",
+   "instr": "atomic_mem",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_dstpair_ldfmt3",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=3, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt7",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=7, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt9",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=9, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt13",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=13, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt17",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=17, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt19",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=19, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt21",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=21, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt23",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=23, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt25",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=25, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt27",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=27, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt29",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=29, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt31",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=31, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt39",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=39, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt49",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=49, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt51",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=51, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt53",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=53, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt55",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=55, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt57",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=57, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt59",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=59, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt61",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=61, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_dstpair_ldfmt63",
+   "carrier": "synth",
+   "doc": "Full 512-value (dst_lo, dst_ext9) product at ld_format=63, target r7.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  }
+ ],
+ "carrier_oracles": {
+  "atdev": {
+   "0": [
+    7
+   ],
+   "2": [
+    1007,
+    2007,
+    3007,
+    2779096485
+   ]
+  },
+  "atdevimm": {
+   "0": [
+    5000
+   ],
+   "2": [
+    7,
+    1007,
+    2007,
+    3007,
+    2779096485
+   ]
+  },
+  "attg": {
+   "0": [
+    120112,
+    8007,
+    2779096485
+   ]
+  },
+  "devfence": {
+   "0": [
+    65558,
+    65559,
+    65560,
+    65561,
+    65562,
+    65563,
+    65564,
+    65565,
+    2779096485
+   ],
+   "2": [
+    65558
+   ]
+  },
+  "synth": null,
+  "tgtile": "ramp(256)"
+ },
+ "mains": {
+  "atdev": {
+   "main_len": 108,
+   "main_off": 7968,
+   "main_sha256": "3b9cbf39f3e216dba68a3c41da56a92d50be4996a60e61d2906f123798c119cf"
+  },
+  "atdevimm": {
+   "main_len": 108,
+   "main_off": 8000,
+   "main_sha256": "21ce1207bb577785fa0ad61415663008152b200a8c557ecf88cc9bf14c6f475b"
+  },
+  "attg": {
+   "main_len": 194,
+   "main_off": 8064,
+   "main_sha256": "d961f3b509f8e2652e6271fed88fb3cc756059c3aa24929660d40ed7e464746b"
+  },
+  "devfence": {
+   "main_len": 270,
+   "main_off": 8336,
+   "main_sha256": "469881c52b07407f8e036a120349de75b68571b4c87f035b3ea4e7e499b4a8c8"
+  },
+  "synth": {
+   "main_len": 170,
+   "main_off": 7344,
+   "main_sha256": "1738747671cae809207ddb00379429d9acadff32d02dd9d8e9af7f30af43dc1b"
+  },
+  "tgtile": {
+   "main_len": 494,
+   "main_off": 7856,
+   "main_sha256": "ec06ce7f37d3a3dc0ba44831b928657a7b5ad276565c1aed28e9ebab71996381"
+  }
+ },
+ "n_cases": 14853,
+ "run_id": "m4-20260828-run21",
+ "sites": {
+  "atdev": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000000000004000002000"
+  ],
+  "atdevimm": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000800200004000002000"
+  ],
+  "attg": [
+   "atomic_tg",
+   128,
+   12,
+   "670354000000000020000004"
+  ],
+  "devfence": [
+   "mem_fence",
+   90,
+   6,
+   "070454840a00"
+  ],
+  "tgtile_bar": [
+   "threadgroup_barrier",
+   428,
+   6,
+   "070454610900"
+  ],
+  "tgtile_tga": [
+   "tg_addr_compute",
+   422,
+   6,
+   "1c0200000000"
+  ]
+ }
+}

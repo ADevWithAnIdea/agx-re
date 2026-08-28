@@ -4,6 +4,10 @@
 // of a[0..3] lands in the counter. a[j] = 1000*j + 7 makes the four candidates
 // mutually distinguishable and distinguishable from 0 and from any small
 // register/descriptor value.
+// dbg[3] is an INTEGRITY SENTINEL written first and unconditionally: under
+// concurrent sibling GPU work a command buffer can report STATUS OK having
+// executed nothing, and an all-zero readback is otherwise indistinguishable
+// from a genuine silent zero (AMENDMENT 1).
 #include <metal_stdlib>
 using namespace metal;
 kernel void k(device atomic_uint* o   [[buffer(0)]],
@@ -11,6 +15,7 @@ kernel void k(device atomic_uint* o   [[buffer(0)]],
               device uint* dbg        [[buffer(2)]],
               uint tid [[thread_position_in_grid]])
 {
+    dbg[3] = 0xA5A5A5A5u;
     uint v0 = a[0];
     uint v1 = a[1];
     uint v2 = a[2];

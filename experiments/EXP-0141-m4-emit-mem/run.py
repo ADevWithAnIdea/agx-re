@@ -14,7 +14,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-RUNS = ("m4-20260828-run01", "m4-20260828-run02")
+RUNS = ("m4-20260828-run11", "m4-20260828-run12")
+ADDENDUM_RUNS = ("m4-20260828-run21", "m4-20260828-run22")
 BOUNDARY = ("public Metal API only; runtime MSL compile of our own carrier kernels; "
             "binary-archive splice of our own hand-assembled AGX programs "
             "(tools/agx-isa assemble()) and of our own compiled carriers; owned "
@@ -70,8 +71,9 @@ def main():
     a = ap.parse_args()
     if not a.execute:
         raise SystemExit("refusing device operation without --execute")
-    if a.run_id not in RUNS:
-        raise SystemExit("run-id must be one of: " + ",".join(RUNS))
+    if a.run_id not in RUNS + ADDENDUM_RUNS:
+        raise SystemExit("run-id must be one of: " + ",".join(RUNS + ADDENDUM_RUNS))
+    addendum = a.run_id in ADDENDUM_RUNS
 
     gate(["--selftest"])
     gate(["--preflight"])
@@ -99,7 +101,8 @@ def main():
 
     r = subprocess.run([sys.executable, "-B", str(HERE / "harness" / "sweeprun.py"),
                         "--run-id", a.run_id, "--bin-dir", str(bin_dir),
-                        "--work", str(work), "--raw", str(raw)],
+                        "--work", str(work), "--raw", str(raw)]
+                       + (["--addendum"] if addendum else []),
                        cwd=HERE, timeout=7200)
     if r.returncode:
         raise SystemExit("sweep executor exited %d (raw/ retained)" % r.returncode)

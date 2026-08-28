@@ -4,6 +4,7 @@
 // A threadgroup_barrier(mem_device) before the final read makes the observable
 // DETERMINISTIC (every lane's atomic has retired), so the whole-kernel output is
 // a host-computable oracle rather than a race.
+// o[8] is the integrity sentinel (see atomic_dev.metal).
 #include <metal_stdlib>
 using namespace metal;
 kernel void k(device uint* o          [[buffer(0)]],
@@ -11,6 +12,7 @@ kernel void k(device uint* o          [[buffer(0)]],
               device atomic_uint* c   [[buffer(2)]],
               uint tid [[thread_position_in_grid]])
 {
+    if (tid == 0) o[8] = 0xA5A5A5A5u;
     uint v = a[tid];
     o[tid] = v + 1u;
     atomic_thread_fence(mem_flags::mem_device, memory_order_seq_cst);

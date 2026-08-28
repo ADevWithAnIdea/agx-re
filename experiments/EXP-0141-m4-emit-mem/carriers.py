@@ -56,8 +56,11 @@ def _f32s(b):
 # ---------------------------------------------------------------------------
 # carrier table
 # ---------------------------------------------------------------------------
+SENT = 0xA5A5A5A5
+
+
 def _tile_oracle():
-    return [((i + 1) & 255) + ((i + 2) & 255) for i in range(256)]
+    return [(((i + 128) & 255) + 1) + (((i + 37) & 255) + 1) for i in range(256)] + [SENT]
 
 
 CARRIERS = {
@@ -67,6 +70,7 @@ CARRIERS = {
         "outs": {0: 32}, "dtype": {0: F32},
         # oracle supplied per case (the whole body is replaced by synthesis)
         "oracle": None,
+        "sentinel": (0, 4, 8.0),   # sweepdefs._canary writes out[4] = 8.0
         "main_len": 170,
         "doc": "EXP-0101-shaped low-pressure synthesis carrier; out=buffer(0), "
                "mem=buffer(1). Its own arithmetic never runs -- every case "
@@ -76,7 +80,8 @@ CARRIERS = {
         "metal": "kernels/atomic_dev.metal", "func": "k", "grid": 1, "tg": 1,
         "inputs": {1: ("atom_a.bin", _pack_u32(ATOM_A))},
         "outs": {0: 4, 2: 16}, "dtype": {0: U32, 2: U32},
-        "oracle": {0: [ATOM_A[0]], 2: [ATOM_A[1], ATOM_A[2], ATOM_A[3], 0]},
+        "oracle": {0: [ATOM_A[0]], 2: [ATOM_A[1], ATOM_A[2], ATOM_A[3], SENT]},
+        "sentinel": (2, 3, SENT),
         "doc": "device atomic_fetch_add(o, a[0]) with a[1..3] live across the "
                "atomic -- so a byte that selects the RMW operand register shows "
                "up as 1007/2007/3007 landing in the counter.",
@@ -84,31 +89,35 @@ CARRIERS = {
     "atdevimm": {
         "metal": "kernels/atomic_dev_imm.metal", "func": "k", "grid": 1, "tg": 1,
         "inputs": {1: ("atom_a.bin", _pack_u32(ATOM_A))},
-        "outs": {0: 4, 2: 16}, "dtype": {0: U32, 2: U32},
-        "oracle": {0: [5000], 2: [ATOM_A[0], ATOM_A[1], ATOM_A[2], ATOM_A[3]]},
+        "outs": {0: 4, 2: 20}, "dtype": {0: U32, 2: U32},
+        "oracle": {0: [5000], 2: [ATOM_A[0], ATOM_A[1], ATOM_A[2], ATOM_A[3], SENT]},
+        "sentinel": (2, 4, SENT),
         "doc": "same, literal 5000 operand; a[0..3] all live across the atomic.",
     },
     "attg": {
         "metal": "kernels/atomic_tg.metal", "func": "k", "grid": 16, "tg": 16,
         "inputs": {1: ("atom_a.bin", _pack_u32(ATOM_A))},
-        "outs": {0: 8}, "dtype": {0: U32},
-        "oracle": {0: [sum(ATOM_A[0:16]), ATOM_A[8]]},
+        "outs": {0: 12}, "dtype": {0: U32},
+        "oracle": {0: [sum(ATOM_A[0:16]), ATOM_A[8], SENT]},
+        "sentinel": (0, 2, SENT),
         "doc": "threadgroup atomic_fetch_add over 16 lanes; o[0]=sum(a[0..15]), "
                "o[1]=a[8] (a second value kept live across the atomic).",
     },
     "tgtile": {
         "metal": "kernels/tg_tile.metal", "func": "k", "grid": 256, "tg": 256,
         "inputs": {1: ("tile_a.bin", _pack_u32(TILE_A))},
-        "outs": {0: 1024}, "dtype": {0: U32},
+        "outs": {0: 1028}, "dtype": {0: U32},
         "oracle": {0: _tile_oracle()},
+        "sentinel": (0, 256, SENT),
         "doc": "256-lane threadgroup-tile litmus: barrier removal makes lanes "
                "read stale zeros. Also the tg_addr_compute carrier (op at +0x2e).",
     },
     "devfence": {
         "metal": "kernels/dev_fence.metal", "func": "k", "grid": 8, "tg": 8,
         "inputs": {1: ("fence_a.bin", _pack_u32(FENCE_A))},
-        "outs": {0: 32, 2: 4}, "dtype": {0: U32, 2: U32},
-        "oracle": {0: [(22 | 0x10000) + v for v in FENCE_A], 2: [22 | 0x10000]},
+        "outs": {0: 36, 2: 4}, "dtype": {0: U32, 2: U32},
+        "oracle": {0: [(22 | 0x10000) + v for v in FENCE_A] + [SENT], 2: [22 | 0x10000]},
+        "sentinel": (0, 8, SENT),
         "doc": "device seq_cst fences around a divergent atomic region, made "
                "deterministic by a trailing threadgroup_barrier(mem_device).",
     },

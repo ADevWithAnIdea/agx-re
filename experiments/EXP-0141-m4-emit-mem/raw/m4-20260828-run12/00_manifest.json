@@ -1,0 +1,870 @@
+{
+ "arms": [
+  {
+   "arm": "CTRL",
+   "carrier": "synth",
+   "doc": "Baselines and pre-registered falsifiers for the synthesis carrier.",
+   "field": "_controls",
+   "instr": "device_load",
+   "n_cases": 5
+  },
+  {
+   "arm": "L_extmode",
+   "carrier": "synth",
+   "doc": "extmode 0..255 DENSE, each paired with a consumer that reads r(extmode>>1). Tests EXP-0101's extmode = 2*R rule over the whole 8-bit field including odd values and the aliasing/fault region above r63.",
+   "field": "extmode",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_dst_lo_R3",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target register 3.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "L_dst_ext9_R3",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target register 3.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "L_dst_lo_R7",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target register 7.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "L_dst_ext9_R7",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target register 7.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "L_dst_lo_R20",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target register 20.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "L_dst_ext9_R20",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target register 20.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "L_dst_lo_R33",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target register 33.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "L_dst_ext9_R33",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target register 33.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "L_dst_pair",
+   "carrier": "synth",
+   "doc": "FULL 2-D (dst_lo, dst_ext9) product, all 512 encodable combinations, target r7. Answers whether the pair is a free token, a constrained set, or a function of R.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "L_ld_format",
+   "carrier": "synth",
+   "doc": "device_load.ld_format swept over 64 values in the synthesised alu program (oracle -7.0).",
+   "field": "ld_format",
+   "instr": "device_load",
+   "n_cases": 64
+  },
+  {
+   "arm": "L_ld_format_fwd",
+   "carrier": "synth",
+   "doc": "device_load.ld_format swept over 64 values in the synthesised fwd program (oracle -8.5).",
+   "field": "ld_format",
+   "instr": "device_load",
+   "n_cases": 64
+  },
+  {
+   "arm": "L_ldform_hi11",
+   "carrier": "synth",
+   "doc": "device_load.ldform_hi11 swept over 64 values in the synthesised alu program (oracle -7.0).",
+   "field": "ldform_hi11",
+   "instr": "device_load",
+   "n_cases": 64
+  },
+  {
+   "arm": "L_ldform_hi11_fwd",
+   "carrier": "synth",
+   "doc": "device_load.ldform_hi11 swept over 64 values in the synthesised fwd program (oracle -8.5).",
+   "field": "ldform_hi11",
+   "instr": "device_load",
+   "n_cases": 64
+  },
+  {
+   "arm": "L_reserved7",
+   "carrier": "synth",
+   "doc": "device_load.reserved7 swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "reserved7",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_reserved13",
+   "carrier": "synth",
+   "doc": "device_load.reserved13 swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "reserved13",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_space",
+   "carrier": "synth",
+   "doc": "device_load.space swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "space",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_addr_mode",
+   "carrier": "synth",
+   "doc": "device_load.addr_mode swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "addr_mode",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_access_desc",
+   "carrier": "synth",
+   "doc": "device_load.access_desc swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "access_desc",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_elem_size",
+   "carrier": "synth",
+   "doc": "device_load.elem_size swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "elem_size",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_index_reg",
+   "carrier": "synth",
+   "doc": "device_load.index_reg swept over 256 values in the synthesised alu program (oracle -7.0).",
+   "field": "index_reg",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "L_base_slot",
+   "carrier": "synth",
+   "doc": "device_load.base_slot swept over 16 values in the synthesised alu program (oracle -7.0).",
+   "field": "base_slot",
+   "instr": "device_load",
+   "n_cases": 16
+  },
+  {
+   "arm": "L_idx_off",
+   "carrier": "synth",
+   "doc": "device_load.idx_off swept over 14 values in the synthesised alu program (oracle -7.0).",
+   "field": "idx_off",
+   "instr": "device_load",
+   "n_cases": 14
+  },
+  {
+   "arm": "S_st_format",
+   "carrier": "synth",
+   "doc": "device_store.st_format swept over 256 values in the synthesised alu program.",
+   "field": "st_format",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_st_format_ext",
+   "carrier": "synth",
+   "doc": "device_store.st_format_ext swept over 128 values in the synthesised alu program.",
+   "field": "st_format_ext",
+   "instr": "device_store",
+   "n_cases": 128
+  },
+  {
+   "arm": "S_st_desc_hi",
+   "carrier": "synth",
+   "doc": "device_store.st_desc_hi swept over 64 values in the synthesised alu program.",
+   "field": "st_desc_hi",
+   "instr": "device_store",
+   "n_cases": 64
+  },
+  {
+   "arm": "S_reserved7",
+   "carrier": "synth",
+   "doc": "device_store.reserved7 swept over 256 values in the synthesised alu program.",
+   "field": "reserved7",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_reserved13",
+   "carrier": "synth",
+   "doc": "device_store.reserved13 swept over 256 values in the synthesised alu program.",
+   "field": "reserved13",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_addr_mode",
+   "carrier": "synth",
+   "doc": "device_store.addr_mode swept over 256 values in the synthesised alu program.",
+   "field": "addr_mode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_space",
+   "carrier": "synth",
+   "doc": "device_store.space swept over 256 values in the synthesised alu program.",
+   "field": "space",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_access_desc",
+   "carrier": "synth",
+   "doc": "device_store.access_desc swept over 256 values in the synthesised alu program.",
+   "field": "access_desc",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_elem_size",
+   "carrier": "synth",
+   "doc": "device_store.elem_size swept over 256 values in the synthesised alu program.",
+   "field": "elem_size",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_extmode",
+   "carrier": "synth",
+   "doc": "device_store.extmode swept over 256 values in the synthesised alu program.",
+   "field": "extmode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_addr_mode_fwd",
+   "carrier": "synth",
+   "doc": "device_store.addr_mode swept over 256 values in the synthesised fwd program.",
+   "field": "addr_mode",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "S_st_format_fwd",
+   "carrier": "synth",
+   "doc": "device_store.st_format swept over 256 values in the synthesised fwd program.",
+   "field": "st_format",
+   "instr": "device_store",
+   "n_cases": 256
+  },
+  {
+   "arm": "F_dsf_scope_flag",
+   "carrier": "synth",
+   "doc": "dev_scoreboard_fence byte+3 0..255 DENSE, synthesised into the validated load->ALU->store program; oracle = the surrounding dataflow still produces -7.0. NOTE: this carrier has no memory ORDERING observable, so it bounds acceptance and dataflow-inertness only.",
+   "field": "scope_flag",
+   "instr": "dev_scoreboard_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "F_dsf_b1",
+   "carrier": "synth",
+   "doc": "dev_scoreboard_fence byte+1 0..255 DENSE, synthesised into the validated load->ALU->store program; oracle = the surrounding dataflow still produces -7.0. NOTE: this carrier has no memory ORDERING observable, so it bounds acceptance and dataflow-inertness only.",
+   "field": "b1",
+   "instr": "dev_scoreboard_fence",
+   "n_cases": 256
+  },
+  {
+   "arm": "F_dsf_b2",
+   "carrier": "synth",
+   "doc": "dev_scoreboard_fence byte+2 0..255 DENSE, synthesised into the validated load->ALU->store program; oracle = the surrounding dataflow still produces -7.0. NOTE: this carrier has no memory ORDERING observable, so it bounds acceptance and dataflow-inertness only.",
+   "field": "b2",
+   "instr": "dev_scoreboard_fence",
+   "n_cases": 256
+  },
+  {
+   "arm": "CTRL_SPLICE",
+   "carrier": "multi",
+   "doc": "Per-carrier baselines and pre-registered falsifiers.",
+   "field": "_controls",
+   "instr": "-",
+   "n_cases": 8
+  },
+  {
+   "arm": "atdev_atomic_mem_b1",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+1 (form_byte1) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "form_byte1",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b2",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+2 (amode) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "amode",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b3",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+3 (rsv3) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "rsv3",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b4",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+4 (base_slot) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "base_slot",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b5",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+5 (index_reg) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "index_reg",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b6",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+6 (addr_desc) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "addr_desc",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b7",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+7 (ret_flag) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "ret_flag",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b8",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+8 (ret_desc) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "ret_desc",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b9",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+9 (idx_off) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "idx_off",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b10",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+10 (rsv10) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "rsv10",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b11",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+11 (rsv11) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "rsv11",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b12",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+12 (op_lsb|op|per_lane|op_msb) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "op_lsb|op|per_lane|op_msb",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdev_atomic_mem_b13",
+   "carrier": "atdev",
+   "doc": "atomic_mem byte+13 (amode_hi) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdev carrier.",
+   "field": "amode_hi",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b1",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+1 (form_byte1) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "form_byte1",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b2",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+2 (amode) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "amode",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b3",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+3 (rsv3) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "rsv3",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b4",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+4 (base_slot) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "base_slot",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b5",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+5 (index_reg) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "index_reg",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b6",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+6 (addr_desc) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "addr_desc",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b7",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+7 (ret_flag) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "ret_flag",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b8",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+8 (ret_desc) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "ret_desc",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b9",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+9 (idx_off) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "idx_off",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b10",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+10 (rsv10) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "rsv10",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b11",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+11 (rsv11) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "rsv11",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b12",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+12 (op_lsb|op|per_lane|op_msb) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "op_lsb|op|per_lane|op_msb",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "atdevimm_atomic_mem_b13",
+   "carrier": "atdevimm",
+   "doc": "atomic_mem byte+13 (amode_hi) 0..255 DENSE, spliced in place at _agc.main+0x46 of our own compiled atdevimm carrier.",
+   "field": "amode_hi",
+   "instr": "atomic_mem",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b1",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+1 (form_byte1) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "form_byte1",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b2",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+2 (amode) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "amode",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b3",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+3 (ret_desc) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "ret_desc",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b4",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+4 (rsv4) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "rsv4",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b5",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+5 (op_desc) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "op_desc",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b6",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+6 (rsv6) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "rsv6",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b7",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+7 (xop_desc) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "xop_desc",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b8",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+8 (data_desc) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "data_desc",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b9",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+9 (rsv9) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "rsv9",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b10",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+10 (rsv10lo|op) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "rsv10lo|op",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "attg_atomic_tg_b11",
+   "carrier": "attg",
+   "doc": "atomic_tg byte+11 (op|op_hi_rsv) 0..255 DENSE, spliced in place at _agc.main+0x80 of our own compiled attg carrier.",
+   "field": "op|op_hi_rsv",
+   "instr": "atomic_tg",
+   "n_cases": 257
+  },
+  {
+   "arm": "devfence_mem_fence_b1",
+   "carrier": "devfence",
+   "doc": "mem_fence byte+1 (sub) 0..255 DENSE, spliced in place at _agc.main+0x5a of our own compiled devfence carrier.",
+   "field": "sub",
+   "instr": "mem_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "devfence_mem_fence_b2",
+   "carrier": "devfence",
+   "doc": "mem_fence byte+2 (match_byte2) 0..255 DENSE, spliced in place at _agc.main+0x5a of our own compiled devfence carrier.",
+   "field": "match_byte2",
+   "instr": "mem_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "devfence_mem_fence_b3",
+   "carrier": "devfence",
+   "doc": "mem_fence byte+3 (match_byte3) 0..255 DENSE, spliced in place at _agc.main+0x5a of our own compiled devfence carrier.",
+   "field": "match_byte3",
+   "instr": "mem_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "devfence_mem_fence_b4",
+   "carrier": "devfence",
+   "doc": "mem_fence byte+4 (memclass) 0..255 DENSE, spliced in place at _agc.main+0x5a of our own compiled devfence carrier.",
+   "field": "memclass",
+   "instr": "mem_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "devfence_mem_fence_b5",
+   "carrier": "devfence",
+   "doc": "mem_fence byte+5 (b5) 0..255 DENSE, spliced in place at _agc.main+0x5a of our own compiled devfence carrier.",
+   "field": "b5",
+   "instr": "mem_fence",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_threadgroup_barrier_b1",
+   "carrier": "tgtile",
+   "doc": "threadgroup_barrier byte+1 (sub) 0..255 DENSE, spliced in place at _agc.main+0x1ac of our own compiled tgtile carrier.",
+   "field": "sub",
+   "instr": "threadgroup_barrier",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_threadgroup_barrier_b2",
+   "carrier": "tgtile",
+   "doc": "threadgroup_barrier byte+2 (match_byte2) 0..255 DENSE, spliced in place at _agc.main+0x1ac of our own compiled tgtile carrier.",
+   "field": "match_byte2",
+   "instr": "threadgroup_barrier",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_threadgroup_barrier_b3",
+   "carrier": "tgtile",
+   "doc": "threadgroup_barrier byte+3 (mem_scope) 0..255 DENSE, spliced in place at _agc.main+0x1ac of our own compiled tgtile carrier.",
+   "field": "mem_scope",
+   "instr": "threadgroup_barrier",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_threadgroup_barrier_b4",
+   "carrier": "tgtile",
+   "doc": "threadgroup_barrier byte+4 (flags) 0..255 DENSE, spliced in place at _agc.main+0x1ac of our own compiled tgtile carrier.",
+   "field": "flags",
+   "instr": "threadgroup_barrier",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_threadgroup_barrier_b5",
+   "carrier": "tgtile",
+   "doc": "threadgroup_barrier byte+5 (b5) 0..255 DENSE, spliced in place at _agc.main+0x1ac of our own compiled tgtile carrier.",
+   "field": "b5",
+   "instr": "threadgroup_barrier",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b0",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+0 (byte0_hi_nibble) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "byte0_hi_nibble",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b1",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+1 (byte1_operand) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "byte1_operand",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b2",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+2 (byte2_lengthdisc) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "byte2_lengthdisc",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b3",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+3 (b3) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "b3",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b4",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+4 (b4) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "b4",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  },
+  {
+   "arm": "tgtile_tg_addr_compute_b5",
+   "carrier": "tgtile",
+   "doc": "tg_addr_compute byte+5 (b5) 0..255 DENSE, spliced in place at _agc.main+0x1a6 of our own compiled tgtile carrier.",
+   "field": "b5",
+   "instr": "tg_addr_compute",
+   "n_cases": 257
+  }
+ ],
+ "carrier_oracles": {
+  "atdev": {
+   "0": [
+    7
+   ],
+   "2": [
+    1007,
+    2007,
+    3007,
+    2779096485
+   ]
+  },
+  "atdevimm": {
+   "0": [
+    5000
+   ],
+   "2": [
+    7,
+    1007,
+    2007,
+    3007,
+    2779096485
+   ]
+  },
+  "attg": {
+   "0": [
+    120112,
+    8007,
+    2779096485
+   ]
+  },
+  "devfence": {
+   "0": [
+    65558,
+    65559,
+    65560,
+    65561,
+    65562,
+    65563,
+    65564,
+    65565,
+    2779096485
+   ],
+   "2": [
+    65558
+   ]
+  },
+  "synth": null,
+  "tgtile": "ramp(256)"
+ },
+ "mains": {
+  "atdev": {
+   "main_len": 108,
+   "main_off": 7968,
+   "main_sha256": "3b9cbf39f3e216dba68a3c41da56a92d50be4996a60e61d2906f123798c119cf"
+  },
+  "atdevimm": {
+   "main_len": 108,
+   "main_off": 8000,
+   "main_sha256": "21ce1207bb577785fa0ad61415663008152b200a8c557ecf88cc9bf14c6f475b"
+  },
+  "attg": {
+   "main_len": 194,
+   "main_off": 8064,
+   "main_sha256": "d961f3b509f8e2652e6271fed88fb3cc756059c3aa24929660d40ed7e464746b"
+  },
+  "devfence": {
+   "main_len": 270,
+   "main_off": 8336,
+   "main_sha256": "469881c52b07407f8e036a120349de75b68571b4c87f035b3ea4e7e499b4a8c8"
+  },
+  "synth": {
+   "main_len": 170,
+   "main_off": 7344,
+   "main_sha256": "1738747671cae809207ddb00379429d9acadff32d02dd9d8e9af7f30af43dc1b"
+  },
+  "tgtile": {
+   "main_len": 494,
+   "main_off": 7856,
+   "main_sha256": "ec06ce7f37d3a3dc0ba44831b928657a7b5ad276565c1aed28e9ebab71996381"
+  }
+ },
+ "n_cases": 20529,
+ "run_id": "m4-20260828-run12",
+ "sites": {
+  "atdev": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000000000004000002000"
+  ],
+  "atdevimm": [
+   "atomic_mem",
+   70,
+   14,
+   "6701540000800200004000002000"
+  ],
+  "attg": [
+   "atomic_tg",
+   128,
+   12,
+   "670354000000000020000004"
+  ],
+  "devfence": [
+   "mem_fence",
+   90,
+   6,
+   "070454840a00"
+  ],
+  "tgtile_bar": [
+   "threadgroup_barrier",
+   428,
+   6,
+   "070454610900"
+  ],
+  "tgtile_tga": [
+   "tg_addr_compute",
+   422,
+   6,
+   "1c0200000000"
+  ]
+ }
+}

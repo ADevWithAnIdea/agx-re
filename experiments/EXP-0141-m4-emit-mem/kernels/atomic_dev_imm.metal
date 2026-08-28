@@ -1,5 +1,5 @@
 // EXP-0141 device-atomic (immediate/ALU-operand form) splice carrier. OWN MSL.
-// The literal operand selects db.json's `atomic_rmw` (byte+1 == 0x11) form.
+// dbg[4] is the integrity sentinel (see atomic_dev.metal).
 #include <metal_stdlib>
 using namespace metal;
 kernel void k(device atomic_uint* o   [[buffer(0)]],
@@ -7,6 +7,7 @@ kernel void k(device atomic_uint* o   [[buffer(0)]],
               device uint* dbg        [[buffer(2)]],
               uint tid [[thread_position_in_grid]])
 {
+    dbg[4] = 0xA5A5A5A5u;
     uint v0 = a[0];
     uint v1 = a[1];
     uint v2 = a[2];
