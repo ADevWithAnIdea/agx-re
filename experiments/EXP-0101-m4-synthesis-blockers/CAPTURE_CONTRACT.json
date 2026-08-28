@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0101-m4-synthesis-blockers",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82)",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier/census kernels; binary-archive splice of our own hand-assembled AGX programs (tools/agx-isa isadb.assemble()); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "hypothesis_origin": "This experiment's own pilot-phase OWN-SHADER differential census (analysis/census.py, PROGRESS.md Milestones 2-5) against docs/isa/register-move-and-liveness.md sections 2.6/2.7 and EXP-0099's RESULTS.md H4/H5 (the two named DRV-ISA-01 synthesis blockers). No third-party document is a hypothesis source for this experiment.",
+  "pinned_revision": "0f1af7fa1d3e21a9996c3b49d7d91f6377427225",
+  "runs": ["m4-20260827-run01", "m4-20260827-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 29,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 45,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,oracle,expect_match,notes,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "groups_captured": ["SEED_CHECK", "LOAD_REPLICATE", "LOAD_FIX", "LOAD_ADVERSARIAL", "MOVE_UNIFORM"],
+  "hypothesis_to_group_map": {
+    "H1_load_extmode_fix": "LOAD_FIX (positive: extmode relocatable across reg7/reg3/reg16/reg20, with dst_lo/dst_ext9 held at the known-good token; falu2i's mods=0xC0 requirement)",
+    "H1_load_mechanism_falsification": "LOAD_REPLICATE (reproduces EXP-0099's own failure under the OLD field model) + LOAD_ADVERSARIAL (falsifies 3 plausible wrong repairs + 1 pilot-phase over-theory)",
+    "H2_move_uniform_not_gpr": "MOVE_UNIFORM (producer-value independence, producer-family independence, register-pair quantization, src_flag=1 positive control, EXP-0087's byte+2=0x21 open-question retest, silent-zero boundary extension)"
+  },
+  "confirm_vs_refute": {
+    "H1": "CONFIRMED if all 4 LOAD_FIX cases match V_LOAD and all 5 LOAD_ADVERSARIAL negative cases (all but control_dst_nibble_independent_of_srcA) mismatch and the falu2i mods pair behaves as predicted; REFUTED for any specific claim whose case disagrees with its prediction (see PRE_REGISTRATION.md section 3 table for the per-case breakdown -- this is a MULTI-PART claim, not a single pass/fail).",
+    "H2": "CONFIRMED (mechanism characterization, NOT a fix) if move_replicate_baseline and move_producer_independence_altvalue read the IDENTICAL bit pattern, move_loadsourced_independence reads that SAME pattern, the two register pairs are internally consistent but mutually different, and the src_flag=1 positive controls read the literal integers 1/2/3; REFUTED (in the sense of 'the fixed-slot model is wrong') if the producer-independence cases actually track the producer's value/family, which would mean this IS somehow a real (if currently misdirected) GPR read."
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain, literal MEM_WORDS values, and struct.pack/unpack bit-pattern reinterpretation for the H2 constants (established during this experiment's own pilot phase per PROGRESS.md, before this matrix was frozen)",
+  "clean_room": "OWN-SHADER + HW-PROBE. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()) or the compiled form of our own kernels/*.metal (tools/shdump, runtime MSL compile via the public Metal API). No third-party document, leaked material, or Apple binary introspection anywhere in this experiment."
+}
