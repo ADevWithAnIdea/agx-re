@@ -1,0 +1,63 @@
+{
+  "authored_code_sha256": {
+    "analysis/casematrix.py": "dbb7a95318ce002cb86919a3d7546bc4464ba618bb8cdc2ff03abc9f7b63fdc9",
+    "analysis/reference.py": "6d08f389ea2cf46447d8d372ffd47b6de6e0b42fe71ce0ec2bdc0ac3b3518285",
+    "harness/build.sh": "051d8e87c405816f321d25340b29424fcbf33dccf4f006a1555927e9a7b6606d",
+    "harness/texcompute.m": "408837499b3c1ac46d7b285721883023092f4cfd0259a51604c13b5501f7db38",
+    "harness/texrender.m": "f4a783515b542607284419558ae8066dcda50ef3db7ca73eedb16340b1f83dee",
+    "kernels/bias_probe.metal": "cab8a53d69ca9b30154b27acae6cc713798e7605a194793e476ee367f830ffd6",
+    "kernels/cube_faceid.metal": "edcdfaf338be6f2cb9e7caecbf803f2900be5d05ddd15b4d0671eaa3e58cf7cd",
+    "kernels/cube_grad.metal": "db106f16a7e3685bc1a963e176a0940ff8114bc235e2371570753513c3494d37",
+    "kernels/grad_probe.metal": "dff88464fd326ebfacf38d23b466a0fe2adbf08d81cf2f3321f8d8d8690b64e5",
+    "kernels/lodquery_probe.metal": "8b5670fac24cfc76f28293a24c87cd8f6ca969d296c200c694a6ea67688f5191",
+    "kernels/regpair_bias_A.metal": "963c36f483d8db5d4dff769bbdb3e738843baf1e195fd1b160b9978675423d61",
+    "kernels/regpair_bias_B.metal": "82e137b37f067ad324b79c471773ef4e821d27679d0164f0b78230f45f21696e",
+    "run.py": "8251cd6ddcbcf9c265973f9800703a9a245c0347ea0b0ad9b6f673868d10b63f",
+    "verify.py": "18e82fffc49bced0f8312b4ddb512cf4deb2ed415c8ac78fb158578603b87e8c"
+  },
+  "authored_doc_sha256": {
+    "PRE_REGISTRATION.md": "423a1deadfcd46ee011af591e8315c91482cbcde6a16f6c8b0b0c7f53a2ac3cf",
+    "README.md": "7066cc7ac84d9381623a6c1e2aa156f92e347018f2821e508822639aab7c84e3"
+  },
+  "boundary": "public Metal API only; runtime MSL compile of our own kernels via harness/texrender + harness/texcompute (bias_sweep/grad_sweep/lodquery/cube_faceid/cube_grad); binary-archive splice of our own compiled shader bytes (harness/bin/shdump, our own build of the read-only tools/shdump/shdump.m source) via harness/texrender --archive for regsplice_bias only; owned shared buffers/textures; every case a fresh process; no Apple binary, archive, BO or command-stream inspection beyond our own compiled shader bytes",
+  "experiment_tree_dirty_entries": 1,
+  "git_dirty": true,
+  "git_revision": "b05383c5a40653b1176b0345806af1955bb87659",
+  "machine": "arm64",
+  "python": "3.14.6",
+  "schema": 1,
+  "sw_vers": {
+    "argv": [
+      "sw_vers"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0094-m4-texture-lod-abi",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T04:03:53.694277+00:00",
+    "stderr": "",
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G82\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  },
+  "timeouts_seconds": {
+    "archive_build": 30,
+    "case_process": 30,
+    "env_command": 10,
+    "host_build": 60,
+    "smoke_process": 30
+  },
+  "xcrun_version": {
+    "argv": [
+      "xcrun",
+      "--version"
+    ],
+    "cwd": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0094-m4-texture-lod-abi",
+    "exception": null,
+    "exit": 0,
+    "started_utc": "2026-08-28T04:03:53.700002+00:00",
+    "stderr": "",
+    "stdout": "xcrun version 72.\n",
+    "timed_out": false,
+    "timeout_seconds": 10
+  }
+}
