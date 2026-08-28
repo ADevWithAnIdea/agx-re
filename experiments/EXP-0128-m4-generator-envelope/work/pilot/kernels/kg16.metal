@@ -1,0 +1,25 @@
+#include <metal_stdlib>
+using namespace metal;
+kernel void k(device int* zout [[buffer(0)]], device int* xbuf [[buffer(1)]], device int* ybuf [[buffer(2)]], device int* sinkout [[buffer(3)]], device int* g0buf [[buffer(4)]], device int* g1buf [[buffer(5)]], device int* g2buf [[buffer(6)]], device int* g3buf [[buffer(7)]], device int* g4buf [[buffer(8)]], device int* g5buf [[buffer(9)]], device int* g6buf [[buffer(10)]], device int* g7buf [[buffer(11)]], device int* g8buf [[buffer(12)]], device int* g9buf [[buffer(13)]], device int* g10buf [[buffer(14)]], device int* g11buf [[buffer(15)]], device int* g12buf [[buffer(16)]], device int* g13buf [[buffer(17)]], device int* g14buf [[buffer(18)]], device int* g15buf [[buffer(19)]], uint tid [[thread_position_in_grid]]) {
+    int g0 = g0buf[tid];
+    int g1 = g1buf[tid];
+    int g2 = g2buf[tid];
+    int g3 = g3buf[tid];
+    int g4 = g4buf[tid];
+    int g5 = g5buf[tid];
+    int g6 = g6buf[tid];
+    int g7 = g7buf[tid];
+    int g8 = g8buf[tid];
+    int g9 = g9buf[tid];
+    int g10 = g10buf[tid];
+    int g11 = g11buf[tid];
+    int g12 = g12buf[tid];
+    int g13 = g13buf[tid];
+    int g14 = g14buf[tid];
+    int g15 = g15buf[tid];
+    int x = xbuf[tid];
+    int y = ybuf[tid];
+    int z = x + y;
+    zout[tid] = z;
+    sinkout[tid] = g0 | g1 | g2 | g3 | g4 | g5 | g6 | g7 | g8 | g9 | g10 | g11 | g12 | g13 | g14 | g15;
+}

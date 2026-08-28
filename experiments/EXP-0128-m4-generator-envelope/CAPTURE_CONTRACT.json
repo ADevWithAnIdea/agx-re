@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0128-m4-generator-envelope",
+  "frozen_utc_date": "2026-08-28",
+  "pinned_repo_revision_informational_only": "bb0fc6219b2dd9a19aff20f1c56cc30ef69aebf6",
+  "target": "local Apple M4 / G16G only, macOS 26.6.2 (25G82), Mac16,x",
+  "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+  "case_timeout_seconds": 45,
+  "gpu_run_timeout_seconds": 20,
+  "authored_code": [
+    "isa_helpers.py", "families.py", "casematrix.py",
+    "harness/build.sh", "harness/case_exec.py",
+    "run.py", "verify.py", "make_manifest.py", "baseline.py"
+  ],
+  "authored_kernels": ["kernels/carrier_dag.metal"],
+  "authored_docs": ["PRE_REGISTRATION.md", "CAPTURE_CONTRACT.json", "README.md"],
+  "gated_result_keys": [
+    "i", "name", "group", "carrier", "mode", "oracle", "expect_match",
+    "notes", "status", "pipeline_source", "out_hex", "observed", "match"
+  ],
+  "nongated_keys": ["i", "duration_ms", "argv", "stdout", "stderr"],
+  "corpus_min_size": 30,
+  "corpus_groups": ["IADD_REG", "LOADSTORE_DIRECT"],
+  "pass_criterion": "every expect_match=True case status==OK and match==True in BOTH runs; 01_results.jsonl byte-identical across runs; expect_match=False cases recorded (not required to equal a fixed boolean, reported not gated)",
+  "gates_required": [
+    "verify.py --selftest", "verify.py --seqtest", "verify.py --preflight",
+    "verify.py --between-runs", "verify.py --captured",
+    "baseline.py (fresh compile-only carrier check before each run)",
+    "non-recorded smoke case before raw/ tree creation",
+    "make_manifest.py --check"
+  ],
+  "safety": {
+    "disclosed_pilot_hangs": 4,
+    "hangs_resolved_by": "isa_helpers.mov_imm hard-rejects imm8>=128; frozen corpus stays in 0..127 safe range; CF-extension technique abandoned, not retried",
+    "host_wedge_occurred": false,
+    "macvdmtool_used": false,
+    "a18_pro_touched": false
+  },
+  "items_closed_this_experiment": ["c (iadd2 register-mode, bounded)", "a (load-direct-to-store, generalized)"],
+  "items_synthesized_from_existing_evidence": ["b (R>=64)", "e (reg_move)"],
+  "items_partial_or_unknown": ["d (control-flow displacement generator, arithmetic verified, HW validation confounded/stopped)"]
+}
