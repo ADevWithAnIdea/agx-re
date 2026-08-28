@@ -2,6 +2,7 @@
   "experiment": "EXP-0098-m4-gpu-driven-draws",
   "pinned_revision": "39af7f9314e5d6c49eea21465cd02682bf48d117",
   "pinned_revision_tracked_dirty": true,
+  "post_freeze_amendment_note": "harness/verify.py was amended ONCE, before any official capture began under the new ids, to make list_run_dirs()/gate_preflight/gate_between_runs skip any raw/ subdirectory containing a QUARANTINE.md marker (needed because raw/m4_20260828_run01 is a retained, unedited, permanently-quarantined partial capture sitting alongside the real runs -- see PROGRESS.md). This is an operational/infrastructure fix to the verifier's directory bookkeeping, not a change to any hypothesis, matrix case, kernel, or run.py scoring logic; verify.py --selftest (17/17) and --seqtest (9/9, two new checks added to prove the quarantine-exclusion behavior itself) both re-verified green immediately after. The hash below is the POST-amendment hash.",
   "pinned_revision_dirty_note": "11 untracked/modified paths at pin time, all outside this experiment's own tree (sibling-experiment work committed continuously by the orchestrator per SUBAGENT_BRIEF.md); gated at capture time on authored-blob hashes below, not on live HEAD.",
   "target": {
     "device": "Apple M4 (G16G), Mac16,10, 10 GPU cores",
@@ -13,7 +14,7 @@
     "harness/schema.py": "5223f1c88a0f94f8fda0d646fd8c8923e03a6fbde85e046491b2d995d00167d5",
     "harness/casematrix.py": "ecb14d2a2866f0b1a7c4bd7e9a7d839c423e8290332c06bf66761ee7a4aeae62",
     "harness/run.py": "3f2ce74646ec11243e91451821512d8d48f37f29958601a4dd33e7f6ff3b3946",
-    "harness/verify.py": "11f18bef135b4202b954075f1cf0424a2732a3494f1d474ac006b8a05ecd583f",
+    "harness/verify.py": "fe3bfbdc4a1cfbd0a0e1067a5e32929acb453aa628f87a22b1df9e574e5c00f4",
     "harness/gddraws.m": "9adb0999688a0cc0ea8c9d673c5373cd7e2cbec6888854d846724094e65361cd",
     "harness/xfbdraws.m": "7b40f77815f9f1fb637e8f7960ccf187a83d58b99c9d0417256bcbf2f81f16be",
     "kernels/h_chain.metal": "c9c5e595874ee5283a6d29cb427f9757392dbda686fca7fc70ccb733143360f1",
@@ -48,7 +49,8 @@
     "smoke_timeout": 30,
     "note": "90s is comfortably above the calibrated ~15.5s xfb_sync unsafe-mode completion-latency penalty and the sub-1s h_sync unsafe-mode timing observed during build-time calibration and both full-matrix pilot dry-runs (trial01, trial02)."
   },
-  "run_ids": ["m4_20260828_run01", "m4_20260828_run02"],
+  "run_ids": ["m4_20260828_run01b", "m4_20260828_run02b"],
+  "run_ids_note": "The originally planned m4_20260828_run01/m4_20260828_run02 pair was amended: m4_20260828_run01 was interrupted at 7/111 records by a host restart (see raw/m4_20260828_run01/QUARANTINE.md) and is retained, unedited, as an abandoned/quarantined partial -- never reused, never repaired. The two OFFICIAL captures are m4_20260828_run01b and m4_20260828_run02b. This is a run_ids-field amendment only; every authored_file_sha256/fixture_sha256 value above is unchanged from the original freeze.",
   "gates": {
     "a_shared_schema": "harness/schema.py imported by both run.py and verify.py",
     "b_seqtest_states": ["PRE_GPU", "RUN01_PRESENT", "RUN02_PRESENT"],

@@ -40,9 +40,15 @@ def fail(msg):
 
 # ---------------------------------------------------------------------------
 def list_run_dirs(raw_root):
+    """Run directories under raw/, EXCLUDING any directory marked QUARANTINE.md --
+    a quarantined, permanently-abandoned partial capture (never reused, never
+    repaired -- see e.g. raw/m4_20260828_run01/QUARANTINE.md) must not count
+    toward the PRE_GPU/RUN01_PRESENT/RUN02_PRESENT state machine, or a retained
+    quarantine record would permanently desynchronize the gate's directory count
+    from the number of REAL (open or closed) capture attempts."""
     if not raw_root.exists():
         return []
-    return sorted([p for p in raw_root.iterdir() if p.is_dir()])
+    return sorted([p for p in raw_root.iterdir() if p.is_dir() and not (p / "QUARANTINE.md").exists()])
 
 
 def run_is_closed(run_dir):
@@ -328,6 +334,20 @@ def cmd_seqtest():
             record("RUN02_PRESENT", "between_runs", ok, False)
             gate_ok, _ = cross_run_gate(run01, run02)
             record("RUN02_PRESENT", "cross_run_gate_on_empty_runs", gate_ok, True)
+
+            # QUARANTINE exclusion: a third directory marked QUARANTINE.md must
+            # not be counted by list_run_dirs/gate_between_runs/gate_preflight --
+            # simulates raw/m4_20260828_run01's real retained-partial scenario.
+            quarantined = raw_root / "quarantined_partial"
+            quarantined.mkdir()
+            (quarantined / "QUARANTINE.md").write_text("abandoned partial, never reused")
+            (quarantined / "02_gated.jsonl").write_text("")  # even with jsonl present,
+            (quarantined / "03_nongated.jsonl").write_text("")  # must still be excluded
+            dirs_after_quarantine = list_run_dirs(raw_root)
+            record("RUN02_PRESENT", "quarantine_excluded_from_listing",
+                   quarantined not in dirs_after_quarantine, True)
+            ok, _ = gate_preflight(raw_root)  # PRE_GPU semantics unaffected by a quarantine dir
+            record("RUN02_PRESENT_PLUS_QUARANTINE", "preflight_still_sees_2_real_runs", ok, False)
         finally:
             CM.TOTAL = old_total
 

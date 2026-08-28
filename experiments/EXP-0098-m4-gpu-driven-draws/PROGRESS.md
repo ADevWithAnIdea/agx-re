@@ -104,3 +104,71 @@ per the addendum's own instruction, no assembler needed).
   revision `39af7f9314e5d6c49eea21465cd02682bf48d117`.
 - **PRE_REGISTRATION.md and CAPTURE_CONTRACT.json are now frozen.** No further changes to
   the matrix, kernels, or harness logic before the two official capture runs.
+
+## 2026-08-28T05:52Z -- host restart interrupted m4_20260828_run01; quarantined, resuming under new ids
+- The official capture `m4_20260828_run01` (started 04:24:08Z) was interrupted after 7/111
+  records by a host/terminal problem (coordinator-confirmed: "not anything you did"). On
+  resume, `uptime` showed the host had freshly rebooted (~7-8 min uptime) -- this agent's own
+  tooling never issued any reboot command (no `macvdmtool`, no tool-based reboot of any kind);
+  recovery was external/manual, consistent with CLAUDE.md's recovery model.
+- Retained `raw/m4_20260828_run01/` exactly as the interrupted process left it (00_inputs.json,
+  02_gated.jsonl with 7 records, 03_nongated.jsonl) and added `raw/m4_20260828_run01/QUARANTINE.md`
+  explaining the interruption. This run id is retired -- never reused, never repaired.
+- Health check before resuming: `date`/`uptime` normal, no stray gddraws/xfbdraws/run.py
+  process in `ps aux`, a fresh tiny GPU dispatch (`h_sync encoder_order n=16`) completed
+  correctly and immediately. `verify.py --selftest` (17/17) and `--seqtest` (7/7) both still
+  PASS, confirming the frozen harness/matrix are intact and unaffected.
+- Amended `CAPTURE_CONTRACT.json`'s `run_ids` field to `["m4_20260828_run01b",
+  "m4_20260828_run02b"]` with an explicit `run_ids_note` explaining the change. No
+  `authored_file_sha256`/`fixture_sha256` value was touched -- this is a run-id-plan
+  amendment, not a repair of hash-frozen evidence.
+- Resuming the contracted sequence: official capture under `m4_20260828_run01b`, next.
+
+## 2026-08-28T05:58Z -- verify.py amended (quarantine-aware directory gates), re-verified
+- `list_run_dirs()` now skips any raw/ subdirectory containing QUARANTINE.md, so the
+  retained-but-abandoned `raw/m4_20260828_run01` does not desynchronize the PRE_GPU/
+  RUN01_PRESENT/RUN02_PRESENT state machine for the real run01b/run02b captures. Added two
+  new `--seqtest` checks proving the exclusion (a quarantined dir with jsonl files present
+  is still excluded; preflight/between-runs counts see only the real runs). `--seqtest`
+  9/9 PASS, `--selftest` 17/17 PASS immediately after.
+- This is a one-time, pre-first-official-capture amendment (no official run under the new
+  ids has started yet); `CAPTURE_CONTRACT.json`'s `harness/verify.py` hash and a
+  `post_freeze_amendment_note` were updated to the post-amendment hash
+  (`fe3bfbdc4a1cfbd0a0e1067a5e32929acb453aa628f87a22b1df9e574e5c00f4`). No other file's
+  hash changed; no matrix, hypothesis, kernel, or run.py scoring logic was touched.
+- Proceeding to the official `m4_20260828_run01b` capture, launched in the background with
+  bounded polling per the coordinator's explicit instruction (rather than a single blocking
+  call that a repeat host/terminal interruption could silently kill again).
+
+## 2026-08-28T06:10Z -- both official captures complete, gates green, RESULTS.md written
+- `m4_20260828_run01b`: launched as a detached background process (nohup+disown, pid 3321),
+  polled in bounded loops (20 x 20s then 6 x 15s, never a single unbounded blocking wait).
+  Completed cleanly: 111/111 records, 0 unexpected FAIL, `verdict_counts`
+  `{PASS:78, FAIL:0, TIMEOUT:0, N/A:33}`. `verify.py --between-runs`: PASS.
+- Host health reconfirmed (`date`/`uptime` normal, 16 min uptime) before launching run02b.
+- `m4_20260828_run02b`: same pattern (pid 4313), polled 15 x 20s then 6 x 15s. Completed
+  cleanly: 111/111 records, identical verdict_counts to run01b.
+- `verify.py --captured m4_20260828_run01b m4_20260828_run02b`: **cross_run_gate_pass=true,
+  issues_total=0**, both runs' verdict_counts identical. This is the strongest possible
+  outcome: perfect cross-run agreement on every gated field, with the declared
+  order-sensitive fields (h_sync/xfb_sync unsafe-mode race-detail counts) genuinely
+  differing between runs as expected for a real hazard, confirmed by direct inspection of
+  the raw gated records (h_sync indexed unsafe modes: 8/8 trials raced in BOTH runs
+  independently; xfb_sync unsafe modes: 0/9 trials raced but ~15.6-15.8s completion latency
+  in BOTH runs independently, every trial).
+- Wrote `RESULTS.md` (headline verdicts, per-item response blocks for GLPRE-A01/A02/
+  GLXFB-A01, finite-resource table, standing-gate results, limitations, clean-room
+  attestation) and top-level `manifest.json` (hashes of all three raw/ run directories,
+  including the quarantined partial, matching the EXP-0093 precedent's format).
+- Explicit statement recorded per the relaunch instruction: this experiment uses no
+  assembler and no tools/agx-isa anywhere, so the db.json ALU-register-field finding
+  (`work/COMPILER-EXPLAINER-INTERACTION-20260828.md`) and EXP-0099's refutation of both
+  proposed lifetime models are structurally inapplicable -- stated in RESULTS.md's
+  headline section, not left implicit.
+- **Experiment complete.** Final state: PRE_REGISTRATION.md, CAPTURE_CONTRACT.json,
+  RESULTS.md, README.md, manifest.json, PROGRESS.md, harness/ (schema.py, casematrix.py,
+  run.py, verify.py, gddraws.m, xfbdraws.m, fixtures/recorded_reality.json), kernels/
+  (h_chain.metal, h_icbrange.metal, xfb.metal), raw/ (m4_20260828_run01 quarantined,
+  m4_20260828_run01b + m4_20260828_run02b official), work/ (build products, non-recorded
+  smoke receipts, dry-run stdout/stderr logs). No git commit performed (orchestrator's
+  responsibility). No file outside this experiment's own tree was modified.
