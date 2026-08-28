@@ -1,0 +1,15 @@
+EXP-0122 analysis report
+run_a=m4-20260828-run01 run_b=m4-20260828-run02
+cross_run_gated_clean=True (mismatches=0)
+
+[align] rows=62 distinct_heap_align=[256] all_alloc_ok=True
+[maxlen_boundary] {'max': [True, True], 'max_plus_1': [False, False], 'max_plus_align': [False, False], 'max_minus_1': [True, True], 'huge_1<<40': [False, False]}
+[addrsurvey] passes=3 identical_across_passes=True
+[guard] n_cases=74 watchdog_or_timeout=0 zero_reads=20 nonzero_reads=17
+  nonzero_read_names=['guard_read_ctrl32', 'guard_read_last60', 'guard_read_neg256', 'guard_read_neg2p43', 'guard_read_neg32', 'guard_read_p16128', 'guard_read_p16380', 'guard_read_p16384', 'guard_read_p16388', 'guard_read_p16640', 'guard_read_p43_exact', 'guard_read_p43_minus_4', 'guard_read_p43_plus_4', 'guard_read_p43_plus_60', 'guard_read_p43x5_plus_4', 'guard_read_p44', 'guard_read_p45_plus_32']
+[sparse_caps] combos=12
+[sparse_miptail] cases=9
+[sparse_unmapped_read] every_case_all_zero=True (4 cases)
+[sparse_partial_map] write_appears_to_persist=[False, False]
+[sparse_remap] [{'name': 'single_tile_remap', 'map1_ok': True, 'unmap_ok': True, 'remap_ok': True, 'read_after_write': ['00000000000000000000000000000000'], 'read_after_unmap': ['00000000000000000000000000000000'], 'read_after_remap': ['00000000000000000000000000000000']}]
+[timestamp] all_monotonic=True all_cpu_equals_gpu=True mach_timebase=125/3

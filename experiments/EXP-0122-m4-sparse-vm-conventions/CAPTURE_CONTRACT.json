@@ -1,0 +1,46 @@
+{
+  "contract_version": 1,
+  "experiment": "EXP-0122-m4-sparse-vm-conventions",
+  "state": "PRE_GPU",
+  "target": "M4/G16G local host through public Metal only",
+  "pinned_git_revision_at_freeze": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "pinned_git_revision_note": "recorded for provenance only; per repo convention this is NOT re-checked against live HEAD at capture time (the orchestrator commits sibling experiments continuously). Validity is keyed on authored_sha256 below, which run.py's 00_inputs.json records at every capture and verify.py enforces unchanged between run01 and run02.",
+  "boundary": {
+    "apple_binary_archive_bo_or_compiled_shader_byte_inspection": "only our own compiled shader bytes, compiled at runtime from kernels/*.metal (OWN-SHADER)",
+    "private_api_or_trace": "NONE -- public Metal API only (MTLDevice/MTLBuffer/MTLHeap/MTLTexture/MTLResourceStateCommandEncoder)",
+    "apple_sdk_headers_read": "Metal.framework public header files, for method signatures only -- standard SDK usage, not disassembly",
+    "other_machine": "NONE (A18 hands-off; never macvdmtool)"
+  },
+  "authored_sha256": {
+    "harness/probe.m": "96b48a9b95353356ad646348b34f2747b16e6ad4f2dccb3ed78eae8acf700860",
+    "kernels/guard_access.metal": "07b62e730f03d78befa7896868932c22612637e518553c229fd66bced24d0a85",
+    "kernels/sparse_access.metal": "01ef8127f0c341668c289293e9b68ca0d2bc532c44ca89e2cb3975b1217c2288",
+    "run.py": "9da3acc0f0e835939fffeb5d06eec9c508bd335bea02f4bf0c4aa174c0da0a1a",
+    "verify.py": "dbe2869f56827325f7164b791c4936852f027f458627b69934bba8fb4b195795",
+    "analysis.py": "1ba948cc645e2b6e31c87bcc7a1fd16030f99b0a01f2d782595efead19eda3e6",
+    "make_manifest.py": "2f4fd6576df724128c18cd82561a980273d08bd463d513e291407c20b3b8922c",
+    "PRE_REGISTRATION.md": "6003105797c0b7757217bf82843d8baffd1ad0e8aeaef6a2ee4bade7ddabda54",
+    "README.md": "44eb3638ac7a968392e6487bf1a0b0c5e3e36116496e7969fad7270b45edf09f"
+  },
+  "gate_order": "PRE_GPU: --selftest, --seqtest, run.py --build, run.py --smoke, verify.py --preflight, run.py --execute run01; RUN01_PRESENT: --selftest, --seqtest, verify.py --between-runs, run.py --execute run02; RUN02_PRESENT: analysis.py --write, make_manifest.py --write + --check, verify.py --captured",
+  "case_counts": {
+    "align_rows": 62,
+    "addrsurvey_seq": 6,
+    "addrsurvey_passes": 3,
+    "maxlen_boundary_rows": 10,
+    "guard_cases": 74,
+    "sparse_caps_combos": 12,
+    "sparse_miptail_cases": 9,
+    "sparse_unmapped_read_cases": 4,
+    "sparse_partial_map_cases": 2,
+    "sparse_remap_cases": 1,
+    "timestamp_sleeps": 6,
+    "total_process_launches_per_run": 87
+  },
+  "run_ids": [
+    "m4-20260828-run01",
+    "m4-20260828-run02"
+  ],
+  "cross_run_comparison": "gated sub-dicts byte-compared for every case whose exec_status is ok in both runs (verify.py compare_gated); a mismatch anywhere is a hard failure of verify.py --captured",
+  "no_nondeterministic_field_in_gated": "structurally enforced: verify.py scans every captured record's gated sub-dict recursively against a banned-key/substring list (GPU addresses, absolute timestamps, wall-clock durations); GPU virtual addresses and raw timestamps are reported only under raw, never gated"
+}
