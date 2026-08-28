@@ -115,7 +115,7 @@ counterpart. No item is blocked by the A18 hands-off directive.
 | D — texture bias/gradient/implicit-LOD ABI | GLTEX-A01/02/03 | QUEUED | |
 | E — texture/image dimension-format operation matrix | GLTEX-A04/05/06/07 + GLIMG-A01/02 | QUEUED | |
 | F — threadgroup addressing / compute launch | GLCS-A01/A02 | QUEUED | |
-| G — varying/UVS capacity | GLIO-A01 + GLPRE items | QUEUED | |
+| G — varying/UVS capacity + pre-raster outputs | GLIO-A01, GLPRE-A03 | **CLOSED** (`eef37ca8`): 124 varying scalar components (per-component, consumed-only), clip-distance 8 independent, provoking vertex FIXED to first vertex (must emulate for GL) | `EXP-0097-m4-varying-capacity` |
 | H — GPU-driven compute-generated draws | GLPRE remainder | QUEUED | |
 | I — transform feedback (compositional, depends on B/H) | GLXFB-A01 | QUEUED | |
 
