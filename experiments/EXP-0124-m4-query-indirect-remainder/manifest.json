@@ -1,0 +1,34 @@
+{
+  "experiment": "EXP-0124-m4-query-indirect-remainder",
+  "closes": ["P1.6 / DRV-QUERY-01 (remainder)", "P1.7 / DRV-INDIRECT-01 (remainder)"],
+  "extends": [
+    "EXP-0027-indirect-query-timestamp (A18 DATA-TRACE)",
+    "EXP-0052-m4-timestamp-semantics",
+    "EXP-0053-m4-indirect-api-semantics",
+    "EXP-0091-m4-fragment-sample-discard",
+    "EXP-0098-m4-gpu-driven-draws"
+  ],
+  "target": {
+    "device": "Apple M4 (G16G), Mac16,10, 10 GPU cores",
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "a18_pro_tested": false
+  },
+  "clean_room_provenance": ["HW-PROBE", "OWN-SHADER", "PUBLIC"],
+  "official_runs": ["m4_20260828_run01", "m4_20260828_run02"],
+  "pinned_revision": "24cec78d1ff3e57d709614342d630a4839d8528c",
+  "case_count": 85,
+  "separate_bisection": "harness/icbmax_bisect.py (maxCommandCount crash boundary)",
+  "standing_gates": {
+    "selftest": "PASS",
+    "seqtest": "PASS",
+    "smoke_nonrecorded": "PASS",
+    "nondeterminism_exclusion": "PASS",
+    "recorded_reality_fixtures": "PASS",
+    "cross_run_captured_gate": "PASS, 0 issues"
+  },
+  "verdict_counts": {"PASS": 73, "FAIL": 4, "TIMEOUT": 0, "N_A": 8},
+  "note_on_fail_verdicts": "The 4 FAIL verdicts are genuine hypothesis refutations (q_copy_samecb_hazard, q_occ_overwrite_same_offset, q_occ_overwrite_disabled_between), not harness defects -- see RESULTS.md headline findings 6 and 7.",
+  "no_git_commits_made": true,
+  "tools_dir_modified": false
+}

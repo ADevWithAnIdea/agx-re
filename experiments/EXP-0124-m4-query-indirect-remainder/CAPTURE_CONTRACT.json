@@ -1,0 +1,79 @@
+{
+  "experiment": "EXP-0124-m4-query-indirect-remainder",
+  "pinned_revision": "24cec78d1ff3e57d709614342d630a4839d8528c",
+  "pinned_revision_dirty": true,
+  "pinned_revision_dirty_note": "Sibling experiments/orchestrator activity commits continuously to this repo; capture validity is gated on the authored_file_sha256 values below, not on live HEAD, per SUBAGENT_BRIEF.md / CODEX.md.",
+  "target": {
+    "device": "Apple M4 (G16G), Mac16,10, 10 GPU cores",
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4"
+  },
+  "authored_file_sha256": {
+    "harness/schema.py": "5c77f4c214c46e6bae69ddf9b170f91b2db63156123ba96dc75307f9086faddf",
+    "harness/casematrix.py": "78a72f488e8cc5ef7203c86be7684eefa254226d24b8e445cb713e9cca3a69b8",
+    "harness/run.py": "443bb43bddb07088f744e3d60eae647f9d068eed6fa2df90c71fcdef5427851f",
+    "harness/verify.py": "0857dd039cdc23f96d1a6e75db35301b7021f39cd3a012296fbf2addbca291f0",
+    "harness/icbmax_bisect.py": "11533271a90989426028e55106ffc5d9ac0c2fa2f2154a50e65bdd68e33e5477",
+    "harness/qbench.m": "13a7962d713cd3a973f6f18a1571586500deec781b2228881f0a5d80fc30857e",
+    "harness/ibench.m": "63e90df803f0c9b101e6f42a87998cc7388eca30f8e09e4b91a2a215153784c0",
+    "kernels/q_common.metal": "09ffa3dc024727a5d48df71ca0c52cba7850d25a028bb6352d5b9e3c357acb2d",
+    "kernels/i_common.metal": "fc0aee0d817e49cfde7ae92823bd99d515c192dc42f7364507ad1d32f4116d08",
+    "fixtures/recorded_reality.json": "36915327ab59cba2bf32991d8cd46b55207b14a9c98d025dc5093ce7efdb491f"
+  },
+  "schema": {
+    "gated_keys": [
+      "case_id",
+      "family",
+      "kind",
+      "observed",
+      "params",
+      "status",
+      "verdict"
+    ],
+    "nongated_keys": [
+      "case_id",
+      "pid",
+      "raw_tail",
+      "raw_ticks",
+      "wall_ms"
+    ]
+  },
+  "matrix": {
+    "total_cases": 85,
+    "families": {
+      "q_caps": 1,
+      "q_alloc": 19,
+      "q_avail": 3,
+      "q_reset": 2,
+      "q_copy": 3,
+      "q_simul": 7,
+      "q_occmode": 5,
+      "q_occoverwrite": 3,
+      "q_tick": 1,
+      "i_cdmfmt": 11,
+      "i_icbwrite": 11,
+      "i_icbbarrier": 16,
+      "i_restart": 3
+    }
+  },
+  "icbmax_bisection": {
+    "method": "deterministic binary search between EXP-0098 h_icbmax bracket points (4194304 works, 8388608 crashes), re-confirmed at both ends before bisecting",
+    "not_in_fixed_matrix_because": "probe sequence is adaptive on real outcomes; still fully deterministic given fixed HW behavior; both official runs independently reproduce it and are compared in verify.py --captured"
+  },
+  "timeouts_s": {
+    "case_timeout": 60,
+    "icbmax_probe_timeout": 30,
+    "smoke_timeout": 20
+  },
+  "run_ids": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+  ],
+  "gates": {
+    "a_selftest": "harness/verify.py --selftest",
+    "b_seqtest": "harness/verify.py --seqtest (deterministic PRE_GPU/RUN01_PRESENT/RUN02_PRESENT scratch-dir unit test)",
+    "c_smoke_nonrecorded": "work/<run_id>_smoke.json, written and checked BEFORE any raw/ directory is created",
+    "d_nondeterminism_exclusion": "casematrix.nondeterministic_observed_keys() -- only i_icbb_trial barrier=False rows exclude result/correct from the strict cross-run gate; every other case and every top-level field is byte-compared",
+    "e_recorded_reality_fixtures": "fixtures/recorded_reality.json -- 5 real M4 captures generated via run.run_case() itself (not hand-typed), referenced by verify.py --selftest"
+  }
+}
