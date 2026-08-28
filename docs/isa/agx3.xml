@@ -708,15 +708,17 @@
     <exact bit="16:18">opsel</exact>
     <dest name="dst" bit="4:7"/>
     <modifier name="srcA_size" bit="8" kind="opsize"/>
-    <src name="srcA_reg" bit="9:15"/>
+    <src name="srcA_reg" bit="9:14"/>
     <modifier name="opflags" bit="19:23"/>
     <modifier name="srcB_size" bit="24" kind="opsize"/>
-    <src name="srcB_reg" bit="25:31"/>
+    <src name="srcB_reg" bit="25:30"/>
     <modifier name="ctrl" bit="32:38"/>
     <modifier name="srcB_imm" bit="39" kind="immsel"/>
     <modifier name="mod_lo" bit="40:42"/>
     <modifier name="srcB_neg" bit="43"/>
     <modifier name="mod_hi" bit="44:47"/>
+    <modifier name="srcA_reg_top" bit="15"/>
+    <modifier name="srcB_reg_top" bit="31"/>
 
     <ins name="fadd" opsel="100"/>
     <ins name="fmul" opsel="101"/>
@@ -737,9 +739,10 @@
     <modifier name="imm_sign" bit="19"/>
     <modifier name="opflags" bit="20:23"/>
     <modifier name="srcA_size" bit="24" kind="opsize"/>
-    <src name="srcA_reg" bit="25:31"/>
+    <src name="srcA_reg" bit="25:30"/>
     <modifier name="ctrl_lo" bit="32:38"/>
     <modifier name="mods" bit="40:47"/>
+    <modifier name="srcA_reg_top" bit="31"/>
 
     <ins name="fadd" opsel="100"/>
     <ins name="fmul" opsel="101"/>
