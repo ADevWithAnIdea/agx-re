@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0113-m4-register-file-model",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82)",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier kernels; binary-archive splice of our own hand-assembled AGX programs (tools/agx-isa isadb.assemble()); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "task_origin": "Dispatch: settle H1 (r64-95 ALU-source addressing mechanism or proven restriction), H2 (is byte0=0x2b/reg_move_c9 the real GPR move), H3 (reg_move src_reg addressing rule vs kernel buffer signature); plus falu2 ctrl bits4-6 and the iminmax splice anomaly. Builds on EXP-0092/EXP-0099/EXP-0101/EXP-0105/EXP-0087.",
+  "pinned_revision": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 46,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 60,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,carrier,oracle,expect_match,notes,dispatch,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "groups_captured": ["SEED_CHECK", "H1_ALIAS_RECONFIRM", "H1_CTRL_BITS_4_6", "H1_LOADFWD",
+                       "H2_REGMOVE_C9", "H3_BUFFER_SIGNATURE"],
+  "hypothesis_to_group_map": {
+    "H1 (r64-95 ALU-source addressing)": "H1_ALIAS_RECONFIRM + H1_CTRL_BITS_4_6 + H1_LOADFWD",
+    "H2 (is 0x2b a real GPR move)": "H2_REGMOVE_C9",
+    "H3 (reg_move src_reg addressing rule)": "H3_BUFFER_SIGNATURE"
+  },
+  "confirm_vs_refute": {
+    "H1_ALIAS_RECONFIRM": "CONFIRMS the aliasing model if observed==30.0 (r3's value); would REFUTE it (and be a genuine positive for r67 addressing) if observed==0.0 (r67 unwritten, genuinely read) or any other distinct value",
+    "H1_CTRL_BITS_4_6": "per bit: CONFIRMS a bank-select mechanism if reg=67 changes away from its baseline while reg=3 stays at 30.0; REFUTES it (inert) if reg=67 stays at its aliased 30.0; identifies a general corruptor if reg=3 ALSO changes",
+    "H1_LOADFWD": "singlehop cases: pre-registered per-R prediction from the pilot phase, re-tested independently under this gate. persist/mismatch cases: CONFIRMS persistent register semantics if the second/independent read ALSO matches; REFUTES it (ephemeral forwarding only) if the second read reads 0 while the first still matches",
+    "H2_REGMOVE_C9": "producer-independence cases: REFUTES 'real GPR move' if v1/v2 (different producer values, same src_reg) read IDENTICAL raw content (checked post-hoc in analysis.py); pair cases: CONFIRMS EXP-0101's pair-quantization pattern extends to this family if src_reg X and X^1 read identical content",
+    "H3_BUFFER_SIGNATURE": "CONFIRMS a buffer-count-dependent addressing rule if content at a fixed src_reg SHIFTS across the buf1/buf2/buf3 carriers; REFUTES it if content is identical across all three"
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain and EXP-0090/EXP-0099/EXP-0101/EXP-0105's own HW-validated falu2/falu2i/device_store/reg_move field conventions, plus this experiment's own pilot-phase field extraction (PROGRESS.md) for the H1_LOADFWD/H2 groups",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is either produced by isadb.assemble() from named fields, or is an untouched byte range of our own compiled carrier kernel. EXP-0087/0092/0099/0101/0105's own RESULTS.md content is cited as prior, already-committed repository evidence, never re-derived from any Apple binary. No Apple binary introspected."
+}
