@@ -29,7 +29,8 @@ instructions become EMITTABLE — including both of the two the dispatch singled
 | blocking fields at start (validation.json vs db.json) | **33** |
 | attempted here | **32** (`mesh_out_src.sel` pre-registered as not attempted) |
 | promoted | **26** — 18 `hardware-run` + 8 `isolated-byte-diff` |
-| still `untested` | **6** (all six fence fields) |
+| still `untested` | **7** — the six fence fields (swept, unexplained) + `mesh_out_src.sel` (not attempted) |
+| fields recorded in `analysis/field_verdicts.json` | **33** (all fields of all ten instructions) |
 | swept cases | **12 532 per run x 2 gated runs = 25 064** |
 | cross-run agreement | **12 328 / 12 532 = 98.37 %** |
 
@@ -136,6 +137,15 @@ a tile that reads as black rather than a program that fails loudly.
 
 ### 2.3 `pixel_order` — the raster-order pair, and a database defect
 
+**Detection strength first** (the EXP-0141 requirement, in numbers): with the acquire
+member's byte+4 corrupted, the read-back texel falls from `8*src` to `1*src` — **7 of the 8
+serialised read-modify-writes are lost** — and the accumulated pixel falls from
+`clear + 36*src` to `clear + 8*src`. Byte-identical in both gated runs. So this litmus
+demonstrably counts lost updates, and an "inert" verdict from it is a measurement rather
+than a blind spot. The acquire/release asymmetry is itself a result: **the same corruption
+on the release member loses no updates at all** (texel stays `8*src` in both runs), which is
+why the release arm's sensitivity control did not fail and why that arm promotes nothing.
+
 The carrier draws 8 instances over one texel under a **texture**-tagged
 `raster_order_group`; with ordering intact the texel ends at exactly `8*src` and the
 programmable-blend pixel at `clear + 36*src` (`sum(1..8)`), so a single lost update is
@@ -239,8 +249,13 @@ is recorded in `manifest.json` and is the reason for most of the machinery below
    litmus-power test compared `k_atomic`'s arrival-ordered raw output, which differs between
    two identical runs and would have declared power that did not exist.
 
-**Cross-run agreement: 12328 / 12532 = 98.37%.** Disagreements are concentrated in exactly the fields
-flagged `unstable` intra-run.
+**Cross-run agreement: 12 328 / 12 532 = 98.37 %** (204 disagreements). They are concentrated
+in exactly the fields flagged `unstable` intra-run, and **no field labelled `hardware-run`
+contains a single `unstable` case** — checked mechanically, not by inspection.
+
+Every field entry carries a `detection_proof` string stating, in numbers, what the
+measurement was shown able to see; the two fence arms carry an explicit **INSUFFICIENT**
+detection proof, which is why they are `untested` rather than "inert".
 
 ---
 

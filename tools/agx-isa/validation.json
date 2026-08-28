@@ -16,26 +16,26 @@
   "total_instructions": 171,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 239,
-   "isolated-byte-diff": 80,
-   "corpus-correlation": 204,
-   "tokenization-only": 244,
-   "single-template-inference": 16,
+   "hardware-run": 257,
+   "isolated-byte-diff": 88,
+   "corpus-correlation": 197,
+   "tokenization-only": 227,
+   "single-template-inference": 15,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 253
+   "untested": 252
   },
   "by_label_pct": {
-   "hardware-run": 23.1,
-   "isolated-byte-diff": 7.7,
-   "corpus-correlation": 19.7,
-   "tokenization-only": 23.6,
-   "single-template-inference": 1.5,
+   "hardware-run": 24.8,
+   "isolated-byte-diff": 8.5,
+   "corpus-correlation": 19.0,
+   "tokenization-only": 21.9,
+   "single-template-inference": 1.4,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.4
+   "untested": 24.3
   },
-  "emittable_instructions": 21,
+  "emittable_instructions": 28,
   "emittable_mnemonics": [
    "device_load",
    "device_store",
@@ -45,7 +45,10 @@
    "if_push",
    "iunary",
    "link_save_restore",
+   "matrix_mac",
    "mov_imm",
+   "n3_sample_read",
+   "pixel_order",
    "psel",
    "reg_move_c0",
    "reg_move_c1",
@@ -57,9 +60,13 @@
    "stop",
    "tex_addr_setup",
    "threadgroup_barrier",
-   "uniform_mov"
+   "tile_read",
+   "tile_read_mrt",
+   "uniform_mov",
+   "vtx_coord_xform",
+   "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 150
+  "decodable_not_yet_emittable": 143
  },
  "instructions": {
   "falu2": {
@@ -3997,14 +4004,13 @@
     ]
    },
    "dst_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs."
    },
    "op_enable": {
     "label": "isolated-byte-diff",
@@ -4026,14 +4032,13 @@
     "note": "FP32 datapath only; the half-datapath accumulate byte is uncharacterized (RT-10)."
    },
    "b11hi": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 7-bit range, dense (128 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Documented A*B+C iff (b11hi & 3)==0 (32/128); bits 2-6 don't-care. The two low bits are ACCUMULATOR SIGN controls resolved per tile row: bit0 -> rows 0-3 use -C; bit1 -> all 8 rows use -C; both -> rows 0-3 +C, rows 4-7 -C. So the matrix unit performs A*B-C (multiply-subtract) and a half-tile variant, which simdgroup_multiply_accumulate never emits."
    }
   },
   "rt_intersect": {
@@ -5085,70 +5090,67 @@
     ]
    },
    "b2": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values give the byte-exact correct pixel in both runs."
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 destination GPR, located",
-    "target": "A18",
+    "label": "isolated-byte-diff",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Correct only at 0x00,0x01,0xc0,0xc1 (baseline 0x00); 0x02-0x07 wrong; the bulk silently zero; 0xf6-0xff fault or collateral. Not a plain 8-bit GPR index. Intra-run replicates 100% stable; 8 of 256 cross-run misses are boundary cases that came back invalid_run under concurrent GPU load, hence isolated-byte-diff rather than hardware-run."
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "rt_index": {
-    "label": "corpus-correlation",
-    "range": "render-target index, located by own-MSL byte-diff",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0147"
+    ],
+    "note": "With one attachment bound, correct only at 0x00,0x01,0x80,0x81 (baseline 0x00): bit0 and bit7 don't-care. Every other index SILENTLY RETURNS ZERO rather than faulting."
    },
    "b6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6."
    },
    "b7": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Correct only at 0xae,0xaf,0xee,0xef (baseline 0xae). 85 of 256 values are NONDETERMINISTIC across replicates and across runs - recorded `unstable`, not promoted; they most likely expose stale register or tile state."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 32-bit range, dense (1075 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Swept per constituent byte (4x256) plus structured whole-field values. Bytes 1 and 3 are almost entirely SILENT ZERO off their baseline; byte 0 is nondeterminism-heavy (95 unstable). Promoted only at the reproducing points."
    }
   },
   "imageblock_store": {
@@ -5454,30 +5456,31 @@
     ]
    },
    "scope": {
-    "label": "corpus-correlation",
-    "range": "{0x50, 0xd0} observed (bit7 differs, acquire vs release)",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-0029",
-     "EXP-O2D"
-    ]
+     "EXP-0147"
+    ],
+    "note": "ACQUIRE member: correct iff bit4==1 AND (bit6 XOR bit7)==1 (64/256, baseline 0x50). RELEASE member: correct iff bit4==1 AND bit7==1 (64/256, baseline 0xd0). Low nibble don't-care in both. This settles db.json's open note 'scope {0x50,0xd0}, bit7 differs' with the full accepted set."
    },
    "flags": {
-    "label": "corpus-correlation",
-    "range": "0x06 raster-order/texture fence flag",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-0093",
-     "EXP-O2D"
-    ]
+     "EXP-0147"
+    ],
+    "note": "ACQUIRE: correct iff bit0==0 AND (v & 0x0e)!=0 (112/256). RELEASE: correct iff (v & 0x0f)>=2 (224/256). byte+4 is therefore a REAL field with a large legal set, NOT the constant 0x06 that db.json's match clause pins it to - see db_defects."
    },
    "b5": {
-    "label": "single-template-inference",
-    "range": "0x00 in every observed instance",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values correct on BOTH the acquire and the release member."
    }
   },
   "frame_marker": {
@@ -6646,34 +6649,31 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "b3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values correct in both runs."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 48-bit range, dense (1603 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related."
    }
   },
   "cvt_f2h_dst": {
@@ -7314,60 +7314,58 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 destination GPR, located",
+    "label": "isolated-byte-diff",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Same shape as tile_read.dst shifted by this carrier's baseline: correct only at 0x08,0x09,0xc8,0xc9. Intra-run stable 256/256; 10 cross-run misses are load-related invalid_run."
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "rt_index": {
-    "label": "corpus-correlation",
-    "range": "render-target / imageblock-slice selector, located",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Fully splice-inert: all 256 values correct in both runs."
+   },
+   "rt_index": {
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "Correct only at 0x08,0x09,0x88,0x89 (baseline 0x08); bit0 and bit7 don't-care. Other indices silently return zero on attachment 1."
    },
    "b6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero)."
    },
    "fmt": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Correct only at 0x2e,0x2f,0x6e,0x6f,0xae,0xaf,0xee,0xef (baseline 0x2e): bits 0, 6 and 7 are don't-care and bits 1-5 are the format selector. 104 values give a silent zero."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 32-bit range, dense (1075 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "Per-byte dense plus structured whole-field. Byte 1 and byte 2 almost entirely silent zero off baseline; 30 unstable cases not promoted."
    }
   },
   "tex_addr_setup": {
@@ -8859,18 +8857,22 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
-   },
-   "slot": {
-    "label": "corpus-correlation",
-    "range": "0x04/0x08/0x0c/0x10/0x14 observed",
+    "label": "hardware-run",
+    "range": "full 4-bit range, dense (16 cases) x2 runs",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0147"
+    ],
+    "note": "FULLY INERT over all 16 values in both runs. The arm's litmus-power probe does move the pixel, so this is measured inertness, not a blind spot. SCOPE LIMIT: the carrier has a single output slot."
+   },
+   "slot": {
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
+    "evidence": [
+     "EXP-0147"
+    ],
+    "note": "FULLY INERT over all 256 values in both runs. SCOPE LIMIT: this carrier writes ONE varying slot, so this cannot distinguish 'don't-care' from 'only one legal slot exists' in a multi-varying program. A multi-varying carrier is the named follow-up."
    }
   },
   "vary_slot": {
@@ -8909,37 +8911,31 @@
     ]
    },
    "mode": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0147"
     ],
-    "note": "Operand bytes deliberately left raw - the coordinate-select sequence is not reconstructed (clean-room rule 5)."
+    "note": "Correct exactly when (mode & 0xf3) in {0x22,0xe2} (8/256, baseline 0x22). 240 of 256 values SUPPRESS THE DRAW ENTIRELY (no_draw, confirmed twice with a healthy device in between); 8 give a wrong pixel."
    },
    "sel": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 8-bit range, dense (256 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0147"
     ],
-    "note": "Operand bytes deliberately left raw - the coordinate-select sequence is not reconstructed (clean-room rule 5)."
+    "note": "91 of 256 correct, 143 no_draw, 19 genuine 'Caused GPU Hang Error' faults, 1 wrong value. Intra-run 255/256 stable."
    },
    "operand": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "full 40-bit range, dense (1339 cases) x2 runs",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0147"
     ],
-    "note": "Operand bytes deliberately left raw - the coordinate-select sequence is not reconstructed (clean-room rule 5)."
+    "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable."
    }
   },
   "mesh_out_src": {
