@@ -1,0 +1,41 @@
+{
+  "contract_version": 1,
+  "experiment": "EXP-0116-m4-command-generation",
+  "pinned_git_revision": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "pinned_git_revision_note": "recorded at pre-registration time; later runs compare authored-file hashes below, not live HEAD (sibling-experiment commits moving HEAD are not contamination)",
+  "target": "local Apple M4 / G16G only; A18 Pro hands-off; no SSH anywhere",
+  "boundary": "public Metal API; runtime MSL compile (newLibraryWithSource:); owned shared buffers; direct CPU-pointer read/write of this process's own registered command-stream BOs (justified in PRE_REGISTRATION.md as HW-PROBE, not Apple-code introspection); read-only tools/iotrace/iotrace.c interposer (unmodified) for DATA-TRACE BO snapshots; no Apple binary/framework/kernel/firmware inspection",
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "e31dd5c8e56e336e46d86744a8e06be8b069e8197d1c6c9694010ec555700f4f",
+    "schema.py": "bf78cf60e78332a34a2e98b6e51b03f48ab52b945d590d5bae2b06e22738c4c4",
+    "casematrix.py": "865efdcd0e25d330a2b67614231d568cd592320802a597433b1d772d0b9433c3",
+    "run.py": "ac1ac1d8fd18e20fdb7ffa45edd739b13b1f161c6f61a94b61dee2a51d66de8f",
+    "verify.py": "1701d609b2a84c9a8baeb28f0e693072dbbab95252a1184302a3fb33166be84d",
+    "harness/linksplice.m": "912db95f0a82f3185d529240fce7f56ab6d036d524edae43dd7620aad5372506",
+    "harness/codeswap.m": "7ea5c0196eb97fd630bb4805b47dbea8cfff91663c0cf4c3a8bff355d9d04ca7"
+  },
+  "post_capture_corrections": [
+    {
+      "when": "after m4_20260828_run01/run02 were captured and gated with the ORIGINAL schema.py",
+      "what": "verify.py --captured correctly FAILED 3/19 cases (misaligned_word8, out_of_range_bit40, codeswap_task3 -- every case where final_status != 4/Completed) because readback_A_word0/readback_A genuinely differs run-to-run on a FAULTED command buffer (a real hardware finding: partial-completion memory visibility at fault time is racy, not deterministic -- see RESULTS.md). schema.py was corrected (a tooling fix; raw/m4_20260828_run01 and run02 were NOT touched, edited, or re-derived) to exclude readback content from the gate whenever final_status != 4, proven by a new --selftest fixture reproducing this exact discovered case.",
+      "corrected_schema_py_sha256": "cbd29ecd90292c099eaaef0762ef6c730e7fd8a07b5c13b63d181fd89234c380",
+      "run01_run02_status": "retained as valid raw evidence for the fault-timing-race finding; NOT used for the closure-relevant cross-run gate"
+    },
+    {
+      "when": "after m4_20260828_run03/run04 were captured and gated with the FIRST-corrected schema.py",
+      "what": "verify.py --captured correctly FAILED 1/19 cases (encoding_max, the sole hang-class case) because the SAME final_status (5) was reported with a genuinely different verbatim final_error string across the two runs ('Caused GPU Hang Error / ErrorHang' vs 'Discarded (victim of GPU error/recovery) / ErrorInnocentVictim') -- a second real hardware finding: GPU-level hang/TDR recovery can label an affected in-flight command buffer as either the hang itself or an innocent victim of it, depending on timing. schema.py was corrected AGAIN (raw/m4_20260828_run03 and run04 untouched) to gate only a normalized final_error_category (PageFault / GPU_RECOVERY_EVENT / Other / None), never the verbatim string, proven by a new --selftest fixture reproducing this exact discovered case.",
+      "corrected_schema_py_sha256": "05c132bef513f863c9b288c8d2b6385fd66f740813915ae6074f72b112f422f6",
+      "corrected_verify_py_sha256": "b0885e00e5789b69c48995e93433fa463050aff27b5a488c964985cc11730adf",
+      "run03_run04_status": "retained as valid raw evidence for the hang/innocent-victim race finding; NOT used for the closure-relevant cross-run gate (superseded by run05/run06)",
+      "new_run_ids": ["m4_20260828_run05", "m4_20260828_run06"]
+    }
+  ],
+  "tools_ro_sha256_recorded_by": "run.py provenance() at each run's 00_inputs.json (tools/iotrace/iotrace.c, tools/iotrace/README.md)",
+  "run_ids_planned": ["m4_20260828_run01", "m4_20260828_run02", "m4_20260828_run03", "m4_20260828_run04", "m4_20260828_run05", "m4_20260828_run06"],
+  "gate_order": "PRE_GPU: verify.py --selftest, --seqtest, --preflight --run-id run01; RUN01_PRESENT: run.py --run-id run01 --execute, then verify.py --selftest, --seqtest, --between-runs --run01-id run01; RUN02_PRESENT: run.py --run-id run02 --execute, then verify.py --selftest, --seqtest, --captured --run01-id run01 --run02-id run02",
+  "gate_smoke": "run.py's smoke_gate() runs a baseline_check same_cb case into work/<run-id>/, never raw/, and requires natural_chain_ok (and found_seg0/1/2) true before raw/<run-id>/ is created; a smoke failure is a pre-capture STOP with no raw/ directory left behind",
+  "gate_cross_run": "run01 and run02's 02_results.jsonl (the GATED file) must be byte-identical per case (same case sequence, each case's JSON-decoded record equal) -- no GPU address, split-address link word, or location-dependent pointer field is ever present in that file (schema.py's whitelist construction + assert_no_address_leak, exercised by --selftest); raw addresses live only in the sibling 02_results_addrs.jsonl, which is NOT part of the cross-run gate and is expected to differ between runs",
+  "no_nondeterministic_field_in_gated_payload": "every gated field is either case identity, a structural boolean/count, a command-buffer status code, the link TAG byte alone (never its address-bearing hi/lo words), a deterministic tag-derived readback word (computed from our own fixed dispatch-order encoding, never from a captured address), or (codeswap only) a CDM record hex string with its own +0x08 location-dependent pointer field redacted to a fixed placeholder; verify.py --selftest proves this construction is invariant across two synthetic fixtures whose absolute addresses differ",
+  "fixtures_note": "verify.py --selftest fixtures are literal reproductions of this experiment's own informal calibration observations (see PROGRESS.md): the 732/732/36 same_cb chain shape, tag 0x20, the skip_seg1 positive result's exact field values, and the codeswap kernel_x/kernel_y record pair's exact captured bytes -- not an invented shape",
+  "safety": "one case per subprocess; 15s in-harness hardware watchdog (completion handler + timed dispatch_semaphore_wait, never a bare waitUntilCompleted) plus a 40s process-level timeout in run.py; cases ordered by increasing risk per casematrix.py; a fault or hang is a recorded result, never silently retried or dropped; a process-level timeout that would indicate the in-harness watchdog itself failed to return is grounds to STOP the whole run and report BLOCKED, not to continue the matrix"
+}

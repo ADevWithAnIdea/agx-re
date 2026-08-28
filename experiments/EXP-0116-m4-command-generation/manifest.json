@@ -1,0 +1,48 @@
+{
+  "experiment": "EXP-0116-m4-command-generation",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4",
+  "a18_pro_run": false,
+  "pinned_git_revision_at_preregistration": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "closure_relevant_run_pair": ["m4_20260828_run05", "m4_20260828_run06"],
+  "superseded_but_retained_run_pairs": [
+    {"pair": ["m4_20260828_run01", "m4_20260828_run02"], "finding": "faulted-command-buffer readback content is racy (fault-timing memory-visibility race)"},
+    {"pair": ["m4_20260828_run03", "m4_20260828_run04"], "finding": "hang-class final_error string (Hang vs InnocentVictim) is racy"}
+  ],
+  "gate_results": {
+    "selftest": "20/20 PASS (final schema.py)",
+    "seqtest": "7/7 PASS",
+    "smoke_gate": "PASS on all 6 runs, before any raw/<run-id>/ created",
+    "captured_run01_run02": "FAIL 3/19 (diagnosed, retained, not repaired)",
+    "captured_run03_run04": "FAIL 1/19 (diagnosed, retained, not repaired)",
+    "captured_run05_run06": "PASS 19/19, zero mismatches"
+  },
+  "case_count_per_run": 19,
+  "total_gpu_process_submissions": 114,
+  "process_level_timeouts": 0,
+  "host_wedges": 0,
+  "contained_gpu_hangs": 1,
+  "contained_gpu_page_faults_per_run": 8,
+  "sha256": {
+    "PRE_REGISTRATION.md": "e31dd5c8e56e336e46d86744a8e06be8b069e8197d1c6c9694010ec555700f4f",
+    "CAPTURE_CONTRACT.json": "f1cdfcd7eb39ab24c2f0c65595e450e7925f8183de0f2760aa8d83099283563f",
+    "README.md": "e0bf40b667d1c10c790b2f6fe4ca6487d323c9b22382a368bfaded39f5df4c59",
+    "RESULTS.md": "7306d9193beb4af84243e69a8487ac75befc091b29685944eca1a02160e77fe2",
+    "PROGRESS.md": "447967f778249007cf58e87b5afb6a4a9548c43124a729a82aaee069344fbf76",
+    "schema.py": "05c132bef513f863c9b288c8d2b6385fd66f740813915ae6074f72b112f422f6",
+    "verify.py": "b0885e00e5789b69c48995e93433fa463050aff27b5a488c964985cc11730adf",
+    "run.py": "ac1ac1d8fd18e20fdb7ffa45edd739b13b1f161c6f61a94b61dee2a51d66de8f",
+    "casematrix.py": "865efdcd0e25d330a2b67614231d568cd592320802a597433b1d772d0b9433c3",
+    "harness/linksplice.m": "912db95f0a82f3185d529240fce7f56ab6d036d524edae43dd7620aad5372506",
+    "harness/codeswap.m": "7ea5c0196eb97fd630bb4805b47dbea8cfff91663c0cf4c3a8bff355d9d04ca7",
+    "analysis/report.py": "036c7f545822bc3ceb538e5fd99e95487cda3914b6b393298a16e49ccb754bf7",
+    "analysis/cross_run_report.json": "8148b82620749106e9910582603c7623bea80ca5e1a07564836cd4ad6aa408e4",
+    "analysis/summary.json": "f28621c044fd3750b4ae26ac49115b8ee846bbe2e16d6489e2045bb8b95912f5",
+    "raw/m4_20260828_run01/02_results.jsonl": "b2dc5bcde8b137f8e39122441bd19ac92ceb26320fed54324ae1d698ada79c71",
+    "raw/m4_20260828_run02/02_results.jsonl": "07a1746a505cf276257a50c354cc104971ec403648cd52262fda1d6ddd8cec04",
+    "raw/m4_20260828_run03/02_results.jsonl": "bf95f41b91af4b7b5e2bf92c6fd7a1e2c6b60464637f603003c8710cbda0910e",
+    "raw/m4_20260828_run04/02_results.jsonl": "37b5fc9cc3831c4f9fec22c5b7deaa70ca65ca179df5ae0a1ed1aa8fe5ccf3c6",
+    "raw/m4_20260828_run05/02_results.jsonl": "37b341febcf781d25cc345c2db31a0af70fbf5142f4a9263bccb80a2b226cd2b",
+    "raw/m4_20260828_run06/02_results.jsonl": "37b341febcf781d25cc345c2db31a0af70fbf5142f4a9263bccb80a2b226cd2b"
+  },
+  "note_run05_run06_identical_hash": "run05 and run06's 02_results.jsonl share the identical sha256 above -- this IS the cross-run gate's PASS condition (byte-identical gated payload), not a manifest error."
+}
