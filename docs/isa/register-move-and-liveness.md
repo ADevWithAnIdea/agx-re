@@ -14,7 +14,22 @@ Target: **Apple M4 / G16G**, local host, `HW-PROBE + OWN-SHADER` splice evidence
 
 ## 1. Emitting a register-to-register move
 
-### 1.1 The rule (use this)
+### 1.0 ⚠️ SCOPE CORRECTION (EXP-0090, 2026-08-28) — read before §1.1
+
+The rule in §1.1 is **narrower than originally published here.** EXP-0090 tried to use it in a
+hand-built whole program and found that **`reg_move` with this encoding failed to read a GPR that
+had been written by `falu2`/`falu2i`.** Re-examining EXP-0087's validated cases showed they were
+**entirely uniform-register-sourced**.
+
+- **Validated scope:** moving from a **uniform-register / preloaded source**. `HW-VALIDATED`
+  (EXP-0087, 5 source registers, zero cross-talk).
+- **NOT established:** moving from a **GPR written by a preceding computation**. This is the case a
+  register allocator needs most, and it **failed** in EXP-0090's P4 program. `UNKNOWN`, actively
+  blocked.
+
+Do not treat §1.1 as a general GPR→GPR move until that gap is closed.
+
+### 1.1 The rule (use this, within the scope above)
 
 For the compact move family (`byte0` low nibble `0xb`; `byte0` high nibble = destination register):
 
@@ -147,6 +162,33 @@ executions in EXP-0086 + EXP-0089 combined. Treat the whole field as load-bearin
    are listed in `EXP-0086/RESULTS.md`.
 
 ---
+
+## 2.5 Other fields with the same silent-zero failure mode (EXP-0090)
+
+The move encodings and the liveness bits are not the only fields that fail silently rather than
+faulting. EXP-0090's hand-built programs surfaced two more:
+
+- **`falu2` register-form requires `opflags=3`, not merely bit 0**, when BOTH operands are real
+  computed values. **`opflags=1` silently zeroes `srcB`'s read.** `db.json` currently types this
+  field as an opaque `mod`. `HW-VALIDATED` (EXP-0090).
+- **`device_store`'s `extmode` byte = `2 x (source GPR)`** for ALU-forwarded stores — a concrete
+  formula replacing EXP-0082's "implicitly supplied" note. `HW-VALIDATED` (EXP-0090).
+
+**Pattern worth internalising: on this hardware, a wrong operand-field value usually produces a
+silent zero, not a fault.** Assume nothing is inert until it has been tested with a later read.
+
+## 2.6 What can and cannot be generated today (DRV-ISA-01 status)
+
+`HW-VALIDATED` (EXP-0090, 3 of 4 hand-built whole programs, 24/24 cases, two byte-identical runs):
+we can author and run non-trivial multi-instruction-family programs — an arithmetic dataflow chain
+with immediate and integer operand sweeps, a memory round trip, and a control-flow program — each
+matching an independent host-computed oracle.
+
+**We cannot yet generate arbitrary programs.** Two concrete, named blockers:
+1. **General load-to-ALU bridging** — `device_load`'s result could not be reliably fed into
+   `falu2`/`falu2i` by independent construction (5+ falsified attempts). Only a direct
+   store-forward and one verbatim `iadd2` anchor work.
+2. **GPR-sourced moves** — see §1.0.
 
 ## 3. Evidence status and open items
 
