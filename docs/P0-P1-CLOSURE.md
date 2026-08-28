@@ -110,8 +110,8 @@ counterpart. No item is blocked by the A18 hands-off directive.
 | Bundle | Items | Status | Experiment |
 |---|---|---|---|
 | A — fragment sample/coverage/discard/demote/helper | GLFS-A01/02/03/05/06/07 (+ `OPT-09`) | **A01/A02/A05/A06 + OPT-09 CLOSED; A03/A07 PARTIAL** (`4c2df727`) | `EXP-0091-m4-fragment-sample-discard` |
-| B — pixel/sample interlock + device-fence family | GLFS-A08 + `ATOM-07..11` | QUEUED (next; EXP-0091's `0x07`-fence groundwork applies) | successor to EXP-0085 |
-| C — vertex/instance/base/draw-ID + general sysval ABI | GLIO-A02/A03/A05/A06 | IN FLIGHT | `EXP-0092-m4-sysval-abi` |
+| B — pixel/sample interlock + device-fence family | GLFS-A08 + `ATOM-07..11` | IN FLIGHT | `EXP-0093-m4-fence-barrier-interlock` |
+| C — vertex/instance/base/draw-ID + general sysval ABI | GLIO-A02/A03/A05/A06 | **A03 CLOSED; A02/A05 CLOSED-PARTIAL; A06 table populated** (`96f9dade`); draw-ID UNKNOWN (no Metal multidraw) | `EXP-0092-m4-sysval-abi` |
 | D — texture bias/gradient/implicit-LOD ABI | GLTEX-A01/02/03 | QUEUED | |
 | E — texture/image dimension-format operation matrix | GLTEX-A04/05/06/07 + GLIMG-A01/02 | QUEUED | |
 | F — threadgroup addressing / compute launch | GLCS-A01/A02 | QUEUED | |

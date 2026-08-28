@@ -673,7 +673,7 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
 | thread_index_in_threadgroup | `0xa7` | threadgroups_per_grid | `0xa8/a9/aa` |
 | simd_lane_id | `0x82` | simd_group_id | `0x85` |
 | vertex_id | `0xdd` | instance_id | `0xd8` |
-| base_vertex / base_instance | `0x88` / `0x8a` (inferred) | `[[position]]`.xy (FS) | `0xa0/0xa1` |
+| base_vertex / base_instance | `0x88` / `0x8a` (**HW-VALIDATED**, EXP-0092: 9 indexed+instanced draws incl. negative/boundary params; `base_vertex==baseVertex`, `base_instance==baseInstance` exactly, both runs byte-identical) | `[[position]]`.xy (FS) | `0xa0/0xa1` |
 | front_facing (FS) | `0xc5` | | |
 
 - **Folded/computed (not `get_sr`):** `threads_per_simdgroup` → `mov_imm 0x20` (=32); simdgroups_per_tg,
