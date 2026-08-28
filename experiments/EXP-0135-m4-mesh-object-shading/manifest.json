@@ -1,0 +1,45 @@
+{
+  "experiment": "EXP-0135-m4-mesh-object-shading",
+  "task_row": "DRV-P2-03 (APPLE9_RE_IMPLEMENTATION_GAPS.md)",
+  "target": "local Apple M4 (G16G), macOS 26.6.2 (25G82), Metal 4, 10 GPU cores",
+  "pinned_repo_head": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "contract_frozen_at_utc": "2026-08-28T09:20:00Z",
+  "clean_room_category": ["OWN-SHADER", "HW-PROBE", "DATA-TRACE", "bounded PUBLIC reference (Metal.framework + MSL toolchain public headers, read-only interface definitions)"],
+  "reused_read_only_sources": {
+    "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
+    "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+    "tools/iotrace/iotrace.c": "4c8e1cedb9cbacd2e26c1699989337b95602a7c6beeb8823b19a71d1b55a3441",
+    "tools/iotrace/iohello_compute.m": "7e970c37091e87c72894cd9a4b149e881f23a0650973bb6f22e7f399bc0a7ab3",
+    "tools/iotrace/iohello_draw.m": "1efea7c9718dea4adf3b78a54b8ce65b0d844dcd2241a245a2cce21a8fbc3cb9",
+    "experiments/EXP-0030-mesh/harness/mesh_extract.py (copied verbatim, our own prior work)": "reused unmodified",
+    "experiments/EXP-0030-mesh/harness/iohello_mesh.m (copied verbatim, our own prior work)": "reused unmodified",
+    "experiments/EXP-0030-mesh/kernels/compute_emul.metal (copied verbatim, our own prior work)": "reused unmodified",
+    "experiments/EXP-0120-m4-tvb-overflow-mechanism/analysis/iotrace_parse.py (copied verbatim, our own prior work)": "reused unmodified",
+    "tools/agx-isa/agxisa.py (invoked read-only for the tokenize cross-check in RESULTS.md Sec 1)": "not modified"
+  },
+  "public_headers_read_only": [
+    "Metal.framework/Headers/MTLRenderPipeline.h (MTLMeshRenderPipelineDescriptor)",
+    "Metal.framework/Headers/MTLRenderCommandEncoder.h (drawMeshThreadgroups*)",
+    "Metal.framework/Headers/MTLIndirectCommandBuffer.h, MTLIndirectCommandEncoder.h",
+    "Metal developer toolchain metal_mesh, metal_command_buffer (public MSL stdlib headers)"
+  ],
+  "prior_experiments_extended": ["EXP-0030-mesh (A18)", "EXP-0098-m4-gpu-driven-draws", "EXP-0119-m4-lifecycle-field-map", "EXP-0120-m4-tvb-overflow-mechanism", "EXP-0124-m4-query-indirect-remainder"],
+  "official_capture_runs": {
+    "m4_20260828_run01": {
+      "n_records": 107,
+      "sha256_records_jsonl": "1b2205caad6fb1a4644c975cd0685057d45a11a1d23c275c6804aef7ef907528"
+    },
+    "m4_20260828_run02": {
+      "n_records": 107,
+      "sha256_records_jsonl": "721218cfe4eb5497135be6fe331d099f98cb1608df272c4ef21fff39f697762b"
+    },
+    "note": "records.jsonl hashes differ between runs by design -- elapsed_s/GPU addresses/one incidental IOKit selector count are recorded but not gated (see CAPTURE_CONTRACT.json + verify.py). The gated fields (status + n_bo/sel9_calls/size_multiset + byte-extraction facts) are byte-identical, confirmed by analysis/verify.py --captured (PASS, 107/107)."
+  },
+  "standing_gates": {
+    "selftest": "PASS (analysis/verify.py --selftest)",
+    "seqtest": "PASS (analysis/verify.py --seqtest, PRE_GPU/RUN01_PRESENT/RUN02_PRESENT)",
+    "smoke_gate": "PASS, NON-RECORDED, work/smoke/smoke01/ (pre-freeze, not evidence)",
+    "captured": "PASS (analysis/verify.py --captured, 107/107 case records byte-exact)"
+  },
+  "host_stability": "no TIMEOUT, no host wedge, in either official run or the pre-freeze smoke run; every anomalous case (4x CRASH_SIG11 per run, all in the I-cpu-maxcount ladder) was followed by an automatic post_fault_sanity_check case that returned OK every time"
+}

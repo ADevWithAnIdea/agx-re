@@ -1,0 +1,61 @@
+{
+  "experiment": "EXP-0135-m4-mesh-object-shading",
+  "frozen_at_utc": "2026-08-28T09:20:00Z",
+  "pinned_repo_head": "cf544b4dd1fb37047c7cfee6a70a0d1a87628666",
+  "pinned_repo_head_note": "gate on authored blob hashes below, not on live HEAD (CODEX target discipline; sibling experiments commit concurrently, EXP-0082 precedent)",
+  "target": {
+    "device": "Apple M4 (G16G)",
+    "gpu_cores": 10,
+    "os": "macOS 26.6.2 (25G82)",
+    "metal": "Metal 4",
+    "note": "the only device used; A18 Pro HANDS-OFF, M5 out of scope. All testing local, no SSH."
+  },
+  "pinned_blob_hashes_sha256": {
+    "experiments/EXP-0135-m4-mesh-object-shading/kernels/mesh_sweep.metal": "2b256e6c6ea87307b720a36e81706c9efdd57f4bfebb8b8f32144bd65d8ca1e8",
+    "experiments/EXP-0135-m4-mesh-object-shading/kernels/mesh_indirect.metal": "04b8e01325f3d71bab5c6cd1c7ab0cf29991118dac766a532b58533728ee974c",
+    "experiments/EXP-0135-m4-mesh-object-shading/kernels/mesh_icb_gpu.metal": "a1ee1415b18afd3995f9b94dd486acb70ac7d9ae593498efa08ded4054ac19e1",
+    "experiments/EXP-0135-m4-mesh-object-shading/kernels/compute_emul.metal": "5cd3f2f3dde54dab3fbfc39b0ba07355a39a79b5bf6b28abef5b12c0275d0f0b",
+    "experiments/EXP-0135-m4-mesh-object-shading/harness/mesh_probe.m": "aaa26054885f2ce556bd32abdee757d2a78f0ccf2363b401bb2077a3757c336f",
+    "experiments/EXP-0135-m4-mesh-object-shading/harness/shdump_mesh.m": "4f108b9affdd8f42432ec277e593edbb47f25c3b8babd2ebed6bf68ad1e51704",
+    "experiments/EXP-0135-m4-mesh-object-shading/harness/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+    "experiments/EXP-0135-m4-mesh-object-shading/harness/mesh_extract.py": "4a48fd421f03c5c341d48ad2ec869d71de145c90cf97a04ec2c17919ee242e13",
+    "experiments/EXP-0135-m4-mesh-object-shading/harness/iohello_mesh.m": "8cf267d80482c5f0f4bed5d166d74d472c502520a8cab08de82733de8ef88e2b",
+    "experiments/EXP-0135-m4-mesh-object-shading/analysis/gen_matrix.py": "48249ae59cda935011991ebe33fc8a1e8fe20b91aea055d198b835560fcee7b4",
+    "experiments/EXP-0135-m4-mesh-object-shading/analysis/run.py": "eda1322af2505a773e62a78735fef2a0b5e007d58a919e23f6b46f8dd3d8cda7",
+    "experiments/EXP-0135-m4-mesh-object-shading/analysis/iotrace_parse.py": "3d171d7d774a4043f9f2021189d42a8bf4258fca2e0840a9e5ffbe85e2ed35ec",
+    "tools/iotrace/iotrace.c": "4c8e1cedb9cbacd2e26c1699989337b95602a7c6beeb8823b19a71d1b55a3441",
+    "tools/iotrace/iohello_compute.m": "7e970c37091e87c72894cd9a4b149e881f23a0650973bb6f22e7f399bc0a7ab3",
+    "tools/iotrace/iohello_draw.m": "1efea7c9718dea4adf3b78a54b8ce65b0d844dcd2241a245a2cce21a8fbc3cb9",
+    "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
+    "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f"
+  },
+  "case_matrix": {
+    "generator": "analysis/gen_matrix.py:build_matrix() -- FIXED, non-adaptive, same order both runs",
+    "n_cases": 98,
+    "groups": {
+      "R": "re-validation of A18 EXP-0030 (2 renders + 3 static byte-extraction + 3 iotrace DATA-TRACE)",
+      "B": "object-to-mesh payload size: 11-point PAYLOAD_BYTES ladder bracketing the confirmed 16384/16385 boundary + 8-point payloadMemoryLength override ladder",
+      "C": "UVB output sizing: 14-point NV (max_vertices) ladder bracketing confirmed 256/257 + 15-point NP (max_primitives, NV=256 fixed) ladder bracketing confirmed 512/513",
+      "D": "allocation ownership / raster linkage: 13-point AMP_COUNT (threadgroups-per-mesh-grid) ladder bracketing confirmed silent-zero-output boundary at 65536 + 3 iotrace BO-size-multiset checkpoints (small/near-max/high-amp)",
+      "I": "indirect + ICB mesh dispatch: 9-point indirect-grid-X ladder (+ misaligned/OOB offset probes) + 5 icb_cpu + 5 icb_gpu range/barrier cases + 12-point icb maxCommandCount ladder bracketing the two crash-boundary regions found during calibration"
+    },
+    "build_time_calibration_source": "manual ad-hoc probing (recorded in PRE_REGISTRATION.md section 0) + one full non-recorded dry run work/smoke/smoke01/ -- both predate this freeze and are NOT gated evidence; they informed ladder placement only"
+  },
+  "process_isolation": "one case = one OS process (mesh_probe / iohello_* / shdump_*), never batched, never reused across cases",
+  "timeouts": {
+    "per_process_hard_timeout_s": 30,
+    "post_anomaly_sanity_timeout_s": 30
+  },
+  "gate": {
+    "byte_exact_payload": "per-case: status (classified terminal state), and for iotrace-bearing records: n_bo/sel9_calls/total_calls/size_multiset/selector_histogram; for R-bytes-* static extraction: stage _agc.main hex sha256 + length + e7-count + frame_marker-count facts",
+    "excluded_from_gate": ["elapsed_s", "GPU addresses/handles inside stdout (present but not compared)", "raw stdout text byte-for-byte (only the parsed STATUS/COVERED/facts fields are gated)"],
+    "sequence_states": ["PRE_GPU", "RUN01_PRESENT", "RUN02_PRESENT"],
+    "smoke_gate": "NON-RECORDED full dry run against work/smoke/ must pass before any raw/ capture (work/smoke/smoke01/, executed pre-freeze)",
+    "selftest": "synthetic fixtures + a real recorded fixture drawn from work/smoke/smoke01/ (post-freeze copy, see analysis/fixtures/)",
+    "run_id_policy": "never reuse; a defective capture is retained and superseded by a new id, never repaired in place"
+  },
+  "run_ids": {
+    "run01": "m4_20260828_run01",
+    "run02": "m4_20260828_run02"
+  }
+}
