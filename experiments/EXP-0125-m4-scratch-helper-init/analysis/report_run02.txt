@@ -1,0 +1,88 @@
+# EXP-0125 analysis report for raw/m4-20260828-run02
+
+==============================================================================
+I FAMILY -- init-time checkpoint trace (H1 / H2)
+==============================================================================
+ cp label                 nospill.nbo  spill.nbo  nospill.bytes  spill.bytes  shape_eq   codewin(ns/sp)
+  0 DEVICE_CREATED                  2          2          79872        79872      True        True/True
+  1 QUEUE_CREATED                  18         18        2045952      2045952      True        True/True
+  2 PIPELINE1_CREATED              18         18        2045952      2045952      True        True/True
+  3 PIPELINE2_CREATED              18         18        2045952      2045952      True        True/True
+  4 PRE_DISPATCH                   27         27        2559104      2559104      True        True/True
+  5 POST_DISPATCH                  27         27        2559104      2559104      True        True/True
+
+any resource_map_shape difference nospill vs spill at ANY checkpoint: False
+any nbo difference nospill vs spill at ANY checkpoint: False
+
+summary: I_nospill status=OK exit=0 timed_out=False checksum=8148.09638
+summary: I_spill status=OK exit=0 timed_out=False checksum=200247456
+
+==============================================================================
+B FAMILY -- compile-time ceiling bisection (H3)
+==============================================================================
+stage  last_ok(K)  first_fail(K)  last_ok_bytes(4K+16) n_trials bracket_ok   ratio_to_mesa_131072
+cs         65431          65432                261740       19       True     2.0032094878574376
+vs         65431          65432                261740       19       True     2.0032094878574376
+fs         65431          65432                261740       19       True     2.0032094878574376
+
+stage-to-stage last_ok spread: 0 (of [65431, 65431, 65431])
+
+cs: 2 bracket trials, 17 bisect trials
+vs: 2 bracket trials, 17 bisect trials
+fs: 2 bracket trials, 17 bisect trials
+
+==============================================================================
+C FAMILY -- concurrent exhaustion, per-level FAILURE RATE over 6 repeats (H4)
+==============================================================================
+(status/ok_queues/execfail_queues/nonfinite_queues/checksum_mismatch are this experiment's own directly-observed NONDETERMINISTIC fields -- not required to match run01 vs run02; the failure RATE is the finding, not any single trial)
+
+n_queues  trials   ok  degraded  other total_execfail total_nonfinite total_mismatch
+       1       6    6         0      0              0               0              0
+       2       6    6         0      0              0               0              0
+       4       6    6         0      0              0               0              0
+       8       6    6         0      0              0               0              0
+      16       6    6         0      0              0               0              0
+      32       6    4         2      0              0               0             48
+
+lowest n_queues with >=1 non-OK trial: 32
+
+==============================================================================
+C FAMILY timing (ungated, informational -- wall-clock cliff check)
+==============================================================================
+C:C_nq1:t0     duration_ms=286
+C:C_nq1:t1     duration_ms=286
+C:C_nq1:t2     duration_ms=283
+C:C_nq1:t3     duration_ms=290
+C:C_nq1:t4     duration_ms=286
+C:C_nq1:t5     duration_ms=283
+C:C_nq2:t0     duration_ms=512
+C:C_nq2:t1     duration_ms=501
+C:C_nq2:t2     duration_ms=500
+C:C_nq2:t3     duration_ms=506
+C:C_nq2:t4     duration_ms=517
+C:C_nq2:t5     duration_ms=511
+C:C_nq4:t0     duration_ms=938
+C:C_nq4:t1     duration_ms=938
+C:C_nq4:t2     duration_ms=948
+C:C_nq4:t3     duration_ms=932
+C:C_nq4:t4     duration_ms=923
+C:C_nq4:t5     duration_ms=931
+C:C_nq8:t0     duration_ms=1793
+C:C_nq8:t1     duration_ms=1754
+C:C_nq8:t2     duration_ms=1716
+C:C_nq8:t3     duration_ms=1767
+C:C_nq8:t4     duration_ms=1751
+C:C_nq8:t5     duration_ms=1789
+C:C_nq16:t0    duration_ms=3505
+C:C_nq16:t1    duration_ms=3494
+C:C_nq16:t2    duration_ms=3415
+C:C_nq16:t3    duration_ms=3399
+C:C_nq16:t4    duration_ms=3673
+C:C_nq16:t5    duration_ms=3657
+C:C_nq32:t0    duration_ms=6578
+C:C_nq32:t1    duration_ms=6759
+C:C_nq32:t2    duration_ms=5704
+C:C_nq32:t3    duration_ms=2285
+C:C_nq32:t4    duration_ms=7026
+C:C_nq32:t5    duration_ms=6982
+

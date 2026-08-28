@@ -1,0 +1,34 @@
+{
+  "note": "Built from REAL M4 GPU/compiler calls made during harness development (this experiment's own run.py BACKEND_FN dispatch, work/ scratch only, never raw/). Used only by verify.py --selftest.",
+  "sample_records": [
+    {
+      "i": 0,
+      "id": "blendfac_src_One",
+      "family": "blend_factor",
+      "gated": {
+        "backend": "render",
+        "mode": "blendrender",
+        "params": {"case": "src_One", "w": 2, "h": 2, "colorformat": 125,
+                    "sr": 1, "dr": 0, "sa": 1, "da": 0, "rgbop": 0, "aop": 0, "mask": 15,
+                    "constr": 0.25, "constg": 0.75, "constb": 0.5, "consta": 0.6, "blendenabled": 1},
+        "status": "OK",
+        "result": {"status": "OK", "mode": "blendrender", "case": "src_One", "cfmt": 125, "bpp": 16,
+                    "center_hex": "3333333fcdcccc3ecdcc4c3e6666663f"}
+      },
+      "meta": {}
+    },
+    {
+      "i": 1,
+      "id": "calldepth_1",
+      "family": "call_depth",
+      "gated": {
+        "backend": "compute_run",
+        "function": "k_depth1",
+        "n": 4,
+        "status": "OK",
+        "result": {"status": "OK", "function": "k_depth1", "n": 4, "values": [1.0, 2.0, 3.0, 4.0]}
+      },
+      "meta": {}
+    }
+  ]
+}

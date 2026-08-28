@@ -1,0 +1,66 @@
+{
+  "experiment": "EXP-0117-m4-stage-abi-remainder",
+  "target": "Apple M4 / G16G, local host only (Mac16,10, 10 GPU cores)",
+  "os": "macOS 26.6.2 (25G82)",
+  "metal": "Metal 4 (Apple9)",
+  "toolchain": {
+    "clang": "Apple clang 21.0.0 (clang-2100.1.1.101)",
+    "xcrun": "72",
+    "python": "3.14.6"
+  },
+  "git_revision_at_registration": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "git_revision_at_manifest_write": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "authored_sha256": {
+    "PRE_REGISTRATION.md": "902efeed006f534051b903c24dfc2a5d370f66ad08ccad0fdb46b2c0bec026aa",
+    "README.md": "63f8daeb11e3521c22b65ae3f98dd37b57e6abd65e7bc7f7c86c0adc47c06321",
+    "casematrix.py": "c99e843f0406dc62ad21bd8604bde24477fac6b6171c822c48515b4c935eccea",
+    "run.py": "1a30fecaf33fa7aff12913b8530d0da2ca4672024626c9239ede10b54bbd953a",
+    "verify.py": "fe6253f2b711243f915725a1ca9e970f8bd1869b957ee4b587168f1b9479379b",
+    "kernels/blend.metal": "faf57783a89b5dc79c91c2838720ec8660d5760d6655d8cdffd8efa23d20ac54",
+    "kernels/fsorder.metal": "d68e2ebc6d4ea34b1992eca6b5a62834d09625a53262dd9d23c80fa74a0ca819",
+    "kernels/barycentric.metal": "15d80b5b7ddaa18e8356392504c343aa40a9dae4e5459b1e2319d1521fa4ae83",
+    "kernels/msaa_diff.metal": "deb1db500f28d08ed6413854d910541a716e91cc0b28908a54e44b3753480cf4",
+    "kernels/samplemask.metal": "509f8b09d6a7c39bbccf62cd58c71d707ce92bc19627201c3459930c4de85b7a",
+    "kernels/stencil.metal": "cf25b86586e482f3db4c2e820e7db1d6e8ec1a9ef08bed932c68c08a05673277",
+    "kernels/stencil_i32_negative.metal": "df8609585db2c2062813ea81b8cc1008bfc27d38d13c7ec2b0395ed6f3d68990",
+    "kernels/callabi.metal": "159078c8966c737e3b3f79a23be0526cd13ed5b77fa2db57b53de17e1d101ceb",
+    "kernels/callchain.metal": "799d39e4eb30543f1ce0d7bd4280cdd32cfb2fbc3915a9dac6eaa3635b699cb2",
+    "harness/struct_extract.m": "f0a4b7a81644af896845b95ea1c052340fa6565eb8d3c80b0ccf0928a4ab087e",
+    "harness/render.m": "132b799f0e6cb64875d97136bb9f9d3ab0ff671d87f30c3c4f092b29dc75feb8",
+    "harness/compute_run.m": "2d1482869b4d72a51bc5ed3e7829b6f276a3d13853a8cd8c2603a33aa2a7599d",
+    "harness/gen_callchain.py": "5d50833a1c730243f905023a696a44025ec55a6414021f6ee2d7f4873225f244"
+  },
+  "total_cases": 148,
+  "runs": [
+    "m4-20260828-run01",
+    "m4-20260828-run02"
+  ],
+  "crossrun_result": {
+    "total": 148,
+    "mismatches": 0,
+    "pass": true
+  },
+  "gates": {
+    "selftest": "11/11 PASS",
+    "seqtest": "3/3 PASS",
+    "smoke_pre_capture": "verify.py --smoke, run before either official raw/ capture existed",
+    "no_nondet_field": "enforced at capture time by run.py check_no_nondet(), recursing into lists of dicts"
+  },
+  "items_covered": [
+    "programmable-blend-epilog synthesis (1)",
+    "FS output ordering (3)",
+    "barycentric VALUE correctness (4, PARTIAL)",
+    "primitive_id VALUE correctness (5)",
+    "MSAA centroid-vs-sample differentiation (6)",
+    "CALL-ABI byte decode (7)",
+    "stencil overflow (8)"
+  ],
+  "items_cited_not_new_work": [
+    "CS sysvals beyond dynamic shared memory (2) -- EXP-0092"
+  ],
+  "items_deferred": [
+    "split prolog/epilog register-crossing mechanics (9)",
+    "A18/G17P confirmation"
+  ],
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC"
+}

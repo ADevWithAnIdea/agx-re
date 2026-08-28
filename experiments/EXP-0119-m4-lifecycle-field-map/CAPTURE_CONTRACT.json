@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0119-m4-lifecycle-field-map",
+  "target": "local Apple M4 (G16G), Mac16,10, macOS 26.6.2 (25G82), Metal 4",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier/lit17_unpack/lit17_cvt kernels; binary-archive splice of our own hand-assembled AGX programs (MODE A, tools/agx-isa isadb.assemble()) and of field-level splices into our own compiled instructions (MODE B, reused EXP-0089 anchors); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "predecessor_chain": "EXP-0086 (liveness bits not inert) -> EXP-0089 (lifecycle model, literal bit17, ctrl field) -> EXP-0099 (bits15/31 inert for addressing+retention in falu2 register-register form) -> EXP-0119 (this experiment: bits15/31 in NEW contexts, per-family field map, bit17 generalization, mechanism discrimination). Renumbered from EXP-0118 mid-dispatch (coordinator directive, no capture occurred under the old number).",
+  "pinned_revision": "72c2dde8afd896e384afa20050bdd040f657ca78",
+  "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 77,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 60,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true,
+    "hang_candidate_case": "h2_srcmod12b_noloop_ctrl_bit2_HANGPROBE (MUST be case index 76, the last case) -- pre-tested in isolation before this contract was frozen (STATUS OK, no hang, PRE_REGISTRATION.md section 0 item 8); a hang during the gated capture is an accepted, first-class possible result, not a defect"
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,kernel,splices,oracle,notes,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture; ALSO the expected outcome if the hang-candidate case (last) genuinely hangs -- the preceding 76 cases remain valid, flushed, retained data in that event"
+  },
+  "groups_captured": [
+    "H1_FALU2I", "H1_FALU2EXT", "H1_FALU3SRCMOD12", "H1_PRESSURE",
+    "H2_FALU2EXT_OPFLAGS", "H2_SRCMOD12B_NOLOOP", "H2_DEVSTORE_ADDRMODE",
+    "H2_CACHEBYTE_UNPACK", "H2_CACHEBYTE_CVTI2F",
+    "H3_IBITCOUNT",
+    "H4_MEMOP_INTERVENING", "H4_LATERWRITE_RESTORE", "H4_REGFILE_VS_FORWARD", "H4_BARRIER",
+    "CONTROL"
+  ],
+  "hypothesis_to_group_map": {
+    "H1": "H1_FALU2I, H1_FALU2EXT, H1_FALU3SRCMOD12, H1_PRESSURE",
+    "H2": "H2_FALU2EXT_OPFLAGS, H2_SRCMOD12B_NOLOOP, H2_DEVSTORE_ADDRMODE, H2_CACHEBYTE_UNPACK, H2_CACHEBYTE_CVTI2F",
+    "H3": "H3_IBITCOUNT (plus cross-reference to H2_CACHEBYTE_* and H2_DEVSTORE_ADDRMODE as additional bit-17-position families)",
+    "H4": "H4_MEMOP_INTERVENING, H4_LATERWRITE_RESTORE, H4_REGFILE_VS_FORWARD, H4_BARRIER (control-flow-join persistence NOT re-tested -- already HW-VALIDATED by EXP-0089's if_boundary/loop_boundary, cited not duplicated)"
+  },
+  "confirm_vs_refute": {
+    "H1": "CONFIRMS bit15/31 inertness (EXP-0099's finding) if field value 67's own-result equals V=30.0 (reads r3) in every new family/context; REFUTES it if 67 reads 0.0 (genuine address bit) in any of them; a third value is a refuter for both.",
+    "H2": "per-family: bit0 matching falu2's opflags-bit19 polarity (corrupts a later reader) CONFIRMS the contract generalizes; a null or different-polarity result REFUTES generalization for that specific family.",
+    "H3": "CONFIRMS one shared mechanism if ibitcount's bit17 shows the SAME dual corrupt-own+corrupt-later signature as unpack_convert/cvt_i2f; REFUTES it (evidence for several distinct mechanisms sharing a bit position) if the signature differs -- PILOT ALREADY FOUND a third, different signature (unconditional on the tested bit), see PRE_REGISTRATION.md section 2.",
+    "H4_MEMOP": "CONFIRMS persistence if the later reader stays corrupted despite an intervening completed memop; REFUTES it (transient/reset-able) if the reader recovers.",
+    "H4_LATERWRITE": "CONFIRMS a per-value/per-write-instance suppression model if a fresh rewrite fully restores the later reader; REFUTES it (permanent per-register poison) if the reader stays corrupted despite the rewrite.",
+    "H4_REGFILE": "CONFIRMS 'genuinely gone from the register file' if device_store's own read ALSO sees the corruption; CONFIRMS 'not-forwarded-only, still present via another path' if device_store sees the correct, uncorrupted value while the ALU path is corrupted.",
+    "H4_BARRIER": "CONFIRMS persistence-across-a-barrier if the later reader stays corrupted after a real threadgroup_barrier; REFUTES it if the barrier resets/recovers the value."
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain (H.imm_value(), independently verified exact fixed points) and the EXP-0090/EXP-M4-13/EXP-M4-14 HW-validated device_load/device_store/ibitcount address formulas. Every non-trivial oracle value in casematrix.py is annotated 'pilot-CONFIRMED' where it was directly observed on real M4 hardware during the informal pre-registration pilot (see PRE_REGISTRATION.md section 0 and PROGRESS.md), or 'EXPLORATORY' (oracle=None, no a-priori prediction) where it was not.",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()), the compiled form of our own carrier/lit17_unpack/lit17_cvt MSL (tools/shdump, lit17_* kernels reused verbatim from EXP-0089's own committed, authored source), or a field-level splice into that compiled output computed via isadb's own assemble()/decode_one(). No Apple binary introspected anywhere."
+}

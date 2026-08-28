@@ -1,0 +1,77 @@
+{
+  "experiment": "EXP-0125-m4-scratch-helper-init",
+  "target": "local M4 / G16G only (A18 Pro hands-off per CLAUDE.md target discipline)",
+  "run_ids": ["m4-20260828-run01", "m4-20260828-run02"],
+  "families": {
+    "I": {
+      "purpose": "H1/H2: init-time checkpoint trace, nospill vs spill",
+      "variants": ["nospill", "spill"],
+      "checkpoints": ["DEVICE_CREATED", "QUEUE_CREATED", "PIPELINE1_CREATED",
+                      "PIPELINE2_CREATED", "PRE_DISPATCH", "POST_DISPATCH"],
+      "spill_k": 24576,
+      "grid": 65536,
+      "threadgroup": 256
+    },
+    "B": {
+      "purpose": "H3: deterministic compile-time-ceiling bisection per stage",
+      "stages": ["cs", "vs", "fs"],
+      "k_low": 1024,
+      "k_high": 131072,
+      "k_high_note": "== mesa/src/asahi/lib/agx_scratch.c AGX_MAX_SCRATCH_DWORDS, used as an explicit H3 search target only -- not assumed to apply to Apple9",
+      "k_bracket_hardcap": 400000,
+      "bisect_stop_width": 1
+    },
+    "C": {
+      "purpose": "H4: concurrent multi-queue exhaustion pressure",
+      "n_queues_levels": [1, 2, 4, 8, 16, 32],
+      "repeats_per_level": 6,
+      "k": 24576,
+      "grid": 65536,
+      "threadgroup": 256,
+      "policy": "REVISED per PRE_REGISTRATION.md addendum #2: no escalation-stop; every level runs all repeats; only a hard fault (timeout / crash exit) aborts early. Per-trial outcome fields are NONDETERMINISTIC (directly observed during pre-capture reconnaissance) and excluded from the cross-run gate; the per-level failure RATE across repeats is the reported finding."
+    }
+  },
+  "frozen_source_files": {
+    "harness": ["harness/inittrace.c", "harness/initprobe.m", "harness/ceiling.m", "harness/concurrent.m"],
+    "kernels": ["kernels/kernelgen.py"],
+    "driver": ["casematrix.py", "traceparse.py", "run.py", "verify.py", "analysis/analyze.py", "make_manifest.py"]
+  },
+  "raw_schema_files": [
+    "00_inputs.json", "01_summary.json",
+    "02a_i_checkpoints.jsonl", "02b_i_summary.jsonl",
+    "03_timing.jsonl",
+    "04a_b_trials.jsonl", "04b_b_results.jsonl",
+    "05_c_levels.jsonl",
+    "dumps/<case>/cpNN/allbo/*.hex", "dumps/<case>/cpNN/shared/*.hex",
+    "dumps/<case>.trace.log", "dumps/<case>.checkpoints.jsonl"
+  ],
+  "gated_schema_keys": {
+    "note": "authoritative source is casematrix.py's *_KEYS constants; this block is a human-readable mirror, not the enforced source of truth",
+    "I_CHECKPOINT_KEYS": ["case", "variant", "cp_idx", "cp_label", "nbo", "bo_total_bytes",
+                          "resource_map_shape", "nshared", "shared_addr0_present",
+                          "shared_addr1_present", "code_window_present", "code_window_size"],
+    "I_SUMMARY_KEYS": ["case", "variant", "probe_exit", "probe_timed_out", "probe_status", "checksum"],
+    "B_TRIAL_KEYS": ["stage", "step", "phase", "k", "ok"],
+    "B_RESULT_KEYS": ["stage", "bracket_ok", "k_low", "k_high", "last_ok", "first_fail", "n_trials"],
+    "C_TRIAL_KEYS": ["name", "n_queues", "trial", "executed", "exit", "timed_out", "status",
+                     "ok_queues", "execfail_queues", "nonfinite_queues", "checksum_mismatch"],
+    "C_GATED_TRIAL_KEYS": ["name", "n_queues", "trial", "executed", "exit", "timed_out"]
+  },
+  "excluded_nondeterministic_fields": [
+    "mach_time (I family checkpoint timestamps -- process-relative monotonic clock, not reproducible run-to-run in exact value; lives only in dumps/*.checkpoints.jsonl and the trace log, never in a gated *_KEYS schema)",
+    "any gpu_va / raw address (per EXP-0041/EXP-0107 precedent; resource_map_shape is address-free by construction)",
+    "wall-clock timestamps and durations (03_timing.jsonl, explicitly ungated)",
+    "C family per-trial status/ok_queues/execfail_queues/nonfinite_queues/checksum_mismatch -- directly observed to vary trial-to-trial at FIXED n_queues during this experiment's own pre-capture reconnaissance (PRE_REGISTRATION.md addendum #2); present in C_TRIAL_KEYS (schema-exactness still enforced) but excluded from C_GATED_TRIAL_KEYS"
+  ],
+  "timeouts_seconds": {
+    "i_probe": 90,
+    "b_trial": 30,
+    "c_probe_base_plus_per_queue": "30 + 6*n_queues",
+    "smoke": 60,
+    "env_command": 30
+  },
+  "environment": {
+    "host": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4",
+    "compiler": "clang (Xcode Command Line Tools), no external metal CLI"
+  }
+}

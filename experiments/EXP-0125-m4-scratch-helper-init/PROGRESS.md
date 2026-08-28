@@ -1,0 +1,385 @@
+# EXP-0125 progress log
+
+Append-only. `run.py` appends one line per I-checkpoint, per B-trial, per
+C-level, plus milestone lines. Manual milestones below.
+- 2026-08-28T07:41:26.161376+00:00 [m4-20260828-run01] run m4-20260828-run01 started; smoke gate passed
+- 2026-08-28T07:42:48.560123+00:00 [m4-20260828-run01] run m4-20260828-run01 started; smoke gate passed
+- 2026-08-28T07:42:51.197389+00:00 [m4-20260828-run01] I I_nospill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:42:51.197914+00:00 [m4-20260828-run01] I I_nospill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:51.198368+00:00 [m4-20260828-run01] I I_nospill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:51.198807+00:00 [m4-20260828-run01] I I_nospill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:51.199392+00:00 [m4-20260828-run01] I I_nospill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:42:51.200091+00:00 [m4-20260828-run01] I I_nospill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:42:53.966690+00:00 [m4-20260828-run01] I I_spill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:42:53.967744+00:00 [m4-20260828-run01] I I_spill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:53.968740+00:00 [m4-20260828-run01] I I_spill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:53.969835+00:00 [m4-20260828-run01] I I_spill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:42:53.971068+00:00 [m4-20260828-run01] I I_spill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:42:53.972265+00:00 [m4-20260828-run01] I I_spill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:42:55.680643+00:00 [m4-20260828-run01] B cs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:42:55.680788+00:00 [m4-20260828-run01] B cs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:42:55.680919+00:00 [m4-20260828-run01] B cs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:42:55.681044+00:00 [m4-20260828-run01] B cs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:42:55.681146+00:00 [m4-20260828-run01] B cs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:42:55.681219+00:00 [m4-20260828-run01] B cs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:42:55.681295+00:00 [m4-20260828-run01] B cs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:42:55.681367+00:00 [m4-20260828-run01] B cs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:42:55.681431+00:00 [m4-20260828-run01] B cs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:42:55.681497+00:00 [m4-20260828-run01] B cs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:42:55.681567+00:00 [m4-20260828-run01] B cs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:42:55.681656+00:00 [m4-20260828-run01] B cs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:42:55.681740+00:00 [m4-20260828-run01] B cs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:42:55.681809+00:00 [m4-20260828-run01] B cs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:42:55.681873+00:00 [m4-20260828-run01] B cs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:42:55.681937+00:00 [m4-20260828-run01] B cs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:42:55.681996+00:00 [m4-20260828-run01] B cs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:42:55.682057+00:00 [m4-20260828-run01] B cs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:42:55.682121+00:00 [m4-20260828-run01] B cs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:42:55.682225+00:00 [m4-20260828-run01] B cs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:42:57.510072+00:00 [m4-20260828-run01] B vs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:42:57.510208+00:00 [m4-20260828-run01] B vs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:42:57.510291+00:00 [m4-20260828-run01] B vs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:42:57.510403+00:00 [m4-20260828-run01] B vs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:42:57.510550+00:00 [m4-20260828-run01] B vs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:42:57.510659+00:00 [m4-20260828-run01] B vs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:42:57.510737+00:00 [m4-20260828-run01] B vs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:42:57.510841+00:00 [m4-20260828-run01] B vs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:42:57.510912+00:00 [m4-20260828-run01] B vs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:42:57.511017+00:00 [m4-20260828-run01] B vs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:42:57.511110+00:00 [m4-20260828-run01] B vs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:42:57.511205+00:00 [m4-20260828-run01] B vs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:42:57.511272+00:00 [m4-20260828-run01] B vs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:42:57.511337+00:00 [m4-20260828-run01] B vs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:42:57.511398+00:00 [m4-20260828-run01] B vs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:42:57.511453+00:00 [m4-20260828-run01] B vs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:42:57.511507+00:00 [m4-20260828-run01] B vs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:42:57.511559+00:00 [m4-20260828-run01] B vs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:42:57.511617+00:00 [m4-20260828-run01] B vs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:42:57.511701+00:00 [m4-20260828-run01] B vs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:42:59.521262+00:00 [m4-20260828-run01] B fs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:42:59.521408+00:00 [m4-20260828-run01] B fs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:42:59.521524+00:00 [m4-20260828-run01] B fs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:42:59.521614+00:00 [m4-20260828-run01] B fs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:42:59.521708+00:00 [m4-20260828-run01] B fs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:42:59.521804+00:00 [m4-20260828-run01] B fs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:42:59.521882+00:00 [m4-20260828-run01] B fs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:42:59.521993+00:00 [m4-20260828-run01] B fs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:42:59.522068+00:00 [m4-20260828-run01] B fs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:42:59.522170+00:00 [m4-20260828-run01] B fs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:42:59.522249+00:00 [m4-20260828-run01] B fs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:42:59.522306+00:00 [m4-20260828-run01] B fs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:42:59.522365+00:00 [m4-20260828-run01] B fs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:42:59.522421+00:00 [m4-20260828-run01] B fs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:42:59.522486+00:00 [m4-20260828-run01] B fs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:42:59.522545+00:00 [m4-20260828-run01] B fs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:42:59.522606+00:00 [m4-20260828-run01] B fs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:42:59.522667+00:00 [m4-20260828-run01] B fs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:42:59.522735+00:00 [m4-20260828-run01] B fs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:42:59.522825+00:00 [m4-20260828-run01] B fs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:42:59.802255+00:00 [m4-20260828-run01] C C_nq1: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:43:00.313323+00:00 [m4-20260828-run01] C C_nq2: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:43:01.267789+00:00 [m4-20260828-run01] C C_nq4: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:43:03.132395+00:00 [m4-20260828-run01] C C_nq8: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:43:06.238923+00:00 [m4-20260828-run01] C C_nq16: status=DEGRADED ok=15/16 timed_out=False
+- 2026-08-28T07:43:06.239201+00:00 [m4-20260828-run01] C C_nq32 SKIPPED (escalation-stopped)
+- 2026-08-28T07:43:06.239522+00:00 [m4-20260828-run01] run m4-20260828-run01 finished; aborted=False
+- 2026-08-28T07:47:13.849232+00:00 [m4-20260828-run01] run m4-20260828-run01 started; smoke gate passed
+- 2026-08-28T07:47:16.518801+00:00 [m4-20260828-run01] I I_nospill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:47:16.519942+00:00 [m4-20260828-run01] I I_nospill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:16.520837+00:00 [m4-20260828-run01] I I_nospill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:16.521364+00:00 [m4-20260828-run01] I I_nospill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:16.522105+00:00 [m4-20260828-run01] I I_nospill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:47:16.522940+00:00 [m4-20260828-run01] I I_nospill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:47:19.346944+00:00 [m4-20260828-run01] I I_spill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:47:19.347594+00:00 [m4-20260828-run01] I I_spill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:19.348185+00:00 [m4-20260828-run01] I I_spill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:19.348727+00:00 [m4-20260828-run01] I I_spill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:47:19.349454+00:00 [m4-20260828-run01] I I_spill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:47:19.350186+00:00 [m4-20260828-run01] I I_spill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:47:21.084646+00:00 [m4-20260828-run01] B cs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:47:21.084796+00:00 [m4-20260828-run01] B cs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:47:21.084920+00:00 [m4-20260828-run01] B cs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:47:21.085044+00:00 [m4-20260828-run01] B cs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:47:21.085143+00:00 [m4-20260828-run01] B cs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:47:21.085258+00:00 [m4-20260828-run01] B cs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:47:21.085340+00:00 [m4-20260828-run01] B cs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:47:21.085421+00:00 [m4-20260828-run01] B cs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:47:21.085494+00:00 [m4-20260828-run01] B cs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:47:21.085576+00:00 [m4-20260828-run01] B cs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:47:21.085683+00:00 [m4-20260828-run01] B cs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:47:21.085789+00:00 [m4-20260828-run01] B cs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:47:21.085868+00:00 [m4-20260828-run01] B cs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:47:21.085960+00:00 [m4-20260828-run01] B cs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:47:21.086030+00:00 [m4-20260828-run01] B cs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:47:21.086101+00:00 [m4-20260828-run01] B cs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:47:21.086161+00:00 [m4-20260828-run01] B cs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:47:21.086225+00:00 [m4-20260828-run01] B cs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:47:21.086279+00:00 [m4-20260828-run01] B cs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:47:21.086371+00:00 [m4-20260828-run01] B cs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:47:22.886929+00:00 [m4-20260828-run01] B vs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:47:22.887064+00:00 [m4-20260828-run01] B vs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:47:22.887190+00:00 [m4-20260828-run01] B vs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:47:22.887309+00:00 [m4-20260828-run01] B vs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:47:22.887422+00:00 [m4-20260828-run01] B vs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:47:22.887511+00:00 [m4-20260828-run01] B vs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:47:22.887593+00:00 [m4-20260828-run01] B vs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:47:22.887666+00:00 [m4-20260828-run01] B vs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:47:22.887750+00:00 [m4-20260828-run01] B vs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:47:22.887828+00:00 [m4-20260828-run01] B vs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:47:22.887923+00:00 [m4-20260828-run01] B vs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:47:22.888009+00:00 [m4-20260828-run01] B vs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:47:22.888090+00:00 [m4-20260828-run01] B vs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:47:22.888171+00:00 [m4-20260828-run01] B vs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:47:22.888257+00:00 [m4-20260828-run01] B vs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:47:22.888333+00:00 [m4-20260828-run01] B vs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:47:22.888416+00:00 [m4-20260828-run01] B vs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:47:22.888491+00:00 [m4-20260828-run01] B vs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:47:22.888565+00:00 [m4-20260828-run01] B vs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:47:22.888640+00:00 [m4-20260828-run01] B vs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:47:24.524938+00:00 [m4-20260828-run01] B fs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:47:24.525076+00:00 [m4-20260828-run01] B fs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:47:24.525167+00:00 [m4-20260828-run01] B fs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:47:24.525266+00:00 [m4-20260828-run01] B fs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:47:24.525340+00:00 [m4-20260828-run01] B fs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:47:24.525407+00:00 [m4-20260828-run01] B fs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:47:24.525485+00:00 [m4-20260828-run01] B fs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:47:24.525560+00:00 [m4-20260828-run01] B fs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:47:24.525672+00:00 [m4-20260828-run01] B fs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:47:24.525749+00:00 [m4-20260828-run01] B fs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:47:24.525816+00:00 [m4-20260828-run01] B fs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:47:24.525877+00:00 [m4-20260828-run01] B fs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:47:24.525941+00:00 [m4-20260828-run01] B fs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:47:24.526002+00:00 [m4-20260828-run01] B fs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:47:24.526076+00:00 [m4-20260828-run01] B fs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:47:24.526133+00:00 [m4-20260828-run01] B fs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:47:24.526188+00:00 [m4-20260828-run01] B fs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:47:24.526244+00:00 [m4-20260828-run01] B fs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:47:24.526299+00:00 [m4-20260828-run01] B fs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:47:24.526367+00:00 [m4-20260828-run01] B fs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:47:24.803603+00:00 [m4-20260828-run01] C C_nq1: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:47:25.301861+00:00 [m4-20260828-run01] C C_nq2: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:47:25.728318+00:00 [m4-20260828-run01] C C_nq4: status=DEGRADED ok=3/4 timed_out=False
+- 2026-08-28T07:47:25.728504+00:00 [m4-20260828-run01] C C_nq8 SKIPPED (escalation-stopped)
+- 2026-08-28T07:47:25.728623+00:00 [m4-20260828-run01] C C_nq16 SKIPPED (escalation-stopped)
+- 2026-08-28T07:47:25.728813+00:00 [m4-20260828-run01] C C_nq32 SKIPPED (escalation-stopped)
+- 2026-08-28T07:47:25.729145+00:00 [m4-20260828-run01] run m4-20260828-run01 finished; aborted=False
+- 2026-08-28T07:52:04.982923+00:00 [m4-20260828-run01] run m4-20260828-run01 started; smoke gate passed
+- 2026-08-28T07:52:07.616700+00:00 [m4-20260828-run01] I I_nospill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:52:07.617631+00:00 [m4-20260828-run01] I I_nospill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:07.618430+00:00 [m4-20260828-run01] I I_nospill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:07.619174+00:00 [m4-20260828-run01] I I_nospill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:07.620146+00:00 [m4-20260828-run01] I I_nospill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:52:07.621370+00:00 [m4-20260828-run01] I I_nospill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:52:10.353914+00:00 [m4-20260828-run01] I I_spill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:52:10.354390+00:00 [m4-20260828-run01] I I_spill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:10.354846+00:00 [m4-20260828-run01] I I_spill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:10.355286+00:00 [m4-20260828-run01] I I_spill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:52:10.355859+00:00 [m4-20260828-run01] I I_spill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:52:10.356615+00:00 [m4-20260828-run01] I I_spill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:52:11.751016+00:00 [m4-20260828-run01] B cs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:52:11.751141+00:00 [m4-20260828-run01] B cs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:52:11.751217+00:00 [m4-20260828-run01] B cs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:52:11.751294+00:00 [m4-20260828-run01] B cs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:52:11.751365+00:00 [m4-20260828-run01] B cs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:52:11.751450+00:00 [m4-20260828-run01] B cs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:52:11.751539+00:00 [m4-20260828-run01] B cs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:52:11.751618+00:00 [m4-20260828-run01] B cs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:52:11.751683+00:00 [m4-20260828-run01] B cs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:52:11.751763+00:00 [m4-20260828-run01] B cs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:52:11.751853+00:00 [m4-20260828-run01] B cs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:52:11.751913+00:00 [m4-20260828-run01] B cs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:52:11.751976+00:00 [m4-20260828-run01] B cs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:52:11.752035+00:00 [m4-20260828-run01] B cs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:52:11.752113+00:00 [m4-20260828-run01] B cs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:52:11.752179+00:00 [m4-20260828-run01] B cs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:52:11.752240+00:00 [m4-20260828-run01] B cs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:52:11.752300+00:00 [m4-20260828-run01] B cs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:52:11.752361+00:00 [m4-20260828-run01] B cs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:52:11.752447+00:00 [m4-20260828-run01] B cs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:52:13.124778+00:00 [m4-20260828-run01] B vs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:52:13.124930+00:00 [m4-20260828-run01] B vs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:52:13.125023+00:00 [m4-20260828-run01] B vs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:52:13.125160+00:00 [m4-20260828-run01] B vs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:52:13.125433+00:00 [m4-20260828-run01] B vs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:52:13.125563+00:00 [m4-20260828-run01] B vs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:52:13.125682+00:00 [m4-20260828-run01] B vs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:52:13.125767+00:00 [m4-20260828-run01] B vs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:52:13.125854+00:00 [m4-20260828-run01] B vs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:52:13.125943+00:00 [m4-20260828-run01] B vs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:52:13.126029+00:00 [m4-20260828-run01] B vs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:52:13.126171+00:00 [m4-20260828-run01] B vs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:52:13.126251+00:00 [m4-20260828-run01] B vs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:52:13.126321+00:00 [m4-20260828-run01] B vs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:52:13.126390+00:00 [m4-20260828-run01] B vs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:52:13.126457+00:00 [m4-20260828-run01] B vs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:52:13.126537+00:00 [m4-20260828-run01] B vs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:52:13.126615+00:00 [m4-20260828-run01] B vs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:52:13.126701+00:00 [m4-20260828-run01] B vs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:52:13.126786+00:00 [m4-20260828-run01] B vs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:52:14.832539+00:00 [m4-20260828-run01] B fs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:52:14.832695+00:00 [m4-20260828-run01] B fs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:52:14.832791+00:00 [m4-20260828-run01] B fs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:52:14.832899+00:00 [m4-20260828-run01] B fs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:52:14.833024+00:00 [m4-20260828-run01] B fs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:52:14.833109+00:00 [m4-20260828-run01] B fs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:52:14.833203+00:00 [m4-20260828-run01] B fs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:52:14.833284+00:00 [m4-20260828-run01] B fs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:52:14.833366+00:00 [m4-20260828-run01] B fs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:52:14.833443+00:00 [m4-20260828-run01] B fs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:52:14.833517+00:00 [m4-20260828-run01] B fs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:52:14.833599+00:00 [m4-20260828-run01] B fs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:52:14.833681+00:00 [m4-20260828-run01] B fs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:52:14.833789+00:00 [m4-20260828-run01] B fs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:52:14.833878+00:00 [m4-20260828-run01] B fs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:52:14.833960+00:00 [m4-20260828-run01] B fs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:52:14.834050+00:00 [m4-20260828-run01] B fs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:52:14.834126+00:00 [m4-20260828-run01] B fs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:52:14.834201+00:00 [m4-20260828-run01] B fs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:52:14.834294+00:00 [m4-20260828-run01] B fs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:52:15.131721+00:00 [m4-20260828-run01] C C_nq1 trial0: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:15.316749+00:00 [m4-20260828-run01] C C_nq1 trial1: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:15.698603+00:00 [m4-20260828-run01] C C_nq1 trial2: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:16.041884+00:00 [m4-20260828-run01] C C_nq1 trial3: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:16.377313+00:00 [m4-20260828-run01] C C_nq1 trial4: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:16.701045+00:00 [m4-20260828-run01] C C_nq1 trial5: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:52:17.298916+00:00 [m4-20260828-run01] C C_nq2 trial0: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:17.863552+00:00 [m4-20260828-run01] C C_nq2 trial1: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:18.974114+00:00 [m4-20260828-run01] C C_nq2 trial2: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:19.586540+00:00 [m4-20260828-run01] C C_nq2 trial3: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:20.152710+00:00 [m4-20260828-run01] C C_nq2 trial4: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:20.687003+00:00 [m4-20260828-run01] C C_nq2 trial5: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:52:21.647344+00:00 [m4-20260828-run01] C C_nq4 trial0: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:22.649097+00:00 [m4-20260828-run01] C C_nq4 trial1: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:23.624686+00:00 [m4-20260828-run01] C C_nq4 trial2: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:24.581069+00:00 [m4-20260828-run01] C C_nq4 trial3: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:25.545533+00:00 [m4-20260828-run01] C C_nq4 trial4: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:26.503362+00:00 [m4-20260828-run01] C C_nq4 trial5: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:52:26.736262+00:00 [m4-20260828-run01] C C_nq8 trial0: status=DEGRADED ok=5/8 timed_out=False
+- 2026-08-28T07:52:28.539153+00:00 [m4-20260828-run01] C C_nq8 trial1: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:52:29.251329+00:00 [m4-20260828-run01] C C_nq8 trial2: status=DEGRADED ok=5/8 timed_out=False
+- 2026-08-28T07:52:31.039338+00:00 [m4-20260828-run01] C C_nq8 trial3: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:52:32.806010+00:00 [m4-20260828-run01] C C_nq8 trial4: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:52:34.273639+00:00 [m4-20260828-run01] C C_nq8 trial5: status=DEGRADED ok=7/8 timed_out=False
+- 2026-08-28T07:52:37.139518+00:00 [m4-20260828-run01] C C_nq16 trial0: status=DEGRADED ok=15/16 timed_out=False
+- 2026-08-28T07:52:39.712091+00:00 [m4-20260828-run01] C C_nq16 trial1: status=DEGRADED ok=15/16 timed_out=False
+- 2026-08-28T07:52:42.028357+00:00 [m4-20260828-run01] C C_nq16 trial2: status=DEGRADED ok=16/16 timed_out=False
+- 2026-08-28T07:52:42.238593+00:00 [m4-20260828-run01] C C_nq16 trial3: status=DEGRADED ok=16/16 timed_out=False
+- 2026-08-28T07:52:44.768291+00:00 [m4-20260828-run01] C C_nq16 trial4: status=DEGRADED ok=16/16 timed_out=False
+- 2026-08-28T07:52:47.276233+00:00 [m4-20260828-run01] C C_nq16 trial5: status=DEGRADED ok=13/16 timed_out=False
+- 2026-08-28T07:52:54.804573+00:00 [m4-20260828-run01] C C_nq32 trial0: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:52:55.717665+00:00 [m4-20260828-run01] C C_nq32 trial1: status=DEGRADED ok=32/32 timed_out=False
+- 2026-08-28T07:52:59.301340+00:00 [m4-20260828-run01] C C_nq32 trial2: status=DEGRADED ok=30/32 timed_out=False
+- 2026-08-28T07:53:06.102860+00:00 [m4-20260828-run01] C C_nq32 trial3: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:53:13.304178+00:00 [m4-20260828-run01] C C_nq32 trial4: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:53:20.453294+00:00 [m4-20260828-run01] C C_nq32 trial5: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:53:20.454138+00:00 [m4-20260828-run01] run m4-20260828-run01 finished; aborted=False
+- 2026-08-28T07:53:37.705988+00:00 [m4-20260828-run02] run m4-20260828-run02 started; smoke gate passed
+- 2026-08-28T07:53:40.341759+00:00 [m4-20260828-run02] I I_nospill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:53:40.342336+00:00 [m4-20260828-run02] I I_nospill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:40.342777+00:00 [m4-20260828-run02] I I_nospill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:40.343315+00:00 [m4-20260828-run02] I I_nospill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:40.343965+00:00 [m4-20260828-run02] I I_nospill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:53:40.345580+00:00 [m4-20260828-run02] I I_nospill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:53:43.084949+00:00 [m4-20260828-run02] I I_spill cp0 DEVICE_CREATED: nbo=2 bo_total_bytes=79872 code_window=True
+- 2026-08-28T07:53:43.085495+00:00 [m4-20260828-run02] I I_spill cp1 QUEUE_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:43.085965+00:00 [m4-20260828-run02] I I_spill cp2 PIPELINE1_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:43.086517+00:00 [m4-20260828-run02] I I_spill cp3 PIPELINE2_CREATED: nbo=18 bo_total_bytes=2045952 code_window=True
+- 2026-08-28T07:53:43.087152+00:00 [m4-20260828-run02] I I_spill cp4 PRE_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:53:43.087823+00:00 [m4-20260828-run02] I I_spill cp5 POST_DISPATCH: nbo=27 bo_total_bytes=2559104 code_window=True
+- 2026-08-28T07:53:44.319311+00:00 [m4-20260828-run02] B cs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:53:44.319480+00:00 [m4-20260828-run02] B cs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:53:44.319607+00:00 [m4-20260828-run02] B cs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:53:44.319687+00:00 [m4-20260828-run02] B cs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:53:44.319783+00:00 [m4-20260828-run02] B cs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:53:44.319859+00:00 [m4-20260828-run02] B cs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:53:44.319928+00:00 [m4-20260828-run02] B cs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:53:44.320021+00:00 [m4-20260828-run02] B cs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:53:44.320100+00:00 [m4-20260828-run02] B cs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:53:44.320325+00:00 [m4-20260828-run02] B cs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:53:44.320413+00:00 [m4-20260828-run02] B cs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:53:44.320555+00:00 [m4-20260828-run02] B cs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:53:44.320634+00:00 [m4-20260828-run02] B cs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:53:44.320831+00:00 [m4-20260828-run02] B cs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:53:44.320916+00:00 [m4-20260828-run02] B cs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:53:44.320978+00:00 [m4-20260828-run02] B cs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:53:44.321041+00:00 [m4-20260828-run02] B cs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:53:44.321116+00:00 [m4-20260828-run02] B cs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:53:44.321181+00:00 [m4-20260828-run02] B cs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:53:44.321282+00:00 [m4-20260828-run02] B cs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:53:45.519971+00:00 [m4-20260828-run02] B vs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:53:45.520114+00:00 [m4-20260828-run02] B vs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:53:45.520235+00:00 [m4-20260828-run02] B vs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:53:45.520317+00:00 [m4-20260828-run02] B vs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:53:45.520405+00:00 [m4-20260828-run02] B vs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:53:45.520482+00:00 [m4-20260828-run02] B vs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:53:45.520566+00:00 [m4-20260828-run02] B vs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:53:45.520646+00:00 [m4-20260828-run02] B vs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:53:45.520724+00:00 [m4-20260828-run02] B vs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:53:45.520798+00:00 [m4-20260828-run02] B vs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:53:45.520870+00:00 [m4-20260828-run02] B vs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:53:45.520939+00:00 [m4-20260828-run02] B vs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:53:45.521012+00:00 [m4-20260828-run02] B vs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:53:45.521101+00:00 [m4-20260828-run02] B vs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:53:45.521183+00:00 [m4-20260828-run02] B vs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:53:45.521255+00:00 [m4-20260828-run02] B vs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:53:45.521364+00:00 [m4-20260828-run02] B vs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:53:45.521432+00:00 [m4-20260828-run02] B vs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:53:45.521502+00:00 [m4-20260828-run02] B vs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:53:45.521586+00:00 [m4-20260828-run02] B vs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:53:46.812964+00:00 [m4-20260828-run02] B fs step0 (bracket) k=1024: ok=True
+- 2026-08-28T07:53:46.813094+00:00 [m4-20260828-run02] B fs step1 (bracket) k=131072: ok=False
+- 2026-08-28T07:53:46.813197+00:00 [m4-20260828-run02] B fs step2 (bisect) k=66048: ok=False
+- 2026-08-28T07:53:46.813274+00:00 [m4-20260828-run02] B fs step3 (bisect) k=33536: ok=True
+- 2026-08-28T07:53:46.813352+00:00 [m4-20260828-run02] B fs step4 (bisect) k=49792: ok=True
+- 2026-08-28T07:53:46.813426+00:00 [m4-20260828-run02] B fs step5 (bisect) k=57920: ok=True
+- 2026-08-28T07:53:46.813505+00:00 [m4-20260828-run02] B fs step6 (bisect) k=61984: ok=True
+- 2026-08-28T07:53:46.813580+00:00 [m4-20260828-run02] B fs step7 (bisect) k=64016: ok=True
+- 2026-08-28T07:53:46.813654+00:00 [m4-20260828-run02] B fs step8 (bisect) k=65032: ok=True
+- 2026-08-28T07:53:46.813725+00:00 [m4-20260828-run02] B fs step9 (bisect) k=65540: ok=False
+- 2026-08-28T07:53:46.813794+00:00 [m4-20260828-run02] B fs step10 (bisect) k=65286: ok=True
+- 2026-08-28T07:53:46.813868+00:00 [m4-20260828-run02] B fs step11 (bisect) k=65413: ok=True
+- 2026-08-28T07:53:46.813985+00:00 [m4-20260828-run02] B fs step12 (bisect) k=65476: ok=False
+- 2026-08-28T07:53:46.814066+00:00 [m4-20260828-run02] B fs step13 (bisect) k=65444: ok=False
+- 2026-08-28T07:53:46.814139+00:00 [m4-20260828-run02] B fs step14 (bisect) k=65428: ok=True
+- 2026-08-28T07:53:46.814224+00:00 [m4-20260828-run02] B fs step15 (bisect) k=65436: ok=False
+- 2026-08-28T07:53:46.814291+00:00 [m4-20260828-run02] B fs step16 (bisect) k=65432: ok=False
+- 2026-08-28T07:53:46.814406+00:00 [m4-20260828-run02] B fs step17 (bisect) k=65430: ok=True
+- 2026-08-28T07:53:46.814487+00:00 [m4-20260828-run02] B fs step18 (bisect) k=65431: ok=True
+- 2026-08-28T07:53:46.814607+00:00 [m4-20260828-run02] B fs finished: last_ok=65431 first_fail=65432 bracket_ok=True n_trials=19
+- 2026-08-28T07:53:47.101432+00:00 [m4-20260828-run02] C C_nq1 trial0: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:47.388733+00:00 [m4-20260828-run02] C C_nq1 trial1: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:47.672981+00:00 [m4-20260828-run02] C C_nq1 trial2: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:47.963837+00:00 [m4-20260828-run02] C C_nq1 trial3: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:48.250355+00:00 [m4-20260828-run02] C C_nq1 trial4: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:48.533843+00:00 [m4-20260828-run02] C C_nq1 trial5: status=OK ok=1/1 timed_out=False
+- 2026-08-28T07:53:49.046685+00:00 [m4-20260828-run02] C C_nq2 trial0: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:49.548758+00:00 [m4-20260828-run02] C C_nq2 trial1: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:50.049550+00:00 [m4-20260828-run02] C C_nq2 trial2: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:50.556691+00:00 [m4-20260828-run02] C C_nq2 trial3: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:51.074601+00:00 [m4-20260828-run02] C C_nq2 trial4: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:51.586175+00:00 [m4-20260828-run02] C C_nq2 trial5: status=OK ok=2/2 timed_out=False
+- 2026-08-28T07:53:52.525945+00:00 [m4-20260828-run02] C C_nq4 trial0: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:53.464452+00:00 [m4-20260828-run02] C C_nq4 trial1: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:54.413384+00:00 [m4-20260828-run02] C C_nq4 trial2: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:55.346447+00:00 [m4-20260828-run02] C C_nq4 trial3: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:56.270529+00:00 [m4-20260828-run02] C C_nq4 trial4: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:57.202509+00:00 [m4-20260828-run02] C C_nq4 trial5: status=OK ok=4/4 timed_out=False
+- 2026-08-28T07:53:58.996369+00:00 [m4-20260828-run02] C C_nq8 trial0: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:00.751410+00:00 [m4-20260828-run02] C C_nq8 trial1: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:02.467921+00:00 [m4-20260828-run02] C C_nq8 trial2: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:04.235760+00:00 [m4-20260828-run02] C C_nq8 trial3: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:05.987481+00:00 [m4-20260828-run02] C C_nq8 trial4: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:07.777102+00:00 [m4-20260828-run02] C C_nq8 trial5: status=OK ok=8/8 timed_out=False
+- 2026-08-28T07:54:11.283215+00:00 [m4-20260828-run02] C C_nq16 trial0: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:14.777968+00:00 [m4-20260828-run02] C C_nq16 trial1: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:18.194354+00:00 [m4-20260828-run02] C C_nq16 trial2: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:21.594549+00:00 [m4-20260828-run02] C C_nq16 trial3: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:25.268530+00:00 [m4-20260828-run02] C C_nq16 trial4: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:28.926759+00:00 [m4-20260828-run02] C C_nq16 trial5: status=OK ok=16/16 timed_out=False
+- 2026-08-28T07:54:35.506179+00:00 [m4-20260828-run02] C C_nq32 trial0: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:54:42.266680+00:00 [m4-20260828-run02] C C_nq32 trial1: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:54:47.971964+00:00 [m4-20260828-run02] C C_nq32 trial2: status=DEGRADED ok=32/32 timed_out=False
+- 2026-08-28T07:54:50.264072+00:00 [m4-20260828-run02] C C_nq32 trial3: status=DEGRADED ok=32/32 timed_out=False
+- 2026-08-28T07:54:57.294607+00:00 [m4-20260828-run02] C C_nq32 trial4: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:55:04.278026+00:00 [m4-20260828-run02] C C_nq32 trial5: status=OK ok=32/32 timed_out=False
+- 2026-08-28T07:55:04.280000+00:00 [m4-20260828-run02] run m4-20260828-run02 finished; aborted=False
