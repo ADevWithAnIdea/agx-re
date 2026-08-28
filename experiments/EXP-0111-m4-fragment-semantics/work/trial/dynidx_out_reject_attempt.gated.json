@@ -1,0 +1,15 @@
+{
+  "case_id": "dynidx_out_reject_attempt",
+  "group": "dynidx_out",
+  "kind": "compile_attempt",
+  "params": {
+    "fragment": "f_main",
+    "kernel": "dynidx_out_reject",
+    "vertex": "v_main"
+  },
+  "result": {
+    "compiled": false,
+    "error_text": "shdump: device = Apple M4\nshdump: compile failed: program_source:17:10: error: invalid return type 'FOut' for fragment function\nfragment FOut f_main(constant uint &idx [[buffer(0)]]) {\n         ^\nprogram_source:11:15: note: field of illegal type 'float4[2]' declared here\nstruct FOut { float4 colors[2]; };\n              ^\n\n"
+  },
+  "status": "REJECTED"
+}
