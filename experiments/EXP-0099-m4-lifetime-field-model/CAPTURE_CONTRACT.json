@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0099-m4-lifetime-field-model",
+  "target": "local Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82)",
+  "boundary": "public Metal API only; runtime MSL compile of our own carrier kernel; binary-archive splice of our own hand-assembled AGX programs (tools/agx-isa isadb.assemble()); owned shared buffers; every case a fresh process; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/assembled bytes",
+  "hypothesis_origin": "apple9_isa_explainer.md (external compiler engineer's public-to-us document, treated as a third-party hypothesis source per CLAUDE.md, PUBLIC clean-room category) -- tested here, never ported: every byte executed is assembled from our own field values via tools/agx-isa isadb.assemble()",
+  "pinned_revision": "dc61f8c1f99fa72d5a2094fbbcc31269ba4ca89e",
+  "runs": ["m4-20260828-run01", "m4-20260828-run02"],
+  "capture": {
+    "pre_capture_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --preflight"],
+    "pre_second_run_gate": ["python3 -B verify.py --selftest", "python3 -B verify.py --seqtest", "python3 -B verify.py --between-runs"],
+    "post_capture_gate": ["python3 -B verify.py --captured"],
+    "n_cases": 35,
+    "smoke_case_index": 0,
+    "case_timeout_seconds": 45,
+    "single_threaded": true,
+    "one_process_per_case": true,
+    "run_id_reuse_forbidden": true
+  },
+  "raw_schema": {
+    "00_env.json": "environment/provenance receipt (informational git_revision NEVER gated on -- pinned_revision above + authored_*_sha256 are what matters)",
+    "01_results.jsonl": "GATED, byte-compared-across-runs: one JSON object per case with keys i,name,group,oracle,expect_match,notes,status,pipeline_source,out_hex,observed,match -- no nondeterministic field",
+    "01_timing.jsonl": "NON-GATED sibling: one JSON object per case with keys i,duration_ms,argv,stdout,stderr -- explicitly NOT required to match across runs",
+    "02_dispatch.json": "run summary: n_cases, status_counts, match_counts, results_sha256, code hashes",
+    "STOP.json": "written on any pre-capture or capture-time stop; raw/ left absent if pre-capture"
+  },
+  "groups_captured": ["SEED_CHECK", "SRCA_PAIR", "SRCB_PAIR", "ROUTE_LOAD", "ROUTE_ALU", "H4_BIT21", "GPR_MOVE_RETRY"],
+  "hypothesis_to_group_map": {
+    "H1": "SRCA_PAIR/SRCB_PAIR word0 (the CURRENT-read oracle)",
+    "H2": "SRCA_PAIR/SRCB_PAIR word4 (the LATER-read oracle, crossed against the register-field top bit)",
+    "H3": "answered by reasoning from H1's own result, not a separate group -- see PRE_REGISTRATION.md section 5",
+    "H4": "ROUTE_LOAD, ROUTE_ALU, H4_BIT21 (incl. h4_store_bridge_regstore)",
+    "H5": "GPR_MOVE_RETRY",
+    "H6": "answered via db.json structural analysis, not a hardware group -- see PRE_REGISTRATION.md section 5"
+  },
+  "confirm_vs_refute": {
+    "H1": "CONFIRMS current db.json 7-bit-index model if srcA_reg/srcB_reg field value 67 reads 0.0; CONFIRMS explainer's 6-bit-address model if it reads 30.0 (V_LOW); REFUTES BOTH if neither.",
+    "H2": "CONFIRMS the complementary-pair model if the later reader's result depends jointly on (bit15,bit19)/(bit31,bit20); REFUTES it (single-bit model stands) if the later reader depends on bit19/bit20 alone, identically across both register-field top-bit values.",
+    "H4": "CONFIRMS the route hypothesis if exactly one of the 8 ROUTE_LOAD cases reads V_LOAD correctly while ROUTE_ALU controls all match; REFUTES it if all 8 ROUTE_LOAD cases mismatch identically while ROUTE_ALU controls all match (blocker persists, route is not the fix).",
+    "H5": "CONFIRMS a candidate fix if that specific GPR_MOVE_RETRY variant matches its oracle while move_baseline_fail_replicate does not; REFUTES all three candidates if all four (incl. baseline) mismatch identically."
+  },
+  "oracle_source": "casematrix.py build_cases() -- pure Python, computed independently of any GPU run, using isadb.imm_encode/imm_decode for the minifloat immediate domain (H.imm_value(), a fixed point of that codec) and the EXP-0090 HW-validated device_load/device_store address formulas",
+  "clean_room": "OWN-SHADER + HW-PROBE + PUBLIC. Every byte executed is either our own hand-assembled instruction sequence (tools/agx-isa isadb.assemble()) or the compiled form of our own carrier MSL (tools/shdump). apple9_isa_explainer.md is cited as the hypothesis origin (PUBLIC) and never ported verbatim -- no GLSL source from that document appears anywhere in this experiment's kernels/ or code. No Apple binary introspected."
+}
