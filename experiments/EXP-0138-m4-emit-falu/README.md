@@ -49,6 +49,15 @@ python3 harness/run.py --run m4_20260828_run02                # gated run 2
 python3 analysis/verdicts.py raw/m4_20260828_run01 raw/m4_20260828_run02
 ```
 
+> **Superseded by what actually ran.** `run02` and `run03` were killed by a
+> machine-wide `MTLCompilerService` collapse, `run04` by a host reboot, and
+> `run07` by a GPU hang while two sibling experiments held live
+> `agxrun_persist` children; all are retained as partials. The gated pair
+> analysed is `run01` + `run06`, with `run05` as a third annotating run. The
+> exact reproduction commands are in `RESULTS.md` section 0, and every deviation
+> from the frozen contract is disclosed in `RESULTS.md` section 10 and in
+> `CAPTURE_CONTRACT.json` -> `amendments`.
+
 ## Clean-room statement
 
 ```

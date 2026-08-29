@@ -56,3 +56,88 @@ every gated claim is re-derived in `raw/`.
 
 Zero GPU hangs, zero host wedges across the whole pilot (~250 dispatches).
 Throughput measured at ~1.1 ms/case on the persistent runner.
+
+## 2026-08-28 16:40-17:05 — Milestone 2: the gated runs (resumed after a host sleep + a reboot)
+
+**Re-orientation (from `raw/`, not from memory).** On resume the tree held
+`run01` COMPLETE (16,202 cases, 0 cascades, elapsed 693 s), `run02` partial
+(253) and `run03` partial (188) — both killed by a machine-wide
+`MTLCompilerService` collapse ("Reentrancy avoided"), `run04` EMPTY (0 records,
+killed by the host reboot at ~16:27), and `smoke01` (98, non-gated). No
+verdicts file existed. All four partials are RETAINED AS-IS; none was topped
+up or reused.
+
+**Contract integrity check before running anything** (`analysis` of
+`CAPTURE_CONTRACT.json` vs disk):
+* `harness/families.py`, `harness/isa_helpers.py`, `harness/build.sh`, all
+  three `kernels/*.metal`, `PRE_REGISTRATION.md`, and every read-only tool
+  except `db.json` still hash EXACTLY as frozen.
+* **`harness/bench.py` and `harness/run.py` differ from the frozen hashes.**
+  The delta is commit `93822c0c` -> `97162755` and is confined to (a) retrying
+  `shdump`/`agxrun_persist` startup through a transient machine-wide
+  `MTLCompilerService` outage and (b) one extra counter in a `print`. It does
+  not touch case generation, splicing, poisoning, majority-of-3, victim
+  classification, the sentinel, or outcome classification — it is
+  measurement-neutral. DISCLOSED here and in `RESULTS.md`; the frozen
+  `authored_sha256` block is left untouched and an append-only `amendments`
+  entry records the new hashes.
+* **`tools/agx-isa/db.json` differs** (sibling EXP-0144 landed at `ef86175e`).
+  Diffed instruction-by-instruction against the frozen `04fc5f7d` copy: the
+  ONLY changed instructions are `pack_convert` / `unpack_convert`. No
+  float-ALU instruction changed. Proven empirically as well: regenerating the
+  whole 16,202-case matrix under the CURRENT `db.json` reproduces run01's
+  recorded `bytes`/`instr`/`field`/`value` for **all 16,202 cases, 0
+  mismatches**. The drift is provably irrelevant to this experiment.
+
+**`smoke02`** (8 cases, non-gated, new id): end-to-end health check of the
+whole path after the reboot. 8/8 `ok`.
+
+**`m4_20260828_run05`** — full matrix, isolated host. Reached case 13,564 in
+~90 s (vs 693 s for run01 against ~9 concurrent GPU siblings) with **0
+victims** and 15 faults, then entered the `fspecial.src` arm and began HANGING:
+values 192, 193, 194 each burned 5 attempts x 12 s watchdog. Per
+FIELD-SWEEP-PROTOCOL section 8 ("after two genuine hangs in one area, STOP that
+arm") the run was KILLED at 13,564 records and is retained as a partial.
+
+**`m4_20260828_run06`** — every group EXCEPT `GB_fspecial`, 14,119 cases,
+73 s, **0 victims, 0 hangs, 0 cascades, 0 compiler outages**, 15 faults.
+COMPLETE.
+
+**`m4_20260828_run07`** — same 19 groups, launched as the second isolated
+gated run so the frozen promotion rule's "identical in both gated runs" clause
+is satisfied by two runs captured on a QUIET host.
+
+## 2026-08-28 17:05-17:25 — Milestone 3: run07 abandoned, verdicts produced
+
+**`m4_20260828_run07` KILLED at 280 records and retained as a partial.** It
+stalled in the `falu2_uni.ctrl_lo` sweep with repeated HANGs (3 x 12 s watchdog
+per case) after `ps` showed **two sibling experiments holding live
+`agxrun_persist` children** (EXP-0143 `c_simd.metal`, EXP-0151
+`carrier_seed.metal`). Its records are contaminated and it is NOT used as a
+gated run.
+
+**Gated pair analysed: `run01` + `run06`** (`run06` replaces the contract's dead
+`run02`), with `run05` carried as a third annotating run.
+
+**Result: 65 of 98 previously-blocked float-ALU fields reached emitter grade**
+(59 `hardware-run` + 6 `isolated-byte-diff`); 21 stayed `untested`; 12 were
+never swept (`fspecial`'s 11 after the arm was stopped for hangs, plus
+`half_alu_fma12.ext` which is `emit_unsafe` by design).
+**Four instructions become emittable: `copysign`, `falu2`, `half_alu`,
+`half_alu_ext8`.**
+
+**Priority 1 LANDED. `falu2.mod_lo` = `hardware-run`**, dense over all 8 values,
+with an IDENTICAL per-case outcome map in all three runs (98/98 in each of
+run01, run05, run06). H-MODLO was refuted in both halves and replaced by an
+operand-source-class model that then scores **294/294 exact** across the three
+runs (`analysis/model_check.py`). The replacement exposed an inline 8-bit
+**minifloat immediate** operand on `falu2` (`srcB_reg` 64..127 when `mod_lo`
+bits[2:1]==1), which is the largest single find of the experiment.
+
+Deliverables written: `analysis/field_verdicts.json` (97 field verdicts +
+`db_defects` + per-field `cross_run` and `label_isolated_pair` disclosure),
+`analysis/annotate.py`, `analysis/model_check.py`, `RESULTS.md`, and the
+append-only `amendments` block in `CAPTURE_CONTRACT.json`.
+
+Nothing was committed. `db.json`, `validation.json`, `docs/` and `PROVENANCE.md`
+were not touched.

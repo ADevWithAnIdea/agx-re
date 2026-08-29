@@ -1,0 +1,1838 @@
+{
+ "_meta": {
+  "experiment": "EXP-0138",
+  "target": "Apple M4 (G16G), local host only",
+  "runs": [
+   "raw/m4_20260828_run01",
+   "raw/m4_20260828_run06"
+  ],
+  "n_field_sweeps": 97,
+  "label_counts": {
+   "hardware-run": 67,
+   "untested": 22,
+   "isolated-byte-diff": 8
+  },
+  "would_become_emittable": [
+   "copysign",
+   "falu2",
+   "half_alu",
+   "half_alu_ext8"
+  ],
+  "still_blocked": {
+   "falu2_ext": [
+    "ctrl(untested)"
+   ],
+   "falu2_srcmod10": [
+    "opsel(untested)",
+    "ctrl(untested)"
+   ],
+   "falu2_uni": [
+    "opsel(untested)",
+    "opflags(untested)",
+    "ctrl_lo(untested)"
+   ],
+   "falu2i": [
+    "ctrl_lo(untested)"
+   ],
+   "falu3": [
+    "op(untested)",
+    "srcA(untested)",
+    "srcC(untested)"
+   ],
+   "falu3_ext": [
+    "op(untested)",
+    "srcA(untested)",
+    "srcC(untested)"
+   ],
+   "falu3_srcmod12": [
+    "opsel(untested)",
+    "ctrl(untested)"
+   ],
+   "falu_acc": [
+    "srcA(untested)",
+    "srcB(untested)"
+   ],
+   "falu_srcmod12b": [
+    "ctrl(untested)",
+    "ext_srcmod(untested)"
+   ],
+   "fspecial_est": [
+    "dst(untested)",
+    "b4(untested)",
+    "b5(untested)"
+   ],
+   "half_alu_fma12": [
+    "ext(tokenization-only)"
+   ]
+  }
+ },
+ "copysign.operands": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@-5.0: 256 values (0..255)",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 256
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2.mod_lo": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.0: 30 values (1..7); ok@5.0: 25 values (2..6); silent_zero@0.0: 1,3,4,5,5,6,7,7; ok@11.0: 1,2,4,6; wrong_value@5.0: 2,4,6; ok@106.0: 2,2; ok@8.0: 0; ok@3.0: 1",
+  "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 98,
+  "outcomes": {
+   "ok": 76,
+   "wrong_value": 14,
+   "silent_zero": 8
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 28
+ },
+ "falu2_ext.ctrl": {
+  "label": "untested",
+  "range": "123 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "undecodable@-6.259853398707798e+18: 57 values (4..127); fault@None: 34 values (0..124); wrong_value@11.0: 24 values (33..125); ok@8.0: 1,5,9,13,17,21,25,29",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 123,
+  "outcomes": {
+   "fault": 34,
+   "ok": 8,
+   "undecodable": 57,
+   "wrong_value": 24
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 14 values (0..14); sentinel_by_design@8.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2_ext.ext_tail": {
+  "label": "isolated-byte-diff",
+  "range": "each of the 2 constituent bytes swept 0..255 dense; the 16-bit field's full space is NOT claimed",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@1.0: 128 values (512..65280); ok@8.0: 96 values (0..64512); wrong_value@3.0: 64 values (32896..32959); wrong_value@11.016113: 64 values (32960..33023); wrong_value@5.0: 64 values (256..64768); wrong_value@-2.0: 32 values (32770..32831); wrong_value@11.017578: 32 values (32832..32893); wrong_value@11.046875: 32 values (32834..32895)",
+  "note": "sweep not dense over the encodable range",
+  "n_cases": 512,
+  "outcomes": {
+   "ok": 96,
+   "wrong_value": 416
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 8
+ },
+ "falu2_ext.mod_hi": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0,2,4,6,8,10,12,14; wrong_value@11.0: 1,3,5,7,9,11,13,15",
+  "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 8
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.mod_lo": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 2,4,6; ok@0.0: 3,5,7; ok@8.0: 0; ok@3.0: 1",
+  "note": "",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 8
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu2_ext.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 24 values (8..31); ok@8.0: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 24
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.opsel": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@15.0: 1,2,3,7; ok@8.0: 0,4; ok@15.0: 5; wrong_value@15.0: 6",
+  "note": "",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 3,
+   "exploratory": 4,
+   "wrong_value": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.srcA_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@3.0: 17 values (13..127); ok@8.0: 0,64; ok@6.0: 2,66; ok@3.5: 3,67; ok@4.5: 1; ok@10.0: 4; ok@12.0: 5; ok@14.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu2_ext.srcA_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@3.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.srcB_imm": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; wrong_value@3.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.srcB_neg": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; ok@2.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_ext.srcB_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 17 values (13..127); ok@10.0: 0,64; ok@8.0: 2,66; ok@5.5: 3,67; ok@6.5: 1; ok@12.0: 4; ok@14.0: 5; ok@16.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu2_ext.srcB_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@5.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.ctrl": {
+  "label": "untested",
+  "range": "122 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 80 values (3..127); ok@8.0: 16 values (0..30); undecodable@-6.259853398707798e+18: 16 values (1..125); fault@None: 17,29,33,37,69,85,89,93,101,113",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 6 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 122,
+  "outcomes": {
+   "ok": 16,
+   "undecodable": 16,
+   "wrong_value": 80,
+   "fault": 10
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 14 values (0..14); sentinel_by_design@8.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2_srcmod10.ext_srcmod": {
+  "label": "isolated-byte-diff",
+  "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 608 values (0..4278222848); wrong_value@1.0: 128 values (512..65280); wrong_value@3.0: 64 values (32896..32959); wrong_value@11.016113: 64 values (32960..33023); wrong_value@5.0: 64 values (256..64768); wrong_value@-2.0: 32 values (32770..32831); wrong_value@11.017578: 32 values (32832..32893); wrong_value@11.046875: 32 values (32834..32895)",
+  "note": "sweep not dense over the encodable range",
+  "n_cases": 1024,
+  "outcomes": {
+   "ok": 608,
+   "wrong_value": 416
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 8
+ },
+ "falu2_srcmod10.mod_hi": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0,2,4,6,8,10,12,14; wrong_value@11.0: 1,3,5,7,9,11,13,15",
+  "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 8
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.mod_lo": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 2,4,6; ok@0.0: 3,5,7; ok@8.0: 0; ok@3.0: 1",
+  "note": "",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 8
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu2_srcmod10.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 24 values (8..31); ok@8.0: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 24
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.opsel": {
+  "label": "untested",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0,4; fault@None: 1,7; invalid_run@-6.259853398707798e+18: 3,5; exploratory@15.0: 2; wrong_value@15.0: 6",
+  "note": "NOT deterministic across the two gated runs; 2 cases failed the integrity sentinel without a structural explanation; 1/2 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 2,
+   "fault": 2,
+   "exploratory": 1,
+   "invalid_run": 2,
+   "wrong_value": 1
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.srcA_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@3.0: 17 values (13..127); ok@8.0: 0,64; ok@6.0: 2,66; ok@3.5: 3,67; ok@4.5: 1; ok@10.0: 4; ok@12.0: 5; ok@14.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu2_srcmod10.srcA_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@3.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.srcB_imm": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; wrong_value@3.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.srcB_neg": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; ok@2.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_srcmod10.srcB_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 17 values (13..127); ok@10.0: 0,64; ok@8.0: 2,66; ok@5.5: 3,67; ok@6.5: 1; ok@12.0: 4; ok@14.0: 5; ok@16.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu2_srcmod10.srcB_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@5.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_uni.ctrl_lo": {
+  "label": "untested",
+  "range": "127 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 54 values (3..127); undecodable@-6.259853398707798e+18: 42 values (2..126); fault@None: 22 values (1..114); wrong_value@1.5e-05: 0,4,16,20; silent_zero@0.0: 8,12,24,28; invalid_run@-6.259853398707798e+18: 120",
+  "note": "NOT deterministic across the two gated runs; 1 cases failed the integrity sentinel without a structural explanation; sweep not dense over the encodable range; 1 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 127,
+  "outcomes": {
+   "wrong_value": 58,
+   "fault": 22,
+   "undecodable": 42,
+   "silent_zero": 4,
+   "invalid_run": 1
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu2_uni.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@1.5e-05: 14 values (0..14); sentinel_by_design@1.5e-05: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "16/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "wrong_value": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2_uni.mods": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 128 values (16..255); wrong_value@1.5e-05: 64 values (0..238); silent_zero@0.0: 64 values (1..239)",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 192,
+   "silent_zero": 64
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu2_uni.opflags": {
+  "label": "untested",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 24 values (8..31); wrong_value@1.5e-05: 0,2,4,6; silent_zero@0.0: 1,3,5,7",
+  "note": "NOT deterministic across the two gated runs",
+  "n_cases": 32,
+  "outcomes": {
+   "wrong_value": 28,
+   "silent_zero": 4
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu2_uni.opsel": {
+  "label": "untested",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "fault@None: 0,2; invalid_run@-6.259853398707798e+18: 3,7; silent_zero@0.0: 5,6; undecodable@-6.259853398707798e+18: 1; wrong_value@1.5e-05: 4",
+  "note": "NOT deterministic across the two gated runs; 2 cases failed the integrity sentinel without a structural explanation",
+  "n_cases": 8,
+  "outcomes": {
+   "fault": 2,
+   "undecodable": 1,
+   "invalid_run": 2,
+   "wrong_value": 1,
+   "silent_zero": 2
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu2_uni.srcA_reg": {
+  "label": "isolated-byte-diff",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@1.5e-05: 17 values (13..127); wrong_value@5.000015: 0,64; wrong_value@3.000015: 2,66; wrong_value@0.500015: 3,67; wrong_value@1.500015: 1; wrong_value@7.000015: 4; wrong_value@9.000015: 5; wrong_value@11.000015: 6",
+  "note": "31/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 14 distinct non-zero results), so an emitter may not generalise",
+  "n_cases": 33,
+  "outcomes": {
+   "wrong_value": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu2_uni.srcA_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@1.5e-05: 0,1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "wrong_value": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2_uni.usrc": {
+  "label": "isolated-byte-diff",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.0: 23 values (1..127); wrong_value@1.5e-05: 2,6,8,10; silent_zero@0.0: 7,9; wrong_value@-5.0: 0; wrong_value@-6.0: 4; wrong_value@101.0: 13; wrong_value@202.0: 15",
+  "note": "10/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 5 distinct non-zero results), so an emitter may not generalise",
+  "n_cases": 33,
+  "outcomes": {
+   "wrong_value": 8,
+   "ok": 23,
+   "silent_zero": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 6
+ },
+ "falu2i.ctrl_lo": {
+  "label": "untested",
+  "range": "124 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 56 values (3..127); undecodable@-6.259853398707798e+18: 41 values (1..125); fault@None: 19 values (9..117); ok@8.0: 0,4,16,20; wrong_value@8.125: 8,12,24,28",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 28/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 4 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 124,
+  "outcomes": {
+   "ok": 4,
+   "undecodable": 41,
+   "wrong_value": 60,
+   "fault": 19
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu2i.imm_flag": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@8.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu2i.mods": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 128 values (16..255); wrong_value@3.0: 96 values (2..239); ok@8.0: 16 values (0..225); wrong_value@-2.0: 16 values (8..233)",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3.ctrl": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 192 values (32..255); wrong_value@15.0: 16 values (0..29); ok@22.0: 16 values (2..31); silent_zero@0.0: 16 values (128..157); wrong_value@7.0: 16 values (130..159)",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 224,
+   "ok": 16,
+   "silent_zero": 16
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 5
+ },
+ "falu3.dst": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 204 values (26..255); wrong_value@7.0: 26 values (0..152); ok@22.0: 1,129; ok@11.5: 3,131; ok@16.0: 5,133; ok@8.5: 7,135; ok@28.0: 9,137; ok@34.0: 11,139",
+  "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3.dst_lo": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@22.0: 14 values (0..14); sentinel_by_design@22.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu3.op": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 144 values (64..254); invalid_run@-6.259853398707798e+18: 64 values (5..255); wrong_value@26.0: 16 values (0..58); wrong_value@58.0: 16 values (1..59); ok@22.0: 16 values (4..62)",
+  "note": "64 cases failed the integrity sentinel without a structural explanation",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 176,
+   "ok": 16,
+   "invalid_run": 64
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3.srcA": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 204 values (26..255); wrong_value@7.0: 26 values (0..152); ok@32.0: 1,129; ok@14.5: 3,131; ok@22.0: 5,133; ok@9.5: 7,135; ok@42.0: 9,137; ok@52.0: 11,139",
+  "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "invalid_run": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3.srcB": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "undecodable@-6.259853398707798e+18: 192 values (0..255); wrong_value@15.0: 52 values (5..253); ok@22.0: 1,9,129,137; wrong_value@8.0: 17,25,145,153; wrong_value@16.0: 33,41; wrong_value@14.0: 49,57",
+  "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "undecodable": 192,
+   "ok": 4,
+   "wrong_value": 60
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 5
+ },
+ "falu3.srcC": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@15.0: 204 values (26..255); ok@20.0: 0,1,128,129; ok@16.5: 2,3,130,131; ok@18.0: 4,5,132,133; ok@15.5: 6,7,134,135; ok@22.0: 8,9,136,137; ok@24.0: 10,11,138,139; ok@26.0: 12,13,140,141",
+  "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 252,
+   "invalid_run": 4
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3.srcmods": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 128 values (16..255); wrong_value@7.0: 112 values (1..239); ok@22.0: 0,32,64,96,128,160,192,224; ok@-8.0: 8,40,72,104,136,168,200,232",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3_ext.dst": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 204 values (26..255); wrong_value@7.0: 26 values (0..152); ok@22.0: 1,129; ok@11.5: 3,131; ok@16.0: 5,133; ok@8.5: 7,135; ok@28.0: 9,137; ok@34.0: 11,139",
+  "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3_ext.dst_lo": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@22.0: 14 values (0..14); sentinel_by_design@22.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu3_ext.ext": {
+  "label": "isolated-byte-diff",
+  "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 320 values (2147483680..2147548930); wrong_value@7.0: 256 values (16777218..4244635650); ok@1.0: 128 values (33554434..4278190082); ok@22.0: 120 values (2..4227858434); wrong_value@11.017334: 64 values (2160066562..2164195330); wrong_value@-8.0: 40 values (2147485698..2151612418); wrong_value@11.018921: 32 values (2151677954..2155675650); wrong_value@11.048828: 32 values (2151809026..2155806722)",
+  "note": "sweep not dense over the encodable range",
+  "n_cases": 1024,
+  "outcomes": {
+   "wrong_value": 760,
+   "ok": 248,
+   "silent_zero": 16
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 10
+ },
+ "falu3_ext.op": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 144 values (64..254); invalid_run@-6.259853398707798e+18: 64 values (5..255); wrong_value@26.0: 16 values (0..58); wrong_value@58.0: 16 values (1..59); ok@22.0: 16 values (4..62)",
+  "note": "64 cases failed the integrity sentinel without a structural explanation",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 176,
+   "ok": 16,
+   "invalid_run": 64
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3_ext.srcA": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 204 values (26..255); wrong_value@7.0: 26 values (0..152); ok@32.0: 1,129; ok@14.5: 3,131; ok@22.0: 5,133; ok@9.5: 7,135; ok@42.0: 9,137; ok@52.0: 11,139",
+  "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "invalid_run": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3_ext.srcB": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "undecodable@-6.259853398707798e+18: 192 values (0..255); wrong_value@15.0: 52 values (6..254); ok@22.0: 2,10,130,138; wrong_value@8.0: 18,26,146,154; wrong_value@16.0: 34,42; wrong_value@14.0: 50,58",
+  "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "undecodable": 192,
+   "ok": 4,
+   "wrong_value": 60
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 5
+ },
+ "falu3_ext.srcC": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@15.0: 204 values (26..255); ok@20.0: 0,1,128,129; ok@16.5: 2,3,130,131; ok@18.0: 4,5,132,133; ok@15.5: 6,7,134,135; ok@22.0: 8,9,136,137; ok@24.0: 10,11,138,139; ok@26.0: 12,13,140,141",
+  "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 252,
+   "invalid_run": 4
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3_srcmod12.ctrl": {
+  "label": "untested",
+  "range": "123 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@15.0: 56 values (5..127); wrong_value@7.0: 24 values (32..124); undecodable@-6.259853398707798e+18: 17 values (2..126); ok@22.0: 12 values (0..28); fault@None: 10,26,42,62,74,78,86,98,106,118; wrong_value@8.0: 17,19,25,27",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 30/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 123,
+  "outcomes": {
+   "ok": 12,
+   "undecodable": 17,
+   "wrong_value": 84,
+   "fault": 10
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3_srcmod12.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@22.0: 14 values (0..14); sentinel_by_design@22.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu3_srcmod12.ext_srcmod": {
+  "label": "isolated-byte-diff",
+  "range": "each of the 6 constituent bytes swept 0..255 dense; the 48-bit field's full space is NOT claimed",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@22.0: 632 values (2..280377612566530); wrong_value@11.0: 320 values (2147483680..2147548930); wrong_value@7.0: 256 values (16777218..4244635650); wrong_value@1.0: 128 values (33554434..4278190082); wrong_value@11.017334: 64 values (2160066562..2164195330); wrong_value@-8.0: 40 values (2147485698..2151612418); wrong_value@11.018921: 32 values (2151677954..2155675650); wrong_value@11.048828: 32 values (2151809026..2155806722)",
+  "note": "sweep not dense over the encodable range",
+  "n_cases": 1536,
+  "outcomes": {
+   "wrong_value": 888,
+   "ok": 632,
+   "silent_zero": 16
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 10
+ },
+ "falu3_srcmod12.mod_hi": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@15.0: 12 values (2..15); ok@22.0: 0,8; wrong_value@45.0: 1,9",
+  "note": "14/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu3_srcmod12.mod_lo": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@24.0: 2,3; wrong_value@26.0: 4,5; wrong_value@28.0: 6,7; ok@22.0: 0; wrong_value@22.0: 1",
+  "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 7
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu3_srcmod12.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 24 values (8..31); ok@22.0: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 24
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu3_srcmod12.opsel": {
+  "label": "untested",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@58.0: 1,3; fault@None: 5,7; wrong_value@26.0: 0; exploratory@26.0: 2; wrong_value@22.0: 4; ok@22.0: 6",
+  "note": "NOT deterministic across the two gated runs",
+  "n_cases": 8,
+  "outcomes": {
+   "wrong_value": 2,
+   "exploratory": 3,
+   "fault": 2,
+   "ok": 1
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 3
+ },
+ "falu3_srcmod12.srcA_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 17 values (13..127); ok@22.0: 0,64; ok@16.0: 2,66; ok@8.5: 3,67; ok@11.5: 1; ok@28.0: 4; ok@34.0: 5; ok@40.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3_srcmod12.srcA_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@7.0: 0; ok@22.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu3_srcmod12.srcB_imm": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@22.0: 0,1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu3_srcmod12.srcB_neg": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@20.0: 0; ok@22.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu3_srcmod12.srcB_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@7.0: 17 values (13..127); ok@32.0: 0,64; ok@22.0: 2,66; ok@9.5: 3,67; ok@14.5: 1; ok@42.0: 4; ok@52.0: 5; ok@62.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu3_srcmod12.srcB_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@7.0: 0; ok@22.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_acc.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 14 values (0..14); sentinel_by_design@8.0: 11; sentinel_by_design@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "sentinel_by_design": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_acc.op": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; ok@15.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_acc.srcA": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@3.0: 204 values (26..255); wrong_value@3.0: 26 values (0..152); ok@8.0: 1,129; ok@4.5: 3,131; ok@6.0: 5,133; ok@3.5: 7,135; ok@10.0: 9,137; ok@12.0: 11,139",
+  "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "invalid_run": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu_acc.srcB": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 204 values (26..255); wrong_value@5.0: 26 values (0..152); ok@10.0: 1,129; ok@6.5: 3,131; ok@8.0: 5,133; ok@5.5: 7,135; ok@12.0: 9,137; ok@14.0: 11,139",
+  "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 26,
+   "ok": 228,
+   "invalid_run": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu_srcmod12b.ctrl": {
+  "label": "untested",
+  "range": "123 of 128 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 54 values (0..127); undecodable@-6.259853398707798e+18: 41 values (10..125); fault@None: 25 values (2..118); silent_zero@0.0: 104,105,107",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 11/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 123,
+  "outcomes": {
+   "ok": 54,
+   "fault": 25,
+   "undecodable": 41,
+   "silent_zero": 3
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_srcmod12b.dst": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 14 values (0..14); undecodable@8.0: 11; undecodable@-6.259853398707798e+18: 15",
+  "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 14,
+   "undecodable": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_srcmod12b.ext_srcmod": {
+  "label": "untested",
+  "range": "each of the 6 constituent bytes swept 0..255 dense; the 48-bit field's full space is NOT claimed",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 1210 values (0..280375465115648); undecodable@-6.259853398707798e+18: 244 values (32775..1090921725952); fault@None: 65 values (32774..16154624); silent_zero@0.0: 6848512,6914048,7045120; undecodable@8.0: 12091392,12156928,12288000",
+  "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 11 case(s) dropped as InnocentVictim (machine evidence)",
+  "n_cases": 1525,
+  "outcomes": {
+   "ok": 1210,
+   "fault": 65,
+   "undecodable": 247,
+   "silent_zero": 3
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_srcmod12b.mod_hi": {
+  "label": "hardware-run",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0,2,4,6,8,10,12,14; wrong_value@8.0: 1,3,5,7,9,11,13,15",
+  "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 16,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 8
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_srcmod12b.mod_lo": {
+  "label": "hardware-run",
+  "range": "0..7 dense (all 8 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@8.0: 1,2,3,4,5,6,7; ok@8.0: 0",
+  "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 8,
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 7
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_srcmod12b.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@11.0: 24 values (8..31); ok@8.0: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 24
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_srcmod12b.opsel": {
+  "label": "isolated-byte-diff",
+  "range": "7 of 8 encodable values",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@15.0: 1,7; ok@8.0: 0; exploratory@26.0: 2; exploratory@58.0: 3; ok@15.0: 5; wrong_value@15.0: 6",
+  "note": "sweep not dense over the encodable range",
+  "n_cases": 7,
+  "outcomes": {
+   "ok": 2,
+   "exploratory": 4,
+   "wrong_value": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "falu_srcmod12b.srcA_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@3.0: 17 values (13..127); ok@8.0: 0,64; ok@6.0: 2,66; ok@3.5: 3,67; ok@4.5: 1; ok@10.0: 4; ok@12.0: 5; ok@14.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu_srcmod12b.srcA_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@3.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "falu_srcmod12b.srcB_imm": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0,1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_srcmod12b.srcB_neg": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@8.0: 0; wrong_value@8.0: 1",
+  "note": "1/2 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 1,
+   "wrong_value": 1
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "falu_srcmod12b.srcB_reg": {
+  "label": "hardware-run",
+  "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@5.0: 17 values (13..127); ok@10.0: 0,64; ok@8.0: 2,66; ok@5.5: 3,67; ok@6.5: 1; ok@12.0: 4; ok@14.0: 5; ok@16.0: 6",
+  "note": "",
+  "n_cases": 33,
+  "outcomes": {
+   "ok": 33
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 14
+ },
+ "falu_srcmod12b.srcB_size": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "exploratory@5.0: 0; ok@8.0: 1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "exploratory": 1,
+   "ok": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "fspecial_est.b4": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "undecodable@-6.259853398707798e+18: 191 values (1..255); ok@0.5: 64 values (0..252); fault@None: 46",
+  "note": "NOT deterministic across the two gated runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 64,
+   "undecodable": 191,
+   "fault": 1
+  },
+  "deterministic": false,
+  "live": false,
+  "distinct_results": 1
+ },
+ "fspecial_est.b5": {
+  "label": "untested",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@inf: 218 values (0..255); ok@0.5: 36 values (38..223); fault@None: 39,79",
+  "note": "NOT deterministic across the two gated runs",
+  "n_cases": 256,
+  "outcomes": {
+   "wrong_value": 218,
+   "ok": 36,
+   "fault": 2
+  },
+  "deterministic": false,
+  "live": true,
+  "distinct_results": 2
+ },
+ "fspecial_est.dst": {
+  "label": "untested",
+  "range": "0..15 dense (all 16 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.5: 14 values (1..15); wrong_value@2147483648.0: 0; invalid_run@-6.259853398707798e+18: 3",
+  "note": "1 cases failed the integrity sentinel without a structural explanation",
+  "n_cases": 16,
+  "outcomes": {
+   "wrong_value": 1,
+   "ok": 14,
+   "invalid_run": 1
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ },
+ "fspecial_est.srcA": {
+  "label": "isolated-byte-diff",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.5: 256 values (0..255)",
+  "note": "CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 1 distinct non-zero results), so an emitter may not generalise",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 256
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "fspecial_est.subop": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.5: 256 values (0..255)",
+  "note": "",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 256
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "half_alu.dst": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@3.0: 252 values (0..255); ok@6.0: 2; ok@8.0: 4; wrong_value@6.0: 130; wrong_value@8.0: 132",
+  "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 254,
+   "wrong_value": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "half_alu.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@3.0: 12 values (8..29); silent_zero@0.0: 12 values (10..31); ok@8.0: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 12,
+   "silent_zero": 12
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "half_alu_ext8.b7_lo": {
+  "label": "hardware-run",
+  "range": "0..1 dense (all 2 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.75: 0,1",
+  "note": "",
+  "n_cases": 2,
+  "outcomes": {
+   "ok": 2
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "half_alu_ext8.b7_mid": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.75: 32 values (0..31)",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 32
+  },
+  "deterministic": true,
+  "live": false,
+  "distinct_results": 1
+ },
+ "half_alu_ext8.dst": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.5: 252 values (0..255); ok@1.0: 2; ok@0.75: 4; wrong_value@1.0: 130; wrong_value@0.75: 132",
+  "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 254,
+   "wrong_value": 2
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "half_alu_ext8.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "wrong_value@0.5: 12 values (8..29); silent_zero@0.0: 12 values (10..31); ok@0.75: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "wrong_value": 12,
+   "silent_zero": 12
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 3
+ },
+ "half_alu_fma12.dst": {
+  "label": "hardware-run",
+  "range": "0..255 dense (all 256 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "ok@0.125: 250 values (0..255); ok@0.1875: 2; ok@0.25: 4; ok@0.375: 5; wrong_value@0.1875: 130; wrong_value@0.25: 132; wrong_value@0.375: 133",
+  "note": "3/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs",
+  "n_cases": 256,
+  "outcomes": {
+   "ok": 253,
+   "wrong_value": 3
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 4
+ },
+ "half_alu_fma12.opflags": {
+  "label": "hardware-run",
+  "range": "0..31 dense (all 32 values)",
+  "target": "M4",
+  "evidence": [
+   "EXP-0138"
+  ],
+  "semantics": "silent_zero@0.0: 24 values (8..31); ok@0.25: 0,1,2,3,4,5,6,7",
+  "note": "",
+  "n_cases": 32,
+  "outcomes": {
+   "ok": 8,
+   "silent_zero": 24
+  },
+  "deterministic": true,
+  "live": true,
+  "distinct_results": 2
+ }
+}

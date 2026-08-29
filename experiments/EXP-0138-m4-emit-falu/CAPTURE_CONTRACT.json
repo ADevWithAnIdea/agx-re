@@ -237,5 +237,41 @@
   "falu2_ext8b": "deleted from db.json by EXP-0148 -- was never an instruction",
   "falu_srcmod12b.opsel": "opsel==4 corrupts an unrelated register (EXP-0119); not swept",
   "half_alu_fma12.ext": "emit_unsafe: the length over-consumes the following leader, so a tail sweep would be sweeping the next instruction"
- }
+ },
+ "amendments": [
+  {
+   "date": "2026-08-28",
+   "what": "harness/bench.py and harness/run.py were modified AFTER this contract was frozen",
+   "diff": "commit 93822c0c -> 97162755, confined to (a) retrying shdump / agxrun_persist STARTUP through a transient machine-wide MTLCompilerService outage (\"Reentrancy avoided\") which had killed run02 and run03 outright, and (b) one extra counter in a print statement.",
+   "measurement_neutral": "it does not touch case generation, splicing, the poisoned buffer, majority-of-3, victim classification, the integrity sentinel, or outcome classification. The frozen authored_sha256 block above is left UNCHANGED; these are the post-amendment hashes.",
+   "post_amendment_sha256": {
+    "harness/bench.py": "4799674c1f55c65fcab6a036524fdabf5011ea33cecb4c71a26ffce12f3b2bdb",
+    "harness/run.py": "204a29e8ca5584be61ee211c7dc5235f22be454d051f82af0da0741708094fd9"
+   }
+  },
+  {
+   "date": "2026-08-28",
+   "what": "tools/agx-isa/db.json drifted from the frozen hash (sibling EXP-0144 landed at ef86175e)",
+   "verification": "diffed instruction-by-instruction against the frozen 04fc5f7d copy: the only changed instructions are pack_convert / unpack_convert; NO float-ALU instruction changed. Verified empirically as well -- regenerating the whole 16,202-case matrix under the CURRENT db.json reproduces run01's recorded bytes/instr/field/value for all 16,202 cases, 0 mismatches.",
+   "post_drift_sha256": {
+    "tools/agx-isa/db.json": "772efb9046452ade0f7640fed156b497c36a3e88f841382b2d0774f671887419"
+   }
+  },
+  {
+   "date": "2026-08-28",
+   "what": "gated_runs list superseded",
+   "detail": "run02 (253 cases) and run03 (188) were killed by a machine-wide MTLCompilerService collapse; run04 (0 records) by a host reboot; run07 (280) by a GPU hang while two sibling experiments held live agxrun_persist children. All four are RETAINED as partials and none was topped up or reused. The gated pair actually analysed is run01 (complete, 16,202) + run06 (complete over 19 of the 20 case groups, 14,119). run05 (13,564, isolated host, killed in the fspecial hang arm per FIELD-SWEEP-PROTOCOL section 8) is carried as a third, annotating run.",
+   "all_run_ids": [
+    "smoke01",
+    "smoke02",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03",
+    "m4_20260828_run04",
+    "m4_20260828_run05",
+    "m4_20260828_run06",
+    "m4_20260828_run07"
+   ]
+  }
+ ]
 }

@@ -16,35 +16,39 @@
   "total_instructions": 171,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 288,
-   "isolated-byte-diff": 90,
-   "corpus-correlation": 186,
-   "tokenization-only": 210,
-   "single-template-inference": 15,
+   "hardware-run": 349,
+   "isolated-byte-diff": 94,
+   "corpus-correlation": 182,
+   "tokenization-only": 203,
+   "single-template-inference": 13,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 247
+   "untested": 195
   },
   "by_label_pct": {
-   "hardware-run": 27.8,
-   "isolated-byte-diff": 8.7,
-   "corpus-correlation": 18.0,
-   "tokenization-only": 20.3,
-   "single-template-inference": 1.4,
+   "hardware-run": 33.7,
+   "isolated-byte-diff": 9.1,
+   "corpus-correlation": 17.6,
+   "tokenization-only": 19.6,
+   "single-template-inference": 1.3,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 23.8
+   "untested": 18.8
   },
-  "emittable_instructions": 34,
+  "emittable_instructions": 38,
   "emittable_mnemonics": [
+   "copysign",
    "cvt_f2h",
    "cvt_f2i",
    "cvt_i2f",
    "cvt_i2f_src",
    "device_load",
    "device_store",
+   "falu2",
    "frame_prologue",
    "get_sr",
+   "half_alu",
+   "half_alu_ext8",
    "ibitcount",
    "if_push",
    "iunary",
@@ -72,7 +76,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 137
+  "decodable_not_yet_emittable": 133
  },
  "instructions": {
   "falu2": {
@@ -182,11 +186,13 @@
     "note": "bit39=1 switches srcB to the minifloat immediate (falu2i) or, when bit15=0, to a uniform-register source (falu2_uni)."
    },
    "mod_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Instruction bits 40-42. Never exercised in isolation by any committed experiment."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "19/95 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB_neg": {
     "label": "isolated-byte-diff",
@@ -251,12 +257,13 @@
     ]
    },
    "imm_flag": {
-    "label": "single-template-inference",
-    "range": "1 only (every observed and every constructed encoding); 0 never tested",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0006"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "imm_mant": {
     "label": "hardware-run",
@@ -340,14 +347,13 @@
     "note": "Low 2 bits are the 0x09-group instruction-length selector (EXP-0119). The remaining 5 bits have no established semantics in this form."
    },
    "mods": {
-    "label": "isolated-byte-diff",
-    "range": "0x00 and 0xC0 only, of 256 encodable",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0101",
-     "EXP-0112"
+     "EXP-0138"
     ],
-    "note": "0xC0 (bits 6+7 together, neither alone) is REQUIRED when the modified operand is load-sourced; 0x00 makes the load operand read as a silent zero."
+    "note": ""
    },
    "srcA_reg_top": {
     "label": "hardware-run",
@@ -371,55 +377,67 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "16/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "usrc": {
-    "label": "single-template-inference",
-    "range": "index 0 only - sweeping the index surfaces only the single bound uniform, so no distinct second index was ever read",
-    "target": "A18",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+    "target": "M4",
     "evidence": [
-     "EXP-0020"
+     "EXP-0138"
     ],
-    "note": "7-bit index implies <=128 uniform registers; the actual count is NOT established. Uniform allocation is on-demand (Dynamic Caching)."
+    "note": "10/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 5 distinct non-zero results), so an emitter may not generalise"
    },
    "opsel": {
     "label": "untested",
-    "range": "none",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs; 2 cases failed the integrity sentinel without a structural explanation"
    },
    "opflags": {
     "label": "untested",
-    "range": "none",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs"
    },
    "srcA_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA_reg": {
-    "label": "untested",
-    "range": "none",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "31/31 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 14 distinct non-zero results), so an emitter may not generalise"
    },
    "ctrl_lo": {
     "label": "untested",
-    "range": "none",
+    "range": "127 of 128 encodable values",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs; 1 cases failed the integrity sentinel without a structural explanation; sweep not dense over the encodable range; 1 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
    },
    "uni_mode": {
     "label": "isolated-byte-diff",
@@ -431,11 +449,13 @@
     ]
    },
    "mods": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Field position inherited from the HW-validated falu2 layout; not independently exercised in the uniform-source form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    }
   },
   "falu3": {
@@ -450,59 +470,76 @@
     ]
    },
    "dst_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "op": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "64 cases failed the integrity sentinel without a structural explanation"
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcC": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ctrl": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
-    "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
-   },
-   "srcmods": {
-    "label": "corpus-correlation",
-    "range": "0xc0 default vs 0xc8 (negate the a*b product) - own-MSL byte-diff only",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
+     "EXP-0138"
     ],
-    "note": "Located by compile-only byte-diff; the remaining srcmods bits are unmapped."
+    "note": ""
+   },
+   "srcmods": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    }
   },
   "falu2_ext": {
@@ -516,55 +553,67 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcA_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "value {3,67} addressing cross-check (67 reads r3); full range NOT swept in this form",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": ""
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "all 5 bits individually at {0,1}: bit19 = release srcA (matches falu2 exactly), bits20/21 no later-read effect, bits22/23 collapse the instruction's OWN result to 0.0 (unexplained)",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "The bits22/23 own-result collapse is OBSERVED and UNINTERPRETED."
+    "note": ""
    },
    "srcB_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "value {3,67} addressing cross-check (67 reads r3)",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": ""
    },
    "ctrl": {
     "label": "tokenization-only",
@@ -577,43 +626,49 @@
     ]
    },
    "srcB_imm": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_lo": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
-   },
-   "srcB_neg": {
-    "label": "corpus-correlation",
-    "range": "0x00 vs 0x08 in own-compiled saturate(a-b)",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
+   },
+   "srcB_neg": {
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_hi": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext_tail": {
     "label": "isolated-byte-diff",
-    "range": "byte+7 0x82 vs 0x80 (saturate on/off) of 65536 encodable",
+    "range": "each of the 2 constituent bytes swept 0..255 dense; the 16-bit field's full space is NOT claimed",
     "target": "M4",
     "evidence": [
-     "EXP-M4-10"
+     "EXP-0138"
     ],
-    "note": "byte+7 bit1 = output clamp to [0,1]; native modifier, not a lowered min/max. The rest of the 16-bit tail is unmapped."
+    "note": "sweep not dense over the encodable range"
    }
   },
   "falu3_ext": {
@@ -626,51 +681,67 @@
     ]
    },
    "dst_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "op": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "64 cases failed the integrity sentinel without a structural explanation"
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcC": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0138"
     ],
-    "note": "32-bit saturate/source-modifier tail; length = 6+2*(byte+4 & 3)."
+    "note": "sweep not dense over the encodable range"
    }
   },
   "funary": {
@@ -2291,27 +2362,30 @@
    },
    "dst": {
     "label": "untested",
-    "range": "none",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "1 cases failed the integrity sentinel without a structural explanation"
    },
    "srcA": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0138"
+    ],
+    "note": "CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 1 distinct non-zero results), so an emitter may not generalise"
    },
    "subop": {
-    "label": "corpus-correlation",
-    "range": "0x09 rcp / 0x0b rsqrt / 0x0d sqrt (3 of 256), own-MSL byte-diff",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0026"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "b4": {
     "label": "tokenization-only",
@@ -4797,24 +4871,31 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcA": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "op": {
-    "label": "corpus-correlation",
-    "range": "byte+2 arithmetic-enable bit clear distinguishes it from the 6-byte fadd",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0025"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "cache": {
     "label": "isolated-byte-diff",
@@ -4828,9 +4909,12 @@
    },
    "srcB": {
     "label": "untested",
-    "range": "none",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    }
   },
   "iter": {
@@ -5666,10 +5750,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -5681,10 +5768,13 @@
     ]
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA": {
     "label": "hardware-run",
@@ -9478,14 +9568,13 @@
     ]
    },
    "operands": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0138"
+    ],
+    "note": ""
    }
   },
   "ibfe_mesh_attr": {
@@ -9753,25 +9842,31 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcA_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA_reg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "opsel": {
     "label": "corpus-correlation",
@@ -9782,70 +9877,85 @@
     ]
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_reg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "ctrl": {
     "label": "untested",
-    "range": "none",
+    "range": "122 of 128 encodable values",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from falu2; not exercised in this form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 6 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
    },
    "srcB_imm": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_neg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_hi": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext_srcmod": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "each of the 4 constituent bytes swept 0..255 dense; the 32-bit field's full space is NOT claimed",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0138"
     ],
-    "note": "32-bit source-modifier / trailing-operand word."
+    "note": "sweep not dense over the encodable range"
    }
   },
   "falu3_srcmod12": {
@@ -9858,94 +9968,121 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcA_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "value {3,67} addressing cross-check (67 reads r3, never the unwritten r67)",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": ""
    },
    "opsel": {
     "label": "untested",
-    "range": "none",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs; HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Lifetime contract for this family is UNTESTED - EXP-0119 could not validate the own-result formula, so only ADDRESSING is established here."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "value {3,67} addressing cross-check",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "Register field is 6 bits load-bearing: R in [64,112] silently aliases to r(R mod 64); R in {126,127} FAULTS the command buffer (EXP-0112)."
+    "note": ""
    },
    "ctrl": {
     "label": "untested",
-    "range": "none",
+    "range": "123 of 128 encodable values",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 30/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
    },
    "srcB_imm": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB_neg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_hi": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "14/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext_srcmod": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "each of the 6 constituent bytes swept 0..255 dense; the 48-bit field's full space is NOT claimed",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0138"
     ],
-    "note": "48-bit 3rd source + modifier region; UNCHARACTERIZED (EXP-0119 says so explicitly - the 3rd source of this family was not testable)."
+    "note": "sweep not dense over the encodable range"
    }
   },
   "rt_query_traverse2": {
@@ -10035,10 +10172,13 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -10049,10 +10189,13 @@
     ]
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA": {
     "label": "hardware-run",
@@ -10087,11 +10230,13 @@
     ]
    },
    "b7_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Remaining byte+7 bits - unresolved."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "saturate": {
     "label": "hardware-run",
@@ -10102,11 +10247,13 @@
     ]
    },
    "b7_mid": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Remaining byte+7 bits - unresolved."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "op_valid_marker": {
     "label": "hardware-run",
@@ -10128,10 +10275,13 @@
     "note": "LENGTH-RULE DEFECT FLAGGED: a fixed 'always 12B for byte0==0x10' rule is WRONG. Own-MSL plain half fma is only 8B, and 121/126 corpus instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside `ext`."
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "3/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -10142,10 +10292,13 @@
     ]
    },
    "opflags": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
-    "evidence": []
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcA": {
     "label": "hardware-run",
@@ -10179,26 +10332,31 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
-   },
-   "srcA_size": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
-   },
-   "srcA_reg": {
-    "label": "isolated-byte-diff",
-    "range": "r3 (seeded) and r6 (positive control, separately seeded to 12.0) - 2 register values with the predicted effect",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
-    ]
+     "EXP-0138"
+    ],
+    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+   },
+   "srcA_size": {
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
+   },
+   "srcA_reg": {
+    "label": "hardware-run",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
+    "target": "M4",
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "opsel": {
     "label": "hardware-run",
@@ -10211,26 +10369,30 @@
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "bits19/20/21 individually at {0,1} with opsel_mod=0: bit19 = release srcA (matches falu2 exactly), bits20/21 NULL for this construction",
+    "range": "0..31 dense (all 32 values)",
     "target": "M4",
     "evidence": [
-     "EXP-0119"
+     "EXP-0138"
     ],
-    "note": "Resolves EXP-0089's open question: the widened/anomalous loop_boundary behaviour is attributable to LOOP REPETITION, not to the 12-byte form itself."
+    "note": ""
    },
    "srcB_size": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "srcB_reg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
     "target": "M4",
-    "evidence": [],
-    "note": "Not exercised in this form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "ctrl": {
     "label": "hardware-run",
@@ -10243,32 +10405,40 @@
     "note": "The hang requires the loop context. One negative data point, not an exhaustive sweep of the interaction space."
    },
    "srcB_imm": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": ""
    },
    "mod_lo": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..7 dense (all 8 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "srcB_neg": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "1/2 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "mod_hi": {
-    "label": "untested",
-    "range": "none",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
     "target": "M4",
-    "evidence": [],
-    "note": "Bit position inherited from the HW-validated falu2 layout; NOT independently exercised in this extended form."
+    "evidence": [
+     "EXP-0138"
+    ],
+    "note": "8/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
    },
    "ext_srcmod": {
     "label": "tokenization-only",
