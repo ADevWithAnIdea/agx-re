@@ -138,3 +138,62 @@ The published number is **66/166, not the agent's 72/166**; `tex_sample`, `tex_c
 **Two experiments now test this directly:** EXP-0163 hunts liveness for the 22 never-moved fields on
 new carriers; EXP-0164 audits every already-merged emitter-grade field in `validation.json` for the
 same weakness and reports what the honest count would be.
+
+---
+
+## Status at 2026-08-30 02:50 PDT — read this first if you are a successor session
+
+**Headline: 35 of 166 emitter-relevant instructions emittable, 588 emitter-grade fields.**
+27 commits since midnight. **The number FELL from 79 today, across three withdrawals, and each was
+confirmed by an independent audit.** That fall is the run's main result, not its failure: the
+corpus now says what it can prove.
+
+### The four tooling defects that had been inflating confidence — all fixed
+
+| defect | what it did | how it was caught |
+|---|---|---|
+| `isadb.assemble()` OR-ed `match` then fields | any overlapping bit **stuck at 1**; sweeps silently under-covered | EXP-0166, from EXP-0146's recorded bytes |
+| `roundtrip_test.py` cited as an emitter gate | **passes unmodified against an assembler that cannot clear a bit** (173 cases, 0 failures) | EXP-0170, by re-implementing the broken assembler |
+| oracle co-varying with the field under test | `uniform_mov.dst` read back via `device_store(data_reg=D)` where D *was* the swept dst, so "0 moved" was the **passing** outcome of a test that could return nothing else | EXP-0168, auditing EXP-0140's harness |
+| coverage unenforceable | `range` is free prose; 358 of 617 rows unparseable; **no gate had a coverage term**, so a field could pass on two dispatched values | EXP-0169's caveat on EXP-0164's gate |
+
+Rules 3(a), 3(b) and the §7 confirmation rule are now in `experiments/FIELD-SWEEP-PROTOCOL.md`.
+
+### The three contamination modes, in order of severity
+
+1. **Contention destroys observations — one-directionally.** EXP-0167 under measured isolation:
+   740 witness observations, **0 MIXED**, against 102 of 174 contended. `dag_040_n20` was `fault`
+   5/5 contended and `ok` 5/5 clean. **No program passed under contention and failed under
+   isolation.** That asymmetry is why offline adjudication from a poisoned buffer is sound.
+2. **A contaminated dispatch can report `STATUS OK` and write nothing** — 25 observations with all
+   16 registers *and* both sentinels still poisoned, no `InnocentVictim` string (EXP-0160).
+3. **DEF-0169-1 — a diff-based movement oracle can FABRICATE movement**, which breaks the comfort
+   of (1). `device_load` on G17P is **asynchronous**; with no wait a program landed 0,0,0,0,2,5,8,8
+   of 8 seed registers by filler length alone, so a periodically-refreshed diff baseline reads the
+   next batch as movement. An outcome-class audit cannot see this. Seed with `mov_imm` or wait.
+
+### Live hazards a successor must know
+
+- **The neo's shared `tools/agx-isa/db.json` is STALE** — 1036 fields vs the repo's 1060, with
+  `falu2.srcA_class`/`srcB_class` replaced by `mod_lo`. A harness whose `_find_isadb()` falls
+  through to it keys every falu2 verdict to the wrong field, silently. **Pin your own snapshot.**
+- `iter_at` with `grp=0x50` hangs the device. `iter.grp`/`iter_at.grp` have only **two** legal
+  values (their match pins bits 0..6) — which is why every sweep of them hit hangs.
+- EXP-0169's DSTORE arm (`device_store.base_slot` through unbound slots) is **queued, not
+  forgotten** — it is the most likely thing to wedge the device and waits for a clear machine.
+
+### Held, not withdrawn
+
+16 rows (`half_alu_ext8` x11, `half_alu_fma12` x5) whose only passing liveness ladder was the
+withdrawn `C2_load` carrier. The carrier failed for a harness defect, **not** because the fields
+resisted; a successor with a corrected carrier owns them.
+
+### The gate, not the count
+
+`CLAUDE.md`'s Definition of Done turns on an audit that *positively reproduces* the claimed
+generation paths. **EXP-0173 is running that audit now** — it is the only thing that decides
+closure. The strongest positive going into it: **EXP-0167 re-confirmed 233 of 237 generated
+programs containing ZERO copied fields producing their exact host oracle**, with a ledger check
+over 204,044 `assemble()` calls at 0 mismatches. The known gap: 60 of those 233 rest on rules that
+experiment did not itself measure, and **24 still need a donor** (12 control-flow, 12 immediate
+`iadd2`).
