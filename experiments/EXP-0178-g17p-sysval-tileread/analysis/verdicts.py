@@ -85,7 +85,16 @@ def gate(rows1, rows2, ladder_ok):
     pct = (100.0 * len(agree) / len(common)) if common else 0.0
     ok_common = len(common) >= MIN_COMMON
     ok_pct = pct >= MIN_AGREE_PCT
-    ok_move = len(moved) >= MOVED_OVER_DISAGREE * max(len(disagree), 1) and len(moved) > 0
+    # The FROZEN rule (PRE_REGISTRATION section 8, CAPTURE_CONTRACT
+    # promotion_gate): "movement >= 2.0 x the number of disagreeing values, and
+    # > 0". An earlier implementation wrote `max(len(disagree), 1)`, which is
+    # STRICTER than the frozen text and is wrong for a narrow field: a 1-bit
+    # field has at most ONE value that can differ from its own baseline, so
+    # `read_en` -- the headline tilebuffer safety field, 2 of 2 values, 0
+    # disagreements, perfect cross-run agreement -- was being refused by an
+    # arithmetic artefact rather than by the evidence. Corrected to the frozen
+    # text; every selftest G6 case still refuses for the reason it names.
+    ok_move = len(moved) >= MOVED_OVER_DISAGREE * len(disagree) and len(moved) > 0
     ndispatched = len(rows1) + len(rows2)
     ok_mf = (nmf <= MAX_MEASUREMENT_FAILED_FRAC * ndispatched) if ndispatched else True
     return {
@@ -198,8 +207,11 @@ def build(run1, run2):
         full = (b["width"] is not None and b["width"] <= 8 and
                 b["values_dispatched"] == b["encodable_range"])
         if anyforeign:
-            label, note = "untested", ("SWEPT AND RECORDED BUT NOT RULED ON: another "
-                                       "experiment owns this field name.")
+            label, note = "NOT-A-VERDICT", (
+                "SWEPT AND RECORDED, NOT RULED ON. Another experiment owns this field name. "
+                "This row is DATA, not a label, and MUST NOT be merged into validation.json: "
+                "one experiment not ruling on a field does not refute another that measured "
+                "it. Emitted under `_not_ruled_on`, never as a top-level verdict.")
         elif b["promote"]:
             label = "hardware-run" if full else "isolated-byte-diff"
             note = ""
@@ -211,7 +223,7 @@ def build(run1, run2):
                 "a limit of the carriers, NOT as `inert`." % len(entries))
         else:
             label, note = "untested", "gate failed: " + ", ".join(b["failed"])
-        assert label in LABELS
+        assert label in LABELS or label == "NOT-A-VERDICT"
         out[key] = {
             "label": label, "target": "G17P",
             "range": "%d of %d encodable values, %d distinct byte strings, "
@@ -226,7 +238,20 @@ def build(run1, run2):
             "gate": {k: v for k, v in entries.items()},
             "note": note,
         }
-    return out
+    # Split the document so a merge tool cannot mistake recorded data for a
+    # verdict. Only the top level is mergeable.
+    ruled = {k: v for k, v in out.items() if v["label"] != "NOT-A-VERDICT"}
+    unruled = {k: v for k, v in out.items() if v["label"] == "NOT-A-VERDICT"}
+    if unruled:
+        ruled["_not_ruled_on"] = unruled
+    ruled["_spec"] = (
+        "docs/evidence-classification.md section 2 labels. Top-level "
+        "`<mnemonic>.<field>` keys are verdicts. `_not_ruled_on` holds fields this "
+        "experiment SWEPT but does not rule on because another experiment owns the "
+        "field name -- data, never a label. `_referred_for_ruling` holds a field whose "
+        "evidence contradicts a standing decision and which the orchestrator must "
+        "adjudicate.")
+    return ruled
 
 
 if __name__ == "__main__":

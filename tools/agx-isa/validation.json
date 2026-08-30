@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 542,
+   "hardware-run": 547,
    "isolated-byte-diff": 81,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 28,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 178
+   "untested": 173
   },
   "by_label_pct": {
-   "hardware-run": 52.3,
+   "hardware-run": 52.8,
    "isolated-byte-diff": 7.8,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 17.2
+   "untested": 16.7
   },
-  "emittable_instructions": 49,
+  "emittable_instructions": 50,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -56,6 +56,7 @@
    "frame_prologue",
    "fspecial",
    "fspecial_est",
+   "get_sr",
    "h_coord_hi",
    "h_coord_hi_ext",
    "half_alu_ext8",
@@ -87,7 +88,7 @@
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 123,
+  "decodable_not_yet_emittable": 122,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -98,7 +99,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 49
+  "emittable_of_emitter_relevant": 50
  },
  "instructions": {
   "falu2": {
@@ -3459,13 +3460,14 @@
     ]
    },
    "form": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "label": "isolated-byte-diff",
+    "range": "full encodable range, 2 of 2 values, on THREE stage carriers across two gated runs; 100.00% cross-run agreement, 0 disagreements, 0 measurement failures, 0 victims",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0178",
+     "EXP-0172"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "ORCHESTRATOR RULING 2026-08-30, OVERRIDING EXP-0172's decline. EXP-0172 labelled this `single-template-inference` after finding it inert over its full 2-value range on EIGHT arms. EXP-0178 adds two more carriers agreeing inert (compute, fragment) and a THIRD that disagrees: on the VERTEX carrier form=0 moves the observation and form=1 does not, identically in both gated runs. Eight arms that cannot express a field are one arm -- and the vertex carrier differs in exactly the dimension `sr_sel` turned out to be organised by (in a vertex shader every bit-7-clear sr_sel faults, 128/128, where in compute the same encoding does not fault at all). `single-template-inference` is no longer defensible: its definition is 'no variation was observed', and variation WAS observed. Labelled `isolated-byte-diff` rather than the recommended `hardware-run` on the experiment's own stated caveat -- the movement is one value on one of three carriers and IT DID NOT IDENTIFY WHAT form=0 DOES. An isolated byte difference produced a distinct, reproducible outcome; that is exactly what this label means, and it is emitter-grade without claiming semantics we do not have. An emitter may use form=1, which is inert on all three stages.",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -3487,13 +3489,13 @@
     "width": 4
    },
    "sr_sel": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 3 carrier(s)",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0178"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "note": "",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -3501,13 +3503,13 @@
     "width": 8
    },
    "dp_width": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 3 carrier(s)",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0178"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "note": "",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -3515,13 +3517,13 @@
     "width": 8
    },
    "dp_marker": {
-    "label": "untested",
-    "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "32 of 32 encodable values, 32 distinct byte strings, 3 carrier(s)",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0178"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "note": "",
     "values_dispatched": 32,
     "distinct_bytes": 32,
     "encodable_range": 32,
@@ -5792,75 +5794,115 @@
    },
    "b2": {
     "label": "untested",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "gate failed: moved_over_disagree",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 16,
+    "width": 8
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "Correct only at 0x00,0x01,0xc0,0xc1 (baseline 0x00); 0x02-0x07 wrong; the bulk silently zero; 0xf6-0xff fault or collateral. Not a plain 8-bit GPR index. Intra-run replicates 100% stable; 8 of 256 cross-run misses are boundary cases that came back invalid_run under concurrent GPU load, hence isolated-byte-diff rather than hardware-run."
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "b4": {
     "label": "untested",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "gate failed: moved_over_disagree",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "rt_index": {
     "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "With one attachment bound, correct only at 0x00,0x01,0x80,0x81 (baseline 0x00): bit0 and bit7 don't-care. Every other index SILENTLY RETURNS ZERO rather than faulting."
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "b7": {
     "label": "untested",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 320 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "gate failed: min_agree_pct",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 56,
+    "width": 8
    },
    "tail": {
     "label": "untested",
-    "range": "full 32-bit range, dense (1075 cases) x2 runs",
-    "target": "M4",
+    "range": "1062 of 4294967296 encodable values, 1062 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 1062 values dispatched, 1 carrier(s) tested, 473 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "gate failed: min_agree_pct",
+    "values_dispatched": 1062,
+    "distinct_bytes": 1062,
+    "encodable_range": 4294967296,
+    "start": 64,
+    "width": 32
    },
    "read_en": {
     "label": "hardware-run",
-    "range": "byte+6 bit0 (within the dense 256-value x2-run sweep of the byte)",
-    "target": "M4",
+    "range": "2 of 2 encodable values, 2 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "bit0 is a READ-ENABLE: all 128 odd values correct, all 128 even values give a SILENT ZERO (pixel collapses to the no-read oracle). Bits 1-7 don't-care. Identical rule on tile_read_mrt.b6. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
+    "note": "",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 48,
+    "width": 1
    },
    "b6_hi": {
     "label": "untested",
-    "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
-    "target": "M4",
+    "range": "128 of 128 encodable values, 128 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "gate failed: moved_over_disagree",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 49,
+    "width": 7
    }
   },
   "imageblock_store": {
@@ -8273,67 +8315,102 @@
     ]
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "Same shape as tile_read.dst shifted by this carrier's baseline: correct only at 0x08,0x09,0xc8,0xc9. Intra-run stable 256/256; 10 cross-run misses are load-related invalid_run."
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "b4": {
     "label": "untested",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "gate failed: moved_over_disagree",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "rt_index": {
     "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "Correct only at 0x08,0x09,0x88,0x89 (baseline 0x08); bit0 and bit7 don't-care. Other indices silently return zero on attachment 1."
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "fmt": {
     "label": "hardware-run",
-    "range": "full 8-bit range, dense (256 cases) x2 runs",
-    "target": "M4",
+    "range": "256 of 256 encodable values, 256 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "Correct only at 0x2e,0x2f,0x6e,0x6f,0xae,0xaf,0xee,0xef (baseline 0x2e): bits 0, 6 and 7 are don't-care and bits 1-5 are the format selector. 104 values give a silent zero."
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 56,
+    "width": 8
    },
    "tail": {
-    "label": "untested",
-    "range": "full 32-bit range, dense (1075 cases) x2 runs",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "1038 of 4294967296 encodable values, 1038 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 1038 values dispatched, 1 carrier(s) tested, 293 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "",
+    "values_dispatched": 1038,
+    "distinct_bytes": 1038,
+    "encodable_range": 4294967296,
+    "start": 64,
+    "width": 32
    },
    "read_en": {
     "label": "hardware-run",
-    "range": "byte+6 bit0 (within the dense 256-value x2-run sweep of the byte)",
-    "target": "M4",
+    "range": "2 of 2 encodable values, 2 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "bit0 read-enable, identical to tile_read.b6 (odd correct / even silent zero). FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): byte+6 bit0 is a READ-ENABLE -- all 128 ODD values give the correct read and all 128 EVEN values give a SILENT ZERO (the pixel collapses to the no-read oracle); bits 1-7 are don't-care. Identical on tile_read and tile_read_mrt. The field was typed `raw` with no semantics; in a BG/EOT program a wrong value surfaces as a BLACK TILE, not a loud failure."
+    "note": "",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 48,
+    "width": 1
    },
    "b6_hi": {
     "label": "untested",
-    "range": "byte+6 bits 1-7, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
-    "target": "M4",
+    "range": "128 of 128 encodable values, 128 distinct byte strings, 2 carrier(s)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0147"
+     "EXP-0178"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "gate failed: moved_over_disagree",
+    "values_dispatched": 128,
+    "distinct_bytes": 128,
+    "encodable_range": 128,
+    "start": 49,
+    "width": 7
    }
   },
   "tex_addr_setup": {

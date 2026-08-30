@@ -233,21 +233,12 @@ check("G9 malformed response is a measurement failure, not a hang", not g9,
       "; ".join(g9))
 
 # --------------------------------------------------------------- G10 --------
-# CLOSURE-SHADOWING SCAN. `raw/g17p_20260830_run01` was lost to this defect
-# class: the compute arm's read-back SIZE was bound as `nb` and the `raw_case`
-# closure read it, while a later block in the SAME enclosing scope rebound `nb`
-# to a bytearray. A closure resolves a free variable at CALL time, so every
-# request after that point raised inside the runner -- and it presented as a
-# hang cascade, the same signature as the shared-driver defect fixed minutes
-# earlier, which is why four pilots did not separate them. Checked mechanically
-# here so it cannot recur silently.
-#
-# The allow-list is names assigned in MUTUALLY EXCLUSIVE branches of one
-# if/else (the anchor-resolution and runner-construction branches), which is
-# safe: exactly one assignment executes per arm. It is an explicit list with a
-# reason, not a weakening of the check.
-import ast as _ast                                             # noqa: E402
-import collections as _co                                      # noqa: E402
+# CLOSURE-SHADOWING SCAN, in harness/closure_scan.py (written to be upstreamed).
+# `raw/g17p_20260830_run01` was lost to this defect class. The allow-list is
+# names assigned in MUTUALLY EXCLUSIVE branches of one if/else, which is safe:
+# exactly one assignment executes per arm. It is an explicit list with a reason,
+# not a weakening of the check.
+from closure_scan import scan as _closure_scan                 # noqa: E402
 
 G10_ALLOW = {
     "mnem":   "assigned in the two mutually exclusive anchor-resolution branches",
@@ -259,42 +250,11 @@ G10_IGNORE = {"arm", "SP", "ISA", "emit", "json", "os", "sys", "time", "struct",
               "safe_request", "REQ_TIMEOUT", "TOL", "sr_pixels_from_values",
               "traceback", "subprocess"}
 
-
-def _closure_shadow_scan(path, fname="main"):
-    tree = _ast.parse(open(path).read())
-    fn = next(n for n in tree.body
-              if isinstance(n, _ast.FunctionDef) and n.name == fname)
-    assigned = _co.Counter()
-
-    def walk(node):
-        for ch in _ast.iter_child_nodes(node):
-            if isinstance(ch, (_ast.FunctionDef, _ast.Lambda)):
-                continue                       # a nested function is its own scope
-            if isinstance(ch, _ast.Name) and isinstance(ch.ctx, _ast.Store):
-                assigned[ch.id] += 1
-            walk(ch)
-    walk(fn)
-
-    reads = _co.defaultdict(set)
-    for node in _ast.walk(fn):
-        if isinstance(node, _ast.FunctionDef) and node is not fn:
-            local = {n2.id for n2 in _ast.walk(node)
-                     if isinstance(n2, _ast.Name) and isinstance(n2.ctx, _ast.Store)}
-            local |= {n2.arg for n2 in _ast.walk(node) if isinstance(n2, _ast.arg)}
-            for n2 in _ast.walk(node):
-                if isinstance(n2, _ast.Name) and isinstance(n2.ctx, _ast.Load) \
-                        and n2.id not in local:
-                    reads[n2.id].add(node.name)
-    return {k: sorted(v) for k, v in reads.items()
-            if assigned.get(k, 0) > 1 and k not in G10_IGNORE}
-
-
 g10 = []
 try:
-    risky = _closure_shadow_scan(os.path.join(HERE, "run.py"))
-    for k, v in sorted(risky.items()):
-        if k not in G10_ALLOW:
-            g10.append("%s: read by %s and assigned more than once in main()" % (k, v))
+    for k, v in sorted(_closure_scan(os.path.join(HERE, "run.py"), "main",
+                                     ignore=G10_IGNORE, allow=G10_ALLOW).items()):
+        g10.append("%s: read by %s and assigned more than once in main()" % (k, v))
 except Exception as e:                                         # noqa: BLE001
     g10.append("scan failed: %s" % e)
 check("G10 no closure reads a name main() rebinds", not g10, "; ".join(g10))

@@ -169,6 +169,45 @@
    "what": "`moved` is now `None` ONLY for non-observations (measurement_failed, invalid_run). A fault, hang, no_draw, no_dispatch or not_written counts as MOVED, because the baseline ran cleanly and those are changes in behaviour, not absences of one.",
    "why": "Found by work/pilot09, before any gated dispatch of the run03/run04 pair. Relocating the destination GPR in the VERTEX stage SUPPRESSES THE DRAW ENTIRELY -- every pixel still holds the clear colour, outcome `no_draw`. That is the most visible movement a render carrier can produce, and the old rule scored it `moved=None`, which would have failed the sr_vertex liveness ladder and left every sr_vertex field `untested` on a technicality -- an arm with demonstrably OVERWHELMING detection power reported as having none.",
    "why_this_is_not_a_post_hoc_repair": "No gated dispatch of the run03/run04 pair has occurred. And the change makes the LIVENESS LADDER harder to fail rather than the FIELD easier to promote: a field still needs cross-run agreement and movement, and a partial write still cannot score `ok`."
+  },
+  {
+   "changed_blobs": {
+    "analysis/answers.json": {
+     "after": "80616933264e34ecfe4516e3a960d074ee5b376a08b562af0be2815469a1c907",
+     "before": null
+    },
+    "analysis/answers.py": {
+     "after": "f0487c3af0a95036396749ada1cd8aacce241f3b90a335719a6147aeb0a6be5d",
+     "before": "2882f568198089b971dcf5db88938d86bdaa56ff1a805cbfcbf2f753f15ac38b"
+    },
+    "analysis/field_verdicts.json": {
+     "after": "4fb00b4e270ca68417c3ccb49b233f121397fbe5476f4b2fe512a9ecdbedeef0",
+     "before": null
+    },
+    "analysis/make_manifest.py": {
+     "after": "392a6fb3cb6fb02c34e6ff5c10d04d8e849d46e381d37ceb740a740f542bb07c",
+     "before": null
+    },
+    "analysis/verdicts.py": {
+     "after": "39563d886ee5ecaa0d6a8e80c77e0eb4eeb701e25d9587541326dd2587e24b16",
+     "before": "9e4cedc5c5c13029836928269f6af2e76dfa036f3556cd6aad3947c61b575fb7"
+    },
+    "harness/closure_scan.py": {
+     "after": "7db6f842d884944fa27228c92f97a368704fbc6441aa0850693cc4180a1bf11f",
+     "before": null
+    },
+    "harness/selftest.py": {
+     "after": "eff72c939a8e7467a19cf7a2417bfe5594783d88f3e0e4a1a5a9acfb24eb9118",
+     "before": "3e972d79db51d6f4068ccb2a0a5a729192f474869e07a7d212a2f64463438294"
+    }
+   },
+   "id": "amendment_09",
+   "stage": "ANALYSIS ONLY -- after both gated pairs completed. No device work, no case, no encoding, no carrier, no oracle, no raw record changed. The captures are untouched and every claim is re-derivable from raw/ with the committed scripts.",
+   "utc": "2026-08-30T13:07:26Z",
+   "what": "(a) analysis/verdicts.py: the promotion gate's movement term is corrected to the FROZEN TEXT `moved >= 2.0 * disagree, and > 0`; it had been implemented as `moved >= 2.0 * max(disagree, 1)`. (b) analysis/field_verdicts.json is restructured so recorded data cannot be mistaken for a label. (c) a `_referred_for_ruling` block carries get_sr.form with full per-carrier numbers and a stated recommendation. (d) analysis/make_manifest.py added.",
+   "why_a": "The implemented form was STRICTER than PRE_REGISTRATION section 8 and this contract's own promotion_gate, both of which read `movement >= 2.0 x the number of disagreeing values, and > 0`. The `max(..., 1)` is not in either. It matters because a 1-bit field has at most ONE value that can differ from its own baseline, so `read_en` -- the HEADLINE tilebuffer safety field, 2 of 2 values, 0 disagreements, 100%% cross-run agreement, the exact silent-zero read-enable this experiment was dispatched to re-verify -- was being refused by an arithmetic artefact rather than by its evidence. Correcting an implementation to match its own frozen text is not a loosening of the gate; every selftest G6 case still refuses for the reason it names, including the all-agreeing-but-never-moving case.",
+   "why_b": "The orchestrator's merge guard refused a `get_sr.dst` row reading `untested` while EXP-0168 has it `hardware-run`. It was right to: that row was recorded data, not a verdict, and this experiment never intended to rule on a field name another experiment owns. A label-shaped row is mergeable by accident, so foreign fields are now labelled `NOT-A-VERDICT` and emitted under `_not_ruled_on` with an explicit do-not-merge note. ONE EXPERIMENT NOT RULING ON A FIELD DOES NOT REFUTE ANOTHER THAT MEASURED IT.",
+   "why_c": "Orchestrator request. get_sr.form is EXP-0172's to rule on; this experiment's evidence contradicts its decline on one of three carriers, so the row is referred with numbers rather than dropped or silently relabelled."
   }
  ],
  "analysis_scripts": {
@@ -178,20 +217,23 @@
  },
  "anchor_resolution_rule": "Recorded in raw/<run>/00_arm_resolution.json BEFORE the first gated dispatch. get_sr anchors resolve by a clean pinned tokenization when available, else by an even-offset scan requiring (byte0 & 7)==4, byte1==anchor_sr and a successful pinned decode to get_sr with EXACTLY ONE match; ambiguity -> NOT ATTEMPTED. tile anchors resolve by byte pattern plus a pinned decode to tile_read or tile_read_mrt. tile_ct2 may compile to either; the arm is attributed to the instruction ACTUALLY FOUND and its field list is intersected with that descriptor's real field names. Neither anchor present -> NOT ATTEMPTED, never guessed.",
  "authored_sha256": {
-  "DEFECTIVE-run01.md": "09fca63efcfbe9412e65ae4d533b45d287db01aceb8d6fb7089f64960cf1ebe5",
   "PRE_REGISTRATION.md": "97af7c8453ac2d1025606e47d1698e7dba360bd30381d3b7f66bd7804ce34370",
   "README.md": "6b3e56ef8ee7fbd88a3fb8c38599e3e3bd1685964338452daa3ce52d1fe565c4",
-  "analysis/answers.py": "2882f568198089b971dcf5db88938d86bdaa56ff1a805cbfcbf2f753f15ac38b",
+  "analysis/answers.json": "80616933264e34ecfe4516e3a960d074ee5b376a08b562af0be2815469a1c907",
+  "analysis/answers.py": "f0487c3af0a95036396749ada1cd8aacce241f3b90a335719a6147aeb0a6be5d",
   "analysis/covary_audit.json": "970487422850a35d31cacb3b899df16ff146ac3f762e50c559220b1a54602a93",
   "analysis/covary_audit.py": "2ab832ac84cc86df595b089ef62e0b60f1506dc7cbcbdaf23f7ada850d40e928",
-  "analysis/verdicts.py": "9e4cedc5c5c13029836928269f6af2e76dfa036f3556cd6aad3947c61b575fb7",
+  "analysis/field_verdicts.json": "4fb00b4e270ca68417c3ccb49b233f121397fbe5476f4b2fe512a9ecdbedeef0",
+  "analysis/make_manifest.py": "392a6fb3cb6fb02c34e6ff5c10d04d8e849d46e381d37ceb740a740f542bb07c",
+  "analysis/verdicts.py": "39563d886ee5ecaa0d6a8e80c77e0eb4eeb701e25d9587541326dd2587e24b16",
+  "harness/closure_scan.py": "7db6f842d884944fa27228c92f97a368704fbc6441aa0850693cc4180a1bf11f",
   "harness/fakerunner.py": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
   "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
   "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
   "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
   "harness/run.py": "c6a6dc4453872f7c51c9745c1e920860a5153969544df2b2df8fe85ac510f1c9",
   "harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
-  "harness/selftest.py": "3e972d79db51d6f4068ccb2a0a5a729192f474869e07a7d212a2f64463438294",
+  "harness/selftest.py": "eff72c939a8e7467a19cf7a2417bfe5594783d88f3e0e4a1a5a9acfb24eb9118",
   "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",
   "harness/sweepplan.py": "b789b70ab9a714f3e233725deedd2938fdb4ff9154b5f11c707825db0d1ac885",
   "harness/sync.sh": "fe1fc40e31f2e7535930df3f152ba36341f70690fcbf277fa2a13851658bbe53",
@@ -199,7 +241,7 @@
   "kernels/sysval.metal": "6b14b1106220492488c221a36c0edb7d2349e970459e44e25d9a61c5d21ca939",
   "kernels/tilebuf.metal": "d1d85c915020fcacc8bbd466cf70e089b89843f72d3e5bb6c6a075091cb191ed"
  },
- "authored_sha256_note": "PROGRESS.md is deliberately EXCLUDED: it is an append-only milestone log the capture driver writes to during every run, so hashing it would guarantee a stale entry. analysis/covary_audit.json IS included -- it is the freeze-time record of the section-3(a) audit and must not change afterwards.",
+ "authored_sha256_note": "PROGRESS.md is deliberately EXCLUDED: it is an append-only milestone log the capture driver writes to during every run, so hashing it would guarantee a stale entry. analysis/covary_audit.json IS included -- it is the freeze-time record of the section-3(a) audit and must not change afterwards. RESULTS.md, DEFECTIVE-run01.md and manifest.json are also excluded: they are written AFTER the captures and are hashed in manifest.json instead.",
  "carriers": {
   "mrt_cm1": "fragment, v_arr/f_mrt, 2 attachments, 1x1 -- our EXP-0147 reference carrier, unchanged.",
   "mrt_cm2": "fragment, v_arr/f_mrt3, 3 attachments, 2x2 -- SECOND carrier: widens exactly the dimension rt_index selects.",

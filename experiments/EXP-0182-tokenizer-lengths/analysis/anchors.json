@@ -1,0 +1,3794 @@
+{
+ "_meta": {
+  "rule": "PRE_REGISTRATION R-A1..R-A5",
+  "n_anchors": 255,
+  "n_mnemonics": 95
+ },
+ "anchors": [
+  {
+   "mnemonic": "atomic_mem",
+   "bytes": "6701540000000000004000002000",
+   "declared_length": 14,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-mem03",
+    "g17p-20260830-mem04",
+    "m4-20260828-run11",
+    "m4-20260828-run12",
+    "smoke-s01"
+   ],
+   "carrier": "atdev",
+   "note": "unmutated carrier, host-computed oracle",
+   "n_records": 33
+  },
+  {
+   "mnemonic": "atomic_mem",
+   "bytes": "6701540000800200004000002000",
+   "declared_length": 14,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-mem03",
+    "g17p-20260830-mem04",
+    "m4-20260828-run11",
+    "m4-20260828-run12",
+    "smoke-s01"
+   ],
+   "carrier": "atdevimm",
+   "note": "unmutated carrier, host-computed oracle",
+   "n_records": 33
+  },
+  {
+   "mnemonic": "atomic_rmw",
+   "bytes": "6711540000000000004000002000",
+   "declared_length": 14,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run21/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-mem03",
+    "g17p-20260830-mem04",
+    "m4-20260828-run21",
+    "m4-20260828-run22"
+   ],
+   "carrier": "atdev",
+   "note": "byte+1 pinned to 0x11 (the atomic_rmw form), everything else as the compiler emitted it",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "atomic_tg",
+   "bytes": "670354000000000020000004",
+   "declared_length": 12,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-mem03",
+    "g17p-20260830-mem04",
+    "g17p-20260830-mtg03",
+    "g17p-20260830-mtg04",
+    "m4-20260828-run11",
+    "m4-20260828-run12",
+    "smoke-s01"
+   ],
+   "carrier": "attg",
+   "note": "unmutated carrier, host-computed oracle",
+   "n_records": 33
+  },
+  {
+   "mnemonic": "bf_add_dst",
+   "bytes": "21001c001100c081",
+   "declared_length": 8,
+   "experiment": "EXP-0156-g17p-emit-cf-mem",
+   "raw": "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-bf03/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-bf03",
+    "g17p-20260830-bf04",
+    "smoke-s01"
+   ],
+   "carrier": "bfadd",
+   "note": "native bfloat ADD, host oracle = exact bf16 of a+b (inputs chosen so the sum is exactly representable, so rounding cannot confound)",
+   "n_records": 19
+  },
+  {
+   "mnemonic": "bf_fma_dst",
+   "bytes": "21001e0086041000c081",
+   "declared_length": 10,
+   "experiment": "EXP-0156-g17p-emit-cf-mem",
+   "raw": "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-bf03/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-bf03",
+    "g17p-20260830-bf04",
+    "smoke-s01"
+   ],
+   "carrier": "bffma",
+   "note": "native bfloat FMA, host oracle = exact bf16 of a*b+c",
+   "n_records": 13
+  },
+  {
+   "mnemonic": "call",
+   "bytes": "0f05541a8f005630010000000000",
+   "declared_length": 14,
+   "experiment": "EXP-0179-g17p-call",
+   "raw": "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run03",
+    "g17p_20260830_run04"
+   ],
+   "carrier": "C1_flat/idx15",
+   "note": "baseline",
+   "n_records": 20
+  },
+  {
+   "mnemonic": "carry_gen",
+   "bytes": "320135032281",
+   "declared_length": 6,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "u64add",
+   "note": "A_carry_gen | offset +0x2a | db round-trip=True | fields={\"b5\": 129, \"cmpmode\": 34, \"dst\": 3, \"srcA\": 3, \"subop\": 1} | byte+2 (0x35) and byte0 low nibble are db.json MATCH bits, not fields: probed raw",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "copysign",
+   "bytes": "07c28800",
+   "declared_length": 4,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03",
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "copysign",
+   "note": "family anchor",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "cvt_bf16",
+   "bytes": "0101148105024000",
+   "declared_length": 8,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01__cvt_bf16",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03",
+    "m4_20260828_run04"
+   ],
+   "carrier": "c_f2bf",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 48
+  },
+  {
+   "mnemonic": "cvt_f2h",
+   "bytes": "010114810402",
+   "declared_length": 6,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03",
+    "m4_20260828_run04",
+    "m4_20260828_rv01__cvt_f2h"
+   ],
+   "carrier": "c_f2h",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 35
+  },
+  {
+   "mnemonic": "cvt_f2h",
+   "bytes": "11031c8100c2",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "cvt_f2h",
+   "bytes": "11033c810022",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "cvt_f2h_dst",
+   "bytes": "c10114810402",
+   "declared_length": 6,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01__cvt_f2h_dst",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03",
+    "m4_20260828_run04",
+    "m4_20260828_rv01__cvt_f2h_dst"
+   ],
+   "carrier": "c_f2h_dst",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 41
+  },
+  {
+   "mnemonic": "cvt_f2i",
+   "bytes": "270756000200b4480300",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "cvt_f2i",
+   "bytes": "270756000300b4480300",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "cvt_f2i",
+   "bytes": "27075618020096480300",
+   "declared_length": 10,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run02",
+    "m4_20260828_run03",
+    "m4_20260828_rv01__cvt_f2i"
+   ],
+   "carrier": "c_f2i",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 27
+  },
+  {
+   "mnemonic": "cvt_i2f",
+   "bytes": "a707561802008e60",
+   "declared_length": 8,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run03",
+    "m4_20260828_rv01__cvt_i2f"
+   ],
+   "carrier": "c_i2f",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 16
+  },
+  {
+   "mnemonic": "cvt_i2f_src",
+   "bytes": "a717541803008c60",
+   "declared_length": 8,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run03",
+    "m4_20260828_rv01__cvt_i2f_src"
+   ],
+   "carrier": "c_i2f_src",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 14
+  },
+  {
+   "mnemonic": "dev_scoreboard_fence",
+   "bytes": "80020000",
+   "declared_length": 4,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "m4-20260828-run11",
+    "m4-20260828-run12"
+   ],
+   "carrier": "synth",
+   "note": "synthesised `80 02 00 00` between the load and its consumer",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "device_load",
+   "bytes": "6710440e010f2000518100404600",
+   "declared_length": 14,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run02",
+    "g17p-20260830-run03",
+    "m4-20260828-run01",
+    "m4-20260828-run11",
+    "m4-20260828-run12",
+    "m4-20260828-run21",
+    "m4-20260828-run22",
+    "smoke01"
+   ],
+   "carrier": "synth",
+   "note": "EXP-0101's HW-VALIDATED construction, unmutated.",
+   "n_records": 9
+  },
+  {
+   "mnemonic": "falu2",
+   "bytes": "09011c0500c0",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2",
+   "bytes": "6901040500c0",
+   "declared_length": 6,
+   "experiment": "EXP-0153-g17p-revalidation",
+   "raw": "experiments/EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run02",
+    "g17p-20260830-run03",
+    "smoke01"
+   ],
+   "carrier": "uni",
+   "note": "mod_lo=0, srcA=r0 (5.0), srcB=r2 (3.0). M4: 8.0.",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "falu2_ext",
+   "bytes": "6901040501000080",
+   "declared_length": 8,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu2_srcmod10",
+   "bytes": "69010405020000800000",
+   "declared_length": 10,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "09c9140180c0",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "09d144838000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm/compute#3",
+   "note": "falu2i.imm_flag -- bit8 sits INSIDE db.json's own imm_decode(). The dimension it controls is the decoded immediate, so this carrier spans the minifloat domain (1/32 .. 30) under fadd and fmul rather t",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "39b124838000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm/compute#0",
+   "note": "falu2i.imm_flag -- bit8 sits INSIDE db.json's own imm_decode(). The dimension it controls is the decoded immediate, so this carrier spans the minifloat domain (1/32 .. 30) under fadd and fmul rather t",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "69832c9f80c0",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm2/compute#0",
+   "note": "falu2i.imm_flag -- structurally different arm: negative immediates (imm_sign=1), fma-shaped uses, and immediates applied to a freshly LOADED operand (the mods==0xC0 form of EXP-0101).",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "79dd2c9f8000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm2/compute#1",
+   "note": "falu2i.imm_flag -- structurally different arm: negative immediates (imm_sign=1), fma-shaped uses, and immediates applied to a freshly LOADED operand (the mods==0xC0 form of EXP-0101).",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "89910d9f8000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm2/compute#2",
+   "note": "falu2i.imm_flag -- structurally different arm: negative immediates (imm_sign=1), fma-shaped uses, and immediates applied to a freshly LOADED operand (the mods==0xC0 form of EXP-0101).",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "99ff0d9f8000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm2/compute#3",
+   "note": "falu2i.imm_flag -- structurally different arm: negative immediates (imm_sign=1), fma-shaped uses, and immediates applied to a freshly LOADED operand (the mods==0xC0 form of EXP-0101).",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "e9b924838000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm/compute#1",
+   "note": "falu2i.imm_flag -- bit8 sits INSIDE db.json's own imm_decode(). The dimension it controls is the decoded immediate, so this carrier spans the minifloat domain (1/32 .. 30) under fadd and fmul rather t",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu2i",
+   "bytes": "f9c104838000",
+   "declared_length": 6,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "falu2i@fimm/compute#2",
+   "note": "falu2i.imm_flag -- bit8 sits INSIDE db.json's own imm_decode(). The dimension it controls is the decoded immediate, so this carrier spans the minifloat domain (1/32 .. 30) under fadd and fmul rather t",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "falu3",
+   "bytes": "69011e0581080200",
+   "declared_length": 8,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor (srcmods/ext at the non-saturating value)",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu3_ext",
+   "bytes": "69011e05820802000080",
+   "declared_length": 10,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor (srcmods/ext at the non-saturating value)",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu3_srcmod12",
+   "bytes": "690106058308020000800000",
+   "declared_length": 12,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu_acc",
+   "bytes": "69013805",
+   "declared_length": 4,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "falu_acc",
+   "bytes": "89113813",
+   "declared_length": 4,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "falu_srcmod12b",
+   "bytes": "690100050300008000000000",
+   "declared_length": 12,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "carrier",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045400020020d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_MAPPING_fcpdst_hangtolerant",
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02",
+    "prefreeze",
+    "superseded"
+   ],
+   "carrier": "fcp@pack0",
+   "note": "packs colour channels 0/1 for the 8-bit attachment store",
+   "n_records": 11
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045401020410d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_MAPPING_fcpdst_hangtolerant",
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02",
+    "prefreeze",
+    "superseded"
+   ],
+   "carrier": "fcp@pack1",
+   "note": "second pack op (channels 2/3) -- adversarial replicate",
+   "n_records": 11
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045404020820d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02"
+   ],
+   "carrier": "r_fcp4",
+   "note": "which GPR feeds the tilebuffer store | baseline vs HOST oracle: EXACT",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045405020008d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02"
+   ],
+   "carrier": "r_fcp4",
+   "note": "which GPR feeds the tilebuffer store | baseline vs HOST oracle: EXACT",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045406020818d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02",
+    "superseded"
+   ],
+   "carrier": "r_fcp4",
+   "note": "which GPR feeds the tilebuffer store | baseline vs HOST oracle: EXACT",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "frag_color_pack",
+   "bytes": "97045407020008d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rfcp01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rfcp01",
+    "g17p_20260830_rfcp02"
+   ],
+   "carrier": "r_fcp4",
+   "note": "which GPR feeds the tilebuffer store | baseline vs HOST oracle: EXACT",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654000000010e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_color_store@ibhalf/fragment#0",
+   "note": "MRT, tile-read, layered and 4x-multisample stores plus a 16-bit attachment; the multisample arms are the only ones in the whole repository whose slice_addr is non-zero (0x08000008)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654000000012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "fcs@iter0",
+   "note": "the only colour store in the program: it writes the observed pixel",
+   "n_records": 9
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654000000014e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "fcs@pack0",
+   "note": "adversarial replicate on an 8-bit (BGRA8Unorm) attachment where fmt differs",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654020000012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_color_store@vflat/fragment#0",
+   "note": "MRT, tile-read, layered and 4x-multisample stores plus a 16-bit attachment; the multisample arms are the only ones in the whole repository whose slice_addr is non-zero (0x08000008)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654080008012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_color_store@tilerw2/fragment#0",
+   "note": "MRT, tile-read, layered and 4x-multisample stores plus a 16-bit attachment; the multisample arms are the only ones in the whole repository whose slice_addr is non-zero (0x08000008)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654100010012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_color_store@mrt3/fragment#0",
+   "note": "MRT, tile-read, layered and 4x-multisample stores plus a 16-bit attachment; the multisample arms are the only ones in the whole repository whose slice_addr is non-zero (0x08000008)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_color_store",
+   "bytes": "e70654180000232e08000008",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_color_store@cent4/fragment#0",
+   "note": "MRT, tile-read, layered and 4x-multisample stores plus a 16-bit attachment; the multisample arms are the only ones in the whole repository whose slice_addr is non-zero (0x08000008)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_depth_store",
+   "bytes": "d71454000003",
+   "declared_length": 6,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "fds@depth0",
+   "note": "the only depth store; the depth attachment is read back directly and the written depth is an interpolated gradient, so 'wrote the wrong value' and 'did not write' are distinguishable",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "870254000600",
+   "declared_length": 6,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "fts@iter0",
+   "note": "store-setup bracket immediately preceding the observed colour store",
+   "n_records": 7
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "870254080800",
+   "declared_length": 6,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_tile_setup@tileread/fragment#1",
+   "note": "the census shows sel taking 0x00/0x04/0x08/0x0c/0x10/0x20/0x30/0xc0 across these carriers, versus 0x00 and 0x0c on EXP-0155's two arms, and both access modes now bracket real tile reads",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "8702540c0800",
+   "declared_length": 6,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "fts@iter1",
+   "note": "second bracket around the same store",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "870254100800",
+   "declared_length": 6,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_tile_setup@tilerw2/fragment#3",
+   "note": "the census shows sel taking 0x00/0x04/0x08/0x0c/0x10/0x20/0x30/0xc0 across these carriers, versus 0x00 and 0x0c on EXP-0155's two arms, and both access modes now bracket real tile reads",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "870254200800",
+   "declared_length": 6,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_tile_setup@tilerw2/fragment#2",
+   "note": "the census shows sel taking 0x00/0x04/0x08/0x0c/0x10/0x20/0x30/0xc0 across these carriers, versus 0x00 and 0x0c on EXP-0155's two arms, and both access modes now bracket real tile reads",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frag_tile_setup",
+   "bytes": "870254c00800",
+   "declared_length": 6,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "frag_tile_setup@mrt3/fragment#1",
+   "note": "the census shows sel taking 0x00/0x04/0x08/0x0c/0x10/0x20/0x30/0xc0 across these carriers, versus 0x00 and 0x0c on EXP-0155's two arms, and both access modes now bracket real tile reads",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "frame_marker_compact",
+   "bytes": "6010",
+   "declared_length": 2,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run03"
+   ],
+   "carrier": "frame_marker_compact@rot/compute#0",
+   "note": "irotate.b2 -- EXP-0166 recommendation 4. EXP-0146's arm reached 32 of 256 encodings through assemble()'s OR defect; this sweep patches bytes directly and the raw is checked for 256 DISTINCT byte strin",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "frame_marker_compact",
+   "bytes": "6040",
+   "declared_length": 2,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01"
+   ],
+   "carrier": "frame_marker_compact@vsrc/vertex#0",
+   "note": "vary_slot.slot -- varyings sourced from memory / immediates / computed values rather than one class.",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "frame_marker_compact",
+   "bytes": "6041",
+   "declared_length": 2,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01"
+   ],
+   "carrier": "frame_marker_compact@vhalf/vertex#0",
+   "note": "vary_slot.slot -- half / vector varying widths.",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "frame_marker_compact",
+   "bytes": "6088",
+   "declared_length": 2,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01"
+   ],
+   "carrier": "frame_marker_compact@srnarrow/compute#0",
+   "note": "get_sr.form -- the SCALAR-SR control for srwide. Same kernel shape, same output surface, only the SR WIDTH differs, which is the dimension db.json says form controls.",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "frame_marker_compact",
+   "bytes": "60a8",
+   "declared_length": 2,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01"
+   ],
+   "carrier": "frame_marker_compact@scache/compute#0",
+   "note": "[from EXP-0163] simd cache/last-use reference arm.",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "fspecial",
+   "bytes": "af0156020200b0400000",
+   "declared_length": 10,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05"
+   ],
+   "carrier": "fspecial",
+   "note": "family anchor rsqrt(4)=0.5",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "fspecial_est",
+   "bytes": "1981250b00c2",
+   "declared_length": 6,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run06"
+   ],
+   "carrier": "fspecial_est",
+   "note": "family anchor: the NR seed inside a full no-fast-math rsqrt(4)",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "04991006",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srnarrow/compute#1",
+   "note": "get_sr.form -- the SCALAR-SR control for srwide. Same kernel shape, same output surface, only the SR WIDTH differs, which is the dimension db.json says form controls.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "0ca01006",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "uni",
+   "note": "compiler-natural value",
+   "n_records": 9
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "149a1026",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srnarrow/compute#2",
+   "note": "get_sr.form -- the SCALAR-SR control for srwide. Same kernel shape, same output surface, only the SR WIDTH differs, which is the dimension db.json says form controls.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "2ca01006",
+   "declared_length": 4,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "34a91026",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srwide/compute#1",
+   "note": "get_sr.form -- db.json calls form a datapath/WIDTH modifier 'set for the position-in-grid SR family'. This carrier reads ONLY the multi-component (uint3) SR family, so form is natively 1 on its occurr",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "64a81006",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srwide/compute#0",
+   "note": "get_sr.form -- db.json calls form a datapath/WIDTH modifier 'set for the position-in-grid SR family'. This carrier reads ONLY the multi-component (uint3) SR family, so form is natively 1 on its occurr",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "a4981006",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srnarrow/compute#0",
+   "note": "get_sr.form -- the SCALAR-SR control for srwide. Same kernel shape, same output surface, only the SR WIDTH differs, which is the dimension db.json says form controls.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "cca01006",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srwide/compute#3",
+   "note": "get_sr.form -- db.json calls form a datapath/WIDTH modifier 'set for the position-in-grid SR family'. This carrier reads ONLY the multi-component (uint3) SR family, so form is natively 1 on its occurr",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "cca01046",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srnarrow/compute#3",
+   "note": "get_sr.form -- the SCALAR-SR control for srwide. Same kernel shape, same output surface, only the SR WIDTH differs, which is the dimension db.json says form controls.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "get_sr",
+   "bytes": "dca11026",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "get_sr@srwide/compute#4",
+   "note": "get_sr.form -- db.json calls form a datapath/WIDTH modifier 'set for the position-in-grid SR family'. This carrier reads ONLY the multi-component (uint3) SR family, so form is natively 1 on its occurr",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "half_alu",
+   "bytes": "10041c0200c0",
+   "declared_length": 6,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "half_alu",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "half_alu_ext8",
+   "bytes": "10041c0201000082",
+   "declared_length": 8,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "half_alu_ext8",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "half_alu_fma12",
+   "bytes": "10041e058302000000800100",
+   "declared_length": 12,
+   "experiment": "EXP-0138-m4-emit-falu",
+   "raw": "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run05",
+    "m4_20260828_run06"
+   ],
+   "carrier": "half_alu_fma12",
+   "note": "family anchor",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "hminmax",
+   "bytes": "22001c0010c0",
+   "declared_length": 6,
+   "experiment": "EXP-0156-g17p-emit-cf-mem",
+   "raw": "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-bf03/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-bf03",
+    "g17p-20260830-bf04",
+    "smoke-s01"
+   ],
+   "carrier": "hmax",
+   "note": "native fp16 MAX, host oracle = exact fp16 of max(a,b)",
+   "n_records": 13
+  },
+  {
+   "mnemonic": "iadd2",
+   "bytes": "1f015600020800501705",
+   "declared_length": 10,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run03",
+    "run01",
+    "run03",
+    "smoke01"
+   ],
+   "carrier": "u64sub",
+   "note": "C_iadd2_64 | offset +0x20 | db round-trip=True | fields={\"addsub\": 0, \"b2_bit0\": 0, \"b2_fmt\": 21, \"dst\": 0, \"lenbit\": 1, \"opc_tail\": 23, \"opc_tail2\": 5, \"opmode\": 2, \"srcA\": 80, \"srcB_ext\": 0, \"srcB_i",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "iadd2",
+   "bytes": "9f01560c020800a81705",
+   "declared_length": 10,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run02",
+    "g17p-20260830-run03",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "smoke01"
+   ],
+   "carrier": "SYNTH:carrier_dag@k",
+   "note": "EXP-0128 register-mode rule, unmutated",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "ibfe",
+   "bytes": "a700560002001000f0118100",
+   "declared_length": 12,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run03",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "smoke01"
+   ],
+   "carrier": "NAT:k_bfe_const@ibfe+0x012",
+   "note": "unmutated anchor a700560002001000f0118100",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "ibfe",
+   "bytes": "a710540002001000f0130500",
+   "declared_length": 12,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run03",
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "smoke01"
+   ],
+   "carrier": "NAT:k_shr@ibfe+0x02a",
+   "note": "unmutated anchor a710540002001000f0130500",
+   "n_records": 7
+  },
+  {
+   "mnemonic": "ibfe",
+   "bytes": "a710540002001400f0130500",
+   "declared_length": 12,
+   "experiment": "EXP-0153-g17p-revalidation",
+   "raw": "experiments/EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run03"
+   ],
+   "carrier": "shr",
+   "note": "adversarial cross-check in a second lowering; scored against the UNMUTATED output (inertness), so the accepted set is the finding.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "ibfins",
+   "bytes": "2710540002001000f0130500",
+   "declared_length": 12,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_shl@ibfins+0x02a",
+   "note": "unmutated anchor 2710540002001000f0130500",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "ibitcount",
+   "bytes": "2705560002005c04",
+   "declared_length": 8,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_pop@ibitcount+0x012",
+   "note": "unmutated anchor 2705560002005c04",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "ibitcount",
+   "bytes": "2705560c020c5c04",
+   "declared_length": 8,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "SYNTH:carrier_dag@k",
+   "note": "synthesized popcount: r6 = popcount(r3=91) = 5",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "icmp_pred",
+   "bytes": "2a8f35052281",
+   "declared_length": 6,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_div@icmp_pred+0x0cc",
+   "note": "unmutated anchor 2a8f35052281",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "if_push",
+   "bytes": "0f05541a",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "if_push_pred",
+   "bytes": "0f155401",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01c",
+    "g17p-20260830-cf02f",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "ilogic",
+   "bytes": "0b051f01000000800000",
+   "declared_length": 10,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "logic_and",
+   "note": "B_ilogic | offset +0x20 | db round-trip=True | fields={\"lut_a\": 0, \"lut_b\": 0, \"op_base\": 1, \"outmod\": 128, \"srcA\": 5, \"srcB\": 1, \"z6\": 0, \"z8\": 0, \"z9\": 0} | byte0 = 0x0a is pre-registered falsifier ",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "imad",
+   "bytes": "9f00560002080038d0260a00",
+   "declared_length": 12,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_imad@imad+0x020",
+   "note": "unmutated anchor 9f00560002080038d0260a00",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "imageblock_store",
+   "bytes": "e71654000000012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "ibs@t1",
+   "note": "the pre-freeze census found the RGBA32Float colour output of the implicit-LOD sample carrier is encoded as imageblock_store, not frag_color_store: it writes the observed pixel, so the whole instructio",
+   "n_records": 13
+  },
+  {
+   "mnemonic": "imageblock_store",
+   "bytes": "e71654000000082e08000008",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "imageblock_store@ibms4/fragment#0",
+   "note": "the single-sample store EXP-0155 saw, plus the 4x-multisample store whose tail is 0x08000008 rather than 0",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "imageblock_store",
+   "bytes": "e716540000000c2e08000008",
+   "declared_length": 12,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "imageblock_store@atoff4/fragment#0",
+   "note": "the single-sample store EXP-0155 saw, plus the 4x-multisample store whose tail is 0x08000008 rather than 0",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iminmax",
+   "bytes": "02011e0504c0",
+   "declared_length": 6,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_umax@iminmax+0x020",
+   "note": "unmutated anchor 02011e0504c0",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "irotate",
+   "bytes": "2701540603002400f0150900",
+   "declared_length": 12,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "irotate@rot2/compute#2",
+   "note": "irotate.b2 -- second structurally different rotate carrier: results feed the SIMD network and a threadgroup round-trip, sources are 16-bit and lane-derived.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "irotate",
+   "bytes": "2701540802046e10f8100900",
+   "declared_length": 12,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "irotate@rot/compute#1",
+   "note": "irotate.b2 -- EXP-0166 recommendation 4. EXP-0146's arm reached 32 of 256 encodings through assemble()'s OR defect; this sweep patches bytes directly and the raw is checked for 256 DISTINCT byte strin",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "irotate",
+   "bytes": "2701560002006c00f0150900",
+   "declared_length": 12,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "rot_imm",
+   "note": "D_irotate | offset +0x12 | db round-trip=True | fields={\"b1\": 1, \"b2\": 86, \"operands\": 1811939840, \"tail\": 595440} | db.json models bytes +3..+7 as one 40-bit `operands` raw field and +8..+11 as a 32-",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "irotate",
+   "bytes": "2701560202185460f0100900",
+   "declared_length": 12,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "irotate@rot2/compute#0",
+   "note": "irotate.b2 -- second structurally different rotate carrier: results feed the SIMD network and a threadgroup round-trip, sources are 16-bit and lane-derived.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "irotate",
+   "bytes": "2701560602047e10f8100900",
+   "declared_length": 12,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "irotate@rot/compute#0",
+   "note": "irotate.b2 -- EXP-0166 recommendation 4. EXP-0146's arm reached 32 of 256 encodings through assemble()'s OR defect; this sweep patches bytes directly and the raw is checked for 256 DISTINCT byte strin",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "isel10",
+   "bytes": "02011f05a2aa05c020d5",
+   "declared_length": 10,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_cmpsel@isel10+0x020",
+   "note": "unmutated anchor 02011f05a2aa05c020d5",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "isel10_c",
+   "bytes": "22802583228185002080",
+   "declared_length": 10,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_div@isel10_c+0x0d6",
+   "note": "unmutated anchor 22802583228185002080",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "isel8",
+   "bytes": "02010f8081040702",
+   "declared_length": 8,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_abs@isel8+0x01c",
+   "note": "unmutated anchor 02010f8081040702",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "isel_reg",
+   "bytes": "22052f08260a06022080",
+   "declared_length": 10,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_bfe_const_s@isel_reg+0x01e",
+   "note": "unmutated anchor 22052f08260a06022080",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "ishift",
+   "bytes": "a7015600020010786200",
+   "declared_length": 10,
+   "experiment": "EXP-0139-m4-emit-ialu",
+   "raw": "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "NAT:k_ashr@ishift+0x012",
+   "note": "unmutated anchor a7015600020010786200",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055400020005020100",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter@cent4/fragment#0",
+   "note": "wide/half/flat/multisample/pull-model/MRT interpolation contexts, versus EXP-0155's three plain 32-bit-scalar arms",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055404030004020900",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "iter@cent1",
+   "note": "centroid/sample-qualified iter -- covers mode/loc values the plain-centre carrier never emits",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055404030600021000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter@vmany/fragment#5",
+   "note": "wide/half/flat/multisample/pull-model/MRT interpolation contexts, versus EXP-0155's three plain 32-bit-scalar arms",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055406020800021000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter@vflat/fragment#1",
+   "note": "wide/half/flat/multisample/pull-model/MRT interpolation contexts, versus EXP-0155's three plain 32-bit-scalar arms",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055406030004020900",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "iter@cent4",
+   "note": "MULTISAMPLED (4x, resolved): centroid and per-sample locations are genuinely distinct from pixel centre only here",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055406030007020900",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter@atoff1/fragment#0",
+   "note": "wide/half/flat/multisample/pull-model/MRT interpolation contexts, versus EXP-0155's three plain 32-bit-scalar arms",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f055408030600021000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter@vhalf/fragment#3",
+   "note": "wide/half/flat/multisample/pull-model/MRT interpolation contexts, versus EXP-0155's three plain 32-bit-scalar arms",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f05540a030200021000",
+   "declared_length": 10,
+   "experiment": "EXP-0143-m4-emit-frag-simd",
+   "raw": "experiments/EXP-0143-m4-emit-frag-simd/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "m4_20260828_run01",
+    "prefreeze"
+   ],
+   "carrier": "iter@frag1",
+   "note": "this iter produces colour channel 0 (proven: src_slot 0x02->0x08 makes channel 0 equal channel 3)",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "iter",
+   "bytes": "2f0d5400030004021000",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "iter@frag0W",
+   "note": "the perspective-W-denominator iter; its result feeds the rcp that scales all four channels",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af045406033c0a03",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@atoff1/fragment#0",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af04540802180a03",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@atoff4/fragment#0",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af04540803040a03",
+   "declared_length": 8,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "iter_at@cent1_1",
+   "note": "second interpolate-at setup; pilot-proven live",
+   "n_records": 7
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af04540c03060a03",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@cent4/fragment#1",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af14540403000a01",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@ms4out/fragment#0",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af14540803080a01",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@cent4/fragment#0",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af14540a03000a01",
+   "declared_length": 8,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "prefreeze"
+   ],
+   "carrier": "iter_at@cent1_0",
+   "note": "interpolate-at setup for the centroid varyings; EXP-0143 pilot proved lead 0x14->0x00 changes channels 0 and 1",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af14540c03000a01",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09",
+    "superseded"
+   ],
+   "carrier": "r_i8",
+   "note": "which interpolation GROUP the varying fetch belongs to (bit 7 only, given the pin) | baseline vs HOST oracle: EXACT",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "iter_at",
+   "bytes": "af24540603140a01",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "iter_at@atoff4/fragment#1",
+   "note": "cent1 is EXP-0155's exact configuration (1 sample) and is the control; cent4 is the SAME MSL at 4 samples; atoff* reach the same op through the interpolant<> pull model instead of a qualifier",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "iter_flat",
+   "bytes": "1f0354060105",
+   "declared_length": 6,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "iter_flat@flat1",
+   "note": "flat varying load feeding a colour channel; the four [[flat]] values are distinct so a selector change is unambiguous",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "iter_flat",
+   "bytes": "1f0b54890005",
+   "declared_length": 6,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "iter_flat@flat0",
+   "note": "adversarial second occurrence of the same op in the same program",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "jump",
+   "bytes": "0f0054e2ffffffffff00",
+   "declared_length": 10,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01a",
+    "g17p-20260830-cf01d",
+    "g17p-20260830-cf02d",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "jump_cond",
+   "bytes": "0f015440000000000000",
+   "declared_length": 10,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01b",
+    "g17p-20260830-cf02e",
+    "g17p-20260830-jcn1",
+    "g17p-20260830-jcn2",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 11
+  },
+  {
+   "mnemonic": "matrix_mac",
+   "bytes": "cf02560200040809d4432401",
+   "declared_length": 12,
+   "experiment": "EXP-0147-m4-emit-pipeline-misc",
+   "raw": "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "matrix_mac",
+   "note": "unspliced program vs host-computed oracle",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "mem_fence",
+   "bytes": "070454840a00",
+   "declared_length": 6,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "m4-20260828-run11",
+    "m4-20260828-run12"
+   ],
+   "carrier": "devfence",
+   "note": "unmutated carrier, host-computed oracle",
+   "n_records": 12
+  },
+  {
+   "mnemonic": "mov_imm",
+   "bytes": "6c63",
+   "declared_length": 2,
+   "experiment": "EXP-0153-g17p-revalidation",
+   "raw": "experiments/EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-run01",
+    "g17p-20260830-run02",
+    "g17p-20260830-run03",
+    "smoke01"
+   ],
+   "carrier": "uni",
+   "note": "mov_imm(r6, 99). M4: out0 == 99, control stays 7.",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "mov_imm",
+   "bytes": "7c21",
+   "declared_length": 2,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "mov_zext16",
+   "bytes": "13000001",
+   "declared_length": 4,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "zext16",
+   "note": "E_mov_zext16 | offset +0x12 | db round-trip=True | fields={\"extend\": 1, \"src_flag\": 0, \"src_reg\": 0, \"subform\": 0} | byte0 = 0x12 is pre-registered falsifier F4.",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "n2_op10",
+   "bytes": "3285218126a00202a0a0",
+   "declared_length": 10,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl",
+   "runs": [
+    "run02",
+    "run03"
+   ],
+   "carrier": "roundmodes",
+   "note": "J_n2_op10 | offset +0x1c | db round-trip=True | fields={\"dst\": 3, \"immword\": 176609088938022, \"opdesc\": 129, \"opsel\": 33, \"src\": 133} | db.json models bytes +4..+9 as one 48-bit `immword` raw field; s",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "n2_op6",
+   "bytes": "02010d802681",
+   "declared_length": 6,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl",
+   "runs": [
+    "run02",
+    "run03"
+   ],
+   "carrier": "u64eq",
+   "note": "H_n2_op6 | offset +0x32 | db round-trip=True | fields={\"dst\": 0, \"imm_sel\": 129, \"opA\": 128, \"opB\": 38, \"opsel\": 13, \"src_desc\": 1} | ",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "n2_op6",
+   "bytes": "32052b829506",
+   "declared_length": 6,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "sfu_sin",
+   "note": "L_n2_op6_sfu | offset +0x44 | db round-trip=True | fields={\"dst\": 3, \"imm_sel\": 6, \"opA\": 130, \"opB\": 149, \"opsel\": 43, \"src_desc\": 5} | second, independent carrier for the n2_op6 catch-all (cross-car",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "n2_op8",
+   "bytes": "02c2490b24858008",
+   "declared_length": 8,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl",
+   "runs": [
+    "run02",
+    "run03"
+   ],
+   "carrier": "sfu_sin",
+   "note": "I_n2_op8 | offset +0x18 | db round-trip=True | fields={\"body\": 36515947531, \"dst\": 0, \"opsel\": 73, \"srcA_desc\": 194} | db.json models bytes +3..+7 as one 40-bit `body` raw field; swept BYTE-WISE.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "n3_mov",
+   "bytes": "03000001",
+   "declared_length": 4,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "run03"
+   ],
+   "carrier": "u64eq",
+   "note": "G_n3_mov | offset +0x3c | db round-trip=True | fields={\"companion\": 1, \"dst\": 0, \"srcA_reg\": 0, \"srcA_uni\": 0, \"subform\": 0} | ",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "n4_cf_word",
+   "bytes": "04010000",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "n4_cf_word@cfdiv/compute#0",
+   "note": "n4_cf_word.b3 -- the 04 01 00 <b3> control word was located before pop_reconverge / threadgroup_barrier in divergent-CF kernels; this is nested data-dependent divergence with reconvergence points.",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "pack_convert",
+   "bytes": "97045600020008d04542",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "pack_convert",
+   "bytes": "97045600020008d04582",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "pack_convert",
+   "bytes": "97045600020008d045c2",
+   "declared_length": 10,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "pack_convert",
+   "bytes": "97045618020802504482",
+   "declared_length": 10,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run03",
+    "m4_20260828_run05",
+    "m4_20260828_rv01__pack_convert"
+   ],
+   "carrier": "c_pack",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 51
+  },
+  {
+   "mnemonic": "packed_half2_hi",
+   "bytes": "900405000020",
+   "declared_length": 6,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run03"
+   ],
+   "carrier": "c_ph2",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "packed_half2_hi",
+   "bytes": "980424000020",
+   "declared_length": 6,
+   "experiment": "EXP-0162-g17p-pack-and-splices",
+   "raw": "experiments/EXP-0162-g17p-pack-and-splices/raw/g17p_20260829_run01__packed_half2_hi/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01__packed_half2_hi"
+   ],
+   "carrier": "c_ph2",
+   "note": "unmutated carrier",
+   "n_records": 15
+  },
+  {
+   "mnemonic": "pixel_order",
+   "bytes": "070454d00600",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09"
+   ],
+   "carrier": "r_rog2",
+   "note": "acquire/wait versus release/signal -- which half of an ordering bracket the instruction is | baseline vs HOST oracle: EXACT",
+   "n_records": 12
+  },
+  {
+   "mnemonic": "pixel_order",
+   "bytes": "071454500600",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09"
+   ],
+   "carrier": "r_rog8",
+   "note": "acquire/wait versus release/signal -- which half of an ordering bracket the instruction is | baseline vs HOST oracle: EXACT",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "pixel_order",
+   "bytes": "073454500600",
+   "declared_length": 6,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09"
+   ],
+   "carrier": "r_rog2",
+   "note": "acquire/wait versus release/signal -- which half of an ordering bracket the instruction is | baseline vs HOST oracle: EXACT",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "pop_reconverge",
+   "bytes": "0f0604010000",
+   "declared_length": 6,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01a",
+    "g17p-20260830-cf01d",
+    "g17p-20260830-cf02d",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "pop_reconverge",
+   "bytes": "0f0604020000",
+   "declared_length": 6,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01a",
+    "g17p-20260830-cf01d",
+    "g17p-20260830-cf02d",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "psel",
+   "bytes": "05002080",
+   "declared_length": 4,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run05/sweep.jsonl",
+   "runs": [
+    "run05"
+   ],
+   "carrier": "u64add",
+   "note": "P2: the psel that consumes carry_gen's predicate, at +0x30",
+   "n_records": 1
+  },
+  {
+   "mnemonic": "psel",
+   "bytes": "0522a0de",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "gsel4",
+   "note": "unmutated baseline [grid=8]",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "ret",
+   "bytes": "8f025400",
+   "declared_length": 4,
+   "experiment": "EXP-0179-g17p-call",
+   "raw": "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run03",
+    "g17p_20260830_run04"
+   ],
+   "carrier": "C1_flat/idx15",
+   "note": "baseline",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "ret",
+   "bytes": "8f045422",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01a",
+    "g17p-20260830-cf01c",
+    "g17p-20260830-cf01d",
+    "g17p-20260830-cf02d",
+    "g17p_20260830_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "cf",
+   "note": "compiler-natural value",
+   "n_records": 7
+  },
+  {
+   "mnemonic": "ret_luse",
+   "bytes": "8f045622",
+   "declared_length": 4,
+   "experiment": "EXP-0156-g17p-emit-cf-mem",
+   "raw": "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01a/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-cf01a",
+    "g17p-20260830-cf01d",
+    "g17p-20260830-cf02d"
+   ],
+   "carrier": "cfN",
+   "note": "compiler-natural value",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "sel",
+   "bytes": "16c2a0c8",
+   "declared_length": 4,
+   "experiment": "EXP-0140-m4-emit-mov-cf",
+   "raw": "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02",
+    "m4_20260828_run03"
+   ],
+   "carrier": "dsel5",
+   "note": "unmutated baseline [a=A1]",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "sfu_marker",
+   "bytes": "0602",
+   "declared_length": 2,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "run01",
+    "run02",
+    "trial00"
+   ],
+   "carrier": "sfu_sin",
+   "note": "K_sfu_marker | offset +0x4a | db round-trip=True | fields={} | sfu_marker declares NO fields in db.json (a byte-invariant 2-byte token); both bytes are probed raw to establish whether either carries e",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "shift_amt_move",
+   "bytes": "0b011c05",
+   "declared_length": 4,
+   "experiment": "EXP-0146-m4-emit-int-misc",
+   "raw": "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03",
+    "run01"
+   ],
+   "carrier": "rot_var",
+   "note": "F_shift_amt_move | offset +0x4c | db round-trip=True | fields={\"dst\": 0, \"kind\": 28, \"op_desc\": 5, \"src_flag\": 0, \"src_reg\": 1} | ",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "17075400020000582212",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@deadsrc/compute#0",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "17075406020c00582212",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "sballot@simd0",
+   "note": "simd_ballot(predicate); the 32-bit mask is written by every lane",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "1707540c020000582212",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@sdiv/compute#0",
+   "note": "a ballot whose mask has many consumers; a ballot under a divergent branch so the active mask is a proper subset of the group; and BOTH db.json ballot forms -- the active-mask form (psrctype 0x02, form",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "17075418030200080218",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@sball/compute#0",
+   "note": "a ballot whose mask has many consumers; a ballot under a divergent branch so the active mask is a proper subset of the group; and BOTH db.json ballot forms -- the active-mask form (psrctype 0x02, form",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "17075418030800582212",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@scache/compute#0",
+   "note": "a ballot whose mask has many consumers; a ballot under a divergent branch so the active mask is a proper subset of the group; and BOTH db.json ballot forms -- the active-mask form (psrctype 0x02, form",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "1707541a030400582212",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@sball/compute#1",
+   "note": "a ballot whose mask has many consumers; a ballot under a divergent branch so the active mask is a proper subset of the group; and BOTH db.json ballot forms -- the active-mask form (psrctype 0x02, form",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_ballot",
+   "bytes": "1707560e030c00582216",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_ballot@deadsrc/compute#4",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "bytes": "3f02541c02041407",
+   "declared_length": 8,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "sreduce@simd8",
+   "note": "the opcls=0 / dtype=7 reduce (census occ 2) -- adversarial replicate exercising the other value of the op-class bit",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_reduce",
+   "bytes": "bf01561802481601",
+   "declared_length": 8,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "sreduce@simd0",
+   "note": "a live SIMD-group reduction whose result every lane writes to the output buffer",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470054180208042c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#0",
+   "note": "[from EXP-0163] the mode==0x06 rotate / shuffle-and-fill form and the 16/64-bit operand widths; the only carrier on which simd_shuffle.rsv9 ever moved.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470154080308022c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#3",
+   "note": "[from EXP-0163] the mode==0x06 rotate / shuffle-and-fill form and the 16/64-bit operand widths; the only carrier on which simd_shuffle.rsv9 ever moved.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470454000308002c1a00",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@sdiv/compute#2",
+   "note": "[from EXP-0163] SIMD ops under a partially active mask.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470454020308042c1a00",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#2",
+   "note": "[from EXP-0163] the mode==0x06 rotate / shuffle-and-fill form and the 16/64-bit operand widths; the only carrier on which simd_shuffle.rsv9 ever moved.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704540203080e2e1200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@sdiv/compute#3",
+   "note": "[from EXP-0163] SIMD ops under a partially active mask.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704540203480a2e1200",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "sshuffle@simd1",
+   "note": "simd_broadcast(u,5): the source lane is directly predictable from the input buffer, so the arm has a true predictive oracle",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470454040304082c1a00",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@scache/compute#1",
+   "note": "[from EXP-0163] simd cache/last-use reference arm.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470454040304122e1200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@scache/compute#3",
+   "note": "[from EXP-0163] simd cache/last-use reference arm.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470454060304142e1200",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@scache/compute#2",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704540a02100a2c0000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@sball/compute#0",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704540e0208062c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@sdiv/compute#1",
+   "note": "[from EXP-0163] SIMD ops under a partially active mask.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704541202140e200400",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#8",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4704541a03040a2c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@scache/compute#0",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470456000200062c0400",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@deadsrc/compute#0",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "470554020308022c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@sdiv/compute#0",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4706540002080c101491",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#15",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4706540c0208060814a1",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#13",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "4745540e0308022c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@deadsrc/compute#3",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "c700541a0208022c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#1",
+   "note": "[from EXP-0163] the mode==0x06 rotate / shuffle-and-fill form and the 16/64-bit operand widths; the only carrier on which simd_shuffle.rsv9 ever moved.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "c70454000248022c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "sshuffle@simd6",
+   "note": "the census's dir=1 (xor/down) occurrence -- adversarial replicate on the other direction; EXP-0115 reports THREE out-of-bounds shuffle modes, so the mode/type fields are swept densely here",
+   "n_records": 3
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "c70454160200082c0400",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@stype/compute#10",
+   "note": "the census finds rsv9 NON-ZERO (0xa1 / 0x91) in the mode-0x06 rotate/fill form, which neither EXP-0155 arm emitted; stype/8 and stype/10 add the srctype 0x14 and 0x00 operand widths",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "c71454020204042c0400",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@deadsrc/compute#1",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "simd_shuffle",
+   "bytes": "c7255408030c062c0200",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "simd_shuffle@deadsrc/compute#2",
+   "note": "irotate.b2 + simd_ballot.cache + simd_shuffle.cache -- all three are the same 0x54 operand byte at byte+2, and db.json's vocabulary for a byte in that role (falu_acc, RT-1a-FIX) is 'a source cache / L",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "stop",
+   "bytes": "0e000000",
+   "declared_length": 4,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "0b132f00420000001000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@ms4out/fragment#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "1b012f0d000200000000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@bits/fragment#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "2b052f0f000200000000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@bits/fragment#1",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "2b052f1f000200000000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@fclass/fragment#1",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "6b012f00420000040000",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_coord@lo_0",
+   "note": "THE ONLY tex_coord_setup our whole carrier set emits.  The pre-freeze census showed neither a float2 2D sample nor a 3D/cube/array sample emits it -- only the const-offset gather / bias / gradient / d",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "6b032f00420000940000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@vsrc/vertex#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "6b0d2f0f000200000000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@fclass/fragment#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "7b012f004220000c0000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@vsrc/vertex#1",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "ab052f00420000140000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@vhalf/vertex#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_coord_setup",
+   "bytes": "fb0f2f8f100200000000",
+   "declared_length": 10,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_coord_setup@sball/compute#0",
+   "note": "the census finds THREE distinct `form` values: 0x00 (float-classify / bitfield ALU, b5=0x02) and 0x42 (attribute / varying destination address, idx = 0x04..0x94, b5 up to 0x20, b8 up to 0x10).  EXP-01",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37055400020492400000",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_deriv@d0",
+   "note": "each of the four derivatives goes to its OWN colour channel and the alpha channel adds an ALU-only sentinel, so a zeroed derivative, an axis swap and a dead dispatch are three different read-back vect",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37055400031090400000",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_deriv@deriv/fragment#5",
+   "note": "tex_deriv.dstsrc -- the ONLY field left blocking tex_deriv, and the ISA database has never had a carrier authored for it: every previous 0x37 in the corpus was incidental to implicit-LOD sampling. Eig",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37055402020490400000",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_deriv@deriv/fragment#1",
+   "note": "tex_deriv.dstsrc -- the ONLY field left blocking tex_deriv, and the ISA database has never had a carrier authored for it: every previous 0x37 in the corpus was incidental to implicit-LOD sampling. Eig",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37055404030890400000",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_deriv@deriv/fragment#2",
+   "note": "tex_deriv.dstsrc -- the ONLY field left blocking tex_deriv, and the ISA database has never had a carrier authored for it: every previous 0x37 in the corpus was incidental to implicit-LOD sampling. Eig",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37055406021492400000",
+   "declared_length": 10,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_deriv@deriv/fragment#4",
+   "note": "tex_deriv.dstsrc -- the ONLY field left blocking tex_deriv, and the ISA database has never had a carrier authored for it: every previous 0x37 in the corpus was incidental to implicit-LOD sampling. Eig",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_deriv",
+   "bytes": "37075402020490400000",
+   "declared_length": 10,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_deriv@d1",
+   "note": "second derivative op in the same program -- adversarial replicate",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "05800c2090000000000110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t1_0",
+   "note": "sample 0's result is colour channel 0 and nothing else reaches channel 0; channel 3 is a texture-unit-independent ALU sentinel, so a dead texture unit and a dead shader are separable",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "05800c2090000900010110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_sample@texmix/fragment#1",
+   "note": "tex_sample.coord -- the same descriptor reached through three operation kinds (explicit-LOD sample, gather, integer read) in one program, so a coord verdict is not a property of one kind. Every operat",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "05800c2090008001000110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@tc_0",
+   "note": "a 3D sample: the ONLY place tex_type=2 (volumetric) and the third coordinate register (extra_coord) are live",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "05800c2090480900000110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t2_0",
+   "note": "EXPLICIT-LOD sample -> channel 0: a different `variant` value, so the tex_type/lod_present rules are tested off the implicit-LOD path",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "05800c269124010200880000010e",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@lo_1",
+   "note": "const-offset gather (variant 0x01, samp_extra 0x0e): the only occurrence in the set with a non-zero samp_extra",
+   "n_records": 6
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "0d800c2111250400010010000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@lo_2",
+   "note": "gradient sample (variant 0x04, mode 0x10 filtered)",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "0d820c2010010000000110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t1_1",
+   "note": "sample 1 -> channel 1; adversarial replicate of the same op in the same program with a different coordinate register pair",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "0d820c2410490000010100000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t2_1",
+   "note": "GATHER -> channel 1: exercises result_desc's gather encoding and a third variant value",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "15840ca090010000010110000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t1_2",
+   "note": "sample 2 -> channel 2; third independent replicate",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "15840ca091491701000000000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@t2_2",
+   "note": "unfiltered READ -> channel 2: no sampler is involved, so any sampler-side field that still matters here is a real finding",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "25840c2190252000800100000100",
+   "declared_length": 14,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_sample@lo_0",
+   "note": "depth-compare sample (variant 0x20): the widest variant coverage in the set, and the only one with a compare reference operand",
+   "n_records": 5
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "2d800c2090001701000100000100",
+   "declared_length": 14,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_sample@texread/fragment#1",
+   "note": "tex_sample.coord -- EXP-0155's movement did not reproduce (73-93% cross-run agreement). coord is a REGISTER INDEX, so a swept value points the coordinate operand at an arbitrary register; on a filtere",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "2d860ca011021701000000000100",
+   "declared_length": 14,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_sample@texmix/fragment#3",
+   "note": "tex_sample.coord -- the same descriptor reached through three operation kinds (explicit-LOD sample, gather, integer read) in one program, so a coord verdict is not a property of one kind. Every operat",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_sample",
+   "bytes": "35820c2010251701000100000100",
+   "declared_length": 14,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_sample@texread/fragment#2",
+   "note": "tex_sample.coord -- EXP-0155's movement did not reproduce (73-93% cross-run agreement). coord is a REGISTER INDEX, so a swept value points the coordinate operand at an arbitrary register; on a filtere",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d700552020400002000400008c1a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twtype/fragment#3",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d700553040400000000400008c3a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twdim/fragment#3",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d71054002040000000040000883a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_write@w0",
+   "note": "write 0 lands in texel (1,0) of a texture reset to (-1,-2,-3,-4) before every render: 'wrote here', 'did not write' and 'wrote somewhere else' are three distinguishable read-backs",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d72054004040000000040000893a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twdim/fragment#0",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d72054102040000000040000893a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_write@w1",
+   "note": "write 1 -> texel (3,2); adversarial replicate",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d740541040200001000400008a3a0d00",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twdim/fragment#1",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d740542020400000000400008a3a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0155-g17p-emit-tex-frag",
+   "raw": "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "prefreeze"
+   ],
+   "carrier": "tex_write@w2",
+   "note": "write 2 -> texel (5,4); third replicate on the highest-value fields",
+   "n_records": 4
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d780542040400002000800008b3a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twdim/fragment#2",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tex_write",
+   "bytes": "d780543020400001000400008b2a0900",
+   "declared_length": 16,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "tex_write@twtype/fragment#2",
+   "note": "2D, 2D-array (non-zero slice), 3D and half/uint destinations; the census shows amode taking 0x55 on the last write of each program, not only 0x54, and data_desc taking 0x3a/0x2a/0x1a",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "tg_addr_compute",
+   "bytes": "1c0200000000",
+   "declared_length": 6,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "g17p-20260830-t141a",
+    "g17p-20260830-t141b",
+    "g17p-20260830-tg01a",
+    "g17p-20260830-tg01b",
+    "g17p-20260830-tg02a",
+    "g17p-20260830-tg02b",
+    "m4-20260828-run11",
+    "m4-20260828-run12",
+    "smoke-s01"
+   ],
+   "carrier": "tgtile",
+   "note": "BASELINE (unmutated value)",
+   "n_records": 33
+  },
+  {
+   "mnemonic": "threadgroup_barrier",
+   "bytes": "070454610900",
+   "declared_length": 6,
+   "experiment": "EXP-0141-m4-emit-mem",
+   "raw": "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+   "runs": [
+    "m4-20260828-run11",
+    "m4-20260828-run12"
+   ],
+   "carrier": "tgtile",
+   "note": "unmutated carrier, host-computed oracle",
+   "n_records": 12
+  },
+  {
+   "mnemonic": "tile_read",
+   "bytes": "670e5400000001ae02000000",
+   "declared_length": 12,
+   "experiment": "EXP-0147-m4-emit-pipeline-misc",
+   "raw": "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "tile_read",
+   "note": "unspliced program vs host-computed oracle",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "tile_read_mrt",
+   "bytes": "670654080008012e00000000",
+   "declared_length": 12,
+   "experiment": "EXP-0147-m4-emit-pipeline-misc",
+   "raw": "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run01",
+    "m4_20260828_run02"
+   ],
+   "carrier": "tile_read_mrt",
+   "note": "unspliced program vs host-computed oracle",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "uniform_mov",
+   "bytes": "0b140108",
+   "declared_length": 4,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "bytes": "1704560000001caa",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "bytes": "1704560000001cca",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "bytes": "1704560000080eca",
+   "declared_length": 8,
+   "experiment": "EXP-0144-m4-emit-pack",
+   "raw": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/sweep.jsonl",
+   "runs": [
+    "m4_20260828_run05",
+    "m4_20260828_rv01__unpack_convert"
+   ],
+   "carrier": "c_unpack",
+   "note": "POS-CTRL: unspliced carrier (MODE A targets still splice the synth instruction) must reproduce the host oracle exactly, else the arm is void",
+   "n_records": 26
+  },
+  {
+   "mnemonic": "unpack_convert",
+   "bytes": "1704560001001cca",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run02",
+    "g17p_20260830_run03"
+   ],
+   "carrier": null,
+   "note": "unmutated anchor; every later case is a delta against it",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_slot",
+   "bytes": "000c4000",
+   "declared_length": 4,
+   "experiment": "EXP-0143-m4-emit-frag-simd",
+   "raw": "experiments/EXP-0143-m4-emit-frag-simd/raw/m4_20260828_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260829_run01",
+    "g17p_20260829_run02",
+    "g17p_20260829_run03",
+    "g17p_20260829_run04",
+    "g17p_20260830_run01",
+    "g17p_20260830_run02",
+    "m4_20260828_run01",
+    "prefreeze"
+   ],
+   "carrier": "vary_slot@vert0",
+   "note": "vertex program feeds every fragment varying; any change to the varying-output descriptor must show in the interpolated pixel",
+   "n_records": 16
+  },
+  {
+   "mnemonic": "vary_slot",
+   "bytes": "000c4020",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_slot@vhalf/vertex#0",
+   "note": "vary_slot.slot -- half / vector varying widths.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_slot",
+   "bytes": "000c4040",
+   "declared_length": 4,
+   "experiment": "EXP-0172-g17p-onefield-tail",
+   "raw": "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_slot@vflat/vertex#0",
+   "note": "vary_slot.slot -- flat / no-perspective interpolation class.",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706541220414c00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vmany/vertex#9",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706542000424d00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vmany/vertex#16",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706550aa0404c00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vsrc/vertex#5",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706550e80404800",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vflat/vertex#4",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706560cc0404a00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vhalf/vertex#6",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5706560cc0404d00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vsrc/vertex#6",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5716540200404a00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vmany/vertex#0",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5726540200404900",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vclip/vertex#0",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vary_store",
+   "bytes": "5746540400404a00",
+   "declared_length": 8,
+   "experiment": "EXP-0163-g17p-inert-liveness",
+   "raw": "experiments/EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "carrier": "vary_store@vhalf/vertex#0",
+   "note": "slots past 7, half/vector components, flat integers, memory-sourced varyings and a clip distance -- the census shows hint2 takes 0x54/0x55/0x56 and hint6 takes 0x48..0x4d across these, versus one valu",
+   "n_records": 2
+  },
+  {
+   "mnemonic": "vtx_out_pos",
+   "bytes": "0b00260040000004",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09"
+   ],
+   "carrier": "r_v8f",
+   "note": "the number and identity of varying/output slots (`slot`) and which register feeds the output (`dst`) | baseline vs HOST oracle: EXACT",
+   "n_records": 8
+  },
+  {
+   "mnemonic": "vtx_out_pos",
+   "bytes": "1b00260040000004",
+   "declared_length": 8,
+   "experiment": "EXP-0168-g17p-dst-resweep",
+   "raw": "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/sweep.jsonl",
+   "runs": [
+    "g17p_20260830_rclean01",
+    "g17p_20260830_rclean07",
+    "g17p_20260830_rclean08",
+    "g17p_20260830_rclean09"
+   ],
+   "carrier": "r_v1",
+   "note": "the number and identity of varying/output slots (`slot`) and which register feeds the output (`dst`) | baseline vs HOST oracle: EXACT",
+   "n_records": 4
+  }
+ ]
+}

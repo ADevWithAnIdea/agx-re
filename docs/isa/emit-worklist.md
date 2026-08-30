@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 54 | 112 | 166 |
+| 55 | 111 | 166 |
 
 ## Distance to emittable
 
@@ -16,9 +16,9 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 0 | 4 |
 | 1 | 22 |
-| 2 | 21 |
-| 3 | 19 |
-| 4 | 12 |
+| 2 | 22 |
+| 3 | 18 |
+| 4 | 11 |
 | 5 | 14 |
 | 6 | 7 |
 | 7 | 4 |
@@ -35,8 +35,8 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | field name | instructions it blocks |
 |---|---:|
 | `dst` | 37 |
-| `tail` | 11 |
 | `srcA` | 11 |
+| `tail` | 10 |
 | `src` | 9 |
 | `b5` | 9 |
 | `b3` | 8 |
@@ -77,7 +77,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `simd_shuffle` | `cache` | single-template-inference |
 | `vtx_out_pos` | `slot` | single-template-inference |
 
-## TWO fields away (21 instructions)
+## TWO fields away (22 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -102,6 +102,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `ray_move` | `dst`, `src` | untested, untested |
 | `ray_move_copy6` | `dst`, `src` | untested, untested |
 | `tex_write` | `amode`, `rsv11` | untested, untested |
+| `tile_read_mrt` | `b4`, `b6_hi` | untested, untested |
 
 ## Blocked by a descriptor problem, not a sweep
 
@@ -116,7 +117,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 178 |
+| `untested` | 173 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 28 |

@@ -1,0 +1,150 @@
+{
+ "amendments": [
+  "amendment_01",
+  "amendment_02",
+  "amendment_03",
+  "amendment_04",
+  "amendment_05",
+  "amendment_06",
+  "amendment_07",
+  "amendment_08",
+  "amendment_09"
+ ],
+ "artifacts": {
+  "CAPTURE_CONTRACT.json": "952e21ff40b866ec4442ce2723a4b0a70dfc9002c6aae8664c86d8a654a422de",
+  "DEFECTIVE-run01.md": "09fca63efcfbe9412e65ae4d533b45d287db01aceb8d6fb7089f64960cf1ebe5",
+  "PRE_REGISTRATION.md": "97af7c8453ac2d1025606e47d1698e7dba360bd30381d3b7f66bd7804ce34370",
+  "PROGRESS.md": "b9cb15cc02465ec38029d15b94a66a6b895643a337fbcab327a87d6c80ede1e6",
+  "README.md": "6b3e56ef8ee7fbd88a3fb8c38599e3e3bd1685964338452daa3ce52d1fe565c4",
+  "RESULTS.md": "c40e391eb229d04e03385eeb4b031d5419befd30893cfa63af005800878f1f77",
+  "analysis/answers.json": "80616933264e34ecfe4516e3a960d074ee5b376a08b562af0be2815469a1c907",
+  "analysis/answers.py": "f0487c3af0a95036396749ada1cd8aacce241f3b90a335719a6147aeb0a6be5d",
+  "analysis/covary_audit.json": "970487422850a35d31cacb3b899df16ff146ac3f762e50c559220b1a54602a93",
+  "analysis/covary_audit.py": "2ab832ac84cc86df595b089ef62e0b60f1506dc7cbcbdaf23f7ada850d40e928",
+  "analysis/field_verdicts.json": "4fb00b4e270ca68417c3ccb49b233f121397fbe5476f4b2fe512a9ecdbedeef0",
+  "analysis/make_manifest.py": "392a6fb3cb6fb02c34e6ff5c10d04d8e849d46e381d37ceb740a740f542bb07c",
+  "analysis/verdicts.py": "39563d886ee5ecaa0d6a8e80c77e0eb4eeb701e25d9587541326dd2587e24b16",
+  "harness/closure_scan.py": "7db6f842d884944fa27228c92f97a368704fbc6441aa0850693cc4180a1bf11f",
+  "harness/fakerunner.py": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
+  "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
+  "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
+  "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
+  "harness/run.py": "c6a6dc4453872f7c51c9745c1e920860a5153969544df2b2df8fe85ac510f1c9",
+  "harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
+  "harness/selftest.py": "eff72c939a8e7467a19cf7a2417bfe5594783d88f3e0e4a1a5a9acfb24eb9118",
+  "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",
+  "harness/sweepplan.py": "b789b70ab9a714f3e233725deedd2938fdb4ff9154b5f11c707825db0d1ac885",
+  "harness/sync.sh": "fe1fc40e31f2e7535930df3f152ba36341f70690fcbf277fa2a13851658bbe53",
+  "harness/verify_remote.py": "36ed369b963d8d47c45e546aed33ce5a4b36a74fdcfb9e87ce2eb387ae4e2883",
+  "kernels/sysval.metal": "6b14b1106220492488c221a36c0edb7d2349e970459e44e25d9a61c5d21ca939",
+  "kernels/tilebuf.metal": "d1d85c915020fcacc8bbd466cf70e089b89843f72d3e5bb6c6a075091cb191ed",
+  "manifest.json": "612382e34bf855d8ac88287dca9db349ee5f85a10283ad0c70ace0e4db1f9684",
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "pinned/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+ },
+ "capture_contract_sha256": "952e21ff40b866ec4442ce2723a4b0a70dfc9002c6aae8664c86d8a654a422de",
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/sysval.metal + kernels/tilebuf.metal (authored for this experiment; f_tile/f_mrt/v_arr reproduce our own EXP-0147 carriers and k_sr_c our own EXP-0092 srprobe) and the AGX bytes the public newLibraryWithSource: API compiled from them"
+ },
+ "defective_runs": {
+  "g17p_20260830_run01": "closure-shadowing defect; see DEFECTIVE-run01.md; retained, never reused",
+  "g17p_20260830_run02": "never dispatched; id retired so no id is ambiguous"
+ },
+ "experiment": "EXP-0178-g17p-sysval-tileread",
+ "gated_runs": [
+  "g17p_20260830_run03",
+  "g17p_20260830_run04"
+ ],
+ "generated_utc": "2026-08-30T13:07:26Z",
+ "pinned_inputs_sha256": {
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "pinned/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+ },
+ "raw": {
+  "raw/g17p_20260830_run01/00_env.json": "22b0cbd7d0f7e24db8ca351a3769afbf1db655afb2fa801cd39b3bbd3dec0707",
+  "raw/g17p_20260830_run01/sweep.jsonl": "518c205d79ed5f5015d7e3caa20578753e10a20b1ea931b8857225170ad6e3c3",
+  "raw/g17p_20260830_run03/00_arm_resolution.json": "ad94fefe0bce7e66de1f006522b96b933db0040b5103673bad378d7d63000cfa",
+  "raw/g17p_20260830_run03/00_env.json": "18aa5a657ea44b3ab3362f54d658767a293c5cd884e547b3dd831f77b45accd8",
+  "raw/g17p_20260830_run03/02_summary.json": "0a50c7ace413e8a5d53e30196738c0dd2557c99c3c52d21a43789b75a9e36b7e",
+  "raw/g17p_20260830_run03/sweep.jsonl": "c286f12864b1a79f89ae451a68412bb87eed646234f5830e5b3143a08d64a834",
+  "raw/g17p_20260830_run04/00_arm_resolution.json": "ad94fefe0bce7e66de1f006522b96b933db0040b5103673bad378d7d63000cfa",
+  "raw/g17p_20260830_run04/00_env.json": "0be413687db7393a57e9328709fc45668018e3d0383a1aa496b222ffa8798a2c",
+  "raw/g17p_20260830_run04/02_summary.json": "0a50c7ace413e8a5d53e30196738c0dd2557c99c3c52d21a43789b75a9e36b7e",
+  "raw/g17p_20260830_run04/sweep.jsonl": "e036f709a180781f3c2849cb0b025fa24c674417bdfed982a9022f9f60d22b2c",
+  "raw/g17p_20260830_run05/00_arm_resolution.json": "c2b21bb6b8f68143e55118c54e529be673475f73fd18bbb417ffca79c105f89f",
+  "raw/g17p_20260830_run05/00_env.json": "dd7ae52b4e2daadfe8b8b146cf0a230c048d7f14ce0ca8907e25a64d21abbf94",
+  "raw/g17p_20260830_run05/02_summary.json": "9bf998e11e7f492681caa6795af54486b19895f5b996a0cc3a978762250b0372",
+  "raw/g17p_20260830_run05/sweep.jsonl": "c8ad8e8a032ebecc43e3f1c06d4722eb8757918e03b4e4c35c76155fe513d279",
+  "raw/g17p_20260830_run06/00_arm_resolution.json": "c2b21bb6b8f68143e55118c54e529be673475f73fd18bbb417ffca79c105f89f",
+  "raw/g17p_20260830_run06/00_env.json": "32bbea1ae431d3eb456be42bbcdffa9635b651690c2a93a042389293a342c1d8",
+  "raw/g17p_20260830_run06/02_summary.json": "9bf998e11e7f492681caa6795af54486b19895f5b996a0cc3a978762250b0372",
+  "raw/g17p_20260830_run06/sweep.jsonl": "2abb9b91fa9953f0152487f8cced7c2b2c5da9d90fad835fad59f0122675d06b"
+ },
+ "repo_revision_at_freeze": "db7c3c957a8788b8589978a48c044b049dde2cc2",
+ "repo_revision_now": "0f38e2f871ecb85e9c014c1398054debd044d0c3",
+ "run_environment": {
+  "g17p_20260830_run01": {
+   "host": "users-MacBook-Neo.local",
+   "pinned_db_instructions": 172,
+   "python": "3.9.6",
+   "records": 9,
+   "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G5043d",
+   "utc": "2026-08-30T12:27:09Z",
+   "xcrun": "xcrun version 72."
+  },
+  "g17p_20260830_run03": {
+   "host": "users-MacBook-Neo.local",
+   "pinned_db_instructions": 172,
+   "python": "3.9.6",
+   "records": 1710,
+   "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G5043d",
+   "utc": "2026-08-30T12:36:23Z",
+   "xcrun": "xcrun version 72."
+  },
+  "g17p_20260830_run04": {
+   "host": "users-MacBook-Neo.local",
+   "pinned_db_instructions": 172,
+   "python": "3.9.6",
+   "records": 1710,
+   "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G5043d",
+   "utc": "2026-08-30T12:47:44Z",
+   "xcrun": "xcrun version 72."
+  },
+  "g17p_20260830_run05": {
+   "host": "users-MacBook-Neo.local",
+   "pinned_db_instructions": 172,
+   "python": "3.9.6",
+   "records": 9460,
+   "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G5043d",
+   "utc": "2026-08-30T12:59:22Z",
+   "xcrun": "xcrun version 72."
+  },
+  "g17p_20260830_run06": {
+   "host": "users-MacBook-Neo.local",
+   "pinned_db_instructions": 172,
+   "python": "3.9.6",
+   "records": 9460,
+   "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G5043d",
+   "utc": "2026-08-30T13:01:33Z",
+   "xcrun": "xcrun version 72."
+  }
+ },
+ "target": {
+  "accel": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "family": "Apple9",
+  "host": "users-MacBook-Neo.local",
+  "name": "A18 Pro / G17P",
+  "note": "closure is measured against full G17P; NO M4 claim is made anywhere in this experiment",
+  "os": "macOS 26.6"
+ }
+}

@@ -376,7 +376,7 @@
       "measurement_failed_pct": 0.0,
       "no_draw_or_dispatch": 0,
       "not_written": 0,
-      "runner_restarts": 34,
+      "runner_restarts": 32,
       "sample_raw_lines": null,
       "victim_strings": {}
      },
@@ -497,7 +497,7 @@
      "run02": {
       "cases": 562,
       "hang": 0,
-      "invalid_run_victims": 25,
+      "invalid_run_victims": 0,
       "measurement_failed": 0,
       "measurement_failed_by_field": {},
       "measurement_failed_pct": 0.0,
@@ -505,9 +505,7 @@
       "not_written": 0,
       "runner_restarts": 32,
       "sample_raw_lines": null,
-      "victim_strings": {
-       "Discarded (victim of GPU error/recovery) (00000005:kIOGPUCom": 25
-      }
+      "victim_strings": {}
      },
      "verdict": "MEASUREMENT FAILURES PRESENT -- read the null results here with suspicion; check raw_lines and victim_strings"
     },
@@ -670,7 +668,7 @@
       "measurement_failed_pct": 0.0,
       "no_draw_or_dispatch": 53,
       "not_written": 0,
-      "runner_restarts": 280,
+      "runner_restarts": 272,
       "sample_raw_lines": null,
       "victim_strings": {}
      },
@@ -899,22 +897,30 @@
     "0x88": {
      "flat": true,
      "label": "base_vertex (db.json enum)",
+     "pixel_sample_max": 0,
+     "pixel_sample_min": 0,
      "raw_SR_after_subtracting_K": 0
     },
     "0x8a": {
      "flat": true,
      "label": "base_instance (db.json enum)",
+     "pixel_sample_max": 0,
+     "pixel_sample_min": 0,
      "raw_SR_after_subtracting_K": 0
     },
     "0xd8": {
      "flat": true,
      "label": "instance_id",
+     "pixel_sample_max": 2,
+     "pixel_sample_min": 2,
      "raw_SR_after_subtracting_K": 2
     },
     "0xdd": {
      "flat": false,
      "label": "vertex_id",
-     "raw_SR_after_subtracting_K": "ramp [9.1875, 9.3125, 9.4375, 9.5625]"
+     "pixel_sample_max": 10.3125,
+     "pixel_sample_min": 9.1875,
+     "raw_SR_after_subtracting_K": "spatial ramp over the 4x4, pixel-sample range 9.1875..10.3125 (the three CORNER values it interpolates are the SR's per-vertex readings)"
     }
    },
    "selectors_expected_to_read_zero_in_a_vertex_program": {
@@ -940,28 +946,472 @@
  "Q2": {
   "arms": {
    "mrt_cm1": {
-    "status": "NOT_ATTEMPTED",
-    "why": "no arm_meta"
+    "anchor": "670654080008012e00000000",
+    "b6_hi": {
+     "all_ok": true,
+     "disagreements": [],
+     "outcomes": {
+      "ok": 128
+     },
+     "values_agreeing": 128
+    },
+    "baseline_fields": {
+     "b4": 0,
+     "b6_hi": 0,
+     "dst": 8,
+     "fmt": 46,
+     "read_en": 1,
+     "rt_index": 8,
+     "tail": 0
+    },
+    "dst": {
+     "correct_values": [
+      "0x08",
+      "0x09",
+      "0xc8",
+      "0xc9"
+     ],
+     "disagreements": [],
+     "hazard_is_contiguous": true,
+     "hazard_span": "0xf6..0xff",
+     "hazard_values": [
+      "0xf6",
+      "0xf7",
+      "0xf8",
+      "0xf9",
+      "0xfa",
+      "0xfb",
+      "0xfc",
+      "0xfd",
+      "0xfe",
+      "0xff"
+     ]
+    },
+    "fmt": {
+     "M4_legal_set": [
+      "0x2e",
+      "0x2f",
+      "0x6e",
+      "0x6f",
+      "0xae",
+      "0xaf",
+      "0xee",
+      "0xef"
+     ],
+     "correct_values": [
+      "0x2e",
+      "0x2f",
+      "0x6e",
+      "0x6f",
+      "0xae",
+      "0xaf",
+      "0xee",
+      "0xef"
+     ],
+     "disagreements": [],
+     "matches_M4_legal_set": true,
+     "silent_zero_count": 104
+    },
+    "measurement_health": {
+     "run01": {
+      "cases": 2229,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "run02": {
+      "cases": 2229,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "verdict": "CLEAN"
+    },
+    "read_en": {
+     "M4_rule_reproduces": true,
+     "any_fault": false,
+     "disagreements": [],
+     "per_value": {
+      "0": "silent_zero",
+      "1": "ok"
+     }
+    },
+    "resolved_instr": "tile_read_mrt",
+    "rt_index": {
+     "M4_shape_reproduces_bit0_and_bit7_dontcare": true,
+     "correct_values": [
+      "0x08",
+      "0x09",
+      "0x88",
+      "0x89"
+     ],
+     "disagreements": [],
+     "faulting_values": [],
+     "silent_zero_attachment_labels": {
+      "SILENT_ZERO:rt1": 224
+     },
+     "silent_zero_count": 224,
+     "wrong_value_count": 28
+    },
+    "status": "RAN"
    },
    "mrt_cm2": {
-    "status": "NOT_ATTEMPTED",
-    "why": "no arm_meta"
+    "anchor": "670654080008012e00000000",
+    "b6_hi": {
+     "all_ok": true,
+     "disagreements": [],
+     "outcomes": {
+      "ok": 128
+     },
+     "values_agreeing": 128
+    },
+    "baseline_fields": {
+     "b4": 0,
+     "b6_hi": 0,
+     "dst": 8,
+     "fmt": 46,
+     "read_en": 1,
+     "rt_index": 8,
+     "tail": 0
+    },
+    "dst": {
+     "correct_values": [
+      "0x08",
+      "0x09",
+      "0xc8",
+      "0xc9"
+     ],
+     "disagreements": [
+      {
+       "run01": "silent_zero",
+       "run02": "wrong_value",
+       "value": 1
+      }
+     ],
+     "hazard_is_contiguous": true,
+     "hazard_span": "0xf6..0xff",
+     "hazard_values": [
+      "0xf6",
+      "0xf7",
+      "0xf8",
+      "0xf9",
+      "0xfa",
+      "0xfb",
+      "0xfc",
+      "0xfd",
+      "0xfe",
+      "0xff"
+     ]
+    },
+    "fmt": {
+     "M4_legal_set": [
+      "0x2e",
+      "0x2f",
+      "0x6e",
+      "0x6f",
+      "0xae",
+      "0xaf",
+      "0xee",
+      "0xef"
+     ],
+     "correct_values": [
+      "0x2e",
+      "0x2f",
+      "0x6e",
+      "0x6f",
+      "0xae",
+      "0xaf",
+      "0xee",
+      "0xef"
+     ],
+     "disagreements": [],
+     "matches_M4_legal_set": true,
+     "silent_zero_count": 104
+    },
+    "measurement_health": {
+     "run01": {
+      "cases": 2229,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "run02": {
+      "cases": 2229,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "verdict": "CLEAN"
+    },
+    "read_en": {
+     "M4_rule_reproduces": true,
+     "any_fault": false,
+     "disagreements": [],
+     "per_value": {
+      "0": "silent_zero",
+      "1": "ok"
+     }
+    },
+    "resolved_instr": "tile_read_mrt",
+    "rt_index": {
+     "M4_shape_reproduces_bit0_and_bit7_dontcare": true,
+     "correct_values": [
+      "0x08",
+      "0x09",
+      "0x88",
+      "0x89"
+     ],
+     "disagreements": [],
+     "faulting_values": [],
+     "silent_zero_attachment_labels": {
+      "SILENT_ZERO:rt1": 208
+     },
+     "silent_zero_count": 208,
+     "wrong_value_count": 44
+    },
+    "status": "RAN"
    },
    "tile_ct1": {
-    "status": "NOT_ATTEMPTED",
-    "why": "no arm_meta"
+    "anchor": "670e5400000001ae02000000",
+    "b6_hi": {
+     "all_ok": true,
+     "disagreements": [],
+     "outcomes": {
+      "ok": 128
+     },
+     "values_agreeing": 128
+    },
+    "baseline_fields": {
+     "b2": 84,
+     "b4": 0,
+     "b6_hi": 0,
+     "b7": 174,
+     "dst": 0,
+     "read_en": 1,
+     "rt_index": 0,
+     "tail": 2
+    },
+    "dst": {
+     "correct_values": [
+      "0x00",
+      "0x01",
+      "0xc0",
+      "0xc1"
+     ],
+     "disagreements": [],
+     "hazard_is_contiguous": true,
+     "hazard_span": "0xf6..0xff",
+     "hazard_values": [
+      "0xf6",
+      "0xf7",
+      "0xf8",
+      "0xf9",
+      "0xfa",
+      "0xfb",
+      "0xfc",
+      "0xfd",
+      "0xfe",
+      "0xff"
+     ]
+    },
+    "measurement_health": {
+     "run01": {
+      "cases": 2485,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 14,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "run02": {
+      "cases": 2485,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 11,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "verdict": "CLEAN"
+    },
+    "read_en": {
+     "M4_rule_reproduces": true,
+     "any_fault": false,
+     "disagreements": [],
+     "per_value": {
+      "0": "silent_zero",
+      "1": "ok"
+     }
+    },
+    "resolved_instr": "tile_read",
+    "rt_index": {
+     "M4_shape_reproduces_bit0_and_bit7_dontcare": true,
+     "correct_values": [
+      "0x00",
+      "0x01",
+      "0x80",
+      "0x81"
+     ],
+     "disagreements": [],
+     "faulting_values": [],
+     "silent_zero_attachment_labels": {
+      "SILENT_ZERO:rt0": 240
+     },
+     "silent_zero_count": 240,
+     "wrong_value_count": 12
+    },
+    "status": "RAN"
    },
    "tile_ct2": {
-    "status": "NOT_ATTEMPTED",
-    "why": "no arm_meta"
+    "anchor": "670e5400000001ae02000000",
+    "b6_hi": {
+     "all_ok": true,
+     "disagreements": [],
+     "outcomes": {
+      "ok": 128
+     },
+     "values_agreeing": 128
+    },
+    "baseline_fields": {
+     "b2": 84,
+     "b4": 0,
+     "b6_hi": 0,
+     "b7": 174,
+     "dst": 0,
+     "read_en": 1,
+     "rt_index": 0,
+     "tail": 2
+    },
+    "dst": {
+     "correct_values": [
+      "0x00",
+      "0x01",
+      "0xc0",
+      "0xc1"
+     ],
+     "disagreements": [],
+     "hazard_is_contiguous": true,
+     "hazard_span": "0xf6..0xff",
+     "hazard_values": [
+      "0xf6",
+      "0xf7",
+      "0xf8",
+      "0xf9",
+      "0xfa",
+      "0xfb",
+      "0xfc",
+      "0xfd",
+      "0xfe",
+      "0xff"
+     ]
+    },
+    "measurement_health": {
+     "run01": {
+      "cases": 2485,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "run02": {
+      "cases": 2485,
+      "hang": 0,
+      "invalid_run_victims": 0,
+      "measurement_failed": 0,
+      "measurement_failed_by_field": {},
+      "measurement_failed_pct": 0.0,
+      "no_draw_or_dispatch": 0,
+      "not_written": 0,
+      "runner_restarts": 10,
+      "sample_raw_lines": null,
+      "victim_strings": {}
+     },
+     "verdict": "CLEAN"
+    },
+    "read_en": {
+     "M4_rule_reproduces": true,
+     "any_fault": false,
+     "disagreements": [],
+     "per_value": {
+      "0": "silent_zero",
+      "1": "ok"
+     }
+    },
+    "resolved_instr": "tile_read",
+    "rt_index": {
+     "M4_shape_reproduces_bit0_and_bit7_dontcare": true,
+     "correct_values": [
+      "0x00",
+      "0x01",
+      "0x80",
+      "0x81"
+     ],
+     "disagreements": [],
+     "faulting_values": [],
+     "silent_zero_attachment_labels": {
+      "SILENT_ZERO:rt0": 224
+     },
+     "silent_zero_count": 224,
+     "wrong_value_count": 28
+    },
+    "status": "RAN"
    }
   },
   "question": "Does EXP-0147's silent-zero tile-read hazard reproduce on G17P?"
  },
  "note": "M4 results are CROSS-TARGET HYPOTHESES here, never premises.",
- "runs": [
-  "g17p_20260830_run03",
-  "g17p_20260830_run03"
- ],
+ "runs": {
+  "sysvals": [
+   "g17p_20260830_run03",
+   "g17p_20260830_run04"
+  ],
+  "tilebuffer": [
+   "g17p_20260830_run05",
+   "g17p_20260830_run06"
+  ]
+ },
  "target": "G17P (A18 Pro)"
 }

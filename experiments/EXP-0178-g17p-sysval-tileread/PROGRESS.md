@@ -232,3 +232,53 @@ gated dispatch:
 `run03` in progress: 1,190 records, `sr_compute` complete (562 cases), `sr_frag` complete,
 `sr_vertex` running. 16 `invalid_run` victims so far under live concurrency — recorded, not
 scored.
+
+## 2026-08-30 — M7: SELF-DISCLOSURE, and G10 made upstreamable
+
+**Self-disclosure (SUBAGENT_BRIEF, absolute rule).** While composing a shell command I included a
+stray `cat > /tmp/nothing 2>/dev/null` fragment, which created an **empty** file at a local path
+outside the repository. It was removed in the same command; `ls /tmp/nothing` now reports
+"No such file or directory". **No content was written to it** — the redirect created a zero-byte
+file and the `cat` then blocked on stdin, which is what made the command time out. No experiment
+data, no repo content and nothing about the target left the repository. Reporting it because the
+rule is absolute and "a quick throwaway probe is exactly when it gets broken"; the correct
+response is to disclose and relocate, which is what happened. Everything else in this experiment
+has stayed inside `experiments/EXP-0178-g17p-sysval-tileread/`.
+
+- `harness/closure_scan.py` extracted as a standalone, dependency-free, upstreamable module with
+  its own `UPSTREAM NOTES`; selftest **G10** now calls it. Alongside `harness/saferunner.py` and
+  `harness/verify_remote.py`, that is three checks written to be lifted into the shared brief.
+- `analysis/answers.py` gained `vertex_software_offset`, which **measures** the compiler-inserted
+  constant in the vertex carrier instead of assuming it: **7 independent selectors with no
+  vertex-stage meaning (0x9c, 0x9d, 0x9e, 0xa0, 0xa1, 0xa4, 0xc5) all read exactly 5**, pinning
+  K = 5 = `baseInstance`. It also emits the oracle-confound disclosure, so the vertex arm is
+  reported differentially rather than as two clean `ok`s.
+- `RESULTS.md` §6 written: the three apparatus defects and what each would have cost.
+- run04 at 1,468 records and still capturing.
+
+## 2026-08-30 — M8: BOTH gated pairs complete; both questions answered
+
+- **Sysvals:** `g17p_20260830_run03` / `run04`, 1,710 records each.
+  **`get_sr.sr_sel`, `.dp_width`, `.dp_marker` -> `hardware-run` (G17P), 100.00 % cross-run
+  agreement on every value of every carrier, zero disagreements.**
+- **Tilebuffer:** `g17p_20260830_run05` / `run06`, 9,460 records each (9,428 cases), four
+  carriers, **zero measurement failures and zero victims in either run**. `tile_ct2` resolved to
+  `tile_read`, giving the second structurally different carrier EXP-0164 required.
+  **`read_en`, `rt_index`, `dst` on both instructions and `fmt` on `tile_read_mrt` ->
+  `hardware-run` (G17P).** Every EXP-0147 M4 legal-value set transfers unchanged, and
+  **`rt_index` produces 0 faults in 256 values on 4 carriers** — the hazard is confirmed as a
+  silent zero, not a loud failure.
+- Corrected an implementation bug in my own gate against my own frozen text: it computed
+  `moved >= 2.0 * max(disagree, 1)` where `PRE_REGISTRATION` §8 and the contract both say
+  `moved >= 2.0 * disagree, and > 0`. The stricter form refused **`read_en`** — a 1-bit field
+  where at most one value can differ from its baseline — on an arithmetic artefact rather than on
+  the evidence. Corrected to the frozen text; all `selftest.py` G6 cases still refuse for the
+  reasons they name.
+- `analysis/field_verdicts.json` restructured so recorded data cannot be mistaken for a label:
+  top-level keys are verdicts, `_not_ruled_on` holds fields another experiment owns (labelled
+  `NOT-A-VERDICT`, must not be merged), and `_referred_for_ruling` holds **`get_sr.form`** with
+  its full per-carrier numbers and a stated recommendation.
+- `RESULTS.md` complete (534 lines): the M4 vertex-fault comparison is stated as **REFINED, not
+  refuted** — EXP-0092 measured a *compute* carrier and my compute arm reproduces it exactly, so
+  the divergence is **stage, not target**.
+- `manifest.json` generated.

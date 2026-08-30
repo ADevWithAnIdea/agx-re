@@ -230,9 +230,13 @@ def vertex_offset(r1, r2):
                 uniq = sorted(set(vals))
                 diff["0x%02x" % v] = {
                     "label": label,
-                    "raw_SR_after_subtracting_K": (uniq[0] if len(uniq) == 1
-                                                   else "ramp %s" % uniq[:4]),
+                    "raw_SR_after_subtracting_K": (
+                        uniq[0] if len(uniq) == 1 else
+                        "spatial ramp over the 4x4, pixel-sample range %s..%s "
+                        "(the three CORNER values it interpolates are the SR's "
+                        "per-vertex readings)" % (uniq[0], uniq[-1])),
                     "flat": len(uniq) == 1,
+                    "pixel_sample_min": uniq[0], "pixel_sample_max": uniq[-1],
                 }
         out["raw_SR_values"] = diff
         out["oracle_confound_disclosure"] = (
