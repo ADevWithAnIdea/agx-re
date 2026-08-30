@@ -1,0 +1,637 @@
+{
+ "_concurrency": {
+  "max_other_gpu_agent_processes": 21,
+  "note": "GATE E: a confirmation run may not rely on a busy machine. This is a MEASUREMENT of how busy it was, taken from raw/<run>/procs.jsonl, not a claim in prose. Non-zero here caps every reproducibility axis at `auditable`.",
+  "samples": 36
+ },
+ "_experiment": "EXP-0206",
+ "_gate": "PRE_REGISTRATION.md section 7 + PRE_REGISTRATION_A2.md Gates A/B/C/E; recomputed from raw by analysis/verdicts206.py, which refuses to run if its five-case self-test fails",
+ "_label_rule": "the legacy label is CAPPED BY THE SEMANTICS AXIS: no field with sem_checked == 0 or with no surviving pre-registered model is proposed above `corpus-correlation`, whatever its liveness looks like (RE_EXPERIMENT_PROCESS_CORRECTIONS section 3 Gate C).",
+ "_runs": [
+  "raw/g17p_20260830_run03",
+  "raw/g17p_20260830_run04"
+ ],
+ "_target": "G17P (Apple A18 Pro, applegpu_g17p, AGXAcceleratorG17P, 5 cores, macOS 26.6 build 25G5043d, Metal family Apple9)",
+ "call.tail": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "call.tail@cl_atomic._agc.main+52",
+   "call.tail@cl_chain._agc.main+54"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert",
+    "carrier-undecidable"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "semantically-mapped(single surviving model: M1_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 3,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "call.tail@cl_atomic._agc.main+52": 256,
+    "call.tail@cl_chain._agc.main+54": 256
+   },
+   "distinct_valid_payloads_max_per_arm": 1,
+   "ledger_bad": 0,
+   "ledger_ok": 512,
+   "legal_values_total": 512,
+   "n_arms": 2,
+   "semantic_buckets": {
+    "correct": 512
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_inert": {
+    "checked": 512,
+    "hit": 512,
+    "miss": 0
+   },
+   "M2_exact": {
+    "checked": 512,
+    "hit": 2,
+    "miss": 510
+   },
+   "M3_low_bit": {
+    "checked": 512,
+    "hit": 256,
+    "miss": 256
+   }
+  },
+  "start": 104,
+  "surviving_models": [
+   "M1_inert"
+  ],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 8
+ },
+ "if_push.scope": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "if_push.scope@cf_ifnl._agc.main+126",
+   "if_push.scope@cf_nl2._agc.main+106",
+   "if_push.scope@cf_nl2._agc.main+140",
+   "if_push.scope@cf_nl3._agc.main+182"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert",
+    "carrier-undecidable"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "bounded-map(3 models still survive: M1_bank_parity,M2_bit1_set,M3_inert)",
+    "hypothesis(all pre-registered models refuted)",
+    "semantically-mapped(single surviving model: M3_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 138,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "if_push.scope@cf_ifnl._agc.main+126": 256,
+    "if_push.scope@cf_nl2._agc.main+106": 256,
+    "if_push.scope@cf_nl2._agc.main+140": 256,
+    "if_push.scope@cf_nl3._agc.main+182": 256
+   },
+   "distinct_valid_payloads_max_per_arm": 2,
+   "ledger_bad": 0,
+   "ledger_ok": 1024,
+   "legal_values_total": 898,
+   "n_arms": 4,
+   "semantic_buckets": {
+    "correct": 896,
+    "dead": 2,
+    "reject": 126
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {
+   "fault": 126
+  },
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_bank_parity": {
+    "checked": 1024,
+    "hit": 766,
+    "miss": 258
+   },
+   "M2_bit1_set": {
+    "checked": 1024,
+    "hit": 766,
+    "miss": 258
+   },
+   "M3_inert": {
+    "checked": 1024,
+    "hit": 896,
+    "miss": 128
+   },
+   "M4_exact": {
+    "checked": 1024,
+    "hit": 130,
+    "miss": 894
+   }
+  },
+  "start": 16,
+  "surviving_models": [],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 8
+ },
+ "pop_reconverge.reserved": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "pop_reconverge.reserved@cf_ifnl._agc.main+184",
+   "pop_reconverge.reserved@cf_nl2._agc.main+216",
+   "pop_reconverge.reserved@cl_atomic._agc.main+66"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert",
+    "carrier-undecidable",
+    "live"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "hypothesis(all pre-registered models refuted)",
+    "semantically-mapped(single surviving model: M1_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 1,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "pop_reconverge.reserved@cf_ifnl._agc.main+184": 52,
+    "pop_reconverge.reserved@cf_nl2._agc.main+216": 52,
+    "pop_reconverge.reserved@cl_atomic._agc.main+66": 52
+   },
+   "distinct_valid_payloads_max_per_arm": 2,
+   "ledger_bad": 0,
+   "ledger_ok": 156,
+   "legal_values_total": 156,
+   "n_arms": 3,
+   "semantic_buckets": {
+    "coherent": 43,
+    "correct": 113
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_inert": {
+    "checked": 156,
+    "hit": 113,
+    "miss": 43
+   },
+   "M2_exact": {
+    "checked": 156,
+    "hit": 3,
+    "miss": 153
+   },
+   "M3_any_live": {
+    "checked": 156,
+    "hit": 46,
+    "miss": 110
+   }
+  },
+  "start": 32,
+  "surviving_models": [],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 16
+ },
+ "pop_reconverge.scope": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "pop_reconverge.scope@cf_nl2._agc.main+216",
+   "pop_reconverge.scope@cf_nl2._agc.main+222",
+   "pop_reconverge.scope@cl_atomic._agc.main+66"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert",
+    "carrier-undecidable"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "semantically-mapped(single surviving model: M3_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 5,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "pop_reconverge.scope@cf_nl2._agc.main+216": 256,
+    "pop_reconverge.scope@cf_nl2._agc.main+222": 256,
+    "pop_reconverge.scope@cl_atomic._agc.main+66": 256
+   },
+   "distinct_valid_payloads_max_per_arm": 1,
+   "ledger_bad": 0,
+   "ledger_ok": 768,
+   "legal_values_total": 768,
+   "n_arms": 3,
+   "semantic_buckets": {
+    "correct": 768
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_bank_bit5": {
+    "checked": 768,
+    "hit": 384,
+    "miss": 384
+   },
+   "M2_low_nibble": {
+    "checked": 768,
+    "hit": 48,
+    "miss": 720
+   },
+   "M3_inert": {
+    "checked": 768,
+    "hit": 768,
+    "miss": 0
+   },
+   "M4_exact": {
+    "checked": 768,
+    "hit": 3,
+    "miss": 765
+   }
+  },
+  "start": 16,
+  "surviving_models": [
+   "M3_inert"
+  ],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 8
+ },
+ "ret.scoreboard": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "ret.scoreboard@cl_chain.l__ZL5c_midjj+104"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "bounded-map(2 models still survive: M1_wait_mask,M2_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 2,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 256
+   },
+   "distinct_valid_payloads_max_per_arm": 1,
+   "ledger_bad": 0,
+   "ledger_ok": 256,
+   "legal_values_total": 256,
+   "n_arms": 1,
+   "semantic_buckets": {
+    "correct": 256
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_wait_mask": {
+    "checked": 1,
+    "hit": 1,
+    "miss": 0
+   },
+   "M2_inert": {
+    "checked": 256,
+    "hit": 256,
+    "miss": 0
+   },
+   "M3_exact": {
+    "checked": 256,
+    "hit": 1,
+    "miss": 255
+   }
+  },
+  "start": 24,
+  "surviving_models": [
+   "M1_wait_mask",
+   "M2_inert"
+  ],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 8
+ },
+ "ret_luse.linkmode": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32",
+   "ret_luse.linkmode@cl_chain.l__ZL5c_midjj+104",
+   "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "carrier-undecidable",
+    "live"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "hypothesis(all pre-registered models refuted)",
+    "semantically-mapped(single surviving model: M1_link)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 81,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32": 61,
+    "ret_luse.linkmode@cl_chain.l__ZL5c_midjj+104": 256,
+    "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30": 2
+   },
+   "distinct_valid_payloads_max_per_arm": 3,
+   "ledger_bad": 0,
+   "ledger_ok": 319,
+   "legal_values_total": 82,
+   "n_arms": 3,
+   "semantic_buckets": {
+    "coherent": 32,
+    "correct": 48,
+    "dead": 2,
+    "reject": 237
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {
+   "fault": 237
+  },
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_link": {
+    "checked": 4,
+    "hit": 3,
+    "miss": 1
+   },
+   "M2_accepted_set": {
+    "checked": 319,
+    "hit": 199,
+    "miss": 120
+   },
+   "M3_exact": {
+    "checked": 319,
+    "hit": 239,
+    "miss": 80
+   },
+   "M4_inert": {
+    "checked": 319,
+    "hit": 48,
+    "miss": 271
+   }
+  },
+  "start": 8,
+  "surviving_models": [],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 8
+ },
+ "stop.reserved": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "stop.reserved@cf_nl2._agc.main+268",
+   "stop.reserved@cl_leaf._agc.main+88"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "semantically-mapped(single surviving model: M1_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 0,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "stop.reserved@cf_nl2._agc.main+268": 73,
+    "stop.reserved@cl_leaf._agc.main+88": 73
+   },
+   "distinct_valid_payloads_max_per_arm": 1,
+   "ledger_bad": 0,
+   "ledger_ok": 146,
+   "legal_values_total": 146,
+   "n_arms": 2,
+   "semantic_buckets": {
+    "correct": 146
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_inert": {
+    "checked": 146,
+    "hit": 146,
+    "miss": 0
+   },
+   "M2_exact": {
+    "checked": 146,
+    "hit": 2,
+    "miss": 144
+   },
+   "M3_any_live": {
+    "checked": 146,
+    "hit": 2,
+    "miss": 144
+   }
+  },
+  "start": 8,
+  "surviving_models": [
+   "M1_inert"
+  ],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 24
+ },
+ "stop.reserved@synth_mid": {
+  "arms_inert": [],
+  "arms_promoted": [],
+  "arms_unresolved": [
+   "stop.reserved@synth_mid@cl_chain._agc.main+50",
+   "stop.reserved@synth_mid@cl_leaf._agc.main+50"
+  ],
+  "axes": {
+   "compiler_recipe": [
+    "not-generated"
+   ],
+   "encoding_geometry": [
+    "geometry-mapped"
+   ],
+   "liveness": [
+    "accepted-inert"
+   ],
+   "reproducibility": [
+    "auditable"
+   ],
+   "semantics": [
+    "semantically-mapped(single surviving model: M1_inert)"
+   ],
+   "target": "G17P-direct"
+  },
+  "counts": {
+   "contaminated_cases": 0,
+   "cross_run_agreement_min": null,
+   "distinct_actual_encodings_per_arm": {
+    "stop.reserved@synth_mid@cl_chain._agc.main+50": 73,
+    "stop.reserved@synth_mid@cl_leaf._agc.main+50": 73
+   },
+   "distinct_valid_payloads_max_per_arm": 1,
+   "ledger_bad": 0,
+   "ledger_ok": 146,
+   "legal_values_total": 146,
+   "n_arms": 2,
+   "semantic_buckets": {
+    "dead": 146
+   }
+  },
+  "evidence": [
+   "EXP-0206"
+  ],
+  "hard_outcomes_counted_separately": {},
+  "label": "untested",
+  "note": "",
+  "range": null,
+  "semantic_models": {
+   "M1_inert": {
+    "checked": 146,
+    "hit": 146,
+    "miss": 0
+   },
+   "M2_exact": {
+    "checked": 146,
+    "hit": 2,
+    "miss": 144
+   },
+   "M3_any_live": {
+    "checked": 146,
+    "hit": 2,
+    "miss": 144
+   }
+  },
+  "start": 8,
+  "surviving_models": [
+   "M1_inert"
+  ],
+  "target": "G17P",
+  "verdict": "UNRESOLVED",
+  "width": 24
+ }
+}

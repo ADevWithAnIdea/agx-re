@@ -130,7 +130,14 @@ struct SVV { float4 pos [[position]]; float sv; float si; };
 vertex SVV v_sv(uint vid [[vertex_id]], uint iid [[instance_id]]) {
     float2 p[3] = { float2(-1.0, -1.0), float2(3.0, -1.0), float2(-1.0, 3.0) };
     SVV o;
-    o.pos = float4(p[vid], 0.0, 1.0);
+    // The vertex arm draws INDEXED with baseVertex = 9, which is the only draw
+    // form that gives [[base_vertex]] / [[base_instance]] non-zero values -- so
+    // [[vertex_id]] is 9, 10, 11 and MUST be folded before it indexes the corner
+    // array.  Indexing p[vid] directly reads out of bounds and the triangle
+    // vanishes; work/pilot03 recorded exactly that as a baseline `no_draw`.
+    // The varying still carries the raw vertex_id, which is what the oracle
+    // predicts.
+    o.pos = float4(p[vid % 3u], 0.0, 1.0);
     o.sv  = float(vid);
     o.si  = float(iid);
     return o;

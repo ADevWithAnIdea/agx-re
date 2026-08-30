@@ -19,6 +19,17 @@ emittable even if the field passes.
 `PRE_REGISTRATION.md` (frozen, with `CAPTURE_CONTRACT.json`, before any build or device run),
 including amendments A1 and A2 recorded pre-build on coordinator intel.
 
+**`PRE_REGISTRATION-A.md` is AMENDMENT A**, frozen before the first dispatch of run id
+`g17p_20260830_a_run01`. `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` landed in the repository while
+runs 01-04 were executing; it is normative and overrides this experiment's original gates where
+they conflict. The amendment adds the Gate-A caller-to-**actual**-dispatched-byte ledger, Gate-C
+adversarial float inputs, Gate-E reversed case order plus a strict quiet requirement, and the six
+independent verdict axes. **Runs 01-04 are retained unchanged** and reclassified on those axes;
+nothing is discarded and nothing that already meets a gate is re-run.
+
+**Outcome: no field is promoted, and one gate blocks five of the six -- the machine was never
+quiet.** See `RESULTS.md` §0 and §7.
+
 ## The three failures this design is built around
 
 1. **The oracle, not the range, is the binding constraint.** `copysign.operands` was already swept
@@ -72,10 +83,16 @@ bash harness/sync.sh shell 'cd ~/agxre/EXP-0201 && python3 analysis/gen_arms.py'
 bash harness/sync.sh pullharness            # freeze arms201.json into the contract
 python3 analysis/contract.py freeze
 bash harness/sync.sh push && python3 harness/verify_remote.py
-bash harness/sync.sh shell 'cd ~/agxre/EXP-0201 && python3 run.py --run-id g17p_YYYYMMDD_run01'
-bash harness/sync.sh shell 'cd ~/agxre/EXP-0201 && python3 run.py --run-id g17p_YYYYMMDD_run02'
+# gated_run.sh attaches harness/gpuwatch.py to the same run directory, so
+# "the machine was quiet" is a measurement in raw/<run_id>/gpuwatch.jsonl
+bash harness/sync.sh shell 'cd ~/agxre/EXP-0201 && bash harness/gated_run.sh g17p_YYYYMMDD_a_run01 --order forward'
+bash harness/sync.sh shell 'cd ~/agxre/EXP-0201 && bash harness/gated_run.sh g17p_YYYYMMDD_a_run02 --order reverse'
 bash harness/sync.sh pull
-python3 analysis/verdicts.py raw/g17p_YYYYMMDD_run01 raw/g17p_YYYYMMDD_run02
+python3 analysis/verdicts.py raw/g17p_YYYYMMDD_a_run01 raw/g17p_YYYYMMDD_a_run02
+python3 analysis/maps.py     raw/g17p_YYYYMMDD_a_run01 raw/g17p_YYYYMMDD_a_run02
+python3 analysis/op_semantics.py raw/g17p_YYYYMMDD_a_run01 raw/g17p_YYYYMMDD_a_run02
+python3 analysis/finalize.py
+python3 analysis/manifest_build.py
 python3 ../../tools/agx-isa/wave_audit.py .        # the arrival gate, run by us first
 ```
 

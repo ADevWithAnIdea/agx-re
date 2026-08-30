@@ -91,3 +91,70 @@ the field's own span. `CAPTURE_CONTRACT.json` frozen at repo revision
 `simd_reduce.op` and `.dtype` densely over 256 values on four carriers each, and
 `simd_ballot`'s whole byte+2 over 256 values on four carriers. Those regions are
 not known to be safe. Contract cases per run: 3708.
+
+## 2026-08-30 ~12:35 UTC — REVISION A gated runs 01 + 02
+3708 cases each, **zero** non-clean cases across 7630 records, 100 % cross-run
+agreement on every arm, every control fired. `simd_reduce.op` and `.dtype` moved
+massively and matched host predictions; `simd_shuffle.dir` matched the *other*
+carrier's measured baseline vector in both directions; **`simd_shuffle.cache`
+MOVED** on `sh_bc` and `sh_xor`, both to `0x00003039` = 12345, the sentinel
+constant. `simd_ballot.{pred,cache}` inert.
+
+## 2026-08-30 ~12:50 UTC — COORDINATOR STOP: RE_EXPERIMENT_PROCESS_CORRECTIONS.md
+Read and applied. It overrides the dispatch's gates where they conflict. Three
+of its requirements revision A does not meet, recorded honestly in
+`PRE_REGISTRATION.md` → AMENDMENT 2 §B1 **before** anything was rerun:
+
+- **Gate A NOT MET**: revision A logged the bytes it *intended* to write,
+  recomputed by the same function that built the dispatched blob — exactly the
+  ledger DEF-0166 defeats. No independent decode, no program hash.
+- **Gate B partially met**: one readback plan on 9 of 11 carriers, and **no
+  multi-invocation dimension at all**.
+- **Gate C**: met for `op`/`dtype`/`dir`; **NOT met for `simd_shuffle.cache`**,
+  which moved but matched no registered model — so it may not be `hardware-run`.
+- **Gate E**: two runs but the same case ORDER, on a demonstrably busy machine.
+
+## 2026-08-30 ~13:05 UTC — REVISION B authored and frozen (Amendment 2)
+`kernels/k_litmus.metal`: four multi-invocation ordering-litmus carriers,
+4 threadgroups × 2 simdgroups, cross-simdgroup threadgroup-memory exchange, a
+cross-threadgroup device atomic read back and checked against a host total, the
+operand re-read after two barriers, **three disjoint readback plans**, **pre and
+post sentinels**, and **unique per-invocation codewords**, in `_ld`/`_alu` pairs
+differing only in operand provenance. `run.py` gained a real Gate-A ledger
+(re-read from the dispatched file, independent decode, program hash) and a
+`--reverse` order mode. Calibration `calibration06_litmus`: all 16 carriers OK,
+all four litmus oracles matched including the atomic total.
+
+## 2026-08-30 ~13:20 UTC — REVISION B gated runs B01 (forward) + B02 (reversed)
+5092 cases each. **5300/5300 target-arm cases ledger-verified, zero
+`ledger_mismatch`.** One non-clean case in 10 184 (`sr_scan` dtype=216, seven
+`InnocentVictim` classifications — sibling contamination, clean in the reversed
+run; **no fault is claimed**).
+
+**The result that mattered.** The matched litmus pair settled
+`simd_shuffle.cache`: `lb_shuffle_ld` and `lb_shuffle_alu` are the same kernel
+with identical `srctype` and `src` encodings, differing only in how the operand
+is produced. The compiler chose `cache=1` for the device-load one and `cache=0`
+for the ALU one; clearing it on the load-seeded one gave a **silent zero on
+every lane and a wrong cross-threadgroup atomic total**, while the post sentinel
+and the operand re-read after both barriers stayed correct. **`simd_shuffle.cache`
+is LIVE and contextual — the two prior INERT verdicts were a carrier failure.**
+
+`simd_ballot.cache` stayed inert through the multi-invocation litmus as well
+(0 moved / 1536 values × 6 carriers), so the ordering dimension is now *tested*
+rather than unexpressed. It is recorded as **accepted-inert in the exact tested
+envelope, global role unknown** — never emitter-grade, and explicitly not
+"unused": all six ballot carriers share one compiler-chosen baseline value, and
+retention/occupancy has no functional observable.
+
+## 2026-08-30 ~13:35 UTC — adversarial probe + write-up
+`raw/adversarial01/` (single observations, hypothesis-grade): byte+6 `form`
+alone, `0x00 → 0x14`, flips `simd_ballot` from the predicate mask to the
+all-active mask; so does byte+5 + the byte+7..9 tail together. `pred` does not
+participate — a `db.json` descriptor defect, recorded in
+`analysis/field_verdicts.json` → `db_defects`, **not** written into `db.json`.
+
+`README.md`, `RESULTS.md`, `manifest.json`, six-axis
+`analysis/field_verdicts{,_flat,_revA,_revB}.json` and
+`analysis/report_rev{A,B}.txt` written. Nothing outside this directory touched;
+nothing committed.

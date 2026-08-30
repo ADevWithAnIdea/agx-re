@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if !__has_feature(objc_arc)
 #error compile with -fobjc-arc
@@ -37,6 +38,19 @@ static void respond_fail(NSString *rid, const char *status, NSString *msg) {
     printf("{\"id\":\"%s\",\"status\":\"%s\",\"error\":\"%s\"}\n",
            [rid UTF8String], status, [m UTF8String]);
     fflush(stdout);
+}
+
+// A NaN or an infinity printed with %g is `nan` / `inf`, which is NOT valid JSON,
+// and a single such pixel makes the whole response unparseable -- observed in
+// work/pilot02 as five `measurement_failed` cases whose raw payload began with
+// 0x7f800000 (+inf).  A measurement failure is not an observation, so the fix is
+// to keep the response parseable: the authoritative observable is the exact
+// `raw` byte string, and this convenience array emits JSON null for any
+// non-finite value rather than an unparseable token.
+static void appendNum(NSMutableString *s, double v, BOOL comma) {
+    if (comma) [s appendString:@","];
+    if (isfinite(v)) [s appendFormat:@"%.9g", v];
+    else             [s appendString:@"null"];
 }
 
 static void hexcat(NSMutableString *dst, const uint8_t *b, NSUInteger n) {
@@ -168,9 +182,11 @@ int main(int argc, char **argv) { @autoreleasepool {
         hexcat(out, px, nb);
         [out appendString:@"\",\"pixels\":["];
         float *f = (float *)px;
-        for (NSUInteger p = 0; p < W * H; p++)
-            [out appendFormat:@"%s[%.9g,%.9g,%.9g,%.9g]", p ? "," : "",
-                 (double)f[p*4+0], (double)f[p*4+1], (double)f[p*4+2], (double)f[p*4+3]];
+        for (NSUInteger p = 0; p < W * H; p++) {
+            [out appendString:(p ? @",[" : @"[")];
+            for (int k = 0; k < 4; k++) appendNum(out, (double)f[p*4+k], k > 0);
+            [out appendString:@"]"];
+        }
         [out appendString:@"]}\n"];
         free(px);
         fputs([out UTF8String], stdout);

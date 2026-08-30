@@ -1,0 +1,763 @@
+==============================================================================
+EXP-0205 derived report   runs: raw/g17p_20260830_runB01 , raw/g17p_20260830_runB02
+==============================================================================
+SIMD WIDTH run01: measured [32] ; simdgroup ids [0] ; lanes 32
+SIMD WIDTH run02: measured [32] ; simdgroup ids [0] ; lanes 32
+
+--- OUTCOME CENSUS (both runs, all roles) ---
+   unpredicted            4067
+   ok                     3524
+   silent_zero            2608
+   wrong_value            236
+   carrier_ready          30
+   not_written            24
+   fault                  1
+   non-clean cases: 1
+       ('sr_scan#simd_reduce.dtype', 216, ['InnocentVictim', 'InnocentVictim', 'InnocentVictim', 'ErrorHang', 'InnocentVictim', 'InnocentVictim', 'InnocentVictim', 'InnocentVictim', 'command buffer failed: Impacting Interactivity (0000000e:kIOGPUCommandBufferCallbackErrorImpactingInteractivity)'])
+
+--- WHICH BITS OF EACH TARGET FIELD ARE ACTUALLY DECODED ---
+A bit is INERT-WITHIN-FIELD if, for EVERY swept value v, the observed
+vector at v equals the vector at v XOR (1<<b), in BOTH runs.
+   lb_ballot_alu#simd_ballot.cache  live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   lb_ballot_alu#simd_ballot.pred   live bits [] | inert-within-field [0, 1, 2, 3]
+   lb_ballot_ld#simd_ballot.cache   live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   lb_ballot_ld#simd_ballot.pred    live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_active#simd_ballot.cache      live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_active#simd_ballot.pred       live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_ballot#simd_ballot.cache      live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_ballot#simd_ballot.pred       live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_ballot2#simd_ballot.cache     live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_ballot2#simd_ballot.pred      live bits [] | inert-within-field [0, 1, 2, 3]
+   sb_reuse#simd_ballot.cache       live bits [] | inert-within-field [0, 1, 2, 3, 4, 5, 6, 7]
+   sb_reuse#simd_ballot.pred        live bits [] | inert-within-field [0, 1, 2, 3]
+   sr_fsum#simd_reduce.dtype        live bits [0, 1, 2, 3, 5] | inert-within-field [4, 6, 7]
+   sr_fsum#simd_reduce.op           live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_max#simd_reduce.dtype         live bits [0, 3] | inert-within-field [1, 2, 4, 5, 6, 7]
+   sr_max#simd_reduce.op            live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_scan#simd_reduce.dtype        live bits [0, 1, 3] | inert-within-field [2, 4, 5, 6, 7]
+   sr_scan#simd_reduce.op           live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+   sr_sum#simd_reduce.dtype         live bits [0, 3] | inert-within-field [1, 2, 4, 5, 6, 7]
+   sr_sum#simd_reduce.op            live bits [0, 1, 2] | inert-within-field [3, 4, 5, 6, 7]
+
+--- PER-VALUE SEMANTICS, low 16 values of each reduce arm ---
+   sr_fsum#simd_reduce.dtype (baseline dtype=18)
+      v=0   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=1   unpredicted   0x3fc0d900     (unidentified)
+      v=2   unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=3   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=4   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=5   unpredicted   0x3fc05900     (unidentified)
+      v=6   unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=7   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=8   unpredicted   0x80000000     (unidentified)
+      v=9   unpredicted   0x3fc05900     (unidentified)
+      v=10  unpredicted   0xc32c0000     (unidentified)
+      v=11  unpredicted   0x3fc08000     (unidentified)
+      v=12  unpredicted   0x80000000     (unidentified)
+      v=13  unpredicted   0x3fc0d900     (unidentified)
+      v=14  unpredicted   0xc32c0000     (unidentified)
+      v=15  unpredicted   0x3fc08000     (unidentified)
+   sr_fsum#simd_reduce.op (baseline op=6)
+      v=0   unpredicted   0x0001c500     (unidentified)
+      v=1   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=2   unpredicted   0x0001c500     (unidentified)
+      v=3   unpredicted   0x0001c500     (unidentified)
+      v=4   unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=5   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=6   ok            0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=7   wrong_value   0x0001c500     (unidentified)
+      v=8   unpredicted   0x0001c500     (unidentified)
+      v=9   silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=10  unpredicted   0x0001c500     (unidentified)
+      v=11  unpredicted   0x0001c500     (unidentified)
+      v=12  unpredicted   0x3fc00000     flt:fmax:incl,identity_lane_input,int:smax:incl,int:umax:incl
+      v=13  silent_zero   0x00000000     all_zero,int:iand:reduce
+      v=14  unpredicted   0x432c0000     carrier_baseline,flt:f32sum:reduce
+      v=15  unpredicted   0x0001c500     (unidentified)
+   sr_max#simd_reduce.dtype (baseline dtype=7)
+      v=0   unpredicted   0x0001c500     (unidentified)
+      v=1   unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=2   unpredicted   0x0001c500     (unidentified)
+      v=3   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=4   unpredicted   0x0001c500     (unidentified)
+      v=5   unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=6   unpredicted   0x0001c500     (unidentified)
+      v=7   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=8   unpredicted   0x80000000     (unidentified)
+      v=9   wrong_value   0x80000000     int:smax:excl
+      v=10  unpredicted   0x80000000     (unidentified)
+      v=11  ok            0x80000000     int:smax:excl
+      v=12  unpredicted   0x80000000     (unidentified)
+      v=13  unpredicted   0x80000000     int:smax:excl
+      v=14  unpredicted   0x80000000     (unidentified)
+      v=15  unpredicted   0x80000000     int:smax:excl
+   sr_max#simd_reduce.op (baseline op=2)
+      v=0   wrong_value   0x00000000     int:ior:excl
+      v=1   ok            0x00000c14     int:isum:reduce
+      v=2   ok            0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=3   wrong_value   0x00000000     int:umax:excl
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00007e00     (unidentified)
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0x00000000     int:ior:excl
+      v=9   unpredicted   0x00000c14     int:isum:reduce
+      v=10  unpredicted   0x000000d5     carrier_baseline,flt:fmax:reduce,int:smax:reduce
+      v=11  unpredicted   0x00000000     int:umax:excl
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00007e00     (unidentified)
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+   sr_scan#simd_reduce.dtype (baseline dtype=9)
+      v=0   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=1   unpredicted   0x00000c17     (unidentified)
+      v=2   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=3   ok            0x00000c14     int:isum:reduce
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000c17     (unidentified)
+      v=6   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=7   ok            0x00000c14     int:isum:reduce
+      v=8   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=9   ok            0x00000003     carrier_baseline,int:isum:incl
+      v=10  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=11  ok            0x00000000     flt:f32sum:excl,int:isum:excl
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     carrier_baseline,int:isum:incl
+      v=14  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=15  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+   sr_scan#simd_reduce.op (baseline op=1)
+      v=0   wrong_value   0x00000002     (unidentified)
+      v=1   ok            0x00000003     carrier_baseline,int:isum:incl
+      v=2   wrong_value   0x80000003     (unidentified)
+      v=3   wrong_value   0xffffff03     (unidentified)
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0x00000002     (unidentified)
+      v=9   unpredicted   0x00000003     carrier_baseline,int:isum:incl
+      v=10  unpredicted   0x80000003     (unidentified)
+      v=11  unpredicted   0xffffff03     (unidentified)
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+   sr_sum#simd_reduce.dtype (baseline dtype=3)
+      v=0   unpredicted   0x0038a000     (unidentified)
+      v=1   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=2   unpredicted   0x0038a000     (unidentified)
+      v=3   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=4   unpredicted   0x0038a000     (unidentified)
+      v=5   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=6   unpredicted   0x0038a000     (unidentified)
+      v=7   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=8   unpredicted   0x00000000     (unidentified)
+      v=9   wrong_value   0x00000000     flt:f32sum:excl,int:isum:excl
+      v=10  unpredicted   0x00000000     (unidentified)
+      v=11  ok            0x00000000     flt:f32sum:excl,int:isum:excl
+      v=12  unpredicted   0x00000000     (unidentified)
+      v=13  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+      v=14  unpredicted   0x00000000     (unidentified)
+      v=15  unpredicted   0x00000000     flt:f32sum:excl,int:isum:excl
+   sr_sum#simd_reduce.op (baseline op=1)
+      v=0   ok            0xffffffff     all_ones,int:ior:reduce
+      v=1   ok            0x00000c14     carrier_baseline,int:isum:reduce
+      v=2   ok            0x000000d5     flt:fmax:reduce,int:smax:reduce
+      v=3   ok            0xffffff00     flt:f32prod:reduce,flt:f32sum:reduce,int:smin:reduce,int:umax:reduce
+      v=4   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=5   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=6   unpredicted   0x00007e00     (unidentified)
+      v=7   unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=8   unpredicted   0xffffffff     all_ones,int:ior:reduce
+      v=9   unpredicted   0x00000c14     carrier_baseline,int:isum:reduce
+      v=10  unpredicted   0x000000d5     flt:fmax:reduce,int:smax:reduce
+      v=11  unpredicted   0xffffff00     flt:f32prod:reduce,flt:f32sum:reduce,int:smin:reduce,int:umax:reduce
+      v=12  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=13  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+      v=14  unpredicted   0x00007e00     (unidentified)
+      v=15  unpredicted   0x00000003     identity_lane_input,int:umax:incl
+
+--- simd_shuffle.dir and .cache, every value on every arm ---
+   lb_shuffle_alu#simd_shuffle.cache v=0 base=0 ok           0x5195de05   carrier_baseline
+   lb_shuffle_alu#simd_shuffle.cache v=1 base=0 ok           0x5195de05   carrier_baseline
+   lb_shuffle_alu#simd_shuffle.dir  v=0 base=0 unpredicted  0x5195de05   carrier_baseline
+   lb_shuffle_alu#simd_shuffle.dir  v=1 base=0 unpredicted  0x5195de05   (unidentified)
+   lb_shuffle_ld#simd_shuffle.cache v=0 base=1 silent_zero  0x00000000   (unidentified)
+   lb_shuffle_ld#simd_shuffle.cache v=1 base=1 ok           0x51c5de05   carrier_baseline
+   lb_shuffle_ld#simd_shuffle.dir   v=0 base=0 unpredicted  0x51c5de05   carrier_baseline
+   lb_shuffle_ld#simd_shuffle.dir   v=1 base=0 unpredicted  0x51c5de05   (unidentified)
+   sh_bc#simd_shuffle.cache         v=0 base=1 wrong_value  0x00003039   (unidentified)
+   sh_bc#simd_shuffle.cache         v=1 base=1 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_bc#simd_shuffle.dir           v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_bc#simd_shuffle.dir           v=1 base=0 ok           0x00000429   xor:mask5
+   sh_reuse#simd_shuffle.cache      v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.cache      v=1 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.dir        v=0 base=0 ok           0x00000429   bcast:lane5,carrier_baseline
+   sh_reuse#simd_shuffle.dir        v=1 base=0 ok           0x00000429   xor:mask5
+   sh_xor#simd_shuffle.cache        v=0 base=1 wrong_value  0x00003039   (unidentified)
+   sh_xor#simd_shuffle.cache        v=1 base=1 ok           0x00000429   carrier_baseline,xor:mask5
+   sh_xor#simd_shuffle.dir          v=0 base=1 ok           0x00000429   bcast:lane5
+   sh_xor#simd_shuffle.dir          v=1 base=1 ok           0x00000429   carrier_baseline,xor:mask5
+
+--- H1: does any `pred` value select the active-thread mask? ---
+   lb_ballot_alu#simd_ballot.pred   distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0xff00ff00
+   lb_ballot_ld#simd_ballot.pred    distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0xff00ff00
+   sb_active#simd_ballot.pred       distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0xffffffff
+   sb_ballot#simd_ballot.pred       distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x6c8af35d
+   sb_ballot2#simd_ballot.pred      distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x35d6c8af
+   sb_reuse#simd_ballot.pred        distinct observed vectors over 16 values: 1 ; values giving all-ones: NONE ; baseline vector head 0x6c8af35d
+   attribution: sb_ballot head 0x6c8af35d vs sb_ballot2 head 0x35d6c8af -> the result TRACKS the predicate mask, so the instruction is computing ballot(predicate) at pred=0 on both.
+
+--- MATCHED PAIR: lb_shuffle_ld vs lb_shuffle_alu ---
+Identical kernels, identical dispatch, identical `srctype` and `src`
+encodings; the ONLY difference is how the operand was produced.
+   lb_shuffle_ld#simd_shuffle.cache   v=0 base=1 silent_zero   plan1[0]=0x00000000  distinct=1   plan3_ok=True  ctr_ok=False post=54321
+   lb_shuffle_ld#simd_shuffle.cache   v=1 base=1 ok            plan1[0]=0x51c5de05  distinct=8   plan3_ok=True  ctr_ok=True  post=54321
+   lb_shuffle_alu#simd_shuffle.cache  v=0 base=0 ok            plan1[0]=0x5195de05  distinct=8   plan3_ok=True  ctr_ok=True  post=54321
+   lb_shuffle_alu#simd_shuffle.cache  v=1 base=0 ok            plan1[0]=0x5195de05  distinct=8   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=0 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=1 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=2 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=3 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=4 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=5 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=6 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=7 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=8 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=9 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=10 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=11 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=12 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=13 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=14 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=15 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=16 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=17 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=18 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=19 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=20 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=21 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=22 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=23 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=24 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=25 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=26 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=27 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=28 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=29 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=30 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=31 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=32 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=33 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=34 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=35 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=36 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=37 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=38 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=39 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=40 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=41 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=42 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=43 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=44 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=45 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=46 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=47 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=48 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=49 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=50 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=51 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=52 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=53 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=54 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=55 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=56 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=57 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=58 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=59 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=60 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=61 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=62 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=63 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=64 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=65 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=66 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=67 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=68 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=69 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=70 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=71 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=72 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=73 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=74 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=75 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=76 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=77 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=78 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=79 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=80 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=81 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=82 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=83 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=84 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=85 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=86 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=87 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=88 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=89 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=90 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=91 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=92 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=93 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=94 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=95 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=96 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=97 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=98 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=99 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=100 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=101 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=102 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=103 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=104 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=105 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=106 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=107 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=108 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=109 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=110 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=111 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=112 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=113 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=114 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=115 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=116 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=117 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=118 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=119 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=120 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=121 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=122 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=123 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=124 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=125 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=126 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=127 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=128 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=129 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=130 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=131 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=132 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=133 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=134 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=135 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=136 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=137 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=138 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=139 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=140 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=141 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=142 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=143 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=144 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=145 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=146 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=147 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=148 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=149 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=150 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=151 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=152 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=153 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=154 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=155 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=156 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=157 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=158 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=159 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=160 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=161 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=162 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=163 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=164 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=165 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=166 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=167 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=168 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=169 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=170 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=171 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=172 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=173 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=174 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=175 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=176 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=177 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=178 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=179 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=180 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=181 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=182 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=183 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=184 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=185 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=186 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=187 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=188 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=189 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=190 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=191 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=192 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=193 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=194 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=195 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=196 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=197 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=198 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=199 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=200 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=201 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=202 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=203 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=204 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=205 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=206 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=207 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=208 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=209 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=210 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=211 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=212 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=213 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=214 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=215 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=216 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=217 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=218 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=219 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=220 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=221 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=222 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=223 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=224 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=225 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=226 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=227 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=228 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=229 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=230 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=231 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=232 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=233 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=234 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=235 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=236 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=237 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=238 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=239 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=240 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=241 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=242 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=243 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=244 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=245 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=246 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=247 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=248 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=249 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=250 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=251 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=252 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=253 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=254 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_ld#simd_ballot.cache     v=255 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=0 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=1 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=2 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=3 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=4 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=5 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=6 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=7 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=8 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=9 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=10 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=11 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=12 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=13 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=14 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=15 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=16 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=17 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=18 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=19 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=20 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=21 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=22 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=23 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=24 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=25 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=26 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=27 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=28 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=29 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=30 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=31 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=32 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=33 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=34 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=35 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=36 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=37 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=38 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=39 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=40 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=41 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=42 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=43 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=44 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=45 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=46 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=47 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=48 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=49 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=50 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=51 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=52 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=53 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=54 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=55 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=56 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=57 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=58 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=59 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=60 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=61 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=62 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=63 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=64 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=65 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=66 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=67 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=68 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=69 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=70 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=71 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=72 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=73 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=74 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=75 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=76 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=77 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=78 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=79 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=80 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=81 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=82 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=83 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=84 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=85 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=86 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=87 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=88 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=89 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=90 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=91 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=92 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=93 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=94 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=95 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=96 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=97 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=98 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=99 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=100 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=101 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=102 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=103 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=104 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=105 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=106 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=107 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=108 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=109 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=110 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=111 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=112 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=113 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=114 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=115 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=116 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=117 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=118 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=119 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=120 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=121 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=122 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=123 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=124 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=125 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=126 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=127 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=128 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=129 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=130 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=131 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=132 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=133 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=134 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=135 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=136 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=137 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=138 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=139 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=140 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=141 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=142 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=143 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=144 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=145 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=146 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=147 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=148 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=149 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=150 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=151 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=152 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=153 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=154 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=155 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=156 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=157 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=158 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=159 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=160 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=161 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=162 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=163 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=164 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=165 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=166 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=167 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=168 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=169 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=170 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=171 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=172 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=173 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=174 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=175 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=176 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=177 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=178 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=179 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=180 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=181 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=182 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=183 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=184 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=185 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=186 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=187 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=188 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=189 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=190 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=191 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=192 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=193 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=194 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=195 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=196 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=197 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=198 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=199 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=200 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=201 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=202 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=203 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=204 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=205 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=206 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=207 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=208 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=209 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=210 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=211 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=212 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=213 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=214 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=215 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=216 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=217 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=218 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=219 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=220 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=221 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=222 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=223 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=224 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=225 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=226 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=227 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=228 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=229 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=230 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=231 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=232 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=233 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=234 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=235 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=236 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=237 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=238 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=239 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=240 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=241 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=242 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=243 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=244 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=245 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=246 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=247 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=248 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=249 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=250 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=251 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=252 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=253 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=254 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+   lb_ballot_alu#simd_ballot.cache    v=255 base=84 ok            plan1[0]=0xff00ff00  distinct=1   plan3_ok=True  ctr_ok=True  post=54321
+
+--- GPUTIME_NS per target arm (the only observable a register-cache
+    RETENTION hint could still move, and one this method cannot
+    resolve: reported as an observation, never as a gate) ---
+   lb_ballot_alu#simd_ballot.cache  n=256  min=1416    med=1625    max=2333    stdev=166.8
+   lb_ballot_alu#simd_ballot.pred   n=16   min=1624    med=1625    max=1749    stdev=36.0
+   lb_ballot_ld#simd_ballot.cache   n=256  min=1625    med=2000    max=2791    stdev=225.0
+   lb_ballot_ld#simd_ballot.pred    n=16   min=1666    med=1750    max=1750    stdev=33.0
+   lb_shuffle_alu#simd_shuffle.cache n=2    min=1500    med=1520    max=1541    stdev=20.5
+   lb_shuffle_alu#simd_shuffle.dir  n=2    min=1541    med=1583    max=1625    stdev=42.0
+   lb_shuffle_ld#simd_shuffle.cache n=2    min=1916    med=1957    max=1999    stdev=41.5
+   lb_shuffle_ld#simd_shuffle.dir   n=2    min=2041    med=2041    max=2041    stdev=0.0
+   sb_active#simd_ballot.cache      n=256  min=1416    med=1645    max=2541    stdev=173.5
+   sb_active#simd_ballot.pred       n=16   min=1500    med=1728    max=2333    stdev=217.1
+   sb_ballot#simd_ballot.cache      n=256  min=1416    med=1749    max=2458    stdev=154.8
+   sb_ballot#simd_ballot.pred       n=16   min=1749    med=1750    max=1833    stdev=24.2
+   sb_ballot2#simd_ballot.cache     n=256  min=1416    med=1500    max=2125    stdev=126.4
+   sb_ballot2#simd_ballot.pred      n=16   min=1416    med=1500    max=1500    stdev=36.0
+   sb_reuse#simd_ballot.cache       n=256  min=1791    med=2166    max=3250    stdev=210.8
+   sb_reuse#simd_ballot.pred        n=16   min=2124    med=2208    max=2499    stdev=115.3
+   sh_bc#simd_shuffle.cache         n=2    min=1500    med=1541    max=1583    stdev=41.5
+   sh_bc#simd_shuffle.dir           n=2    min=1541    med=1583    max=1625    stdev=42.0
+   sh_reuse#simd_shuffle.cache      n=2    min=1791    med=1812    max=1833    stdev=21.0
+   sh_reuse#simd_shuffle.dir        n=2    min=1791    med=1832    max=1874    stdev=41.5
+   sh_xor#simd_shuffle.cache        n=2    min=1375    med=1583    max=1791    stdev=208.0
+   sh_xor#simd_shuffle.dir          n=2    min=1708    med=2083    max=2458    stdev=375.0
+   sr_fsum#simd_reduce.dtype        n=256  min=1416    med=1500    max=1749    stdev=31.6
+   sr_fsum#simd_reduce.op           n=256  min=1416    med=1500    max=2333    stdev=66.0
+   sr_max#simd_reduce.dtype         n=256  min=1416    med=1500    max=2125    stdev=132.1
+   sr_max#simd_reduce.op            n=256  min=1375    med=1500    max=2624    stdev=167.4
+   sr_scan#simd_reduce.dtype        n=255  min=1416    med=1666    max=6583    stdev=709.1
+   sr_scan#simd_reduce.op           n=256  min=1375    med=1500    max=2499    stdev=165.6
+   sr_sum#simd_reduce.dtype         n=256  min=1375    med=1500    max=2499    stdev=177.1
+   sr_sum#simd_reduce.op            n=256  min=1375    med=1500    max=1999    stdev=101.6

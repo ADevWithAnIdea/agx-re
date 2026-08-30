@@ -162,6 +162,30 @@ def main():
           "the result TRACKS the predicate mask, so the instruction is computing "
           "ballot(predicate) at pred=0 on both." % (b1[0], b2[0]))
 
+    # -------------------------------------- the matched provenance PAIR
+    print("\n--- MATCHED PAIR: lb_shuffle_ld vs lb_shuffle_alu ---")
+    print("Identical kernels, identical dispatch, identical `srctype` and `src`")
+    print("encodings; the ONLY difference is how the operand was produced.")
+    for name in ("lb_shuffle_ld#simd_shuffle.cache",
+                 "lb_shuffle_alu#simd_shuffle.cache",
+                 "lb_ballot_ld#simd_ballot.cache",
+                 "lb_ballot_alu#simd_ballot.cache"):
+        if name not in i1:
+            continue
+        a = arms[name]
+        for v in sorted(i1[name]["cases"]):
+            r = i1[name]["cases"][v]
+            o = r.get("observed") or {}
+            vv = o.get("vals_u32") or []
+            print("   %-34s v=%d base=%d %-13s plan1[0]=%-11s distinct=%-3s "
+                  "plan3_ok=%-5s ctr_ok=%-5s post=%s"
+                  % (name, v, a["baseline_field"], r["outcome"],
+                     ("0x%08x" % vv[0]) if vv else "-",
+                     len(set(vv)) if vv else "-",
+                     (o.get("sec_u32") == C.baseline_sec_oracle(a["carrier"]))
+                     if o.get("sec_u32") else "-",
+                     o.get("ctr_ok"), o.get("post_sent_u32")))
+
     # --------------------------------------------------------- GPUTIME_NS
     print("\n--- GPUTIME_NS per target arm (the only observable a register-cache")
     print("    RETENTION hint could still move, and one this method cannot")

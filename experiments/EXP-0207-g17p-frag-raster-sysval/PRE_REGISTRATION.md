@@ -391,3 +391,67 @@ Also unchanged from census02 and worth stating because it is the single stronges
 about the `get_sr.form` carrier set: **the compiler emits both `form` values by itself** —
 0 on `sr_c`/`sr_hi`, 1 on `sr_f`/`sr_f2`/`sr_v` — and **`sr_c`'s compiled `dst_hi` is 1**, so
 the `dst_hi` sweep is two-sided on that arm without needing the high-pressure kernel.
+
+### Amendment 3 — 2026-08-30, BEFORE any gated capture (pilots in `work/` only)
+
+**`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` was published by the user mid-build. It is
+normative and it wins where it conflicts with §6 above.** Everything in §6 stays; the
+following is added, and the gate implementation in `analysis/verdicts.py` was rewritten to
+match. No gated run had occurred (`raw/prefreeze/census0{1,2,3}/`, `work/pilot0{1,2}/`).
+
+1. **Gate A — an actual-byte ledger on every case.** `harness/run207.py::ledger()` reads the
+   bytes back out of the *file the runner was handed*, decodes them independently with the
+   pinned tokenizer, and records requested value, requested bytes, **actual dispatched
+   bytes**, the value decoded from those actual bytes, the program sha256, the instruction
+   offset, and the db + harness revisions. `requested == decoded from actual` is asserted
+   before any hardware conclusion. Verdicts report **distinct requested values vs distinct
+   ACTUAL encodings** and the alias count. A round trip is not this gate.
+2. **Gate B — a positive control in every arm, or the arm is `carrier-undecidable`.** Zero
+   movement is no longer read as inertness anywhere. The mesh arms gain two `probe_other`
+   controls on the 14-byte `device_store` the op *feeds* (`st_format`, `index_reg`), because
+   `work/pilot02` showed their only moving control was the destructive byte0 falsifier.
+3. **Gate C — liveness is not semantics.** `analysis/verdicts.py::legacy_label()` now
+   refuses `hardware-run` whenever `sem_checked == 0`, and refuses it as well when the
+   pre-registered predictor was *refuted*; such a field is reported `live; role unknown`
+   with the legacy label left at `untested`.
+4. **Gate E — the confirmation run uses a reversed case order** (`run207.py --order
+   reverse`), and the gate additionally requires the two runs' **actual-byte ledgers to be
+   identical per value**.
+5. **§6 "Sources and destinations" — a SECOND DISJOINT READBACK PLAN for `get_sr.dst_hi`.**
+   New carrier `k_sr_dump` holds **sixteen unique codewords** live and stores **all of them**
+   beside the system value, at an index derived from the thread id and never from a field
+   under test. A relocated write that lands on a live register clobbers a *named* codeword;
+   a single-slot read-back cannot distinguish that from "the write did not move". This is
+   the EXP-0168 failure §11 names, addressed directly. `sr_c`'s compiled `dst_hi` is 1 and
+   `sr_dump`'s is 0, so the two plans also carry opposite baselines.
+6. **§5 Phase 3 — non-affine values.** Every fragment carrier's triangle now carries a
+   **different w per corner** (1.0 / 2.5 / 0.625), so perspective-correct interpolation is a
+   rational function of screen position while linear interpolation is affine. With w = 1
+   everywhere, centre / centroid / sample / perspective / no-perspective all compute the
+   *same* number and an interpolation-location field is indistinguishable no matter how it
+   is swept.
+7. **Verdict shape — six independent axes** (encoding geometry, liveness, semantics,
+   compiler recipe, target, reproducibility) with **exact numerators and denominators**
+   (encodable, dispatched, distinct requested, distinct actual encodings, legal, silent,
+   faults, hangs, no-draws, aliases, untested), never a percentage alone. The safe negative
+   wording is `inert in <exact tested envelope>; global role unknown`.
+8. **A runner defect found by `work/pilot02` and fixed before any gated run:** a NaN or
+   infinity in the convenience `pixels` array printed as the bare tokens `nan` / `inf`,
+   which are not valid JSON, so five cases came back unparseable. Per Gate E those were
+   recorded `measurement_failed` and **not** as hardware outcomes. The runners now emit JSON
+   `null` for non-finite values; the authoritative observable was always the exact `raw`
+   byte string, which was never affected.
+9. **Baseline robustness.** `sr_v` and `me_w1` lost their baselines to
+   `kIOGPUCommandBufferCallbackErrorInnocentVictim` in `work/pilot02` — a sibling's device
+   reset, not our encoding. The baseline is now retried through up to four full health
+   cycles before an arm is failed.
+10. **A pre-spliced arm records the unmodified program's output too** (`kind:
+    "pre_reference"`), so whether the `0x07 → 0x80` swap itself changed behaviour is a
+    recorded fact rather than an assumption.
+
+**Pre-registered consequence of Gate B for `fen_syn`, stated before the gated runs:**
+`work/pilot02` already shows the barrier `mem_scope` probe (0x85 mem_device → 0x41 mem_none)
+**not moving** the observable, and the arm's read-back is one constant across all 64 lanes.
+If that reproduces in the gated pair, `dev_scoreboard_fence.scope_flag` is reported
+**carrier-undecidable** — no verdict — with that null control as the measured proof, exactly
+as §3 of this pre-registration said it would be.

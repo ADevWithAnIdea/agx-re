@@ -112,6 +112,9 @@ LIVENESS_PREDICTIONS = {"", "none", "move", "must_move", "not_ok", "unknown", "n
 # Control-field prefixes: Gate B detection-power arms. Never mixed into a swept
 # field's own counts.
 CTRL_RX = re.compile(r"^__(ladder|fals|falsifier|ctl|power|sens|baseline|control)")
+# ...and the other convention in this corpus, an explicit `role` key (EXP-0171).
+CTRL_ROLES = {"falsifier", "ladder", "control", "positive_control", "baseline",
+              "sentinel", "power", "detection_power"}
 
 INSTR_KEYS = ("instr", "mnem", "mnemonic", "insn", "opcode_name")
 FIELD_KEYS = ("field", "fld", "field_name")
@@ -229,6 +232,14 @@ def _new_cell():
         "sem_false": 0,
         "sem_buckets": collections.Counter(),
         "liveness_predictions": 0,
+        "prose_predictions": 0,
+        "carriers": collections.Counter(),      # Gate E second-method dimension
+        "arms": collections.Counter(),
+        "probes": collections.Counter(),
+        "baseline_oracle": 0,      # oracle digest == the run's baseline digest:
+                                   # a BASELINE comparison, which Gate C says is
+                                   # not a semantic oracle
+        "host_oracle": 0,
         "victim": 0,
         "sentinel_bad": 0,
         "contamination": collections.Counter(),
@@ -251,7 +262,8 @@ def _finish(cell):
         out["n_" + s] = len(cell[s])
         out[s] = sorted(list(cell[s]))[:64]
     for c in ("keying", "runs", "raw_runs", "targets", "outcomes", "hard",
-              "sem_buckets", "contamination", "files"):
+              "sem_buckets", "contamination", "files", "carriers", "arms",
+              "probes"):
         out[c] = dict(cell[c])
     out["V"] = out["n_valid_payloads"]
     out["L"] = out["n_req_values"]
@@ -357,9 +369,17 @@ class Indexer(object):
         observed = rec.get("observed", rec.get("regs", rec.get("record")))
         oracle = rec.get("oracle")
 
-        # Gate B: control arms live in their own cell, per instruction.
-        if isinstance(field, str) and CTRL_RX.match(field):
-            c = ctrl_cells[(mnem, field)]
+        # Gate B: control arms live in their own cell, per instruction. Two
+        # conventions are in use in this corpus: a `__ladder`/`__fals` field name,
+        # and an explicit `role` key. Missing the second would have scored seven
+        # experiments as having no detection-power control at all.
+        role = rec.get("role")
+        is_ctrl = (isinstance(field, str) and CTRL_RX.match(field)) or \
+                  (isinstance(role, str) and role.strip().lower() in CTRL_ROLES)
+        if is_ctrl:
+            name = field if isinstance(field, str) and CTRL_RX.match(field) \
+                else "__role_%s" % str(role).strip().lower()
+            c = ctrl_cells[(mnem, name)]
             self._fill(c, rec, "ctrl", run, target, value, blob, mnem, None,
                        outcome, hard, bucket, observed, oracle, where)
             return
@@ -411,6 +431,12 @@ class Indexer(object):
         if target:
             cell["targets"][target] += 1
         cell["files"][where[0]] += 1
+        for k, into in (("carrier", "carriers"), ("carrier_id", "carriers"),
+                        ("arm", "arms"), ("probe", "probes"),
+                        ("kernel", "probes")):
+            v = rec.get(k)
+            if isinstance(v, str) and v and len(cell[into]) < 256:
+                cell[into][v] += 1
         if value is not None:
             _add(cell, "req_values", json.dumps(value, sort_keys=True, default=str))
         if isinstance(blob, str) and blob:
@@ -443,6 +469,13 @@ class Indexer(object):
             d = _digest(oracle)
             if d:
                 _add(cell, "oracle_digests", d)
+            if isinstance(oracle, dict):
+                if oracle.get("source"):
+                    cell["host_oracle"] += 1
+                od, bd = oracle.get("digest"), rec.get("baseline_digest")
+                if od is not None and bd is not None and od == bd:
+                    # Gate C: "A difference from baseline is not a semantic oracle."
+                    cell["baseline_oracle"] += 1
 
         # Gate C. Only an explicit host prediction compared against the observation
         # counts. A liveness ladder prediction is counted as liveness.
@@ -453,11 +486,18 @@ class Indexer(object):
                 break
         if sem is None:
             p = rec.get("predict")
-            if isinstance(p, str) and p.strip().lower() not in LIVENESS_PREDICTIONS \
-                    and outcome:
-                sem = (p.strip().lower() == outcome)
-            elif isinstance(p, str):
-                cell["liveness_predictions"] += 1
+            if isinstance(p, str):
+                t = p.strip().lower()
+                if t in LIVENESS_PREDICTIONS:
+                    cell["liveness_predictions"] += 1
+                elif t in _BUCKET_OF and outcome:
+                    # a short prediction naming a known outcome: a real per-case
+                    # host prediction, comparable to the observation
+                    sem = (t == outcome)
+                else:
+                    # free prose ("non-ok (byte0 is the opcode group)"). Not
+                    # machine-comparable. Counted, never scored as a semantic check.
+                    cell["prose_predictions"] += 1
         if sem is not None:
             cell["sem_checks"] += 1
             if sem:
@@ -472,7 +512,7 @@ class Indexer(object):
         if rec.get("sentinel_bad") is True or rec.get("sentinel_ok") is False:
             cell["sentinel_bad"] += 1
             cell["contamination"]["sentinel_bad"] += 1
-        for k in ("restarted", "timed_out", "unstable"):
+        for k in ("restarted", "timed_out", "unstable", "invalid_run", "foreign"):
             if rec.get(k):
                 cell["contamination"][k] += 1
 
@@ -491,7 +531,7 @@ def fingerprint(expdir):
         h.update(("%s|%d|%d;" % (os.path.relpath(p, expdir), st.st_size,
                                  int(st.st_mtime))).encode())
         n += 1
-    h.update(b"|schema=4")
+    h.update(b"|schema=6")
     return h.hexdigest(), n
 
 
@@ -811,6 +851,45 @@ def selftest():
     c = cells[("tst", "f")]
     chk("requested 7 vs decoded 5 is counted as a ledger DISAGREEMENT",
         c["ledger_disagree"] == 1 and c["ledger_agree"] == 2)
+
+    # Gate C, third way: free prose is not a machine-comparable prediction.
+    cellsP = collections.defaultdict(_new_cell)
+    ix.handle({"instr": "tst", "field": "f", "value": 5, "bytes": "5901",
+               "predict": "non-ok (byte0 is the opcode group)", "outcome": "silent_zero"},
+              cellsP, ctrl, meta, ("x", 1), "r1", "G17P")
+    chk("free-prose `predict` scores 0 semantic checks (it is not comparable)",
+        cellsP[("tst", "f")]["sem_checks"] == 0
+        and cellsP[("tst", "f")]["prose_predictions"] == 1)
+    ix.handle({"instr": "tst", "field": "f", "value": 5, "bytes": "5901",
+               "predict": "ok", "outcome": "ok"}, cellsP, ctrl, meta, ("x", 2),
+              "r1", "G17P")
+    chk("a `predict` naming a known outcome DOES score a semantic check",
+        cellsP[("tst", "f")]["sem_checks"] == 1)
+
+    # Gate C: an oracle equal to the baseline is a baseline comparison.
+    cellsB = collections.defaultdict(_new_cell)
+    ix.handle({"instr": "tst", "field": "f", "value": 5, "bytes": "5901",
+               "outcome": "ok", "baseline_digest": "abc",
+               "oracle": {"digest": "abc", "source": "host_oracle"}},
+              cellsB, ctrl, meta, ("x", 1), "r1", "G17P")
+    chk("an oracle equal to the baseline is flagged as a BASELINE comparison",
+        cellsB[("tst", "f")]["baseline_oracle"] == 1)
+    ix.handle({"instr": "tst", "field": "f", "value": 6, "bytes": "6901",
+               "outcome": "ok", "baseline_digest": "abc",
+               "oracle": {"digest": "zzz", "source": "host_oracle"}},
+              cellsB, ctrl, meta, ("x", 2), "r1", "G17P")
+    chk("an oracle that DIFFERS from the baseline is not flagged as one",
+        cellsB[("tst", "f")]["baseline_oracle"] == 1
+        and cellsB[("tst", "f")]["host_oracle"] == 2)
+
+    # Gate B, second convention: an explicit `role` key.
+    cellsR = collections.defaultdict(_new_cell)
+    ctrlR = collections.defaultdict(_new_cell)
+    ix.handle({"instr": "tst", "field": None, "byte_index": 0, "value": 0,
+               "bytes": "0901", "role": "falsifier", "outcome": "silent_zero"},
+              cellsR, ctrlR, meta, ("x", 1), "r1", "G17P")
+    chk("a `role: falsifier` record is a CONTROL, not a swept-field record",
+        ("tst", "__role_falsifier") in ctrlR and not cellsR)
 
     # Gate B: a control arm never lands in the swept field's cell.
     ix.handle({"instr": "tst", "field": "__ladder_L_f", "value": 5, "bytes": "5901",

@@ -1,0 +1,26 @@
+==============================================================================
+EXP-0205 derived report   runs: raw/g17p_20260830_run01 , raw/g17p_20260830_run02
+==============================================================================
+SIMD WIDTH run01: measured [32] ; simdgroup ids [0] ; lanes 32
+SIMD WIDTH run02: measured [32] ; simdgroup ids [0] ; lanes 32
+
+--- OUTCOME CENSUS (both runs, all roles) ---
+   unpredicted            4000
+   ok                     2374
+   silent_zero            1050
+   wrong_value            176
+   carrier_ready          22
+   not_written            8
+   non-clean cases: 0
+
+--- WHICH BITS OF EACH TARGET FIELD ARE ACTUALLY DECODED ---
+A bit is INERT-WITHIN-FIELD if, for EVERY swept value v, the observed
+vector at v equals the vector at v XOR (1<<b), in BOTH runs.
+Traceback (most recent call last):
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0205-g17p-simd-subgroup/analysis/report.py", line 208, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/user/asahi_re/public/agx-re/experiments/EXP-0205-g17p-simd-subgroup/analysis/report.py", line 84, in main
+    c1, c2 = i1[name]["cases"], i2[name]["cases"]
+             ~~^^^^^^
+KeyError: 'lb_ballot_alu#simd_ballot.cache'

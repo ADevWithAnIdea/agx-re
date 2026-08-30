@@ -119,8 +119,8 @@ def main():
                 "measurement_failure_pct": 0.0, "baselines_ok": True})
     e3 = [entry("sh_bc", "dir", [0, 1, 2, 3], st3)]
     lab, vd, _ = V.classify("simd_shuffle.dir", e3, {("sh_bc", 0): {"fired": False}}, {})
-    check("T3 no detection power -> UNDERPOWERED",
-          (lab, vd), ("untested", "STILL-UNDERPOWERED"))
+    check("T3 no detection power -> CARRIER-UNDECIDABLE",
+          (lab, vd), ("untested", "CARRIER-UNDECIDABLE"))
 
     # ---------------------------------------------------------------- T4
     lab, vd, _ = V.classify("simd_shuffle.dir", e3, {("sh_bc", 0): {"fired": True}}, {})

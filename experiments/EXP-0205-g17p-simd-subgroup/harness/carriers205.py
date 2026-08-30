@@ -643,3 +643,25 @@ def litmus_ctr(name):
     proves all four threadgroups ran and their writes became visible."""
     r = _litmus_plan1(name)
     return (LITMUS_CTR_SEED + sum((x & 0xFF) + 1 for x in r)) & M32
+
+
+# --------------------------------------------------------------- provenance
+# Operand PROVENANCE per carrier (RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 6:
+# "Treat value provenance and lifetime as experimental context, not noise").
+# `device-load` = the operand under test arrives straight from a device_load;
+# `alu` = it is computed by ALU from a system value with no memory traffic.
+OPERAND_PROVENANCE = {
+    "sb_ballot": "device-load->alu-compare", "sb_ballot2": "device-load->alu-compare",
+    "sb_active": "device-load->alu-compare",  "sb_reuse": "device-load->alu-compare",
+    "sr_sum": "device-load", "sr_scan": "device-load",
+    "sr_max": "device-load", "sr_fsum": "device-load",
+    "sh_bc": "device-load", "sh_xor": "device-load", "sh_reuse": "device-load",
+    "lb_ballot_ld": "device-load->alu-compare", "lb_ballot_alu": "alu->alu-compare",
+    "lb_shuffle_ld": "device-load", "lb_shuffle_alu": "alu",
+    "sb_width": "sysval",
+}
+
+# Dispatch shape class, so an arm's multi-invocation status is machine-readable.
+DISPATCH_CLASS = {n: ("multi-threadgroup-multi-simdgroup"
+                      if n.startswith("lb_") else "single-simdgroup")
+                  for n in CARRIERS}

@@ -417,10 +417,18 @@ def axes(e, quiet_ok, n_runs):
     if g.get("cases_with_ledger") and not g.get("ledger_mismatches"):
         geom = ("geometry-mapped" if not g.get("match_bit_collision")
                 else "ledger-verified (aliased)")
-    if e.get("moved_min", 0) > 0:
+    # Gate B: an arm whose positive control failed cannot support an inert
+    # reading, and cannot support "the rest of the domain is inert" either --
+    # even when one value happens to move. Both halves are reported.
+    ctl_ok = e.get("control_moved", 0) > 0 and e.get("falsifier_moved", 0) > 0
+    if e.get("moved_min", 0) > 0 and ctl_ok:
         live = "live"
-    elif e.get("control_moved", 0) > 0 and e.get("falsifier_moved", 0) > 0:
-        live = "accepted-inert"
+    elif e.get("moved_min", 0) > 0:
+        live = ("live at %d of %d values; control FAILED so the remaining "
+                "values are carrier-undecidable, not inert"
+                % (e.get("moved_min", 0), e.get("L_legal_values", 0)))
+    elif ctl_ok:
+        live = ("accepted-inert in the tested envelope; global role unknown")
     else:
         live = "carrier-undecidable"
     if not e.get("sem_checked"):

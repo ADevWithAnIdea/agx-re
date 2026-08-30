@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if !__has_feature(objc_arc)
 #error compile with -fobjc-arc
@@ -57,6 +58,19 @@ static NSUInteger bppOf(NSUInteger fmt) {
         case MTLPixelFormatR32Float:    case MTLPixelFormatR32Uint: return 4;
         default: return 0;                       // unsupported here -> BAD_REQUEST
     }
+}
+
+// A NaN or an infinity printed with %g is `nan` / `inf`, which is NOT valid JSON,
+// and a single such pixel makes the whole response unparseable -- observed in
+// work/pilot02 as five `measurement_failed` cases whose raw payload began with
+// 0x7f800000 (+inf).  A measurement failure is not an observation, so the fix is
+// to keep the response parseable: the authoritative observable is the exact
+// `raw` byte string, and this convenience array emits JSON null for any
+// non-finite value rather than an unparseable token.
+static void appendNum(NSMutableString *s, double v, BOOL comma) {
+    if (comma) [s appendString:@","];
+    if (isfinite(v)) [s appendFormat:@"%.9g", v];
+    else             [s appendString:@"null"];
 }
 
 static void hexcat(NSMutableString *dst, const uint8_t *b, NSUInteger n) {
@@ -112,6 +126,10 @@ int main(int argc, char **argv) { @autoreleasepool {
         NSString  *BLEND = req[@"blend"] ?: @"none";
         BOOL DEPTH      = [(req[@"depth"] ?: @0) boolValue];
         NSUInteger OUTB = [(req[@"outbuf"] ?: @0) unsignedIntegerValue];
+        // The authoritative observable is always the exact `raw` byte string; the
+        // float `pixels` array exists only for the oracles that are written in
+        // floats, and emitting it for every case roughly triples the response.
+        BOOL WANTPX = [(req[@"want_pixels"] ?: @1) boolValue];
         NSArray *clear = req[@"clear"];
         NSArray *fbuf = req[@"fbuf"], *vbuf = req[@"vbuf"];
         NSUInteger INST = [(req[@"instances"] ?: @1) unsignedIntegerValue];
@@ -288,7 +306,7 @@ int main(int argc, char **argv) { @autoreleasepool {
             hexcat(out, px, nb);
         }
         [out appendString:@"\""];
-        if (FMT == MTLPixelFormatRGBA32Float) {
+        if (WANTPX && FMT == MTLPixelFormatRGBA32Float) {
             [out appendString:@",\"pixels\":["];
             BOOL first = YES;
             for (NSUInteger i = 0; i < NRT; i++) {
@@ -296,8 +314,9 @@ int main(int argc, char **argv) { @autoreleasepool {
                       fromRegion:MTLRegionMake2D(0, 0, W, H) mipmapLevel:0];
                 float *f = (float *)px;
                 for (NSUInteger p = 0; p < W * H; p++) {
-                    [out appendFormat:@"%s[%.9g,%.9g,%.9g,%.9g]", first ? "" : ",",
-                         (double)f[p*4+0], (double)f[p*4+1], (double)f[p*4+2], (double)f[p*4+3]];
+                    [out appendString:(first ? @"[" : @",[")];
+                    for (int k = 0; k < 4; k++) appendNum(out, (double)f[p*4+k], k > 0);
+                    [out appendString:@"]"];
                     first = NO;
                 }
             }

@@ -44,3 +44,35 @@
   No hang budget and no abort path, by design (protocol 3c).
 - 2026-08-30 ~12:19Z — contract re-frozen (amendment 4); verify_remote 20/20.
   Starting gated run01.
+- 2026-08-30 ~12:30Z — **run01 KILLED at 152 cases and RETAINED.** Measured
+  1.756 s/case with 46% faults against the pilot's 0.234 s/case. The process table
+  showed SIBLING EXPERIMENTS sweeping the same GPU (EXP-0200, EXP-0201, EXP-0202,
+  EXP-0207 — up to **9 other GPU processes**). The full 12,173-case set would have
+  taken ~6 h per run. Run01 is left exactly as it is, never topped up, id never
+  reused, cited by no verdict.
+- 2026-08-30 ~12:35Z — the user published
+  `/RE_EXPERIMENT_PROCESS_CORRECTIONS.md` (NORMATIVE, overrides the
+  dispatch gates where they conflict). Implemented before any gated dispatch:
+  * **Gate A** actual-byte ledger — requested value, requested bytes, ACTUAL bytes
+    read back out of the final dispatched blob, independently re-decoded value,
+    program sha256, absolute instruction offset. `ledger_ok` on every case.
+  * **Gate C** competing semantic models with a per-case prediction
+    (`analysis/models206.py`, 3–4 models per field) and the five-bucket
+    observation vocabulary correct/coherent/dead/reject/invalid.
+    `sem_checked == 0` can never produce `hardware-run`.
+  * **Gate E** second gated run in REVERSED case order; process table sampled into
+    `raw/<run>/procs.jsonl` at start, every 100 cases, and at end, so "the machine
+    was busy" is a MEASUREMENT and not prose.
+  * `PRE_REGISTRATION_A2.md` frozen BEFORE the first gated dispatch; run01 and the
+    pilot retained as the superseded record.
+  * gate self-test extended to FIVE cases and now also refuses (a) liveness with
+    zero semantic checks and (b) an arm whose actual bytes did not match the
+    request.
+- 2026-08-30 ~12:47Z — arms regenerated under `targets206.SELECT`: 52 arms,
+  5,231 cases, three structurally different carrier classes for every inertness
+  target. Contract re-frozen; verify_remote 22/22. Smoke test s01: 36/36
+  `ledger_ok`, semantic buckets populated, 7–9 sibling GPU processes recorded.
+- 2026-08-30 ~12:52Z — gated pair launched: **run03 forward**, **run04 reversed**.
+  Run in parallel (the machine already carries 9 sibling agents, so serializing
+  bought no quiet and cost hours); the reversed order decorrelates any
+  order-dependent artefact. Recorded as a Gate E limitation, not hidden.

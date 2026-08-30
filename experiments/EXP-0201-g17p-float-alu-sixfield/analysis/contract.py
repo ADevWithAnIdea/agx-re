@@ -29,7 +29,8 @@ AUTHORED = ["run.py", "PRE_REGISTRATION.md", "PRE_REGISTRATION-A.md",
             "harness/verify_remote.py",
             "analysis/gen_arms.py", "analysis/oracle_check.py",
             "analysis/verdicts.py", "analysis/contract.py",
-            "analysis/maps.py", "analysis/manifest_build.py"]
+            "analysis/maps.py", "analysis/manifest_build.py",
+            "analysis/op_semantics.py", "analysis/finalize.py"]
 PINNED = ["pinned/db.json", "pinned/isadb.py", "pinned/agxparse.py",
           "pinned/persistrun.py", "pinned/shdump.m"]
 

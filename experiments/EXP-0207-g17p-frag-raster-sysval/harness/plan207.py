@@ -352,6 +352,13 @@ ARMS = [
 
     # ------------------------------------------- mesh_out_src.sel -------------
     dict(arm="me_w2", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wide2", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
@@ -359,6 +366,13 @@ ARMS = [
              "viewport-covering geometry, so the mesh output path is observable in "
              "the frame at all.  This field has never been dispatched."),
     dict(arm="me_w3", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wide3", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
@@ -366,6 +380,13 @@ ARMS = [
              "differ by two orders of magnitude, so a re-selected source is an "
              "unmistakable colour change"),
     dict(arm="me_p1", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wideP1", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
@@ -374,18 +395,39 @@ ARMS = [
              "as mesh_wide has it.  mesh_wide2/3 rewrote too much at once and emitted "
              "no mesh_out_src at all (census01)."),
     dict(arm="me_p2", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wideP2", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
          why="AMENDMENT 1: the same minimal delta with a quadratic y so the vertices "
              "stop being collinear, keeping the x expression's shape"),
     dict(arm="me_p3", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wideP3", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",
          why="AMENDMENT 1: a third minimal delta -- per-corner constants selected by "
              "lane%3, the least arithmetic of the three"),
     dict(arm="me_w1", stage=M, kind=M, kernel=MESH_KERNEL, obj="obj_main",
+         probe_other=[dict(mnemonic="device_store", field="st_format", value=0x1D,
+                           why="GATE B: the 14-byte device_store that this mesh_out_src "
+                               "FEEDS.  Changing the store's data-format descriptor must "
+                               "move the frame, or the mesh output path is not observable "
+                               "on this arm at all and no sel verdict may be filed."),
+                      dict(mnemonic="device_store", field="index_reg", value=0x10,
+                           why="GATE B, second mechanism: move the store's index register")],
          mesh="mesh_wide", frag="frag_wide", W=8, H=8, clear=CLEAR_M,
          tgobj=1, tgmesh=12, grid=1,
          instr="mesh_out_src", anchor=("occ", 0), fields=["sel"], oracle="mesh_sel",

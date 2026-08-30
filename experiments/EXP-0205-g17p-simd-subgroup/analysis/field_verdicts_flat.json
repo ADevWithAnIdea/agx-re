@@ -1,0 +1,612 @@
+{
+ "_generated_by": "analysis/verdicts.py",
+ "_runs": [
+  "raw/g17p_20260830_runB01",
+  "raw/g17p_20260830_runB02"
+ ],
+ "db_defects": {
+  "simd_ballot.pred": {
+   "adversarial_probe": "raw/adversarial01 (SINGLE OBSERVATIONS, not gated, hypothesis-grade): on the ballot carrier psrctype alone changed nothing; the tail alone gave a silent zero; psrctype + tail together turned 0x6C8AF35D into 0xFFFFFFFF (the all-active mask); and byte+6 `form` alone, 0x00 -> 0x14, did the same.",
+   "evidence": [
+    "EXP-0205"
+   ],
+   "modelled_as": "byte+1 bits 12..15; enum 0 = active_mask/any/all, 1 = ballot(predicate)",
+   "observed_on_G17P": "Our own compiler emits byte+1 = 0x07 (pred = 0) for BOTH simd_ballot(predicate) AND simd_active_threads_mask(); the two compiled forms differ in byte+5 (psrctype 0x00 vs 0x02) and the byte+7..9 tail (58 22 12 vs 08 02 18). Sweeping pred over all 16 values changed nothing on 6 carriers whose controls all fired, including two carriers that DO compute the two different forms.",
+   "proposed_correction": "The ballot-form selection attributed to `pred` is carried by byte+5 / byte+6 / byte+7..9. `pred` as modelled is inert across its full range on G17P. Needs its own gated experiment before db.json is changed.",
+   "target": "G17P"
+  },
+  "simd_reduce.dtype": {
+   "evidence": [
+    "EXP-0205"
+   ],
+   "modelled_as": "byte+7, an 8-bit enum",
+   "observed_on_G17P": "Bits 4, 6 and 7 are inert-within-field on all four carriers; the integer carriers repeat with period 16. Live bits are [0,3] (sr_sum, sr_max), [0,1,3] (sr_scan) and [0,1,2,3,5] (the f32 carrier), so the live width is context-dependent.",
+   "proposed_correction": "dtype's decoded width is at most 6 bits and is context-dependent; do not model it as 8.",
+   "target": "G17P"
+  },
+  "simd_reduce.op": {
+   "evidence": [
+    "EXP-0205"
+   ],
+   "modelled_as": "byte+1, an 8-bit opcode field",
+   "observed_on_G17P": "Only bits [2:0] are decoded. Bits [7:3] are inert-within-field on all four reduce carriers and the observation repeats with period 8 across the full 256-value sweep.",
+   "proposed_correction": "op is a 3-bit opcode occupying an 8-bit byte.",
+   "target": "G17P"
+  },
+  "simd_reduce.op x simd_reduce.dtype": {
+   "evidence": [
+    "EXP-0205"
+   ],
+   "observed_on_G17P": "The two fields are NOT independent: the {0,1,2,3} -> {ior,isum,smax,umax} map holds at opcls=1 with dtype=3, but on dtype=7 op values 0 and 3 returned EXCLUSIVE-SCAN shapes and on dtype=9 the predictions for op != 1 all failed.",
+   "proposed_correction": "add a field-dependency edge op <-> dtype.",
+   "target": "G17P"
+  }
+ },
+ "fields": {
+  "simd_ballot.cache": {
+   "context_split": {
+    "arms_moved": [],
+    "arms_not_moved": [
+     {
+      "arm": "sb_ballot#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "sb_ballot",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_ballot2#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "sb_ballot2",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_active#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "sb_active",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_reuse#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "sb_reuse",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "lb_ballot_ld#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "lb_ballot_ld",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "lb_ballot_alu#simd_ballot.cache",
+      "baseline_field_value": 84,
+      "carrier": "lb_ballot_alu",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 0,
+      "operand_provenance": "alu->alu-compare"
+     }
+    ],
+    "separating_attribute": null
+   },
+   "counts": {
+    "arms": 6,
+    "arms_moved": 0,
+    "arms_with_detection_power": 6,
+    "cases_both_runs": 3072,
+    "disagreeing_values_summed": 0,
+    "distinct_actual_encodings_summed_over_arms": 1536,
+    "encodable_values": 256,
+    "faults_plus_hangs": 0,
+    "ledger_missing": 0,
+    "ledger_verified": 3072,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 100.0,
+    "moved_values_summed": 0,
+    "sem_checked": 1536,
+    "sem_match": 1536,
+    "sem_mismatch": 0,
+    "values_dispatched_max_arm": 256
+   },
+   "distinct_bytes": 1536,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "untested",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "inert in 0..255 dense on 6 arm(s), 6 carrier(s), 1 distinct compiler-chosen baseline values, G17P; global role unknown -- 0 of 6 arms moved. The carrier set DOES have proven detection power in the dimension a cache/discard operand hint is documented to control -- the in-dimension `dst` control moved the post-instruction content of the source register on 3 carrier(s) -- so this is a real negative in THAT dimension: the field alters neither the functional result nor what the source register holds afterwards. It is still NOT recorded as globally inert. The MULTI-INVOCATION ORDERING dimension WAS exercised in revision B (4 threadgroups x 2 simdgroups, cross-simdgroup threadgroup-memory exchange, a cross-threadgroup device atomic checked against a host total, operand re-read after two barriers) and the field stayed inert there too. The dimension that remains unexercised is RETENTION/OCCUPANCY: a register-cache hint's only remaining observable is timing and power, which a functional read-back cannot express. Accepted-inert over the tested envelope, NOT emitter-grade, global role unknown.",
+   "range": "dispatched 0..255 dense (256/256 encodable) on 6 arm(s); no semantic domain established",
+   "semantic_domain": null,
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "independently-confirmed",
+    "semantics": "bounded-map",
+    "target": "G17P-direct"
+   },
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "simd_ballot.pred": {
+   "context_split": {
+    "arms_moved": [],
+    "arms_not_moved": [
+     {
+      "arm": "sb_ballot#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "sb_ballot",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_ballot2#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "sb_ballot2",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_active#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "sb_active",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "sb_reuse#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "sb_reuse",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "lb_ballot_ld#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "lb_ballot_ld",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load->alu-compare"
+     },
+     {
+      "arm": "lb_ballot_alu#simd_ballot.pred",
+      "baseline_field_value": 0,
+      "carrier": "lb_ballot_alu",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 0,
+      "operand_provenance": "alu->alu-compare"
+     }
+    ],
+    "separating_attribute": null
+   },
+   "counts": {
+    "arms": 6,
+    "arms_moved": 0,
+    "arms_with_detection_power": 6,
+    "cases_both_runs": 192,
+    "disagreeing_values_summed": 0,
+    "distinct_actual_encodings_summed_over_arms": 96,
+    "encodable_values": 16,
+    "faults_plus_hangs": 0,
+    "ledger_missing": 0,
+    "ledger_verified": 192,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 100.0,
+    "moved_values_summed": 0,
+    "sem_checked": 6,
+    "sem_match": 6,
+    "sem_mismatch": 0,
+    "values_dispatched_max_arm": 16
+   },
+   "distinct_bytes": 96,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "untested",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "inert in 0..15 dense on 6 arm(s), 6 carrier(s), 1 distinct compiler-chosen baseline values, G17P; global role unknown -- 0 of 6 arms moved, on 6 carriers with 1 distinct compiler-chosen baseline values, every arm's control firing. Not emitter-grade.",
+   "range": "dispatched 0..15 dense (16/16 encodable) on 6 arm(s); no semantic domain established",
+   "semantic_domain": null,
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "independently-confirmed",
+    "semantics": "hypothesis",
+    "target": "G17P-direct"
+   },
+   "start": 12,
+   "target": "G17P",
+   "width": 4
+  },
+  "simd_reduce.dtype": {
+   "context_split": {
+    "arms_moved": [
+     {
+      "arm": "sr_sum#simd_reduce.dtype",
+      "baseline_field_value": 3,
+      "carrier": "sr_sum",
+      "dispatch_class": "single-simdgroup",
+      "moved": 192,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_scan#simd_reduce.dtype",
+      "baseline_field_value": 9,
+      "carrier": "sr_scan",
+      "dispatch_class": "single-simdgroup",
+      "moved": 223,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_max#simd_reduce.dtype",
+      "baseline_field_value": 7,
+      "carrier": "sr_max",
+      "dispatch_class": "single-simdgroup",
+      "moved": 192,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_fsum#simd_reduce.dtype",
+      "baseline_field_value": 18,
+      "carrier": "sr_fsum",
+      "dispatch_class": "single-simdgroup",
+      "moved": 240,
+      "operand_provenance": "device-load"
+     }
+    ],
+    "arms_not_moved": [],
+    "separating_attribute": null
+   },
+   "counts": {
+    "arms": 4,
+    "arms_moved": 4,
+    "arms_with_detection_power": 4,
+    "cases_both_runs": 2048,
+    "disagreeing_values_summed": 1,
+    "distinct_actual_encodings_summed_over_arms": 1024,
+    "encodable_values": 256,
+    "faults_plus_hangs": 1,
+    "ledger_missing": 0,
+    "ledger_verified": 2048,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 99.609,
+    "moved_values_summed": 847,
+    "sem_checked": 15,
+    "sem_match": 11,
+    "sem_mismatch": 4,
+    "values_dispatched_max_arm": 256
+   },
+   "distinct_bytes": 1024,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "hardware-run",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "moved on 4 of the 4 arms with detection power (4 arms over 4 carriers with 4 distinct compiler-chosen baseline values)",
+   "range": "dispatched 0..255 dense (256/256 encodable) on 4 arm(s); SEMANTICS CONFIRMED on arm sr_scan#simd_reduce.dtype at values [3, 7, 9, 11] (3 distinct predicted vectors, 0 mismatches on that arm)",
+   "semantic_domain": {
+    "arm": "sr_scan#simd_reduce.dtype",
+    "baseline_field_value": 9,
+    "carrier": "sr_scan",
+    "distinct_predicted_vectors": 3,
+    "matched_values": [
+     3,
+     7,
+     9,
+     11
+    ],
+    "mismatches_on_this_arm": 0
+   },
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "live",
+    "reproducibility": "independently-confirmed",
+    "semantics": "semantically-mapped",
+    "target": "G17P-direct"
+   },
+   "start": 56,
+   "target": "G17P",
+   "width": 8
+  },
+  "simd_reduce.op": {
+   "context_split": {
+    "arms_moved": [
+     {
+      "arm": "sr_sum#simd_reduce.op",
+      "baseline_field_value": 1,
+      "carrier": "sr_sum",
+      "dispatch_class": "single-simdgroup",
+      "moved": 224,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_scan#simd_reduce.op",
+      "baseline_field_value": 1,
+      "carrier": "sr_scan",
+      "dispatch_class": "single-simdgroup",
+      "moved": 224,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_max#simd_reduce.op",
+      "baseline_field_value": 2,
+      "carrier": "sr_max",
+      "dispatch_class": "single-simdgroup",
+      "moved": 224,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sr_fsum#simd_reduce.op",
+      "baseline_field_value": 6,
+      "carrier": "sr_fsum",
+      "dispatch_class": "single-simdgroup",
+      "moved": 224,
+      "operand_provenance": "device-load"
+     }
+    ],
+    "arms_not_moved": [],
+    "separating_attribute": null
+   },
+   "counts": {
+    "arms": 4,
+    "arms_moved": 4,
+    "arms_with_detection_power": 4,
+    "cases_both_runs": 2048,
+    "disagreeing_values_summed": 0,
+    "distinct_actual_encodings_summed_over_arms": 1024,
+    "encodable_values": 256,
+    "faults_plus_hangs": 0,
+    "ledger_missing": 0,
+    "ledger_verified": 2048,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 100.0,
+    "moved_values_summed": 896,
+    "sem_checked": 15,
+    "sem_match": 8,
+    "sem_mismatch": 7,
+    "values_dispatched_max_arm": 256
+   },
+   "distinct_bytes": 1024,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "hardware-run",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "moved on 4 of the 4 arms with detection power (4 arms over 4 carriers with 3 distinct compiler-chosen baseline values)",
+   "range": "dispatched 0..255 dense (256/256 encodable) on 4 arm(s); SEMANTICS CONFIRMED on arm sr_sum#simd_reduce.op at values [0, 1, 2, 3] (4 distinct predicted vectors, 0 mismatches on that arm)",
+   "semantic_domain": {
+    "arm": "sr_sum#simd_reduce.op",
+    "baseline_field_value": 1,
+    "carrier": "sr_sum",
+    "distinct_predicted_vectors": 4,
+    "matched_values": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "mismatches_on_this_arm": 0
+   },
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "live",
+    "reproducibility": "independently-confirmed",
+    "semantics": "semantically-mapped",
+    "target": "G17P-direct"
+   },
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "simd_shuffle.cache": {
+   "context_split": {
+    "arms_moved": [
+     {
+      "arm": "sh_bc#simd_shuffle.cache",
+      "baseline_field_value": 1,
+      "carrier": "sh_bc",
+      "dispatch_class": "single-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sh_xor#simd_shuffle.cache",
+      "baseline_field_value": 1,
+      "carrier": "sh_xor",
+      "dispatch_class": "single-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "lb_shuffle_ld#simd_shuffle.cache",
+      "baseline_field_value": 1,
+      "carrier": "lb_shuffle_ld",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     }
+    ],
+    "arms_not_moved": [
+     {
+      "arm": "sh_reuse#simd_shuffle.cache",
+      "baseline_field_value": 0,
+      "carrier": "sh_reuse",
+      "dispatch_class": "single-simdgroup",
+      "moved": 0,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "lb_shuffle_alu#simd_shuffle.cache",
+      "baseline_field_value": 0,
+      "carrier": "lb_shuffle_alu",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 0,
+      "operand_provenance": "alu"
+     }
+    ],
+    "separating_attribute": {
+     "attribute": "baseline_field_value",
+     "did_not_move_when": [
+      "0"
+     ],
+     "moved_when": [
+      "1"
+     ]
+    }
+   },
+   "counts": {
+    "arms": 5,
+    "arms_moved": 3,
+    "arms_with_detection_power": 5,
+    "cases_both_runs": 20,
+    "disagreeing_values_summed": 0,
+    "distinct_actual_encodings_summed_over_arms": 10,
+    "encodable_values": 2,
+    "faults_plus_hangs": 0,
+    "ledger_missing": 0,
+    "ledger_verified": 20,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 100.0,
+    "moved_values_summed": 3,
+    "sem_checked": 10,
+    "sem_match": 7,
+    "sem_mismatch": 3,
+    "values_dispatched_max_arm": 2
+   },
+   "distinct_bytes": 10,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "isolated-byte-diff",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "moved on 3 of the 5 arms with detection power (5 arms over 5 carriers with 2 distinct compiler-chosen baseline values)",
+   "range": "dispatched 0..1 dense (2/2 encodable) on 5 arm(s); CONTEXTUAL: moved on 3 arm(s) and not on 2, separated by {\"attribute\": \"baseline_field_value\", \"moved_when\": [\"1\"], \"did_not_move_when\": [\"0\"]}. Confirmed against the host prediction at the values listed in `context_split`; the value that moved produced an UNPREDICTED result, so no general semantic map is claimed.",
+   "semantic_domain": null,
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "live",
+    "reproducibility": "independently-confirmed",
+    "semantics": "bounded-map",
+    "target": "G17P-direct"
+   },
+   "start": 17,
+   "target": "G17P",
+   "width": 1
+  },
+  "simd_shuffle.dir": {
+   "context_split": {
+    "arms_moved": [
+     {
+      "arm": "sh_bc#simd_shuffle.dir",
+      "baseline_field_value": 0,
+      "carrier": "sh_bc",
+      "dispatch_class": "single-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sh_xor#simd_shuffle.dir",
+      "baseline_field_value": 1,
+      "carrier": "sh_xor",
+      "dispatch_class": "single-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "sh_reuse#simd_shuffle.dir",
+      "baseline_field_value": 0,
+      "carrier": "sh_reuse",
+      "dispatch_class": "single-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "lb_shuffle_ld#simd_shuffle.dir",
+      "baseline_field_value": 0,
+      "carrier": "lb_shuffle_ld",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 1,
+      "operand_provenance": "device-load"
+     },
+     {
+      "arm": "lb_shuffle_alu#simd_shuffle.dir",
+      "baseline_field_value": 0,
+      "carrier": "lb_shuffle_alu",
+      "dispatch_class": "multi-threadgroup-multi-simdgroup",
+      "moved": 1,
+      "operand_provenance": "alu"
+     }
+    ],
+    "arms_not_moved": [],
+    "separating_attribute": null
+   },
+   "counts": {
+    "arms": 5,
+    "arms_moved": 5,
+    "arms_with_detection_power": 5,
+    "cases_both_runs": 20,
+    "disagreeing_values_summed": 0,
+    "distinct_actual_encodings_summed_over_arms": 10,
+    "encodable_values": 2,
+    "faults_plus_hangs": 0,
+    "ledger_missing": 0,
+    "ledger_verified": 20,
+    "measurement_failures": 0,
+    "min_cross_run_agreement_pct": 100.0,
+    "moved_values_summed": 5,
+    "sem_checked": 6,
+    "sem_match": 6,
+    "sem_mismatch": 0,
+    "values_dispatched_max_arm": 2
+   },
+   "distinct_bytes": 10,
+   "evidence": [
+    "EXP-0205"
+   ],
+   "label": "hardware-run",
+   "legacy_label_rule": "never rounded up from liveness (corrections section 2): hardware-run requires semantics==semantically-mapped AND liveness==live; isolated-byte-diff requires a matched prediction at a NON-BASELINE value; otherwise untested.",
+   "note": "moved on 5 of the 5 arms with detection power (5 arms over 5 carriers with 2 distinct compiler-chosen baseline values)",
+   "range": "dispatched 0..1 dense (2/2 encodable) on 5 arm(s); SEMANTICS CONFIRMED on arm sh_bc#simd_shuffle.dir at values [0, 1] (2 distinct predicted vectors, 0 mismatches on that arm)",
+   "semantic_domain": {
+    "arm": "sh_bc#simd_shuffle.dir",
+    "baseline_field_value": 0,
+    "carrier": "sh_bc",
+    "distinct_predicted_vectors": 2,
+    "matched_values": [
+     0,
+     1
+    ],
+    "mismatches_on_this_arm": 0
+   },
+   "six_axis": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "live",
+    "reproducibility": "independently-confirmed",
+    "semantics": "semantically-mapped",
+    "target": "G17P-direct"
+   },
+   "start": 7,
+   "target": "G17P",
+   "width": 1
+  }
+ }
+}

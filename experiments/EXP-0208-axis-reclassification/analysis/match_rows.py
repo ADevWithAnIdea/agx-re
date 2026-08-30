@@ -53,23 +53,47 @@ for line in open(os.path.join(HERE, "raw_index_nonjsonl.jsonl")):
     for a, b, n in r.get("pairs", []):
         nj_text[(a, b)].append(dict(file=r["file"], exp=r["exp"], n=n, is_raw=r["is_raw"], ext=r["ext"]))
 
+UNIONS = ("obs", "okobs", "orc", "values", "okvals", "faultvals", "hangvals", "abytes_h")
+
 def sumgroups(gs):
+    """UNION the distinct-payload sets across groups. Summing per-group counts (what
+    EXP-0194's scanner did) reports `2 distinct observed payloads` for a field that was
+    inert in BOTH of two runs -- the exact mistake this experiment exists to undo."""
     if not gs: return None
     o = collections.Counter(); mt = collections.Counter()
-    tot = dict(n=0, n_values=0, n_abytes=0, n_obs=0, n_okobs=0, n_orc=0, semchecked=0,
-               invalid=0, victim=0, sentinel_bad=0, falsifier=0, moved_true=0)
+    tot = dict(n=0, semchecked=0, invalid=0, victim=0, sentinel_bad=0,
+               falsifier=0, moved_true=0)
+    U = {k: set() for k in UNIONS}
     exps = set(); files = set(); carriers = set(); arms = set(); keyings = set()
+    percase_alias = []   # per-group (distinct requested values, distinct actual encodings)
     for g in gs:
-        for k in o: pass
         o.update(g["outcomes"]); mt.update(g["match"])
         for k in tot: tot[k] += g.get(k, 0)
+        for k in UNIONS: U[k] |= set(g.get(k) or [])
         exps.add(g["exp"]); files.add(g["file"]); keyings.add(g["keying"])
         if g["carrier"]: carriers.add(g["carrier"])
         if g["arm"]: arms.add(g["arm"])
-    return dict(groups=len(gs), exps=sorted(exps), n_files=len(files),
-                files=sorted(files)[:12], carriers=sorted(carriers)[:24],
-                n_carriers=len(carriers), arms=sorted(arms)[:24], n_arms=len(arms),
-                keyings=sorted(keyings), outcomes=dict(o), match=dict(mt), **tot)
+        percase_alias.append(dict(exp=g["exp"], file=g["file"], carrier=g["carrier"], arm=g["arm"],
+                                  n=g["n"], nv=g.get("n_values", 0), nb=g.get("n_abytes", 0),
+                                  nobs=g.get("n_obs", 0), nokobs=g.get("n_okobs", 0),
+                                  norc=g.get("n_orc", 0), sem=g.get("semchecked", 0),
+                                  nfault=g.get("n_faultvals", 0), nhang=g.get("n_hangvals", 0),
+                                  out=g["outcomes"], keying=g["keying"]))
+    r = dict(groups=len(gs), exps=sorted(exps), n_files=len(files),
+             files=sorted(files)[:12], carriers=sorted(carriers)[:24],
+             n_carriers=len(carriers), arms=sorted(arms)[:24], n_arms=len(arms),
+             keyings=sorted(keyings), outcomes=dict(o), match=dict(mt),
+             alias_per_group=percase_alias[:60], **tot)
+    for k in UNIONS:
+        r["u_" + k] = len(U[k])
+    r["max_group_obs"] = max([p["nobs"] for p in percase_alias] or [0])
+    r["max_group_okobs"] = max([p["nokobs"] for p in percase_alias] or [0])
+    r["max_group_orc"] = max([p["norc"] for p in percase_alias] or [0])
+    r["alias_groups"] = sum(1 for p in percase_alias if p["nv"] and p["nb"] and p["nb"] < p["nv"])
+    r["values_list"] = sorted(U["values"], key=lambda x: (len(x), x))[:600]
+    r["faultvals_list"] = sorted(U["faultvals"], key=lambda x: (len(x), x))[:600]
+    r["hangvals_list"] = sorted(U["hangvals"], key=lambda x: (len(x), x))[:600]
+    return r
 
 out = {}
 for m, f, rec in rows:

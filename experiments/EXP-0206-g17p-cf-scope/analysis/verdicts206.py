@@ -165,6 +165,8 @@ def arm_stats(recs, runs):
         "carrier": next((r.get("carrier") for r in tgt), None),
         "region": next((r.get("region") for r in tgt), None),
         "off": next((r.get("off") for r in tgt), None),
+        "start": next((r.get("start") for r in tgt), None),
+        "width": next((r.get("width") for r in tgt), None),
         "key": next((r.get("key") for r in tgt), None),
         "field": next((r.get("field") for r in tgt), None),
         "instr": next((r.get("instr") for r in tgt), None),
@@ -194,17 +196,34 @@ def control_fires(st):
 
 
 def selftest():
-    """Three synthetic arms. The gate must refuse the first two and admit the third."""
+    """Five synthetic arms. The gate must refuse the first four and admit the last.
+
+    (1) DEAD CODE -- a constant observable. Must not promote AND must not be
+        called inert (the two mirror-image cannot-fail defects in this corpus).
+    (2) FAULT WALL -- one valid payload, many faults. Must not promote: a
+        perfectly reproducible hazard map is not a semantic (EXP-0192 Case C).
+    (3) LIVENESS WITHOUT SEMANTICS -- real movement, `sem_checked == 0`. Must not
+        promote (RE_EXPERIMENT_PROCESS_CORRECTIONS Gate C / the EXP-0169 error).
+    (4) LEDGER FAILURE -- movement and a surviving model, but the actual dispatched
+        bytes did not decode to the requested value. Must not promote (Gate A).
+    (5) WIDTH-1 -- one movement, zero disagreements, a surviving model. MUST be
+        promotable: the `moved >= 2 * max(disagree, 1)` form refuses this by
+        arithmetic rather than by evidence (FIELD-SWEEP-PROTOCOL 5b).
+    """
     ok = True
 
-    def mk(vals, outcome="ok", role="target", arm="A", run="r1", base=None):
+    def mk(vals, outcome="ok", role="target", arm="A", run="r1", base=None,
+           sem=None, bucket="correct", ledger=True):
         rs = [{"role": "_", "field": "_baseline", "note": arm + ":open",
                "observed": base if base is not None else {"vh": "B"},
                "_run": run, "outcome": "ok"}]
         for i, v in enumerate(vals):
             rs.append({"role": role, "field": "f", "instr": "x", "value": i,
                        "observed": v, "outcome": outcome, "bytes": "%02x" % i,
-                       "_run": run, "arm": arm})
+                       "_run": run, "arm": arm, "ledger_ok": ledger,
+                       "ledger": {"act_bytes": "%02x" % i},
+                       "sem_bucket": bucket,
+                       "sem_pred": (sem or {})})
         return rs
 
     dead = mk([{"vh": "B"}] * 8) + mk([{"vh": "B"}] * 8, run="r2")
@@ -217,20 +236,36 @@ def selftest():
         print("SELFTEST FAIL: an arm with NO fired control was called inert"); ok = False
 
     wall = (mk([{"vh": "B"}], base={"vh": "B"}) +
-            mk([{"vh": "?"}] * 7, outcome="fault"))
+            mk([{"vh": "?"}] * 7, outcome="fault", bucket="reject"))
     wall += [dict(r, _run="r2") for r in wall]
-    stw = arm_stats(wall, ["r1", "r2"])
-    if promote(stw, (True, "x"))[0] != "REFUSED":
+    if promote(arm_stats(wall, ["r1", "r2"]), (True, "x"))[0] != "REFUSED":
         print("SELFTEST FAIL: a FAULT WALL (V=1) was promoted"); ok = False
 
-    w1 = (mk([{"vh": "B"}, {"vh": "C"}], base={"vh": "B"}) +
-          mk([{"vh": "B"}, {"vh": "C"}], run="r2", base={"vh": "B"}))
+    nosem = (mk([{"vh": "B"}, {"vh": "C"}], base={"vh": "B"}) +
+             mk([{"vh": "B"}, {"vh": "C"}], run="r2", base={"vh": "B"}))
+    if promote(arm_stats(nosem, ["r1", "r2"]), (True, "x"))[0] != "REFUSED":
+        print("SELFTEST FAIL: LIVENESS WITH ZERO SEMANTIC CHECKS was promoted -- "
+              "Gate C says sem_checked == 0 can never produce hardware-run")
+        ok = False
+
+    sem_ok = {"M": "correct"}
+    badled = (mk([{"vh": "B"}, {"vh": "C"}], base={"vh": "B"}, sem=sem_ok,
+                 ledger=False) +
+              mk([{"vh": "B"}, {"vh": "C"}], run="r2", base={"vh": "B"},
+                 sem=sem_ok, ledger=False))
+    if promote(arm_stats(badled, ["r1", "r2"]), (True, "x"))[0] != "REFUSED":
+        print("SELFTEST FAIL: an arm whose ACTUAL bytes did not match the request "
+              "was promoted -- Gate A"); ok = False
+
+    w1 = (mk([{"vh": "B"}, {"vh": "C"}], base={"vh": "B"}, sem=sem_ok) +
+          mk([{"vh": "B"}, {"vh": "C"}], run="r2", base={"vh": "B"}, sem=sem_ok))
     st1 = arm_stats(w1, ["r1", "r2"])
     if st1["moved"] != 1 or st1["disagree"] != 0:
         print("SELFTEST FAIL: width-1 arm stats wrong (%s)" % st1); ok = False
-    if promote(st1, (True, "x"))[0] != "PROMOTE":
-        print("SELFTEST FAIL: a width-1 arm with 1 movement and 0 disagreements "
-              "was refused -- the `2*max(disagree,1)` arithmetic bug"); ok = False
+    p1, w1w = promote(st1, (True, "x"))
+    if p1 != "PROMOTE":
+        print("SELFTEST FAIL: a width-1 arm with 1 movement, 0 disagreements and a "
+              "surviving model was refused (%s)" % w1w); ok = False
     return ok
 
 

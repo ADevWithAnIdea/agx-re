@@ -21,3 +21,25 @@
   `byte0`-low-nibble-0 half family through all 256 values, which drives the family's LENGTH
   SELECTOR (byte+4 & 3) through all four settings. Instruction-stream desync is expected by
   design. EXP-0180 ran the same sweep on this machine with zero hangs.
+- **M5 2026-08-30 ~12:11Z** — `pilot01` (752 cases, 0 faults): all 8 arms ADMISSIBLE; the
+  pre-registered fma12 oracle reproduced on a fresh carrier; all falsifiers fired; the 7 frozen
+  `half_pack` candidates were refuted by a source-lane RELEASE none of them expressed, and the
+  corrected model scored 80/80. Amendment 02 frozen before any gated run.
+- **M6 2026-08-30 ~12:14Z** — two run ids BURNED (`g17p_run01`, `g17p_run11`): `procsample.py`
+  created the run directory before `run.py`, whose own guard then refused to write into it.
+  Both retained with `BURNED.md`; launch order corrected.
+- **M7 2026-08-30 ~12:20Z** — gated runs `g17p_run21` (fwd), `g17p_run22` (fwd), `g17p_run23`
+  (rev), 5296 cases each. Gate result: `dst` 16/16 covered, `dstlo`/`b3` 256/256, all with
+  100% oracle match and 0 cross-run disagreements.
+- **M8 2026-08-30 ~12:26Z** — `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` read. Scored the captured
+  runs against it: Gates B, C, E met; **Gate A (actual-byte ledger) NOT met**. Amendment 03
+  frozen: per-case actual-byte ledger, per-case Gate C semantic class, a second disjoint
+  readback plan (new arms HP_C, HP_D, F12_EXT_C), and the G7 tokenizer-conjunct correction.
+  Matrix 8410 cases, sha256 `e8325420acc4…`.
+- **M9 2026-08-30 ~12:35Z** — gated runs `g17p_run31` (fwd) and `g17p_run32` (rev), 8410 cases
+  each. Ledger: **16820/16820 bytes_match, 16512/16512 requested == decoded**, independently
+  re-verified offline. 1 fault, 1 InnocentVictim, both in `ext` arms. Cross-run: 1 disagreement
+  in 8410.
+- **M10 2026-08-30 ~12:45Z** — verdicts, six-axis classification, db_defects, ext byte map,
+  RESULTS.md, README.md, manifest.json. `tools/agx-isa/wave_audit.py` run: no constant oracles,
+  no aliasing, 100% cross-run agreement, hard outcomes counted separately.

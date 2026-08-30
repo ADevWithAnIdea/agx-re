@@ -1,0 +1,2606 @@
+{
+ "_experiment": "EXP-0204",
+ "_gate_D_note": "Gate D (generated compiler recipe) was NOT ATTEMPTED in this experiment.  Every arm splices one field of a compiler-emitted occurrence, which is a liveness/semantics instrument, not a generation proof.  No instruction here is claimed emittable.",
+ "_gate_selftest": "passed: promotes (moved=1,disagree=0); refuses (moved=0); refuses (moved=1,disagree=1)",
+ "_runs_discovery_not_gated": {
+  "g17p_20260830_run01": {
+   "busy_samples": 18,
+   "foreign_process_names": {
+    "Python": 63,
+    "agxrun_persist": 27,
+    "agxrun_persist_as": 11,
+    "bash": 28,
+    "gfrun5": 16,
+    "zsh": 12
+   },
+   "max_concurrent_foreign_procs": 15,
+   "quiet": false,
+   "samples": 19,
+   "why": "ran under the ORIGINAL sec.8 gate: no actual-byte ledger, no semantic oracle, busy machine, killed by an SSH hang-up at 404 cases. Retained as evidence, excluded from every gate (sec.9: nothing captured is discarded, but it is not topped up or reused)."
+  }
+ },
+ "_runs_gated": {
+  "g17p_20260830_A2run01": {
+   "busy_samples": 7,
+   "foreign_process_names": {
+    "Python": 27,
+    "agxrun_persist": 15,
+    "agxrun_persist_as": 5,
+    "bash": 15,
+    "gfrun5": 11,
+    "sh": 7
+   },
+   "max_concurrent_foreign_procs": 17,
+   "quiet": false,
+   "samples": 7
+  },
+  "g17p_20260830_A2run02": {
+   "busy_samples": 2,
+   "foreign_process_names": {
+    "Python": 4,
+    "agxrun_persist": 4,
+    "bash": 2,
+    "gfrun5": 6,
+    "sh": 2,
+    "shdump": 1
+   },
+   "max_concurrent_foreign_procs": 10,
+   "quiet": false,
+   "samples": 2
+  },
+  "g17p_20260830_A2run03_derivmapping": {
+   "busy_samples": 2,
+   "foreign_process_names": {
+    "Python": 4,
+    "agxrun_persist": 5,
+    "agxrun_persist_as": 1,
+    "bash": 4,
+    "gfrun5": 6,
+    "sh": 2
+   },
+   "max_concurrent_foreign_procs": 11,
+   "quiet": false,
+   "samples": 2
+  }
+ },
+ "_spec": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; gates frozen in PRE_REGISTRATION sec.15",
+ "_target": "G17P (Apple A18 Pro, applegpu_g17p) -- DIRECT, not INFERRED",
+ "arms": {
+  "tex_deriv.dstsrc@tex_deriv@deriv/0": {
+   "baseline_field_value": 201812,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run03_derivmapping": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "0/0",
+    "agreement_pct": null,
+    "common_values": 0,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 40,
+    "cases_with_ledger": 41,
+    "distinct_actual_encodings": 41,
+    "distinct_requested_values": 44,
+    "passed": false
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "b1=0x0",
+     "b1=0xf8",
+     "src_comp=0x0",
+     "src_comp=0xf7"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "no_model": 44
+    },
+    "passed": false,
+    "sem_checked": 0
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "fault": 3,
+    "ledger_mismatch": 1,
+    "wrong_value": 40
+   },
+   "runs": [
+    "g17p_20260830_A2run03_derivmapping"
+   ]
+  },
+  "tex_sample.mode@tex_sample@mscmp/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 16,
+     "checked": 16,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 16,
+     "checked": 16,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0xff",
+     "variant=0x0",
+     "variant=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 32,
+     "silent_zero": 192,
+     "unchanged": 32
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 224,
+   "moved_values_sample": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "outcomes_run1": {
+    "ok": 32,
+    "wrong_value": 224
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@mscmp/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 16,
+     "checked": 16,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 16,
+     "checked": 16,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 4,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0x5f",
+     "variant=0x0",
+     "variant=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 223,
+     "correct": 1,
+     "unchanged": 32
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 224,
+   "moved_values_sample": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "outcomes_run1": {
+    "ok": 32,
+    "wrong_value": 224
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msfilt/0": {
+   "baseline_field_value": 16,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0x5f",
+     "variant=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 32,
+     "silent_zero": 192,
+     "unchanged": 32
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 224,
+   "moved_values_sample": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "outcomes_run1": {
+    "ok": 32,
+    "wrong_value": 224
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msfixl/0": {
+   "baseline_field_value": 16,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0xff",
+     "variant=0xf6"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 64,
+     "silent_zero": 128,
+     "unchanged": 64
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 192,
+   "moved_values_sample": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "outcomes_run1": {
+    "ok": 64,
+    "wrong_value": 192
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msfixl/1": {
+   "baseline_field_value": 16,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0x0",
+     "lod_present=0xfb",
+     "result_desc=0x5f",
+     "variant=0x0",
+     "variant=0xf6"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 192,
+     "unchanged": 64
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 192,
+   "moved_values_sample": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "outcomes_run1": {
+    "ok": 64,
+    "wrong_value": 192
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msgath/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "255/255",
+    "agreement_pct": 100.0,
+    "common_values": 255,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 2,
+   "gate_A_ledger": {
+    "cases_ok": 511,
+    "cases_with_ledger": 511,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "result_desc=0x0",
+     "result_desc=0x5b",
+     "variant=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "contaminated": 1,
+     "silent_zero": 127,
+     "unchanged": 128
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 127,
+   "moved_values_sample": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    40,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    56
+   ],
+   "outcomes_run1": {
+    "foreign": 1,
+    "ok": 128,
+    "wrong_value": 127
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@mslodq/0": {
+   "baseline_field_value": 32,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "220/256",
+    "agreement_pct": 85.94,
+    "common_values": 256,
+    "disagreements": 36
+   },
+   "distinct_valid_payloads": 11,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0xdf",
+     "variant=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 4,
+     "silent_zero": 160,
+     "unchanged": 28,
+     "unmodelled": 64
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 196,
+   "moved_values_sample": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "outcomes_run1": {
+    "ok": 28,
+    "wrong_value": 228
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@mslodq/1": {
+   "baseline_field_value": 32,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "242/256",
+    "agreement_pct": 94.53,
+    "common_values": 256,
+    "disagreements": 14
+   },
+   "distinct_valid_payloads": 6,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0xff",
+     "result_desc=0xdf",
+     "variant=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 228,
+     "unchanged": 28
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 217,
+   "moved_values_sample": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "outcomes_run1": {
+    "ok": 28,
+    "wrong_value": 228
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msread/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "103/256",
+    "agreement_pct": 40.23,
+    "common_values": 256,
+    "disagreements": 153
+   },
+   "distinct_valid_payloads": 13,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "result_desc=0xdf",
+     "variant=0x0",
+     "variant=0xe8"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 69,
+     "silent_zero": 128,
+     "unchanged": 59
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 60,
+   "moved_values_sample": [
+    2,
+    3,
+    8,
+    9,
+    11,
+    12,
+    13,
+    18,
+    19,
+    24,
+    25,
+    28,
+    29,
+    34,
+    35,
+    40,
+    41,
+    44,
+    45,
+    50,
+    51,
+    56,
+    57,
+    60
+   ],
+   "outcomes_run1": {
+    "ok": 59,
+    "wrong_value": 197
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_sample.mode@tex_sample@msread/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "146/256",
+    "agreement_pct": 57.03,
+    "common_values": 256,
+    "disagreements": 110
+   },
+   "distinct_valid_payloads": 10,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "lod_present=0x0",
+     "lod_present=0xfb",
+     "result_desc=0xdf",
+     "variant=0x0",
+     "variant=0xe8"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "coherent_other": 209,
+     "unchanged": 47
+    },
+    "passed": true,
+    "sem_checked": 3
+   },
+   "moved": 107,
+   "moved_values_sample": [
+    2,
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    18,
+    19,
+    20,
+    21,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    34,
+    35,
+    36,
+    37
+   ],
+   "outcomes_run1": {
+    "ok": 47,
+    "wrong_value": 209
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twbuf/0": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_pack=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twbuf/1": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0x7f",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twbuf/3": {
+   "baseline_field_value": 85,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twcomp/0": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xef",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twcomp/1": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xfdffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twcube/0": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0xff",
+     "coord_pack=0xbf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeff3f",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twcube/1": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeff3f",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twcube/2": {
+   "baseline_field_value": 85,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xf3",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twdyn/0": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "255/256",
+    "agreement_pct": 99.61,
+    "common_values": 256,
+    "disagreements": 1
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xbf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twdyn/1": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xbf",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xbf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twmip/0": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.amode@tex_write@twmip/1": {
+   "baseline_field_value": 84,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xbf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "layer_reg=0x0",
+     "layer_reg=0xdf"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twbuf/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [],
+    "passed": false
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twbuf/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twbuf/3": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twcomp/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twcomp/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twcube/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twcube/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twcube/2": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twdyn/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twdyn/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "255/256",
+    "agreement_pct": 99.61,
+    "common_values": 256,
+    "disagreements": 1
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twmip/0": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  },
+  "tex_write.rsv11@tex_write@twmip/1": {
+   "baseline_field_value": 0,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run01": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    },
+    "g17p_20260830_A2run02": {
+     "agree": 52,
+     "checked": 52,
+     "match": true
+    }
+   },
+   "cross_run": {
+    "agreement": "256/256",
+    "agreement_pct": 100.0,
+    "common_values": 256,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 1,
+   "gate_A_ledger": {
+    "cases_ok": 512,
+    "cases_with_ledger": 512,
+    "distinct_actual_encodings": 256,
+    "distinct_requested_values": 256,
+    "passed": true
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "rsv8=0xff"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "correct_all_writes_landed": 256
+    },
+    "passed": true,
+    "sem_checked": 256
+   },
+   "moved": 0,
+   "moved_values_sample": [],
+   "outcomes_run1": {
+    "ok": 256
+   },
+   "runs": [
+    "g17p_20260830_A2run01",
+    "g17p_20260830_A2run02"
+   ]
+  }
+ },
+ "db_defects": {
+  "DEF-0204-1": {
+   "claim_in_db": "`mode` is modelled as an 8-bit ENUM with {0x00: gather/read/sample_compare, 0x10: filtered sample, 0x20: LOD query}.",
+   "consequence": "The enum must not be used as an operation-class selector by an emitter. It also reproduces and extends RT-5's negative ('op+6 0x00/0x10 on a linear sample: filtering does NOT change') from a different direction and with per-value records.",
+   "descriptor": "tex_sample.mode",
+   "evidence": "analysis/mode_bits.json; raw/g17p_20260830_A2run0{1,2}",
+   "measured": "It is a BITFIELD, not an enum, and 0x10 is INERT. On every one of the six arms whose two gated runs agree at 256/256, the set of values that change the observation is described EXACTLY -- zero exceptions over 256 values in both runs -- by a mask rule: `(mode & 0x2C) != 0` on mscmp/0, mscmp/1 and msfilt/0; `(mode & 0x0C) != 0` on msfixl/0 and msfixl/1; `(mode & 0x08) != 0` on msgath/0. Bits 0,1,4,6,7 (mask 0xD3) move nothing on any of them -- including bit 4 = 0x10, which db.json names 'filtered sample' and which is the COMPILER'S OWN baseline on msfilt and msfixl. Splicing 0x10 -> 0x00 on a filtered carrier and 0x00 -> 0x10 on a gather/read/compare carrier both leave the observation bit-identical."
+  },
+  "DEF-0204-2": {
+   "consequence": "A single-carrier sweep of `mode` cannot describe the field; the live-bit set depends on the occurrence's LOD mode.",
+   "descriptor": "tex_sample.mode bit 5 (0x20) is CONTEXT-DEPENDENT",
+   "evidence": "analysis/mode_bits.json",
+   "measured": "0x20 is live on the three implicit-LOD arms (mask 0x2C) and INERT on the two explicit-`level()` arms (mask 0x0C), reproduced at 256/256 in both runs on all five. This is a field-dependency edge (RE_EXPERIMENT_PROCESS_CORRECTIONS sec.5 Phase 4) between `mode` bit 5 and whether the occurrence carries an explicit LOD."
+  },
+  "DEF-0204-3": {
+   "consequence": "The two prior negatives (EXP-0148: 0 firings in 1080 files; EXP-0187: 31 authored cube constructs, 0 hits) are consistent with a DECODE-TABLE SHADOWING problem rather than with the opcode not existing. Whether the descriptor should be deleted, re-anchored or given a tighter match is an orchestrator decision; this experiment supplies the decode evidence and makes NO claim about b3.",
+   "descriptor": "cubearray_coord_const is SHADOWED, not merely unprovoked",
+   "evidence": "analysis/cube_decode.json; raw/cube_probe/",
+   "measured": "Synthesised by hand, `f0 c0 04 <b3>` decodes as `cubearray_coord_const` (len 4) STANDALONE for all 256 values of b3, and also in context when placed at the carrier's trailing 4-byte boundary (@296). But placed at the OTHER proven 4-byte boundary in the same program (@250) it decodes as `pad_operand` (len 2) for all 256 values -- another descriptor claims the same leading bytes first."
+  },
+  "DEF-0204-4": {
+   "consequence": "`rsv10` is not reserved: on this evidence it is the explicit mip-LEVEL operand of a texture store. Reported as a CENSUS/compiler-differential observation (three points), not as a swept result.",
+   "descriptor": "tex_write.rsv10 (byte+11-1, i.e. byte+10) carries the WRITE LEVEL",
+   "evidence": "raw/prefreeze/census_run2.json (carrier twmip)",
+   "measured": "In the pre-freeze census, the three explicit-level writes of `twmip` differ only in byte+10: 0x00 for `write(c,coord,0)`, 0x10 for level 1 and 0x20 for level 2, with byte+11 (`rsv11`) 0 in all three. db.json calls byte+10 `rsv10` (a `mod` with no semantics) yet EXP-0155 already found it live (240/256 moved)."
+  }
+ },
+ "fields": {
+  "tex_deriv.dstsrc": {
+   "arms": [
+    "tex_deriv.dstsrc@tex_deriv@deriv/0"
+   ],
+   "axes": {
+    "_pre_registered_semantic_model_refuted": false,
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "unverified",
+    "liveness": "accepted-inert",
+    "reproducibility": "incomplete",
+    "semantics": "unknown",
+    "target": "G17P-direct"
+   },
+   "counts": {
+    "arms": 1,
+    "arms_at_or_above_99pct_agreement": 0,
+    "arms_passing_movement_repro_gate": 0,
+    "arms_where_field_moved": 0,
+    "arms_with_detection_power": 1,
+    "arms_with_dimension_control_moved": 1,
+    "clean_quiet_runs": [],
+    "cross_run_agreement_min": null,
+    "cross_run_common_total": 0,
+    "disagreements_total": 0,
+    "dispatched_values_per_arm": 44,
+    "distinct_bytes": 41,
+    "distinct_requested_values": 44,
+    "distinct_valid_payloads_max": 3,
+    "encodable_values": null,
+    "ledger_cases_ok_over_checked": "40/41",
+    "moved_total": 0,
+    "outcome_totals_run1": {
+     "fault": 3,
+     "ledger_mismatch": 1,
+     "wrong_value": 40
+    },
+    "sem_buckets_total": {
+     "no_model": 44
+    },
+    "sem_checked_total": 0,
+    "sem_correct_total": 0,
+    "sem_model_hit_rate": "0/0"
+   },
+   "dimension": "the packed DESTINATION and SOURCE REGISTER of the quad-difference derivative.  Carriers must differ in register allocation and in which values are live around the op.",
+   "evidence": [
+    "EXP-0204"
+   ],
+   "gates": {
+    "A": false,
+    "B": true,
+    "C": false,
+    "D": false,
+    "E": false
+   },
+   "label": "untested",
+   "note": "",
+   "range": "44 sampled values of 2^24 (boundaries + powers of two + all-ones prefixes + 16 hashed interior) x 1 arms",
+   "start": 16,
+   "target": "G17P",
+   "width": 24
+  },
+  "tex_sample.mode": {
+   "arms": [
+    "tex_sample.mode@tex_sample@msfilt/0",
+    "tex_sample.mode@tex_sample@msfixl/0",
+    "tex_sample.mode@tex_sample@msgath/0",
+    "tex_sample.mode@tex_sample@msread/0",
+    "tex_sample.mode@tex_sample@mscmp/0",
+    "tex_sample.mode@tex_sample@mslodq/0",
+    "tex_sample.mode@tex_sample@msfixl/1",
+    "tex_sample.mode@tex_sample@msread/1",
+    "tex_sample.mode@tex_sample@mscmp/1",
+    "tex_sample.mode@tex_sample@mslodq/1"
+   ],
+   "axes": {
+    "_pre_registered_semantic_model_refuted": true,
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "ledger-verified",
+    "liveness": "live",
+    "reproducibility": "auditable",
+    "semantics": "hypothesis",
+    "target": "G17P-direct"
+   },
+   "counts": {
+    "arms": 10,
+    "arms_at_or_above_99pct_agreement": 6,
+    "arms_passing_movement_repro_gate": 6,
+    "arms_where_field_moved": 10,
+    "arms_with_detection_power": 10,
+    "arms_with_dimension_control_moved": 10,
+    "clean_quiet_runs": [],
+    "cross_run_agreement_min": 40.23,
+    "cross_run_common_total": 2559,
+    "disagreements_total": 313,
+    "dispatched_values_per_arm": 256,
+    "distinct_bytes": 256,
+    "distinct_requested_values": 256,
+    "distinct_valid_payloads_max": 13,
+    "encodable_values": 256,
+    "ledger_cases_ok_over_checked": "5119/5119",
+    "moved_total": 1763,
+    "outcome_totals_run1": {
+     "foreign": 1,
+     "ok": 514,
+     "wrong_value": 2045
+    },
+    "sem_buckets_total": {
+     "coherent_other": 1053,
+     "contaminated": 1,
+     "correct": 1,
+     "silent_zero": 927,
+     "unchanged": 514,
+     "unmodelled": 64
+    },
+    "sem_checked_total": 30,
+    "sem_correct_total": 1,
+    "sem_model_hit_rate": "1/30"
+   },
+   "dimension": "the SAMPLE-OPERATION CLASS: filtered sample (0x10) vs gather/read/sample_compare (0x00) vs LOD query (0x20).  Carriers must differ in which class they express, not merely in texture shape.",
+   "evidence": [
+    "EXP-0204"
+   ],
+   "gates": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": false,
+    "E": false
+   },
+   "label": "untested",
+   "note": "",
+   "range": "0..255 dense (all 256 values) x 10 arms",
+   "start": 80,
+   "target": "G17P",
+   "width": 8
+  },
+  "tex_write.amode": {
+   "arms": [
+    "tex_write.amode@tex_write@twmip/0",
+    "tex_write.amode@tex_write@twbuf/0",
+    "tex_write.amode@tex_write@twcube/0",
+    "tex_write.amode@tex_write@twcomp/0",
+    "tex_write.amode@tex_write@twdyn/0",
+    "tex_write.amode@tex_write@twbuf/3",
+    "tex_write.amode@tex_write@twcube/2",
+    "tex_write.amode@tex_write@twmip/1",
+    "tex_write.amode@tex_write@twbuf/1",
+    "tex_write.amode@tex_write@twcube/1",
+    "tex_write.amode@tex_write@twcomp/1",
+    "tex_write.amode@tex_write@twdyn/1"
+   ],
+   "axes": {
+    "_pre_registered_semantic_model_refuted": false,
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "ledger-verified",
+    "liveness": "accepted-inert",
+    "reproducibility": "auditable",
+    "semantics": "bounded-map",
+    "target": "G17P-direct"
+   },
+   "counts": {
+    "arms": 12,
+    "arms_at_or_above_99pct_agreement": 12,
+    "arms_passing_movement_repro_gate": 0,
+    "arms_where_field_moved": 0,
+    "arms_with_detection_power": 12,
+    "arms_with_dimension_control_moved": 12,
+    "clean_quiet_runs": [],
+    "cross_run_agreement_min": 99.61,
+    "cross_run_common_total": 3072,
+    "disagreements_total": 1,
+    "dispatched_values_per_arm": 256,
+    "distinct_bytes": 256,
+    "distinct_requested_values": 256,
+    "distinct_valid_payloads_max": 1,
+    "encodable_values": 256,
+    "ledger_cases_ok_over_checked": "6144/6144",
+    "moved_total": 0,
+    "outcome_totals_run1": {
+     "ok": 3072
+    },
+    "sem_buckets_total": {
+     "correct_all_writes_landed": 3072
+    },
+    "sem_checked_total": 3072,
+    "sem_correct_total": 3072,
+    "sem_model_hit_rate": "3072/3072"
+   },
+   "dimension": "the ADDRESS FORM / OPERAND SOURCING of the texture store -- the same byte position and the same 0x54/0x56/0x44/0x64 vocabulary as device_load.addr_mode / device_store.addr_mode.  Carriers must differ in how the destination address is formed (constant vs register, implicit vs explicit level, 2D vs cube vs linear buffer) or in how the store data reaches the op (ALU-computed vs direct live load result).",
+   "evidence": [
+    "EXP-0204"
+   ],
+   "gates": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": false,
+    "E": false
+   },
+   "label": "untested",
+   "note": "",
+   "range": "0..255 dense (all 256 values) x 12 arms",
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "tex_write.rsv11": {
+   "arms": [
+    "tex_write.rsv11@tex_write@twmip/0",
+    "tex_write.rsv11@tex_write@twbuf/0",
+    "tex_write.rsv11@tex_write@twcube/0",
+    "tex_write.rsv11@tex_write@twcomp/0",
+    "tex_write.rsv11@tex_write@twdyn/0",
+    "tex_write.rsv11@tex_write@twbuf/3",
+    "tex_write.rsv11@tex_write@twcube/2",
+    "tex_write.rsv11@tex_write@twmip/1",
+    "tex_write.rsv11@tex_write@twbuf/1",
+    "tex_write.rsv11@tex_write@twcube/1",
+    "tex_write.rsv11@tex_write@twcomp/1",
+    "tex_write.rsv11@tex_write@twdyn/1"
+   ],
+   "axes": {
+    "_pre_registered_semantic_model_refuted": false,
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "ledger-verified",
+    "liveness": "accepted-inert",
+    "reproducibility": "auditable",
+    "semantics": "bounded-map",
+    "target": "G17P-direct"
+   },
+   "counts": {
+    "arms": 12,
+    "arms_at_or_above_99pct_agreement": 12,
+    "arms_passing_movement_repro_gate": 0,
+    "arms_where_field_moved": 0,
+    "arms_with_detection_power": 12,
+    "arms_with_dimension_control_moved": 11,
+    "clean_quiet_runs": [],
+    "cross_run_agreement_min": 99.61,
+    "cross_run_common_total": 3072,
+    "disagreements_total": 1,
+    "dispatched_values_per_arm": 256,
+    "distinct_bytes": 256,
+    "distinct_requested_values": 256,
+    "distinct_valid_payloads_max": 1,
+    "encodable_values": 256,
+    "ledger_cases_ok_over_checked": "6144/6144",
+    "moved_total": 0,
+    "outcome_totals_run1": {
+     "ok": 3072
+    },
+    "sem_buckets_total": {
+     "correct_all_writes_landed": 3072
+    },
+    "sem_checked_total": 3072,
+    "sem_correct_total": 3072,
+    "sem_model_hit_rate": "3072/3072"
+   },
+   "dimension": "the WRITE-DATA FORMAT DESCRIPTOR TAIL, by position the sibling of device_store.st_desc_hi.  Carriers must differ in the component count and width of the data actually written.",
+   "evidence": [
+    "EXP-0204"
+   ],
+   "gates": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": false,
+    "E": false
+   },
+   "label": "untested",
+   "note": "",
+   "range": "0..255 dense (all 256 values) x 12 arms",
+   "start": 88,
+   "target": "G17P",
+   "width": 8
+  }
+ }
+}

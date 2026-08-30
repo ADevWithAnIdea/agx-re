@@ -172,6 +172,56 @@ def arm_stats(a1, a2):
     gput = [((a1["cases"][v].get("observed") or {}).get("gputime_ns"))
             for v in usable]
     gput = [g for g in gput if isinstance(g, int)]
+    # ---- GATE A: the actual-byte ledger, from the DISPATCHED program ----
+    led_total = led_ok = led_missing = 0
+    req_vals, actual_encs, decoded_ok = set(), set(), 0
+    for v in shared:
+        for r in (a1["cases"][v], a2["cases"][v]):
+            L_ = r.get("ledger")
+            led_total += 1
+            if not L_:
+                led_missing += 1
+                continue
+            req_vals.add(L_.get("requested_value"))
+            if L_.get("actual_bytes"):
+                actual_encs.add(L_["actual_bytes"])
+            if L_.get("requested_equals_decoded") and \
+                    L_.get("requested_bytes_equal_actual"):
+                led_ok += 1
+                decoded_ok += 1
+    # ---- GATE C: semantic checks against the independent host predictor ----
+    # A case is SEMANTICALLY CHECKED only when a prediction existed (`match` is
+    # not None) and both runs agree on the observation. A difference from
+    # baseline is NOT a semantic oracle (corrections Gate C).
+    sem_checked = sem_match = sem_mismatch = 0
+    sem_matched_values, sem_matched_vectors = [], set()
+    for v in usable:
+        r1, r2 = a1["cases"][v], a2["cases"][v]
+        if r1.get("match") is None or r2.get("match") is None:
+            continue
+        if vals(r1) != vals(r2):
+            continue
+        sem_checked += 1
+        if r1["match"] and r2["match"]:
+            sem_match += 1
+            sem_matched_values.append(v)
+            sem_matched_vectors.add(_h(r1.get("oracle")))
+        else:
+            sem_mismatch += 1
+    # semantic buckets actually observed (corrections Gate C requires the
+    # predictor to distinguish these, and the report to say which were seen)
+    buckets = set()
+    for v in shared:
+        oc = a1["cases"][v]["outcome"]
+        buckets.add({"ok": "correct", "wrong_value": "coherent_different",
+                     "unpredicted": "coherent_different",
+                     "silent_zero": "silent_zero_no_write",
+                     "not_written": "silent_zero_no_write",
+                     "fault": "rejected_faulted", "hang": "rejected_faulted",
+                     "measurement_failure": "invalid_measurement",
+                     "invalid_run": "invalid_measurement",
+                     "ledger_mismatch": "invalid_measurement",
+                     "nondeterministic": "invalid_measurement"}.get(oc, oc))
     bl_ok = (all(b["outcome"] == "ok" for b in a1["baselines"]
                  if b.get("role") == "baseline")
              and all(b["outcome"] == "ok" for b in a2["baselines"]
@@ -188,6 +238,16 @@ def arm_stats(a1, a2):
         "distinct_bytes": dbytes,
         "outcomes": outcomes, "tokenized_mnemonics": toks,
         "baselines_ok": bl_ok,
+        "ledger": {"cases": led_total, "verified": led_ok,
+                   "missing": led_missing,
+                   "distinct_requested_values": len(req_vals),
+                   "distinct_actual_encodings": len(actual_encs),
+                   "all_verified": led_missing == 0 and led_ok == led_total},
+        "sem_checked": sem_checked, "sem_match": sem_match,
+        "sem_mismatch": sem_mismatch,
+        "sem_matched_values": sorted(sem_matched_values)[:40],
+        "sem_distinct_predicted_vectors": len(sem_matched_vectors),
+        "semantic_buckets_observed": sorted(buckets),
         "gputime_ns": {"n": len(gput),
                        "median": statistics.median(gput) if gput else None,
                        "min": min(gput) if gput else None,
@@ -245,7 +305,7 @@ def classify(key, entries, controls, controls_dim):
         return ("untested", "REFUSED-MEASUREMENT-FAILURES",
                 "an arm exceeded the 1 % malformed-response budget")
     if not usable:
-        return ("untested", "STILL-UNDERPOWERED",
+        return ("untested", "CARRIER-UNDECIDABLE",
                 "no arm had detection power: the control on the same "
                 "instruction and occurrence never moved, so `moved == 0` here "
                 "is a tautology rather than an observation")
@@ -265,11 +325,16 @@ def classify(key, entries, controls, controls_dim):
                     "register on %d carrier(s) -- so this is a real negative in "
                     "THAT dimension: the field alters neither the functional "
                     "result nor what the source register holds afterwards. It "
-                    "is still NOT recorded as inert. The dimension we could not "
-                    "vary is RETENTION/OCCUPANCY: a register-cache hint's only "
-                    "remaining observable is timing and power, which a "
-                    "functional read-back cannot express. UNRESOLVED, not "
-                    "inert, and not emitter-grade."
+                    "is still NOT recorded as globally inert. The MULTI-"
+                    "INVOCATION ORDERING dimension WAS exercised in revision B "
+                    "(4 threadgroups x 2 simdgroups, cross-simdgroup threadgroup-"
+                    "memory exchange, a cross-threadgroup device atomic checked "
+                    "against a host total, operand re-read after two barriers) "
+                    "and the field stayed inert there too. The dimension that "
+                    "remains unexercised is RETENTION/OCCUPANCY: a register-cache "
+                    "hint's only remaining observable is timing and power, which "
+                    "a functional read-back cannot express. Accepted-inert over "
+                    "the tested envelope, NOT emitter-grade, global role unknown."
                     % (len(entries), len(dim_fired)))
         return ("untested", "UNRESOLVED-DIMENSION-NOT-EXPRESSED",
                 "0 of %d arms moved, and the in-dimension control did NOT fire: "
@@ -282,6 +347,177 @@ def classify(key, entries, controls, controls_dim):
             "0 of %d arms moved, on %d carriers with %d distinct "
             "compiler-chosen baseline values, every arm's control firing. "
             "Not emitter-grade." % (len(entries), len(carriers), len(baselines)))
+
+
+# ===========================================================================
+# SIX-AXIS VERDICTS -- RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 2.
+# ===========================================================================
+# "Every field or finite resource gets independent status on these axes. A
+# result on one axis must never imply a result on another."  In particular
+# `sem_checked == 0` can never produce `hardware-run` or `semantically-mapped`,
+# and a failed positive control makes the arm `carrier-undecidable` rather than
+# inert.  Exact numerators and denominators, never a percentage alone.
+
+SAFE_NEGATIVE = "inert in %s; global role unknown"
+
+
+def context_split(entries):
+    """Which carrier ATTRIBUTES separate the arms where the field moved from the
+    arms where it did not.  A field that moves on some carriers and not others is
+    a CONTEXTUAL field with a stated predicate, not a globally live or globally
+    inert one (corrections section 7)."""
+    moved, still = [], []
+    for name, a, e in entries:
+        tgt = moved if e["moved"] >= 1 else still
+        tgt.append({"arm": name, "carrier": a["carrier"],
+                    "baseline_field_value": a["baseline_field"],
+                    "operand_provenance": C.OPERAND_PROVENANCE.get(a["carrier"]),
+                    "dispatch_class": C.DISPATCH_CLASS.get(a["carrier"]),
+                    "moved": e["moved"]})
+    out = {"arms_moved": moved, "arms_not_moved": still, "separating_attribute": None}
+    if moved and still:
+        for attr in ("operand_provenance", "baseline_field_value", "dispatch_class"):
+            mv = {x[attr] for x in moved}
+            sv = {x[attr] for x in still}
+            if mv and sv and not (mv & sv):
+                out["separating_attribute"] = {
+                    "attribute": attr, "moved_when": sorted(map(str, mv)),
+                    "did_not_move_when": sorted(map(str, sv))}
+                break
+    return out
+
+
+def axes(key, entries, controls, controls_dim, width):
+    ents = [e[2] for e in entries]
+    total_disp = sum(e["values_dispatched"] for e in ents)
+    led_cases = sum(e["ledger"]["cases"] for e in ents)
+    led_ok = sum(e["ledger"]["verified"] for e in ents)
+    led_missing = sum(e["ledger"]["missing"] for e in ents)
+    distinct_actual = sum(e["ledger"]["distinct_actual_encodings"] for e in ents)
+    confined = all(e["encodings_confined_to_field"] for e in ents)
+    covers = all(e["ledger"]["distinct_actual_encodings"] == len(a["values"])
+                 for (_, a, e) in entries)
+
+    # ---- axis 1: encoding geometry ----
+    if led_missing or led_ok != led_cases:
+        geometry = "unverified"
+    elif confined and covers:
+        geometry = "geometry-mapped"
+    else:
+        geometry = "ledger-verified"
+
+    # ---- axis 2: liveness ----
+    usable = [e for e in entries
+              if controls.get((e[1]["carrier"], e[1]["occ"]), {}).get("fired")
+              and e[2]["baselines_ok"]]
+    moved_arms = [e for e in usable
+                  if e[2]["moved"] >= 1 and e[2]["agree_pct"] >= AGREE_MIN
+                  and e[2]["moved"] >= 2 * e[2]["disagree"]]
+    faulted = sum(e["outcomes"].get("fault", 0) + e["outcomes"].get("hang", 0)
+                  for e in ents)
+    if not usable:
+        liveness = "carrier-undecidable"
+    elif moved_arms:
+        liveness = "live"
+    elif faulted:
+        liveness = "fault"
+    else:
+        liveness = "accepted-inert"
+
+    # ---- axis 3: semantics ----
+    sem_checked = sum(e["sem_checked"] for e in ents)
+    sem_match = sum(e["sem_match"] for e in ents)
+    sem_mismatch = sum(e["sem_mismatch"] for e in ents)
+    # The best single arm on which >=2 DISTINCT predicted vectors all matched:
+    # that arm, and its matched value set, IS the semantic domain we may claim.
+    best = None
+    for name, a, e in entries:
+        if e["sem_distinct_predicted_vectors"] >= 2 and e["sem_mismatch"] == 0:
+            if best is None or e["sem_match"] > best[2]["sem_match"]:
+                best = (name, a, e)
+    if best is None:
+        for name, a, e in entries:
+            if e["sem_distinct_predicted_vectors"] >= 2:
+                if best is None or e["sem_match"] > best[2]["sem_match"]:
+                    best = (name, a, e)
+    nonbase_match = any(
+        any(v != a["baseline_field"] for v in e["sem_matched_values"])
+        for (_, a, e) in entries)
+    if sem_checked == 0:
+        semantics = "unknown"
+    elif best is not None and best[2]["sem_mismatch"] == 0 and best[2]["sem_match"] >= 2:
+        semantics = "semantically-mapped"
+    elif sem_match >= 1 and nonbase_match:
+        semantics = "bounded-map"
+    else:
+        semantics = "hypothesis"
+
+    # ---- axis 4: compiler recipe ----
+    # Every case in this experiment mutates ONE field of a COMPILER-EMITTED
+    # program. Nothing here generates a whole instruction from documented rules,
+    # so Gate D is not attempted and the honest status is `not-generated` for
+    # every field. Saying so is the point: a field label is not an emittability
+    # proof (corrections section 2).
+    recipe = "not-generated"
+
+    # ---- axis 5: target ----
+    target_axis = "G17P-direct"
+
+    # ---- axis 6: reproducibility ----
+    min_agree = min(e["agree_pct"] for e in ents) if ents else 0.0
+    victims = sum(sum(1 for c in e.get("fault_class_census", []) if "Innocent" in c)
+                  for e in ents)
+    repro = ("independently-confirmed"
+             if (min_agree >= AGREE_MIN and led_missing == 0 and led_ok == led_cases)
+             else "auditable")
+
+    # ---- legacy DOC-02 label: NEVER rounded up from liveness ----
+    if semantics == "semantically-mapped" and liveness == "live":
+        legacy = "hardware-run"
+    elif liveness == "live" and nonbase_match and sem_match >= 1:
+        legacy = "isolated-byte-diff"
+    else:
+        legacy = "untested"
+
+    return {
+        "axes": {
+            "encoding_geometry": geometry,
+            "liveness": liveness,
+            "semantics": semantics,
+            "compiler_recipe": recipe,
+            "target": target_axis,
+            "reproducibility": repro,
+        },
+        "counts": {
+            "encodable_values": 1 << width,
+            "values_dispatched_max_arm": max(e["values_dispatched"] for e in ents),
+            "cases_both_runs": led_cases,
+            "ledger_verified": led_ok,
+            "ledger_missing": led_missing,
+            "distinct_actual_encodings_summed_over_arms": distinct_actual,
+            "arms": len(entries),
+            "arms_with_detection_power": len(usable),
+            "arms_moved": len(moved_arms),
+            "moved_values_summed": sum(e["moved"] for e in ents),
+            "disagreeing_values_summed": sum(e["disagree"] for e in ents),
+            "sem_checked": sem_checked,
+            "sem_match": sem_match,
+            "sem_mismatch": sem_mismatch,
+            "faults_plus_hangs": faulted,
+            "measurement_failures": sum(e["measurement_failures"] for e in ents),
+            "min_cross_run_agreement_pct": min_agree,
+        },
+        "semantic_domain": (
+            {"arm": best[0], "carrier": best[1]["carrier"],
+             "baseline_field_value": best[1]["baseline_field"],
+             "matched_values": best[2]["sem_matched_values"],
+             "distinct_predicted_vectors": best[2]["sem_distinct_predicted_vectors"],
+             "mismatches_on_this_arm": best[2]["sem_mismatch"]}
+            if best is not None else None),
+        "semantic_buckets_observed": sorted(
+            set().union(*[set(e["semantic_buckets_observed"]) for e in ents])),
+        "legacy_label": legacy,
+    }
 
 
 def main():
@@ -339,10 +575,57 @@ def main():
         mn, fld = key.split(".", 1)
         start, width = L.field_span(mn, fld)
         label, verdict, note = classify(key, entries, controls, controls_dim)
+        ax = axes(key, entries, controls, controls_dim, width)
+        if ax["axes"]["liveness"] in ("accepted-inert", "carrier-undecidable"):
+            env = ("0..%d dense on %d arm(s), %d carrier(s), %d distinct "
+                   "compiler-chosen baseline values, G17P"
+                   % ((1 << width) - 1, len(entries),
+                      len({e[1]["carrier"] for e in entries}),
+                      len({e[1]["baseline_field"] for e in entries})))
+            note = (SAFE_NEGATIVE % env) + " -- " + note
         verdicts[key] = {
-            "label": label, "verdict": verdict,
-            "range": "0..%d dense (all %d values), %d arm(s)"
-                     % ((1 << width) - 1, 1 << width, len(entries)),
+            "six_axis": ax["axes"], "counts": ax["counts"],
+            "semantic_domain": ax["semantic_domain"],
+            "semantic_buckets_observed": ax["semantic_buckets_observed"],
+            "label": ax["legacy_label"], "legacy_label_rule":
+                "never rounded up from liveness (corrections section 2): "
+                "hardware-run requires semantics==semantically-mapped AND "
+                "liveness==live; isolated-byte-diff requires a matched "
+                "prediction at a NON-BASELINE value; otherwise untested.",
+            "liveness_verdict": verdict, "gate_a_label": label,
+            # `range` is the SEMANTICALLY CHECKED envelope when the label is
+            # emitter-grade -- an implementer may not extrapolate past it
+            # (docs/evidence-classification.md section 3) -- and the liveness
+            # envelope otherwise.  Both numbers are always reported in `counts`.
+            "range": (
+                ("dispatched 0..%d dense (%d/%d encodable) on %d arm(s); "
+                 "SEMANTICS CONFIRMED on arm %s at values %s (%d distinct "
+                 "predicted vectors, %d mismatches on that arm)")
+                % ((1 << width) - 1, ax["counts"]["values_dispatched_max_arm"],
+                   1 << width, len(entries),
+                   ax["semantic_domain"]["arm"],
+                   ax["semantic_domain"]["matched_values"],
+                   ax["semantic_domain"]["distinct_predicted_vectors"],
+                   ax["semantic_domain"]["mismatches_on_this_arm"])
+                if ax["legacy_label"] == "hardware-run" and ax["semantic_domain"]
+                else (
+                    ("dispatched 0..%d dense (%d/%d encodable) on %d arm(s); "
+                     "CONTEXTUAL: moved on %d arm(s) and not on %d, separated by "
+                     "%s. Confirmed against the host prediction at the values "
+                     "listed in `context_split`; the value that moved produced an "
+                     "UNPREDICTED result, so no general semantic map is claimed.")
+                    % ((1 << width) - 1,
+                       ax["counts"]["values_dispatched_max_arm"], 1 << width,
+                       len(entries), ax["counts"]["arms_moved"],
+                       len(entries) - ax["counts"]["arms_moved"],
+                       json.dumps((context_split(entries) or {}).get(
+                           "separating_attribute")))
+                    if ax["legacy_label"] == "isolated-byte-diff"
+                    else "dispatched 0..%d dense (%d/%d encodable) on %d arm(s); "
+                         "no semantic domain established"
+                         % ((1 << width) - 1,
+                            ax["counts"]["values_dispatched_max_arm"],
+                            1 << width, len(entries)))),
             "target": "G17P",
             "evidence": ["EXP-0205"],
             "note": note,
@@ -353,13 +636,73 @@ def main():
             "moved_total": sum(e[2]["moved"] for e in entries),
             "disagree_total": sum(e[2]["disagree"] for e in entries),
             "min_agree_pct": min(e[2]["agree_pct"] for e in entries),
+            "context_split": context_split(entries),
             "carriers": sorted({e[1]["carrier"] for e in entries}),
             "distinct_baseline_field_values":
                 sorted({e[1]["baseline_field"] for e in entries}),
             "arms": {e[0]: e[2] for e in entries},
         }
 
+    # ---- db.json descriptor defects (FIELD-SWEEP-PROTOCOL section 6) ----
+    # Recorded here, NEVER written into db.json: the orchestrator owns it and
+    # concurrent experiments edit it.
+    db_defects = {
+        "simd_ballot.pred": {
+            "modelled_as": "byte+1 bits 12..15; enum 0 = active_mask/any/all, "
+                           "1 = ballot(predicate)",
+            "observed_on_G17P": (
+                "Our own compiler emits byte+1 = 0x07 (pred = 0) for BOTH "
+                "simd_ballot(predicate) AND simd_active_threads_mask(); the two "
+                "compiled forms differ in byte+5 (psrctype 0x00 vs 0x02) and the "
+                "byte+7..9 tail (58 22 12 vs 08 02 18). Sweeping pred over all 16 "
+                "values changed nothing on 6 carriers whose controls all fired, "
+                "including two carriers that DO compute the two different forms."),
+            "adversarial_probe": (
+                "raw/adversarial01 (SINGLE OBSERVATIONS, not gated, "
+                "hypothesis-grade): on the ballot carrier psrctype alone changed "
+                "nothing; the tail alone gave a silent zero; psrctype + tail "
+                "together turned 0x6C8AF35D into 0xFFFFFFFF (the all-active "
+                "mask); and byte+6 `form` alone, 0x00 -> 0x14, did the same."),
+            "proposed_correction": (
+                "The ballot-form selection attributed to `pred` is carried by "
+                "byte+5 / byte+6 / byte+7..9. `pred` as modelled is inert across "
+                "its full range on G17P. Needs its own gated experiment before "
+                "db.json is changed."),
+            "evidence": ["EXP-0205"], "target": "G17P",
+        },
+        "simd_reduce.op": {
+            "modelled_as": "byte+1, an 8-bit opcode field",
+            "observed_on_G17P": (
+                "Only bits [2:0] are decoded. Bits [7:3] are inert-within-field "
+                "on all four reduce carriers and the observation repeats with "
+                "period 8 across the full 256-value sweep."),
+            "proposed_correction": "op is a 3-bit opcode occupying an 8-bit byte.",
+            "evidence": ["EXP-0205"], "target": "G17P",
+        },
+        "simd_reduce.dtype": {
+            "modelled_as": "byte+7, an 8-bit enum",
+            "observed_on_G17P": (
+                "Bits 4, 6 and 7 are inert-within-field on all four carriers; "
+                "the integer carriers repeat with period 16. Live bits are [0,3] "
+                "(sr_sum, sr_max), [0,1,3] (sr_scan) and [0,1,2,3,5] (the f32 "
+                "carrier), so the live width is context-dependent."),
+            "proposed_correction": "dtype's decoded width is at most 6 bits and "
+                                   "is context-dependent; do not model it as 8.",
+            "evidence": ["EXP-0205"], "target": "G17P",
+        },
+        "simd_reduce.op x simd_reduce.dtype": {
+            "observed_on_G17P": (
+                "The two fields are NOT independent: the {0,1,2,3} -> "
+                "{ior,isum,smax,umax} map holds at opcls=1 with dtype=3, but on "
+                "dtype=7 op values 0 and 3 returned EXCLUSIVE-SCAN shapes and on "
+                "dtype=9 the predictions for op != 1 all failed."),
+            "proposed_correction": "add a field-dependency edge op <-> dtype.",
+            "evidence": ["EXP-0205"], "target": "G17P",
+        },
+    }
+
     out = {"_generated_by": "analysis/verdicts.py",
+           "db_defects": db_defects,
            "_runs": [str(run1), str(run2)],
            "_gate": {"agree_min_pct": AGREE_MIN,
                      "movement_rule": "moved >= 2*disagree AND moved >= 1",
@@ -373,9 +716,30 @@ def main():
            "arms": per_arm}
     p = EXP / "analysis" / "field_verdicts.json"
     p.write_text(json.dumps(out, indent=1, sort_keys=True))
-    print(json.dumps({k: {"label": v["label"], "verdict": v["verdict"],
-                          "moved": v["moved_total"],
-                          "agree": v["min_agree_pct"],
+    # Flat view, keyed exactly `<mnemonic>.<field>`, for mechanical merging.
+    flat = {k: {"label": v["label"], "range": v["range"], "target": v["target"],
+                "evidence": v["evidence"], "note": v["note"],
+                "start": v["start"], "width": v["width"],
+                "distinct_bytes": v["distinct_bytes"],
+                "six_axis": v["six_axis"], "counts": v["counts"],
+                "semantic_domain": v["semantic_domain"],
+                "context_split": v.get("context_split"),
+                "legacy_label_rule": v["legacy_label_rule"]}
+            for k, v in verdicts.items()}
+    (EXP / "analysis" / "field_verdicts_flat.json").write_text(
+        json.dumps({"_generated_by": "analysis/verdicts.py",
+                    "_runs": [str(run1), str(run2)],
+                    "db_defects": db_defects, "fields": flat},
+                   indent=1, sort_keys=True))
+    print(json.dumps({k: {"legacy_label": v["label"],
+                          **v["six_axis"],
+                          "moved/dispatched": "%d/%d" % (
+                              v["counts"]["moved_values_summed"],
+                              v["counts"]["values_dispatched_max_arm"] * v["counts"]["arms"]),
+                          "sem_match/checked": "%d/%d" % (
+                              v["counts"]["sem_match"], v["counts"]["sem_checked"]),
+                          "ledger": "%d/%d" % (v["counts"]["ledger_verified"],
+                                               v["counts"]["cases_both_runs"]),
                           "distinct_bytes": v["distinct_bytes"]}
                       for k, v in verdicts.items()}, indent=1))
     print("wrote", p)

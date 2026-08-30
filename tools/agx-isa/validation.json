@@ -11834,9 +11834,19 @@
      "EXP-0180",
      "EXP-0183"
     ],
-    "note": "**REPLACED 2026-08-30 (EXP-0196).** The previous note read \"0 values dispatched over 0 arm(s), 0 observations moved ... field-named-but-unstructured\" -- a FALSE ABSENCE from EXP-0189's field-name-keyed index. The sweep exists: **768 records over 256 distinct values in each of `EXP-0180-*/raw/g17p_run02` and `g17p_run03`, all status OK.** The row still does NOT promote, for two far stronger reasons the old note concealed: (1) **`oracle` is `null` on every record** -- there is no host prediction at all, so nothing can discriminate between field values; and (2) **cross-run agreement is 0.00%** -- all 256 common values produce a different `observed` payload in run03 than in run02, because the read-back carries run-varying register content (uninitialised/stale words) rather than an isolated result. **Actionable difference: this field does not need more VALUES swept, it needs a carrier with a real host oracle and a poisoned read-back buffer.** The old note pointed a future sweeper at the wrong work.",
+    "note": "**MY EXP-0196 NOTE MISIDENTIFIED THE SPAN \u2014 corrected by EXP-0203.** I wrote that 768 records over 256 distinct values exist for this field. Those records exist but carry `fstart:8, fwidth:8` \u2014 which is **`srcA`'s span** in the current db.json. `dst` is bits 4..7, a **4-bit field that cannot have 256 values**. The name was REUSED across the EXP-0183 re-span: exactly the DEF-0166-2 hazard `work/merge_verdicts.py` guards against, which did not fire because I hand-wrote the note instead of merging a verdict. **The other two findings in that note were correct and are what EXP-0203 fixed:** `oracle` null on every record, and 0.00% cross-run agreement from an unisolated read-back. **EXP-0203 then swept the 12-byte form properly for the first time: 16/16 dense over 4 arms, 16 distinct ACTUAL encodings per arm, 0 disagreements over 128 case-pairs, oracle 44/44 and 44/44.** PROMOTION HELD pending Gate E \u2014 see `axes`.",
     "start": 4,
-    "width": 4
+    "width": 4,
+    "axes": {
+     "geometry": "geometry-mapped: Gate A ledger 16820/16820 bytes_match, 16512/16512 requested == decoded, independently re-verified offline by re-synthesizing each program; 16 distinct ACTUAL encodings per arm, no aliasing",
+     "liveness": "live: 16/16 dense across 4 arms; liveness controls fired 88/88 across 11 arms with 8 distinct payloads each",
+     "semantics": "semantically-mapped (pending clean confirmation): oracle r[byte0>>4].lo = fp16_rn(|h(+1)|*h(+3) - h(+5)), high half preserved, fitted OFFLINE BEFORE contract freeze against 8 competing models; 33 falsifiers scored 0 oracle matches in both runs",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E PARTIAL. Two runs in opposite order with identical ledgers, but raw/*/03_procsample.jsonl MEASURES 5 sibling experiments live on the device. RE_EXPERIMENT_PROCESS_CORRECTIONS.md Gate E: a confirmation run may not rely on a busy machine. Quiet rerun costs ~4 minutes and is owed.",
+     "precision_bound": "binary64 evaluation with ONE rounding to binary16 RNE (fused). MEASURED, not assumed: fused and two-rounding predictions differ in 8 of 4244 cases; fused matched 8/8, two-rounding 0/8. BOUNDED: 0 subnormal and 0 overflowing predictions occurred, so FTZ/inf/NaN are UNTESTED.",
+     "frozen_gate": "PASSED its own pre-registered gate under frozen Amendment 03"
+    }
    },
    "opsel": {
     "label": "isolated-byte-diff",

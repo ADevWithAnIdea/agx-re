@@ -97,11 +97,24 @@ def payload(r):
     return json.dumps(o.get("hh"), sort_keys=True)
 
 
+# Only AMENDMENT-2 runs may enter the gate.  `raw/g17p_20260830_run01` ran under
+# the ORIGINAL sec.8 gate, without an actual-byte ledger and without a semantic
+# oracle, and was killed by an SSH hang-up at 404 cases.  It is retained as a
+# DISCOVERY sweep (its liveness observations and its tex_deriv hazard map are real
+# evidence) and is reported separately -- never paired with an A2 run, which would
+# manufacture ledger and semantic gaps that belong to the older design.
+def is_gated(rid):
+    return ("A2run" in rid) or rid.endswith("_C1") or rid.endswith("_C2")
+
+
 def main():
     selftest()
-    runs = sorted(d for d in glob.glob(os.path.join(HERE, "raw", "g17p_*"))
-                  if os.path.isdir(d))
-    q = {os.path.basename(d): quietness(d) for d in runs}
+    allruns = sorted(d for d in glob.glob(os.path.join(HERE, "raw", "g17p_*"))
+                     if os.path.isdir(d))
+    runs = [d for d in allruns if is_gated(os.path.basename(d))]
+    discovery = [os.path.basename(d) for d in allruns
+                 if not is_gated(os.path.basename(d))]
+    q = {os.path.basename(d): quietness(d) for d in allruns}
     baseline_val = {(a["id"], f): a["baseline_fields"][f]
                     for a in ARMSPEC.ARMS for f in a["fields"]}
 
@@ -142,14 +155,98 @@ def main():
         "_spec": ("RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + "
                   "docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; "
                   "gates frozen in PRE_REGISTRATION sec.15"),
-        "_runs": {os.path.basename(d): q[os.path.basename(d)] for d in runs},
+        "_runs_gated": {os.path.basename(d): q[os.path.basename(d)] for d in runs},
+        "_runs_discovery_not_gated": {
+            r: dict(q[r], why=("ran under the ORIGINAL sec.8 gate: no actual-byte "
+                               "ledger, no semantic oracle, busy machine, killed by "
+                               "an SSH hang-up at 404 cases. Retained as evidence, "
+                               "excluded from every gate (sec.9: nothing captured "
+                               "is discarded, but it is not topped up or reused)."))
+            for r in discovery},
         "_gate_selftest": ("passed: promotes (moved=1,disagree=0); refuses (moved=0); "
                            "refuses (moved=1,disagree=1)"),
         "_gate_D_note": ("Gate D (generated compiler recipe) was NOT ATTEMPTED in this "
                          "experiment.  Every arm splices one field of a compiler-emitted "
                          "occurrence, which is a liveness/semantics instrument, not a "
                          "generation proof.  No instruction here is claimed emittable."),
-        "arms": {}, "fields": {}, "db_defects": {},
+        "arms": {}, "fields": {},
+        "db_defects": {
+            "DEF-0204-1": {
+                "descriptor": "tex_sample.mode",
+                "claim_in_db": ("`mode` is modelled as an 8-bit ENUM with "
+                                "{0x00: gather/read/sample_compare, 0x10: filtered "
+                                "sample, 0x20: LOD query}."),
+                "measured": ("It is a BITFIELD, not an enum, and 0x10 is INERT. On "
+                             "every one of the six arms whose two gated runs agree "
+                             "at 256/256, the set of values that change the "
+                             "observation is described EXACTLY -- zero exceptions "
+                             "over 256 values in both runs -- by a mask rule: "
+                             "`(mode & 0x2C) != 0` on mscmp/0, mscmp/1 and msfilt/0; "
+                             "`(mode & 0x0C) != 0` on msfixl/0 and msfixl/1; "
+                             "`(mode & 0x08) != 0` on msgath/0. Bits 0,1,4,6,7 "
+                             "(mask 0xD3) move nothing on any of them -- including "
+                             "bit 4 = 0x10, which db.json names 'filtered sample' "
+                             "and which is the COMPILER'S OWN baseline on msfilt "
+                             "and msfixl. Splicing 0x10 -> 0x00 on a filtered "
+                             "carrier and 0x00 -> 0x10 on a gather/read/compare "
+                             "carrier both leave the observation bit-identical."),
+                "consequence": ("The enum must not be used as an operation-class "
+                                "selector by an emitter. It also reproduces and "
+                                "extends RT-5's negative ('op+6 0x00/0x10 on a "
+                                "linear sample: filtering does NOT change') from a "
+                                "different direction and with per-value records."),
+                "evidence": "analysis/mode_bits.json; raw/g17p_20260830_A2run0{1,2}",
+            },
+            "DEF-0204-2": {
+                "descriptor": "tex_sample.mode bit 5 (0x20) is CONTEXT-DEPENDENT",
+                "measured": ("0x20 is live on the three implicit-LOD arms "
+                             "(mask 0x2C) and INERT on the two explicit-`level()` "
+                             "arms (mask 0x0C), reproduced at 256/256 in both runs "
+                             "on all five. This is a field-dependency edge "
+                             "(RE_EXPERIMENT_PROCESS_CORRECTIONS sec.5 Phase 4) "
+                             "between `mode` bit 5 and whether the occurrence "
+                             "carries an explicit LOD."),
+                "consequence": ("A single-carrier sweep of `mode` cannot describe "
+                                "the field; the live-bit set depends on the "
+                                "occurrence's LOD mode."),
+                "evidence": "analysis/mode_bits.json",
+            },
+            "DEF-0204-3": {
+                "descriptor": "cubearray_coord_const is SHADOWED, not merely unprovoked",
+                "measured": ("Synthesised by hand, `f0 c0 04 <b3>` decodes as "
+                             "`cubearray_coord_const` (len 4) STANDALONE for all "
+                             "256 values of b3, and also in context when placed at "
+                             "the carrier's trailing 4-byte boundary (@296). But "
+                             "placed at the OTHER proven 4-byte boundary in the "
+                             "same program (@250) it decodes as `pad_operand` "
+                             "(len 2) for all 256 values -- another descriptor "
+                             "claims the same leading bytes first."),
+                "consequence": ("The two prior negatives (EXP-0148: 0 firings in "
+                                "1080 files; EXP-0187: 31 authored cube constructs, "
+                                "0 hits) are consistent with a DECODE-TABLE "
+                                "SHADOWING problem rather than with the opcode not "
+                                "existing. Whether the descriptor should be deleted, "
+                                "re-anchored or given a tighter match is an "
+                                "orchestrator decision; this experiment supplies the "
+                                "decode evidence and makes NO claim about b3."),
+                "evidence": "analysis/cube_decode.json; raw/cube_probe/",
+            },
+            "DEF-0204-4": {
+                "descriptor": "tex_write.rsv10 (byte+11-1, i.e. byte+10) carries the WRITE LEVEL",
+                "measured": ("In the pre-freeze census, the three explicit-level "
+                             "writes of `twmip` differ only in byte+10: "
+                             "0x00 for `write(c,coord,0)`, 0x10 for level 1 and "
+                             "0x20 for level 2, with byte+11 (`rsv11`) 0 in all "
+                             "three. db.json calls byte+10 `rsv10` (a `mod` with no "
+                             "semantics) yet EXP-0155 already found it live "
+                             "(240/256 moved)."),
+                "consequence": ("`rsv10` is not reserved: on this evidence it is the "
+                                "explicit mip-LEVEL operand of a texture store. "
+                                "Reported as a CENSUS/compiler-differential "
+                                "observation (three points), not as a swept result."),
+                "evidence": "raw/prefreeze/census_run2.json (carrier twmip)",
+            },
+        },
     }
 
     for (m, f), armlist in sorted(fields.items()):
@@ -258,7 +355,15 @@ def main():
                       and r["cross_run"]["agreement_pct"] >= AGREE_BAR
                       and r["moved"] >= 2 * r["cross_run"]["disagreements"]
                       and r["moved"] > 0]
-        sem_correct = sum(r["gate_C_semantics"]["buckets"].get("correct", 0) for r in rows)
+        # A model-CONFIRMING bucket.  For tex_sample.mode that is `correct` (the
+        # observation fell in the class the model predicted); for tex_write it is
+        # `correct_all_writes_landed` (the store still landed where and with what
+        # the host predicted -- which for a descriptor byte is a POSITIVE
+        # semantic result, the model "this byte does not redirect the store"
+        # being confirmed at that value).
+        SEM_OK = ("correct", "correct_all_writes_landed")
+        sem_correct = sum(sum(r["gate_C_semantics"]["buckets"].get(b, 0) for b in SEM_OK)
+                          for r in rows)
         sem_total = sum(r["gate_C_semantics"]["sem_checked"] for r in rows)
 
         geometry = ("ledger-verified" if gA and len(gA) == len(rows) else
@@ -269,11 +374,28 @@ def main():
             liveness = "live"
         else:
             liveness = "accepted-inert"
-        semantics = ("unknown" if sem_total == 0 else
-                     ("bounded-map" if sem_correct else "hypothesis"))
-        repro = ("independently-confirmed" if (repro_arms and clean_runs and
-                                               len(clean_runs) >= 2)
-                 else ("auditable" if repro_arms else "incomplete"))
+        # sec.2: a model that the observations REFUTE is not a bounded map.
+        # `bounded-map` requires the pre-registered predictor to have held on
+        # EVERY case it made a definite prediction for; anything less is a
+        # `hypothesis`, and a hit rate below half is recorded as an explicit
+        # refutation of the pre-registered model.
+        if sem_total == 0:
+            semantics = "unknown"
+        elif sem_correct == sem_total:
+            semantics = "bounded-map"
+        else:
+            semantics = "hypothesis"
+        model_refuted = bool(sem_total and sem_correct * 2 < sem_total)
+        # An INERT field can never pass a MOVEMENT gate, so its reproducibility
+        # is scored on cross-run agreement instead (FIELD-SWEEP-PROTOCOL sec.5a:
+        # a classifier that reads `moved == 0` as a verdict cannot fail either
+        # way; here `moved == 0` simply routes to the agreement test).
+        inert_repro = [r for r in rows
+                       if r["cross_run"]["agreement_pct"] is not None
+                       and r["cross_run"]["agreement_pct"] >= AGREE_BAR]
+        basis = repro_arms if liveness == "live" else inert_repro
+        repro = ("independently-confirmed" if (basis and len(clean_runs) >= 2)
+                 else ("auditable" if basis else "incomplete"))
         # legacy label = the strictest all six axes support
         if (geometry.startswith("ledger-verified") and liveness == "live"
                 and semantics == "bounded-map" and repro == "independently-confirmed"):
@@ -299,6 +421,7 @@ def main():
             "label": legacy,
             "axes": {
                 "encoding_geometry": geometry,
+                "_pre_registered_semantic_model_refuted": model_refuted,
                 "liveness": liveness,
                 "semantics": semantics,
                 "compiler_recipe": "not-generated",
@@ -340,7 +463,9 @@ def main():
                     collections.Counter())),
                 "distinct_valid_payloads_max": max((r["distinct_valid_payloads"]
                                                     for r in rows), default=0),
-                "arms_passing_repro_gate": len(repro_arms),
+                "arms_passing_movement_repro_gate": len(repro_arms),
+                "arms_at_or_above_99pct_agreement": len(inert_repro),
+                "sem_model_hit_rate": f"{sem_correct}/{sem_total}",
                 "clean_quiet_runs": clean_runs,
             },
             "gates": {"A": bool(gA), "B": bool(gB), "C": bool(gC),

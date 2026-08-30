@@ -90,12 +90,32 @@ def set_bits(block, start, width, value):
     return v.to_bytes(len(block), "little")
 
 
-def splice(src, dst, off, block):
-    with open(src, "rb") as f:
-        b = bytearray(f.read())
+_BASE_CACHE = {}
+
+
+def base_bytes(src):
+    """The unspliced archive, read ONCE per arm and kept in memory.  Re-reading a
+    ~400 kB container for every one of several thousand cases was the dominant
+    cost of the pilot runs."""
+    b = _BASE_CACHE.get(src)
+    if b is None:
+        with open(src, "rb") as f:
+            b = f.read()
+        _BASE_CACHE[src] = b
+    return b
+
+
+def splice_bytes(src, off, block):
+    b = bytearray(base_bytes(src))
     b[off:off + len(block)] = block
+    return bytes(b)
+
+
+def splice(src, dst, off, block):
+    blob = splice_bytes(src, off, block)
     with open(dst, "wb") as f:
-        f.write(bytes(b))
+        f.write(blob)
+    return blob
 
 
 def clear_reference(fmt, W, H, nrt, clear):
@@ -145,7 +165,21 @@ def stage_of(arm):
     return "vertex" if arm["stage"] == "vertex" else "fragment"
 
 
-def build_archive(arm, workdir):
+def build_archive(arm, workdir, cache=None):
+    """Compile the carrier and serialize its binary archive.
+
+    With `cache`, an archive already built from the SAME frozen sources is reused
+    rather than recompiled.  Two reasons: the shader compiler is a shared,
+    heavily contended service on this device (a build costs minutes when sibling
+    experiments are running, while the whole sweep of an arm costs 40 ms), and
+    Gate E wants the two gated runs to dispatch *identical* bytes -- reusing one
+    archive makes that exact rather than probable.  The archive's sha256 is
+    recorded in `arm_meta` either way, so which program ran is auditable.
+    """
+    if cache:
+        c = os.path.join(cache, arm["arm"] + ".bin")
+        if os.path.exists(c):
+            return c, "CACHED %s" % c
     out = os.path.join(workdir, arm["arm"] + ".bin")
     src = os.path.join(EXP, arm["kernel"])
     if arm["kind"] == "compute":
@@ -163,6 +197,15 @@ def build_archive(arm, workdir):
         r = sh(a)
     if r.returncode != 0:
         raise RuntimeError("build failed for %s: %s" % (arm["arm"], r.stderr[-800:]))
+    if cache:
+        os.makedirs(cache, exist_ok=True)
+        c = os.path.join(cache, arm["arm"] + ".bin")
+        with open(out, "rb") as a, open(c + ".tmp", "wb") as b:
+            b.write(a.read())
+        os.replace(c + ".tmp", c)
+        with open(c + ".buildlog", "w") as b:
+            b.write(r.stderr)
+        return c, r.stderr
     return out, r.stderr
 
 
@@ -307,6 +350,10 @@ def main():
     ap.add_argument("--fields", default="")
     ap.add_argument("--max-cases", type=int, default=0)
     ap.add_argument("--census-only", action="store_true")
+    ap.add_argument("--archive-cache", action="store_true",
+                    help="reuse (and populate) work/archive_cache: the shader compiler is a "
+                         "contended shared service and Gate E wants both runs to dispatch "
+                         "identical bytes")
     ap.add_argument("--order", choices=("forward", "reverse"), default="forward",
                     help="GATE E: the confirmation run must use a REVERSED or shuffled "
                          "case order, so an order-dependent artefact cannot reproduce "
@@ -319,6 +366,7 @@ def main():
     os.makedirs(outdir)
     workdir = os.path.join(EXP, "work", "arch_" + args.run_id)
     os.makedirs(workdir, exist_ok=True)
+    cachedir = os.path.join(EXP, "work", "archive_cache") if args.archive_cache else None
 
     sweep = open(os.path.join(outdir, "sweep.jsonl"), "w")
     payloads = PayloadStore(os.path.join(outdir, "payloads.jsonl"))
@@ -374,7 +422,9 @@ def main():
             continue
         t_arm = time.time()
         try:
-            archive, buildlog = build_archive(arm, workdir)
+            archive, buildlog = build_archive(arm, workdir, cachedir)
+            if buildlog.startswith("CACHED") and os.path.exists(archive + ".buildlog"):
+                buildlog = open(archive + ".buildlog").read()
         except Exception as e:                                 # noqa: BLE001
             emit({"kind": "arm_error", "arm": arm["arm"], "instr": arm["instr"],
                   "error": str(e)[:800], "outcome": "undecodable"})
@@ -408,6 +458,7 @@ def main():
         # is applied once, becomes the arm's baseline program, and is recorded
         # in the arm_meta so it is never mistaken for an as-compiled occurrence.
         pre = arm.get("pre_splice")
+        orig_archive = archive
         if pre:
             bb = bytearray(blk0)
             for (bi, bv) in pre:
@@ -445,6 +496,8 @@ def main():
                           ("kernel", "func", "vs", "fs", "obj", "mesh", "frag", "nrt",
                            "samples", "fmt", "blend", "depth", "W", "H", "grid", "tg",
                            "draw", "outbuf")},
+              "archive_sha256_32": _sha32(archive),
+              "archive_cached": buildlog.startswith("CACHED"),
               **resolution[arm["arm"]], "program_hex": hx})
         if args.census_only:
             continue
@@ -556,6 +609,7 @@ def main():
                        "samples": arm["samples"], "format": arm["fmt"],
                        "blend": arm["blend"], "depth": arm["depth"],
                        "outbuf": arm["outbuf"], "clear": arm["clear"],
+                       "want_pixels": 1 if arm["instr"] == "get_sr" else 0,
                        "fbuf": SP.SRC, "vbuf": SP.VP}
                 if arm.get("draw"):
                     req["draw"] = arm["draw"]
@@ -627,7 +681,29 @@ def main():
             return g2, r2, n, 7
 
         # ------------------------------------------------------- baseline ----
-        base_obs, base_raw, _, _ = run_case(archive)
+        # A concurrent sibling's device reset makes the very next submission an
+        # InnocentVictim, and losing the BASELINE loses the whole arm (it cost
+        # sr_v and me_w1 in work/pilot02).  Contamination can destroy an
+        # observation but never fabricate a coherent one, so the baseline is
+        # retried through several full health cycles before the arm is failed.
+        base_obs, base_raw = None, {}
+        for battempt in range(4):
+            base_obs, base_raw, _, _ = run_case(archive)
+            if base_obs is not None:
+                break
+            emit({"kind": "baseline_retry", "arm": arm["arm"], "attempt": battempt,
+                  "status": base_raw.get("status"),
+                  "error": str(base_raw.get("error", ""))[:200],
+                  "collateral": is_collateral(base_raw)})
+            # A non-collateral SENTINEL_MISS is not contamination -- it is the
+            # carrier itself drawing nothing, which is a MEASURED NEGATIVE (the
+            # degenerate mesh_wide control is expected to land here).  Retrying
+            # it through four 40-second health cycles buys nothing and costs
+            # minutes, so it is recorded once and the arm ends.
+            if base_raw.get("status") == "SENTINEL_MISS" and not is_collateral(base_raw) \
+                    and battempt >= 1:
+                break
+            wait_for_health()
         emit({"kind": "baseline", "arm": arm["arm"], "instr": arm["instr"],
               "bytes": blk0.hex(), "observed": base_obs,
               "status": base_raw.get("status"),
@@ -636,12 +712,28 @@ def main():
         if base_obs is None:
             emit({"kind": "arm_error", "arm": arm["arm"], "instr": arm["instr"],
                   "error": "baseline did not run: %s" % str(base_raw.get("error", ""))[:400],
-                  "outcome": "fault"})
+                  "status": base_raw.get("status"),
+                  "outcome": ("no_draw" if base_raw.get("status") == "SENTINEL_MISS"
+                              else "fault")})
             try:
                 runner.close()
             except Exception:                                  # noqa: BLE001
                 pass
             continue
+
+        # A PRE-SPLICED arm's baseline is not the compiled program, so the
+        # compiled program's own output is recorded beside it: without this
+        # reference there is no way to tell whether the 0x07 -> 0x80 swap itself
+        # changed anything, which is a first-class fact about the two fences.
+        if arm.get("pre_splice"):
+            ref_obs, ref_raw, _, _ = run_case(orig_archive)
+            emit({"kind": "pre_reference", "arm": arm["arm"], "instr": arm["instr"],
+                  "bytes": bytes.fromhex(hx)[off:off + ilen].hex(),
+                  "observed": ref_obs, "status": ref_raw.get("status"),
+                  "swap_changed_behaviour": (None if ref_obs is None or base_obs is None
+                                             else not obs_equal(ref_obs, base_obs)),
+                  "note": "the UNMODIFIED compiled program, for comparison with the "
+                          "pre-spliced baseline"})
 
         # ---------------------------------------------------- calibration ----
         exec_width = 32
@@ -840,7 +932,7 @@ def main():
             except Exception as e:                             # noqa: BLE001
                 return "UNDECODABLE:%s" % str(e)[:60], None
 
-        def ledger(spath, requested_field, requested_value, requested_block):
+        def ledger(blob, requested_field, requested_value, requested_block):
             """GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS section 3): the bytes that were
             REQUESTED are not evidence -- the bytes that were DISPATCHED are.  Read them
             back out of the file the runner was handed, decode them independently with the
@@ -849,8 +941,6 @@ def main():
             before any hardware conclusion.  A symmetric assemble/disassemble round trip
             is only a tokenizer test and is NOT this gate; this is what would have caught
             DEF-0166, where the assembler could not clear a requested bit."""
-            with open(spath, "rb") as fh:
-                blob = fh.read()
             actual = blob[abs_off:abs_off + ilen]
             phash = hashlib.sha256(blob).hexdigest()[:32]
             dec_val, dec_instr, dec_len = None, None, None
@@ -882,8 +972,8 @@ def main():
         def record(kind, field, value, block, note="", cof=None, **extra):
             tok_instr, tok_len = tokenize_anchor(block)
             sp = next_splice_path()
-            splice(archive, sp, abs_off, block)
-            led = ledger(sp, field if field in fieldsdesc else None, value, block)
+            blob = splice(archive, sp, abs_off, block)
+            led = ledger(blob, field if field in fieldsdesc else None, value, block)
             obs, raw, nres, attempts = run_case(sp)
             outcome, orc, okind, sem_ok, match, cls = classify(field, value, obs, raw, cof)
             rec = {"kind": kind, "arm": arm["arm"], "carrier": arm["arm"],

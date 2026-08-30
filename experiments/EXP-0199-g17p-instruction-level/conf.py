@@ -309,14 +309,42 @@ def main():
     for kind in ("comp", "depth", "depth2", "vary"):
         if not any(c["kind"] == kind for c in cases):
             continue
-        r = fire(kind, [])
+        # A baseline that is not `ok` is a MEASUREMENT FAILURE on a shared device,
+        # never a hardware result.  Retry, and if it still will not come back
+        # clean, abort the run and let it be RETAINED and replaced under a NEW id
+        # rather than scoring 6507 cases against a broken reference.
+        for attempt in range(6):
+            r = fire(kind, [])
+            if r["status"] == "OK" and "PIX0" in r["surf"] or \
+               (kind == "comp" and r["status"] == "OK"):
+                break
+            sink_pre = dict(arm="_", case="BASELINE_RETRY_%s_%d" % (kind, attempt),
+                            kind=kind, outcome="measurement_failed",
+                            observed={}, status=r["status"],
+                            error=r.get("error", "")[:200], splice=[])
+            Sink(os.path.join(rawdir, "sweep.jsonl")).write(sink_pre)
+            time.sleep(2.0 * (attempt + 1))
         if kind == "comp":
             oc, ob = score_compute(r)
         elif kind.startswith("depth"):
-            oc, ob = score_depth(r, {"ph": "", "dh": ""},
+            oc, ob = score_depth(r, {"ph": None, "dh": None},
                                  "c_depth" if kind == "depth" else "c_depth2")
+            # the baseline is its OWN reference: `moved` is meaningless here, so
+            # only a fault / poison / tile-discard makes it unusable.
+            if oc in ("both_moved", "depth_moved", "color_moved"):
+                oc = "ok"
         else:
-            oc, ob = score_vary(r, {"ph": ""})
+            oc, ob = score_vary(r, {"ph": None})
+            if oc in ("moved", "relocated"):
+                oc = "ok"
+        if oc != "ok":
+            sink.write(dict(arm="_", case="BASELINE_FAILED_" + kind, kind=kind,
+                            outcome=oc, observed=ob, status=r["status"],
+                            error=r.get("error", "")[:200], splice=[]))
+            print("BASELINE %s NOT ok (%s) -- aborting; retain this run id and "
+                  "capture the replacement under a NEW id" % (kind, oc))
+            stop.set()
+            return 3
         base[kind] = dict(ob)
         base[kind]["pbuf"] = r["surf"].get("PIX0")
         base[kind]["dbuf"] = r["surf"].get("DEPTH")

@@ -108,12 +108,23 @@ def quiet(run_dir):
             "quiet": foreign == 0, "foreign_processes": names}
 
 
+# `ok` and `unexpected_ok` are the SAME hardware observation -- the carrier's
+# vector was reproduced -- and differ only in what we PREDICTED. Collapsing them
+# is not cosmetic: without it, a field whose two values give byte-identical
+# output is scored as MOVED purely because the oracle predicted differently at
+# the compiled value, which is precisely the "a difference from baseline is not a
+# semantic oracle" failure. Found in this experiment's own discovery run, where
+# it would have manufactured movement for `shift_amt_move.src_flag`.
+OUTCOME_NORM = {"unexpected_ok": "ok"}
+
+
 def vkey(r):
     o = r.get("observed") or {}
     vals = o.get("vals_u32")
     h = hashlib.sha256(json.dumps(vals, sort_keys=True).encode()).hexdigest()[:16] \
         if vals is not None else "none"
-    return "%s|%s" % (r.get("outcome"), h)
+    oc = r.get("outcome")
+    return "%s|%s" % (OUTCOME_NORM.get(oc, oc), h)
 
 
 def payload(r):

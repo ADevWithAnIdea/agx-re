@@ -330,9 +330,17 @@ def main():
                 break
         dispatched = sum(r["dispatched"] for r in reps)
         distinct = sum(r["distinct_bytes"] for r in reps)
-        rng = ("%d of %d encodable values decidable in >=1 arm over %d arms; "
-               "%d dispatched, %d distinct encodings"
-               % (agg["covered_values"], erange, len(reps), dispatched, distinct))
+        per_arm_disp = sorted({r["dispatched"] for r in reps})
+        per_arm_dae = sorted({r["distinct_actual_encodings"] for r in reps})
+        per_arm_dec = sorted({r["decidable_run1"] for r in reps})
+        rng = ("%d of %d encodable values decidable in >=1 arm, over %d arms x 2 gated runs. "
+               "Per arm: %s dispatched, %s distinct ACTUAL encodings, %s decidable. "
+               "Totals: %d dispatched per run, %d moved, %d cross-run disagreements."
+               % (agg["covered_values"], erange, len(reps),
+                  "/".join(str(x) for x in per_arm_disp),
+                  "/".join(str(x) for x in per_arm_dae),
+                  "/".join(str(x) for x in per_arm_dec),
+                  dispatched, agg["moved"], agg["disagree"]))
         verdicts["%s.%s" % (instr, field)] = {
             "label": label,
             "range": rng,

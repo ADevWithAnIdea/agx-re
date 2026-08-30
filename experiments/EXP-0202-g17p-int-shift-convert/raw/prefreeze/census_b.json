@@ -1,0 +1,4520 @@
+{
+ "carriers": {
+  "cvt_alu": {
+   "doc": "convert CONSUMED BY A FOLLOWING ALU op",
+   "func": "k_cvt_alu",
+   "main_len": 88,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000300b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 86,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000300b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 88
+  },
+  "cvt_i64": {
+   "doc": "64-bit destination -- a register PAIR",
+   "func": "k_cvt_i64",
+   "main_len": 374,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 41,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "a700540003005c00",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 56,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700541603200200",
+      "field_values": {
+       "cache": 0,
+       "dst": 22,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 32,
+       "srcdesc": 2,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 118,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541602041ab4",
+      "field_values": {
+       "cache": 0,
+       "dst": 22,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 2,
+       "src": 4,
+       "srcdesc": 26,
+       "tail": 180
+      },
+      "len": 8,
+      "off": 134,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541a03201a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 26,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 32,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 146,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2701540e02040284",
+      "field_values": {
+       "cache": 0,
+       "dst": 14,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 4,
+       "srcdesc": 2,
+       "tail": 132
+      },
+      "len": 8,
+      "off": 168,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541403201804",
+      "field_values": {
+       "cache": 0,
+       "dst": 20,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 32,
+       "srcdesc": 24,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 190,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540803040000",
+      "field_values": {
+       "cache": 0,
+       "dst": 8,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 4,
+       "srcdesc": 0,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 212,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701540e02040284f8100d00",
+      "field_values": {
+       "b2": 84,
+       "operands": 566969500174,
+       "tail": 856312
+      },
+      "len": 12,
+      "off": 168,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": false,
+      "bytes": "2711000200000000",
+      "field_values": {
+       "b1": 17,
+       "dst": 2,
+       "op_enable": 0,
+       "opsel": 0,
+       "src": 0,
+       "srcdesc": 0,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 48,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "270b000200000000",
+      "field_values": {
+       "b1": 11,
+       "dst": 2,
+       "op_enable": 0,
+       "opsel": 0,
+       "src": 0,
+       "srcdesc": 0,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 80,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541602041ab4",
+      "field_values": {
+       "b1": 0,
+       "dst": 22,
+       "op_enable": 2,
+       "opsel": 84,
+       "src": 4,
+       "srcdesc": 26,
+       "tail": 180
+      },
+      "len": 8,
+      "off": 134,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541a03201a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 26,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 32,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 146,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2701540e02040284",
+      "field_values": {
+       "b1": 1,
+       "dst": 14,
+       "op_enable": 2,
+       "opsel": 84,
+       "src": 4,
+       "srcdesc": 2,
+       "tail": 132
+      },
+      "len": 8,
+      "off": 168,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700541403201804",
+      "field_values": {
+       "b1": 0,
+       "dst": 20,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 32,
+       "srcdesc": 24,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 190,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "2780220807022080",
+      "field_values": {
+       "b1": 128,
+       "dst": 8,
+       "op_enable": 7,
+       "opsel": 34,
+       "src": 2,
+       "srcdesc": 32,
+       "tail": 128
+      },
+      "len": 8,
+      "off": 226,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "2780821a07022080",
+      "field_values": {
+       "b1": 128,
+       "dst": 26,
+       "op_enable": 7,
+       "opsel": 130,
+       "src": 2,
+       "srcdesc": 32,
+       "tail": 128
+      },
+      "len": 8,
+      "off": 236,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "2796800e1602328b",
+      "field_values": {
+       "b1": 150,
+       "dst": 14,
+       "op_enable": 22,
+       "opsel": 128,
+       "src": 2,
+       "srcdesc": 50,
+       "tail": 139
+      },
+      "len": 8,
+      "off": 256,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "2796800816020b01",
+      "field_values": {
+       "b1": 150,
+       "dst": 8,
+       "op_enable": 22,
+       "opsel": 128,
+       "src": 2,
+       "srcdesc": 11,
+       "tail": 1
+      },
+      "len": 8,
+      "off": 264,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "2780228007028000",
+      "field_values": {
+       "b1": 128,
+       "dst": 128,
+       "op_enable": 7,
+       "opsel": 34,
+       "src": 2,
+       "srcdesc": 128,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 290,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 374
+  },
+  "cvt_rnd": {
+   "doc": "rint() then convert",
+   "func": "k_cvt_rnd",
+   "main_len": 88,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270754000300b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270754000300b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 88
+  },
+  "cvt_s32": {
+   "doc": "float -> int32, stored (EXP-0184 comparison point)",
+   "func": "k_cvt_s32",
+   "main_len": 68,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000200b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 86,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 2
+      },
+      "len": 10,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000200b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 68
+  },
+  "cvt_sgn": {
+   "doc": "H8 instruction arm; lane 7 is 2^31+2^8, out of int32 range",
+   "func": "k_cvt_sgn",
+   "main_len": 68,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000200b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 86,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 2
+      },
+      "len": 10,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270756000200b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 68
+  },
+  "cvt_uni": {
+   "doc": "source is a THREAD-INVARIANT constant",
+   "func": "k_cvt_uni",
+   "main_len": 54,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 7,
+   "occurrences": {},
+   "walk_covers_bytes": 54
+  },
+  "cvt_v4": {
+   "doc": "four converts in one vector expr",
+   "func": "k_cvt_v4",
+   "main_len": 168,
+   "metal": "kernels/k_cvt202.metal",
+   "n_instructions_walked": 19,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270754080308b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 8,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 8,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 46,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "27075404030096480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 150,
+       "dst": 4,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 62,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "27075406030cb4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 6,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 12,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 72,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "270754000300b4480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 180,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 108,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270754080308b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 8,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 46,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2707540403009648",
+      "field_values": {
+       "b1": 7,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 150,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 62,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "27075406030cb448",
+      "field_values": {
+       "b1": 7,
+       "dst": 6,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 12,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 72,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "270754000300b448",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 180,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 108,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 168
+  },
+  "iu_absi": {
+   "doc": "iunary candidate: k_iu_absi",
+   "func": "k_iu_absi",
+   "main_len": 86,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {},
+   "walk_covers_bytes": 86
+  },
+  "iu_addsat": {
+   "doc": "iunary candidate: k_iu_addsat",
+   "func": "k_iu_addsat",
+   "main_len": 92,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {},
+   "walk_covers_bytes": 92
+  },
+  "iu_bitcast": {
+   "doc": "iunary candidate: k_iu_bitcast",
+   "func": "k_iu_bitcast",
+   "main_len": 68,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {},
+   "walk_covers_bytes": 68
+  },
+  "iu_ctz": {
+   "doc": "iunary candidate: k_iu_ctz",
+   "func": "k_iu_ctz",
+   "main_len": 106,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 12,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705540403085c04",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 60,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705540403085c04",
+      "field_values": {
+       "b1": 5,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 60,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 106
+  },
+  "iu_f2h": {
+   "doc": "iunary candidate: k_iu_f2h",
+   "func": "k_iu_f2h",
+   "main_len": 74,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {},
+   "walk_covers_bytes": 68
+  },
+  "iu_h2f": {
+   "doc": "iunary candidate: k_iu_h2f",
+   "func": "k_iu_h2f",
+   "main_len": 70,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 70
+  },
+  "iu_h2i": {
+   "doc": "iunary candidate: k_iu_h2i",
+   "func": "k_iu_h2i",
+   "main_len": 84,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": true,
+      "bytes": "270754000300ac480300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 172,
+       "dst": 0,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 72,
+       "src": 0,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 46,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "270754000300ac48",
+      "field_values": {
+       "b1": 7,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 172,
+       "tail": 72
+      },
+      "len": 8,
+      "off": 46,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 78
+  },
+  "iu_h2u": {
+   "doc": "iunary candidate: k_iu_h2u",
+   "func": "k_iu_h2u",
+   "main_len": 94,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 16,
+   "occurrences": {
+    "cvt_f2i": [
+     {
+      "at_boundary": false,
+      "bytes": "270754020304a8080300",
+      "field_values": {
+       "b9": 0,
+       "cvtop": 168,
+       "dst": 2,
+       "dst_class": 3,
+       "mode": 84,
+       "signflag": 8,
+       "src": 4,
+       "src_class": 3
+      },
+      "len": 10,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": false,
+      "bytes": "270754020304a808",
+      "field_values": {
+       "b1": 7,
+       "dst": 2,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 4,
+       "srcdesc": 168,
+       "tail": 8
+      },
+      "len": 8,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "cvt_f2i",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 94
+  },
+  "iu_i2f": {
+   "doc": "iunary candidate: k_iu_i2f",
+   "func": "k_iu_i2f",
+   "main_len": 72,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 72
+  },
+  "iu_packsn": {
+   "doc": "iunary candidate: k_iu_packsn",
+   "func": "k_iu_packsn",
+   "main_len": 94,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 11,
+   "occurrences": {},
+   "walk_covers_bytes": 94
+  },
+  "iu_packun": {
+   "doc": "iunary candidate: k_iu_packun",
+   "func": "k_iu_packun",
+   "main_len": 94,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 11,
+   "occurrences": {},
+   "walk_covers_bytes": 94
+  },
+  "iu_rint": {
+   "doc": "iunary candidate: k_iu_rint",
+   "func": "k_iu_rint",
+   "main_len": 74,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 74
+  },
+  "iu_sat": {
+   "doc": "iunary candidate: k_iu_sat",
+   "func": "k_iu_sat",
+   "main_len": 72,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 72
+  },
+  "iu_sextb": {
+   "doc": "iunary candidate: k_iu_sextb",
+   "func": "k_iu_sextb",
+   "main_len": 90,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003006000",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 96,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a701540003006078",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 1,
+       "form": 1,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 96,
+       "tail": 120
+      },
+      "len": 8,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 10,
+       "mnemonic": "ishift",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003006000",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 96,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 90
+  },
+  "iu_sexth": {
+   "doc": "iunary candidate: k_iu_sexth",
+   "func": "k_iu_sexth",
+   "main_len": 78,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 78
+  },
+  "iu_subsat": {
+   "doc": "iunary candidate: k_iu_subsat",
+   "func": "k_iu_subsat",
+   "main_len": 92,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {},
+   "walk_covers_bytes": 92
+  },
+  "iu_trunc": {
+   "doc": "iunary candidate: k_iu_trunc",
+   "func": "k_iu_trunc",
+   "main_len": 74,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 74
+  },
+  "iu_u2f": {
+   "doc": "iunary candidate: k_iu_u2f",
+   "func": "k_iu_u2f",
+   "main_len": 72,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 72
+  },
+  "iu_unorm": {
+   "doc": "iunary candidate: k_iu_unorm",
+   "func": "k_iu_unorm",
+   "main_len": 92,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 12,
+   "occurrences": {},
+   "walk_covers_bytes": 92
+  },
+  "iu_unpsn": {
+   "doc": "iunary candidate: k_iu_unpsn",
+   "func": "k_iu_unpsn",
+   "main_len": 80,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {},
+   "walk_covers_bytes": 80
+  },
+  "iu_us2f": {
+   "doc": "iunary candidate: k_iu_ushort2f",
+   "func": "k_iu_ushort2f",
+   "main_len": 74,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 74
+  },
+  "iu_zextb": {
+   "doc": "iunary candidate: k_iu_zextb",
+   "func": "k_iu_zextb",
+   "main_len": 78,
+   "metal": "kernels/k_iu202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {},
+   "walk_covers_bytes": 78
+  },
+  "pc_alu": {
+   "doc": "popcount CONSUMED BY AN ALU op",
+   "func": "k_pc_alu",
+   "main_len": 86,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560003005c04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560003005c04",
+      "field_values": {
+       "b1": 5,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 86
+  },
+  "pc_clz": {
+   "doc": "find-msb form",
+   "func": "k_pc_clz",
+   "main_len": 96,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 11,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "a705560403004e04",
+      "field_values": {
+       "cache": 1,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 5,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 78,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 96
+  },
+  "pc_cmp": {
+   "doc": "popcount consumed by a COMPARE",
+   "func": "k_pc_cmp",
+   "main_len": 116,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 14,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560403044e04",
+      "field_values": {
+       "cache": 1,
+       "dst": 4,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 3,
+       "src": 4,
+       "srcdesc": 78,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560403044e04",
+      "field_values": {
+       "b1": 5,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 4,
+       "srcdesc": 78,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 116
+  },
+  "pc_dump": {
+   "doc": "WIDE READBACK: four mutually distinct live values per lane at FIXED store indices, so a redirected ibitcount destination shows up as one of the other three words taking the count",
+   "func": "k_pc_dump",
+   "main_len": 116,
+   "metal": "kernels/k_pc2_202.metal",
+   "n_instructions_walked": 13,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "27055400020c4e04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 2,
+       "src": 12,
+       "srcdesc": 78,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "27055400020c4e04",
+      "field_values": {
+       "b1": 5,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 84,
+       "src": 12,
+       "srcdesc": 78,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 116
+  },
+  "pc_rev": {
+   "doc": "reverse-bits form",
+   "func": "k_pc_rev",
+   "main_len": 76,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 9,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "a704560003005c04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 1,
+       "form": 4,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 76
+  },
+  "pc_store": {
+   "doc": "popcount -> device store (STANDALONE)",
+   "func": "k_pc_store",
+   "main_len": 66,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560002005c04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560002005c04",
+      "field_values": {
+       "b1": 5,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 66
+  },
+  "pc_tg": {
+   "doc": "popcount -> THREADGROUP memory -> barrier -> store, grid 64 tg 32",
+   "func": "k_pc_tg",
+   "main_len": 164,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 19,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560003005c04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 54,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560003005c04",
+      "field_values": {
+       "b1": 5,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 54,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 164
+  },
+  "pc_two": {
+   "doc": "two popcounts summed (two occurrences)",
+   "func": "k_pc_two",
+   "main_len": 108,
+   "metal": "kernels/k_pc202.metal",
+   "n_instructions_walked": 12,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560403085c04",
+      "field_values": {
+       "cache": 1,
+       "dst": 4,
+       "fn_hi": 0,
+       "form": 5,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 54,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2715540003005c04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 21,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 62,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2705560403085c04",
+      "field_values": {
+       "b1": 5,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 8,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 54,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2715540003005c04",
+      "field_values": {
+       "b1": 21,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 92,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 62,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "ibitcount",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 108
+  },
+  "rot_alu": {
+   "doc": "immediate rotate CONSUMED BY AN ALU op",
+   "func": "k_rot_alu",
+   "main_len": 90,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 10,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560003006c00",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560003006c00f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 1811940096,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560003006c00",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 90
+  },
+  "rot_k1": {
+   "doc": "immediate rotate by 1",
+   "func": "k_rot_k1",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002007c00",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 124,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002007c00f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 2080375296,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002007c00",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 124,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_k13": {
+   "doc": "immediate rotate by 13",
+   "func": "k_rot_k13",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002004c00",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 76,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002004c00f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 1275068928,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002004c00",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 76,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_k19": {
+   "doc": "immediate rotate by 19",
+   "func": "k_rot_k19",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002003400",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 52,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002003400f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 872415744,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002003400",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 52,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_k31": {
+   "doc": "immediate rotate by 31",
+   "func": "k_rot_k31",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002000400",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 4,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002000400f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 67109376,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002000400",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 4,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_k5": {
+   "doc": "immediate rotate by 5",
+   "func": "k_rot_k5",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006c00",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006c00f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 1811939840,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006c00",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_k7": {
+   "doc": "immediate rotate by 7",
+   "func": "k_rot_k7",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006400",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 100,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006400f0150900",
+      "field_values": {
+       "b2": 86,
+       "operands": 1677722112,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560002006400",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 100,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "rot_two": {
+   "doc": "two immediate rotates, two occurrences",
+   "func": "k_rot_two",
+   "main_len": 96,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 11,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560603003600",
+      "field_values": {
+       "cache": 1,
+       "dst": 6,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 54,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2701540003006c00",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 1,
+       "op_enable": 3,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "irotate": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560603003600f8100900",
+      "field_values": {
+       "b2": 86,
+       "operands": 905970438,
+       "tail": 594168
+      },
+      "len": 12,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2701540003006c00f0150900",
+      "field_values": {
+       "b2": 84,
+       "operands": 1811940096,
+       "tail": 595440
+      },
+      "len": 12,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2701560603003600",
+      "field_values": {
+       "b1": 1,
+       "dst": 6,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 54,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2701540003006c00",
+      "field_values": {
+       "b1": 1,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 0,
+       "srcdesc": 108,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 52,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "irotate",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 96
+  },
+  "sam_alu": {
+   "doc": "amount produced by an ALU chain (producer class: ALU)",
+   "func": "k_sam_alu",
+   "main_len": 126,
+   "metal": "kernels/k_sam2_202.metal",
+   "n_instructions_walked": 14,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700540003081a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 70,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 92,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700540003081a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 70,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 104,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 126
+  },
+  "sam_cf": {
+   "doc": "amount defined on BOTH sides of a control-flow merge",
+   "func": "k_sam_cf",
+   "main_len": 150,
+   "metal": "kernels/k_sam2_202.metal",
+   "n_instructions_walked": 16,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 16,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 94,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 116,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "b1": 16,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 94,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 128,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 150
+  },
+  "sam_gpr": {
+   "doc": "rotate amount from a PER-THREAD device load -> GPR file",
+   "func": "k_sam_gpr",
+   "main_len": 120,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 13,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 16,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 86,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "b1": 16,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 98,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 120
+  },
+  "sam_lane": {
+   "doc": "amount produced by the SIMD lane index (grid 8 / tg 8, so lane index == thread index)",
+   "func": "k_sam_lane",
+   "main_len": 120,
+   "metal": "kernels/k_sam2_202.metal",
+   "n_instructions_walked": 14,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 86,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 98,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 120
+  },
+  "sam_mix": {
+   "doc": "a GPR amount and a uniform amount in ONE program",
+   "func": "k_sam_mix",
+   "main_len": 182,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 20,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003102a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 16,
+       "op_enable": 3,
+       "src": 16,
+       "srcdesc": 42,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700540403101a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 16,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 86,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540603101a00",
+      "field_values": {
+       "cache": 0,
+       "dst": 6,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 16,
+       "srcdesc": 26,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 108,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540803102800",
+      "field_values": {
+       "cache": 0,
+       "dst": 8,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 16,
+       "srcdesc": 40,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 130,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003102a04",
+      "field_values": {
+       "b1": 16,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 16,
+       "srcdesc": 42,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "279f900200000000",
+      "field_values": {
+       "b1": 159,
+       "dst": 2,
+       "op_enable": 0,
+       "opsel": 144,
+       "src": 0,
+       "srcdesc": 0,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 78,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700540403101a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 16,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 86,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "2b053c07",
+      "field_values": {
+       "dst": 2,
+       "kind": 3,
+       "op_desc": 7,
+       "src_flag": 0,
+       "src_reg": 5
+      },
+      "len": 4,
+      "off": 142,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "0b013c09",
+      "field_values": {
+       "dst": 0,
+       "kind": 3,
+       "op_desc": 9,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 146,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 182
+  },
+  "sam_ovr": {
+   "doc": "amount defined, then an intervening independent ALU op, then used",
+   "func": "k_sam_ovr",
+   "main_len": 144,
+   "metal": "kernels/k_sam2_202.metal",
+   "n_instructions_walked": 16,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "cache": 0,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 16,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540803081a00",
+      "field_values": {
+       "cache": 0,
+       "dst": 8,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 86,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2710540003081a04",
+      "field_values": {
+       "b1": 16,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 64,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b013c09",
+      "field_values": {
+       "dst": 0,
+       "kind": 3,
+       "op_desc": 9,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 98,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 144
+  },
+  "sam_shl_uni": {
+   "doc": "thread-invariant SHIFT amount (<<)",
+   "func": "k_sam_shl_uni",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560002003000",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 48,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560002003000",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 2,
+       "opsel": 86,
+       "src": 0,
+       "srcdesc": 48,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "sam_shr_uni": {
+   "doc": "thread-invariant SHIFT amount (>>)",
+   "func": "k_sam_shr_uni",
+   "main_len": 70,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 8,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "a700560002003000",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 2,
+       "src": 0,
+       "srcdesc": 48,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 40,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ]
+   },
+   "walk_covers_bytes": 70
+  },
+  "sam_sys": {
+   "doc": "amount produced by a SYSTEM VALUE (thread position)",
+   "func": "k_sam_sys",
+   "main_len": 126,
+   "metal": "kernels/k_sam2_202.metal",
+   "n_instructions_walked": 14,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 70,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 92,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 70,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 104,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 126
+  },
+  "sam_uni": {
+   "doc": "rotate amount THREAD-INVARIANT -> uniform class",
+   "func": "k_sam_uni",
+   "main_len": 106,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 14,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540403081800",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 24,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 72,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b011c05",
+      "field_values": {
+       "dst": 0,
+       "kind": 1,
+       "op_desc": 5,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 84,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 104
+  },
+  "sam_uni2": {
+   "doc": "TWO distinct thread-invariant amounts",
+   "func": "k_sam_uni2",
+   "main_len": 158,
+   "metal": "kernels/k_sam202.metal",
+   "n_instructions_walked": 20,
+   "occurrences": {
+    "ibitcount": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "cache": 1,
+       "dst": 0,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540803081a00",
+      "field_values": {
+       "cache": 0,
+       "dst": 8,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 82,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "a700540603081a00",
+      "field_values": {
+       "cache": 0,
+       "dst": 6,
+       "fn_hi": 1,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 104,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfe",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700540403083000",
+      "field_values": {
+       "cache": 0,
+       "dst": 4,
+       "fn_hi": 0,
+       "form": 0,
+       "op_enable": 3,
+       "src": 8,
+       "srcdesc": 48,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 116,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "iunary": [
+     {
+      "at_boundary": true,
+      "bytes": "2700560003081a04",
+      "field_values": {
+       "b1": 0,
+       "dst": 0,
+       "op_enable": 3,
+       "opsel": 86,
+       "src": 8,
+       "srcdesc": 26,
+       "tail": 4
+      },
+      "len": 8,
+      "off": 50,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": false,
+      "bytes": "279f900200000000",
+      "field_values": {
+       "b1": 159,
+       "dst": 2,
+       "op_enable": 0,
+       "opsel": 144,
+       "src": 0,
+       "srcdesc": 0,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 74,
+      "parcel_aligned": true,
+      "token": {
+       "length": 8,
+       "mnemonic": "iunary",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2700540403083000",
+      "field_values": {
+       "b1": 0,
+       "dst": 4,
+       "op_enable": 3,
+       "opsel": 84,
+       "src": 8,
+       "srcdesc": 48,
+       "tail": 0
+      },
+      "len": 8,
+      "off": 116,
+      "parcel_aligned": true,
+      "token": {
+       "length": 12,
+       "mnemonic": "ibfins",
+       "op": null
+      },
+      "tokenizer_agrees": false
+     }
+    ],
+    "shift_amt_move": [
+     {
+      "at_boundary": true,
+      "bytes": "0b013c09",
+      "field_values": {
+       "dst": 0,
+       "kind": 3,
+       "op_desc": 9,
+       "src_flag": 0,
+       "src_reg": 1
+      },
+      "len": 4,
+      "off": 128,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     },
+     {
+      "at_boundary": true,
+      "bytes": "2b053c07",
+      "field_values": {
+       "dst": 2,
+       "kind": 3,
+       "op_desc": 7,
+       "src_flag": 0,
+       "src_reg": 5
+      },
+      "len": 4,
+      "off": 132,
+      "parcel_aligned": true,
+      "token": {
+       "length": 4,
+       "mnemonic": "shift_amt_move",
+       "op": null
+      },
+      "tokenizer_agrees": true
+     }
+    ]
+   },
+   "walk_covers_bytes": 156
+  }
+ },
+ "compiled_field_values": {
+  "cvt_f2i.b9": {
+   "distinct_values": [
+    0
+   ],
+   "n_distinct": 1,
+   "where": {
+    "0": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@46",
+     "cvt_v4@62"
+    ]
+   }
+  },
+  "cvt_f2i.cvtop": {
+   "distinct_values": [
+    150,
+    172,
+    180
+   ],
+   "n_distinct": 3,
+   "where": {
+    "150": [
+     "cvt_v4@62"
+    ],
+    "172": [
+     "iu_h2i@46"
+    ],
+    "180": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@46",
+     "cvt_v4@72"
+    ]
+   }
+  },
+  "cvt_f2i.dst": {
+   "distinct_values": [
+    0,
+    4,
+    6,
+    8
+   ],
+   "n_distinct": 4,
+   "where": {
+    "0": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@108",
+     "iu_h2i@46"
+    ],
+    "4": [
+     "cvt_v4@62"
+    ],
+    "6": [
+     "cvt_v4@72"
+    ],
+    "8": [
+     "cvt_v4@46"
+    ]
+   }
+  },
+  "cvt_f2i.dst_class": {
+   "distinct_values": [
+    3
+   ],
+   "n_distinct": 1,
+   "where": {
+    "3": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@46",
+     "cvt_v4@62"
+    ]
+   }
+  },
+  "cvt_f2i.mode": {
+   "distinct_values": [
+    84,
+    86
+   ],
+   "n_distinct": 2,
+   "where": {
+    "84": [
+     "cvt_rnd@50",
+     "cvt_v4@46",
+     "cvt_v4@62",
+     "cvt_v4@72",
+     "cvt_v4@108",
+     "iu_h2i@46"
+    ],
+    "86": [
+     "cvt_alu@40",
+     "cvt_s32@40",
+     "cvt_sgn@40"
+    ]
+   }
+  },
+  "cvt_f2i.signflag": {
+   "distinct_values": [
+    72
+   ],
+   "n_distinct": 1,
+   "where": {
+    "72": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@46",
+     "cvt_v4@62"
+    ]
+   }
+  },
+  "cvt_f2i.src": {
+   "distinct_values": [
+    0,
+    8,
+    12
+   ],
+   "n_distinct": 3,
+   "where": {
+    "0": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_s32@40",
+     "cvt_sgn@40",
+     "cvt_v4@62",
+     "cvt_v4@108"
+    ],
+    "12": [
+     "cvt_v4@72"
+    ],
+    "8": [
+     "cvt_v4@46"
+    ]
+   }
+  },
+  "cvt_f2i.src_class": {
+   "distinct_values": [
+    2,
+    3
+   ],
+   "n_distinct": 2,
+   "where": {
+    "2": [
+     "cvt_s32@40",
+     "cvt_sgn@40"
+    ],
+    "3": [
+     "cvt_alu@40",
+     "cvt_rnd@50",
+     "cvt_v4@46",
+     "cvt_v4@62",
+     "cvt_v4@72",
+     "cvt_v4@108"
+    ]
+   }
+  },
+  "ibitcount.cache": {
+   "distinct_values": [
+    0,
+    1
+   ],
+   "n_distinct": 2,
+   "where": {
+    "0": [
+     "iu_ctz@60",
+     "pc_dump@50",
+     "pc_two@62"
+    ],
+    "1": [
+     "pc_alu@40",
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_rev@40",
+     "pc_store@40",
+     "pc_tg@54"
+    ]
+   }
+  },
+  "ibitcount.dst": {
+   "distinct_values": [
+    0,
+    4
+   ],
+   "n_distinct": 2,
+   "where": {
+    "0": [
+     "pc_alu@40",
+     "pc_dump@50",
+     "pc_rev@40",
+     "pc_store@40",
+     "pc_tg@54",
+     "pc_two@62"
+    ],
+    "4": [
+     "iu_ctz@60",
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_two@54"
+    ]
+   }
+  },
+  "ibitcount.fn_hi": {
+   "distinct_values": [
+    0,
+    1
+   ],
+   "n_distinct": 2,
+   "where": {
+    "0": [
+     "iu_ctz@60",
+     "pc_alu@40",
+     "pc_cmp@40",
+     "pc_dump@50",
+     "pc_store@40",
+     "pc_tg@54"
+    ],
+    "1": [
+     "pc_clz@40",
+     "pc_rev@40"
+    ]
+   }
+  },
+  "ibitcount.form": {
+   "distinct_values": [
+    4,
+    5,
+    21
+   ],
+   "n_distinct": 3,
+   "where": {
+    "21": [
+     "pc_two@62"
+    ],
+    "4": [
+     "pc_rev@40"
+    ],
+    "5": [
+     "iu_ctz@60",
+     "pc_alu@40",
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_dump@50",
+     "pc_store@40"
+    ]
+   }
+  },
+  "ibitcount.op_enable": {
+   "distinct_values": [
+    2,
+    3
+   ],
+   "n_distinct": 2,
+   "where": {
+    "2": [
+     "pc_dump@50",
+     "pc_store@40"
+    ],
+    "3": [
+     "iu_ctz@60",
+     "pc_alu@40",
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_rev@40",
+     "pc_tg@54"
+    ]
+   }
+  },
+  "ibitcount.src": {
+   "distinct_values": [
+    0,
+    4,
+    8,
+    12
+   ],
+   "n_distinct": 4,
+   "where": {
+    "0": [
+     "pc_alu@40",
+     "pc_clz@40",
+     "pc_rev@40",
+     "pc_store@40",
+     "pc_tg@54",
+     "pc_two@62"
+    ],
+    "12": [
+     "pc_dump@50"
+    ],
+    "4": [
+     "pc_cmp@40"
+    ],
+    "8": [
+     "iu_ctz@60",
+     "pc_two@54"
+    ]
+   }
+  },
+  "ibitcount.srcdesc": {
+   "distinct_values": [
+    78,
+    92
+   ],
+   "n_distinct": 2,
+   "where": {
+    "78": [
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_dump@50"
+    ],
+    "92": [
+     "iu_ctz@60",
+     "pc_alu@40",
+     "pc_rev@40",
+     "pc_store@40",
+     "pc_tg@54",
+     "pc_two@54"
+    ]
+   }
+  },
+  "ibitcount.tail": {
+   "distinct_values": [
+    4
+   ],
+   "n_distinct": 1,
+   "where": {
+    "4": [
+     "iu_ctz@60",
+     "pc_alu@40",
+     "pc_clz@40",
+     "pc_cmp@40",
+     "pc_dump@50",
+     "pc_rev@40"
+    ]
+   }
+  },
+  "irotate.b2": {
+   "distinct_values": [
+    84,
+    86
+   ],
+   "n_distinct": 2,
+   "where": {
+    "84": [
+     "cvt_i64@168",
+     "rot_two@52"
+    ],
+    "86": [
+     "rot_alu@40",
+     "rot_k1@40",
+     "rot_k13@40",
+     "rot_k19@40",
+     "rot_k31@40",
+     "rot_k5@40"
+    ]
+   }
+  },
+  "irotate.operands": {
+   "distinct_values": [
+    67109376,
+    872415744,
+    905970438,
+    1275068928,
+    1677722112,
+    1811939840,
+    1811940096,
+    2080375296,
+    566969500174
+   ],
+   "n_distinct": 9,
+   "where": {
+    "1275068928": [
+     "rot_k13@40"
+    ],
+    "1677722112": [
+     "rot_k7@40"
+    ],
+    "1811939840": [
+     "rot_k5@40"
+    ],
+    "1811940096": [
+     "rot_alu@40",
+     "rot_two@52"
+    ],
+    "2080375296": [
+     "rot_k1@40"
+    ],
+    "566969500174": [
+     "cvt_i64@168"
+    ],
+    "67109376": [
+     "rot_k31@40"
+    ],
+    "872415744": [
+     "rot_k19@40"
+    ],
+    "905970438": [
+     "rot_two@40"
+    ]
+   }
+  },
+  "irotate.tail": {
+   "distinct_values": [
+    594168,
+    595440,
+    856312
+   ],
+   "n_distinct": 3,
+   "where": {
+    "594168": [
+     "rot_two@40"
+    ],
+    "595440": [
+     "rot_alu@40",
+     "rot_k1@40",
+     "rot_k13@40",
+     "rot_k19@40",
+     "rot_k31@40",
+     "rot_k5@40"
+    ],
+    "856312": [
+     "cvt_i64@168"
+    ]
+   }
+  },
+  "shift_amt_move.dst": {
+   "distinct_values": [
+    0,
+    2
+   ],
+   "n_distinct": 2,
+   "where": {
+    "0": [
+     "sam_alu@104",
+     "sam_cf@128",
+     "sam_gpr@98",
+     "sam_lane@98",
+     "sam_mix@146",
+     "sam_ovr@98"
+    ],
+    "2": [
+     "sam_mix@142",
+     "sam_uni2@132"
+    ]
+   }
+  },
+  "shift_amt_move.kind": {
+   "distinct_values": [
+    1,
+    3
+   ],
+   "n_distinct": 2,
+   "where": {
+    "1": [
+     "sam_alu@104",
+     "sam_cf@128",
+     "sam_gpr@98",
+     "sam_lane@98",
+     "sam_sys@104",
+     "sam_uni@84"
+    ],
+    "3": [
+     "sam_mix@142",
+     "sam_mix@146",
+     "sam_ovr@98",
+     "sam_uni2@128",
+     "sam_uni2@132"
+    ]
+   }
+  },
+  "shift_amt_move.op_desc": {
+   "distinct_values": [
+    5,
+    7,
+    9
+   ],
+   "n_distinct": 3,
+   "where": {
+    "5": [
+     "sam_alu@104",
+     "sam_cf@128",
+     "sam_gpr@98",
+     "sam_lane@98",
+     "sam_sys@104",
+     "sam_uni@84"
+    ],
+    "7": [
+     "sam_mix@142",
+     "sam_uni2@132"
+    ],
+    "9": [
+     "sam_mix@146",
+     "sam_ovr@98",
+     "sam_uni2@128"
+    ]
+   }
+  },
+  "shift_amt_move.src_flag": {
+   "distinct_values": [
+    0
+   ],
+   "n_distinct": 1,
+   "where": {
+    "0": [
+     "sam_alu@104",
+     "sam_cf@128",
+     "sam_gpr@98",
+     "sam_lane@98",
+     "sam_mix@142",
+     "sam_mix@146"
+    ]
+   }
+  },
+  "shift_amt_move.src_reg": {
+   "distinct_values": [
+    1,
+    5
+   ],
+   "n_distinct": 2,
+   "where": {
+    "1": [
+     "sam_alu@104",
+     "sam_cf@128",
+     "sam_gpr@98",
+     "sam_lane@98",
+     "sam_mix@146",
+     "sam_ovr@98"
+    ],
+    "5": [
+     "sam_mix@142",
+     "sam_uni2@132"
+    ]
+   }
+  }
+ },
+ "cvt_next_instruction": {
+  "cvt_alu": {
+   "modelled_len": 10,
+   "off": 40,
+   "token_at_plus10": {
+    "length": 10,
+    "mnemonic": "iadd2",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "mov_zext16",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  },
+  "cvt_rnd": {
+   "modelled_len": 10,
+   "off": 50,
+   "token_at_plus10": {
+    "length": 10,
+    "mnemonic": "iadd2",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "mov_zext16",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  },
+  "cvt_s32": {
+   "modelled_len": 10,
+   "off": 40,
+   "token_at_plus10": {
+    "length": 14,
+    "mnemonic": "device_store",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "n3_mov",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  },
+  "cvt_sgn": {
+   "modelled_len": 10,
+   "off": 40,
+   "token_at_plus10": {
+    "length": 14,
+    "mnemonic": "device_store",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "n3_mov",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  },
+  "cvt_v4": {
+   "modelled_len": 10,
+   "off": 46,
+   "token_at_plus10": {
+    "length": 6,
+    "mnemonic": "falu2i",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "mov_zext16",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  },
+  "iu_h2i": {
+   "modelled_len": 10,
+   "off": 46,
+   "token_at_plus10": {
+    "length": 10,
+    "mnemonic": "funary",
+    "op": null
+   },
+   "token_at_plus8": {
+    "length": 4,
+    "mnemonic": "mov_zext16",
+    "op": null
+   },
+   "token_at_plus9": {
+    "length": 2,
+    "mnemonic": "pad_operand",
+    "op": null
+   }
+  }
+ },
+ "drops": [],
+ "irotate_amount_bytediff": {
+  "bytes_that_vary": [
+   6
+  ],
+  "per_amount_bytes": {
+   "1": "2701560002007c00f0150900",
+   "5": "2701560002006c00f0150900",
+   "7": "2701560002006400f0150900",
+   "13": "2701560002004c00f0150900",
+   "19": "2701560002003400f0150900",
+   "31": "2701560002000400f0150900"
+  }
+ },
+ "srcflag_family_census": {
+  "b_alu10_lo6": {
+   "byte1": {
+    "135": 1
+   },
+   "examples": [
+    {
+     "bytes": "2b87060b020a00000000",
+     "carrier": "pc_dump",
+     "off": 68
+    }
+   ],
+   "n": 1,
+   "src_flag": {
+    "1": 1
+   }
+  },
+  "b_alu10_lo7": {
+   "byte1": {
+    "137": 2,
+    "3": 1
+   },
+   "examples": [
+    {
+     "bytes": "0b892711000200000000",
+     "carrier": "cvt_i64",
+     "off": 46
+    },
+    {
+     "bytes": "0b89270b000200000000",
+     "carrier": "cvt_i64",
+     "off": 78
+    },
+    {
+     "bytes": "0b030787102200000000",
+     "carrier": "pc_tg",
+     "off": 12
+    }
+   ],
+   "n": 3,
+   "src_flag": {
+    "0": 1,
+    "1": 2
+   }
+  },
+  "b_alu10_loe": {
+   "byte1": {
+    "5": 1
+   },
+   "examples": [
+    {
+     "bytes": "2b052e81020000000000",
+     "carrier": "iu_ctz",
+     "off": 50
+    }
+   ],
+   "n": 1,
+   "src_flag": {
+    "0": 1
+   }
+  },
+  "reg_move_c0": {
+   "byte1": {
+    "0": 1
+   },
+   "examples": [
+    {
+     "bytes": "1b002000",
+     "carrier": "cvt_i64",
+     "off": 130
+    }
+   ],
+   "n": 1,
+   "src_flag": {
+    "0": 1
+   }
+  },
+  "shift_amt_move": {
+   "byte1": {
+    "1": 9,
+    "5": 2
+   },
+   "examples": [
+    {
+     "bytes": "0b011c05",
+     "carrier": "sam_alu",
+     "off": 104
+    },
+    {
+     "bytes": "0b011c05",
+     "carrier": "sam_cf",
+     "off": 128
+    },
+    {
+     "bytes": "0b011c05",
+     "carrier": "sam_gpr",
+     "off": 98
+    },
+    {
+     "bytes": "0b011c05",
+     "carrier": "sam_lane",
+     "off": 98
+    },
+    {
+     "bytes": "2b053c07",
+     "carrier": "sam_mix",
+     "off": 142
+    },
+    {
+     "bytes": "0b013c09",
+     "carrier": "sam_mix",
+     "off": 146
+    },
+    {
+     "bytes": "0b013c09",
+     "carrier": "sam_ovr",
+     "off": 98
+    },
+    {
+     "bytes": "0b011c05",
+     "carrier": "sam_sys",
+     "off": 104
+    }
+   ],
+   "n": 11,
+   "src_flag": {
+    "0": 11
+   }
+  }
+ }
+}

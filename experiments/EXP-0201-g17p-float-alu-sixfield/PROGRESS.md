@@ -86,3 +86,27 @@ capture taken before the gate existed.
 DECLARED HAZARD for the amendment runs: unchanged from above, plus the adversarial arms feed
 NaN/inf into a three-source float ALU whose op field is being swept, which has not been done on
 this device before.
+
+## 2026-08-30 — COMPLETE
+Eight runs, 40,116 dispatched cases, 0 hangs, 0 watchdog timeouts, 0 malformed responses,
+0 invalid runs, 0 InnocentVictim, 0 Gate-A ledger mismatches in 22,536 amendment cases. The
+device was never wedged and macvdmtool was never used.
+
+**No field promoted.** The single blocking gate for five of six is E: no quiet confirmation
+window was obtainable -- five sibling experiments (EXP-0200/0202/0204/0205/0206) dispatched GPU
+work throughout, and gpuwatch measured it rather than assuming it. `fspecial_est.srcA` is
+additionally carrier-undecidable under gate B: its positive control failed on all five arms.
+
+New geometry facts: the actual-byte ledger over 8/128/256-value domains; `falu3_srcmod12.opsel`
+overlaps its own match bit and has an encodable range of 4, not 8 (DEF-0201-1).
+New liveness facts: all six fields live on G17P with 0 cross-run disagreements in the second
+amendment pair; every disagreement anywhere is a fault/wrote-nothing flip inside the
+pre-registered (v&7)==7 class.
+New semantic facts: falu3.op low3 4/6/7 confirmed bit-exactly, low3 5 SHARPENED to a multiply by
+zero (DEF-0201-2), low3 0/1/2 refuted on a 3-source carrier; falu3_ext.op accept rule exactly
+(v & 0xC7) == 0x06; copysign.operands accept rule exactly (v & 0x7E) == 0x00 with the operand
+ROLE proven absent from the byte (DEF-0201-3); denormal flush observed (OBS-0201-1).
+Claims downgraded: none of this experiment's own; the published falu3.op low3 0/1/2 entries are
+reported as refuted ON THIS CARRIER with both records retained.
+Bounded unknowns: a quiet window; the fspecial_est seed register read directly; denormal operand
+vs result flush; whether classes 0/2/3 re-decode the operand descriptors.

@@ -70,3 +70,12 @@ disjoint readback plan for `ibitcount.dst`), `analysis/census_b.py`, `analysis/g
 running alongside ours. `raw/g17p_20260830_run02/gpuwatch.jsonl` records it sample by sample. This
 is exactly why the quiet window is measured rather than claimed, and it is another reason run02 is
 scored as discovery only.
+
+## 2026-08-30 — M6b: a movement-scoring defect caught in our OWN discovery run
+The outcome-partition key included the `outcome` label, and `ok` / `unexpected_ok` are the SAME
+hardware observation (the carrier's vector was reproduced) differing only in what the oracle
+PREDICTED. Without collapsing them, `shift_amt_move.src_flag` scores as MOVED at the compiled
+source index on four carriers **purely because the prediction differs at the compiled value** —
+the observed word vectors are byte-identical. Fixed in `analysis/verdicts.py` (`OUTCOME_NORM`).
+This is the corrections document's "a difference from baseline is not a semantic oracle" in its
+sharpest form, and it was found by re-deriving from raw rather than reading a summary.
