@@ -143,3 +143,17 @@
   confirming captures on a measured-quiet machine, which is as close to Gate E as
   this wave has come. It is queued rather than run concurrently because run06's arm
   produces genuine device hangs, and a hang resets every context.
+- 2026-08-30 19:57Z — run06 STOPPED at 286 cases and RETAINED (its cf_nl2 arms were
+  already paired via run04; leaving it running would have kept resetting the device
+  under the quiet mirror). `run07` launched immediately.
+- 2026-08-30 20:03Z — **run07 COMPLETE: 1,444 cases in 298.3 s, on a measured-QUIET
+  machine (0–1 foreign GPU processes, mean 0.9).** Together with run05 (0–2, mean
+  1.1) this gives **SIX ARMS A GENUINELY QUIET CONFIRMING PAIR**, including
+  `pop_reconverge.reserved@cf_ifnl+184` (the live finding) and three of the four
+  `ret.scoreboard` ordering arms.
+- 2026-08-30 20:05Z — FINAL: 5 gated captures, 25 target arms, **every arm agrees
+  across its pair at 100.00%**, **12,118 of 12,118 cases pass the Gate A actual-byte
+  ledger**, **0 cases in EXP-0204's foreign-cascade window**. Verdicts, six axes,
+  exact counts and `db_defects` in `analysis/field_verdicts.json`; per-arm tables in
+  `analysis/report_tables.txt`; `wave_audit.py` output over the whole directory, the
+  gated-only view and per arm in `analysis/wave_audit_{all,gated,per_arm}.txt`.

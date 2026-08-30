@@ -127,13 +127,21 @@ def arm_stats(recs, runs):
         # compare a full run against a stub. The pair used for agreement is the one
         # with the LARGEST set of values valid in BOTH -- a mechanical choice, stated
         # here and recorded per arm in `agreement_pair`.
-        best = (-1, None)
+        # Tie-break, stated because it changes which pair is REPORTED: among pairs
+        # with the SAME (maximal) overlap, prefer the one whose noisier member saw
+        # the fewest foreign GPU processes. Agreement is computed identically for
+        # every candidate pair here (all 1.0), so this only decides which pair the
+        # reproducibility axis describes -- and describing the quieter one is
+        # strictly more informative.
+        best = (-1, 10 ** 9, None)
         for i in range(len(rk)):
             for j in range(i + 1, len(rk)):
                 n = len(set(per_run[rk[i]]) & set(per_run[rk[j]]))
-                if n > best[0]:
-                    best = (n, (rk[i], rk[j]))
-        pair = best[1]
+                noise = max(RUN_QUIET.get(rk[i], 10 ** 9),
+                            RUN_QUIET.get(rk[j], 10 ** 9))
+                if n > best[0] or (n == best[0] and noise < best[1]):
+                    best = (n, noise, (rk[i], rk[j]))
+        pair = best[2]
         a, b = per_run[pair[0]], per_run[pair[1]]
         comparable = set(a) & set(b)
         disagree = {v for v in comparable if a[v] != b[v]}

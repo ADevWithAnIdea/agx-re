@@ -13,22 +13,27 @@ fails**.
 **Gated captures.** Four, and the reason there are four rather than two is recorded rather than
 tidied away:
 
-| run id | order | scope | cases | note |
-|---|---|---|---:|---|
-| `g17p_20260830_run03` | forward | all 52 arms | 5,231 | complete |
-| `g17p_20260830_run04` | reversed | all 52 arms | 3,824 | **stopped inside the genuinely hang-heavy `if_push.scope@cf_nl2+106` arm; RETAINED, never topped up, id never reused** |
-| `g17p_20260830_run05` | shuffled (206) | the five carriers holding the six arms run04 never reached | 1,428 | a **new** id, not a top-up |
-| `g17p_20260830_run06` | shuffled (307) | `cf_nl2`, completing the second pass on the arm run04 was stopped inside | 1,268 | a **new** id |
+| run id | order | scope | records | foreign GPU procs (measured) | note |
+|---|---|---|---:|---|---|
+| `g17p_20260830_run03` | forward | all 52 arms | 5,377 | 4–14 (mean 8.9) | complete, 1,107.9 s |
+| `g17p_20260830_run04` | reversed | all 52 arms | 3,824 | 3–21 (mean 9.1) | **stopped inside the genuinely hang-heavy `if_push.scope@cf_nl2+106` arm. RETAINED, never topped up, id never reused.** |
+| `g17p_20260830_run05` | shuffled (206) | the five carriers holding the six arms run04 never reached | 1,444 | **0–2 (mean 1.1)** | a **new** id, not a top-up. 306.3 s |
+| `g17p_20260830_run06` | shuffled (307) | `cf_nl2` | 286 | 1–2 (mean 1.7) | stopped in the same hang region so it would not reset the device under run07; **retained** |
+| `g17p_20260830_run07` | shuffled (407) | same five carriers as run05 | 1,444 | **0–1 (mean 0.9)** | the **quiet mirror** of run05. 298.3 s |
 
-Every arm therefore has **two** captures in **different case orders**. Where more than two runs
-hold an arm, the gate uses the pair with the largest set of values valid in both, and records which
-pair it used in `agreement_pair`. Regenerate everything with:
+Every arm has **at least two** captures in **different case orders**, and **every arm agrees
+across its pair at 100.00 %**. Where more than two runs hold an arm the gate takes the pair with
+the largest common set of valid values, breaking ties toward the **quieter** pair, and records
+which pair it used in `agreement_pair`. **Six arms — including both live findings and three of the
+four `ret.scoreboard` ordering arms — are confirmed by two captures that were both measured quiet
+(`run05` ↔ `run07`).** Regenerate everything with:
 
 ```bash
 python3 analysis/verdicts206.py raw/g17p_20260830_run03 raw/g17p_20260830_run04 \
-                                raw/g17p_20260830_run05 raw/g17p_20260830_run06
+        raw/g17p_20260830_run05 raw/g17p_20260830_run06 raw/g17p_20260830_run07
 python3 analysis/emit_verdicts.py
-python3 analysis/report_tables.py
+python3 analysis/report_tables.py > analysis/report_tables.txt
+python3 analysis/gated_view.py && python3 ../../tools/agx-isa/wave_audit.py work/gated_view
 ```
 
 ---
@@ -82,8 +87,9 @@ corpus carrying `linkmode == 0x12`, the exact value the leaf-only carriers of th
 
 Every case re-reads its instruction bytes **out of the final dispatched blob** at the region's
 absolute file offset and re-decodes the field with a bit-extract independent of the patcher that
-wrote it. Across the gated pair: **ledger_ok on every case, 0 failures**, and distinct actual
-encodings equal distinct requested values on every arm (no `match`-bit collision, no aliasing).
+wrote it. Across every gated capture: **12,118 of 12,118 cases `ledger_ok`, 0 failures**, and distinct
+actual encodings equal distinct requested values on every arm (256 of 256 on every 8-bit arm; no
+`match`-bit collision, no aliasing).
 A symmetric assemble/disassemble round trip is not used anywhere in this experiment.
 
 ### 1.3 Gate E — how busy the machine was, measured rather than claimed
@@ -132,8 +138,11 @@ payloads everywhere — a GPU fault is never scored as movement.
 | `cf_ifnl` +126 | `0x1a` loop-iter | `0x54` | 256 | 0 | 0 | 1 | 256 |
 | `cf_nl2` +140 | `0x25` | `0x54` | 256 | 0 | 0 | 1 | 256 |
 
-**Observed.** At `cf_nl2+106` the split is exact and reproduced in both runs (122 values common to
-both runs at the time of writing, **122/122 identical**): every value with bit 1 set is correct,
+**Observed.** At `cf_nl2+106` the split is exact and reproduced across captures — `run03` and
+`run04` share 96 values with valid payloads and agree on **96 of 96**, and a third capture
+(`run06`, quiet) reproduces it again. The two `0x54`-compiled loop-iteration occurrences
+(`cf_nl3+182`, `cf_ifnl+126`) are confirmed by the **quiet pair** `run05` ↔ `run07`, 256 of 256
+each: every value with bit 1 set is correct,
 no value with bit 1 clear is. Two of the bit-1-clear values (12, 57) return the *sentinel-only*
 payload — the program ran, wrote the pre-region sentinel, and left all 32 value words at their
 poison — instead of faulting.
@@ -183,6 +192,10 @@ bit 5 matches the compiled bank) and `M2_low_nibble` (correct iff `v & 0xF == 4`
   0x4000, 0x8000}` — i.e. **every sampled value whose low byte is zero**, spanning **9 distinct
   high-byte values** `{0,1,2,4,8,16,32,64,128}`;
 * the **43** values with a non-zero low byte all produce **one identical wrong payload**.
+
+**Confirmed on a quiet machine.** This arm's pair is `run05` ↔ `run07`, both of which ran with
+**0–2 foreign GPU processes** (measured), and they agree on **52 of 52 values**. It is the one live
+finding in this experiment whose confirmation is not compromised by the fan-out.
 
 **Interpretation.** `db.json` models bits 32..47 as a single 16-bit `reserved` field of type `mod`.
 That model is wrong: **byte+4 (bits 32..39) is a live operand that must be zero** on this envelope,
@@ -238,6 +251,9 @@ hard outcomes**:
 | `cl_ldret` | a device **load inside the callee**, its value returned | 256/256 correct |
 | `cl_stacross` | a **store→load hazard spanning the return** (caller stores, calls, reads back) | 256/256 correct |
 | `cl_chain` | a **non-leaf** return (`linkmode 0x12`) with a saved link | 256/256 correct |
+
+**Three of the four arms** (`cl_pure`, `cl_ldret`, `cl_stacross`) are confirmed by the quiet pair
+`run05` ↔ `run07`, agreeing on 256 of 256 values each.
 
 EXP-0179 declined this field with the exact words *"neither carrier differs in that dimension —
 both return from a leaf callee with no outstanding asynchronous operation to wait on. Zero movement
@@ -348,24 +364,33 @@ counts rather than asserted.
 per-arm axis values, exact counts, hard-outcome counts kept separate, the per-model
 hit/checked tallies, and the `db_defects` block. Summary:
 
-| field | geometry | liveness | semantics | recipe | target | reproducibility | proposed legacy label |
-|---|---|---|---|---|---|---|---|
-| `if_push.scope` | geometry-mapped | **live** (1 of 4 occ) / accepted-inert (3 of 4) | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `pop_reconverge.scope` | geometry-mapped | accepted-inert | bounded-map (`M3_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `pop_reconverge.reserved` | geometry-mapped | **live** (1 of 3) / carrier-undecidable (2 of 3) | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `call.tail` | geometry-mapped | accepted-inert | bounded-map (`M1_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `ret.scoreboard` | geometry-mapped | accepted-inert | bounded-map (`M2_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `ret_luse.linkmode` | geometry-mapped | **live**, 2 distinct valid payloads | hypothesis — both models refuted | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
-| `stop.reserved` | geometry-mapped | accepted-inert, control firing | bounded-map (`M1_inert`) | not-generated | G17P-direct | INCOMPLETE (Gate E) | `untested` |
+| field | V (max/arm) | L | hard, counted separately | agree | geometry | liveness | semantics | recipe | target | reproducibility | proposed label |
+|---|---:|---:|---|---:|---|---|---|---|---|---|---|
+| `if_push.scope` | **2** | 898 | 211 fault, 13 hang | 1.0000 | geometry-mapped | **live** (1 of 4 occ) · accepted-inert (3 of 4) | hypothesis — all 4 models refuted | not-generated | G17P-direct | INCOMPLETE; 2 of 4 arms have a **quiet pair** | `untested` |
+| `pop_reconverge.scope` | 1 | 768 | none | 1.0000 | geometry-mapped | accepted-inert | bounded-map (`M3_inert` 1536/1536) | not-generated | G17P-direct | INCOMPLETE | `hardware-run` *(inert, exact envelope)* |
+| `pop_reconverge.reserved` | **2** | 156 | none | 1.0000 | geometry-mapped | **live** (1 of 3) · carrier-undecidable (2 of 3) | hypothesis — all 3 models refuted | not-generated | G17P-direct | INCOMPLETE; the **live arm has a quiet pair** | `untested` |
+| `call.tail` | 1 | 768 | none | 1.0000 | geometry-mapped | accepted-inert | bounded-map (`M1_inert` 1536/1536) | not-generated | G17P-direct | INCOMPLETE | `hardware-run` *(inert, exact envelope)* |
+| `ret.scoreboard` | 1 | 1024 | none | 1.0000 | geometry-mapped | accepted-inert | bounded-map (`M2_inert` 2816/2816) | not-generated | G17P-direct | INCOMPLETE; **3 of 4 arms have a quiet pair** | `hardware-run` *(inert, exact envelope)* |
+| `ret_luse.linkmode` | **3** | 194 | 1,150 fault | 1.0000 | geometry-mapped | **live**, 2 distinct valid payloads at the non-leaf return | hypothesis — all 4 models refuted | generated-point (1 arm) | G17P-direct | INCOMPLETE | `corpus-correlation` |
+| `stop.reserved` | 1 | 219 | none | 1.0000 | geometry-mapped | accepted-inert, control **fires** | bounded-map (`M1_inert` 438/438) | not-generated | G17P-direct | INCOMPLETE | `hardware-run` *(inert, exact envelope)* |
+| `stop.reserved@synth_mid` | 1 | 146 | none | 1.0000 | geometry-mapped | accepted-inert, control **fires** | bounded-map (`M1_inert` 292/292) | not-generated | G17P-direct | INCOMPLETE | `hardware-run` *(inert, exact envelope)* |
 
-**Why every legacy label is `untested` rather than rounded up.** `PRE_REGISTRATION_A2.md` §A2.6
-caps the legacy label by the semantics axis, per Gate C: *`sem_checked == 0` or no surviving
-pre-registered model can never produce `hardware-run`*. Three fields have live behaviour whose
-explanatory model is post-hoc, and four read inert with a surviving *inertness* model — which is
-liveness plus a null, not a semantic map. The orchestrator may reasonably promote the four inert
-rows to `hardware-run` **within their exact stated envelopes**; this experiment does not do it on
-its own authority, because **Gate E is unmet wave-wide** and the reproducibility axis is
-`INCOMPLETE` on every row.
+**How to read the proposed labels.** `PRE_REGISTRATION_A2.md` §A2.6 caps the legacy label by the
+semantics axis, per Gate C: *`sem_checked == 0` or no surviving pre-registered model can never
+produce `hardware-run`*.
+
+* The **three live fields** (`if_push.scope`, `pop_reconverge.reserved`, `ret_luse.linkmode`) moved
+  in ways **no pre-registered model predicted**. Their explanatory rules in §2.1, §2.3 and §2.6 are
+  **post-hoc** and are offered as hypotheses for a successor to pre-register. They are proposed
+  `untested` / `corpus-correlation`, **not** `hardware-run`, however clean the liveness looks.
+  `ret_luse.linkmode` is the one field where an *arm* passed the full promotion gate
+  (`cl_chain+104`: V = 3, moved = 34, agreement 1.0, control fires, ledger clean, `M1_link` unbeaten
+  on that arm) — but `M1_link` is refuted on a sibling arm, so the **field** does not inherit it.
+* The **five inert rows** are proposed `hardware-run` **only within the exact `range` string** in
+  `analysis/field_verdicts.json`, each with the safe negative wording *inert in that envelope;
+  global role unknown*. The orchestrator may reasonably decline them all, since **Gate E is unmet
+  wave-wide** and `reproducibility` is `INCOMPLETE` on every row. This experiment states the
+  measurement and the exact envelope; it does not claim the promotion.
 
 ---
 

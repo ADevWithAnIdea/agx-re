@@ -3120,7 +3120,18 @@
     "distinct_bytes": 2560,
     "encodable_range": 256,
     "start": 16,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "**LIVE, CONTEXT-DEPENDENT** \u2014 bit 1 is load-bearing ONLY at the `0x56`-compiled push (128/128 vs 0/128) and INERT at two other `scope_kind == 0x1a` pushes. **This CORRECTS EXP-0184's diagnosis, and the intel I passed on: reaching the loop-iteration region kind is NECESSARY, NOT SUFFICIENT.**",
+     "semantics": "hypothesis \u2014 all 4 pre-registered models REFUTED",
+     "counts": "distinct VALID payloads V=2 (max per arm) / L=898 legal values; hard outcomes counted SEPARATELY and never as movement: 211 fault, 13 hang",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "untested",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    },
    "scope_kind": {
     "label": "hardware-run",
@@ -3150,7 +3161,18 @@
     "evidence": [
      "EXP-0140"
     ],
-    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical | WITHHELD 2026-08-30 for CONSISTENCY, on EXP-0191's detection gate. It fails the STRICT (arm-level) join exactly as the five fields withheld under DEF-0190-1 did: **512 valid observations per arm, ONE distinct payload, and no control of any kind at arm level.** It passes only at the looser CARRIER join, so EXP-0191's frozen trigger did not fire and that experiment correctly declined to bend its own rule. The decision to apply the strict join here is the orchestrator's, and it is made for consistency: the five already withheld were withheld on precisely this criterion, and leaving this one because a looser join rescues it would make the standard depend on which join happened to be written down. **EXP-0191 also establishes that DEF-0190-1's enumeration (8 arms with no observation, 128 with exactly one) is an UNDERCOUNT** -- `blind_arm_scan.py` requires ZERO empty observations, so arms mixing empty and single-valued records fall through both buckets. This is one of them."
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical | WITHHELD 2026-08-30 for CONSISTENCY, on EXP-0191's detection gate. It fails the STRICT (arm-level) join exactly as the five fields withheld under DEF-0190-1 did: **512 valid observations per arm, ONE distinct payload, and no control of any kind at arm level.** It passes only at the looser CARRIER join, so EXP-0191's frozen trigger did not fire and that experiment correctly declined to bend its own rule. The decision to apply the strict join here is the orchestrator's, and it is made for consistency: the five already withheld were withheld on precisely this criterion, and leaving this one because a looser join rescues it would make the standard depend on which join happened to be written down. **EXP-0191 also establishes that DEF-0190-1's enumeration (8 arms with no observation, 128 with exactly one) is an UNDERCOUNT** -- `blind_arm_scan.py` requires ZERO empty observations, so arms mixing empty and single-valued records fall through both buckets. This is one of them.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "accepted-inert in the tested envelope; global role unknown",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads V=1 (max per arm) / L=768 legal values; hard outcomes counted SEPARATELY and never as movement: none",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "hardware-run (inert)",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    },
    "scope_kind": {
     "label": "hardware-run",
@@ -3168,7 +3190,18 @@
     "evidence": [
      "EXP-0156"
     ],
-    "note": "WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": "WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "**LIVE \u2014 NOT RESERVED.** Its LOW BYTE is load-bearing and must be zero: 9 zero-low-byte values correct, 43 non-zero all giving ONE identical wrong payload; high byte inert over 9 values. **CONFIRMED BY A GENUINELY QUIET PAIR (run05/run07, 0-2 foreign processes).**",
+     "semantics": "hypothesis \u2014 all 3 pre-registered models REFUTED",
+     "counts": "distinct VALID payloads V=2 (max per arm) / L=156 legal values; hard outcomes counted SEPARATELY and never as movement: none",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "untested",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    }
   },
   "mask_op": {
@@ -3753,7 +3786,18 @@
      "EXP-0010",
      "EXP-0168-g17p-dst-resweep"
     ],
-    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-0003, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements. **CORRECTED 2026-08-30 by EXP-0197 \u2014 THE CLAUSE ABOVE IS FALSE, and it is a SCHEMA-ERA ARTEFACT, not a fact about evidence.** EXP-0189's `collect_raw.py` admits a record only if the file is `raw/**/*.jsonl` AND `rec[\"instr\"]` is a `str` AND `rec[\"field\"]` is a `str` not starting with `_`. The orchestrator independently reproduced that filter: **29 of the cited experiments yield ZERO admissible records for ANY field** \u2014 the whole pre-EXP-0138 era, whose raw is `.txt`/`.json` or `.jsonl` without `instr`/`field` keys. So for most rows the clause restates the collector's INPUT FILTER. `field: null` and `__`-prefixes are the tail of the problem; **file format is the body of it.** Verdict across all 30 rows carrying this clause: **27 CLAUSE-FALSE, 3 CLAUSE-TRUE, 0 unresolved.** Crucially the repair pointed away from NOTHING \u2014 at commit `1f763864`, 0 original citations were removed, 28 added, 0 labels changed. The damage is PROSE ONLY. For THIS row the original citation `EXP-0003/EXP-0010` (record form: raw-textlog; isolation: NOT isolated -- byte0 co-varied) does contain: raw/fault2_stop_ff.log splices the trailing word `0e000000 -> ffffffff` at _agc.main@0x34 and records GPUTIME_NS 8041 / STATUS OK / RESULT matching the baseline, so bits 8..31 (db `reserved`) took 0xffffff with a committed observation; the baseline value 0x000000 is dispatched throughout (raw/stage1_identity.log, raw/fault_recovery_check.log). raw/fault1_stop_zeroed.log is the companion `-> 00000000` case. EXP-0003/RESULTS.md:92-93 tabulates both."
+    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-0003, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements. **CORRECTED 2026-08-30 by EXP-0197 \u2014 THE CLAUSE ABOVE IS FALSE, and it is a SCHEMA-ERA ARTEFACT, not a fact about evidence.** EXP-0189's `collect_raw.py` admits a record only if the file is `raw/**/*.jsonl` AND `rec[\"instr\"]` is a `str` AND `rec[\"field\"]` is a `str` not starting with `_`. The orchestrator independently reproduced that filter: **29 of the cited experiments yield ZERO admissible records for ANY field** \u2014 the whole pre-EXP-0138 era, whose raw is `.txt`/`.json` or `.jsonl` without `instr`/`field` keys. So for most rows the clause restates the collector's INPUT FILTER. `field: null` and `__`-prefixes are the tail of the problem; **file format is the body of it.** Verdict across all 30 rows carrying this clause: **27 CLAUSE-FALSE, 3 CLAUSE-TRUE, 0 unresolved.** Crucially the repair pointed away from NOTHING \u2014 at commit `1f763864`, 0 original citations were removed, 28 added, 0 labels changed. The damage is PROSE ONLY. For THIS row the original citation `EXP-0003/EXP-0010` (record form: raw-textlog; isolation: NOT isolated -- byte0 co-varied) does contain: raw/fault2_stop_ff.log splices the trailing word `0e000000 -> ffffffff` at _agc.main@0x34 and records GPUTIME_NS 8041 / STATUS OK / RESULT matching the baseline, so bits 8..31 (db `reserved`) took 0xffffff with a committed observation; the baseline value 0x000000 is dispatched throughout (raw/stage1_identity.log, raw/fault_recovery_check.log). raw/fault1_stop_zeroed.log is the companion `-> 00000000` case. EXP-0003/RESULTS.md:92-93 tabulates both.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "accepted-inert on BOTH a final-`stop` arm (219 legal) and a synthetic mid-program arm (146 legal), with the detection-power control FIRING in each",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads V=1 (max per arm) / L=219 legal values; hard outcomes counted SEPARATELY and never as movement: none",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "hardware-run (inert)",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    }
   },
   "tex_sample": {
@@ -6707,7 +6751,18 @@
     "note": "WITHHELD 2026-08-30 by the orchestrator on EXP-0189's eighth cannot-fail finding. This row was promoted through `EXP-0179/analysis/analyze.py:140-142`, whose promotion gate has **no `moved >= 1` conjunct** -- `len(moved)` sits only in the right arm of an `or` whose left arm is `disagreements == 0`, so a perfectly reproducible, perfectly INERT field passes. EXP-0189 proved it constructively rather than by argument: a synthetic DEAD-CODE carrier fed to the unmodified pipeline yields `{\"label\":\"hardware-run\",\"movement\":0,\"range\":\"0..255 dense (all 256 values), 2 carriers\"}` -- **byte-for-byte the string published for this field**. Its sibling `call.b6` rode the same branch and was caught only because an independent second method (arm S, mutating the real compiler-emitted call) refuted it; `call.tail` never got a second method. The measurement may well be right -- inert is a plausible reading -- but it is indistinguishable from dead code under the gate that produced it, and that is not evidence. Needs a second method or a re-run under a gate with the missing conjunct.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
-    "encodable_range": 256
+    "encodable_range": 256,
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "accepted-inert in the tested envelope; global role unknown \u2014 consistent with the 2026-08-30 withdrawal",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads V=1 (max per arm) / L=768 legal values; hard outcomes counted SEPARATELY and never as movement: none",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "hardware-run (inert)",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    }
   },
   "ret": {
@@ -6741,7 +6796,18 @@
     "note": "DECLINED, as pre-registered (PRE_REGISTRATION H6 / section 9). The mechanical gate reports `promotable` because agreement is 1.0 and there are no disagreements -- but FIELD-SWEEP-PROTOCOL's own clause says a NEVER-MOVING field is promotable only if the carriers differ IN THE DIMENSION THE FIELD CONTROLS. `ret.scoreboard` is an execution/scoreboard WAIT mask; the dimension it controls is memory/execution ORDERING, and neither carrier differs in that dimension -- both return from a leaf callee with no outstanding asynchronous operation to wait on. Zero movement here therefore means 'this carrier cannot ask the question', not 'the field is inert'. Three prior experiments declined this family and EXP-0172 declined it in advance for the adjacent reason. Arm O is the construction that could settle it and had not yet run when this was written.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
-    "encodable_range": 256
+    "encodable_range": 256,
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "accepted-inert ACROSS THE ORDERING DIMENSION \u2014 but it still LACKS a multi-invocation ordering litmus, so the envelope is narrower than the dimension the field controls",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads V=1 (max per arm) / L=1024 legal values; hard outcomes counted SEPARATELY and never as movement: none",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "hardware-run (inert)",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
+    }
    }
   },
   "call_indirect": {
@@ -11367,19 +11433,15 @@
     ],
     "note": "WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 32 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
     "axes": {
-     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
-     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "geometry": "geometry-mapped \u2014 Gate A: 12,118/12,118 cases pass the actual-byte ledger",
+     "liveness": "**LIVE \u2014 2 distinct valid payloads. CASE C IS CLEARED.** This is the row I WITHHELD on 2026-08-30 via EXP-0192 at V=1 over 32 legal values. A wider envelope (194 legal values) and a non-leaf carrier show it genuinely discriminates.",
+     "semantics": "hypothesis",
+     "counts": "distinct VALID payloads V=3 (max per arm) / L=194 legal values; hard outcomes counted SEPARATELY and never as movement: 1,150 fault",
      "recipe": "not-generated",
-     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
-     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
-     "liveness": "live but INDISTINGUISHABLE: 1 distinct valid payload over 32 legal values",
-     "hazard": "see note",
-     "counts": {
-      "legal": 32,
-      "distinct_valid_payloads": 1
-     },
-     "target": "G17P-direct"
+     "target": "G17P-direct",
+     "reproducibility": "every arm agrees across its pair at 100.00%, and 0 cases fall inside EXP-0204's cascade window (computed from raw, not asserted). **Gate E PARTIALLY MET \u2014 the first in this wave:** run05/run07 were MEASURED QUIET (0-2 foreign processes), giving SIX arms a genuinely quiet pair, including the live `pop_reconverge.reserved` arm and 3 of 4 ordering arms. run03/04 ran under 4-21 foreign processes and stay INCOMPLETE.",
+     "proposed_label_pending_gate_E": "corpus-correlation",
+     "shared_path_caveat": "AGENT-DECLARED: all 15 carriers read back the SAME 32-word plan, so an effect invisible to it is invisible everywhere. And inertness is bounded by detection power \u2014 demonstrated on itself: `pop_reconverge.reserved` reads INERT on 2 arms and LIVE on a third differing only in lane-dependent divergence. **Any of the 5 inert rows could be the same mistake.**"
     }
    },
    "tail": {

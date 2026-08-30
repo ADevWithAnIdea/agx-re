@@ -2,7 +2,7 @@
  "_concurrency": {
   "max_other_gpu_agent_processes": 21,
   "note": "GATE E: a confirmation run may not rely on a busy machine. This is a MEASUREMENT of how busy it was, taken from raw/<run>/procs.jsonl, not a claim in prose. Non-zero here caps every reproducibility axis at `auditable`.",
-  "samples": 108
+  "samples": 127
  },
  "_experiment": "EXP-0206",
  "_gate": "PRE_REGISTRATION.md section 7 + PRE_REGISTRATION_A2.md Gates A/B/C/E; recomputed from raw by analysis/verdicts206.py, which refuses to run if its five-case self-test fails",
@@ -10,7 +10,9 @@
  "_runs": [
   "raw/g17p_20260830_run03",
   "raw/g17p_20260830_run04",
-  "raw/g17p_20260830_run05"
+  "raw/g17p_20260830_run05",
+  "raw/g17p_20260830_run06",
+  "raw/g17p_20260830_run07"
  ],
  "_target": "G17P (Apple A18 Pro, applegpu_g17p, AGXAcceleratorG17P, 5 cores, macOS 26.6 build 25G5043d, Metal family Apple9)",
  "call.tail": {
@@ -32,7 +34,7 @@
     "accepted-inert"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed."
    ],
    "semantics": [
     "semantically-mapped(single surviving model: M1_inert)"
@@ -182,7 +184,9 @@
     "live"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "INCOMPLETE - Gate E not met: one confirming capture was quiet (<= 2 foreign processes) and the other was not (up to 21). The two agreed.",
+    "auditable; BOTH confirming captures ran with <= 2 foreign GPU processes (measured from procs.jsonl) and agreed - the closest this wave has come to Gate E, still short of a scheduled quiet window"
    ],
    "semantics": [
     "bounded-map(3 models still survive: M1_bank_parity,M2_bit1_set,M3_inert)",
@@ -206,8 +210,8 @@
    },
    "agreement_pair_per_arm": {
     "if_push.scope@cf_ifnl._agc.main+126": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ],
     "if_push.scope@cf_nl2._agc.main+106": [
      "g17p_20260830_run03",
@@ -215,11 +219,11 @@
     ],
     "if_push.scope@cf_nl2._agc.main+140": [
      "g17p_20260830_run03",
-     "g17p_20260830_run04"
+     "g17p_20260830_run06"
     ],
     "if_push.scope@cf_nl3._agc.main+182": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ]
    },
    "contaminated_cases": 230,
@@ -242,13 +246,13 @@
     "if_push.scope@cf_ifnl._agc.main+126": {},
     "if_push.scope@cf_nl2._agc.main+106": {
      "fault": 211,
-     "hang": 9
+     "hang": 13
     },
     "if_push.scope@cf_nl2._agc.main+140": {},
     "if_push.scope@cf_nl3._agc.main+182": {}
    },
    "ledger_bad": 0,
-   "ledger_ok": 1982,
+   "ledger_ok": 2756,
    "legal_values_total": 898,
    "moved_per_arm": {
     "if_push.scope@cf_ifnl._agc.main+126": 0,
@@ -258,9 +262,9 @@
    },
    "n_arms": 4,
    "semantic_buckets": {
-    "correct": 1760,
+    "correct": 2530,
     "dead": 2,
-    "reject": 220
+    "reject": 224
    }
   },
   "evidence": [
@@ -268,31 +272,31 @@
   ],
   "hard_outcomes_counted_separately": {
    "fault": 211,
-   "hang": 9
+   "hang": 13
   },
   "label": "untested",
   "note": "",
   "range": "0..255 dense (all 256 values) at FOUR occurrences: three with scope_kind 0x1a (LOOP-ITERATION, the region kind EXP-0184 could not reach) and one with 0x25, across three loop shapes. LIVE at the single occurrence whose compiled value is 0x56; inert over all 256 at the three whose compiled value is 0x54.",
   "semantic_models": {
    "M1_bank_parity": {
-    "checked": 1982,
-    "hit": 1468,
-    "miss": 514
+    "checked": 2756,
+    "hit": 1986,
+    "miss": 770
    },
    "M2_bit1_set": {
-    "checked": 1982,
-    "hit": 1468,
-    "miss": 514
+    "checked": 2756,
+    "hit": 1986,
+    "miss": 770
    },
    "M3_inert": {
-    "checked": 1982,
-    "hit": 1760,
-    "miss": 222
+    "checked": 2756,
+    "hit": 2530,
+    "miss": 226
    },
    "M4_exact": {
-    "checked": 1982,
-    "hit": 228,
-    "miss": 1754
+    "checked": 2756,
+    "hit": 235,
+    "miss": 2521
    }
   },
   "start": 16,
@@ -322,7 +326,8 @@
     "live"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "auditable; BOTH confirming captures ran with <= 2 foreign GPU processes (measured from procs.jsonl) and agreed - the closest this wave has come to Gate E, still short of a scheduled quiet window"
    ],
    "semantics": [
     "hypothesis(all pre-registered models refuted)",
@@ -343,8 +348,8 @@
    },
    "agreement_pair_per_arm": {
     "pop_reconverge.reserved@cf_ifnl._agc.main+184": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ],
     "pop_reconverge.reserved@cf_nl2._agc.main+216": [
      "g17p_20260830_run03",
@@ -375,7 +380,7 @@
     "pop_reconverge.reserved@cl_atomic._agc.main+66": {}
    },
    "ledger_bad": 0,
-   "ledger_ok": 312,
+   "ledger_ok": 364,
    "legal_values_total": 156,
    "moved_per_arm": {
     "pop_reconverge.reserved@cf_ifnl._agc.main+184": 43,
@@ -384,8 +389,8 @@
    },
    "n_arms": 3,
    "semantic_buckets": {
-    "coherent": 86,
-    "correct": 226
+    "coherent": 129,
+    "correct": 235
    }
   },
   "evidence": [
@@ -397,19 +402,19 @@
   "range": "52 of 65,536 values (FIELD-SWEEP-PROTOCOL section 3 sampling for w > 8: boundaries, every single-bit value, every single-bit hole, 23 asymmetric interior samples) at three occurrences on three carriers. LIVE at the lane-divergent carrier: the LOW BYTE (bits 32..39) must be zero; the high byte is inert over the 9 high-byte values tested.",
   "semantic_models": {
    "M1_inert": {
-    "checked": 312,
-    "hit": 226,
-    "miss": 86
+    "checked": 364,
+    "hit": 235,
+    "miss": 129
    },
    "M2_exact": {
-    "checked": 312,
-    "hit": 6,
-    "miss": 306
+    "checked": 364,
+    "hit": 7,
+    "miss": 357
    },
    "M3_any_live": {
-    "checked": 312,
-    "hit": 92,
-    "miss": 220
+    "checked": 364,
+    "hit": 136,
+    "miss": 228
    }
   },
   "start": 32,
@@ -437,7 +442,7 @@
     "accepted-inert"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed."
    ],
    "semantics": [
     "semantically-mapped(single surviving model: M3_inert)"
@@ -558,7 +563,8 @@
     "accepted-inert"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed.",
+    "auditable; BOTH confirming captures ran with <= 2 foreign GPU processes (measured from procs.jsonl) and agreed - the closest this wave has come to Gate E, still short of a scheduled quiet window"
    ],
    "semantics": [
     "bounded-map(2 models still survive: M1_wait_mask,M2_inert)"
@@ -584,16 +590,16 @@
      "g17p_20260830_run04"
     ],
     "ret.scoreboard@cl_ldret.l__ZL4m_ldPU9M+34": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ],
     "ret.scoreboard@cl_pure.l__ZL2pfj+32": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ],
     "ret.scoreboard@cl_stacross.l__ZL2pfj+32": [
-     "g17p_20260830_run03",
-     "g17p_20260830_run05"
+     "g17p_20260830_run05",
+     "g17p_20260830_run07"
     ]
    },
    "contaminated_cases": 12,
@@ -619,7 +625,7 @@
     "ret.scoreboard@cl_stacross.l__ZL2pfj+32": {}
    },
    "ledger_bad": 0,
-   "ledger_ok": 2048,
+   "ledger_ok": 2816,
    "legal_values_total": 1024,
    "moved_per_arm": {
     "ret.scoreboard@cl_chain.l__ZL5c_midjj+104": 0,
@@ -629,7 +635,7 @@
    },
    "n_arms": 4,
    "semantic_buckets": {
-    "correct": 2048
+    "correct": 2816
    }
   },
   "evidence": [
@@ -641,19 +647,19 @@
   "range": "0..255 dense (all 256 values) at FOUR occurrences spanning the memory/execution-ORDERING dimension: nothing outstanding at the return; a load inside the callee; a store->load hazard spanning the return; a non-leaf return with a saved link. Inert in that envelope. NOT tested: any multi-invocation ordering litmus.",
   "semantic_models": {
    "M1_wait_mask": {
-    "checked": 518,
-    "hit": 518,
+    "checked": 776,
+    "hit": 776,
     "miss": 0
    },
    "M2_inert": {
-    "checked": 2048,
-    "hit": 2048,
+    "checked": 2816,
+    "hit": 2816,
     "miss": 0
    },
    "M3_exact": {
-    "checked": 2048,
-    "hit": 8,
-    "miss": 2040
+    "checked": 2816,
+    "hit": 11,
+    "miss": 2805
    }
   },
   "start": 24,
@@ -687,7 +693,7 @@
     "live(legal-set-bounded)"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed."
    ],
    "semantics": [
     "hypothesis(all pre-registered models refuted)",
@@ -817,7 +823,7 @@
     "accepted-inert"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed."
    ],
    "semantics": [
     "semantically-mapped(single surviving model: M1_inert)"
@@ -931,7 +937,7 @@
     "accepted-inert"
    ],
    "reproducibility": [
-    "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; max 21 other GPU processes sampled). Two gated runs in different case orders DID agree; a quiet confirmation is still owed."
+    "INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout (up to 21 other GPU processes sampled). The gated captures DID agree in different case orders; a quiet confirmation is owed."
    ],
    "semantics": [
     "semantically-mapped(single surviving model: M1_inert)"
