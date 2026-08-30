@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "addf5edaf29cc218954af6fbdc277a4c0dd827267c177bbd8af6a57e90f71b8f",
+ "db_sha256": "07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -16,24 +16,24 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 516,
-   "isolated-byte-diff": 89,
-   "corpus-correlation": 94,
-   "tokenization-only": 158,
+   "hardware-run": 525,
+   "isolated-byte-diff": 92,
+   "corpus-correlation": 93,
+   "tokenization-only": 153,
    "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 197
+   "untested": 191
   },
   "by_label_pct": {
-   "hardware-run": 48.6,
-   "isolated-byte-diff": 8.4,
-   "corpus-correlation": 8.9,
-   "tokenization-only": 14.9,
+   "hardware-run": 49.4,
+   "isolated-byte-diff": 8.7,
+   "corpus-correlation": 8.8,
+   "tokenization-only": 14.4,
    "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 18.5
+   "untested": 18.0
   },
   "emittable_instructions": 44,
   "emittable_mnemonics": [
@@ -839,13 +839,14 @@
     ]
    },
    "addsub": {
-    "label": "untested",
-    "range": "the single bit, in both polarities, over 12 input rows x 5 repetitions x 2 gated runs",
-    "target": "G17P",
+    "label": "hardware-run",
+    "range": "0..1 dense (2 of 2 encodings actually spliced), 2/2 values comparable across both gated runs; 1 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+    "target": "M4",
     "evidence": [
-     "EXP-0153"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 5 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "byte0 bit 7, the ADD/SUBTRACT selector, in the 64-bit carrier `k_u64sub` (`1f 01 56 00 02 08 00 50 17 05`). Both values of a 1-bit field executed: 0 reproduces the compiled 64-bit SUBTRACT, 1 produces (a + b) mod 2^64 EXACTLY on all 8 frozen rows including full 64-bit wrap and lo->hi carry, matched against a host-computed oracle. This is the encoding behind EXP-0146's headline (a native single-instruction 64-bit integer ADD the Apple compiler never emits). REVALIDATED ON G17P by EXP-0153 (12 rows x 5 repetitions x 2 gated runs) \u2014 cited, not merged; this row is the M4 half. The field currently reads `untested` because EXP-0164's audit bucketed it INERT-SINGLE with `max_values_dispatched: 5`; a 1-bit field has only 2 values and both moved."
    },
    "lenbit": {
     "label": "hardware-run",
@@ -857,13 +858,14 @@
     "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 0"
    },
    "srcB_reg_hi": {
-    "label": "untested",
-    "range": "0..127 dense (all 128 values)",
+    "label": "hardware-run",
+    "range": "0..127 dense (128 of 128 encodings actually spliced), 128/128 values comparable across both gated runs; 64 moved the observable, 64 reproduced it, 0 disagreed",
     "target": "M4",
     "evidence": [
-     "EXP-0139"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 128 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
+    "note": "64-bit form, carrier `k_u64sub`. Dense 0..127 (7-bit field), both gated runs agreeing on every value. Exactly the 64 EVEN values reproduce and the 64 odd ones return a wrong value \u2014 i.e. only bit 0 of the field is live and it must be clear; bits 1..6 are HW-tested free across all 64 combinations. Reproduces EXP-0139's 32-bit-form finding on a second, structurally different carrier."
    },
    "b2_bit0": {
     "label": "hardware-run",
@@ -911,13 +913,14 @@
     "note": ""
    },
    "srcB_imm": {
-    "label": "untested",
-    "range": "7 values sampled (boundaries + powers of two + interior)",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 252 moved the observable, 4 reproduced it, 0 disagreed; accept-set {0x8, 0x9, 0xa, 0xb}",
     "target": "M4",
     "evidence": [
-     "EXP-0139"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 7 values dispatched, 1 carrier(s) tested, 11 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "64-bit form, carrier `k_u64sub`. Dense 0..255, both gated runs agreeing on every value. Accept-set {0x08,0x09,0x0a,0x0b} = (v & 0xFC) == 0x08 \u2014 the low two bits are free; 4 values silently zero and 248 return a wrong value. Consistent with EXP-0139's 32-bit-form model of a 9-bit immediate stored (K<<1) at b5 + b6bit0. \u26a0 Carrier-scoped: this carrier's srcB is a REGISTER, so the accept-set is 'the descriptor bits that keep this operand', not the immediate's legal range."
    },
    "srcB_imm_hi": {
     "label": "hardware-run",
@@ -947,22 +950,24 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 262 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
    },
    "opc_tail": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 192 moved the observable, 64 reproduced it, 0 disagreed",
     "target": "M4",
     "evidence": [
-     "EXP-0139"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 260 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "64-bit form only, carrier `k_u64sub` (`1f 01 56 00 02 08 00 50 17 05`). Dense 0..255, both gated runs agreeing on every value. Accept-set is exactly the 64 values with (v & 0x11) == 0x11; the other 192 give 16 silent zeros and 176 wrong values. This is a SECOND carrier for a field EXP-0139 established on the 32-bit form, and the accept-set is carrier-scoped: do not read it as a global rule."
    },
    "opc_tail2": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 192 moved the observable, 64 reproduced it, 0 disagreed",
     "target": "M4",
     "evidence": [
-     "EXP-0139"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 385 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "64-bit form only, carrier `k_u64sub`. Dense 0..255, both gated runs agreeing on every value. Accept-set is exactly the 64 values with (v & 0x05) == 0x05; the other 192 all return a wrong value (no silent zeros). Second carrier for EXP-0139's 32-bit result; the accept-set is carrier-scoped."
    }
   },
   "imad": {
@@ -2299,14 +2304,14 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
    "lut_a_sel": {
-    "label": "untested",
-    "range": "bits 32-33, fully exercised by EXP-0154's dense op_base 0..1 x lut_a 0..15 x lut_b 0..15 sweep (512 cases) on G17P",
-    "target": "G17P",
+    "label": "hardware-run",
+    "range": "A5-DECOMPOSED from EXP-0146 arm(s) lut_a,srcA. 0..3 dense (4 of 4 encodings actually spliced), 4/4 values comparable across both gated runs; 3 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+    "target": "M4",
     "evidence": [
-     "EXP-0154",
-     "EXP-0146"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 2 carrier(s) tested, 1378 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "A5-decomposed from EXP-0146's dense byte+4 sweep: the 4 sub-values of bits 32-33 with every other bit of byte+4 at its compiled value. All 4 executed; only 0 reproduces the carrier's AND, and the other 3 select DIFFERENT boolean functions (that is the field's job \u2014 see EXP-0146's 16-function LUT table). Currently `untested` because EXP-0154's G17P sweep was orphaned by the concurrent lut_a split and then withdrawn. \u26a0 OPERAND-LABEL TRAP (EXP-0154 DEF-0154-5): the published LUT table's `a`/`b` are SWAPPED relative to db.json's `srcA`/`srcB`; that affects which function a selector value names, not this field's liveness."
    },
    "lut_a_free": {
     "label": "corpus-correlation",
@@ -2319,14 +2324,14 @@
     "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary. NOT promoted from EXP-0154's dense `lut_a` sweep: that sweep covered lut_a 0..15 = bits 32-35 only, which does not fully contain this field. Needs a sweep over the full byte+4 domain."
    },
    "lut_a_z": {
-    "label": "corpus-correlation",
-    "range": "byte+4 bits 5-7, must be clear (EXP-0146, dense 0..255 on the byte)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "A5-DECOMPOSED from EXP-0146 arm(s) lut_a,srcA. 0..7 dense (8 of 8 encodings actually spliced), 8/8 values comparable across both gated runs; 7 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+    "target": "M4",
     "evidence": [
-     "EXP-0013",
-     "EXP-0146"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary. NOT promoted from EXP-0154's dense `lut_a` sweep: that sweep covered lut_a 0..15 = bits 32-35 only, which does not fully contain this field. Needs a sweep over the full byte+4 domain."
+    "note": "Recovered by decomposing EXP-0146's dense byte+4 sweep (A5): the 8 sub-values of bits 37-39 with every other bit of byte+4 at its compiled value. Only 0 reproduces; all 7 non-zero values break the carrier. This is the sweep `validation.json` says is needed ('lut_a_z is untouched ... needs a sweep over the full byte+4 domain') \u2014 EXP-0154's G17P arm only reached lut_a 0..15 = bits 32-35. NOTE: 'must be clear' and 'selects something this carrier cannot observe' are not distinguished; the emitter guidance is the same either way \u2014 emit 0. SISTER FIELD STILL OPEN: `lut_a_free` is dense-INERT 8/8 here but on ONE carrier, so it stays withheld and `ilogic` remains not-yet-emittable on that one field."
    }
   },
   "fspecial": {
@@ -6210,24 +6215,24 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
    "operands": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "BYTE-WISE MARGINAL ONLY: 5 constituent bytes x 0..255 dense each (1280 encodings); the 40-bit field was NEVER swept jointly and its max/max-1 were never encoded",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0146",
+     "EXP-0166"
+    ],
+    "note": "\u26a0 MARGINAL COVERAGE ONLY. 40-bit raw field swept BYTE-WISE \u2014 each of bytes +3..+7 over all 256 values with the other four at their compiled value (1280 of 2^40 combinations). No joint value, and neither `max` nor `max-1` of the 40-bit field was ever encoded, so FIELD-SWEEP-PROTOCOL \u00a73.3's coverage bar for w>8 is NOT met \u2014 hence `isolated-byte-diff`, not `hardware-run` (A6). Per-byte accept-sets (M4): +3 {0x00,0x01}; +4 (v&0x02)==0x02; +5 (v&0xfc)==0x00; +6 {0x6c,0x6e}; +7 (v&0xf1)==0x00. The ROTATE AMOUNT is NOT independently emittable from this carrier (+6 admits only two values). \u26a0 SAFETY: EXP-0154 reports byte+7 = 231/232 GENUINELY HANGS the GPU on G17P (kIOGPUCommandBufferCallbackErrorHang, contained, majority-of-3). EXP-0154 left byte+7 `untested` on G17P; this M4 row is the only evidence there is."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "BYTE-WISE MARGINAL ONLY: 4 constituent bytes x 0..255 dense each (1024 encodings); the 32-bit field was NEVER swept jointly and its max/max-1 were never encoded",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0146",
+     "EXP-0166"
+    ],
+    "note": "\u26a0 MARGINAL COVERAGE ONLY. 32-bit raw field swept BYTE-WISE \u2014 bytes +8..+11, each over all 256 values with the others at their compiled value (1024 of 2^32 combinations); neither `max` nor `max-1` was encoded, so \u00a73.3's w>8 bar is not met (A6). Per-byte accept-sets (M4): +8 (v&0xb7)==0xb0; +9 (v&0x12)==0x10; +10 (v&0xfd)==0x09; +11 (v&0x01)==0x00. EXP-0154 left +8 and +10 `untested` on G17P; this M4 row is the only evidence for them."
    }
   },
   "pack_convert": {
@@ -9886,26 +9891,24 @@
     "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
    },
    "srcA_desc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 254 moved the observable, 1 reproduced it, 1 disagreed; accept-set {0xc2}",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
+    "note": "Dense 0..255, one value (0x00) disagreed across the gated runs. Accept-set is the singleton {0xc2}: 224 silent zeros and 31 wrong values. \u26a0 Same target note as `n2_op8.opsel`: no carrier exists on G17P. \u26a0 A7-adjacent caution: this is a source DESCRIPTOR with a singleton accept-set, so it is typed `raw` and escapes A7's literal scope, but the same limitation applies \u2014 'only 0xc2 works here' is not a source-operand map. Clean-room rule 5 respected."
    },
    "opsel": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (256 of 256 encodings actually spliced), 254/256 values comparable across both gated runs; 252 moved the observable, 1 reproduced it, 1 disagreed; accept-set {0x49}",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
+    "note": "Dense 0..255, 254 comparable (2 innocent-victim), one value (0x87) disagreed across the gated runs. Accept-set is the singleton {0x49}: 91 silent zeros, 152 wrong values, 10 faults. \u26a0 TARGET NOTE: `n2_op8` has NO CARRIER ON G17P \u2014 EXP-0157 found zero occurrences across 59 own-MSL programs in two provocation rounds, including 20 SFU-family programs. This M4/G16G row is the only hardware evidence for the field and G17P can neither confirm nor refute it. Clean-room rule 5 respected: only the accept/reject envelope is recorded, never the SFU range-reduction recipe."
    },
    "body": {
     "label": "tokenization-only",
@@ -9931,15 +9934,14 @@
     ]
    },
    "dst": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..15 dense (16 of 16 encodings actually spliced), 16/16 values comparable across both gated runs; 15 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x3}",
+    "target": "M4",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0146",
+     "EXP-0166"
     ],
-    "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
+    "note": "Dense 0..15. Only 0x3 \u2014 the carrier's own compiled value \u2014 reproduces; the other 15 give 14 wrong values and 1 silent zero, both gated runs agreeing on every value. CAPPED at isolated-byte-diff by A7: `dst` is typed `reg`, and a singleton accept-set establishes 'every other value breaks this carrier', NOT 'value N selects register N'. A register-granularity carrier (16-register dump) is required before an emitter may choose a destination through this field. `n2_op10` has 230 live occurrences on G17P (EXP-0157 census), so a G17P re-sweep is strictly better than this row."
    },
    "src": {
     "label": "tokenization-only",

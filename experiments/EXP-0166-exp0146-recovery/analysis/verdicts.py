@@ -242,8 +242,8 @@ def main():
         merged[key] = {"label": label, "range": None, "target": A.TARGET,
                        "evidence": A.EVIDENCE, "note": None, "_stats": entry}
 
-    json.dump({"merged_preview": sorted(merged), "withheld": withheld},
-              open(os.path.join(HERE, "_stage2_debug.json"), "w"), indent=1, sort_keys=True)
+    # No file is written here: stage 3 (emit_deliverables.py) consumes these objects directly and
+    # writes field_verdicts.json + withheld.json, which carry every number this stage produced.
     print("candidates: %d merged, %d withheld" % (len(merged), len(withheld)))
     return merged, withheld, arms, decomposed, comp, dbf, dbi, val, flaked
 

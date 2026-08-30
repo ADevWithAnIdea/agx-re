@@ -34,3 +34,14 @@
   into 32 sets of four by `v>>2`, and **32/32 groups collapse to exactly one cross-run-agreeing
   observable** — the `reg<<2` register packing, reproducing EXP-0154's G17P DEF-0154-4 on M4 from
   data captured a day earlier. F3 did not fire.
+- **2026-08-30 M5** — Deliverables written and verified. **12 merge-ready rows** (from 94 original
+  verdicts), **53 withheld** (23 G3 veto / 11 G2 redundant / 12 unstable / 7 inert-single-carrier),
+  **6 proposed db.json defects**. `work/merge_verdicts.py --dry-run` applies all 12 with 0 skipped,
+  0 problems: emitter-grade 605 -> 617 fields, emittable instructions 44 -> 44 (no instruction
+  flips). `db.json`/`validation.json` moved a THIRD time (`sfu_marker.b0_hi`/`b1_hi` were merged by
+  the orchestrator citing EXP-0146 while I worked), so the snapshots were re-taken and my now-
+  redundant `sfu_marker.b1_hi` row was correctly dropped by the G2 gate — the gate works.
+  `README.md`, `RESULTS.md`, `manifest.json`, `raw/README.md` written. Verified with `git status`
+  that nothing outside `experiments/EXP-0166-exp0146-recovery/` was modified and **nothing was
+  committed**; `work/merge_verdicts.py` was only ever executed with `--dry-run`, which does not
+  write. No device was dispatched to at any point.

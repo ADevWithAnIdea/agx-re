@@ -2505,6 +2505,19 @@ def assemble(mnemonic, fields):
         mask = (1 << f["width"]) - 1
         if val & ~mask:
             raise ValueError(f"{mnemonic}.{f['name']}={val:#x} exceeds width {f['width']}")
+        # DEF-0166-1 (EXP-0166, 2026-08-30): CLEAR the field's span before OR-ing it.
+        # This used to be a bare `v |= ...`, which cannot clear a bit -- so any bit a
+        # `match` constant sets that also lies inside a field's span was STUCK AT 1 for
+        # every caller. 53 of db.json's fields overlap their own descriptor's match that
+        # way, and the effect is silent under-coverage rather than an error:
+        # `irotate.b2` could reach 32 of 256 values, `shift_amt_move.kind` 64 of 256,
+        # `iter.grp` and `iter_at.grp` 8 of 256 -- while a sweep driving them through
+        # assemble() counted 256 dispatched values and published "full 8-bit dense".
+        # Any experiment that built its bytes through this path under-covered its range.
+        # The cheap offline check is to count DISTINCT `bytes` in raw/, never the
+        # dispatched-value count. Sweeps that wrote bytes directly (e.g. EXP-0154) are
+        # unaffected -- their raw shows 256 distinct byte strings.
+        v &= ~(mask << f["start"])
         v |= (val & mask) << f["start"]
     return _bytes_from_int(v, length)
 

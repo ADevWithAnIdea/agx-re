@@ -33,6 +33,14 @@ def load_db_fields():
             for i in db["instructions"]}
 
 
+def load_db_spans():
+    """(mnemonic, field) -> (start, width), so a verdict that records the bits it
+    measured can be checked against where db.json now puts that name."""
+    db = json.load(open(DB))
+    return {(i["mnemonic"], f["name"]): (f["start"], f["width"])
+            for i in db["instructions"] for f in i.get("fields", [])}
+
+
 def recompute_coverage(val, dbf):
     counts = {l: 0 for l in LABELS}
     total = 0
@@ -86,6 +94,7 @@ def main():
 
     val = json.load(open(VAL))
     dbf = load_db_fields()
+    dbspan = load_db_spans()
     db_sha = hashlib.sha256(open(DB,"rb").read()).hexdigest()
     before = dict(val["coverage"]["by_label"])
     before_emit = val["coverage"]["emittable_instructions"]
@@ -107,6 +116,21 @@ def main():
                 problems.append("%s: unknown mnemonic %s" % (src, m)); continue
             if f not in dbf.get(m, []):
                 problems.append("%s: %s is not a field of %s in db.json" % (src, f, m)); continue
+            # DEF-0166-2 (EXP-0166, 2026-08-30): if the verdict names the bits it
+            # measured, refuse it when db.json has since moved that field. Names get
+            # REUSED across a descriptor repair -- EXP-0161 renamed carry_gen's
+            # `subop` -> `srcA` and `srcA` -> `srcB`, so a name-keyed merge of
+            # EXP-0146's older rows would have silently attached each verdict to the
+            # WRONG BYTE while every existing check passed. A verdict is a claim about
+            # bits; the name is only a handle for them.
+            want = dbspan.get((m, f))
+            got = (v.get("start"), v.get("width"))
+            if got != (None, None) and want and got != want:
+                problems.append(
+                    "%s: %s claims bits start=%s width=%s but db.json now has start=%s "
+                    "width=%s -- the descriptor moved under this verdict; re-derive it "
+                    "rather than merging by name" % (src, key, got[0], got[1], want[0], want[1]))
+                continue
             lab = v.get("label")
             if lab not in STRENGTH:
                 problems.append("%s: %s has invalid label %r" % (src, key, lab)); continue

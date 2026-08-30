@@ -15,13 +15,13 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 29 |
-| 2 | 22 |
-| 3 | 19 |
+| 1 | 30 |
+| 2 | 24 |
+| 3 | 18 |
 | 4 | 13 |
 | 5 | 9 |
 | 6 | 6 |
-| 7 | 7 |
+| 7 | 5 |
 | 8 | 2 |
 | 9 | 3 |
 | 10 | 1 |
@@ -35,13 +35,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 36 |
+| `dst` | 35 |
 | `srcA` | 17 |
-| `tail` | 16 |
+| `tail` | 15 |
 | `src` | 10 |
 | `b5` | 10 |
 | `b3` | 9 |
-| `opsel` | 9 |
+| `opsel` | 8 |
 | `srcB` | 8 |
 | `form` | 7 |
 | `flags` | 7 |
@@ -51,7 +51,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `b4` | 6 |
 | `src_flag` | 5 |
 
-## ONE field away (29 instructions)
+## ONE field away (30 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -70,6 +70,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `ibitcount` | `tail` | untested |
 | `if_push` | `scope` | untested |
 | `imageblock_store` | `src` | untested |
+| `irotate` | `b2` | untested |
 | `iter_at` | `grp` | untested |
 | `mesh_out_src` | `sel` | tokenization-only |
 | `n4_cf_word` | `b3` | tokenization-only |
@@ -85,7 +86,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `uniform_mov` | `dst` | untested |
 | `vary_slot` | `slot` | corpus-correlation |
 
-## TWO fields away (22 instructions)
+## TWO fields away (24 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -99,6 +100,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `h_alu_hi` | `ctrl`, `mods` | untested, untested |
 | `half_alu_ext8` | `b7_lo`, `b7_mid` | untested, untested |
 | `half_pack` | `dstlo`, `b3` | untested, untested |
+| `iadd2` | `b2_fmt`, `srcA` | untested, untested |
 | `if_push_pred` | `scope`, `level` | untested, tokenization-only |
 | `isel8` | `cmpA`, `cmpB` | untested, untested |
 | `ishift` | `src_cache`, `pad9` | untested, untested |
@@ -107,6 +109,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mask_op` | `mask_bank`, `scope_kind` | corpus-correlation, single-template-inference |
 | `matrix_mac` | `dst_desc_lo`, `b11_rsv` | untested, untested |
 | `mem_fence8` | `mask`, `tail` | corpus-correlation, tokenization-only |
+| `n2_op8` | `dst`, `body` | tokenization-only, tokenization-only |
 | `n3_sample_read` | `b1`, `b3` | untested, untested |
 | `ray_move` | `dst`, `src` | untested, untested |
 | `ray_move_copy6` | `dst`, `src` | untested, untested |
@@ -125,7 +128,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 197 |
-| `tokenization-only` | 148 |
-| `corpus-correlation` | 94 |
+| `untested` | 191 |
+| `tokenization-only` | 143 |
+| `corpus-correlation` | 93 |
 | `single-template-inference` | 8 |

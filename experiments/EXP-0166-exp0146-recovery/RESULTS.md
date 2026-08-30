@@ -21,6 +21,10 @@ Evidence: EXP-0146 raw/run01, raw/run03, raw/run04 (hashes in manifest.json) + t
 **Of EXP-0146's 94 verdicts, 12 survive as merge-ready rows. Not one survives with the label
 EXP-0146 gave it as its own independent claim.**
 
+(Precisely: 10 of the 94 keys map straight onto a surviving row, and an eleventh —
+`ilogic.lut_a@logic_and`, whose field `db.json` has since split three ways — yields two rows via the
+A5 decomposition. 27 keys were never `db.json` fields; the remaining 56 are withheld.)
+
 That is a recovery of **12.8 %**, and the recovered rows are mostly *not* the ones EXP-0146 was
 proudest of. Hypothesis **H1 was confirmed and falsifier F1 did not fire** (F1 would have needed
 ≥ 60 survivors).
