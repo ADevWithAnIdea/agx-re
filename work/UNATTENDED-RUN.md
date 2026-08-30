@@ -43,16 +43,15 @@ cannot be promoted by more sweeping**, and the reasons are already documented:
 So the target is: **every real instruction that CAN be made emittable, is** — with each exception
 named, evidenced, and justified. A truthful 92% with 8 documented blockers beats a claimed 100%.
 
-## Agent concurrency budget — 8
+## Agent concurrency budget — 6
 
-**User directive, 2026-08-29 (from observed usage):** run **roughly 8 agents at a time**. Above
-that the account hits usage limits, which is what killed entire waves earlier — an agent stopped
-by a usage limit loses whatever it had not written to disk, so overshooting costs more than it
-buys.
+**User directive, 2026-08-29, revised twice from observed usage: run ~6 agents at a time.**
+(First set at 8, then lowered to 6.) Above the budget the account hits usage limits, which is what
+killed entire waves earlier — an agent stopped by a usage limit loses whatever it had not written
+to disk, so overshooting costs more than it buys.
 
-Currently 12 are in flight; they were **not** stopped (killing them would waste work already done),
-but no new agent launches until the count falls below 8. **Dispatch to refill toward 8, never
-above it.**
+**Never stop running agents to get under budget** — that discards work already done. Let the count
+fall naturally, then **refill toward 6, never above it**.
 
 Practical consequence for a successor session: when several agents finish at once, resist
 refilling all the slots immediately. Audit and commit the returned work first — an unaudited result
