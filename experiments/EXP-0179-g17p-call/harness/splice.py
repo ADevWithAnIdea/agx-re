@@ -77,7 +77,8 @@ class FrameSplice(object):
         span = max(o for o, _ in cons) + 1
         self.sites = [p for p in range(len(self.main) - span + 1)
                       if all(self.main[p + o] == v for o, v in cons)]
-        self.runner = S.persistrun.PersistRunner(
+        # DEF-0178-1: the leak-free subclass, same as every other runner here.
+        self.runner = S.RUNNER(
             source=str(SRC), function=FUNC, fast_math=False,
             agxrun_persist=str(S.AGXRUN_PERSIST))
         self.device = self.runner.device

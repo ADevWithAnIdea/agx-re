@@ -304,9 +304,12 @@ ARMS = [
          foreign={}, not_swept={},
          ladder=[("L_dst", "dst", 0x02, "must change attachment 0"),
                  ("L_rt", "rt_index", 0x02, "must change attachment 0")],
-         power_probe=("b7", 0x00,
-                      "byte+7 -> 0x00 must collapse attachment 0 to src*0.5 while "
-                      "attachment 1 stays exactly correct"),
+         power_probe=[("b7", 0x00,
+                       "byte+7 -> 0x00 must collapse attachment 0 to src*0.5 while "
+                       "attachment 1 stays exactly correct"),
+                      ("fmt", 0x00,
+                       "same litmus if this carrier resolves to tile_read_mrt, "
+                       "where byte+7 is `fmt` rather than `b7`")],
          sensitivity=("byte1", 0x55, "must not equal the baseline"),
          note="SECOND, structurally different carrier for the tile_read family: "
               "attachment COUNT, spatial extent, arithmetic and a second "

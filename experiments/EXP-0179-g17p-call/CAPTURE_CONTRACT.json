@@ -12,22 +12,35 @@
   "retained": "raw/g17p_20260830_run01 is retained in full and never reused; its C2 half is excluded from every verdict, its C1 half is an earlier third observation.",
   "what": "The frozen `C2 nested` carrier (if_push scope=0x54 kind=0x01) was MEASURED DEAD: all 1395 of its run01 cases wrote the PRE sentinel and nothing else -- all 16 registers, the POST sentinel and the callee breadcrumb still 0xDEADBEEF, status OK, tail intact. Replaced by if_push(scope=0x56, scope_kind=0x1a)."
  },
+ "amendment_02": {
+  "date": "2026-08-30, post-first-arm-N-pass, on measured evidence",
+  "fix": "`depth2_pop` is now a VARIABLE and `pop=False` is RETAINED as a control that reproduces the fault on purpose, so arm N's result can never be confused with arm M's again.",
+  "retained": "raw/MAPPING_g17p_20260830_run05N/run06N retained, never reused.",
+  "what": "The first arm N pass faulted on all 6 cases in both runs because the depth-2 layout OMITTED the pop_reconverge after the INNER call -- which arm M had ALREADY MEASURED to be required. Our own earlier result predicted the failure and was not applied.",
+  "why_it_mattered": "Reported as 'depth-2 calls fault' it would have been a wrong hardware claim that looked clean."
+ },
  "authored_blobs": {
   "analysis/analyze.py": "c161e9fd3aa443fe5668127826c165a45fcb01a89e6ffb59f1d508fc96060690",
+  "analysis/cascade_check.py": "f95308ddf62592335f1e879ccdadf4dd53aaa7afde300d75c383040b027dfa37",
   "analysis/census_report.py": "c72fb1b86833db05daaa24b792de45f157350f304826321a535553b0666f7016",
   "analysis/freeze_contract.py": "a58d33b0b2c35d507f875d7580ff1f723b248b3cd0b4a682f0c6c2d5ca829ff4",
+  "analysis/order_arm.py": "7a673341d7c64efeaf1f496cb9e4f3871301e41f834f64f295b0f0c1c560d4b8",
   "analysis/splice_merge.py": "13862c5dcd6a52fda33599594ad7a6dfc277eda97f94688b373cc5417d89db8b",
   "analysis/verdicts.py": "6d63594d3f902eb9af04e9f9ba4acbea14c41df7de0652c18b3e794e5e1fa926",
   "harness/calib.py": "7e5b6dc446f203c76e2ea046cebb160927539c7bddb6955b36e22c5d99aaeb25",
   "harness/calib2.py": "baf6d651a7b0965a88e54d288553e6fb6476562d8f694895d1e8eb17a39680f5",
-  "harness/cases.py": "3888b73eaf1278a50a4cd5417f54879905cfa5247a2ca70c1819bc28bcdb79cd",
+  "harness/cases.py": "fa0440226147101bd951e8796b16740977c6fc48e22222cbcade4b307762a011",
   "harness/census.py": "705a8d18ea13875bc6a6b3a38cfbfc0bd380dba36995ee4016fd8813b241eddf",
+  "harness/fakechild.py": "5a24f9d0ff900265e86e4ca1c1db8a18e1019315a3a7e47e470e17d13e0394f5",
   "harness/fndump.m": "a4559afa8eeff57500f8c27cde5fd84389ccebf3063fb16beb4a806ea331c51c",
-  "harness/isa_helpers.py": "d0fa73d53f4bd1bdaaeb7018b0d014e37882580c0cbcf3d025bb4653efb0098c",
-  "harness/run.py": "210aa4b60abfd065e62a0a9dc28901bbb4a430cbdc2e9ab4fd7b475f95161b4d",
-  "harness/splice.py": "523f902a1b5cc2ea2d5dfb6227970555f2a8bdeaec857b10fce62a3ef0ae4fdd",
-  "harness/sweeprun.py": "1e8eeba8e596ca65cf799250d08a0133335ba719acfa2daef13f6aeea459a9e5",
+  "harness/isa_helpers.py": "88838586ab0e12a89ac1f27f4906cf601fff3751ca47485f386feaa54f81513e",
+  "harness/run.py": "7e1c056b6dc026780dcb7c10696a9d9bf07d859aaecba4e9805cd2769b5fa58e",
+  "harness/saferunner.py": "c51f8c1f714a5bd086a4881cf9aee11c89e90371c79d92ca8d1d852c2d927bc8",
+  "harness/selftest.py": "5de08fa4115e797bf7c1c849752ff0208052f8098948bc8a2059335274036f66",
+  "harness/splice.py": "177130233b2912b8b9e2a30d8f884f0e93a5827f1976b68569fe8a6102dfbc24",
+  "harness/sweeprun.py": "180c575b807809abce2342d9944c9669ca8f29f97f752ed7eca557ae7eb76c16",
   "harness/sync.sh": "274af42ed45a5bfc1977ae196c3177c9b6488286290e8771136109cac8c45584",
+  "harness/verify_remote.py": "857f875fd5f991b9f6eae744a7ed0c49e2c1124a003282856b87fd86f0a70dce",
   "kernels/carrier_call.metal": "9f75b9f834b0149f6bb75d8187b6a1e30d3a1e80b0e47376ed8314e5dccc614c",
   "kernels/census/c_addrtaken.metal": "d90d01a7154189ef4d68b06715fd6d49d85b9f4264bf6a08eef67c3543bd8fa8",
   "kernels/census/c_frag.metal": "6e419d384714ec1091eb2aa7566f0a7e13074fdb8bb8934b73a1c41d3f843a80",
@@ -91,8 +104,8 @@
    "L/C2_nested": 4,
    "M/C1_flat": 4,
    "M/C2_nested": 4,
-   "N/C1_flat": 3,
-   "N/C2_nested": 3,
+   "N/C1_flat": 4,
+   "N/C2_nested": 4,
    "O/C1_flat": 192,
    "O/C2_nested": 192,
    "R/C1_flat": 256,
@@ -103,8 +116,8 @@
    "TL/C2_nested": 256
   },
   "generator": "harness/cases.py build_cases()",
-  "n_cases": 3189,
-  "sha256": "ad984c30c02a40c02486eee5a412cf49b90d7bf812b0e3c1a1ee5a80d2753bcc"
+  "n_cases": 3191,
+  "sha256": "c699c4d4fa39f079634750cba2136a853d9d2211a0636a723bc015bba27d1eb9"
  },
  "clean_room": {
   "apple_binary_introspection": "NONE",
@@ -112,10 +125,21 @@
   "instruction_under_test": "GENERATED from the pinned db.json's declared bit geometry by isa_helpers.call_bytes()/ret_bytes(); ZERO bytes copied from any compiled shader. Arm S additionally mutates a REAL compiler-emitted call inside OUR OWN compiled program, as an independent second method, labelled as such.",
   "provenance": "OWN-SHADER + HW-PROBE"
  },
+ "def_0178_1": {
+  "addressed": "harness/saferunner.py -- one reader thread per child tagged by owner; a malformed response is MALFORMED -> invalid_malformed, re-run with raw lines kept, never scored as a hang.",
+  "measured_clean": "11,660 dispatch results across every capture: 0 malformed, 0 innocent victims, 0 invalid runs. Value-vs-position clustering computed per arm in analysis/cascade_*.json.",
+  "proof_without_a_device": "harness/selftest.py + harness/fakechild.py; gate G2 reproduces the shared runner RAISING `not enough values to unpack (expected 3, got 2)` on a truncated OUT line while the safe runner returns MALFORMED.",
+  "shared_tool_modified": "NO -- other experiments were running against it."
+ },
  "defect_01_self_inflicted": {
   "fix": "calib_20260830b re-runs the bracket probe FIRST and then extmode with the working bracket; both 0x00 and 0xC0 give a correct dump and 0x00 was frozen.",
   "retained": "raw/prefreeze/calib_20260830a is retained, not reused.",
   "what": "calib_20260830a probed extmode_or with reconverge=False, which FAULTS, so both arms returned `fault` and the choice fell through to a default."
+ },
+ "defect_02_silent_push": {
+  "fix": "harness/verify_remote.py hashes every authored blob on the device against this repo after every push. 22/22 matched before the tail ran. A frozen contract hashes what we AUTHORED, not what the device is EXECUTING.",
+  "retained": "raw/MAPPING_g17p_20260830_run07N_hangtolerant retained and marked defective.",
+  "what": "`sync.sh push` returned non-zero inside an `&&` chain -- a silent no-op indistinguishable from success in the exit code -- so MAPPING_..._run07N ran against the STALE pre-amendment harness (6 cases instead of 8)."
  },
  "environment": {
   "baseline_use": "The unmutated program is re-run periodically for RUN INTEGRITY only. NO case is scored against it -- every oracle is host-computed from isa_helpers.SEED_I and the frozen layout.",
@@ -171,7 +195,7 @@
  },
  "repo_revision_at_freeze": {
   "dirty": true,
-  "head": "c8f449056dd07defd332acdbd6df900c5ee6f2c0",
+  "head": "e9080bfb144622f964ebd0fe49a1a962372d09a7",
   "note": "A capture is valid if the AUTHORED BLOB HASHES above match. HEAD moving because a sibling experiment landed is NOT contamination (SUBAGENT_BRIEF)."
  },
  "safety": {
@@ -179,7 +203,7 @@
   "hang_budget": "2 per arm -> the arm STOPS and is reported PARTIAL. Arms N (depth-2, no link save) and the positive half of arm T are DECLARED HANG CANDIDATES and are announced in PROGRESS.md before they run.",
   "if_the_neo_stops_answering": "STOP and report BLOCKED. No scanning. No macvdmtool."
  },
- "status": "PARTIAL. Arms G,T,M,B3,B5,B6,TL,R,L complete and gated (run03/run04). Arms O, F(F3/F4/F6) and N PENDING an exclusive window -- the declared hang-prone tail. Arm S (splice second method) not yet run.",
+ "status": "COMPLETE. All fourteen arms have run. Gated: G,T,M,B3,B5,B6,TL,R,L (run03/run04) and S (splice01/splice02). Declared non-gated mapping passes (FIELD-SWEEP-PROTOCOL 3c): N (run09N/run10N) and F (run11F/run12F). Arm O (run13O/run14O) gated, promotion DECLINED on a FIRED control.",
  "target": {
   "arch": "applegpu_g17p",
   "gpu": "G17P / AGXAcceleratorG17P",

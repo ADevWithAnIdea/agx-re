@@ -405,6 +405,7 @@ def synth_call_program(plan, carrier_len,
                        corrupt_call_byte=None, pre_call_extra=b"",
                        post_call_extra=b"",
                        depth2=False, depth2_marker=False, depth2_link=False,
+                       depth2_pop=True,
                        order_load=False, order_filler=0,
                        nested_scope=0x56, nested_kind=0x1a):
     """Build the whole `_agc.main`.
@@ -486,6 +487,17 @@ def synth_call_program(plan, carrier_len,
                                              "reserved7": 0x00}))
         CALL2_AT = CALLEE_AT + sum(len(x) for x in pre_inner)
         post_inner = []
+        # AMENDMENT-02 (2026-08-30, on measured evidence). The FIRST arm-N pass
+        # (`raw/MAPPING_g17p_20260830_run05N_hangtolerant`, retained) faulted on
+        # all 6 cases in both runs -- and that was MY BUG, not a hardware fact
+        # about nesting: this construction omitted the `pop_reconverge` after the
+        # INNER call, and arm M had already MEASURED that a call without a
+        # following pop faults. Arm M's own result predicted the failure. The
+        # inner call now gets the same closing pop the outer one has, so arm N
+        # tests the link-register question it was written to test instead of
+        # re-measuring arm M.
+        if depth2_pop:
+            post_inner.append(pop_reconverge_bytes())
         if depth2_link:
             post_inner.append(isadb.assemble("link_save_restore",
                                              {"b3": 0x00, "dir_offset": 0x1FFF,
@@ -499,7 +511,8 @@ def synth_call_program(plan, carrier_len,
         inner = [mov_imm(R_INNER, INNER_CONST),
                  ret_bytes(ret_linkmode, ret_scoreboard), stop()]
         inner_layout = {"CALL2_AT": CALL2_AT, "CALLEE2_AT": CALLEE2_AT,
-                        "offset2": off2, "call2_hex": call2.hex()}
+                        "offset2": off2, "call2_hex": call2.hex(),
+                        "depth2_pop": depth2_pop}
     else:
         RET_AT = CALLEE_AT + ret_rel
 

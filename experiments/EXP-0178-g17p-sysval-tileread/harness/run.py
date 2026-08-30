@@ -362,21 +362,31 @@ def main():
             runner = SafePersistRunner(source=os.path.join(EXP, arm["kernel"]),
                                    function=arm["func"], fast_math=False,
                                    agxrun_persist=AGXPERSIST)
-            nb = SP.CGRID * 4
+            out_nbytes = SP.CGRID * 4      # NAMED UNIQUELY on purpose: see below
 
             def raw_case(arcpath):
                 r = safe_request(
                     runner, lambda: runner.request(
                         archive=arcpath, grid=arm["grid"], tg=arm["tg"],
-                        ins={0: poison, 4: poison}, outs={0: nb, 4: nb},
+                        ins={0: poison, 4: poison}, outs={0: out_nbytes, 4: out_nbytes},
                         timeout=REQ_TIMEOUT))
                 if r["status"] != "OK" or 0 not in r["outs"]:
                     return None, r
                 sent = list(struct.unpack("<%dI" % SP.CGRID, r["outs"][4]))
-                if any(s != SP.SENTINEL_U32 for s in sent[:arm["grid"]]):
+                n_sent = sum(1 for x in sent[:arm["grid"]] if x == SP.SENTINEL_U32)
+                # The sentinel proves the dispatch RAN. It must NOT be required
+                # on every lane: EXP-0092 measured on M4 that a bit-7-clear
+                # `sr_sel` leaves all but ONE slot of the read-back untouched,
+                # and the mechanism behind that single-slot write is recorded
+                # there as UNKNOWN. Demanding all 64 lanes would convert that
+                # genuine hardware phenomenon into `no_dispatch` and delete the
+                # most interesting half of this sweep. So: zero sentinel lanes
+                # means nothing ran; any sentinel lane means it ran, and HOW
+                # MANY lanes retired their stores is recorded as DATA.
+                if n_sent == 0:
                     r = dict(r)
                     r["status"] = "SENTINEL_MISS"
-                    r["error"] = "integrity sentinel not written: dispatch did not execute"
+                    r["error"] = "no integrity-sentinel lane written: dispatch did not execute"
                     return None, r
                 vals = list(struct.unpack("<%dI" % SP.CGRID, r["outs"][0]))
                 # DEF-0169-2 (the DSTORE finding, 2026-08-30): a device_store
@@ -386,13 +396,15 @@ def main():
                 # sentinel says the dispatch RAN, so out[] still holding
                 # 0xDEADBEEF means our store did NOT land, which is a different
                 # fact from "the store wrote 0".
-                if all(v == SP.POISON_U32 for v in vals[:arm["grid"]]):
+                n_poison = sum(1 for v in vals[:arm["grid"]] if v == SP.POISON_U32)
+                if n_poison == arm["grid"]:
                     r = dict(r)
                     r["status"] = "OUT_NOT_WRITTEN"
-                    r["error"] = ("dispatch ran (sentinel written) but the "
-                                  "read-back is still 0xDEADBEEF poison")
+                    r["error"] = ("dispatch ran (%d sentinel lanes written) but every "
+                                  "read-back lane is still 0xDEADBEEF poison" % n_sent)
                     return None, r
-                return {"words": vals}, r
+                return {"words": vals, "sent_written": n_sent,
+                        "out_poisoned": n_poison}, r
 
             def restart():
                 runner._kill(); runner._start()
@@ -575,6 +587,12 @@ def main():
             """Outcome from the FROZEN 6-value enum, plus an orthogonal `class`
             for cases with no semantic oracle (which is the informative outcome
             for an undocumented selector, not a defect)."""
+            # DEF-0178-1: a MALFORMED or otherwise unparseable runner response is
+            # NOT AN OBSERVATION and must not be scored as one -- not as a hang,
+            # and not as a fault either. It is a measurement failure, and the
+            # raw response lines are kept so a reviewer can see the cause.
+            if raw.get("status") in ("MALFORMED", "RUNNER_EXCEPTION", "BAD_RESPONSE"):
+                return "measurement_failed", None, False, raw.get("status")
             if raw.get("status") == "HANG":
                 return "hang", None, False, None
             if obs is None:
@@ -601,6 +619,16 @@ def main():
                 return "wrong_value", GOOD, False, ("WRONG_MOVED" if moved else "WRONG_NOMOVE")
             if sem_match is True:
                 return "ok", sem, True, "SEM_MATCH"
+            part = obs.get("out_poisoned") or 0
+            if part:
+                # PARTIAL WRITE: the dispatch ran, some lanes retired their
+                # store and some did not. EXP-0092's M4 "materialise the
+                # selector byte at ONE fixed slot" region is exactly this, and
+                # it is only visible because the read-back is POISONED -- against
+                # a zero-initialised buffer it is indistinguishable from
+                # "wrote 0" (FIELD-SWEEP-PROTOCOL section 7, instrument 1).
+                return ("wrong_value", sem, False,
+                        "PARTIAL_WRITE:%d_of_%d" % (arm["grid"] - part, arm["grid"]))
             if is_zeroish(obs):
                 return "silent_zero", sem, False, "ZERO"
             return "wrong_value", sem, False, ("MOVED" if moved else "NO_MOVE")
@@ -609,11 +637,17 @@ def main():
             if a is None or b is None:
                 return False
             if "words" in a:
-                return a["words"] == b["words"]
+                return (a["words"] == b["words"] and
+                        a.get("sent_written") == b.get("sent_written") and
+                        a.get("out_poisoned") == b.get("out_poisoned"))
             return same_pixels(a["pixels"], b["pixels"])
 
         def sem_equal(obs, sem):
             if "words" in sem:
+                # A partial write can never be `ok`, however well the written
+                # lanes match: an emitter needs every lane.
+                if obs.get("out_poisoned"):
+                    return False
                 return obs["words"][:arm["grid"]] == sem["words"][:arm["grid"]]
             got = [p[0] for p in obs["pixels"]]
             return all(abs(a - b) <= TOL * max(1.0, abs(b))
@@ -626,8 +660,9 @@ def main():
                 return None
             if "words" in obs:
                 # the compute sentinel is checked inside raw_case; reaching here
-                # means it was written.
-                return {"compute_sentinel": True}
+                # means at least one lane wrote it.
+                return {"sentinel_lanes": obs.get("sent_written"),
+                        "readback_lanes_still_poisoned": obs.get("out_poisoned")}
             px = obs["pixels"]
             n = arm["W"] * arm["H"]
             out = {}
@@ -661,7 +696,9 @@ def main():
             pixel-centre offset C, not as 0.0."""
             if "words" in obs:
                 # compute: k_sr_c stores SR + SR_BIAS, so a zero read is SR_BIAS.
-                return all(w == SP.SR_BIAS for w in obs["words"][:arm["grid"]])
+                # Only lanes that actually retired a store are evidence.
+                written = [w for w in obs["words"][:arm["grid"]] if w != SP.POISON_U32]
+                return bool(written) and all(w == SP.SR_BIAS for w in written)
             n = arm["W"] * arm["H"]
             if arm["oracle"] == "sr_frag":
                 return all(abs(p[0] - centre_c) <= 1e-9 for p in obs["pixels"][:n])
@@ -711,6 +748,7 @@ def main():
                    "own_fault": OWN_FAULT in str(raw.get("error", "")),
                    "sentinel_bad": raw.get("status") == "SENTINEL_MISS",
                    "attempts": attempts, "restarts": nres,
+                   "raw_lines": (raw.get("raw") if outcome == "measurement_failed" else None),
                    "foreign": foreign_flag,
                    "start": start, "width": width, "encodable_range": rng,
                    "values_dispatched": ndisp, "distinct_bytes": ndistinct,
@@ -737,19 +775,43 @@ def main():
                    set_bits(blk0, f["start"], f["width"], v),
                    note=why)
 
-        pf, pv, pwhy = arm["power_probe"]
-        f = fieldsdesc.get(pf)
-        if f is not None:
+        # The power probe may name a field the RESOLVED descriptor does not have
+        # (tile_ct2 resolves to tile_read or tile_read_mrt, and `b7` exists only
+        # on the former). Try the pre-registered candidates in order and record
+        # which one was used; if none exists, record that fact rather than
+        # silently skipping the litmus.
+        probes = arm["power_probe"]
+        if isinstance(probes, tuple):
+            probes = [probes]
+        for (pf, pv, pwhy) in probes:
+            f = fieldsdesc.get(pf)
+            if f is None:
+                continue
             record("power_probe", "__power_" + pf, pv,
                    set_bits(blk0, f["start"], f["width"], pv), note=pwhy)
+            break
+        else:
+            emit({"kind": "power_probe_absent", "arm": arm["arm"],
+                  "candidates": [x[0] for x in probes], "instr": mnem,
+                  "note": "no pre-registered power-probe field exists on the "
+                          "resolved descriptor; the litmus was NOT run"})
 
+        # DEFECT FOUND IN raw/g17p_20260830_run01 (retained, defective, never
+        # reused): this block used to bind a local called `nb`, and the compute
+        # arm's `raw_case` closure reads its read-back SIZE from a variable of
+        # the same name in the same enclosing scope, resolved at CALL time. The
+        # first three requests ran fine; the moment the falsifier executed, the
+        # size became a bytearray and every request from then on raised inside
+        # the runner. It presented as a `hang` cascade -- exactly the shape
+        # DEF-0178-1 produces -- which is why it survived four pilots. Both
+        # names are now unique and deliberately unlike each other.
         sf, sv, swhy = arm["sensitivity"]
         if sf == "byte0_bit2":
-            nb = bytearray(blk0); nb[0] &= ~0x04
-            record("sensitivity", "__sens_byte0_bit2", 0, bytes(nb), note=swhy)
+            sens_block = bytearray(blk0); sens_block[0] &= ~0x04
+            record("sensitivity", "__sens_byte0_bit2", 0, bytes(sens_block), note=swhy)
         elif sf == "byte1":
-            nb = bytearray(blk0); nb[1] = sv
-            record("sensitivity", "__sens_byte1", sv, bytes(nb), note=swhy)
+            sens_block = bytearray(blk0); sens_block[1] = sv
+            record("sensitivity", "__sens_byte1", sv, bytes(sens_block), note=swhy)
 
         # ------------------------------------------------------- sweeps -----
         hp = SP.hang_policy()

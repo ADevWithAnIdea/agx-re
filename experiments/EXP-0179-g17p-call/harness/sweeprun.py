@@ -42,6 +42,7 @@ HERE = Path(__file__).resolve().parent
 EXP = HERE.parent
 sys.path.insert(0, str(HERE))
 import isa_helpers as H  # noqa: E402
+import saferunner       # noqa: E402  (DEF-0178-1 / FIELD-SWEEP-PROTOCOL 3d)
 
 
 def _load(name, path):
@@ -66,9 +67,19 @@ persistrun = _load("persistrun", TOOLS / "agxtest" / "persistrun.py")
 SHDUMP = TOOLS / "shdump" / "shdump"
 AGXRUN_PERSIST = TOOLS / "agxtest" / "agxrun_persist"
 
+# DEF-0178-1 / FIELD-SWEEP-PROTOCOL 3(d): the shared PersistRunner abandons a
+# reader thread on every watchdog timeout, so THE FIRST HANG CAN SILENTLY
+# MANUFACTURE EVERY HANG AFTER IT. Arms G/T/M/B3/B5/B6/TL/R/L and arm S produced
+# 0 hangs in 10,484 dispatches, so none of them can be an artefact of it -- but
+# the tail (N, F, O) is expected to hang for real, and a false cascade after arm
+# N's first genuine hang would corrupt F and O. Every runner this experiment
+# constructs is therefore the leak-free subclass. The shared file is NOT
+# modified: other experiments are running against it.
+RUNNER = saferunner.make_safe_runner(persistrun.PersistRunner)
+
 OUTCOMES = ("ok", "silent_zero", "wrong_value", "fault", "hang", "undecodable")
 VALIDITIES = ("valid", "invalid_poison", "invalid_sentinel", "invalid_victim",
-              "invalid_nodata")
+              "invalid_nodata", "invalid_malformed")
 
 VICTIM_MARKERS = ("InnocentVictim", "innocent victim",
                   "Ignored (for causing prior", "IOAF code 4", "IOAF code 2",
@@ -121,7 +132,7 @@ class SynthCarrier(object):
         self.region_off, self.region_len = loc
         _, pieces = agxparse.extract_agx(self.basebuf)
         self.main_bytes = pieces["_agc.main"]
-        self.runner = persistrun.PersistRunner(
+        self.runner = RUNNER(
             source=str(self.source), function=function, fast_math=fast_math,
             agxrun_persist=str(AGXRUN_PERSIST))
         self.device = self.runner.device
@@ -170,7 +181,7 @@ class SynthCarrier(object):
                 self.runner._kill()
             except Exception:
                 pass
-        self.runner = persistrun.PersistRunner(
+        self.runner = RUNNER(
             source=str(self.source), function=self.function,
             fast_math=self.fast_math, agxrun_persist=str(AGXRUN_PERSIST))
 
@@ -238,6 +249,11 @@ def validity_of(status, err, d):
     RESULT, not an invalid run, and it is distinguished from a broken dispatch by
     the PRE sentinel (written BEFORE the call) and by the tail poison.
     """
+    if status == "MALFORMED":
+        # DEF-0178-1: a truncated/unparseable response is a MEASUREMENT FAILURE,
+        # not an observation. It is re-run, never scored -- a false `hang` and a
+        # real inertness are indistinguishable in a summary.
+        return "invalid_malformed"
     if is_victim(err):
         return "invalid_victim"
     if status != "OK":
@@ -275,6 +291,11 @@ def classify_call(status, d, plan, expect_called=True, expect_returned=True,
     if status == "HANG":
         return "hang", {"callee_ran": None, "returned": None, "landing": None,
                         "breadcrumb": None, "collateral": None, "match": False}
+    if status == "MALFORMED":
+        return "undecodable", {"callee_ran": None, "returned": None,
+                               "landing": None, "breadcrumb": None,
+                               "collateral": None, "match": False,
+                               "kind": "malformed_response"}
     if status != "OK":
         return "fault", {"callee_ran": None, "returned": None, "landing": None,
                          "breadcrumb": None, "collateral": None, "match": False}

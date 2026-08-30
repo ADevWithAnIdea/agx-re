@@ -27,15 +27,31 @@ the call — verified against a 16-register dump predicted entirely on the host.
 And separately, **the compiler emits one too**: 17 of 27 authored MSL constructs produce an
 out-of-line call on the current G17P toolchain.
 
-**Status: PARTIAL.** Arms `G, T, M, B3, B5, B6, TL, R, L` are complete and gated, and arm `S`
+**Status: COMPLETE.** All fourteen arms have run. Arms `G, T, M, B3, B5, B6, TL, R, L` are gated, arm `S`
 (the independent second method — the same four bytes mutated in a **real compiler-emitted**
 call) has run as its own two-run pair. Arms `O` (the `ret.scoreboard` ordering observable),
 `F` (falsifiers F3/F4/F6) and `N` (the depth-2 no-link-save probe) are **PENDING an exclusive
-window** — they are the declared hang-prone tail and the orchestrator holds that window.
+window** — have now run in a coordinated window; see sections 9, 10 and 11.
 
-**The second method earned its keep: it CONTRADICTED one of the generated-carrier results.**
-`call.b6`, inert across all 256 values on both generated carriers, turns out to have a
-load-bearing bit 1 on the compiled call. See §3.
+### Three results this experiment wants read plainly
+
+**1. `call.b6` refuted itself.** It was measured inert across all 256 values on **both**
+generated carriers, reported as a don't-care, and merged on that basis — and then **our own
+independent second method overturned it**: on a real compiler-emitted call, bit 1 must be SET
+(128 of 256 legal, `encodable_range` 128, not 256). Two generated carriers that share a leaf
+callee do not differ in the dimension `b6` controls, however dense the sweep. **This is the
+finding that would otherwise have shipped as a wrong emitter constraint.** §3, §8.
+
+**2. `ret.scoreboard` is declined ON A FIRED CONTROL, not on an absent one.** Three earlier
+experiments declined this family because they *could not build the ordering observable* — an
+inconclusive in the shape of a decline. We built it, **proved it fires**, and the field still
+did not move it: one distinct filler-length threshold per arm across all sixteen `scoreboard`
+values, byte-identical in both runs. That is the difference between *unknown* and *known not
+to*. §11.
+
+**3. A nested call without a properly established scratch frame destroys the outer return and
+runs forever.** That is the defensible claim. "The return address is a single link register"
+is `INFERRED` and explicitly **not** demonstrated — the confound is ours. §9.
 
 ---
 
@@ -321,11 +337,13 @@ working bracket; **both `0x00` and `0xC0` produce a correct dump**, and `0x00` w
 
 ## 6. WHAT IS NOT ESTABLISHED
 
-* **Arms `O`, `F` (F3/F4/F6) and `N` have not run.** They are the declared hang-prone tail
-  and await an exclusive window. Until `N` runs, **whether the return address is a hardware
-  stack or a single link register is UNKNOWN** — the depth-2, no-`link_save_restore` probe is
-  the test.
-* **`ret.scoreboard` remains `corpus-correlation`.** See §3.
+* **Whether the return address is a hardware stack or a single link register is `INFERRED`,
+  not established** — arm N's confound is ours (no `frame_prologue`, scratch size not under our
+  control). See §9 for the named successor experiment.
+* **`ret.scoreboard` remains `corpus-correlation`** — declined with the positive control
+  FIRING, which is a stronger decline than the three before it. See §3 and §11.
+* **`ret.scoreboard` is bounded only for a LEAF return with one outstanding asynchronous
+  load.** A non-leaf return, an outstanding store, or a multi-slot wait is untested.
 * **No fragment-stage call was produced**, 2 of 2 constructs tried. This is `PARTIAL`, not
   "fragment shaders cannot call": the render-stage extraction may not expose every region.
 * **Only forward displacements were generated.** A generated **backward** call needs a
@@ -360,6 +378,10 @@ RET   = 8f <linkmode> 54 <scoreboard>
         linkmode  : 0x02 leaf / 0x12 non-leaf both return; 0x04 / 0x05 do NOT return.
         scoreboard: no observable in a leaf return -- treat as unresolved, use the corpus 0x00.
 ```
+
+> ⚠ **`call.b6`'s `encodable_range` is 128, not 256.** The first version of this result said
+> 256 and was wrong. It is corrected here only because an independent second method
+> contradicted it — a dense sweep on two carriers agreeing perfectly was not enough.
 
 `call.b3`, `call.b5`, `call.b6` (narrowed, see §3) and `call.tail` move from
 **`tokenization-only`** to **`hardware-run`** (`analysis/field_verdicts.json`). Combined with `call.offset`, which was
@@ -423,3 +445,185 @@ Arm S cannot count toward the "≥ 2 carriers" bar for a *generated* result, bec
 bytes come from a compiled shader. What it can do is **contradict** a generated result, which
 is worth more than agreeing with one — and it did. Two of the four fields were confirmed on a
 third, structurally unrelated carrier; one was corrected.
+
+---
+
+## 9. ARM N — a nested call without a frame destroys the outer return. Bounded, not the clean answer.
+
+`raw/MAPPING_g17p_20260830_run09N_hangtolerant` (forward) and `run10N` (reverse), 8 cases
+each. A **declared, named, non-gated mapping pass** (`--hang-tolerant N`, run id containing
+`MAPPING_`) per FIELD-SWEEP-PROTOCOL §3(c): an arm whose expected result *is* the hang cannot
+be characterised under a budget of 2.
+
+The construction: a generated `call` into a generated callee which itself makes a second
+generated `call` to a third region — depth 2 — with **no `frame_prologue` (0x6f)** and,
+in one variant, with the compiler's `link_save_restore` idiom around the inner call.
+
+| configuration | forward | reverse |
+|---|---|---|
+| `link=0 marker=0 pop=1` | **HANG** | **HANG** |
+| `link=0 marker=1 pop=1` | **HANG** | **HANG** |
+| `link=1 marker=0 pop=1` | **HANG** | **HANG** |
+| `link=0 marker=0 pop=0` (retained control) | fault | fault |
+
+**All six correctly-formed depth-2 configurations hang. Adding `link_save_restore` does not
+help. Adding the frame marker does not help.**
+
+### What this does and does not establish
+
+**Established (`HW-VALIDATED`):** on G17P, a generated call made from inside a callee, with no
+established scratch frame, **destroys the outer return and runs forever**. An implementer must
+not emit a bare nested call.
+
+**NOT established — and the confound is ours, so it is stated rather than buried.** Our
+synthesized program emits **no `frame_prologue`**, and `link_save_restore` writes to per-thread
+**scratch** whose size comes from the carrier kernel's *compiled metadata* — which our
+overwritten `_agc.main` does not control and which may be zero. So even the `link=1` arm may
+have been saving into unallocated scratch. **Whether a correctly-framed nested call works is
+untested here.**
+
+**`INFERRED`, explicitly awaiting falsification: the return address is a single link
+register, not a hardware stack.** The measurement above is *consistent with* an inner call
+overwriting the outer return; and the compiler emits a `frame_prologue` **plus**
+`link_save_restore` around every nested call in every non-leaf callee (EXP-0038; and the
+census's C15/C17/C18 show 1–2 non-leaf frames per program), which a hardware stack would make
+unnecessary. That is **consistent with**, not **demonstrating**. **Successor experiment:**
+establish a real scratch frame — a carrier whose compiled kernel declares scratch, plus a
+generated `frame_prologue` with a correct `frame_size` — and re-run these six configurations.
+
+### Was arm N's hang real, or a DEF-0178-1 cascade?
+
+**Measured, not assumed** — `analysis/cascade_N.json`, `analysis/cascade_check.py`:
+
+* **`agreement_by_value` = 1.0000 vs `agreement_by_position` = 0.5000.** The same eight case
+  keys give the same outcome class in both dispatch directions; position agreement is chance.
+* **The contiguous-suffix cascade signature returns True here and MUST NOT BE CITED.** With
+  8 of 8 cases non-OK it is *degenerate* — it cannot come out the other way, which makes it
+  worthless exactly like a liveness ladder that cannot fail or a round trip blind to swapped
+  operands. It is reported so that nobody quotes it.
+* **The discriminator that does carry the weight is positive rather than an absence of
+  evidence: the two `pop=0` controls FAULT rather than hang, in both directions, at different
+  dispatch positions — index 3 forward, index 0 reverse.** A cascade cannot produce a clean
+  `CMDBUF_ERROR` at dispatch index 0, *before any watchdog has fired*; and it cannot produce
+  hangs at later indices in one order and earlier indices in the other for the same keys.
+* Runner counters: `malformed = 0`, `discarded_lines = 0`, `invalid_victim = 0`; `restarts`
+  increments by exactly 3 per hang, which is majority-of-3 working, not a leak.
+
+### Amendment-02 — the first arm N pass was OUR BUG, not a hardware fact
+
+`raw/MAPPING_g17p_20260830_run05N/run06N` (retained, never reused) faulted on all 6 cases in
+both runs. The cause was that the depth-2 layout **omitted the `pop_reconverge` after the
+inner call** — when **arm M had already measured that a call without a following pop faults**.
+Our own earlier result predicted the failure and we had not applied it. Reported as
+"depth-2 calls fault", it would have been a wrong hardware claim that looked clean.
+
+The fix is deliberately more than a fix: `depth2_pop` is now a **variable**, and `pop=False`
+is **retained as a control that reproduces the fault on purpose**, so arm N's result can never
+again be confused with arm M's. `raw/MAPPING_g17p_20260830_run07N` is also retained and marked
+defective — a `sync.sh push` returned non-zero inside an `&&` chain, so that pass ran against
+the stale pre-amendment harness (6 cases instead of 8). Remote blob hashes are now verified
+after every push (`harness/verify_remote.py`, 22/22 matched) instead of trusting `&&`.
+
+---
+
+## 10. ARM F — every falsifier fired, in both directions
+
+`raw/MAPPING_g17p_20260830_run11F_hangtolerant` / `run12F`.
+
+| falsifier | pre-registered expectation | observed |
+|---|---|---|
+| **F2** call replaced by 2-byte no-ops | callee's effect must vanish | callee never ran, breadcrumb still `0xDEADBEEF`, control returned — **fired** |
+| **F3** byte+4 `0x8f` (a `match` byte) → `0x00`/`0xFF` | must not behave like baseline | never baseline: no transfer of control, or fault — **fired** |
+| **F4** callee's `ret` replaced by no-ops | must not return | callee **ran** and did **not** return — **fired** |
+| **F6** nested carrier, `pop_reconverge` removed | recorded, not predicted | **fault**, both runs — independently confirms arm M |
+
+`analysis/cascade_F.json`: `agreement_by_value` 0.6667, `agreement_by_position` 0.6667 —
+**INDISTINGUISHABLE at the 0.20 margin, and reported as such.** With 7 of 9 cases non-OK both
+agreements are trivially close, so the clustering test cannot separate them here and claims
+nothing. The three cross-run differences are between two *failure modes* (`fault` vs
+`wrong_value`) in deliberately-broken programs — never between pass and fail — and every
+falsifier was non-baseline in **both** runs, which is what arm F existed to show.
+
+---
+
+## 11. ARM O — the ordering observable WORKED, and `ret.scoreboard` is still declined
+
+`raw/g17p_20260830_run13O` / `run14O`, 384 cases each, `analysis/order_arm.json`.
+
+The callee issues an asynchronous `device_load` into `R_LOAD`, then *F* filler instructions,
+then `ret`; the caller reads `R_LOAD` immediately after the call. Grid: 16 `scoreboard` values
+× 12 filler lengths × 2 carriers.
+
+**The positive control fired.** DEF-0169-1's asynchrony reproduces as a clean monotone step:
+
+| carrier | not landed | landed from |
+|---|---|---|
+| `C1_flat` | fillers 0…8 | **10** |
+| `C2_nested` | fillers 0…4 | **6** |
+
+Byte-identical in both runs. `C2`'s threshold is *lower* because its extra `if_push` +
+`pop_reconverge` already add latency, so fewer explicit fillers are needed — an internal check
+that the instrument measures elapsed issue rather than something spurious.
+
+**And across all 16 `scoreboard` values there is exactly ONE distinct threshold per arm. The
+threshold does not shift.** `agreement_by_value` 1.0000 vs `agreement_by_position` 0.0000 —
+the sharpest value-clustering in the experiment.
+
+> **`ret.scoreboard` is DECLINED. `corpus-correlation`, unchanged.**
+>
+> This is the strongest form the decline could take. It is not "we could not build the
+> observable": we built it, **proved it fires**, and the field did not move it. The
+> pre-registered promotion condition — the threshold must *shift* with the `scoreboard`
+> value in both runs — was not met, and a working instrument does not get to talk past that.
+> Three prior experiments declined this family; this one declines it on much better evidence.
+
+**What remains unknown:** `ret.scoreboard` may be load-bearing in a context this carrier does
+not create — a non-leaf return, a return with an outstanding *store* rather than a load, or a
+multi-slot wait. The measurement bounds it to "no observable ordering power on a leaf return
+with one outstanding asynchronous load", nothing wider.
+
+---
+
+## 12. Final status
+
+| arm | result |
+|---|---|
+| `Z` census | 27 constructs; 17 emit a call |
+| `G` generated | **192 distinct generated calls, 384 observations, 0 failures** |
+| `T` target | `call_addr + 4 + offset` exact, forward, ±8 at 2-byte granularity |
+| `M` bracket | **pop_reconverge REQUIRED, frame marker OPTIONAL** |
+| `B3/B5/B6/TL` | four fields `tokenization-only` → `hardware-run` |
+| `R` scoreboard | **declined**, control fired |
+| `L` linkmode | control only; EXP-0156's label untouched |
+| `S` splice | second method; confirmed 3 fields, **corrected `b6`** |
+| `F` falsifiers | all fired, both directions |
+| `N` depth-2 | bounded negative; "single link register" `INFERRED` |
+| `O` ordering | instrument works; field inert; decline upheld |
+
+**Grand totals across every capture:** 11,660 dispatch results, **0 malformed responses,
+0 innocent victims, 0 invalid runs**, and every non-OK outcome value-clustered wherever the
+clustering test was able to separate value from position.
+
+---
+
+## 13. Concurrency: unlocked cost nothing measurable
+
+Arms `N`, `F` and `O` ran while **EXP-0178 was mid-pair on `get_sr` and EXP-0180 was cleared
+to dispatch**. Across that entire tail:
+
+* **`invalid_victim` = 0** — not one `kIOGPUCommandBufferCallbackErrorInnocentVictim`, nothing
+  to segregate, nothing to re-run;
+* `malformed` = 0, `discarded_lines` = 0, `n_malformed_validity` = 0;
+* every non-OK outcome value-clustered wherever the clustering test could separate value from
+  position.
+
+This is the FIELD-SWEEP-PROTOCOL §7 standing policy — sweep unlocked, instrument instead of
+serializing — vindicated on the experiment most exposed to it, since arm N deliberately hangs
+the device six times per pass. **Six genuine hangs, two neighbours running, zero contamination
+observed in either direction.** The exclusive window was requested and granted for arm N and
+was, in the event, not needed; that is worth recording so the next agent asks for less.
+
+The one thing that *did* need care was not concurrency but the runner: DEF-0178-1 means the
+first watchdog timeout can manufacture every hang after it, and arm N is the one arm whose
+expected result is a hang. That was addressed structurally before dispatch (§7a,
+`harness/saferunner.py`, `harness/selftest.py` gate G2) rather than by hoping.

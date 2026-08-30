@@ -207,3 +207,81 @@ baselines — the status histogram is `OK` 9273 / `CMDBUF_ERROR` 1211, with **0 
 invalid_victim, 0 malformed/unpack errors, 0 carrier_hangs, no stopped arms**. No result here
 can be a 3(d) artefact. Written up as `RESULTS.md` §7a. The 3(c) mapping-pass machinery was
 built and pre-registered but never had to fire; it stays in place for the pending O/F/N arms.
+
+## 2026-08-30 — M6a: DEF-0178-1 addressed BEFORE the tail; courtesy notice for the hang arms
+The exclusive window is open. Before dispatching anything I built
+`harness/saferunner.py` — the compute half of EXP-0178's leak-free wrapper
+(lineage cited, shared tool NOT modified, other experiments are running against it):
+**one reader thread per child tagged by owner**, and **a malformed response recorded as a
+MEASUREMENT FAILURE (`MALFORMED` -> `invalid_malformed`, re-run, raw lines kept) rather than
+raised or scored as a hang**. Every runner this experiment constructs now uses it, including
+arm S's.
+
+`harness/selftest.py` proves it WITHOUT a device (`harness/fakechild.py` speaks the protocol
+with no Metal): **SELFTEST PASS** —
+- G1 both runners parse a good response;
+- **G2 the SHARED runner RAISES `not enough values to unpack (expected 3, got 2)` on a
+  truncated `OUT` line — the documented defect, reproduced** — while the safe runner returns
+  `MALFORMED` with the raw lines kept and never a hang;
+- G3 one genuine watchdog timeout followed by two clean requests, `discarded_lines=0`;
+- G4 geometry + all 3189 cases still build.
+G3-shared is recorded as an OBSERVATION, not a gate: the shared runner did not cascade in the
+stub because `rd()` normally resolves `self.proc` immediately at thread start, so the real
+failure needs scheduling luck and/or several accumulated abandoned readers (EXP-0178's pilot
+saw `restarts=99`). A clean stub result is therefore NOT evidence the defect is absent — G2 is
+the deterministic half, and the safe runner is immune by construction.
+
+**COURTESY NOTICE (FIELD-SWEEP-PROTOCOL section 7): I am about to run arms that are EXPECTED
+to hang.** Arm N destroys a return address on purpose; arm F4 removes the callee's `ret`;
+arm F6 leaves the mask stack unbalanced; arm F3 breaks the pinned `0x8f` signature byte. Arms
+N and F run as DECLARED, NAMED, NON-GATED mapping passes with the hang budget deliberately
+overridden (`--hang-tolerant`, run ids containing `MAPPING_`), because a 6-case and a 9-case
+arm whose whole point is the hang cannot be characterised under a budget of 2 — that is
+FIELD-SWEEP-PROTOCOL 3(c) exactly. Arm O keeps the budget.
+
+## 2026-08-30 — M6 COMPLETE: the tail (N, F, O) is done. EXPERIMENT COMPLETE.
+Device work finished; the machine was released to EXP-0178/EXP-0180.
+
+- **Arm N** (`MAPPING_..._run09N/run10N`, declared non-gated mapping pass): **all 6
+  correctly-formed depth-2 configurations HANG**, with and without `link_save_restore`, with
+  and without the frame marker; the 2 retained `pop=0` controls FAULT. Reported as a BOUNDED
+  negative: the defensible claim is **"a nested call without a properly established scratch
+  frame destroys the outer return and runs forever"**. "Single link register" stays `INFERRED`
+  — our program emits no `frame_prologue` and `link_save_restore` writes to scratch whose size
+  the carrier's compiled metadata controls and we do not, so even the `link=1` arm may have
+  saved into unallocated scratch. Successor named: establish a real scratch frame and re-run.
+- **Arm F** (`run11F/run12F`): every falsifier fired in both directions. F6 independently
+  re-confirms arm M (a call without a following pop faults).
+- **Arm O** (`run13O/run14O`): **the positive control FIRED** — the async `device_load` lands
+  as a clean monotone step in filler length (C1 from 10, C2 from 6), byte-identical in both
+  runs, and C2's LOWER threshold is explained by its extra if_push+pop latency, which is the
+  instrument responding to a physical quantity we did not tune it against. **Across all 16
+  scoreboard values there is exactly ONE threshold per arm — no shift — so `ret.scoreboard` is
+  DECLINED on a FIRED control**, which is a stronger negative than the three prior declines.
+
+**Anti-cascade work, done BEFORE the tail dispatched** (DEF-0178-1 / FIELD-SWEEP-PROTOCOL 3d):
+`harness/saferunner.py` (one reader per child, tagged; MALFORMED -> invalid_malformed, re-run,
+raw kept), proved device-free by `harness/selftest.py` G2, which reproduces the shared runner
+RAISING on a truncated OUT line. Then measured rather than assumed, per arm
+(`analysis/cascade_check.py`): gated pair value **0.9996** vs position **0.5297** with 656
+identical non-OK keys; arm N **1.0000** vs **0.5000**; arm O **1.0000** vs **0.0000**; arm F
+**INDISTINGUISHABLE** and reported as such. Across all 11,660 dispatch results: 0 malformed,
+0 innocent victims, 0 invalid runs.
+
+**Three self-caught defects this milestone, all retained not absorbed:**
+1. **amendment_02** — the first arm N pass faulted because MY layout omitted the inner
+   `pop_reconverge`, which MY OWN arm M had already measured to be required. `depth2_pop` is
+   now a variable with `pop=False` retained as the reproducing control.
+2. **defect_02** — `sync.sh push` returned non-zero inside an `&&` chain, so run07N ran against
+   a stale harness. `harness/verify_remote.py` now hashes every authored blob on the device
+   after every push (22/22 matched before the tail).
+3. **the degenerate check, twice** — arm N's contiguous-suffix cascade signature returns True
+   trivially at 8-of-8 non-OK and MUST NOT be cited (replaced by the `pop=0`-at-index-0
+   positive discriminator); and the clustering script first reported arm O at
+   `agreement_by_value = 0.0000`, a textbook cascade signature, which was a KEY COLLISION in my
+   own analysis (12 fillers per key). Both reasons written into the code, not just the prose.
+
+Deliverables final: `analysis/{call_census,gate,field_verdicts,splice_verdicts,order_arm,
+cascade_all,cascade_N,cascade_F,cascade_O}.json`, `RESULTS.md` (13 sections),
+`CAPTURE_CONTRACT.json` (amendment_01/02, defect_01/02, def_0178_1), `manifest.json` (49 files).
+Nothing committed; `docs/`, `PROVENANCE.md`, `db.json`, `validation.json` untouched.

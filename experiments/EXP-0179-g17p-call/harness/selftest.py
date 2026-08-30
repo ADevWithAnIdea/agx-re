@@ -65,8 +65,9 @@ SHIM.write_text("#!/bin/bash\nexec %s %s \"$@\"\n" % (sys.executable, FAKE))
 SHIM.chmod(0o755)
 
 
-def mkr(cls, mode):
+def mkr(cls, mode, state=None):
     os.environ["EXP0179_FAKE_MODE"] = mode
+    os.environ["EXP0179_FAKE_STATE"] = state or ""
     return cls(source="x.metal", function="k", fast_math=False,
                agxrun_persist=str(SHIM))
 
@@ -100,7 +101,7 @@ if not shared_raised:
 
 r = mkr(SafeRunner, "truncate")
 resp = req(r)
-ok = (resp["status"] == "MALFORMED" and resp["error"] and resp["raw"])
+ok = bool(resp["status"] == "MALFORMED" and resp["error"] and resp["raw"])
 print("G2 safe    truncated OUT -> MALFORMED, raw kept, NOT a hang: %s (status=%s)"
       % (ok, resp["status"]))
 if not ok:
@@ -108,12 +109,43 @@ if not ok:
 r.close()
 
 # ---- G3 THE CASCADE ------------------------------------------------------
-r = mkr(SafeRunner, "hang_first")
+state = HERE / "_fakestate.tmp"
+if state.exists():
+    state.unlink()
+r = mkr(SafeRunner, "hang_first", state=str(state))
 first = req(r, timeout=1.0)
 after = [req(r, timeout=2.0) for _ in range(2)]
 ok = (first["status"] == "HANG"
       and all(x["status"] == "OK" for x in after)
       and all(x["outs"].get(0) == bytes.fromhex("deadbeef" * 2) for x in after))
+# The same sequence on the SHARED runner, for contrast. Recorded as an
+# OBSERVATION, not a gate: the race is real but not deterministic, so a clean
+# pass here would not mean the defect is absent.
+state2 = HERE / "_fakestate2.tmp"
+if state2.exists():
+    state2.unlink()
+rs = mkr(persistrun.PersistRunner, "hang_first", state=str(state2))
+sfirst = req(rs, timeout=1.0)
+safter = []
+for _ in range(2):
+    try:
+        safter.append(req(rs, timeout=2.0)["status"])
+    except Exception as e:
+        safter.append("EXC:%s" % type(e).__name__)
+print("G3 shared  (observation) hang then 2: %s then %s" % (sfirst["status"], safter))
+print("           NOTE: the shared runner did NOT necessarily cascade here. The "
+      "abandoned thread\n           resolves self.proc when rd() EXECUTES, which is "
+      "usually immediately at thread\n           start, so it is normally already "
+      "bound to the OLD child. The real failure needs\n           scheduling luck "
+      "and/or several accumulated abandoned readers (EXP-0178's pilot saw\n"
+      "           restarts=99). A clean result HERE is therefore NOT evidence the "
+      "defect is absent --\n           G2 is the deterministic half, and the safe "
+      "runner is immune BY CONSTRUCTION.")
+try:
+    rs.close()
+except Exception:
+    pass
+
 print("G3 safe    hang then 2 clean requests: %s (%s then %s), discarded_lines=%s"
       % (ok, first["status"], [x["status"] for x in after],
          after[-1].get("discarded_lines")))
@@ -143,6 +175,8 @@ except Exception as e:
     fails.append("G4")
 
 SHIM.unlink(missing_ok=True)
+(HERE / "_fakestate.tmp").unlink(missing_ok=True)
+(HERE / "_fakestate2.tmp").unlink(missing_ok=True)
 print()
 print("SELFTEST %s%s" % ("PASS" if not fails else "FAIL ", ",".join(fails)))
 sys.exit(1 if fails else 0)

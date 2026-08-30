@@ -242,12 +242,16 @@ def build_cases(addendum=None):
     # RUN LAST, own hang budget. A destroyed return address is exactly the
     # 'runs forever' failure FIELD-SWEEP-PROTOCOL 3(c) warns about.
     for cname, cfg in sorted(CARRIERS.items()):
-        for (lk, mk) in ((False, False), (False, True), (True, False)):
+        # AMENDMENT-02: `depth2_pop` is now a VARIABLE, and pop=False is retained
+        # as the control that reproduces the first pass's fault -- so arm N's
+        # result cannot be confused with arm M's.
+        for (lk, mk, pop) in ((False, False, True), (False, True, True),
+                              (True, False, True), (False, False, False)):
             cases.append(_case("N", cname, cfg, a, field="depth2",
-                               value="link=%d,marker=%d" % (lk, mk),
-                               start=None, width=None, encodable_range=3,
+                               value="link=%d,marker=%d,pop=%d" % (lk, mk, pop),
+                               start=None, width=None, encodable_range=4,
                                depth2=True, depth2_link=lk, depth2_marker=mk,
-                               hang_candidate=True,
+                               depth2_pop=pop, hang_candidate=True,
                                note="H7: is the return address a HW stack or a "
                                     "single link register?"))
 

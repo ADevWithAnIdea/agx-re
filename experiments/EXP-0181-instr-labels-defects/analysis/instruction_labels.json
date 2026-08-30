@@ -1,0 +1,2522 @@
+{
+ "_meta": {
+  "experiment": "EXP-0181",
+  "task": "DEF-0173-1 -- what SHOULD the 30 weak `_instruction` labels be, from evidence",
+  "decision_rule": "PRE_REGISTRATION.md R1-R5; R5 is the load-bearing one: a descriptor gets NO credit at instruction level from its fields being hardware-run.",
+  "inputs": [
+   "tools/agx-isa/validation.json",
+   "tools/agx-isa/db.json",
+   "analysis/dispatch_evidence.json",
+   "analysis/dispatched_bytes_check.json",
+   "analysis/anchor_check.json",
+   "analysis/anchor_reachability.json",
+   "the cited experiments' RESULTS.md and raw/"
+  ],
+  "n_weak": 30,
+  "recommended_hardware_run": 18,
+  "recommended_isolated_byte_diff": 7,
+  "recommended_stay_weak": 5,
+  "all_30_were_dispatched_on_hardware": true,
+  "gate_arithmetic": {
+   "emittable_now_by_field_labels": 53,
+   "if_the_gate_were_applied_with_TODAY_labels": 23,
+   "if_the_gate_were_applied_with_THESE_recommendations": 48,
+   "net_cost_of_the_gate_after_this_refresh": -5,
+   "note": "validation.json is NOT edited here. These are recommendations for the label owner. The five that stay weak are frag_depth_store, frame_marker_compact, n2_op6, sfu_marker and vary_slot."
+  },
+  "not_edited": [
+   "tools/agx-isa/validation.json",
+   "docs/",
+   "PROVENANCE.md"
+  ]
+ },
+ "instructions": {
+  "bf_add_dst": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-O2D"
+    ],
+    "range": "native bfloat 0x1c add for any dst register; generalises the HW-spliced byte0==0x11 bf_alu"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "range": "native bf16 add at dst nibble 2; op-select and source-modifier proven by value; 4152 cases, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0156 scored the UNMUTATED instruction against a host-computed EXACT bf16 bit pattern on every lane in both gated runs (out = bf16(a+b), 0x40103fc0), settled the ROUNDING MODE with a pre-registered two-oracle tie probe (RNE matched, truncate failed), and proved the op-select BY VALUE (byte+2 0x1c->0x1d turns a+b into a*b, matching the MUL oracle while its paired control failed the ADD oracle) plus byte+5 bit3 = a-b. Identity and semantics are hardware facts, not corpus fits.",
+   "refuter": "a carrier in which byte+2 0x1c does NOT compute a+b, or a re-run in which the tie vector returns the truncate result.",
+   "caveats": [
+    "`dst` accepted exactly ONE value (v == 0x21) in that carrier, so the dst-GENERALISATION this descriptor's name claims (bf_alu r1 -> r0..r15) is NOT demonstrated -- only dst nibble 2 ran.",
+    "the anchor does not tokenize: DEF-0171-2 (isadb.py's low-nibble-1 length rule is gated on byte+1 in {0x02,0x04}; G17P emits 0x00). The descriptor still WINS those bytes on specificity once a length exists (EXP-0175 measured 12 match bits vs bf_alu8_var's 4).",
+    "the byte+3/byte+4 value -> register map is explicitly NOT claimed (EXP-0156 section 12.3)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0156-g17p-emit-cf-mem"
+    ],
+    "total_raw_cases": 4152,
+    "oracle_scored_cases": 4152,
+    "per_experiment": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 3,
+      "cases": 4152,
+      "oracle_scored_cases": 4152,
+      "outcomes": {
+       "fault": 95,
+       "invalid_run": 556,
+       "ok": 180,
+       "silent_zero": 1399,
+       "wrong_value": 1922
+      },
+      "runs": [
+       "g17p-20260830-bf03",
+       "g17p-20260830-bf04",
+       "g17p-20260830-revbf1",
+       "g17p-20260830-revbf2",
+       "smoke-s01"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "distinct_byte_strings": 2041,
+      "decode_back_to_self": 2
+     }
+    },
+    "hw_anchor_tokenizes": false
+   }
+  },
+  "bf_fma_dst": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-O2D"
+    ],
+    "range": "native bfloat 0x1e fma for any dst register; generalises the HW-spliced byte0==0x11 bf_alu"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156",
+     "EXP-0171"
+    ],
+    "range": "native bf16 fma at dst nibble 2; 2654 cases in 2 gated runs, plus EXP-0171's dense byte+6..+9 tail"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "Same instrument as bf_add_dst: EXP-0156's unmutated bf_fma carrier reproduced the host-computed exact bf16 pattern for out = bf16(a*b+c) (0x3f803f40) on every lane in both gated runs, with the 10-byte fma form separated from the 8-byte add by a pre-registered byte+2 control that broke as predicted.",
+   "refuter": "a run in which the bf_fma carrier's unmutated bytes do not reproduce the a*b+c oracle.",
+   "caveats": [
+    "`dst` accepted one value (0x21); 44 of 256 fault. The dst generalisation is not demonstrated.",
+    "anchor does not tokenize (DEF-0171-2), as for bf_add_dst."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0156-g17p-emit-cf-mem",
+     "EXP-0171-g17p-ilogic-srca"
+    ],
+    "total_raw_cases": 14276,
+    "oracle_scored_cases": 14224,
+    "per_experiment": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 3,
+      "cases": 2654,
+      "oracle_scored_cases": 2654,
+      "outcomes": {
+       "fault": 176,
+       "invalid_run": 459,
+       "ok": 25,
+       "silent_zero": 327,
+       "wrong_value": 1667
+      },
+      "runs": [
+       "g17p-20260830-bf03",
+       "g17p-20260830-bf04",
+       "g17p-20260830-revbf1",
+       "g17p-20260830-revbf2",
+       "smoke-s01"
+      ]
+     },
+     "EXP-0171-g17p-ilogic-srca": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 11622,
+      "oracle_scored_cases": 11570,
+      "outcomes": {
+       "fault": 22,
+       "ok": 4380,
+       "silent_zero": 1353,
+       "wrong_value": 5815
+      },
+      "runs": [
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "distinct_byte_strings": 1276,
+      "decode_back_to_self": 2
+     },
+     "EXP-0171-g17p-ilogic-srca": {
+      "distinct_byte_strings": 2091,
+      "decode_back_to_self": 0
+     }
+    },
+    "hw_anchor_tokenizes": false
+   }
+  },
+  "cvt_bf16": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-O2D"
+    ],
+    "range": "bfloat convert located by own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162",
+     "EXP-0144"
+    ],
+    "range": "31 semantic vectors on the unmutated instruction + dense sweeps of all six free bytes, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0162 ran 31 host-oracle SEMANTIC VECTORS on the unmutated cvt_bf16 in c_f2bf and established float32->bfloat16 round-to-nearest-EVEN by REFUTING three named alternatives (TIES_DOWN, TRUNC, RNA) with tie vectors, plus f32 denormal flush-to-zero. That is the conversion this descriptor names, measured, not correlated.",
+   "refuter": "a tie vector returning the TIES_DOWN or TRUNC result, or a denormal that does not flush.",
+   "caveats": [
+    "EXP-0162 section 2.3: this descriptor's own match constant [32,8,1] (byte+4 == 0x01) names a value THE HARDWARE REJECTS, and the HW anchor 0101148105024000 has byte+4 == 0x05. The match is wrong and the anchor does not tokenize. Recorded, not fixed here -- EXP-0162 says the fix needs a length-rule change it does not own.",
+    "`srcw`'s documented enum is wrong for this form (EXP-0162 finding 4)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0144-m4-emit-pack",
+     "EXP-0162-g17p-pack-and-splices"
+    ],
+    "total_raw_cases": 9160,
+    "oracle_scored_cases": 9143,
+    "per_experiment": {
+     "EXP-0144-m4-emit-pack": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 7292,
+      "oracle_scored_cases": 7276,
+      "outcomes": {
+       "fault": 16,
+       "ok": 2255,
+       "silent_zero": 3165,
+       "wrong_value": 1856
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03",
+       "m4_20260828_run04"
+      ]
+     },
+     "EXP-0162-g17p-pack-and-splices": {
+      "baseline_or_anchor_cases": 20,
+      "baseline_or_anchor_ok": 20,
+      "cases": 1868,
+      "oracle_scored_cases": 1867,
+      "outcomes": {
+       "fault": 71,
+       "invalid_run": 1,
+       "ok": 556,
+       "silent_zero": 445,
+       "wrong_value": 794
+      },
+      "runs": [
+       "g17p_20260829_run01__cvt_bf16"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0144-m4-emit-pack": {
+      "distinct_byte_strings": 1808,
+      "decode_back_to_self": 0
+     },
+     "EXP-0162-g17p-pack-and-splices": {
+      "distinct_byte_strings": 1809,
+      "decode_back_to_self": 0
+     }
+    },
+    "hw_anchor_tokenizes": false
+   }
+  },
+  "cvt_f2h": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0013"
+    ],
+    "range": "located by own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0144",
+     "EXP-0168"
+    ],
+    "range": "half(3.5)/half(65504)/half(0.1) exact on hardware; then 5 bytes dense 0..255 on M4 and byte+2 dense on G17P"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "The oldest and plainest case in the set: EXP-0013 read back half(3.5), half(65504) and half(0.1) as the EXACT IEEE fp16 values from hardware -- the instruction's whole documented semantics, confirmed by value. EXP-0144 then swept five of its bytes dense 0..255 (6555 cases) and EXP-0168 re-measured byte+2 on G17P at 99.609% cross-run agreement with 221 of 256 values moving. Its anchor 110114810402 decodes back to cvt_f2h.",
+   "refuter": "a G17P run in which half(x) does not return the IEEE fp16 value; the fp16 claim has never been re-measured on G17P for THIS descriptor (only byte+2 was).",
+   "caveats": [
+    "the `_instruction` target should read M4+A18, not the current A18 -- the numeric proof is EXP-0013 (A18) and the dense sweeps are EXP-0144 (M4) + EXP-0168 (G17P)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0144-m4-emit-pack",
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "total_raw_cases": 7651,
+    "oracle_scored_cases": 7490,
+    "per_experiment": {
+     "EXP-0144-m4-emit-pack": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 6555,
+      "oracle_scored_cases": 6519,
+      "outcomes": {
+       "fault": 36,
+       "ok": 1030,
+       "silent_zero": 3299,
+       "wrong_value": 2190
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03",
+       "m4_20260828_run04",
+       "m4_20260828_rv01__cvt_f2h"
+      ]
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1096,
+      "oracle_scored_cases": 971,
+      "outcomes": {
+       "fault": 125,
+       "ok": 80,
+       "silent_zero": 152,
+       "wrong_value": 739
+      },
+      "runs": [
+       "g17p_20260830_run02",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0144-m4-emit-pack": {
+      "distinct_byte_strings": 1298,
+      "decode_back_to_self": 1
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "distinct_byte_strings": 546,
+      "decode_back_to_self": 544
+     }
+    },
+    "hw_anchor_tokenizes": true
+   }
+  },
+  "cvt_f2h_dst": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "generalises the byte0==0x11 cvt_f2h to r0..r15; located over the corpus"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162",
+     "EXP-0144"
+    ],
+    "range": "5 semantic vectors matching IEEE RNE fp16 exactly on the unmutated instruction at dst nibble 12, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0162's five semantic vectors match IEEE fp16 round-to-nearest-even EXACTLY on the unmutated cvt_f2h_dst, and all six of its bytes were swept dense 0..255 (1325 cases) with the outcome classes separated (86 fault, 115 silent zero). This is the same fp32->fp16 narrowing EXP-0013 validated for the byte0==0x11 sibling, executing here at a DIFFERENT destination nibble -- which is the generalisation the descriptor exists to make.",
+   "refuter": "a semantic vector returning a non-RNE fp16 value, or a demonstration that the c1 anchor is really the r1 form aliased.",
+   "caveats": [
+    "`dst` reproduced the oracle at 1 of 16 nibbles -- expected, because the consumer reads a fixed register, but it means the destination is not shown to be CHOOSABLE.",
+    "the anchor c10114810402 does not tokenize (length rule); the corpus reaches this descriptor at other byte+1/byte+2 combinations (01011c8100c2, 31053c810422, ...)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0144-m4-emit-pack",
+     "EXP-0162-g17p-pack-and-splices"
+    ],
+    "total_raw_cases": 5555,
+    "oracle_scored_cases": 4854,
+    "per_experiment": {
+     "EXP-0144-m4-emit-pack": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 4230,
+      "oracle_scored_cases": 3530,
+      "outcomes": {
+       "fault": 6,
+       "hang": 694,
+       "ok": 513,
+       "silent_zero": 335,
+       "wrong_value": 2682
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03",
+       "m4_20260828_run04",
+       "m4_20260828_rv01__cvt_f2h_dst"
+      ]
+     },
+     "EXP-0162-g17p-pack-and-splices": {
+      "baseline_or_anchor_cases": 15,
+      "baseline_or_anchor_ok": 15,
+      "cases": 1325,
+      "oracle_scored_cases": 1324,
+      "outcomes": {
+       "fault": 86,
+       "invalid_run": 1,
+       "ok": 166,
+       "silent_zero": 115,
+       "wrong_value": 956
+      },
+      "runs": [
+       "g17p_20260829_run01__cvt_f2h_dst"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0144-m4-emit-pack": {
+      "distinct_byte_strings": 1299,
+      "decode_back_to_self": 16
+     },
+     "EXP-0162-g17p-pack-and-splices": {
+      "distinct_byte_strings": 1299,
+      "decode_back_to_self": 16
+     }
+    },
+    "hw_anchor_tokenizes": false
+   }
+  },
+  "cvt_i2f": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-M4-13"
+    ],
+    "range": "convert located by own-MSL byte-diff; behaviourally exercised via compiler-emitted code"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0144"
+    ],
+    "range": "float(-3)/float(1000000) exact + the signed/unsigned bit proven by splice; then 6 bytes dense 0..255 on M4"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0013 read float(-3) and float(1000000) back exactly AND proved the descriptor's own sign-flag semantics by value: splicing byte+7 0x60->0x20 converts -1 as UNSIGNED (4294967295 -> ~4.29e9) on hardware. EXP-0144 then swept all six bytes dense 0..255 (5475 cases) under revalidation. Anchor a707561802008e60 decodes back to cvt_i2f.",
+   "refuter": "a run in which byte+7 bit6 does not switch signed/unsigned interpretation.",
+   "caveats": [
+    "byte+3 = dst<<1 and byte+5 = src<<2 come from a COMPILE-ONLY byte-diff (EXP-M4-13 R9, no GPU dispatch); the sweeps show the bytes are live but do not re-derive that map."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0144-m4-emit-pack"
+    ],
+    "total_raw_cases": 5475,
+    "oracle_scored_cases": 3460,
+    "per_experiment": {
+     "EXP-0144-m4-emit-pack": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 5475,
+      "oracle_scored_cases": 3460,
+      "outcomes": {
+       "fault": 153,
+       "hang": 1826,
+       "ok": 1030,
+       "silent_zero": 2127,
+       "wrong_value": 303
+      },
+      "runs": [
+       "m4_20260828_run03",
+       "m4_20260828_run04",
+       "m4_20260828_rv01__cvt_i2f"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0144-m4-emit-pack": {
+      "distinct_byte_strings": 1809,
+      "decode_back_to_self": 1531
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "falu3": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ],
+    "range": "fma emitted by our own MSL and tokenized; no synthesized falu3 was executed"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+G17P",
+    "evidence": [
+     "EXP-0138",
+     "EXP-0154",
+     "EXP-0160"
+    ],
+    "range": "operand slots proven on M4 over 1809+2321 cases; byte+2 operation map dense 256 x 2 seed sets on G17P"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0138 HW-VALIDATED the OPERAND-SLOT model against a host oracle over 1809+2321 cases and corrected db.json's names by measurement (byte0 high nibble is the destination, byte+1/+3/+5 the sources, byte+4 the length-selecting control that re-lengths the instruction on 192 of 256 values); EXP-0160 then mapped byte+2 densely on G17P in two seed sets. Anchor 09011e0581080200 decodes back to falu3. This is a three-source float ALU proven by moving its operands and predicting the result.",
+   "refuter": "an operand slot that does not carry the register the EXP-0138 map assigns it.",
+   "caveats": [
+    "the srcmods bit map beyond negate-product still needs a splice (db.json's own note)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0138-m4-emit-falu",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0160-g17p-last-field"
+    ],
+    "total_raw_cases": 13116,
+    "oracle_scored_cases": 13116,
+    "per_experiment": {
+     "EXP-0138-m4-emit-falu": {
+      "baseline_or_anchor_cases": 3,
+      "baseline_or_anchor_ok": 3,
+      "cases": 5427,
+      "oracle_scored_cases": 5427,
+      "outcomes": {
+       "invalid_run": 798,
+       "ok": 2325,
+       "silent_zero": 48,
+       "wrong_value": 2256
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run05",
+       "m4_20260828_run06"
+      ]
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 2697,
+      "oracle_scored_cases": 2697,
+      "outcomes": {
+       "fault": 94,
+       "ok": 81,
+       "silent_zero": 33,
+       "wrong_value": 2489
+      },
+      "runs": [
+       "g17p_20260829_run02",
+       "g17p_20260829_run03",
+       "g17p_20260829_run04"
+      ]
+     },
+     "EXP-0160-g17p-last-field": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 4992,
+      "oracle_scored_cases": 4992,
+      "outcomes": {
+       "fault": 2301,
+       "ok": 24,
+       "silent_zero": 24,
+       "undecodable": 160,
+       "wrong_value": 2483
+      },
+      "runs": [
+       "g17p_20260830_confirm01",
+       "g17p_20260830_confirm02",
+       "g17p_20260830_confirm03",
+       "g17p_20260830_confirm04",
+       "g17p_20260830_confirm05b",
+       "g17p_20260830_confirm06",
+       "g17p_20260830_ext_confirm01",
+       "g17p_20260830_ext_run01",
+       "g17p_20260830_ext_run02",
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0138-m4-emit-falu": {
+      "distinct_byte_strings": 1673,
+      "decode_back_to_self": 1481
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "distinct_byte_strings": 892,
+      "decode_back_to_self": 742
+     },
+     "EXP-0160-g17p-last-field": {
+      "distinct_byte_strings": 512,
+      "decode_back_to_self": 383
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "falu3_ext": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-10"
+    ],
+    "range": "10-byte extended fma located by the EXP-M4-10 length rule and own-MSL corpus; no synthesized instance executed"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+G17P",
+    "evidence": [
+     "EXP-0138",
+     "EXP-0154",
+     "EXP-0160"
+    ],
+    "range": "same operand-slot proof as falu3 (EXP-0138 explicitly extends it) plus the G17P byte+2 map; 15122 cases"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0138's operand-slot rename is recorded as applying to falu3_ext verbatim, its own baselines reproduced their oracle 3/3, EXP-0154 ran a saturate-fma carrier and EXP-0160 mapped byte+2 densely on G17P. Anchor 09011e05820802000080 decodes back to falu3_ext at length 10.",
+   "refuter": "a demonstration that the 10-byte form is not the same operation as the 8-byte one.",
+   "caveats": [
+    "the SATURATE that distinguishes this form from falu3 is NOT proven by value: db.json's own provenance says the extended tail is raw-captured and INFERRED. `ext` is isolated-byte-diff with a non-dense sweep. If the orchestrator wants the label to certify the saturate, this one should stay at isolated-byte-diff."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0138-m4-emit-falu",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0160-g17p-last-field"
+    ],
+    "total_raw_cases": 15122,
+    "oracle_scored_cases": 15122,
+    "per_experiment": {
+     "EXP-0138-m4-emit-falu": {
+      "baseline_or_anchor_cases": 3,
+      "baseline_or_anchor_ok": 3,
+      "cases": 6963,
+      "oracle_scored_cases": 6963,
+      "outcomes": {
+       "invalid_run": 798,
+       "ok": 2973,
+       "silent_zero": 48,
+       "wrong_value": 3144
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run05",
+       "m4_20260828_run06"
+      ]
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 2871,
+      "oracle_scored_cases": 2871,
+      "outcomes": {
+       "fault": 84,
+       "ok": 213,
+       "silent_zero": 66,
+       "wrong_value": 2508
+      },
+      "runs": [
+       "g17p_20260829_run02",
+       "g17p_20260829_run03",
+       "g17p_20260829_run04"
+      ]
+     },
+     "EXP-0160-g17p-last-field": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 5288,
+      "oracle_scored_cases": 5288,
+      "outcomes": {
+       "fault": 3058,
+       "ok": 24,
+       "silent_zero": 24,
+       "wrong_value": 2182
+      },
+      "runs": [
+       "g17p_20260830_confirm01",
+       "g17p_20260830_confirm02",
+       "g17p_20260830_confirm03",
+       "g17p_20260830_confirm04",
+       "g17p_20260830_confirm05b",
+       "g17p_20260830_confirm06",
+       "g17p_20260830_ext_confirm01",
+       "g17p_20260830_ext_run01",
+       "g17p_20260830_ext_run02",
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0138-m4-emit-falu": {
+      "distinct_byte_strings": 2183,
+      "decode_back_to_self": 1991
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "distinct_byte_strings": 950,
+      "decode_back_to_self": 795
+     },
+     "EXP-0160-g17p-last-field": {
+      "distinct_byte_strings": 512,
+      "decode_back_to_self": 383
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "frag_depth_store": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0029"
+    ],
+    "range": "[[depth]] output op located by own-MSL byte-diff; distinct from the 16-byte texture write that shares byte0 0xd7"
+   },
+   "recommended": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0029",
+     "EXP-0155"
+    ],
+    "range": "b3/b4/b5 dense 0..255 on G17P, 1550 cases, 2 gated runs -- but the DEPTH OUTPUT was never read back"
+   },
+   "changes": false,
+   "becomes_emitter_grade": false,
+   "decision_rule": "R3",
+   "reason": "KEEP AS IS, and this is the clearest example of why field labels must not gate the instruction. All three of its declared fields are `hardware-run` and its baselines are ok 11/11 -- yet the one thing the descriptor claims, 'write the shader [[depth]] output to the tile depth buffer', HAS NEVER BEEN OBSERVED. db.json says so itself: 'Not individually splice-validated (agxrender has no depth attachment to read back)'. The sweeps were scored against a COLOUR probe. Fields live proves the bytes were exercised; it does not prove this is the depth store.",
+   "refuter": "a carrier with a readable depth attachment showing the written depth -- that is the experiment this descriptor is waiting for.",
+   "caveats": [
+    "the descriptor has NO operand field for the depth value at all: only b3/b4/b5.",
+    "byte0 0xd7 is shared with the 16-byte texture write; the separation is a byte-diff inference."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0155-g17p-emit-tex-frag"
+    ],
+    "total_raw_cases": 1550,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0155-g17p-emit-tex-frag": {
+      "baseline_or_anchor_cases": 11,
+      "baseline_or_anchor_ok": 11,
+      "cases": 1550,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "ok": 294,
+       "silent_zero": 1000,
+       "wrong_value": 256
+      },
+      "runs": [
+       "g17p_20260829_run03",
+       "g17p_20260829_run04",
+       "prefreeze"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0155-g17p-emit-tex-frag": {
+      "distinct_byte_strings": 767,
+      "decode_back_to_self": 766
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "frame_marker_compact": {
+   "current": {
+    "label": "tokenization-only",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ],
+    "range": "2-byte compact marker, length-anchored"
+   },
+   "recommended": {
+    "label": "tokenization-only",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13",
+     "EXP-0172"
+    ],
+    "range": "b1 dense 0..255 on G17P, 568 cases, 152 of 256 values move the observation identically in 2 runs"
+   },
+   "changes": false,
+   "becomes_emitter_grade": false,
+   "decision_rule": "R4",
+   "reason": "KEEP AS IS. EXP-0148 records this descriptor as one of three UNRESOLVED CONTINUATION-WORD CANDIDATES -- it may not be a standalone instruction at all -- and validate_labels.py already reports it in that informational set. EXP-0172 showed byte+1 is live (152 of 256 values move, identically in run01 and run03) and that b1 = 3 and b1 = 7 HANG the device on four of five carriers. Live bytes in an unresolved continuation word are not an instruction; its semantics remain unknown and `tokenization-only` states that correctly.",
+   "refuter": "EXP-0148's open splice deciding whether it is a standalone op or the continuation of the preceding one.",
+   "caveats": [
+    "b1 = 0x00 is the 4-byte spill_frame_marker, a DIFFERENT instruction.",
+    "b1 = 3 and b1 = 7 are a device hazard."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0172-g17p-onefield-tail"
+    ],
+    "total_raw_cases": 568,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0172-g17p-onefield-tail": {
+      "baseline_or_anchor_cases": 14,
+      "baseline_or_anchor_ok": 14,
+      "cases": 568,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 8,
+       "hang": 4,
+       "has_power": 6,
+       "inert": 3,
+       "moved": 9,
+       "ok": 224,
+       "wrong_value": 314
+      },
+      "runs": [
+       "g17p_20260830_run01",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0172-g17p-onefield-tail": {
+      "distinct_byte_strings": 256,
+      "decode_back_to_self": 256
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "h_coord_hi": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-M4-01"
+    ],
+    "range": "high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst)"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0157"
+    ],
+    "range": "all six bytes swept 0..255 on 2 carriers (h3mix, h4fma), 5750 cases, 2 agreeing captures"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "EXP-0157 executed it in two independent half-precision carriers and showed every byte is load-bearing on the carrier's host oracle -- `srcA` is a real source-register field (240 of 255 values return a DIFFERENT non-zero result), `opsel` accepts (v & 0xd7) == 0x06 in BOTH carriers. But no claim the descriptor makes was proven BY VALUE: the 'writes the HIGH 16-bit half' semantics was demonstrated for the sibling `h_alu_hi` (EXP-0156 H-3), not for this descriptor, and 0x26-vs-0x2e (mul vs fma) was never separated by an oracle. Ran with the predicted effect at the compiler's own operand values; that is R2, not R1.",
+   "refuter": "an oracle-scored probe showing 0x26 and 0x2e produce mul and fma respectively -- that would lift it to hardware-run.",
+   "caveats": [
+    "db.json's own provenance says 'Field semantics INFERRED'."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 5750,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 7,
+      "baseline_or_anchor_ok": 0,
+      "cases": 5750,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 914,
+       "inert_or_unreached": 1,
+       "live": 6,
+       "not_written": 781,
+       "ok": 32,
+       "silent_zero": 639,
+       "wrong_value": 3377
+      },
+      "runs": [
+       "g17p_reval02",
+       "g17p_run01",
+       "g17p_run03",
+       "smoke04"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 2585,
+      "decode_back_to_self": 1540
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "h_coord_hi_ext": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-M4-01"
+    ],
+    "range": "high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst)"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0157"
+    ],
+    "range": "seven fields swept on ONE carrier (h3mix, anchor +40), 3795 cases, 2 agreeing captures"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "Same reasoning as h_coord_hi, one rung weaker: EXP-0157 reached it in a SINGLE carrier. Its bytes are live on that carrier's oracle (`ext` faults on 128 of 233 values, `srcC` accepts one value) and its anchor 5880269081030022 decodes back to the descriptor, but one carrier cannot separate an inert field from a carrier that cannot see it -- the EXP-0155 lesson -- and nothing about the extended 3-source form was proven by value.",
+   "refuter": "a second, structurally different carrier reproducing the same accepted sets.",
+   "caveats": [
+    "db.json: 'Operand semantics INFERRED, NOT HW-dispatch-validated' -- superseded in part by EXP-0157's dispatch, but only in part."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 3795,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 3,
+      "baseline_or_anchor_ok": 0,
+      "cases": 3795,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 296,
+       "live": 3,
+       "not_written": 115,
+       "ok": 61,
+       "silent_zero": 1325,
+       "wrong_value": 1995
+      },
+      "runs": [
+       "g17p_run01",
+       "g17p_run03",
+       "smoke04"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 1877,
+      "decode_back_to_self": 1364
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "hminmax": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "half min/max located by own-MSL byte-diff (byte+2==0x1c sibling of iminmax)"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0156"
+    ],
+    "range": "exact fp16 max AND min oracles, the op-select bit proven by value, 2608 cases in 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0156's h_max carrier reproduced the host-computed exact fp16 max(a,b) pattern (0x40003c00), and byte+4's low bit 0->1 turned max into min -- matching the host MIN oracle while FAILING the MAX oracle, exactly as pre-registered. Every modelled field was measured; the accepted sets were identical in both gated runs.",
+   "refuter": "a carrier in which byte+4 bit0 does not select min vs max.",
+   "caveats": [
+    "`dst` accepted 1 value (0x22) and `srcB` 1 value (0xC0): no operand is shown to be choosable.",
+    "NEW (EXP-0181): the HW anchor 22001c0010c0 DOES NOT TOKENIZE -- the length rule returns 10 for byte0 0x22 -- while 02.. and 12.. decode at length 6. So the descriptor decodes at only 2 of 16 destination nibbles and NOT at the one that was hardware-validated. isadb.py's owner."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0156-g17p-emit-cf-mem"
+    ],
+    "total_raw_cases": 2608,
+    "oracle_scored_cases": 2608,
+    "per_experiment": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 3,
+      "cases": 2608,
+      "oracle_scored_cases": 2608,
+      "outcomes": {
+       "fault": 73,
+       "invalid_run": 296,
+       "ok": 34,
+       "silent_zero": 1083,
+       "wrong_value": 1122
+      },
+      "runs": [
+       "g17p-20260830-bf03",
+       "g17p-20260830-bf04",
+       "g17p-20260830-revbf1",
+       "g17p-20260830-revbf2",
+       "smoke-s01"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "distinct_byte_strings": 1276,
+      "decode_back_to_self": 2
+     }
+    },
+    "hw_anchor_tokenizes": false
+   }
+  },
+  "irotate": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0033"
+    ],
+    "range": "rotate-by-immediate is a single 12-byte 0x27 op; rotate-by-register is a multi-instruction lowering"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+G17P",
+    "evidence": [
+     "EXP-0033",
+     "EXP-0146",
+     "EXP-0154",
+     "EXP-0172"
+    ],
+    "range": "rotate(a,5) and rotate(a,n) read back exact; then 8736 (M4) + 5634 (G17P) + 2680 (G17P) cases"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0033 read the rotate result back exactly from hardware for both a constant and a variable amount -- the documented semantics, by value -- and the single-op immediate form was separated from the multi-op dynamic lowering by byte-diff. EXP-0146/0154 then swept it densely on both targets and EXP-0172 showed byte+2 is ASYMMETRIC over its two legal values on three arms. Anchor 2701560002006c00f0150900 decodes back to irotate.",
+   "refuter": "a rotate amount for which the single 12-byte form does not produce rotate_left.",
+   "caveats": [
+    "`operands` (40-bit) and `tail` (32-bit) are MARGINAL COVERAGE ONLY -- swept byte-wise, never jointly, and neither max nor max-1 was ever encoded, so FIELD-SWEEP-PROTOCOL 3.3's w>8 bar is not met for either.",
+    "DEF-0172-1: `b2`'s modelled 8-bit width is a fiction; it has one free bit."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0172-g17p-onefield-tail"
+    ],
+    "total_raw_cases": 17050,
+    "oracle_scored_cases": 14370,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 17,
+      "baseline_or_anchor_ok": 14,
+      "cases": 8736,
+      "oracle_scored_cases": 8736,
+      "outcomes": {
+       "fault": 900,
+       "ok": 1569,
+       "silent_zero": 2841,
+       "wrong_value": 3426
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04"
+      ]
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 5634,
+      "oracle_scored_cases": 5634,
+      "outcomes": {
+       "fault": 256,
+       "ok": 1968,
+       "silent_zero": 2530,
+       "wrong_value": 880
+      },
+      "runs": [
+       "g17p_20260829_run02",
+       "g17p_20260829_run04"
+      ]
+     },
+     "EXP-0172-g17p-onefield-tail": {
+      "baseline_or_anchor_cases": 30,
+      "baseline_or_anchor_ok": 30,
+      "cases": 2680,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "has_power": 10,
+       "inert": 8,
+       "moved": 72,
+       "ok": 44,
+       "undecodable": 1778,
+       "wrong_value": 768
+      },
+      "runs": [
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 2454,
+      "decode_back_to_self": 2297
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "distinct_byte_strings": 2807,
+      "decode_back_to_self": 2297
+     },
+     "EXP-0172-g17p-onefield-tail": {
+      "distinct_byte_strings": 1310,
+      "decode_back_to_self": 30
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "iter_flat": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0029"
+    ],
+    "range": "[[flat]] emits this distinct 6-byte op (no barycentric interpolation); own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0029",
+     "EXP-0155"
+    ],
+    "range": "four fields swept 0..255 on the flat0/flat1 carriers, 3247 cases, 23/23 baselines ok, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "EXP-0029 gave a real behavioural proof with a paired negative control: the [[flat]] fragment renders a CONSTANT colour (the provoking-vertex value) at all 16 pixels while the interpolated variants show a gradient, and four 6-byte 0x1f ops tokenize interp_flat to zero leftover. EXP-0155 reproduced its baselines on G17P 23/23 and showed the bytes are live against four DISTINCT authored flat values. What is missing for R1 is a per-value oracle: the sweeps score movement against the baseline, so no `sel` value was shown to fetch a PREDICTED varying.",
+   "refuter": "a `sel` -> varying-index map scored against a host oracle would lift it; a carrier where the flat op interpolates would refute it.",
+   "caveats": [
+    "`sel` was swept 127 of 256 of the frozen value set before a hang/deadline budget stopped it.",
+    "the representative arm was re-pointed by the orchestrator from flat1 to flat0 because the field was inert on flat1."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0155-g17p-emit-tex-frag"
+    ],
+    "total_raw_cases": 3247,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0155-g17p-emit-tex-frag": {
+      "baseline_or_anchor_cases": 23,
+      "baseline_or_anchor_ok": 23,
+      "cases": 3247,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 16,
+       "foreign": 10,
+       "hang": 5,
+       "ok": 308,
+       "silent_zero": 128,
+       "undecodable": 124,
+       "wrong_value": 2656
+      },
+      "runs": [
+       "g17p_20260829_faultconfirm",
+       "g17p_20260829_run03",
+       "g17p_20260829_run04",
+       "prefreeze"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0155-g17p-emit-tex-frag": {
+      "distinct_byte_strings": 1663,
+      "decode_back_to_self": 1404
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "mov_imm": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0031",
+     "EXP-0010"
+    ],
+    "range": "emitted for constant-folded builtins (threads_per_simdgroup = 0x20) and tokenized; no synthesized instance independently executed"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+G17P",
+    "evidence": [
+     "EXP-0031",
+     "EXP-0140",
+     "EXP-0153",
+     "EXP-0167",
+     "EXP-0168"
+    ],
+    "range": "0..127 dense with a host oracle; and 196,114 GENERATED instances inside 233 zero-copied programs that produced their exact host oracle"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1+GENERATED",
+   "reason": "The strongest case in the set and the reason the orchestrator refused to gate on these labels. EXP-0031 proved the semantics by value on hardware (splicing byte+1 0x20->0x21/0x40/0x11 changes the output to 33/64/17 -- the literal, not an SR read); EXP-0140 swept dst 16/16 against a host oracle with four 12-register aliasing scans; EXP-0128/0140 corrected the immediate to SEVEN bits by measurement against a POISONED read-back and found the imm7==12 tokenization hole; and EXP-0167 ran 196,114 assembler-GENERATED mov_imm instances inside 233 zero-copied programs whose 01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs. `corpus-correlation` is flatly wrong for this descriptor.",
+   "refuter": "a generated mov_imm that does not write its literal; none has been seen in 196,114 emissions.",
+   "caveats": [],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0140-m4-emit-mov-cf",
+     "EXP-0153-g17p-revalidation",
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "total_raw_cases": 4192,
+    "oracle_scored_cases": 4192,
+    "per_experiment": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 69,
+      "oracle_scored_cases": 69,
+      "outcomes": {
+       "ok": 60,
+       "wrong_value": 9
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03"
+      ]
+     },
+     "EXP-0153-g17p-revalidation": {
+      "baseline_or_anchor_cases": 4,
+      "baseline_or_anchor_ok": 4,
+      "cases": 451,
+      "oracle_scored_cases": 451,
+      "outcomes": {
+       "fault": 23,
+       "ok": 406,
+       "wrong_value": 22
+      },
+      "runs": [
+       "g17p-20260830-reval02",
+       "g17p-20260830-run01",
+       "g17p-20260830-run02",
+       "g17p-20260830-run03",
+       "smoke01"
+      ]
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 3672,
+      "oracle_scored_cases": 3672,
+      "outcomes": {
+       "ok": 16,
+       "silent_zero": 12,
+       "wrong_value": 3644
+      },
+      "runs": [
+       "g17p_20260830_run02",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "distinct_byte_strings": 17,
+      "decode_back_to_self": 17
+     },
+     "EXP-0153-g17p-revalidation": {
+      "distinct_byte_strings": 133,
+      "decode_back_to_self": 132
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "distinct_byte_strings": 769,
+      "decode_back_to_self": 762
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "mov_zext16": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "16-bit zero-extend located by own-MSL byte-diff with negative controls (sign-extend and 8-bit narrow do NOT use this op)"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0013",
+     "EXP-0161",
+     "EXP-0165"
+    ],
+    "range": "byte0 = 0xN3 narrows r[N] and nothing else for N = 0..10, 11/11 fits 0 misfits in both gated runs; 11 of 16 GENERATED encodings pass a 16-register host prediction"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1+GENERATED",
+   "reason": "EXP-0161 (independently re-derived by EXP-0165) measured the documented semantics directly -- r[n] = r[n] & 0xFFFF, in place, on the register named by byte0's HIGH nibble -- in a synthesized carrier judged by a full 16-register dump, and GENERATED 16 encodings of which 11 pass a host-computed prediction (the 5 failures are exactly the 0xB..0xF no-op nibbles, recorded). It also REFUTED the previous operand model (byte+1 is HW-tested inert over all 256 values).",
+   "refuter": "a nibble in 0..10 that narrows a register other than r[N], or an r[N] narrow that also touches a second register.",
+   "caveats": [
+    "one anomaly is on the record rather than smoothed: nibble 0x8 narrowed correctly in 4 of 5 observations and was a no-op once (gen03).",
+    "DEF-0175-1 (open): this descriptor's match does not encode its own HW-measured byte+2 accept rule, so it claims byte+2 values the hardware rejects. Not landed -- it collides with frame_marker and needs its own experiment."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0161-g17p-carry-fspecial"
+    ],
+    "total_raw_cases": 9701,
+    "oracle_scored_cases": 4146,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 12,
+      "baseline_or_anchor_ok": 11,
+      "cases": 2860,
+      "oracle_scored_cases": 2860,
+      "outcomes": {
+       "fault": 588,
+       "ok": 1692,
+       "silent_zero": 230,
+       "wrong_value": 350
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04",
+       "run05"
+      ]
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1286,
+      "oracle_scored_cases": 1286,
+      "outcomes": {
+       "ok": 858,
+       "silent_zero": 236,
+       "wrong_value": 192
+      },
+      "runs": [
+       "g17p_20260829_run02",
+       "g17p_20260829_run04"
+      ]
+     },
+     "EXP-0161-g17p-carry-fspecial": {
+      "baseline_or_anchor_cases": 7,
+      "baseline_or_anchor_ok": 7,
+      "cases": 5555,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 374,
+       "ok": 1983,
+       "silent_zero": 151,
+       "wrong_value": 3047
+      },
+      "runs": [
+       "g17p_20260829_run01",
+       "g17p_20260829_run02",
+       "g17p_20260830_adj01",
+       "g17p_20260830_supp01",
+       "g17p_20260830_supp02",
+       "g17p_20260830_supp03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 894,
+      "decode_back_to_self": 428
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "distinct_byte_strings": 640,
+      "decode_back_to_self": 414
+     },
+     "EXP-0161-g17p-carry-fspecial": {
+      "distinct_byte_strings": 1546,
+      "decode_back_to_self": 841
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "n2_op6": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "family located and tokenized over an own-MSL corpus (n=1747)"
+   },
+   "recommended": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0146",
+     "EXP-0157"
+    ],
+    "range": "six fields swept 0..255 across 4+ carriers on both targets, 17,539 cases"
+   },
+   "changes": false,
+   "becomes_emitter_grade": false,
+   "decision_rule": "R3",
+   "reason": "KEEP AS IS. This descriptor is not one instruction: db.json's own committed text calls it 'a genuine catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select)' whose 'per-sub-op value maps are mixed and needs-splice'. EXP-0157 measured a DIFFERENT accepted mask for `opsel` in each carrier instance and EXP-0146/0157 recorded `dst` as PINNED ('no value other than the compiler's own reproduces the oracle'). A bucket has no semantics to confirm, so no execution can raise its instruction-level label; the fields being hardware-run says the BYTES are live in each sub-family, not that the descriptor names an operation.",
+   "refuter": "a decomposition into per-sub-op descriptors, each with its own confirmed semantics -- then each successor gets its own label.",
+   "caveats": [
+    "EXP-0174 also records it as 'not HW-dispatch validated' for the register-move question it was considered for."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 17539,
+    "oracle_scored_cases": 7987,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 17,
+      "baseline_or_anchor_ok": 15,
+      "cases": 7987,
+      "oracle_scored_cases": 7987,
+      "outcomes": {
+       "fault": 484,
+       "ok": 717,
+       "silent_zero": 2359,
+       "wrong_value": 4427
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04"
+      ]
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 36,
+      "baseline_or_anchor_ok": 0,
+      "cases": 9552,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 1125,
+       "inert_or_unreached": 2,
+       "live": 34,
+       "not_written": 601,
+       "ok": 406,
+       "silent_zero": 2226,
+       "wrong_value": 5158
+      },
+      "runs": [
+       "g17p_reval02",
+       "g17p_reval03",
+       "g17p_run01",
+       "g17p_run02",
+       "g17p_run03",
+       "smoke04"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 2582,
+      "decode_back_to_self": 2100
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 5185,
+      "decode_back_to_self": 4208
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "n3_mov": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0036"
+    ],
+    "range": "compact 4-byte move family located over the own-MSL corpus"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0174",
+     "EXP-0175"
+    ],
+    "range": "840 GENERATED 32-bit copies over all 240 ordered (dst != src) pairs + 1680 generated half-moves, 0 failures, 2 gated runs x 2 register plans"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1+GENERATED",
+   "reason": "The second end-to-end generated instruction in the corpus. EXP-0174 built every byte from the descriptor's bit geometry with ZERO bytes copied from any compiled shader, ran 840 generated 32-bit register copies over ALL 240 ordered (dst, src) pairs in both instruction orders and both register plans, and scored each against a full host-computed 16-register prediction: 0 failures. Its own analysis/field_verdicts.json already records `n3_mov._instruction: hardware-run (generated)`. The descriptor defect that blocked the merge (DEF-0174-1, byte+1 modelled one bit off) was re-derived and LANDED by EXP-0175.",
+   "refuter": "a generated (dst, src) pair whose 16-register prediction fails.",
+   "caveats": [
+    "dst is a 4-bit nibble: r0..r15 only.",
+    "`frame_marker` inherited the same byte+1 correction WITHOUT its own sweep and is flagged STRUCTURAL/INFERRED in db.json -- that caveat belongs to frame_marker, not here."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0157-g17p-emit-misc",
+     "EXP-0174-g17p-n3mov"
+    ],
+    "total_raw_cases": 15240,
+    "oracle_scored_cases": 13714,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 8,
+      "baseline_or_anchor_ok": 8,
+      "cases": 2070,
+      "oracle_scored_cases": 2070,
+      "outcomes": {
+       "fault": 186,
+       "ok": 1387,
+       "silent_zero": 449,
+       "wrong_value": 48
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04"
+      ]
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 4,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1526,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 240,
+       "inert_or_unreached": 1,
+       "live": 3,
+       "not_written": 81,
+       "ok": 930,
+       "silent_zero": 236,
+       "wrong_value": 35
+      },
+      "runs": [
+       "g17p_reval02",
+       "g17p_run01",
+       "g17p_run03",
+       "smoke04"
+      ]
+     },
+     "EXP-0174-g17p-n3mov": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 11644,
+      "oracle_scored_cases": 11644,
+      "outcomes": {
+       "fault": 4,
+       "ok": 8392,
+       "silent_zero": 16,
+       "undecidable": 1024,
+       "wrong_value": 2208
+      },
+      "runs": [
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 654,
+      "decode_back_to_self": 224
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 656,
+      "decode_back_to_self": 224
+     },
+     "EXP-0174-g17p-n3mov": {
+      "distinct_byte_strings": 2795,
+      "decode_back_to_self": 1660
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "pack_convert": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0033"
+    ],
+    "range": "pack_float_to_unorm2x16 / snorm / half located by own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0033",
+     "EXP-0144",
+     "EXP-0168"
+    ],
+    "range": "pack_float_to_unorm2x16 read back exact over 4 float2 inputs; then 26,160 cases on M4 with the operand roles corrected by measurement"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0033 read pack_float_to_unorm2x16 back exactly over four float2 inputs. EXP-0144 then measured the OPERAND MODEL and corrected db.json by hardware: byte+3 is the DESTINATION (the old name `src` would have sent an emitter's result to the wrong register), the sources are byte+5 (reg<<2) and byte+6 (reg<<3), and byte+9 is the FORMAT selector (0x4x snorm2x16 / 0x8x unorm2x16 / 0xcx unorm 8-bit). A correction of that kind is only possible from execution. EXP-0168 re-measured byte+7 on G17P at 100.000% agreement.",
+   "refuter": "a byte+9 value whose observed packing does not match the format it is said to select.",
+   "caveats": [
+    "the bulk of the evidence is M4; only byte+7 has been re-measured on G17P."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0144-m4-emit-pack",
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "total_raw_cases": 27804,
+    "oracle_scored_cases": 20291,
+    "per_experiment": {
+     "EXP-0144-m4-emit-pack": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 26160,
+      "oracle_scored_cases": 19035,
+      "outcomes": {
+       "fault": 326,
+       "hang": 6793,
+       "ok": 2071,
+       "silent_zero": 9864,
+       "wrong_value": 7100
+      },
+      "runs": [
+       "m4_20260828_run03",
+       "m4_20260828_run04",
+       "m4_20260828_run05",
+       "m4_20260828_rv01__pack_convert"
+      ]
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1644,
+      "oracle_scored_cases": 1256,
+      "outcomes": {
+       "fault": 388,
+       "ok": 58,
+       "silent_zero": 12,
+       "wrong_value": 1186
+      },
+      "runs": [
+       "g17p_20260830_run02",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0144-m4-emit-pack": {
+      "distinct_byte_strings": 2375,
+      "decode_back_to_self": 2097
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "distinct_byte_strings": 816,
+      "decode_back_to_self": 813
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "psel": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "dominant corpus form 05 00 20 80"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4",
+    "evidence": [
+     "EXP-0010",
+     "EXP-0140"
+    ],
+    "range": "512/512 matched the host-computed oracle on byte+3, across 2 dispatch shapes and 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0010 E3 validated the grid-predicate select's BEHAVIOUR on hardware, and EXP-0140 swept `flag`, `mode` and `sel` at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512 -- the same immediate model it proved for `sel`. The predicate select is confirmed by value, not by co-variation.",
+   "refuter": "a byte+3 immediate that does not appear in the selected output.",
+   "caveats": [
+    "our own MSL ternaries compile to isel10, not psel, so psel has never been reached from source; every observation is a splice into a lifted carrier.",
+    "the per-operand REGISTER map still needs a splice (db.json's own note); only the immediate model is established."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0140-m4-emit-mov-cf",
+     "EXP-0146-m4-emit-int-misc"
+    ],
+    "total_raw_cases": 4618,
+    "oracle_scored_cases": 4618,
+    "per_experiment": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 6,
+      "cases": 4617,
+      "oracle_scored_cases": 4617,
+      "outcomes": {
+       "fault": 383,
+       "invalid_run": 1,
+       "ok": 2598,
+       "silent_zero": 768,
+       "wrong_value": 867
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03"
+      ]
+     },
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 1,
+      "baseline_or_anchor_ok": 1,
+      "cases": 1,
+      "oracle_scored_cases": 1,
+      "outcomes": {
+       "ok": 1
+      },
+      "runs": [
+       "run05"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "distinct_byte_strings": 766,
+      "decode_back_to_self": 766
+     },
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 1,
+      "decode_back_to_self": 1
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "ret_luse": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "byte+2==0x56 last-use variant located over the own-MSL corpus"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0035",
+     "EXP-0156"
+    ],
+    "range": "linkmode 0..255 dense (32 accepted) and tail 254/256 (12 accepted), identical accepted sets to `ret`, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0156 tested this descriptor's ENTIRE identity claim as a pre-registered control: byte+2 0x54 -> 0x56 with expect_match=True, and it matched in both gated runs -- so ret_luse really is the HW-VALIDATED `ret` (EXP-0035) with one byte changed, at the same accepted sets for both of its fields (linkmode v&0x07==0x04, tail the same 12 values). An identity claim confirmed by a pre-registered hardware control is exactly what this label is for.",
+   "refuter": "a linkmode or tail value accepted by `ret` and rejected by `ret_luse`, or vice versa.",
+   "caveats": [
+    "'bit17 = last-use scheduling hint' remains INFERRED: the drop-in control shows the two forms are interchangeable, not what the bit schedules.",
+    "EXP-0156 records ret_luse.tail's no_store/wrong_value boundary as noisy (58.2%)."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0156-g17p-emit-cf-mem"
+    ],
+    "total_raw_cases": 1324,
+    "oracle_scored_cases": 1324,
+    "per_experiment": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1324,
+      "oracle_scored_cases": 1324,
+      "outcomes": {
+       "fault": 769,
+       "invalid_run": 209,
+       "ok": 127,
+       "skipped": 6,
+       "wrong_value": 213
+      },
+      "runs": [
+       "g17p-20260830-cf01a",
+       "g17p-20260830-cf01d",
+       "g17p-20260830-cf02d",
+       "smoke-s01"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0156-g17p-emit-cf-mem": {
+      "distinct_byte_strings": 509,
+      "decode_back_to_self": 509
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "rtq_state_move": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "4-byte ray/query marshalling move located over the own-MSL RT corpus"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0157"
+    ],
+    "range": "dst 15 values and src 255 values on 3 ray-query carriers, 5756 cases, 2 agreeing captures"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "EXP-0157 closed the acceleration-structure testbed gap and ran this instruction in three intersection-query carriers whose host oracles it reproduces exactly (k_rq_prim returns all eight authored quantities exactly). `src` behaves like a real register read in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value. But the descriptor calls itself a MOVE, and no (src -> dst) pair was chosen and predicted: `dst` reproduces the oracle at 13 of 15 nibbles, which is not what a move into a named GPR should look like.",
+   "refuter": "a chosen (src, dst) pair whose predicted register content appears -- that is the R1 test and it has not been run.",
+   "caveats": [
+    "`form` and `b3` were folded into `match` by EXP-0175 (zero free bits); only `dst` and `src` remain as fields."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 5756,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 90,
+      "baseline_or_anchor_ok": 0,
+      "cases": 5756,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 193,
+       "inert_or_unreached": 78,
+       "live": 12,
+       "ok": 4657,
+       "silent_zero": 237,
+       "wrong_value": 579
+      },
+      "runs": [
+       "g17p_bbox01",
+       "g17p_raymove01",
+       "g17p_raymove02",
+       "g17p_reval03",
+       "g17p_run01",
+       "g17p_run02",
+       "smoke01",
+       "smoke03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 2875,
+      "decode_back_to_self": 820
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "sel": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0010"
+    ],
+    "range": "located by own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4",
+    "evidence": [
+     "EXP-0010",
+     "EXP-0140"
+    ],
+    "range": "byte+1/+2/+3 each dense 0..255 x 2 input vectors x 2 gated runs; byte+3's immediate model matched the host oracle"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0010 E3 validated the select on hardware (a compare-immediate splice flips the CHOSEN value with no jump). EXP-0140 then refuted db.json's own field model by measurement -- `body` is not one opaque 24-bit field but three located bytes, and byte+3 is the predicate-FALSE OPERAND whose value appears in the output (255 of 128 values >= 0x80 and 1 of 128 < 0x80 matched their host-computed oracle exactly). Anchor 16c2a0c8 decodes back to sel.",
+   "refuter": "a byte+3 value that does not appear as the false operand.",
+   "caveats": [
+    "M4 only; not re-measured on G17P."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0140-m4-emit-mov-cf"
+    ],
+    "total_raw_cases": 4875,
+    "oracle_scored_cases": 4875,
+    "per_experiment": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 6,
+      "cases": 4875,
+      "oracle_scored_cases": 4875,
+      "outcomes": {
+       "fault": 391,
+       "invalid_run": 1,
+       "ok": 1948,
+       "silent_zero": 1368,
+       "wrong_value": 1167
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02",
+       "m4_20260828_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0140-m4-emit-mov-cf": {
+      "distinct_byte_strings": 809,
+      "decode_back_to_self": 809
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "sfu_marker": {
+   "current": {
+    "label": "tokenization-only",
+    "target": "M4+A18",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13"
+    ],
+    "range": "byte-invariant 2-byte token (06 02); exact micro-op NOT characterized"
+   },
+   "recommended": {
+    "label": "tokenization-only",
+    "target": "G16G+G17P",
+    "evidence": [
+     "EXP-0036",
+     "EXP-M4-12",
+     "EXP-M4-13",
+     "EXP-0146",
+     "EXP-0157"
+    ],
+    "range": "both bytes dense 0..255 on M4 (512 cases, 2 gated runs) and reproduced byte-for-byte on G17P in 3 carriers"
+   },
+   "changes": false,
+   "becomes_emitter_grade": false,
+   "decision_rule": "R4",
+   "reason": "KEEP AS IS -- and note that its two fields are `hardware-run` on BOTH targets, which is exactly the trap. EXP-0146 REFUTED the descriptor's old byte-invariance claim and EXP-0157 reproduced the mapping in three independent carriers; setting byte+0 to 0x00 flips the SIGN of fast::sin on exactly the rows needing range reduction, so at least one bit is a quadrant/sign control. But db.json states the conclusion itself: 'the exact micro-op is NOT-YET-CHARACTERIZED' (clean-room rule 5 keeps the adjacent coefficient words raw). Framing right, semantics unknown -- the definition of tokenization-only.",
+   "refuter": "an oracle-scored probe that names what the free bits control; then it moves in one step.",
+   "caveats": [
+    "`hardware-run` on its two FIELDS is correct and should stay: the accepted sets are measured. It is the INSTRUCTION whose micro-op is uncharacterized."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 4573,
+    "oracle_scored_cases": 2074,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 6,
+      "baseline_or_anchor_ok": 5,
+      "cases": 2074,
+      "oracle_scored_cases": 2074,
+      "outcomes": {
+       "fault": 20,
+       "ok": 141,
+       "silent_zero": 1281,
+       "wrong_value": 632
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04",
+       "trial00"
+      ]
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 10,
+      "baseline_or_anchor_ok": 0,
+      "cases": 2499,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "live": 10,
+       "ok": 147,
+       "silent_zero": 960,
+       "wrong_value": 1382
+      },
+      "runs": [
+       "g17p_run01",
+       "g17p_run02",
+       "smoke04"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 511,
+      "decode_back_to_self": 5
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 512,
+      "decode_back_to_self": 5
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "shift_amt_move": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0036"
+    ],
+    "range": "compact 4-byte move family located over the own-MSL corpus"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0146",
+     "EXP-0154",
+     "EXP-0168"
+    ],
+    "range": "all four bytes dense 0..255 on M4 and G17P; after EXP-0181's narrowing, `kind` is 16 of 16 dense on both targets"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "Executed on both targets in a rotate-by-variable carrier, with the accepted sets identical across gated runs, and EXP-0181's re-scoring of the NARROWED `kind` shows a clean 16-of-16 dense map (G17P accepts kind 1 and 3; M4 also accepts 0 and 2). But its role -- 'stages a shift/rotate amount' -- is INHERITED from reg_move_c0's layout, never proven, and in the only carrier that reaches it `dst` reproduces the oracle at 1 of 16 values and `src_reg` at 2 of 128. No operand is shown to be choosable, so an emitter cannot yet stage an ARBITRARY amount.",
+   "refuter": "a carrier in which a chosen `src_reg` supplies a predicted rotate amount.",
+   "caveats": [
+    "it is a member of the reg_move_c* family, whose standing finding is that NONE of them is a general GPR-to-GPR move (EXP-0087/0090/0101/0113).",
+    "the hardware also accepts byte+2 = 0x14 / 0x34 (low nibble 4), OUTSIDE this descriptor's match."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0154-g17p-emit-alu",
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "total_raw_cases": 3722,
+    "oracle_scored_cases": 3720,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 8,
+      "baseline_or_anchor_ok": 6,
+      "cases": 2062,
+      "oracle_scored_cases": 2062,
+      "outcomes": {
+       "fault": 274,
+       "ok": 72,
+       "silent_zero": 579,
+       "wrong_value": 1137
+      },
+      "runs": [
+       "run01",
+       "run02",
+       "run03",
+       "run04"
+      ]
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1318,
+      "oracle_scored_cases": 1318,
+      "outcomes": {
+       "ok": 26,
+       "silent_zero": 38,
+       "wrong_value": 1254
+      },
+      "runs": [
+       "g17p_20260829_run02",
+       "g17p_20260829_run04"
+      ]
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 342,
+      "oracle_scored_cases": 340,
+      "outcomes": {
+       "ok": 18,
+       "undecodable": 2,
+       "wrong_value": 322
+      },
+      "runs": [
+       "g17p_20260830_run02",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 462,
+      "decode_back_to_self": 400
+     },
+     "EXP-0154-g17p-emit-alu": {
+      "distinct_byte_strings": 655,
+      "decode_back_to_self": 400
+     },
+     "EXP-0168-g17p-dst-resweep": {
+      "distinct_byte_strings": 142,
+      "decode_back_to_self": 140
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "sr_read_wide": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "8-byte member of the get_sr low-nibble-4 datapath family; located over the own-MSL corpus (n=996)"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0157"
+    ],
+    "range": "six fields swept on 3 ray-query carriers, 9579 cases, 2 agreeing captures"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "It executed inside carriers with exact host oracles and its bytes are load-bearing (`width` faults on 32 of 256; `sel` accepts (v & 0x87) == 0x01). But TWO of the descriptor's own documented field roles were REFUTED or unobservable by the same experiment: `sel` is 'load-bearing but NOT the property selector' (16 different values return the same result), and byte+7's documented CANDIDATE-vs-COMMITTED selector 'is not observable here' (255/255 inert). `dst` is PINNED in all three carriers -- 'an emitter cannot choose the destination'. A descriptor whose two identifying claims are unconfirmed must not carry the top label.",
+   "refuter": "an oracle-scored probe in which `sel` selects a predicted property, or byte+7 bit7 switches candidate to committed.",
+   "caveats": [
+    "`operand`, `marshal` and `phase` are HW-TESTED INERT in these carriers with their roles unknown -- the single-template-inference band, not evidence of a working field."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0146-m4-emit-int-misc",
+     "EXP-0157-g17p-emit-misc"
+    ],
+    "total_raw_cases": 9581,
+    "oracle_scored_cases": 2,
+    "per_experiment": {
+     "EXP-0146-m4-emit-int-misc": {
+      "baseline_or_anchor_cases": 1,
+      "baseline_or_anchor_ok": 1,
+      "cases": 2,
+      "oracle_scored_cases": 2,
+      "outcomes": {
+       "ok": 2
+      },
+      "runs": [
+       "run05",
+       "run06"
+      ]
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "baseline_or_anchor_cases": 135,
+      "baseline_or_anchor_ok": 0,
+      "cases": 9579,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "fault": 320,
+       "inert_or_unreached": 120,
+       "live": 15,
+       "ok": 6955,
+       "silent_zero": 2163,
+       "wrong_value": 6
+      },
+      "runs": [
+       "g17p_bbox01",
+       "g17p_raymove01",
+       "g17p_raymove02",
+       "g17p_reval03",
+       "g17p_run01",
+       "g17p_run02",
+       "smoke01",
+       "smoke03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0146-m4-emit-int-misc": {
+      "distinct_byte_strings": 1,
+      "decode_back_to_self": 0
+     },
+     "EXP-0157-g17p-emit-misc": {
+      "distinct_byte_strings": 4474,
+      "decode_back_to_self": 3769
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "uniform_mov": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "A18",
+    "evidence": [
+     "EXP-0020"
+    ],
+    "range": "4-byte uniform->GPR copy located by own-MSL byte-diff"
+   },
+   "recommended": {
+    "label": "hardware-run",
+    "target": "M4+G17P",
+    "evidence": [
+     "EXP-0020",
+     "EXP-0140",
+     "EXP-0168"
+    ],
+    "range": "usrc 0..255 dense with a host oracle (128/128 immediate-region values exact, 8/8 mapped indices returning the bound constant); dst 16 values, 214 moved, 100.000% cross-run agreement"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R1",
+   "reason": "EXP-0140 proved the documented semantics by value: 128 of 128 immediate-region `usrc` values matched their host-computed oracle exactly and 8 of 8 mapped uniform indices returned the BOUND MAGIC CONSTANT -- i.e. byte+1 really does select the uniform read. EXP-0168 then re-measured `dst` on G17P against a fixed 16-GPR dump and a host-known seed table (214 movements, 224 distinct byte strings, 100.000% agreement) after showing EXP-0140's earlier dst arm could not have returned any other answer.",
+   "refuter": "a mapped uniform index that returns something other than the bound constant.",
+   "caveats": [
+    "EXP-0168 also found byte+2 (not a declared field) selects the FORM and the VALUE -- 0x02 writes 0x30, 0x0b writes 0x4b, 0x08 is a 16-bit-lane merge. db.json models byte+2 as a match constant, so an emitter cannot reach those forms from the tables."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0168-g17p-dst-resweep"
+    ],
+    "total_raw_cases": 1776,
+    "oracle_scored_cases": 1776,
+    "per_experiment": {
+     "EXP-0168-g17p-dst-resweep": {
+      "baseline_or_anchor_cases": 0,
+      "baseline_or_anchor_ok": 0,
+      "cases": 1776,
+      "oracle_scored_cases": 1776,
+      "outcomes": {
+       "ok": 280,
+       "wrong_value": 1496
+      },
+      "runs": [
+       "g17p_20260830_run02",
+       "g17p_20260830_run03"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0168-g17p-dst-resweep": {
+      "distinct_byte_strings": 753,
+      "decode_back_to_self": 32
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "vary_slot": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "slot descriptor emitted immediately before each vary_store; located over the corpus"
+   },
+   "recommended": {
+    "label": "corpus-correlation",
+    "target": "G17P",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0155",
+     "EXP-0172"
+    ],
+    "range": "sel and slot dense 0..255 across 4 carriers on G17P and M4, 7282 cases, 3 experiments"
+   },
+   "changes": false,
+   "becomes_emitter_grade": false,
+   "decision_rule": "R3",
+   "reason": "KEEP AS IS, because the descriptor's documented semantics has been REFUTED on hardware. db.json says byte+3 is 'the varying slot (monotone, tracks the store slot)'. EXP-0172 (DEF-0172-3) measured it: `slot` is live 'only bit 2 and only on one of four carriers -- all 128 values with bit 2 set move the observation, all 128 with it clear do not, and the other seven bits, INCLUDING BITS 5-6 WHERE THE COMPILER ENCODES THE VARYING INDEX, did nothing on any carrier'. Both fields are `hardware-run` and the instruction's role is nonetheless unestablished. Promoting it would certify a slot selector that does not select.",
+   "refuter": "a carrier in which the varying index bits demonstrably choose the varying -- that is the open question DEF-0172-3 leaves.",
+   "caveats": [
+    "EXP-0155 could not resolve vary_slot@v16_v6 at all: that occurrence does not exist."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0143-m4-emit-frag-simd",
+     "EXP-0155-g17p-emit-tex-frag",
+     "EXP-0172-g17p-onefield-tail"
+    ],
+    "total_raw_cases": 7282,
+    "oracle_scored_cases": 0,
+    "per_experiment": {
+     "EXP-0143-m4-emit-frag-simd": {
+      "baseline_or_anchor_cases": 8,
+      "baseline_or_anchor_ok": 8,
+      "cases": 1034,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "ok": 524,
+       "undecodable": 30,
+       "wrong_value": 480
+      },
+      "runs": [
+       "m4_20260828_run01"
+      ]
+     },
+     "EXP-0155-g17p-emit-tex-frag": {
+      "baseline_or_anchor_cases": 34,
+      "baseline_or_anchor_ok": 34,
+      "cases": 4140,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "ok": 2097,
+       "silent_zero": 3,
+       "undecodable": 120,
+       "wrong_value": 1920
+      },
+      "runs": [
+       "g17p_20260829_run01",
+       "g17p_20260829_run02",
+       "g17p_20260829_run03",
+       "g17p_20260829_run04",
+       "prefreeze"
+      ]
+     },
+     "EXP-0172-g17p-onefield-tail": {
+      "baseline_or_anchor_cases": 24,
+      "baseline_or_anchor_ok": 24,
+      "cases": 2108,
+      "oracle_scored_cases": 0,
+      "outcomes": {
+       "has_power": 2,
+       "inert": 10,
+       "moved": 18,
+       "no_power": 6,
+       "ok": 1816,
+       "wrong_value": 256
+      },
+      "runs": [
+       "g17p_20260830_run01",
+       "g17p_20260830_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0143-m4-emit-frag-simd": {
+      "distinct_byte_strings": 511,
+      "decode_back_to_self": 258
+     },
+     "EXP-0155-g17p-emit-tex-frag": {
+      "distinct_byte_strings": 511,
+      "decode_back_to_self": 258
+     },
+     "EXP-0172-g17p-onefield-tail": {
+      "distinct_byte_strings": 262,
+      "decode_back_to_self": 256
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  },
+  "vtx_coord_xform": {
+   "current": {
+    "label": "corpus-correlation",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13"
+    ],
+    "range": "statically separated from simd_ballot by the fixed byte+2==0xa2 / byte+3==0xb0 pair"
+   },
+   "recommended": {
+    "label": "isolated-byte-diff",
+    "target": "M4",
+    "evidence": [
+     "EXP-M4-13",
+     "EXP-0147"
+    ],
+    "range": "mode dense 256, sel dense 256, operand 40 bits swept per byte (5x256) + structured whole-field values; 3746 cases, 2 gated runs"
+   },
+   "changes": true,
+   "becomes_emitter_grade": true,
+   "decision_rule": "R2",
+   "reason": "EXP-0147 dispatched it in a real vertex carrier and produced a clean, reproducible signature: `mode` is correct exactly when (mode & 0xf3) is in {0x22, 0xe2} (8 of 256) and 240 of 256 values SUPPRESS THE DRAW ENTIRELY, confirmed twice with a healthy device in between. That proves the instruction is load-bearing for the vertex position, which is the descriptor's headline claim. It does not establish the semantics: the operand bytes are left raw by design (clean-room rule 5, the coordinate-select sequence is not reconstructed), so no coordinate was chosen and no position predicted.",
+   "refuter": "a chosen operand producing a predicted clip-space position.",
+   "caveats": [
+    "M4 only; never dispatched on G17P.",
+    "db.json's provenance still reads 'NOT HW-dispatch-validated' -- superseded by EXP-0147 and worth correcting when the label is applied."
+   ],
+   "machine_gathered_evidence": {
+    "dispatched_on_hardware": true,
+    "experiments": [
+     "EXP-0147-m4-emit-pipeline-misc"
+    ],
+    "total_raw_cases": 3746,
+    "oracle_scored_cases": 1869,
+    "per_experiment": {
+     "EXP-0147-m4-emit-pipeline-misc": {
+      "baseline_or_anchor_cases": 30,
+      "baseline_or_anchor_ok": 30,
+      "cases": 3746,
+      "oracle_scored_cases": 1869,
+      "outcomes": {
+       "fault": 79,
+       "invalid_run": 12,
+       "no_draw": 1754,
+       "ok": 1880,
+       "unstable": 1,
+       "wrong_value": 18
+      },
+      "runs": [
+       "m4_20260828_run01",
+       "m4_20260828_run02"
+      ]
+     }
+    },
+    "descriptor_self_attribution": {
+     "EXP-0147-m4-emit-pipeline-misc": {
+      "distinct_byte_strings": 1846,
+      "decode_back_to_self": 1829
+     }
+    },
+    "hw_anchor_tokenizes": null
+   }
+  }
+ }
+}

@@ -220,6 +220,10 @@ def main():
             val = S.validity_of(resp["status"], resp.get("error"), d)
             attempts.append({"status": resp["status"], "validity": val,
                              "os_class": S.os_class(resp.get("error")),
+                             "restarts": resp.get("restarts"),
+                             "discarded_lines": resp.get("discarded_lines"),
+                             "malformed_total": resp.get("malformed_total"),
+                             "raw": resp.get("raw"),
                              "hash": S.digest_hex(d)})
             if val == "valid" and resp["status"] == "OK":
                 break
@@ -270,6 +274,11 @@ def main():
             "validity": val, "os_class": S.os_class(resp.get("error")),
             "gputime_ns": resp.get("gputime_ns"),
             "error": (resp.get("error") or "")[:300],
+            "status": resp["status"],
+            "restarts": resp.get("restarts"),
+            "discarded_lines": resp.get("discarded_lines"),
+            "malformed_total": resp.get("malformed_total"),
+            "resp_raw": resp.get("raw"),
             "attempts": attempts,
             "start": c["start"], "width": c["width"],
             "encodable_range": c["encodable_range"],
@@ -294,6 +303,11 @@ def main():
         "elapsed_s": round(time.time() - t0, 3),
         "dispatches": carrier.dispatches,
         "carrier_hangs": carrier.hangs,
+        "runner_restarts": getattr(carrier.runner, "restarts", None),
+        "runner_malformed": getattr(carrier.runner, "malformed", None),
+        "runner_discarded_lines": getattr(carrier.runner, "discarded_lines", None),
+        "def_0178_1": ("leak-free runner (harness/saferunner.py) in use; a MALFORMED "
+                       "response is invalid_malformed and is RE-RUN, never scored"),
         "values_dispatched_note": "per-field counts are recomputed by "
                                   "analysis/analyze.py from sweep.jsonl"}, indent=1))
     log.close()

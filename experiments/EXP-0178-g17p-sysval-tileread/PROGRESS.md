@@ -127,3 +127,51 @@ sha `885d1d8605c3…`, 17 authored blobs + 3 pinned.
 **STATUS: HELD.** Device released to EXP-0179 at its request; `pgrep` on the neo shows no
 `agxrun_persist`, `rendersweep`, `shdump` or `run.py` from this experiment. Waiting for the
 orchestrator's clear before the gated pair.
+
+## 2026-08-30 — M4: split accepted; measurement-failure instrumentation added while held
+
+- Orchestrator approved splitting the resume: **the three `get_sr` arms first** (~1,700 cases
+  per run, the Q1 answer), the four tilebuffer arms second. Rationale recorded: `sr_sel` is
+  P0.8's number-one blocker and that answer exists nowhere yet, whereas the tilebuffer arms are
+  a target change on work that already exists and degrade gracefully.
+- Read-only check of the neo at this point: **EXP-0179 is still running**
+  (`MAPPING_g17p_20260830_run09N_hangtolerant`, forward then reverse). Still held; no dispatch.
+- **Found and fixed a DEF-0178-1 defect one level along, in my own classifier.** A `MALFORMED`
+  or `RUNNER_EXCEPTION` status fell through `classify()`'s `obs is None` branch and was recorded
+  as **`fault`** — a measurement problem masquerading as an observation, which is the same class
+  of error as scoring it a hang. New outcome **`measurement_failed`**, with the raw response
+  lines kept on the record. The promotion gate now **removes** those values from the agreement
+  computation (counting them as agreement would inflate the percentage; counting them as
+  disagreement would penalise the field for a harness problem) and **refuses** any field whose
+  measurement failures exceed 1 % of its dispatched values.
+- `analysis/answers.py` now reports, per arm and per run: `measurement_failed` count and
+  percentage, the per-field breakdown, a sample of the raw lines, plus `hang`, `invalid_run`,
+  `not_written`, `no_draw`/`no_dispatch` and runner restarts, with a CLEAN / MEASUREMENT
+  FAILURES PRESENT verdict. Recorded as `amendment_04`.
+- Contract re-frozen, sha `6021c04247ff…`. `selftest.py` G1–G9 PASS. `raw/` still empty.
+
+## 2026-08-30 — M5: remote-hash verification added, and it caught a stale neo immediately
+
+- `SUBAGENT_BRIEF.md` gained the `&&`-chaining hazard (EXP-0179 ran a gated pass against a stale
+  pre-amendment harness because `sync.sh push` failed inside a chain). I had been using exactly
+  that pattern, so added `harness/verify_remote.py` — a **separate** step, never chained behind
+  the push it checks, that hashes the pushed blobs on the neo against the contract's frozen
+  `authored_sha256` + `pinned_inputs_sha256` and exits non-zero on the first mismatch.
+- **It caught the exact failure on its first run: 11/18 blobs matched.** `analysis/answers.py`
+  and `harness/fakerunner.py` were MISSING and `harness/{run,saferunner,selftest,sweepplan}.py`
+  plus `analysis/verdicts.py` were STALE — every amendment since the first push had silently
+  failed to reach the neo. A capture started at that moment would have run the pre-amendment
+  harness. Re-pushed, re-verified as a separate step: **18/18**. Recorded as `amendment_05`
+  along with the before-every-capture procedure.
+- Applied EXP-0179's self-reported defect as a checklist to my own carriers (its layout omitted a
+  `pop_reconverge` its own earlier arm had *measured* to be required, which would have produced
+  the wrong hardware claim "depth-2 calls fault" looking perfectly clean). Two prior measured
+  requirements bear on my carriers and both are honoured: EXP-0086's later-read discipline in
+  every `get_sr` carrier, and EXP-0130/EXP-0117's pure-passthrough elision — 16 bytes containing
+  neither opcode — which is why every tilebuffer carrier combines the read with non-foldable ALU
+  against a runtime uniform rather than returning `dst`.
+- Correction to my own earlier warning: **EXP-0179 was NOT on the unpatched driver.** It had
+  already built `saferunner` in before dispatching its tail. My inference came from the process
+  table (child PID advancing 19102 → 19123 → 19144), which cannot see which Python class wraps
+  the child. The warning was wrong; raising it was not.
+- Still held. Contract sha `92dc790e3232…`, G1–G9 PASS, `raw/` empty.

@@ -1,0 +1,185 @@
+{
+ "_meta": {
+  "question": "does the committed db.json + isadb.py length rule decode the exact encoding each experiment DISPATCHED on hardware?",
+  "why_it_matters": "a descriptor can have HW-confirmed semantics while the committed tokenizer cannot reach the anchor that proved them. That is a DECODE gap (isadb.py's length rule, another owner) and it is a caveat on the descriptor, not a doubt about the observation.",
+  "probe": "the anchor as dispatched, plus its 16 destination-nibble variants (byte+1 and byte+2 held at the anchor's values), plus the encodings the own-MSL corpus actually reaches for the same mnemonic."
+ },
+ "bf_add_dst": {
+  "anchor": "21001c001100c081",
+  "source": "EXP-0156 bf_add.metal +32",
+  "anchor_decodes_to": "operand_word (len 2)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "n1_word (len 2)",
+   "0x1": "cvt_f2h (len 6)",
+   "0x2": "operand_word (len 2)",
+   "0x3": "ERR: unknown instruction length at offset 0 (byte0=0x31)",
+   "0x4": "ERR: unknown instruction length at offset 0 (byte0=0x41)",
+   "0x5": "operand_word (len 2)",
+   "0x6": "operand_word (len 2)",
+   "0x7": "ERR: unknown instruction length at offset 0 (byte0=0x71)",
+   "0x8": "operand_word (len 2)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x91)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa1)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb1)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd1)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe1)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf1)"
+  },
+  "corpus_reachable_encodings": [
+   "51071c8105024000",
+   "11041c020100c081",
+   "11041c021d00c001"
+  ]
+ },
+ "bf_fma_dst": {
+  "anchor": "21001e0086041000c081",
+  "source": "EXP-0156 bf_fma.metal",
+  "anchor_decodes_to": "operand_word (len 2)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "n1_word (len 2)",
+   "0x1": "bf_alu8_var (len 8)",
+   "0x2": "operand_word (len 2)",
+   "0x3": "ERR: unknown instruction length at offset 0 (byte0=0x31)",
+   "0x4": "ERR: unknown instruction length at offset 0 (byte0=0x41)",
+   "0x5": "operand_word (len 2)",
+   "0x6": "operand_word (len 2)",
+   "0x7": "ERR: unknown instruction length at offset 0 (byte0=0x71)",
+   "0x8": "operand_word (len 2)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x91)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa1)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb1)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd1)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe1)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf1)"
+  },
+  "corpus_reachable_encodings": [
+   "11021e0286040800c081"
+  ]
+ },
+ "hminmax": {
+  "anchor": "22001c0010c0",
+  "source": "EXP-0156 h_max.metal +32",
+  "anchor_decodes_to": "ERR: truncated instruction at offset 0 (need 10, have 6)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "hminmax (len 6)",
+   "0x1": "hminmax (len 6)",
+   "0x2": "ERR: truncated instruction at offset 0 (need 10, have 6)",
+   "0x3": "operand_word (len 2)",
+   "0x4": "ERR: unknown instruction length at offset 0 (byte0=0x42)",
+   "0x5": "ERR: unknown instruction length at offset 0 (byte0=0x52)",
+   "0x6": "ERR: unknown instruction length at offset 0 (byte0=0x62)",
+   "0x7": "operand_word (len 2)",
+   "0x8": "ERR: unknown instruction length at offset 0 (byte0=0x82)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x92)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa2)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb2)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc2)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd2)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe2)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf2)"
+  },
+  "corpus_reachable_encodings": [
+   "12021c0400c0",
+   "12021c0401c0",
+   "020e1c047808",
+   "12021c0210c0",
+   "12021c0211c0",
+   "023c1c081e01"
+  ]
+ },
+ "cvt_bf16": {
+  "anchor": "0101148105024000",
+  "source": "EXP-0162 c_f2bf",
+  "anchor_decodes_to": "ERR: unknown instruction length at offset 0 (byte0=0x01)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "ERR: unknown instruction length at offset 0 (byte0=0x01)",
+   "0x1": "cvt_f2h (len 6)",
+   "0x2": "operand_word (len 2)",
+   "0x3": "ERR: unknown instruction length at offset 0 (byte0=0x31)",
+   "0x4": "operand_word (len 2)",
+   "0x5": "operand_word (len 2)",
+   "0x6": "ERR: unknown instruction length at offset 0 (byte0=0x61)",
+   "0x7": "ERR: unknown instruction length at offset 0 (byte0=0x71)",
+   "0x8": "ERR: unknown instruction length at offset 0 (byte0=0x81)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x91)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa1)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb1)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd1)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe1)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf1)"
+  },
+  "corpus_reachable_encodings": [
+   "51033c8101024000",
+   "11033c8101024000",
+   "51073c8101024000",
+   "51051c8101024000",
+   "11021c8101028080",
+   "11031c8101024080"
+  ]
+ },
+ "cvt_f2h_dst": {
+  "anchor": "c10114810402",
+  "source": "EXP-0162 cvt_f2h_dst arm",
+  "anchor_decodes_to": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "ERR: unknown instruction length at offset 0 (byte0=0x01)",
+   "0x1": "cvt_f2h (len 6)",
+   "0x2": "operand_word (len 2)",
+   "0x3": "ERR: unknown instruction length at offset 0 (byte0=0x31)",
+   "0x4": "operand_word (len 2)",
+   "0x5": "operand_word (len 2)",
+   "0x6": "ERR: unknown instruction length at offset 0 (byte0=0x61)",
+   "0x7": "ERR: unknown instruction length at offset 0 (byte0=0x71)",
+   "0x8": "ERR: unknown instruction length at offset 0 (byte0=0x81)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x91)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa1)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb1)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd1)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe1)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf1)"
+  },
+  "corpus_reachable_encodings": [
+   "01011c8100c2",
+   "01031c810402",
+   "31053c810422",
+   "d1193c810002",
+   "e11b1c810202",
+   "f11b1c810202"
+  ]
+ },
+ "cvt_f2h": {
+  "anchor": "110114810402",
+  "source": "EXP-0144 (the byte0==0x11 sibling)",
+  "anchor_decodes_to": "cvt_f2h (len 6)",
+  "per_dst_nibble_holding_byte1_byte2": {
+   "0x0": "ERR: unknown instruction length at offset 0 (byte0=0x01)",
+   "0x1": "cvt_f2h (len 6)",
+   "0x2": "operand_word (len 2)",
+   "0x3": "ERR: unknown instruction length at offset 0 (byte0=0x31)",
+   "0x4": "operand_word (len 2)",
+   "0x5": "operand_word (len 2)",
+   "0x6": "ERR: unknown instruction length at offset 0 (byte0=0x61)",
+   "0x7": "ERR: unknown instruction length at offset 0 (byte0=0x71)",
+   "0x8": "ERR: unknown instruction length at offset 0 (byte0=0x81)",
+   "0x9": "ERR: unknown instruction length at offset 0 (byte0=0x91)",
+   "0xa": "ERR: unknown instruction length at offset 0 (byte0=0xa1)",
+   "0xb": "ERR: unknown instruction length at offset 0 (byte0=0xb1)",
+   "0xc": "ERR: unknown instruction length at offset 0 (byte0=0xc1)",
+   "0xd": "ERR: unknown instruction length at offset 0 (byte0=0xd1)",
+   "0xe": "ERR: unknown instruction length at offset 0 (byte0=0xe1)",
+   "0xf": "ERR: unknown instruction length at offset 0 (byte0=0xf1)"
+  },
+  "corpus_reachable_encodings": [
+   "110000901100",
+   "11051903e700",
+   "110d3c810502",
+   "11b124848100",
+   "118435030d20",
+   "11031c8100c2"
+  ]
+ }
+}

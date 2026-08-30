@@ -254,3 +254,35 @@ Two items from the coordinator's EXP-0178 relay, both on this experiment's criti
 **Status: QUIET. Zero SSH to the neo. Nothing dispatched, nothing to checkpoint.**
 Remaining offline work: `kernels/*.metal`, `harness/{isa_helpers,casematrix,anchors,smoke,run,
 procsample,selftest}.py`, `work/stub/fakerunner.py`, `analysis/{verdicts,merge_check}.py`.
+
+## M8 — 2026-08-30 — harness COMPLETE and frozen offline; all nine offline gates pass. Still zero SSH.
+
+Authored and hashed into `CAPTURE_CONTRACT.json:authored_source_sha256`; `raw/FREEZE_MARKER.txt`
+written.
+
+| file | what |
+|---|---|
+| `kernels/carrier_dag.metal`, `kernels/carrier_uni.metal` | `C_HI` / `C_LO`; lengthened over EXP-0169's because every case now dumps all 16 GPRs **twice** |
+| `kernels/probes.metal` | six authored half-precision kernels; supply the two lift-control anchors |
+| `harness/isa_helpers.py` | **explicit** pinned-ISA resolution (raises rather than falling back), the two-half seed construction, both frozen stage-2 variants, program builder with PRE-dump + POST-dump, marker chain, tail slack, second consumer |
+| `harness/casematrix.py` | the frozen matrix: 7 arms, coverage rule, ladder, three falsifiers, `LEN`, `DSTNIB` |
+| `harness/saferunner.py` | DEF-0178-1 subclass; shared tool untouched |
+| `harness/run.py` | driver; no abort path; anchor captured **once** per (arm,carrier) and never refreshed; retries only non-observations |
+| `harness/anchors.py`, `procsample.py`, `selftest.py`, `sync.sh` | anchor resolution, quiet-window measurement, offline gates, push/pull (`SSHPASS` only) |
+| `analysis/verdicts.py`, `merge_check.py`, `db_defects.json`, `target_rows.py` | verdicts under the frozen gates; a merge gate that **refuses** a moved span or a missing coverage key |
+| `work/stub/fakerunner.py` | offline proof of the DEF-0178-1 fix |
+
+**Offline selftest: 9/9 PASS** (`work/selftest.json`) — pins, all 16 spans, both seed tables
+adequate (28 distinct normal non-zero fp16 lanes each), exact minifloat fixed points, program
+fits, every generated base has the intended `byte+4 & 3` length class and names **no unseeded
+register and never the destination**, the matrix is deterministic and every case's value reads
+back out of its own bytes through db.json's geometry, ladders ≥ 5 / falsifiers = 3 on every
+generated arm with `byte0 → 0x00` confined to `DSTNIB`, and **G9: a truncated response yields
+`MALFORMED` with the raw lines kept — never a crash, never a hang.**
+
+Offline matrix (without the two lift-control arms, whose anchors resolve on the neo):
+**12,761 cases**, `matrix_sha256` recorded in the contract. With the lift arms the gated pair
+will be ≈ 16.7 k cases each, in line with EXP-0169's 16,827 in 190 s.
+
+**Status: QUIET. Zero SSH to the neo. `raw/` holds only the freeze marker.** Ready to dispatch
+the pilot the moment the device clears.

@@ -41,10 +41,43 @@ LABELS = {"hardware-run", "isolated-byte-diff", "corpus-correlation",
           "host-private", "untested"}
 
 
+MAX_MEASUREMENT_FAILED_FRAC = 0.01
+
+# Outcomes that are NOT OBSERVATIONS about the encoding and must never be scored
+# as one -- not as `ok`, not as `fault`, and not as an inertness reading:
+#   measurement_failed  a malformed/unparseable runner response (DEF-0178-1)
+#   invalid_run         collateral damage from ANOTHER context's error or its
+#                       recovery -- `kIOGPUCommandBufferCallbackErrorInnocentVictim`
+#                       / "Discarded (victim of GPU error/recovery)" / "Ignored (for
+#                       causing prior/excessive GPU errors)". A device reset
+#                       discards in-flight command buffers in every context, so a
+#                       victim says something about the MACHINE, never about our
+#                       bytes. FIELD-SWEEP-PROTOCOL section 7.
+# Both are removed from the agreement computation AND from `values_dispatched`,
+# and both keep their raw (the OS fault-class string in `victim`, the response
+# lines in `raw_lines`).
+NON_OBSERVATIONS = ("measurement_failed", "invalid_run")
+
+
 def gate(rows1, rows2, ladder_ok):
-    """The frozen promotion gate. rows are per-case dicts with value/outcome/moved."""
+    """The frozen promotion gate. rows are per-case dicts with value/outcome/moved.
+
+    DEF-0178-1: `measurement_failed` cases are NOT OBSERVATIONS -- a malformed or
+    unparseable runner response says nothing about the encoding. They are removed
+    from the agreement computation rather than counted as agreement (which would
+    inflate the percentage) or as disagreement (which would penalise the field for
+    a harness problem), AND the count is reported. A field whose measurement
+    failures exceed 1% of the dispatched values is REFUSED, because its null
+    result would be sitting on top of a measurement problem."""
     a = {r["value"]: r for r in rows1}
     b = {r["value"]: r for r in rows2}
+    nmf = sum(1 for r in list(rows1) + list(rows2)
+              if r["outcome"] == "measurement_failed")
+    nvic = sum(1 for r in list(rows1) + list(rows2)
+               if r["outcome"] == "invalid_run")
+    for d in (a, b):
+        for v in [v for v, r in d.items() if r["outcome"] in NON_OBSERVATIONS]:
+            del d[v]
     common = sorted(set(a) & set(b))
     agree = [v for v in common if a[v]["outcome"] == b[v]["outcome"]]
     disagree = [v for v in common if a[v]["outcome"] != b[v]["outcome"]]
@@ -53,16 +86,20 @@ def gate(rows1, rows2, ladder_ok):
     ok_common = len(common) >= MIN_COMMON
     ok_pct = pct >= MIN_AGREE_PCT
     ok_move = len(moved) >= MOVED_OVER_DISAGREE * max(len(disagree), 1) and len(moved) > 0
+    ndispatched = len(rows1) + len(rows2)
+    ok_mf = (nmf <= MAX_MEASUREMENT_FAILED_FRAC * ndispatched) if ndispatched else True
     return {
-        "promote": bool(ladder_ok and ok_common and ok_pct and ok_move),
+        "promote": bool(ladder_ok and ok_common and ok_pct and ok_move and ok_mf),
         "ladder_ok": bool(ladder_ok),
         "common_values": len(common), "agree": len(agree),
         "disagree": len(disagree), "moved": len(moved),
+        "measurement_failed": nmf, "invalid_run_victims": nvic,
         "agreement_pct": round(pct, 3),
         "failed": [k for k, v in (("gate_zero_ladder", ladder_ok),
                                   ("min_common_values", ok_common),
                                   ("min_agree_pct", ok_pct),
-                                  ("moved_over_disagree", ok_move)) if not v],
+                                  ("moved_over_disagree", ok_move),
+                                  ("measurement_failures", ok_mf)) if not v],
     }
 
 
@@ -142,8 +179,11 @@ def build(run1, run2):
             lok, ldet = arm_ladder_ok(arm)
             g = gate(rows1, rows2, lok)
             g["ladder_detail"] = ldet
-            g["values_dispatched"] = len({r["value"] for r in rows1})
-            g["distinct_bytes"] = len({r["bytes"] for r in rows1})
+            obs1 = [r for r in rows1 if r["outcome"] not in NON_OBSERVATIONS]
+            g["values_dispatched"] = len({r["value"] for r in obs1})
+            g["distinct_bytes"] = len({r["bytes"] for r in obs1})
+            g["values_attempted"] = len({r["value"] for r in rows1})
+            g["non_observations_run01"] = len(rows1) - len(obs1)
             g["encodable_range"] = (rows1 or rows2)[0].get("encodable_range")
             g["start"] = (rows1 or rows2)[0].get("start")
             g["width"] = (rows1 or rows2)[0].get("width")

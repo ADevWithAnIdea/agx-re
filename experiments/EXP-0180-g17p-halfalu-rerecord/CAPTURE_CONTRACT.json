@@ -25,6 +25,27 @@
    "note": "Nothing had been dispatched when this was adopted; the experiment was still entirely offline.",
    "source": "coordinator message relaying EXP-0178's persistrun reader-thread defect and its get_sr geometry root-cause",
    "utc": "2026-08-30"
+  },
+  {
+   "before_any_device_dispatch": true,
+   "changes": [
+    "harness/verify_remote.py added: a SEPARATE, UNCHAINED post-push / pre-capture step that hashes the blobs ON THE NEO and compares them to authored_source_sha256. A frozen contract hashes what you AUTHORED, not what the device is RUNNING.",
+    "harness/selftest.py locates tools/agxtest via the same two-candidate search run.py uses, so the offline gates also run on the neo"
+   ],
+   "id": "amendment_03",
+   "note": "Instrument only; no hypothesis, arm, carrier, coverage, oracle or gate changed. Still no device dispatch at the time of adoption.",
+   "source": "coordinator clearance message relaying EXP-0179's stale-harness incident and EXP-0178's verify_remote.py catching the identical failure against itself (11 of 18 blobs matched, five stale, two missing)",
+   "utc": "2026-08-30T12:29:15Z"
+  },
+  {
+   "before_any_device_dispatch": true,
+   "changes": [
+    "run.py --mode pilot restricts the matrix to the INSTRUMENTS (anchors, 3 falsifiers, 5 ladder steps, DSTNIB, the whole LEN map) and runs the `__` cases at BOTH grid=1/tg=1 and grid=32/tg=32, implementing the geometry check already frozen in PRE_REGISTRATION.md 12b",
+    "the anchor record now carries seed_adequacy_observed: the FROZEN adequacy predicate evaluated on the ON-HARDWARE pre-dump, which is the carrier admission gate"
+   ],
+   "id": "amendment_04",
+   "note": "Implements clauses already frozen in 11a/12b; no hypothesis, arm, carrier, coverage, oracle or gate changed. Still no device dispatch at adoption.",
+   "utc": "2026-08-30T12:30:07Z"
   }
  ],
  "arms": [
@@ -98,7 +119,30 @@
  ],
  "authored_source_sha256": {
   "_status": "RECORDED AT FREEZE, BEFORE THE FIRST DEVICE DISPATCH. Provenance record, not a design parameter; the design above is frozen as of this file's creation.",
-  "files": {}
+  "files": {
+   "analysis/merge_check.py": "5acc5d7812407fd40eff7ad118af5cb910ffe5a18e80e7d919a5e17f262e48bc",
+   "analysis/target_rows.py": "ebe5ff0ecd3eb6c9bad1e1d6370c03f2cd9c4ab5fb5945ce7fb0dc98dcfaf673",
+   "analysis/verdicts.py": "26b5b999db3980cad2e53cb4077aa9abb53d8897ce77c4a8591953c0d4e9cd9d",
+   "harness/anchors.py": "63f9ddad3557a18f59423e4d665ef622881ed6c568867e6da08e317272bce7ab",
+   "harness/casematrix.py": "951e27934fcffcc7e12f11a33c4e9c2a8ed086e4d31486deb697a04331a3699e",
+   "harness/isa_helpers.py": "a891d3ae076f9d640ce2045ac369dc1e11d929a136de8da3ceef618cb20c8422",
+   "harness/procsample.py": "ededc8c15a3e7d9195cca5d44cdd1cddb62a22b29171dd0fcb1ee85ea156408c",
+   "harness/run.py": "42c2c7e5ddeef2e489e7656628577e1606b0a4fcecd20dd17d510994547a8c9a",
+   "harness/saferunner.py": "b59839a6f0f71a718dc0969d510a3a06777d1cb165d50c0d77d8bb42648a5e70",
+   "harness/selftest.py": "7c3054f30bd98e7746ce43fac46b9763c5b1bb103c1fc6aaa8f685e513d25df2",
+   "harness/sync.sh": "3cdcc30a141a27be4e07677ef764580eee108c9e439a4ed921b5945958e3ac1f",
+   "harness/verify_remote.py": "9820c733dbf4e397e0e621360d2027cdcce00de2dea1d6a44a35f0f1bcb5548a",
+   "kernels/carrier_dag.metal": "c761b87021827a746b762381b83cc6530738c4a9f1dd1415abe8e5c0961cc28f",
+   "kernels/carrier_uni.metal": "562680d6892a72a097363b58c13e89103ea3d7b14fc92b1331af7e861e32bf33",
+   "kernels/probes.metal": "a04073d38aae8578f383106428e46d9a62c59ad14c02e35e2507cde849eb17e9",
+   "work/frozen/db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+   "work/frozen/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+   "work/stub/fakerunner.py": "71439052dbb98f99c33862bcb5bef0e4aba715c193b77f4bec45223d46c35b77"
+  },
+  "frozen_utc": "2026-08-30T12:30:07Z",
+  "matrix_cases_offline": 12761,
+  "matrix_sha256_offline": "df5f6e75c65d3817fa8495d434a7f82de474ec59ddbb6aae2e86a67a5db7772f",
+  "note": "the offline matrix EXCLUDES the two lift-control arms, whose anchors are resolved on the neo by compiling our own kernels/probes.metal. The RUN's matrix_sha256 (written into raw/<run>/00_env.json) therefore differs from this one and must be IDENTICAL between the two gated runs."
  },
  "carriers": {
   "C_HI": {

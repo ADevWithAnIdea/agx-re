@@ -34,25 +34,139 @@
    "what": "Adds harness/saferunner.py (leak-free persistent-runner subclasses + a defensive response parser), harness/fakerunner.py (a no-device protocol stub) and selftest gate G9; run.py now uses the subclasses, captures a traceback on any runner exception, and carries a HARNESS/DEVICE HEALTH stop distinct from a hang budget.",
    "why": "DIAGNOSIS, NOT REPAIR, found by the pilots (work/pilot01..05) BEFORE any gated dispatch. Both shared drivers -- tools/agxtest/persistrun.py and the rsdrv.py render driver -- start a FRESH reader thread per line and ABANDON it on timeout, and that thread re-resolves self.proc at EXECUTION time. After the first watchdog timeout the abandoned thread wakes on the REPLACEMENT child's stdout and races the foreground reader; responses come back truncated ('OUT 0 ' with the hex missing) and the shared parser raises ValueError: not enough values to unpack, killing the run. In work/pilot02..05 ONE benign case poisoned every later request including the unspliced health check, and three consecutive cases were recorded `hang` with restarts=99 -- ALL FALSE. This experiment deliberately has no hang budget, so hangs are expected and this defect would have manufactured a cascade of artefacts. It is the sibling of DEF-0153-2 (the EOF spin) in the same file.",
    "why_this_is_not_a_post_hoc_repair": "The freeze exists to stop the harness being edited AFTER data is seen. At the moment of this amendment raw/ is EMPTY: zero gated dispatches have occurred, so no observation exists that these edits could have been fitted to. Everything run so far lives in work/ under pilot ids and is retained, never reused."
+  },
+  {
+   "changed_blobs": {
+    "harness/run.py": {
+     "after": "e549f9b2d905027813893739601119f864f6c85c9182bbf5f1690cd8bdb2910f",
+     "before": "0df5699b40d8713ed00978179e5c8f7efe91fe6365b2de3f4c8344ba13c046f7"
+    }
+   },
+   "id": "amendment_02",
+   "touches": "outcome CLASSIFICATION for the two render sysval carriers, plus one extra recorded sentinel channel. NO case, encoding, carrier, host oracle, poison, ladder, coverage rule or promotion gate changes; the device case matrix is byte-identical.",
+   "utc": "2026-08-30T12:17:24Z",
+   "what": "`is_zeroish` becomes CARRIER-AWARE, and the vertex carrier gains a second integrity channel (`gb_are_zero`).",
+   "why": "Self-caught before any gated dispatch, by re-reading the classifier against the carriers. `is_zeroish` decides the `silent_zero` outcome, and it was written as 'the observation is 0'. That is WRONG on the fragment [[position]] carrier: a zero SR read still lands as the pixel-centre offset C, not as 0.0, so every fragment silent zero -- the single most important outcome class on this ISA, where a wrong field value usually yields a silent zero rather than a fault -- would have been misclassified as `wrong_value`. On the vertex carrier a zero read interpolates to 0 at every corner, so 0.0 is correct there and is kept.",
+   "why_this_is_not_a_post_hoc_repair": "raw/ is EMPTY -- zero gated dispatches have occurred, so no observation exists that this could have been fitted to. It was found by reading the code against the carrier, not by looking at a result that came out wrong."
+  },
+  {
+   "changed_blobs": {
+    "harness/run.py": {
+     "after": "42b916a6bf8bc54790e4a7bdadc2b2a08cdc4af2be61d64164b69df968400ca4",
+     "before": "e549f9b2d905027813893739601119f864f6c85c9182bbf5f1690cd8bdb2910f"
+    },
+    "harness/sweepplan.py": {
+     "after": "b789b70ab9a714f3e233725deedd2938fdb4ff9154b5f11c707825db0d1ac885",
+     "before": "ed3659eb5db52e3d0eab89a5997a682da67d21b0062a6f30178b1532693cf7bd"
+    }
+   },
+   "id": "amendment_03",
+   "touches": "which pre-registered field NAME the byte+7 litmus is written through, plus a new diagnostic record. No case, encoding, carrier, oracle, ladder, coverage rule or promotion gate changes. The power probe is recorded but is NOT part of gate_zero (gate_zero is the ladder plus the falsifier), so this cannot change a verdict.",
+   "utc": "2026-08-30T12:18:32Z",
+   "what": "The `tile_ct2` power probe becomes an ORDERED CANDIDATE LIST -- byte+7 as `b7` (tile_read) or as `fmt` (tile_read_mrt) -- and an absent power probe is now RECORDED (`power_probe_absent`) instead of silently skipped.",
+   "why": "`tile_ct2` is the arm whose anchor is resolved from the compiled bytes and may be EITHER descriptor; byte+7 is named `b7` on tile_read and `fmt` on tile_read_mrt. The single-field probe would have been skipped without a trace on one of the two outcomes, leaving the litmus silently missing from that arm's record. The litmus MUTATION is unchanged -- it is byte+7 -> 0x00 either way, exactly EXP-0147's.",
+   "why_this_is_not_a_post_hoc_repair": "raw/ is EMPTY; zero gated dispatches have occurred."
+  },
+  {
+   "changed_blobs": {
+    "analysis/answers.py": {
+     "after": "7315be0d416557a958bfe6b8dd4202eec57ec685ac02c0c8b21e7a25f398d91a",
+     "before": "9cb566996640285bc7780ac2e3b98b2f94dafa6384f87ac2cbd6afd771548fb4"
+    },
+    "analysis/verdicts.py": {
+     "after": "0b69512a2b71cbad18d3eb2e3a7a46596564912b85b9569e5ce855da8c80205b",
+     "before": "16d9cf80ed76bedf673f334e8d7024e8c5146f689743b4daae53f332ec9b2830"
+    },
+    "harness/run.py": {
+     "after": "2d4ec5e59352d7f34d06c2d32681481232cfc23b710558a4569566cfcb5b2eb6",
+     "before": "42b916a6bf8bc54790e4a7bdadc2b2a08cdc4af2be61d64164b69df968400ca4"
+    }
+   },
+   "id": "amendment_04",
+   "touches": "outcome classification for non-observations, the promotion gate's handling of them, and analysis reporting. NO case, encoding, carrier, host oracle, poison, sentinel, ladder or coverage rule changes; the device case matrix is byte-identical. The gate's four numeric terms are unchanged.",
+   "utc": "2026-08-30T12:22:24Z",
+   "what": "New outcome `measurement_failed` for a malformed/unparseable runner response, with the raw response lines kept on the record; the promotion gate excludes those values from the agreement computation and REFUSES a field whose measurement failures exceed 1% of its dispatched values; analysis/answers.py reports the count, the per-field breakdown and a sample of the raw lines PER ARM.",
+   "why": "Orchestrator direction, 2026-08-30, and a real defect in this harness that the direction exposed. Before this amendment a MALFORMED or RUNNER_EXCEPTION status fell through classify()'s `obs is None` branch and was recorded as **`fault`** -- which is exactly the DEF-0178-1 failure one level along: a measurement problem masquerading as an observation. DEF-0178-1 has also WIDENED: a mere watchdog TIMEOUT, not a real hang, is enough to start the false cascade on the shared driver, so the suspect set is any run whose runner ever timed out. Surfacing the count per arm lets a reviewer see at a glance whether an arm's null result sits on top of a measurement problem.",
+   "why_this_is_not_a_post_hoc_repair": "raw/ is EMPTY; zero gated dispatches have occurred."
+  },
+  {
+   "changed_blobs": {
+    "harness/verify_remote.py": {
+     "after": "3c62e874f24cd26ebd541e3b813b31ff4087f6ac62f62e3e715083dc329bb8ca",
+     "before": null
+    }
+   },
+   "id": "amendment_05",
+   "touches": "operational procedure only. No case, encoding, carrier, oracle, ladder, coverage rule or promotion gate changes.",
+   "utc": "2026-08-30T12:24:46Z",
+   "what": "New `harness/verify_remote.py`: a SEPARATE step, never chained behind the push it checks, that hashes the pushed blobs ON THE NEO and compares them to this contract's frozen `authored_sha256` + `pinned_inputs_sha256`, exiting non-zero on the first mismatch or missing file. A capture may not start until it passes.",
+   "why": "SUBAGENT_BRIEF, updated 2026-08-30: *do not chain a state-changing step behind `&&` and assume it ran.* EXP-0179's `sync.sh push` returned non-zero inside a chained command and a gated pass executed against the STALE pre-amendment harness -- 6 cases instead of 8, remote hashes not matching local -- burning a run id; the orchestrator hit the same shape hours earlier with a silently skipped PROVENANCE.md append. A silent no-op inside a chain is indistinguishable from success in the exit code. **The verifier caught this on its very first run against this experiment: 11 of 18 blobs matched, with `analysis/answers.py` and `harness/fakerunner.py` MISSING and `harness/{run,saferunner,selftest,sweepplan}.py` plus `analysis/verdicts.py` STALE** -- i.e. every amendment since the first push had failed to reach the neo, and a capture started at that moment would have run the pre-amendment harness. Re-pushed and re-verified as a separate step: 18/18.",
+   "why_this_is_not_a_post_hoc_repair": "raw/ is EMPTY; zero gated dispatches have occurred."
+  },
+  {
+   "applied_incompletely_first_time": "HONEST DISCLOSURE. The `nb` -> `out_nbytes` rename was applied to the ASSIGNMENT but not to the one USE, which spans two lines and so did not match the literal I replaced on. work/pilot06 caught it immediately -- `NameError: name 'nb' is not defined` on the very first request, recorded as `RUNNER_EXCEPTION` -> outcome `fault` on the BASELINE, and the arm aborted with `arm_error: baseline did not run` before a single case was dispatched. That is the behaviour the design wants: a broken harness fails LOUDLY on the baseline instead of quietly producing 570 inertness readings. Fixed, re-pushed, re-verified as a separate step, and re-piloted before the gated pair. The point generalises: it was the traceback in the runner-exception handler -- added an hour earlier -- that named the fault in one line both times.",
+   "changed_blobs": {
+    "DEFECTIVE-run01.md": {
+     "after": "09fca63efcfbe9412e65ae4d533b45d287db01aceb8d6fb7089f64960cf1ebe5",
+     "before": null
+    },
+    "analysis/answers.py": {
+     "after": "2882f568198089b971dcf5db88938d86bdaa56ff1a805cbfcbf2f753f15ac38b",
+     "before": "7315be0d416557a958bfe6b8dd4202eec57ec685ac02c0c8b21e7a25f398d91a"
+    },
+    "analysis/verdicts.py": {
+     "after": "9e4cedc5c5c13029836928269f6af2e76dfa036f3556cd6aad3947c61b575fb7",
+     "before": "0b69512a2b71cbad18d3eb2e3a7a46596564912b85b9569e5ce855da8c80205b"
+    },
+    "harness/run.py": {
+     "after": "0b837f97e081dc0df9ee16e1296a081230318c5ab2b5d5313d4997f9c11b3eb9",
+     "before": "3dec6c7ce64a5f06f3b55534dd595f97da6983e5806afc31de436651b9ca878f"
+    },
+    "harness/selftest.py": {
+     "after": "3e972d79db51d6f4068ccb2a0a5a729192f474869e07a7d212a2f64463438294",
+     "before": "3ad44655bda4e13f5e8e3ff74c2e1764660f027f0da5d8675cba1968483cf9c9"
+    },
+    "harness/verify_remote.py": {
+     "after": "36ed369b963d8d47c45e546aed33ce5a4b36a74fdcfb9e87ce2eb387ae4e2883",
+     "before": "3c62e874f24cd26ebd541e3b813b31ff4087f6ac62f62e3e715083dc329bb8ca"
+    }
+   },
+   "generalisation": "TWO INDEPENDENT DEFECTS CAN SHARE ONE SIGNATURE, and having just fixed a cascade-shaped defect makes the next cascade-shaped defect HARDER to see. Check the exception's identity -- text, call site, stack -- not its shape.",
+   "id": "amendment_06",
+   "run_ids": "g17p_20260830_run01 is BURNED: retained exactly as it landed, never topped up, deleted or reused. The gated pair is g17p_20260830_run03 / run04. run02 was never dispatched and is also not reused, so no id is ambiguous.",
+   "the_instrument_that_earned_its_keep": "`measurement_failed` was added hours earlier for a different reason and paid for itself before measuring anything: because a malformed runner response was already a non-observation rather than a `hang` or a `fault`, this harness bug could never have entered a verdict as an inertness reading on get_sr.sr_sel. Under the pre-amendment classifier it would have been recorded as `fault` -- a harness bug promoted to a hardware claim.",
+   "touches": "harness variable naming, one new offline gate, and the analysis treatment of non-observations. NO case, encoding, carrier, host oracle, poison, sentinel, ladder, coverage rule or promotion-gate THRESHOLD changes; the device case matrix is byte-identical to the frozen one.",
+   "utc": "2026-08-30T12:31:34Z",
+   "victims": "Orchestrator direction: an `invalid_run` victim (kIOGPUCommandBufferCallbackErrorInnocentVictim / 'Discarded (victim of GPU error/recovery)' / 'Ignored (for causing prior/excessive GPU errors)') is a statement about the MACHINE, never about our bytes -- a device reset discards in-flight command buffers in every context. Victims now join measurement_failed in NON_OBSERVATIONS: excluded from the agreement computation AND from values_dispatched/distinct_bytes, with the OS fault-class string kept in `victim` and reported per arm by analysis/answers.py. Relevant now that EXP-0180's LEN and DSTNIB arms may dispatch concurrently.",
+   "what": "Fixes a CLOSURE-SHADOWING defect in harness/run.py that destroyed the first gated attempt; adds selftest gate G10 to catch the defect CLASS mechanically; treats an `invalid_run` victim as a NON-OBSERVATION alongside `measurement_failed`; makes harness/verify_remote.py upstreamable.",
+   "why": "raw/g17p_20260830_run01 is DEFECTIVE and RETAINED (see DEFECTIVE-run01.md). The compute arm bound its read-back SIZE as `nb` and the `raw_case` closure read it; the falsifier block later rebound `nb` to a bytearray in the SAME enclosing scope. A closure resolves a free variable at CALL time, so from the falsifier onward every request asked for a read-back of a bytearray bytes and raised inside the request builder. It presented as a HANG CASCADE -- byte-for-byte the signature of the shared-driver defect fixed minutes earlier -- which is why four pilots did not separate the two. The exception TEXT was the tell and changed from `not enough values to unpack` to `%d format: a number is required, not bytearray`; adding traceback.format_exc() to the handler named the call site on the first run that hit it."
   }
  ],
+ "analysis_scripts": {
+  "analysis/answers.py": "derives the TWO headline answers mechanically from raw/, including the cross-target re-tests of the M4 priors (H2 bit-7 discriminator, H3 stage-contextual namespace, read_en odd/even, rt_index legal set, fmt legal set) -> analysis/answers.json",
+  "analysis/covary_audit.py": "FIELD-SWEEP-PROTOCOL 3(a) design check -> analysis/covary_audit.json",
+  "analysis/verdicts.py": "the frozen promotion gate -> analysis/field_verdicts.json, flat <mnemonic>.<field> keys"
+ },
  "anchor_resolution_rule": "Recorded in raw/<run>/00_arm_resolution.json BEFORE the first gated dispatch. get_sr anchors resolve by a clean pinned tokenization when available, else by an even-offset scan requiring (byte0 & 7)==4, byte1==anchor_sr and a successful pinned decode to get_sr with EXACTLY ONE match; ambiguity -> NOT ATTEMPTED. tile anchors resolve by byte pattern plus a pinned decode to tile_read or tile_read_mrt. tile_ct2 may compile to either; the arm is attributed to the instruction ACTUALLY FOUND and its field list is intersected with that descriptor's real field names. Neither anchor present -> NOT ATTEMPTED, never guessed.",
  "authored_sha256": {
+  "DEFECTIVE-run01.md": "09fca63efcfbe9412e65ae4d533b45d287db01aceb8d6fb7089f64960cf1ebe5",
   "PRE_REGISTRATION.md": "97af7c8453ac2d1025606e47d1698e7dba360bd30381d3b7f66bd7804ce34370",
   "README.md": "6b3e56ef8ee7fbd88a3fb8c38599e3e3bd1685964338452daa3ce52d1fe565c4",
+  "analysis/answers.py": "2882f568198089b971dcf5db88938d86bdaa56ff1a805cbfcbf2f753f15ac38b",
   "analysis/covary_audit.json": "970487422850a35d31cacb3b899df16ff146ac3f762e50c559220b1a54602a93",
   "analysis/covary_audit.py": "2ab832ac84cc86df595b089ef62e0b60f1506dc7cbcbdaf23f7ada850d40e928",
-  "analysis/verdicts.py": "16d9cf80ed76bedf673f334e8d7024e8c5146f689743b4daae53f332ec9b2830",
+  "analysis/verdicts.py": "9e4cedc5c5c13029836928269f6af2e76dfa036f3556cd6aad3947c61b575fb7",
   "harness/fakerunner.py": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
   "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
   "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
   "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
-  "harness/run.py": "0df5699b40d8713ed00978179e5c8f7efe91fe6365b2de3f4c8344ba13c046f7",
+  "harness/run.py": "0b837f97e081dc0df9ee16e1296a081230318c5ab2b5d5313d4997f9c11b3eb9",
   "harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
-  "harness/selftest.py": "3ad44655bda4e13f5e8e3ff74c2e1764660f027f0da5d8675cba1968483cf9c9",
+  "harness/selftest.py": "3e972d79db51d6f4068ccb2a0a5a729192f474869e07a7d212a2f64463438294",
   "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",
-  "harness/sweepplan.py": "ed3659eb5db52e3d0eab89a5997a682da67d21b0062a6f30178b1532693cf7bd",
+  "harness/sweepplan.py": "b789b70ab9a714f3e233725deedd2938fdb4ff9154b5f11c707825db0d1ac885",
   "harness/sync.sh": "fe1fc40e31f2e7535930df3f152ba36341f70690fcbf277fa2a13851658bbe53",
+  "harness/verify_remote.py": "36ed369b963d8d47c45e546aed33ce5a4b36a74fdcfb9e87ce2eb387ae4e2883",
   "kernels/sysval.metal": "6b14b1106220492488c221a36c0edb7d2349e970459e44e25d9a61c5d21ca939",
   "kernels/tilebuf.metal": "d1d85c915020fcacc8bbd466cf70e089b89843f72d3e5bb6c6a075091cb191ed"
  },
@@ -90,6 +204,10 @@
   "script": "analysis/covary_audit.py -> analysis/covary_audit.json",
   "verdict_at_freeze": "PASS, 45 fields checked, 0 errors"
  },
+ "defective_runs": {
+  "g17p_20260830_run01": "closure-shadowing defect; see DEFECTIVE-run01.md; retained, never reused",
+  "g17p_20260830_run02": "never dispatched; id retired so no id is ambiguous"
+ },
  "depends_on": {
   "EXP-0031/EXP-M4-14": "sr_sel is byte1 and the stage-contextual SR namespace",
   "EXP-0092-m4-sysval-abi": "the exhaustive M4 get_sr selector sweep this re-runs on G17P; the srprobe carrier body",
@@ -110,8 +228,8 @@
  "frozen_utc": "2026-08-30T11:56:05Z",
  "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF pinned-revision rule)",
  "gated_runs": [
-  "g17p_20260830_run01",
-  "g17p_20260830_run02"
+  "g17p_20260830_run03",
+  "g17p_20260830_run04"
  ],
  "instruments": {
   "os_fault_string": "recorded on every non-ok case; 'Discarded (victim' / 'Ignored (for causing prior' are segregated as invalid_run, never as fault",
@@ -189,6 +307,17 @@
   "pinned/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
  },
  "pinned_toolchain_policy": "harness/pinned_isa.py resolves pinned/{isadb.py,db.json,agxparse.py} by ABSOLUTE PATH and exits non-zero if a blob is missing or its hash differs. There is NO path-search fallback: a harness must FAIL when its pinned toolchain is absent, not quietly resolve something else. The neo's shared ~/agxre/tools/agx-isa/db.json is stale and is never consulted.",
+ "procedure": {
+  "before_every_capture": [
+   "1. bash harness/sync.sh push            (state-changing)",
+   "2. python3 harness/verify_remote.py     (SEPARATE step, check the exit code -- never behind &&)",
+   "3. python3 harness/selftest.py          (G1-G9 offline)",
+   "4. python3 harness/run.py --run-id <id> --out-root raw",
+   "5. bash harness/sync.sh pull            (state-changing)",
+   "6. verify the pulled record count against the run's own 02_summary.json (SEPARATE step)"
+  ],
+  "design_cross_check_applied": "EXP-0179's self-reported defect -- its own layout omitted the `pop_reconverge` that its own EARLIER arm had already MEASURED to be required, which would have produced the wrong hardware claim 'depth-2 calls fault' looking perfectly clean -- was applied as a checklist to this experiment's carriers. Two prior measured requirements bear on them and BOTH are honoured: (a) EXP-0086's later-read discipline, which every get_sr carrier satisfies via a separate later consumer and a third separate store; and (b) EXP-0130/EXP-0117's finding that a PURE PASSTHROUGH fragment shape is ELIDED ENTIRELY -- 16 bytes containing neither opcode -- which is why every tilebuffer carrier here combines the read with genuinely non-foldable ALU against a runtime uniform rather than returning `dst`."
+ },
  "promotion_gate": {
   "coverage_ceiling": "hardware-run requires the FULL encodable range for w<=8; otherwise isolated-byte-diff",
   "gate_zero": "the arm's liveness ladder moved on EVERY step in BOTH runs and the falsifier failed as pre-registered",
@@ -255,6 +384,7 @@
   ],
   "outcome_enum_documented_extensions": {
    "invalid_run": "collateral damage from another context ('Discarded (victim...)' / 'Ignored (for causing prior...)') after 5 in-place retries and a restart cycle. NOT evidence about the encoding. Established by EXP-0147.",
+   "measurement_failed": "DEF-0178-1. The runner returned a MALFORMED or unparseable response (a truncated OUT line, or an exception in the response parser). This is NOT AN OBSERVATION: it says nothing about the encoding, and it must not be scored as a hang OR as a fault. The raw response lines are kept on the record (`raw_lines`). The promotion gate REMOVES these values from the agreement computation -- counting them as agreement would inflate the percentage, counting them as disagreement would penalise the field for a harness problem -- and REFUSES any field whose measurement failures exceed 1% of its dispatched values, because its null result would be sitting on top of a measurement problem. analysis/answers.py reports the count per arm.",
    "no_dispatch": "compute: same, via the integrity sentinel buffer.",
    "no_draw": "render: the runner returned OK but every pixel still holds the CLEAR colour, so nothing was drawn. Confirmed twice with a healthy device in between. Established by EXP-0147/EXP-0141.",
    "not_written": "compute: the sentinel proves the dispatch RAN but the read-back is still 0xDEADBEEF poison, i.e. our store did not land. A different fact from 'the store wrote 0'. Motivated by EXP-0169's DSTORE finding that a device_store through an unbound slot is SILENTLY DROPPED with no fault and no diagnostic -- absence of a fault proves nothing."

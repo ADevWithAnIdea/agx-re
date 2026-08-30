@@ -61,6 +61,32 @@ movement. No abort path: every value dispatches regardless of outcome.
 Full contract: **`PRE_REGISTRATION.md`** (frozen before any build) and
 **`CAPTURE_CONTRACT.json`**.
 
+## Reproduction
+
+```sh
+# ---- offline, no device ------------------------------------------------
+python3 analysis/target_rows.py       # -> work/target_rows.json (the 25 -> 16)
+python3 harness/casematrix.py         # the frozen matrix + its sha256
+python3 harness/selftest.py           # nine OFFLINE gates; a CODE test, NOT evidence
+
+# ---- on the neo (A18 Pro / G17P) ---------------------------------------
+export SSHPASS='...'                  # never written to any file
+harness/sync.sh push                  # -> ~/agxre/EXP-0180 (the PINNED db.json travels too)
+ssh user@$NEO 'cd agxre/EXP-0180 && python3 harness/anchors.py'
+ssh user@$NEO 'cd agxre/EXP-0180 && python3 harness/run.py --mode pilot --run pilot01'
+harness/sync.sh pull pilot01
+#  -- inspect the seed adequacy, the ladder, the LEN zero point and the geometry check
+#     in raw/pilot01/ BEFORE the gated pair. A carrier that fails is REJECTED, not fixed.
+ssh user@$NEO 'cd agxre/EXP-0180 && nohup python3 harness/procsample.py --run g17p_run01 &'
+ssh user@$NEO 'cd agxre/EXP-0180 && python3 harness/run.py --run g17p_run01 --order forward'
+ssh user@$NEO 'cd agxre/EXP-0180 && python3 harness/run.py --run g17p_run02 --order reverse'
+
+# ---- back in the repo --------------------------------------------------
+harness/sync.sh pull g17p_run01 ; harness/sync.sh pull g17p_run02
+python3 analysis/verdicts.py g17p_run01 g17p_run02   # -> analysis/field_verdicts.json
+python3 analysis/merge_check.py                      # THE MERGE GATE (exit 1 = do not merge)
+```
+
 ## Files
 
 | path | what |
@@ -70,6 +96,12 @@ Full contract: **`PRE_REGISTRATION.md`** (frozen before any build) and
 | `analysis/target_rows.py` | resolves the 25 claims → 16 fields and re-checks every span (offline) |
 | `work/target_rows.json` | the resolved target set |
 | `work/frozen/` | the **pinned** `db.json` + `isadb.py` the hardware runs against |
+| `analysis/db_defects.json` | seven numbered db defects + two method defects, all `PROPOSED` |
+| `analysis/verdicts.py` | raw -> `field_verdicts.json` under the frozen gates |
+| `analysis/merge_check.py` | merge gate: refuses a moved span or a missing coverage key |
+| `harness/saferunner.py` | the DEF-0178-1 subclass; `tools/agxtest/persistrun.py` is NOT modified |
+| `harness/*.py`, `kernels/*.metal` | authored probe, carriers and driver |
+| `raw/FREEZE_MARKER.txt` | what was true at freeze time |
 | `PROGRESS.md` | per-milestone log, append-only |
 
 ## Clean-room provenance
@@ -80,6 +112,6 @@ Inputs inspected: kernels/*.metal (authored by us) and the AGX machine code the 
   runtime API compiled from that source; committed raw/ trees of EXP-0169 and the committed
   tools/agx-isa/{db.json,isadb.py,validation.json}, all READ-ONLY.
 Apple binary introspection: NONE.
-Reproduction: see PRE_REGISTRATION.md; commands land here once the harness is frozen.
+Reproduction: the commands below.
 Evidence: raw/ (append-only), analysis/field_verdicts.json, work/target_rows.json
 ```
