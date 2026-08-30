@@ -145,6 +145,31 @@ executed. **Poison your read-back buffer** (`0xDEADBEEF`) and much of this can b
 already-captured data.
 
 
+## 7B. Lease hygiene — hold it for DISPATCH ONLY (orchestrator observation, 2026-08-30)
+
+Observed live: one agent held the lease for **13 minutes** around a bulk `--execute` run while
+**four other agents queued behind it**, all four of them doing exactly the §7A fault-confirmation
+the lease exists for. At the moment of inspection the holder had **zero live `agxrun`/`persist`
+processes** — it was holding the device through compile and analysis phases.
+
+**Rules:**
+
+1. **A bulk sweep NEVER takes the lease.** `--execute` over a full case matrix is ordinary work;
+   hardware contexts isolate it. Only known-hang-prone arms and §7A fault-confirmations qualify.
+2. **Hold it around actual dispatch, nothing else.** Release before compiling, before analysis,
+   before file transfer. Time spent holding the lease while not dispatching is dead time for every
+   other agent.
+3. **Prefer many short holds to one long one.** The lease has no fairness queue — a long hold
+   starves everyone, and fault-confirmations are usually small case sets × 5 reps, i.e. seconds.
+4. **If you must hold it a long time, say so** in `PROGRESS.md` with an expected duration, so the
+   orchestrator can see why the device is busy rather than diagnosing a dead holder.
+
+Diagnosing a suspected stuck lease (orchestrator only): `cat /tmp/agx_gpu.lock/owner` gives holder,
+pid and acquisition time; `ps -p <pid>` says whether it is alive; `pgrep -fl "agxrun|persist"` says
+whether it is actually using the device. A live holder with no GPU processes is holding it through
+non-dispatch work — message the agent rather than breaking the lease. Leases older than 15 minutes
+break automatically.
+
 ## 8. Safety — this host has no out-of-band recovery
 
 `mov_imm.imm7` values 128..255 silently zero, and combined with `iadd2`'s N=0 self-read this
