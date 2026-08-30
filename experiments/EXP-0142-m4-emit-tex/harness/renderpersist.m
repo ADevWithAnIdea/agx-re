@@ -58,6 +58,11 @@ static id<MTLTexture> gTarget = nil, gSrcTex = nil;
 
 static void respond_fail(const char *reqid, const char *status, const char *msg, NSError *err) {
     printf("REQ %s\nSTATUS %s\n", reqid ? reqid : "?", status);
+    // FIELD-SWEEP-PROTOCOL section 7.2: report the OS fault CLASSIFICATION, not just
+    // the status.  An ...ErrorInnocentVictim is evidence about the MACHINE (a sibling
+    // agent's fault landing in our command buffer), not about the encoding under test,
+    // and must be segregated from the gated comparison.
+    if (err)      printf("ERRDOM %s %ld\n", [[err domain] UTF8String], (long)[err code]);
     if (err)      printf("ERROR %s: %s\n", msg ? msg : "", [[err localizedDescription] UTF8String]);
     else if (msg) printf("ERROR %s\n", msg);
     printf("DONE %s\n", reqid ? reqid : "?");

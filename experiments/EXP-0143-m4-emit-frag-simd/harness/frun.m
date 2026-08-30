@@ -26,7 +26,8 @@
 //             / [BUF <idx> <hex>] / DONE id
 //
 // STATUS values: OK | COMPILE_FAIL | FUNCTION_MISSING | ARCHIVE_FAIL |
-//                PIPELINE_MISS | PIPELINE_FAIL | CMDBUF_ERROR | BAD_REQUEST
+//                PIPELINE_MISS | PIPELINE_FAIL | CMDBUF_ERROR | BAD_REQUEST |
+//                SENTINEL_FAIL
 
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
@@ -41,6 +42,18 @@
 
 typedef struct { size_t off; unsigned char *bytes; size_t len; } SpliceSpec;
 typedef struct { int idx; unsigned n; unsigned *vals; } BufU32Spec;
+
+// FIELD-SWEEP-PROTOCOL sec.7 mitigations:
+//  * gReqSeq gives every request its OWN scratch archive path, so Metal can
+//    never serve a cached library/pipeline keyed on a reused file URL.
+//  * READBACK_POISON pre-fills every host read-back buffer, so a getBytes that
+//    silently does not write is reported as poison rather than as zeros.
+static unsigned long gReqSeq = 0;
+static const unsigned char READBACK_POISON[4] = {0xEF, 0xBE, 0xAD, 0xDE}; // 0xDEADBEEF LE
+
+static void poison(unsigned char *p, size_t n) {
+    for (size_t i = 0; i < n; i++) p[i] = READBACK_POISON[i & 3];
+}
 
 static id<MTLDevice> gDev = nil;
 static id<MTLCommandQueue> gQ = nil;
@@ -99,24 +112,51 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
         }
         memcpy((unsigned char *)[patched mutableBytes] + spl[i].off, spl[i].bytes, spl[i].len);
     }
-    if (![patched writeToFile:gScratch atomically:YES]) {
+    NSString *scratchN = [NSString stringWithFormat:@"%@.%lu", gScratch, ++gReqSeq];
+    if (![patched writeToFile:scratchN atomically:YES]) {
         respond_fail(rid, "ARCHIVE_FAIL", "write scratch", nil); return 1;
     }
-    NSURL *aurl = [NSURL fileURLWithPath:gScratch];
+    NSURL *aurl = [NSURL fileURLWithPath:scratchN];
+
+    // INTEGRITY SENTINEL (FIELD-SWEEP-PROTOCOL sec.7, independent path).
+    // The bytes above were written from memory; here they are read back from
+    // the filesystem through a SEPARATE NSData read and every spliced window is
+    // compared byte-for-byte.  A silent write failure, a truncated file, or a
+    // stale cached path therefore reports SENTINEL MISMATCH instead of being
+    // scored as a legitimate observation.  Combined with
+    // MTLPipelineOptionFailOnBinaryArchiveMiss below (which fails pipeline
+    // creation unless the ARCHIVE supplied the machine code), this establishes
+    // that the bytes we chose are the bytes the GPU ran.
+    {
+        NSData *rb = [NSData dataWithContentsOfFile:scratchN];
+        if (!rb || [rb length] != [patched length]) {
+            respond_fail(rid, "SENTINEL_FAIL", "scratch read-back size mismatch", nil);
+            [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil];
+            return 1;
+        }
+        const unsigned char *rp = (const unsigned char *)[rb bytes];
+        for (int i = 0; i < nspl; i++) {
+            if (memcmp(rp + spl[i].off, spl[i].bytes, spl[i].len) != 0) {
+                respond_fail(rid, "SENTINEL_FAIL", "spliced window not on disk", nil);
+                [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil];
+                return 1;
+            }
+        }
+    }
 
     // 2. Fresh MTLLibrary from the SPLICED archive's own bytes every request.
     //    (agxrun_persist.m's crux: a source-compiled library's native code is
     //    memoized in-process, so a later spliced archive would be ignored.)
     id<MTLLibrary> lib = [gDev newLibraryWithURL:aurl error:&err];
-    if (!lib) { respond_fail(rid, "COMPILE_FAIL", "newLibraryWithURL(archive)", err); return 1; }
+    if (!lib) { respond_fail(rid, "COMPILE_FAIL", "newLibraryWithURL(archive)", err); [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil]; return 1; }
     id<MTLFunction> vfn = [lib newFunctionWithName:[NSString stringWithUTF8String:gVName]];
     id<MTLFunction> ffn = [lib newFunctionWithName:[NSString stringWithUTF8String:gFName]];
-    if (!vfn || !ffn) { respond_fail(rid, "FUNCTION_MISSING", "newFunctionWithName", nil); return 1; }
+    if (!vfn || !ffn) { respond_fail(rid, "FUNCTION_MISSING", "newFunctionWithName", nil); [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil]; return 1; }
 
     MTLBinaryArchiveDescriptor *adesc = [MTLBinaryArchiveDescriptor new];
     [adesc setUrl:aurl];
     id<MTLBinaryArchive> arc = [gDev newBinaryArchiveWithDescriptor:adesc error:&err];
-    if (!arc) { respond_fail(rid, "ARCHIVE_FAIL", "newBinaryArchiveWithDescriptor", err); return 1; }
+    if (!arc) { respond_fail(rid, "ARCHIVE_FAIL", "newBinaryArchiveWithDescriptor", err); [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil]; return 1; }
 
     MTLRenderPipelineDescriptor *pd = [MTLRenderPipelineDescriptor new];
     [pd setVertexFunction:vfn];
@@ -129,7 +169,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
         [gDev newRenderPipelineStateWithDescriptor:pd
                                            options:MTLPipelineOptionFailOnBinaryArchiveMiss
                                         reflection:nil error:&err];
-    if (!pso) { respond_fail(rid, "PIPELINE_MISS", "newRenderPipelineState(archive)", err); return 1; }
+    if (!pso) { respond_fail(rid, "PIPELINE_MISS", "newRenderPipelineState(archive)", err); [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil]; return 1; }
 
     // 3. Targets.
     id<MTLTexture> targets[4]; memset(targets, 0, sizeof(targets));
@@ -185,7 +225,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
     id<MTLBuffer> outBuf = nil;
     if (gOutBufIdx >= 0) {
         outBuf = [gDev newBufferWithLength:(NSUInteger)gOutBufBytes options:MTLResourceStorageModeShared];
-        memset([outBuf contents], 0, (size_t)gOutBufBytes);
+        poison((unsigned char *)[outBuf contents], (size_t)gOutBufBytes);
     }
 
     MTLRenderPassDescriptor *rp = [MTLRenderPassDescriptor new];
@@ -227,12 +267,14 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
     [cb waitUntilCompleted];
     if ([cb status] == MTLCommandBufferStatusError) {
         respond_fail(rid, "CMDBUF_ERROR", "command buffer failed", [cb error]);
+        [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil];
         gQ = [gDev newCommandQueue];   // cheap insurance after a fault
         return 1;
     }
 
     if (rid) printf("REQ %s\n", rid);
     printf("STATUS OK\n");
+    printf("SENTINEL OK %d\n", nspl);
     size_t bpp = bytesPerPixel(gColorFmt);
     size_t rowBytes = bpp * (size_t)gW;
     unsigned char *px = malloc(rowBytes * (size_t)gH);
@@ -241,6 +283,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
                                  : ((gSamples > 1) ? nil : targets[rt]);
         char tag[16]; snprintf(tag, sizeof tag, "PIX%d", rt);
         if (!readTex) { printf("%s_UNAVAILABLE multisample-not-resolved\n", tag); continue; }
+        poison(px, rowBytes * (size_t)gH);
         [readTex getBytes:px bytesPerRow:rowBytes
                fromRegion:MTLRegionMake2D(0, 0, (NSUInteger)gW, (NSUInteger)gH) mipmapLevel:0];
         printHex(tag, px, rowBytes * (size_t)gH);
@@ -248,6 +291,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
     free(px);
     if (gWantDepth && gSamples == 1) {
         unsigned char *dpx = malloc(4 * (size_t)gW * (size_t)gH);
+        poison(dpx, 4 * (size_t)gW * (size_t)gH);
         [depthTex getBytes:dpx bytesPerRow:4 * (size_t)gW
                 fromRegion:MTLRegionMake2D(0, 0, (NSUInteger)gW, (NSUInteger)gH) mipmapLevel:0];
         printHex("DEPTH", dpx, 4 * (size_t)gW * (size_t)gH);
@@ -255,6 +299,7 @@ static int doRender(const char *rid, SpliceSpec *spl, int nspl) {
     }
     if (gWantOcc) printf("OCC %llu\n", *(unsigned long long *)[visBuf contents]);
     if (outBuf) printHex("OUTBUF", (const unsigned char *)[outBuf contents], (size_t)gOutBufBytes);
+    [[NSFileManager defaultManager] removeItemAtPath:scratchN error:nil];
     if (rid) printf("DONE %s\n", rid);
     fflush(stdout);
     return 0;

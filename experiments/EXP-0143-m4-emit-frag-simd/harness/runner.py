@@ -21,7 +21,7 @@ import time
 # discarded ours as collateral.  Other experiments sweep this GPU concurrently,
 # so these are retried (bounded, with backoff) and the retry count is recorded.
 FOREIGN = "InnocentVictim"
-MAX_FOREIGN_RETRIES = 6
+MAX_FOREIGN_RETRIES = 8
 
 
 class _Child:
@@ -112,7 +112,7 @@ class RenderRunner(_Child):
                 if attempt:
                     out["foreign_retries"] = attempt
                 return out
-            time.sleep(0.25 * (attempt + 1))
+            time.sleep(0.4 * (attempt + 1))
         out["foreign_retries"] = MAX_FOREIGN_RETRIES
         out["status"] = "FOREIGN_FAULT"
         return out
@@ -139,6 +139,8 @@ class RenderRunner(_Child):
             ln = ln.rstrip("\n")
             if ln.startswith("STATUS "):
                 out["status"] = ln.split(None, 1)[1]
+            elif ln.startswith("SENTINEL "):
+                out["sentinel"] = ln.split(None, 1)[1]
             elif ln.startswith("PIX"):
                 tag, hexs = ln.split(None, 1)
                 out.setdefault("pix", {})[tag] = bytes.fromhex(hexs)
@@ -171,7 +173,7 @@ class ComputeRunner(_Child):
                 if attempt:
                     out["foreign_retries"] = attempt
                 return out
-            time.sleep(0.25 * (attempt + 1))
+            time.sleep(0.4 * (attempt + 1))
         out["foreign_retries"] = MAX_FOREIGN_RETRIES
         out["status"] = "FOREIGN_FAULT"
         return out

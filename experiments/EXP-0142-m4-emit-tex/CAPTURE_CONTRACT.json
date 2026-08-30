@@ -1,0 +1,102 @@
+{
+  "experiment": "EXP-0142-m4-emit-tex",
+  "frozen": "2026-08-28",
+  "repo_revision_at_freeze": "7faf0db77813ca4416d10b60e3424ee177215273",
+  "repo_dirty_paths_at_freeze": 48,
+  "gate_rule": "a capture is valid if the authored blob hashes below match; sibling experiments moving HEAD is NOT contamination (SUBAGENT_BRIEF)",
+  "target": {
+    "device": "Apple M4 (G16G)", "gpu_cores": 10,
+    "os": "macOS 26.6.2", "build": "25G82", "metal": "4",
+    "only_target": true, "a18_touched": false, "m5_touched": false
+  },
+  "artifact_sha256": {
+    "kernels/frag_deriv.metal":  "58bf697026cbe1fe0b88f71c98453e37fc49a856256054d7a6d181197979abf6",
+    "kernels/tex_sample8.metal": "f1e38281026a019f09a6338c7f8f48aa727d6bea3e0807adc690f1049d41708c",
+    "kernels/tex_write3.metal":  "7c20ab7ef323b51a1c8da1cfcc508e20e434547c7cfc4119164c13ad593efa8e",
+    "harness/renderpersist.m":   "60a9503e7b498daaa164c1f01c02b67fc387fc4eb3c56c119d09db3035d48737",
+    "harness/texpersist.m":      "70dde540869dcff119787593ade741e99f260a1d0f02c1be319b30d8fc9b4b0c",
+    "harness/texrunner.py":      "c0542a0caf30f2fbe954e4074f9670a5dd7091c3e73a86afaba195b5006a1374",
+    "harness/renderrunner.py":   "e1ff8f6d67bd397f88cbb1fa10aec9598ec2f7c1fee9770dc8be1817ac1a3257",
+    "work/frozen/cA_sample8.bin":"61144cc71306cb7c78dff9dd147eafb3080e58b02cbe4d8095ee8dd16c0661d8",
+    "work/frozen/cB_write3.bin": "fb841d5fe3ce88c1c14651493140560b6df11f8f24dc7afd46ea813fc6797527",
+    "work/frozen/cC_deriv.bin":  "e048794d8b6671f277375695e4625f00dd8f61a2a7f24c986740001f610d0bc3",
+    "work/frozen/inA.bin":       "78909c339255682ee8074ee853602c6c894159c6323cbd5bb360f9fada891855",
+    "work/frozen/inB.bin":       "dc9e97b3b3b084a8162924e0fd7f242b36ba183decb0d3f11dd445f60bcc7880",
+    "work/frozen/inC.bin":       "a080857dbc059dfd15465f5769809438fc112090046f012f9e4ec01db6a1c3df",
+    "tools/agx-isa/db.json":     "772efb9046452ade0f7640fed156b497c36a3e88f841382b2d0774f671887419"
+  },
+  "main_regions": {
+    "cA_sample8.bin": {"stage": "compute",  "abs": 10480, "len": 524},
+    "cB_write3.bin":  {"stage": "compute",  "abs": 8608,  "len": 356},
+    "cC_deriv.bin":   {"stage": "fragment", "abs": 16048, "len": 136}
+  },
+  "instruction_offsets": {
+    "tex_sample":      [258, 272, 286, 300, 314, 328, 342, 356],
+    "tex_coord_setup": [110, 120, 130, 140, 158, 168, 178, 188, 198, 208, 218, 228, 238, 248],
+    "tex_write":       [276, 292, 308],
+    "tex_deriv":       [56, 66, 76, 86]
+  },
+  "oracle": {
+    "carrierA_out_floats": 33,
+    "carrierA_expect": "out[4j]=101*j+1 for j=0..7; out[4j+1]=out[4j+2]=0; out[4j+3]=1; out[32]=12345",
+    "carrierB_expect": "texel(1,0)=(11,22,33,44) texel(3,2)=(55,66,77,88) texel(5,4)=(99,110,121,132); every other texel=(-1,-2,-3,-4); out[0]=12345",
+    "carrierC_expect": "every pixel of the 4x4 RGBA32Float target = (1,2,4,11) = (A,B,C,D+S)"
+  },
+  "sweep_matrix": [
+    {"arm": "A1", "instr": "tex_sample",      "carrier": "cA_sample8.bin", "instances": [356, 258],
+     "bytes_full256": [1,2,3,4,5,6,7,8,9,10,11,12,13],
+     "byte0_values": "hi-nibble sweep with lo=5 (16) + lo-nibble sweep with hi=0 (16), 31 distinct",
+     "cases_per_instance": 3359},
+    {"arm": "A2", "instr": "tex_coord_setup", "carrier": "cA_sample8.bin", "instances": "2, chosen in run01 by the setup->sample mapping probe",
+     "bytes_full256": [1,2,3,4,5,6,7,8,9],
+     "byte0_values": "hi-nibble sweep with lo=0xb (16)",
+     "cases_per_instance": 2320},
+    {"arm": "B",  "instr": "tex_write",       "carrier": "cB_write3.bin",  "instances": [292, 308],
+     "bytes_full256": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+     "byte0_values": "NOT SWEPT (pure opcode, no modelled field)",
+     "cases_per_instance": 3840},
+    {"arm": "C",  "instr": "tex_deriv",       "carrier": "cC_deriv.bin",   "instances": [56, 76],
+     "bytes_full256": [1,2,3,4,5,6,7,8,9],
+     "byte0_values": "NOT SWEPT (pure opcode, no modelled field)",
+     "cases_per_instance": 2304}
+  ],
+  "total_pre_registered_cases": 23646,
+  "outcomes": ["ok", "silent_zero", "wrong_value", "fault", "hang", "undecodable"],
+  "invalid_marker": "integrity sentinel mismatch -> case marked invalid, NOT attributed to the field",
+  "safety": {
+    "request_timeout_s": 10.0,
+    "fault_confirm": "majority of 3 re-runs before recording fault/hang",
+    "baseline_revalidate_every_cases": 200,
+    "baseline_retries": 4,
+    "hangs_stop_area": 2,
+    "hangs_stop_run": 6,
+    "unique_splice_path_per_request": true,
+    "readback_poison": "0xDEADBEEF (texpersist), write target reset to (-1,-2,-3,-4)",
+    "errdom_recorded": true,
+    "innocent_victim_segregated": true,
+    "macvdmtool": "never", "a18": "never", "writes_outside_experiment_dir": "never"
+  },
+  "controls": {
+    "PC1": {"arm": "A", "instance": 356, "byte": 8, "value": 16, "predict": "q7 silently zeroes, q0..q6 unchanged"},
+    "PC2": {"arm": "A", "instance": 356, "byte": 6, "value": 23, "predict": "q7 changes, q0..q6 unchanged"},
+    "PC3": {"arm": "C", "instance": 56, "byte": 6, "value": 144, "predict": "red 1.0 -> 2.0"},
+    "PC4": {"arm": "C", "instance": 56, "byte": 5, "value": 8, "predict": "red 1.0 -> 4.0"},
+    "PC5": {"arm": "B", "instance": 292, "byte": 12, "value": 0, "predict": "texel(3,2) unwritten or moved; (1,0) and (5,4) unchanged"},
+    "NC1": {"arm": "B", "instance": 292, "byte": 15, "value": "all 256", "predict": "inert for every value"},
+    "NC2": {"arm": "A", "instance": null, "predict": "8 unspliced re-runs bit-identical"}
+  },
+  "runs": {"run01": "gate", "run02": "full matrix"},
+  "conditional_arm_D": {
+    "instrs": ["imageblock_load", "imageblock_store"],
+    "blocker": "explicit-imageblock FRAGMENT form no longer compiles on macOS 26.6.2 / GPUCompiler 32023.886",
+    "route": "MTLTileRenderPipelineDescriptor tile kernel (confirmed pre-freeze to compile, imageblock_load at _agc.main+0x000e)",
+    "rule": "attempted only after A/B/C complete, inside a fixed budget; otherwise the 10 fields are reported untested with the blocker named, NOT labelled from compile-only byte-diff"
+  },
+  "clean_room": {
+    "category": ["OWN-SHADER", "HW-PROBE"],
+    "apple_binary_introspection": "NONE",
+    "db_json_edited": false,
+    "docs_edited": false,
+    "git_commit_by_agent": false
+  }
+}

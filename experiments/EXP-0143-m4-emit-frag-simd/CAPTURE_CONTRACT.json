@@ -1,0 +1,107 @@
+{
+ "authored_sha256": {
+  "analysis/tmo.py": "8facb2f042f6806677c906eb73806abc0d1988d8ffcbdf5bfc99f332fc48fc6e",
+  "analysis/tok.py": "8a4b5ed269a88f15c427f74ab95c9b3de15311b7e0771c470a101d4cd0fa1272",
+  "harness/casematrix.py": "66f366fb76a1693a4f14d21c1ee58bf1eed52b77dd72947ab42b1b1253993cd1",
+  "harness/frun.m": "921ae10fa9af866ad1b1abe4eef6f13358a181cbec7dde0d4115015507d026d4",
+  "harness/runner.py": "01b7287eb51e7fa1858d81bbc2ce996c9a836fd6012f13e693d67284fedca85c",
+  "kernels/c_at.metal": "f4e96607124019a81c509502f4a1fc3a94c7de1ec08225a9b026534c539c1f91",
+  "kernels/c_bary.metal": "1b27f0fb26c5f7dc0116a093fbf46e28cfc7563f4dfe25e997f469302db32db3",
+  "kernels/c_cent.metal": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+  "kernels/c_depth.metal": "3a0a56e2ee834fcde7580c822934789109eecf704514030f367b0d407f3f67e0",
+  "kernels/c_flat.metal": "6741f372dea5cc8fa511bb424c2e04a97e349d76eedea0d1ff70da22f317dee2",
+  "kernels/c_iter.metal": "80cc3905aec0932795027a109911ea5ac7e45450ae24d7b5ceba48b6b61f99b8",
+  "kernels/c_kill.metal": "a89f10c195b67549825a3589ca5afcfc8de4459004ef0db41e7242c83e2c0f98",
+  "kernels/c_mask.metal": "3c6efc49e44b827418a23ef0e437ea6e69c7b14f6106e6a1a599661c6cd56d6b",
+  "kernels/c_pack.metal": "00798813866f305319ecf15502e0f52e81db69c989e15b4fe2d1c296c8e13475",
+  "kernels/c_simd.metal": "f726a9317a8a62b5e5804e7992e7874cd93b6ed26b9eedd0cbc1fc1f2a91e932",
+  "kernels/c_vary16.metal": "a4dcf05e159b542e94531efa1167d4b7b772e4c2ddee72d8483b14b0d7135a7f",
+  "run.py": "2b04b3ab947848e9d6f23680fd908130f512662c07b73eb602d93498c20d8345"
+ },
+ "case_matrix_sha256": "66f366fb76a1693a4f14d21c1ee58bf1eed52b77dd72947ab42b1b1253993cd1",
+ "experiment": "EXP-0143-m4-emit-frag-simd",
+ "frozen_utc": "2026-08-29T00:00:29Z",
+ "guards": {
+  "baseline_every_cases": 250,
+  "baseline_retries": 4,
+  "foreign_retries": 8,
+  "integrity_sentinel": "frun.m re-reads the patched archive off disk and byte-compares every spliced window (independent path) + MTLPipelineOptionFailOnBinaryArchiveMiss proves the ARCHIVE supplied the machine code",
+  "majority_of_n": 3,
+  "max_hangs_per_arm": 2,
+  "readback_poison": "0xDEADBEEF pre-fill, reported as status POISON",
+  "unique_splice_path_per_request": "render: frun.m gReqSeq; compute: run.py seq counter"
+ },
+ "planned_cases": {
+  "collision_probe": 1024,
+  "field_sweep": 28594,
+  "per_arm": {
+   "fcp@pack0": 2304,
+   "fcp@pack1": 1280,
+   "fcs@iter0": 1617,
+   "fcs@pack0": 1024,
+   "fds@depth0": 768,
+   "fts@iter0": 1024,
+   "fts@iter1": 1024,
+   "iter@cent1": 1536,
+   "iter@cent4": 512,
+   "iter@frag0W": 1536,
+   "iter@frag1": 2304,
+   "iter_at@cent1_0": 1536,
+   "iter_at@cent1_1": 1536,
+   "iter_at@cent4_0": 768,
+   "iter_flat@flat0": 1024,
+   "iter_flat@flat1": 1024,
+   "sballot@simd0": 1361,
+   "sreduce@simd0": 1544,
+   "sreduce@simd8": 770,
+   "sshuffle@simd1": 2052,
+   "sshuffle@simd6": 1026,
+   "vary_slot@v16": 512,
+   "vary_slot@vert0": 512
+  },
+  "plus_per_arm_overhead": "baseline + liveness control + periodic + final re-validation"
+ },
+ "raw_schema": {
+  "file": "raw/<run_id>/sweep.jsonl",
+  "keys": [
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed",
+   "oracle",
+   "match",
+   "outcome",
+   "carrier",
+   "confirm",
+   "note"
+  ],
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable",
+   "unreproduced",
+   "foreign"
+  ]
+ },
+ "repo_dirty_at_pre_registration": true,
+ "repo_revision_at_pre_registration": "7faf0db77813ca4416d10b60e3424ee177215273",
+ "revision_gate": "authored-blob hashes below, NOT live HEAD (SUBAGENT_BRIEF: siblings commit continuously)",
+ "runs": {
+  "run01": "full field sweep + collision probe",
+  "run02": "independent gate replicate, fresh processes"
+ },
+ "target": {
+  "build": "25G82",
+  "device": "Apple M4 (G16G), 10 GPU cores",
+  "note": "local host; the ONLY test target. A18/G17P untouched.",
+  "os": "26.6.2"
+ },
+ "timeouts": {
+  "carrier_build_s": 120,
+  "per_request_s": 15.0
+ }
+}

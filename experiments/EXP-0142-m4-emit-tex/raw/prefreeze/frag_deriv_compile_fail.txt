@@ -1,0 +1,8 @@
+shdump: device = Apple M4
+shdump: compile failed: program_source:30:24: error: invalid type 'VO' for input declaration in a fragment function
+fragment float4 f_main(VO i, device const float *in [[buffer(0)]]) {
+                       ^~~~
+program_source:20:13: note: type 'float4' (vector of 4 'float' values) cannot be used in struct of resources/colors
+struct VO { float4 pos [[position]]; float2 uv; };
+            ^
+
