@@ -131,7 +131,7 @@ Append one JSON object per case to `raw/<run_id>/sweep.jsonl`, flushed immediate
 `outcome` ∈ `ok` | `silent_zero` | `wrong_value` | `fault` | `hang` | `undecodable`.
 `fault`/`hang` are results; keep them.
 
-## 5. Verdict per field
+## 5a. Verdict per field — PITFALL: inertness
 
 > **PITFALL — an INERTNESS verdict needs a detection-power conjunct, or it cannot fail either.**
 > DEF-0190-1: an arm whose observable never varies returns `moved = 0` **by construction**, and a
@@ -149,7 +149,7 @@ Append one JSON object per case to `raw/<run_id>/sweep.jsonl`, flushed immediate
 > its observable moving for a known-live control cannot establish that anything else is inert —
 > rather than as measurements in their own right.
 >
-## 5. Verdict per field
+## 5b. Verdict per field — PITFALL: width-1 arithmetic
 
 > **PITFALL — a gate written `moved >= 2.0 * max(disagree, 1)` CANNOT promote any width-1 field.**
 > The rule is `moved >= 2.0 * disagree, AND moved > 0`. A 1-bit field has at most one value that can
@@ -283,3 +283,57 @@ produced **two real GPU hangs** in EXP-0128. Expect more.
 - **After two genuine hangs in one area, STOP that arm** and report it PARTIAL, as EXP-0128 did.
   A partial sweep honestly bounded is worth more than a wedged host.
 - Never `macvdmtool`. Never touch the A18. Never write outside your experiment directory.
+
+---
+
+## 9. Promoting an INERT field — the criterion, and why 29 rows are still open
+
+**Ruling, 2026-08-30 (orchestrator).** EXP-0195 surfaced **29 field rows across 15 instructions**
+whose uncited raw already carries an emitter-grade verdict, and which fail EXP-0194's gate at G4
+("the observable never moved"). **All 29 are DECLINED for now.** They are a named debt, not a
+withdrawal and not a backlog of easy wins.
+
+The auditor's analysis was right and is worth restating: for a bit that is *supposed* to be inert,
+"the observable did not move" **is** the predicted effect, so a constant oracle is the correct
+oracle. G4/G7 can never be satisfied by any amount of good data — EXP-0194's chain is
+**structurally incapable of passing an inert field**. That is a category mismatch, not a defect in
+the data.
+
+**Why they are declined anyway.** The asymmetry decides it. A false *active* claim gets caught the
+first time an implementer emits the instruction and the value is wrong. A false *inert* claim tells
+an implementer "this bit does nothing" — and it fails silently, forever, in exactly the way that
+is hardest to trace back to us. And the corpus's own history says inertness is usually **our
+carrier's blind spot, not the silicon**:
+
+- `iter_at.loc` read inert on every arm of EXP-0155, then **moved at 4 samples** once EXP-0163
+  varied `rasterSampleCount` — at one sample, centroid and pixel centre are the same point.
+- `tex_sample.samp_extra` read **256/256 INERT on nine arms** and moved on **128/256** values on
+  the tenth (explicit-LOD).
+
+This is the user's standing challenge in operational form: *encoding space is expensive, so Apple
+would use it well.* That argument says these 29 bits are **probably live and we cannot see them** —
+which is a reason to withhold, not to promote.
+
+**The criterion an inert-field promotion must meet.** Not satisfiable from the desk; it needs
+hardware. Per row, all four:
+
+1. **A positive control in the same dimension.** The carrier must be proven live in the dimension
+   the field would control — some *other* value in that dimension must move the observable on that
+   same arm. Two carriers identical in the dimension the field controls are one carrier.
+2. **A swept range, not a sampled one.** Several of the 29 already fail this on their own
+   admission (`imad.b11` reports 29 of 256 values; `ilogic.z6` states outright that the full
+   256-value range was not swept).
+3. **Cross-run agreement** at the standing bar (>=99% per value).
+4. **A stated falsifier** — what observation would show the bit is live — recorded before the run.
+
+**Extra caution for six of them.** `ray_move.{dst,src}`, `ray_move_copy6.{dst,src}` and
+`ray_move_zero6.{dst,src}` are **register-descriptor / destination** fields. There, an observable
+that does not move is far more likely to mean the carrier never read the register the field
+selects than to mean the field is inert — the arm lacked detection power, and the G4 verdict is
+itself evidence that its liveness was never demonstrated.
+
+The full 29: `copysign.operands`, `cvt_f2i.b9`, `frag_color_store.store_mode`,
+`frag_tile_setup.{sel,access,b5}`, `iadd2.srcB_reg_hi`, `ibfe.{b2_bit0,sign_ext}`,
+`imad.{b1hi,b2_fmt,b11}`, `imageblock_store.b4`, `ishift.{src_cache,pad9}`, `iter.b9`,
+`ray_move.{dst,src,b3}`, `ray_move_copy6.{dst,src}`, `ray_move_zero6.{dst,src,b3}`,
+`tex_write.{amode,rsv11}`, `tg_addr_compute.{b3,b4,b5}`.

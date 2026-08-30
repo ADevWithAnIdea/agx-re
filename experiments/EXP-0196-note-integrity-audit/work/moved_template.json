@@ -1,0 +1,122 @@
+[
+{
+"m": "bf_fma_dst",
+"f": "tail",
+"grade": "EMIT",
+"ev": [
+"EXP-0171"
+],
+"moved": 50,
+"of": 50,
+"carrier": "NAT:k_bffma@bf_fma_dst+46",
+"agreement": 1.0,
+"agree": 50,
+"disagree": 0,
+"n_carriers": 3,
+"carriers": "FRAME,NAT,SYNTH | k_bffma",
+"accept": 0,
+"outcomes": "{\"silent_zero\": 49, \"wrong_value\": 1}"
+},
+{
+"m": "fspecial_est",
+"f": "subop",
+"grade": "EMIT",
+"ev": [
+"EXP-0138-m4-emit-falu",
+"EXP-0154-g17p-emit-alu",
+"EXP-0161-g17p-carry-fspecial",
+"EXP-0171"
+],
+"moved": 255,
+"of": 256,
+"carrier": "SYNTH:k_rsqrt@fspecial_est+18",
+"agreement": 1.0,
+"agree": 256,
+"disagree": 0,
+"n_carriers": 2,
+"carriers": "FRAME,SYNTH | k_rsqrt",
+"accept": 1,
+"outcomes": "{\"ok\": 1, \"silent_zero\": 124, \"wrong_value\": 131}"
+},
+{
+"m": "iadd2",
+"f": "srcA",
+"grade": "EMIT",
+"ev": [
+"EXP-0139-m4-emit-ialu",
+"EXP-0146-m4-emit-int-misc",
+"EXP-0154-g17p-emit-alu",
+"EXP-0171"
+],
+"moved": 252,
+"of": 256,
+"carrier": "NAT:k_u32add@iadd2+32",
+"agreement": 1.0,
+"agree": 256,
+"disagree": 0,
+"n_carriers": 3,
+"carriers": "FRAME,NAT,SYNTH | k_u32add",
+"accept": 4,
+"outcomes": "{\"fault\": 64, \"ok\": 4, \"wrong_value\": 188}"
+},
+{
+"m": "ibfe",
+"f": "srcA",
+"grade": "EMIT",
+"ev": [
+"EXP-0139-m4-emit-ialu",
+"EXP-0154-g17p-emit-alu",
+"EXP-0171"
+],
+"moved": 192,
+"of": 256,
+"carrier": "NAT:k_bfe@ibfe+18",
+"agreement": 1.0,
+"agree": 256,
+"disagree": 0,
+"n_carriers": 3,
+"carriers": "NAT,SYNTH | k_bfe,k_bfe_s",
+"accept": 64,
+"outcomes": "{\"ok\": 64, \"wrong_value\": 192}"
+},
+{
+"m": "ilogic",
+"f": "lut_a_z",
+"grade": "EMIT",
+"ev": [
+"EXP-0146-m4-emit-int-misc",
+"EXP-0154-g17p-emit-alu",
+"EXP-0171"
+],
+"moved": 7,
+"of": 8,
+"carrier": "NAT:k_and@ilogic+32",
+"agreement": 1.0,
+"agree": 8,
+"disagree": 0,
+"n_carriers": 7,
+"carriers": "FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor",
+"accept": 1,
+"outcomes": "{\"ok\": 1, \"silent_zero\": 7}"
+},
+{
+"m": "ilogic",
+"f": "outmod",
+"grade": "EMIT",
+"ev": [
+"EXP-0146-m4-emit-int-misc",
+"EXP-0154-g17p-emit-alu",
+"EXP-0171"
+],
+"moved": 128,
+"of": 256,
+"carrier": "NAT:k_and@ilogic+32",
+"agreement": 1.0,
+"agree": 256,
+"disagree": 0,
+"n_carriers": 7,
+"carriers": "FRAME,NAT,SYNTH | k_and,k_andn,k_nand,k_or,k_xor",
+"accept": 128,
+"outcomes": "{\"ok\": 128, \"silent_zero\": 128}"
+}
+]
