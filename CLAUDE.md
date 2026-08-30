@@ -25,7 +25,7 @@ check what the current UAPI requires userspace to supply.
 `docs/P0-P1-CLOSURE.md`, as defined by `APPLE9_RE_IMPLEMENTATION_GAPS.md` ( DRV-UAPI-01…04,
 DRV-CMD-01, DRV-ISA-01, DRV-SHADER-01, DRV-ABI-01, DRV-PBE-01…DRV-RASTER-01; plus its P2, DOC,
 and Part-II compiler-questionnaire tail). Execution strategy — **REVISED 2026-08-28**: **all new testing runs on the A18 Pro / G17P**
-(`users-MacBook-Neo.local`, DHCP, currently `192.168.10.243`). The earlier directive making the M4
+(`users-MacBook-Neo.local`, `192.168.170.254`). The earlier directive making the M4
 the sole target is superseded: local GPU work destabilized the host it ran on. **Closure is now
 measured against full G17P**, the actual documentation target. Committed M4/G16G evidence stays
 valid on its own target and is not retracted — but new evidence lands on G17P, which converts a
@@ -184,9 +184,9 @@ absent/emulated is a first-class result.
 
 | | |
 |---|---|
-| **A18 Pro / G17P = THE test target** (user directive, 2026-08-28) | **`users-MacBook-Neo.local`, currently `192.168.10.243` (DHCP — the static lease does not work; re-find it after any reboot).** SoC **T8140**, **AGXAcceleratorG17P**, arch `applegpu_g17p`, **5 GPU cores**, `Mac17,5`, macOS **26.6**, Metal family **Apple9**. Access over SSH as user `user`. Verified end-to-end 2026-08-28: runtime `newLibraryWithSource:` compiles, dispatch returns correct values, `CB_STATUS 4`. **Full Xcode is present** (`/Applications/Xcode.app`) — unlike the M4, which had Command Line Tools only. **All new RE runs here.** |
+| **A18 Pro / G17P = THE test target** (user directive, 2026-08-28) | **`users-MacBook-Neo.local`, `192.168.170.254`** — the STATIC lease. Verified alive 2026-08-30 11:41. (Earlier belief that the static lease "does not work" is WITHDRAWN: after a `macvdmtool --neo reboot` on 2026-08-30 the machine came up on `.170.254` and stayed there. If it moves, re-find it before resuming.) SoC **T8140**, **AGXAcceleratorG17P**, arch `applegpu_g17p`, **5 GPU cores**, `Mac17,5`, macOS **26.6**, Metal family **Apple9**. Access over SSH as user `user`. Verified end-to-end 2026-08-28: runtime `newLibraryWithSource:` compiles, dispatch returns correct values, `CB_STATUS 4`. **Full Xcode is present** (`/Applications/Xcode.app`) — unlike the M4, which had Command Line Tools only. **All new RE runs here.** |
 | Local M4 (G16G) = **RETIRED from testing** | The Mac Mini hosting this repo. **Do NOT run GPU experiments locally any more** (user directive, 2026-08-28): local GPU work destabilized WindowServer, took `MTLCompilerService` down machine-wide, and repeatedly killed the orchestrator's own agents mid-capture. Its committed evidence — 443/1036 fields emitter-grade, 38/171 instructions emittable, all `EXP-M4-*` and `EXP-00xx`–`EXP-01xx` — **remains valid on its own target and is not retracted**. The M4 is now the repo host and analysis machine only. |
-| *(superseded)* | The 2026-08-27 hands-off directive on the A18 Pro at `192.168.170.254` is **LIFTED by the user, 2026-08-28**. That static IP never worked; the machine is on DHCP — see the row above. |
+| *(superseded twice)* | The 2026-08-27 hands-off directive was **LIFTED 2026-08-28**. The follow-on claim that `192.168.170.254` "never worked" is itself **WITHDRAWN 2026-08-30** — it is the live address. |
 | M5 (**historical, deferred**) | `192.168.170.253`. SoC **T8142**, **G17g**, macOS **27.0**, 8 GPU cores. Goal complete — **do not probe it for Apple9 work**; M5 results are not A18/M4 evidence. |
 
 **Recovery model (memorize this) — REVISED 2026-08-28 for the G17P pivot:**
@@ -247,7 +247,7 @@ compressed:
 **Orchestration:** the main agent reviews reports for clean-room compliance and technical
 soundness, owns `docs/`, `PROVENANCE.md`, and `docs/P0-P1-CLOSURE.md`, and commits all
 artifacts. Subagents get self-contained dispatches (rules, device/recovery details,
-hypothesis + method). Run ≤2 parallel device experiments, on **disjoint files**.
+hypothesis + method). **Parallel device experiments are UNRESTRICTED (user directive, 2026-08-30)** — the old ≤2 cap and the GPU lease are both withdrawn as slowing progress for no benefit. Keep experiments isolated in separate contexts and on **disjoint files**; contamination is handled by instrumentation, not by serialization (poisoned read-back buffer, integrity sentinel, OS fault-class string, majority-of-3 on faults — `FIELD-SWEEP-PROTOCOL.md` §7). If the device wedges, the ORCHESTRATOR reboots it with `macvdmtool --neo reboot`; the user reports this always works. Subagents NEVER run `macvdmtool` — they report the wedge and stop.
 
 ### Git conventions
 - Commit after each experiment and each doc update; never batch unrelated work.

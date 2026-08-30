@@ -1,0 +1,1053 @@
+{
+ "frag_color_store.flags": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 128,
+     "moved04": 128
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 128,
+     "moved04": 128,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 128,
+      "wrong_value": 128
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "fcs@iter0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 0,
+     "ok_inert": 256,
+     "silent_zero": 0
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 256
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from fcs@iter0 to fcs@pack0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "SUPPORTED"
+ },
+ "iter.dst": {
+  "claims": [
+   {
+    "arm": "iter@frag1",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 195,
+     "want": 256
+    },
+    "committed": {
+     "of": 256,
+     "swept_both_runs": 195
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 195,
+     "disagree_exact": 0,
+     "moved03": 193,
+     "moved04": 193,
+     "n_run03": 195,
+     "n_run04": 195,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "ok": 2,
+      "wrong_value": 190
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "verdict": "SUPPORTED"
+ },
+ "iter.grp": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 255,
+     "moved04": 255
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 1,
+     "moved03": 255,
+     "moved04": 255,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "fault": 129,
+      "ok": 1,
+      "silent_zero": 8,
+      "wrong_value": 118
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "iter@frag0W",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 238,
+     "moved_output": 8,
+     "ok_inert": 2,
+     "silent_zero": 8
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "fault": 238,
+      "ok": 2,
+      "silent_zero": 8,
+      "undecodable": 8
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from iter@frag0W to iter@frag1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "iter_at.dst": {
+  "claims": [
+   {
+    "arm": "iter_at@cent1_0",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 195,
+     "want": 256
+    },
+    "committed": {
+     "of": 256,
+     "swept_both_runs": 195
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 195,
+     "disagree_exact": 0,
+     "moved03": 193,
+     "moved04": 193,
+     "n_run03": 195,
+     "n_run04": 195,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "ok": 2,
+      "wrong_value": 190
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "verdict": "SUPPORTED"
+ },
+ "iter_flat.b4": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 254,
+     "moved04": 254
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 254
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "iter_flat@flat1",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 254,
+     "ok_inert": 2,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 254
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "iter_flat.b5": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 192,
+     "moved04": 192
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 1,
+     "moved03": 192,
+     "moved04": 192,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "foreign": 1,
+      "ok": 64,
+      "wrong_value": 191
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "iter_flat@flat1",
+    "committed_cross_run": {
+     "agree": 99.61,
+     "common": 256,
+     "disagreements": 1,
+     "moved03": 191,
+     "moved04": 192,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 191,
+     "ok_inert": 64,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 99.61,
+     "common": 256,
+     "disagree_exact": 1,
+     "moved03": 191,
+     "moved04": 192,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 65,
+      "wrong_value": 191
+     }
+    }
+   },
+   {
+    "arm": "iter_flat@flat1",
+    "claim": "cross_run_disagreements",
+    "claimed": {
+     "common": 256,
+     "disagree": 1
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 99.61,
+     "common": 256,
+     "disagree_exact": 1,
+     "moved03": 191,
+     "moved04": 192,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 65,
+      "wrong_value": 191
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "1/256 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (192/192 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "iter_flat.sel": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 126,
+     "moved03": 126,
+     "moved04": 126
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 126,
+     "disagree_exact": 1,
+     "moved03": 126,
+     "moved04": 126,
+     "n_run03": 256,
+     "n_run04": 126,
+     "outcomes_run03": {
+      "fault": 1,
+      "foreign": 1,
+      "wrong_value": 124
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "iter_flat@flat1",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 126,
+     "disagreements": 0,
+     "moved03": 124,
+     "moved04": 124,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 3,
+     "moved_output": 122,
+     "ok_inert": 2,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 126,
+     "disagree_exact": 0,
+     "moved03": 124,
+     "moved04": 124,
+     "n_run03": 126,
+     "n_run04": 126,
+     "outcomes_run03": {
+      "fault": 2,
+      "ok": 2,
+      "wrong_value": 122
+     }
+    }
+   },
+   {
+    "arm": "iter_flat@flat1",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 127,
+     "want": 256
+    },
+    "committed": {
+     "of": 256,
+     "swept_both_runs": 127
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 127,
+     "disagree_exact": 0,
+     "moved03": 125,
+     "moved04": 125,
+     "n_run03": 127,
+     "n_run04": 127,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "ok": 2,
+      "wrong_value": 122
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 127/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (126/126 of 126 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "simd_ballot.dst": {
+  "claims": [
+   {
+    "arm": "sballot@simd0",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 195,
+     "want": 256
+    },
+    "committed": {
+     "of": 256,
+     "swept_both_runs": 195
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 195,
+     "disagree_exact": 0,
+     "moved03": 193,
+     "moved04": 193,
+     "n_run03": 195,
+     "n_run04": 195,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "ok": 2,
+      "silent_zero": 2,
+      "wrong_value": 188
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "verdict": "SUPPORTED"
+ },
+ "simd_ballot.form_sig": {
+  "claims": [
+   {
+    "arm": "sballot@simd0",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 35,
+     "want": 65
+    },
+    "committed": {
+     "of": 65,
+     "swept_both_runs": 35
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 35,
+     "disagree_exact": 0,
+     "moved03": 35,
+     "moved04": 35,
+     "n_run03": 35,
+     "n_run04": 35,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "wrong_value": 32
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 35/65 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "verdict": "SUPPORTED"
+ },
+ "simd_reduce.dst": {
+  "claims": [
+   {
+    "arm": "sreduce@simd0",
+    "claim": "swept_of_frozen_set",
+    "claimed": {
+     "got": 195,
+     "want": 256
+    },
+    "committed": {
+     "of": 256,
+     "swept_both_runs": 195
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 195,
+     "disagree_exact": 0,
+     "moved03": 193,
+     "moved04": 193,
+     "n_run03": 195,
+     "n_run04": 195,
+     "outcomes_run03": {
+      "fault": 2,
+      "hang": 1,
+      "ok": 2,
+      "wrong_value": 190
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "verdict": "SUPPORTED"
+ },
+ "simd_shuffle.dst": {
+  "claims": [
+   {
+    "arm": "sshuffle@simd1",
+    "claim": "cross_run_disagreements",
+    "claimed": {
+     "common": 195,
+     "disagree": 1
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 195,
+     "disagree_exact": 1,
+     "moved03": 193,
+     "moved04": 193,
+     "n_run03": 195,
+     "n_run04": 195,
+     "outcomes_run03": {
+      "fault": 1,
+      "hang": 2,
+      "ok": 2,
+      "silent_zero": 2,
+      "wrong_value": 188
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "1/195 values disagree between the two gated runs; validated at points, not over a range",
+  "verdict": "SUPPORTED"
+ },
+ "tex_sample.chain": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 16,
+     "moved03": 15,
+     "moved04": 15
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "ok": 1,
+      "wrong_value": 15
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 16,
+     "disagreements": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 15,
+     "ok_inert": 1,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "ok": 1,
+      "wrong_value": 15
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_sample.comp_flags": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 16,
+     "moved03": 14,
+     "moved04": 14
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 14,
+     "moved04": 14,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 14
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 16,
+     "disagreements": 0,
+     "moved03": 14,
+     "moved04": 14,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 14,
+     "ok_inert": 2,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 14,
+     "moved04": 14,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 14
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (14/14 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_sample.kind": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 16,
+     "moved03": 15,
+     "moved04": 15
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "fault": 1,
+      "ok": 1,
+      "silent_zero": 1,
+      "wrong_value": 13
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 16,
+     "disagreements": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 15,
+     "ok_inert": 1,
+     "silent_zero": 8
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 16,
+     "disagree_exact": 0,
+     "moved03": 15,
+     "moved04": 15,
+     "n_run03": 16,
+     "n_run04": 16,
+     "outcomes_run03": {
+      "ok": 1,
+      "silent_zero": 8,
+      "wrong_value": 7
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_sample.lod_present": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 128,
+     "moved04": 128
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 128,
+     "moved04": 128,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 128,
+      "wrong_value": 128
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 128,
+     "moved04": 128,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 128,
+     "ok_inert": 128,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 128,
+     "moved04": 128,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 128,
+      "wrong_value": 128
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_sample.result_sel": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 252,
+     "moved04": 252
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 252,
+     "moved04": 252,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 4,
+      "wrong_value": 252
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 248,
+     "moved04": 248,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 248,
+     "ok_inert": 8,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 248,
+     "moved04": 248,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 8,
+      "wrong_value": 248
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@t1_2, where the field is demonstrably live (252/252 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_sample.samp_extra": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 128,
+     "moved04": 128
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 128,
+     "moved04": 128,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 128,
+      "wrong_value": 128
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "stable_live": false
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 0,
+     "ok_inert": 256,
+     "silent_zero": 0
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 0,
+     "moved04": 0,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 256
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "SUPPORTED"
+ },
+ "tex_sample.tex_type": {
+  "claims": [
+   {
+    "claim": "new_arm_is_live",
+    "claimed": {
+     "agree_pct": 100.0,
+     "common": 256,
+     "moved03": 254,
+     "moved04": 254
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 254
+     }
+    }
+   },
+   {
+    "claim": "original_arm_inert",
+    "claimed": "the original arm showed it inert (0 values moved)",
+    "claimed_arm": "tex_sample@t1_0",
+    "committed_cross_run": {
+     "agree": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "stable_live": true
+    },
+    "committed_outcome_counts": {
+     "fault_or_hang": 0,
+     "moved_output": 254,
+     "ok_inert": 2,
+     "silent_zero": 0
+    },
+    "ok": false,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 0,
+     "moved03": 254,
+     "moved04": 254,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "ok": 2,
+      "wrong_value": 254
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_2, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "verdict": "CONTRADICTED"
+ },
+ "tex_write.coord_pack": {
+  "claims": [
+   {
+    "arm": "tex_write@w0",
+    "claim": "cross_run_disagreements",
+    "claimed": {
+     "common": 256,
+     "disagree": 2
+    },
+    "ok": true,
+    "raw": {
+     "agree_pct_movedbool": 100.0,
+     "common": 256,
+     "disagree_exact": 2,
+     "moved03": 128,
+     "moved04": 128,
+     "n_run03": 256,
+     "n_run04": 256,
+     "outcomes_run03": {
+      "foreign": 2,
+      "ok": 128,
+      "wrong_value": 126
+     }
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "2/256 values disagree between the two gated runs; validated at points, not over a range",
+  "verdict": "SUPPORTED"
+ }
+}

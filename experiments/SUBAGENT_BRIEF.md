@@ -29,7 +29,7 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
 ## Targets
 
 - **A18 Pro / G17P is THE test target** (user directive 2026-08-28). `users-MacBook-Neo.local`,
-  **DHCP — currently `192.168.10.243`**; if it moves, ask the orchestrator, do not scan blindly.
+  **`192.168.170.254`** — the STATIC lease, verified alive 2026-08-30 11:41 after a `macvdmtool --neo reboot`. It had been unreachable for hours on DHCP; this time it came up on the address it was always supposed to have. If it moves, ask the orchestrator, do not scan blindly.
   `AGXAcceleratorG17P`, arch `applegpu_g17p`, **5 GPU cores**, macOS 26.6, Metal family Apple9,
   **full Xcode present** (`/Applications/Xcode.app`) — richer than the M4 ever was.
   Build ObjC there: `clang -fobjc-arc -framework Metal -framework Foundation`; runtime

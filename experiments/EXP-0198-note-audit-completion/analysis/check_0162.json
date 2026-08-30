@@ -1,0 +1,536 @@
+{
+ "arm_stats": {
+  "cvt_bf16": {
+   "all_outcomes": {
+    "fault": 71,
+    "invalid_run": 1,
+    "ok": 506,
+    "silent_zero": 444,
+    "wrong_value": 794
+   },
+   "fault": 71,
+   "semantic_matched": 30,
+   "semantic_vectors": 31,
+   "silent_zero": 444,
+   "sweep_cases": 1816
+  },
+  "cvt_f2h_dst": {
+   "all_outcomes": {
+    "fault": 86,
+    "invalid_run": 1,
+    "ok": 146,
+    "silent_zero": 115,
+    "wrong_value": 956
+   },
+   "fault": 86,
+   "semantic_matched": 5,
+   "semantic_vectors": 5,
+   "silent_zero": 115,
+   "sweep_cases": 1304
+  },
+  "packed_half2_hi": {
+   "all_outcomes": {
+    "fault": 212,
+    "invalid_run": 1,
+    "not_written": 1,
+    "ok": 1,
+    "silent_zero": 64,
+    "wrong_value": 1025
+   },
+   "fault": 212,
+   "semantic_matched": 0,
+   "semantic_vectors": 4,
+   "silent_zero": 64,
+   "sweep_cases": 1304
+  }
+ },
+ "per_note": {
+  "cvt_bf16.b5": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 152,
+      "silent_zero": 88,
+      "wrong_value": 16
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 152,
+      "silent_zero": 88,
+      "wrong_value": 16
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 16, 'ok': 152, 'silent_zero': 88}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_bf16.b7": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 128,
+      "wrong_value": 128
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 128,
+      "wrong_value": 128
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'ok': 128, 'wrong_value': 128}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_bf16.dir": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 32,
+      "silent_zero": 64,
+      "wrong_value": 160
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 32,
+      "silent_zero": 64,
+      "wrong_value": 160
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_bf16.dst": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 8,
+      "wrong_value": 8
+     },
+     "n_records": 16,
+     "ok": true,
+     "raw": {
+      "ok": 8,
+      "wrong_value": 8
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'ok': 8, 'wrong_value': 8}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_bf16.opsel": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "fault": 32,
+      "ok": 40,
+      "silent_zero": 52,
+      "wrong_value": 132
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "fault": 32,
+      "ok": 40,
+      "silent_zero": 52,
+      "wrong_value": 132
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 132, 'ok': 40, 'silent_zero': 52, 'fault': 32}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_bf16.srcw": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 2,
+      "silent_zero": 236,
+      "wrong_value": 18
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 2,
+      "silent_zero": 236,
+      "wrong_value": 18
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1816,
+      "fault": 71
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1816,
+      "fault": 71
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 31,
+     "ok": true,
+     "raw": 31,
+     "raw_matched": 30
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'silent_zero': 236, 'ok': 2, 'wrong_value': 18}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_f2h_dst.dhalf": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 2,
+      "silent_zero": 114,
+      "wrong_value": 140
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 2,
+      "silent_zero": 114,
+      "wrong_value": 140
+     }
+    },
+    {
+     "claim": "arm_fault_and_zero",
+     "claimed": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 5,
+     "ok": true,
+     "raw": 5,
+     "raw_matched": 5
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 140, 'silent_zero': 114, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_f2h_dst.opsel": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "fault": 32,
+      "ok": 8,
+      "wrong_value": 216
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "fault": 32,
+      "ok": 8,
+      "wrong_value": 216
+     }
+    },
+    {
+     "claim": "arm_fault_and_zero",
+     "claimed": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 5,
+     "ok": true,
+     "raw": 5,
+     "raw_matched": 5
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 216, 'ok': 8, 'fault': 32}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_f2h_dst.src": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "fault": 53,
+      "ok": 77,
+      "wrong_value": 126
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "fault": 53,
+      "ok": 77,
+      "wrong_value": 126
+     }
+    },
+    {
+     "claim": "arm_fault_and_zero",
+     "claimed": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 5,
+     "ok": true,
+     "raw": 5,
+     "raw_matched": 5
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'fault': 53, 'ok': 77, 'wrong_value': 126}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_f2h_dst.srcfmt": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 2,
+      "wrong_value": 254
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 2,
+      "wrong_value": 254
+     }
+    },
+    {
+     "claim": "arm_fault_and_zero",
+     "claimed": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 5,
+     "ok": true,
+     "raw": 5,
+     "raw_matched": 5
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 254, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "cvt_f2h_dst.tail": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "ok": 56,
+      "wrong_value": 200
+     },
+     "n_records": 256,
+     "ok": true,
+     "raw": {
+      "ok": 56,
+      "wrong_value": 200
+     }
+    },
+    {
+     "claim": "arm_fault_and_zero",
+     "claimed": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 86,
+      "silent_zero": 115
+     }
+    },
+    {
+     "claim": "semantic_vector_count",
+     "claimed": 5,
+     "ok": true,
+     "raw": 5,
+     "raw_matched": 5
+    }
+   ],
+   "label": "hardware-run",
+   "note": "outcomes {'wrong_value': 200, 'ok': 56}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.",
+   "verdict": "SUPPORTED"
+  },
+  "packed_half2_hi.dst": {
+   "claims": [
+    {
+     "claim": "outcome_histogram",
+     "claimed": {
+      "not_written": 1,
+      "wrong_value": 15
+     },
+     "n_records": 16,
+     "ok": true,
+     "raw": {
+      "not_written": 1,
+      "wrong_value": 15
+     }
+    },
+    {
+     "claim": "arm_fault_of_cases",
+     "claimed": {
+      "cases": 1304,
+      "fault": 212
+     },
+     "ok": true,
+     "raw": {
+      "cases": 1304,
+      "fault": 212
+     }
+    }
+   ],
+   "label": "hardware-run",
+   "note": "EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'wrong_value': 15, 'not_written': 1}. detection power: the MODE-A synthesis is scored against a host oracle that PREDICTS THE HIGH LANE ONLY; 212 of 1304 cases fault and one dst value leaves the read-back word at its 0xDEADBEEF poison, which is a strictly stronger observation than a zero.",
+   "verdict": "SUPPORTED"
+  }
+ }
+}

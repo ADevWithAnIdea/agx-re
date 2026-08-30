@@ -7,7 +7,7 @@ Written by the orchestrator 2026-08-28 after porting and verifying the toolchain
 
 ```sh
 export SSHPASS='<ask the orchestrator>'          # never hardcode into a committed file
-NEO=192.168.10.243                                # DHCP; if it moves, ASK — do not scan
+NEO=192.168.170.254                              # static lease; VERIFIED ALIVE 2026-08-30 11:41
 sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@$NEO '<cmd>'
 sshpass -e scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null <f> user@$NEO:~/agxre/
 ```

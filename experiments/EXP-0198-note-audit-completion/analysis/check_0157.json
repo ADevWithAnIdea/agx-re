@@ -1,0 +1,1298 @@
+{
+ "h_coord_hi.ctrl": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wrong_value=90 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zero=36, wrong_value=84 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "not_written": 128,
+     "ok": 1,
+     "silent_zero": 36,
+     "wrong_value": 90
+    },
+    "claimed_rule": "(value & 0xff) == 0x04",
+    "raw_outcomes": {
+     "not_written": 128,
+     "ok": 1,
+     "silent_zero": 36,
+     "wrong_value": 90
+    },
+    "raw_rule": "(value & 0xff) == 0x04",
+    "seg": "accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wro",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "fault": 62,
+     "not_written": 24,
+     "ok": 3,
+     "silent_zero": 36,
+     "wrong_value": 84
+    },
+    "claimed_rule": "(value & 0x7b) == 0x00",
+    "raw_outcomes": {
+     "fault": 62,
+     "not_written": 24,
+     "ok": 3,
+     "silent_zero": 36,
+     "wrong_value": 84
+    },
+    "raw_rule": "(value & 0x7b) == 0x00",
+    "seg": "accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zer",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi.dst": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "raw_rule": null,
+    "seg": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (g",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "raw_rule": null,
+    "seg": "outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (g",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi.mods": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "claimed_rule": "(value & 0xff) == 0x01",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "raw_rule": "(value & 0xff) == 0x01",
+    "seg": "accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anc",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "ok": 1,
+     "silent_zero": 12,
+     "wrong_value": 242
+    },
+    "claimed_rule": "(value & 0xff) == 0x88",
+    "raw_outcomes": {
+     "ok": 1,
+     "silent_zero": 12,
+     "wrong_value": 242
+    },
+    "raw_rule": "(value & 0xff) == 0x88",
+    "seg": "accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | ca",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi.opsel": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wrong_value=12 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.  ALSO: accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "not_written": 160,
+     "ok": 3,
+     "silent_zero": 80,
+     "wrong_value": 12
+    },
+    "claimed_rule": "(value & 0xd7) == 0x06",
+    "raw_outcomes": {
+     "not_written": 160,
+     "ok": 3,
+     "silent_zero": 80,
+     "wrong_value": 12
+    },
+    "raw_rule": "(value & 0xd7) == 0x06",
+    "seg": "accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wro",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "fault": 79,
+     "not_written": 1,
+     "ok": 3,
+     "silent_zero": 87,
+     "wrong_value": 4
+    },
+    "claimed_rule": "(value & 0xd7) == 0x06",
+    "raw_outcomes": {
+     "fault": 79,
+     "not_written": 1,
+     "ok": 3,
+     "silent_zero": 87,
+     "wrong_value": 4
+    },
+    "raw_rule": "(value & 0xd7) == 0x06",
+    "seg": "accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi.srcA": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.  ALSO: accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "silent_zero": 4,
+     "wrong_value": 250
+    },
+    "claimed_rule": "(value & 0xff) == 0x86",
+    "raw_outcomes": {
+     "ok": 1,
+     "silent_zero": 4,
+     "wrong_value": 250
+    },
+    "raw_rule": "(value & 0xff) == 0x86",
+    "seg": "accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | car",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "ok": 1,
+     "silent_zero": 14,
+     "wrong_value": 240
+    },
+    "claimed_rule": "(value & 0xff) == 0x87",
+    "raw_outcomes": {
+     "ok": 1,
+     "silent_zero": 14,
+     "wrong_value": 240
+    },
+    "raw_rule": "(value & 0xff) == 0x87",
+    "seg": "accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | ca",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi.srcB": {
+  "label": "hardware-run",
+  "n_segments": 2,
+  "note": "accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.  ALSO: accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "claimed_rule": "(value & 0xff) == 0x02",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "raw_rule": "(value & 0xff) == 0x02",
+    "seg": "accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anc",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "52",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h4fma",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "claimed_rule": "(value & 0xff) == 0x04",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "raw_rule": "(value & 0xff) == 0x04",
+    "seg": "accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anc",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi_ext.dst": {
+  "label": "hardware-run",
+  "n_segments": 1,
+  "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "40",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "not_written": 1,
+     "silent_zero": 14
+    },
+    "raw_rule": null,
+    "seg": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (g",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi_ext.opsel": {
+  "label": "hardware-run",
+  "n_segments": 1,
+  "note": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "40",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "silent_zero": 236,
+     "wrong_value": 18
+    },
+    "claimed_rule": "(value & 0xff) == 0x06",
+    "raw_outcomes": {
+     "ok": 1,
+     "silent_zero": 236,
+     "wrong_value": 18
+    },
+    "raw_rule": "(value & 0xff) == 0x06",
+    "seg": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | ca",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi_ext.srcA": {
+  "label": "hardware-run",
+  "n_segments": 1,
+  "note": "accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "40",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "claimed_rule": "(value & 0xff) == 0x00",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "raw_rule": "(value & 0xff) == 0x00",
+    "seg": "accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anc",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "h_coord_hi_ext.srcC": {
+  "label": "hardware-run",
+  "n_segments": 1,
+  "note": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "40",
+    "anchor_live": true,
+    "arm": "H",
+    "carrier": "h3mix",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 252
+    },
+    "claimed_rule": "(value & 0xff) == 0x83",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 252
+    },
+    "raw_rule": "(value & 0xff) == 0x83",
+    "seg": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anc",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.dst": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "not_written": 1,
+     "silent_zero": 1,
+     "wrong_value": 13
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "not_written": 1,
+     "silent_zero": 1,
+     "wrong_value": 13
+    },
+    "raw_rule": null,
+    "seg": "outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agre",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "silent_zero": 15
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "silent_zero": 15
+    },
+    "raw_rule": null,
+    "seg": "outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "silent_zero": 15
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "silent_zero": 15
+    },
+    "raw_rule": null,
+    "seg": "outcomes silent_zero=15 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.imm_sel": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: accepted set: (value & 0x7e) == 0x06 | outcomes ok=3, silent_zero=244, wrong_value=8 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: outcomes ok=3, silent_zero=120, wrong_value=132 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "claimed_rule": "(value & 0x7e) == 0x10",
+    "raw_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "raw_rule": "(value & 0x7e) == 0x10",
+    "seg": "accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, an",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "ok": 3,
+     "silent_zero": 244,
+     "wrong_value": 8
+    },
+    "claimed_rule": "(value & 0x7e) == 0x06",
+    "raw_outcomes": {
+     "ok": 3,
+     "silent_zero": 244,
+     "wrong_value": 8
+    },
+    "raw_rule": "(value & 0x7e) == 0x06",
+    "seg": "accepted set: (value & 0x7e) == 0x06 | outcomes ok=3, silent_zero=244, wrong_value=8 | car",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "ok": 3,
+     "silent_zero": 120,
+     "wrong_value": 132
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 3,
+     "silent_zero": 120,
+     "wrong_value": 132
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=3, silent_zero=120, wrong_value=132 | carrier u64eq, anchor +50, 2 agreeing ca",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.opA": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "ok": 17,
+     "wrong_value": 238
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 17,
+     "wrong_value": 238
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RS",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "claimed_rule": "(value & 0xff) == 0x83",
+    "raw_outcomes": {
+     "ok": 1,
+     "wrong_value": 254
+    },
+    "raw_rule": "(value & 0xff) == 0x83",
+    "seg": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, an",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "ok": 117,
+     "silent_zero": 138
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 117,
+     "silent_zero": 138
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 2 agreeing captures (gate RS",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.opB": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, silent_zero=96, wrong_value=16 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "fault": 64,
+     "wrong_value": 191
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "fault": 64,
+     "wrong_value": 191
+    },
+    "raw_rule": null,
+    "seg": "outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "fault": 108,
+     "ok": 5,
+     "silent_zero": 72,
+     "wrong_value": 50
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "fault": 108,
+     "ok": 5,
+     "silent_zero": 72,
+     "wrong_value": 50
+    },
+    "raw_rule": null,
+    "seg": "outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 a",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "not_written": 127,
+     "ok": 15,
+     "silent_zero": 96,
+     "wrong_value": 16
+    },
+    "claimed_rule": "(value & 0xa6) == 0x26",
+    "raw_outcomes": {
+     "not_written": 127,
+     "ok": 15,
+     "silent_zero": 96,
+     "wrong_value": 16
+    },
+    "raw_rule": "(value & 0xa6) == 0x26",
+    "seg": "accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, silent_zero=96, wr",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.opsel": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd7) == 0x03 | outcomes ok=3, silent_zero=60, wrong_value=192 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd5) == 0x05 | outcomes not_written=128, ok=7, silent_zero=116, wrong_value=4 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "fault": 128,
+     "ok": 3,
+     "wrong_value": 124
+    },
+    "claimed_rule": "(value & 0xcf) == 0x03",
+    "raw_outcomes": {
+     "fault": 128,
+     "ok": 3,
+     "wrong_value": 124
+    },
+    "raw_rule": "(value & 0xcf) == 0x03",
+    "seg": "accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "ok": 3,
+     "silent_zero": 60,
+     "wrong_value": 192
+    },
+    "claimed_rule": "(value & 0xd7) == 0x03",
+    "raw_outcomes": {
+     "ok": 3,
+     "silent_zero": 60,
+     "wrong_value": 192
+    },
+    "raw_rule": "(value & 0xd7) == 0x03",
+    "seg": "accepted set: (value & 0xd7) == 0x03 | outcomes ok=3, silent_zero=60, wrong_value=192 | ca",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "not_written": 128,
+     "ok": 7,
+     "silent_zero": 116,
+     "wrong_value": 4
+    },
+    "claimed_rule": "(value & 0xd5) == 0x05",
+    "raw_outcomes": {
+     "not_written": 128,
+     "ok": 7,
+     "silent_zero": 116,
+     "wrong_value": 4
+    },
+    "raw_rule": "(value & 0xd5) == 0x05",
+    "seg": "accepted set: (value & 0xd5) == 0x05 | outcomes not_written=128, ok=7, silent_zero=116, wr",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "n2_op6.src_desc": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x00 | outcomes ok=3, wrong_value=252 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "rows": [
+   {
+    "anchor": "60",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfumix",
+    "claimed_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "claimed_rule": "(value & 0x7e) == 0x08",
+    "raw_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "raw_rule": "(value & 0x7e) == 0x08",
+    "seg": "accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, an",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "68",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "sfusin",
+    "claimed_outcomes": {
+     "ok": 3,
+     "silent_zero": 2,
+     "wrong_value": 250
+    },
+    "claimed_rule": "(value & 0x7e) == 0x04",
+    "raw_outcomes": {
+     "ok": 3,
+     "silent_zero": 2,
+     "wrong_value": 250
+    },
+    "raw_rule": "(value & 0x7e) == 0x04",
+    "seg": "accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | car",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "50",
+    "anchor_live": true,
+    "arm": "S",
+    "carrier": "u64eq",
+    "claimed_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "claimed_rule": "(value & 0x7e) == 0x00",
+    "raw_outcomes": {
+     "ok": 3,
+     "wrong_value": 252
+    },
+    "raw_rule": "(value & 0x7e) == 0x00",
+    "seg": "accepted set: (value & 0x7e) == 0x00 | outcomes ok=3, wrong_value=252 | carrier u64eq, anc",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "ray_move_copy6.optype": {
+  "label": "untested",
+  "n_segments": 1,
+  "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 191 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+  "rows": [
+   {
+    "anchor": "108",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "fault": 64,
+     "ok": 191
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "fault": 64,
+     "ok": 191
+    },
+    "raw_rule": null,
+    "seg": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "rtq_state_move.dst": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2)",
+  "rows": [
+   {
+    "anchor": "1534",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 13,
+     "silent_zero": 1,
+     "wrong_value": 1
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 13,
+     "silent_zero": 1,
+     "wrong_value": 1
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing ",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "1556",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_mtype",
+    "claimed_outcomes": {
+     "ok": 14,
+     "silent_zero": 1
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 14,
+     "silent_zero": 1
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate ",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "142",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 13,
+     "silent_zero": 2
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 13,
+     "silent_zero": 2
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "rtq_state_move.src": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.",
+  "rows": [
+   {
+    "anchor": "1534",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 39,
+     "silent_zero": 4,
+     "wrong_value": 212
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 39,
+     "silent_zero": 4,
+     "wrong_value": 212
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreein",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "1556",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_mtype",
+    "claimed_outcomes": {
+     "ok": 251,
+     "silent_zero": 4
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 251,
+     "silent_zero": 4
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "142",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 251,
+     "silent_zero": 4
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 251,
+     "silent_zero": 4
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.dst": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "silent_zero": 15
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "silent_zero": 15
+    },
+    "raw_rule": null,
+    "seg": "outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "silent_zero": 15
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "silent_zero": 15
+    },
+    "raw_rule": null,
+    "seg": "outcomes silent_zero=15 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "silent_zero": 15
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "silent_zero": 15
+    },
+    "raw_rule": null,
+    "seg": "outcomes silent_zero=15 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.marshal": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 82
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 82
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "ok": 82
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 82
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=82 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 82
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 82
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=82 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.operand": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.phase": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH)",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 255
+    },
+    "claimed_rule": null,
+    "raw_outcomes": {
+     "ok": 255
+    },
+    "raw_rule": null,
+    "seg": "outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2)",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.sel": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "claimed_rule": "(value & 0x87) == 0x01",
+    "raw_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "raw_rule": "(value & 0x87) == 0x01",
+    "seg": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist,",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "claimed_rule": "(value & 0x87) == 0x01",
+    "raw_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "raw_rule": "(value & 0x87) == 0x01",
+    "seg": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cprim,",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "claimed_rule": "(value & 0x87) == 0x01",
+    "raw_outcomes": {
+     "ok": 15,
+     "silent_zero": 112
+    },
+    "raw_rule": "(value & 0x87) == 0x01",
+    "seg": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_all, a",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ },
+ "sr_read_wide.width": {
+  "label": "hardware-run",
+  "n_segments": 3,
+  "note": "accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xce) == 0x46 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xcf) == 0x46 | outcomes fault=16, ok=3, silent_zero=236 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.",
+  "rows": [
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cdist",
+    "claimed_outcomes": {
+     "fault": 32,
+     "ok": 7,
+     "silent_zero": 216
+    },
+    "claimed_rule": "(value & 0xce) == 0x06",
+    "raw_outcomes": {
+     "fault": 32,
+     "ok": 7,
+     "silent_zero": 216
+    },
+    "raw_rule": "(value & 0xce) == 0x06",
+    "seg": "accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier ",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "328",
+    "anchor_live": true,
+    "arm": "R",
+    "carrier": "rq_cprim",
+    "claimed_outcomes": {
+     "fault": 32,
+     "ok": 7,
+     "silent_zero": 216
+    },
+    "claimed_rule": "(value & 0xce) == 0x46",
+    "raw_outcomes": {
+     "fault": 32,
+     "ok": 7,
+     "silent_zero": 216
+    },
+    "raw_rule": "(value & 0xce) == 0x46",
+    "seg": "accepted set: (value & 0xce) == 0x46 | outcomes fault=32, ok=7, silent_zero=216 | carrier ",
+    "verdict": "SUPPORTED"
+   },
+   {
+    "anchor": "808",
+    "anchor_live": true,
+    "arm": "B2",
+    "carrier": "rq_all",
+    "claimed_outcomes": {
+     "fault": 16,
+     "ok": 3,
+     "silent_zero": 236
+    },
+    "claimed_rule": "(value & 0xcf) == 0x46",
+    "raw_outcomes": {
+     "fault": 16,
+     "ok": 3,
+     "silent_zero": 236
+    },
+    "raw_rule": "(value & 0xcf) == 0x46",
+    "seg": "accepted set: (value & 0xcf) == 0x46 | outcomes fault=16, ok=3, silent_zero=236 | carrier ",
+    "verdict": "SUPPORTED"
+   }
+  ],
+  "verdict": "SUPPORTED"
+ }
+}
