@@ -33,6 +33,31 @@ evidence. You are proving an emitter can choose a value and get the documented b
 
 ## 3. Required sweep shape, per field
 
+> **Two rules added 2026-08-30, each found the hard way. Read them before designing an arm.**
+>
+> **(a) The observable must not CO-VARY with the field under test.** EXP-0140 swept
+> `uniform_mov.dst` while building its read-back as `device_store(data_reg=D)` where `D` *was*
+> the swept dst. Field and observable moved together, so a **correct** hardware result is a
+> constant observed vector *by construction* — "16 values, 0 moved" was the **passing** outcome
+> of a test that could not return anything else. It cannot see an aliased extra write, and its
+> register scan ran at a single dst value. Found by EXP-0168. This is the same failure as
+> `iter_at.loc` one level up: there the *carrier* could not express the field; here the *oracle*
+> could not.
+>
+> **(b) A round trip is NOT an emitter gate.** `assert_round_trip()` — 28 files define it, 7
+> distinct bodies, all semantically identical and **all symmetric** — disassembles and then
+> re-assembles *from the disassembled fields*, so a defect symmetric across encode and decode
+> sits on both sides and the check passes. EXP-0170 proved this rather than arguing it: it
+> re-implemented the pre-fix OR-only assembler (which **could not clear a bit**) and re-ran the
+> repo's own suite against it — **173 cases, 0 failures**, including 9 touching an affected field.
+> **`tools/agx-isa/roundtrip_test.py` passes unmodified with a broken assembler.** It is a
+> tokenizer regression test and must stop being cited as evidence that an encoding can be
+> *emitted*; `rt_ok` in any raw from EXP-0090…0171 means only "our tokenizer agrees with itself".
+> The right shape compares against **the caller's ledger** (EXP-0167 did this: 204,044 calls,
+> 0 mismatches) — and even that misses the defect when its vectors are seeded from really-observed
+> instructions, since their values already carry the `match` bits. Circular provenance.
+
+
 For field `F` of width `w` in instruction `I`:
 
 1. **Baseline.** Capture the unmutated program's output first. Every later case is a delta against it.
