@@ -197,3 +197,68 @@ programs containing ZERO copied fields producing their exact host oracle**, with
 over 204,044 `assemble()` calls at 0 mismatches. The known gap: 60 of those 233 rest on rules that
 experiment did not itself measure, and **24 still need a donor** (12 control-flow, 12 immediate
 `iadd2`).
+
+
+---
+
+# FINAL ACCOUNTING — 2026-08-30, written before the 10:00 PST deadline
+
+## The number
+
+**55 of 166 emitter-relevant instructions emittable; 638 of 1040 fields emitter-grade.**
+`validate_labels.py` rc=0, `roundtrip_test.py` ALL PASS, 56 commits today, 257 provenance rows.
+
+**Of the emitter-grade fields, 412 are measured on G17P** — the actual documentation target —
+against 164 on M4 and 57 on A18. That ratio is the run's real product: at the start of the day
+the corpus was overwhelmingly M4 evidence being counted toward a G17P goal.
+
+## The number moved DOWN more than it moved up, and that is the result
+
+79 → 41 → 55. Every fall was a withdrawal an independent audit confirmed, and each was caused by
+finding that a **check could not come out the other way**:
+
+| what looked like evidence | why it could not fail |
+|---|---|
+| a liveness ladder | clearing byte0 **relocates** the write rather than nulling it |
+| `roundtrip_test.py` | symmetric across encode and decode — it passes against an assembler that cannot clear a bit, *and* with two operands swapped |
+| an oracle | **co-varied** with the field under test, so a correct result was a constant vector by construction |
+| a contiguous-suffix cascade test | trivially true at 8-of-8 non-OK |
+| a clustering score of `0.0` | a **key collision**, not a cascade |
+| a detection control | fired on a **match byte**, i.e. by encoding a different opcode |
+
+Six shapes, six experiments, none found by sweeping more. **All six came from auditing work that
+had already passed.**
+
+## What an implementer can actually do now that they could not this morning
+
+- **`nir_op_mov` is CLOSED.** `n3_mov` moves one GPR to a different GPR — 840 generated copies over
+  all 240 ordered pairs, **0 failures, zero bytes copied from any compiled shader**. It is 16-bit
+  granular, so a 32-bit copy is two instructions. Without this there is no register allocator.
+- **The `call` is emittable**, generated end to end: `target = call_addr + 4 + offset` measured
+  **forward** (every call in the corpus is backward), `call.b3` a branch-taken selector with 4 of 8
+  bits live, and **the `pop_reconverge` after a call is REQUIRED while the frame marker is OPTIONAL**.
+- **A system value can be read** — with a stage rule nobody had: **in a vertex shader every
+  `sr_sel` with bit 7 clear FAULTS, 128 of 128**, where compute faults at none.
+- **`instance_id` is not base-inclusive while `vertex_id` is** — `baseInstance` is added in software.
+
+## What is still not done, stated plainly
+
+**111 instructions remain non-emittable**, 16 of them one field away. `docs/isa/emit-worklist.md`
+names every one with its exact blocker and is regenerated from `db.json` + `validation.json`.
+
+**The acceptance gate is NOT passed.** EXP-0173 measured it: 0 of 16 P0/P1 rows CLOSED, closure
+rule 5 met by 6 of 16. Most importantly it found that **EMITTABLE (a property of labels) and
+GENERATED (a program that actually ran) are nearly disjoint** — the intersection was two
+instructions. That gap is the honest distance to closure, and it is not measured by the field count.
+
+**Every enumeration of a gap has been an undercount when someone looked harder** — the missing
+provenance rows went 36 → 67 → more; the untokenizable descriptors went 5 → 10; the wrong-operand
+class went 1 → 4 → 6. Treat the current numbers as lower bounds.
+
+## The three instruments that now exist
+
+`tools/agxtest/{saferunner,verify_remote,closure_scan}.py`, each of which caught a live defect
+within an hour of being written, with a device-free selftest (`selftest_tools.py`, T0–T7, ~3 s).
+**`verify_remote.py` is the one to keep**: a frozen contract hashes what you *authored*, not what
+the device is *running*, and on its first run against its own author it found **11 of 18 blobs
+matching** with every hash in the contract still correct.
