@@ -8,7 +8,7 @@ Section 2 requires every field to carry independent status on six axes. The data
 
 | source | rows carrying an `axes` object |
 |---|---:|
-| validation.json (inline) | 43 |
+| validation.json (inline) | 504 |
 | EXP-0208-axis-reclassification/analysis/axes.json | 496 |
 | **union (an inline object wins)** | **504** |
 | **db.json fields with NO axes object** | **536 of 1040** |
@@ -32,154 +32,154 @@ A disagreement is not automatically a defect in either party: the declared axes 
 
 | row | source | disagreement(s) |
 |---|---|---|
-| `atomic_mem.amode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_mem.base_slot` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_mem.rsv3` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_rmw.amode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_rmw.base_slot` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_rmw.rsv3` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_tg.amode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `atomic_tg.op_desc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `atomic_tg.ret_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `b_alu10_lo7.src_flag` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `b_alu10_lo7.src_reg` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
+| `atomic_mem.amode` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_mem.base_slot` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_mem.rsv3` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_rmw.amode` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_rmw.base_slot` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_rmw.rsv3` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_tg.amode` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `atomic_tg.op_desc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `atomic_tg.ret_desc` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `b_alu10_lo7.src_flag` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `b_alu10_lo7.src_reg` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
 | `call.tail` | validation.json (inline) | liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `compute_fence_scoped.kind` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `compute_fence_scoped.mask` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `compute_fence_scoped.scope` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `cubearray_coord_const.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `cvt_i2f_src.dst_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `cvt_i2f_src.src_cache` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `device_load.access_desc` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `device_load.addr_mode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `device_load.reserved13` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `device_load.reserved7` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu2_ext.srcA_size` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu2_ext.srcB_imm` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu2_srcmod10.ctrl` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu2_srcmod10.opsel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `falu2i.ctrl_lo` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived bounded-map |
-| `falu2i.mods` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived bounded-map |
-| `falu2i.opflags` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived bounded-map |
-| `falu2i.srcA_reg_top` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present |
+| `compute_fence_scoped.kind` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `compute_fence_scoped.mask` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `compute_fence_scoped.scope` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `cubearray_coord_const.b3` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `cvt_i2f_src.dst_desc` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `cvt_i2f_src.src_cache` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `device_load.access_desc` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `device_load.addr_mode` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `device_load.reserved13` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `device_load.reserved7` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu2_ext.srcA_size` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu2_ext.srcB_imm` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu2_srcmod10.ctrl` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu2_srcmod10.opsel` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `falu2i.ctrl_lo` | validation.json (inline) | semantics declared no-semantic-check, re-derived bounded-map |
+| `falu2i.mods` | validation.json (inline) | semantics declared no-semantic-check, re-derived bounded-map |
+| `falu2i.opflags` | validation.json (inline) | semantics declared no-semantic-check, re-derived bounded-map |
+| `falu2i.srcA_reg_top` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present |
 | `falu3_srcmod12.ctrl` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `falu3_srcmod12.opsel` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu_srcmod12b.ext_srcmod` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `falu_srcmod12b.mod_hi` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu_srcmod12b.mod_lo` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu_srcmod12b.srcB_imm` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `falu_srcmod12b.srcB_neg` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frag_color_pack.conv_scale` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
+| `falu_srcmod12b.ext_srcmod` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `falu_srcmod12b.mod_hi` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu_srcmod12b.mod_lo` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu_srcmod12b.srcB_imm` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `falu_srcmod12b.srcB_neg` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `frag_color_pack.conv_scale` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
 | `frag_color_pack.fmt_class` | validation.json (inline) | geometry declared ledger-verified, re-derived geometry-mapped; liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frag_color_pack.src_gate_select` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
+| `frag_color_pack.src_gate_select` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
 | `frag_color_store.store_mode` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frag_tile_setup.access` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frag_tile_setup.b5` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frag_tile_setup.sel` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `frame_prologue.frame_size` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `frame_prologue.marker` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `frame_prologue.subop` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `funary.mod` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared bounded-map, re-derived no-semantic-check |
+| `frag_tile_setup.access` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `frag_tile_setup.b5` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `frag_tile_setup.sel` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `frame_prologue.frame_size` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `frame_prologue.marker` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `frame_prologue.subop` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `funary.mod` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
 | `get_sr.form` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
-| `h_coord_hi_ext.ext` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `h_coord_hi_ext.srcB` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `h_coord_hi_ext.tail` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `h_coord_hi_ext.ext` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `h_coord_hi_ext.srcB` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `h_coord_hi_ext.tail` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `half_alu_fma12.dst` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen |
-| `half_pack.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `half_pack.dstlo` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `iadd2.addsub` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `iadd2.srcB_imm` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `iadd2.srcB_reg_hi` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.b10` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.b6hi` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.b7` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.cache` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.mask_hi` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.mask_imm` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ibfins.srcdesc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmp_pred.cond` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmp_pred.neg` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `icmp_pred.opclass` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmp_pred.srcA` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `icmp_pred.srcB` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `icmpsel.cache` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.cmpmode` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.cond` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.dst_full` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `icmpsel.neg_lo` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.sel_marker` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.sel_operand` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.srcA` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `icmpsel.tail` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `if_push_pred.level` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `if_push_pred.scope` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imad.b11` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imad.b1hi` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imad.b2_bit0` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imad.b2_fmt` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imad.srcC_desc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `imad.store_en` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imageblock_store.b4` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `imageblock_store.src` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `irotate.operands` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `isel10_c.cc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `isel10_c.cmpA` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.cmpB` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.cmp_mode` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.flags` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.selFalse` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.selFalse_file` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel10_c.selTrue` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel8.cmpA` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel8.cmpB` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg.cc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `isel_reg.cmpB` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg.cmp_mode` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.cc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `isel_reg8.cmpA` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.cmpB` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.cmp_mode` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.flags` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `isel_reg8.selTrue` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ishift.pad9` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ishift.src_cache` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `half_pack.b3` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `half_pack.dstlo` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `iadd2.addsub` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `iadd2.srcB_imm` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `iadd2.srcB_reg_hi` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.b10` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.b6hi` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.b7` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.cache` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.mask_hi` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.mask_imm` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ibfins.srcdesc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmp_pred.cond` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmp_pred.neg` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `icmp_pred.opclass` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmp_pred.srcA` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `icmp_pred.srcB` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `icmpsel.cache` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.cmpmode` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.cond` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.dst_full` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `icmpsel.neg_lo` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.sel_marker` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.sel_operand` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.srcA` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `icmpsel.tail` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `if_push_pred.level` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `if_push_pred.scope` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imad.b11` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imad.b1hi` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imad.b2_bit0` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imad.b2_fmt` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imad.srcC_desc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `imad.store_en` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imageblock_store.b4` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `imageblock_store.src` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `irotate.operands` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `isel10_c.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `isel10_c.cmpA` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.cmpB` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.cmp_mode` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.flags` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.selFalse` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.selFalse_file` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel10_c.selTrue` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel8.cmpA` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel8.cmpB` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `isel_reg.cmpB` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg.cmp_mode` | validation.json (inline) | geometry declared geometry-mapped, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg8.cc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `isel_reg8.cmpA` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg8.cmpB` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg8.cmp_mode` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg8.flags` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `isel_reg8.selTrue` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ishift.pad9` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `ishift.src_cache` | validation.json (inline) | semantics declared no-semantic-check, re-derived checks-present; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `iter.b9` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `iunary.b1` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `iunary.opsel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `jump.branch_ctrl` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived ledger-verified; liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `jump.link` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `jump_cond.cf_scope` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `iunary.b1` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `iunary.opsel` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `jump.branch_ctrl` | validation.json (inline) | geometry declared geometry-mapped, re-derived ledger-verified; liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `jump.link` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `jump_cond.cf_scope` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
 | `jump_cond.offset` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `jump_cond.reserved` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `link_save_restore.b3` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `link_save_restore.dir_offset` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `link_save_restore.reserved7` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `mask_op.mask_bank` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `mask_op.scope_kind` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `matrix_mac.a_reg` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared bounded-map, re-derived no-semantic-check |
-| `matrix_mac.acc_en` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared bounded-map, re-derived no-semantic-check |
-| `matrix_mac.b_reg` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared bounded-map, re-derived no-semantic-check |
-| `matrix_mac.c_src` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `matrix_mac.dst` | EXP-0208-axis-reclassification/analysis/axes.json | semantics declared checks-present, re-derived no-semantic-check |
-| `mem_fence.b5` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `mem_fence.memclass` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `mem_fence.sub` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `n2_op10.opdesc` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `n2_op10.opsel` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `n2_op10.src` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `n2_op8.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
+| `jump_cond.reserved` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `link_save_restore.b3` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `link_save_restore.dir_offset` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `link_save_restore.reserved7` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `mask_op.mask_bank` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `mask_op.scope_kind` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `matrix_mac.a_reg` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
+| `matrix_mac.acc_en` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
+| `matrix_mac.b_reg` | validation.json (inline) | semantics declared bounded-map, re-derived no-semantic-check |
+| `matrix_mac.c_src` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `matrix_mac.dst` | validation.json (inline) | semantics declared checks-present, re-derived no-semantic-check |
+| `mem_fence.b5` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `mem_fence.memclass` | validation.json (inline) | liveness declared `inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `mem_fence.sub` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `n2_op10.opdesc` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `n2_op10.opsel` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `n2_op10.src` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `n2_op8.dst` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `n3_sample_read.tail` | validation.json (inline) | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `n4_cf_word.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `n4_rt_word.dst` | EXP-0208-axis-reclassification/analysis/axes.json | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `op04_len8.body` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `op04_len8.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `op04_len8.mode` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `packed_half2_hi.mods` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `packed_half2_hi.srcA` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
-| `packed_half2_hi.srcB` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared geometry-mapped, re-derived no-data |
+| `n4_cf_word.b3` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `n4_rt_word.dst` | validation.json (inline) | liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `op04_len8.body` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `op04_len8.dst` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `op04_len8.mode` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `packed_half2_hi.mods` | validation.json (inline) | geometry declared ledger-verified, re-derived bytes-seen; liveness declared `live` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
+| `packed_half2_hi.srcA` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
+| `packed_half2_hi.srcB` | validation.json (inline) | geometry declared geometry-mapped, re-derived no-data |
 | `pop_reconverge.scope` | validation.json (inline) | liveness declared `accepted-inert` but no detection-power control fired in the cited raw; Gate B makes that `carrier-undecidable` |
-| `ray_move.b3` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `ray_move.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `ray_move.src` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
-| `ray_move_copy6.dst` | EXP-0208-axis-reclassification/analysis/axes.json | geometry declared ledger-verified, re-derived no-data |
+| `ray_move.b3` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `ray_move.dst` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `ray_move.src` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
+| `ray_move_copy6.dst` | validation.json (inline) | geometry declared ledger-verified, re-derived no-data |
 

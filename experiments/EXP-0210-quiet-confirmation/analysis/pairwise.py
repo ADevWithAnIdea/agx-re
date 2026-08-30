@@ -29,8 +29,16 @@ KEYFIELDS = ("arm", "field", "value", "byte_index", "carrier", "case", "case_id"
 ORDER_ONLY = ("idx", "seq")
 HARD = {"fault", "hang", "cmdbuf_error", "measurement_failure", "invalid_run",
         "undecodable", "timeout", "victim", "not_written"}
+# Volatile = not an observation of the hardware.  Timing moves with machine occupancy (this
+# experiment measured that directly: EXP-0202's median gputime_ns is 1874 quiet vs 1500 busy),
+# and the WHOLE-CONTAINER program hash changes every run because the harness recompiles our
+# own MSL -- EXP-0203 documented exactly that for `program_sha256`, and EXP-0204 carries the
+# same thing as `prog_hash_fnv1a64` INSIDE its `observed` payload.  The load-bearing parts of
+# the ledger -- `actual_bytes` and `decoded_value` -- are compared separately and are NOT
+# excluded.
 VOLATILE = {"gputime_ns", "gputime", "t", "ts", "elapsed", "duration_ns", "wall",
-            "time_ns", "cpu_ns"}
+            "time_ns", "cpu_ns",
+            "prog_hash_fnv1a64", "program_sha256", "prog_hash", "archive_sha256"}
 
 
 def load(path):
@@ -95,9 +103,14 @@ def outcome(r):
 
 
 def pick_keyfields(A, B):
-    """Smallest prefix of KEYFIELDS (order counters last) that is unique in both runs."""
+    """Smallest prefix of KEYFIELDS (order counters last) that is unique in both runs.
+
+    If nothing is fully unique the fullest key is used and `key_unique` is reported False;
+    duplicates are then compared as MULTISETS of payloads per key, never first-record-wins,
+    so a disagreement hiding in a duplicate cannot be masked.
+    """
     present = [f for f in KEYFIELDS if f not in ORDER_ONLY
-               and any(f in r for r in A[:200])]
+               and any(f in r for r in A[:400])]
     for n in range(1, len(present) + 1):
         fs = present[:n]
         if (len({mkkey(r, fs) for r in A}) == len(A)
@@ -132,13 +145,14 @@ def main():
     ledger_diff = []
     for k in shared:
         ra, rb = ka[k][0], kb[k][0]
-        xa, xb = actual_bytes(ra), actual_bytes(rb)
+        xa = sorted(str(actual_bytes(r)) for r in ka[k])
+        xb = sorted(str(actual_bytes(r)) for r in kb[k])
         if xa == xb:
             led["actual_bytes_identical"] += 1
         else:
             led["actual_bytes_DIFFER"] += 1
             if len(ledger_diff) < 8:
-                ledger_diff.append({"key": k, "A": xa, "B": xb})
+                ledger_diff.append({"key": k, "A": xa[:4], "B": xb[:4]})
     for tag, R in (("A", A), ("B", B)):
         for r in R:
             l = ledger_of(r)
@@ -154,7 +168,7 @@ def main():
     for tag, R in (("A", A), ("B", B)):
         per = defaultdict(set)
         for r in R:
-            per[r.get("arm", "?")].add(actual_bytes(r))
+            per[r.get("arm") or r.get("carrier") or "?"].add(actual_bytes(r))
         enc[tag] = {k: len(v) for k, v in sorted(per.items())}
 
     # --- agreement --------------------------------------------------------------
@@ -165,26 +179,30 @@ def main():
     per_arm = defaultdict(lambda: [0, 0])
     for k in shared:
         ra, rb = ka[k][0], kb[k][0]
-        oa, ob = outcome(ra), outcome(rb)
-        ha, hb = oa in HARD, ob in HARD
+        oas = sorted(outcome(r) for r in ka[k])
+        obs = sorted(outcome(r) for r in kb[k])
+        oa, ob = oas[0], obs[0]
+        ha = all(o in HARD for o in oas)
+        hb = all(o in HARD for o in obs)
+        armname = ra.get("arm") or ra.get("carrier") or "?"
         if ha and hb:
             both_hard += 1
             continue
         if ha != hb:
             hard_flip += 1
             dis += 1
-            per_arm[ra.get("arm", "?")][1] += 1
+            per_arm[armname][1] += 1
             if len(examples) < 8:
-                examples.append({"key": k, "A_outcome": oa, "B_outcome": ob,
+                examples.append({"key": k, "A_outcome": oas, "B_outcome": obs,
                                  "class": "hard_flip"})
             continue
-        if payload(ra) == payload(rb):
+        if sorted(payload(r) for r in ka[k]) == sorted(payload(r) for r in kb[k]):
             agree += 1
-            per_arm[ra.get("arm", "?")][0] += 1
+            per_arm[armname][0] += 1
         else:
             dis += 1
             soft_dis += 1
-            per_arm[ra.get("arm", "?")][1] += 1
+            per_arm[armname][1] += 1
             if len(examples) < 8:
                 examples.append({"key": k, "A_outcome": oa, "B_outcome": ob,
                                  "class": "soft"})
@@ -201,6 +219,9 @@ def main():
         "n_A": len(A), "n_B": len(B),
         "key_fields": fs, "key_unique": unique,
         "shared_keys": len(shared),
+        "duplicate_keys_A": sum(1 for v in ka.values() if len(v) > 1),
+        "duplicate_keys_B": sum(1 for v in kb.values() if len(v) > 1),
+        "duplicates_compared_as_multisets": True,
         "A_only": len(set(ka) - set(kb)), "B_only": len(set(kb) - set(ka)),
         "ledger": dict(led),
         "ledger_diff_examples": ledger_diff,
