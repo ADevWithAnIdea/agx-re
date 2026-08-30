@@ -31,3 +31,20 @@
   **db.json is STABLE from here unless a later check forces a fix.**
   NOTE: the orchestrator's EXP-0179 commit landed mid-session; the live headline is now
   53/166 emittable and 621 emitter-grade fields, not 52/617. My edit moved neither.
+- M5: TASK 1 deliverable written. analysis/instruction_labels.json -- 30 rows.
+  ALL 30 were dispatched on hardware (230,804 raw cases across 18 experiments).
+  Recommended 18 hardware-run, 7 isolated-byte-diff, 5 STAY WEAK
+  (frag_depth_store, frame_marker_compact, n2_op6, sfu_marker, vary_slot -- each with
+  every field at emitter grade, which is exactly why the field-only rule is unsafe).
+  Gate arithmetic: 53 now; 23 if gated on today's labels; 48 with these recommendations.
+- M6: analysis/orphaned_validation_rows.json written -- 0 orphans, 0 created, 3 RE-SPANNED
+  (iter_at.grp, reg_move_cb.form, shift_amt_move.kind) with re-scored recommended rows.
+- M7: README.md, PRE_REGISTRATION.md, RESULTS.md, manifest.json written. Nothing committed.
+- M8: FINAL re-verification after the orchestrator's commits 29fb7378 / e9080bfb landed
+  (which also committed EXP-0181's db.json edit). Live state re-measured:
+    db.json sha 1ada4e7b... (committed), 172 instructions / 1036 fields
+    corpus 833/1080, 388604 leftover, 25419 tokens; roundtrip 302/0 ALL PASS
+    match_overlap 31 rows, 0 zero-free-bit, 0 vacuous
+    validate_labels exit 0; emittable 53/166; the DEF-0173-1 gap is still exactly the same 30
+  instruction_labels.json and orphaned_validation_rows.json regenerated against the newest
+  validation.json with no mismatch. EXPERIMENT COMPLETE. Nothing committed by me.

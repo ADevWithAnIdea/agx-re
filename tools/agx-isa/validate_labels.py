@@ -209,6 +209,14 @@ def main():
         note = (entry.get("_instruction") or {}).get("note", "")
         if "EMITTABLE VETO" in note:
             all_emit = False
+        # DEF-0173-1, gated 2026-08-30. The rule used to read only FIELD labels, so an
+        # instruction could be "emittable" while the DESCRIPTOR itself was only
+        # corpus-correlated. EXP-0181 refreshed all 30 stale labels from evidence --
+        # every one had been DISPATCHED on hardware, 230,804 raw cases over 18
+        # experiments -- so gating now costs FIVE instructions, each for a named
+        # reason, instead of the 30 it would have cost while the labels were wrong.
+        if (entry.get("_instruction") or {}).get("label") not in EMIT_OK:
+            all_emit = False
         if all_emit:
             emittable.append(m)
         extra = set(entry) - {"_instruction"} - {f["name"] for f in fields}

@@ -1,0 +1,132 @@
+{
+ "experiment": "EXP-0181-instr-labels-defects",
+ "title": "The stale `_instruction` labels (DEF-0173-1) and the four open descriptor defects (EXP-0168 section 7)",
+ "type": "desk analysis -- NO device, NO SSH, NO GPU, macvdmtool NOT invoked",
+ "date": "2026-08-30",
+ "targets_touched": [],
+ "clean_room": {
+  "provenance": [
+   "OWN-SHADER",
+   "HW-PROBE (re-analysis of committed evidence)",
+   "PUBLIC"
+  ],
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": [
+   "tools/agx-isa/db.json",
+   "tools/agx-isa/validation.json",
+   "tools/agx-isa/isadb.py",
+   "experiments/EXP-*/raw/**/*.jsonl  (recorded behaviour of our own compiled/spliced shaders)",
+   "experiments/EXP-M4-13-full-corpus/hex/**  (machine code the public API compiled from our own MSL)",
+   "the cited experiments' RESULTS.md"
+  ]
+ },
+ "frozen_inputs": {
+  "repo_revision_at_pre_registration": "158042dd (dirty; sibling experiments in flight)",
+  "db_sha256_before": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "db_sha256_after": "1ada4e7bb7879cd607829d7e7e657c8d3e5b9b000b63c5d602adfa3f7740be04",
+  "note": "the pre-image is byte-identical to HEAD:tools/agx-isa/db.json and is kept at work/db.json.before"
+ },
+ "amendments": [
+  {
+   "id": "A1",
+   "what": "the orchestrator committed 955eb6c7 exp(0179) mid-experiment, editing validation.json and making `call` emittable",
+   "effect": "the live headline moved from 52/166 + 617 emitter-grade fields to 53/166 + 621, independently of this experiment",
+   "handling": "every figure is stated against the live validation.json; RESULTS.md section 5.4 isolates EXP-0181's own db.json change and shows it moves neither number"
+  }
+ ],
+ "gates": {
+  "corpus_clean_files": "833/1080 before and after",
+  "corpus_strict_leftover_bytes": "388604 before and after",
+  "corpus_tokens": "25419 before and after",
+  "roundtrip_test": "302 OK / 0 FAIL / 0 crash / ALL PASS before and after (no fixture patch needed)",
+  "match_overlap_rows": "34 -> 31; zero_free_bits 0 -> 0; vacuous_emitter_grade 0 -> 0",
+  "validate_labels_exit": "0 (only the db_sha256 WARN, which the orchestrator clears)",
+  "ab_gate_roundtrip_isolation": "subprocess, per DEF-0175-2; EXP-0175's fixed copy was re-read before use"
+ },
+ "task1": {
+  "question": "DEF-0173-1 -- what should the 30 weak `_instruction` labels be, from evidence",
+  "deliverable": "analysis/instruction_labels.json",
+  "n_weak": 30,
+  "all_30_were_dispatched_on_hardware": true,
+  "total_raw_cases_examined": 230804,
+  "recommended_hardware_run": 18,
+  "recommended_isolated_byte_diff": 7,
+  "recommended_stay_weak": 5,
+  "stay_weak": [
+   "frag_depth_store",
+   "frame_marker_compact",
+   "n2_op6",
+   "sfu_marker",
+   "vary_slot"
+  ],
+  "gate_arithmetic": {
+   "emittable_now": 53,
+   "gated_on_todays_instruction_labels": 23,
+   "gated_on_these_recommendations": 48,
+   "direction": "DOWN by 5 from the published headline"
+  },
+  "source_experiments": 18
+ },
+ "task2": {
+  "question": "the four EXP-0168 descriptor defects -- re-derive, then narrow or report",
+  "deliverable": "analysis/orphaned_validation_rows.json",
+  "confirmed": 4,
+  "withdrawn": 0,
+  "narrowed_and_landed": [
+   "iter_at.grp",
+   "reg_move_cb.form",
+   "shift_amt_move.kind"
+  ],
+  "refused_with_cause": [
+   "pixel_order.scope"
+  ],
+  "orphaned_validation_rows": 0,
+  "created_validation_rows": 0,
+  "respanned_validation_rows": 3
+ },
+ "new_defects": [
+  {
+   "id": "DEF-0181-1",
+   "what": "pixel_order's match (byte+3 bits 4 and 6) is contradicted by EXP-0147's own committed dense M4 accept sets: each carrier accepts 32 values the match rejects (high nibbles 9 and b) and rejects 32 it admits",
+   "status": "REPORTED, NOT ACTED ON -- the pin is G17P (EXP-0162) and the refutation M4 (EXP-0147); needs its own G17P experiment",
+   "recorded_in": "tools/agx-isa/db.json pixel_order.semantics; RESULTS.md section 3.2"
+  },
+  {
+   "id": "DEF-0181-2",
+   "what": "five descriptors' HW-validated anchors do not tokenize: bf_add_dst, bf_fma_dst (DEF-0171-2, known), cvt_bf16, cvt_f2h_dst, hminmax (all three NEW). hminmax decodes at only 2 of 16 destination nibbles and not at the validated one",
+   "status": "REPORTED, NOT PATCHED -- it is a length-rule change in isadb.py, another owner's file, and would move decode for a wider family",
+   "recorded_in": "analysis/anchor_reachability.json; RESULTS.md section 3.3"
+  }
+ ],
+ "files_changed_outside_this_directory": [
+  "tools/agx-isa/db.json"
+ ],
+ "files_deliberately_not_touched": [
+  "tools/agx-isa/validation.json",
+  "tools/agx-isa/isadb.py",
+  "tools/agx-isa/roundtrip_test.py",
+  "docs/",
+  "PROVENANCE.md",
+  "docs/P0-P1-CLOSURE.md",
+  "every other experiment directory"
+ ],
+ "committed": false,
+ "artifacts": {
+  "README.md": "question, method, commands, clean-room statement",
+  "PRE_REGISTRATION.md": "hypotheses, falsifiers, confounders, the frozen R1-R5 decision rule, gates",
+  "RESULTS.md": "observations vs interpretation, per-instruction and per-defect, before/after gate numbers, limitations",
+  "PROGRESS.md": "append-only milestone log",
+  "analysis/scan_dispatch_evidence.py": "-> dispatch_evidence.json",
+  "analysis/verify_dispatched_bytes.py": "-> dispatched_bytes_check.json",
+  "analysis/anchor_check.py": "-> anchor_check.json",
+  "analysis/anchor_reachability.py": "-> anchor_reachability.json",
+  "analysis/rederive_defects.py": "-> defects_rederived.json",
+  "analysis/apply_defects.py": "the one coherent db.json write, with pre-state assertions",
+  "analysis/ab_gate.py": "-> ab_metrics.json (corpus + subprocess round trip)",
+  "analysis/make_instruction_labels.py": "-> instruction_labels.json  (TASK 1 DELIVERABLE)",
+  "analysis/make_orphan_list.py": "-> orphaned_validation_rows.json  (TASK 2 DELIVERABLE)",
+  "work/db.json.before": "pre-image, sha a77f8cfa...",
+  "work/weak30_dump.txt": "the 30 descriptors' field labels, ranges and evidence as of the freeze",
+  "work/db_desc_30.txt": "the 30 db.json descriptors (match, fields, semantics, provenance)"
+ }
+}

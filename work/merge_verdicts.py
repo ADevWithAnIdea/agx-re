@@ -54,7 +54,20 @@ def recompute_coverage(val, dbf):
         names = dbf.get(m, [])
         labs = [entry[n]["label"] for n in names if n in entry]
         ok = bool(names) and len(labs) == len(names) and all(l in EMIT_OK for l in labs)
-        if "EMITTABLE VETO" in (entry.get("_instruction") or {}).get("note", ""):
+        inst = entry.get("_instruction") or {}
+        if "EMITTABLE VETO" in inst.get("note", ""):
+            ok = False
+        # DEF-0173-1, gated 2026-08-30 after EXP-0181 refreshed the labels from evidence.
+        # The rule used to read only FIELD labels, so an instruction could be "emittable"
+        # while the DESCRIPTOR itself was only corpus-correlated. That was left ungated
+        # while the labels were stale -- `mov_imm` is proven end-to-end and still read
+        # `corpus-correlation`. EXP-0181 checked all 30: every one had been DISPATCHED on
+        # hardware (230,804 raw cases over 18 experiments), so the stale labels were
+        # factually wrong for 28 of them. With the labels corrected the gate costs FIVE
+        # instructions, each for a named reason -- e.g. `frag_depth_store`, whose depth
+        # output has never been read back because its sweeps were scored against a COLOUR
+        # probe, and `vary_slot`, whose documented role DEF-0172-3 refuted outright.
+        if inst.get("label") not in EMIT_OK:
             ok = False
         if ok:
             emittable.append(m)

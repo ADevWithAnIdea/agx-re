@@ -175,3 +175,60 @@ orchestrator's clear before the gated pair.
   table (child PID advancing 19102 → 19123 → 19144), which cannot see which Python class wraps
   the child. The warning was wrong; raising it was not.
 - Still held. Contract sha `92dc790e3232…`, G1–G9 PASS, `raw/` empty.
+
+## 2026-08-30 — M6: run01 lost to a closure-shadowing defect; run03 (get_sr) capturing
+
+**GO received; the hold was for EXP-0179 only. Concurrency is live** — I am on `saferunner`, so
+a sibling's timeouts cannot manufacture a false-hang cascade in my stream; the residual risk is a
+genuine device reset presenting as `kIOGPUCommandBufferCallbackErrorInnocentVictim`, which is
+recorded per case and re-run rather than scored.
+
+**`raw/g17p_20260830_run01` is DEFECTIVE and RETAINED** (`DEFECTIVE-run01.md`). Root cause: a
+closure-shadowing defect in my own harness. The compute arm bound its read-back *size* as `nb`
+and `raw_case` read it; the falsifier block later rebound `nb` to a `bytearray` in the same
+enclosing scope, and a closure resolves a free variable at call time — so from the falsifier
+onward every request asked for a read-back of *a bytearray* bytes and raised inside the request
+builder. **It presented as a hang cascade — byte-for-byte the signature of the shared-driver
+defect I had fixed minutes earlier — which is why four pilots did not separate the two.** The
+tell was the exception *text* changing call site; the traceback I had added an hour before named
+`saferunner.py:188` on the first run that hit it. Run id burned, never reused; the gated pair is
+`run03`/`run04`.
+
+Fixes and instruments added, each recorded as an amendment and each caught by a pilot before any
+gated dispatch:
+
+- **`amendment_06`** — the rename, plus selftest gate **G10**, which walks `run.py`'s AST and
+  fails if any name a nested closure reads is assigned more than once in the enclosing scope.
+  Found three further candidates (`mnem`, `off`, `runner`); all three are assigned in mutually
+  exclusive branches of one `if`/`else`, carried as an explicit allow-list with that reason
+  rather than weakening the check. Also: an `invalid_run` victim joins `measurement_failed` as a
+  **non-observation** — excluded from the agreement computation *and* from `values_dispatched`,
+  OS fault-class string kept.
+- **`amendment_07`** — the compute sentinel is satisfied by **any** lane, not all lanes, and the
+  per-lane counts become data. Requiring all 64 turned a real hardware phenomenon into
+  `no_dispatch`.
+- **`amendment_08`** — `moved` is `None` only for non-observations; a fault, hang or suppressed
+  draw counts as movement. Relocating the destination GPR in the **vertex** stage suppresses the
+  draw entirely, and the old rule would have failed that arm's ladder and left every `sr_vertex`
+  field `untested` on a technicality.
+
+**Three hardware results already in hand from the pilots and the first two arms of run03:**
+
+1. **G17P reproduces EXP-0092's M4 bit-7-clear behaviour, and measures it more sharply.** For
+   `sr_sel` 0x00–0x0B the read-back holds `1000 + sel` in **slot 0 only**, with **63 of 64 lanes
+   still holding `0xDEADBEEF`** and **exactly 1 of 64 sentinel lanes written**. EXP-0092 ran
+   against a zero-initialised buffer and could only report "the rest remain 0", recording the
+   mechanism as UNKNOWN. Because the sentinel is written by a *separate* store containing no
+   special-register read at all and it too lands on exactly one lane, the phenomenon is **the
+   whole program retiring one lane**, not something specific to the SR read.
+2. **The fragment pixel-centre offset is exactly 0.5, confirmed not fitted.** `f_sr`'s baseline
+   is `pos.x = px + 0.5` and `pos.y = py + 0.5` across all 16 pixels, `affine_model_holds` true,
+   `preregistered_c_confirmed` true — the pre-registered value, not one read off the data.
+3. **The vertex carrier resolves the VS system values exactly as predicted.** Baseline pixels
+   are a flat `7` = `baseInstance 5 + last instance 2`, with `.g`/`.b` at 0 and the uniform-only
+   sentinel at `-2`, from an indexed draw with `baseVertex 9` / `baseInstance 5` /
+   `instanceCount 3`.
+
+`run03` in progress: 1,190 records, `sr_compute` complete (562 cases), `sr_frag` complete,
+`sr_vertex` running. 16 `invalid_run` victims so far under live concurrency — recorded, not
+scored.

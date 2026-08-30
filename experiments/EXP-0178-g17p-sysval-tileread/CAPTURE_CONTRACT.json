@@ -140,6 +140,35 @@
    "victims": "Orchestrator direction: an `invalid_run` victim (kIOGPUCommandBufferCallbackErrorInnocentVictim / 'Discarded (victim of GPU error/recovery)' / 'Ignored (for causing prior/excessive GPU errors)') is a statement about the MACHINE, never about our bytes -- a device reset discards in-flight command buffers in every context. Victims now join measurement_failed in NON_OBSERVATIONS: excluded from the agreement computation AND from values_dispatched/distinct_bytes, with the OS fault-class string kept in `victim` and reported per arm by analysis/answers.py. Relevant now that EXP-0180's LEN and DSTNIB arms may dispatch concurrently.",
    "what": "Fixes a CLOSURE-SHADOWING defect in harness/run.py that destroyed the first gated attempt; adds selftest gate G10 to catch the defect CLASS mechanically; treats an `invalid_run` victim as a NON-OBSERVATION alongside `measurement_failed`; makes harness/verify_remote.py upstreamable.",
    "why": "raw/g17p_20260830_run01 is DEFECTIVE and RETAINED (see DEFECTIVE-run01.md). The compute arm bound its read-back SIZE as `nb` and the `raw_case` closure read it; the falsifier block later rebound `nb` to a bytearray in the SAME enclosing scope. A closure resolves a free variable at CALL time, so from the falsifier onward every request asked for a read-back of a bytearray bytes and raised inside the request builder. It presented as a HANG CASCADE -- byte-for-byte the signature of the shared-driver defect fixed minutes earlier -- which is why four pilots did not separate the two. The exception TEXT was the tell and changed from `not enough values to unpack` to `%d format: a number is required, not bytearray`; adding traceback.format_exc() to the handler named the call site on the first run that hit it."
+  },
+  {
+   "changed_blobs": {
+    "harness/run.py": {
+     "after": "3b8df6191458cccb75fd8339b814d216d511637608292e9ddbab0c35f4b3c7cb",
+     "before": "0b837f97e081dc0df9ee16e1296a081230318c5ab2b5d5313d4997f9c11b3eb9"
+    }
+   },
+   "id": "amendment_07",
+   "touches": "the compute sentinel threshold and outcome classification, plus two new recorded quantities. NO case, encoding, carrier, host oracle, ladder, coverage rule or promotion-gate threshold changes; the device case matrix is byte-identical. `ok` becomes STRICTER, not looser: a partial write cannot be `ok` however well the written lanes match.",
+   "utc": "2026-08-30T12:34:47Z",
+   "what": "The compute integrity sentinel is satisfied by ANY lane rather than ALL lanes, and the per-lane counts become DATA: `sent_written` (sentinel lanes) and `out_poisoned` (read-back lanes still holding 0xDEADBEEF) are recorded on every case, a new outcome class `PARTIAL_WRITE:<n>_of_<N>` is emitted, and a partial write can never score `ok`.",
+   "what_this_measures_that_EXP_0092_could_not": "EXP-0092 ran against a ZERO-INITIALISED read-back and recorded `out[1..63] remain 0 (the buffer's pre-dispatch state)`, which cannot distinguish 'the lane wrote 0' from 'the lane did not write'. This experiment poisons the read-back with 0xDEADBEEF, so the two are distinguishable per lane and the lane count is a measurement rather than an inference. FIELD-SWEEP-PROTOCOL section 7, instrument 1, doing exactly what it is for.",
+   "why": "Found by work/pilot07, before any gated dispatch of the new pair. Requiring all 64 sentinel lanes turned a REAL HARDWARE PHENOMENON into `no_dispatch`: EXP-0092 measured on M4 that a bit-7-clear `sr_sel` leaves all but ONE slot of the read-back untouched -- `out[0] == sr_sel` exactly, for all 128 such values, with the mechanism recorded there as UNKNOWN -- and pilot07 reproduced exactly that shape on G17P for sr_sel 0x00..0x07. The strict sentinel would have deleted the more interesting half of the sweep and reported it as an infrastructure failure.",
+   "why_this_is_not_a_post_hoc_repair": "No gated dispatch of the g17p_20260830_run03/run04 pair has occurred; raw/ holds only the retained defective run01. The change was driven by a PRE-REGISTERED prior -- EXP-0092's published M4 single-slot finding, cited in PRE_REGISTRATION.md section 2 as H2 -- not by an unexpected result."
+  },
+  {
+   "changed_blobs": {
+    "harness/run.py": {
+     "after": "c6a6dc4453872f7c51c9745c1e920860a5153969544df2b2df8fe85ac510f1c9",
+     "before": "3b8df6191458cccb75fd8339b814d216d511637608292e9ddbab0c35f4b3c7cb"
+    }
+   },
+   "id": "amendment_08",
+   "touches": "the definition of the recorded `moved` flag. NO case, encoding, carrier, host oracle, poison, sentinel, coverage rule or promotion-gate threshold changes; the device case matrix is byte-identical. The gate's `moved >= 2x disagreements` term is unchanged in form.",
+   "utc": "2026-08-30T12:36:13Z",
+   "what": "`moved` is now `None` ONLY for non-observations (measurement_failed, invalid_run). A fault, hang, no_draw, no_dispatch or not_written counts as MOVED, because the baseline ran cleanly and those are changes in behaviour, not absences of one.",
+   "why": "Found by work/pilot09, before any gated dispatch of the run03/run04 pair. Relocating the destination GPR in the VERTEX stage SUPPRESSES THE DRAW ENTIRELY -- every pixel still holds the clear colour, outcome `no_draw`. That is the most visible movement a render carrier can produce, and the old rule scored it `moved=None`, which would have failed the sr_vertex liveness ladder and left every sr_vertex field `untested` on a technicality -- an arm with demonstrably OVERWHELMING detection power reported as having none.",
+   "why_this_is_not_a_post_hoc_repair": "No gated dispatch of the run03/run04 pair has occurred. And the change makes the LIVENESS LADDER harder to fail rather than the FIELD easier to promote: a field still needs cross-run agreement and movement, and a partial write still cannot score `ok`."
   }
  ],
  "analysis_scripts": {
@@ -160,7 +189,7 @@
   "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
   "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
   "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
-  "harness/run.py": "0b837f97e081dc0df9ee16e1296a081230318c5ab2b5d5313d4997f9c11b3eb9",
+  "harness/run.py": "c6a6dc4453872f7c51c9745c1e920860a5153969544df2b2df8fe85ac510f1c9",
   "harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
   "harness/selftest.py": "3e972d79db51d6f4068ccb2a0a5a729192f474869e07a7d212a2f64463438294",
   "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",

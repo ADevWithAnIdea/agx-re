@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""EXP-0181 -- what EXP-0181's db.json edits did to tools/agx-isa/validation.json.
+
+Task 2 narrowed three fields.  A narrowing does NOT delete a name, so it orphans NOTHING:
+`validate_labels.py` still exits 0.  What it DOES do is RE-SPAN three rows -- their
+recorded (start, width), their `range` prose and, for `shift_amt_move.kind`, the VALUE
+SPACE the range is quoted in, all now describe the old 8-bit field.  Those three rows are
+listed here with the re-scored evidence, so the label owner can update them without going
+back to the raw.
+
+Written for the orchestrator; validation.json is NOT edited by this experiment.
+"""
+import json, os, sys, hashlib
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+VAL = json.load(open(os.path.join(ROOT, "tools", "agx-isa", "validation.json")))
+DBP = os.path.join(ROOT, "tools", "agx-isa", "db.json")
+
+RESPAN = {
+    "iter_at.grp": {
+        "old_span": {"start": 0, "width": 8}, "new_span": {"start": 7, "width": 1},
+        "encodable_range_old": 256, "encodable_range_new": 2,
+        "pinned_remainder": "bits 0..6 == 0x2f, now in iter_at.match_notes",
+        "row_carries_stale_start_width_keys": True,
+        "recommended": {
+            "label": "isolated-byte-diff", "target": "G17P",
+            "range": "0..1 dense (both legal values; byte0 0x2f and 0xaf), 3 gated runs, 2 carriers",
+            "evidence": ["EXP-0168", "EXP-0181"],
+            "note": "RE-SCORED BY EXP-0181 AGAINST THE NARROWED FIELD. EXP-0168 recorded this row "
+                    "`untested` because its arm swept 5 of 256 values and its `L_iter_loc` ladder "
+                    "rung was inert. Against the field's REAL encodable range the same raw is a "
+                    "DENSE 2-of-2 sweep, identical in rclean07/08/09: grp=1 (byte0 0xaf) is `ok` on "
+                    "both carriers; grp=0 (byte0 0x2f) is `wrong_value` on r_i8 (1 sample) and `ok` "
+                    "on r_i8s (4 samples). So the bit MOVES the observation, reproducibly, on the "
+                    "carrier whose baseline matched its host oracle EXACTLY. NOT recommended for "
+                    "`hardware-run`: r_i8s's own baseline record says 'baseline vs HOST oracle: "
+                    "MISMATCH', so only ONE of the two carriers has a valid oracle, and EXP-0168's "
+                    "ladder clause was not met. The two out-of-descriptor values dispatched (0x00, "
+                    "0x01) HUNG the device on both carriers in all three runs -- that is a hardware "
+                    "fact about the 254 illegal byte0 values, not about this field."},
+    },
+    "reg_move_cb.form": {
+        "old_span": {"start": 16, "width": 8}, "new_span": {"start": 20, "width": 4},
+        "encodable_range_old": 256, "encodable_range_new": 16,
+        "pinned_remainder": "bits 16..19 == 0xb, now in reg_move_cb.match_notes",
+        "row_carries_stale_start_width_keys": True,
+        "row_carries_stale_counts": {"values_dispatched": 256, "distinct_bytes": 256,
+                                     "encodable_range": 256},
+        "recommended": {
+            "label": "hardware-run", "target": "G17P",
+            "range": "0..15 dense (all 16 values of the free high nibble; encoded byte = (form<<4)|0x0b), 2 carriers x 2 gated runs",
+            "evidence": ["EXP-0169", "EXP-0181"],
+            "note": "RE-SCORED BY EXP-0181 AGAINST THE NARROWED FIELD. EXP-0169's dense byte sweep "
+                    "restricted to the 16 legal bytes is identical in C1_alu and C3_uni and in both "
+                    "gated runs: form 0..3 (0x0b/0x1b/0x2b/0x3b) `ok`, form 4..15 `wrong_value`. The "
+                    "old row's counts (256 dispatched / 256 distinct / encodable 256) counted 240 "
+                    "values that encode a DIFFERENT instruction; the honest counts are 16/16/16. The "
+                    "corpus emits only form 1, 2 and 3 (7 + 10 + 14 of 31 firings)."},
+    },
+    "shift_amt_move.kind": {
+        "old_span": {"start": 16, "width": 8}, "new_span": {"start": 20, "width": 4},
+        "encodable_range_old": 256, "encodable_range_new": 16,
+        "pinned_remainder": "bits 16..19 == 0xc, now in shift_amt_move.match_notes",
+        "value_space_changed": "the enum and every quoted value are re-based: byte+2 0x1c -> kind 1, "
+                               "0x3c -> kind 3. The existing note's 'ok at {0x14, 0x1c, 0x34, 0x3c}' "
+                               "mixes two value spaces -- 0x14 and 0x34 are NOT legal under this "
+                               "descriptor's match at all (low nibble 4).",
+        "recommended": {
+            "label": "hardware-run", "target": "G16G+G17P",
+            "range": "0..15 dense (all 16 values of the free high nibble; encoded byte = (kind<<4)|0x0c), both targets, 2 gated runs each",
+            "evidence": ["EXP-0146", "EXP-0154", "EXP-0181"],
+            "note": "RE-SCORED BY EXP-0181 AGAINST THE NARROWED FIELD. G17P (EXP-0154 k_rot_var, both "
+                    "gated runs identical): `ok` at kind 1 and 3, `wrong_value` at every EVEN kind, "
+                    "`silent_zero` at every other ODD kind. M4 (EXP-0146 run01/run02, identical): "
+                    "`ok` at kind 0,1,2,3 and `silent_zero` at 4..15. Dense 16 of 16 on BOTH targets, "
+                    "and G17P's accept set is a strict SUBSET of M4's -- worth stating as such rather "
+                    "than merging. Recorded, not smoothed: the same G17P carrier also accepts byte+2 "
+                    "0x14 and 0x34 (low nibble 4), which this descriptor's match rejects, so the 0xc "
+                    "pin describes the descriptor and not the hardware's full accept set."},
+    },
+}
+
+
+def main():
+    out = {"_meta": {
+        "experiment": "EXP-0181",
+        "db_sha256_before": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+        "db_sha256_after": hashlib.sha256(open(DBP, "rb").read()).hexdigest(),
+        "orphaned_rows": 0,
+        "created_rows": 0,
+        "respanned_rows": len(RESPAN),
+        "validate_labels_exit": 0,
+        "why_no_orphans": "all three narrowings KEEP the field's name, so validation.json still has "
+                          "exactly one row per db.json field and validate_labels.py exits 0 (the "
+                          "db_sha256 WARN is the orchestrator's to clear). Nothing to delete, three "
+                          "rows to re-check.",
+        "pixel_order_scope": "NOT narrowed -- see RESULTS.md section 3.2 and the DEF-0181-1 note now "
+                             "in the descriptor's semantics. Its row is untouched, but the label "
+                             "owner should know its recorded range 'full 8-bit range, dense (256 "
+                             "cases)' overstates the field by 4x: only 64 of those 256 values are "
+                             "legal under this descriptor's own match.",
+    }, "orphaned_rows": [], "created_rows": [], "respanned_rows": {}}
+    for key, r in RESPAN.items():
+        m, f = key.split(".")
+        cur = VAL["instructions"][m][f]
+        out["respanned_rows"][key] = {
+            "current_row": cur,
+            "old_span": r["old_span"], "new_span": r["new_span"],
+            "encodable_range_old": r["encodable_range_old"],
+            "encodable_range_new": r["encodable_range_new"],
+            "pinned_remainder": r["pinned_remainder"],
+            "stale_keys_in_the_current_row": [k for k in ("start", "width", "values_dispatched",
+                                                          "distinct_bytes", "encodable_range")
+                                              if k in cur],
+            "value_space_changed": r.get("value_space_changed"),
+            "recommended_row": r["recommended"],
+        }
+    p = os.path.join(HERE, "orphaned_validation_rows.json")
+    json.dump(out, open(p, "w"), indent=1)
+    print("wrote %s: %d orphaned, %d created, %d respanned"
+          % (p, 0, 0, len(RESPAN)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

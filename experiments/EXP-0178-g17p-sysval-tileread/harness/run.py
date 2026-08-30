@@ -633,6 +633,24 @@ def main():
                 return "silent_zero", sem, False, "ZERO"
             return "wrong_value", sem, False, ("MOVED" if moved else "NO_MOVE")
 
+        def moved_of(outcome, obs):
+            """Did the mutation CHANGE the carrier's behaviour?
+
+            `None` only for NON-OBSERVATIONS -- a malformed runner response or an
+            InnocentVictim say nothing either way. Everything else is a
+            comparison against a baseline that ran cleanly, so a suppressed draw,
+            a fault, a hang or an unwritten read-back are all changes, not
+            absences of one. Found by work/pilot09: relocating the destination
+            GPR in the VERTEX stage suppresses the draw entirely (`no_draw`),
+            which is the most visible movement the carrier can produce, and
+            scoring it `moved=None` would have failed that arm's liveness ladder
+            and left every sr_vertex field `untested` on a technicality."""
+            if outcome in ("measurement_failed", "invalid_run"):
+                return None
+            if obs is None:
+                return True          # fault / hang / no_draw / no_dispatch / not_written
+            return not obs_equal(obs, base_obs)
+
         def obs_equal(a, b):
             if a is None or b is None:
                 return False
@@ -742,7 +760,7 @@ def main():
                    "tok_instr": tok_instr, "tok_len": tok_len,
                    "tok_same_instr": (tok_instr == mnem and tok_len == ilen),
                    "sent_ok": sentinel_channels(obs),
-                   "moved": (None if obs is None else not obs_equal(obs, base_obs)),
+                   "moved": moved_of(outcome, obs),
                    "victim": (str(raw.get("error", ""))[:200]
                               if outcome not in ("ok", "silent_zero", "wrong_value") else ""),
                    "own_fault": OWN_FAULT in str(raw.get("error", "")),

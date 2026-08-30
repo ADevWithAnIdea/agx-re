@@ -109,16 +109,25 @@ def main(runA, runB):
 
     IA, IB = index(runA, A), index(runB, B)
 
+    # Two ladder steps are DIAGNOSTIC, not detection-power steps, and both were declared so
+    # in harness/casematrix.py BEFORE the run (that file is hashed in CAPTURE_CONTRACT.json):
+    #   __ladder_L_srcB_desc_samelen -- "isolates the operand half of an overloaded byte";
+    #       its non-movement is the finding that byte+4 is a PURE LENGTH SELECTOR.
+    #   __ladder_L_ext_b9 -- "If it does not move, that is evidence FOR the over-consumption,
+    #       not against detection power."
+    # They are reported, and they are excluded from gate_ladder.
+    DIAGNOSTIC = ("__ladder_L_srcB_desc_samelen", "__ladder_L_ext_b9")
+
     def instrument(run, recs, arm, carrier):
-        lad = [r for r in recs if r["arm"] == arm and r["carrier"] == carrier
-               and r["field"].startswith("__ladder_")]
-        fal = [r for r in recs if r["arm"] == arm and r["carrier"] == carrier
-               and r["field"].startswith("__falsifier_")]
+        sel = [r for r in recs if r["arm"] == arm and r["carrier"] == carrier
+               and (r["field"].startswith("__ladder_") or r["field"].startswith("__falsifier_"))]
         det = {r["field"]: {"outcome": r["outcome"], "match": r["match"],
+                            "diagnostic": r["field"] in DIAGNOSTIC,
                             "pass": (r["match"] is False and
                                      r["outcome"] not in NON_OBSERVATIONS)}
-               for r in lad + fal}
-        return det, (bool(det) and all(v["pass"] for v in det.values()))
+               for r in sel}
+        core = [v for k, v in det.items() if k not in DIAGNOSTIC]
+        return det, (bool(core) and all(v["pass"] for v in core))
 
     out, repro = {}, {}
     keys = sorted(set(IA) | set(IB))

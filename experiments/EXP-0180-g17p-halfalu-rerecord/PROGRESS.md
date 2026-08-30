@@ -286,3 +286,105 @@ will be ≈ 16.7 k cases each, in line with EXP-0169's 16,827 in 190 s.
 
 **Status: QUIET. Zero SSH to the neo. `raw/` holds only the freeze marker.** Ready to dispatch
 the pilot the moment the device clears.
+
+## M9 — 2026-08-30 — PILOT COMPLETE on G17P. The carrier repair WORKS, and the length rule is MEASURED.
+
+`raw/pilot01`, 2241 cases: **0 hangs, 0 `carrier_dead`, 0 `invalid_run`, 0 `measurement_failed`,
+0 victims.** Outcomes: 2065 `wrong_value`, 128 `fault`, 48 `ok`. `verify_remote.py` reported
+**18/18 blobs matching on the neo** immediately before the capture.
+
+### The seeds land, exactly as predicted, on every arm and both carriers
+`seed_ok = True` and the FROZEN adequacy predicate `True` on all 11 (arm, carrier) anchors.
+The observed pre-dump is bit-identical to the predicted `SEED_A` / `SEED_B`:
+`40a044a0 3fc04440 40404470 bf003880 …`. **DEF-0180-A is repaired**: every GPR now carries two
+distinct non-zero normal fp16 lanes, so all 256 descriptor values are informative rather than
+28 of them.
+
+### DEF-0180-1 CONFIRMED on hardware — 16 of 16 nibbles, on two carriers
+The `DSTNIB` arm: `byte0 = n<<4` writes the result into **`r[n]`'s LOW 16 bits, preserving
+`r[n]`'s HIGH 16 bits**, for every `n`. `n = 0`: `r0 40a044a0 -> 40a0470f`. `n = 7`:
+`r7 415044f8 -> 4150470f`. Two explained exceptions, both harness artefacts, not hardware:
+`n = 15` is the store index register the harness re-seeds before every store, and on `C_LO`
+`n = 13` is the second-consumer destination.
+**`db.json` pins all eight bits of byte0 in `match`, so an emitter following it can only ever
+write `r1`. That is now HW-VALIDATED on G17P, not inferred.**
+
+### The seed program is itself a 14-way confirmation
+Stage 2 builds the low halves with `byte0 = (j<<4)|0x0` for `j = 0..13`, and all 14 landed in
+`r_j` in every program of every case. The destination-nibble result is not resting on one arm.
+
+### DEF-0180-2 CONFIRMED, and the exact rule is now MEASURED — 2048 cases, ZERO exceptions
+`LEN` arm, four `mov_imm` markers at byte +6, surviving-marker count read directly:
+
+    HARDWARE LENGTH, byte0 == 0x10, as a function of (opsel = byte+2 & 7, m = byte+4 & 3)
+
+      opsel        m=0   m=1   m=2   m=3
+      0,1,2,3,7     10    10    10     8
+      4  (hadd)      6     8    10     6
+      5  (hmul)      6     8    10     8
+      6  (hfma)      6     8    10    12
+
+**No (opsel, m) cell shows more than one length** — `opflags`, byte+4's upper six bits, and
+byte+1/+3/+5 are all irrelevant to length. The F4 zero point passed (4 of 4 markers with no
+instruction in front). Bounded: bytes +6.. are the marker chain, so a length dependence on
+byte +6 or later is untested.
+
+Both committed models are wrong, in different cells:
+* `db.json`'s `"6, or 8 if (byte+2 & 0x02)"` — wrong in **26 of 32** cells; it has no byte+4 term at all.
+* `isadb.instr_length`'s `(6 + 2*(b4&3)) if (b4&3) else 8` — wrong in **14 of 32** cells, including
+  (opsel 4, m 3) → predicts 12, measured **6**, and (opsel 6, m 0) → predicts 8, measured **6**.
+
+**DEF-0180-3 is REFUTED as stated, and I am withdrawing my own claim.** All four of our
+compiled instances are lengthed correctly by the measured rule — `k_hadd` (opsel 4, m 0) = 6,
+`k_hsat` (4, 1) = 8, `k_hfma` (6, 1) = 8, `k_hfma_abs` (6, 3) = **12**. `half_alu_fma12` IS a
+real 12-byte instruction at (opsel 6, m 3); it is not an over-consumer there. What survives of
+DEF-0180-3 is narrower and still true: `ext` is 64 bits with an encodable range of 2^64, and
+its byte+4 is the LENGTH selector, so it is not a field.
+
+### A second exact fault wall, in `opflags` — 128 cases, zero counterexamples
+
+    fault  <=>  (byte+2 >> 3) >= 16  AND  (byte+2 & 7) in {4, 5}
+
+i.e. **`opflags` bit 4 (instruction bit 23) set, with `opsel` = hadd or hmul, faults
+unconditionally.** This lands directly on two of the 25 rows (`ext8.opflags`,
+`fma12.opflags`). Faults were contained: no hang, no reset, no victim.
+
+### The instruments, at BOTH geometries
+`grid=1/tg=1` and `grid=32/tg=32` agree on **every** falsifier and ladder step, in every arm
+and carrier — the §12b geometry check ran and agreed, so the gated pair runs at 1/1.
+
+| arm | falsifiers | ladder | verdict |
+|---|---|---|---|
+| `E8_FMA` @ C_HI, C_LO | 3/3 fire | 4/5 move | **admissible, two carriers** |
+| `F12_FMA` @ C_HI, C_LO | 3/3 fire | 4/5 move | **admissible, two carriers** |
+| `E8_LIFT`, `F12_LIFT` @ C_HI | 3/3 fire | 4/5 move | **admissible** — and note EXP-0169's own anchors are LIVE in this carrier, which is the A/B the controls exist for |
+| `E8_ADD` @ C_HI, C_LO | **0/3 fire** | **0/5 move** | **REJECTED: no detection power.** Its base (opsel 4 in the 8-byte form) writes nothing at all — every falsifier scored `ok/match=True`. Reported, not worked around; `E8_FMA` covers the same 11 fields on two carriers |
+
+The two ladder steps that do NOT move are themselves results, and both were pre-registered as
+diagnostic: `L_srcB_desc_samelen` (byte+4 `+4`, same length class) is inert on every ext8 arm
+— **byte+4 is a pure length selector, not an operand** — and `L_ext_b9` (byte+9 `0x80 -> 0x00`)
+is inert on every fma12 arm.
+
+### Operand roles, read off the anchor and host-checkable
+`E8_FMA@C_HI`: `r1 3fc04440 -> 3fc0470f`. `0x470f` = 7.0586 = `1.625 * 2.59375 + 2.84375`
+= **byte+3 (`srcA`) x byte+1 (db's `dst`) + byte+5 (`b5`)**. byte+4 does not appear in the
+arithmetic at all. This is the second independent line of evidence that db's `dst` is a source.
+
+**Gated pair launched** (`g17p_run01` forward, `g17p_run02` reverse), with `procsample.py`
+measuring concurrent GPU activity for the duration.
+
+## M10 — 2026-08-30 — RUN ID `g17p_run01` IS BURNED. My own guard fired; the rule held.
+
+I launched `procsample.py --run g17p_run01` one second before `run.py --run g17p_run01`.
+`procsample` creates `raw/<run>/` to write `03_procsample.jsonl`, so `run.py`'s own
+never-reuse guard saw the directory already existing and **refused to capture**:
+
+    run id g17p_run01 already exists -- run ids are NEVER reused or topped up
+    (SUBAGENT_BRIEF.md). Burn it and take a new id.
+
+That is the guard working exactly as intended, on me. Per the frozen rule
+(`CAPTURE_CONTRACT.json:runs.burn_rule`) **`g17p_run01` is retained as it stands — a
+directory containing only its procsample trace — and the id is BURNED. It is not reused, not
+topped up, not deleted.** The forward run takes a NEW id, `g17p_run03`.
+
+`g17p_run02` (reverse order) launched normally and is capturing.
