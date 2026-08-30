@@ -162,6 +162,91 @@ submission semantics, or A18 behavior. See
 - **Fixed-function state** (`0x58000`): raster line/point @+0x54, depth @+0x38, blend @+0x08 — bound via
   the VDM USC-pairs. ⏳ per-packet bit decode is a follow-up.
 
+### Relocation behaviour differs by STRUCTURE KIND (EXP-0110) — `target: G16G`
+
+Evidence label **`DATA-TRACE`**, `target: G16G` (local Apple M4). Source:
+`experiments/EXP-0110-*/RESULTS.md` (`PROVENANCE.md`, EXP-0110 row).
+
+- **The VDM / fixed-function-state family is INVARIANT** under client padding and under extra
+  queues.
+- **The CDM family is HEAP-RELATIVE.**
+- **Container metadata is archive bookkeeping** — a distinct thing from the firmware-consumed
+  code region. (EXP-0131 later proved the code region's hardware-consumer relationship directly:
+  a single byte written into the *live* post-creation code BO changes the rendered pixel, while
+  the container's own `record_size` header is **not** re-consulted at per-draw code-fetch time.)
+
+A driver that assumes one relocation rule for both families will get one of them wrong.
+
+### ✅ A HAND-BUILT CDM link was followed by real silicon — and its boundary map (EXP-0116) — `target: G16G`
+
+Evidence label **`HW-VALIDATED` (hand-built, executed)**, `target: G16G` (local Apple M4).
+Source: `experiments/EXP-0116-m4-command-generation/RESULTS.md`, commit `d5d8fbee`. Gated pair
+`raw/m4_20260828_run05` / `run06`, byte-identical. **This is the strongest P0.5 evidence in the
+repository and a direct test of "generated, not decoded"** — paired with EXP-0112's 140/140
+generator run.
+
+**The proof.** `seg0`'s tail link was **computed fresh in each run** from that run's own
+just-discovered `seg2` address — never hand-copied from a prior capture — with the redirect
+target set to `seg2`'s GPU VA and the tag `0x20`:
+
+| field | value |
+|---|---|
+| `final_status` | `4` (`Completed`), `final_error_category` `None` |
+| `buf_MID` (seg1's only possible output) | **unchanged sentinel `0x5eed1000`** — seg1's 732 real dispatches never executed |
+| `buf_A` | **`0xc0000023`** = `0xc0000000 \| 35`, seg2's own last authored tag, computed in advance from our own fixed dispatch order |
+
+That combination is only possible if the hardware fetched the next command-stream segment **from
+the GPU VA our own process computed and wrote**, not from Apple's originally encoded value (which
+pointed at `seg1`). The two runs' gated records are byte-identical while the underlying GPU VAs
+differ between runs — confirming the result is about **content**, not a copied address.
+
+**Link-target boundary map** (17 cases, captured twice, byte-identical):
+
+| target / tag | result |
+|---|---|
+| `seg2_va`, tag `0x20` | **completes**, seg1 skipped, seg2 reached |
+| `seg2_va + 2·0x2c` (interior record) | **completes** — a link may start execution **mid-segment**, not only at a segment head |
+| `seg2_va + 1`, `+2` | **completes** |
+| `seg2_va + 4`, `+8` | **`PageFault`** |
+| `seg1_va + 732·0x2c` (seg1's own tail link) | **completes** — see the walker note below |
+| `seg1_va + 733·0x2c` (zero padding) | `PageFault` |
+| tag `0x00` or `0x80` (VDM's own tag) on a **valid** target | **`PageFault`** — the tag is not decorative |
+| `0`, `seg1_va + size + 0x1000`, `seg2_va + 2^40` | `PageFault` |
+| **`seg2_va + 2^44`, `seg2_va + 2^46`** | ⚠️ **completes — SILENTLY ALIASES back** to a different, still-valid segment |
+| **`0x00ffffffffffffff`, tag `0xff`** (the field's own ceiling) | ⚠️ **GPU HANG** (`GPU_RECOVERY_EVENT`), not a fault — contained, GPU responsive immediately after |
+| an independent, **never-committed** command buffer's valid leaf | `PageFault` |
+
+**What a relocatable-command-stream driver must take from this:**
+
+- **Always emit tag `0x20` for a CDM→CDM link.** `0x00` and `0x80` both fault on an otherwise
+  valid target.
+- **Emit only `0x2c`-record-aligned targets.** `+1`/`+2` happen to work and `+4`/`+8` fault — do
+  not rely on any masking of the low bits.
+- ⚠️ **The single most dangerous failure mode found: stray HIGH bits do not fault, they alias.**
+  A target with `2^44` or `2^46` set silently reaches a different, still-valid segment and
+  executes. An address-arithmetic masking bug will therefore **not** surface as an error. The
+  exact alias boundary is pinned only to somewhere in `(2^40, 2^44]`.
+- **The encoding ceiling is qualitatively worse than an ordinary bad target** — it **hangs**
+  rather than faulting. Never construct it; do not assume all invalid targets fail the same safe
+  way.
+- **Every link target must stay inside the residency set the SAME submission establishes.** A
+  byte-correct, correctly shaped segment belonging to an uncommitted sibling command buffer
+  faults. Cross-submission jumps are not supported by this mechanism.
+- ⚠️ **"Faulted" does not imply "no earlier work in this command buffer happened."** The
+  cross-run gate itself discovered that the same case, same target, same tag, faulted **both**
+  times but left a **different amount** of the command buffer's earlier legitimate work visible
+  in memory. Partial, order-dependent completion is possible; a driver or debugger must not
+  assume otherwise. *(Recorded as a first-class result, not hidden as a flake.)*
+
+> **Why landing on `seg1`'s own tail completes:** those 8 bytes are themselves a valid,
+> Apple-authored CDM link (tag `0x20`, target `seg2_va`) followed by zero padding. The leading
+> interpretation is that the record-stream walker keeps **no separate "record index N of a
+> fixed-capacity segment" bookkeeping** — it re-evaluates the current 8-byte window at every
+> stride, so landing on *another* valid link gets that link followed too, even at what would
+> ordinarily be one past the last legal record. **Not fully excluded** by this experiment: no
+> case here isolates the true start-of-undecodable-padding boundary independently of accidentally
+> hitting a real link.
+
 ## Graphics fixed-function state packets & USC bind grammar (EXP-0019)
 
 ### ⚠ Blend is programmable (compiled into the fragment shader), not a fixed-function packet
@@ -400,6 +485,30 @@ The mesh-output **UVB buffer** is a driver/firmware-allocated intermediate (tile
 reached via USC/uniform binding like the vertex-shader **UVS** varying buffer — **not user-visible**; its
 sizing and the UVB→rasterizer wiring are a **kernel-interface** item (see `../kernel-interface.md`).
 
+### ⚠️ Two hard mesh ceilings a driver must self-enforce (EXP-0135) — `target: G16G`
+
+Evidence label **`HW-PROBE` + `DATA-TRACE` + `OWN-SHADER`**, both runs identical, `target: G16G`
+(local Apple M4). Source: `experiments/EXP-0135-m4-mesh-object-shading/RESULTS.md`.
+
+- **Grid amplification tops out at EXACTLY 65,536, and crossing it produces SILENTLY ZERO
+  output.** No error, no fault, `CMDBUF_STATUS` still 4. Measured: amplification **65535 covers
+  917 px**; **65536, 65537, 65600 and 1,048,576 all cover 0 px**. Identical in both runs, and
+  reproduced independently through the **indirect-draw** path. **Metal reflects
+  `meshGridMax = 1048576` — 16× higher.** A driver that trusts the reflected limit renders
+  nothing and is told nothing.
+- **The object→mesh payload ceiling is EXACTLY 16,384 bytes**, and this one *is* loud: enforced
+  at **pipeline creation** (16384 builds, 16385 fails). But **`payloadMemoryLength` accepts values
+  smaller than the declared struct with no validation at all** — that failure is silent.
+- **The UVB is firmware-managed**, confirmed rather than assumed: the sel-9 BO size multiset is
+  byte-identical across amplification checkpoints (EXP-0120 methodology).
+- **Mesh is native on M4 with no A18 divergence** — helper-subroutine lengths
+  (`write_childcount` 128 B, `write_uvb` 576 B) match A18 exactly, the `43 00 00 01` marker is
+  invariant at the same call sites, and mesh's IOKit call count (58) equals an ordinary draw
+  (58), both above compute (49), reproducing EXP-0030's signature.
+- **ICB mesh commands work both CPU- and GPU-authored.** The fault signature is `GPU Hang`, not
+  `PageFault`, and **`maxCommandCount` has a third failure region** (OK → `CMDBUF_ERROR` →
+  `SIGSEGV`) that EXP-0124 never saw.
+
 ## Geometry-output pipeline (EXP-O2A; ranges swept to max in EXP-M4-09/CMD-5)
 - **Multiple viewports** (`0x68000`): count word `+0x900 = ((count-1)<<12)|0x0C00` — **HW-validated for
   the full range count = 1..16** (`0x0c00, 0x1c00, … 0xfc00`). A per-viewport control-word header; then a
@@ -457,6 +566,43 @@ clean, emittable grammar:
 - **Sysvals are NOT in uniform registers** (G1-c negative): `vertex_id`/`instance_id`/`[[position]]`/`front_facing` are
   `get_sr`-on-demand (confirms EXP-0031); the uniform file holds only base pointers + scalar/push uniforms. There is **no
   sysval→uniform table** to build.
+
+## Varying / UVS capacity and pre-raster output boundaries (EXP-0097) — `target: G16G`
+
+Evidence label **`HW-PROBE`** (140 cases ×2, byte-identical gated records; selftest 15/15,
+seqtest 7/7, zero faults), `target: G16G`. Source: `experiments/EXP-0097-*/RESULTS.md`
+(`PROVENANCE.md`, EXP-0097 row; addendum `GLIO-A01` / `GLPRE-A03`).
+
+**The varying budget is 124 user scalar COMPONENTS**, post-link and fragment-consumed —
+identical at `float` / `float2` / `float3` / `float4` / `half` granularity, i.e.
+**per-component, not per-slot, and independent of bit width**. It is charged only against
+**CONSUMED** varyings: declared = 500 / used = 10 **passes**, while declared = 200 / used = 200
+**fails**.
+
+- **Two distinct failure modes, kept distinct:** N = 125/126 gives a clean named pipeline failure
+  (`"Number of varying components(125) exceeds the limit (124)"`); **N ≥ 127 gives a reproducible
+  Metal compiler-service XPC crash.**
+- **No silent aliasing** — Metal rejects rather than truncating, confirmed by checksum-verified
+  draws at the boundary.
+- **The clip-distance ceiling is exactly 8 and is an INDEPENDENT budget** — 124 varyings and 8
+  clip distances coexist. **`cull_distance` is not a recognised MSL attribute** (Metal-unreachable).
+- **`0x58000+0x2c` generalises:** EXP-G1a's `4 + 4·nvary` (validated 0..8) becomes
+  **`4 + total_scalar_components`, ceiling 128** — labelled **`INFERRED`**, with no fresh
+  DATA-TRACE at the new boundary.
+
+**Pre-raster output boundaries (`GLPRE-A03`), all `target: G16G`, zero faults:**
+
+- **NaN or `+Inf` position components discard the primitive — but `−Inf` in x/y produces a FULL
+  TARGET FILL.** That asymmetry is a real, reproducible behaviour a driver must not assume away.
+- `w = ±0.0` fills; `w = +Inf` partial; `w = −1.0` near-total discard.
+- **Point size scales cleanly to 511, with 511×511 a HARD CLAMP ceiling** shared by ≥512, NaN and
+  `+Inf`; 0, negatives and `−Inf` discard. ⚠️ A `−1..−50` band gives an anomalous off-centre
+  square — flagged **UNRESOLVED**.
+- **Layer and viewport out-of-range indices both CLAMP TO INDEX 0**, for both mechanisms,
+  regardless of the declared count.
+- ⛔ **The provoking vertex is FIXED to the first-fetched vertex** — confirmed via a triangle
+  list, a reversed-index list and a strip — **with no Metal API alternative. A driver targeting
+  OpenGL's last-vertex default must emulate it** by index rewriting or attribute duplication.
 
 ## Shader logging (printf/os_log) + mesh-in-ICB (EXP-O2G)
 - **Shader logging** (macOS 26 has no MSL `printf`; use `os_log` via `<metal_logging>`, gated by

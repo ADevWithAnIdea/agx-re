@@ -33,24 +33,44 @@ labels below are asymmetric. Do not average them into a single "Apple9" claim.
   (`CLAUDE.md` "M4 validation... complete"), but **not independently validated** by this
   chapter's evidence, and not a promotion of EXP-0076's M4-only observations to an A18
   fact.
+- **§2A (the operand/destination ENCODING rules — added 2026-08-28)** is `HW-VALIDATED`
+  **on Apple M4 / G16G only** (EXP-0141), and is labelled **`target: G16G`** throughout. It is
+  **not** relabelled G17P and it does not transfer by assumption.
 - Consequently §2 rests on A18-native evidence assumed (not re-validated here) to also
-  hold on M4, and §4–§7 rest on M4-native evidence assumed (not re-validated here) to also
-  hold on A18. Both assumptions are Apple9-family inferences, not independent
-  measurements; neither direction is re-derived in this chapter.
+  hold on M4, and §2A and §4–§7 rest on M4-native evidence assumed (not re-validated here) to
+  also hold on A18. Both assumptions are Apple9-family inferences, not independent
+  measurements; neither direction is re-derived in this chapter. **§2A.5 records a live
+  counterexample to blanket family equality** (`tg_addr_compute`: M4 accepts byte0 `0x1c`,
+  A18's `0xfc` does not reproduce), so treat cross-target transfer as a hypothesis, not a
+  default.
+
+### 0.1 Current target rule (updated 2026-08-28)
+
+All live testing has moved to the **A18 Pro / G17P**, which is now both the documentation target
+and the test target, and **closure is measured against full G17P** (`CODEX.md`, "Target
+discipline"; user directive 2026-08-28). Local M4 GPU testing is retired. Every fact in this
+chapter that is labelled `target: G16G` was measured on the M4 and **remains valid on its own
+target** — nothing here is retracted by the pivot. **G17P revalidation is under way
+(`EXP-0153`).** Cross-target promotion requires a recorded validation or an explicit `INFERRED`
+label; a silent relabel is a defect.
 
 ## 1. What this chapter covers and does not cover
 
 **Covers:** the addressing model for `device_load`/`device_store`/atomic-RMW instructions
-(§2); the access-unit decomposition and per-unit alignment-rounding rule for device-buffer
+(§2); the **operand and destination register encoding rules an emitter must fill** for those
+same instructions (§2A — `target: G16G`); the access-unit decomposition and per-unit alignment-rounding rule for device-buffer
 accesses (§4); the compiler consequence for unaligned NIR buffer access (§5);
-out-of-allocation and boundary-straddling read/write/atomic-exchange behavior (§6); the
-constraint this places on synthesizing a Vulkan-style bounded/robust buffer load (§7).
+out-of-allocation and boundary-straddling read/write/atomic-exchange behavior (§6); **the bounds
+of that zero-fill model, the exact `2^43` address wraparound, and the VM/allocator conventions
+(§6A — `target: G16G`)**; the constraint this places on synthesizing a Vulkan-style
+bounded/robust buffer load (§7).
 
-**Does not cover** (see §8 for the open-item list): the numeric offset/scaling questions
-MEM-01..MEM-05; the physical mechanism behind the observed bound (MEM-11); load→consumer
-and store/atomic dependency interlocking (MEM-13/MEM-14); device-buffer base-slot capacity
-and aliasing (MEM-15..MEM-19); dynamic 64-bit / descriptor-array addressing
-(MEM-20..MEM-22); threadgroup-memory bounds; texture/sampler descriptor bounds (see
+**Does not cover** (see §8 for the open-item list *and* for the rows that have since been
+ANSWERED elsewhere and are summarized there): the numeric offset/scaling questions
+MEM-01..MEM-04; the physical mechanism behind the observed bound (MEM-11); the USC
+preload-file question (MEM-19). *(MEM-05 is now `PARTIAL`; MEM-13/14, MEM-15..17 and
+MEM-20..22 are ANSWERED — see §8. MEM-18 is `PARTIAL`.)* Also not covered: threadgroup-memory
+bounds; texture/sampler descriptor bounds (see
 `docs/descriptors/README.md`, a separate subsystem); vertex/fragment-stage memory access;
 allocation sizes other than 64 bytes; offsets beyond 1088 bytes past the allocation; and any
 Linux/UAPI-side behavior.
@@ -99,6 +119,118 @@ established on a different chip by a different experiment, and the two are not y
 correlated to each other (see MEM-11 in §8: whether the §4–§7 behavior is enforced by
 this instruction's own hardware, a separate descriptor bound, or allocator zero-fill is
 **not established**).
+
+## 2A. Operand and destination ENCODING rules — `target: G16G`, `HW-VALIDATED` (EXP-0141)
+
+§2 says **where the effective address comes from**. This section says **which register fields an
+emitter must fill, and with what**, so that a `device_load` / `device_store` / atomic can be
+*generated* rather than copied out of a compiled template. It is the section that took
+`device_load`, `device_store` and `threadgroup_barrier` from "decodable" to **emittable**
+(emitter-grade fields 246 → 288 at that point in the wave).
+
+**Evidence:** `HW-VALIDATED` — exhaustive splice sweeps, ~71,000 GPU measurements, four gated
+runs, `experiments/EXP-0141-m4-emit-mem/` (`RESULTS.md`, `analysis/field_verdicts.json`,
+`raw/m4-20260828-run11`, `run12`, `run21`, `run22`). The `extmode` boundary and the
+`dst_lo`/`dst_ext9` constraints were re-verified by the orchestrator directly from
+`raw/m4-20260828-run11/sweep.jsonl`.
+**Target:** **M4 / G16G** — `target: G16G`. Not measured on G17P; see §0.
+
+### 2A.1 `device_load` destination register — the rule
+
+> **`dst_lo` and `dst_ext9` carry NO register information.**
+>
+> ```
+> to land a load in register R:
+>     extmode        = 2 * R      # byte+3; bit 0 is a DON'T CARE
+>     dst_lo         = 1          # exact
+>     dst_ext9 bit 0 = 1          # upper bits ld_format-dependent, see below
+> ```
+>
+> That is **three constrained bits** out of the nine those two fields span.
+
+- **Exact tested range and the bound it establishes:** `extmode` values **0..127 all match and
+  128..255 all fail**. Therefore **`R` is reachable only for `R = 0..63`; `R ≥ 64` silently
+  zeroes through this field** and must be reached by another mechanism. This is a *silent*
+  failure — no fault, no status change.
+- Identical at target registers **r3, r7, r20, r33**, and under **all 21 working `ld_format`
+  codes**.
+- **Pre-registered refuter partially fired, and the result is stated rather than smoothed:** how
+  many of `dst_ext9`'s **upper** bits are additionally don't-cares is **`ld_format`-dependent**
+  (free for 16 codes, tighter for codes 3, 7, 9, 13 and 39). **`dst_ext9 = 1` is valid under all
+  21**, so emit that.
+- **Safe driver fallback:** emit `extmode = 2·R`, `dst_lo = 1`, `dst_ext9 = 1`, and allocate
+  load destinations only in `r0..r63`.
+
+**Retraction chain this supersedes — preserved so a reader can audit it:**
+
+| claim | status |
+|---|---|
+| `EXP-M4-13`: `dst = dst_lo \| (dst_ext9 << 2)` | **RETRACTED by EXP-0101.** A byte-pattern correlation promoted as if executed; it predicts the wrong register. It was used by every prior experiment and by `tools/agx-isa/db.json`. |
+| `EXP-0101`: `extmode = 2 × target_register`, with `dst_lo`/`dst_ext9` "copied verbatim from a compiler-observed value" | **SUPERSEDED (not refuted) by EXP-0141**, which turns the copy-verbatim instruction into a rule and adds two facts EXP-0101 could not reach: `extmode` bit 0 is free, and `R ≥ 64` is unreachable. |
+| `EXP-0112`: target register aliases `r(R mod 64)` for `R ∈ [64,112]` | **Does not generalize.** EXP-0139 tested the same aliasing on `iadd2.dst` and it **did not transfer** (at `dst = 140/141`, register 70, the sum never appeared in r6). Treat `r(R mod 64)` as a `device_load`-specific observation only. |
+
+### 2A.2 The atomic RMW operand register is ENCODED, not implicit
+
+`tools/agx-isa/db.json` described the operand as "implicit (supplied by the preceding op /
+amode)", and `DOC-02` ranked it a **MISSING** field. It is neither.
+
+> **`index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1)`** — the RMW operand register is carried in
+> **byte+5 bit 7** plus **byte+6 bits 0..5**.
+
+- **Tested range:** all four constructible indices, each with the redirected register actually
+  consumed (`0 → a[0] = 7`, `1 → a[1] = 1007`, `2 → a[2] = 2007`, `3 → a[3] = 3007`),
+  byte-identical in both gated runs.
+- The carrier used a **uniform address**, which the old per-lane `index_reg` reading of
+  byte+5/+6 cannot explain — that is what makes the data role, rather than an address role, the
+  supported interpretation.
+- **The redirected register is RELEASED** — a later reader gets **0** — the same
+  register-lifetime contract EXP-0086 / EXP-0089 / EXP-0099 document for the ALU families (see
+  [`register-move-and-liveness.md`](register-move-and-liveness.md)).
+- **Scope limit:** the **address** role of byte+5/+6 is **not excluded** for the per-lane form;
+  the **data** role is proven for the uniform form.
+
+Applies to both `atomic_rmw` (byte+1 == `0x11`) and `atomic_mem` (byte+1 == `0x01`).
+
+### 2A.3 `device_store` byte+2 bit 1 is a DATA-SOURCE SELECTOR
+
+> **clear = ALU-computed data · set = direct live load-result.**
+
+- It is **inert when the data is ALU-computed** — 256/256 pass — which is exactly the
+  configuration EXP-0119 measured and correctly reported as inert at the time.
+- It is **REQUIRED when the source is a forwarded load.** An emitter that copies the
+  ALU-computed encoding into a load-forwarding store gets the wrong data with no fault.
+- `extmode` on the store side is `2*R` or `2*R | 0xC0`, proven over three registers.
+
+### 2A.4 `rsv*` bytes that are not reserved
+
+**Five `rsv*` bytes in `atomic_mem` / `atomic_tg` are live and heavily constrained, not
+padding** — only a handful of the 256 values work in each. **An emitter must not write arbitrary
+values there.**
+
+### 2A.5 What EXP-0141 did NOT move, and why — `UNKNOWN`
+
+Stated so silence is not read as a guarantee:
+
+| field(s) | reason it stays `untested` |
+|---|---|
+| `mem_fence` ×3, `dev_scoreboard_fence.scope_flag` | the carriers have **no ordering observable**, so a pass proves nothing |
+| `mem_fence8` ×2 | no dispatchable carrier |
+| `atomic_tg.op_desc` | stopped by the hang budget |
+
+> **⚠️ A fresh G17P↔G16G divergence, reported and not resolved.** `tg_addr_compute`'s emittable
+> veto **stands on new grounds**: on **M4/G16G only byte0 `0x1c` works**, and **EXP-M4-14's
+> A18/G17P `0xfc` does NOT reproduce**. Do not assume Apple9 family equality for this
+> instruction; it is a live counterexample to blanket cross-target promotion.
+
+### 2A.6 Reproduction hazards (relevant to anyone re-running this)
+
+- **A third contamination mode exists: `STATUS OK` with nothing executed.** Its output is
+  zero-initialised — which on this ISA is *also* the expected signature of a wrong field value,
+  so the two are indistinguishable without a control. It corrupted EXP-0141's own baseline
+  during smoke and was mitigated with an integrity sentinel written through a path independent
+  of the instruction under test.
+- **Reusing one splice-archive path across persistent-runner requests gives ~8 % phantom
+  `CMDBUF_ERROR`** (28/360, versus 0/360 with a unique path per request).
 
 ## 3. Test configuration for §4–§7 (EXP-0076)
 
@@ -322,6 +454,98 @@ masking — public-Metal behavioral evidence **cannot distinguish these**, and t
 does not claim any of them specifically (see MEM-11, §8). `STRUCTURAL` (explicit
 non-claim), EXP-0076 RESULTS.md "INTERPRETED".
 
+## 6A. Address wraparound, and the LIMITS of the zero-fill model — `target: G16G`, `HW-VALIDATED` (EXP-0122)
+
+§6 establishes that out-of-allocation accesses in the tested window read zero. **§6A bounds that
+statement, and it bounds it in a way a robustness implementation must respect.** Evidence:
+`HW-VALIDATED`, public-API only (no private VM interface inspected),
+`experiments/EXP-0122-m4-sparse-vm-conventions/RESULTS.md`, commit `f2b8ef66`; two runs with
+**0 mismatches across all 87 `ok` cases** in 11 domains; 74 guard cases with **0 hangs, 0 faults,
+0 command-buffer errors**, and **no OOB store corrupted an adjacent allocation** in the tested
+offset set. `target: G16G` (local Apple M4, macOS 26.6.2/25G82).
+
+### 6A.1 "OOB reads zero" is NOT page-wide — the zero region is bounded
+
+EXP-0076's near-boundary results replicate exactly under an independently authored harness
+(offset 32 → `05203b56`; 60 → `f9142f4a`; 64 → `00000000`; 1088 → `00000000`). But sweeping
+further **falsifies both a "guard page around the allocation" model and an "everything unmapped
+reads zero" model**:
+
+| offset past a 64-byte allocation | observed (32-bit LE) | zero? |
+|---|---|---|
+| 4096 | `00000000` | yes |
+| 16384 − 256 | `d166d8b1` | **no** |
+| 16384 − 4 | `09000000` | **no** |
+| **16384** (one sparse tile / platform quantum) | `0cda71aa` | **no** |
+| 16384 + 4 | `09000000` | **no** |
+| 16384 + 256 | `39ada2a3` | **no** |
+| 32768 | `00000000` | yes |
+| 1 MiB · 16 MiB · 256 MiB · 4 GiB · 64 GiB · 1 TiB · 4 TiB | `00000000` (all) | yes |
+
+At exactly one platform quantum (**16384 B**, also this device's default sparse tile size) and
+its immediate ±256 B neighbourhood, reads return **live, non-zero data** — and demonstrably not
+our own fill bytes (`0x5A`/`0xC3`), so not the harness's guard buffers. The reading: most address
+space near a small, lightly loaded process's live allocations *happens* to be unmapped
+(soft-fault-to-zero, as EXP-0076 found), **but this is not a guarantee** — some nearby addresses
+are genuinely backed by other live, driver-owned data whose owner this experiment cannot identify.
+
+> **Driver implication:** never assume address space adjacent to (but outside) an owned
+> allocation is safe or zero without an explicit bounds check. The zero-fill behaviour is real
+> and reproducible at the tested small and very-large distances; it is **not** a property of
+> "outside the allocation" in general. This directly constrains §7's robustness synthesis.
+
+### 6A.2 The address space wraps with period EXACTLY `2^43` bytes
+
+For the idiom `(device uchar*)base + (uint64_t)off` — a `device`-space pointer plus a
+runtime-uniform byte offset, compiled from our own MSL — the effective address **wraps with
+period exactly `2^43` bytes (8192 GiB)**, after which the 32-bit access is aligned down to the
+nearest 4-byte boundary (consistent with §4's per-unit align-down model).
+
+**All 12 discriminating cases matched the `(base + off) mod 2^43`, align-down-4 model exactly, in
+both runs**, including the two designed to exclude competing periods:
+
+| case | offset | observed | model prediction |
+|---|---|---|---|
+| `p43_minus_4` | `2^43 − 4` | `5a5a5a5a` | `base − 4` → inside `guard1` (all `0x5A`) ✓ |
+| `p43_exact` | `2^43` | `a5c0dbf6` | `base + 0` → `main[0..3]` ✓ |
+| `p43_plus_60` | `2^43 + 60` | `f9142f4a` | `base + 60` → matches the in-bounds control ✓ |
+| `p43_plus_64` | `2^43 + 64` | `00000000` | `base + 64` → matches the OOB control ✓ |
+| `p43x1p5` | `1.5 × 2^43` | `00000000` (far) | **rules out period `2^42`** ✓ |
+| `p43x5_plus_4` | `5 × 2^43 + 4` | `112c4762` | **rules out any period larger than `2^43`** ✓ |
+| `p45_plus_32` | `2^45 + 32` | `05203b56` | `base + 32` ✓ |
+| `neg256` | `2^64 − 256` | `5a5a5a5a` | `guard1`'s first byte ✓ |
+| `neg257` | `2^64 − 257` | `00000000` | 1 B before `guard1` → unmapped ✓ |
+| `neg2p43` | `2^64 − 2^43` | `a5c0dbf6` | `base + 0` ✓ |
+
+The model correctly predicts landing **inside a real, independently verifiable allocation**
+(`guard1`) three separate times from three different large offsets — so this is not a
+coincidence fit.
+
+**Alternatives explicitly NOT excluded** (pre-registered as confounders): the `2^43` period could
+reflect (a) the GPU's actual hardware VA bus width, (b) a 43-bit-wide addressing-instruction
+operand specific to this load encoding, or (c) a firmware/driver-level address-space window. This
+experiment establishes the **observed effective behaviour of this addressing idiom** and nothing
+more. **Untested:** whether other access widths (8/16/64/128-bit) or other idioms (texture
+addressing, argument-buffer-indirect pointers) share the same period.
+
+### 6A.3 VM/allocator conventions a driver must respect — `target: G16G`
+
+| fact | value | scope actually tested |
+|---|---|---|
+| **Minimum buffer placement alignment** | **256 bytes, uniformly** — *not* the 16 KiB sparse-tile/page granularity one might guess | `heapBufferSizeAndAlignWithLength:` over 31 lengths `1..65537` × {shared, private} = 62 rows, **all returning 256**; a real allocation succeeded for all 62. Untested above 65537 B. |
+| **`maxBufferLength` is an EXACT, off-by-one-tested ceiling** | `9534832640` B (≈8.882 GiB) on this M4 — identical for shared and private | `max − 1` OK, `max` **OK**, `max + 1` **fails**, `max + 256` fails, `1 << 40` fails. **No slack.** |
+| **Address assignment within one process** | a deterministic **bump allocator with immediate address reuse on free** — allocating, releasing and re-allocating the identical 6-buffer sequence returns byte-identical GPU addresses on all 3 passes. Consecutive same-size allocations pack back-to-back with no slack beyond the 256 B alignment. | one process, one ordered sequence, 3 passes. **Not** tested across processes or under concurrent allocation pressure, and **not** an architectural guarantee — an observed allocator behaviour. |
+
+> ⚠️ **`maxBufferLength` is device-capacity-specific — query it, never hard-code it.** The A18/G17P
+> value is unqueried (the device was hands-off for this experiment).
+
+**`vm_start` and the kernel-reserved-region boundaries remain `UNKNOWN`.** The lowest address
+observed across all domains was `0x10000018000` (= `2^40 + 0x18000`), suggestively close to a
+round `2^40` base, but this experiment never drove allocation volume high enough — nor probed low
+enough — to bound where the userspace-visible window actually starts or ends. That is an
+allocator property, and it is **distinct from** the addressing-instruction wraparound at `2^43`
+in §6A.2, which is much better evidenced.
+
 ## 7. Robust-buffer-access synthesis constraint (MEM-12 input)
 
 The observed native behavior already matches the Vulkan `robustBufferAccess` /
@@ -356,10 +580,13 @@ EXP-0076 RESULTS.md "MEM-11-adjacent / MEM-12-input" required-response block.
 
 ## 8. What is NOT yet established — do not read silence as a guarantee
 
-The following MEM-* items from `APPLE9_RE_IMPLEMENTATION_GAPS.md` are **open**. None of
-them is answered by this chapter or by EXP-0076. Where a successor experiment exists, it
-is named for traceability only — **its observations are quarantined non-evidence and are
-not cited or relied upon anywhere above.**
+The following MEM-* items from `APPLE9_RE_IMPLEMENTATION_GAPS.md` were open when this
+chapter was written. **Several have since been ANSWERED and are marked so inline (2026-08-28
+update) — those rows now carry real, citable evidence and are no longer gaps.** The remaining
+rows stay open; where the named successor experiment is *quarantined*, its observations are
+non-evidence and are not relied upon anywhere above.
+
+**Every answered row below is `target: G16G`** and is not promoted to G17P (see §0.1).
 
 | item(s) | question | status | pursuing experiment (non-evidence; named for traceability only) |
 |---|---|---|---|
@@ -367,25 +594,29 @@ not cited or relied upon anywhere above.**
 | MEM-02 | Is the in-instruction immediate offset added in element units, not bytes? | `UNKNOWN` (open) | same as above |
 | MEM-03 | Is the complete signedness/legal range of the immediate element offset known and HW-validated? | `UNKNOWN` (open) | same as above |
 | MEM-04 | Can `device_load/store` directly encode `base + index·stride + offset` for arbitrary vertex strides? | `UNKNOWN` (open) | same as above |
-| MEM-05 | Does 32-bit address/index arithmetic wrap the way legal NIR buffer offsets require? | `UNKNOWN` (open) | same as above |
+| MEM-05 | Does 32-bit address/index arithmetic wrap the way legal NIR buffer offsets require? | **`PARTIAL`** — EXP-0122 §6A.2 establishes that `base + (uint64_t)off` wraps with period **exactly `2^43`** for this one idiom (`HW-VALIDATED`, `target: G16G`, 12/12 discriminating cases in both runs), with align-down-4 on the 32-bit access. Whether other access widths or other addressing idioms share that period is **untested**, and the mechanism (VA bus width vs a 43-bit instruction operand vs a firmware window) is **not distinguished**. | EXP-0122 (evidence); the numeric-offset questions themselves remain with the quarantined successors |
 | MEM-11 | Is there no descriptor-level buffer bound available to the memory instruction (i.e. is §6's behavior a bound, a mask, or allocator zero-fill)? | `Partial` / answer `Unknown` per EXP-0076's own required-response block (adjacent observations recorded, mechanism not identified) | none active; needs a separate ISA/descriptor-level splice or native experiment (EXP-0076 RESULTS.md explicitly declines to answer this) |
-| MEM-13 | Does the hardware guarantee dependency interlocking from every load/texture/atomic result to a consuming ALU instruction without an explicit wait? | `UNKNOWN` (open) | none active |
-| MEM-14 | Does the same interlock hold for stores/atomics whose source was just produced? | `UNKNOWN` (open) | none active |
-| MEM-15..17 | Maximum simultaneously usable device-buffer base-slot count; are all encoded slots below it independently selectable with no aliasing/holes; does an unpopulated/out-of-range slot return zero, alias, or fault? | `UNKNOWN` (open) | quarantined `EXP-0078` (`m4-base-slot-census`) |
-| MEM-18 | Does `base_slot` index the userspace resource table directly, or an intermediate USC-populated preload file? | `UNKNOWN` (open) | none active |
-| MEM-19 | Can the USC constant/uniform program populate every usable base slot, and what happens past capacity? | `UNKNOWN` (open) | none active |
-| MEM-20 | Can Apple9 load/store through a 64-bit device address obtained dynamically in a GPR, without a statically encoded base slot? | `UNKNOWN` (open) | none active |
-| MEM-21 | Can a non-uniform, per-lane descriptor-array index select different buffer base addresses per SIMD lane? | `UNKNOWN` (open) | none active |
-| MEM-22 | When more live buffer resources exist than fit the direct-slot path, does Apple's compiler reject, use a dynamic/descriptor-table path, or split/preload? | `UNKNOWN` (open) | none active |
+| MEM-13 | Does the hardware guarantee dependency interlocking from every load/texture/atomic result to a consuming ALU instruction without an explicit wait? | **`ANSWERED: YES`** — `HW-VALIDATED`, `target: G16G`. Load, dependent-load, **texture-read** and **atomic-result** each feed a consuming ALU with **zero authored slack and no software wait**, to N=65536 plus a 48-loads-per-thread adversarial case; corroborated by structural tokenization of our own compiled bytes showing **zero wait/scoreboard instructions** between producer and consumer. Re-validates EXP-0025's A18 register-interlock claim on M4 silicon and **extends it to texture-read and atomic sources**. | **EXP-0085** (56 cases ×2, 56/56 PASS, gates PASS, no faults) |
+| MEM-14 | Does the same interlock hold for stores/atomics whose source was just produced? | **`ANSWERED: YES`** — same experiment, same construction. | **EXP-0085** |
+| MEM-15..17 | Maximum simultaneously usable device-buffer base-slot count; are all encoded slots below it independently selectable with no aliasing/holes; does an unpopulated/out-of-range slot return zero, alias, or fault? | **`ANSWERED`** — `HW-VALIDATED`, `target: G16G`, full 0..255 sweep across load/store/atomic (351 cases ×2, byte-identical, zero faults in 702 executions). **The selector is effectively 7-bit: slots 128..255 MIRROR 0..127 on every op path**, with no third behaviour anywhere (buffer 1 held by slots [1,129], buffer 10 by [10,138], …). **No aliasing or holes among populated slots 1..30**; boundaries 7/8 and 15/16 clean. **31 slots simultaneously usable via direct binding** — recorded as a *direct-binding-population edge* (MSL `[[buffer(N)]]` caps at N=30), **NOT** a demonstrated architectural ceiling. **Out-of-range behaviour is fault-contained but SILENTLY WRONG:** LOAD zero-or-mirror; STORE discard-or-redirect-to-binding-0; ATOMIC returns 0 and discards, or redirects and discards. `byte+4` is live but is **not** the selector — the selector is **`byte+5`**. | **EXP-0083** (supersedes the quarantined `EXP-0078`) |
+| MEM-18 | Does `base_slot` index the userspace resource table directly, or an intermediate USC-populated preload file? | **`PARTIAL`** — not resolved as a mechanism, but two constraints are now measured (`target: G16G`): **slot 0 is a reservation candidate whose content is pipeline-configuration dependent** (constant-program hoisting gives `P(5,0)` versus plain binding 0), and **each dynamically-loaded pointer receives its own compiler-populated `base_slot` table entry** — refuting a shared-slot model. | EXP-0083; EXP-0084 |
+| MEM-19 | Can the USC constant/uniform program populate every usable base slot, and what happens past capacity? | `UNKNOWN` (open) — see MEM-18's partial constraints | none active |
+| MEM-20 | Can Apple9 load/store through a 64-bit device address obtained dynamically in a GPR, without a statically encoded base slot? | **`ANSWERED: YES`** — `HW-VALIDATED`, `target: G16G`, both runs' results SHA-256 identical. **Four independent constructions, all byte-exact.** | **EXP-0084** |
+| MEM-21 | Can a non-uniform, per-lane descriptor-array index select different buffer base addresses per SIMD lane? | **`ANSWERED: YES`** — a non-uniform per-lane selector computed from `thread_position_in_grid` gives **32 lanes 32 distinct buffers**, proven **divergent rather than broadcast**, with uniform and single-lane-outlier controls. | **EXP-0084** |
+| MEM-22 | When more live buffer resources exist than fit the direct-slot path, does Apple's compiler reject, use a dynamic/descriptor-table path, or split/preload? | **`ANSWERED`, with two evidence levels kept separate** — MSL **rejects** a 32nd direct `[[buffer(31)]]` argument **at compile time** (0..30 ceiling), while the **dynamic-address mechanism independently executed correctly at N=64 and N=256, i.e. 2–8× past that ceiling**. **Compiler consequence: the bindless / descriptor-array fallback exists and is hardware-validated; direct slots are bounded (MEM-15/16) and dynamic addressing scales past them.** | **EXP-0084** |
 
 Additional explicit non-guarantees, restated from §3/§6 so they are not lost by omission:
 
 - The §4–§7 model was validated on **one 64-byte allocation size only**; other allocation
   sizes, and whether the align-down / zero-fill boundary scales with allocation size at
   all, are untested. `STRUCTURAL`, EXP-0076 RESULTS.md "Exact tested range".
-- The zero-fill region past the allocation end was probed only at offsets 64..79 and
-  1088; the shape of the boundary between those distances is unknown. `STRUCTURAL`,
-  EXP-0076 RESULTS.md "MEM-08".
+- ~~The zero-fill region past the allocation end was probed only at offsets 64..79 and
+  1088; the shape of the boundary between those distances is unknown.~~ **REFINED by EXP-0122
+  (§6A.1, `target: G16G`): the zero region is NOT page-wide.** At exactly 16384 B past the
+  allocation (the platform/sparse-tile quantum) and its ±256 B neighbourhood, reads return live
+  non-zero data, while 4096 B and 32768 B and beyond read zero. Treat "outside the allocation
+  reads zero" as an observation at the tested distances, **never as a guarantee**.
+  `HW-VALIDATED`, EXP-0122 RESULTS.md §2.2; original bound EXP-0076 RESULTS.md "MEM-08".
 - Vertex-stage and fragment-stage device memory access were not exercised by EXP-0076
   (compute stage only); do not assume this chapter's model applies unmodified there.
   `STRUCTURAL`, EXP-0076 RESULTS.md "Exact tested range".
@@ -401,6 +632,14 @@ Additional explicit non-guarantees, restated from §3/§6 so they are not lost b
 
 - `experiments/EXP-0012-memory/RESULTS.md` — instruction-level addressing model (§2),
   A18 Pro/G17P, `HW-VALIDATED`.
+- `experiments/EXP-0141-m4-emit-mem/RESULTS.md`,
+  `experiments/EXP-0141-m4-emit-mem/analysis/field_verdicts.json`,
+  `experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/`, `…/run12/`, `…/run21/`, `…/run22/`
+  — the operand/destination encoding rules (§2A), M4/G16G, `HW-VALIDATED`, commit `5a9df52b`.
+- `experiments/EXP-0101-*/RESULTS.md` — retraction of EXP-M4-13's `device_load` destination
+  formula, superseded in turn by EXP-0141 (§2A.1).
+- `docs/isa/register-move-and-liveness.md` — the register-lifetime / release-on-read contract
+  §2A.2 depends on, and the same EXP-0141 destination rule stated from the liveness side.
 - `docs/isa/README.md`, `### ✅ Memory access family (EXP-0012)` — current
   (RT-1a-FIX-corrected) byte map for §2; also cross-linked from that section back to
   this chapter.
@@ -411,8 +650,24 @@ Additional explicit non-guarantees, restated from §3/§6 so they are not lost b
   `experiments/EXP-0076-m4-buffer-robustness-matrix/raw/m4-20260827-run02/` — the
   access-unit / alignment / OOB / boundary model (§3–§7), M4/G16G,
   `HW-VALIDATED`, promoted commit `446a5f28`.
-- `PROVENANCE.md` (2026-08-27 EXP-0076 row; 2026-07-06 EXP-0012 rows) — the audit trail
-  for both experiments underlying this chapter.
+- `experiments/EXP-0122-m4-sparse-vm-conventions/RESULTS.md`,
+  `experiments/EXP-0122-m4-sparse-vm-conventions/analysis/summary.json`,
+  `experiments/EXP-0122-m4-sparse-vm-conventions/raw/m4-20260828-run01/`, `…/run02/` — the
+  zero-fill bounds, the `2^43` wraparound, and the VM/allocator conventions (§6A), M4/G16G,
+  `HW-VALIDATED`, commit `f2b8ef66`.
+- `experiments/EXP-0083-*/RESULTS.md` — the device-buffer base-slot census answering
+  MEM-15/16/17 (§8), M4/G16G, `HW-VALIDATED`.
+- `experiments/EXP-0084-*/RESULTS.md` — dynamic 64-bit addressing and per-lane divergent buffer
+  selection, answering MEM-20/21/22 (§8), M4/G16G, `HW-VALIDATED`.
+- `experiments/EXP-0085-*/RESULTS.md` — the hardware-interlock result answering MEM-13/14 (§8),
+  M4/G16G, `HW-VALIDATED`. **Auditability caveat on record:** a harness `--init` byte-order bug
+  found during analysis led to a recapture under the SAME run ids, so the flawed first pair is
+  unrecoverable. Nothing had been promoted at that point; the promoted pair is internally
+  consistent and double-corroborated, but the deviation from append-only discipline is stated
+  rather than hidden.
+- `PROVENANCE.md` (2026-08-27 EXP-0076 row; 2026-07-06 EXP-0012 rows; 2026-08-28 EXP-0083,
+  EXP-0084, EXP-0085, EXP-0122 and EXP-0141 rows) — the audit trail for the experiments
+  underlying this chapter.
 - `APPLE9_RE_IMPLEMENTATION_GAPS.md`, "P0 — Memory addressing and robustness" (MEM-01
   through MEM-22) — the open-item list reproduced in §8.
 - `docs/P0-P1-CLOSURE.md`, row P1.5 — live closure status for this subsystem (still

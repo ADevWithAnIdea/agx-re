@@ -57,6 +57,34 @@ that private depth embeds.
   context + param heap with no color descriptor (Z-prepass / partial-render path). The **overflow →
   partial-render trigger is firmware-managed** — no userspace knob (kernel/firmware concern).
 
+### ✅ The BG/EOT PROGRAM can be constructed and executed (EXP-0130) — `target: G16G`
+
+Evidence label **`HW-PROBE` + `OWN-SHADER` + `PUBLIC`**, `target: G16G` (local Apple M4).
+Source: `experiments/EXP-0130-m4-bg-eot-construction/RESULTS.md`, commit `5c677b72`; gates
+`--selftest` 14/14, `--seqtest` 6/6, `--captured` 10/10.
+
+**A fragment program that reads the tilebuffer and writes the attachment can be CONSTRUCTED from
+our own MSL and executed** — it does not have to be lifted from a capture. `f_eot_combine`
+(`dst*2.0 + src`) is **behaviourally exact against a host oracle on 4/4 boundary cases in both
+runs** — `3·2+1 = 7`, `−10·2+1 = −19`, `1000000·2+2 = 2000002`, `0.5·2+2 = 3` — and its extracted
+**120 bytes contain both `tile_read` and `frag_color_store`**.
+
+- **Paired falsifier:** `f_eot_ctrl` (54 B — `frag_color_store` but **no** `tile_read`) returns a
+  constant across all 8 `dst` values including near-`FLT_MAX`, so the oracle match above is not a
+  rubber stamp.
+- ⛔ **NEGATIVE:** `f_eot_evict` (pure passthrough) is **elided entirely by the compiler** — 16 B,
+  **neither** opcode. This independently reproduces EXP-0117's elision from a different code path.
+  A driver cannot obtain a passthrough BG/EOT program by writing one in MSL; the compiler deletes
+  it.
+- The `tile_read` encoding itself is now **emittable with a per-field legal-value set** — and its
+  wrong-value failure mode is a **silent zero, i.e. a black tile, not a fault**. See
+  `../isa/README.md` → "`tile_read` / `tile_read_mrt` are EMITTABLE" (EXP-0147).
+
+> ⚠️ **BOUNDED NEGATIVE on the UAPI side (P0.4/P0.5 remain OPEN).** `drm_asahi_bg_eot` **cannot be
+> populated on this host** — macOS, no `/dev/dri`, no drm/asahi kext — so its `usc` and
+> `rsrc_spec` field requirements are **`PUBLIC`-only inference from the pinned MIT header, NOT
+> Apple9 hardware facts.** Do not read the program-side success as closing the submission side.
+
 ## Open items
 - Depth/ZLS store control (kernel-side). (Sample positions are now known userspace-emittable — RT-4.)
 - Full packed pixel-format word decode (→ `../descriptors/`); `+0x24` bits beyond 2×/4×/memoryless.
@@ -96,3 +124,162 @@ The attachment descriptor (`0x10000110000`) is a chain of three **0x300-byte seg
     (0,0,0,1) @ `+0x170`), **mirrored at `+0x470 + k·0x10`** (0x300 apart = the LOAD/RENDER segment spacing).
     Byte-identical on M4 and A18. The `0x18200` k·0x20 records hold LOAD/STORE descriptors only — **not** the
     clear color.
+
+### Depth / stencil reuse the SAME k-indexed attachment array (EXP-0132) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (byte-exact across two runs), `target: G16G` (local Apple M4).
+Source: `experiments/EXP-0132-m4-pbe-attachment-structures/RESULTS.md`.
+
+- **Depth and stencil populate the same k-indexed `0x20`-byte MRT descriptor array as colour**,
+  at **`k = ncolor`** (depth) and **`k = ncolor + 1`** (stencil). The depth prefix
+  `628800f8017c0008` reproduces EXP-0108's flagged bytes; stencil is distinct
+  (`224068f9017c0008`). The adversarial `ncolor = 2` case places depth at `k = 2` and stencil at
+  `k = 3`, exactly as the rule predicts.
+- **Memoryless depth still populates its slot**, flipping one unmasked byte `0x08` → `0x00`.
+- **MSAA resolve targets take the next free `k` slot in BOTH the LOAD and the STORE arrays.**
+- `mipCount > 1` sets word1 **bit 26** — the same "mipmapped" flag bit the sampled-texture
+  descriptor uses.
+- **NOT REPRODUCED:** `attachment-slot-b` never appeared in 16 cases.
+- **Untested combination, stated:** depth/stencil *and* an MSAA resolve present in the same pass.
+
+### ⚠️ Array slice and mip level are NOT in the per-attachment record — and the two boundaries fail DIFFERENTLY (EXP-0132) — `target: G16G`
+
+**NEGATIVE, `HW-VALIDATED`, byte-exact:** the per-attachment `k`-record is **byte-identical**
+across slice 0 / 1 / 3 of an `arrayLength = 4` target and across level 0 / 2 of a `mipCount = 3`
+target. **Layer/array and mip *selection* are carried somewhere other than this descriptor.**
+The only `mipCount`-dependent difference is word1 bit 26, which tracks *whether* the texture is
+mipmapped, not *which* level is being rendered.
+
+**The two out-of-range boundaries are both silently accepted, and they do OPPOSITE things:**
+
+| out-of-range input | observed | class |
+|---|---|---|
+| **`slice = arrayLength`** (first invalid) | **slice 0's existing content is DESTRUCTIVELY ZEROED** — its pre-render canary `a0a0a0a0` is overwritten with `0`, even though slice 0 was never the render target. Slices 1–3 keep their canary untouched. | **destructive, silent** |
+| **`level = mipCount`** (first invalid) | **all three levels keep their canary untouched — no observable effect anywhere.** | **pure no-op, silent** |
+
+Note this is **not** a modular `slice % arrayLength` wraparound: a true wraparound would have
+produced a *correct* clear/draw at slice 0, not a zero write. Neither case faults, errors, or
+sets a status.
+
+> **A driver must validate `slice < arrayLength` and `level < mipCount` itself before emitting a
+> render pass. The hardware and the API do neither.** Getting `slice` wrong silently destroys
+> unrelated data in the same texture.
+
+## Rasterization rules and hard resource limits (EXP-0123) — `target: G16G`
+
+Evidence label **`HW-PROBE` + `PUBLIC`**, `target: G16G` (local Apple M4, macOS 26.6.2, 16 GB
+unified). Source: `experiments/EXP-0123-m4-rasterization-limits/RESULTS.md`, commit `1143ec55`.
+This is the **P1.8 / `DRV-RASTER-01`** material: the rasterization behaviour and the finite
+resource ceilings a conformant driver must respect.
+
+### Line rasterization — half-open, evaluate-at-pixel-center, exact-integer ties round DOWN
+
+| case | endpoints (8×8 target) | result |
+|---|---|---|
+| horizontal | (1.0,4.5)–(7.0,4.5) | columns 1..6 lit at row 4; **column 7 (the endpoint) NOT lit** |
+| vertical | (4.5,1.0)–(4.5,7.0) | rows 1..6 lit at column 4; **row 7 NOT lit** |
+| diagonal 45° | (1.0,1.0)–(7.0,7.0) | single-pixel staircase (1,1)…(6,6); **(7,7) NOT lit** |
+| shallow slope 3/7 | (0.5,0.5)–(7.5,3.5) | row0={0,1}, row1={2,3}, row2={4,5}, row3={6} |
+| exact-integer y tie | y = 4.0 | resolves to **row 3 — the LOWER row** |
+| y = 3.99 / y = 4.01 | | row 3 / row 4 |
+| **degenerate** (identical endpoints) | (4.0,4.0)–(4.0,4.0) | **zero pixels lit** — neither a point nor a fault |
+
+**Rule:** half-open interval with the **final vertex excluded** (the convention that avoids
+double-drawing a shared vertex in a line strip), with per-column row assignment = evaluate the
+line at the **pixel-center x** and floor to the containing row. At the row boundary the interval
+behaves as `(r, r+1]`, not `[r, r+1)`. **Driver consequence:** implement evaluate-at-pixel-center
++ floor, exclusive of the final vertex; no diamond-exit-specific tie-break beyond "exact integer
+ties round down" was needed. A degenerate line needs **no special case** — it naturally
+rasterizes nothing. **Open, narrow:** the exact subpixel snap granularity was **not** bisected
+(a `y = 4.001` exploratory probe gave the same row as `y = 4.0`, consistent with snapping coarser
+than 0.01 px, but this is not claimed).
+
+### Point rasterization — the size rounding rule
+
+| requested `[[point_size]]` | footprint side | pixels |
+|---|---|---|
+| 0.5, 0.9, 1.0, 1.1, 1.4, 1.5, 1.6, 1.9 | **1** | 1 |
+| **2.0 exactly** | **2** | 4 |
+| 2.1, 2.4, 2.5, 2.6, 2.9, 3.0, 3.5 | **3** | 9 |
+
+### Depth clip vs depth clamp — both native, and the interval is CLOSED
+
+| mode | z (all 3 verts) | rendered? | depth written |
+|---|---|---|---|
+| `.clip` | 1.5 (behind far) | **no** (0/64 px) | clear persists |
+| `.clip` | −0.5 (before near) | **no** (0/64 px) | clear persists |
+| `.clip` | **1.0 (exactly far)** | **yes** (18/64 px) | **1.0** — the interval is **closed** |
+| `.clip` | **0.0 (exactly near)** | **yes** (18/64 px) | **0.0** |
+| `.clamp` | 1.5 | **yes** (18/64 px) | **clamped to 1.0** |
+| `.clamp` | −0.5 | **yes** (18/64 px) | **clamped to 0.0** |
+
+### ⛔ Clean negatives — what a GL/Vulkan driver must emulate
+
+| capability | native? | required emulation |
+|---|---|---|
+| **Wide lines** (`wideLines` / `glLineWidth`) | **No** — through the documented public API there is **no line-width, line-rasterization-mode, or conservative-raster control anywhere in the SDK headers**; every line renders at the same fixed narrow band regardless of documented state | Expand each line into a quad/triangle pair in a geometry stage or vertex shader |
+| **Polygon mode POINT** (`VK_POLYGON_MODE_POINT` / `GL_POINT`) | **No** — `MTLTriangleFillMode` is a real, functionally distinct **two**-valued enum (`.fill` 72 lit px / `.lines` 38 lit px on the same reference triangle), and there is no third case | Re-emit each triangle's three vertices as a point-topology draw |
+| **Conservative rasterization** | **No — clean negative with no API surface at all.** Four tiny triangles each covering ~0.2×0.2 px at a *corner* of pixel (4,4), explicitly not its centre, lit **zero pixels in all four cases, both runs** — exactly what standard centre-sample rasterization predicts | Inflate primitive edges outward by the pixel diagonal in the vertex/geometry stage |
+| **Depth clamp / depth clip** | **Yes, both native** (`MTLDepthClipModeClamp` / `…Clip`) | none |
+
+Also recorded: `MTLTriangleFillMode` is **inert for line-topology primitives** — a functioning
+no-op, as its name implies.
+
+> **⛔ CLEAN-ROOM RULING, recorded so it is not re-litigated.** During exploration (outside the
+> frozen matrix) an **undocumented** `-[MTLRenderCommandEncoder setLineWidth:]` selector was found
+> to respond and, invoked through the ObjC runtime, to grow a line's footprint roughly linearly
+> (1 px→12, 2→24, 5→60, 10→120 lit pixels, capping near 192). **This was ruled OUT OF BOUNDS:
+> probing a guessed private selector is symbol-level introspection of Apple software, not hardware
+> observation** (`PROVENANCE.md`, EXP-0123 row). It is excluded from every normative claim and
+> from the limit table below. **The negative result above — no wide-line control via the
+> documented API — is the one this project stands behind.**
+
+### A2C coverage reaches the occlusion counter (extends EXP-0091)
+
+Full-cover triangle, `Depth32Float`, `depthCompare: Always`, `depthWrite: YES`, no shader depth
+write and no `discard_fragment()` — i.e. **early-Z-eligible** per EXP-0091:
+
+| `alphaToCoverageEnabled` | alpha | samples | occlusion count | colour px lit |
+|---|---|---|---|---|
+| **true** | **0.0** | 4 | **0** | **0/16** |
+| true | 1.0 | 1 | 14 | 14/16 |
+| false (control) | 0.0 | 1 | 14 | 14/16 |
+| false (control) | 1.0 | 1 | 14 | 14/16 |
+
+**A2C-driven coverage suppression reaches the visibility counter** — *not* the 14 that a naive
+"early depth test happens before shading, so occlusion is counted regardless" model predicts.
+**Driver consequence: a backend must NOT assume A2C is invisible to occlusion/predication
+bookkeeping.** A2C coverage participates in whatever gates the visibility counter, alongside
+`discard_fragment()`. *(One non-reproducible fault was seen while exploring the adjacent
+`A2C = true, alpha = 1.0, samples = 4` case — occlusion + depth + MSAA resolve + an unguarded
+point readback together. It re-ran successfully 3/3 afterwards and is recorded as an open,
+unresolved, non-reproducible fault, deliberately excluded from the frozen matrix rather than
+dropped.)*
+
+### Verified finite-limit table — `target: G16G`
+
+Every boundary below is off-by-one tested (last legal value **and** first invalid value).
+
+| resource | last legal | first invalid | failure mode |
+|---|---|---|---|
+| Colour render-target attachments | **8** (functional: 8 distinct textures, each correct per-attachment) | 9 | **uncatchable `abort()`** in pipeline-state creation |
+| Simultaneously active viewports | **16** (functional: all 16 tile regions render via 16-instance `[[viewport_array_index]]` routing) | 17 | `setViewports:count:` rejection |
+| 2D / cube texture width & height | **16384** (both axes) | 16385 | uncatchable `abort()` from texture-descriptor validation |
+| 3D texture, per axis | **2048** | 2049 | same `abort()`, isolated per axis |
+| 2D texture-array layers | **2048** | 2049 | same `abort()` |
+| Mip levels | `floor(log2(max(w,h))) + 1` — confirmed **15** at 16384², **7** at 64² | boundary + 1 | same `abort()` |
+| Direct `[[buffer(N)]]` bind index | **30** (31 slots, 0..30) | 31 | **clean MSL frontend `COMPILE_FAIL`** — rejected at compile, not at runtime |
+| Direct `[[texture(N)]]` bind index | **127** (128 slots, 0..127) | 128 | same clean `COMPILE_FAIL` (matches EXP-0095's independent figure) |
+| Inline constants (`setVertexBytes:` / `setFragmentBytes:`) | **32752 bytes** (functionally verified — both the first and the exact last byte round-trip) | 32753 | — |
+| Buffer bind offset alignment | **arbitrary** — 0, 1, 2, 3, 4, 15, 17 bytes all functionally correct, exact byte-for-byte readback | n/a | no misalignment failure exists |
+| Threads per threadgroup (compute) | device-reported **1024**, functionally confirmed | 1025 | — |
+| Dynamic threadgroup memory | **≥131072 bytes** confirmed at 32768 / 65536 / 131072 | not reached | — |
+| SIMD / subgroup width | **32**, via `[[thread_execution_width]]` at threadgroup sizes 32 and 64 | n/a | n/a |
+| `simd_shuffle` out-of-range source lane | src ∈ {0,31} exact | src ∈ {32,40,64,100} **wrap as `src % 32`** exactly | — |
+
+> **The `abort()` rows matter more than they look.** Attachment count, texture dimensions, array
+> layers and mip levels are enforced by an **uncatchable `abort()`**, so a driver **cannot probe
+> them at runtime** — it must carry these as static limits. The two bind-index rows, by contrast,
+> fail cleanly at MSL compile time. (Same lesson as the format-eligibility `abort()` in
+> `../descriptors/format-table.md` §2e / EXP-0133.)
+

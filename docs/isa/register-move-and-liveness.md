@@ -7,8 +7,16 @@ lifetime mechanism that our docs denied. **Both reports were correct.** Two expe
 (`EXP-0086`, `EXP-0087`) were run to check our own claims; both found our documentation wrong or
 unproven in a way that would silently corrupt generated code.
 
-Target: **Apple M4 / G16G**, local host, `HW-PROBE + OWN-SHADER` splice evidence. A18 Pro/G17P is
-`INFERRED`-by-family; its validation is deferred until the device is available.
+Target: **Apple M4 / G16G**, local host, `HW-PROBE + OWN-SHADER` splice evidence — every fact in
+this chapter is `target: G16G`. A18 Pro/G17P is `INFERRED`-by-family and is **not** relabelled.
+
+> **Target status (2026-08-28).** All live testing has since moved to the **A18 Pro / G17P**, and
+> **closure is measured against full G17P** (`../../CODEX.md`, "Target discipline"). This
+> chapter's M4 evidence stays **valid on its own target** and is not retracted; **G17P
+> revalidation is under way (`EXP-0153`)**. Cross-target promotion requires a recorded validation
+> or an explicit `INFERRED` label — §2.8 shows why (a contradiction that looked like a device
+> difference turned out to be operand provenance), and `memory-model.md` §2A.5 shows the opposite
+> case (`tg_addr_compute`, a genuine live A18↔M4 divergence).
 
 ---
 
@@ -268,6 +276,45 @@ ALU-sourced control passes at all 8 — proving the harness and field wiring are
 bit21 does not help either. GPR-sourced `reg_move` still fails, and now also fails to read a
 `device_load`-written GPR. **New lead:** the failure returns an exact, reproducible `0x00000100`,
 not literal zero as EXP-0090 reported.
+
+## 2.8 The A18↔M4 lifetime contradiction is RESOLVED — it was operand PROVENANCE (EXP-0129) — `target: G16G`
+
+`HW-VALIDATED` (EXP-0129, commit `873cb9c3`; two captures sha256-identical `9bcdb378…`; gates
+re-run: `--selftest` 192 checks, `--seqtest` 4, `--captured` PASS). Source:
+`experiments/EXP-0129-m4-lifecycle-boundary-probe/RESULTS.md`.
+
+**The apparent A18↔M4 device difference was neither a device difference nor a dispatch-shape
+effect. It was how the operand under test had been SEEDED.**
+
+| operand seeded by | `cache = 1` | `cache = 0` | grid = 1 | grid = 4 |
+|---|---|---|---|---|
+| an **ALU** instruction | retains (`8.4078e-45`) | retains (`8.4078e-45`) | same | same |
+| a **`device_load`** | `2.8026e-45` | **silent `0.0`** | same | same |
+
+`EXP-M4-14`'s own literal anchor bytes break at **both** grid sizes. So `EXP-M4-14` (A18) and
+`EXP-0119` (M4) differed by operand seeding, and **neither prior record was wrong.**
+*(This supersedes the framing in `../evidence-classification.md` §3, which was written while the
+contradiction was still open — see the correction note there.)*
+
+**`ibitcount`'s release control is `srcdesc` bit 4** — bidirectional; bit 0 and bit 3 also break
+the stored result; **all other free bits are inert over a 22-case sweep**. It is **NOT**
+`cache`/bit 17, which stays independently inert even with bit 4 at its retaining setting.
+
+**Both `falu2` signatures reproduce for `ibitcount`:** restore-on-rewrite (20.0 → 28.0) and
+distance-invariance (0 / 1 / 4 intervening instructions).
+
+> **Verdict: there is ONE underlying release concept, routed differently per instruction family.**
+> An emitter must therefore look up the release control **per family** — `opflags` bit19/bit20 for
+> the `falu2` family (§2.7), `srcdesc` bit 4 for `ibitcount` — and must not carry one family's bit
+> position to another. EXP-0138 and EXP-0139 independently record the same warning for
+> `falu_srcmod12b` and `iadd2.dst`.
+
+**Bits 15/31 re-confirmed inert across four new axes:** real loop + if/else control flow, a
+`device_load`-sourced operand, ~40-register pressure with highest live index r55, and b16/half
+width.
+
+⛔ **NEGATIVE, stated:** the **fragment stage is NOT reached** (two positive controls failed
+within budget), and **the uniform-register operand class remains untested project-wide.**
 
 ## 3. Evidence status and open items
 

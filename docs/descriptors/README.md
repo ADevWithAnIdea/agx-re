@@ -46,7 +46,7 @@ are both correct and describe different things (slot stride vs payload size).
 |---|---|---|
 | lodMin | [0:12] | ×64 (6 frac bits); HW-validated 0.25/0.5/1.5/13.9. Metal clamps to lodMax ⇒ saturates 14.0 (EXP-M4-08) |
 | lodMax | [13:19] | ×8 (3 frac bits); HW-validated 0.25/1.5/3.0/13.9. **Metal saturates at 14.0** (field is 7-bit ⇒ 15.875 max, but >14.0 Metal-unreachable) |
-| maxAnisotropy | [20:22] | `log2`: 1/2/4/**8**/16→0/1/2/3/4 (8× HW-validated). 3-bit field could encode 128× but **Metal clamps >16 → 1×** (not 16×); >16× untested |
+| maxAnisotropy | [20:22] | `log2`: 1/2/4/**8**/16/**32**/**64**/**128**→0..7. **The full 3-bit range is real: HW-validated to at least 128× (EXP-0136, `target: G16G`)** — Metal's 16× cap is pure software. Metal still clamps >16 → 1× (not 16×), so >16× is reachable only by writing the descriptor directly. See [format-table.md](format-table.md) §4 |
 | magFilter | 23 | nearest/linear |
 | minFilter | 25 | nearest/linear |
 | mipFilter | [27:28] | none / nearest / linear |
@@ -71,11 +71,22 @@ word3[14:]** = `(v+1)×16` = bytesPerRow (e.g. r32float ×256 → word3[14:]=63 
 
 ## Capability notes (extrapolate-and-test → `../hypotheses.md`)
 - **Border color is HW-limited to 3 presets** — no arbitrary RGBA in the 8-byte sampler ⇒ Vulkan custom
-  border color must be **software-emulated**.
-- **`clampToZero` == `clampToBorder(transparent-black)`** — one HW address mode, not two.
-- **Anisotropy field is 3-bit log2** (could encode 128×); 8× and 16× HW-validated, but **Metal clamps
-  >16 back to 1×** (not 16×), so >16× stays untested — needs descriptor injection, not just a Metal knob
-  (EXP-M4-08 DESC-3/DESC-4). Likewise **lodMax > 14.0** is Metal-unreachable though the 7-bit field holds 15.875.
+  border color must be **software-emulated**. **Confirmed exhaustively: the 4th 2-bit code aliases to
+  preset 0 (transparent-black) from all three creation contexts — there is no hidden 4th preset**
+  (EXP-0136, `HW-VALIDATED`, `target: G16G`).
+- **`clampToZero` == `clampToBorder(transparent-black)`** — one HW address mode, not two. The
+  address-mode field's nominal 8 values hold **exactly 5 distinct hardware behaviours**: codes 4/6/7
+  are deterministic aliases (4→clampToEdge, 6/7→clampToBorder) while code 5 (mirrorClampToEdge) is
+  genuinely distinct (EXP-0136, `target: G16G`).
+- **Anisotropy: ✅ works natively to at least 128×** — the 3-bit log2 field's full range is real and
+  the quality effect is threshold-exact. ~~*>16× stays untested.*~~ **Metal's 16× cap is pure
+  software** (EXP-0136, `HW-VALIDATED`, `target: G16G`; supersedes EXP-M4-08 DESC-3/DESC-4's
+  "untested"). Reaching >16× still requires writing the descriptor directly, since Metal clamps
+  >16 back to 1×. **`lodMax > 14.0` remains Metal-unreachable and untested** though the 7-bit field
+  holds 15.875.
+- ⛔ **Texture swizzle codes 6 and 7 HARD-FAULT the command buffer** (`CMDBUF_ERROR`, GPU-hang class,
+  fault-contained) — **never emit them**. Codes 0–5 (R, G, B, A, One, Zero) are HW-validated by
+  direct construction (EXP-0136, `target: G16G`).
 - All 8 compare functions, full channel swizzle, and sRGB/format/numeric-type orthogonality are native.
 
 Source: `experiments/EXP-0015-descriptors/` (`tvar.m`, `descx.py`).

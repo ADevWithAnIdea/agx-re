@@ -14,6 +14,89 @@ never from Apple binaries. See `../../CLAUDE.md`.
 > **RT-1a-FIX (HW-re-validated red-team corrections applied):** memory-op **index register = byte+5** (not byte+1/+6; byte+6 inert; byte+1 = address space) + an in-instruction **immediate index-offset** at byte+9 bit7/+10/+11; **iadd2 polarity** corrected (byte0 `0x9f`=ADD, `0x1f`=SUBTRACT); a proper **float uniform-register source** (`falu2_uni`, disambiguated from the minifloat immediate by byte+1's exponent range); and descriptors/lengths for the four-byte byte0 `0x60` form + the byte+2=`0x18` compact float-accumulate. The A18 splice validates the 0x60 form's length/live byte, not a universal spill role: EXP-0041 found `60 00 00 00` absent from all nine retained M4 own mains including 208–576 B scratch. See `experiments/RT-1a-FIX/` and `experiments/EXP-0041-scratch-helper-abi/`.
 > ✅ = hardware-validated (run modified code, observe output); ⏳ = byte-diff-inferred, not yet HW-round-tripped.
 
+## Emittability status — what an implementer can actually *generate* (measured)
+
+> **Read this before using any encoding table in this file.** *Decoding* and *emitting* are
+> different claims. `tools/agx-isa/db.json` round-trips the corpus **302/302**, which proves the
+> tables can tokenize and re-serialize observed bytes; it does **not** prove that an emitter can
+> put an arbitrary legal value in a field and get the documented behaviour. The per-field
+> labelling standard that separates the two is [`../evidence-classification.md`](../evidence-classification.md)
+> (row `DOC-02`), and the live measured state is the `coverage` block of
+> `tools/agx-isa/validation.json` (`generated: 2026-08-28`, `db_sha256 eaca7256…`).
+
+**Measured state — `target: G16G` (Apple M4).** Every field label below was established by an
+experiment that ran on the **local M4 / G16G**. It is **not** relabelled G17P and does not
+transfer: see "Target status" at the end of this section.
+
+| | |
+|---|---|
+| Instructions in the database | **171** |
+| Instructions **EMITTABLE** | **38** |
+| Instructions **decodable, not yet emittable** | **133** |
+| Fields total | **1036** |
+| Fields at **emitter grade** (`hardware-run` 349 + `isolated-byte-diff` 94) | **443 = 42.8 %** |
+
+Per-label field counts, strongest first, with what each one licenses a compiler back-end to do:
+
+| label | fields | % | what an emitter may do with it | CODEX ladder |
+|---|---|---|---|---|
+| `hardware-run` | 349 | 33.7 % | Emit **arbitrary values inside the field's recorded `range`**. The field was given values the compiler would never choose — boundaries, holes, out-of-range — spliced into a real program and executed. | `HW-VALIDATED` |
+| `isolated-byte-diff` | 94 | 9.1 % | Emit **only at the tested points**. An isolated byte change in code compiled from our own MSL ran with the predicted effect, but the range was not swept. | `HW-VALIDATED` (point) |
+| `corpus-correlation` | 182 | 17.6 % | **Do not synthesize.** Meaning inferred from co-variation across our own compiled shaders; nothing was executed. Reproduce the observed value. | `STRUCTURAL` |
+| `tokenization-only` | 203 | 19.6 % | **Do not synthesize.** The field exists so length/framing round-trips; its semantics are unknown. | `STRUCTURAL` |
+| `single-template-inference` | 13 | 1.3 % | **Do not synthesize.** Read out of exactly one example — could be a constant, a don't-care, or load-bearing. | `INFERRED` |
+| `api-accept-reject` | 0 | 0 % | A statement about what Metal/the compiler service accepts, **not** about the hardware field. | `INFERRED` |
+| `host-private` | 0 | 0 % | Not a field userspace fills. | *(out of scope)* |
+| `untested` | 195 | 18.8 % | A **gap**. It is listed so you can see it, not so you can fill it by guessing. This is the default for any field with no explicit label. | `UNKNOWN` |
+
+**The 38 emittable mnemonics** (every emitter-filled field at `hardware-run` or
+`isolated-byte-diff`; `tools/agx-isa/validation.json` → `coverage.emittable_mnemonics`):
+
+`copysign` · `cvt_f2h` · `cvt_f2i` · `cvt_i2f` · `cvt_i2f_src` · `device_load` · `device_store` ·
+`falu2` · `frame_prologue` · `get_sr` · `half_alu` · `half_alu_ext8` · `ibitcount` · `if_push` ·
+`iunary` · `link_save_restore` · `matrix_mac` · `mov_imm` · `n3_sample_read` · `pack_convert` ·
+`pixel_order` · `psel` · `reg_move_c0` · `reg_move_c1` · `reg_move_c2var` · `reg_move_c9` ·
+`reg_move_cb` · `sel` · `spill_frame_marker` · `stop` · `tex_addr_setup` ·
+`threadgroup_barrier` · `tile_read` · `tile_read_mrt` · `uniform_mov` · `unpack_convert` ·
+`vtx_coord_xform` · `vtx_out_pos`
+
+> ⚠️ **Read "emittable" strictly.** It means *every emitter-filled field of that descriptor is
+> `hardware-run` or `isolated-byte-diff`*. It does **not** mean the instruction covers every
+> semantic role a compiler might want from it. The clearest example is the `reg_move_*` /
+> `uniform_mov` cluster: it is emittable for its **immediate** and **uniform-register** source
+> classes, while a general **GPR→GPR move from a register a preceding computation wrote** remains
+> an open hard negative ([`register-move-and-liveness.md`](register-move-and-liveness.md) §1.0).
+
+**Everything else in this file is "decodable, not yet emittable".** Per `DOC-02`'s verbatim
+rule — *"do not use 'emittable' for a family whose arbitrary operands have not executed"* — a
+✅ in a section heading below means the *claim in that section* was hardware-validated. It does
+**not** mean every field of that instruction can be freely synthesized. Check
+`validation.json` per field before emitting.
+
+**Why the distinction bites harder here than on most ISAs.** On Apple9 a wrong operand-field
+value overwhelmingly produces a **silent zero, not a fault**. Measured instances from the
+2026-08-28 emitter wave, all `target: G16G`:
+
+- `device_load` destination register `R ≥ 64` — silently zeroes, no fault (EXP-0141).
+- `tile_read` byte+6 bit 0 clear, or a wrong `rt_index` — silent zero, i.e. a **black tile**
+  in a BG/EOT program rather than a failed command buffer (EXP-0147).
+- `matrix_mac.dst_desc` outside `bit6=1, bit7=0` — 128 of 256 values silently zero (EXP-0147).
+- `get_sr.dp_width` / `.dp_marker`, `psel.mode` / `.flag`, `ret.linkmode` — each accepts only a
+  masked subset; outside it the usual outcome is a **silent wrong value** (EXP-0140).
+- `falu2.mod_lo` bit 2 — reads `0.0` at the very index where the neighbouring class reads a
+  live operand (EXP-0138).
+
+A driver that fills an unvalidated field with a plausible-looking value therefore fails
+quietly and far from the cause. That is the reason this whole labelling standard exists.
+
+**Target status (current rule).** All sixteen P0/P1 closure rows are now measured against
+**full G17P**, and all live testing has moved to the A18 Pro / G17P (`CODEX.md` "Target
+discipline", user directive 2026-08-28). Every field label counted above was, however,
+measured on **M4 / G16G**. Those results remain **valid on their own target** and are not
+retracted; they are **not** promoted to G17P. G17P revalidation is under way (`EXP-0153`), and
+cross-target promotion requires a recorded validation or an explicit `INFERRED` label —
+never a silent relabel.
+
 ## How we get the bytes (validated — EXP-0001)
 
 Our own MSL → runtime `newLibraryWithSource:` → compute pipeline → `MTLBinaryArchive`
@@ -193,6 +276,87 @@ set ⇒ srcA passthrough. Only add/mul are *validated*; sub/min/max/fma use diff
   (splice-proven: 5+3=8 → byte+5 0xc0→0xc8 → −2); abs → 10B form, abs-enable **byte+8** (bit0 slotB /
   bit1 slotA). fma (8B): multiplicand negate = **byte+7 bit3**, addend negate = **byte+4 bit4**,
   addend abs = **byte+4 bit3**, src-abs → 12B (byte+4=0x83).
+
+### ✅ `falu2` operand SOURCE-CLASS model + an inline float immediate (EXP-0138) — `target: G16G`
+
+`falu2` is the most-used instruction in the ISA and it is now **EMITTABLE**: its last blocking
+field, `mod_lo`, is `hardware-run` dense over all 8 values, with an identical per-case outcome
+map in three independent runs (98/98 cases each, 294/294 overall). Evidence label
+**`HW-VALIDATED`** (splice-and-observe), `target: G16G` (local Apple M4, macOS 26.6.2/25G82).
+Source: `experiments/EXP-0138-m4-emit-falu/RESULTS.md` §2–§3.
+
+**`mod_lo` is not a spare modifier — it is an operand-source-class field.**
+
+| bits | selects | values |
+|---|---|---|
+| **bit 0** | `srcA`'s source class | `0` = GPR at `srcA_reg`. `1` = a second class that **returned `0.0` at every index tested** (`srcA_reg` ∈ {0, 6}). It is **NOT** the uniform file: at `srcA_reg = 6`, where the uniform file holds `101.0`, `mod_lo = 1` still produced `0.0`. |
+| **bits[2:1]** | `srcB`'s source class | `0` = GPR at `srcB_reg`; `1` = the **non-GPR operand file** addressed by `srcB_reg` (below); `2` and `3` both read **`0.0`**, and **bit 2 dominates bit 1** — `mod_lo = 6` reads `0.0` at the very index where `mod_lo = 2` reads `101.0`. |
+
+The pre-registered hypothesis (bit 0 = "srcA reads the uniform file"; bit 2 behaves like bit 1)
+was **REFUTED in both halves** and replaced by the rule above, which was then scored against
+every case. The pre-registered refuter fired as designed: `mod_lo = 2` with `srcB_reg = 2` (an
+unbound uniform index) returned `5.0`, not the GPR answer `8.0`.
+
+**In source class 1, `srcB_reg` 64..127 is an inline 8-bit minifloat immediate.** `srcB_reg`
+**bit 6 is live in this class**, which is why it was invisible in GPR mode, where EXP-0099 /
+EXP-0112 correctly found bit 6 inert (`r(R mod 64)` aliasing).
+
+| `srcB_reg` range | meaning |
+|---|---|
+| `0..63` | uniform-register file index. The bound `constant float4& = {101,202,303,404}` appeared at indices **6..9**. |
+| `64..127` | **inline 8-bit minifloat immediate**, `k = srcB_reg − 64`, `e = k >> 3`, `m = k & 7`: `value = m · 2^-5` when `e == 0`, else `value = (8 + m) · 2^(e−6)`. |
+
+**Ten HW-confirmed points** (`k` → value): `0`→0, `2`→0.0625, `3`→0.09375, `31`→1.875,
+`32`→2.0, `48`→8.0, `56`→16.0, `61`→26.0, `62`→28.0, `63`→30.0.
+
+- **Safety consequence:** indices **126/127 do NOT fault in this mode** — they are the
+  immediates 28.0 and 30.0 — unlike GPR mode, where EXP-0112 recorded a fault. **The register
+  model does not transfer across `mod_lo` classes.**
+- *Editorial cross-reference (arithmetic identity of two already-documented formulas, not a new
+  measurement):* this value table produces the same magnitude set `{0, 1/32 … 30.0}` as the
+  bit-39 packed immediate documented under "Packed float immediate = 8-bit minifloat" below —
+  substituting `e = exp − 8`, `m = mant` turns one formula into the other. They are two
+  *routes* to the same minifloat table, reached by different encoding fields.
+- **Carrier-specific, stated as such:** uniform index `10` read back ≈1.0 in this carrier. That
+  is `kernels/carrier_uni.metal`'s own literal, not a hardware fact; the experiment's
+  `analysis/model_check.py` marks it `CARRIER_SPECIFIC`.
+
+**Three further float-ALU instructions became emittable in the same wave** (`target: G16G`):
+
+- **`copysign` (4 B): `operands` (byte+3) is INERT** — all 256 values return the same result.
+  That is a hardware fact, not a dead path: the pre-registered falsifier arm on byte+1 fired
+  hard (240/256 values silently zero, 8 return −5.0, 8 return +5.0). `db.json` models byte+1 and
+  byte+2 as fixed match constants; **byte+1 is a live operand field and byte+2 is a 256/256
+  don't-care.**
+- **`half_alu`: byte+1 is the FIRST SOURCE DESCRIPTOR, not the destination** (`dst`/`opflags`
+  both dense `hardware-run`). Descriptor **bit 7 is confirmed inert** (`0x82` ≡ `0x02`,
+  `0x84` ≡ `0x04`) — an independent reproduction of EXP-0099's inert-top-bit finding on a
+  different family. `opflags` 0..7 behave as the anchor; 8..29 change the result
+  (release-source semantics, cf. EXP-0086/0099); 10..31 silently zero.
+- **`half_alu_ext8`:** `dst`, `opflags`, `b7_lo`, `b7_mid` all dense `hardware-run`;
+  `b7_lo`/`b7_mid` inert across their whole range.
+
+**Negative and safety results (first-class, `target: G16G`):**
+
+- ⛔ **`fspecial.src` (byte+3) values 192..255 fault or hang the GPU.** On an isolated host,
+  values 192, 193, 194 each **hung the GPU three times in a row** under a 12 s watchdog; only
+  values 2 and 3 give the correct `rsqrt(4) = 0.5`; 188 values silently return `0.0`.
+  **An emitter must never set byte+3 bit 7 of `fspecial`.** The whole `fspecial` arm was stopped
+  after the hangs, so all 11 of its fields keep their prior labels — reported `PARTIAL`.
+- **`falu_srcmod12b.srcB_neg` and `.mod_lo` are inert** at the operands tested, although the
+  *same-named* fields on `falu2` are live. **Do not assume one operand model across the
+  float-ALU families** — the same lesson EXP-0139 recorded for `iadd2.dst`.
+- `falu_srcmod12b` and `half_alu_fma12` remain **`emit_unsafe` regardless of their field
+  labels** (`falu_srcmod12b` `opsel == 4` corrupts an unrelated, independently seeded register —
+  EXP-0119).
+- **`falu3`/`falu3_ext` field NAMES in `db.json` are misleading** (confirmed): byte0's high
+  nibble is the **destination** (`dst_lo`), byte+1 (`dst`) is the FIRST SOURCE, byte+3 (`srcA`)
+  the SECOND, byte+5 (`srcC`) the THIRD, and byte+4 (`srcB`) is a CONTROL byte whose low 2 bits
+  are the 0x09-group length selector. An emitter following the names would put the destination
+  in a source slot.
+- **Scope limit:** 7-bit register fields were swept `0..15` dense plus 17 boundary values,
+  **not** `0..127` dense. Wide `ext`/`ext_srcmod` tails are `isolated-byte-diff` only — each
+  constituent byte was swept 0..255, the full 16/32/48-bit space is **not** claimed.
 
 ### ✅ Machine model — registers, uniforms, Dynamic Caching (EXP-0020, supersedes EXP-0006 "64")
 - **96 addressable 32-bit GPRs per thread** (r0–r95, **96 DISTINCT registers — a hard silicon boundary**).
@@ -425,6 +589,111 @@ now fixed: the descriptor field is `addsub` with enum `1`=iadd/`0`=isub.)
   **thread-invariant** expressions, leaving results in uniform registers (read directly by the main
   program). This resolves its earlier "advisory prolog" mystery.
 
+### ✅ MOV / select / uniform-move families — emitter rules (EXP-0140) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (dense splice sweeps, two gated captures), `target: G16G`
+(local Apple M4). Source: `experiments/EXP-0140-m4-emit-mov-cf/RESULTS.md`.
+**11 of 23 dispatched instructions moved from "decodable" to EMITTABLE** (3 → 14 of 23):
+`get_sr`, `mov_imm`, `psel`, `sel`, `uniform_mov`, `reg_move_c0/c1/c2var/c9/cb`, `if_push`.
+
+**`uniform_mov.usrc` (byte+1) is a two-region field — and its upper half is a second way to
+materialise a constant.**
+
+| `usrc` | behaviour |
+|---|---|
+| `≥ 0x80` | **materialises the immediate `usrc & 0x7F`** into the destination GPR — a 7-bit immediate move, *not* a uniform read. **128/128** immediate-region values matched a host-computed oracle exactly. |
+| `< 0x80` | selects a uniform register, **pair-quantised**: `usrc` and `usrc ^ 1` read the same 32-bit word, and consecutive uniforms step by 4. **8/8** of the indices holding our four bound magic constants returned them exactly (`0x18/0x19`→u0, `0x1C/0x1D`→u1, `0x20/0x21`→u2, `0x24/0x25`→u3). Buffer base addresses were observed at `usrc` `0x00/0x01` and `0x04/0x05`; **unallocated uniform indices return a silent zero.** |
+
+So an emitter now has **two independent ways to materialise a small constant**: `mov_imm`
+(7-bit, r0..r15) and the `0x?B` family with `usrc ≥ 0x80` (7-bit, r0..r15). The latter was
+previously documented as a uniform-register read only.
+
+> ⚠️ **"Emittable" here does NOT mean a general GPR→GPR move exists.** Under `DOC-02` a family is
+> emittable when every emitter-filled field is `hardware-run` or `isolated-byte-diff` — which this
+> family now satisfies for its **immediate** and **uniform-register** source classes. It says
+> nothing about moving from a GPR written by a preceding computation, which remains the open hard
+> negative documented in [`register-move-and-liveness.md`](register-move-and-liveness.md) §1.0
+> (EXP-0090's scope correction: EXP-0087's validated cases were **entirely
+> uniform-register-sourced**). Do not read this section as closing `nir_op_mov`.
+
+The rest of that cluster: **`dst`** (byte0 high nibble) — all 16 values write r_D and nothing
+else. **byte+2** moves a value exactly when `(v & 0xCB) == 0x01` (8 of 256 values).
+**byte+3** moves a value exactly when `(v & 0x0E) == 0x08` (32 of 256 values).
+
+> **`db.json` defect (recorded, not patched here):** `reg_move_c0` / `c1` / `c2var` / `c9` /
+> `cb` / `uniform_mov` are **ONE instruction, not six** — a single 256-value sweep of byte+2 in
+> one carrier shows the five "descriptors" are five values of one 8-bit form field. `db.json`'s
+> split of byte+1 into `src_reg` + `src_flag` also does not match hardware: **bit 7 is the
+> immediate-vs-uniform-file selector**, not a register-file half flag.
+
+**⚠️ RETRACTION — `mov_imm`'s "silent zero" was a zero-initialised buffer (EXP-0140 corrects
+EXP-0128).** EXP-0128 reported that `mov_imm` immediates 128..255 "silently zero" the
+destination. That reading was taken against a **zero-initialised read-back buffer**. Against a
+**poisoned** buffer the paired control settles it:
+
+- with `imm_top = 1` the instruction **does not write the destination register at all** — the
+  destination keeps its previous value (7, not 0) when 4 bytes of inert padding follow it;
+- **unpadded, it consumes the following 2-byte instruction**, so the read-back store addresses
+  the wrong word.
+
+**Bit 7 selects a different, longer instruction. It neither extends the immediate nor zeroes.**
+EXP-0128's *conclusion* — treat the immediate as **7 bits** — stands; its *mechanism* does not.
+`mov_imm.dst` is `hardware-run` 16/16: every value 0..15 wrote only r_D, confirmed by four
+independent 12-register aliasing scans.
+
+> **Decoder defect, not a hardware claim:** `mov_imm` with `imm7 == 12` does not tokenize under
+> the current length rule (byte+1 = `0x0C` makes the 2-byte pair look like the 4-byte `0x?c`
+> preamble group). It is the only immediate in 0..127 with this property, checked exhaustively
+> over all 16 `dst` values. Whether the hardware agrees was **not tested**; every immediate
+> EXP-0140 emitted avoids 12.
+
+**`get_sr` — the two "opaque" bytes are not don't-cares.** Oracle: grid=8/tg=8, a working
+`thread_position_in_grid.x` read makes each lane store its own index.
+
+| field | reads the SR correctly iff | notes |
+|---|---|---|
+| `form` | 0 or 1 | **both inert** |
+| `dp_width` | `(v & 0xD3) == 0x10` | bits 0,1,6,7 clear, bit 4 set; bits 2,3,5 don't-care. **Faults on 32 of 256 values**; silently returns the wrong vector on 216. |
+| `dp_marker` | `(v & 0xE6) == 0x06` | bits 1,2 set, bits 5,6,7 clear; bits 0,3,4 don't-care. Wrong vector on the other 24. |
+
+**`sel.body` is three located byte-fields, not one opaque 24-bit `raw`.**
+
+- **byte+3 = the predicate-FALSE operand.** With bit 7 set it is an **8-bit immediate whose
+  value is the byte itself** (128..255) — matched a host-computed oracle on **510 of 512** cases
+  (the other 2 were environmental faults). With bit 7 clear it selects an operand that read 0 in
+  this carrier. Independently confirmed statically against five authored `?:` variants:
+  `(a>5)?130:250` compiles to `16 c2 a0 fa` (0xFA = 250) and `(a>5)?100:200` to `16 c2 a0 c8`.
+- **byte+2** splits into four 64-value classes: 128 inert, 128 wrong value, 128 silent zero,
+  **127 fault**.
+- **byte+1** is the predicate/operand source selector: only 4 values (194, 198, 202, 206) are
+  inert; 248 silently zero and 256 return a different value.
+
+**`psel`** has the same structure: `sel` (byte+3) **512/512 matched the oracle** with the
+identical immediate model; `mode` (byte+2) inert exactly when `(v & 0xC0) == 0x00` (64 values,
+127 values **fault**); `flag` (byte+1) inert exactly when `(v & 0x12) == 0x02`.
+
+**Control-flow bytes an emitter may fill freely, measured inert across all 256 values** in a
+program whose oracle proves the branch and the mask stack executed: `if_push.scope`,
+`if_push_pred.scope`, `jump.link`, `jump.branch_ctrl`, `pop_reconverge.scope`. Load-bearing in
+the same family: `if_push.scope_kind` (64 values inert, 178 wrong value, 1 hang);
+`pop_reconverge.scope_kind = 0` is the single fatal value; `ret.linkmode` runs **only when
+`(v & 7) == 4`** — the other 224 values fault.
+
+**What EXP-0140 does NOT establish (`UNKNOWN`, deliberately):**
+
+- **`jump_cond`'s three fields stay `untested`.** Every structured offset — including targets
+  that are not instruction starts and targets *outside the program* — reproduced the baseline,
+  and so did all 256 values of `cf_scope` and `reserved`. The carrier is structurally powerless:
+  `jump_cond` is the loop-entry guard and the only lane whose guard is true has trip count 0, so
+  both paths compute the same value. **EXP-0115's branch reach was measured on `jump` and does
+  not transfer to `jump_cond`.**
+- `mask_op`, `ret_luse`, `call`, `call_indirect` were **not swept at all**.
+- `ret.scoreboard` and `if_push_pred.level` were stopped by the two-hang budget.
+- **Methodological caution:** *lengthening a control-flow carrier is not semantically neutral*,
+  even when the documented `base_slot` trap is avoided — adding arithmetic on an accumulator
+  alone (no new buffer reference) moved the constant the reused skeleton's select compares
+  against, so every lane took the TRUE arm, while every `base_slot` value stayed identical.
+
 ### ✅ Memory access family (EXP-0012)
 Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14 bytes:
 
@@ -462,6 +731,54 @@ Device & threadgroup load/store share opcodes `0x67` (load) / `0xe7` (store), 14
 - **What byte address a load/store actually touches once misaligned or out-of-allocation** (per-unit
   align-down addressing, OOB zero-fill/discard, boundary-straddling behavior; M4/G16G, EXP-0076) is
   documented separately in [`memory-model.md`](memory-model.md) — a normative chapter, not covered here.
+
+### ✅ Memory-family operand rules an emitter must follow (EXP-0141) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (exhaustive splice sweeps, ~71,000 GPU measurements, 4 gated
+runs), `target: G16G` (local Apple M4). Source:
+`experiments/EXP-0141-m4-emit-mem/RESULTS.md`. This is what took `device_load`, `device_store`
+and `threadgroup_barrier` from "decodable" to **emittable** (emitter-grade fields 246 → 288;
+emittable instructions 7 → 10 of 171 at that point in the wave). The full normative statement,
+with ranges and fallbacks, is [`memory-model.md` §2A](memory-model.md); the register-lifetime
+context is [`register-move-and-liveness.md`](register-move-and-liveness.md).
+
+- **Destination register rule (supersedes the EXP-M4-13 formula that EXP-0101 retracted).**
+  `dst_lo`/`dst_ext9` carry **no register information**. To land a load in register `R`:
+  `extmode = 2·R` (**bit 0 is a don't-care**), `dst_lo = 1` **exactly**, `dst_ext9` **bit 0 = 1**
+  — three constrained bits of the nine those fields span. **`extmode` 0..127 all match and
+  128..255 all fail**, so `R` is reachable only for **`R = 0..63`; `R ≥ 64` silently zeroes**
+  through this field. Identical at r3/r7/r20/r33 and under all 21 working `ld_format` codes.
+- **The atomic RMW operand register is ENCODED, not implicit.** `db.json` said "implicit
+  (supplied by the preceding op / amode)" and `DOC-02` ranked it MISSING. It is carried in
+  **byte+5 bit 7 plus byte+6 bits 0..5**:
+  `index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1)`. Proven at all four constructible indices with
+  the redirected register **released** (a later reader gets 0 — the same contract EXP-0086/0089/
+  0099 document), on a **uniform-address** carrier that the old per-lane `index_reg` reading
+  cannot explain. The **address** role of byte+5/+6 is not excluded for the per-lane form; the
+  **data** role is proven for the uniform form.
+- **`device_store` byte+2 bit 1 is a DATA-SOURCE SELECTOR.** It is **inert when the data is
+  ALU-computed** (256/256 pass — which is exactly the configuration EXP-0119 measured and
+  reported as inert) but **required when the source is a forwarded load**.
+- **Five `rsv*` bytes in `atomic_mem`/`atomic_tg` are live and heavily constrained, not
+  padding** — only a handful of the 256 values work in each. An emitter must not write arbitrary
+  values there.
+
+**Not moved, with reasons (`untested`, honestly scoped):** `mem_fence` ×3 and
+`dev_scoreboard_fence.scope_flag` — the carriers have **no ordering observable**, so a pass
+proves nothing; `mem_fence8` ×2 — no dispatchable carrier; `atomic_tg.op_desc` — hang budget.
+
+> **⚠️ A18↔M4 divergence, reported not resolved.** `tg_addr_compute`'s emittable veto **stands
+> on new grounds**: on M4 only byte0 `0x1c` works, and EXP-M4-14's A18 `0xfc` does **not**
+> reproduce. This is a fresh G17P↔G16G divergence and must not be papered over by assuming
+> family equality.
+
+> **Testbed hazards discovered here, relevant to anyone reproducing this work.** (1) A third
+> contamination mode exists: **`STATUS OK` with nothing executed**, whose output is
+> zero-initialised — which on this ISA is *also* the expected signature of a wrong field value.
+> It corrupted EXP-0141's own baseline during smoke and was mitigated with an integrity sentinel
+> written through a path independent of the instruction under test. (2) Reusing one splice-archive
+> path across persistent-runner requests produces **~8 % phantom `CMDBUF_ERROR`** (28/360 vs
+> 0/360 with unique paths).
 
 ### ✅ Scalar ALU completion — conversions, fma, unary, transcendentals, bitwise, shift, compare (EXP-0013)
 DB now has **24 HW-validated descriptors**. Summary (all HW-validated unless noted):
@@ -587,6 +904,39 @@ Apple9 has a **dedicated matrix/MAC-array unit**, not a lane-cooperative FMA emu
   `0xcf`** — larger shapes are software-tiled over the 8×8×8 primitive.
 - HW-validated: A·B+C with distinct known A,B,C returns correct C.
 
+#### ✅ The matrix unit also computes `A·B − C` — a mode Metal never emits (EXP-0147) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (dense full-range sweeps, 2 gated runs, 100 % cross-run
+agreement, zero unstable cases), `target: G16G` (local Apple M4). Source:
+`experiments/EXP-0147-m4-emit-pipeline-misc/RESULTS.md` §2.1. **`matrix_mac` is now EMITTABLE**
+— both remaining blocking fields resolved, so all 12 of its fields are `hardware-run` or
+`isolated-byte-diff`.
+
+**`b11hi` (byte+11 bits 1..7, 7 bits, all 128 values, twice) — the two low bits are accumulator
+sign controls, not padding.** Correct `a·b + c` requires **`(b11hi & 3) == 0`** (32 of 128
+values); bits 2..6 are don't-care. The other three settings are real, resolved per tile row:
+
+| `b11hi & 3` | rows 0–3 | rows 4–7 | operation |
+|---|---|---|---|
+| `0` | `+C` | `+C` | `A·B + C` (the only mode `simdgroup_multiply_accumulate` emits) |
+| `1` (bit 0) | `−C` | `+C` | **half-tile multiply-subtract** |
+| `2` (bit 1) | `−C` | `−C` | **`A·B − C`** (full-tile multiply-subtract) |
+| `3` (both) | `+C` | `−C` | **half-tile multiply-subtract, opposite half** |
+
+So the matrix unit performs **matrix multiply-subtract and a half-tile variant**, neither of
+which Metal's `simdgroup_multiply_accumulate` ever emits. Found by perturbing a field the
+database modelled as opaque `raw` — the extrapolate-and-test method — with the negative-space
+value map recorded alongside.
+
+**`dst_desc` (byte+9, all 256 values, twice):** correct `A·B + C` **iff bit 6 = 1 and bit 7 = 0**
+(64/64); bits 0–5 are don't-care. `0x00–0x3F` and `0x80–0xBF` (128 values) **silently zero**;
+`0xC0–0xFF` (64 values) return a wrong value. Verified as a set identity against the raw
+records, not by eyeballing ranges.
+
+> Compare the M5/G17g result `H-M5-1` in [`../hypotheses.md`](../hypotheses.md), where a
+> *different* bit (byte+13 bit 6) negates the **A·B product** on Apple10. The two are separate
+> findings on separate targets; neither transfers to the other.
+
 ### ✅ Hardware ray tracing — HYBRID (EXP-0023)
 Apple9 has **dedicated ray-tracing instructions** that drive a **compiler-generated (software) BVH-
 traversal loop** in the shader — not one fire-and-forget "trace ray" op. Proven dedicated: both novel
@@ -693,9 +1043,136 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   reg, no distinct op.
 - **Tilebuffer read — `tile_read`** (byte0 `0x67`, byte+1=`0x0e`, 12 B): a `[[color(n)]]` *input* reads the
   tilebuffer (the `ld_tile` analogue). HW-proven: `out = src*0.5 + clear*0.5` — confirms in-shader
-  programmable blend (EXP-0019).
+  programmable blend (EXP-0019). **Now EMITTABLE with a per-field legal-value set — and its
+  failure mode is a silent zero (a black tile), not a fault: see the `tile_read` section below
+  (EXP-0147, `target: G16G`).**
 - **Pixel ordering (raster-order-groups) — `pixel_order`** (byte0 `0x07` fence family, same as the compute
-  `threadgroup_barrier`): `07 14 54 50 06 00` (acquire) + `07 04 54 d0 06 00` (release). ⏳ byte-diff inferred.
+  `threadgroup_barrier`): `07 14 54 50 06 00` (acquire) + `07 04 54 d0 06 00` (release).
+  ~~⏳ byte-diff inferred.~~ **SUPERSEDED — now HW-VALIDATED with the full accepted value set per
+  field, and `pixel_order` is EMITTABLE: see the `pixel_order` section below (EXP-0147,
+  `target: G16G`).**
+
+### ⚠️ Barycentric interpolation is BROKEN when the fragment shader reads `[[position]]` (EXP-0137) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (own-MSL compile + disassembly + hardware readback, two gated
+runs), `target: G16G` (local Apple M4). Source:
+`experiments/EXP-0137-m4-bary-split-abi/RESULTS.md`. This is the single most surprising
+fragment-stage fact in the P0.8 work and a driver must know it before it lowers
+`gl_BaryCoord` / `SPV_KHR_fragment_shader_barycentric`.
+
+**The trigger is the fragment shader reading `[[position]]`.** Not output count, not an extra
+varying, not the harness — each of those was controlled for.
+
+| variant class | measured `barycentric_coord` at the sample point |
+|---|---|
+| non-position (`base`, `count3_const`, `count3_vary`, `attach3ctrl`) | `(0.243489, 0.134766, 0.621745)` — **correct** |
+| position-touching (`pos3`, `pos2`, `posread_noout`) | `(0.486979, 0.269532, 0.243489)` — **broken** |
+
+`posread_noout` only **stores** position to a `device` buffer and never emits it, and it is still
+broken. The ratio between the two is **exactly 2.0**: the broken values are **unnormalized
+perspective numerators**, with the third component derived as `1 − b0 − b1` and the
+normalize-by-sum step simply **absent**.
+
+**What the disassembly of our own compiled shaders shows:** the broken form has **2 `iter` ops
+and ZERO `fspecial`**. The discriminating control is `count3_vary` — `iter = 6`, `fspecial = 1`,
+i.e. a reciprocal **is** present and the result is still correct — so *"an rcp exists"* is not
+the condition. The condition is the `[[position]]` read.
+
+**⛔ NEGATIVE, and it removes the obvious workaround: MSL's
+`[[barycentric_coord, center_perspective]]` / `[[..., center_no_perspective]]` qualifier
+compiles but is a COMPLETE NO-OP.** Both qualified forms produce **identical disassembly** to
+the unqualified form (`iter = 2`, `fspecial = 0`) and identical results. **There is no
+MSL-level escape hatch.** A driver that needs correct perspective barycentrics in a shader that
+also reads `[[position]]` must normalize the numerators itself.
+
+**Convention (needed to match Vulkan/GL semantics):** `barycentric_coord.x/y/z` follow **vertex
+emission order** (`vid % 3 = 0, 1, 2`); perspective-correct is the intended semantic.
+
+**Related P0.8 result — there is no native prolog/epilog split contract, and inlining is not
+`noinline`-controllable.** Refining EXP-0109: a **memory-touching vertex helper** and a
+**2-call-site compute helper** *are* kept out-of-line, as named Mach-O local symbols reached by
+a real `call` / `frame_marker` / `pop_reconverge` sequence — but a **single-call-site fragment
+epilog inlines despite `noinline`**. An implementer cannot rely on the compiler's out-of-lining
+to define a stage ABI boundary.
+
+### ✅ `tile_read` / `tile_read_mrt` are EMITTABLE — and their failure mode is a black tile (EXP-0147) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (all 256 values per byte, twice; liveness proven by a
+clear-colour control and a litmus-power probe that collapses the read to zero), `target: G16G`.
+Source: `experiments/EXP-0147-m4-emit-pipeline-misc/RESULTS.md` §2.2. All 7 `tile_read` fields
+and all 6 `tile_read_mrt` fields promoted. This advances **P0.4**: a BG/EOT program's tilebuffer
+read is now a specified encoding with a stated legal-value set per field, not a copied template.
+
+| field | rule, measured over all 256 values, twice |
+|---|---|
+| `b2` | **fully inert** — all 256 values give the byte-exact correct pixel |
+| `b4` | **fully inert** — all 256 correct |
+| **`b6`** | **bit 0 is a READ-ENABLE.** All 128 **odd** values are correct; all 128 **even** values return a **SILENT ZERO**. Bits 1–7 don't-care. Identical on `tile_read_mrt`. |
+| `rt_index` | correct only at `0x00, 0x01, 0x80, 0x81` (baseline `0x00`) — bit 0 and bit 7 don't-care; **every other index silently returns zero** with one attachment bound |
+| `dst` | correct only at `0x00, 0x01, 0xC0, 0xC1`; `0x02–0x07` wrong; the bulk silently zero; `0xF6–0xFF` fault or collateral |
+| `b7` | correct only at `0xAE, 0xAF, 0xEE, 0xEF` (baseline `0xAE`); **85 of 256 values are nondeterministic** across replicates |
+| `tail` | bytes 1 and 3 almost entirely **silent zero** off their baseline; byte 0 is nondeterminism-heavy |
+
+`tile_read_mrt` reproduces the same shape shifted by its baseline (`dst` OK at
+`0x08, 0x09, 0xC8, 0xC9`; `rt_index` OK at `0x08, 0x09, 0x88, 0x89`) and additionally resolves
+**`fmt`**: correct only at `0x2E, 0x2F, 0x6E, 0x6F, 0xAE, 0xAF, 0xEE, 0xEF` — **bits 0, 6 and 7
+are don't-care and bits 1–5 are the format selector**.
+
+> **The single most useful driver fact here:** an emitter that gets `rt_index`, `dst`, `b6` or
+> `fmt` wrong **does not get a fault — it gets a silent zero**, which in a BG/EOT program means
+> a tile that reads as **black** rather than a program that fails loudly. Self-enforce these
+> value sets; the hardware will not.
+
+### ✅ `pixel_order` (raster-order groups) — the full accepted value sets, and a `db.json` defect (EXP-0147) — `target: G16G`
+
+The ⏳ "byte-diff inferred" status above is superseded for this pair. Detection strength first:
+with the **acquire** member's byte+4 corrupted, the read-back texel falls from `8·src` to
+`1·src` — **7 of 8 serialised read-modify-writes are lost** — and the accumulated pixel falls
+from `clear + 36·src` to `clear + 8·src`, byte-identical in both gated runs. So an "inert"
+verdict from this litmus is a measurement, not a blind spot. **The acquire/release asymmetry is
+itself a result:** the same corruption on the **release** member loses **no** updates at all.
+
+| field | acquire member (`07 14 54 50 06 00`) | release member (`07 04 54 d0 06 00`) |
+|---|---|---|
+| `scope` (byte+3) | correct iff **bit4 = 1 and bit6 XOR bit7 = 1** (64/256) | correct iff **bit4 = 1 and bit7 = 1** (64/256) |
+| `flags` (byte+4) | correct iff **bit0 = 0 and `(v & 0x0E) != 0`** (112/256) | correct iff **`(v & 0x0F) >= 2`** (224/256) |
+| `b5` (byte+5) | **fully inert**, all 256 | **fully inert**, all 256 |
+
+> **`db.json` defect (recorded, not patched here):** `pixel_order` declares a field `flags` at
+> bits[32:40] **and** a match constant `[32,8,6]` pinning the same bits to `0x06`. The hardware
+> accepts 112 (acquire) / 224 (release) distinct values there with the program still byte-exactly
+> correct, so byte+4 is a **genuine field, not a constant** — and as modelled, every legal
+> encoding with byte+4 ≠ `0x06` is neither decodable nor emittable.
+
+### ✅ `vtx_out_pos`, `vtx_coord_xform`, `n3_sample_read` (EXP-0147) — `target: G16G`
+
+- **`vtx_out_pos`:** `dst` (16 values) and `slot` (256 values) are **fully inert** in this
+  carrier — every value leaves the interpolated pixel byte-exact — and the arm's litmus-power
+  probe (corrupting the op-select constant) *does* move the pixel, so this is measured inertness,
+  not a blind spot. **Scope limit:** the carrier has a **single output slot**, so this says
+  nothing about `slot` in a program with several varyings.
+- **`vtx_coord_xform.mode`:** correct exactly when `(mode & 0xF3) ∈ {0x22, 0xE2}` (8/256);
+  **240 of 256 values suppress the draw entirely**, 8 give a wrong pixel. `sel`: 91 correct,
+  143 no-draw, **19 genuine `Caused GPU Hang Error` faults**. `operand`: bytes 0 and 4 fully
+  inert (256/256 each), **byte 3 is fault-prone**.
+- **`n3_sample_read`:** `b1` and `b3` fully inert (256/256 each); 5 of the 6 `tail` bytes fully
+  inert; only `tail` byte 0 matters, where **53 values fault**.
+
+### ⛔ Fences: a bounded negative with the litmus power to mean something (EXP-0147) — `target: G16G`
+
+`scoreboard_fence` (`07 42 02 00`, in a device-atomic carrier): **all 256 `kind`, all 128
+`scope`, all 256 `mask` values leave the result bit-exact — and so does corrupting byte 0, the
+opcode itself.** `compute_fence_scoped` (`87 00 80 04`; threadgroup store → barrier → +137
+far-neighbour load, so every lane reads a slot written by a different simdgroup): `kind` and
+`scope` fully inert; **`mask` breaks the result at exactly 10 of 256 values**
+(`0x00, 0x08, 0x0C, 0x10, 0x18, 0x80, 0x88, 0x8C, 0x90, 0x98`), reproducibly.
+
+The carriers are not powerless — neutering the neighbouring `threadgroup_barrier` breaks each
+program outright — but that demonstrates *general* detection sensitivity, **not
+ordering-specific** sensitivity, and the pre-registered sensitivity control (corrupt the fence's
+own byte 0) **passed when it was registered to fail**. Under the frozen rule all six fence
+fields are therefore reported **`untested`**, with the live `compute_fence_scoped.mask` signal
+recorded as the highest-value follow-up.
 
 ### ✅ Special-register enum + shader ABI (EXP-0031, closes G-5)
 **`get_sr` SR number = byte1** (splice-proven: splicing byte1 makes the output become that SR's value):
@@ -747,11 +1224,89 @@ Apple9 mesh shading is a **genuine hardware graphics pipeline**, but — unlike 
   `0x1d` hmul); **`half2` packs both lanes into one `0x10` op**, but **`int16` does NOT pack** (two 32-bit
   `0x9f` adds). `pack_unorm2x16` = single `0x97`, unpack = single `0x17` (byte+2-gated vs frag-pack/ballot).
 - **64-bit integer:** register pairs, but **native single-op 64-bit add/sub exists** (splice-proven: `u64_sub`
-  is one `0x1f`; `0x1f→0x9f` gives a 64-bit add with **hardware carry-out**). Compiler may also emit an explicit
+  is one `0x1f`; `0x1f→0x9f` gives a 64-bit add with **hardware carry-out**). **Re-validated
+  against an independently recomputed oracle on M4/G16G — exact bytes, boundary rows and the
+  stated limitation are in the EXP-0146 section below.** Compiler may also emit an explicit
   carry chain (`0x32` carry-generate). 32×32→64 mul = one 12 B `0x9f`; 64×64 = 3 mul(-add)s; register shift/
   compare = multi-instr.
 - *(EXP-0033 also corrected DB length-rule bugs for the `0xa7 b1∈{04,05}` 8B, `0x27 b1=01` 12B rotate, and the
   `0x10` half group — defined in `experiments/EXP-0033-int-bitfield/new_descriptors.json`, now merged into db.json.)*
+
+### ✅ Integer-ALU emitter-grade rules (EXP-0139) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (dense splice sweeps plus host oracles), `target: G16G`
+(local Apple M4). Source: `experiments/EXP-0139-m4-emit-ialu/RESULTS.md`. **39 fields reached
+`hardware-run` and 34 `isolated-byte-diff`** of 137 blocking; **`ibitcount` (8/8) and `iunary`
+(3/3) became EMITTABLE.**
+
+**`ibfe`'s `offset` and `width` use OPPOSITE out-of-range rules.** This is the highest-value
+single fact in the section for a NIR back-end:
+
+| field | rule | evidence |
+|---|---|---|
+| `offset` | **LITERAL.** 0..31 shift normally; **32..63 shift the field out**. The literal model scores **64/64**; a mod-32 model scores 32/64. **The hardware does NOT implement NIR's `offset`-mod-32 masking** — a back-end that assumes it must mask in software. | dense sweep, 2 gated runs |
+| `width` | **mod-32.** The mod-32 model scores **64/64**; a literal-clamp model scores 37/64. Therefore **`width = 32` ≡ `width = 0`**. | dense sweep, 2 gated runs |
+
+The `width` result **refutes EXP-0139's own pre-registration**, scored competitively on the same
+data — recorded here rather than quietly dropped.
+
+Other results from the same sweep, all `target: G16G`:
+
+- **`ibitcount.tail`:** dense 0..255 on a **fully synthesized** popcount shows **only bit 2 is
+  load-bearing**.
+- **`iunary.operand` was never one field** — it is **five one-byte sub-fields** carrying
+  `ibitcount`'s meanings (defect `DEF-0139-1`, applied to `db.json`).
+- **⚠️ EXP-0112's `r(R mod 64)` register aliasing does NOT transfer to `iadd2.dst`.** At
+  `dst = 140/141` (register 70) the sum **never appeared in r6**. The fault boundary is
+  `reg ≥ 96`, at 60 dense values, 5/5. **Do not carry an operand model across instruction
+  families** — the same caution EXP-0138 records for `falu_srcmod12b` vs `falu2`.
+- **`isel_reg8` has no corpus anchor, but constructing it works**: `isel8` byte+2
+  `0x0f` → `0x25` executes on hardware. (Synthesis, not tokenization.)
+- **`iminmax`: EXP-0113's reported nondeterminism did NOT reproduce** — 858 cases, 4× each, all
+  agreed. `fmax`/`fmin` diverge from IEEE **only on NaN and denormals** (flush-to-zero plus NaN
+  suppression).
+
+> **Concurrency caution — this changes how you must read any sweep on this hardware.** Across
+> **129,839 dispatches**, **44 % of gated-run faults did not reproduce** and 1,552 attempts
+> carried `…ErrorInnocentVictim`. Without `experiments/FIELD-SWEEP-PROTOCOL.md` §7,
+> **692 legal field values would have been labelled `fault`.** Only **3 of 29,685** cases are
+> genuinely nondeterministic. A "fault" verdict from a single observation on a contended host is
+> not evidence.
+
+### ✅ Native single-instruction 64-bit integer ADD, re-validated with an oracle (EXP-0146) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (splice + independently recomputed oracle, two gated runs),
+`target: G16G` (local Apple M4). Source: `experiments/EXP-0146-m4-emit-int-misc/RESULTS.md`.
+This confirms and sharpens the "native single-op 64-bit add/sub exists" bullet above, which came
+from EXP-0033 on A18/G17P.
+
+`out[gid] = a - b` on `ulong` compiles to **six instructions with exactly ONE arithmetic op** —
+an `iadd2`, bytes `1f 01 56 00 02 08 00 50 17 05`, with loads/store using element code 4
+(8 bytes). **Flipping only byte0 bit 7 (`0x1f` → `0x9f`, the add/sub selector HW-validated in
+RT-1a-FIX) yields an exact 64-bit ADD with carry across the 32-bit word boundary.** Because the
+kernel holds one arithmetic instruction, **the carry is produced inside it.**
+
+Verified against an independently recomputed oracle on all 8 boundary rows of a second input
+set — `0x8000…0 + 0x8000…0 = 0`; `0x7FFF…F + 1 = 0x8000…0`;
+`0xFFFFFFFF00000000 + 0x00000000FFFFFFFF = 0xFFFF…F`; `0xFFFF…E + 3 = 1` — 5/5 serial
+repetitions, zero fault classes, both gated runs.
+
+**Apple's compiler emits a 5-instruction chain instead**, so this is a capability Metal never
+reaches. **LIMITATION, stated:** it was validated by flipping one bit in the compiler's *own*
+64-bit subtract, **not synthesized from scratch**; the operand-widening byte was **located**
+(byte+7 `0x50` vs `0xA8`) but **not isolated**.
+
+Also established in the same experiment, `target: G16G`:
+
+- **`ilogic` reaches ALL 16 boolean functions** via a collision-free
+  `(op_base, lut_a & 3, lut_b & 0x0F)` selector. This **refines EXP-0102's "10 of 16"**, which
+  described what MSL *source* can express, not what the encoding can reach.
+- **`carry_gen` is a two-operand compare**: `p[dst] = r[byte+1] <u r[byte+3]`.
+- **`iadd2` `dst ≥ 96` faults** (consistent with the 96-GPR hard boundary above).
+- ⛔ **NEGATIVE, honestly scoped:** `int_alu_ehi` **0/7** — a second, independently authored
+  std140 matrix copy again emitted `imad`, reproducing EXP-M4-13. `sr_read_wide` **0/6** — the
+  ray-query kernel emits it, but the testbed cannot bind an `MTLAccelerationStructure`, so it
+  runs returning zeros and the field is not live. **That is a testbed gap, not a hardware fact.**
 
 ### ✅ Texture variants (EXP-0034, closes backlog #14)
 The 14-byte sample bundle generalizes to every variant via **op+2** (variant/dim/LOD/compare/offset),
@@ -824,6 +1379,120 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
   `0x17` unpack (keeping the `0x37` derivative-vs-quad-reduce split). *(descriptors staged in
   `experiments/EXP-0038-pack-carry-frame/new_descriptors.json` for merge.)*
 
+### ✅ Pack / unpack / convert — `db.json`'s operand model was wrong; the real one is emittable (EXP-0144) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`** (dense 0..255 per byte, majority-of-3 escalating to 5),
+`target: G16G` (local Apple M4). Source: `experiments/EXP-0144-m4-emit-pack/RESULTS.md`.
+**`pack_convert` and `unpack_convert` are now EMITTABLE.**
+
+> **⚠️ SELF-WITHDRAWAL, preserved.** An earlier version of EXP-0144's own results claimed
+> **44 of 51** blocking fields at emitter grade. **That figure is withdrawn.** It rested on
+> captures taken while a GPU test had destabilised WindowServer and taken `MTLCompilerService`
+> down machine-wide. Re-measuring every case with a majority vote, and refusing to carry any
+> label forward from those runs, gives **33** (31 `hardware-run`, 2 `isolated-byte-diff`);
+> 18 fields return to `untested`. The 11-field difference is almost entirely **coverage**, not
+> contradiction — two instruments (`cvt_bf16`, `packed_half2_hi`) and most of a third
+> (`cvt_f2h_dst`) were never re-measured. Of the measurements that *were* repeated, only
+> **92 of 13,783 (0.67 %)** were overturned.
+
+**`pack_convert` — `db.json` models several live operand bytes as one opaque raw descriptor
+(`fmt_word`). Measured (6,540 cases, 65/65 baseline checks, 0 indeterminate):**
+
+| byte | `db.json` name | what it actually is | emission rule |
+|---|---|---|---|
+| +1 | `src_desc` | operand descriptor | `v & 0x05 == 0x04`; bits 1,3,4,5,6,7 **don't-care** |
+| +2 | `fmt_class` | **1-bit enable** | reproduces the result **iff bit 1 is set**; bits 0, 2–7 inert |
+| +3 | `src` | **DESTINATION register** | `reg << 1`, bit 0 don't-care — result redirected into **6 distinct** observed registers |
+| +4 | `mode` | 1-bit enable | iff bit 1 set; all other bits inert |
+| +5 | *(fmt_word)* | **lane-0 SOURCE register** | `reg << 2`, bits 0–1 don't-care |
+| +6 | *(fmt_word)* | **lane-1 SOURCE register** | `reg << 3`, bits 1–2 don't-care, bit 0 must be 0 |
+| +7 | *(fmt_word)* | descriptor | `v & 0xFB == 0x50`; bit 2 don't-care |
+| +8 | *(fmt_word)* | conversion enable | **bits 2 and 6 both set** (exact over 256) |
+| +9 | *(fmt_word)* | **FORMAT SELECTOR** | see table below |
+
+**Format code table (byte+9)** — a code is listed only if ONE host model explains **all 8**
+independent semantic vectors, NaN and out-of-range inputs included:
+
+| byte+9 | format produced |
+|---|---|
+| `0x42 0x46 0x4A 0x4E` | **snorm2x16** (scale 32767) |
+| `0x82 0x86 0x8A 0x8E` | **unorm2x16** (scale 65535) |
+| `0xC2 0xC6 0xCA 0xCE` | **unorm 8-bit lanes** (scale 255) into bits [7:0] and [15:8], bits 31:16 zero — consistent with the low half of a `unorm4x8` pack, since this carrier supplies only two lanes |
+
+Bits 2 and 3 are don't-care (hence four codes per format); bits 6:7 select the format. **The
+8-bit form is a third pack format reachable from the same instruction** that our corpus never
+showed, because the compiler emitted only the two 16-bit forms here. Spot-checks: `0x42`,
+`(0.25, 0.75)` → `0x5FFF2000` = snorm `(8192, 24575)`, and `−1` clamps to `0x8001 = −32767`
+(the symmetric scale of EXP-0079); `0x82`, same input → `0xBFFF4000` = unorm `(16384, 49151)`;
+`0xC2`, same input → `0x0000BF40` = `(64, 191)` = `round(0.25·255), round(0.75·255)`.
+
+**`unpack_convert` byte+2 — the exact rule, and it reconciles two earlier results.**
+
+> **`unpack_convert` byte+2 reproduces the conversion iff `(byte & 0x03) != 0`.** Bits 2–7 are
+> completely inert. Exact over all 256 values.
+
+EXP-0089 found `0x56 → 0x54` breaks the instruction (`0x54 & 3 == 0`, so it does). EXP-0119's
+7-bit re-sweep flipped single bits of `0x56` and found all seven inert (every such flip except
+bit 1 leaves `(byte & 3) != 0`, so it is). **Neither observation was wrong — both are the same
+two-bit OR-enable seen through a one-bit window.** `db.json`'s relaxed match (bit 1 only) is
+still not the hardware rule.
+
+| byte | `db.json` name | what it actually is | emission rule |
+|---|---|---|---|
+| +1 | `src_class` | descriptor | `bits 0,2 == 0,1` (exact over 256) |
+| +2 | `cache` | **2-bit OR enable** | `(v & 0x03) != 0`; bits 2–7 inert |
+| +3 | *(convert_desc)* | **DESTINATION register** | redirected into 3 distinct observed registers |
+| +4 | *(convert_desc)* | **completely INERT** | all 256 values reproduce the result |
+| +5 | *(convert_desc)* | **SOURCE register** | `reg << 3`, bits 0–2 don't-care |
+| +6 | *(convert_desc)* | opcode/descriptor | `bits 0,2 == 0,1` (exact over 256) |
+| +7 | `size` + `reg_sel` | **FORMAT + a source-register bit** | below |
+
+**`reg_sel` is not a register selector.** `db.json` calls byte+7's high nibble "most likely the
+unpack RESULT destination (role INFERRED)". Measured: `0x0A 0x8A` → **unorm8** unpack of the low
+byte; `0x2A 0xAA` → **snorm16**; `0x4A 0xCA` → **unorm16** (the anchor's format); `0x6A 0xEA` →
+**unorm8**. So **bits 6:5 select the format and bit 7 is don't-care**, while **bit 3 changes
+which register is read**. This also explains why our own compiler emits `…1cca` for unorm2x16
+and `…1caa` for snorm2x16 — a **format** difference `db.json` attributes to a register.
+
+**The `cvt_*` cluster shares one operand layout.** `cvt_i2f`, `cvt_i2f_src` and `cvt_f2i` share
+a byte layout confirmed byte for byte; **`cvt_f2h` and `cvt_f2h_dst` are the same encoding.**
+
+| byte | `cvt_i2f` | `cvt_i2f_src` | `cvt_f2i` |
+|---|---|---|---|
+| +1 | bits 1,2 set | bits 1,2 set | bits 0,1,2 set |
+| +2 (`mode`) | `(v & 3) != 0` | **INERT, all 256** | `(v & 3) != 0` |
+| +3 (`dst`) | **`reg << 1`**, 6 registers observed | same | same |
+| +4 (`src_class`) | bit 1 | bit 1 | bit 1 |
+| +5 (`src`) | **`reg << 2`** | **`reg << 4`** | **`reg << 2`** |
+| +6 (`cvtop`) | `bits 0,2,7 == 0,1,1` | same | bits 1,2,6 don't-care |
+| +7 (`signflag`) | bit 5 | bit 5 | `bits 3,5 == 1,0` |
+| +8 (`dst_class`) | — | — | bit 1 |
+| +9 (`b9`) | — | — | **INERT, all 256** |
+
+Sweeping byte+3 moves the conversion result into **six different output slots** at predictable
+field values (`slot6←{0,1}`, `slot5←{6,7}`, `slot4←{10,11}`, `slot3←{14,15}`, `slot2←{18,19}`,
+`slot1←{22,23}`, anchor `slot0←{24,25}`), i.e. **`field = register << 1` with bit 0 free**.
+`pack_convert` byte+3 produces the **identical** map — which is why it is reclassified above
+from `src` to `dst`.
+
+**⚠️ Rounding: the ALU pack path and the PBE store path round DIFFERENTLY. Do not reuse one
+rule for the other.**
+
+- **`pack_float_to_unorm2x16` ties round to NEAREST-EVEN** (revalidated). All 16 pack semantic
+  vectors matched an RTE oracle exactly, including three exact ties built with `Fraction`
+  arithmetic. The competing pre-registered model — ties round **down**, as EXP-0133 measured for
+  the `unorm16` **storage** path (see [`../descriptors/format-table.md`](../descriptors/format-table.md)
+  §2e) — is **REFUTED for this instruction**.
+- **fp16 narrowing matched IEEE round-to-nearest-even throughout**, including the `65520.0`
+  overflow tie that must carry to `+inf`, subnormals, and NaN/Inf.
+- ⛔ **`cvt_bf16` rounding: NOT ESTABLISHED, claim withdrawn.** The contaminated run showed every
+  bfloat vector (including three exact bf16 ties) matching an RNE oracle and refuting a
+  truncate-toward-zero model; that capture is inadmissible and the revalidation shard **never
+  ran**. Reported as an open question with a strong prior, **not** a result.
+- ⛔ **`packed_half2_hi`: NOT ESTABLISHED, claim withdrawn.** It could not be provoked from any
+  MSL shape tried and is reachable only by an encoding assembled from `db.json`. All five of its
+  fields are **`untested`**.
+
 ### ✅ Wrap-up decode: vertex varying-store + texcoord math (EXP-0037, closes census graphics gaps)
 - **Vertex varying-store `0x57`** (8 B, memory family, sibling of `0x67/0xe7/0xd7`): the VS writes `[[position]]` +
   varyings to the UVS/parameter buffer that the FS `iter` op interpolates. **byte+3 = source GPR**, **byte+4 =
@@ -884,6 +1553,36 @@ CALL/RETURN are in the **control-flow family** (byte0 low-nibble `0xf`), not a d
 - **Tile shaders submit mid-render** (no separate submission): draw vs draw+`dispatchThreadsPerTile` = byte-identical
   IOKit (58 calls / 37 BOs); the tile-dispatch record is appended inline to the render control stream (`0x58000`/`0x18000`).
   *(descriptors from `experiments/EXP-O2D-compute-frag-tail/new_descriptors.json`, now merged.)*
+
+## ✅ NIR back-end option contract — what a portable NIR→Apple9 backend must assume (EXP-0121) — `target: G16G`
+
+Evidence label **`HW-PROBE` + `OWN-SHADER`**, `target: G16G` (local Apple M4; A18 deferred).
+Source: `experiments/EXP-0121-m4-nir-contract/RESULTS.md`, commit `1143ec55`. These are the
+compiler-facing option answers, measured on hardware rather than assumed. `OPT-02` and `OPT-09`
+are answered elsewhere in the gaps document.
+
+| item | verdict | what the back-end must do |
+|---|---|---|
+| **OPT-01** — does preserving `fdiv` let legalization pick two distinct sequences? | **YES** | Relaxed and precise division compile to **structurally distinct** sequences — **66 vs 300 bytes**; a single `fspecial` SFU estimate versus `fspecial` **plus** a multi-instruction integer-domain refinement block. Confirms **`.lower_fdiv = false`**. Note the selector is the `fast::`/precise **namespace**, not the global compile flag alone. |
+| **OPT-03** — does `pow` need a fixup beyond `exp2(y·log2(x))`? | **YES** | The naive composition returns **NaN for 22 of 53 directed edge cases** (negative base, zero base, zero exponent) that `pow` gets IEEE/C99-correct, and `pow`'s compiled body is **~27× larger (2102 vs 76 bytes)**. Confirms **`.lower_fpow = false`**: a target `pow` pseudo (or equivalent multi-instruction special-case lowering) is **required** — a bare `exp2(mul(log2))` glue is wrong. |
+| **OPT-04** — is dynamic-exponent `ldexp(x,n)` one executable instruction? | **PARTIAL / NO** as a single instruction; **YES** numerically | The dedicated `fldexp` opcode in `db.json` was **never observed** across 4 fresh compile variants with runtime `n`; the compiler emits a **~200-byte integer-bit-manipulation composition** instead. That composition is numerically correct — **451/452 exact** against a DAZ+FTZ-adjusted oracle, the sole residual being a boundary-rounding edge at the exact min-normal/max-subnormal threshold. **Do not set `.has_ldexp = true`** on this evidence; assume a multi-instruction legalization. |
+| **OPT-05** — can one instruction choose between two arbitrary register values? | **YES** | All **18** (type × condition) cases compile to exactly **one** fused instruction — `isel8`, in a 7-instruction 86-byte kernel — whose `selTrue`/`cmpA`/`cmpB` are **independent register operands carrying arbitrary, far-apart non-Boolean sentinels**. Enables **`.has_fused_comp_and_csel = true`**. |
+| **OPT-06** — does that fused form cover every NIR condition and type? | **YES** | The same `isel8` serviced **FP32, signed I32 and unsigned I32** for all six of `eq/ne/lt/le/gt/ge`, including signed/unsigned-distinguishing bit-pattern pairs — **825/825 corpus rows** match the host oracle. **Caveat:** `cc`'s `db.json` enum lists only 7 of the values actually observed, and the `cmp_mode` field's bit-level semantics are `INTERPRETED`, not measured. |
+| **OPT-07** — can a varying be read at a dynamically indexed slot? | **NO** (bounded structural negative), functionally correct via ALU-select | `iter`/`iter_flat`'s slot field is a **compile-time immediate in every observed instance** (0, 6, 8, 10, 12, 14, 16 — small constants, **never a register**). Dynamic 8-way indexing — extending EXP-0111 FS-10's 4-way test — reads **every** candidate through its own fixed-slot interpolation and selects with ALU, **8/8 exact**. Lower `support_indirect_inputs` as "materialize every candidate statically, select via ALU". No register-sourced slot path exists even at 8 candidates. |
+| **OPT-08** — can a fragment output be written at a dynamically indexed slot? | **UNKNOWN / PARTIAL mechanism**, positive-leaning structure | A genuinely per-fragment-divergent 2-way **and** 3-way `[[color(n)]]` output each compile to exactly **ONE** `frag_color_store` with `rt_index = 0` (immediate) — **not** scaling 1:1 with target count, which is what the pre-registered falsifier needed for a clean negative — yet hardware readback proves correct, independent routing to 2 and 3 distinct render targets. **But MSL offers no syntax to request a dynamic-output store** (array-typed fragment-output structs are rejected, EXP-0111). **A back-end must still lower a portable dynamically-indexed fragment output as a branch/select chain over static `[[color(n)]]` outputs.** Flagged for a dedicated follow-up; this does not license a NIR-level dynamic-output primitive. |
+| **OPT-10** — does a plain aligned load satisfy atomic-load ordering under fences? | **NO** | An ordinary aligned load does **not** reliably observe a cross-thread write **even surrounded by `atomic_thread_fence(mem_device, seq_cst, thread_scope_device)`**. Every combination with a plain consumer load showed massive producer/consumer timeouts at every `PAIRS ≥ 1` in both runs (e.g. `AP_fenced` at `PAIRS = 1`: **300/300 iterations never completed**, both runs), while the identical protocol with an **atomic** consumer load is fast and 100 % clean at every scale. **A compiler must NOT lower an atomic load to a plain load, fenced or not.** |
+| **OPT-11** — does a plain aligned store satisfy atomic-store ordering under fences? | **YES** | A plain store observed by a **trusted atomic** load is **0 mismatches / 100 % completion** at every `PAIRS ∈ {1,4,8,16}`, both runs, and its unfenced control **breaks at `PAIRS ≥ 4`** exactly as required. A plain store **is** an acceptable substitute for an atomic store when paired with the documented device-scope fence. |
+
+> **The joint gate fails, asymmetrically. `has_atomic_load_store` must be `false`** — it needs
+> **both** OPT-10 and OPT-11 to be YES and OPT-10 is NO. This is not a wash: **`has_atomic_store`
+> alone would be supportable** if the NIR/driver split ever exposes that granularity; a blanket
+> atomic-load/store substitution is not.
+
+**Explicit limitations (do not read past them):** OPT-04 tested only the exact
+`ldexp(x[gid], n[gid])` idiom plus a uniform-`n` variant; OPT-06's `cmp_mode` bit-level semantics
+are `INTERPRETED` from a field-interaction pattern, not measured; OPT-07/08 did **not** test
+vertex-stage output-slot indexing (writing a varying *from* the vertex stage at a dynamic slot).
+Everything here is **M4/G16G**; A18/G17P is deferred.
 
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P

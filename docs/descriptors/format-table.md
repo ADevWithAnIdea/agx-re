@@ -243,6 +243,66 @@ separate resources.
 
 ---
 
+### 2e. Typed format-conversion ROUNDING rules — `target: G16G`
+
+**There is no single Apple9 rounding rule. There are at least three, and they disagree.** An
+implementer that picks one and reuses it produces silent off-by-one errors — no fault, no
+warning. Every row below is `HW-VALIDATED` on **M4 / G16G**, byte-exact across two runs, and is
+**not** promoted to G17P (revalidation under way, `EXP-0153`).
+
+| path | destination | rule | evidence |
+|---|---|---|---|
+| **PBE / texture STORE** | `unorm8` | `round(c × 255)` with **ties round half-UP** | EXP-0079 |
+| **PBE / texture STORE** | `unorm16` | `round(c × 65535)` with **ties round DOWN** — **the OPPOSITE of `unorm8`** | EXP-0133 |
+| **PBE / texture STORE** | `snorm8`, `snorm16` | **symmetric** `round(clamp(c,−1,1) × (2^(b−1) − 1))` | EXP-0079 (`snorm8`), EXP-0133 (`snorm16` follows it) |
+| **PBE / texture STORE** | `fp16`, `fp11`, `fp10`, RGB9E5 | **round toward zero (truncate)** — *not* round-to-nearest-even, and **no renormalization on mantissa overflow** | EXP-0079 |
+| **Shader ALU pack** | `pack_float_to_unorm2x16` | **ties round to NEAREST-EVEN** | EXP-0144 |
+| **Shader ALU convert** | `cvt_f2h` (fp32 → fp16) | **IEEE round-to-nearest-even**, including the `65520.0` overflow tie → `+inf`, subnormals, NaN/Inf | EXP-0144 |
+| **Shader ALU convert** | `cvt_bf16` | **NOT ESTABLISHED — claim withdrawn** (see below) | EXP-0144 |
+
+**The three traps, spelled out:**
+
+1. **`unorm16` ties round DOWN while `unorm8` ties round UP.** Measured: input `1.5/65535` →
+   physical texel `0x0001`, `2.5/65535` → `0x0002`, with a non-tie control `5.9/65535` → `0x0006`
+   excluding plain truncation (EXP-0133). `unorm8`'s rule was pinned by a deliberately
+   discriminating even-floor tie: `2.5/255` → `0x03`, i.e. **round-half-up**, where round-half-even
+   would have kept `2` (EXP-0079; the `127.5` tie that earlier work used cannot separate the two
+   rules because both give `128`). **Naively extending the 8-bit rule to 16 bits is a silent
+   off-by-one on every tie.**
+2. **The ALU pack path and the store path round differently.** `pack_float_to_unorm2x16` matched a
+   round-to-nearest-even oracle on all 16 semantic vectors, including three exact ties built with
+   exact rational arithmetic — **refuting** the competing "ties round down, as the `unorm16`
+   storage path does" model that was pre-registered against it (EXP-0144). **Do not reuse one
+   rule for the other.**
+3. **Reduced-float texture stores truncate; the ALU fp16 convert does not.** The store path
+   observed `0.5 − ε` → fp16 `0x37FF` (round-toward-zero; RNE's `0x3800` refuted), reproduced
+   independently inside a second case, and reproduced in fp11/fp10 (`RG11B10Float` word
+   `0x6FDBFB7F`, bit-for-bit equal to an independent from-scratch reconstruction computed
+   *before* the capture) and in RGB9E5 (`0x77FFFFFF`; the mantissa overflow at 511.99999998… is
+   **not** renormalized to E=15/M=256). A positive-direction control (`0x3800`) excludes a
+   round-away-from-zero alternative, pinning the direction from both sides. **A driver relying on
+   Metal-documented round-to-nearest-even for fp16/fp11/fp10/RGB9E5 texture-store narrowing on
+   this hardware would be wrong.** The `cvt_f2h` **ALU** convert, by contrast, matched IEEE RNE
+   throughout (EXP-0144).
+
+**`snorm` boundary, restated because it is easy to get wrong:** `−1.0` encodes as physical byte
+`0x81` (`−127`), **not** `0x80` (`−128`) — the *symmetric* scale. Decode is byte-compatible
+either way (`max(v/127, −1.0)` clamps both to `−1.0`), so only the raw stored texel
+discriminates; a driver emitting the asymmetric `[−1,1] → [−2^(b−1), 2^(b−1)−1]` encode gets the
+wrong byte on the boundary value and will not be told (EXP-0079).
+
+⛔ **`cvt_bf16`'s rounding mode is an open question, not a result.** A contaminated capture
+showed every bfloat vector (including three exact bf16 ties) matching an RNE oracle and refuting
+truncate-toward-zero; that capture is inadmissible and the revalidation shard **never ran**.
+EXP-0144 withdrew the claim rather than carry it. It is the cheapest open item in this area — one
+shard, ~2,048 cases.
+
+**Also from EXP-0133 (`target: G16G`), for the same table's users:** sRGB storage applies the
+standard curve **bit-exact on encode**; BC1 solid-colour decode round-trips exactly;
+`Depth32Float_Stencil8`'s two aspects are independently addressable with **zero
+cross-contamination**; and **21 of 22 integer-kind formats support `texture2d` atomics** — not
+just `R32Uint`. Integer-format linear filtering is accepted by the API.
+
 ## 3. Swizzle codes (word0 bits[16:27] = 4×3-bit, destination order R,G,B,A)
 
 | code | `0` | `1` | `2` | `3` | `4` | `5` |
@@ -267,7 +327,7 @@ Base (non-comparison) sampler bytes: `00 00 0e 00 80 07 00 00`.
 |---|---|---|
 | lodMinClamp | [0:12] | `round(lodMin × 64)` (6 fractional bits). HW-validated 0.25/0.5/1.5/13.9 → `0x10`/`0x20`/`0x60`/`0x379`. **Metal clamps the value to lodMax (default 14.0)** so it saturates at `0x380` (EXP-M4-08). |
 | lodMaxClamp | [13:19] | `round(lodMax × 8)` (3 fractional bits). HW-validated 0.25/1.5/3.0/13.9 → 2/12/24/111. **Metal saturates it at 14.0** (`112`); the field is 7-bit (could hold 15.875) but >14.0 is **Metal-unreachable** (splice candidate). |
-| maxAnisotropy | [20:22] | `log2(maxAnisotropy)`: 1→0, 2→1, 4→2, **8→3**, 16→4 (HW-validated incl. 8× — EXP-M4-08). 3-bit field *could* encode up to 128× but **Metal clamps >16 back to 1× (field 0), not 16×** — >16× needs descriptor injection. |
+| maxAnisotropy | [20:22] | `log2(maxAnisotropy)`: 1→0, 2→1, 4→2, **8→3**, 16→4, **32→5, 64→6, 128→7** — the full 3-bit space is real. ~~*>16× needs descriptor injection.*~~ **RESOLVED by EXP-0136 (`HW-VALIDATED`, `target: G16G`): anisotropy works natively to at least 128×; Metal's 16× cap is pure software.** Patched codes 5/6/7 read back intact and produce a monotonic, threshold-exact quality effect — sharpness flips crisp exactly when `patched_aniso ≥ ratio` (ratio 16 blurs at 1/2/4/8, crisp from 16; ratio 64 blurs at 16/32, crisp from 64; ratio 128 blurs at 16/32/64, crisp at 128). **Metal still clamps >16 back to 1× (field 0), not 16×**, so the extra range is reachable only by writing the descriptor directly. |
 | magFilter | 23 | 0 = nearest, 1 = linear |
 | minFilter | 25 | 0 = nearest, 1 = linear |
 | mipFilter | [27:28] | 0 = none, 1 = nearest, 2 = linear |
@@ -289,13 +349,57 @@ Base (non-comparison) sampler bytes: `00 00 0e 00 80 07 00 00`.
 | `3` | clampToZero **and** clampToBorderColor (single HW mode — see note) |
 | `5` | mirrorClampToEdge |
 
-Codes `0,1,2,3,5` HW-validated on all three axes (EXP-M4-08). Codes `4`, `6`, `7` remain **untested and
-Metal-unreachable**: they have no `MTLSamplerAddressMode`, and an explicit argument buffer holds the
-sampler as an 8-byte **gpuResourceID** (bindless index), not inline descriptor bytes, so their raw code
-cannot be injected through a read-only trace pass (EXP-M4-08 §DESC-4). *Vulkan mapping:* map
-`VK_SAMPLER_ADDRESS_MODE_*` only onto {0,1,2,3,5}; the behavior of 4/6/7 is unknown. **Note:**
+Codes `0,1,2,3,5` HW-validated on all three axes (EXP-M4-08).
+
+> **~~Codes `4`, `6`, `7` remain untested and Metal-unreachable.~~ RESOLVED by EXP-0136**
+> (`HW-VALIDATED`, `target: G16G`; 8 codes × 4 out-of-`[0,1]` UV points, byte-identical in both
+> runs): **codes 4/6/7 are exact, deterministic hardware ALIASES, not extra modes.**
+>
+> | code | behaves as |
+> |---|---|
+> | `4` | byte-identical to code `0` (**clampToEdge**) at all 4 points |
+> | `6` | byte-identical to code `3` (**clampToBorder**) at all 4 points |
+> | `7` | byte-identical to code `3` (**clampToBorder**) at all 4 points |
+>
+> The signature method has demonstrated power to see a real difference: **code `5`
+> (mirrorClampToEdge) is genuinely distinct** in the same test — it matches code 0 at 3 of the 4
+> points and diverges at `u = −0.4`. So **no native address mode exists beyond the 5 Metal already
+> exposes**; the nominal 8-value space holds exactly 5 distinct hardware behaviours.
+> **Tested range:** 8 codes × `u ∈ {1.2, 1.7, 2.6, −0.4}`, `v` fixed 0.5, `address_t = clampToEdge`;
+> `u` inside `[0,1]` and the 3D `address_r` axis were **not** tested.
+
+*Vulkan mapping:* map `VK_SAMPLER_ADDRESS_MODE_*` onto {0,1,2,3,5}; 4/6/7 add nothing. **Note:**
 `clampToZero` and `clampToBorderColor` both map to code `3` (HW-validated: both encode `3` on S/T/R) —
 exactly one HW clamp-to-border address mode. `clampToZero` = the transparent-black preset special case.
+
+### 4a-bis. LOD selection — the exact effective-LOD formula (EXP-0094) — `target: G16G`
+
+Evidence label **`HW-VALIDATED`**, 97/97 cases over two byte-identical runs, `--captured` PASS.
+Source: `experiments/EXP-0094-*/RESULTS.md` (`PROVENANCE.md`, EXP-0094 row; addendum
+`GLTEX-A01/A02/A03`). `target: G16G`.
+
+> **`effective_LOD = clamp(clamp(base_LOD + bias, lodMinClamp, lodMaxClamp), 0, mipCount − 1)`**
+
+Exact over **26 cases**: zero, signed zero, ordinary ±, endpoints, huge, subnormal, ±Inf, NaN,
+the clamp-order interaction, and mip-view re-basing. Note the **nesting order** — the sampler
+clamps first, the mip-count clamp second.
+
+- **`calculate_clamped_lod` is bit-exactly the LOD an actual `sample()` uses**, and
+  **`calculate_unclamped_lod` bit-exactly the pre-sampler-clamp base LOD** — 10/10 over 4 clamp
+  configurations. These MSL queries are therefore usable as ground truth, not approximations.
+- ⚠️ **Bias and gradient have DIFFERENT exceptional-value paths.** `bias(NaN)` → **mip 0**, but
+  **any NaN/Inf gradient component → mip 8 uniformly** (7 cases, every placement). A driver
+  lowering `textureGrad`/`textureLod` must not assume one NaN rule.
+- **Gradient value semantics closed:** the rho/lambda formula, independent asymmetric X/Y, and
+  magnitude-only sign dependence. Cube-gradient LOD matched an independently derived
+  quotient-rule reference to **≤0.01 mip over 12 cases** (tolerance 0.15).
+- **Cube face selection matches the standard major-axis rule** at all 26 directions tested,
+  including edge midpoints and corner ties.
+- **Encoding:** the **bias-operand register-select field is isolated to `_agc.main + 69`** and
+  `HW-VALIDATED` by a bidirectional downstream-consumer splice. **The gradient-operand register
+  field is left OPEN** — its differential pair gave 116 differing bytes, not a clean isolate.
+- *Method note (affects anyone reproducing this):* bias/gradient values derived only from
+  `constant` data are **hoisted into the shader preamble**, not the per-invocation body.
 
 ### 4b. Sampler compare-function codes (HW-validated)
 
@@ -322,7 +426,15 @@ functions are natively expressible → shadow/PCF compare is fully HW-supported.
 
 **Only these 3 presets exist** — the 8-byte sampler has **no room for an arbitrary RGBA border
 color**. Vulkan `VK_EXT_custom_border_color` is not expressible here and must be software-emulated
-(no separate border-color table was seen in these captures). Code `3` untested.
+(no separate border-color table was seen in these captures).
+
+> **~~Code `3` untested.~~ RESOLVED by EXP-0136** (`HW-VALIDATED`, adversarially cross-checked,
+> `target: G16G`): **code `3` reads transparent-black (preset 0) in all three creation contexts** —
+> a sampler created with transparentBlack, opaqueBlack *or* opaqueWhite, then patched to code 3,
+> returns `(0,0,0,0)` every time. That is true hardware aliasing to preset 0, not "the patch was
+> ignored": the internal falsifier passes, because codes 0/1/2 patched onto a sampler created with
+> a *different* preset each return their own patched preset. **There is no 4th border colour to
+> find.**
 
 ---
 
@@ -399,12 +511,17 @@ remains untested / Metal-unreachable:
   rejected on this HW — verify before use).
 - **Texture types 1DArray / CubeArray / 2DMultisampleArray** type-codes (§1) — from EXP-0028's 4-bit
   type field (1DArray=1, CubeArray=7, 2DMSArray=8), orthogonal to format; not re-probed here.
-- **Sampler codes 4/6/7 (address), 6/7 (swizzle), 3 (border):** **Metal-unreachable** — no API
-  expression, and the explicit arg buffer uses gpuResourceIDs (not inline descriptor bytes), so raw
-  injection is beyond a read-only trace pass (EXP-M4-08 §DESC-4). HW behavior unknown.
-- **Anisotropy > 16× and lodMax > 14.0:** the 3-bit aniso field could encode 128× and the 7-bit lodMax
-  field 15.875, but **Metal clamps** (aniso>16 → 1×; lodMax>14 → 14.0), so the extra range is
-  **Metal-unreachable / untested** (splice candidates — §4).
+- ~~**Sampler codes 4/6/7 (address), 6/7 (swizzle), 3 (border): HW behavior unknown.**~~
+  **ALL RESOLVED by EXP-0136** (`HW-VALIDATED`, `target: G16G`) — still Metal-unreachable, but no
+  longer unknown: address codes 4/6/7 are deterministic **aliases** (§4a); border code 3 **aliases
+  to preset 0** (§4c); and **texture swizzle codes 6 and 7 HARD-FAULT the command buffer**
+  (`CMDBUF_ERROR`, GPU-hang class, fault-contained) on both components tested — **never emit
+  them**. Codes 0–5 (R, G, B, A, One, Zero) are now HW-validated by direct construction, upgrading
+  them from EXP-0015's DATA-TRACE-only status. Swizzle is the one family here where "unreachable"
+  means the hardware **actively rejects** the encoding rather than aliasing it.
+- ~~**Anisotropy > 16×:**~~ **RESOLVED — works natively to at least 128×** (§4, EXP-0136).
+  **lodMax > 14.0** remains **Metal-unreachable / untested**: the 7-bit field holds 15.875 but
+  Metal saturates at 14.0 (splice candidate — §4).
 
 Everything in **§2d** is HW-validated on M4 **and** A18 (byte-identical). Anything not in §2d has an
 untested descriptor code.

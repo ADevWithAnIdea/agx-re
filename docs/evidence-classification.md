@@ -66,8 +66,27 @@ A label alone is not enough. Each labelled field records:
 1. **`range`** — the parameter interval actually exercised, in the field's own units. `"0..127
    dense"` and `"0,1"` are both honest; `"tested"` is not. For `hardware-run` this is the
    claim's real scope; an implementer may not extrapolate past it.
-2. **`target`** — `M4` (G16G) or `A18` (G17P), per field, never assumed to transfer. The
-   `EXP-0119` A18↔M4 contradiction is unresolved, so silent generalization is a defect.
+2. **`target`** — `M4` (G16G) or `A18` (G17P), per field, never assumed to transfer.
+
+   > **⚠️ CORRECTION (2026-08-28): the `EXP-0119` A18↔M4 contradiction this rule was written
+   > around is RESOLVED.** `EXP-0129` showed it was **operand PROVENANCE**, not a device
+   > difference and not dispatch shape: an ALU-seeded operand retains at grid=1 *and* grid=4 with
+   > cache=1 *and* cache=0, while a `device_load`-seeded operand gives a different value at
+   > cache=1 and a silent `0.0` at cache=0, identically at both grid sizes. `EXP-M4-14` (A18) and
+   > `EXP-0119` (M4) differed by how the operand was seeded; **neither prior record was wrong.**
+   >
+   > **The per-field `target` rule is unchanged and still binding** — it simply no longer rests on
+   > that one unresolved contradiction. It rests on a *fresh, live* one: `EXP-0141` found
+   > `tg_addr_compute` works on M4/G16G only with byte0 `0x1c`, and `EXP-M4-14`'s A18/G17P `0xfc`
+   > **does not reproduce**. Silent generalization across targets remains a defect.
+
+   **Current target rule (2026-08-28).** All live testing has moved to the **A18 Pro / G17P**, which
+   is now both the documentation target and the test target, and **closure is measured against full
+   G17P** (`CODEX.md`, "Target discipline"). Local M4 GPU testing is retired. Committed M4/G16G
+   evidence — which is where the great majority of the labels in `validation.json` come from —
+   **stays valid on its own target and is not retracted**, but it is **not** relabelled `A18`.
+   **G17P revalidation is under way (`EXP-0153`).** Promotion requires a recorded validation or an
+   explicit `INFERRED` label.
 3. **`evidence`** — the `EXP-NNNN` that established it. A label with no experiment pointer is
    not a label.
 
@@ -75,7 +94,7 @@ A label alone is not enough. Each labelled field records:
 
 | Table | Label carrier | State |
 |---|---|---|
-| ISA instruction/field database | `tools/agx-isa/validation.json`, keyed `mnemonic → field → {label, range, target, evidence}` | see that file's `coverage` block |
+| ISA instruction/field database | `tools/agx-isa/validation.json`, keyed `mnemonic → field → {label, range, target, evidence}` | see that file's `coverage` block. **As of `generated: 2026-08-28`: 171 instructions, 1036 fields; 443 fields (42.8 %) at emitter grade (`hardware-run` 349 + `isolated-byte-diff` 94); 38 instructions emittable, 133 decodable-not-yet-emittable.** The reader-facing version of this table, with what each label licenses a compiler back-end to do, is `docs/isa/README.md` → "Emittability status". |
 | `docs/isa/encoding-tables.md`, `docs/isa/agx3.xml` | generated from `db.json` + `validation.json`; labels propagate | regenerate after any change |
 | Prose in `docs/**` | inline, at the claim | ongoing |
 | `PROVENANCE.md` | one row per fact, with the CODEX-ladder label | maintained |
