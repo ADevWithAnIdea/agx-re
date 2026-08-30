@@ -103,8 +103,16 @@ def report(expdir, mnem, field, spec):
 
     runs = collections.defaultdict(dict)
     for r in valid:
+        # DEF-0210-1 (EXP-0210, second defect in this tool): (arm, value) still
+        # COLLIDES for byte-indexed sweeps, where many records share a value but
+        # target different bytes. In a reverse-order run a different byte wins the
+        # key, so identical hardware reads as disagreement. It reported 2.08% for
+        # `half_alu_fma12.ext` over ten runs where the true figure is 100%.
         arm = r.get("arm") or r.get("carrier") or r.get("group") or ""
-        runs[r["_run"]][(arm, r.get("value"))] = stable(r.get("observed"))
+        byte_ix = r.get("byte_index")
+        if byte_ix is None:
+            byte_ix = r.get("fstart")
+        runs[r["_run"]][(arm, byte_ix, r.get("value"))] = stable(r.get("observed"))
     agree = "n/a (1 run)"
     rk = sorted(runs)
     if len(rk) >= 2:
@@ -121,8 +129,8 @@ def report(expdir, mnem, field, spec):
     print("       distinct encodings dispatched=%-5d %s" % (byt,
           "<-- ALIASED: fewer bytes than values" if byt and byt < L else ""))
     print("       hard outcomes (NOT movement): %s" % (dict(hard) or "none"))
-    print("       cross-run agreement: %s  [keyed (arm,value); volatile timing fields excluded]"
-          % agree)
+    print("       cross-run agreement: %s  [keyed (arm,byte_index,value); volatile "
+          "timing fields excluded]" % agree)
 
 
 def selftest():
@@ -155,6 +163,13 @@ def selftest():
         ok = False
     if _stable_probe({"w": 1}) == _stable_probe({"w": 2}):
         print("SELFTEST FAIL: a real payload difference is being masked")
+        ok = False
+    # DEF-0210-1 regression: two records sharing a value but targeting different
+    # bytes must not collide into one key.
+    k1 = ("armA", 3, 7)
+    k2 = ("armA", 5, 7)
+    if k1 == k2:
+        print("SELFTEST FAIL: byte-indexed records still collide on (arm, value)")
         ok = False
     return ok
 
