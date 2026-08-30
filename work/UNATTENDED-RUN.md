@@ -38,6 +38,21 @@ cannot be promoted by more sweeping**, and the reasons are already documented:
 So the target is: **every real instruction that CAN be made emittable, is** — with each exception
 named, evidenced, and justified. A truthful 92% with 8 documented blockers beats a claimed 100%.
 
+## Agent concurrency budget — 8
+
+**User directive, 2026-08-29 (from observed usage):** run **roughly 8 agents at a time**. Above
+that the account hits usage limits, which is what killed entire waves earlier — an agent stopped
+by a usage limit loses whatever it had not written to disk, so overshooting costs more than it
+buys.
+
+Currently 12 are in flight; they were **not** stopped (killing them would waste work already done),
+but no new agent launches until the count falls below 8. **Dispatch to refill toward 8, never
+above it.**
+
+Practical consequence for a successor session: when several agents finish at once, resist
+refilling all the slots immediately. Audit and commit the returned work first — an unaudited result
+is not progress, and the merge (`work/merge_verdicts.py`) is where a wave's value actually lands.
+
 ## Standing rules for this run
 
 1. **Concurrency is free.** Run device sweeps unlocked. GPU contexts isolate ordinary work; only a
