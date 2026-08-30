@@ -229,6 +229,23 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 against 164 on M4 and 57 on A18. That ratio is the run's real product: at the start of the day
 the corpus was overwhelmingly M4 evidence being counted toward a G17P goal.
 
+## A wrong fact I published, corrected
+
+In reporting the close-out I wrote that the repair path "starts with **+11** needing no device at
+all." **That figure is not supported by anything in this repo.** The only "11" on the subject is
+EXP-0178's finding that `verify_remote` caught 11 of 18 blobs mismatched against their author —
+a different result entirely. I conflated the two and stated the product as fact.
+
+This is the same class of error as DEF-0186-1, where my own PROVENANCE row asserted `call.b6` was
+inert when bit 1 must be SET. Both were mine, both were caught by checking the index against the
+data rather than by re-reading my own prose.
+
+What the data actually says: all **566** blocking field-labels sit at `untested` (260),
+`corpus-correlation` (141), `tokenization-only` (135), or `single-template-inference` (30), and
+**none** is `MISSING` — the DB and the label corpus are consistent. Whether any of the 566 can be
+promoted from *already-committed* raw captures without new device time is now an open audit
+(EXP-0194), not a number I get to assert. The expected answer is zero.
+
 ## What is fragile about the 543 — stated, not resolved
 
 EXP-0193 measured two things about the surviving population and **handed both over as questions
