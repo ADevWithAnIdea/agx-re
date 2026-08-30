@@ -97,6 +97,161 @@ def fit_mask(accepted, universe):
 
 
 # ---------------------------------------------------------------------------
+# Corrected models. FIELD-SWEEP-PROTOCOL section 6: recorded HERE, never written
+# into db.json -- the orchestrator owns that file.
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Fields whose INERTNESS has a KNOWN alternative explanation, so "inert in two
+# carriers" is NOT two independent observations. Forced to `untested` no matter
+# what the mechanical rule says: promoting them would put a confident label on
+# a field our carriers are blind to, which is precisely the silent-zero bug
+# FIELD-SWEEP-PROTOCOL section 5 warns about.
+# ---------------------------------------------------------------------------
+CONFOUNDED_INERT = {
+ "fspecial_est.srcA":
+   "inert over all 256 values in BOTH carriers -- but both are PRECISE "
+   "(Newton-Raphson) reciprocal lowerings, and NR converges to the correct "
+   "result from a wrong seed, so the observable is blind to the seed op's "
+   "operand. The two carriers SHARE the confound, so they are one observation, "
+   "not two. The prior M4 label (isolated-byte-diff, EXP-0154) stands; this is "
+   "a statement about our carriers, not a retraction.",
+ "fspecial_est.subop":
+   "same confound: 0x09/0x0b/0x0d select rcp/rsqrt/sqrt ESTIMATE, and every "
+   "value of the byte still yields the correct refined result because the NR "
+   "iteration corrects it. The prior M4 `hardware-run` label (EXP-0138, dense "
+   "0..255) stands untouched; a carrier that can SEE the seed (reading the "
+   "estimate register directly, as EXP-0026 did) is what a successor needs.",
+ "ibfe.sign_ext":
+   "inert in both carriers -- but db.json's own model says signed extract "
+   "requires BOTH this bit AND clearing srcC_flags bit0 (b9 0x11 -> 0x10). "
+   "This experiment swept the bit alone and never the pair, so inertness here "
+   "is exactly what db.json predicts and proves nothing about the field. The "
+   "prior label stands.",
+}
+
+DB_DEFECTS = {
+ "DEF-0161-1": {
+  "instr": "fspecial", "severity": "emitter-breaking",
+  "db_says": "dst = byte+1 high nibble (GPR); src = byte+3 (reg low); "
+             "src_ext = byte+5 (reg ext)",
+  "hardware_says":
+      "byte+3 (db `src`) is the DESTINATION register, packed (reg<<1)|size, "
+      "reg = v>>1. byte+5 (db `src_ext`) is the SOURCE register, packed reg<<2, "
+      "reg = v>>2 (low two bits don't-care). byte+1's high nibble (db `dst`) is "
+      "HW-TESTED INERT: all 16 values reproduce the unmutated result exactly in "
+      "BOTH the synthesized and the natural carrier, and the result always lands "
+      "in the same register.",
+  "how_established":
+      "(a) 16-register dumps: sweeping byte+5 moves which register is READ (and "
+      "released to zero) in blocks of 4 values, and the computed rsqrt matches "
+      "that register's seed exactly; sweeping byte+3 moves which register "
+      "RECEIVES the result in blocks of 2. (b) the INPLACE functional oracle "
+      "agrees. (c) 20/20 GENERATED encodings `r_i = rsqrt(r_j)` for arbitrary "
+      "i,j, predicted host-side before dispatch, all pass.",
+  "consequence_if_unfixed":
+      "an emitter following db.json puts the destination in a byte that does "
+      "nothing and the source in the byte that redirects the destination -- the "
+      "program runs, faults nothing, and silently writes the wrong register.",
+  "explains": "EXP-0138's byte+3 observations ('only 2 and 3 give the correct "
+              "rsqrt; 188 values silently return 0.0; 6 and 7 leave the poison "
+              "intact') are exactly what a DESTINATION selector does in a "
+              "carrier whose store reads r1.",
+  "evidence": ["raw/g17p_20260829_run01", "raw/g17p_20260829_run02",
+               "raw/g17p_20260830_gen03", "analysis/fspecial_function_map.json"]},
+ "DEF-0161-2": {
+  "instr": "mov_zext16", "severity": "emitter-breaking",
+  "db_says": "byte0 is a fixed 8-bit match == 0x13; byte+1 bits0-6 = source "
+             "register, bit7 = uniform/special-file flag",
+  "hardware_says":
+      "byte0's HIGH NIBBLE is a REGISTER field. The instruction is "
+      "`r[n] = r[n] & 0xFFFF` -- one register, used as BOTH source and "
+      "destination. n = 0..10 are reachable (nibbles 0x0..0xA); nibbles "
+      "0xB..0xF execute as a no-op. byte+1 is therefore NOT a source-register "
+      "selector: all 128 values of bits0-6 and both values of bit7 reproduce "
+      "the result exactly, in a carrier where the instruction is demonstrably "
+      "live (its byte0 falsifier fires) and where ALU forwarding cannot explain "
+      "it (fifteen loads and a store separate the source from the instruction).",
+  "how_established":
+      "16-register dumps over a dense byte0 sweep: byte0 = 0xN3 narrows r[N] "
+      "and nothing else; plus 11/16 GENERATED `r[n] = r[n] & 0xFFFF` encodings "
+      "passing a host-computed 16-register prediction.",
+  "resolves": "EXP-0146 left byte+1's inertness OPEN between (a) it is not a "
+              "source-register selector and (b) the operand was ALU-forwarded "
+              "from the preceding device_load. This is (a).",
+  "evidence": ["raw/g17p_20260829_run01", "raw/g17p_20260829_run02",
+               "raw/g17p_20260830_gen03"]},
+ "DEF-0161-3": {
+  "instr": "fspecial", "severity": "model refinement",
+  "db_says": "fnclass is a 4-bit opcode with 5 enumerated values",
+  "hardware_says":
+      "on the standard-SFU datapath (byte+6/+7 = 0xb0/0x40) only the LOW TWO "
+      "BITS of the nibble are live: values 1,3,5,7,9,11,13,15 all compute the "
+      "same function. Measured by COMPUTED VALUE, not by byte pattern: with "
+      "byte0 = 0xaf, (fnclass & 3) == 1 -> rsqrt and == 2 -> exp2; with "
+      "byte0 = 0x2f, == 0 -> rint, == 1 -> rsqrt, == 2 -> log2. So `fn_hi` "
+      "selects log2 vs exp2 at class 2, exactly as db.json's enum says, and "
+      "that enum is now HW-confirmed on G17P by the value the SFU produced.",
+  "evidence": ["analysis/fspecial_function_map.json"]},
+ "DEF-0161-4": {
+  "instr": "fspecial", "severity": "emitter-critical safety",
+  "db_says": "roundmode (byte+8): 0 nearest / 2 floor / 4 ceil / 6 trunc, or "
+             "0x20 = reciprocal precision flag",
+  "hardware_says":
+      "on the rsqrt (0xaf) and log2 (0x2f) SFU datapaths only BIT 0 of byte+8 "
+      "is live, and setting it makes the instruction return NaN for EVERY "
+      "input -- 128 of 256 values, all-NaN in 12/12 output lanes, in three "
+      "independent carriers. All 128 even values reproduce the correct result "
+      "to >= 24 good mantissa bits. The round-mode enum is a property of the "
+      "ROUND family, not of byte+8 in general.",
+  "analysis_bug_disclosed":
+      "the first version of analysis/fspecial_functions.py matched these NaN "
+      "vectors as a '~1% low-precision estimate', because every "
+      "`abs(nan - w) > tol` comparison is False in IEEE semantics. The NaN "
+      "guard is the fix and the claim above is the corrected reading.",
+  "evidence": ["analysis/sfu_precision.json", "analysis/fspecial_function_map.json"]},
+ "DEF-0161-5": {
+  "instr": "device_store / device_load (scoreboard_model)",
+  "severity": "emitter-relevant hardware hazard",
+  "db_says": "scoreboard_model: G17P has a hardware register interlock; "
+             ">= 20 independent device loads may be outstanding, 'all consumed "
+             "correctly with no wait' (EXP-0025 manyload20)",
+  "hardware_says":
+      "that holds for ALU consumers. It does NOT hold for a `device_store` "
+      "consumer: with a single wave of 15 loads, the registers read by the "
+      "FIRST ~5 STORES issued afterwards come back with their PRE-LOAD value. "
+      "The effect follows the STORE order, not the load order -- dumping "
+      "r15..r0 instead of r0..r15 moved the stale set from r0..r4 to r11..r14 "
+      "-- and it reproduces with only 5 loads outstanding.",
+  "how_established": "harness/pilot_seed.py, 8 controlled variants (P1..P8), "
+                     "raw/prefreeze/pilot_seed.json",
+  "workaround_used_here": "two load waves plus 6 drain stores; verified 15/15 "
+                          "correct and stable over 8 consecutive dispatches",
+  "evidence": ["raw/prefreeze/pilot_seed.json", "raw/prefreeze/smoke_postfix.json"]},
+ "DEF-0161-6": {
+  "instr": "carry_gen", "severity": "decode over-constraint (REPRODUCES EXP-0146)",
+  "db_says": "byte+2 is pinned to the full byte 0x35",
+  "hardware_says":
+      "only (v & 0xCD) == 0x05 is required: bits 1, 4 and 5 are DON'T-CARE and "
+      "8 of 256 values work -- {0x05,0x07,0x15,0x17,0x25,0x27,0x35,0x37}. "
+      "IDENTICAL to EXP-0146's M4 result, in BOTH of this experiment's carriers. "
+      "A G16G -> G17P reproduction, not a new claim. Relaxing the match is a "
+      "DECODE change and stays deferred to a corpus A/B.",
+  "evidence": ["raw/g17p_20260829_run01", "raw/g17p_20260829_run02"]},
+ "DEF-0161-7": {
+  "instr": "carry_gen", "severity": "semantics extension",
+  "db_says": "p[dst] = (r[srcA] <u r[srcB]); operand packing inferred",
+  "hardware_says":
+      "the low bit of each operand byte is a real SIZE bit. With it SET the "
+      "compare is 32-bit; with it CLEAR the hardware compares only the LOW 16 "
+      "BITS. Established the hard way: 16 generated encodings built with "
+      "is32 = 0 while predicting a 32-bit compare failed 9 of 16, and ALL 16 "
+      "outcomes are explained exactly by the 16-bit rule. The corrected model "
+      "then passed 48/48 generated encodings across both widths and both "
+      "settings of the inert bit 7.",
+  "evidence": ["raw/g17p_20260830_gen02", "raw/g17p_20260830_gen03"]},
+}
+
+
 def main():
     adj = json.loads(ADJ.read_text()) if ADJ.exists() else {}
     adjmap = dict((int(k), v) for k, v in adj.get("cases", {}).items())
@@ -246,12 +401,39 @@ def main():
              else ("InnocentVictim" if r["attempts"][0]["victim"]
                    else r["attempts"][0]["status"]))
             for r in rs if r["attempts"])
+        # A case is only CLEANLY OBSERVED if at least one of its attempts
+        # produced OUR OWN `...ErrorHang` rather than a neighbour's
+        # `...InnocentVictim`. In a region where every value resets the device,
+        # a case's neighbours swamp it -- so this split is load-bearing and is
+        # reported, not smoothed over.
+        per = {}
+        for r in rs:
+            if r["field"] != "src":
+                continue
+            per[r["value"]] = sum(1 for a in r["attempts"]
+                                  if "ErrorHang" in (a["error"] or ""))
+        clean = sorted(v for v, n in per.items() if n)
+        dirty = sorted(v for v, n in per.items() if not n)
         danger[p.parent.name] = {
             "cases": len(rs), "outcomes": dict(cnt),
             "os_ErrorHang_attempts": oshang,
+            "attempts_per_case": 3,
             "first_attempt_classification": dict(first_att),
-            "values": sorted(r["value"] for r in rs if r["field"] == "src"),
-            "watchdog_hangs": cnt.get("hang", 0)}
+            "swept_values": [min(per), max(per)] if per else None,
+            "n_values": len(per),
+            "values_with_a_GENUINE_ErrorHang": len(clean),
+            "values_NEVER_CLEANLY_OBSERVED": dirty,
+            "n_never_cleanly_observed": len(dirty),
+            "values_that_WORKED": [v for v, n in
+                                   ((r["value"], r["outcome"]) for r in rs
+                                    if r["field"] == "src") if n == "ok"],
+            "watchdog_hangs": cnt.get("hang", 0),
+            "reading": "%d of %d values in the swept region produced a genuine "
+                       "contained ErrorHang; %d were never cleanly observed "
+                       "(all three attempts were victim-class, swamped by their "
+                       "neighbours' resets). NO value in the region was ever "
+                       "observed to work."
+                       % (len(clean), len(per), len(dirty))}
     meta["danger_arm"] = danger
 
     for instr in sorted(perfield):
@@ -284,6 +466,18 @@ def main():
                     and k.split(".", 1)[0] in usable]
             has_sem = any("released_register_map" in sem[k]
                           or "destination_register_map" in sem[k] for k in semk)
+            if key in CONFOUNDED_INERT:
+                out[key] = {"label": "untested", "target": "G17P",
+                            "evidence": ["EXP-0161"],
+                            "range": " / ".join(
+                                "%s: %d..%d (%d values)"
+                                % (a, v["range_lo"], v["range_hi"], v["n"])
+                                for a, v in sorted(usable.items())),
+                            "note": "NOT PROMOTED. " + CONFOUNDED_INERT[key],
+                            "arms": arms,
+                            "prior_label": prior.get("label", "untested"),
+                            "prior_target": prior.get("target", "")}
+                continue
             if multi and dense:
                 label = "hardware-run"
             elif inert and len(usable) >= 2 and dense:
@@ -299,10 +493,21 @@ def main():
             note = []
             if inert:
                 note.append("HW-TESTED INERT over the whole swept range in %d "
-                            "independent carriers (%s): every value reproduces "
+                            "independent carrier%s (%s): every value reproduces "
                             "the unmutated result exactly. Role UNKNOWN -- an "
                             "emitter may use any value, but must NOT synthesize "
-                            "a meaning for it." % (len(usable), ", ".join(sorted(usable))))
+                            "a meaning for it.%s"
+                            % (len(usable), "" if len(usable) == 1 else "s",
+                               ", ".join(sorted(usable)),
+                               "" if len(usable) >= 2 else
+                               " NOT PROMOTED: one carrier is not enough for an "
+                               "INERT field -- the falu2.srcA_reg_top precedent "
+                               "needed six families before the project would say "
+                               "'any value is safe'. The prior label stands."))
+            for a, v in sorted(usable.items()):
+                if "accept_rule" not in v and 0 < v["n_accepted"] <= 12:
+                    note.append("%s: accepted set is %s (no mask rule fits)"
+                                % (a, v["accepted"]))
             for a, v in sorted(usable.items()):
                 if "accept_rule" in v:
                     note.append("%s: accepted set fits %s (%d of %d values)"
@@ -330,26 +535,74 @@ def main():
             k = "%s.%s" % (instr, f)
             new = out.get(k, {}).get("label")
             old = VAL.get(instr, {}).get(f, {}).get("label", "untested")
-            rows[f] = {"prior": old, "this_exp": new,
-                       "best": new if (new in EMIT_GRADE) else old}
+            oldt = VAL.get(instr, {}).get(f, {}).get("target", "")
+            rows[f] = {"prior": old, "prior_target": oldt, "this_exp": new,
+                       "best": new if (new in EMIT_GRADE) else old,
+                       "grade_from": ("EXP-0161 / G17P" if new in EMIT_GRADE
+                                      else ("prior / %s" % (oldt or "?")
+                                            if old in EMIT_GRADE else "NONE"))}
         blocking = [f for f, v in rows.items() if v["best"] not in EMIT_GRADE]
+        defects = [k for k, v in DB_DEFECTS.items()
+                   if v["instr"].split(" /")[0] == instr
+                   and "emitter" in v["severity"]]
         emit[instr] = {"fields": rows, "blocking_before":
                        [f for f in fields
                         if VAL.get(instr, {}).get(f, {}).get("label", "untested")
                         not in EMIT_GRADE],
                        "blocking_after": blocking,
-                       "EMITTABLE_AFTER": not blocking}
+                       "EMITTABLE_AFTER": not blocking,
+                       "descriptor_defects_that_must_be_fixed_first": defects,
+                       "fields_at_grade_only_via_a_NON_G17P_prior_label":
+                           [f for f, v in rows.items()
+                            if v["grade_from"].startswith("prior")
+                            and "G17P" not in v["grade_from"]],
+                       "caveat": ("EMITTABLE ONLY AFTER %s is applied to "
+                                  "db.json: every field is at emitter grade, "
+                                  "but the descriptor as committed would make "
+                                  "an emitter write the WRONG REGISTER without "
+                                  "faulting." % ", ".join(defects))
+                       if (defects and not blocking) else ""}
     meta["emittability"] = emit
+
+    # ---- generation proof -------------------------------------------------
+    gen = {}
+    for p in sorted((EXP / "raw").glob("g17p_*_gen*/sweep.jsonl")):
+        rs = load(p)
+        c = Counter((r.get("gen"), r.get("verdict")) for r in rs if r.get("verdict"))
+        per = defaultdict(Counter)
+        for r in rs:
+            if r.get("verdict"):
+                per[r["gen"]][r["verdict"]] += 1
+        gen[p.parent.name] = dict((k, dict(v)) for k, v in per.items())
+    meta["generation_proof"] = gen
 
     doc = {"_meta": meta, "verdicts": out}
     (EXP / "analysis" / "field_verdicts_raw.json").write_text(
         json.dumps(doc, indent=1, sort_keys=True))
 
-    # protocol section 5 shape
-    slim = {}
+    # ---- protocol section 5 output ---------------------------------------
+    slim, rawprobes = {}, {}
     for k, v in out.items():
-        slim[k] = {"label": v["label"], "range": v["range"], "target": "G17P",
-                   "evidence": ["EXP-0161"], "note": v["note"]}
+        rec = {"label": v["label"], "range": v["range"], "target": "G17P",
+               "evidence": ["EXP-0161"], "note": v["note"],
+               "prior_label": v.get("prior_label"),
+               "prior_target": v.get("prior_target")}
+        if ".__raw_b" in k:
+            rawprobes[k] = rec
+        else:
+            slim[k] = rec
+    final = {"_meta": {k: meta[k] for k in
+                       ("gated_pairs", "cases_per_run", "target",
+                        "fault_adjudication", "n_adjudicated",
+                        "n_adjudication_changed", "cross_run", "gates",
+                        "danger_arm", "generation_proof", "semantic_maps",
+                        "cross_run_disagreements") if k in meta},
+             "verdicts": slim,
+             "raw_byte_probes": rawprobes,
+             "emittability": meta["emittability"],
+             "db_defects": DB_DEFECTS}
+    (EXP / "analysis" / "field_verdicts.json").write_text(
+        json.dumps(final, indent=1, sort_keys=True))
     print("== gates")
     for a in sorted(gates):
         print("  %-18s baseline_ok=%-5s falsifiers_fired=%-5s USABLE=%s"

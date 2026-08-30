@@ -1,4 +1,46 @@
 {
+ "amendments": {
+  "amendment_01": {
+   "arms": [
+    "B2_ZEXT_SYNTH_R5 (mov_zext16 in its r5 form, byte0 = 0x53)",
+    "E2_FSPEC_EST_RCP (fspecial_est in the precise 1/x lowering)",
+    "C2_IBFE_SHR_X (ibfe's 1-bit fields in the shift-right lowering)"
+   ],
+   "cases": 1952,
+   "gated_pair": [
+    "g17p_20260830_supp02 (forward)",
+    "g17p_20260830_supp03 (reverse)"
+   ],
+   "matrix_sha256": "ca1f1304b4202c92b23cc7e903e33045f33b6154fc39ae83c01dfb2e6ff35727",
+   "superseded_run": "g17p_20260830_supp01 -- launched in the background and then overlapped by this experiment's own danger arm. RETAINED as it stopped, used for no verdict, replaced under new ids.",
+   "utc": "2026-08-30T07:13:38Z",
+   "what": "THREE supplementary arms added AFTER run01/run02, each a SECOND independent carrier for a field already swept -- never a re-run of a case already recorded.",
+   "why": "mov_zext16.src_reg/src_flag were inert in ONE usable carrier, which is not enough to call an inert field emitter-grade (the falu2.srcA_reg_top precedent required six families)."
+  },
+  "amendment_02": {
+   "STATUS": "BUILT AND COMMITTED BUT NOT RUN",
+   "cases": 788,
+   "kept_in_its_own_list": "SUPP2_ARMS, so the supp02/supp03 pair's frozen matrix hash stays exactly what those runs executed.",
+   "matrix_sha256": "b7b9605bf1f912b50deaec0618ba9cd2e411674b6665888fe1058bf4abf353cf",
+   "utc": "2026-08-30T07:13:38Z",
+   "what": "A FOURTH arm, D4_FSPEC_FLOOR, built to test db.json's round-family round-mode enum (0 nearest / 2 floor / 4 ceil / 6 trunc) by computed value on a `floor` carrier.",
+   "why_not_run": "this experiment had already caused 1,571 contained `ErrorHang` command buffers (RESULTS.md section 8.1), each of which resets the device for every other agent. `roundmode` is already `hardware-run` from three carriers; refining the round-family enum did not justify more GPU load. Run it with `harness/run.py --supp2`."
+  },
+  "amendment_03": {
+   "result": "58 of 60 confirmed; 2 were not faults (3.3% unlocked-run false-fault rate). Both corrections applied before the verdicts were computed.",
+   "utc": "2026-08-30T07:13:38Z",
+   "what": "Fault adjudication was SAMPLED, not exhaustive: 60 of the 308 fault-agreeing cases, stratified across all 12 (arm, field) strata, 5x each.",
+   "why": "re-running all 308 costs ~1,540 dispatches, a large share of them device-resetting, and NO field verdict in analysis/field_verdicts.json rests on a `fault` classification -- every accept-rule is an `ok` set."
+  },
+  "amendment_04": {
+   "fix": "harness/run.py now treats an attempt whose OS error string contains `ErrorHang` as a genuine hang for the stop rule. Committed, but AFTER the runs above were made.",
+   "impact": "1,571 contained ErrorHang command buffers over 30,056 dispatched cases; 0 watchdog hangs; 0 host wedges; the neo stayed healthy throughout.",
+   "rule": "PRE_REGISTRATION section 2 H6 / section 4: two GENUINE hangs stop an arm.",
+   "utc": "2026-08-30T07:13:38Z",
+   "what": "DEVIATION FROM A PRE-REGISTERED SAFETY RULE, disclosed.",
+   "what_happened": "the rule was implemented against the runner's watchdog `HANG` status, while every genuine hang in this experiment arrived as a CONTAINED `CMDBUF_ERROR` carrying the OS string `kIOGPUCommandBufferCallbackErrorHang`. The rule therefore never fired: the danger arm ran all 64 values instead of stopping at two, and E2_FSPEC_EST_RCP produced ~300 ErrorHangs per run across three runs."
+  }
+ },
  "anchors": {
   "A_CARRY_INPLACE": {
    "anchor_bytes": "320135032281",

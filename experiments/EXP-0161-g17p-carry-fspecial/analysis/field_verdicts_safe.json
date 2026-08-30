@@ -1,0 +1,128 @@
+{
+ "_meta": {
+  "experiment": "EXP-0161-g17p-carry-fspecial",
+  "note": "fspecial/fspecial_est/mov_zext16 verdicts HELD BACK pending DEF-0161-1 and DEF-0161-2 db.json repairs; their field names change under the fix.",
+  "target": "G17P"
+ },
+ "carry_gen.b5": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set is [1, 5, 9, 129] (no mask rule fits) | A_CARRY_SYNTH: accepted set is [1, 5, 129] (no mask rule fits)",
+  "prior_label": "tokenization-only",
+  "prior_target": "M4+A18",
+  "range": "A_CARRY_INPLACE: 0..255 (229 values) / A_CARRY_SYNTH: 0..255 (215 values)",
+  "target": "G17P"
+ },
+ "carry_gen.cmpmode": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0xA7) == 0x22 (8 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0xA7) == 0x22 (8 of 256 values)",
+  "prior_label": "corpus-correlation",
+  "prior_target": "A18",
+  "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+  "target": "G17P"
+ },
+ "carry_gen.dst": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x0F) == 0x03 (1 of 16 values) | A_CARRY_SYNTH: accepted set fits (v & 0x0F) == 0x03 (1 of 16 values)",
+  "prior_label": "untested",
+  "prior_target": "G17P",
+  "range": "A_CARRY_INPLACE: 0..15 (16 values, dense) / A_CARRY_SYNTH: 0..15 (16 values, dense)",
+  "target": "G17P"
+ },
+ "carry_gen.srcA": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x01 (2 of 256 values)",
+  "prior_label": "corpus-correlation",
+  "prior_target": "A18",
+  "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+  "target": "G17P"
+ },
+ "carry_gen.srcB": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 22/22",
+  "prior_label": "untested",
+  "prior_target": "M4",
+  "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+  "target": "G17P"
+ },
+ "ibfe.b2_bit0": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "untested",
+  "note": "HW-TESTED INERT over the whole swept range in 1 independent carrier (C2_IBFE_SHR_X): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it. NOT PROMOTED: one carrier is not enough for an INERT field -- the falu2.srcA_reg_top precedent needed six families before the project would say 'any value is safe'. The prior label stands. | C2_IBFE_SHR_X: accepted set is [0, 1] (no mask rule fits)",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense)",
+  "target": "G17P"
+ },
+ "ibfe.b6_bit0": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x00 (1 of 2 values) | C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense) / C_IBFE_BFE: 0..1 (2 values, dense)",
+  "target": "G17P"
+ },
+ "ibfe.offset": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "C_IBFE_BFE: accepted set fits (v & 0x3F) == 0x04 (1 of 64 values) | C_IBFE_SHR: accepted set fits (v & 0x3F) == 0x05 (1 of 64 values) | C_IBFE_SYNTH: accepted set fits (v & 0x3F) == 0x04 (1 of 64 values)",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C_IBFE_BFE: 0..63 (64 values, dense) / C_IBFE_SHR: 0..63 (64 values, dense) / C_IBFE_SYNTH: 0..63 (64 values, dense)",
+  "target": "G17P"
+ },
+ "ibfe.sign_ext": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "untested",
+  "note": "NOT PROMOTED. inert in both carriers -- but db.json's own model says signed extract requires BOTH this bit AND clearing srcC_flags bit0 (b9 0x11 -> 0x10). This experiment swept the bit alone and never the pair, so inertness here is exactly what db.json predicts and proves nothing about the field. The prior label stands.",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C2_IBFE_SHR_X: 0..1 (2 values) / C_IBFE_BFE: 0..1 (2 values)",
+  "target": "G17P"
+ },
+ "ibfe.store_en": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x01 (1 of 2 values)",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense)",
+  "target": "G17P"
+ },
+ "ibfe.width": {
+  "evidence": [
+   "EXP-0161"
+  ],
+  "label": "hardware-run",
+  "note": "C_IBFE_SHR: accepted set is [0, 27, 28, 29, 30, 31, 32, 59, 60, 61, 62, 63] (no mask rule fits) | C_IBFE_SYNTH: accepted set is [6, 7, 8, 9, 38, 39, 40, 41] (no mask rule fits) | C_IBFE_BFE: accepted set fits (v & 0x1F) == 0x08 (2 of 64 values)",
+  "prior_label": "hardware-run",
+  "prior_target": "G17P",
+  "range": "C_IBFE_BFE: 0..63 (64 values, dense) / C_IBFE_SHR: 0..63 (64 values, dense) / C_IBFE_SYNTH: 0..63 (64 values, dense)",
+  "target": "G17P"
+ }
+}

@@ -70,3 +70,53 @@ About to sweep `fspecial` byte+3 (`src`) **192..255**, the region EXP-0138 recor
 reproducible GPU hangs in. Run in its own process, 12 s watchdog, unlocked per the current
 NEO-TARGET-BRIEF ("Concurrency: unrestricted. There is no lease."). **Stop rule armed: two
 genuine hangs end the arm.** If the device resets, EXP-0161 is the likely cause.
+
+## 2026-08-30 00:0x — DANGER ARM COMPLETE (and a disclosure)
+`fspecial` byte+3 192..255: **all 64 values return a contained
+`kIOGPUCommandBufferCallbackErrorHang` on the first attempt**; 127 retries came back
+`...ErrorInnocentVictim` (victims of the reset our own hang caused). 0 watchdog hangs, no
+host wedge, baseline `ok` immediately before. Boundary is **exactly bit 7**, dense on both
+sides.
+**DISCLOSURE:** the pre-registered "stop after two genuine hangs" rule did NOT fire, because
+it keyed on the runner's watchdog status while these were contained `CMDBUF_ERROR`s carrying
+the OS `ErrorHang` string. The arm ran all 64. `harness/run.py` now classifies on the OS
+string too. **This experiment caused 65 device resets here.**
+
+## 2026-08-30 00:1x — GENERATION PROOF (gen03, corrected model): fspecial 20/20, carry_gen 48/48
+gen02's 9/16 carry_gen failures were diagnostic, not noise: the operand byte's low bit is a
+real SIZE bit and clearing it makes the compare 16-bit. All 16 outcomes are explained by
+that, and the corrected model passes 48/48 across both widths and both settings of the inert
+bit 7.
+
+## 2026-08-30 00:2x — supp01 SUPERSEDED, supp02/supp03 gated pair complete
+supp01 overlapped my own danger arm (my scheduling error). **Retained as-is, used for no
+verdict**, replaced under new ids. supp02/supp03 agree to one case on `ok` (856 vs 857).
+**COURTESY NOTICE, second one:** the `E2_FSPEC_EST_RCP` arm turns out to be a hang generator
+in its own right — ~300 contained `ErrorHang`s per run, three runs. That is the bulk of this
+experiment's device impact and it went unnoticed because of the same stop-rule bug.
+
+## 2026-08-30 00:3x — fault adjudication (sampled) + final verdicts
+308 cases had both gated runs agreeing on `fault`. Re-running all of them 5x would have cost
+~1,540 more mostly-device-resetting dispatches, and **no field verdict rests on a `fault`
+classification**, so a stratified sample of 60 across all 12 (arm, field) strata was
+adjudicated instead: **58 confirmed, 2 were not faults** (3.3%).
+Final: 26 `hardware-run` + 1 `isolated-byte-diff` field verdicts on G17P; `carry_gen`,
+`fspecial`, `fspecial_est` and `mov_zext16` all reach emitter grade, two of them with an
+explicit "only after the db.json fix" caveat. Seven `db_defects` recorded.
+**Three fields deliberately NOT promoted** (`fspecial_est.srcA`/`.subop`, `ibfe.sign_ext`)
+even though the mechanical rule would have granted them — their inertness has a known
+alternative explanation the carriers share.
+**`D4_FSPEC_FLOOR` (--supp2) is built and committed but NOT RUN**: after 1,571 device resets
+the proportionate call was to stop adding GPU load for a refinement of a field that is
+already `hardware-run` from three carriers.
+
+## 2026-08-30 00:4x — DONE. Nothing committed; db.json/validation.json/docs/PROVENANCE untouched.
+
+## 2026-08-30 00:5x — CORRECTION to my own danger-arm claim, before publishing it
+A first pass wrote "all 64 values return ErrorHang on the first attempt". The per-case
+histogram says otherwise: **45 of 64 values produced a genuine `ErrorHang`; 19 had all three
+attempts come back victim-class** and were never cleanly observed — in a region where every
+value resets the device, a case's neighbours swamp it. No value in 192..255 was ever
+observed to work (0 ok / 0 wrong_value / 0 silent_zero over 192 attempts). RESULTS.md §7 and
+§10 and the headline now say that, and the 19 values are listed by value in
+`analysis/field_verdicts.json`.

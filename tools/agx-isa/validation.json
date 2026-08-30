@@ -16,31 +16,32 @@
   "total_instructions": 172,
   "total_fields": 1060,
   "by_label": {
-   "hardware-run": 548,
+   "hardware-run": 553,
    "isolated-byte-diff": 111,
-   "corpus-correlation": 121,
-   "tokenization-only": 168,
+   "corpus-correlation": 119,
+   "tokenization-only": 167,
    "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 104
+   "untested": 102
   },
   "by_label_pct": {
-   "hardware-run": 51.7,
+   "hardware-run": 52.2,
    "isolated-byte-diff": 10.5,
-   "corpus-correlation": 11.4,
+   "corpus-correlation": 11.2,
    "tokenization-only": 15.8,
    "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 9.8
+   "untested": 9.6
   },
-  "emittable_instructions": 66,
+  "emittable_instructions": 67,
   "emittable_mnemonics": [
    "atomic_mem",
    "atomic_rmw",
    "atomic_tg",
    "bf_add_dst",
+   "carry_gen",
    "copysign",
    "cvt_bf16",
    "cvt_f2h",
@@ -104,7 +105,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 106,
+  "decodable_not_yet_emittable": 105,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -115,7 +116,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 66
+  "emittable_of_emitter_relevant": 67
  },
  "instructions": {
   "falu2": {
@@ -1687,12 +1688,12 @@
    },
    "store_en": {
     "label": "hardware-run",
-    "range": "2 values tested (dense over 1-bit domain)",
+    "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense)",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0161"
     ],
-    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
+    "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x01 (1 of 2 values)"
    },
    "b2_fmt": {
     "label": "hardware-run",
@@ -1732,12 +1733,12 @@
    },
    "b6_bit0": {
     "label": "hardware-run",
-    "range": "2 values tested (dense over 1-bit domain)",
+    "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense) / C_IBFE_BFE: 0..1 (2 values, dense)",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0161"
     ],
-    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
+    "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x00 (1 of 2 values) | C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)"
    },
    "sign_ext": {
     "label": "hardware-run",
@@ -1750,12 +1751,12 @@
    },
    "offset": {
     "label": "hardware-run",
-    "range": "0..63 dense (the whole 6-bit field), in two independent lowerings",
+    "range": "C_IBFE_BFE: 0..63 (64 values, dense) / C_IBFE_SHR: 0..63 (64 values, dense) / C_IBFE_SYNTH: 0..63 (64 values, dense)",
     "target": "G17P",
     "evidence": [
-     "EXP-0153"
+     "EXP-0161"
     ],
-    "note": ""
+    "note": "C_IBFE_BFE: accepted set fits (v & 0x3F) == 0x04 (1 of 64 values) | C_IBFE_SHR: accepted set fits (v & 0x3F) == 0x05 (1 of 64 values) | C_IBFE_SYNTH: accepted set fits (v & 0x3F) == 0x04 (1 of 64 values)"
    },
    "b7": {
     "label": "hardware-run",
@@ -1795,12 +1796,12 @@
    },
    "width": {
     "label": "hardware-run",
-    "range": "0..63 dense (the whole 6-bit field)",
+    "range": "C_IBFE_BFE: 0..63 (64 values, dense) / C_IBFE_SHR: 0..63 (64 values, dense) / C_IBFE_SYNTH: 0..63 (64 values, dense)",
     "target": "G17P",
     "evidence": [
-     "EXP-0153"
+     "EXP-0161"
     ],
-    "note": ""
+    "note": "C_IBFE_SHR: accepted set is [0, 27, 28, 29, 30, 31, 32, 59, 60, 61, 62, 63] (no mask rule fits) | C_IBFE_SYNTH: accepted set is [6, 7, 8, 9, 38, 39, 40, 41] (no mask rule fits) | C_IBFE_BFE: accepted set fits (v & 0x1F) == 0x08 (2 of 64 values)"
    },
    "b11hi": {
     "label": "hardware-run",
@@ -6631,47 +6632,49 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "16 values tested (dense over 4-bit domain)",
+    "label": "hardware-run",
+    "range": "A_CARRY_INPLACE: 0..15 (16 values, dense) / A_CARRY_SYNTH: 0..15 (16 values, dense)",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0161"
     ],
-    "note": "carrier SYNTH+LIFTED:k_u64add@carry_gen[32:72]; outcomes {'silent_zero': 11, 'ok': 3, 'wrong_value': 2}; ok at {0x1, 0x3, 0xf}"
+    "note": "A_CARRY_INPLACE: accepted set fits (v & 0x0F) == 0x03 (1 of 16 values) | A_CARRY_SYNTH: accepted set fits (v & 0x0F) == 0x03 (1 of 16 values)"
    },
    "cmpmode": {
-    "label": "corpus-correlation",
-    "range": "byte+4==0x22 ordered-compare mode",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0038"
-    ]
+     "EXP-0161"
+    ],
+    "note": "A_CARRY_INPLACE: accepted set fits (v & 0xA7) == 0x22 (8 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0xA7) == 0x22 (8 of 256 values)"
    },
    "b5": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "A_CARRY_INPLACE: 0..255 (229 values) / A_CARRY_SYNTH: 0..255 (215 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0161"
+    ],
+    "note": "A_CARRY_INPLACE: accepted set is [1, 5, 9, 129] (no mask rule fits) | A_CARRY_SYNTH: accepted set is [1, 5, 129] (no mask rule fits)"
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "OPERAND-SLOT RENAME (EXP-0146, HW): carry_gen is a TWO-operand compare, p[dst] = (r[byte+1] <u r[byte+3]); byte+3 is the SECOND source, not the only one."
+    "label": "hardware-run",
+    "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0161"
+    ],
+    "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 22/22"
    },
    "srcA": {
-    "label": "corpus-correlation",
-    "range": "byte+2==0x35 carry-generate marker",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "A_CARRY_INPLACE: 0..255 (256 values, dense) / A_CARRY_SYNTH: 0..255 (256 values, dense)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0038"
+     "EXP-0161"
     ],
-    "note": "OPERAND-ROLE CORRECTION (EXP-0146, HW, dense 0..255): byte+1 is the FIRST source-operand descriptor, not a sub-opcode or a marker. Exactly {0x01, 0x81} work -- the project-standard (reg<<1)|is32 packing with an INERT bit7 -- and every other value changes the carry. Identical in shape to byte+3."
+    "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x01 (2 of 256 values)"
    }
   },
   "frame_prologue": {

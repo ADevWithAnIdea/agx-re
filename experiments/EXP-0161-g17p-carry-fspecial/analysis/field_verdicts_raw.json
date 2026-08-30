@@ -1,10 +1,10 @@
 {
  "_meta": {
-  "cases_per_run": 11942,
+  "cases_per_run": 13894,
   "cross_run": {
-   "agreed": 11754,
-   "disagreements": 13,
-   "victim_excluded": 175
+   "agreed": 13238,
+   "disagreements": 17,
+   "victim_excluded": 639
   },
   "cross_run_disagreements": [
    {
@@ -123,87 +123,88 @@
     "runA": "wrong_value",
     "runB": "fault",
     "value": 252
+   },
+   {
+    "arm": "E2_FSPEC_EST_RCP",
+    "field": "b4",
+    "idx": 743,
+    "pair": "g17p_20260830_supp02",
+    "runA": "silent_zero",
+    "runB": "fault",
+    "value": 97
+   },
+   {
+    "arm": "E2_FSPEC_EST_RCP",
+    "field": "b5",
+    "idx": 1122,
+    "pair": "g17p_20260830_supp02",
+    "runA": "silent_zero",
+    "runB": "ok",
+    "value": 220
+   },
+   {
+    "arm": "E2_FSPEC_EST_RCP",
+    "field": "srcA",
+    "idx": 1375,
+    "pair": "g17p_20260830_supp02",
+    "runA": "silent_zero",
+    "runB": "ok",
+    "value": 201
+   },
+   {
+    "arm": "E2_FSPEC_EST_RCP",
+    "field": "subop",
+    "idx": 1504,
+    "pair": "g17p_20260830_supp02",
+    "runA": "ok",
+    "runB": "fault",
+    "value": 74
    }
   ],
   "danger_arm": {
    "g17p_20260830_danger01": {
+    "attempts_per_case": 3,
     "cases": 65,
     "first_attempt_classification": {
      "ErrorHang": 30,
      "InnocentVictim": 34,
      "OK": 1
     },
+    "n_never_cleanly_observed": 19,
+    "n_values": 64,
     "os_ErrorHang_attempts": 65,
     "outcomes": {
      "fault": 64,
      "ok": 1
     },
-    "values": [
+    "reading": "45 of 64 values in the swept region produced a genuine contained ErrorHang; 19 were never cleanly observed (all three attempts were victim-class, swamped by their neighbours' resets). NO value in the region was ever observed to work.",
+    "swept_values": [
      192,
-     193,
+     255
+    ],
+    "values_NEVER_CLEANLY_OBSERVED": [
      194,
-     195,
-     196,
-     197,
-     198,
      199,
-     200,
-     201,
-     202,
-     203,
-     204,
-     205,
-     206,
      207,
-     208,
-     209,
      210,
-     211,
      212,
-     213,
-     214,
-     215,
-     216,
      217,
-     218,
-     219,
-     220,
      221,
      222,
      223,
-     224,
-     225,
-     226,
      227,
-     228,
-     229,
-     230,
-     231,
      232,
      233,
-     234,
      235,
-     236,
-     237,
-     238,
-     239,
      240,
      241,
      242,
-     243,
-     244,
-     245,
      246,
      247,
-     248,
-     249,
-     250,
-     251,
-     252,
-     253,
-     254,
      255
     ],
+    "values_that_WORKED": [],
+    "values_with_a_GENUINE_ErrorHang": 45,
     "watchdog_hangs": 0
    }
   },
@@ -218,33 +219,46 @@
      "cmpmode",
      "b5"
     ],
+    "caveat": "",
+    "descriptor_defects_that_must_be_fixed_first": [],
     "fields": {
      "b5": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "cmpmode": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "A18",
       "this_exp": "hardware-run"
      },
      "dst": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "untested",
+      "prior_target": "G17P",
       "this_exp": "hardware-run"
      },
      "srcA": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "A18",
       "this_exp": "hardware-run"
      },
      "srcB": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "untested",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      }
-    }
+    },
+    "fields_at_grade_only_via_a_NON_G17P_prior_label": []
    },
    "fspecial": {
     "EMITTABLE_AFTER": true,
@@ -262,63 +276,91 @@
      "roundmode",
      "sched_flag"
     ],
+    "caveat": "EMITTABLE ONLY AFTER DEF-0161-1, DEF-0161-4 is applied to db.json: every field is at emitter grade, but the descriptor as committed would make an emitter write the WRONG REGISTER without faulting.",
+    "descriptor_defects_that_must_be_fixed_first": [
+     "DEF-0161-1",
+     "DEF-0161-4"
+    ],
     "fields": {
      "dst": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      },
      "fn_hi": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "A18",
       "this_exp": "hardware-run"
      },
      "fnclass": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "A18",
       "this_exp": "hardware-run"
      },
      "fnsel": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "precsel": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "roundmode": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "A18",
       "this_exp": "hardware-run"
      },
      "sched_flag": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "src": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      },
      "src_cache": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "src_class": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      },
      "src_ext": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      }
-    }
+    },
+    "fields_at_grade_only_via_a_NON_G17P_prior_label": []
    },
    "fspecial_est": {
     "EMITTABLE_AFTER": true,
@@ -327,162 +369,234 @@
      "b4",
      "b5"
     ],
+    "caveat": "",
+    "descriptor_defects_that_must_be_fixed_first": [],
     "fields": {
      "b4": {
-      "best": "hardware-run",
+      "best": "isolated-byte-diff",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
-      "this_exp": "hardware-run"
+      "prior_target": "M4+A18",
+      "this_exp": "isolated-byte-diff"
      },
      "b5": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "tokenization-only",
+      "prior_target": "M4+A18",
       "this_exp": "hardware-run"
      },
      "dst": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": "hardware-run"
      },
      "srcA": {
       "best": "isolated-byte-diff",
+      "grade_from": "prior / G17P",
       "prior": "isolated-byte-diff",
+      "prior_target": "G17P",
       "this_exp": "untested"
      },
      "subop": {
       "best": "hardware-run",
+      "grade_from": "prior / M4",
       "prior": "hardware-run",
+      "prior_target": "M4",
       "this_exp": "untested"
      }
-    }
+    },
+    "fields_at_grade_only_via_a_NON_G17P_prior_label": [
+     "subop"
+    ]
    },
    "ibfe": {
     "EMITTABLE_AFTER": true,
     "blocking_after": [],
     "blocking_before": [],
+    "caveat": "",
+    "descriptor_defects_that_must_be_fixed_first": [],
     "fields": {
      "b11hi": {
       "best": "hardware-run",
+      "grade_from": "prior / M4",
       "prior": "hardware-run",
+      "prior_target": "M4",
       "this_exp": null
      },
      "b2_bit0": {
       "best": "hardware-run",
+      "grade_from": "prior / G17P",
       "prior": "hardware-run",
-      "this_exp": null
+      "prior_target": "G17P",
+      "this_exp": "untested"
      },
      "b2_fmt": {
       "best": "hardware-run",
+      "grade_from": "prior / M4",
       "prior": "hardware-run",
+      "prior_target": "M4",
       "this_exp": null
      },
      "b4": {
       "best": "hardware-run",
+      "grade_from": "prior / M4",
       "prior": "hardware-run",
+      "prior_target": "M4",
       "this_exp": null
      },
      "b5": {
       "best": "hardware-run",
+      "grade_from": "prior / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": null
      },
      "b6_bit0": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": "hardware-run"
      },
      "b7": {
       "best": "hardware-run",
+      "grade_from": "prior / M4",
       "prior": "hardware-run",
+      "prior_target": "M4",
       "this_exp": null
      },
      "dst": {
       "best": "hardware-run",
+      "grade_from": "prior / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": null
      },
      "lenhi": {
       "best": "isolated-byte-diff",
+      "grade_from": "prior / M4",
       "prior": "isolated-byte-diff",
+      "prior_target": "M4",
       "this_exp": null
      },
      "offset": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": "hardware-run"
      },
      "sign_ext": {
       "best": "hardware-run",
+      "grade_from": "prior / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": "untested"
      },
      "srcA": {
       "best": "isolated-byte-diff",
+      "grade_from": "prior / G17P",
       "prior": "isolated-byte-diff",
+      "prior_target": "G17P",
       "this_exp": null
      },
      "srcC_flags": {
       "best": "isolated-byte-diff",
+      "grade_from": "prior / M4",
       "prior": "isolated-byte-diff",
+      "prior_target": "M4",
       "this_exp": null
      },
      "store_en": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "hardware-run",
-      "this_exp": null
+      "prior_target": "G17P",
+      "this_exp": "hardware-run"
      },
      "width": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "hardware-run",
+      "prior_target": "G17P",
       "this_exp": "hardware-run"
      },
      "width_lo": {
       "best": "isolated-byte-diff",
+      "grade_from": "prior / M4",
       "prior": "isolated-byte-diff",
+      "prior_target": "M4",
       "this_exp": null
      }
-    }
+    },
+    "fields_at_grade_only_via_a_NON_G17P_prior_label": [
+     "lenhi",
+     "b2_fmt",
+     "b4",
+     "b7",
+     "srcC_flags",
+     "width_lo",
+     "b11hi"
+    ]
    },
    "mov_zext16": {
-    "EMITTABLE_AFTER": false,
-    "blocking_after": [
-     "src_reg",
-     "src_flag"
-    ],
+    "EMITTABLE_AFTER": true,
+    "blocking_after": [],
     "blocking_before": [
      "src_reg",
      "src_flag",
      "subform",
      "extend"
     ],
+    "caveat": "EMITTABLE ONLY AFTER DEF-0161-2 is applied to db.json: every field is at emitter grade, but the descriptor as committed would make an emitter write the WRONG REGISTER without faulting.",
+    "descriptor_defects_that_must_be_fixed_first": [
+     "DEF-0161-2"
+    ],
     "fields": {
      "extend": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      },
      "src_flag": {
-      "best": "corpus-correlation",
+      "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
-      "this_exp": "untested"
+      "prior_target": "M4",
+      "this_exp": "hardware-run"
      },
      "src_reg": {
-      "best": "corpus-correlation",
+      "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
-      "this_exp": "untested"
+      "prior_target": "M4",
+      "this_exp": "hardware-run"
      },
      "subform": {
       "best": "hardware-run",
+      "grade_from": "EXP-0161 / G17P",
       "prior": "corpus-correlation",
+      "prior_target": "M4",
       "this_exp": "hardware-run"
      }
-    }
+    },
+    "fields_at_grade_only_via_a_NON_G17P_prior_label": []
    }
   },
-  "fault_adjudication": "NOT RUN",
+  "fault_adjudication": "adjudication.json",
   "gated_pairs": [
    [
     "g17p_20260829_run01",
     "g17p_20260829_run02"
+   ],
+   [
+    "g17p_20260830_supp02",
+    "g17p_20260830_supp03"
    ]
   ],
   "gates": {
@@ -534,6 +648,25 @@
      "g17p_20260829_run02"
     ]
    },
+   "B2_ZEXT_SYNTH_R5": {
+    "USABLE": true,
+    "__baseline": {
+     "runA": "ok",
+     "runB": "ok",
+     "victim": false
+    },
+    "__falsifier_byte0": {
+     "runA": "wrong_value",
+     "runB": "wrong_value",
+     "victim": false
+    },
+    "baseline_ok": true,
+    "falsifiers_fired": true,
+    "pair": [
+     "g17p_20260830_supp02",
+     "g17p_20260830_supp03"
+    ]
+   },
    "B_ZEXT_INPLACE": {
     "USABLE": false,
     "__baseline": {
@@ -570,6 +703,25 @@
     "pair": [
      "g17p_20260829_run01",
      "g17p_20260829_run02"
+    ]
+   },
+   "C2_IBFE_SHR_X": {
+    "USABLE": true,
+    "__baseline": {
+     "runA": "ok",
+     "runB": "ok",
+     "victim": false
+    },
+    "__falsifier_byte0": {
+     "runA": "fault",
+     "runB": "fault",
+     "victim": true
+    },
+    "baseline_ok": true,
+    "falsifiers_fired": true,
+    "pair": [
+     "g17p_20260830_supp02",
+     "g17p_20260830_supp03"
     ]
    },
    "C_IBFE_BFE": {
@@ -686,6 +838,25 @@
      "g17p_20260829_run02"
     ]
    },
+   "E2_FSPEC_EST_RCP": {
+    "USABLE": true,
+    "__baseline": {
+     "runA": "ok",
+     "runB": "ok",
+     "victim": false
+    },
+    "__falsifier_byte0": {
+     "runA": "wrong_value",
+     "runB": "wrong_value",
+     "victim": false
+    },
+    "baseline_ok": true,
+    "falsifiers_fired": true,
+    "pair": [
+     "g17p_20260830_supp02",
+     "g17p_20260830_supp03"
+    ]
+   },
    "E_FSPEC_EST": {
     "USABLE": true,
     "__baseline": {
@@ -706,8 +877,48 @@
     ]
    }
   },
-  "n_adjudicated": null,
-  "n_adjudication_changed": null,
+  "generation_proof": {
+   "g17p_20260830_gen01": {
+    "carry_gen": {
+     "no_baseline": 16
+    },
+    "fspecial": {
+     "fault": 2,
+     "pass": 18
+    },
+    "mov_zext16": {
+     "fail": 4,
+     "pass": 12
+    }
+   },
+   "g17p_20260830_gen02": {
+    "carry_gen": {
+     "fail": 9,
+     "pass": 7
+    },
+    "fspecial": {
+     "pass": 20
+    },
+    "mov_zext16": {
+     "fail": 4,
+     "pass": 12
+    }
+   },
+   "g17p_20260830_gen03": {
+    "carry_gen": {
+     "pass": 48
+    },
+    "fspecial": {
+     "pass": 20
+    },
+    "mov_zext16": {
+     "fail": 5,
+     "pass": 11
+    }
+   }
+  },
+  "n_adjudicated": 60,
+  "n_adjudication_changed": 2,
   "semantic_maps": {
    "A_CARRY_SYNTH.cmpmode": {
     "released_examples": {
@@ -741,6 +952,23 @@
      "fit": 22,
      "of": 22,
      "packing": "reg=(v>>1)&0x3F"
+    }
+   },
+   "B2_ZEXT_SYNTH_R5.subform": {
+    "released_examples": {
+     "18": 0,
+     "19": 0,
+     "20": 0,
+     "26": 0,
+     "27": 0,
+     "28": 0,
+     "50": 0,
+     "51": 0
+    },
+    "released_register_map": {
+     "fit": 0,
+     "of": 48,
+     "packing": "(reg<<1)|size  reg=v>>1"
     }
    },
    "B_ZEXT_SYNTH.subform": {
@@ -1038,7 +1266,7 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "",
+   "note": "A_CARRY_INPLACE: accepted set is [1, 5, 9, 129] (no mask rule fits) | A_CARRY_SYNTH: accepted set is [1, 5, 129] (no mask rule fits)",
    "prior_label": "tokenization-only",
    "prior_target": "M4+A18",
    "range": "A_CARRY_INPLACE: 0..255 (229 values) / A_CARRY_SYNTH: 0..255 (215 values)",
@@ -1567,7 +1795,7 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "D2_FSPEC_LOG2: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)",
+   "note": "D3_FSPEC_SYNTH: accepted set is [0, 1] (no mask rule fits) | D_FSPEC_INPLACE: accepted set is [0, 1] (no mask rule fits) | D2_FSPEC_LOG2: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)",
    "prior_label": "corpus-correlation",
    "prior_target": "A18",
    "range": "D2_FSPEC_LOG2: 0..1 (2 values, dense) / D3_FSPEC_SYNTH: 0..1 (2 values, dense) / D_FSPEC_INPLACE: 0..1 (2 values, dense)",
@@ -2852,6 +3080,63 @@
   },
   "fspecial_est.__raw_b0": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accepted": [
+      1,
+      32,
+      33,
+      40,
+      41,
+      48,
+      49,
+      56,
+      57,
+      64,
+      65,
+      72,
+      73,
+      80,
+      81,
+      88,
+      89,
+      96,
+      97,
+      104,
+      105,
+      112,
+      113,
+      120,
+      121,
+      128,
+      129,
+      136,
+      137,
+      144,
+      145,
+      152,
+      153,
+      160,
+      161,
+      168,
+      169,
+      176,
+      177,
+      184,
+      "...(57)"
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 94,
+     "n_accepted": 57,
+     "outcomes": {
+      "fault": 11,
+      "ok": 57,
+      "silent_zero": 11,
+      "wrong_value": 15
+     },
+     "range_hi": 254,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accepted": [
       1,
@@ -2917,11 +3202,79 @@
    "note": "",
    "prior_label": "untested",
    "prior_target": "",
-   "range": "E_FSPEC_EST: 0..255 (255 values)",
+   "range": "E2_FSPEC_EST_RCP: 0..254 (94 values) / E_FSPEC_EST: 0..255 (255 values)",
    "target": "G17P"
   },
   "fspecial_est.b4": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accept_rule": {
+      "dont_care_bits": [
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "n_accepted": 62,
+      "rule": "(v & 0x03) == 0x00"
+     },
+     "accepted": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      40,
+      44,
+      48,
+      52,
+      56,
+      60,
+      64,
+      72,
+      76,
+      80,
+      84,
+      88,
+      92,
+      100,
+      104,
+      108,
+      112,
+      116,
+      120,
+      124,
+      128,
+      132,
+      136,
+      140,
+      144,
+      148,
+      152,
+      156,
+      160,
+      164,
+      "...(62)"
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 66,
+     "n_accepted": 62,
+     "outcomes": {
+      "fault": 1,
+      "ok": 62,
+      "silent_zero": 3
+     },
+     "range_hi": 252,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accept_rule": {
       "dont_care_bits": [
@@ -2993,15 +3346,64 @@
    "evidence": [
     "EXP-0161"
    ],
-   "label": "hardware-run",
-   "note": "E_FSPEC_EST: accepted set fits (v & 0x03) == 0x00 (64 of 256 values)",
+   "label": "isolated-byte-diff",
+   "note": "E2_FSPEC_EST_RCP: accepted set fits (v & 0x03) == 0x00 (62 of 66 values) | E_FSPEC_EST: accepted set fits (v & 0x03) == 0x00 (64 of 256 values)",
    "prior_label": "tokenization-only",
    "prior_target": "M4+A18",
-   "range": "E_FSPEC_EST: 0..255 (256 values, dense)",
+   "range": "E2_FSPEC_EST_RCP: 0..252 (66 values) / E_FSPEC_EST: 0..255 (256 values, dense)",
    "target": "G17P"
   },
   "fspecial_est.b5": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accept_rule": {
+      "dont_care_bits": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ],
+      "n_accepted": 24,
+      "rule": "(v & 0xE0) == 0xC0"
+     },
+     "accepted": [
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      216,
+      217,
+      218,
+      219,
+      221
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 203,
+     "n_accepted": 24,
+     "outcomes": {
+      "ok": 24,
+      "wrong_value": 179
+     },
+     "range_hi": 253,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accept_rule": {
       "dont_care_bits": [
@@ -3064,14 +3466,43 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "E_FSPEC_EST: accepted set fits (v & 0xE0) == 0xC0 (32 of 256 values)",
+   "note": "E2_FSPEC_EST_RCP: accepted set fits (v & 0xE0) == 0xC0 (24 of 203 values) | E_FSPEC_EST: accepted set fits (v & 0xE0) == 0xC0 (32 of 256 values)",
    "prior_label": "tokenization-only",
    "prior_target": "M4+A18",
-   "range": "E_FSPEC_EST: 0..255 (256 values, dense)",
+   "range": "E2_FSPEC_EST_RCP: 0..253 (203 values) / E_FSPEC_EST: 0..255 (256 values, dense)",
    "target": "G17P"
   },
   "fspecial_est.dst": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accepted": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 16,
+     "n_accepted": 14,
+     "outcomes": {
+      "ok": 14,
+      "silent_zero": 1,
+      "wrong_value": 1
+     },
+     "range_hi": 15,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accepted": [
       2,
@@ -3109,11 +3540,65 @@
    "note": "",
    "prior_label": "hardware-run",
    "prior_target": "G17P",
-   "range": "E_FSPEC_EST: 0..15 (16 values, dense)",
+   "range": "E2_FSPEC_EST_RCP: 0..15 (16 values, dense) / E_FSPEC_EST: 0..15 (16 values, dense)",
    "target": "G17P"
   },
   "fspecial_est.srcA": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accepted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      "...(251)"
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 251,
+     "n_accepted": 251,
+     "outcomes": {
+      "ok": 251
+     },
+     "range_hi": 255,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accepted": [
       0,
@@ -3173,14 +3658,68 @@
     "EXP-0161"
    ],
    "label": "untested",
-   "note": "HW-TESTED INERT over the whole swept range in 1 independent carriers (E_FSPEC_EST): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
+   "note": "NOT PROMOTED. inert over all 256 values in BOTH carriers -- but both are PRECISE (Newton-Raphson) reciprocal lowerings, and NR converges to the correct result from a wrong seed, so the observable is blind to the seed op's operand. The two carriers SHARE the confound, so they are one observation, not two. The prior M4 label (isolated-byte-diff, EXP-0154) stands; this is a statement about our carriers, not a retraction.",
    "prior_label": "isolated-byte-diff",
    "prior_target": "G17P",
-   "range": "E_FSPEC_EST: 0..255 (256 values, dense)",
+   "range": "E2_FSPEC_EST_RCP: 0..255 (251 values) / E_FSPEC_EST: 0..255 (256 values)",
    "target": "G17P"
   },
   "fspecial_est.subop": {
    "arms": {
+    "E2_FSPEC_EST_RCP": {
+     "accepted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      18,
+      20,
+      26,
+      30,
+      32,
+      34,
+      36,
+      37,
+      43,
+      49,
+      52,
+      54,
+      58,
+      59,
+      61,
+      70,
+      75,
+      76,
+      78,
+      83,
+      85,
+      95,
+      96,
+      "...(199)"
+     ],
+     "arm": "E2_FSPEC_EST_RCP",
+     "n": 199,
+     "n_accepted": 199,
+     "outcomes": {
+      "ok": 199
+     },
+     "range_hi": 255,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "E_FSPEC_EST": {
      "accepted": [
       0,
@@ -3240,14 +3779,70 @@
     "EXP-0161"
    ],
    "label": "untested",
-   "note": "HW-TESTED INERT over the whole swept range in 1 independent carriers (E_FSPEC_EST): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
+   "note": "NOT PROMOTED. same confound: 0x09/0x0b/0x0d select rcp/rsqrt/sqrt ESTIMATE, and every value of the byte still yields the correct refined result because the NR iteration corrects it. The prior M4 `hardware-run` label (EXP-0138, dense 0..255) stands untouched; a carrier that can SEE the seed (reading the estimate register directly, as EXP-0026 did) is what a successor needs.",
    "prior_label": "hardware-run",
    "prior_target": "M4",
-   "range": "E_FSPEC_EST: 0..255 (256 values, dense)",
+   "range": "E2_FSPEC_EST_RCP: 0..255 (199 values) / E_FSPEC_EST: 0..255 (256 values)",
+   "target": "G17P"
+  },
+  "ibfe.b2_bit0": {
+   "arms": {
+    "C2_IBFE_SHR_X": {
+     "accepted": [
+      0,
+      1
+     ],
+     "arm": "C2_IBFE_SHR_X",
+     "n": 2,
+     "n_accepted": 2,
+     "outcomes": {
+      "ok": 2
+     },
+     "range_hi": 1,
+     "range_lo": 0,
+     "style": "inplace"
+    }
+   },
+   "evidence": [
+    "EXP-0161"
+   ],
+   "label": "untested",
+   "note": "HW-TESTED INERT over the whole swept range in 1 independent carrier (C2_IBFE_SHR_X): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it. NOT PROMOTED: one carrier is not enough for an INERT field -- the falu2.srcA_reg_top precedent needed six families before the project would say 'any value is safe'. The prior label stands. | C2_IBFE_SHR_X: accepted set is [0, 1] (no mask rule fits)",
+   "prior_label": "hardware-run",
+   "prior_target": "G17P",
+   "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense)",
    "target": "G17P"
   },
   "ibfe.b6_bit0": {
    "arms": {
+    "C2_IBFE_SHR_X": {
+     "accept_rule": {
+      "dont_care_bits": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "n_accepted": 1,
+      "rule": "(v & 0x01) == 0x00"
+     },
+     "accepted": [
+      0
+     ],
+     "arm": "C2_IBFE_SHR_X",
+     "n": 2,
+     "n_accepted": 1,
+     "outcomes": {
+      "ok": 1,
+      "silent_zero": 1
+     },
+     "range_hi": 1,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "C_IBFE_BFE": {
      "accept_rule": {
       "dont_care_bits": [
@@ -3281,10 +3876,10 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)",
+   "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x00 (1 of 2 values) | C_IBFE_BFE: accepted set fits (v & 0x01) == 0x00 (1 of 2 values)",
    "prior_label": "hardware-run",
    "prior_target": "G17P",
-   "range": "C_IBFE_BFE: 0..1 (2 values, dense)",
+   "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense) / C_IBFE_BFE: 0..1 (2 values, dense)",
    "target": "G17P"
   },
   "ibfe.offset": {
@@ -3391,6 +3986,21 @@
   },
   "ibfe.sign_ext": {
    "arms": {
+    "C2_IBFE_SHR_X": {
+     "accepted": [
+      0,
+      1
+     ],
+     "arm": "C2_IBFE_SHR_X",
+     "n": 2,
+     "n_accepted": 2,
+     "outcomes": {
+      "ok": 2
+     },
+     "range_hi": 1,
+     "range_lo": 0,
+     "style": "inplace"
+    },
     "C_IBFE_BFE": {
      "accepted": [
       0,
@@ -3411,10 +4021,51 @@
     "EXP-0161"
    ],
    "label": "untested",
-   "note": "HW-TESTED INERT over the whole swept range in 1 independent carriers (C_IBFE_BFE): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
+   "note": "NOT PROMOTED. inert in both carriers -- but db.json's own model says signed extract requires BOTH this bit AND clearing srcC_flags bit0 (b9 0x11 -> 0x10). This experiment swept the bit alone and never the pair, so inertness here is exactly what db.json predicts and proves nothing about the field. The prior label stands.",
    "prior_label": "hardware-run",
    "prior_target": "G17P",
-   "range": "C_IBFE_BFE: 0..1 (2 values, dense)",
+   "range": "C2_IBFE_SHR_X: 0..1 (2 values) / C_IBFE_BFE: 0..1 (2 values)",
+   "target": "G17P"
+  },
+  "ibfe.store_en": {
+   "arms": {
+    "C2_IBFE_SHR_X": {
+     "accept_rule": {
+      "dont_care_bits": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "n_accepted": 1,
+      "rule": "(v & 0x01) == 0x01"
+     },
+     "accepted": [
+      1
+     ],
+     "arm": "C2_IBFE_SHR_X",
+     "n": 2,
+     "n_accepted": 1,
+     "outcomes": {
+      "ok": 1,
+      "silent_zero": 1
+     },
+     "range_hi": 1,
+     "range_lo": 0,
+     "style": "inplace"
+    }
+   },
+   "evidence": [
+    "EXP-0161"
+   ],
+   "label": "hardware-run",
+   "note": "C2_IBFE_SHR_X: accepted set fits (v & 0x01) == 0x01 (1 of 2 values)",
+   "prior_label": "hardware-run",
+   "prior_target": "G17P",
+   "range": "C2_IBFE_SHR_X: 0..1 (2 values, dense)",
    "target": "G17P"
   },
   "ibfe.width": {
@@ -3497,7 +4148,7 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "C_IBFE_BFE: accepted set fits (v & 0x1F) == 0x08 (2 of 64 values)",
+   "note": "C_IBFE_SHR: accepted set is [0, 27, 28, 29, 30, 31, 32, 59, 60, 61, 62, 63] (no mask rule fits) | C_IBFE_SYNTH: accepted set is [6, 7, 8, 9, 38, 39, 40, 41] (no mask rule fits) | C_IBFE_BFE: accepted set fits (v & 0x1F) == 0x08 (2 of 64 values)",
    "prior_label": "hardware-run",
    "prior_target": "G17P",
    "range": "C_IBFE_BFE: 0..63 (64 values, dense) / C_IBFE_SHR: 0..63 (64 values, dense) / C_IBFE_SYNTH: 0..63 (64 values, dense)",
@@ -3597,6 +4248,63 @@
   },
   "mov_zext16.extend": {
    "arms": {
+    "B2_ZEXT_SYNTH_R5": {
+     "accept_rule": {
+      "dont_care_bits": [
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "n_accepted": 32,
+      "rule": "(v & 0x07) == 0x01"
+     },
+     "accepted": [
+      1,
+      9,
+      17,
+      25,
+      33,
+      41,
+      49,
+      57,
+      65,
+      73,
+      81,
+      89,
+      97,
+      105,
+      113,
+      121,
+      129,
+      137,
+      145,
+      153,
+      161,
+      169,
+      177,
+      185,
+      193,
+      201,
+      209,
+      217,
+      225,
+      233,
+      241,
+      249
+     ],
+     "arm": "B2_ZEXT_SYNTH_R5",
+     "n": 256,
+     "n_accepted": 32,
+     "outcomes": {
+      "ok": 32,
+      "wrong_value": 224
+     },
+     "range_hi": 255,
+     "range_lo": 0,
+     "style": "synth"
+    },
     "B_ZEXT_INPLACE": {
      "accepted": [
       0,
@@ -3714,14 +4422,29 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "B_ZEXT_SYNTH: accepted set fits (v & 0x07) == 0x01 (32 of 256 values)",
+   "note": "B2_ZEXT_SYNTH_R5: accepted set fits (v & 0x07) == 0x01 (32 of 256 values) | B_ZEXT_SYNTH: accepted set fits (v & 0x07) == 0x01 (32 of 256 values)",
    "prior_label": "corpus-correlation",
    "prior_target": "M4",
-   "range": "B_ZEXT_SYNTH: 0..255 (256 values, dense)",
+   "range": "B2_ZEXT_SYNTH_R5: 0..255 (256 values, dense) / B_ZEXT_SYNTH: 0..255 (256 values, dense)",
    "target": "G17P"
   },
   "mov_zext16.src_flag": {
    "arms": {
+    "B2_ZEXT_SYNTH_R5": {
+     "accepted": [
+      0,
+      1
+     ],
+     "arm": "B2_ZEXT_SYNTH_R5",
+     "n": 2,
+     "n_accepted": 2,
+     "outcomes": {
+      "ok": 2
+     },
+     "range_hi": 1,
+     "range_lo": 0,
+     "style": "synth"
+    },
     "B_ZEXT_INPLACE": {
      "accepted": [
       0,
@@ -3756,15 +4479,69 @@
    "evidence": [
     "EXP-0161"
    ],
-   "label": "untested",
-   "note": "HW-TESTED INERT over the whole swept range in 1 independent carriers (B_ZEXT_SYNTH): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
+   "label": "hardware-run",
+   "note": "HW-TESTED INERT over the whole swept range in 2 independent carriers (B2_ZEXT_SYNTH_R5, B_ZEXT_SYNTH): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it. | B2_ZEXT_SYNTH_R5: accepted set is [0, 1] (no mask rule fits) | B_ZEXT_SYNTH: accepted set is [0, 1] (no mask rule fits)",
    "prior_label": "corpus-correlation",
    "prior_target": "M4",
-   "range": "B_ZEXT_SYNTH: 0..1 (2 values, dense)",
+   "range": "B2_ZEXT_SYNTH_R5: 0..1 (2 values, dense) / B_ZEXT_SYNTH: 0..1 (2 values, dense)",
    "target": "G17P"
   },
   "mov_zext16.src_reg": {
    "arms": {
+    "B2_ZEXT_SYNTH_R5": {
+     "accepted": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      "...(128)"
+     ],
+     "arm": "B2_ZEXT_SYNTH_R5",
+     "n": 128,
+     "n_accepted": 128,
+     "outcomes": {
+      "ok": 128
+     },
+     "range_hi": 127,
+     "range_lo": 0,
+     "style": "synth"
+    },
     "B_ZEXT_INPLACE": {
      "accepted": [
       0,
@@ -3877,15 +4654,63 @@
    "evidence": [
     "EXP-0161"
    ],
-   "label": "untested",
-   "note": "HW-TESTED INERT over the whole swept range in 1 independent carriers (B_ZEXT_SYNTH): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
+   "label": "hardware-run",
+   "note": "HW-TESTED INERT over the whole swept range in 2 independent carriers (B2_ZEXT_SYNTH_R5, B_ZEXT_SYNTH): every value reproduces the unmutated result exactly. Role UNKNOWN -- an emitter may use any value, but must NOT synthesize a meaning for it.",
    "prior_label": "corpus-correlation",
    "prior_target": "M4",
-   "range": "B_ZEXT_SYNTH: 0..127 (128 values, dense)",
+   "range": "B2_ZEXT_SYNTH_R5: 0..127 (128 values, dense) / B_ZEXT_SYNTH: 0..127 (128 values, dense)",
    "target": "G17P"
   },
   "mov_zext16.subform": {
    "arms": {
+    "B2_ZEXT_SYNTH_R5": {
+     "accept_rule": {
+      "dont_care_bits": [
+       3,
+       4,
+       5
+      ],
+      "n_accepted": 8,
+      "rule": "(v & 0xC7) == 0x00"
+     },
+     "accepted": [
+      0,
+      8,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56
+     ],
+     "arm": "B2_ZEXT_SYNTH_R5",
+     "n": 256,
+     "n_accepted": 8,
+     "outcomes": {
+      "ok": 8,
+      "wrong_value": 248
+     },
+     "range_hi": 255,
+     "range_lo": 0,
+     "semantics": {
+      "released_examples": {
+       "18": 0,
+       "19": 0,
+       "20": 0,
+       "26": 0,
+       "27": 0,
+       "28": 0,
+       "50": 0,
+       "51": 0
+      },
+      "released_register_map": {
+       "fit": 0,
+       "of": 48,
+       "packing": "(reg<<1)|size  reg=v>>1"
+      }
+     },
+     "style": "synth"
+    },
     "B_ZEXT_INPLACE": {
      "accepted": [
       0,
@@ -3996,10 +4821,10 @@
     "EXP-0161"
    ],
    "label": "hardware-run",
-   "note": "B_ZEXT_SYNTH: accepted set fits (v & 0xC7) == 0x00 (8 of 221 values)",
+   "note": "B2_ZEXT_SYNTH_R5: accepted set fits (v & 0xC7) == 0x00 (8 of 256 values) | B_ZEXT_SYNTH: accepted set fits (v & 0xC7) == 0x00 (8 of 221 values)",
    "prior_label": "corpus-correlation",
    "prior_target": "M4",
-   "range": "B_ZEXT_SYNTH: 0..255 (221 values)",
+   "range": "B2_ZEXT_SYNTH_R5: 0..255 (256 values, dense) / B_ZEXT_SYNTH: 0..255 (221 values)",
    "target": "G17P"
   }
  }

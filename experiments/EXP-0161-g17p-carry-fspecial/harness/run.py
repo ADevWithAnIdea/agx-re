@@ -349,7 +349,16 @@ def main():
             log.write(rec)
             n += 1
 
-            if outcome == "hang" and not victim:
+            # A GENUINE hang is EITHER a watchdog wedge OR a contained
+            # command-buffer error the OS itself classifies `...ErrorHang`.
+            # EXP-0161 originally counted only the first, so the danger arm ran
+            # all 64 values instead of stopping after two, and the
+            # E2_FSPEC_EST_RCP arm produced ~300 device resets per run without
+            # tripping the rule. Both are disclosed in RESULTS.md section 8;
+            # this is the fix.
+            os_hang = any((x["error"] or "").find("ErrorHang") >= 0
+                          for x in attempts)
+            if (outcome == "hang" or os_hang) and not victim:
                 genuine_hangs[armname] = genuine_hangs.get(armname, 0) + 1
                 print("  !! GENUINE HANG %d in %s at %s=%s"
                       % (genuine_hangs[armname], armname, c["field"], c["value"]))

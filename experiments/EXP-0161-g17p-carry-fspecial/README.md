@@ -91,8 +91,10 @@ python3 harness/run.py --run g17p_20260829_run02 --order reverse
 python3 harness/gen.py  --run g17p_20260830_gen03            # generation proof
 python3 harness/run.py --run g17p_20260830_supp02 --supp  --order forward
 python3 harness/run.py --run g17p_20260830_supp03 --supp  --order reverse
-python3 harness/run.py --run g17p_20260830_supp04 --supp2 --order forward
 python3 harness/run.py --run g17p_20260830_danger01 --danger   # DEVICE-RESETTING, see below
+# --supp2 (the D4_FSPEC_FLOOR round-family arm) is BUILT BUT WAS NOT RUN; see
+# RESULTS.md section 9 for why, and run it with:
+#   python3 harness/run.py --run <new-id> --supp2 --order forward
 python3 harness/adjudicate.py --run g17p_20260830_adj01
 
 harness/sync.sh pull                     # bring raw/ back into the repo
@@ -101,10 +103,12 @@ python3 analysis/fspecial_functions.py
 python3 analysis/precision.py
 ```
 
-**`--danger` resets the GPU 64 times.** Every value of `fspecial` byte+3 in 192..255
-returns `kIOGPUCommandBufferCallbackErrorHang`, and each reset discards other agents'
-in-flight command buffers. It was pre-announced in `PROGRESS.md` per
-FIELD-SWEEP-PROTOCOL §7 "Courtesy, not a rule". Do not re-run it casually.
+**This experiment reset the GPU 1,571 times** (`RESULTS.md` §8.1). `--danger` accounts for
+65 of those by construction — every value of `fspecial` byte+3 in 192..255 returns
+`kIOGPUCommandBufferCallbackErrorHang` — and the `E2_FSPEC_EST_RCP` arm inside `--supp` for
+roughly 300 per run. Each reset discards other agents' in-flight command buffers. Both were
+pre-announced in `PROGRESS.md` per FIELD-SWEEP-PROTOCOL §7 "Courtesy, not a rule". **Do not
+re-run either casually**, and note in `PROGRESS.md` before you do.
 
 ## 5. What this experiment did NOT do
 

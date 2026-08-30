@@ -42,6 +42,17 @@ def main():
     ap.add_argument("--run", required=True)
     ap.add_argument("--runs", default="g17p_20260829_run01,g17p_20260829_run02")
     ap.add_argument("--extra", default="")
+    ap.add_argument("--sample", type=int, default=0,
+                    help="adjudicate a STRATIFIED SAMPLE of this many cases "
+                         "instead of all of them. Re-running every fault costs "
+                         "5 dispatches each, and a large fraction of this "
+                         "experiment's faults are contained `...ErrorHang`s "
+                         "that RESET THE DEVICE for every other agent. No field "
+                         "verdict in analysis/field_verdicts.json rests on a "
+                         "`fault` classification (accepted sets are `ok` sets), "
+                         "so a stratified sample is the proportionate way to "
+                         "measure how trustworthy the unlocked-run `fault` "
+                         "counts are.")
     a = ap.parse_args()
     rep = json.loads((EXP / "work" / "anchors" / "anchor_report.json").read_text())
 
@@ -63,7 +74,27 @@ def main():
         if all(o["outcome"] == r["outcome"] for o in others) and \
            r["outcome"] in ("fault", "hang"):
             want.append(r)
-    print("cases to adjudicate:", len(want))
+    print("fault/hang cases agreeing across the gated pair:", len(want))
+    if a.sample and len(want) > a.sample:
+        strata = {}
+        for r in want:
+            strata.setdefault((r["arm"], r["field"]), []).append(r)
+        keys = sorted(strata)
+        picked, i = [], 0
+        while len(picked) < a.sample:
+            progressed = False
+            for k in keys:
+                if i < len(strata[k]):
+                    picked.append(strata[k][i])
+                    progressed = True
+                    if len(picked) >= a.sample:
+                        break
+            if not progressed:
+                break
+            i += 1
+        want = picked
+        print("STRATIFIED SAMPLE: %d cases over %d (arm, field) strata"
+              % (len(want), len(keys)))
 
     allcases = {}
     for arms, supp, danger in ((CM.ARMS, False, False), (CM.SUPP_ARMS, True, False),
@@ -147,7 +178,9 @@ def main():
                    "n_adjudicated": len(want), "n_changed": changed,
                    "rule": "FIELD-SWEEP-PROTOCOL 7A: no fault/hang verdict is "
                            "promoted from an unlocked gated run alone"},
-         "cases": out}, indent=1, sort_keys=True))
+         "cases": out,
+         "sampled": bool(a.sample),
+         "sample_size": a.sample or None}, indent=1, sort_keys=True))
     log.close()
     print("adjudicated %d, verdict CHANGED for %d" % (len(want), changed))
 
