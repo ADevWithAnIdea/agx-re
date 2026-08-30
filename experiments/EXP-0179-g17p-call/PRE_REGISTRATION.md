@@ -264,8 +264,8 @@ PRE/POST sentinel, a clobbered tail region, or an `InnocentVictim`-class error i
 |---|---|---|---|---|
 | `Z` | `census` | 18 authored MSL constructs, **compile only, no GPU** | 18 | no (deliverable in its own right) |
 | `K` | `calib` | pre-freeze carrier calibration (§8) | ~60 | **PRE-FREEZE, never evidence** |
-| `T` | `target` | call `offset` = predicted + k, k ∈ −8..+8 (2-byte steps within the ladder window) plus 12 distinct legal forward distances and, if `C4 jumpover` calibrates, 8 backward distances | 2 × 41 | yes |
-| `G` | `gen` | **the acceptance-gate arm.** N distinct fully generated call sites × distinct callee placements, every byte computed; measures the generated call/return end-to-end | 2 × 96 | yes |
+| `T` | `target` | call `offset` = predicted + k, k ∈ {−8,−6,−4,−2,0,+2,+4,+6,+8}, plus `target="ret"` and `target="ladder"` | 2 × 11 | yes |
+| `G` | `gen` | **the acceptance-gate arm.** 48 distinct fully generated call displacements × 4 (register plan × mask nesting) combinations = **192 distinct generated calls**, every byte computed from the descriptor geometry | 4 × 48 | yes |
 | `M` | `bracket` | presence/absence of the `43 00 00 01` frame marker × presence/absence of the `0f 06 04 02 00 00` reconverge (4 combinations) | 2 × 4 | yes |
 | `B3` | `call.b3` | dense 0..255 | 2 × 256 | yes |
 | `B5` | `call.b5` | dense 0..255 | 2 × 256 | yes |
@@ -273,13 +273,17 @@ PRE/POST sentinel, a clobbered tail region, or an `InnocentVictim`-class error i
 | `TL` | `call.tail` | dense 0..255 | 2 × 256 | yes |
 | `R` | `ret.scoreboard` | dense 0..255 | 2 × 256 | yes |
 | `L` | `ret.linkmode` | control only: {0x02, 0x04, 0x05, 0x12} | 2 × 4 | yes |
-| `O` | `order` | `ret.scoreboard` × in-callee `device_load` filler length (2-D, §9) | 2 × (16 sb × 12 filler) | **promotion pre-declined**, see H6 |
-| `S` | `splice` | the same five fields mutated in the REAL compiled call in `frame.metal` | 5 × 32 | second method, reported separately |
+| `O` | `order` | `ret.scoreboard` (16 values) × in-callee `device_load` filler length (12 values), 2-D, §9 | 2 × 192 | **promotion pre-declined**, see H6 |
+| `S` | `splice` | the same five fields mutated in the REAL compiled call inside our own compiled `kernels/census/c_frame.metal` (`k_chain`) | reduced value set | second method, reported separately, **never counted toward the ≥2-carrier bar for a generated result** |
 | `N` | `nested` | depth-2 generated call, no link save/restore (H7) | 2 × 6 | own hang budget, run LAST |
-| `F` | `falsifiers` | §7 | 2 × 6 | must fire every run |
+| `F` | `falsifiers` | §7 (F2/F3/F4/F6; F1 and F5 live inside arm `T`) | 2 × 4–5 | must fire every run |
 
-Total gated ≈ 2 carriers × ~1400 cases × 2 runs. Dense 0..255 is FIELD-SWEEP-PROTOCOL §3
-coverage for an 8-bit field (`w <= 8` → sweep all 2^w values).
+**`harness/cases.py build_cases()` is the authoritative matrix**, and its sha256 is recorded
+in `CAPTURE_CONTRACT.json`; the counts above are descriptive. As frozen it emits **3189 cases
+per run** (`python3 harness/cases.py` prints the per-arm breakdown). Dense 0..255 is
+FIELD-SWEEP-PROTOCOL §3 coverage for an 8-bit field (`w <= 8` → sweep all 2^w values). Arms
+are dispatched in the order `G, T, M, B3, B5, B6, TL, R, L, O, F, N` so the **hang-prone arms
+run last** and a stopped arm costs the least evidence.
 
 **Every row emitted for every case carries** `values_dispatched`, `distinct_bytes`,
 `encodable_range`, `start`, `width`, per the dispatch standard, plus `bytes`, `carrier`,
@@ -295,11 +299,11 @@ difference, and the whole run is void.
 
 | id | construction | pre-registered expectation |
 |---|---|---|
-| `F1` | `T/target` with k = +2 | `landing_rung` must be **1**, not 0 — the ladder must resolve a 2-byte target shift |
+| `F1` | `T/target` with k = **−2** (the call aimed 2 bytes EARLY, into the landing ladder) | `landing_rung` must be **3** where the baseline is `None` — the ladder must resolve a 2-byte target shift, and the callee must still run |
 | `F2` | the 14 call bytes replaced by 7 × 2-byte `mov_imm(R_PAD, SEED[R_PAD])` no-ops | `callee_ran == false`, breadcrumb still `0xDEADBEEF`, `returned == true` — proves the callee's effect is attributable to the call and to nothing else |
 | `F3` | `call` byte+4 forced from `0x8f` to `0x00` (a `match` byte, deliberately outside the swept fields) | must NOT behave like the baseline: fault, hang, or no transfer of control |
 | `F4` | `ret` replaced by two `mov_imm` no-ops inside the callee | must NOT return: `callee_ran == true`, `returned == false` (or hang) |
-| `F5` | offset set to target 6 bytes PAST the callee's `ret` (into the self-restoring padding) | `callee_ran == false` but `returned == true` — control transferred, ran padding, and… **this case is also the test of whether a call to a region with no `ret` returns at all**; either outcome is recorded |
+| `F5` | offset set to target the callee's **bare `ret`**, skipping its body entirely (`target="ret"`) | `callee_ran == false`, breadcrumb still `0xDEADBEEF`, `returned == true` — a call to a body-less callee must still return, which tests the return machinery independently of the callee body |
 | `F6` | `C2 nested` run with the `if_push` present but the `pop_reconverge` removed | recorded, not predicted — bounds whether an unbalanced mask stack is fatal |
 
 ---
@@ -406,3 +410,55 @@ and nothing else. **`rt_ok` is never cited.**
 * every case appended and `fsync`ed as it completes — never buffered;
 * `PROGRESS.md` entry per milestone; artifacts pulled back from the neo promptly;
 * **if the neo stops answering: STOP, report BLOCKED. No scanning. No `macvdmtool`.**
+
+---
+
+## 13. AMENDMENT-01 — the frozen `C2 nested` carrier was MEASURED DEAD (2026-08-30, post-run01)
+
+**Appended, never edited in place.** §4 above stands as frozen; this records what the
+hardware said about it and what replaced it.
+
+`run01` (`raw/g17p_20260830_run01/`, retained in full) dispatched 2790 gated cases. Every
+one of the **1395 cases on `C2 nested`** came back the same way: status `OK`, the PRE
+sentinel written (`0x5A`), the tail poison intact — and **all 16 registers, the POST sentinel
+and the callee breadcrumb still `0xDEADBEEF`**. The program ran to the PRE sentinel and
+nothing after it executed. The 1395 `C1 flat` cases in the same run are unaffected and are
+retained as evidence.
+
+`raw/prefreeze/calib_20260830c_amend/` isolates the cause, and it is a **hardware fact worth
+having on its own**:
+
+| construction | result |
+|---|---|
+| `if_push(scope=0x54, kind=0x01)` (the frozen C2) | **dead** — nothing after it executes |
+| `if_push(scope=0x56, kind=0x01)` | **dead** — so it is the KIND, not the bank |
+| `if_push(scope=0x54, kind=0x1a)` | **works** — callee ran, returned |
+| `if_push(scope=0x56, kind=0x1a)` | **works** — callee ran, returned |
+
+**An unconditional `if_push` with `scope_kind == 0x01` masks off the only lane of a
+one-thread dispatch, in both mask banks; `scope_kind == 0x1a` — the same value `call` itself
+carries at byte+3 — does not.** That is EXP-0129's failure mode exactly: a carrier that
+cannot express what is being asked of it. The right response is to report it and replace the
+carrier, not to reinterpret 1395 dead cases as a finding about `call`.
+
+**`C2 nested` becomes `if_push(scope=0x56, scope_kind=0x1a)`** — one mask level deeper, in
+the **alternate** bank to the `0x54` the call pins in its own `match`, and alive. That is a
+genuine difference in the dimension H4 names, which two carriers differing only in the
+register plan would not be.
+
+**Consequences, all recorded rather than absorbed:**
+- `run01` is **retained and never reused**; its `C2` half is excluded from every verdict and
+  its `C1` half is reported as a third, earlier observation.
+- The amended gated pair takes **new run ids** — `g17p_20260830_run03` (forward) and
+  `g17p_20260830_run04` (reverse). **`run02` was never dispatched**; the id is burned.
+- `harness/isa_helpers.py` and `harness/cases.py` change, so their hashes in
+  `CAPTURE_CONTRACT.json` change. The contract is regenerated and the amendment named in it.
+  A capture is valid against the hashes recorded for **its own** run.
+
+Two further facts from the same probe, kept because they bound the reconvergence machinery
+an emitter has to get right:
+
+- **`pop_reconverge` with `scope_kind == 0x01` does not close a call**: the callee ran but
+  control did not return (both banks). `scope_kind == 0x02` returns correctly.
+- **The pop's mask BANK is a don't-care** for closing a call: `scope` `0x04`, `0x24` and
+  `0x54` all return correctly with `scope_kind == 0x02`.

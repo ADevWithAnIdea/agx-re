@@ -1,0 +1,251 @@
+{
+ "amendments": [],
+ "arms": [
+  {
+   "carriers": [
+    "C_HI",
+    "C_LO"
+   ],
+   "id": "E8_ADD",
+   "instance": "add+saturate (byte+2=0x1c, byte+4&3=1)",
+   "instr": "half_alu_ext8",
+   "mode": "generated"
+  },
+  {
+   "carriers": [
+    "C_HI",
+    "C_LO"
+   ],
+   "id": "E8_FMA",
+   "instance": "fma (byte+2=0x1e, byte+4=0x81)",
+   "instr": "half_alu_ext8",
+   "mode": "generated"
+  },
+  {
+   "carriers": [
+    "C_HI",
+    "C_LO"
+   ],
+   "id": "F12_FMA",
+   "instance": "fma-abs (byte+2=0x1e, byte+4=0x83)",
+   "instr": "half_alu_fma12",
+   "mode": "generated"
+  },
+  {
+   "carriers": [
+    "C_HI"
+   ],
+   "id": "E8_LIFT",
+   "instance": "EXP-0169 anchor 10021e03810400c0, base UNCHANGED",
+   "instr": "half_alu_ext8",
+   "mode": "lift-control"
+  },
+  {
+   "carriers": [
+    "C_HI"
+   ],
+   "id": "F12_LIFT",
+   "instance": "EXP-0169 anchor 10021e038304000000800100, base UNCHANGED",
+   "instr": "half_alu_fma12",
+   "mode": "lift-control"
+  },
+  {
+   "carriers": [
+    "C_HI"
+   ],
+   "id": "LEN",
+   "instance": "4x mov_imm marker chain from byte +6",
+   "instr": "half_alu family length probe",
+   "mode": "probe"
+  },
+  {
+   "carriers": [
+    "C_HI",
+    "C_LO"
+   ],
+   "id": "DSTNIB",
+   "instance": "byte0 = n<<4, n=0..15",
+   "instr": "half_alu family destination probe (H0)",
+   "mode": "probe"
+  }
+ ],
+ "authored_source_sha256": {
+  "_status": "RECORDED AT FREEZE, BEFORE THE FIRST DEVICE DISPATCH. Provenance record, not a design parameter; the design above is frozen as of this file's creation.",
+  "files": {}
+ },
+ "carriers": {
+  "C_HI": {
+   "function": "k",
+   "operands": "two LARGE fp16 halves",
+   "result_magnitude": ">1.0",
+   "role": "the only carrier on which saturate is observable",
+   "seed_table": "SEED_A",
+   "source": "kernels/carrier_dag.metal"
+  },
+  "C_LO": {
+   "function": "k",
+   "operands": "two SMALL fp16 halves",
+   "result_magnitude": "<1.0",
+   "role": "different buffer signature + uniform preload; a given half-register descriptor selects a DIFFERENT value",
+   "seed_table": "SEED_B",
+   "source": "kernels/carrier_uni.metal"
+  }
+ },
+ "coverage_rule": {
+  "distinct_bytes": "counted over DISTINCT ENCODINGS ACTUALLY DISPATCHED, never over dispatched values",
+  "half_alu_fma12.ext": "8 bytes x 256 = 2048 values against an encodable range of 2^64; PRE-REGISTERED as unable to reach hardware-run whatever the outcome",
+  "required_row_keys": [
+   "values_dispatched",
+   "distinct_bytes",
+   "encodable_range",
+   "start",
+   "width",
+   "coverage_pct",
+   "thin",
+   "under_covered"
+  ],
+  "width_gt_8": "each constituent byte swept 0..255",
+  "width_le_8": "all 2^w values, dense"
+ },
+ "experiment": "EXP-0180-g17p-halfalu-rerecord",
+ "frozen_utc": "2026-08-30",
+ "gates": {
+  "gate_identity": "a value counts as movement only if tok_instr AND the hardware-measured length both equal the anchor's; values failing this are recorded, reported and EXCLUDED from encodable_range, which is restated as the MEASURED range",
+  "gate_ladder": "the (arm,carrier) liveness ladder passed; a failing ladder supports NEITHER live NOR inert",
+  "gate_live_moved_over_disagree": 2.0,
+  "gate_stable_min_agree_pct": 99.0,
+  "rt_ok": "RECORDED, NEVER CITED. A round trip is not an emitter gate (EXP-0170)."
+ },
+ "pinned_isa": {
+  "assert_at_run_start": true,
+  "db_json_sha256": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "db_matches_validation_db_sha256": true,
+  "isadb_py_sha256": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "resolution": "EXPLICIT: harness/isa_helpers.py resolves isadb ONLY to experiments/EXP-0180-.../work/frozen. There is NO path fall-through and no home-directory candidate; the neo's shared tools/agx-isa copy is never consulted.",
+  "validation_json_sha256_readonly": "a30309f0bf0004085b8327de2eaeeae9f987a7b930961b303c654aa9764c9bc9"
+ },
+ "raw_schema": {
+  "append_only": true,
+  "flush": "flush + fsync per record",
+  "keys": [
+   "idx",
+   "seq",
+   "t",
+   "arm",
+   "carrier",
+   "instr",
+   "mode",
+   "instance",
+   "field",
+   "value",
+   "fstart",
+   "fwidth",
+   "byte_index",
+   "cross",
+   "bytes",
+   "tok_instr",
+   "rt_ok",
+   "hw_len",
+   "observed",
+   "oracle",
+   "match",
+   "match_sem",
+   "outcome",
+   "status",
+   "fault_class",
+   "victim",
+   "seed_ok",
+   "sentinel_bad",
+   "attempts",
+   "predict",
+   "note",
+   "foreign"
+  ],
+  "observed": [
+   "pre",
+   "post",
+   "pre_sent",
+   "post_sent",
+   "stray",
+   "n_stray"
+  ],
+  "other_files": {
+   "00_arm_resolution.json": "anchors, instances, seed tables, adequacy result",
+   "00_env.json": "target, hashes, matrix_sha256, resolved isadb path",
+   "01_progress.json": "per-arm counters, written continuously",
+   "02_summary.json": "final counters",
+   "03_procsample.jsonl": "concurrent GPU activity, sampled every 5 s for the run's duration",
+   "anchor.jsonl": "the ONE anchor observation per (arm,carrier), never refreshed"
+  },
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable",
+   "invalid_run"
+  ],
+  "path": "raw/<run_id>/sweep.jsonl"
+ },
+ "repo": {
+  "gate_rule": "captures are validated against the AUTHORED BLOB HASHES below, never against live HEAD (SUBAGENT_BRIEF.md)",
+  "revision_at_preregistration": "db7c3c957a8788b8589978a48c044b049dde2cc2",
+  "worktree_dirty": true
+ },
+ "runs": {
+  "gated": [
+   "g17p_20260830_run01 (order forward)",
+   "g17p_20260830_run02 (order reverse)"
+  ],
+  "pilot": "pilot01 (carriers, seed adequacy, anchor selection, ladder, LEN zero point). NOT evidence for any verdict.",
+  "run_id_rule": "NEVER reuse or overwrite a run id. A partial capture is retained as-is and the replacement takes a NEW id."
+ },
+ "safety": {
+  "abort_path": "NONE. Every value dispatches regardless of outcome (FIELD-SWEEP-PROTOCOL 3(c)).",
+  "hang_handling": "counted, PersistRunner restarted, case retried majority-of-3, never concluded from a single observation",
+  "macvdmtool": "FORBIDDEN to this agent, without exception",
+  "on_unresponsive_host": "STOP, report BLOCKED, do not scan, do not recover",
+  "per_field_hang_budget": "NONE, deliberately"
+ },
+ "seeding": {
+  "S1": "falu2i minifloat fixed points fill the HIGH halves; one half-ALU add per register (byte0=(j<<4)|0x00) fills the LOW half",
+  "S2_fallback": "cvt_f2h_dst (byte0 high nibble = dst) writes half(r_k) into the destination's low half",
+  "S3_fallback": "high-halves only; every descriptor sweep is then reported as covering the ODD descriptors only and NO full-range hardware-run is claimed",
+  "adequacy_predicate": "all 28 half-lanes of r0..r13, as read from the on-hardware PRE-DUMP, are non-zero, pairwise distinct, finite and not fp16-subnormal",
+  "device_load_used": false,
+  "no_refreshed_baseline": "There is no periodically refreshed baseline anywhere in this experiment. The anchor observation is captured ONCE per (arm,carrier) per run and never refreshed.",
+  "per_case_proof": "every case dumps all 16 GPRs BEFORE the block (pre[], words 0..63) and AFTER it (post[], words 80..143). pre[] != SEED_EXPECTED -> outcome invalid_run, retried up to 3x, NEVER counted as movement.",
+  "reason": "DEF-0169-1: device_load on G17P is ASYNCHRONOUS (0,0,0,0,2,5,8,8 of 8 landed for filler 0,2,4,8,16,32,64,128; HW-VALIDATED, EXP-0169 raw/pilot03). No seed path in EXP-0180 uses it."
+ },
+ "supersedes_arm_of": "EXP-0169-g17p-rerecord (the 16 rows held in analysis/field_verdicts_held_c2load.json)",
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "host": "users-MacBook-Neo.local",
+  "ip_at_preregistration": "192.168.10.243",
+  "machine": "Mac17,5",
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro / G17P",
+  "note": "DHCP. If the host stops answering: STOP, report BLOCKED. macvdmtool is FORBIDDEN to this agent.",
+  "os": "26.6"
+ },
+ "target_rows": {
+  "distinct_fields": 16,
+  "fields_absent_from_pinned_db": 0,
+  "relation": "set_b is a STRICT SUBSET of set_a; the union is 16 fields, nine of which carry two claims and receive two verdicts",
+  "row_claims": 25,
+  "set_a_held_by_0169": 16,
+  "set_b_cites_EXP_M4_14": 9,
+  "source": "analysis/target_rows.py -> work/target_rows.json",
+  "spans_moved": 0,
+  "spans_rechecked_before_dispatch": true
+ },
+ "timeouts": {
+  "compile_s": 300,
+  "per_request_s": 8.0,
+  "run_total_s": 3600,
+  "ssh_command_s": 1800
+ }
+}

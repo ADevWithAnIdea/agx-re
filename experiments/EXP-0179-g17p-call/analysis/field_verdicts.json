@@ -1,0 +1,250 @@
+{
+ "call.b3": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 128,
+    "outcomes": {
+     "ok": 256,
+     "wrong_value": 256
+    },
+    "values_dispatched": 256
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 128,
+    "outcomes": {
+     "ok": 256,
+     "wrong_value": 256
+    },
+    "values_dispatched": 256
+   }
+  },
+  "distinct_bytes": 256,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "hardware-run",
+  "min_cross_run_agreement": 1.0,
+  "movement": 128,
+  "note": "",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "BRANCH-TAKEN SELECTOR. The live field is bits 5:2 (a 4-bit code); bits 1:0 and 7:6 are INERT (outcome constant within every bits5:2 code, 0 violations over 256 values x 2 carriers x 2 runs). Codes that TAKE the call: {6, 8, 9, 10, 11, 12, 13, 15}. Codes that do NOT: {0,1,2,3,4,5,7,14} -- and the failure is always a clean FALL-THROUGH (callee never ran, breadcrumb still 0xDEADBEEF, control continued at the next instruction and returned), NEVER a fault. The compiler's 0x1a is code 6. This is the shape `if_push`'s own descriptor calls scope_kind, on the instruction that shares its leader.",
+  "target": "G17P",
+  "values_dispatched": 256
+ },
+ "call.b5": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 192,
+    "outcomes": {
+     "fault": 256,
+     "ok": 128,
+     "wrong_value": 128
+    },
+    "values_dispatched": 256
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 192,
+    "outcomes": {
+     "fault": 256,
+     "ok": 128,
+     "wrong_value": 128
+    },
+    "values_dispatched": 256
+   }
+  },
+  "distinct_bytes": 256,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "hardware-run",
+  "min_cross_run_agreement": 1.0,
+  "movement": 192,
+  "note": "",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "TWO LIVE BITS, six inert. bit1 (0x02) set -> CMDBUF_ERROR fault, 128/128 values. bit2 (0x04) set with bit1 clear -> the call is NOT taken. bits 0, 3, 4, 5, 6, 7 are INERT (perfect 16/16 and 32/32 splits throughout). LEGAL RANGE: (b5 & 0x06) == 0, i.e. 64 of 256 encodable values, and the rule holds for all 256 values on both carriers in both runs.",
+  "target": "G17P",
+  "values_dispatched": 256
+ },
+ "call.b6": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   }
+  },
+  "distinct_bytes": 256,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "hardware-run",
+  "min_cross_run_agreement": 1.0,
+  "movement": 0,
+  "note": "",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "INERT over the full 0..255 range. The complete observation -- all 16 registers, the POST sentinel and the callee breadcrumb -- is BYTE-IDENTICAL for every one of the 256 values on both carriers in both runs (1 distinct observation per carrier). The corpus value 0x56 is not load-bearing. An emitter may write any value.",
+  "target": "G17P",
+  "values_dispatched": 256
+ },
+ "call.tail": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   }
+  },
+  "distinct_bytes": 256,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "hardware-run",
+  "min_cross_run_agreement": 1.0,
+  "movement": 0,
+  "note": "",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "INERT over the full 0..255 range, same evidence shape as call.b6: one distinct full observation per carrier across 256 values x 2 runs.",
+  "target": "G17P",
+  "values_dispatched": 256
+ },
+ "ret.linkmode": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 4,
+    "hang_values": [],
+    "movement": 2,
+    "outcomes": {
+     "ok": 4,
+     "wrong_value": 4
+    },
+    "values_dispatched": 4
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 4,
+    "hang_values": [],
+    "movement": 2,
+    "outcomes": {
+     "ok": 4,
+     "wrong_value": 4
+    },
+    "values_dispatched": 4
+   }
+  },
+  "distinct_bytes": 4,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "untested",
+  "min_cross_run_agreement": 1.0,
+  "movement": 2,
+  "note": "NOT SWEPT HERE. Four values dispatched as a cross-experiment consistency control only. EXP-0156's dense 0..255 G17P sweep stands; this experiment does not re-label it.",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "0x02 (leaf) and 0x12 (non-leaf) both return correctly from a generated leaf callee; 0x04 and 0x05 (CF merge) do NOT return -- the callee ran and control never came back. Consistent with EXP-0035 and EXP-0156. Only 4 values were dispatched here, as a CONTROL; this experiment does not re-label the field.",
+  "target": "G17P",
+  "values_dispatched": 4
+ },
+ "ret.scoreboard": {
+  "carriers": {
+   "C1_flat/idx15": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   },
+   "C2_nested/idx7": {
+    "agreement": 1.0,
+    "disagreements": 0,
+    "distinct_bytes": 256,
+    "hang_values": [],
+    "movement": 0,
+    "outcomes": {
+     "ok": 512
+    },
+    "values_dispatched": 256
+   }
+  },
+  "distinct_bytes": 256,
+  "encodable_range": 256,
+  "evidence": [
+   "EXP-0179"
+  ],
+  "gate_pass": true,
+  "label": "corpus-correlation",
+  "min_cross_run_agreement": 1.0,
+  "movement": 0,
+  "note": "DECLINED, as pre-registered (PRE_REGISTRATION H6 / section 9). The mechanical gate reports `promotable` because agreement is 1.0 and there are no disagreements -- but FIELD-SWEEP-PROTOCOL's own clause says a NEVER-MOVING field is promotable only if the carriers differ IN THE DIMENSION THE FIELD CONTROLS. `ret.scoreboard` is an execution/scoreboard WAIT mask; the dimension it controls is memory/execution ORDERING, and neither carrier differs in that dimension -- both return from a leaf callee with no outstanding asynchronous operation to wait on. Zero movement here therefore means 'this carrier cannot ask the question', not 'the field is inert'. Three prior experiments declined this family and EXP-0172 declined it in advance for the adjacent reason. Arm O is the construction that could settle it and had not yet run when this was written.",
+  "range": "0..255 dense (all 256 values), 2 carriers",
+  "semantics": "INERT in this carrier over the full 0..255 range (one distinct full observation per carrier across 256 values x 2 runs). THAT IS NOT A PROMOTION -- see the note.",
+  "target": "G17P",
+  "values_dispatched": 256
+ }
+}

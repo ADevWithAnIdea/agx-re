@@ -1,0 +1,259 @@
+{
+ "anchor_resolution_rule": "Recorded in raw/<run>/00_arm_resolution.json BEFORE the first gated dispatch. get_sr anchors resolve by a clean pinned tokenization when available, else by an even-offset scan requiring (byte0 & 7)==4, byte1==anchor_sr and a successful pinned decode to get_sr with EXACTLY ONE match; ambiguity -> NOT ATTEMPTED. tile anchors resolve by byte pattern plus a pinned decode to tile_read or tile_read_mrt. tile_ct2 may compile to either; the arm is attributed to the instruction ACTUALLY FOUND and its field list is intersected with that descriptor's real field names. Neither anchor present -> NOT ATTEMPTED, never guessed.",
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "97af7c8453ac2d1025606e47d1698e7dba360bd30381d3b7f66bd7804ce34370",
+  "README.md": "6b3e56ef8ee7fbd88a3fb8c38599e3e3bd1685964338452daa3ce52d1fe565c4",
+  "analysis/covary_audit.json": "970487422850a35d31cacb3b899df16ff146ac3f762e50c559220b1a54602a93",
+  "analysis/covary_audit.py": "2ab832ac84cc86df595b089ef62e0b60f1506dc7cbcbdaf23f7ada850d40e928",
+  "analysis/verdicts.py": "16d9cf80ed76bedf673f334e8d7024e8c5146f689743b4daae53f332ec9b2830",
+  "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
+  "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
+  "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
+  "harness/run.py": "5ea5ccc307f2169daedb308f8ba033adfebb1b58dca5c05d422f6cb31146b971",
+  "harness/selftest.py": "ed5c68c6ebd18da2ce949a7caa4bac15bf22e74b1c31dcd17de4557fbe57552c",
+  "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",
+  "harness/sweepplan.py": "e5d2ce59925c4f0d8ac9289b96aa7ba5aab88824e682fda30574ef351372b8bd",
+  "harness/sync.sh": "fe1fc40e31f2e7535930df3f152ba36341f70690fcbf277fa2a13851658bbe53",
+  "kernels/sysval.metal": "6b14b1106220492488c221a36c0edb7d2349e970459e44e25d9a61c5d21ca939",
+  "kernels/tilebuf.metal": "d1d85c915020fcacc8bbd466cf70e089b89843f72d3e5bb6c6a075091cb191ed"
+ },
+ "authored_sha256_note": "PROGRESS.md is deliberately EXCLUDED: it is an append-only milestone log the capture driver writes to during every run, so hashing it would guarantee a stale entry. analysis/covary_audit.json IS included -- it is the freeze-time record of the section-3(a) audit and must not change afterwards.",
+ "carriers": {
+  "mrt_cm1": "fragment, v_arr/f_mrt, 2 attachments, 1x1 -- our EXP-0147 reference carrier, unchanged.",
+  "mrt_cm2": "fragment, v_arr/f_mrt3, 3 attachments, 2x2 -- SECOND carrier: widens exactly the dimension rt_index selects.",
+  "sr_compute": "compute, k_sr_c, grid=64/tg=64. get_sr under test reads simd_lane_id (0x82); a SEPARATE later add (+1000) consumes it and a THIRD separate device_store writes out[gid] indexed by a DIFFERENT unspliced get_sr (0xa0). Body identical to our EXP-0092 srprobe plus an integrity-sentinel buffer.",
+  "sr_frag": "fragment, v_full/f_sr, 4x4 RGBA32Float. .r = the get_sr under test (baseline 0xa0 pixel X); .g = a DIFFERENT unspliced get_sr (0xa1 pixel Y); .b = a second scaled reading; .a = uniform only. .g and .a are integrity sentinels.",
+  "sr_vertex": "vertex, v_sr/f_sv, 4x4, INDEXED draw, baseVertex=9, baseInstance=5, instanceCount=3. vertex_id (0xdd) drives GEOMETRY and is never spliced; instance_id (0xd8) is under test and feeds an interpolated varying. vertex_id->ramp 9,10,11; instance_id->flat 7; base_vertex->flat 9; base_instance->flat 5.",
+  "tile_ct1": "fragment, v_arr/f_tile, 1 attachment, 2x2 -- our EXP-0147 reference carrier, unchanged.",
+  "tile_ct2": "fragment, v_arr/f_tile2, 2 attachments, 4x4 -- SECOND carrier: attachment count, spatial extent, arithmetic and a second non-reading store all differ."
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/sysval.metal + kernels/tilebuf.metal (authored for this experiment; f_tile/f_mrt/v_arr reproduce our own EXP-0147 carriers and k_sr_c our own EXP-0092 srprobe) and the AGX bytes the public newLibraryWithSource: API compiled from them"
+ },
+ "concurrency": {
+  "lease": "NOT taken -- FIELD-SWEEP-PROTOCOL 7 forbids reinstating one",
+  "measured_not_claimed": "raw/<run>/00_env.json per run plus the OS fault string on every non-ok case",
+  "sweeps": "unlocked; the orchestrator confirmed the machine idle for this window (EXP-0169 finished, EXP-0179 will announce before it dispatches)"
+ },
+ "covariation_audit": {
+  "asserts": [
+   "only [abs_off, abs_off+length) of the resolved anchor is ever mutated -- one instruction per case",
+   "the instruction producing the observable is declared per arm and never spliced",
+   "each field has an integrity channel on a path it cannot name, so 'did not move' is falsifiable",
+   "a destination-selecting field is NEVER relocated in lockstep with its consumer: moving dst alone must BREAK the read, so a correct result is a CHANGED observation (the EXP-0140 defect)"
+  ],
+  "rule": "FIELD-SWEEP-PROTOCOL 3(a)",
+  "script": "analysis/covary_audit.py -> analysis/covary_audit.json",
+  "verdict_at_freeze": "PASS, 45 fields checked, 0 errors"
+ },
+ "depends_on": {
+  "EXP-0031/EXP-M4-14": "sr_sel is byte1 and the stage-contextual SR namespace",
+  "EXP-0092-m4-sysval-abi": "the exhaustive M4 get_sr selector sweep this re-runs on G17P; the srprobe carrier body",
+  "EXP-0147-m4-emit-pipeline-misc": "the M4 tile_read/tile_read_mrt field map this re-runs on G17P; the render harness, carriers and litmus probe",
+  "EXP-0164-inert-audit": "the withheld set and the 'needs a second, structurally different carrier' requirement",
+  "EXP-0169-g17p-rerecord": "the G17P get_sr arm this root-causes and replaces; the DSTORE silent-drop and contiguous-wall findings; the tokenization-column lesson",
+  "EXP-0177-p08-abi-assembly": "the P0.8 gap ranking that selected both targets"
+ },
+ "do_not": [
+  "git commit (the orchestrator reviews and commits)",
+  "edit tools/agx-isa/db.json or validation.json",
+  "edit docs/, PROVENANCE.md, docs/P0-P1-CLOSURE.md, CLAUDE.md, CODEX.md",
+  "touch any other experiment's files (EXP-0169, EXP-0179 are live)",
+  "run macvdmtool",
+  "probe the M5"
+ ],
+ "experiment": "EXP-0178-g17p-sysval-tileread",
+ "frozen_utc": "2026-08-30T11:56:05Z",
+ "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF pinned-revision rule)",
+ "gated_runs": [
+  "g17p_20260830_run01",
+  "g17p_20260830_run02"
+ ],
+ "instruments": {
+  "os_fault_string": "recorded on every non-ok case; 'Discarded (victim' / 'Ignored (for causing prior' are segregated as invalid_run, never as fault",
+  "poison": "compute read-back pre-filled with 0xDEADBEEF; render read-back is the fixed-function CLEAR colour, written on a path the fragment program cannot touch",
+  "round_trip": "NOT USED AS EVIDENCE ANYWHERE. FIELD-SWEEP-PROTOCOL 3(b): roundtrip_test.py passes unmodified against an assembler that could not clear a bit. `rt_ok` appears in no record and no verdict of this experiment.",
+  "sentinels": [
+   "compute: buffer(4) must hold 0xA5A5A5A5, written with no SR value in it",
+   "fragment sysval: .g fed by a DIFFERENT unspliced get_sr, .a by the uniform alone",
+   "vertex sysval: .a by the uniform alone",
+   "tilebuffer: every attachment OTHER than the one under test must stay byte-exactly correct"
+  ],
+  "three_way_discrimination": "selftest G3 proves offline that correct != zero != clear in EVERY component of EVERY pixel for EVERY carrier",
+  "tokenization_column": "tok_instr / tok_len / tok_same_instr recorded per case. EXP-0169 withdrew falu2_uni.uni_mode after its tokenization column showed the swept values decode as DIFFERENT instructions; get_sr.sr_sel is that shape of field."
+ },
+ "labels_allowed": "docs/evidence-classification.md section 2, and nothing else",
+ "ladder_and_falsifier": {
+  "gate_zero": "an arm whose ladder fails ANY step has no demonstrated detection power; ALL its readings, live or inert, stay `untested` (the iter_at.loc / EXP-0169 failure mode)",
+  "preregistered_to_FAIL": "get_sr: clear byte0 bit 2 so the bytes are no longer a get_sr. tilebuffer: corrupt byte+1, part of the descriptor match. The observation MUST NOT equal the baseline.",
+  "sr_compute": "L_sr_sel 0x82->0xa0; L_dst relocation; power probe sr_sel->0x9d must read exactly SR_BIAS everywhere",
+  "sr_frag": "L_sr_sel 0xa0->0xa1 (clean mutual swap); L_dst; power probe sr_sel->0x9c must flatten .r while .g/.a stay correct",
+  "sr_vertex": "L_sr_sel 0xd8->0xdd (flat 7 -> ramp 9,10,11); L_dst; power probe sr_sel->0x9c must flatten the varying while .a stays correct",
+  "tile_arms": "L_dst and L_rt relocation; power probe byte+7 -> 0x00 must collapse the read to ZERO (EXP-0147's litmus)"
+ },
+ "matrix": {
+  "coverage": "FIELD-SWEEP-PROTOCOL 3.3: w<=8 -> EVERY value of the encodable range; w>8 -> every value of each constituent BYTE with the others at baseline, PLUS {0,1,2,max-1,max}, all powers of two, and 16 asymmetric interior values",
+  "fields_not_swept": {
+   "get_sr.dst_hi": "values 6-7 select registers >= 96, the G17P hang region EXP-0155 measured across seven fields. Already hardware-run on G17P via EXP-0168. Excluded on safety, recorded so the omission is auditable."
+  },
+  "foreign_fields_swept_not_ruled_on": {
+   "get_sr.dst": "EXP-0168 owns the field name `dst`",
+   "get_sr.form": "EXP-0172 declined it as inert over its full range on 8 arms"
+  },
+  "generator": "harness/sweepplan.py::field_values + harness/run.py plan construction",
+  "rule_frozen_here": true,
+  "ruled_fields": {
+   "get_sr": [
+    "sr_sel",
+    "dp_width",
+    "dp_marker"
+   ],
+   "tile_read": [
+    "b2",
+    "dst",
+    "b4",
+    "rt_index",
+    "read_en",
+    "b6_hi",
+    "b7",
+    "tail"
+   ],
+   "tile_read_mrt": [
+    "dst",
+    "b4",
+    "rt_index",
+    "read_en",
+    "b6_hi",
+    "fmt",
+    "tail"
+   ]
+  }
+ },
+ "oracles": {
+  "calibrations_confirmed_not_fitted": {
+   "exec_width": "threadExecutionWidth read from the compute pipeline's own build log -- a device CONFIGURATION value parameterising the oracle, not an observation of the field",
+   "frag_pixel_centre_C": "pre-registered 0.5. The baseline selector is the documented pixel-X register, so (.r - px) must be ONE constant across all 16 pixels. If not, the affine model is REFUTED, the fragment semantic oracle is withdrawn and only the movement oracle stands. Both the pre-registered and the measured value are recorded."
+  },
+  "tier1_semantic": "host-computed from the PINNED db.json enum evaluated at this dispatch geometry, so a mismatch FALSIFIES the documented meaning; null where the pinned db documents no meaning for that (stage, selector)",
+  "tier2_movement": "the unmutated baseline, defined for every case",
+  "tilebuffer": "exact float32 formulas compared BIT-EXACTLY, with one silent-zero candidate PER ATTACHMENT; the matching candidate's label is recorded (SILENT_ZERO:rtN) as evidence about rt_index routing"
+ },
+ "pilots": "work/pilotNN -- retained, never reused, never evidence",
+ "pinned_inputs_sha256": {
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "pinned/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+ },
+ "pinned_toolchain_policy": "harness/pinned_isa.py resolves pinned/{isadb.py,db.json,agxparse.py} by ABSOLUTE PATH and exits non-zero if a blob is missing or its hash differs. There is NO path-search fallback: a harness must FAIL when its pinned toolchain is absent, not quietly resolve something else. The neo's shared ~/agxre/tools/agx-isa/db.json is stale and is never consulted.",
+ "promotion_gate": {
+  "coverage_ceiling": "hardware-run requires the FULL encodable range for w<=8; otherwise isolated-byte-diff",
+  "gate_zero": "the arm's liveness ladder moved on EVERY step in BOTH runs and the falsifier failed as pre-registered",
+  "min_agree_pct": 99.0,
+  "min_common_values": 2,
+  "moved_over_disagree": 2.0,
+  "never_mover": "promotable ONLY if the carriers differ in the dimension the field controls. That dimension is unknown for every raw-typed byte here, so a never-moving field is reported `untested` WITH THE REASON, never `inert`.",
+  "offline_proof": "selftest G6: the gate is satisfiable AND refusable, including that a failed ladder refuses promotion and that an all-agreeing never-moving field is refused"
+ },
+ "questions": {
+  "Q1": "Can a compiler back end emit a system-value read on G17P? (get_sr.sr_sel / dp_width / dp_marker are `untested` on G17P from ONE carrier, EXP-0169)",
+  "Q2": "Does EXP-0147's silent-zero tile-read hazard reproduce on G17P? (byte+6 bit0 read-enable, EVEN -> SILENT ZERO; wrong rt_index likewise; a BLACK TILE, not a loud failure)"
+ },
+ "raw_schema": {
+  "also": [
+   "raw/<run_id>/00_env.json",
+   "raw/<run_id>/00_arm_resolution.json",
+   "raw/<run_id>/02_summary.json"
+  ],
+  "distinct_bytes_rule": "counts DISTINCT spliced byte strings, never the dispatched-value count",
+  "field_is_a_db_field_name": true,
+  "instr_is_a_db_mnemonic": true,
+  "keys": [
+   "idx",
+   "t",
+   "kind",
+   "arm",
+   "carrier",
+   "stage",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed",
+   "oracle",
+   "match",
+   "outcome",
+   "class",
+   "moved",
+   "tok_instr",
+   "tok_len",
+   "tok_same_instr",
+   "sent_ok",
+   "victim",
+   "own_fault",
+   "sentinel_bad",
+   "attempts",
+   "restarts",
+   "foreign",
+   "start",
+   "width",
+   "encodable_range",
+   "values_dispatched",
+   "distinct_bytes",
+   "note"
+  ],
+  "outcome_enum": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "outcome_enum_documented_extensions": {
+   "invalid_run": "collateral damage from another context ('Discarded (victim...)' / 'Ignored (for causing prior...)') after 5 in-place retries and a restart cycle. NOT evidence about the encoding. Established by EXP-0147.",
+   "no_dispatch": "compute: same, via the integrity sentinel buffer.",
+   "no_draw": "render: the runner returned OK but every pixel still holds the CLEAR colour, so nothing was drawn. Confirmed twice with a healthy device in between. Established by EXP-0147/EXP-0141.",
+   "not_written": "compute: the sentinel proves the dispatch RAN but the read-back is still 0xDEADBEEF poison, i.e. our store did not land. A different fact from 'the store wrote 0'. Motivated by EXP-0169's DSTORE finding that a device_store through an unbound slot is SILENTLY DROPPED with no fault and no diagnostic -- absence of a fault proves nothing."
+  },
+  "per_case_file": "raw/<run_id>/sweep.jsonl"
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision_at_freeze": "db7c3c957a8788b8589978a48c044b049dde2cc2",
+ "safety": {
+  "courtesy_notice": "tile_read.dst / tile_read_mrt.dst sweep byte+3 over 0..255; EXP-0147 saw fault at 0xf6-0xff on M4 and the analogous register-ceiling crossing HANGS on G17P (EXP-0155). Recorded in PROGRESS.md per FIELD-SWEEP-PROTOCOL 7.",
+  "credentials": "SSHPASS environment variable only; the password is never written to any file",
+  "global_circuit_breaker_hangs": 128,
+  "if_the_neo_stops_answering": "STOP and report BLOCKED. No macvdmtool (forbidden to subagents, without exception), no scanning, no recovery attempt.",
+  "per_arm_abort": false,
+  "per_field_hang_budget": null,
+  "why": "FIELD-SWEEP-PROTOCOL 3(c): a per-field budget cannot characterise a CONTIGUOUS hazard, it guarantees the region is never mapped (frag_color_pack.dst's wall at 0xC0 was walked into by three experiments and seen by none; EXP-0168's 'defer the known-bad values' fix only moved the wall twice). Full-range dispatch maps it INSIDE the gated run, which is how EXP-0169's DSTORE arm pinned device_store.index_reg ((v & 0x60)==0x60) and extmode (v >= 0xFC) exactly. EXP-0168 showed the device survives such a region: 64 hangs, no reset, no wedge, no macvdmtool."
+ },
+ "status": "FROZEN before any build, any SSH and any dispatch",
+ "sweepability_precheck": {
+  "result": "34 fields overlap their own descriptor match; NONE of get_sr.*, tile_read.* or tile_read_mrt.* is among them. Every field under test has its full nominal encodable range and none is a one-legal-value pseudo-field.",
+  "run_utc": "2026-08-30",
+  "tool": "tools/agx-isa/match_overlap_report.py"
+ },
+ "target": {
+  "accel": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "family": "Apple9",
+  "host": "users-MacBook-Neo.local",
+  "name": "A18 Pro / G17P",
+  "note": "closure is measured against full G17P; NO M4 claim is made anywhere in this experiment",
+  "os": "macOS 26.6"
+ },
+ "timeouts_s": {
+  "build": 120,
+  "health_backoff_max": 40.0,
+  "per_request": 10.0,
+  "ssh_connect": 15
+ }
+}

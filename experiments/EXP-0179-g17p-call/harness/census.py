@@ -83,6 +83,15 @@ CONSTRUCTS = [
      {"vertex": "v_main", "fragment": "f_main", "stage": "fragment"}),
     ("C24_vertex_call",       "c_frag.metal",      "v_main",            "render",
      {"vertex": "v_main", "fragment": "f_main", "stage": "vertex"}),
+    # ---- EXTENSION, added after census_20260830a returned NO call from either
+    # render stage. Not part of the 24 frozen in CAPTURE_CONTRACT.json; run under
+    # a separate `*_ext` run id and reported as an extension.
+    ("C25_fragment_big_call", "c_frag2.metal",     "f_big",             "render",
+     {"vertex": "v_big", "fragment": "f_big", "stage": "fragment"}),
+    ("C26_vertex_big_call",   "c_frag2.metal",     "v_big",             "render",
+     {"vertex": "v_big", "fragment": "f_big", "stage": "vertex"}),
+    ("C27_visible_linked",    "c_visible.metal",   "k_visible_direct",  "linked",
+     {"visible": "vadd,vmul"}),
 ]
 
 # The `match` constraints the PINNED db.json declares. Read from the DB rather

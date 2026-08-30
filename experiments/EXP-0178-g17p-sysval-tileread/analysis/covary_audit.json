@@ -1,0 +1,652 @@
+{
+ "errors": [],
+ "rows": [
+  {
+   "arm": "sr_compute",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "sr_sel",
+   "instr": "get_sr",
+   "mutated_bytes": "[8,16) bits of the anchor only",
+   "observable": "out[gid] written by a SEPARATE device_store whose index register comes from a DIFFERENT, unspliced get_sr (0xa0); the value passes through a SEPARATE later add (+1000)",
+   "observable_producers": [
+    "device_store (out[gid])",
+    "the gid get_sr (sr_sel 0xa0)",
+    "the +1000 iadd2",
+    "the sentinel device_store"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_compute",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_width",
+   "instr": "get_sr",
+   "mutated_bytes": "[16,24) bits of the anchor only",
+   "observable": "out[gid] written by a SEPARATE device_store whose index register comes from a DIFFERENT, unspliced get_sr (0xa0); the value passes through a SEPARATE later add (+1000)",
+   "observable_producers": [
+    "device_store (out[gid])",
+    "the gid get_sr (sr_sel 0xa0)",
+    "the +1000 iadd2",
+    "the sentinel device_store"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_compute",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_marker",
+   "instr": "get_sr",
+   "mutated_bytes": "[24,29) bits of the anchor only",
+   "observable": "out[gid] written by a SEPARATE device_store whose index register comes from a DIFFERENT, unspliced get_sr (0xa0); the value passes through a SEPARATE later add (+1000)",
+   "observable_producers": [
+    "device_store (out[gid])",
+    "the gid get_sr (sr_sel 0xa0)",
+    "the +1000 iadd2",
+    "the sentinel device_store"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_compute",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "get_sr",
+   "mutated_bytes": "[4,8) bits of the anchor only",
+   "observable": "out[gid] written by a SEPARATE device_store whose index register comes from a DIFFERENT, unspliced get_sr (0xa0); the value passes through a SEPARATE later add (+1000)",
+   "observable_producers": [
+    "device_store (out[gid])",
+    "the gid get_sr (sr_sel 0xa0)",
+    "the +1000 iadd2",
+    "the sentinel device_store"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_compute",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "form",
+   "instr": "get_sr",
+   "mutated_bytes": "[3,4) bits of the anchor only",
+   "observable": "out[gid] written by a SEPARATE device_store whose index register comes from a DIFFERENT, unspliced get_sr (0xa0); the value passes through a SEPARATE later add (+1000)",
+   "observable_producers": [
+    "device_store (out[gid])",
+    "the gid get_sr (sr_sel 0xa0)",
+    "the +1000 iadd2",
+    "the sentinel device_store"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_frag",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "sr_sel",
+   "instr": "get_sr",
+   "mutated_bytes": "[8,16) bits of the anchor only",
+   "observable": "colour channel .r of a 4x4 attachment. .g is fed by a DIFFERENT unspliced get_sr (0xa1) and .a by the uniform alone; both are integrity sentinels on paths the instruction under test cannot name",
+   "observable_producers": [
+    "frag_color_store",
+    "the pos.y get_sr (sr_sel 0xa1)"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_frag",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_width",
+   "instr": "get_sr",
+   "mutated_bytes": "[16,24) bits of the anchor only",
+   "observable": "colour channel .r of a 4x4 attachment. .g is fed by a DIFFERENT unspliced get_sr (0xa1) and .a by the uniform alone; both are integrity sentinels on paths the instruction under test cannot name",
+   "observable_producers": [
+    "frag_color_store",
+    "the pos.y get_sr (sr_sel 0xa1)"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_frag",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_marker",
+   "instr": "get_sr",
+   "mutated_bytes": "[24,29) bits of the anchor only",
+   "observable": "colour channel .r of a 4x4 attachment. .g is fed by a DIFFERENT unspliced get_sr (0xa1) and .a by the uniform alone; both are integrity sentinels on paths the instruction under test cannot name",
+   "observable_producers": [
+    "frag_color_store",
+    "the pos.y get_sr (sr_sel 0xa1)"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_frag",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "get_sr",
+   "mutated_bytes": "[4,8) bits of the anchor only",
+   "observable": "colour channel .r of a 4x4 attachment. .g is fed by a DIFFERENT unspliced get_sr (0xa1) and .a by the uniform alone; both are integrity sentinels on paths the instruction under test cannot name",
+   "observable_producers": [
+    "frag_color_store",
+    "the pos.y get_sr (sr_sel 0xa1)"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_frag",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "form",
+   "instr": "get_sr",
+   "mutated_bytes": "[3,4) bits of the anchor only",
+   "observable": "colour channel .r of a 4x4 attachment. .g is fed by a DIFFERENT unspliced get_sr (0xa1) and .a by the uniform alone; both are integrity sentinels on paths the instruction under test cannot name",
+   "observable_producers": [
+    "frag_color_store",
+    "the pos.y get_sr (sr_sel 0xa1)"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_vertex",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "sr_sel",
+   "instr": "get_sr",
+   "mutated_bytes": "[8,16) bits of the anchor only",
+   "observable": "colour channel .r, the interpolated varying the vertex stage wrote. The triangle's GEOMETRY is driven by a DIFFERENT, unspliced get_sr (vertex_id 0xdd), so a spliced selector can never move the coverage the observation is read from. .a is a uniform-only integrity sentinel",
+   "observable_producers": [
+    "vary_store",
+    "the vertex_id get_sr (sr_sel 0xdd) driving position",
+    "the fragment program"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_vertex",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_width",
+   "instr": "get_sr",
+   "mutated_bytes": "[16,24) bits of the anchor only",
+   "observable": "colour channel .r, the interpolated varying the vertex stage wrote. The triangle's GEOMETRY is driven by a DIFFERENT, unspliced get_sr (vertex_id 0xdd), so a spliced selector can never move the coverage the observation is read from. .a is a uniform-only integrity sentinel",
+   "observable_producers": [
+    "vary_store",
+    "the vertex_id get_sr (sr_sel 0xdd) driving position",
+    "the fragment program"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_vertex",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "dp_marker",
+   "instr": "get_sr",
+   "mutated_bytes": "[24,29) bits of the anchor only",
+   "observable": "colour channel .r, the interpolated varying the vertex stage wrote. The triangle's GEOMETRY is driven by a DIFFERENT, unspliced get_sr (vertex_id 0xdd), so a spliced selector can never move the coverage the observation is read from. .a is a uniform-only integrity sentinel",
+   "observable_producers": [
+    "vary_store",
+    "the vertex_id get_sr (sr_sel 0xdd) driving position",
+    "the fragment program"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_vertex",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "get_sr",
+   "mutated_bytes": "[4,8) bits of the anchor only",
+   "observable": "colour channel .r, the interpolated varying the vertex stage wrote. The triangle's GEOMETRY is driven by a DIFFERENT, unspliced get_sr (vertex_id 0xdd), so a spliced selector can never move the coverage the observation is read from. .a is a uniform-only integrity sentinel",
+   "observable_producers": [
+    "vary_store",
+    "the vertex_id get_sr (sr_sel 0xdd) driving position",
+    "the fragment program"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "sr_vertex",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "form",
+   "instr": "get_sr",
+   "mutated_bytes": "[3,4) bits of the anchor only",
+   "observable": "colour channel .r, the interpolated varying the vertex stage wrote. The triangle's GEOMETRY is driven by a DIFFERENT, unspliced get_sr (vertex_id 0xdd), so a spliced selector can never move the coverage the observation is read from. .a is a uniform-only integrity sentinel",
+   "observable_producers": [
+    "vary_store",
+    "the vertex_id get_sr (sr_sel 0xdd) driving position",
+    "the fragment program"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b2",
+   "instr": "tile_read",
+   "mutated_bytes": "[16,24) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "tile_read",
+   "mutated_bytes": "[24,32) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b4",
+   "instr": "tile_read",
+   "mutated_bytes": "[32,40) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "rt_index",
+   "instr": "tile_read",
+   "mutated_bytes": "[40,48) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "read_en",
+   "instr": "tile_read",
+   "mutated_bytes": "[48,49) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b6_hi",
+   "instr": "tile_read",
+   "mutated_bytes": "[49,56) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b7",
+   "instr": "tile_read",
+   "mutated_bytes": "[56,64) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "tail",
+   "instr": "tile_read",
+   "mutated_bytes": "[64,96) bits of the anchor only",
+   "observable": "the 2x2 colour attachment, written by frag_color_store -- an instruction no arm here splices",
+   "observable_producers": [
+    "frag_color_store",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b2",
+   "instr": "tile_read",
+   "mutated_bytes": "[16,24) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "tile_read",
+   "mutated_bytes": "[24,32) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b4",
+   "instr": "tile_read",
+   "mutated_bytes": "[32,40) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "rt_index",
+   "instr": "tile_read",
+   "mutated_bytes": "[40,48) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "read_en",
+   "instr": "tile_read",
+   "mutated_bytes": "[48,49) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b6_hi",
+   "instr": "tile_read",
+   "mutated_bytes": "[49,56) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b7",
+   "instr": "tile_read",
+   "mutated_bytes": "[56,64) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "tile_ct2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "tail",
+   "instr": "tile_read",
+   "mutated_bytes": "[64,96) bits of the anchor only",
+   "observable": "attachment 0 of a 4x4 2-attachment pass; attachment 1 is written WITHOUT a tilebuffer read and is an integrity sentinel on an independent path",
+   "observable_producers": [
+    "both frag colour stores",
+    "the consuming ALU"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[24,32) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b4",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[32,40) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "rt_index",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[40,48) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "read_en",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[48,49) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b6_hi",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[49,56) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "fmt",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[56,64) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm1",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "tail",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[64,96) bits of the anchor only",
+   "observable": "attachment 1 of a 1x1 2-attachment pass; attachment 0 is produced by the OTHER tilebuffer read and is never spliced",
+   "observable_producers": [
+    "both frag colour stores",
+    "the OTHER tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "consumer NOT relocated: moving the destination alone must BREAK the consumer's read, so a correct hardware result is a CHANGED observation, not a constant one",
+   "field": "dst",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[24,32) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b4",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[32,40) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "rt_index",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[40,48) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "read_en",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[48,49) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "b6_hi",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[49,56) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "fmt",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[56,64) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  },
+  {
+   "arm": "mrt_cm2",
+   "co_varies": false,
+   "destination_field_note": "",
+   "field": "tail",
+   "instr": "tile_read_mrt",
+   "mutated_bytes": "[64,96) bits of the anchor only",
+   "observable": "the attachment selected by the spliced instruction's baseline rt_index in a THREE-attachment 2x2 pass; the other two attachments are integrity sentinels",
+   "observable_producers": [
+    "all three frag colour stores",
+    "the OTHER two tile_read_mrt"
+   ],
+   "why_not": "the observable is produced by an instruction the sweep never touches; only the anchor's own bytes are mutated"
+  }
+ ],
+ "rule": "FIELD-SWEEP-PROTOCOL section 3(a)",
+ "verdict": "PASS"
+}

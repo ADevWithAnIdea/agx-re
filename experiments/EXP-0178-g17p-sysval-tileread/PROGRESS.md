@@ -47,3 +47,33 @@ on resume, re-orient from this file, `CAPTURE_CONTRACT.json`, and what is actual
 - **BLOCKED ON GO.** EXP-0169 is running a hang-prone `device_store.base_slot` sweep and
   must not have neighbours. No SSH, no build, no dispatch has been performed by this
   experiment. Nothing has been written outside `experiments/EXP-0178-g17p-sysval-tileread/`.
+
+## 2026-08-30 — M2: FROZEN
+
+- `PRE_REGISTRATION.md` and `CAPTURE_CONTRACT.json` frozen over **15 authored blobs**
+  (PROGRESS.md excluded — it is the append-only log the driver writes to) plus 3 pinned
+  toolchain blobs. Repo revision at freeze `12e059e5aab38258c55ce490a01e146e6fae30d9`
+  (tree dirty: EXP-0169 artefacts). The cross-run gate compares authored blob hashes,
+  never live HEAD.
+- Offline gates all pass with **no device**:
+  - `python3 harness/pinned_isa.py` → pinned pair resolves, 172 instructions,
+    db `a77f8cfa163f…`.
+  - `python3 analysis/covary_audit.py` → **PASS**, 45 fields checked, 0 errors
+    (FIELD-SWEEP-PROTOCOL §3a).
+  - `python3 harness/selftest.py` → **PASS**, G1–G8, 0 failures. G3 proves offline that
+    correct ≠ zero ≠ clear in every component of every pixel for every tilebuffer carrier;
+    G4 proves each sysval ladder's two selectors are host-distinguishable; G6 proves the
+    promotion gate is both satisfiable and refusable.
+- Design changes made on the orchestrator's GO message, before any dispatch:
+  - **No per-field hang budget and no per-arm abort.** Every planned value of every field
+    is dispatched regardless of outcome — rule 3(c) applied at design time, following
+    EXP-0169's DSTORE arm, which mapped `device_store.index_reg` ((v & 0x60) == 0x60) and
+    `extmode` (v ≥ 0xFC) exactly inside its gated run because it had no budget. Only a
+    global circuit breaker at 128 hangs/run remains.
+  - **Tokenization column per case** (`tok_instr`, `tok_len`, `tok_same_instr`), after
+    EXP-0169 withdrew `falu2_uni.uni_mode` when its swept values turned out to decode as
+    different instructions. `get_sr.sr_sel` is exactly that shape of field.
+  - **New `not_written` outcome**: the compute sentinel proves the dispatch ran but the
+    read-back still holds `0xDEADBEEF`. Motivated by the DSTORE finding that a
+    `device_store` through an unbound slot is **silently dropped** with no fault and no
+    diagnostic — absence of a fault proves nothing, so the poison is what adjudicates.

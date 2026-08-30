@@ -1,0 +1,196 @@
+{
+ "amendment_01": {
+  "burned_run_id": "g17p_20260830_run02 was never dispatched",
+  "cause": "An unconditional if_push with scope_kind == 0x01 masks off the only lane of a one-thread dispatch, in BOTH mask banks; scope_kind == 0x1a does not.",
+  "date": "2026-08-30, post-run01, on measured evidence",
+  "hash_note": "harness/isa_helpers.py and harness/cases.py changed, so their hashes here are the AMENDED ones. A capture is valid against the hashes recorded for its own run in raw/<run>/00_env.json.",
+  "isolation": "raw/prefreeze/calib_20260830c_amend/01_amendment_probe.json",
+  "new_run_ids": [
+   "g17p_20260830_run03 (forward)",
+   "g17p_20260830_run04 (reverse)"
+  ],
+  "retained": "raw/g17p_20260830_run01 is retained in full and never reused; its C2 half is excluded from every verdict, its C1 half is an earlier third observation.",
+  "what": "The frozen `C2 nested` carrier (if_push scope=0x54 kind=0x01) was MEASURED DEAD: all 1395 of its run01 cases wrote the PRE sentinel and nothing else -- all 16 registers, the POST sentinel and the callee breadcrumb still 0xDEADBEEF, status OK, tail intact. Replaced by if_push(scope=0x56, scope_kind=0x1a)."
+ },
+ "authored_blobs": {
+  "analysis/analyze.py": "c161e9fd3aa443fe5668127826c165a45fcb01a89e6ffb59f1d508fc96060690",
+  "analysis/census_report.py": "c72fb1b86833db05daaa24b792de45f157350f304826321a535553b0666f7016",
+  "analysis/freeze_contract.py": "a58d33b0b2c35d507f875d7580ff1f723b248b3cd0b4a682f0c6c2d5ca829ff4",
+  "analysis/verdicts.py": "6d63594d3f902eb9af04e9f9ba4acbea14c41df7de0652c18b3e794e5e1fa926",
+  "harness/calib.py": "7e5b6dc446f203c76e2ea046cebb160927539c7bddb6955b36e22c5d99aaeb25",
+  "harness/calib2.py": "baf6d651a7b0965a88e54d288553e6fb6476562d8f694895d1e8eb17a39680f5",
+  "harness/cases.py": "3888b73eaf1278a50a4cd5417f54879905cfa5247a2ca70c1819bc28bcdb79cd",
+  "harness/census.py": "705a8d18ea13875bc6a6b3a38cfbfc0bd380dba36995ee4016fd8813b241eddf",
+  "harness/fndump.m": "a4559afa8eeff57500f8c27cde5fd84389ccebf3063fb16beb4a806ea331c51c",
+  "harness/isa_helpers.py": "d0fa73d53f4bd1bdaaeb7018b0d014e37882580c0cbcf3d025bb4653efb0098c",
+  "harness/run.py": "210aa4b60abfd065e62a0a9dc28901bbb4a430cbdc2e9ab4fd7b475f95161b4d",
+  "harness/sweeprun.py": "1e8eeba8e596ca65cf799250d08a0133335ba719acfa2daef13f6aeea459a9e5",
+  "harness/sync.sh": "274af42ed45a5bfc1977ae196c3177c9b6488286290e8771136109cac8c45584",
+  "kernels/carrier_call.metal": "9f75b9f834b0149f6bb75d8187b6a1e30d3a1e80b0e47376ed8314e5dccc614c",
+  "kernels/census/c_addrtaken.metal": "d90d01a7154189ef4d68b06715fd6d49d85b9f4264bf6a08eef67c3543bd8fa8",
+  "kernels/census/c_frag.metal": "6e419d384714ec1091eb2aa7566f0a7e13074fdb8bb8934b73a1c41d3f843a80",
+  "kernels/census/c_frag2.metal": "ab5cbbbb5fc37ae849c294de6f225d9ac1ede0094eb47d946bce0cb0d379fc3e",
+  "kernels/census/c_frame.metal": "b76111bc9d3e88e1fa1e6266cd73d04bca47fd165a6201bc0d005f1a9f9f3722",
+  "kernels/census/c_inline.metal": "3d326caf8b19de67944fd106ad409ffdedf461d9b1256709e1cb855d6bc7c720",
+  "kernels/census/c_mutualrec.metal": "04336607cb68d29c1eaae7ca36efe54f3eb58db9fce404c1ea0ad885bd2af5ff",
+  "kernels/census/c_noinline.metal": "128023255e1824d9af4a1d6c94136d807264826ce40f2b5db102898df75f2a8c",
+  "kernels/census/c_recursion.metal": "8b1ba215ac4f68d93a940a078e6741227ed490652f016eb062b410c6dc5443b9",
+  "kernels/census/c_size.metal": "076f00916a799b32140edc1e66855971b3139c9a2356753bee103d0bc3477f11",
+  "kernels/census/c_visible.metal": "b6cace4cb138761022c4c3349b49e6156848f7011e1c816db139d928d59bf912",
+  "work/frozen/db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "work/frozen/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+ },
+ "calibration": {
+  "closed_list": [
+   "extmode_or",
+   "marker",
+   "reconverge",
+   "region_len",
+   "jumpover_ok"
+  ],
+  "note": "These five are the ONLY parameters calibration may decide (PRE_REGISTRATION section 8). run.py REFUSES to dispatch while the placeholder addendum is present.",
+  "outcome": {
+   "extmode_or": 0,
+   "frozen_utc": "2026-08-30T11:59:50Z",
+   "jumpover_ok": false,
+   "marker": false,
+   "prefreeze_run": "calib_20260830b",
+   "reconverge": true,
+   "region_len": 6142
+  },
+  "phase": "PRE-FREEZE, raw/prefreeze/**, NEVER EVIDENCE",
+  "written_to": "work/addendum.json"
+ },
+ "case_matrix": {
+  "addendum_provisional": false,
+  "addendum_used": {
+   "extmode_or": 0,
+   "frozen_utc": "2026-08-30T11:59:50Z",
+   "jumpover_ok": false,
+   "marker": false,
+   "prefreeze_run": "calib_20260830b",
+   "reconverge": true,
+   "region_len": 6142
+  },
+  "arms": {
+   "B3/C1_flat": 256,
+   "B3/C2_nested": 256,
+   "B5/C1_flat": 256,
+   "B5/C2_nested": 256,
+   "B6/C1_flat": 256,
+   "B6/C2_nested": 256,
+   "F/C1_flat": 4,
+   "F/C2_nested": 5,
+   "G/C1_flat": 48,
+   "G/C1b_flat": 48,
+   "G/C2_nested": 48,
+   "G/C2b_nested": 48,
+   "L/C1_flat": 4,
+   "L/C2_nested": 4,
+   "M/C1_flat": 4,
+   "M/C2_nested": 4,
+   "N/C1_flat": 3,
+   "N/C2_nested": 3,
+   "O/C1_flat": 192,
+   "O/C2_nested": 192,
+   "R/C1_flat": 256,
+   "R/C2_nested": 256,
+   "T/C1_flat": 11,
+   "T/C2_nested": 11,
+   "TL/C1_flat": 256,
+   "TL/C2_nested": 256
+  },
+  "generator": "harness/cases.py build_cases()",
+  "n_cases": 3189,
+  "sha256": "ad984c30c02a40c02486eee5a412cf49b90d7bf812b0e3c1a1ee5a80d2753bcc"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "declared_boundary": "Apple's inlining heuristic is a DECLARED CLEAN-ROOM BOUNDARY (docs/P0-P1-CLOSURE.md P0.8) and is NOT characterised. The census authors OUR OWN MSL until the instruction appears and reports per-construct outcomes only -- no threshold, no interpolation, no claim about why anything inlined, and no Apple binary inspected.",
+  "instruction_under_test": "GENERATED from the pinned db.json's declared bit geometry by isa_helpers.call_bytes()/ret_bytes(); ZERO bytes copied from any compiled shader. Arm S additionally mutates a REAL compiler-emitted call inside OUR OWN compiled program, as an independent second method, labelled as such.",
+  "provenance": "OWN-SHADER + HW-PROBE"
+ },
+ "defect_01_self_inflicted": {
+  "fix": "calib_20260830b re-runs the bracket probe FIRST and then extmode with the working bracket; both 0x00 and 0xC0 give a correct dump and 0x00 was frozen.",
+  "retained": "raw/prefreeze/calib_20260830a is retained, not reused.",
+  "what": "calib_20260830a probed extmode_or with reconverge=False, which FAULTS, so both arms returned `fault` and the choice fell through to a default."
+ },
+ "environment": {
+  "baseline_use": "The unmutated program is re-run periodically for RUN INTEGRITY only. NO case is scored against it -- every oracle is host-computed from isa_helpers.SEED_I and the frozen layout.",
+  "fast_math": false,
+  "grid": 1,
+  "poison": "0xDEADBEEF over all 104 output words before every dispatch",
+  "seed_method": "mov_imm immediates ONLY. device_load is FORBIDDEN on every verdict path (DEF-0169-1: device_load is ASYNCHRONOUS on G17P and fabricates movement); it appears only in arm O, where that asynchrony is the instrument and promotion is pre-declined.",
+  "threadgroup": 1
+ },
+ "experiment": "EXP-0179-g17p-call",
+ "frozen_utc": null,
+ "gap": "docs/P0-P1-CLOSURE.md P0.8 ranked blocker #2 (EXP-0177 analysis/p08_gaps.md G2): call.{b3,b5,b6,tail} are tokenization-only and ret.scoreboard was declined in advance, so NO CALL CAN BE EMITTED -- which blocks EXP-0137's split-epilog contract, every out-of-line helper, and non-leaf frames.",
+ "gate": {
+  "carrier_dimension": "execution-mask stack depth at the call (flat vs one if_push deep) -- the dimension H4 says these fields control. Two carriers differing only in the register plan would be ONE carrier.",
+  "carriers_for_hardware_run": 2,
+  "cases_counted": "validity == 'valid' only",
+  "cross_run_agreement_min": 0.99,
+  "falsifiers_must_fire_every_run": true,
+  "movement_over_disagreement_min": 2.0,
+  "rt_ok": "RECORDED AND USED FOR NOTHING (FIELD-SWEEP-PROTOCOL 3b)",
+  "runs": [
+   "run01 forward",
+   "run02 reverse"
+  ]
+ },
+ "observable": {
+  "breadcrumb": "W_CALLEE -- a store made INSIDE the callee, so 'ran but never returned' survives a caller-side dump that never executes",
+  "dump": "16 GPR stores in a FIXED order, byte-identical in every case of every arm",
+  "landing_ladder": "4 x 2-byte mov_imm rungs before the callee entry; the lowest rung that fired localises a mis-targeted branch to 2 bytes",
+  "rule_3a": "STRUCTURAL, not careful: neither `call` nor `ret` declares a register-typed field, so no swept value can name the read-back index register, any store's data register, the sentinel registers, or the callee register.",
+  "sentinels": "PRE (written before the call) and POST (written after it returns)",
+  "tail_poison": "28 words never stored to; any change is invalid_sentinel"
+ },
+ "pinned_toolchain": {
+  "db.json": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "path": "work/frozen/",
+  "resolution": "isa_helpers._find_isadb() has EXACTLY ONE candidate and NO path-search fallback; it raises if the pin is absent. The neo's shared ~/agxre/tools/agx-isa/db.json is STALE and silently resolved for another experiment on 2026-08-30."
+ },
+ "question": "Can this ISA make a NON-INLINED CALL, and can we EMIT one -- generate a call, a callee and a return from the rules, with zero bytes copied from any compiled shader, and have the hardware execute and return? Then: what do call.b3/.b5/.b6/.tail and ret.scoreboard actually do?",
+ "raw_schema": {
+  "raw/<run>/00_env.json": "device identity, region geometry, every authored blob hash, the plans, the seed table, the marker values, the word layout",
+  "raw/<run>/01_gpuwatch_start.json": "concurrent GPU/compiler process sample at run start",
+  "raw/<run>/02_gpuwatch_end.json": "the same at run end",
+  "raw/<run>/03_summary.json": "case count, hangs, stopped arms, dispatch count, elapsed",
+  "raw/<run>/baseline.jsonl": "unmutated-program dumps -- RUN INTEGRITY ONLY, never an oracle",
+  "raw/<run>/sweep.jsonl": "one FIELD-SWEEP-PROTOCOL section-4 record per case, append-only, flushed+fsynced",
+  "raw/prefreeze/calib_<id>/00_env.json": "device identity + measured region geometry",
+  "raw/prefreeze/calib_<id>/01_calibration.json": "the five calibrated parameters",
+  "raw/prefreeze/calib_<id>/calib.jsonl": "every calibration dispatch",
+  "raw/prefreeze/census_<id>/00_meta.json": "census environment + kernel hashes",
+  "raw/prefreeze/census_<id>/census.jsonl": "one record per authored MSL construct"
+ },
+ "repo_revision_at_freeze": {
+  "dirty": true,
+  "head": "db7c3c957a8788b8589978a48c044b049dde2cc2",
+  "note": "A capture is valid if the AUTHORED BLOB HASHES above match. HEAD moving because a sibling experiment landed is NOT contamination (SUBAGENT_BRIEF)."
+ },
+ "safety": {
+  "contiguous_hazard": "FIELD-SWEEP-PROTOCOL 3(c): a per-value budget CANNOT characterise a contiguous hazard. If adjacent values hang, a NAMED non-gated mapping pass (`--hang-tolerant`, run id containing MAPPING_) is dispatched over the whole range and reported separately.",
+  "hang_budget": "2 per arm -> the arm STOPS and is reported PARTIAL. Arms N (depth-2, no link save) and the positive half of arm T are DECLARED HANG CANDIDATES and are announced in PROGRESS.md before they run.",
+  "if_the_neo_stops_answering": "STOP and report BLOCKED. No scanning. No macvdmtool."
+ },
+ "status": "PARTIAL. Arms G,T,M,B3,B5,B6,TL,R,L complete and gated (run03/run04). Arms O, F(F3/F4/F6) and N PENDING an exclusive window -- the declared hang-prone tail. Arm S (splice second method) not yet run.",
+ "target": {
+  "arch": "applegpu_g17p",
+  "gpu": "G17P / AGXAcceleratorG17P",
+  "name": "users-MacBook-Neo.local",
+  "note": "device identity is READ FROM THE LIVE DEVICE into 00_env.json on every run and is never taken from this literal",
+  "soc": "T8140"
+ },
+ "timeouts": {
+  "hang_cooldown_s": 2.0,
+  "max_hangs_per_arm": 2,
+  "per_request_s": 8.0,
+  "retries_majority_of": 3,
+  "shdump_s": 300,
+  "ssh_alarm_s": "120-1800 per sync.sh verb"
+ }
+}

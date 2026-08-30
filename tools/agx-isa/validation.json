@@ -16,31 +16,32 @@
   "total_instructions": 172,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 536,
+   "hardware-run": 540,
    "isolated-byte-diff": 81,
    "corpus-correlation": 74,
-   "tokenization-only": 137,
+   "tokenization-only": 133,
    "single-template-inference": 28,
    "api-accept-reject": 0,
    "host-private": 0,
    "untested": 180
   },
   "by_label_pct": {
-   "hardware-run": 51.7,
+   "hardware-run": 52.1,
    "isolated-byte-diff": 7.8,
    "corpus-correlation": 7.1,
-   "tokenization-only": 13.2,
+   "tokenization-only": 12.8,
    "single-template-inference": 2.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
    "untested": 17.4
   },
-  "emittable_instructions": 52,
+  "emittable_instructions": 53,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
    "bf_alu",
    "bf_fma_dst",
+   "call",
    "carry_gen",
    "cvt_bf16",
    "cvt_f2h",
@@ -90,7 +91,7 @@
    "vary_slot",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 120,
+  "decodable_not_yet_emittable": 119,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -101,7 +102,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 52
+  "emittable_of_emitter_relevant": 53
  },
  "instructions": {
   "falu2": {
@@ -6241,34 +6242,40 @@
     ]
    },
    "b3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0179"
+    ],
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256
    },
    "b5": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0179"
+    ],
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256
    },
    "b6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0179"
+    ],
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256
    },
    "offset": {
     "label": "isolated-byte-diff",
@@ -6279,14 +6286,16 @@
     ]
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 2 carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0179"
+    ],
+    "note": "",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256
    }
   },
   "ret": {
@@ -6310,17 +6319,15 @@
    },
    "scoreboard": {
     "label": "corpus-correlation",
-    "range": "41 of 256 values on 1 arm in 1 run; promotion was declined in advance",
+    "range": "0..255 dense (all 256 values), 2 carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0172"
+     "EXP-0179"
     ],
-    "note": "PROMOTION DECLINED IN ADVANCE, and the sweep confirms why the decline was right rather than overturning it. The byte MOVES the observation -- but this harness reads back after command-buffer completion, which flushes, so movement proves general sensitivity to the byte, not ordering-specific power. Three prior experiments declined this family for the same reason; a promotion here would need an ordering observable, which does not exist yet.",
-    "values_dispatched": 41,
-    "distinct_bytes": 41,
-    "encodable_range": 41,
-    "start": 24,
-    "width": 8
+    "note": "DECLINED, as pre-registered (PRE_REGISTRATION H6 / section 9). The mechanical gate reports `promotable` because agreement is 1.0 and there are no disagreements -- but FIELD-SWEEP-PROTOCOL's own clause says a NEVER-MOVING field is promotable only if the carriers differ IN THE DIMENSION THE FIELD CONTROLS. `ret.scoreboard` is an execution/scoreboard WAIT mask; the dimension it controls is memory/execution ORDERING, and neither carrier differs in that dimension -- both return from a leaf callee with no outstanding asynchronous operation to wait on. Zero movement here therefore means 'this carrier cannot ask the question', not 'the field is inert'. Three prior experiments declined this family and EXP-0172 declined it in advance for the adjacent reason. Arm O is the construction that could settle it and had not yet run when this was written.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256
    }
   },
   "call_indirect": {

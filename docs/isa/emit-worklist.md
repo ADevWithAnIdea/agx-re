@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 52 | 114 | 166 |
+| 53 | 113 | 166 |
 
 ## Distance to emittable
 
@@ -18,7 +18,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 | 1 | 22 |
 | 2 | 22 |
 | 3 | 19 |
-| 4 | 13 |
+| 4 | 12 |
 | 5 | 14 |
 | 6 | 7 |
 | 7 | 4 |
@@ -35,11 +35,11 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | field name | instructions it blocks |
 |---|---:|
 | `dst` | 37 |
-| `tail` | 12 |
+| `tail` | 11 |
 | `srcA` | 11 |
-| `b5` | 10 |
-| `b3` | 9 |
 | `src` | 9 |
+| `b5` | 9 |
+| `b3` | 8 |
 | `b4` | 7 |
 | `opsel` | 7 |
 | `srcB` | 7 |
@@ -118,6 +118,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | label | fields |
 |---|---:|
 | `untested` | 180 |
-| `tokenization-only` | 127 |
+| `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 28 |
