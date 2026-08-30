@@ -1627,12 +1627,34 @@ Everything here is **M4/G16G**; A18/G17P is deferred.
 
 ### 2026-08-30 second wave (EXP-0199…0208) — READ THE BOUND FIRST
 
-> **Every fact in this subsection is `target: G17P` and `Gate E: NOT MET`** (except where noted).
-> Gates A, B and C passed — actual-byte ledgers, pre-registered detection-power controls, and
-> independent semantic predictors — but nine experiments ran concurrently, so no confirmation run
-> had a quiet machine. Per `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` Gate E, **a contaminated run
-> cannot confirm at all**. These are recorded as *liveness and geometry*, not as promotions.
-> `EXP-0210` is re-running the confirmations serialized on an idle device.
+> **Every fact here is `target: G17P`. Gate E status is now MIXED — read this before quoting any
+> line.** Gates A, B and C passed across the wave (actual-byte ledgers, pre-registered
+> detection-power controls, independent semantic predictors), but nine experiments ran
+> concurrently, so no confirmation run had a quiet machine, and per Gate E **a contaminated run
+> cannot confirm at all**.
+>
+> `EXP-0210` then re-ran the confirmations **serialized on an idle device**, with zero foreign GPU
+> dispatch runners in every sample against the fan-out's median of 9 and peak of 17:
+>
+> - **Gate E MET (17 fields), and 8 instructions have since been promoted** on the strength of it —
+>   `half_pack`, `irotate`, `ibitcount`, `falu3`, `falu3_ext`, `falu3_srcmod12`, `simd_reduce`,
+>   `simd_shuffle`. Ledgers identical, agreement **100.0000%**. `simd_reduce.dtype` improved on the
+>   quiet pair (847 moved / 1 disagree / 1 fault → **848 / 0 / 0**).
+> - **Gate E NOT MET:** `ibitcount.cache` (19/20 = 95.0%, order/state-dependent, not contamination);
+>   the four `tex_*` fields (captures stopped early by their own cascade guard); and four
+>   `EXP-0206` control-flow arms (measured unaffordable — see the next paragraph).
+>
+> **⚠ A QUIET GPU FAILS HARDER, and it qualifies every hazard line below.** Same encodings, same
+> ok/not-ok partition, **escalated severity**: silent-no-write → fault (**18 → 355**, identical in
+> both orders); `if_push.scope` fault → **HANG** at the same values; `tex_deriv` 7 and 11 hangs →
+> **48 and 48**. One experiment is the counterexample with byte-identical hard outcomes, so this is
+> not an instrument artefact. **Every fault and hang label recorded in this wave was taken on a busy
+> machine. The ok/not-ok PARTITION is trustworthy; the SEVERITY LABEL is not.** A busy machine was
+> also *masking* contained faults as OK-but-wrote-nothing: `(v&7)==7` is 32/32 `not_written` busy
+> and **32/32 fault quiet**, with the other 224 values byte-identical.
+>
+> Rows still marked below without a Gate E note are recorded as *liveness and geometry*, not as
+> promotions.
 
 **The structural one — read this before trusting any sweep site in this document:**
 
