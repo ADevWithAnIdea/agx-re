@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1036,
   "by_label": {
-   "hardware-run": 540,
+   "hardware-run": 542,
    "isolated-byte-diff": 81,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 28,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 180
+   "untested": 178
   },
   "by_label_pct": {
-   "hardware-run": 52.1,
+   "hardware-run": 52.3,
    "isolated-byte-diff": 7.8,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 17.4
+   "untested": 17.2
   },
-  "emittable_instructions": 48,
+  "emittable_instructions": 49,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -58,6 +58,7 @@
    "fspecial_est",
    "h_coord_hi",
    "h_coord_hi_ext",
+   "half_alu_ext8",
    "hminmax",
    "iminmax",
    "irotate",
@@ -86,7 +87,7 @@
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 124,
+  "decodable_not_yet_emittable": 123,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -97,7 +98,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 48
+  "emittable_of_emitter_relevant": 49
  },
  "instructions": {
   "falu2": {
@@ -11247,70 +11248,102 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0180"
     ],
-    "note": "2/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "opsel": {
     "label": "isolated-byte-diff",
-    "range": "gains 6 = hfma (byte+2 = 0x1e); half fma compiles to this 8-byte form",
-    "target": "A18",
+    "range": "6 of 8 encodable values after gate_identity (75.0%), 8 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "0..31 dense (all 32 values)",
-    "target": "M4",
+    "range": "32 of 32 encodable values after gate_identity (100.0%), 32 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0180"
     ],
-    "note": ""
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 19,
+    "width": 5
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert",
-    "target": "A18",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "srcB_desc": {
     "label": "isolated-byte-diff",
-    "range": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)",
-    "target": "A18",
+    "range": "128 of 256 encodable values after gate_identity (50.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
+    "width": 8
    },
    "b5": {
     "label": "hardware-run",
-    "range": "bits3/4 null in this instance; largely inert",
-    "target": "A18",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
    },
    "rsv6": {
     "label": "hardware-run",
-    "range": "0x00..0xc0 swept, every value kept the result - fully INERT/reserved in the add+saturate instance",
-    "target": "A18",
-    "evidence": [
-     "EXP-M4-14"
-    ]
-   },
-   "b7_lo": {
-    "label": "untested",
-    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0180"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 48,
+    "width": 8
+   },
+   "b7_lo": {
+    "label": "hardware-run",
+    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180"
+    ],
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -11319,20 +11352,24 @@
    },
    "saturate": {
     "label": "hardware-run",
-    "range": "byte+7 0x82 clamps saturate(9) to 1; 0x80 (bit1 clear) passes 9 unclamped; 0xc0 also passes",
-    "target": "A18",
-    "evidence": [
-     "EXP-M4-14"
-    ]
-   },
-   "b7_mid": {
-    "label": "untested",
-    "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers",
+    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0180"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 57,
+    "width": 1
+   },
+   "b7_mid": {
+    "label": "hardware-run",
+    "range": "32 of 32 encodable values after gate_identity (100.0%), 32 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180"
+    ],
     "values_dispatched": 32,
     "distinct_bytes": 32,
     "encodable_range": 32,
@@ -11341,11 +11378,16 @@
    },
    "op_valid_marker": {
     "label": "hardware-run",
-    "range": "every byte+7 value WITHOUT bit7 set nulls the op (result 0) - a required op-valid marker",
-    "target": "A18",
+    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 63,
+    "width": 1
    }
   },
   "half_alu_fma12": {
@@ -11360,51 +11402,69 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0180"
     ],
-    "note": "3/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
    },
    "opsel": {
     "label": "isolated-byte-diff",
-    "range": "6 = hfma (byte+2 = 0x1e)",
-    "target": "A18",
+    "range": "6 of 8 encodable values after gate_identity (75.0%), 8 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 8,
+    "distinct_bytes": 8,
+    "encodable_range": 8,
+    "start": 16,
+    "width": 3
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "0..31 dense (all 32 values)",
-    "target": "M4",
+    "range": "32 of 32 encodable values after gate_identity (100.0%), 32 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0180"
     ],
-    "note": ""
+    "values_dispatched": 32,
+    "distinct_bytes": 32,
+    "encodable_range": 32,
+    "start": 19,
+    "width": 5
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0",
-    "target": "A18",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0180"
+    ],
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
    },
    "ext": {
     "label": "untested",
-    "range": "2041 of 18446744073709551616 encodable values (0.0%), 2041 distinct encodings, 1 carriers",
+    "range": "1856 of 18446744073709551616 encodable values after gate_identity (0.0%), 2041 distinct encodings, 2 ladder-passing carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0180"
     ],
-    "note": "no (arm,carrier) passed its liveness ladder, so neither a live nor an inert reading is supportable from this run",
-    "values_dispatched": 2041,
+    "values_dispatched": 2048,
     "distinct_bytes": 2041,
     "encodable_range": 18446744073709551616,
     "start": 32,
-    "width": 64
+    "width": 64,
+    "note": "EXP-0180: NOT A FIELD. Declared 64 bits wide, so its encodable range is 2^64 and no sampled set can establish it -- pre-registered as unable to reach `hardware-run` whatever the outcome. What the byte it starts at actually does is now MEASURED: byte+4 is a pure LENGTH SELECTOR. The length of the byte0==0x10 family was mapped over 4,096 cases with zero ambiguous cells as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3,7 -> 10/10/10/8; opsel 4 -> 6/8/10/6; opsel 5 -> 6/8/10/8; opsel 6 -> 6/8/10/12. **db.json's stated rule is wrong in 25 of 32 cells and isadb.instr_length's implemented rule in 18 of 32**, including (opsel 4, m 3) where it predicts 12 and 6 is measured. Bound: bytes +6.. carry the marker chain, so a dependence on byte +6 or later is untested. The correct disposition is to fold the length bits into the descriptor and delete this pseudo-field (DEF-0180-2/-3); EXP-0180 also REFUTED its own DEF-0180-3 -- half_alu_fma12 really is 12 bytes at (opsel 6, m 3), so it is not an over-consumer there."
    }
   },
   "falu_srcmod12b": {

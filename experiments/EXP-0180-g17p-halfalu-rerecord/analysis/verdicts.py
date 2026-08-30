@@ -142,6 +142,11 @@ def main(runA, runB):
             anchor_tok = anchors[akey].get("tok_instr")
         alen = hw_len(lm, anchor_blk, None) if anchor_blk else None
 
+        # Is this arm's byte+2 actually covered by the measured LEN map? If not, its
+        # identity exclusions come only from OUR TOKENIZER failing to length the block,
+        # which is a weaker (and smaller) exclusion than the hardware-measured one. Both
+        # are reported; the hardware-covered arms are the defensible number.
+        lenmap_covered = anchor_blk is not None and any(k[0] == anchor_blk[2] for k in lm)
         agree = moved = disagree = identity_excluded = 0
         excluded_vals, seen_bytes, dispatched = [], set(), 0
         for k in common:
@@ -173,7 +178,8 @@ def main(runA, runB):
             "disagreements": disagree, "moved": moved,
             "identity_excluded": identity_excluded, "identity_excluded_values": excluded_vals[:64],
             "ladder": det, "ladder_pass": bool(lad_pass and lad_passB),
-            "anchor_hw_len": alen,
+            "anchor_hw_len": alen, "lenmap_covered": lenmap_covered,
+            "measured_range_this_arm": dispatched - identity_excluded,
             "gate_stable": pct >= MIN_AGREE_PCT,
             "gate_live": moved > 0 and moved >= MOVED_OVER_DISAGREE * max(disagree, 1) / 1.0
             if disagree else moved > 0,
@@ -189,6 +195,8 @@ def main(runA, runB):
         live = [x for x in good if x["gate_stable"] and x["gate_live"]]
         inert = [x for x in good if x["gate_stable"] and x["moved"] == 0]
         measured = max((x["values_dispatched"] - x["identity_excluded"]) for x in arms) if arms else 0
+        cov_arms = [x for x in arms if x.get("lenmap_covered")]
+        measured_lm = (max(x["measured_range_this_arm"] for x in cov_arms) if cov_arms else None)
         cov = 100.0 * measured / enc if enc else 0.0
         expr = EXPRESSIVE.get(key, "NO")
 
@@ -218,7 +226,11 @@ def main(runA, runB):
             "start": f["start"], "width": f["width"], "encodable_range": enc,
             "values_dispatched": max((x["values_dispatched"] for x in arms), default=0),
             "distinct_bytes": max((x["distinct_bytes"] for x in arms), default=0),
-            "measured_encodable_range": measured, "coverage_pct": round(cov, 3),
+            "measured_encodable_range": measured,
+            "measured_encodable_range_lenmap": measured_lm,
+            "coverage_pct": round(cov, 3),
+            "coverage_pct_lenmap": (round(100.0 * measured_lm / enc, 3)
+                                    if measured_lm is not None and enc else None),
             "thin": measured < 8, "under_covered": any(
                 x["distinct_bytes"] < x["values_dispatched"] for x in arms),
             "n_carriers": len({x["carrier"] for x in good}),

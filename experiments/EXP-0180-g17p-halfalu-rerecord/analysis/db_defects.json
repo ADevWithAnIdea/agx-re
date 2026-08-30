@@ -1,9 +1,13 @@
 {
  "_meta": {
   "experiment": "EXP-0180-g17p-halfalu-rerecord",
-  "status": "PROPOSED \u2014 every entry is derived OFFLINE from committed evidence (EXP-0169 raw/g17p_20260830_run01/sweep.jsonl + baseline.jsonl, tools/agx-isa/db.json, tools/agx-isa/isadb.py, tools/agx-isa/validation.json). NONE has yet been confirmed by an EXP-0180 device run. Hardware confirmation is H0/H2/H3 of PRE_REGISTRATION.md; the gated pair will restate each entry as CONFIRMED or REFUTED.",
+  "status": "RESOLVED BY THE GATED PAIR. Each entry now carries `hw_verdict` from raw/g17p_run02 + raw/g17p_run03 (16,735 cases each, 100.0000% cross-run agreement). Entries derived offline that the hardware REFUTED are marked so and withdrawn by their own author.",
   "db_sha256_pinned": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
-  "owner_of_db_json": "the orchestrator. This experiment does NOT edit db.json, validation.json, docs/ or PROVENANCE.md."
+  "owner_of_db_json": "the orchestrator. This experiment does NOT edit db.json, validation.json, docs/ or PROVENANCE.md.",
+  "runs": [
+   "g17p_run02 (reverse)",
+   "g17p_run03 (forward)"
+  ]
  },
  "DEF-0180-1": {
   "class": "wrong-operand model",
@@ -20,7 +24,13 @@
   },
   "impact": "LOAD-BEARING. An emitter following db.json can only ever write r1, and `half_alu_ext8.dst` / `half_alu_fma12.dst` \u2014 both currently `hardware-run` \u2014 name a source, not a destination. Same class as fspecial / imad / cvt_bf16 / n3_mov.",
   "corroboration_in_db": "db.json already records this structure for the neighbours: cvt_f2h `match [[0,8,17]]` = 'byte0 0x11 ... (dst r1)', generalised by cvt_f2h_dst to 'ANY dst register (byte0 high nibble)'; mov_zext16 DEF-0161-2: 'the pre-2026-08-30 descriptor pinned byte0 to the full fixed byte 0x13 and modelled byte+1 as the source register, so the real register selector was invisible to an emitter'; n3_mov: 'dst = byte0 high nibble (r0..r15)'.",
-  "hardware_test": "PRE_REGISTRATION.md H0 / arm DSTNIB: byte0 = n<<4 for n = 0..15, on both instruction shapes and both carriers."
+  "hardware_test": "PRE_REGISTRATION.md H0 / arm DSTNIB: byte0 = n<<4 for n = 0..15, on both instruction shapes and both carriers.",
+  "hw_verdict": {
+   "verdict": "CONFIRMED",
+   "strength": "HW-VALIDATED (G17P)",
+   "evidence": "DSTNIB arm, byte0 = n<<4 for n=0..15, two carriers, both runs, 100% agreement: the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved (n=0: r0 40a044a0 -> 40a0470f; n=7: r7 415044f8 -> 4150470f; n=14: r14 00000000 -> 0000470f). Two explained exceptions, both harness artefacts: n=15 is the store index register re-seeded before every store, and on C_LO n=13 is the second-consumer destination. INDEPENDENTLY confirmed twice more: (a) the seed program writes the low halves with byte0=(j<<4)|0x0 for j=0..13 and all 14 land in r_j in every one of the 33,470 gated cases; (b) E8_FMA@C_HI computes r1.lo = 0x470f = 7.0586 = 1.625 * 2.59375 + 2.84375 = byte+3 x byte+1 + byte+5, so db's `dst` appears in the arithmetic as a SOURCE and byte+4 does not appear at all.",
+   "emitter_impact": "An emitter following db.json can only ever write r1."
+  }
  },
  "DEF-0180-2": {
   "class": "length model \u2014 db.json contradicts its own tokenizer",
@@ -33,7 +43,41 @@
   "consequence": "`byte+4 & 3` is a LENGTH SELECTOR that lies inside `half_alu_ext8.srcB_desc` (bits 32..39) and inside `half_alu_fma12.ext` (bits 32..95). Three quarters of a 256-value `srcB_desc` sweep encodes a DIFFERENT-LENGTH instruction. Its true encodable range as a field of the 8-byte descriptor is 64, not 256.",
   "evidence_offline": "The code rule predicts EXP-0169's otherwise-unexplained HALF_ALU@C1_alu `srcB` (= byte+4) sweep exactly: v mod 4 == 0 -> 6B (2 spare bytes decode as a harmless pad) -> baseline; == 1 -> 8B (the anchor) -> baseline; == 2 -> 10B, swallows 4 bytes of the following dump code -> EVERY output word still 0xDEADBEEF (the program never stored anything); == 3 -> 12B, swallows 6 bytes -> r1 keeps its seed, the op did not write.",
   "impact": "LOAD-BEARING. This is falu2_uni.uni_mode (EXP-0169 section 16b) at scale: movement measured across a length change is movement between two DIFFERENT INSTRUCTIONS.",
-  "hardware_test": "PRE_REGISTRATION.md H2/H3 / arm LEN: a four-`mov_imm` marker chain at byte +6 whose surviving marker count reads the hardware's instruction length directly (4 -> 6B, 3 -> 8B, 2 -> 10B, 1 -> 12B, 0 -> 14B)."
+  "hardware_test": "PRE_REGISTRATION.md H2/H3 / arm LEN: a four-`mov_imm` marker chain at byte +6 whose surviving marker count reads the hardware's instruction length directly (4 -> 6B, 3 -> 8B, 2 -> 10B, 1 -> 12B, 0 -> 14B).",
+  "hw_verdict": {
+   "verdict": "CONFIRMED, and the exact rule is now MEASURED",
+   "strength": "HW-VALIDATED (G17P)",
+   "measured_rule": {
+    "key": "(opsel = byte+2 & 7, m = byte+4 & 3) -> length in bytes",
+    "0..3,7": {
+     "m0": 10,
+     "m1": 10,
+     "m2": 10,
+     "m3": 8
+    },
+    "4_hadd": {
+     "m0": 6,
+     "m1": 8,
+     "m2": 10,
+     "m3": 6
+    },
+    "5_hmul": {
+     "m0": 6,
+     "m1": 8,
+     "m2": 10,
+     "m3": 8
+    },
+    "6_hfma": {
+     "m0": 6,
+     "m1": 8,
+     "m2": 10,
+     "m3": 12
+    }
+   },
+   "evidence": "LEN arm, 4,096 cases across both runs, ZERO cells with more than one observed length; zero point (marker chain with no instruction in front) gave 4 of 4 markers in both runs. db.json's stated rule is wrong in 25 of 32 cells; isadb.instr_length's implemented rule is wrong in 18 of 32, including (opsel 4, m 3) predicting 12 where 6 is measured and (opsel 6, m 0) predicting 8 where 6 is measured.",
+   "bound": "bytes +6.. are the marker chain in every case, so a length dependence on byte +6 or later is UNTESTED. Within bytes 0..5 the rule is exact.",
+   "consequence": "half_alu_ext8.srcB_desc's encodable range is 64 of 256 (v & 3 == 1); half_alu_ext8.opsel's is 3 of 8 (4,5,6); half_alu_fma12.opsel's is 1 of 8 (only 6), i.e. it belongs in `match`, not `fields` -- the falu2_uni.uni_mode finding again."
+  }
  },
  "DEF-0180-3": {
   "class": "not-a-field / over-consumer",
@@ -42,7 +86,13 @@
   ],
   "symptom": "`ext` is 64 bits wide (bits 32..95, bytes +4..+11) with an encodable range of 2^64. It is not a field; it is the unmodelled tail of a 12-byte form for which length_rule.byte0_table has NO entry at all. db.json already flags half_alu_fma12 as an over-consumer (length_rule_gaps.doc02_over_consumers_20260828) and `emit_unsafe`.",
   "impact": "PRE-REGISTERED: this row CANNOT reach `hardware-run` under docs/evidence-classification.md section 2's range bar whatever the outcome. A sampled 2048 of 2^64 is 0.0% coverage. Its honest verdict space is NOT-A-FIELD + this defect entry.",
-  "hardware_test": "arm LEN (does the hardware consume 12 bytes at all?) + the F12_FMA byte-wise sweep."
+  "hardware_test": "arm LEN (does the hardware consume 12 bytes at all?) + the F12_FMA byte-wise sweep.",
+  "hw_verdict": {
+   "verdict": "REFUTED AS STATED -- WITHDRAWN BY ITS AUTHOR, and narrowed",
+   "strength": "HW-VALIDATED (G17P)",
+   "evidence": "All four of our compiled instances are lengthed correctly by the measured rule: k_hadd (opsel 4, m 0) = 6, k_hsat (4,1) = 8, k_hfma (6,1) = 8, k_hfma_abs (6,3) = 12. half_alu_fma12 IS a real 12-byte instruction at (opsel 6, m 3); it is NOT an over-consumer there.",
+   "what_survives": "`ext` is 64 bits over a 2^64 encodable space and its byte+4 is the LENGTH selector, so it is not a field. Verdict NOT-A-FIELD stands; the over-consumption claim does not."
+  }
  },
  "DEF-0180-4": {
   "class": "citation defect \u2014 the row's `range` documents a DIFFERENT BYTE than the field it labels",
@@ -50,39 +100,84 @@
   "field_span": "bits 24..31 = byte+3",
   "committed_range_text": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0",
   "symptom": "byte+4 lies inside `ext` (bits 32..95), not inside `srcA`. The evidence recorded for this row is about a byte the row does not cover \u2014 and, per DEF-0180-2, byte+4's low two bits are the length selector.",
-  "evidence_offline": "tools/agx-isa/validation.json, instruction half_alu_fma12, field srcA, evidence [EXP-M4-14]."
+  "evidence_offline": "tools/agx-isa/validation.json, instruction half_alu_fma12, field srcA, evidence [EXP-M4-14].",
+  "hw_verdict": {
+   "verdict": "CONFIRMED",
+   "strength": "HW-VALIDATED (G17P)",
+   "evidence": "half_alu_fma12.srcA is LIVE at 254/256 on two carriers; the field substantiates. Its committed `range` documents byte+4, which lies inside `ext` -- and byte+4's low two bits are the measured LENGTH selector, so '0x83 vs 0x82 vs 0x80' is partly a length change (12 / 10 / 6 bytes), not an operand modifier."
+  }
  },
  "DEF-0180-5": {
   "class": "citation defect \u2014 one row's `range` documents TWO different fields",
   "row": "half_alu_ext8.srcA",
   "field_span": "bits 24..31 = byte+3",
   "committed_range_text": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert",
-  "symptom": "byte+3 is `srcA`; byte+6 is `rsv6` (bits 48..55). The second clause is evidence for a different row, recorded in this one \u2014 and it is the same sentence `rsv6`'s own row rests on."
+  "symptom": "byte+3 is `srcA`; byte+6 is `rsv6` (bits 48..55). The second clause is evidence for a different row, recorded in this one \u2014 and it is the same sentence `rsv6`'s own row rests on.",
+  "hw_verdict": {
+   "verdict": "CONFIRMED",
+   "strength": "HW-VALIDATED (G17P)",
+   "evidence": "half_alu_ext8.srcA is LIVE at 254/256; the field substantiates. The second clause of its `range` ('byte+6 swept 0x00..0xc0 all inert') documents byte+6 = `rsv6`, and the hardware REFUTES that clause outright: rsv6 moved on 252 of 256 values with 13 distinct results."
+  }
  },
  "DEF-0180-6": {
   "class": "citation defect \u2014 the row's `range` cites an example outside the field",
   "row": "half_alu_ext8.srcB_desc",
   "field_span": "bits 32..39 = byte+4",
   "committed_range_text": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)",
-  "symptom": "byte+7 is `b7_lo`/`saturate`/`b7_mid`/`op_valid_marker` (bits 56..63), not `srcB_desc`. Also, per DEF-0180-2, '0x01 required' is not an operand requirement \u2014 it is the value that makes the instruction 8 bytes long."
+  "symptom": "byte+7 is `b7_lo`/`saturate`/`b7_mid`/`op_valid_marker` (bits 56..63), not `srcB_desc`. Also, per DEF-0180-2, '0x01 required' is not an operand requirement \u2014 it is the value that makes the instruction 8 bytes long.",
+  "hw_verdict": {
+   "verdict": "CONFIRMED",
+   "strength": "HW-VALIDATED (G17P)",
+   "evidence": "half_alu_ext8.srcB_desc: '0x01 required' is a LENGTH requirement, not an operand one. Only 64 of 256 values keep the 8-byte framing, and inside that subset the pre-registered same-length ladder step (byte+4 += 4) does NOT move on any arm -- byte+4 has no detectable operand role. The cited byte+7 example is a different field."
+  }
  },
  "DEF-0180-7": {
   "class": "tokenizer \u2014 the mirror image of DEF-0180-1",
   "file": "tools/agx-isa/isadb.py",
   "symptom": "`instr_length` gates the native-half family on the FULL byte (`if b0 == 0x10`), so any half-ALU whose destination register is not r1 is not lengthed and does not tokenize. The same function's own docstring records that this exact bug was fixed for the 0x09 float family: \\\"byte0's high nibble carries the dst register number (bits [4:8]) ... using the full byte mis-tokenizes any falu2 whose dst register is >= 1\\\". The fix was never applied to 0x10 (nor, apparently, to 0x11).",
   "impact": "Any corpus census over the half family under-counts by construction, and an emitter cannot round-trip a half op with dst != r1.",
-  "evidence_offline": "isadb.py instr_length line ~1861 vs its own docstring; and EXP-0169's falsifier case, whose `00 02 1c 03 00 c0` the tokenizer called `pad_operand` while the hardware executed it as a half-ALU add writing r0."
+  "evidence_offline": "isadb.py instr_length line ~1861 vs its own docstring; and EXP-0169's falsifier case, whose `00 02 1c 03 00 c0` the tokenizer called `pad_operand` while the hardware executed it as a half-ALU add writing r0.",
+  "hw_verdict": {
+   "verdict": "CONFIRMED (by direct consequence of DEF-0180-1 + the measured length rule)",
+   "strength": "HW-VALIDATED (G17P), indirect",
+   "evidence": "The hardware executes byte0 = n<<4 for every n = 0..15 as a half-ALU op writing r[n] (DSTNIB, 16/16). isadb.instr_length gates the family on the FULL byte (`if b0 == 0x10`), so it lengths NONE of the other fifteen destinations -- our own tokenizer called EXP-0169's `00 02 1c 03 00 c0` `pad_operand` while the hardware executed it as a half-ALU add writing r0. Any corpus census over this family under-counts by construction.",
+   "note": "Not separately swept; it follows from DEF-0180-1, which is measured directly. The same function's docstring records this exact bug being fixed for the 0x09 float family."
+  }
  },
  "_method_defects_not_db": {
   "DEF-0180-A": {
    "scope": "EXP-0169's carrier, not db.json",
    "symptom": "the lifted half_alu_ext8 / half_alu_fma12 anchors were COMPUTATIONALLY DEAD in C1_alu: their operand descriptors name half-registers 0x81/0x83 = registers 64/65, which the synthesized carrier never seeds, and the carrier's falu2i float seeds have ZERO low 16 bits so every even half-register descriptor reads 0.0. Result 0, written where 0 already was.",
-   "consequence": "rsv6 0/256, b7_lo 0/2, op_valid_marker 0/2 moved \u2014 not because the bits are inert but because there was nothing to disturb."
+   "consequence": "rsv6 0/256, b7_lo 0/2, op_valid_marker 0/2 moved \u2014 not because the bits are inert but because there was nothing to disturb.",
+   "hw_verdict": {
+    "verdict": "CONFIRMED and REPAIRED",
+    "evidence": "With two non-zero fp16 lanes per GPR, dst/srcA/b5 each moved on 254 of 256 values against EXP-0169's 28. The seeds landed bit-identically to prediction on every anchor of both runs (seed_ok=True, frozen adequacy predicate True)."
+   }
   },
   "DEF-0180-B": {
    "scope": "EXP-0169's liveness ladder, not db.json",
    "symptom": "`__falsifier_byte0` (byte0 -> 0x00) is NOT a falsifier for the byte0==0x10 family: per DEF-0180-1 it only RELOCATES the destination. It cannot null the op. half_alu moved anyway because its result happened to be non-zero; half_alu_ext8 and half_alu_fma12 could not because theirs was 0.",
-   "consequence": "SIXTEEN rows were held on a ladder step that was never a ladder step. Same class as iter_at.loc at one sample and get_sr at grid=1: a control that cannot express what it is asked."
+   "consequence": "SIXTEEN rows were held on a ladder step that was never a ladder step. Same class as iter_at.loc at one sample and get_sr at grid=1: a control that cannot express what it is asked.",
+   "hw_verdict": {
+    "verdict": "CONFIRMED",
+    "evidence": "DSTNIB shows byte0 -> 0x00 relocates the write to r0 rather than nulling the op. The step cannot fail for the right reason on this family."
+   }
   }
+ },
+ "DEF-0180-8": {
+  "class": "semantics -- three EXP-M4-14 claims REFUTED at value level",
+  "instructions": [
+   "half_alu_ext8"
+  ],
+  "hw_verdict": {
+   "verdict": "REFUTED",
+   "strength": "HW-VALIDATED (G17P)"
+  },
+  "rows": {
+   "half_alu_ext8.rsv6": "committed 'fully INERT/reserved' -> LIVE, 252/256 (C_HI) and 248/256 (C_LO), 13 distinct results",
+   "half_alu_ext8.op_valid_marker": "committed 'every byte+7 value without bit7 set nulls the op' -> INERT 0/2 on two carriers and three arms. The op IS nullable from byte+7, but by b7_mid bit 2 = INSTRUCTION BIT 60 (b7_mid in {4,5,6,7} leaves the destination untouched), not bit 63.",
+   "half_alu_ext8.saturate": "committed 'byte+7 0x82 clamps saturate(9) to 1' -> NOT a clamp. On C_HI (result 7.0586) it yields 2.84375 = the THIRD OPERAND's value; on C_LO (result 0.125, where a clamp must be a no-op) it changes the result to 0.46875 = again the third operand. Bit 57 suppresses the multiply term."
+  },
+  "impact": "Three `hardware-run` rows keep their label on NEW evidence but must have their `range` text withdrawn and replaced."
  }
 }

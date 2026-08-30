@@ -388,3 +388,29 @@ directory containing only its procsample trace — and the id is BURNED. It is n
 topped up, not deleted.** The forward run takes a NEW id, `g17p_run03`.
 
 `g17p_run02` (reverse order) launched normally and is capturing.
+
+## M11 — 2026-08-30 — GATED PAIR COMPLETE. 100.0000% cross-run agreement, 0 hangs. Experiment done.
+
+`g17p_run02` (reverse) and `g17p_run03` (forward), 16,735 cases each, identical
+`matrix_sha256`. **Outcome counters byte-identical** (11,711 `wrong_value` / 4,396 `ok` /
+400 `fault` / 228 `silent_zero`), **0 hangs, 0 `carrier_dead`, 0 `measurement_failed`,
+0 `sentinel_bad`**, and **100.0000% per-case agreement on the full observation digest — all
+16,735 cases, zero disagreements**, instruments included.
+
+* **15 of the 16 fields substantiated; 1 is not a field.** 11 `LIVE-FULL`, 3 `LIVE-PARTIAL`
+  (whose real encodable ranges are 3, 64 and 1 rather than 8, 256 and 8), 1 `INERT-MULTI`,
+  1 `NOT-A-FIELD`.
+* **Of the 9 `EXP-M4-14` claims: 1 reproduces, 6 are refuted, 2 are citation defects.**
+* **`ext8.rsv6` — which I pre-registered as the likeliest WITHDRAWAL — is the opposite:**
+  its committed "fully INERT/reserved" is REFUTED because the byte is **LIVE**, 252/256, with
+  13 distinct results. `gate_expressiveness` never had to fire, and that is the right reason.
+* **DEF-0180-1 CONFIRMED** three independent ways; **DEF-0180-2 CONFIRMED and the length rule
+  MEASURED** exactly (4,096 cases, zero ambiguous cells); **DEF-0180-3 REFUTED as I stated it
+  and withdrawn by me**; DEF-0180-4/5/6/7 confirmed; DEF-0180-8 added (three refuted semantics).
+* **`E8_ADD` REJECTED for no detection power** (0/3 falsifiers, 0/4 ladder), reported rather
+  than worked around; it leaves the add+saturate instance of two claims as an open bound.
+* Quiet window measured: **0 of 100 samples quiet** — EXP-0178 ran throughout — and the pair
+  still agreed byte for byte.
+
+`RESULTS.md`, `analysis/{field_verdicts,reproduction,length_rule,db_defects}.json` and
+`manifest.json` written. `analysis/merge_check.py`: **16 rows checked, 0 refusals.**

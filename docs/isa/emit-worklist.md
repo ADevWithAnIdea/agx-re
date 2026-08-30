@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 53 | 113 | 166 |
+| 54 | 112 | 166 |
 
 ## Distance to emittable
 
@@ -16,7 +16,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 0 | 4 |
 | 1 | 22 |
-| 2 | 22 |
+| 2 | 21 |
 | 3 | 19 |
 | 4 | 12 |
 | 5 | 14 |
@@ -77,7 +77,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `simd_shuffle` | `cache` | single-template-inference |
 | `vtx_out_pos` | `slot` | single-template-inference |
 
-## TWO fields away (22 instructions)
+## TWO fields away (21 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -86,7 +86,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `falu2_srcmod10` | `opsel`, `ctrl` | corpus-correlation, untested |
 | `falu3_srcmod12` | `opsel`, `ctrl` | untested, untested |
 | `h_alu_hi` | `ctrl`, `mods` | untested, untested |
-| `half_alu_ext8` | `b7_lo`, `b7_mid` | untested, untested |
 | `half_pack` | `dstlo`, `b3` | untested, untested |
 | `ibfe` | `b2_bit0`, `sign_ext` | single-template-inference, single-template-inference |
 | `ibitcount` | `cache`, `dst` | untested, untested |
@@ -117,7 +116,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 180 |
+| `untested` | 178 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 28 |

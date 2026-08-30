@@ -1,0 +1,565 @@
+{
+ "_meta": {
+  "experiment": "EXP-0180-g17p-halfalu-rerecord",
+  "target": "G17P",
+  "runs": [
+   "g17p_run02 (reverse)",
+   "g17p_run03 (forward)"
+  ],
+  "cross_run_agreement": "100.0000% -- all 16,735 cases, zero disagreements, identical outcome counters",
+  "note": "Two verdicts per row where a row carries two claims: (a) does the FIELD substantiate, (b) does the COMMITTED CLAIM reproduce. A field can substantiate while its claim is refuted."
+ },
+ "half_alu_ext8.b5": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 256,
+    "E8_ADD@C_LO": 256,
+    "E8_FMA@C_HI": 256,
+    "E8_FMA@C_LO": 256,
+    "E8_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 128,
+    "E8_ADD@C_LO": 128,
+    "E8_FMA@C_HI": 254,
+    "E8_FMA@C_LO": 254,
+    "E8_LIFT@C_HI": 254
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "bits3/4 null in this instance; largely inert"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'bits3/4 null in this instance; largely inert'",
+   "verdict": "REFUTED-IN-THE-FMA-INSTANCE",
+   "why": "LIVE at 254/256 on both carriers and on the lifted EXP-0169 anchor. The committed claim is about the ADD+SATURATE instance, which this experiment could not test: the E8_ADD arm has NO detection power (0/8 instruments fired). So the claim is contradicted where it CAN be tested and untestable where it was made."
+  }
+ },
+ "half_alu_ext8.b7_lo": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 2,
+   "encodable_range": 2,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 2,
+    "E8_ADD@C_LO": 2,
+    "E8_FMA@C_HI": 2,
+    "E8_FMA@C_LO": 2,
+    "E8_LIFT@C_HI": 2
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 1,
+    "E8_FMA@C_LO": 1,
+    "E8_LIFT@C_HI": 1
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "NO"
+  },
+  "committed": {
+   "label": "untested",
+   "target": "G17P",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers"
+  }
+ },
+ "half_alu_ext8.b7_mid": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 32,
+   "encodable_range": 32,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 32,
+    "E8_ADD@C_LO": 32,
+    "E8_FMA@C_HI": 32,
+    "E8_FMA@C_LO": 32,
+    "E8_LIFT@C_HI": 32
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 28,
+    "E8_FMA@C_LO": 28,
+    "E8_LIFT@C_HI": 28
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "NO"
+  },
+  "committed": {
+   "label": "untested",
+   "target": "G17P",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "range": "0..31 dense (all 32 values), 32 distinct encodings, 1 carriers"
+  }
+ },
+ "half_alu_ext8.dst": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 256,
+    "E8_ADD@C_LO": 256,
+    "E8_FMA@C_HI": 256,
+    "E8_FMA@C_LO": 256,
+    "E8_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 254,
+    "E8_FMA@C_LO": 254,
+    "E8_LIFT@C_HI": 254
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "M4",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "range": "0..255 dense (all 256 values)"
+  }
+ },
+ "half_alu_ext8.op_valid_marker": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "INERT-MULTI",
+   "measured_encodable_range": 2,
+   "encodable_range": 2,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 2,
+    "E8_ADD@C_LO": 2,
+    "E8_FMA@C_HI": 2,
+    "E8_FMA@C_LO": 2,
+    "E8_LIFT@C_HI": 2
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 0,
+    "E8_FMA@C_LO": 0,
+    "E8_LIFT@C_HI": 0
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "every byte+7 value WITHOUT bit7 set nulls the op (result 0) - a required op-valid marker"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'every byte+7 value WITHOUT bit7 set nulls the op (result 0) - a required op-valid marker'",
+   "verdict": "REFUTED",
+   "why": "INERT at 0/2 on two carriers and three arms, both runs. Clearing bit 63 does NOT null the op. The op IS nullable from byte+7, but by b7_mid bit 2 = instruction bit 60: b7_mid in {4,5,6,7} leaves the destination unchanged. The bit is real; the committed bit number is wrong."
+  }
+ },
+ "half_alu_ext8.opflags": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 32,
+   "encodable_range": 32,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 32,
+    "E8_ADD@C_LO": 32,
+    "E8_FMA@C_HI": 32,
+    "E8_FMA@C_LO": 32,
+    "E8_LIFT@C_HI": 32
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 16,
+    "E8_ADD@C_LO": 16,
+    "E8_FMA@C_HI": 30,
+    "E8_FMA@C_LO": 30,
+    "E8_LIFT@C_HI": 28
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "PARTIAL"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "M4",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "range": "0..31 dense (all 32 values)"
+  }
+ },
+ "half_alu_ext8.opsel": {
+  "field_verdict": {
+   "label": "isolated-byte-diff",
+   "verdict_class": "LIVE-PARTIAL",
+   "measured_encodable_range": 6,
+   "encodable_range": 8,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 3,
+    "E8_ADD@C_LO": 3,
+    "E8_FMA@C_HI": 3,
+    "E8_FMA@C_LO": 3,
+    "E8_LIFT@C_HI": 6
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 1,
+    "E8_ADD@C_LO": 1,
+    "E8_FMA@C_HI": 2,
+    "E8_FMA@C_LO": 2,
+    "E8_LIFT@C_HI": 5
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "isolated-byte-diff",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "gains 6 = hfma (byte+2 = 0x1e); half fma compiles to this 8-byte form"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'gains 6 = hfma (byte+2 = 0x1e)'",
+   "verdict": "REPRODUCES-BUT-RANGE-OVERSTATED",
+   "why": "opsel 6 selects the fma form, confirmed. But opsel is a LENGTH input: at the generated anchors only 3 of 8 values (4,5,6) preserve the 8-byte framing; the other five re-length the instruction to 10 bytes. Encodable range at fixed length is 3, not 8."
+  }
+ },
+ "half_alu_ext8.rsv6": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 256,
+    "E8_ADD@C_LO": 256,
+    "E8_FMA@C_HI": 256,
+    "E8_FMA@C_LO": 256,
+    "E8_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 252,
+    "E8_FMA@C_LO": 248,
+    "E8_LIFT@C_HI": 252
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "NO"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "0x00..0xc0 swept, every value kept the result - fully INERT/reserved in the add+saturate instance"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: '0x00..0xc0 swept, every value kept the result - fully INERT/reserved in the add+saturate instance'",
+   "verdict": "REFUTED",
+   "why": "LIVE at 252/256 (C_HI) and 248/256 (C_LO), 13 distinct architectural results, 100% cross-run agreement, on two carriers plus the lifted anchor. byte+6 is not reserved and not inert."
+  }
+ },
+ "half_alu_ext8.saturate": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 2,
+   "encodable_range": 2,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 2,
+    "E8_ADD@C_LO": 2,
+    "E8_FMA@C_HI": 2,
+    "E8_FMA@C_LO": 2,
+    "E8_LIFT@C_HI": 2
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 1,
+    "E8_FMA@C_LO": 1,
+    "E8_LIFT@C_HI": 1
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "byte+7 0x82 clamps saturate(9) to 1; 0x80 (bit1 clear) passes 9 unclamped; 0xc0 also passes"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'byte+7 0x82 clamps saturate(9) to 1; 0x80 (bit1 clear) passes 9 unclamped; 0xc0 also passes'",
+   "verdict": "REFUTED-AS-SEMANTICS",
+   "why": "The field is LIVE (1/2, both carriers). It is NOT a clamp: on C_HI (result 7.0586 > 1) setting it gives 2.84375, which is the THIRD OPERAND's value, not 1.0; on C_LO (result 0.125 < 1, where a clamp must be a no-op) it changes the result to 0.46875 -- again the third operand. Bit 57 suppresses the multiply term. A clamp cannot change a sub-unit result."
+  }
+ },
+ "half_alu_ext8.srcA": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 256,
+    "E8_ADD@C_LO": 256,
+    "E8_FMA@C_HI": 256,
+    "E8_FMA@C_LO": 256,
+    "E8_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 120,
+    "E8_ADD@C_LO": 120,
+    "E8_FMA@C_HI": 254,
+    "E8_FMA@C_LO": 254,
+    "E8_LIFT@C_HI": 254
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert'",
+   "verdict": "FIELD-REPRODUCES / CITATION-DEFECT",
+   "why": "byte+3 IS srcA and it is LIVE at 254/256. The second clause of the same `range` string documents byte+6, which is a DIFFERENT field (`rsv6`) -- and that clause is the entire evidence rsv6's own row rests on. One sentence, one experiment with no raw/ tree, two promoted rows."
+  }
+ },
+ "half_alu_ext8.srcB_desc": {
+  "field_verdict": {
+   "label": "isolated-byte-diff",
+   "verdict_class": "LIVE-PARTIAL",
+   "measured_encodable_range": 128,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "E8_ADD@C_HI": 64,
+    "E8_ADD@C_LO": 64,
+    "E8_FMA@C_HI": 64,
+    "E8_FMA@C_LO": 64,
+    "E8_LIFT@C_HI": 128
+   },
+   "per_arm_moved": {
+    "E8_ADD@C_HI": 0,
+    "E8_ADD@C_LO": 0,
+    "E8_FMA@C_HI": 60,
+    "E8_FMA@C_LO": 60,
+    "E8_LIFT@C_HI": 124
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "isolated-byte-diff",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: '0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)'",
+   "verdict": "REFUTED-AS-AN-OPERAND",
+   "why": "'0x01 required' is not an operand requirement: byte+4's low two bits are the LENGTH selector. Only 64 of 256 values (v & 3 == 1) preserve the 8-byte framing, and within that subset the pre-registered same-length ladder step (byte+4 += 4, a different half-register at the same length) does NOT move on any arm. byte+4 is a PURE LENGTH SELECTOR with no operand role detectable here. The cited byte+7 example is a different field entirely."
+  }
+ },
+ "half_alu_fma12.dst": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "F12_FMA@C_HI": 256,
+    "F12_FMA@C_LO": 256,
+    "F12_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "F12_FMA@C_HI": 254,
+    "F12_FMA@C_LO": 254,
+    "F12_LIFT@C_HI": 254
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "M4",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "range": "0..255 dense (all 256 values)"
+  }
+ },
+ "half_alu_fma12.ext": {
+  "field_verdict": {
+   "label": "untested",
+   "verdict_class": "NOT-A-FIELD",
+   "measured_encodable_range": 1856,
+   "encodable_range": 18446744073709551616,
+   "per_arm_measured": {
+    "F12_FMA@C_HI": 1856,
+    "F12_FMA@C_LO": 1856,
+    "F12_LIFT@C_HI": 1856
+   },
+   "per_arm_moved": {
+    "F12_FMA@C_HI": 1070,
+    "F12_FMA@C_LO": 1194,
+    "F12_LIFT@C_HI": 1070
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "NOT-A-FIELD"
+  },
+  "committed": {
+   "label": "untested",
+   "target": "G17P",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "range": "2041 of 18446744073709551616 encodable values (0.0%), 2041 distinct encodings, 1 carriers"
+  }
+ },
+ "half_alu_fma12.opflags": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 32,
+   "encodable_range": 32,
+   "per_arm_measured": {
+    "F12_FMA@C_HI": 32,
+    "F12_FMA@C_LO": 32,
+    "F12_LIFT@C_HI": 32
+   },
+   "per_arm_moved": {
+    "F12_FMA@C_HI": 30,
+    "F12_FMA@C_LO": 30,
+    "F12_LIFT@C_HI": 28
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "PARTIAL"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "M4",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "range": "0..31 dense (all 32 values)"
+  }
+ },
+ "half_alu_fma12.opsel": {
+  "field_verdict": {
+   "label": "isolated-byte-diff",
+   "verdict_class": "LIVE-PARTIAL",
+   "measured_encodable_range": 6,
+   "encodable_range": 8,
+   "per_arm_measured": {
+    "F12_FMA@C_HI": 1,
+    "F12_FMA@C_LO": 1,
+    "F12_LIFT@C_HI": 6
+   },
+   "per_arm_moved": {
+    "F12_FMA@C_HI": 0,
+    "F12_FMA@C_LO": 0,
+    "F12_LIFT@C_HI": 5
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "isolated-byte-diff",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "6 = hfma (byte+2 = 0x1e)"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: '6 = hfma (byte+2 = 0x1e)'",
+   "verdict": "REPRODUCES-AS-A-MATCH-BIT",
+   "why": "At the 12-byte instance exactly ONE of 8 opsel values (6) yields a 12-byte instruction; every other value re-lengths it. `opsel` has one legal value for this descriptor, so it belongs in `match`, not in `fields` -- the same finding EXP-0175 made for falu2_uni.uni_mode."
+  }
+ },
+ "half_alu_fma12.srcA": {
+  "field_verdict": {
+   "label": "hardware-run",
+   "verdict_class": "LIVE-FULL",
+   "measured_encodable_range": 256,
+   "encodable_range": 256,
+   "per_arm_measured": {
+    "F12_FMA@C_HI": 256,
+    "F12_FMA@C_LO": 256,
+    "F12_LIFT@C_HI": 256
+   },
+   "per_arm_moved": {
+    "F12_FMA@C_HI": 254,
+    "F12_FMA@C_LO": 254,
+    "F12_LIFT@C_HI": 254
+   },
+   "cross_run_agree_pct": 100.0,
+   "n_ladder_passing_carriers": 2,
+   "expressiveness": "YES"
+  },
+  "committed": {
+   "label": "hardware-run",
+   "target": "A18",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "range": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0"
+  },
+  "claim_verdict": {
+   "claim": "EXP-M4-14: 'byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0'",
+   "verdict": "FIELD-REPRODUCES / CITATION-DEFECT",
+   "why": "half_alu_fma12.srcA is bits 24..31 = byte+3, and it is LIVE at 254/256. The committed `range` documents byte+4, which lies inside `ext` -- and byte+4's low two bits are the length selector, so '0x83 vs 0x82 vs 0x80' is partly a LENGTH change (m=3 -> 12B, m=2 -> 10B, m=0 -> 6B), not an operand modifier."
+  }
+ }
+}

@@ -174,6 +174,71 @@ def q1(r1, r2):
         out["arms"][arm] = e
     # H3: is the same selector byte read differently in different stages?
     out["H3_stage_contextual"] = stage_contrast(r1, r2)
+    out["vertex_software_offset"] = vertex_offset(r1, r2)
+    return out
+
+
+def vertex_offset(r1, r2):
+    """MEASURE the compiler-inserted constant in the vertex carrier, and report
+    the vertex SR readings DIFFERENTIALLY against it.
+
+    `v_sr` writes `float(iid)` where `iid` is MSL's `[[instance_id]]`. If the
+    compiler lowers that as `get_sr(0xd8) + baseInstance` -- adding the base in
+    SOFTWARE rather than reading a base-inclusive register -- then every spliced
+    selector's reading carries the same constant K, and an ABSOLUTE oracle can
+    match for the wrong reason. (It did: `0x8a` scored `ok` because the oracle
+    predicted 5 and K itself is 5.)
+
+    K is measured, not assumed: several selectors have no vertex-stage meaning
+    and must read 0 there, so their common observed value IS K. Reporting how
+    many independent selectors agree on it is what makes it a measurement."""
+    ZERO_EXPECTED = {0x9c: "threadgroup_position_in_grid.x", 0x9d: "…y", 0x9e: "…z",
+                     0xa0: "thread_position_in_grid.x", 0xa1: "…y",
+                     0xa4: "thread_position_in_threadgroup.x",
+                     0xc5: "front_facing (fragment-only)"}
+    both, _, _ = agreeing(r1, r2, "sr_vertex", "sr_sel")
+    obs = {}
+    for v, r in both.items():
+        px = (r.get("observed") or {}).get("pixels")
+        if px:
+            obs[v] = [p[0] for p in px]
+    flats = {}
+    for v, vals in obs.items():
+        if len(set(round(x, 6) for x in vals)) == 1:
+            flats[v] = vals[0]
+    cand = {v: flats[v] for v in ZERO_EXPECTED if v in flats}
+    ks = sorted(set(cand.values()))
+    K = ks[0] if len(ks) == 1 else None
+    out = {
+        "selectors_expected_to_read_zero_in_a_vertex_program":
+            {("0x%02x" % v): ZERO_EXPECTED[v] for v in sorted(ZERO_EXPECTED)},
+        "their_observed_values": {("0x%02x" % v): cand[v] for v in sorted(cand)},
+        "independent_agreements": len(cand),
+        "K_measured": K,
+        "K_is_a_measurement_not_an_assumption": (
+            "%d independent selectors with no vertex-stage meaning all read the "
+            "same value" % len(cand)) if K is not None else
+            "NOT DETERMINED: those selectors disagree, so no single constant explains them",
+    }
+    if K is not None:
+        named = {0xdd: "vertex_id", 0xd8: "instance_id",
+                 0x88: "base_vertex (db.json enum)", 0x8a: "base_instance (db.json enum)"}
+        diff = {}
+        for v, label in named.items():
+            if v in obs:
+                vals = [round(x - K, 6) for x in obs[v]]
+                uniq = sorted(set(vals))
+                diff["0x%02x" % v] = {
+                    "label": label,
+                    "raw_SR_after_subtracting_K": (uniq[0] if len(uniq) == 1
+                                                   else "ramp %s" % uniq[:4]),
+                    "flat": len(uniq) == 1,
+                }
+        out["raw_SR_values"] = diff
+        out["oracle_confound_disclosure"] = (
+            "The vertex arm's ABSOLUTE semantic oracle is confounded by K, so an `ok` there "
+            "may be right for the wrong reason and is NOT cited as a validation. The "
+            "differential readings above are the sound result.")
     return out
 
 
