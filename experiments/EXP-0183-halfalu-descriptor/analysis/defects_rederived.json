@@ -959,6 +959,37 @@
   },
   "refuted_union": []
  },
+ "H1b2_seed_identity": {
+  "byte4_operand_control": {
+   "byte+4 in every seed instruction": "0x00 = h0 = r0's LOW half",
+   "conclusion": "h0 is non-zero in every observed case yet does not appear in the identity, so byte+4 is not a source of the 6-byte hadd",
+   "h0_in_pre_vectors": {
+    "nonzero": 32670
+   }
+  },
+  "checks_passed": {
+   "g17p_run02": 228690,
+   "g17p_run03": 228690
+  },
+  "identity": "pre[j].lo == fp16(h[1] + h[2j+1]) for j=0..13, per case",
+  "mismatches": [],
+  "registers_covered": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13
+  ]
+ },
  "H1b_seed_determinism": {
   "g17p_run02": {
    "arm_carriers": 11,
@@ -1291,6 +1322,48 @@
   }
  },
  "H3_byte7_semantics": {
+  "byte7_nulling_rule": {
+   "b7_mid_values_that_WRITE": [
+    0,
+    1,
+    2,
+    3,
+    8,
+    9,
+    10,
+    11,
+    16,
+    17,
+    18,
+    19,
+    24,
+    25,
+    26,
+    27
+   ],
+   "b7_mid_values_that_leave_dst_UNTOUCHED": [
+    4,
+    5,
+    6,
+    7,
+    12,
+    13,
+    14,
+    15,
+    20,
+    21,
+    22,
+    23,
+    28,
+    29,
+    30,
+    31
+   ],
+   "predicate_bit2_of_b7_mid": {
+    "holds": true,
+    "meaning": "b7_mid bit 2 == instruction bit 60 == byte+7 bit 4 (0x10)"
+   }
+  },
   "byte7_other_bit_cases": {
    "b7_lo/C_HI/g17p_run02/v=0": {
     "byte+7": "0xc0",
@@ -4541,28 +4614,28 @@
   },
   "half_alu_fma12.ext": {
    "F12_FMA@C_HI/g17p_run02": {
-    "moved": 252,
-    "values": 256
+    "moved": 1262,
+    "values": 2041
    },
    "F12_FMA@C_HI/g17p_run03": {
-    "moved": 0,
-    "values": 256
+    "moved": 1262,
+    "values": 2041
    },
    "F12_FMA@C_LO/g17p_run02": {
-    "moved": 252,
-    "values": 256
+    "moved": 1386,
+    "values": 2041
    },
    "F12_FMA@C_LO/g17p_run03": {
-    "moved": 0,
-    "values": 256
+    "moved": 1386,
+    "values": 2041
    },
    "F12_LIFT@C_HI/g17p_run02": {
-    "moved": 252,
-    "values": 256
+    "moved": 1262,
+    "values": 2041
    },
    "F12_LIFT@C_HI/g17p_run03": {
-    "moved": 0,
-    "values": 256
+    "moved": 1262,
+    "values": 2041
    }
   },
   "half_alu_fma12.opflags": {
@@ -5068,6 +5141,80 @@
      "9": "wrong_value"
     },
     "values_dispatched_total": 256
+   }
+  }
+ },
+ "H6_deferred_dst_rows": {
+  "falu2_uni.dst": {
+   "C3_uni": {
+    "agree": 16,
+    "common": 16,
+    "fstart_fwidth": null,
+    "moved_vs_value0_run01": 15,
+    "outcomes_run01": {
+     "ok": 1,
+     "silent_zero": 1,
+     "wrong_value": 14
+    },
+    "outcomes_run02": {
+     "ok": 1,
+     "silent_zero": 1,
+     "wrong_value": 14
+    },
+    "values_run01": 16,
+    "values_run02": 16
+   }
+  },
+  "half_alu.dst": {
+   "C1_alu": {
+    "agree": 256,
+    "common": 256,
+    "fstart_fwidth": null,
+    "moved_vs_value0_run01": 28,
+    "outcomes_run01": {
+     "ok": 228,
+     "wrong_value": 28
+    },
+    "outcomes_run02": {
+     "ok": 228,
+     "wrong_value": 28
+    },
+    "values_run01": 256,
+    "values_run02": 256
+   }
+  },
+  "reg_move_cb.dst": {
+   "C1_alu": {
+    "agree": 16,
+    "common": 16,
+    "fstart_fwidth": null,
+    "moved_vs_value0_run01": 14,
+    "outcomes_run01": {
+     "ok": 1,
+     "wrong_value": 15
+    },
+    "outcomes_run02": {
+     "ok": 1,
+     "wrong_value": 15
+    },
+    "values_run01": 16,
+    "values_run02": 16
+   },
+   "C3_uni": {
+    "agree": 16,
+    "common": 16,
+    "fstart_fwidth": null,
+    "moved_vs_value0_run01": 14,
+    "outcomes_run01": {
+     "ok": 1,
+     "wrong_value": 15
+    },
+    "outcomes_run02": {
+     "ok": 1,
+     "wrong_value": 15
+    },
+    "values_run01": 16,
+    "values_run02": 16
    }
   }
  },

@@ -1,0 +1,60 @@
+{
+  "experiment": "EXP-0185-tooling-upstream",
+  "date_utc": "2026-08-30T13:44:36Z",
+  "type": "tooling/process \u2014 no hardware claim",
+  "target": "NONE \u2014 pure analysis, no device, no SSH, no GPU, no dispatch",
+  "clean_room": {
+    "apple_binary_introspection": "NONE",
+    "inputs": "our own harness code and fixtures in this repository"
+  },
+  "environment": {
+    "host": "M4 repo host (analysis only; local GPU testing is retired)",
+    "python": "3.14.6",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O"
+  },
+  "git": {
+    "head": "8b85784776d04973f44852abcb3da473fb939d3b",
+    "dirty_files": 47
+  },
+  "gates": {
+    "tools/agxtest/selftest_tools.py": "T0..T7 PASS (raw/selftest_tools_run01.txt)",
+    "analysis/gate_patched_persistrun.py": "P1..P7 PASS (raw/gate_patched_persistrun_run01.txt)",
+    "git apply --check analysis/persistrun-DEF-0178-1.patch": "clean"
+  },
+  "patch_status": "GENERATED AND GATED, NOT APPLIED \u2014 tools/agxtest/persistrun.py is untouched (EXP-0184 may be running against it)",
+  "upstreamed_sha256": {
+    "tools/agxtest/saferunner.py": "fdcb410d80411acab0ef6bcd6756572b292d34356cd723bccb1ea065a6c1b682",
+    "tools/agxtest/verify_remote.py": "cbc442d85524ede119f09c4f9f11e810e731ff2b82d84ce67697dca16f990b4e",
+    "tools/agxtest/closure_scan.py": "ba9e22e8af3f502b3c79def65fccda9b4a78ac2ceb154d026b4e6da8f0bf9e40",
+    "tools/agxtest/fakepersist.py": "da0852141697786cfa32f802567889805c36275922906500813bcca69b9ee0dc",
+    "tools/agxtest/selftest_tools.py": "ed597eac16643ddd3c686a17cdd9fbcfc2c178fc2b4fdb0a438256e4758a57c6",
+    "tools/agxtest/testdata/closure_shadow_bad.py": "4d24e3094161913c5f1977e377721bc8975f0734587ce651acacbc135177564f",
+    "tools/agxtest/testdata/closure_shadow_good.py": "71c43f6d0da4c18a6c43eac3f5a6ef2ff96ebf173d58a918d1d26da3f658b135",
+    "tools/agxtest/README.md": "8a71531b19c72f3c51626a32b92617624bd3edefb5733bb13811e43ecbde91e9"
+  },
+  "experiment_sha256": {
+    "README.md": "25e2afefda4a96c029eeae1c2d56eb1691e455cd1555dba5ce66ff41edf9f3d8",
+    "RESULTS.md": "29dccd92cd1bfdc81b284d05ef6bf77aefa083125d03db87dc580c8d4abdd79d",
+    "PROGRESS.md": "f99e6e2886282ae67ee67e23bf3367387020768cd0cfffba96b56216842fa3bf",
+    "analysis/make_persistrun_patch.py": "234c64d68fb1a75575ea577cf6180ad9b0c023f3532320d5f9e5f6a08c75a3a4",
+    "analysis/gate_patched_persistrun.py": "9192fcf198f04e012b0f6c58204804b70349bc9d5ab6ba52faab246929ea884e",
+    "analysis/make_manifest.py": "9d5ec5c739f8c919c92212c6ac59984a0d286a37793a76f5d2e8924713b6e38c",
+    "analysis/persistrun-DEF-0178-1.patch": "5b5a9070f97610e2656bb86c7ab0febd7b77cc419b69587665e4c26938f72893",
+    "drafts/SUBAGENT_BRIEF-addition.md": "c7fd345706504ac556158eecfa4e2a30dbe9ddf6fbf22a0f5a8ed580b36761e3",
+    "raw/selftest_tools_run01.txt": "5fafa16d7aaaa1729406b60bfb5ac60424d7692d4e199eb7c5fef224e521dc74",
+    "raw/selftest_tools_run02.txt": "356a7ac0ad87ced30527658f511b362206d054230b6a0425509ae437cabdae88",
+    "raw/gate_patched_persistrun_run01.txt": "98f39025b801a603dfd2fe92094f971d05cade2c178196165d0d46c80a61dcea",
+    "raw/closure_scan_run01.txt": "c48e45ca17fe8479b1bb62024686e3aa1b422384be1c9f61a5fb9f772f943fad",
+    "work/persistrun_orig.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8",
+    "work/persistrun_patched.py": "0b9202f6943c73019a89d6d6fdae5dcf271be45f7e6e1ade49c7e2ebe4b513e6"
+  },
+  "source_copies_sha256": {
+    "experiments/EXP-0178-g17p-sysval-tileread/harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
+    "experiments/EXP-0178-g17p-sysval-tileread/harness/verify_remote.py": "36ed369b963d8d47c45e546aed33ce5a4b36a74fdcfb9e87ce2eb387ae4e2883",
+    "experiments/EXP-0178-g17p-sysval-tileread/harness/closure_scan.py": "7db6f842d884944fa27228c92f97a368704fbc6441aa0850693cc4180a1bf11f",
+    "experiments/EXP-0178-g17p-sysval-tileread/harness/fakerunner.py": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
+    "experiments/EXP-0179-g17p-call/harness/saferunner.py": "c51f8c1f714a5bd086a4881cf9aee11c89e90371c79d92ca8d1d852c2d927bc8",
+    "experiments/EXP-0179-g17p-call/harness/fakechild.py": "5a24f9d0ff900265e86e4ca1c1db8a18e1019315a3a7e47e470e17d13e0394f5",
+    "tools/agxtest/persistrun.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8"
+  }
+}

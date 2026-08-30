@@ -131,6 +131,16 @@ Append one JSON object per case to `raw/<run_id>/sweep.jsonl`, flushed immediate
 `outcome` ∈ `ok` | `silent_zero` | `wrong_value` | `fault` | `hang` | `undecodable`.
 `fault`/`hang` are results; keep them.
 
+## 5. Verdict per field
+
+> **PITFALL — a gate written `moved >= 2.0 * max(disagree, 1)` CANNOT promote any width-1 field.**
+> The rule is `moved >= 2.0 * disagree, AND moved > 0`. A 1-bit field has at most one value that can
+> differ from its own baseline, so the `max(..., 1)` form demands `moved >= 2` and refuses every such
+> field **by arithmetic rather than by evidence**. EXP-0178 found this in its own gate against its own
+> frozen text, where it had been silently suppressing `read_en` — the exact silent-zero read-enable
+> that experiment was dispatched to re-verify. Check your gate against a 1-bit field with 0
+> disagreements before you trust a null result from it.
+>
 ## 5. Verdict per field — write `analysis/field_verdicts.json`
 
 ```json

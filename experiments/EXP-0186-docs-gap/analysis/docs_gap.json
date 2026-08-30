@@ -1,0 +1,402 @@
+{
+  "experiment": "EXP-0186-docs-gap",
+  "kind": "PURE ANALYSIS — no device, no SSH, no GPU. Promotes nothing on its own.",
+  "date": "2026-08-30",
+  "window": "commits f517d1e8..8b857847 (52 commits)",
+  "method": "PROVENANCE.md rows 182-200/210/219/246-247/265-276 read in full; every load-bearing claim re-read in its own experiment RESULTS.md; then grepped against docs/isa/README.md, docs/isa/encoding-tables.md, docs/isa/memory-model.md, docs/compiler-readiness.md, docs/pipeline/README.md, docs/descriptors/README.md, docs/cmdstream/README.md, docs/P0-P1-CLOSURE.md.",
+  "exclusions": [
+    "EXP-0183, EXP-0184, EXP-0185 have no RESULTS.md and are live — nothing was drafted from them.",
+    "docs/isa/encoding-tables-m5.md, docs/isa/README-M5.md, docs/capability-*-m5.md, docs/porting-guide-m5.md are the M5 fork and are out of scope.",
+    "docs/isa/agx3.xml is generated from tools/agx-isa/db.json and is not hand-edited here."
+  ],
+  "rank_classes": {
+    "A": "SILENT WRONG ANSWER — following docs/ as it stands produces a wrong value with no fault and no diagnostic.",
+    "B": "DOCS ASSERT THE REFUTED CLAIM — docs/ currently states something a later experiment refuted; strictly worse than absence.",
+    "C": "FAULT / HANG — absence costs a fault, a hang, or a burned device window.",
+    "D": "CAPABILITY / ABI — absence costs an implementer a capability they would wrongly believe unavailable, or a bound they would not know to carry."
+  },
+  "facts": [
+    {
+      "id": "F01",
+      "rank": 1,
+      "rank_class": "A",
+      "claim": "The half-ALU family's destination is byte0's HIGH NIBBLE: byte0 = n<<4 writes r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved. db.json pins all eight bits of byte0 in `match` and models `dst` (bits 8..15) as a field that appears in the arithmetic as a SOURCE; byte+4 does not appear in the arithmetic at all. An emitter following the descriptor can only ever write r1.",
+      "experiment": "EXP-0180 (DEF-0180-1), §3",
+      "artifacts": ["experiments/EXP-0180-g17p-halfalu-rerecord/RESULTS.md §3", "analysis/field_verdicts.json", "analysis/db_defects.json", "raw/g17p_run02", "raw/g17p_run03"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "three independent: dense destination-nibble sweep (16/16, two carriers, both runs); structural (the seed program's 14 low-half writes land in r_j in every one of 33,470 gated cases); arithmetic (r1.lo = 0x470f = byte+3 x byte+1 + byte+5).",
+      "in_docs_today": false,
+      "docs_today": "docs/isa/README.md:331 documents a DIFFERENT half_alu fact (byte+1 is the first source descriptor, not the destination). The byte0-high-nibble destination is documented for `half_pack` only (docs/isa/encoding-tables.md:496, docs/isa/README.md:1391) and for the 0x09 float family (docs/isa/README.md:492) — never for the 0x10/0x11 half-ALU family.",
+      "destination": "docs/isa/README.md — emitter-safety block (the ⛔ list under 'Negative and safety results')",
+      "caveats": ["Two nibbles are harness artefacts and were excluded with cause: n=15 is the store index register the harness re-seeds; on C_LO n=13 is the second-consumer destination.", "half_alu.* itself was swept only as an instrument control and no verdict is emitted for it, though §3 bears directly on half_alu.dst."]
+    },
+    {
+      "id": "F02",
+      "rank": 2,
+      "rank_class": "A",
+      "claim": "`n3_mov` IS the GPR-to-GPR move and it is emittable, but db.json's operand model is one bit off: the source register is byte+1 bits 1..7, not 0..6, and byte+1 bit 0 is the SOURCE-HALF select. An emitter writing the source register number into bits 0..6 gets register S>>1 with half-select S&1 — the wrong register AND the wrong half, silently, with no fault.",
+      "experiment": "EXP-0174 (DEF-0174-1, DEF-0174-2), §3-§4",
+      "artifacts": ["experiments/EXP-0174-g17p-n3mov/RESULTS.md §3, §4", "experiments/EXP-0175-db-defects-2/RESULTS.md"],
+      "evidence_label": "HW-VALIDATED (generated, zero copied bytes)",
+      "target": "G17P",
+      "confirmations": "840 generated 32-bit copies over all 240 ordered (dst != src) pairs plus 1680 generated half-moves, two gated runs, two independent register plans, 0 failures against a full host-computed 16-register prediction; byte+1 swept dense 0..255; complete 256x256 byte+2/byte+3 cross-product (65,536 encodings) run three times.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:62 states 'There is no validated register-to-register move on this ISA' and quotes the verbatim retraction ending 'AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9.' Line 91 lists nir_op_mov as blocked; line 1291 ranks it blocker #1. docs/isa/README.md:657 says 'Do not read this section as closing nir_op_mov.' All four are now false.",
+      "destination": "docs/compiler-readiness.md (§ the nir_op_mov opening, the NIR construct table, the blocker table) + docs/isa/README.md (new subsection near the MOV/select family) + docs/isa/register-move-and-liveness.md",
+      "caveats": ["The move is 16-bit granular: every 32-bit copy costs TWO instructions.", "Source register aliases with period 64 (byte+1 bit 7 is source-register bit 6); no uniform-file value was ever reached through it.", "byte+2 bit 3 releases the source and the release is half-granular; byte+2 = 0x01 is the safe canonical non-destructive move.", "'16-bit-only vs some byte+2 value performing a single 32-bit move' is explicitly NOT established — recorded inside n3_mov.subform's note, not as a verdict."]
+    },
+    {
+      "id": "F03",
+      "rank": 3,
+      "rank_class": "A",
+      "claim": "A `device_store` through an UNBOUND binding slot is SILENTLY DROPPED. Sweeping base_slot 0..255 through unbound slots gave 0 faults and 0 hangs; only 0x00 and 0x80 store at all (bit 7 is a don't-care selecting binding slot 0), and the other 254 values leave the output buffer untouched with stray == [] — no fault, no diagnostic. Binding-slot validity must be guaranteed by construction in userspace; the hardware will not tell you.",
+      "experiment": "EXP-0169 §14",
+      "artifacts": ["experiments/EXP-0169-g17p-rerecord/RESULTS.md §14", "analysis/field_verdicts.json", "raw/g17p_20260830_run03", "raw/g17p_20260830_run04"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "gated pair on an exclusively idle machine, 7,046 cases each, counter dictionaries byte-identical between runs, 0 hangs, 0 victims, 0 baseline failures; two carriers (C4_store, C1_alu), identical in both runs.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:255 says the OPPOSITE for one value: 'Store base_slot: probed at 0, 3, 31, 32, 63, 127, 128, 255 — slot 128 writes are DISCARDED; the 128..255 mirror is load-only.' EXP-0169 measures 0x80 (=128) as one of only two values that DO store. docs/isa/memory-model.md:101 and docs/isa/README.md:745 describe base_slot's role but say nothing about the failure mode of an unbound slot.",
+      "destination": "docs/isa/memory-model.md (base_slot section) + docs/isa/README.md memory-family emitter rules + docs/compiler-readiness.md:255 correction",
+      "caveats": [
+        "CONTRADICTION FOR THE ORCHESTRATOR TO RULE ON, NOT TO SILENTLY OVERWRITE: docs/compiler-readiness.md:255 (M4, EXP-0083/EXP-0141 lineage) records slot 128 stores as DISCARDED; EXP-0169 (G17P) records 0x80 as storing. Different target AND different binding population — EXP-0169's carrier binds one buffer, so 'the other 254 are unbound' is a property of that carrier, not a claim that slots 1..30 are dead. Draft carries both.",
+        "The '254 silently dropped' figure is conditional on those slots being UNBOUND. It is not a claim that base_slot has only two legal values."
+      ]
+    },
+    {
+      "id": "F04",
+      "rank": 4,
+      "rank_class": "A",
+      "claim": "`vertex_id` (0xdd) is base-inclusive in hardware (index + baseVertex) while `instance_id` (0xd8) is NOT — it returns the raw instance ordinal and `baseInstance` is added in software. A back end that assumes both behave alike gets instanced draws with a non-zero baseInstance silently wrong.",
+      "experiment": "EXP-0178 §3.5",
+      "artifacts": ["experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md §3.5", "analysis/answers.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P (vertex_id half also found on M4 by EXP-0092)",
+      "confirmations": "the compiler-inserted constant K = baseInstance = 5 was MEASURED, not assumed: seven selectors with no vertex-stage meaning (0x9c, 0x9d, 0x9e, 0xa0, 0xa1, 0xa4, 0xc5) all read exactly 5 — seven independent zero-expectations agreeing. Subtracting K: 0xdd ramps 9,10,11 across three vertices (baseVertex = 9); 0xd8 reads flat 2.",
+      "in_docs_today": false,
+      "docs_today": "docs/isa/README.md:1227 lists vertex_id 0xdd / instance_id 0xd8 in the SR enum with no base-inclusion statement, and asserts (from EXP-0092, M4) that base_vertex==baseVertex and base_instance==baseInstance exactly. docs/cmdstream/README.md:107 separately records that baseInstance is not in the VDM record. Nothing connects the two.",
+      "destination": "docs/isa/README.md — 'Special-register enum + shader ABI' section",
+      "caveats": [
+        "The vertex arm is reported DIFFERENTIALLY by its own experiment: the harness scored 0x8a as `ok` because oracle and observation both said 5, and the experiment states plainly that this agreement is an artefact of the confound. Its two `ok`s are NOT cited as validations of anything.",
+        "0x88/0x8a reading 0 is a BOUNDED statement: 'in a vertex program that does not declare [[base_vertex]]/[[base_instance]], those selectors read 0 on G17P.' The alternative — the driver only arms them when the shader declares the builtin — is explicitly NOT excluded, and this is deliberately not recorded as refuting the enum."
+      ]
+    },
+    {
+      "id": "F05",
+      "rank": 5,
+      "rank_class": "B",
+      "claim": "Three committed `half_alu_ext8` semantic claims are REFUTED. (1) `ext8.saturate` is NOT a clamp — on the high carrier (result 7.0586) setting it yields 2.84375 (the third operand) and on the low carrier (result 0.125, where a clamp must be a no-op) it changes the result to 0.46875; bit 57 suppresses the multiply term. (2) `ext8.op_valid_marker`'s bit-63 claim is false — 0 of 2 moved; the op IS nullable from byte+7 but by b7_mid bit 2 = instruction bit 60. (3) `ext8.rsv6` is not reserved/inert — it is LIVE at 252/256 and 248/256 on two carriers with 13 distinct architectural results.",
+      "experiment": "EXP-0180 §1b, §1c",
+      "artifacts": ["experiments/EXP-0180-g17p-halfalu-rerecord/RESULTS.md §1b/§1c", "analysis/field_verdicts.json", "analysis/reproduction.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P (the refuted claims are labelled A18 or M4 and trace to EXP-M4-14, which has NO raw/ tree at all)",
+      "confirmations": "gated pair, 16,735 cases each, 100.0000% cross-run agreement on all cases with zero disagreements, byte-identical outcome counters.",
+      "in_docs_today": "asserts the refuted version",
+      "docs_today": "docs/compiler-readiness.md:560 carries all three refuted claims verbatim: \"`half_alu_ext8` — adds `opsel` 6 = hfma; `saturate` at byte+7 bit 1 (`0x82` clamps `saturate(9)` to 1, `0x80` passes 9 unclamped); **every byte+7 value without bit 7 set nulls the op** — a required op-valid marker.\" docs/isa/README.md:336 says b7_lo/b7_mid are 'inert across their whole range', which §1a now contradicts for b7_mid (28/256 moved). docs/compiler-readiness.md:788 does note rsv6 among live 'reserved' bytes but for a different descriptor family.",
+      "destination": "docs/compiler-readiness.md:555-562 (the half_alu / half_alu_ext8 bullets) + docs/isa/README.md:336",
+      "caveats": [
+        "The E8_ADD arm was REJECTED for no detection power (0 of 3 falsifiers, 0 of 4 ladder steps, both carriers, both runs). The EXP-M4-14 `b5` and `srcB_desc` claims are explicitly about the add+saturate instance, which this experiment could not test — refuted only in the fma instance, and the record says so.",
+        "`ext8.srcB_desc`'s '0x01 required' is a LENGTH requirement (byte+4 & 3 is the length selector); its real encodable range is 64, not 256, and byte+4 has no detectable operand role at the same length.",
+        "`opsel`'s range is overstated in the corpus: only 3 of 8 values keep the 8-byte framing."
+      ]
+    },
+    {
+      "id": "F06",
+      "rank": 6,
+      "rank_class": "B",
+      "claim": "In a VERTEX shader every `get_sr.sr_sel` with bit 7 clear FAULTS the command buffer — all 128 values 0x00-0x7F, contiguous, zero counterexamples, both gated runs. In COMPUTE the same encoding does not fault at all: it writes ONE lane of 64 and leaves the other 63 poisoned, and the integrity sentinel (a store containing no SR value at all) lands on that same single lane, so it is the whole program retiring one invocation rather than the SR datapath. The failure mode is stage-dependent: loud in vertex, near-silent in compute.",
+      "experiment": "EXP-0178 §3.1-§3.3",
+      "artifacts": ["experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md §3.1-§3.3", "analysis/field_verdicts.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "256 dense values x 3 stage carriers (compute, fragment, vertex) x 2 gated runs = 1,536 cases, 100.00% cross-run agreement on every value of every carrier, zero disagreements. The wall was mapped INSIDE the gated run because the harness pre-registered no hang budget and no per-arm abort.",
+      "in_docs_today": "asserts a narrower claim as if general",
+      "docs_today": "docs/compiler-readiness.md:535 reads 'sr_sel 0x00..0xFF EXHAUSTIVE, 256 values x 2 runs, zero faults, zero hangs' with no stage qualifier. That is EXP-0092's M4 result measured on a COMPUTE carrier. A vertex back end reading it would emit a bit-7-clear selector and fault.",
+      "destination": "docs/compiler-readiness.md:528-540 (the get_sr block) + docs/isa/README.md 'Special-register enum + shader ABI'",
+      "caveats": [
+        "This REFINES the M4 result; it does NOT refute it. EXP-0092's sweep ran on a compute carrier and EXP-0178's compute arm reproduces it exactly — 0 faults in 256 values, both runs. The divergence is STAGE, not target. The M4 row must be marked REFINED, never SUPERSEDED.",
+        "The bit-7-clear region in compute is characterised as 'one lane of 64 retires'; what bit-7-clear ENCODES is still unidentified."
+      ]
+    },
+    {
+      "id": "F07",
+      "rank": 7,
+      "rank_class": "A",
+      "claim": "Absence of a fault proves nothing about whether a tilebuffer read landed. Across 256 `rt_index` values on four carriers in two gated runs there is NOT A SINGLE FAULT — every wrong render-target index returns a silent zero. EXP-0147's whole M4 legal-value set for tile_read / tile_read_mrt transfers to G17P unchanged: read_en is byte+6 bit 0, rt_index is correct only at 0x00/0x01/0x80/0x81 (mrt: 0x08/0x09/0x88/0x89), dst has a contiguous 0xf6-0xff fault wall byte-identical on all four carriers, and tile_read_mrt.fmt has eight legal encodings with 104 of 256 silently zeroing.",
+      "experiment": "EXP-0178 §5",
+      "artifacts": ["experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md §5.1-§5.3", "analysis/answers.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P (reproduces EXP-0147 on M4/G16G)",
+      "confirmations": "9,428 cases per run x 2 gated runs = 18,856 cases over four carriers, zero measurement failures and zero InnocentVictim cases; the M4 sets were written into analysis/answers.py BEFORE the runs as the hypothesis under test, not tuned to match. The silent-zero label identifies WHICH attachment went dark (SILENT_ZERO:rt0 / :rt1), so the anchor's routing is measured, not assumed.",
+      "in_docs_today": "partial",
+      "docs_today": "docs/isa/README.md:1138-1165 documents the whole M4 value set and the black-tile consequence, tagged `target: G16G`. What is missing is (a) that it now reproduces on G17P, the documentation target, on two structurally different carriers per instruction, and (b) the sharper form of the hazard: ZERO faults over the full 256-value rt_index range, so a status code can never be the oracle.",
+      "destination": "docs/isa/README.md:1138 section (target line + a G17P confirmation note) + docs/pipeline/README.md BG/EOT",
+      "caveats": [
+        "Neither instruction is emittable. tile_read is still blocked by b2, b4, b6_hi, b7 and tail; tile_read_mrt by b4, b6_hi and tail.",
+        "b2/b4/b6_hi never moved on either carrier over their full ranges in both runs, but are labelled `untested` as a LIMIT OF THE CARRIERS, not as 'the field is inert' — the dimension a raw byte controls is unknown.",
+        "tile_read.b7 moves (229 of 256) but does not reproduce (91.0% cross-run agreement, 23 disagreeing values), and that instability reproduces EXP-0164's M4 instability — a property of the field, not of one machine's weather."
+      ]
+    },
+    {
+      "id": "F08",
+      "rank": 8,
+      "rank_class": "A",
+      "claim": "`vary_store.hint6` is bit 4 alone (2 classes of 128) and setting it makes ALL FOUR fragment output channels read back 0.0 — the whole varying block is lost, not just this component. The compiler's own values 0x48-0x4d all have it clear.",
+      "experiment": "EXP-0163 §1, §4",
+      "artifacts": ["experiments/EXP-0163-g17p-inert-liveness/RESULTS.md §4 table", "analysis/field_verdicts_flat.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "7 arms across 5 carriers (vmany, vhalf, vflat, vsrc), 128/256 moved on every one, 'exactly the values with bit4 set', both runs agree.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:826 lists vary_store.hint6 as `untested`. docs/isa/README.md mentions vary_store only as a merged descriptor (line 1548). The zeroing behaviour appears nowhere.",
+      "destination": "docs/isa/README.md — vertex varying-store section (line 1536) + docs/compiler-readiness.md:826",
+      "caveats": ["EXP-0163 found this only because it authored carriers EXP-0155 lacked (16 varyings past slot 7, half/vector, flat int, computed sources). It is a liveness result on those carriers, not a claim that bit 4 has a single named meaning."]
+    },
+    {
+      "id": "F09",
+      "rank": 9,
+      "rank_class": "A",
+      "claim": "`tex_sample.coord` is an operand byte of the form (reg << 1) | is32 — the same source-byte convention db.json already documents for falu2. On the fragment stage the register index ALIASES WITH PERIOD 16 (the four live registers recur at reg, reg+16, ... reg+112), a smaller period than the mod-64 ALU aliasing HW-validated in EXP-0112. A coordinate pointed at a register the program does not keep live produces a silent unchanged result, never a fault.",
+      "experiment": "EXP-0172 §2.1",
+      "artifacts": ["experiments/EXP-0172-g17p-onefield-tail/RESULTS.md §2.1", "analysis/field_verdicts.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "256 values on each of four arms, two gated runs, 100% per-value cross-run agreement (EXP-0155 got 73-93%). The 32 moving values are reproduced with zero exceptions in both runs by: moved <=> (v & 1) == 1 AND ((v >> 1) mod 16) in {6, 8, 10, 14}.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:755 lists tex_sample.coord as `corpus-correlation` and line 761 names it a 'top untested blocker'. Line 1293 ranks 'Texture sampling operands' as blocker #3 needing 'seeded-register carriers for tex_sample.coord'. All stale.",
+      "destination": "docs/isa/README.md — texture/sample family (line 851) + docs/compiler-readiness.md:749-763",
+      "caveats": [
+        "Filtered, implicit-LOD sampling was DELIBERATELY EXCLUDED. The hypothesis that its derivative/LOD dependence caused EXP-0155's instability is SUPPORTED (the derivative-free carriers are 100% reproducible) but not directly demonstrated on a filtered arm.",
+        "One arm of four moves; the other three, including two derivative-free integer reads, move at zero of 256. The rule is stated for the arm that has power."
+      ]
+    },
+    {
+      "id": "F10",
+      "rank": 10,
+      "rank_class": "C",
+      "claim": "`frag_color_pack.dst` values 0xC0-0xFF ALL HANG — 64 values, perfectly contiguous, no exceptions — while 0x00-0xBF are all clean. dst[7:6] == 0b11 is an illegal encoding and the field's real encodable range is 192, not 256.",
+      "experiment": "EXP-0168 §8.1",
+      "artifacts": ["experiments/EXP-0168-g17p-dst-resweep/RESULTS.md §8.1, §8.1a", "analysis/render_verdicts.json", "raw/"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "a dedicated hang-tolerant mapping pass dispatching ALL 256 values, majority-of-3 with an OS fault string; the device survived all 64 hangs with no reset and no macvdmtool. 191 of 195 values below the wall moved on all 8 arms, all 8 bits live.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:820 lists frag_color_pack.dst as `untested` with `range: none`. docs/isa/README.md:365 mentions frag_color_pack.dst only as one of the seven instructions sharing the >=96 register-file boundary. The 0xC0 wall is absent.",
+      "destination": "docs/isa/README.md — emitter-safety block + docs/compiler-readiness.md:820",
+      "caveats": [
+        "The METHOD finding travels with it and is the more general lesson: three experiments missed a 64-value wall because a per-field hang budget of 2 makes each run discover exactly two more hazardous values and halt (EXP-0155 stopped at 194, the first render run at 197, the gated runs at 199). EXP-0168's own 'defer the known-bad values' fix only moved the wall, twice. Recorded as FIELD-SWEEP-PROTOCOL §3(c).",
+        "EXP-0168's separate r15 finding is SELF-RETRACTED and must not be documented: its own harness emitted mov_imm(15,0) before every store, so r15 could never have read anything but 0. EXP-0174 §5 measured r15 as an ordinary writable GPR. The dst=15 case is a CARRIER LIMIT, NOT A HARDWARE PROPERTY. (Correctly absent from docs/ today — no action, but do not re-import it.)"
+      ]
+    },
+    {
+      "id": "F11",
+      "rank": 11,
+      "rank_class": "C",
+      "claim": "Two exact `device_store` fault walls, zero counterexamples over all 256 values on both carriers in both runs: `index_reg` faults iff (v & 0x60) == 0x60 (64 values: 0x60-0x7F and 0xE0-0xFF, bit 7 a don't-care), and `extmode` faults iff v >= 0xFC (4 values). All 136 faults per run are these two walls; they are faults, not hangs — fault-contained, no reset, no wedge.",
+      "experiment": "EXP-0169 §15",
+      "artifacts": ["experiments/EXP-0169-g17p-rerecord/RESULTS.md §15", "analysis/field_verdicts.json", "raw/g17p_20260830_run03", "raw/g17p_20260830_run04"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "the region was mapped by construction because this harness has no per-field hang budget and no abort path, so it dispatched all 256 values of every field regardless of outcome.",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:256 records a DIFFERENT and coarser index_reg rule from the M4 wave: 'Store index_reg: r0..r95 round-trip; 96, 97, 100, 111, 120, 127 uniformly FAULT; r112 is genuinely nondeterministic.' Those are sampled points; the G17P mask rule is exact and explains them. The extmode wall is absent entirely.",
+      "destination": "docs/isa/memory-model.md + docs/isa/README.md memory-family emitter rules (line 775)",
+      "caveats": [
+        "device_store.extmode remains `UNSTABLE`/`untested` and is NOT promoted: by outcome the two runs agree 256/256 on both carriers, but every digest disagreement selects a data register >= 31, outside the 16 the harness seeds. Over extmode 0x00-0x1F agreement is 100%.",
+        "The related emitter fact: a device_store reading a data register outside the established register file has a STABLE destination and a NON-DETERMINISTIC payload."
+      ]
+    },
+    {
+      "id": "F12",
+      "rank": 12,
+      "rank_class": "C",
+      "claim": "A second exact half-ALU fault wall: fault <=> (byte+2 >> 3) >= 16 AND (byte+2 & 7) in {4, 5} — i.e. opflags bit 4 (instruction bit 23) set with opsel = hadd or hmul faults unconditionally. 128 LEN-arm cases, zero counterexamples, independently reproduced in the field sweeps. Separately, the half-ALU instruction LENGTH is now measured exactly as a function of (opsel = byte+2 & 7, m = byte+4 & 3) over 4,096 cases with no ambiguous cell; db.json's stated rule is wrong in 25 of 32 cells and isadb.instr_length's in 18 of 32.",
+      "experiment": "EXP-0180 §4 (DEF-0180-2)",
+      "artifacts": ["experiments/EXP-0180-g17p-halfalu-rerecord/RESULTS.md §4", "analysis/length_rule.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "the LEN arm reads the hardware's consumed length directly via four 2-byte mov_imm markers at byte+6 (surviving-marker count -> length); zero point gave 4 in both runs.",
+      "in_docs_today": false,
+      "docs_today": "docs/isa/README.md:171 has an 'Instruction-length rule (validated)' section; the half-ALU family's byte+4 term is not in it. The opflags fault wall is absent.",
+      "destination": "docs/isa/README.md — instruction-length rule section + emitter-safety block",
+      "caveats": [
+        "BOUND THAT IS LOAD-BEARING AND MUST NOT BE DROPPED: bytes +6.. carry the marker chain in every case, so a length dependence on byte +6 or later is UNTESTED. EXP-0182 then measured the cost of ignoring that bound — applying the rule VERBATIM to the tokenizer costs -17 clean corpus files and +3,220 leftover bytes, killing half_compact4 (8->0) and half_alu_fma12 (7->0). Only the nine cells where the G17P measurement and the M4 corpus agree were applied.",
+        "EXP-0180 REFUTED AND WITHDREW its own DEF-0180-3: half_alu_fma12 really is 12 bytes at (opsel 6, m 3) and is not an over-consumer."
+      ]
+    },
+    {
+      "id": "F13",
+      "rank": 13,
+      "rank_class": "D",
+      "claim": "The `call` is EMITTABLE and its full byte contract is measured. target = call_addr + 4 + offset, now confirmed in the FORWARD direction by generation (every prior corpus call is backward because the callee always precedes the caller). call.b3 is a branch-taken selector at bits 5:2 with bits 1:0 and 7:6 inert; codes {6,8,9,10,11,12,13,15} take the call and the other eight fall through cleanly and never fault. call.b5 is legal iff (b5 & 0x06) == 0 — 64 of 256. call.b6 bit 1 MUST BE SET. call.tail is a don't-care. The `0f 06` pop_reconverge after the call is REQUIRED; the `43 00 00 01` frame marker is OPTIONAL.",
+      "experiment": "EXP-0179 §2, §3",
+      "artifacts": ["experiments/EXP-0179-g17p-call/RESULTS.md §2, §3, §12 (encoding summary)", "analysis/field_verdicts.json", "analysis/call_census.json"],
+      "evidence_label": "HW-VALIDATED (generated call+callee+ret, two gated runs)",
+      "target": "G17P",
+      "confirmations": "192 distinct generated calls x 2 runs = 384/384 ok, zero faults, zero hangs, zero disagreements; every byte computed from the pinned descriptor geometry with nothing copied from a compiled shader. Target formula exact at 2-byte granularity across a +/-8 window plus 48 further displacements. A call aimed at a bare `ret` returns correctly, so the return machinery is independent of the callee body.",
+      "in_docs_today": "partial and now partly wrong",
+      "docs_today": "docs/isa/README.md:1373 (EXP-0035) gives the CALL byte template and 'target = call_addr + 4 + off40 (verified at 4 distances)' and says each call is 'preceded by a 43 00 00 01 call/frame marker and followed by a 0f 06 reconverge' — describing the compiler's shape without saying which half is REQUIRED. docs/compiler-readiness.md:733/742/1292 still treat pop_reconverge and the call family as blocked. docs/P0-P1-CLOSURE.md:89 still lists 'NO CALL CAN BE EMITTED' as P0.8 blocker #2.",
+      "destination": "docs/isa/README.md:1371 section (rewrite the CALL bullet) + docs/compiler-readiness.md control-flow section + docs/P0-P1-CLOSURE.md P0.8 row",
+      "caveats": [
+        "PROVENANCE DEFECT — see finding D01 below: the committed PROVENANCE row for EXP-0179 says 'call.b6 and call.tail are INERT over the full 0..255 ... so the corpus 0x56 is not load-bearing'. That is the experiment's FIRST version, which the experiment itself withdrew. Do not draft from the PROVENANCE row.",
+        "b3 codes were mapped for WHETHER the call is taken, not for what each code MEANS.",
+        "The b5 fault bit was not characterised beyond 'it faults'.",
+        "b6's meaning is bounded, not explained: bit 1 must be set; what it controls is unknown.",
+        "A generated BACKWARD call is NOT ESTABLISHED — its jump-over carrier did not calibrate and was dropped rather than fudged (jumpover_ok: false). Backward displacements remain covered only by EXP-0035's compiled evidence.",
+        "pop_reconverge with scope_kind 0x01 does NOT close a call (callee ran, never returned) while 0x02 does; the pop's mask bank is a don't-care (0x04/0x24/0x54 all return correctly)."
+      ]
+    },
+    {
+      "id": "F14",
+      "rank": 14,
+      "rank_class": "C",
+      "claim": "A nested call without a properly established scratch frame destroys the outer return and runs forever: all 6 correctly-formed depth-2 configurations HANG, with and without link_save_restore and with and without the frame marker, while the 2 retained pop=0 controls FAULT.",
+      "experiment": "EXP-0179 arm N",
+      "artifacts": ["experiments/EXP-0179-g17p-call/RESULTS.md §7 (arm N)"],
+      "evidence_label": "HW-VALIDATED for the hang; the mechanism is INFERRED",
+      "target": "G17P",
+      "confirmations": "positive discriminator rather than the degenerate contiguous-suffix test: the pop=0 controls FAULT rather than hang at index 3 forward and index 0 reverse, and a cascade cannot produce a clean CMDBUF_ERROR at index 0 before any watchdog fires.",
+      "in_docs_today": false,
+      "docs_today": "docs/isa/README.md:1379 states the ABI positively ('non-leaf = 6f... prologue bracketing each nested call with 07... link save/restore to per-thread scratch') without stating the failure mode of omitting it.",
+      "destination": "docs/isa/README.md:1371 section (function-call ABI) — as a ⛔ safety bullet",
+      "caveats": [
+        "'The return address is a single link register' stays INFERRED and is explicitly CONSISTENT WITH rather than DEMONSTRATED BY this result: the synthesized program emits no frame_prologue, and link_save_restore writes to per-thread scratch whose size comes from the carrier kernel's compiled metadata — which an overwritten _agc.main does not control and which may be zero. So even the link=1 arm may have saved into unallocated scratch. A successor is named.",
+        "The first arm-N pass faulted because its own layout omitted the inner pop_reconverge that its own arm M had already measured as required; publishing 'depth-2 calls fault' would have been a wrong hardware claim that looked clean."
+      ]
+    },
+    {
+      "id": "F15",
+      "rank": 15,
+      "rank_class": "D",
+      "claim": "`iter_at.loc` is bit 1 ALONE — two equivalence classes of exactly 128 values, 0 = centroid and 1 = per-sample, with bit 0 and bits 2..7 don't-care. This refines db.json's enum {1: centroid, 3: sample}: the enum lists two legal values, the hardware has one selector bit and seven free bits. The field is 0/256 at rasterSampleCount == 1 and 128/256 at 4 — at one sample the centroid, the sample point and the pixel centre are the same point, so no location selector can move anything.",
+      "experiment": "EXP-0163 §2",
+      "artifacts": ["experiments/EXP-0163-g17p-inert-liveness/RESULTS.md §2, §4", "analysis/field_verdicts_flat.json"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "confirmations": "controlled comparison: k_cent.metal built twice, same MSL, same bound resources, same probe pixels, only rasterSampleCount changed. Read back at probe pixel (8,8) of the 4-sample resolved cent4 arm, channel 0 (a centroid_perspective varying) is 3249.99976 for loc & 2 == 0 and 3312.49976 for loc & 2 != 0, other channels untouched. Ten arms tabulated.",
+      "in_docs_today": false,
+      "docs_today": "docs/isa/README.md:1078 says only 'centroid/sample add an 8-B iter_at setup (byte+6=0x0a; byte+7 0x01 centroid / 0x03 sample)' — the enum, not the bit rule. docs/compiler-readiness.md:824 lists iter_at fields as untested and line 46 records the METHOD lesson from this result but not the encoding.",
+      "destination": "docs/isa/README.md:1070 fragment-shader ISA section",
+      "caveats": [
+        "The compiled bytes are NOT identical between the two builds — the experiment corrected its own earlier overclaim: vertex is byte-for-byte identical (166 B, same sha256) but fragment is 174 B at one sample and 482 B at four. This is a controlled comparison of the same source under one changed pipeline parameter, not a byte-for-byte splice pair, and a reviewer must read it that way.",
+        "iter_at.grp is a SEPARATE field and was DELIBERATELY NOT PROMOTED by EXP-0168 despite a reproducible 3/3 observation, because its arm's ladder (iter_at.loc) failed on both of that experiment's carriers. It stays `untested`."
+      ]
+    },
+    {
+      "id": "F16",
+      "rank": 16,
+      "rank_class": "A",
+      "claim": "sr_sel 0xa8 is refuted AGAIN, now on a third target: db.json calls it threadgroups_per_grid.x and a bare read returns 64 = threads_per_threadgroup.x in a single-threadgroup dispatch. Its neighbours 0xa9/0xaa read 1 and match their documented meanings, so the enum is wrong on exactly ONE entry, not on the family.",
+      "experiment": "EXP-0178 §3.4",
+      "artifacts": ["experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md §3.4"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P (independently reproduces RT-7 on A18 and EXP-0092 on M4)",
+      "in_docs_today": "partial",
+      "docs_today": "docs/isa/README.md:1237 and docs/compiler-readiness.md:541 both carry the caveat correctly. BUT docs/isa/encoding-tables.md:531 — the machine-readable enum an implementer would actually key off — still reads `0xa8`=threadgroups_per_grid.x with no warning.",
+      "destination": "docs/isa/encoding-tables.md:531 (the get_sr sr_sel enum)",
+      "caveats": ["The builtin threadgroups_per_grid is get_sr 0xa8 + a device_load + a divide and computes correctly; only a BARE get_sr 0xa8 is wrong. Do not state this as 'the enum is wrong' without that clause."]
+    },
+    {
+      "id": "F17",
+      "rank": 17,
+      "rank_class": "D",
+      "claim": "Four more corpus-declared-inert fields are LIVE and none of the effects is small: tex_coord_setup.b6 bits 2-5 must all be clear or the addressed varying reads 0.0; tex_coord_setup.b8 bit 3 and tex_coord_setup.idx bit 7 each zero exactly the one varying that occurrence addresses (on the byte+4 == 0x42 form); tex_coord_setup.b5 bit 0 zeroes the varying and bit 3 perturbs its value; and simd_shuffle.rsv9 — a byte db.json names 'reserved' — is an operand of the mode 0x06 rotate/shuffle-and-fill form whose bits 6 and 7 change the result value and whose bit 1 suppresses the stores that follow.",
+      "experiment": "EXP-0163 §1, §4",
+      "artifacts": ["experiments/EXP-0163-g17p-inert-liveness/RESULTS.md §4"],
+      "evidence_label": "HW-VALIDATED",
+      "target": "G17P",
+      "in_docs_today": false,
+      "docs_today": "absent from docs/isa/README.md and docs/isa/encoding-tables.md.",
+      "destination": "docs/isa/README.md — texture/sample and SIMD sections",
+      "caveats": ["tex_coord_setup.idx is inert over all 256 values on the byte+4 == 0x00 form; simd_shuffle.rsv9 is inert on the 0x00/0x04/0x05 forms. Both rules are form-specific and must be stated as such."]
+    },
+    {
+      "id": "F18",
+      "rank": 18,
+      "rank_class": "D",
+      "claim": "db.json does not decode a fragment colour-store variant (byte+1 == 0x86) and mis-reads it as a 14-byte compute device_store, which silently omits that form from every occurrence census ever run on the descriptor.",
+      "experiment": "EXP-0163 §4b",
+      "artifacts": ["experiments/EXP-0163-g17p-inert-liveness/RESULTS.md §4b"],
+      "evidence_label": "STRUCTURAL (decode/census defect, argued from our own compiled bytes)",
+      "target": "G17P",
+      "in_docs_today": false,
+      "docs_today": "absent.",
+      "destination": "docs/isa/encoding-tables.md (frag colour-store descriptor note) — TOOLING-ADJACENT, defer to the db.json owner",
+      "caveats": ["This is a tooling/descriptor defect with a proposed match fix, not a hardware capability. Flagged here for completeness; the db.json owner should land it, not this drafting pass."]
+    },
+    {
+      "id": "F19",
+      "rank": 19,
+      "rank_class": "D",
+      "claim": "`get_sr.form` is ruled `isolated-byte-diff` (an orchestrator ruling overriding EXP-0172's `single-template-inference` decline): it is inert on eight EXP-0172 arms and on EXP-0178's compute and fragment carriers, but on the VERTEX carrier form=0 moves the observation and form=1 does not, identically in both runs.",
+      "experiment": "EXP-0172 §1 (decline) + EXP-0178 §7 (referral) + orchestrator ruling",
+      "artifacts": ["experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md §7", "experiments/EXP-0172-g17p-onefield-tail/RESULTS.md §1"],
+      "evidence_label": "isolated-byte-diff",
+      "target": "G17P",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:536 says 'form 0, 1 — both inert', which is the eight-blind-arms reading.",
+      "destination": "docs/compiler-readiness.md:536",
+      "caveats": ["The ruling was deliberately NOT the recommended `hardware-run`, on the experiment's own stated caveat: the movement is one value on one of three carriers, and NOBODY IDENTIFIED WHAT form=0 DOES. A doc that drops that bound is worse than no doc."]
+    },
+    {
+      "id": "F20",
+      "rank": 20,
+      "rank_class": "D",
+      "claim": "`ret.scoreboard` was DECLINED on a control that FIRED — the strongest decline in the corpus. The field is inert across 0..255 at agreement 1.0 with no disagreements, and the experiment built an ordering observable out of device_load asynchrony, PROVED it fires as a clean monotone step (C1_flat lands from filler 10, C2_nested from 6, byte-identical in both runs), and the field still did not move it: exactly one distinct threshold per arm across all sixteen scoreboard values.",
+      "experiment": "EXP-0179 arm O",
+      "artifacts": ["experiments/EXP-0179-g17p-call/RESULTS.md (arm O)"],
+      "evidence_label": "corpus-correlation (label unchanged — the decline is the result)",
+      "target": "G17P",
+      "in_docs_today": false,
+      "docs_today": "docs/compiler-readiness.md:742 groups ret.scoreboard with fields that 'lack a second agreeing' source, which understates it.",
+      "destination": "docs/compiler-readiness.md:733-745 (control-flow field table)",
+      "caveats": ["Bounded to a leaf return with one outstanding async load. Three earlier experiments declined this field because they could not build an ordering observable — an inconclusive dressed as a decline. This one is different in kind and the difference must be stated: the instrument fired and the field still did not move it. It is the FOURTH experiment to decline the family."]
+    }
+  ],
+  "provenance_defects": [
+    {
+      "id": "D01",
+      "severity": "HIGH — a documented fact drafted from this row would be wrong",
+      "row": "PROVENANCE.md line 272 (EXP-0179, 'THE CALL IS EMITTABLE')",
+      "asserts": "**`call.b6` and `call.tail` are INERT** over the full 0..255 — one distinct full observation per carrier across 256 values x 2 runs — so the corpus `0x56` is not load-bearing.",
+      "experiment_says": "EXP-0179/RESULTS.md §3 'call.b6 — inert on BOTH generated carriers, and the second method says that was CARRIER BLINDNESS': **call.b6 bit 1 (0x02) MUST BE SET**, 128 of 256 values legal, 254/256 cross-run agreement, with the two disagreements (0x00, 0x01) nondeterministic across runs. The RESULTS.md carries an explicit warning: '⚠ call.b6's encodable_range is 128, not 256. The first version of this result said [inert]'. The corpus value 0x56 HAS bit 1 set.",
+      "why_it_happened": "commit 955eb6c7 ('call.b6 corrected by the experiment own second method — bit 1 must be SET') landed BEFORE commit 384c16c1 which appended the PROVENANCE row (after an && chain had silently swallowed the first append). The row was written from the pre-amendment text.",
+      "action": "Correct the EXP-0179 PROVENANCE row's b6 clause to the amended finding. `call.tail` IS inert and that half of the sentence stands.",
+      "note": "This is the single reason the drafting rule 'do not draft a fact you cannot trace to a committed artifact' earned its place tonight: the index disagrees with the evidence it indexes, and only on the most emitter-critical of the four call bytes."
+    },
+    {
+      "id": "D02",
+      "severity": "MEDIUM — a cross-target contradiction with no ruling",
+      "row": "docs/compiler-readiness.md:255 vs PROVENANCE.md line 271 (EXP-0169)",
+      "asserts": "docs: 'Store base_slot: ... slot 128 writes are DISCARDED; the 128..255 mirror is load-only.' EXP-0169 (G17P): 0x00 and 0x80 are the only two values that DO store; bit 7 is a don't-care.",
+      "action": "Both statements must appear with their targets and their binding populations. Not a silent overwrite. The likely reconciliation — different number of bound buffers, not a target divergence — is a HYPOTHESIS and must be labelled one."
+    },
+    {
+      "id": "D03",
+      "severity": "LOW — stale header, not a wrong fact",
+      "row": "docs/P0-P1-CLOSURE.md lines 4-8",
+      "asserts": "'using the local M4/G16G as the **sole test target**. User directive (2026-08-27): the A18 Pro/G17P is hands-off'",
+      "action": "Superseded by the 2026-08-28 directive already recorded in CLAUDE.md and CODEX.md. The board's own P0.6/P0.8 rows are written against G17P, so the header contradicts its own table."
+    },
+    {
+      "id": "D04",
+      "severity": "LOW — stale blocker list, evidence exists",
+      "row": "docs/P0-P1-CLOSURE.md line 89 (P0.8 ranked blockers)",
+      "asserts": "blocker (1) 'get_sr.sr_sel is untested on G17P ... so NO SYSTEM VALUE CAN BE EMITTED AT ALL'; blocker (2) 'call.{b3,b5,b6,tail} are tokenization-only ... so NO CALL CAN BE EMITTED'; blocker (5) 'tile_read/tile_read_mrt are measured only on M4'.",
+      "experiment_says": "All three are closed or substantially advanced: EXP-0178 (sr_sel/dp_width/dp_marker hardware-run on G17P, get_sr EMITTABLE), EXP-0179 (call emittable, four fields tokenization-only -> hardware-run), EXP-0178 §5 (tile_read measured on G17P on four carriers).",
+      "action": "Rewrite the three bullets. Blockers (3) vary_store and (4) iter/iter_at are also partly answered by EXP-0163 and EXP-0172."
+    }
+  ],
+  "not_a_gap": [
+    {
+      "claim": "EXP-0168's 'a write whose 4-bit destination nibble is 15 is discarded; r15 is a bit bucket, not a GPR'",
+      "status": "SELF-RETRACTED by EXP-0168 and separately refuted by EXP-0174 §5 (r15 holds its seed 121 and all 15 generated 32-bit copies into r15 pass). Correctly ABSENT from docs/. Recorded here so it is not re-imported.",
+      "residual_open": "EXP-0168's regs[0] = 0 anomaly is NOT reproduced by EXP-0174 and remains an unexplained open question about EXP-0168, not a finding of either."
+    },
+    {
+      "claim": "fspecial operand swap, fspecial dst >= 96, imad has no srcA, op04_len8 EMITTABLE VETO",
+      "status": "ALREADY IN docs/isa/README.md emitter-safety block (commit a7b0ed97). Verified present and accurate. No action."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# tools/agxtest/selftest_tools.py -- 2026-08-30T13:39:34Z -- host: M4 repo host, NO DEVICE
+# python3: Python 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)] 
+# git HEAD: 8b85784776d04973f44852abcb3da473fb939d3b dirty=36
+
+PASS T0 modules import, SafePersistRunner binds  -- SafePersistRunner over persistrun
+PASS T1 good response parses under both runners
+PASS T2 truncated OUT -> MALFORMED (safe) / raises (shared)  -- shared raised: not enough values to unpack (expected 3, got 2)
+PASS T3 one timeout does not manufacture the requests after it
+PASS T4 a killed child's leftovers are discarded, not handed over
+PASS T5 an exited child is a wedge, not an empty-line spin
+PASS T6 closure_scan flags the rebind, clears the fix, allow-list works
+PASS T7 verify_remote catches MISSING and STALE and refuses an empty check
+
+NOTE T3 shared runner (OBSERVATION, not a gate): hang then HANG ['OK', 'OK']. The abandoned thread usually binds to the OLD child at rd() entry, so the race needs scheduling luck; a clean stub run is NOT evidence the defect is absent.
+
+SELFTEST PASS (0 failure(s))
+EXIT=0

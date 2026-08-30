@@ -10506,6 +10506,11 @@
      0,
      4,
      0
+    ],
+    [
+     16,
+     3,
+     6
     ]
    ],
    "fields": [
@@ -10522,16 +10527,6 @@
      "width": 8,
      "type": "reg",
      "note": "RETYPED (EXP-0183). Formerly `dst`. This is a SOURCE half-register descriptor h = (reg<<1)|is_high, not the destination -- see the descriptor semantics. Its span is unchanged (bits 8..15), so evidence recorded against those bits still applies; only the name and role change. Named `srcA` to match the low-nibble-8 sibling `h_alu_hi`, whose byte+1 is already `srcA`."
-    },
-    {
-     "name": "opsel",
-     "start": 16,
-     "width": 3,
-     "type": "opcode",
-     "enum": {
-      "6": "hfma"
-     },
-     "note": "ONE LEGAL VALUE, DELIBERATELY NOT FOLDED INTO `match`. EXP-0180's measured length map (re-derived by EXP-0183: 32 of 32 cells, zero ambiguity) reaches 12 bytes at exactly one op-select, 6, so under that rule this row is vacuous and the falu2_uni.uni_mode disposition (EXP-0175) would apply. It is NOT folded because folding it MEASURABLY REGRESSES the corpus: pinning [16,3,6] costs 6 clean files (841 -> 835), adds 748 leftover bytes and drops half_alu_fma12 from 7 corpus firings to 0. That is the same G17P-measurement-versus-M4-corpus disagreement EXP-0182 measured for the length rule itself, and it sits inside EXP-0180's own stated bound (a length dependence on byte +6 or later is UNTESTED). The enum lists only the value the hardware was measured to length at 12; whether to pin it is the db owner's call, not a consequence of this measurement. EXP-0183 candidate tree work/cand_final_plus_fold carries the folded variant and its numbers."
     },
     {
      "name": "opflags",
@@ -10556,7 +10551,20 @@
    ],
    "semantics": "12-byte fp16 fma form (byte0 low nibble 0x0). Reachable at exactly one (op-select, length-selector) pair: opsel 6 with byte+4 & 3 == 3, measured over 4,096 LEN cases with zero ambiguous cells and re-derived by EXP-0183. fma(abs(a),b,c) compiles to this form. `ext` is NOT a field -- see its note. DO NOT EMIT until bits 34..95 are modelled. [CORRECTED 2026-08-30, EXP-0183 from EXP-0180's committed raw] **THE DESTINATION IS byte0's HIGH NIBBLE** (bits 4..7); the low nibble 0x0 is the family tag. The previous descriptor pinned the WHOLE of byte0 in `match`, so an emitter following it could only ever write r1, and the field it called `dst` (bits 8..15) is in fact a SOURCE half-register descriptor. Re-derived on G17P three independent ways, all cross-checked over EXP-0180's two gated runs (16,735 cases each, byte-identical): (1) the DSTNIB arm ran byte0 = n<<4 for n = 0..15 on two carriers -- the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved for n = 0..14, and n = 15 is UNOBSERVABLE because the harness's own store index register is r15 (r15 is never non-zero in any of the 16,335 observed cases, so this is a carrier limit, not a hardware property -- the same limit EXP-0168 recorded for falu2.dst); (2) STRUCTURALLY, the seed program's fourteen SIX-BYTE half-adds are `[j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]` and nothing but byte0 names register j -- the per-case identity `r_j.lo == fp16(h[byte+1] + h[byte+3])` holds in **228,690 checks per run with zero mismatches, in both runs**, for j = 0..13; (3) ARITHMETICALLY, the 8-byte fma anchor computes `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` on both carriers. Operand bytes are the ODD bytes (+1, +3, and +5 in the 8-byte form); the final byte of the instruction is the modifier byte. Half-register descriptor h = (reg<<1)|is_high. Same class as cvt_f2h_dst / bf_add_dst / n3_mov, which db.json already models this way, and identical in shape to the low-nibble-8 sibling `h_alu_hi`. INSTRUCTION LENGTH, MEASURED (EXP-0180 LEN arm; re-derived independently by EXP-0183 from the same raw, 32 of 32 cells, ZERO ambiguous cells and ZERO cross-run disagreements) as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3 and 7 -> 10/10/10/8; opsel 4 (hadd) -> 6/8/10/6; opsel 5 (hmul) -> 6/8/10/8; opsel 6 (hfma) -> 6/8/10/12. **BOUND: bytes +6.. carry the marker chain in every LEN case, so a length dependence on byte +6 or later is UNTESTED.** This measured table is NOT the rule the tokenizer implements: EXP-0182 measured that adopting it verbatim costs 17 clean corpus files and 3,220 leftover bytes, because the G17P measurement and the M4 corpus disagree exactly on the compact forms -- precisely where the bound above says the measurement is silent. `isadb.instr_length` therefore implements only the nine (opsel, m) cells where BOTH sources agree. Recorded here so the disagreement is visible rather than smoothed away. WITHDRAWN: the earlier \"this fixed 12-byte length OVER-CONSUMES the following instruction's leader\" claim. EXP-0180 measured the length directly and withdrew it; at (opsel 6, m 3) twelve bytes is correct. The corpus instances that embed a real op-leader inside `ext` are instances at a DIFFERENT (opsel, m) whose true length is shorter, which is a tokenizer-side question, not evidence that this encoding over-consumes.",
    "provenance": "census EXP-M4-13 R8/R10 (own-MSL half corpus): 121/126 half_alu_fma12 instances embed a real op-leader in ext => candidate length-rule over-consumption. HW-VALIDATED (splice, A18 EXP-M4-14): the fma+abs member IS real -- own-MSL hfma.metal k_hfma(8B), k_hfmasat(10B), k_hfma_abs(12B `10 02 1e 03 83 04 00 00 00 80 01 00`), k_hfma_neg(8B byte+7=0xc8); k_hfma_abs baseline [9,4,8,9] with negative inputs confirms the abs modifier (byte+4 0x83). byte+3=srcA typed (family-consistent); byte+4 sweep {0x83->[9,4,8,9] abs; 0x82->|a| passthrough; 0x80->0}. ext (byte+4..+11) DELIBERATELY kept raw as an honest heterogeneous-residue/over-consumption result; the length-rule over-consumption is flagged for the length-rule owner (out of scope for this raw-typing pass).",
-   "emit_unsafe": true
+   "emit_unsafe": true,
+   "match_notes": [
+    {
+     "name": "opsel",
+     "start": 16,
+     "width": 3,
+     "type": "opcode",
+     "value": 6,
+     "enum": {
+      "6": "hfma"
+     },
+     "note": "FOLDED INTO `match` (EXP-0183, from EXP-0180's measured length map, re-derived here). Exactly ONE of the eight op-select values yields a 12-byte instruction, so there is no value for an emitter to choose and an emitter-grade label on the row would be vacuous (DEF-0170-1). Same disposition as falu2_uni.uni_mode (EXP-0175) and cvt_bf16.src/fmt. The name, span and pinned value are preserved here."
+    }
+   ]
   },
   {
    "mnemonic": "falu_srcmod12b",

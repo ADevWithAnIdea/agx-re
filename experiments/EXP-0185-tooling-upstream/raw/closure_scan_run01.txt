@@ -1,0 +1,16 @@
+# closure_scan.py against its committed fixtures -- 2026-08-30T13:39:38Z
+$ python3 tools/agxtest/closure_scan.py tools/agxtest/testdata/closure_shadow_bad.py main
+main(): mnem: read by ['raw_case'], and the enclosing scope assigns it more than once
+main(): nb: read by ['raw_case'], and the enclosing scope assigns it more than once
+closure_scan: 2 finding(s) in tools/agxtest/testdata/closure_shadow_bad.py
+EXIT=1
+$ python3 tools/agxtest/closure_scan.py tools/agxtest/testdata/closure_shadow_good.py main --allow 'mnem:mutually exclusive if/else'
+closure_scan: 0 finding(s) in tools/agxtest/testdata/closure_shadow_good.py
+EXIT=0
+# and the real thing: EXP-0178's own harness/run.py, the file the defect was found in
+$ python3 tools/agxtest/closure_scan.py experiments/EXP-0178-g17p-sysval-tileread/harness/run.py main
+main(): mnem: read by ['record'], and the enclosing scope assigns it more than once
+main(): off: read by ['tokenize_anchor'], and the enclosing scope assigns it more than once
+main(): runner: read by ['raw_case', 'restart'], and the enclosing scope assigns it more than once
+closure_scan: 3 finding(s) in experiments/EXP-0178-g17p-sysval-tileread/harness/run.py
+EXIT=1

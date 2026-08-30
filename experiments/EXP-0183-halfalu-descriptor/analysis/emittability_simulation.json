@@ -1,0 +1,2564 @@
+{
+ "before": [
+  "atomic_mem",
+  "bf_add_dst",
+  "bf_alu",
+  "bf_fma_dst",
+  "call",
+  "carry_gen",
+  "cvt_f2h",
+  "cvt_f2h_dst",
+  "cvt_i2f",
+  "device_store",
+  "falu2",
+  "falu3",
+  "falu3_ext",
+  "falu_acc",
+  "frag_color_pack",
+  "frame_prologue",
+  "fspecial",
+  "fspecial_est",
+  "get_sr",
+  "h_coord_hi",
+  "h_coord_hi_ext",
+  "hminmax",
+  "iminmax",
+  "irotate",
+  "isel10",
+  "iter_flat",
+  "iunary",
+  "link_save_restore",
+  "mov_imm",
+  "mov_zext16",
+  "n3_mov",
+  "pack_convert",
+  "pixel_order",
+  "pop_reconverge",
+  "psel",
+  "ret_luse",
+  "rtq_state_move",
+  "sel",
+  "shift_amt_move",
+  "simd_reduce",
+  "spill_frame_marker",
+  "sr_read_wide",
+  "stop",
+  "tex_addr_setup",
+  "tex_deriv",
+  "tex_sample",
+  "uniform_mov",
+  "vtx_coord_xform"
+ ],
+ "after": [
+  "atomic_mem",
+  "bf_add_dst",
+  "bf_alu",
+  "bf_fma_dst",
+  "call",
+  "carry_gen",
+  "cvt_bf16",
+  "cvt_f2h",
+  "cvt_f2h_dst",
+  "cvt_i2f",
+  "device_store",
+  "falu2",
+  "falu2_uni",
+  "falu3",
+  "falu3_ext",
+  "falu_acc",
+  "frag_color_pack",
+  "frame_prologue",
+  "fspecial",
+  "fspecial_est",
+  "get_sr",
+  "h_coord_hi",
+  "h_coord_hi_ext",
+  "half_alu",
+  "half_alu_ext8",
+  "hminmax",
+  "iminmax",
+  "irotate",
+  "isel10",
+  "iter_flat",
+  "iunary",
+  "link_save_restore",
+  "mov_imm",
+  "mov_zext16",
+  "n3_mov",
+  "pack_convert",
+  "pixel_order",
+  "pop_reconverge",
+  "psel",
+  "reg_move_cb",
+  "ret_luse",
+  "rtq_state_move",
+  "sel",
+  "shift_amt_move",
+  "simd_reduce",
+  "spill_frame_marker",
+  "sr_read_wide",
+  "stop",
+  "tex_addr_setup",
+  "tex_deriv",
+  "tex_sample",
+  "uniform_mov",
+  "vtx_coord_xform"
+ ],
+ "gained": [
+  "cvt_bf16",
+  "falu2_uni",
+  "half_alu",
+  "half_alu_ext8",
+  "reg_move_cb"
+ ],
+ "lost": [],
+ "why_after": {
+  "falu2i": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "imm_flag",
+     "untested"
+    ],
+    [
+     "opflags",
+     "untested"
+    ],
+    [
+     "ctrl_lo",
+     "untested"
+    ],
+    [
+     "mods",
+     "untested"
+    ],
+    [
+     "srcA_reg_top",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "falu2_ext": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "srcA_size",
+     "untested"
+    ],
+    [
+     "srcB_imm",
+     "untested"
+    ],
+    [
+     "srcB_neg",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "funary": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1",
+     "tokenization-only"
+    ],
+    [
+     "srcA",
+     "untested"
+    ],
+    [
+     "srcmod",
+     "tokenization-only"
+    ],
+    [
+     "mod",
+     "corpus-correlation"
+    ],
+    [
+     "ext",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "iadd2": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b2_fmt",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "imad": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1hi",
+     "untested"
+    ],
+    [
+     "b2_bit0",
+     "untested"
+    ],
+    [
+     "store_en",
+     "untested"
+    ],
+    [
+     "b2_fmt",
+     "untested"
+    ],
+    [
+     "srcC_desc",
+     "corpus-correlation"
+    ],
+    [
+     "b11",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "isel_reg": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cmpB",
+     "untested"
+    ],
+    [
+     "cmp_mode",
+     "untested"
+    ],
+    [
+     "cc",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "isel_reg8": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cmpA",
+     "untested"
+    ],
+    [
+     "cmpB",
+     "untested"
+    ],
+    [
+     "cmp_mode",
+     "untested"
+    ],
+    [
+     "selTrue",
+     "untested"
+    ],
+    [
+     "cc",
+     "corpus-correlation"
+    ],
+    [
+     "flags",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "n2_op6": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ishift": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "src_cache",
+     "untested"
+    ],
+    [
+     "pad9",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ibfe": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b2_bit0",
+     "single-template-inference"
+    ],
+    [
+     "sign_ext",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "icmpsel": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst_full",
+     "untested"
+    ],
+    [
+     "srcA",
+     "corpus-correlation"
+    ],
+    [
+     "cmpmode",
+     "corpus-correlation"
+    ],
+    [
+     "neg_lo",
+     "corpus-correlation"
+    ],
+    [
+     "cond",
+     "corpus-correlation"
+    ],
+    [
+     "cache",
+     "tokenization-only"
+    ],
+    [
+     "sel_marker",
+     "tokenization-only"
+    ],
+    [
+     "sel_operand",
+     "tokenization-only"
+    ],
+    [
+     "tail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "cvt_f2i": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b9",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ilogic": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "z6",
+     "single-template-inference"
+    ],
+    [
+     "z8",
+     "single-template-inference"
+    ],
+    [
+     "z9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "icmp_pred": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "srcA",
+     "untested"
+    ],
+    [
+     "neg",
+     "untested"
+    ],
+    [
+     "srcB",
+     "untested"
+    ],
+    [
+     "opclass",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "jump": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "branch_ctrl",
+     "untested"
+    ],
+    [
+     "link",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "jump_cond": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cf_scope",
+     "untested"
+    ],
+    [
+     "reserved",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "if_push": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "scope",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "mask_op": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "mask_bank",
+     "corpus-correlation"
+    ],
+    [
+     "scope_kind",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "device_load": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "addr_mode",
+     "untested"
+    ],
+    [
+     "access_desc",
+     "untested"
+    ],
+    [
+     "reserved7",
+     "untested"
+    ],
+    [
+     "reserved13",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "tex_write": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "amode",
+     "untested"
+    ],
+    [
+     "rsv11",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "simd_shuffle": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cache",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "simd_ballot": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cache",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "atomic_rmw": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "amode",
+     "untested"
+    ],
+    [
+     "rsv3",
+     "untested"
+    ],
+    [
+     "base_slot",
+     "untested"
+    ],
+    [
+     "addr_desc_hi",
+     "untested"
+    ],
+    [
+     "per_lane",
+     "untested"
+    ],
+    [
+     "op_msb",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "matrix_mac": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst_desc_lo",
+     "untested"
+    ],
+    [
+     "b11_rsv",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "rt_intersect": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "mode",
+     "corpus-correlation"
+    ],
+    [
+     "ray_param",
+     "corpus-correlation"
+    ],
+    [
+     "as_type",
+     "corpus-correlation"
+    ],
+    [
+     "b5",
+     "untested"
+    ],
+    [
+     "flags",
+     "corpus-correlation"
+    ],
+    [
+     "b7",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "rt_as_load": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "sub_space",
+     "untested"
+    ],
+    [
+     "mode",
+     "tokenization-only"
+    ],
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "addr_lo",
+     "untested"
+    ],
+    [
+     "addr_hi",
+     "untested"
+    ],
+    [
+     "flags",
+     "tokenization-only"
+    ],
+    [
+     "reserved7",
+     "tokenization-only"
+    ],
+    [
+     "width",
+     "tokenization-only"
+    ],
+    [
+     "off_lo",
+     "tokenization-only"
+    ],
+    [
+     "field_off",
+     "corpus-correlation"
+    ],
+    [
+     "off_hi",
+     "tokenization-only"
+    ],
+    [
+     "elem_size",
+     "tokenization-only"
+    ],
+    [
+     "reserved13",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rt_ray_mem": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "mode",
+     "tokenization-only"
+    ],
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "addr_lo",
+     "untested"
+    ],
+    [
+     "addr_hi",
+     "untested"
+    ],
+    [
+     "flags",
+     "tokenization-only"
+    ],
+    [
+     "reserved7",
+     "tokenization-only"
+    ],
+    [
+     "width",
+     "tokenization-only"
+    ],
+    [
+     "off_lo",
+     "tokenization-only"
+    ],
+    [
+     "field_off",
+     "corpus-correlation"
+    ],
+    [
+     "off_hi",
+     "tokenization-only"
+    ],
+    [
+     "elem_size",
+     "tokenization-only"
+    ],
+    [
+     "reserved13",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rt_ray_mem_ldidx": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "idx_dst",
+     "tokenization-only"
+    ],
+    [
+     "rsv4",
+     "tokenization-only"
+    ],
+    [
+     "addr_mode",
+     "corpus-correlation"
+    ],
+    [
+     "marker",
+     "tokenization-only"
+    ],
+    [
+     "idx_lo",
+     "tokenization-only"
+    ],
+    [
+     "idx_hi",
+     "tokenization-only"
+    ],
+    [
+     "wtype",
+     "tokenization-only"
+    ],
+    [
+     "scale",
+     "tokenization-only"
+    ],
+    [
+     "rsv11",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rt_ray_mem_short": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "reg",
+     "tokenization-only"
+    ],
+    [
+     "rsv4",
+     "tokenization-only"
+    ],
+    [
+     "rsv5",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rt_transform_test": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "src",
+     "tokenization-only"
+    ],
+    [
+     "opA",
+     "tokenization-only"
+    ],
+    [
+     "opAmod",
+     "tokenization-only"
+    ],
+    [
+     "opAflags",
+     "tokenization-only"
+    ],
+    [
+     "mark2",
+     "tokenization-only"
+    ],
+    [
+     "opB",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ray_move": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "threadgroup_barrier": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "sub",
+     "untested"
+    ],
+    [
+     "mem_scope",
+     "untested"
+    ],
+    [
+     "flags",
+     "untested"
+    ],
+    [
+     "b5",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "mem_fence": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "sub",
+     "corpus-correlation"
+    ],
+    [
+     "memclass",
+     "corpus-correlation"
+    ],
+    [
+     "b5",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "scoreboard_fence": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "kind",
+     "corpus-correlation"
+    ],
+    [
+     "scope",
+     "tokenization-only"
+    ],
+    [
+     "mask",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "iter": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "iter_at": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "frag_color_store": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "store_mode",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "tile_read": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b2",
+     "untested"
+    ],
+    [
+     "b4",
+     "untested"
+    ],
+    [
+     "b6_hi",
+     "untested"
+    ],
+    [
+     "b7",
+     "untested"
+    ],
+    [
+     "tail",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "imageblock_store": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b4",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "imageblock_load": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "b4",
+     "tokenization-only"
+    ],
+    [
+     "b6",
+     "tokenization-only"
+    ],
+    [
+     "fmt",
+     "corpus-correlation"
+    ],
+    [
+     "tail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "frag_tile_setup": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "sel",
+     "single-template-inference"
+    ],
+    [
+     "access",
+     "single-template-inference"
+    ],
+    [
+     "b5",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "frag_depth_store": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "frame_marker": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "srcA_reg",
+     "corpus-correlation"
+    ],
+    [
+     "subform",
+     "corpus-correlation"
+    ],
+    [
+     "companion",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ret": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "scoreboard",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "call_indirect": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b2",
+     "tokenization-only"
+    ],
+    [
+     "target_lo",
+     "tokenization-only"
+    ],
+    [
+     "b4",
+     "tokenization-only"
+    ],
+    [
+     "b5",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "ibitcount": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cache",
+     "untested"
+    ],
+    [
+     "dst",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "unpack_convert": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "src_class",
+     "untested"
+    ],
+    [
+     "cache",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ],
+    [
+     "opdesc",
+     "untested"
+    ],
+    [
+     "size",
+     "untested"
+    ],
+    [
+     "fmt_sel",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "vary_store": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "hint1",
+     "untested"
+    ],
+    [
+     "hint2",
+     "single-template-inference"
+    ],
+    [
+     "b5_tag",
+     "untested"
+    ],
+    [
+     "b7",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "tex_coord_setup": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1",
+     "untested"
+    ],
+    [
+     "srcA",
+     "corpus-correlation"
+    ],
+    [
+     "form",
+     "corpus-correlation"
+    ],
+    [
+     "b9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "coord_madf": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1",
+     "tokenization-only"
+    ],
+    [
+     "srcA",
+     "tokenization-only"
+    ],
+    [
+     "mark",
+     "tokenization-only"
+    ],
+    [
+     "body",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "frame_marker_compact": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "cubearray_coord_const": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b3",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "tg_addr_compute": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b3",
+     "untested"
+    ],
+    [
+     "b4",
+     "untested"
+    ],
+    [
+     "b5",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": true,
+   "descriptor_label": null
+  },
+  "half_pack": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dstlo",
+     "untested"
+    ],
+    [
+     "b3",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "pad_operand": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "hi",
+     "tokenization-only"
+    ],
+    [
+     "word",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "dev_scoreboard_fence": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "scope_flag",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "n3_addr_prep": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "src_reg",
+     "corpus-correlation"
+    ],
+    [
+     "op_variant",
+     "corpus-correlation"
+    ],
+    [
+     "src_companion",
+     "corpus-correlation"
+    ],
+    [
+     "tail",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "n3_sample_read": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1",
+     "untested"
+    ],
+    [
+     "b3",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "bf_mul_dst": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "fmt",
+     "corpus-correlation"
+    ],
+    [
+     "srcA",
+     "untested"
+    ],
+    [
+     "srcB",
+     "untested"
+    ],
+    [
+     "tail",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rt_query_traverse": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "fldexp": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "operand",
+     "tokenization-only"
+    ],
+    [
+     "b4",
+     "tokenization-only"
+    ],
+    [
+     "b5",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ibfins": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cache",
+     "untested"
+    ],
+    [
+     "mask_imm",
+     "untested"
+    ],
+    [
+     "mask_hi",
+     "untested"
+    ],
+    [
+     "b6hi",
+     "untested"
+    ],
+    [
+     "b7",
+     "untested"
+    ],
+    [
+     "srcdesc",
+     "corpus-correlation"
+    ],
+    [
+     "b10",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "atomic_tg": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "amode",
+     "untested"
+    ],
+    [
+     "ret_desc",
+     "untested"
+    ],
+    [
+     "op_desc",
+     "untested"
+    ],
+    [
+     "rsv10lo",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "tile_read_mrt": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b4",
+     "untested"
+    ],
+    [
+     "b6_hi",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "h_alu_hi": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "ctrl",
+     "untested"
+    ],
+    [
+     "mods",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "h_alu_hi_ext": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "srcA",
+     "untested"
+    ],
+    [
+     "opsel",
+     "corpus-correlation"
+    ],
+    [
+     "opflags",
+     "untested"
+    ],
+    [
+     "srcB",
+     "untested"
+    ],
+    [
+     "ext",
+     "untested"
+    ],
+    [
+     "srcC",
+     "untested"
+    ],
+    [
+     "tail",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "packed_half2_hi": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "srcA",
+     "untested"
+    ],
+    [
+     "srcB",
+     "untested"
+    ],
+    [
+     "mods",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rtq_pred": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "sfu_marker": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "ray_move_copy6": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ray_move_zero6": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ],
+    [
+     "b3",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ray_move_zinit": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ],
+    [
+     "b3",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "funary_imm": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "corpus-correlation"
+    ],
+    [
+     "srcB",
+     "tokenization-only"
+    ],
+    [
+     "lut_a",
+     "tokenization-only"
+    ],
+    [
+     "mod",
+     "tokenization-only"
+    ],
+    [
+     "modtail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "b_alu10_lo7": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "src_reg",
+     "corpus-correlation"
+    ],
+    [
+     "src_flag",
+     "corpus-correlation"
+    ],
+    [
+     "opsel_hi",
+     "corpus-correlation"
+    ],
+    [
+     "srcA",
+     "corpus-correlation"
+    ],
+    [
+     "modA",
+     "tokenization-only"
+    ],
+    [
+     "modB",
+     "tokenization-only"
+    ],
+    [
+     "z6",
+     "single-template-inference"
+    ],
+    [
+     "outmod",
+     "tokenization-only"
+    ],
+    [
+     "ext8",
+     "corpus-correlation"
+    ],
+    [
+     "ext9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "b_alu10_loe": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "opsel_hi",
+     "corpus-correlation"
+    ],
+    [
+     "z6",
+     "single-template-inference"
+    ],
+    [
+     "ext8",
+     "single-template-inference"
+    ],
+    [
+     "ext9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "b_alu10_lof": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "opsel_hi",
+     "corpus-correlation"
+    ],
+    [
+     "z6",
+     "single-template-inference"
+    ],
+    [
+     "ext8",
+     "single-template-inference"
+    ],
+    [
+     "ext9",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "reg_move_c0": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src_reg",
+     "untested"
+    ],
+    [
+     "src_flag",
+     "untested"
+    ],
+    [
+     "src_class",
+     "untested"
+    ],
+    [
+     "op_desc",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "reg_move_c1": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src_reg",
+     "untested"
+    ],
+    [
+     "src_flag",
+     "untested"
+    ],
+    [
+     "src_class",
+     "untested"
+    ],
+    [
+     "op_desc",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "reg_move_c9": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src_reg",
+     "untested"
+    ],
+    [
+     "src_flag",
+     "untested"
+    ],
+    [
+     "src_class",
+     "untested"
+    ],
+    [
+     "op_desc",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "b_alu14_c83": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "form",
+     "tokenization-only"
+    ],
+    [
+     "reg_a",
+     "tokenization-only"
+    ],
+    [
+     "reg_b",
+     "tokenization-only"
+    ],
+    [
+     "fmt4",
+     "tokenization-only"
+    ],
+    [
+     "src_lo",
+     "tokenization-only"
+    ],
+    [
+     "fmt6",
+     "tokenization-only"
+    ],
+    [
+     "srcB_reg",
+     "tokenization-only"
+    ],
+    [
+     "rsv8",
+     "tokenization-only"
+    ],
+    [
+     "rsv9",
+     "tokenization-only"
+    ],
+    [
+     "fmt10",
+     "tokenization-only"
+    ],
+    [
+     "rsv11",
+     "tokenization-only"
+    ],
+    [
+     "srcU_reg",
+     "tokenization-only"
+    ],
+    [
+     "srcU_desc",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "if_push_pred": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "scope",
+     "untested"
+    ],
+    [
+     "level",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "b_alu14_prep2": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "sel",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "int_alu_ehi": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "flags",
+     "tokenization-only"
+    ],
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "opmode",
+     "tokenization-only"
+    ],
+    [
+     "b5",
+     "tokenization-only"
+    ],
+    [
+     "srcdesc",
+     "tokenization-only"
+    ],
+    [
+     "srcB",
+     "tokenization-only"
+    ],
+    [
+     "srcC",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "vtx_out_pos": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "slot",
+     "single-template-inference"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "vary_slot": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "mesh_out_src": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "sel",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "isel8": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cmpA",
+     "untested"
+    ],
+    [
+     "cmpB",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "isel10_c": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "cmpA",
+     "untested"
+    ],
+    [
+     "cmpB",
+     "untested"
+    ],
+    [
+     "cmp_mode",
+     "untested"
+    ],
+    [
+     "selTrue",
+     "untested"
+    ],
+    [
+     "cc",
+     "corpus-correlation"
+    ],
+    [
+     "flags",
+     "untested"
+    ],
+    [
+     "selFalse_file",
+     "untested"
+    ],
+    [
+     "selFalse",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "n2_compact2": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "n2_op8": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "body",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "n2_op10": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "src",
+     "tokenization-only"
+    ],
+    [
+     "opsel",
+     "tokenization-only"
+    ],
+    [
+     "opdesc",
+     "tokenization-only"
+    ],
+    [
+     "immword",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "cvt_i2f_src": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "src_cache",
+     "untested"
+    ],
+    [
+     "dst_desc",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "copysign": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "operands",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "ibfe_mesh_attr": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "operands",
+     "tokenization-only"
+    ],
+    [
+     "opdesc",
+     "tokenization-only"
+    ],
+    [
+     "tail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "mem_fence8": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "mask",
+     "corpus-correlation"
+    ],
+    [
+     "tail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "rtq_dualsrc": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b3",
+     "tokenization-only"
+    ],
+    [
+     "opA",
+     "tokenization-only"
+    ],
+    [
+     "opB",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "n4_cf_word": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b3",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "n4_rt_word": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "n1_word": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "n3_word": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "falu_compact4": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src",
+     "untested"
+    ],
+    [
+     "opsel",
+     "untested"
+    ],
+    [
+     "opmode",
+     "corpus-correlation"
+    ],
+    [
+     "operand",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "falu2_srcmod10": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "opsel",
+     "corpus-correlation"
+    ],
+    [
+     "ctrl",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "falu3_srcmod12": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "opsel",
+     "untested"
+    ],
+    [
+     "ctrl",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "rt_query_traverse2": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "getter",
+     "tokenization-only"
+    ],
+    [
+     "sel",
+     "tokenization-only"
+    ],
+    [
+     "b5",
+     "tokenization-only"
+    ],
+    [
+     "b6",
+     "tokenization-only"
+    ],
+    [
+     "b7",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "half_alu_fma12": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "ext",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "falu_srcmod12b": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "srcB_imm",
+     "untested"
+    ],
+    [
+     "mod_lo",
+     "untested"
+    ],
+    [
+     "srcB_neg",
+     "untested"
+    ],
+    [
+     "mod_hi",
+     "untested"
+    ],
+    [
+     "ext_srcmod",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": null
+  },
+  "compute_fence_scoped": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "kind",
+     "tokenization-only"
+    ],
+    [
+     "scope",
+     "tokenization-only"
+    ],
+    [
+     "mask",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "reg_move_c2var": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "untested"
+    ],
+    [
+     "src_reg",
+     "untested"
+    ],
+    [
+     "src_flag",
+     "untested"
+    ],
+    [
+     "subform",
+     "untested"
+    ],
+    [
+     "op_desc",
+     "untested"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "bf_alu8_var": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "form",
+     "tokenization-only"
+    ],
+    [
+     "opsel",
+     "tokenization-only"
+    ],
+    [
+     "srcA",
+     "tokenization-only"
+    ],
+    [
+     "srcB",
+     "tokenization-only"
+    ],
+    [
+     "tail",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "op04_len8": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "tokenization-only"
+    ],
+    [
+     "mode",
+     "tokenization-only"
+    ],
+    [
+     "body",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": true,
+   "descriptor_label": null
+  },
+  "operand_word_x2_h5": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b0",
+     "tokenization-only"
+    ],
+    [
+     "b1",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "operand_word_x2_h6": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b0",
+     "tokenization-only"
+    ],
+    [
+     "b1",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "operand_word_x2_h7": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b0",
+     "tokenization-only"
+    ],
+    [
+     "b1",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "operand_word_a2_01": {
+   "missing_rows": [],
+   "fields_below_bar": [],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "operand_word": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b0",
+     "tokenization-only"
+    ],
+    [
+     "b1",
+     "tokenization-only"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "tokenization-only"
+  },
+  "half_compact4": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "opsel",
+     "corpus-correlation"
+    ],
+    [
+     "opmode",
+     "corpus-correlation"
+    ],
+    [
+     "operand",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "b_alu10_lo6": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "src_reg",
+     "corpus-correlation"
+    ],
+    [
+     "src_flag",
+     "corpus-correlation"
+    ],
+    [
+     "opsel_hi",
+     "corpus-correlation"
+    ],
+    [
+     "srcA",
+     "corpus-correlation"
+    ],
+    [
+     "modA",
+     "corpus-correlation"
+    ],
+    [
+     "modB",
+     "corpus-correlation"
+    ],
+    [
+     "z6",
+     "corpus-correlation"
+    ],
+    [
+     "outmod",
+     "corpus-correlation"
+    ],
+    [
+     "ext8",
+     "corpus-correlation"
+    ],
+    [
+     "ext9",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "tg_atomic_prep10": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "dst",
+     "corpus-correlation"
+    ],
+    [
+     "body",
+     "corpus-correlation"
+    ],
+    [
+     "tail",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  },
+  "frag_sample_submit": {
+   "missing_rows": [],
+   "fields_below_bar": [
+    [
+     "b1",
+     "corpus-correlation"
+    ],
+    [
+     "b2",
+     "corpus-correlation"
+    ],
+    [
+     "body",
+     "corpus-correlation"
+    ]
+   ],
+   "descriptor_veto": false,
+   "descriptor_label": "corpus-correlation"
+  }
+ },
+ "emitter_grade_rows": 636,
+ "labels": {
+  "hardware-run": 553,
+  "untested": 169,
+  "isolated-byte-diff": 83,
+  "tokenization-only": 133,
+  "corpus-correlation": 74,
+  "single-template-inference": 28
+ }
+}

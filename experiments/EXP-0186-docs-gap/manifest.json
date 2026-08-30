@@ -1,0 +1,84 @@
+{
+  "experiment": "EXP-0186-docs-gap",
+  "title": "Which of the 2026-08-29/30 G17P wave's emitter-facing facts never reached docs/",
+  "date": "2026-08-30",
+  "type": "PURE ANALYSIS \u2014 no device, no SSH, no GPU",
+  "promotes": "nothing",
+  "target": "N/A (desk work). Every fact surveyed records its OWN measured target; no fact was generalised between G16G and G17P.",
+  "repo_revision": "8b85784776d04973f44852abcb3da473fb939d3b",
+  "repo_dirty_files_at_write_time": 47,
+  "survey_window": "f517d1e8..HEAD",
+  "clean_room": {
+    "provenance": "PUBLIC (this repository's own committed artifacts only)",
+    "apple_binary_introspection": "NONE",
+    "device_contacted": false,
+    "shaders_compiled_or_executed": 0
+  },
+  "artifacts": {
+    "README.md": {
+      "sha256": "0bbe008bf66319ff8fc3d576905f42512932d81272fd75950856f77a8b9733b9",
+      "bytes": 4488
+    },
+    "RESULTS.md": {
+      "sha256": "02a9000757b16318bb13352cb6f36f5bdda8e3990b6555d09573203d2fe41caf",
+      "bytes": 11172
+    },
+    "PROGRESS.md": {
+      "sha256": "25146d279b8f0a68eb995b5246d88f69ab66677bb6db9801c5685512f70abddd",
+      "bytes": 2224
+    },
+    "analysis/docs_gap.json": {
+      "sha256": "e4eaee934b5cbc000bbf420e7f05fa49aaf387968a0e2a5e8e9b5f46916a99df",
+      "bytes": 44399
+    },
+    "analysis/drafted_docs.md": {
+      "sha256": "846d9c2bb8e09691cc41e989c3ee17cd17623324f252a7634afc9d30d3eee7ab",
+      "bytes": 45257
+    }
+  },
+  "inputs_inspected_sha256_prefix": {
+    "PROVENANCE.md": "bd2692c07dea37ce",
+    "docs/isa/README.md": "312599ec9a3c6c56",
+    "docs/isa/encoding-tables.md": "a90611285789d732",
+    "docs/isa/memory-model.md": "ea391a99846163fb",
+    "docs/compiler-readiness.md": "7d63a67eff41ff34",
+    "docs/P0-P1-CLOSURE.md": "640bf35b24aeef42",
+    "docs/pipeline/README.md": "ece238638015b124",
+    "docs/descriptors/README.md": "affb3224d66cb8e6",
+    "docs/cmdstream/README.md": "51c4efd3754c770e",
+    "experiments/EXP-0163-g17p-inert-liveness/RESULTS.md": "3644f9cd1cf9ba2d",
+    "experiments/EXP-0168-g17p-dst-resweep/RESULTS.md": "795fb3d1bd543cac",
+    "experiments/EXP-0169-g17p-rerecord/RESULTS.md": "11d9603ceceae2d0",
+    "experiments/EXP-0172-g17p-onefield-tail/RESULTS.md": "1615c576ac2d43a6",
+    "experiments/EXP-0174-g17p-n3mov/RESULTS.md": "43ca32f1cfe60ea8",
+    "experiments/EXP-0175-db-defects-2/RESULTS.md": "1542429c3ce1da2c",
+    "experiments/EXP-0178-g17p-sysval-tileread/RESULTS.md": "c40e391eb229d04e",
+    "experiments/EXP-0179-g17p-call/RESULTS.md": "6be919d614ec9f6c",
+    "experiments/EXP-0180-g17p-halfalu-rerecord/RESULTS.md": "c8418f1a0c561ba2"
+  },
+  "excluded": {
+    "EXP-0183-halfalu-descriptor": "no RESULTS.md \u2014 live",
+    "EXP-0184-g17p-onefield-b": "no RESULTS.md \u2014 live",
+    "EXP-0185-tooling-upstream": "untracked, no RESULTS.md \u2014 live",
+    "M5 fork": "out of scope per CLAUDE.md"
+  },
+  "owned_by_others_read_only": [
+    "docs/",
+    "PROVENANCE.md",
+    "tools/agx-isa/db.json",
+    "tools/agx-isa/validation.json",
+    "tools/agx-isa/isadb.py",
+    "tools/agxtest/"
+  ],
+  "counts": {
+    "candidates_examined": 22,
+    "already_handled": 2,
+    "gaps_surveyed": 20,
+    "fully_present_in_docs": 0,
+    "wholly_absent": 15,
+    "present_but_refuted_or_stage_blind": 3,
+    "present_only_for_older_target_or_prose_only": 2,
+    "paper_trail_defects": 4
+  },
+  "worst_omission": "F01 \u2014 the half-ALU destination is byte0 high nibble; db.json models it as a source, so a descriptor-driven emitter can only ever write r1, silently (EXP-0180 \u00a73, DEF-0180-1, HW-VALIDATED, G17P)."
+}

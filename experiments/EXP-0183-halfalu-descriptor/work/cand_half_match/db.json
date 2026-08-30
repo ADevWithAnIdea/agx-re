@@ -2,7 +2,7 @@
  "isa": "Apple A18 Pro / G17P AGX (clean-room, OWN-SHADER derived)",
  "parcel_bytes": 2,
  "length_rule": {
-  "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c = 6B vs fma 09 01 1e = 8B share first parcel); length is a function of byte0 (group) + a per-group length bit. Float 0x09 uses byte+2 bit1; integer arithmetic (0x9f/0x1f/0xa7) uses byte+1 bit0 (1=10B 2-src, 0=12B 3-src mul-add / bitfield). EXP-0007 HW-validated.  [2026-08-30, EXP-0183] The byte0 low-nibble-0 (native half) entry is now the hardware-MEASURED 32-cell table rather than a one-line guess, and it carries an explicit statement of where it disagrees with the corpus-anchored rule the tokenizer implements. Neither is silently preferred.",
+  "note": "first parcel does NOT encode length on G17P (fsub 09 01 1c = 6B vs fma 09 01 1e = 8B share first parcel); length is a function of byte0 (group) + a per-group length bit. Float 0x09 uses byte+2 bit1; integer arithmetic (0x9f/0x1f/0xa7) uses byte+1 bit0 (1=10B 2-src, 0=12B 3-src mul-add / bitfield). EXP-0007 HW-validated.",
   "byte0_table": {
    "0x0e": 4,
    "lownibble_0xC": 4,
@@ -32,6 +32,7 @@
    "lownibble_0x4 + byte+1==0xea": "8  [RAY TRACING: dedicated ray-INTERSECT op. byte0 hi nibble=result reg; byte+2 mode (0x90 const-origin / 0x10 dyn-origin / 0xd0 +fn-table); byte+6 bit7=intersection-function-table present. Emitted 2x/kernel (traverse + result-read). ABSENT from a software Moller-Trumbore loop. EXP-0023 HW]",
    "0xdf": "14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during the (software) traversal loop. EXP-0023]",
    "byte0 low-3-bits 0b100": "4 get_sr (SR#=byte1, dst=byte0-hi; byte+3 lo-nibble==6 suffix, covers 0xNc & 0xN4 forms) | 2 mov_imm (byte0==0x0c, no suffix). EXP-0031",
+   "0x10": "6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU, sibling of 0x09. EXP-0033]",
    "0x27 (byte+1==0x05, byte+2==0x56)": "8  [popcount / bit-scan single op (ibitcount). EXP-0033]",
    "0x27 (byte+1==0x01)": "12  [ROTATE-by-immediate funnel shift (irotate). EXP-0033]",
    "0xa7 (byte+1 in {0x04,0x05})": "8  [reverse_bits / find-MSB bit-scan (ibitcount). EXP-0033]",
@@ -67,8 +68,7 @@
    "0x07 (byte+2==0x54, byte+3==0x84)": "6  [DEVICE MEMORY FENCE (mem_fence): atomic_thread_fence(mem_device, seq_cst) = `07 04 54 84 0a 00`. byte+3 0x84 = device-memory FENCE (vs threadgroup_barrier's 0x85 device = 0x84|0x01, the 0x01 = the added EXECUTION barrier); byte+4 0x0a = device memory-class flag. Ordering realised by fence PRESENCE, not a bit on the 0x67 RMW op (relaxed emits no fence, seq_cst emits it; acquire/release REJECTED by MSL). mem_texture is a byte+4==0x06 pair that decodes as pixel_order. EXP-O2D]",
    "get_sr SR 0x84": "simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06`, read then compared. Distinct from 0x82 simd_lane_id / 0x85 simd_group_id. EXP-O2D",
    "simd_reduce byte+1==0x06 bit7": "FLOAT simd_product / prefix-product (bit7=1, byte0=0xbf) vs simd_sum (bit7=0, byte0=0x3f); byte+7 0x32 = FLOAT exclusive-scan. INTEGER product has no native reduce op (shuffle+multiply tree). EXP-O2D",
-   "simd_shuffle byte+1==0x06": "simd_shuffle_and_fill_up/down (fill data = a separate preceding 0x67 load) / rotate; modulo variant changes byte+6 (0x4a->0x42) + a tail modulo byte. EXP-O2D",
-   "0x?0 (byte0 low nibble 0x0; high nibble = dst reg)": "NATIVE-HALF (fp16) float ALU, sibling of 0x09 and of the low-nibble-8 `h_alu_hi`. MEASURED ON HARDWARE (EXP-0180 LEN arm, 4,096 cases over two gated runs; re-derived independently by EXP-0183 from the same raw -- 32 of 32 cells, ZERO cells with more than one observed length, ZERO cross-run disagreements). As a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0,1,2,3,7 -> 10/10/10/8 ; opsel 4 (hadd) -> 6/8/10/6 ; opsel 5 (hmul) -> 6/8/10/8 ; opsel 6 (hfma) -> 6/8/10/12. The previous entry here read '6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU, sibling of 0x09. EXP-0033]', which is wrong in 25 of these 32 cells. BOUND: bytes +6.. carry the LEN arm's marker chain in every case, so a length dependence on byte +6 or later is UNTESTED. **THIS TABLE IS DOCUMENTATION, NOT THE IMPLEMENTED RULE.** `isadb.instr_length` is Python and is not driven by this entry. EXP-0182 measured that adopting the table above verbatim costs 17 clean corpus files and 3,220 leftover bytes (it kills half_compact4 8->0 and half_alu_fma12 7->0), because the G17P measurement and the M4 own-shader corpus genuinely disagree on the compact forms -- exactly where the bound above says the measurement is silent. The tokenizer therefore implements only the NINE (opsel, m) cells where both sources agree: opsel 4 or 5 with m in {0,1,2}, and opsel 6 with m in {1,2,3}. Widening that is a deliberate decision for the db owner, not a consequence of this table. EXP-0033 / EXP-0180 / EXP-0182 / EXP-0183."
+   "simd_shuffle byte+1==0x06": "simd_shuffle_and_fill_up/down (fill data = a separate preceding 0x67 load) / rotate; modulo variant changes byte+6 (0x4a->0x42) + a tail modulo byte. EXP-O2D"
   }
  },
  "scoreboard_model": {
@@ -5680,17 +5680,9 @@
    "fields": [
     {
      "name": "dst",
-     "start": 4,
-     "width": 4,
-     "type": "reg",
-     "note": "DEF-0180-1, HW-VALIDATED on G17P, re-derived by EXP-0183. The destination GPR (r0..r15). Directly exercised at 14 of 16 values in EVERY one of EXP-0180's 33,470 gated cases (the seed program's own six-byte half-adds) and at 15 of 16 by the DSTNIB arm on the 8-byte sibling; value 15 is unobservable in that harness (r15 is its store index register), a carrier limit, not a hardware property."
-    },
-    {
-     "name": "srcA",
      "start": 8,
      "width": 8,
-     "type": "reg",
-     "note": "RETYPED (EXP-0183). Formerly `dst`. This is a SOURCE half-register descriptor h = (reg<<1)|is_high, not the destination -- see the descriptor semantics. Its span is unchanged (bits 8..15), so evidence recorded against those bits still applies; only the name and role change. Named `srcA` to match the low-nibble-8 sibling `h_alu_hi`, whose byte+1 is already `srcA`."
+     "type": "reg"
     },
     {
      "name": "opsel",
@@ -5709,18 +5701,16 @@
      "type": "mod"
     },
     {
-     "name": "srcB",
+     "name": "srcA",
      "start": 24,
      "width": 8,
-     "type": "reg",
-     "note": "RENAMED (EXP-0183). Formerly `srcA`; span unchanged (bits 8..15 took the name `srcA` because byte+1 is the first source, matching `h_alu_hi`). Evidence recorded against bits 24..31 still applies."
+     "type": "reg"
     },
     {
-     "name": "ctrl",
+     "name": "srcB",
      "start": 32,
      "width": 8,
-     "type": "mod",
-     "note": "RETYPED (EXP-0183). Formerly `srcB`, on EXP-M4-14's claim that byte+4 is the second source of the 6-byte form. REFUTED from EXP-0180's raw: the seed program's own 6-byte hadds carry byte+4 = 0x00 = h0 = r0's LOW half, which is NON-ZERO in all 32,670 observed pre-vectors, yet the observed result is exactly fp16(h[byte+1] + h[byte+3]) in 228,690 checks per run with zero mismatches. byte+4 does not enter the arithmetic. Its low two bits are the measured LENGTH selector."
+     "type": "reg"
     },
     {
      "name": "src_modifier",
@@ -5729,8 +5719,8 @@
      "type": "mod"
     }
    ],
-   "semantics": "d(half) = op(h[byte+1], h[byte+3])  ; NATIVE half-precision (fp16) float ALU, 6-byte form. byte0 low nibble 0x0 is the family tag and byte0 HIGH nibble is the destination GPR. Operands are half-register descriptors h = (reg<<1)|is_high. byte+2 = op-select (low 3 bits: 4 = hadd, 5 = hmul) + opflags. byte+5 is the source/control modifier byte. A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE op, then a 0x18 pack assembles the 32-bit result; the HIGH-half sibling is `h_alu_hi` (byte0 low nibble 8). [CORRECTED 2026-08-30, EXP-0183 from EXP-0180's committed raw] **THE DESTINATION IS byte0's HIGH NIBBLE** (bits 4..7); the low nibble 0x0 is the family tag. The previous descriptor pinned the WHOLE of byte0 in `match`, so an emitter following it could only ever write r1, and the field it called `dst` (bits 8..15) is in fact a SOURCE half-register descriptor. Re-derived on G17P three independent ways, all cross-checked over EXP-0180's two gated runs (16,735 cases each, byte-identical): (1) the DSTNIB arm ran byte0 = n<<4 for n = 0..15 on two carriers -- the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved for n = 0..14, and n = 15 is UNOBSERVABLE because the harness's own store index register is r15 (r15 is never non-zero in any of the 16,335 observed cases, so this is a carrier limit, not a hardware property -- the same limit EXP-0168 recorded for falu2.dst); (2) STRUCTURALLY, the seed program's fourteen SIX-BYTE half-adds are `[j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]` and nothing but byte0 names register j -- the per-case identity `r_j.lo == fp16(h[byte+1] + h[byte+3])` holds in **228,690 checks per run with zero mismatches, in both runs**, for j = 0..13; (3) ARITHMETICALLY, the 8-byte fma anchor computes `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` on both carriers. Operand bytes are the ODD bytes (+1, +3, and +5 in the 8-byte form); the final byte of the instruction is the modifier byte. Half-register descriptor h = (reg<<1)|is_high. Same class as cvt_f2h_dst / bf_add_dst / n3_mov, which db.json already models this way, and identical in shape to the low-nibble-8 sibling `h_alu_hi`. INSTRUCTION LENGTH, MEASURED (EXP-0180 LEN arm; re-derived independently by EXP-0183 from the same raw, 32 of 32 cells, ZERO ambiguous cells and ZERO cross-run disagreements) as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3 and 7 -> 10/10/10/8; opsel 4 (hadd) -> 6/8/10/6; opsel 5 (hmul) -> 6/8/10/8; opsel 6 (hfma) -> 6/8/10/12. **BOUND: bytes +6.. carry the marker chain in every LEN case, so a length dependence on byte +6 or later is UNTESTED.** This measured table is NOT the rule the tokenizer implements: EXP-0182 measured that adopting it verbatim costs 17 clean corpus files and 3,220 leftover bytes, because the G17P measurement and the M4 corpus disagree exactly on the compact forms -- precisely where the bound above says the measurement is silent. `isadb.instr_length` therefore implements only the nine (opsel, m) cells where BOTH sources agree. Recorded here so the disagreement is visible rather than smoothed away. SUPERSEDED HERE: the EXP-M4-14 reading in which byte+3 was `srcA` and byte+4 `srcB` -- byte+4 is refuted as an operand (see the `ctrl` field note) and the two sources are byte+1 and byte+3.",
-   "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ALU and is the only byte differing between half2_add and half2_mul. HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL pureh.metal k_pureadd with distinct per-lane inputs -- byte+3 sweep {0x02->a+b; 0x04/06/08->b} proves byte+3=srcA (RETYPED from srcB); byte+5 sweep {0xc0->a+b; 0xc8->-a+b (bit3 srcA-negate); 0xc1->srcA only; 0xc2/0xc4->srcB only; 0x80/0x40/0x00->0}; opsel (0x1c hadd vs 0x1d hmul, byte+2) reconfirmed against k_puremul. puresub/pureneg corroborate the byte+5 bit3 negate. The former raw 'tail' (byte+4/+5) is now split into srcB + src_modifier; src_modifier bit-pattern rule captured in semantics (not a clean value enum).  [SUPERSEDED IN PART 2026-08-30] EXP-0183 re-derived EXP-0180's DEF-0180-1 and DEF-0180-2 from that experiment's committed raw (raw/g17p_run02, raw/g17p_run03; PURE ANALYSIS, no new hardware run) and both survived. The destination moves to byte0's high nibble; byte+1 and byte+3 are the two sources; byte+4 is not an operand. EXP-M4-14, which supplied the superseded reading, has NO committed raw tree at all (EXP-0164), and EXP-0180 refuted six of its nine claims on hardware."
+   "semantics": "d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.) HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureadd `10 03 1c 02 00 c0`, a=[1,2,4,8] in r1(byte+3=0x02), b=[16,32,64,128] in r0(byte+4=0x00)): srcA (byte+3) is the FIRST, negatable source -- RETYPES the former 'srcB@byte+3'; sweeping byte+3 0x02->0x04/06/08 yields result=b alone (srcA read as 0). srcB (byte+4) = second source operand descriptor (baseline 0x00 reads b; low bits gate/type it, bit1 0x02 nulls the op; exact register-vs-type bit packing partially resolved). src_modifier (byte+5) = source-modifier/control byte: bits6:7 (0xc0) are a required operand-valid base (clearing -> op yields 0); bit3 (0x08) = srcA-negate (0xc8 -> -a+b, CONFIRMED); bit0 (0x01) suppresses srcB (result = srcA); bits1/2 (0x02/0x04) suppress srcA (result = srcB).",
+   "provenance": "HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ALU and is the only byte differing between half2_add and half2_mul. HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL pureh.metal k_pureadd with distinct per-lane inputs -- byte+3 sweep {0x02->a+b; 0x04/06/08->b} proves byte+3=srcA (RETYPED from srcB); byte+5 sweep {0xc0->a+b; 0xc8->-a+b (bit3 srcA-negate); 0xc1->srcA only; 0xc2/0xc4->srcB only; 0x80/0x40/0x00->0}; opsel (0x1c hadd vs 0x1d hmul, byte+2) reconfirmed against k_puremul. puresub/pureneg corroborate the byte+5 bit3 negate. The former raw 'tail' (byte+4/+5) is now split into srcB + src_modifier; src_modifier bit-pattern rule captured in semantics (not a clean value enum)."
   },
   {
    "mnemonic": "ibitcount",
@@ -6857,7 +6847,7 @@
     ],
     [
      32,
-     1,
+     8,
      1
     ]
    ],
@@ -6905,18 +6895,11 @@
      "start": 56,
      "width": 8,
      "type": "raw"
-    },
-    {
-     "name": "fmt",
-     "start": 32,
-     "width": 8,
-     "type": "mod",
-     "note": "RE-SPANNED (EXP-0183, re-derived from EXP-0162's committed raw). This byte was pinned to the single value 0x01 in `match`, and **0x01 is a value the hardware REJECTS**: EXP-0162's dense 256-value byte+4 sweep on the HW-validated cvt_bf16 carrier accepts 52 values, 0x01 is not among them (`wrong_value`), and the anchor our own GPU executed correctly carries 0x05. Every one of the 52 accepted values has bit 0 set and none of the 204 rejected-with-bit-0-clear does, so bit 0 (instruction bit 32) is the part that identifies the instruction and is all that stays in `match`. Accepted set (EXP-0162, one gated run, majority-of-3 per case): {5,13,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97,101,105,109,113,117,121,125,129,137,161,165,169,173,177,181,185,189,193,197,201,205,209,213,217,221,225,229,233,237,241,245,249,253}."
     }
    ],
-   "semantics": "bfloat convert (8-byte). byte+1 = source width (0x03 float32, 0x02 float16); byte+6 = direction (0x40 = result bfloat: float->bfloat / half->bfloat; 0x80 = result half: bfloat->half). byte+4 BIT 0 marks a bfloat operand. [CORRECTED 2026-08-30, EXP-0183] The descriptor used to pin the whole of byte+4 to 0x01, which the hardware REJECTS -- the HW-validated anchor `01 01 14 81 05 02 40 00` carries byte+4 = 0x05 and did not decode as cvt_bf16 at all; it fell through to the least-specific `bf_alu8_var`. Only bit 0 is pinned now. 8-byte sibling of the 6-byte cvt_f2h_dst (byte+4 bit0 set = bfloat, so longer). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `src`, `fmt` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).",
+   "semantics": "bfloat convert (8-byte). byte+1 = source width (0x03 float32, 0x02 float16); byte+6 = direction (0x40 = result bfloat: float->bfloat / half->bfloat; 0x80 = result half: bfloat->half). byte+4 == 0x01 marks a bfloat operand. 8-byte sibling of the 6-byte cvt_f2h_dst (byte+4 bit0 set = bfloat, so longer). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `src`, `fmt` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).",
    "provenance": "byte-diff EXP-M4-13 (p_f2bf/p_h2bf/p_bf2h single-op MSL). f2h-vs-f2bf length split (byte+4 bit0) confirmed by direct byte-diff; direction byte+6 from h2bf(0x40) vs bf2h(0x80). Own-MSL bfloat()/half() constructs; not hardware-splice-validated.",
-   "note": "DEF-0170-1 (orchestrator, 2026-08-30): the field named `src` (byte+3) is FULLY PINNED by this descriptor's own match [[24,8,129]] -- it has exactly ONE legal value, so it CANNOT be the source operand selector its name implies. `fmt` (byte+4) is pinned the same way. The free fields are `dst`, `srcw`, `opsel`, `b5`, `dir` and `b7`, so if this instruction has a choosable source it is one of those -- `srcw` is the likeliest candidate and is currently typed `opcode`. NOT vetoed, because the source may simply be modelled under the wrong name rather than missing; but an implementer must not believe `src` selects the source. Same defect class as fspecial's swapped operands (DEF-0161-1) and imad's absent srcA (DEF-0160-6), both of which turned out to be real. Needs a sweep of `srcw` against a known source register to settle. See tools/agx-isa/match_overlap.json.  [EXP-0183] The `fmt` pin is narrowed from 8 bits to 1: EXP-0162's dense sweep accepts 52 byte+4 values, all with bit 0 set, and 0x01 itself is NOT accepted.",
+   "note": "DEF-0170-1 (orchestrator, 2026-08-30): the field named `src` (byte+3) is FULLY PINNED by this descriptor's own match [[24,8,129]] -- it has exactly ONE legal value, so it CANNOT be the source operand selector its name implies. `fmt` (byte+4) is pinned the same way. The free fields are `dst`, `srcw`, `opsel`, `b5`, `dir` and `b7`, so if this instruction has a choosable source it is one of those -- `srcw` is the likeliest candidate and is currently typed `opcode`. NOT vetoed, because the source may simply be modelled under the wrong name rather than missing; but an implementer must not believe `src` selects the source. Same defect class as fspecial's swapped operands (DEF-0161-1) and imad's absent srcA (DEF-0160-6), both of which turned out to be real. Needs a sweep of `srcw` against a known source register to settle. See tools/agx-isa/match_overlap.json.",
    "match_notes": [
     {
      "name": "src",
@@ -6928,10 +6911,9 @@
     {
      "name": "fmt",
      "start": 32,
-     "width": 1,
+     "width": 8,
      "type": "raw",
-     "value": 1,
-     "note": "RE-SPANNED (EXP-0183). Only bit 32 (byte+4 bit 0) remains pinned; bits 33..39 are now the field `fmt`. The former 8-bit pin to 0x01 named a value the hardware rejects."
+     "value": 1
     }
    ]
   },
@@ -10409,17 +10391,9 @@
    "fields": [
     {
      "name": "dst",
-     "start": 4,
-     "width": 4,
-     "type": "reg",
-     "note": "DEF-0180-1, HW-VALIDATED on G17P, re-derived by EXP-0183. DSTNIB arm: byte0 = n<<4, two carriers, both gated runs, 16/16 values identical across runs; n = 0..14 land in r[n]'s low half with the high half preserved, n = 15 unobservable (harness store-index register)."
-    },
-    {
-     "name": "srcA",
      "start": 8,
      "width": 8,
-     "type": "reg",
-     "note": "RETYPED (EXP-0183). Formerly `dst`. This is a SOURCE half-register descriptor h = (reg<<1)|is_high, not the destination -- see the descriptor semantics. Its span is unchanged (bits 8..15), so evidence recorded against those bits still applies; only the name and role change. Named `srcA` to match the low-nibble-8 sibling `h_alu_hi`, whose byte+1 is already `srcA`."
+     "type": "reg"
     },
     {
      "name": "opsel",
@@ -10436,36 +10410,31 @@
      "name": "opflags",
      "start": 19,
      "width": 5,
-     "type": "mod",
-     "note": "EXACT FAULT WALL, measured (EXP-0180 LEN arm, 128 cases, zero counterexamples; independently reproduced in the field sweeps): opflags bit 4 (instruction bit 23) set together with opsel 4 or 5 faults the command buffer unconditionally."
+     "type": "mod"
     },
     {
-     "name": "srcB",
+     "name": "srcA",
      "start": 24,
      "width": 8,
-     "type": "reg",
-     "note": "RENAMED (EXP-0183). Formerly `srcA`; span unchanged (bits 8..15 took the name `srcA` because byte+1 is the first source, matching `h_alu_hi`). Evidence recorded against bits 24..31 still applies."
+     "type": "reg"
     },
     {
-     "name": "b4",
+     "name": "srcB_desc",
      "start": 32,
      "width": 8,
-     "type": "mod",
-     "note": "RETYPED (EXP-0180, re-derived EXP-0183). Formerly `srcB_desc`, on the claim that byte+4 is the srcB operand descriptor with \"0x01 required\". Both halves are refuted: \"0x01 required\" is a LENGTH requirement, not an operand one -- byte+4's low two bits are the measured length selector, so at opsel 4 or 6 only the 64 values with (v & 3) == 1 keep the 8-byte framing (at opsel 5 both m=1 and m=3 give 8 bytes, i.e. 128 values); and inside that subset the pre-registered same-length step (byte+4 += 4, a different half-register at the same length) does not move the observation on ANY arm. No operand role is detectable in bits 34..39. The cited byte+7 0xc0->0xc8 example belongs to a different field entirely (DEF-0180-6)."
+     "type": "mod"
     },
     {
-     "name": "srcC",
+     "name": "b5",
      "start": 40,
      "width": 8,
-     "type": "reg",
-     "note": "RETYPED (EXP-0183, from EXP-0180's committed raw). Formerly `b5`, typed `mod` and described as \"largely inert\". It is the fma's THIRD OPERAND (the addend): the anchor identity `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` reproduces the observed result exactly on both carriers in both runs, and the anchor's own operand triple is recovered by brute force over all 32 half-registers. Corroborated independently: with instruction bit 57 set the result becomes exactly h[byte+5]. It moves the observation on 254 of 256 values."
+     "type": "mod"
     },
     {
      "name": "rsv6",
      "start": 48,
      "width": 8,
-     "type": "mod",
-     "note": "WITHDRAWAL (EXP-0180, re-derived EXP-0183). The committed claim \"byte+6 swept 0x00..0xc0, every value kept the result -- fully INERT/reserved\" is REFUTED: on the fma instance rsv6 moves the observation on **252 of 256 values (C_HI) and 248 of 256 (C_LO)**, identically in both gated runs and on the lifted anchor. It is LIVE and its role is UNKNOWN. It reads inert only on the E8_ADD arm, whose base writes nothing at all (0 of 4 ladder steps and 0 of 3 falsifiers moved), so that arm has no detection power and its nulls are not evidence."
+     "type": "mod"
     },
     {
      "name": "b7_lo",
@@ -10474,29 +10443,34 @@
      "type": "mod"
     },
     {
-     "name": "mul_suppress",
+     "name": "saturate",
      "start": 57,
      "width": 1,
      "type": "mod",
-     "note": "WITHDRAWAL (EXP-0180, re-derived EXP-0183). Formerly `saturate`, enumerated as \"output-clamp, clamps to [0,1]\". REFUTED as a clamp, at value level: with the bit set the result becomes **exactly the third operand h[byte+5]** -- 2.84375 on C_HI (where the unmodified result is 7.0586) and 0.46875 on C_LO (where the unmodified result is 0.125). A clamp to [0,1] CANNOT change 0.125. The bit suppresses the multiply term of the fma, leaving the addend. BOUND: measured on the fma instance (opsel 6) only; its effect on hadd/hmul is untested."
+     "enum": {
+      "0": "no clamp",
+      "1": "output-clamp/saturate ON (clamps to [0,1])"
+     }
     },
     {
      "name": "b7_mid",
      "start": 58,
      "width": 5,
-     "type": "mod",
-     "note": "LIVE, 28 of 32 values move the observation. **Bit 2 of this field (instruction bit 60, byte+7 bit 4) NULLS THE WRITE**: all sixteen values with bit 2 set leave the destination untouched and all sixteen without it write, on two carriers and in both gated runs. This is the op-nulling control that `op_valid_marker` was wrongly believed to be."
+     "type": "mod"
     },
     {
-     "name": "b7_hi",
+     "name": "op_valid_marker",
      "start": 63,
      "width": 1,
      "type": "mod",
-     "note": "WITHDRAWAL (EXP-0180, re-derived EXP-0183). Formerly `op_valid_marker`, on the claim that \"every byte+7 value without bit7 set nulls the op\". REFUTED: byte+7 0x40 (bit 63 clear) and 0xc0 (bit 63 set) BOTH write the destination -- 0 of 2 values moved on two carriers, three arms and both runs. Bit 63 is INERT here. The op IS nullable from byte+7, but by **instruction bit 60** (= `b7_mid` bit 2 = byte+7 bit 4): all sixteen `b7_mid` values with bit 2 set leave the destination untouched and all sixteen without it write, 16/16 both ways, both carriers, both runs."
+     "enum": {
+      "0": "op nulled (result 0)",
+      "1": "op valid (required)"
+     }
     }
    ],
-   "semantics": "8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte `half_alu`. At opsel 6 it is a genuine three-source fma: `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])`, re-derived by EXP-0183 on both of EXP-0180's carriers in both gated runs (C_HI: 1.625 x 2.59375 + 2.84375 = 7.0586 = 0x470f; C_LO: -0.0625 x 5.5 + 0.46875 = 0.125 = 0x3000), with the anchor's operand triple recovered by brute force over all 32 half-registers. byte+4 is the length selector, NOT an operand; byte+6 is LIVE and unexplained; byte+7 is the modifier byte, in which bit 1 suppresses the multiply term and bit 4 nulls the write. [CORRECTED 2026-08-30, EXP-0183 from EXP-0180's committed raw] **THE DESTINATION IS byte0's HIGH NIBBLE** (bits 4..7); the low nibble 0x0 is the family tag. The previous descriptor pinned the WHOLE of byte0 in `match`, so an emitter following it could only ever write r1, and the field it called `dst` (bits 8..15) is in fact a SOURCE half-register descriptor. Re-derived on G17P three independent ways, all cross-checked over EXP-0180's two gated runs (16,735 cases each, byte-identical): (1) the DSTNIB arm ran byte0 = n<<4 for n = 0..15 on two carriers -- the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved for n = 0..14, and n = 15 is UNOBSERVABLE because the harness's own store index register is r15 (r15 is never non-zero in any of the 16,335 observed cases, so this is a carrier limit, not a hardware property -- the same limit EXP-0168 recorded for falu2.dst); (2) STRUCTURALLY, the seed program's fourteen SIX-BYTE half-adds are `[j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]` and nothing but byte0 names register j -- the per-case identity `r_j.lo == fp16(h[byte+1] + h[byte+3])` holds in **228,690 checks per run with zero mismatches, in both runs**, for j = 0..13; (3) ARITHMETICALLY, the 8-byte fma anchor computes `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` on both carriers. Operand bytes are the ODD bytes (+1, +3, and +5 in the 8-byte form); the final byte of the instruction is the modifier byte. Half-register descriptor h = (reg<<1)|is_high. Same class as cvt_f2h_dst / bf_add_dst / n3_mov, which db.json already models this way, and identical in shape to the low-nibble-8 sibling `h_alu_hi`. INSTRUCTION LENGTH, MEASURED (EXP-0180 LEN arm; re-derived independently by EXP-0183 from the same raw, 32 of 32 cells, ZERO ambiguous cells and ZERO cross-run disagreements) as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3 and 7 -> 10/10/10/8; opsel 4 (hadd) -> 6/8/10/6; opsel 5 (hmul) -> 6/8/10/8; opsel 6 (hfma) -> 6/8/10/12. **BOUND: bytes +6.. carry the marker chain in every LEN case, so a length dependence on byte +6 or later is UNTESTED.** This measured table is NOT the rule the tokenizer implements: EXP-0182 measured that adopting it verbatim costs 17 clean corpus files and 3,220 leftover bytes, because the G17P measurement and the M4 corpus disagree exactly on the compact forms -- precisely where the bound above says the measurement is silent. `isadb.instr_length` therefore implements only the nine (opsel, m) cells where BOTH sources agree. Recorded here so the disagreement is visible rather than smoothed away.",
-   "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033); the length rule already classifies these as fp16 (byte+2 fma bit / byte+4 low2 extended-tail selector). HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_pureaddsat byte+7 sweep {0x82->1 (saturate(9)); 0x80->9 (bit1 clear, unclamped); 0xc0->9; values without 0x80->[0,0,0,0]} isolates saturate to bit1 and the op-valid marker to bit7; byte+3=srcA (0x02 works, 0x04/06 break); byte+6 fully inert; hfma.metal k_hfma proves opsel 6 (byte+2=0x1e). Former raw ext (byte+3..+7) split into srcA/srcB_desc/b5/rsv6 + the byte+7 bit fields; byte+4 exact reg-vs-type bit packing entangled (see unresolved).  [SUPERSEDED IN PART 2026-08-30] EXP-0183 re-derived DEF-0180-1, DEF-0180-2, DEF-0180-5/6 and the three EXP-M4-14 semantic refutations from EXP-0180's committed raw (PURE ANALYSIS). All survived. Withdrawn from this descriptor: \"rsv6 fully INERT\" (it moves on 252/256), \"byte+7 bit7 is a required op-valid marker\" (bit 63 is inert; bit 60 nulls), \"byte+7 bit1 clamps to [0,1]\" (it yields the third operand, including on a sub-unit result a clamp cannot touch), and \"byte+4 0x01 required as an operand\" (it is the length selector)."
+   "semantics": "8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu (byte0==0x10). dst = byte+1, opsel/opflags = byte+2 (reused from the HW-anchored half_alu layout, EXP-0033). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureaddsat `10 03 1c 02 01 00 00 82` a=8 b=1, and hfma.metal k_hfma `10 02 1e 03 81 04 00 c0`): opsel gains 6=hfma (byte+2=0x1e, half fma compiles to this 8-byte form with 3 sources in byte+3/+4/+5). srcA (byte+3) = srcA register (same as the 6-byte form). srcB_desc (byte+4) = srcB operand descriptor (required 0x01 in the add+sat instance; carries the fma srcA-negate too -- k_hfma_neg sets byte+7 0xc0->0xc8). b5 (byte+5) = largely inert (bits3/4 null in this instance). rsv6 (byte+6) = fully INERT/reserved in the add+saturate instance (every swept value 0x00..0xc0 kept the result). byte+7 carries the output-clamp and op-valid marker: saturate (byte+7 bit1) = the saturate/output-clamp that grows half_alu into this 8-byte form (0x82 clamps saturate(9)->1, 0x80 (bit1 clear) passes 9 unclamped); op_valid_marker (byte+7 bit7) is a required op-valid marker (clearing 0x80 nulls the ext8 op -> result 0). b7_lo/b7_mid = the remaining byte+7 bits (unresolved).",
+   "provenance": "census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033); the length rule already classifies these as fp16 (byte+2 fma bit / byte+4 low2 extended-tail selector). HW-VALIDATED (splice, A18 EXP-M4-14): own-MSL k_pureaddsat byte+7 sweep {0x82->1 (saturate(9)); 0x80->9 (bit1 clear, unclamped); 0xc0->9; values without 0x80->[0,0,0,0]} isolates saturate to bit1 and the op-valid marker to bit7; byte+3=srcA (0x02 works, 0x04/06 break); byte+6 fully inert; hfma.metal k_hfma proves opsel 6 (byte+2=0x1e). Former raw ext (byte+3..+7) split into srcA/srcB_desc/b5/rsv6 + the byte+7 bit fields; byte+4 exact reg-vs-type bit packing entangled (see unresolved)."
   },
   {
    "mnemonic": "half_alu_fma12",
@@ -10511,17 +10485,9 @@
    "fields": [
     {
      "name": "dst",
-     "start": 4,
-     "width": 4,
-     "type": "reg",
-     "note": "DEF-0180-1, HW-VALIDATED on G17P, re-derived by EXP-0183."
-    },
-    {
-     "name": "srcA",
      "start": 8,
      "width": 8,
-     "type": "reg",
-     "note": "RETYPED (EXP-0183). Formerly `dst`. This is a SOURCE half-register descriptor h = (reg<<1)|is_high, not the destination -- see the descriptor semantics. Its span is unchanged (bits 8..15), so evidence recorded against those bits still applies; only the name and role change. Named `srcA` to match the low-nibble-8 sibling `h_alu_hi`, whose byte+1 is already `srcA`."
+     "type": "reg"
     },
     {
      "name": "opsel",
@@ -10529,9 +10495,10 @@
      "width": 3,
      "type": "opcode",
      "enum": {
+      "4": "hadd",
+      "5": "hmul",
       "6": "hfma"
-     },
-     "note": "ONE LEGAL VALUE, DELIBERATELY NOT FOLDED INTO `match`. EXP-0180's measured length map (re-derived by EXP-0183: 32 of 32 cells, zero ambiguity) reaches 12 bytes at exactly one op-select, 6, so under that rule this row is vacuous and the falu2_uni.uni_mode disposition (EXP-0175) would apply. It is NOT folded because folding it MEASURABLY REGRESSES the corpus: pinning [16,3,6] costs 6 clean files (841 -> 835), adds 748 leftover bytes and drops half_alu_fma12 from 7 corpus firings to 0. That is the same G17P-measurement-versus-M4-corpus disagreement EXP-0182 measured for the length rule itself, and it sits inside EXP-0180's own stated bound (a length dependence on byte +6 or later is UNTESTED). The enum lists only the value the hardware was measured to length at 12; whether to pin it is the db owner's call, not a consequence of this measurement. EXP-0183 candidate tree work/cand_final_plus_fold carries the folded variant and its numbers."
+     }
     },
     {
      "name": "opflags",
@@ -10540,21 +10507,19 @@
      "type": "mod"
     },
     {
-     "name": "srcB",
+     "name": "srcA",
      "start": 24,
      "width": 8,
-     "type": "reg",
-     "note": "RENAMED (EXP-0183). Formerly `srcA`; span unchanged (bits 8..15 took the name `srcA` because byte+1 is the first source, matching `h_alu_hi`). Evidence recorded against bits 24..31 still applies."
+     "type": "reg"
     },
     {
      "name": "ext",
      "start": 32,
      "width": 64,
-     "type": "raw",
-     "note": "NOT A FIELD (EXP-0180, re-derived EXP-0183). 64 bits wide, so its encodable range is 2^64 and no sampled set can establish it. What its first byte does IS measured: byte+4's low two bits are the length selector, and this 12-byte form is reachable only at (opsel 6, m 3) -- 1 of 8 opsel values and 1 of 4 m values. EXP-0180 REFUTED its own DEF-0180-3: half_alu_fma12 really is 12 bytes there, so it is not an over-consumer at that encoding. The residue is that bits 34..95 are unmodelled, which is why the descriptor keeps `emit_unsafe`."
+     "type": "raw"
     }
    ],
-   "semantics": "12-byte fp16 fma form (byte0 low nibble 0x0). Reachable at exactly one (op-select, length-selector) pair: opsel 6 with byte+4 & 3 == 3, measured over 4,096 LEN cases with zero ambiguous cells and re-derived by EXP-0183. fma(abs(a),b,c) compiles to this form. `ext` is NOT a field -- see its note. DO NOT EMIT until bits 34..95 are modelled. [CORRECTED 2026-08-30, EXP-0183 from EXP-0180's committed raw] **THE DESTINATION IS byte0's HIGH NIBBLE** (bits 4..7); the low nibble 0x0 is the family tag. The previous descriptor pinned the WHOLE of byte0 in `match`, so an emitter following it could only ever write r1, and the field it called `dst` (bits 8..15) is in fact a SOURCE half-register descriptor. Re-derived on G17P three independent ways, all cross-checked over EXP-0180's two gated runs (16,735 cases each, byte-identical): (1) the DSTNIB arm ran byte0 = n<<4 for n = 0..15 on two carriers -- the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved for n = 0..14, and n = 15 is UNOBSERVABLE because the harness's own store index register is r15 (r15 is never non-zero in any of the 16,335 observed cases, so this is a carrier limit, not a hardware property -- the same limit EXP-0168 recorded for falu2.dst); (2) STRUCTURALLY, the seed program's fourteen SIX-BYTE half-adds are `[j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]` and nothing but byte0 names register j -- the per-case identity `r_j.lo == fp16(h[byte+1] + h[byte+3])` holds in **228,690 checks per run with zero mismatches, in both runs**, for j = 0..13; (3) ARITHMETICALLY, the 8-byte fma anchor computes `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` on both carriers. Operand bytes are the ODD bytes (+1, +3, and +5 in the 8-byte form); the final byte of the instruction is the modifier byte. Half-register descriptor h = (reg<<1)|is_high. Same class as cvt_f2h_dst / bf_add_dst / n3_mov, which db.json already models this way, and identical in shape to the low-nibble-8 sibling `h_alu_hi`. INSTRUCTION LENGTH, MEASURED (EXP-0180 LEN arm; re-derived independently by EXP-0183 from the same raw, 32 of 32 cells, ZERO ambiguous cells and ZERO cross-run disagreements) as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3 and 7 -> 10/10/10/8; opsel 4 (hadd) -> 6/8/10/6; opsel 5 (hmul) -> 6/8/10/8; opsel 6 (hfma) -> 6/8/10/12. **BOUND: bytes +6.. carry the marker chain in every LEN case, so a length dependence on byte +6 or later is UNTESTED.** This measured table is NOT the rule the tokenizer implements: EXP-0182 measured that adopting it verbatim costs 17 clean corpus files and 3,220 leftover bytes, because the G17P measurement and the M4 corpus disagree exactly on the compact forms -- precisely where the bound above says the measurement is silent. `isadb.instr_length` therefore implements only the nine (opsel, m) cells where BOTH sources agree. Recorded here so the disagreement is visible rather than smoothed away. WITHDRAWN: the earlier \"this fixed 12-byte length OVER-CONSUMES the following instruction's leader\" claim. EXP-0180 measured the length directly and withdrew it; at (opsel 6, m 3) twelve bytes is correct. The corpus instances that embed a real op-leader inside `ext` are instances at a DIFFERENT (opsel, m) whose true length is shorter, which is a tokenizer-side question, not evidence that this encoding over-consumes.",
+   "semantics": "12-byte fp16 form (byte0==0x10). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL hfma.metal k_hfma_abs): REFINES the prior pure-negative to a POSITIVE existence result -- fma(abs(a),b,c) genuinely compiles to a clean 12-byte 0x10 op `10 02 1e 03 83 04 00 00 00 80 01 00` cleanly FOLLOWED by the e7 store (a=[-8,-2,-4,-1] b=1 c=[1,2,4,8] -> [9,4,8,9]=fma(|a|,b,c)). The 0x10 family is length-polymorphic: 6B=add/mul, 8B=fma or add+saturate, 10B=fma+saturate (`10 02 1e 03 82 04 00 00 00 82`), 12B=fma+abs. opsel 6=hfma (byte+2=0x1e); srcA (byte+3) = srcA register (family-consistent); byte+4 carries the srcB descriptor + abs-modifier bit (0x81 plain-fma -> 0x83 abs). ext (byte+4..+11) is KEPT RAW: for the CLEAN own-compiled fma+abs it is the 3rd source + extended modifier region (partially resolved, entangled), but as a corpus DESCRIPTOR this 12-byte length OVER-CONSUMES -- own-MSL plain half fma is only 8B, and 121/126 corpus half_alu_fma12 instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside ext (e.g. `10 29 22 00 9f 01 54 02 ...` embeds a whole iadd). So a fixed \"always 12B for byte0==0x10\" length rule is wrong; the length must be modifier/opsel-aware. ext RAW and FLAGGED for the length-rule owner (audit byte0==0x10 12-byte classification). LENGTH OVER-CONSUMES (DOC-02 labelling pass, 2026-08-28): 121/126 corpus instances embed a real op-leader byte INSIDE this descriptor's trailing field, i.e. the fixed length swallows the following instruction's first byte. The length rule for this byte0 group must be modifier/opsel-aware rather than fixed. Tokenization still round-trips because the swallowed byte is re-emitted verbatim -- which is exactly why this went unnoticed. DO NOT EMIT until the length rule is re-derived from hardware.",
    "provenance": "census EXP-M4-13 R8/R10 (own-MSL half corpus): 121/126 half_alu_fma12 instances embed a real op-leader in ext => candidate length-rule over-consumption. HW-VALIDATED (splice, A18 EXP-M4-14): the fma+abs member IS real -- own-MSL hfma.metal k_hfma(8B), k_hfmasat(10B), k_hfma_abs(12B `10 02 1e 03 83 04 00 00 00 80 01 00`), k_hfma_neg(8B byte+7=0xc8); k_hfma_abs baseline [9,4,8,9] with negative inputs confirms the abs modifier (byte+4 0x83). byte+3=srcA typed (family-consistent); byte+4 sweep {0x83->[9,4,8,9] abs; 0x82->|a| passthrough; 0x80->0}. ext (byte+4..+11) DELIBERATELY kept raw as an honest heterogeneous-residue/over-consumption result; the length-rule over-consumption is flagged for the length-rule owner (out of scope for this raw-typing pass).",
    "emit_unsafe": true
   },

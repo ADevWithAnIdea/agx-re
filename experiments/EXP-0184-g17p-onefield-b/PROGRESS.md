@@ -31,3 +31,37 @@
 
 Next: author kernels + harness, then freeze `PRE_REGISTRATION.md` + `CAPTURE_CONTRACT.json`
 BEFORE any build or device run.
+
+## 2026-08-30 M1 — contract frozen, harness on the neo, census done
+
+- `CAPTURE_CONTRACT.json` frozen **before any build** (v1 retained at
+  `raw/prefreeze/CAPTURE_CONTRACT.v1.json`), then re-frozen as v2 after the append-only
+  pre-registration amendment that added the pilot (`raw/prefreeze/CAPTURE_CONTRACT.v2.json`).
+  The v1→v2 diff is exactly three blobs: `PRE_REGISTRATION.md` (amendment appended),
+  `analysis/contract.py` (one filename added to its list) and the new `analysis/gen_pilot.py`.
+  **No kernel, no harness file, no `run.py`, no `verdicts.py` changed.**
+- Pushed; `harness/verify_remote.py` run as a **separate unchained step**: 21/21 blobs match.
+- Built `work/bin/{shdump, agxrun_persist, agxrun_persist_as}` on the neo.
+- **Census** (`raw/prefreeze/census.json`): 4 carriers emit `rt_query_traverse` with **14
+  occurrences each**; 5 emit `cvt_f2i` (1 each); 2 of 5 emit `if_push` (`cf_if2` 3, `cf_if3` 7);
+  2 of 5 emit `copysign` (`cs_load`, `cs_chain`). The three `copysign` and three `if_push`
+  carriers that emit nothing are **measured negatives**, recorded, not repaired.
+
+## 2026-08-30 M2 — calibration pilot (raw/prefreeze/pilot01, NO VERDICT CITES IT)
+
+417 cases, 8.6 s, zero hangs, one fault. It changed the gated arm plan in two ways.
+
+- **`rt_query_traverse.dst` looks LIVE, and only 2 of 14 occurrences are reachable.** The `opB`
+  reachability control fires at occurrences #0, #6, #7 and nowhere else — reproducing EXP-0157's
+  finding that most rtq ops in a ray-query program are never executed, and EXP-M4-14's "only the
+  committed-path op is load-bearing". Had the arms been frozen blind at four of fourteen
+  occurrences, the sweep would very likely have reported a confident, meaningless INERT.
+  **This is exactly why the pilot exists.** Gated arms therefore cover **all 14 occurrences × all
+  4 carriers**.
+- **`copysign.operands` moved 6 of 8 sampled values** on `cs_load` — which CONTRADICTS EXP-0138's
+  M4 result that all 256 values return the same result. Gated densely on both carriers.
+- `if_push.scope` moved 0/18 (including 0x54 and 0x56 explicitly) at three occurrences spanning
+  nesting depth, with the `scope_kind` control firing 5–6 of 7. `cvt_f2i.b9` moved 0/8 with the
+  `dst` control firing 15/16. Both go to the dense gated sweep.
+- **Hang density on the control-flow sweep: 0 of 54 dispatches.** The gated run has no abort path
+  (protocol 3c); this is the courtesy note that a control-flow sweep is about to run.

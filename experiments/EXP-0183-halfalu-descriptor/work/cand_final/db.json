@@ -10530,8 +10530,7 @@
      "type": "opcode",
      "enum": {
       "6": "hfma"
-     },
-     "note": "ONE LEGAL VALUE, DELIBERATELY NOT FOLDED INTO `match`. EXP-0180's measured length map (re-derived by EXP-0183: 32 of 32 cells, zero ambiguity) reaches 12 bytes at exactly one op-select, 6, so under that rule this row is vacuous and the falu2_uni.uni_mode disposition (EXP-0175) would apply. It is NOT folded because folding it MEASURABLY REGRESSES the corpus: pinning [16,3,6] costs 6 clean files (841 -> 835), adds 748 leftover bytes and drops half_alu_fma12 from 7 corpus firings to 0. That is the same G17P-measurement-versus-M4-corpus disagreement EXP-0182 measured for the length rule itself, and it sits inside EXP-0180's own stated bound (a length dependence on byte +6 or later is UNTESTED). The enum lists only the value the hardware was measured to length at 12; whether to pin it is the db owner's call, not a consequence of this measurement. EXP-0183 candidate tree work/cand_final_plus_fold carries the folded variant and its numbers."
+     }
     },
     {
      "name": "opflags",

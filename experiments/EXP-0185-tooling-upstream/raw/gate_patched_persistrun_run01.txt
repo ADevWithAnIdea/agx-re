@@ -1,0 +1,13 @@
+# analysis/gate_patched_persistrun.py -- 2026-08-30T13:39:37Z -- NO DEVICE
+# python3: Python 3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)] 
+
+PASS P1 good path unchanged on every pre-existing key  -- status=OK outs[0]=a5a5a5a5a5a5a5a5
+PASS P5 response is a strict superset; the four new keys only
+PASS P2 truncated OUT: shared RAISES, patched -> MALFORMED  -- shared raised: not enough values to unpack (expected 3, got 2)
+PASS P3 one timeout does not manufacture later results; HANG text unchanged
+PASS P4 an exited child is a wedge (DEF-0153-2)  -- status=HANG
+PASS P6 saferunner still works over the patched class
+PASS P7 broken-pipe path unchanged  -- ('HANG', 'child pipe broken', True)
+
+PATCH GATE PASS (0 failure(s))
+EXIT=0

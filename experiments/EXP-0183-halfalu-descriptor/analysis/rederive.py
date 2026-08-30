@@ -190,6 +190,71 @@ def h1b_seed(runs):
     return out
 
 
+# -------------------------------------------- H1b2 : the seed identity (strongest)
+def h1b2_seed_identity(runs):
+    """H1b2 -- the single strongest re-derivation of DEF-0180-1, and it covers the
+    SIX-BYTE `half_alu` rather than the 8-byte sibling the DSTNIB arm used.
+
+    EXP-0180's stage-2 seeding (harness/isa_helpers.py `_stage2` / `half_add`) emits
+    FOURTEEN six-byte half-ALU adds, one per register:
+
+        j = 0..13 :  [j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]
+        with (h_A, h_B) = LOW_PAIRS[j] = (1, 2j+1)
+
+    so byte0 = j<<4 and NOTHING else in the encoding names register j. Every gated case
+    dumps all 16 GPRs BEFORE the block under test, so each case independently re-proves
+    where those fourteen writes landed. This check recomputes, per case, from the PRE
+    vector alone:
+
+        pre[j].lo  ==  fp16( h2f(h[1]) + h2f(h[2j+1]) )      for j = 0..13
+
+    h[2k+1] is r_k's HIGH half, which stage 1 wrote and stage 2 never touches, so the
+    right-hand side is built only from bytes +1 and +3. Three things follow at once:
+      * the destination really is byte0's high nibble, at 14 destinations, in EVERY case;
+      * bytes +1 and +3 are the two SOURCES of the 6-byte hadd; and
+      * byte +4 (= 0x00 = h0 = r0's LOW half, which is NON-ZERO from j=0 onward) does NOT
+        enter the arithmetic -- so db.json's `srcB` at byte+4 is refuted as an operand
+        for this form.
+    """
+    ok = collections.Counter()
+    bad = []
+    per_j = collections.Counter()
+    for run, recs in runs.items():
+        for r in recs:
+            obs = r.get("observed") or {}
+            if not obs.get("pre"):
+                continue
+            H = halves(obs["pre"])
+            for j in range(14):
+                want = f2h(h2f(H[1]) + h2f(H[2 * j + 1]))
+                got = obs["pre"][j] & 0xFFFF
+                if want == got:
+                    ok[run] += 1
+                    per_j[j] += 1
+                else:
+                    ok[run + "_MISMATCH"] += 1
+                    if len(bad) < 20:
+                        bad.append({"run": run, "arm": r["arm"], "carrier": r["carrier"],
+                                    "field": r["field"], "value": r["value"], "j": j,
+                                    "want": "0x%04x" % want, "got": "0x%04x" % got})
+    # the byte+4 control: is h0 (r0's LOW half) non-zero in the PRE vectors?
+    h0 = collections.Counter()
+    for run, recs in runs.items():
+        for r in recs:
+            obs = r.get("observed") or {}
+            if obs.get("pre"):
+                h0["nonzero" if (obs["pre"][0] & 0xFFFF) else "zero"] += 1
+    return {"identity": "pre[j].lo == fp16(h[1] + h[2j+1]) for j=0..13, per case",
+            "checks_passed": {k: v for k, v in sorted(ok.items())},
+            "mismatches": bad,
+            "registers_covered": sorted(per_j),
+            "byte4_operand_control": {
+                "byte+4 in every seed instruction": "0x00 = h0 = r0's LOW half",
+                "h0_in_pre_vectors": dict(h0),
+                "conclusion": "h0 is non-zero in every observed case yet does not appear in "
+                              "the identity, so byte+4 is not a source of the 6-byte hadd"}}
+
+
 # ------------------------------------------------- H1c : the arithmetic identity
 def h1c_arith(runs):
     """H1c: the E8_FMA / DSTNIB anchors compute
@@ -326,7 +391,12 @@ def h3_withdrawals(runs):
                 continue
             key = (r["instr"], r["field"])
             base = anchors.get((run, r["arm"], r["carrier"]))
-            moved[key][(r["arm"], r["carrier"], run)][r["value"]] = \
+            # keyed by the SPLICED BYTES, not by `value`: a byte-wise sweep of a wide
+            # field (half_alu_fma12.ext) reuses value 0..255 at eight byte positions, and
+            # keying on `value` silently keeps whichever case came last -- which differs
+            # between the reverse-order and forward-order runs and manufactures a
+            # cross-run disagreement that is not in the data.
+            moved[key][(r["arm"], r["carrier"], run)][r["bytes"]] = \
                 _digest(obs) != base
     out = {}
     for key, arms in sorted(moved.items()):
@@ -363,7 +433,20 @@ def h3_saturate_and_marker(runs):
                    "dst_untouched": obs["post"][dst] == obs["pre"][dst]}
             k = "%s/%s/%s/v=%d" % (r["field"], r["carrier"], run, r["value"])
             (sat if r["field"] == "saturate" else mark)[k] = rec
-    return {"saturate_cases": sat, "byte7_other_bit_cases": mark}
+    # exact nulling rule over b7_mid (bits 58..62)
+    nul = collections.defaultdict(set)
+    for k, v in mark.items():
+        fld, car, run, vs = k.split("/")
+        if fld != "b7_mid":
+            continue
+        nul[("untouched" if v["dst_untouched"] else "wrote")].add(int(vs.split("=")[1]))
+    rule = {"b7_mid_values_that_leave_dst_UNTOUCHED": sorted(nul["untouched"]),
+            "b7_mid_values_that_WRITE": sorted(nul["wrote"])}
+    rule["predicate_bit2_of_b7_mid"] = {
+        "holds": sorted(nul["untouched"]) == sorted(v for v in range(32) if v & 4),
+        "meaning": "b7_mid bit 2 == instruction bit 60 == byte+7 bit 4 (0x10)"}
+    return {"saturate_cases": sat, "byte7_other_bit_cases": mark,
+            "byte7_nulling_rule": rule}
 
 
 def h3_srcB_desc_range(lenmap):
@@ -459,9 +542,49 @@ def h5_rescores():
     return out
 
 
+# ------------------------- H6 : the two `dst` rows EXP-0169 deferred and nobody ruled
+def h6_deferred_dst():
+    """EXP-0169 swept `falu2_uni.dst` and `reg_move_cb.dst` and then deferred both to
+    EXP-0168 by coordinator directive. EXP-0168's committed field_verdicts.json contains
+    NEITHER, so the ruling was never made and both rows still read `untested`, blocking
+    two of the 22 one-field-away instructions. Re-derived here from EXP-0169's raw
+    directly (outcomes per value per carrier per gated run), not from its analysis."""
+    out = {}
+    runs = ("g17p_20260830_run01", "g17p_20260830_run02")
+    for mnem in ("falu2_uni", "reg_move_cb", "half_alu"):
+        per = collections.defaultdict(lambda: collections.defaultdict(dict))
+        for run in runs:
+            p = os.path.join(E169, "raw", run, "sweep.jsonl")
+            if not os.path.exists(p):
+                continue
+            for r in jl(p):
+                if r.get("instr") != mnem or r.get("field") != "dst":
+                    continue
+                per[r["carrier"]][run][r["value"]] = (r["outcome"],
+                                                      tuple(r["observed"].get("regs", [])))
+        d = {}
+        for car, byrun in per.items():
+            a, b = byrun.get(runs[0], {}), byrun.get(runs[1], {})
+            common = sorted(set(a) & set(b))
+            d[car] = {
+                "values_run01": len(a), "values_run02": len(b),
+                "common": len(common),
+                "agree": sum(1 for v in common if a[v] == b[v]),
+                "outcomes_run01": dict(collections.Counter(o for o, _ in a.values())),
+                "outcomes_run02": dict(collections.Counter(o for o, _ in b.values())),
+                "moved_vs_value0_run01": sum(1 for v in a if v != 0 and a[v][1] != a.get(0, (None, None))[1]),
+                "fstart_fwidth": None,
+            }
+        out[mnem + ".dst"] = d
+    return out
+
+
 def main():
     runs = load180()
-    db = json.load(open(os.path.join(REPO, "tools", "agx-isa", "db.json")))
+    # H4 is a claim about the descriptor AS COMMITTED BEFORE this experiment's edits, so
+    # it reads the frozen pre-edit snapshot rather than the live file. Otherwise the check
+    # stops being re-runnable the moment the fix lands.
+    db = json.load(open(os.path.join(EXP, "work", "base_live", "db.json")))
     lenmap = h2_length(runs)
     doc = {
         "_meta": {
@@ -480,6 +603,7 @@ def main():
         },
         "H1_dstnib": h1_dstnib(runs),
         "H1b_seed_determinism": h1b_seed(runs),
+        "H1b2_seed_identity": h1b2_seed_identity(runs),
         "H1c_arithmetic_identity": h1c_arith(runs),
         "H2_length_rule": lenmap,
         "H3_moved_counts": h3_withdrawals(runs),
@@ -488,6 +612,7 @@ def main():
         "H3_fma12_opsel_legal_values": h3_fma12_opsel(lenmap),
         "H4_citation_defects": h4_citations(db),
         "H5_rescores": h5_rescores(),
+        "H6_deferred_dst_rows": h6_deferred_dst(),
     }
     out = os.path.join(HERE, "defects_rederived.json")
     json.dump(doc, open(out, "w"), indent=1, sort_keys=True)
@@ -505,6 +630,10 @@ if __name__ == "__main__":
     print("H1 r14/r15 non-zero anywhere:",
           json.dumps(d["H1_dstnib"]["nonzero_r14_r15_anywhere_in_run"]))
     print("H1 cross-run:", d["H1_dstnib"]["cross_run"])
+    print("H1b2 seed identity:", json.dumps(d["H1b2_seed_identity"]["checks_passed"]),
+          "mismatches:", len(d["H1b2_seed_identity"]["mismatches"]),
+          "regs:", d["H1b2_seed_identity"]["registers_covered"],
+          "h0:", d["H1b2_seed_identity"]["byte4_operand_control"]["h0_in_pre_vectors"])
     print("H1c:", json.dumps({c: {r: {k: v[k] for k in
                                       ("identity_holds", "n_alternative_triples_over_all_32_halves",
                                        "anchor_triple_is_among_them", "observed_low_half")}
