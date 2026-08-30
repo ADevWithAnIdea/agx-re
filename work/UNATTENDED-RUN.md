@@ -229,6 +229,26 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 against 164 on M4 and 57 on A18. That ratio is the run's real product: at the start of the day
 the corpus was overwhelmingly M4 evidence being counted toward a G17P goal.
 
+## What is fragile about the 543 — stated, not resolved
+
+EXP-0193 measured two things about the surviving population and **handed both over as questions
+rather than acting on them.** That was the correct call and I am not overriding it: changing the
+criterion after seeing which rows it would move is the exact failure this chain exists to prevent.
+Both are published here so the number carries its own caveats.
+
+1. **115 of the 497 surviving Case-A rows clear the bar by exactly one payload** (`bestV == 2`).
+   They are correctly Case A under the frozen rule. They are also precisely where a stricter
+   successor would land first, so **~23% of the surviving population sits one payload above the
+   floor**. Anyone raising the threshold to V ≥ 3 should expect the number to fall again.
+2. **The criterion is target-blind.** Two rows recorded as G17P (`ibfe.srcA`, `ilogic.outmod`)
+   are Case A *only* by way of M4/G16G arms. Under the standing no-cross-target-promotion rule
+   that is a defect; under the frozen criterion it is not. Adding a target conjunct now would be
+   the eleventh-hour adjustment, so it is a **named debt, not a withdrawal**.
+
+Also measured and worth recording: the record-level second pass rescued **0** rows, so the
+modal-collapse confounder has **zero effect across all 503** — one of the few confounders on the
+list that was quantified rather than argued about.
+
 ## The number moved DOWN more than it moved up, and that is the result
 
 79 → 41 → 55 → … → 32. Every fall was a withdrawal an independent audit confirmed, and each was caused by
