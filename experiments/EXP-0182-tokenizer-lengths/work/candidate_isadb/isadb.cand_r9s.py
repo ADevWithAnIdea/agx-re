@@ -1221,6 +1221,12 @@ def _r9_succ_safe(buf, q):
         return True
     return _r9_named_at(buf, q, L)
 
+# EXP-0182: byte0 low nibbles for which the R9 trailing-word closure defers to a real named
+# instruction. Asking the question for EVERY nibble (candidate `r9g`) costs 81 clean corpus
+# files and 39,878 leftover bytes -- the closure is load-bearing far beyond its documented
+# contract -- so the guard is scoped to the families this experiment measured.
+_R9_GUARD_NIBBLES = frozenset({0x02})
+
 def _half_len_agreed(b2, b4):
     """EXP-0182: True iff the committed corpus-anchored native-half length formula and
     EXP-0180's G17P-measured table give the SAME length for this (byte+2, byte+4) pair.
@@ -1308,7 +1314,7 @@ def _n1_real_instr(buf, off):
     return L is not None and _r9_named_at(buf, off, L)
 
 
-def instr_length(buf, off=0):
+def instr_length(buf, off=0, _skip_r9=False):
     """Return the length in bytes of the instruction starting at buf[off], or
     None if the leading byte is not in our (float-family) length table.
 
@@ -1337,6 +1343,10 @@ def instr_length(buf, off=0):
     _r9 = _R9_SIGS.get((b0, _b1))
     if _r9 is None:
         _r9 = _R9_TRIPLES.get((b0, _b1, _b2))
+    if _r9 is not None and not _skip_r9 and (b0 & 0x0f) in _R9_GUARD_NIBBLES:
+        _base = instr_length(buf, off, _skip_r9=True)
+        if _base is not None and _r9_named_at(buf, off, _base):
+            _r9 = None                 # EXP-0182 (scoped): a REAL NAMED instruction lives here.
     if _r9 is not None and _r9_succ_safe(buf, off + _r9) \
             and not _n1_real_instr(buf, off):
         return _r9                     # EXP-0182: `and not _n1_real_instr(...)` restores this

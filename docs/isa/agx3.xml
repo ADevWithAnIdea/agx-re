@@ -423,11 +423,6 @@
     <value value="100">mode_64</value>
   </enum>
 
-  <enum kind="ray_move_form" name="ray_move form">
-    <value value="128" label="zero_init(b3=0x00)">zero_init</value>
-    <value value="129" label="copy_reg(b3=0x08)">copy_reg</value>
-  </enum>
-
   <enum kind="ray_move_b3" name="ray_move b3">
     <value value="0" label="zero form">zero_form</value>
     <value value="6" label="zero variant">zero_variant</value>
@@ -527,11 +522,6 @@
   <enum kind="pixel_order_kind" name="pixel_order kind">
     <value value="4" label="release/signal">release_signal</value>
     <value value="20" label="acquire/wait">acquire_wait</value>
-  </enum>
-
-  <enum kind="frame_marker_srcA_uni" name="frame_marker srcA_uni">
-    <value value="0">gpr</value>
-    <value value="1" label="uniform/hi">uniform_hi</value>
   </enum>
 
   <enum kind="ret_linkmode" name="ret linkmode">
@@ -733,8 +723,8 @@
   </enum>
 
   <enum kind="shift_amt_move_kind" name="shift_amt_move kind">
-    <value value="28">shift_amt</value>
-    <value value="60">rotate_amt</value>
+    <value value="1" label="shift_amt (byte+2 = 0x1c)">shift_amt</value>
+    <value value="3" label="rotate_amt (byte+2 = 0x3c)">rotate_amt</value>
   </enum>
 
   <!-- ========================= instructions / groups ====================== -->
@@ -802,7 +792,6 @@
     <modifier name="srcA_size" bit="24" kind="opsize"/>
     <src name="srcA_reg" bit="25:31"/>
     <modifier name="ctrl_lo" bit="32:38"/>
-    <!-- uni_mode [39]: constant, pinned by match/opcode -->
     <modifier name="mods" bit="40:47"/>
 
     <ins name="fadd" opsel="100"/>
@@ -891,7 +880,6 @@
     <exact bit="16:23">00001110</exact>
     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
     <zero bit="8:15"/>
-    <!-- op [16:23]: constant, pinned by match/opcode -->
     <src name="srcA" bit="24:31"/>
     <!-- srcmod [32:39]: inferred / not yet bit-decoded -->
     <zero bit="32:39"/>
@@ -1176,8 +1164,9 @@
   <!-- ilogic: d = LUT2(a, b) -->
   <!-- provenance: HW-VALIDATED (EXP-0013): all 8 named boolean kernels (and/or/xor/andn/orn/xnor/nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC. R6 ... -->
   <ins name="ilogic" length="10" label="d = LUT2(a, b)">
-    <exact bit="0:7">00001011</exact>
+    <exact bit="0:3">1011</exact>
     <exact bit="17:23">0001111</exact>
+    <dest name="dst" bit="4:7"/>
     <src name="srcA" bit="8:15"/>
     <modifier name="op_base" bit="16" kind="ilogic_op_base"/>
     <src name="srcB" bit="24:31"/>
@@ -1228,6 +1217,7 @@
     <ins name="rcp_estimate" subop="00001001"/>
     <ins name="rsqrt_estimate" subop="00001011"/>
     <ins name="sqrt_estimate" subop="00001101"/>
+    <ins name="rsqrt_estimate_DEF_0171_5" subop="00001111" label="rsqrt_estimate (G17P precise lowering) -- DEF-0171-5"/>
   </group>
 
   <!-- icmp_pred: predicate[dst_pred] = (srcA <cond> srcB) -->
@@ -1634,7 +1624,6 @@
     <exact bit="0:3">0100</exact>
     <exact bit="8:15">11101010</exact>
     <dest name="dst" bit="4:7"/>
-    <!-- subop [8:15]: constant, pinned by match/opcode -->
     <modifier name="mode" bit="16:23" kind="rt_intersect_mode"/>
     <src name="ray_param" bit="24:31"/>
     <modifier name="as_type" bit="32:39" kind="rt_intersect_as_type"/>
@@ -1720,9 +1709,6 @@
     <exact bit="32:39">00100010</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- marker [16:23]: constant, pinned by match/opcode -->
-    <!-- subop [24:31]: constant, pinned by match/opcode -->
-    <!-- cmpmode [32:39]: constant, pinned by match/opcode -->
     <src name="opA" bit="40:47"/>
     <modifier name="opAmod" bit="48:55"/>
     <modifier name="opAflags" bit="56:63"/>
@@ -1735,9 +1721,9 @@
   <!-- provenance: inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel ... -->
   <ins name="ray_move" length="4" label="RAY register-marshalling MOVE (4 bytes)">
     <exact bit="0:3">1011</exact>
+    <exact bit="16:23">10000001</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <modifier name="form" bit="16:23" kind="ray_move_form"/>
     <modifier name="b3" bit="24:31" kind="ray_move_b3"/>
   </ins>
 
@@ -1801,7 +1787,6 @@
     <modifier name="coeff_sel" bit="32:39"/>
     <immediate name="src_slot" bit="40:47"/>
     <modifier name="mode" bit="48:55" kind="iter_mode"/>
-    <!-- c7 [56:63]: constant, pinned by match/opcode -->
     <modifier name="loc" bit="64:71" kind="iter_loc"/>
     <modifier name="b9" bit="72:79"/>
   </ins>
@@ -1964,8 +1949,7 @@
   <!-- provenance: byte-diff EXP-M4-13 R8 (own-MSL + corpus context census, n=545): the CALL-marker role confirmed on own-MSL - k_call (noinline call) emits `43 00 00 ... -->
   <ins name="frame_marker" length="4" label="byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family ...">
     <exact bit="0:7">01000011</exact>
-    <src name="srcA_reg" bit="8:14"/>
-    <modifier name="srcA_uni" bit="15" kind="frame_marker_srcA_uni"/>
+    <src name="srcA_reg" bit="8:15"/>
     <modifier name="subform" bit="16:23"/>
     <modifier name="companion" bit="24:31"/>
   </ins>
@@ -2051,7 +2035,6 @@
     <exact bit="8:15">00000001</exact>
     <exact bit="16">0</exact>
     <exact bit="18:23">010101</exact>
-    <!-- b1 [8:15]: constant, pinned by match/opcode -->
     <!-- b2 [17]: inferred / not yet bit-decoded -->
     <zero bit="17"/>
     <!-- operands [24:63]: inferred / not yet bit-decoded -->
@@ -2066,7 +2049,6 @@
     <exact bit="0:7">10010111</exact>
     <exact bit="16:23">01010110</exact>
     <modifier name="src_desc" bit="8:15"/>
-    <!-- fmt_class [16:23]: constant, pinned by match/opcode -->
     <dest name="dst" bit="24:31"/>
     <modifier name="mode" bit="32:39"/>
     <src name="src_lane0" bit="40:47"/>
@@ -2114,7 +2096,6 @@
     <exact bit="16:23">00101111</exact>
     <dest name="dst_lo" bit="4:7"/>
     <modifier name="b1" bit="8:15"/>
-    <!-- subop [16:23]: constant, pinned by match/opcode -->
     <src name="srcA" bit="24:31"/>
     <modifier name="form" bit="32:39" kind="tex_coord_setup_form"/>
     <modifier name="b5" bit="40:47"/>
@@ -2131,7 +2112,6 @@
     <exact bit="16:23">00100011</exact>
     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
     <zero bit="8:15"/>
-    <!-- op [16:23]: constant, pinned by match/opcode -->
     <src name="srcA" bit="24:31"/>
     <!-- mark [32:39]: inferred / not yet bit-decoded -->
     <zero bit="32:39"/>
@@ -2209,10 +2189,7 @@
     <exact bit="8:15">00000000</exact>
     <exact bit="16:23">01010100</exact>
     <exact bit="32:39">10000001</exact>
-    <!-- b1 [8:15]: constant, pinned by match/opcode -->
-    <!-- marker [16:23]: constant, pinned by match/opcode -->
     <modifier name="b3" bit="24:31"/>
-    <!-- scope [32:39]: constant, pinned by match/opcode -->
     <immediate name="dir_offset" bit="40:55"/>
     <modifier name="reserved7" bit="56:63"/>
   </ins>
@@ -2249,8 +2226,7 @@
   <ins name="n3_mov" length="4" label="d = mov/zero-extend(srcA)">
     <exact bit="0:3">0011</exact>
     <dest name="dst" bit="4:7"/>
-    <src name="srcA_reg" bit="8:14"/>
-    <modifier name="srcA_uni" bit="15" kind="frame_marker_srcA_uni"/>
+    <src name="srcA_reg" bit="8:15"/>
     <modifier name="subform" bit="16:23"/>
     <modifier name="companion" bit="24:31"/>
   </ins>
@@ -2312,8 +2288,6 @@
     <modifier name="srcw" bit="8:15" kind="cvt_bf16_srcw"/>
     <!-- opsel [16:23]: inferred / not yet bit-decoded -->
     <zero bit="16:23"/>
-    <!-- src [24:31]: constant, pinned by match/opcode -->
-    <!-- fmt [32:39]: constant, pinned by match/opcode -->
     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
     <zero bit="40:47"/>
     <modifier name="dir" bit="48:55" kind="cvt_bf16_dir"/>
@@ -2333,6 +2307,7 @@
     <!-- tail [40:63]: inferred / not yet bit-decoded -->
     <zero bit="40:63"/>
 
+    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
     <ins name="bf" fmt="00000010"/>
     <ins name="bf2" fmt="00000100"/>
   </group>
@@ -2349,6 +2324,7 @@
     <!-- tail [40:63]: inferred / not yet bit-decoded -->
     <zero bit="40:63"/>
 
+    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
     <ins name="bf" fmt="00000010"/>
     <ins name="bf2" fmt="00000100"/>
   </group>
@@ -2366,6 +2342,7 @@
     <!-- tail [48:79]: inferred / not yet bit-decoded -->
     <zero bit="48:79"/>
 
+    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
     <ins name="bf" fmt="00000010"/>
     <ins name="bf2" fmt="00000100"/>
   </group>
@@ -2592,7 +2569,6 @@
     <exact bit="16:23">00100100</exact>
     <dest name="dst" bit="4:7"/>
     <src name="srcA" bit="8:15"/>
-    <!-- opsel [16:23]: constant, pinned by match/opcode -->
     <src name="srcB" bit="24:31"/>
     <modifier name="mods" bit="32:47"/>
   </ins>
@@ -2621,7 +2597,6 @@
     <exact bit="16:23">01000001</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
     <modifier name="optype" bit="24:31"/>
   </ins>
 
@@ -2632,7 +2607,6 @@
     <exact bit="16:23">01000000</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
     <zero bit="24:31"/>
   </ins>
@@ -2644,7 +2618,6 @@
     <exact bit="16:23">10000000</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
     <zero bit="24:31"/>
   </ins>
@@ -2657,8 +2630,6 @@
     <exact bit="24:31">00000000</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
-    <!-- b3 [24:31]: constant, pinned by match/opcode -->
   </ins>
 
   <!-- funary_imm: Float source-modifier / integer-logic move with an immediate/operand tail (10B, byte+2==0x0f) -->
@@ -2668,7 +2639,6 @@
     <exact bit="16:23">00001111</exact>
     <dest name="dst" bit="4:7"/>
     <src name="src" bit="8:15"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
     <src name="srcB" bit="24:31"/>
     <modifier name="lut_a" bit="32:39"/>
     <modifier name="mod" bit="40:47"/>
@@ -3360,7 +3330,6 @@
     <exact bit="8:15">00000000</exact>
     <exact bit="16:23">00000110</exact>
     <dest name="dst" bit="4:7"/>
-    <!-- form [16:23]: constant, pinned by match/opcode -->
     <modifier name="body" bit="24:63"/>
     <modifier name="tail" bit="64:79"/>
   </ins>

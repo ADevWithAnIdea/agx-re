@@ -1221,92 +1221,14 @@ def _r9_succ_safe(buf, q):
         return True
     return _r9_named_at(buf, q, L)
 
-def _half_len_agreed(b2, b4):
-    """EXP-0182: True iff the committed corpus-anchored native-half length formula and
-    EXP-0180's G17P-measured table give the SAME length for this (byte+2, byte+4) pair.
-
-    Committed formula (EXP-M4-10 / EXP-0148, corpus-anchored):
-        (6 + 2m) if (byte+2 & 2) and m else 8 if (byte+2 & 2) else 6 + 2m,   m = byte+4 & 3
-    Measured (EXP-0180, G17P, 4,096 cases, two gated runs, zero ambiguous cells):
-        experiments/EXP-0180-g17p-halfalu-rerecord/analysis/length_rule.json
-    They agree in 14 of 32 cells; only the nine listed here are op-selects the hardware
-    validated as arithmetic (4 hadd / 5 hmul / 6 hfma). Used to bound the DEF-0180-7
-    destination generalisation so it never asserts a refuted length."""
-    o, m = b2 & 0x07, b4 & 0x03
-    return (o in (0x04, 0x05) and m in (0, 1, 2)) or (o == 0x06 and m in (1, 2, 3))
-
-def _n1_len(buf, off):
-    """EXP-0182: length of the LOW-NIBBLE-1 group (single-source CONVERT + NATIVE
-    BFLOAT ALU) at buf[off], or None if these bytes are not that group.
-
-    DEF-0181-2 / DEF-0171-2 (EXP-0181, EXP-0171; re-derived from committed raw in
-    EXP-0182). byte0's HIGH NIBBLE is the DESTINATION register throughout this group --
-    db.json says so itself: cvt_f2h_dst, cvt_bf16, bf_add_dst and bf_fma_dst all pin
-    `[0, 4, 1]` and none of them pins `[0, 8, v]`. The two rules this replaces keyed the
-    length on bytes that select OPERANDS, and both gates excluded encodings OUR OWN
-    HARDWARE EXECUTED CORRECTLY:
-
-      * the convert gate demanded `byte+2 & 0x0f == 0x0c`, so the HW anchors
-        `01 01 14 81 05 02 40 00` (cvt_bf16) and `c1 01 14 81 04 02` (cvt_f2h_dst) --
-        both `outcome: ok, match: true` on G17P in EXP-0162 raw, cvt_bf16 also on M4 in
-        EXP-0144 -- had NO length at all (`unknown instruction length`);
-      * the bfloat gate demanded `byte+1 in {0x02, 0x04}`, but G17P's own compiler emits
-        byte+1 == 0x00: `21 00 1c 00 11 00 c0 81` (bf_add_dst, 8B) and
-        `21 00 1e 00 86 04 10 00 c0 81` (bf_fma_dst, 10B), both EXP-0156 `ok` against a
-        host bf16 oracle. Our tokenizer split the 8-byte add into `operand_word` +
-        `mov_imm` + a `cvt_f2h` that ran off the end of the instruction, and every token
-        after it in that carrier was garbage (EXP-0156 raw/g17p-20260830-bf03
-        00_inputs.json `carrier_tokens.bfadd`).
-
-    Key on the bits that IDENTIFY the instruction instead:
-      byte+3 hi-nibble 8  -> single-source CONVERT (db.json cvt_f2h_dst `match [28,4,8]`);
-                             length from byte+4 bit0: ->half 6, ->bfloat 8 (EXP-M4-13 n1).
-      else byte+2 op-select 0x1c add / 0x1d mul -> 8 ; 0x1e fma -> 10
-                             (db.json bf_add_dst `match [16,8,28]`, bf_fma_dst `[16,8,30]`).
-    The byte0 == 0x11 sub-rules that predate this are kept verbatim BELOW the two general
-    ones, so every previously-correct byte0 == 0x11 length is reproduced.
-    """
-    b0 = buf[off]
-    if (b0 & 0x0f) != 0x01:
-        return None
-    b1 = buf[off + 1] if off + 1 < len(buf) else -1
-    b2 = buf[off + 2] if off + 2 < len(buf) else 0
-    b3 = buf[off + 3] if off + 3 < len(buf) else 0
-    b4 = buf[off + 4] if off + 4 < len(buf) else 0
-    # fp16 PACK/CONVERT compact op (EXP-M4-01 round-3, k_cvt_half@32 `31 01 3c 81 00 c2`).
-    # Kept FIRST and unchanged: it fired before the general rules in the old ordering.
-    if b1 == 0x01 and b2 == 0x3c:
-        return 6
-    # single-source CONVERT: byte+3 is the convert-SOURCE descriptor (hi nibble 8).
-    if (b3 & 0xf0) == 0x80:
-        return 8 if (b4 & 0x01) else 6
-    # NATIVE BFLOAT ALU, every dst register and every byte+1 source class.
-    if b2 in (0x1c, 0x1d):
-        return 8
-    if b2 == 0x1e:
-        return 10
-    # ---- byte0 == 0x11 legacy sub-rules, preserved verbatim ----
-    if b0 == 0x11 and b1 == 0x03:
-        return 8 if (b4 & 0x01) else 6
-    if b1 in (0x02, 0x04):
-        return 10 if (b2 & 0x02) else 8
-    if b0 == 0x11:
-        return 8 if (b2 & 0x02) else 6
-    return None
-
-
-def _n1_real_instr(buf, off):
-    """EXP-0182 (DEF-0171-2): guard for the R9 trailing-word closure.
-
-    That closure documents itself as firing "only where baseline instr_length was None
-    at a real boundary". It does not: `_R9_SIGS[(0x21, 0x00)] = 2` shadows
-    `21 00 1c 00 11 00 c0 81`, an 8-byte native bfloat add that G17P executed correctly
-    against a host bf16 oracle. Restore the documented intent for this group only --
-    never claim a 2-byte pad where the low-nibble-1 rule yields a length at which a REAL
-    NAMED descriptor matches."""
-    L = _n1_len(buf, off)
-    return L is not None and _r9_named_at(buf, off, L)
-
+# EXP-0180 (G17P, HW-VALIDATED) measured native-half length table. See
+# experiments/EXP-0180-g17p-halfalu-rerecord/analysis/length_rule.json.
+_EXP0180_HALF_LEN = {}
+for _o in (0, 1, 2, 3, 7):
+    _EXP0180_HALF_LEN.update({(_o, 0): 10, (_o, 1): 10, (_o, 2): 10, (_o, 3): 8})
+_EXP0180_HALF_LEN.update({(4, 0): 6, (4, 1): 8, (4, 2): 10, (4, 3): 6})
+_EXP0180_HALF_LEN.update({(5, 0): 6, (5, 1): 8, (5, 2): 10, (5, 3): 8})
+_EXP0180_HALF_LEN.update({(6, 0): 6, (6, 1): 8, (6, 2): 10, (6, 3): 12})
 
 def instr_length(buf, off=0):
     """Return the length in bytes of the instruction starting at buf[off], or
@@ -1337,14 +1259,8 @@ def instr_length(buf, off=0):
     _r9 = _R9_SIGS.get((b0, _b1))
     if _r9 is None:
         _r9 = _R9_TRIPLES.get((b0, _b1, _b2))
-    if _r9 is not None and _r9_succ_safe(buf, off + _r9) \
-            and not _n1_real_instr(buf, off):
-        return _r9                     # EXP-0182: `and not _n1_real_instr(...)` restores this
-                                       # table's own documented intent (fire only where the
-                                       # baseline length was None). Without it `_R9_SIGS[(0x21,
-                                       # 0x00)] = 2` shadows the HW-VALIDATED 8-byte bfloat add
-                                       # `21 00 1c 00 11 00 c0 81` (EXP-0156, G17P, ok vs a host
-                                       # bf16 oracle) and desyncs the rest of the carrier.
+    if _r9 is not None and _r9_succ_safe(buf, off + _r9):
+        return _r9
     # ---- RAY-QUERY traversal / getter op (EXP-M4-13 R2 nf_simd) --------------------
     # 8-byte low-nibble-f op emitted only in intersection_query traversal/getters. Gated
     # tightly on byte+1==0x80 AND byte+2==0x86 (the SFU-datapath marker) so it never touches
@@ -1816,17 +1732,7 @@ def instr_length(buf, off=0):
                                        # 0/1-select srcC (set, `.. 22 81 .. 20 80` tail) = 10B. ALL dst
                                        # regs incl 0x22 (EXP-M4-12 S3: k_int64@0xa2 `92 8f 25 8b 85 19
                                        # 07 00` = 8B; the old reg-select rule below mis-lengthed it 10).
-            if b2 in (0x1e, 0x2e, 0x3e, 0x26, 0x36, 0x35, 0x3d, 0x23, 0x2b, 0x03,
-                      0x1c, 0x06, 0x0e, 0x16):
-                # EXP-0182 (DEF-0181-2): op-select 0x1c added. `hminmax` (db.json
-                # `match [[0,4,2],[16,8,28]]`, length 6) is the fp16 sibling of iminmax and
-                # its HW anchor `22 00 1c 00 10 c0` -- EXP-0156, G17P, `ok` against a host
-                # fp16 max oracle -- decoded at only TWO of the sixteen destination
-                # registers, and NOT at the one that proved it: the op-select was missing
-                # from this list, so the length fell through to the FULL-BYTE per-destination
-                # fallbacks (`if b0 == 0x02 / 0x12 / 0x22 / 0x32`) below, which give 10 for
-                # dst r2 and no length at all for r4..r15. analysis/opsel_length_map.py
-                # derives this mechanically from db.json.
+            if b2 in (0x1e, 0x2e, 0x3e, 0x26, 0x36, 0x35, 0x3d, 0x23, 0x2b, 0x03):
                 return 6               # iminmax / carry_gen / fcmp-pred (0x3d, EXP-M4-01:
                                        # k_int_arith@224 `42 0d 3d 09 22 81` = 6B, feeds a psel)
                                        # / SFU polynomial fma (0x23, EXP-M4-01: k_transcend
@@ -1837,9 +1743,6 @@ def instr_length(buf, off=0):
                                        # `32 05 2b 82 95 06` r3 / `22 05 2b 0d 87 06` r2 -- uniform 6B
                                        # all dst regs; the old 0x22 rule mis-lengthed b2=0x2b as 10) and
                                        # 0x03 (SFU polynomial select, `42 85 03 0d 87 08` r4).
-            if b2 in (0x05, 0x15):
-                return 10              # EXP-0182: isel10_c's unambiguous op-selects
-                                       # (db.json `match [[0,4,2],[16,3,5]]`, length 10).
             if b2 in (0x1d, 0x2d):
                 if b2 == 0x2d and b3 == 0x80:
                     return 10          # register-operand cmpsel (div/mod correction SELECT, EXP-M4-12
@@ -1964,48 +1867,12 @@ def instr_length(buf, off=0):
     # ---- native-half (fp16) float ALU (byte0 0x10, EXP-0033) ----
     # The 16-bit-destination sibling of the 0x09 float ALU (half/half2 arithmetic);
     # same length bit (byte+2 bit1) as 0x09/0x11.
-    _n0_half = (b0 == 0x10)
-    if not _n0_half and (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \
-            and off + 4 < len(buf) and _half_len_agreed(buf[off + 2], buf[off + 4]):
-        # EXP-0182 (DEF-0180-7, HW-VALIDATED on G17P by EXP-0180): byte0's HIGH NIBBLE is
-        # the DESTINATION register of this family. EXP-0180's DSTNIB arm ran byte0 = n<<4
-        # for every n = 0..15 on two carriers in two gated runs and the result landed in
-        # r[n]'s low 16 bits with r[n]'s high 16 bits preserved, 16 of 16. The old FULL-BYTE
-        # gate `if b0 == 0x10` lengthed only dst r1, so fifteen of sixteen destinations did
-        # not tokenize at all and every corpus census over this family under-counts by
-        # construction. This function's own docstring records the identical bug being found
-        # and fixed for the 0x09 float family -- "using the full byte mis-tokenizes any
-        # falu2 whose dst register is >= 1" -- and it was never applied here.
-        #
-        # TWO LIMITS, both deliberate and both measured (EXP-0182):
-        # (1) `_half_len_agreed` restricts the generalisation to the nine (op-select,
-        #     byte+4 & 3) cells where the committed corpus-anchored formula below and
-        #     EXP-0180's G17P measurement AGREE. They disagree in 18 of 32 cells, and
-        #     adopting the measured rule wholesale costs 17 clean corpus files and 3,220
-        #     leftover bytes (EXP-0182 candidate `n0m`), so neither rule may be extended to
-        #     new destinations on its own authority.
-        # (2) 0x30 / 0x90 / 0xb0 are excluded: they are the texture SAMPLER leaders, and
-        #     byte0 alone cannot separate a sampler op from a half ALU writing r3/r9/r11.
-        #     Those three destinations remain UNKNOWN -- a real, bounded residue.
-        #
-        # DECODE IS STILL BLOCKED, and not by this file: db.json gives `half_alu`,
-        # `half_alu_ext8` and `half_alu_fma12` the match `[[0, 8, 16]]`, pinning the FULL
-        # byte0, so `decode_one` finds no descriptor at any destination but r1 even when the
-        # length is right (DEF-0180-1; db.json is the orchestrator's file).
-        _n0_half = True
-    if _n0_half:
-        if buf[off + 2] in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):
-            return 4                   # EXP-0148 H2-narrow: fp16 sibling of falu_compact4.
-        if buf[off + 2] & 0x02:
-            # fp16 fma / 3-source. EXP-M4-10: same saturate/abs byte+4 polymorphism as
-            # the 0x09 fp32 fma (8/10/12), so length off byte+4 low2 (guard 0 -> 8).
-            b4 = buf[off + 4] if off + 4 < len(buf) else 0
-            return (6 + 2 * (b4 & 0x03)) if (b4 & 0x03) else 8
-        # EXP-M4-10 (ISA-2): the fp16 EXTENDED form (saturate output-clamp / negate / abs)
-        # is 6 + 2*(byte+4 & 0x3), same as the 0x09 fp32 group. saturate(a+b) fp16 =
-        # `10 03 1c 02 01 00 00 82` (8B, byte+7 bit1 clamp). Old flat rule dropped the tail.
-        b4 = buf[off + 4] if off + 4 < len(buf) else 0
-        return 6 + 2 * (b4 & 0x03)
+    if b0 == 0x10:
+        # EXP-0180 MEASURED length rule (G17P, 4,096 cases over two gated runs, zero cells
+        # with more than one observed length): length = f(byte+2 & 7, byte+4 & 3).
+        _b2v = buf[off + 2] if off + 2 < len(buf) else 0
+        _b4v = buf[off + 4] if off + 4 < len(buf) else 0
+        return _EXP0180_HALF_LEN[(_b2v & 0x07, _b4v & 0x03)]
     # ---- byte0 0x11: fp32->fp16 convert (EXP-0013) *and* NATIVE bfloat ALU (EXP-O2D) ----
     # This group is length-POLYMORPHIC on byte+1 (LOAD-BEARING, EXP-O2D):
     #   byte+1 == 0x03 : fp32->fp16 narrowing convert (cvt_f2h, `11 03 1c 81 00 c2`) = 6B.
@@ -2018,16 +1885,40 @@ def instr_length(buf, off=0):
     # The OLD flat `8 if (byte+2 & 0x02) else 6` rule mis-lengthed every bfloat op (bf_add 0x1c -> 6,
     # bf_fma 0x1e -> 8) and desynced every bfloat kernel; disambiguate on byte+1, NOT byte+2 (cvt_f2h
     # and bf_add SHARE opsel byte+2 == 0x1c).
-    # EXP-0182 GENERAL FIX (DEF-0181-2 / DEF-0171-2): the byte0 == 0x11 block, the
-    # `X1 01 3c` pack-convert rule and the `(b0 & 0x0f) == 0x01 and b0 != 0x11` block that
-    # used to live here and below are now ONE rule keyed on the identifying bits, applied
-    # at every destination register. See `_n1_len` for the full derivation and the HW
-    # anchors each old gate excluded.
-    _n1 = _n1_len(buf, off)
-    if _n1 is not None:
-        return _n1
-    # (the fp16 pack-convert rule and the general low-nibble-1 convert/bfloat rules that
-    #  used to sit here are folded into `_n1_len`, called above -- EXP-0182.)
+    if b0 == 0x11:
+        b1v = buf[off + 1] if off + 1 < len(buf) else -1
+        if b1v == 0x03:
+            # EXP-M4-13 (n1_opselect): the 6-vs-8 convert sub-split. float->HALF (cvt_f2h,
+            # byte+4 bit0 clear) = 6B; float->BFLOAT (cvt_f2bf, byte+4 bit0 set) = 8B. The
+            # old flat `->6` mis-lengthed float->bfloat. (cvt_f2h `11 03 1c 81 00 c2` stays 6.)
+            return 8 if (off + 4 < len(buf) and (buf[off + 4] & 0x01)) else 6
+        if b1v in (0x02, 0x04):
+            return 10 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 8   # bfloat add/mul (8) | fma (10)
+        return 8 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 6         # legacy fallback
+    # ---- fp16 PACK/CONVERT compact op (low-nibble-1, byte+1==0x01, byte+2==0x3c), 6B ----
+    # EXP-M4-01 round-3: k_cvt_half@32 `31 01 3c 81 00 c2` (dst r3). The half<->int/float
+    # pack-convert helper the mixed-precision `half(int)`/`int(half)` path emits; distinct from
+    # the 0x11 bfloat/cvt group (byte+1 in {0x02,0x03,0x04}). High nibble = dst reg. Anchored 6B
+    # (the following `27 07 54 ..` cvt_f2i tokenizes cleanly; a walk of the whole kernel closes).
+    if (b0 & 0x0f) == 0x01 and (buf[off + 1] if off + 1 < len(buf) else -1) == 0x01 \
+            and (buf[off + 2] if off + 2 < len(buf) else -1) == 0x3c:
+        return 6
+    # ---- GENERAL low-nibble-1 CONVERT + native bfloat ALU, dst r0..r15 (EXP-M4-13 n1) ----
+    # Generalises the byte0==0x11 cvt_f2h/bf_alu length rule above to ALL dst regs (byte0
+    # high nibble = dst). byte0==0x11 is already fully handled by the block above, so these
+    # only fire for the other 15 dst regs.
+    #   byte+3 hi-nibble 8 (==0x8x) & byte+2 lo-nibble 0xc -> single-source CONVERT:
+    #        float->half 6B (byte+4 bit0 clear) / float->bfloat 8B (byte+4 bit0 set).
+    #        Gated on byte+3==0x8x so it never claims a resync landing.
+    #   byte+1 in {0x02,0x04} & byte+3 != 0x8x -> native bfloat ALU: bf_add/bf_mul 8B,
+    #        bf_fma (byte+2 0x1e, bit1 set) 10B.
+    if (b0 & 0x0f) == 0x01 and b0 != 0x11:
+        _n1b1 = buf[off + 1] if off + 1 < len(buf) else -1
+        _n1b3 = buf[off + 3] if off + 3 < len(buf) else -1
+        if _n1b3 == 0x81 and off + 2 < len(buf) and (buf[off + 2] & 0x0f) == 0x0c:
+            return 8 if (off + 4 < len(buf) and (buf[off + 4] & 0x01)) else 6   # convert ->bf 8 / ->half 6
+        if _n1b1 in (0x02, 0x04) and _n1b3 != 0x81:
+            return 10 if (off + 2 < len(buf) and (buf[off + 2] & 0x02)) else 8  # bf_fma 10 / bf_add,bf_mul 8
     # ---- low-nibble-3 group: 4-byte move/zero-extend, or 10-byte 0x27-form -------
     # byte0 0x13 (dst r0) zero-extend (uint->ushort->uint) is a 4-byte move (EXP-0013).
     # EXP-M4-01: the SAME low-nibble-3 group with byte+2==0x27 is a distinct 10-byte op

@@ -1308,7 +1308,7 @@ def _n1_real_instr(buf, off):
     return L is not None and _r9_named_at(buf, off, L)
 
 
-def instr_length(buf, off=0):
+def instr_length(buf, off=0, _skip_r9=False):
     """Return the length in bytes of the instruction starting at buf[off], or
     None if the leading byte is not in our (float-family) length table.
 
@@ -1337,14 +1337,17 @@ def instr_length(buf, off=0):
     _r9 = _R9_SIGS.get((b0, _b1))
     if _r9 is None:
         _r9 = _R9_TRIPLES.get((b0, _b1, _b2))
-    if _r9 is not None and _r9_succ_safe(buf, off + _r9) \
-            and not _n1_real_instr(buf, off):
-        return _r9                     # EXP-0182: `and not _n1_real_instr(...)` restores this
-                                       # table's own documented intent (fire only where the
-                                       # baseline length was None). Without it `_R9_SIGS[(0x21,
-                                       # 0x00)] = 2` shadows the HW-VALIDATED 8-byte bfloat add
-                                       # `21 00 1c 00 11 00 c0 81` (EXP-0156, G17P, ok vs a host
-                                       # bf16 oracle) and desyncs the rest of the carrier.
+    if _r9 is not None and not _skip_r9:
+        _base = instr_length(buf, off, _skip_r9=True)
+        if _base is not None and _r9_named_at(buf, off, _base):
+            _r9 = None                 # EXP-0182: a REAL NAMED instruction lives here. This
+                                       # table documents itself as firing "only where baseline
+                                       # instr_length was None at a real boundary"; without this
+                                       # check it does not. `_R9_SIGS[(0x21,0x00)] = 2` shadowed
+                                       # the HW-VALIDATED 8-byte bfloat add `21 00 1c 00 11 00 c0
+                                       # 81` (EXP-0156 G17P, ok vs a host bf16 oracle).
+    if _r9 is not None and _r9_succ_safe(buf, off + _r9):
+        return _r9
     # ---- RAY-QUERY traversal / getter op (EXP-M4-13 R2 nf_simd) --------------------
     # 8-byte low-nibble-f op emitted only in intersection_query traversal/getters. Gated
     # tightly on byte+1==0x80 AND byte+2==0x86 (the SFU-datapath marker) so it never touches

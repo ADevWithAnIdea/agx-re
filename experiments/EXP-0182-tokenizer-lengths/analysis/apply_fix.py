@@ -35,7 +35,13 @@ import hashlib, os, shutil, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXPDIR = os.path.dirname(HERE)
 REPO = os.path.abspath(os.path.join(EXPDIR, "..", ".."))
-SRC = os.path.join(REPO, "tools", "agx-isa")
+# The PRISTINE pre-fix tree. `work/tree_before/` is a copy of tools/agx-isa taken at
+# pre-registration (isadb.py sha256 9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8),
+# so every candidate is still built from the frozen source AFTER the fix has been applied
+# in place. Falls back to the live tree if the copy is absent.
+SRC = os.path.join(EXPDIR, "work", "tree_before")
+if not os.path.isdir(SRC):
+    SRC = os.path.join(REPO, "tools", "agx-isa")
 
 # ---------------------------------------------------------------------------- n1 helper
 N1_HELPER = '''
@@ -230,6 +236,147 @@ NEW_N0W = NEW_N0.replace(
     "            and (buf[off + 4] & 0x7c) == 0:")
 assert NEW_N0W != NEW_N0
 
+# ---------------------------------------------------------------------------- n0m / n0x
+# n0m: replace the byte0==0x10 length FORMULA with the rule EXP-0180 MEASURED on G17P
+# (analysis/length_rule.json, 4,096 cases across two gated runs, zero ambiguous cells).
+# Measured, NOT adopted blindly -- this candidate exists to quantify the cost, because the
+# measured rule contradicts the corpus-anchored `falu_compact4` sibling (EXP-0148 H2-narrow)
+# at op-selects 0 and 1.
+OLD_N0_BODY = """    if b0 == 0x10:
+        if buf[off + 2] in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):
+            return 4                   # EXP-0148 H2-narrow: fp16 sibling of falu_compact4.
+        if buf[off + 2] & 0x02:
+            # fp16 fma / 3-source. EXP-M4-10: same saturate/abs byte+4 polymorphism as
+            # the 0x09 fp32 fma (8/10/12), so length off byte+4 low2 (guard 0 -> 8).
+            b4 = buf[off + 4] if off + 4 < len(buf) else 0
+            return (6 + 2 * (b4 & 0x03)) if (b4 & 0x03) else 8
+        # EXP-M4-10 (ISA-2): the fp16 EXTENDED form (saturate output-clamp / negate / abs)
+        # is 6 + 2*(byte+4 & 0x3), same as the 0x09 fp32 group. saturate(a+b) fp16 =
+        # `10 03 1c 02 01 00 00 82` (8B, byte+7 bit1 clamp). Old flat rule dropped the tail.
+        b4 = buf[off + 4] if off + 4 < len(buf) else 0
+        return 6 + 2 * (b4 & 0x03)"""
+NEW_N0_BODY = """    if b0 == 0x10:
+        # EXP-0180 MEASURED length rule (G17P, 4,096 cases over two gated runs, zero cells
+        # with more than one observed length): length = f(byte+2 & 7, byte+4 & 3).
+        _b2v = buf[off + 2] if off + 2 < len(buf) else 0
+        _b4v = buf[off + 4] if off + 4 < len(buf) else 0
+        return _EXP0180_HALF_LEN[(_b2v & 0x07, _b4v & 0x03)]"""
+N0M_TABLE = """
+# EXP-0180 (G17P, HW-VALIDATED) measured native-half length table. See
+# experiments/EXP-0180-g17p-halfalu-rerecord/analysis/length_rule.json.
+_EXP0180_HALF_LEN = {}
+for _o in (0, 1, 2, 3, 7):
+    _EXP0180_HALF_LEN.update({(_o, 0): 10, (_o, 1): 10, (_o, 2): 10, (_o, 3): 8})
+_EXP0180_HALF_LEN.update({(4, 0): 6, (4, 1): 8, (4, 2): 10, (4, 3): 6})
+_EXP0180_HALF_LEN.update({(5, 0): 6, (5, 1): 8, (5, 2): 10, (5, 3): 8})
+_EXP0180_HALF_LEN.update({(6, 0): 6, (6, 1): 8, (6, 2): 10, (6, 3): 12})
+
+"""
+
+# ---------------------------------------------------------------------------- n0c
+# n0c: the DEF-0180-7 family-gate fix, applied ONLY where the two independent sources of
+# length evidence AGREE. The committed formula (corpus-anchored, EXP-M4-10/EXP-0148) and
+# EXP-0180's G17P measurement disagree in 18 of 32 (op-select, byte+4 & 3) cells, so
+# generalising the committed formula to fifteen more destination registers would assert
+# lengths hardware has already refuted. This variant lengths a non-r1 destination only in
+# the nine cells where both sources give the SAME answer:
+#     op-select 4 (hadd) and 5 (hmul), byte+4 & 3 in {0, 1, 2}
+#     op-select 6 (hfma),              byte+4 & 3 in {1, 2, 3}
+# Every other (op-select, m) cell stays LEN_UNKNOWN at non-r1 destinations, which is the
+# honest state: the family gate is closed where the evidence is unanimous and nowhere else.
+OLD_N0C = OLD_N0
+NEW_N0C = """    _n0_half = (b0 == 0x10)
+    if not _n0_half and (b0 & 0x0f) == 0x00 and b0 not in (0x00, 0x30, 0x90, 0xb0) \\
+            and off + 4 < len(buf) and _half_len_agreed(buf[off + 2], buf[off + 4]):
+        # EXP-0182 (DEF-0180-7, HW-VALIDATED on G17P by EXP-0180): byte0's HIGH NIBBLE is
+        # the DESTINATION register of this family. EXP-0180's DSTNIB arm ran byte0 = n<<4
+        # for every n = 0..15 on two carriers in two gated runs and the result landed in
+        # r[n]'s low 16 bits with r[n]'s high 16 bits preserved, 16 of 16. The old FULL-BYTE
+        # gate `if b0 == 0x10` lengthed only dst r1, so fifteen of sixteen destinations did
+        # not tokenize at all and every corpus census over this family under-counts by
+        # construction. This function's own docstring records the identical bug being found
+        # and fixed for the 0x09 float family -- "using the full byte mis-tokenizes any
+        # falu2 whose dst register is >= 1" -- and it was never applied here.
+        #
+        # TWO LIMITS, both deliberate and both measured (EXP-0182):
+        # (1) `_half_len_agreed` restricts the generalisation to the nine (op-select,
+        #     byte+4 & 3) cells where the committed corpus-anchored formula below and
+        #     EXP-0180's G17P measurement AGREE. They disagree in 18 of 32 cells, and
+        #     adopting the measured rule wholesale costs 17 clean corpus files and 3,220
+        #     leftover bytes (EXP-0182 candidate `n0m`), so neither rule may be extended to
+        #     new destinations on its own authority.
+        # (2) 0x30 / 0x90 / 0xb0 are excluded: they are the texture SAMPLER leaders, and
+        #     byte0 alone cannot separate a sampler op from a half ALU writing r3/r9/r11.
+        #     Those three destinations remain UNKNOWN -- a real, bounded residue.
+        #
+        # DECODE IS STILL BLOCKED, and not by this file: db.json gives `half_alu`,
+        # `half_alu_ext8` and `half_alu_fma12` the match `[[0, 8, 16]]`, pinning the FULL
+        # byte0, so `decode_one` finds no descriptor at any destination but r1 even when the
+        # length is right (DEF-0180-1; db.json is the orchestrator's file).
+        _n0_half = True
+    if _n0_half:
+        if buf[off + 2] in (0x18, 0x38, 0x19, 0x21, 0x31, 0x30, 0x39):"""
+N0C_HELPER = """
+def _half_len_agreed(b2, b4):
+    \"\"\"EXP-0182: True iff the committed corpus-anchored native-half length formula and
+    EXP-0180's G17P-measured table give the SAME length for this (byte+2, byte+4) pair.
+
+    Committed formula (EXP-M4-10 / EXP-0148, corpus-anchored):
+        (6 + 2m) if (byte+2 & 2) and m else 8 if (byte+2 & 2) else 6 + 2m,   m = byte+4 & 3
+    Measured (EXP-0180, G17P, 4,096 cases, two gated runs, zero ambiguous cells):
+        experiments/EXP-0180-g17p-halfalu-rerecord/analysis/length_rule.json
+    They agree in 14 of 32 cells; only the nine listed here are op-selects the hardware
+    validated as arithmetic (4 hadd / 5 hmul / 6 hfma). Used to bound the DEF-0180-7
+    destination generalisation so it never asserts a refuted length.\"\"\"
+    o, m = b2 & 0x07, b4 & 0x03
+    return (o in (0x04, 0x05) and m in (0, 1, 2)) or (o == 0x06 and m in (1, 2, 3))
+
+"""
+
+# ---------------------------------------------------------------------------- r9g
+# r9g: the GENERAL form of the `r9` guard. Instead of special-casing the low-nibble-1
+# family, restore the R9 trailing-word closure's own documented contract everywhere --
+# "Fires only where baseline instr_length was None at a real boundary" -- by asking the
+# rest of the function for a length first and refusing the 2-byte pad when a REAL NAMED
+# descriptor matches there. Measured against the corpus gate; see RESULTS.md.
+OLD_R9G_SIG = "def instr_length(buf, off=0):"
+NEW_R9G_SIG = "def instr_length(buf, off=0, _skip_r9=False):"
+OLD_R9G = """    if _r9 is not None and _r9_succ_safe(buf, off + _r9):
+        return _r9"""
+NEW_R9G = """    if _r9 is not None and not _skip_r9:
+        _base = instr_length(buf, off, _skip_r9=True)
+        if _base is not None and _r9_named_at(buf, off, _base):
+            _r9 = None                 # EXP-0182: a REAL NAMED instruction lives here. This
+                                       # table documents itself as firing "only where baseline
+                                       # instr_length was None at a real boundary"; without this
+                                       # check it does not. `_R9_SIGS[(0x21,0x00)] = 2` shadowed
+                                       # the HW-VALIDATED 8-byte bfloat add `21 00 1c 00 11 00 c0
+                                       # 81` (EXP-0156 G17P, ok vs a host bf16 oracle).
+    if _r9 is not None and _r9_succ_safe(buf, off + _r9):
+        return _r9"""
+
+# ---------------------------------------------------------------------------- r9s
+# r9s: the SCOPED form of the R9 guard -- the same "is a real named instruction here?"
+# question as r9g, but asked only for byte0 low nibbles in _R9_GUARD_NIBBLES. r9g (ask it
+# everywhere) costs 81 clean corpus files, so the closure is load-bearing well beyond its
+# documented contract and the guard must be scoped. This variant measures nibble 2 (the
+# integer/half compare-min/max-select family), which is where `hminmax` still loses two of
+# its sixteen destinations after the n2 fix.
+NEW_R9S = """    if _r9 is not None and not _skip_r9 and (b0 & 0x0f) in _R9_GUARD_NIBBLES:
+        _base = instr_length(buf, off, _skip_r9=True)
+        if _base is not None and _r9_named_at(buf, off, _base):
+            _r9 = None                 # EXP-0182 (scoped): a REAL NAMED instruction lives here.
+    if _r9 is not None and _r9_succ_safe(buf, off + _r9):
+        return _r9"""
+R9S_TABLE = """
+# EXP-0182: byte0 low nibbles for which the R9 trailing-word closure defers to a real named
+# instruction. Asking the question for EVERY nibble (candidate `r9g`) costs 81 clean corpus
+# files and 39,878 leftover bytes -- the closure is load-bearing far beyond its documented
+# contract -- so the guard is scoped to the families this experiment measured.
+_R9_GUARD_NIBBLES = frozenset({0x02})
+
+"""
+
 PATCHES = {
     "n1": [(OLD_0X11, NEW_0X11), (OLD_PACK_AND_GEN, NEW_PACK_AND_GEN)],
     "r9": [(OLD_R9_GUARD, NEW_R9_GUARD)],
@@ -238,12 +385,28 @@ PATCHES = {
     "n2c": [(OLD_N2_C, NEW_N2_C)],
     "n0": [(OLD_N0, NEW_N0)],
     "n0w": [(OLD_N0, NEW_N0W)],
+    "n0m": [(OLD_N0_BODY, NEW_N0_BODY)],
+    "n0c": [(OLD_N0C, NEW_N0C)],
+    "r9g": [(OLD_R9G_SIG, NEW_R9G_SIG), (OLD_R9G, NEW_R9G)],
+    "r9s": [(OLD_R9G_SIG, NEW_R9G_SIG), (OLD_R9G, NEW_R9S)],
 }
 NEEDS_HELPER = {"n1", "r9"}
-ORDER = ["n1", "r9", "n2", "n2b", "n2c", "n0", "n0w"]
+NEEDS_TABLE = {"n0m"}
+NEEDS_R9S_TABLE = {"r9s"}
+NEEDS_N0C_HELPER = {"n0c"}
+ORDER = ["r9g", "r9s", "n1", "r9", "n2", "n2b", "n2c", "n0", "n0w", "n0m", "n0c"]
 
 
 def patch(text, names):
+    if NEEDS_R9S_TABLE & set(names):
+        assert text.count(OLD_R9_ANCHOR) == 1
+        text = text.replace(OLD_R9_ANCHOR, R9S_TABLE.lstrip("\n") + OLD_R9_ANCHOR)
+    if NEEDS_N0C_HELPER & set(names):
+        assert text.count(OLD_R9_ANCHOR) == 1
+        text = text.replace(OLD_R9_ANCHOR, N0C_HELPER.lstrip("\n") + OLD_R9_ANCHOR)
+    if NEEDS_TABLE & set(names):
+        assert text.count(OLD_R9_ANCHOR) == 1
+        text = text.replace(OLD_R9_ANCHOR, N0M_TABLE.lstrip("\n") + OLD_R9_ANCHOR)
     if NEEDS_HELPER & set(names):
         assert text.count(OLD_R9_ANCHOR) == 1
         text = text.replace(OLD_R9_ANCHOR, N1_HELPER.lstrip("\n") + "\n" + OLD_R9_ANCHOR)

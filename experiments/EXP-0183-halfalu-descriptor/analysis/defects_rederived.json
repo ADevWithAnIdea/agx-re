@@ -1,0 +1,5090 @@
+{
+ "H1_dstnib": {
+  "confirmed_union": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14
+  ],
+  "cross_run": {
+   "C_HI": {
+    "identical_across_runs": 16,
+    "values": 16
+   },
+   "C_LO": {
+    "identical_across_runs": 16,
+    "values": 16
+   }
+  },
+  "harness_register_roles": {
+   "12": "R_SENT -- POST-sentinel register, written after the block and after the dump (harness/isa_helpers.py:67).",
+   "13": "R_PRE / R_C2 -- PRE-sentinel scratch and C_LO's SECOND-CONSUMER destination (harness/isa_helpers.py:68,70).",
+   "14": "R_ZERO / pad_reg -- the always-0 source falu2i seeding needs, and the program PADDING register (harness/isa_helpers.py:69, build_program(pad_reg=R_ZERO), slack() = mov_imm(R_ZERO,0)*4). Padding sits AFTER the block on the arm that carries a second consumer.",
+   "15": "R_IDX -- device_store index register, re-seeded to 0 before EVERY store (harness/isa_helpers.py:66). Any write to r15 is destroyed before the dump."
+  },
+  "nonzero_r14_r15_anywhere_in_run": {
+   "C_HI/r14": [
+    {
+     "arm": "DSTNIB",
+     "field": "__dst_nibble",
+     "n": 2,
+     "value": 14
+    }
+   ]
+  },
+  "per_carrier": {
+   "C_HI": {
+    "g17p_run02": {
+     "anchor_result_low_half": "0x470f",
+     "categories": {
+      "confirmed": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       11,
+       12,
+       13,
+       14
+      ],
+      "low_half_only": [
+       10
+      ],
+      "masked": [
+       15
+      ]
+     },
+     "per_value": {
+      "0": {
+       "byte0": "00",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40a0470f",
+       "r_n_pre": "0x40a044a0"
+      },
+      "1": {
+       "byte0": "10",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "ok",
+       "r_n_post": "0x3fc0470f",
+       "r_n_pre": "0x3fc04440"
+      },
+      "2": {
+       "byte0": "20",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4040470f",
+       "r_n_pre": "0x40404470"
+      },
+      "3": {
+       "byte0": "30",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xbf00470f",
+       "r_n_pre": "0xbf003880"
+      },
+      "4": {
+       "byte0": "40",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40e0470f",
+       "r_n_pre": "0x40e044c0"
+      },
+      "5": {
+       "byte0": "50",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc110470f",
+       "r_n_pre": "0xc110b300"
+      },
+      "6": {
+       "byte0": "60",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4130470f",
+       "r_n_pre": "0x413044e8"
+      },
+      "7": {
+       "byte0": "70",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4150470f",
+       "r_n_pre": "0x415044f8"
+      },
+      "8": {
+       "byte0": "80",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3e80470f",
+       "r_n_pre": "0x3e8043e0"
+      },
+      "9": {
+       "byte0": "90",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc190470f",
+       "r_n_pre": "0xc190b780"
+      },
+      "10": {
+       "byte0": "a0",
+       "category": "low_half_only",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [],
+       "outcome": "wrong_value",
+       "r_n_post": "0x0000470f",
+       "r_n_pre": "0x41b04528"
+      },
+      "11": {
+       "byte0": "b0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41d0470f",
+       "r_n_pre": "0x41d04538"
+      },
+      "12": {
+       "byte0": "c0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_SENT -- POST-sentinel register, written after the block and after the dump (harness/isa_helpers.py:67).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc1f0470f",
+       "r_n_pre": "0xc1f0b940"
+      },
+      "13": {
+       "byte0": "d0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_PRE / R_C2 -- PRE-sentinel scratch and C_LO's SECOND-CONSUMER destination (harness/isa_helpers.py:68,70).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3f40470f",
+       "r_n_pre": "0x3f404420"
+      },
+      "14": {
+       "byte0": "e0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_ZERO / pad_reg -- the always-0 source falu2i seeding needs, and the program PADDING register (harness/isa_helpers.py:69, build_program(pad_reg=R_ZERO), slack() = mov_imm(R_ZERO,0)*4). Padding sits AFTER the block on the arm that carries a second consumer.",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x0000470f",
+       "r_n_pre": "0x00000000"
+      },
+      "15": {
+       "byte0": "f0",
+       "category": "masked",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_IDX -- device_store index register, re-seeded to 0 before EVERY store (harness/isa_helpers.py:66). Any write to r15 is destroyed before the dump.",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      }
+     }
+    },
+    "g17p_run03": {
+     "anchor_result_low_half": "0x470f",
+     "categories": {
+      "confirmed": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       11,
+       12,
+       13,
+       14
+      ],
+      "low_half_only": [
+       10
+      ],
+      "masked": [
+       15
+      ]
+     },
+     "per_value": {
+      "0": {
+       "byte0": "00",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40a0470f",
+       "r_n_pre": "0x40a044a0"
+      },
+      "1": {
+       "byte0": "10",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "ok",
+       "r_n_post": "0x3fc0470f",
+       "r_n_pre": "0x3fc04440"
+      },
+      "2": {
+       "byte0": "20",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4040470f",
+       "r_n_pre": "0x40404470"
+      },
+      "3": {
+       "byte0": "30",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xbf00470f",
+       "r_n_pre": "0xbf003880"
+      },
+      "4": {
+       "byte0": "40",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40e0470f",
+       "r_n_pre": "0x40e044c0"
+      },
+      "5": {
+       "byte0": "50",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc110470f",
+       "r_n_pre": "0xc110b300"
+      },
+      "6": {
+       "byte0": "60",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4130470f",
+       "r_n_pre": "0x413044e8"
+      },
+      "7": {
+       "byte0": "70",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x4150470f",
+       "r_n_pre": "0x415044f8"
+      },
+      "8": {
+       "byte0": "80",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3e80470f",
+       "r_n_pre": "0x3e8043e0"
+      },
+      "9": {
+       "byte0": "90",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc190470f",
+       "r_n_pre": "0xc190b780"
+      },
+      "10": {
+       "byte0": "a0",
+       "category": "low_half_only",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [],
+       "outcome": "wrong_value",
+       "r_n_post": "0x0000470f",
+       "r_n_pre": "0x41b04528"
+      },
+      "11": {
+       "byte0": "b0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": null,
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41d0470f",
+       "r_n_pre": "0x41d04538"
+      },
+      "12": {
+       "byte0": "c0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_SENT -- POST-sentinel register, written after the block and after the dump (harness/isa_helpers.py:67).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc1f0470f",
+       "r_n_pre": "0xc1f0b940"
+      },
+      "13": {
+       "byte0": "d0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_PRE / R_C2 -- PRE-sentinel scratch and C_LO's SECOND-CONSUMER destination (harness/isa_helpers.py:68,70).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3f40470f",
+       "r_n_pre": "0x3f404420"
+      },
+      "14": {
+       "byte0": "e0",
+       "category": "confirmed",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_ZERO / pad_reg -- the always-0 source falu2i seeding needs, and the program PADDING register (harness/isa_helpers.py:69, build_program(pad_reg=R_ZERO), slack() = mov_imm(R_ZERO,0)*4). Padding sits AFTER the block on the arm that carries a second consumer.",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x0000470f",
+       "r_n_pre": "0x00000000"
+      },
+      "15": {
+       "byte0": "f0",
+       "category": "masked",
+       "expected_low_half": "0x470f",
+       "harness_role": "R_IDX -- device_store index register, re-seeded to 0 before EVERY store (harness/isa_helpers.py:66). Any write to r15 is destroyed before the dump.",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      }
+     }
+    }
+   },
+   "C_LO": {
+    "g17p_run02": {
+     "anchor_result_low_half": "0x3000",
+     "categories": {
+      "confirmed": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12
+      ],
+      "masked": [
+       14,
+       15
+      ],
+      "masked_overwritten": [
+       13
+      ]
+     },
+     "per_value": {
+      "0": {
+       "byte0": "00",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41d03000",
+       "r_n_pre": "0x41d045d0"
+      },
+      "1": {
+       "byte0": "10",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "ok",
+       "r_n_post": "0xbf403000",
+       "r_n_pre": "0xbf403c60"
+      },
+      "2": {
+       "byte0": "20",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41503000",
+       "r_n_pre": "0x41504590"
+      },
+      "3": {
+       "byte0": "30",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41b03000",
+       "r_n_pre": "0x41b045c0"
+      },
+      "4": {
+       "byte0": "40",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3f003000",
+       "r_n_pre": "0x3f0044a8"
+      },
+      "5": {
+       "byte0": "50",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40403000",
+       "r_n_pre": "0x40404508"
+      },
+      "6": {
+       "byte0": "60",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc1f03000",
+       "r_n_pre": "0xc1f0ac00"
+      },
+      "7": {
+       "byte0": "70",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3fc03000",
+       "r_n_pre": "0x3fc044d8"
+      },
+      "8": {
+       "byte0": "80",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41303000",
+       "r_n_pre": "0x41304580"
+      },
+      "9": {
+       "byte0": "90",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3e803000",
+       "r_n_pre": "0x3e804488"
+      },
+      "10": {
+       "byte0": "a0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc0e03000",
+       "r_n_pre": "0xc0e03780"
+      },
+      "11": {
+       "byte0": "b0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41903000",
+       "r_n_pre": "0x419045b0"
+      },
+      "12": {
+       "byte0": "c0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_SENT -- POST-sentinel register, written after the block and after the dump (harness/isa_helpers.py:67).",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40a03000",
+       "r_n_pre": "0x40a04538"
+      },
+      "13": {
+       "byte0": "d0",
+       "category": "masked_overwritten",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_PRE / R_C2 -- PRE-sentinel scratch and C_LO's SECOND-CONSUMER destination (harness/isa_helpers.py:68,70).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc110b600",
+       "r_n_pre": "0xc1103600"
+      },
+      "14": {
+       "byte0": "e0",
+       "category": "masked",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_ZERO / pad_reg -- the always-0 source falu2i seeding needs, and the program PADDING register (harness/isa_helpers.py:69, build_program(pad_reg=R_ZERO), slack() = mov_imm(R_ZERO,0)*4). Padding sits AFTER the block on the arm that carries a second consumer.",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      },
+      "15": {
+       "byte0": "f0",
+       "category": "masked",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_IDX -- device_store index register, re-seeded to 0 before EVERY store (harness/isa_helpers.py:66). Any write to r15 is destroyed before the dump.",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      }
+     }
+    },
+    "g17p_run03": {
+     "anchor_result_low_half": "0x3000",
+     "categories": {
+      "confirmed": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12
+      ],
+      "masked": [
+       14,
+       15
+      ],
+      "masked_overwritten": [
+       13
+      ]
+     },
+     "per_value": {
+      "0": {
+       "byte0": "00",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41d03000",
+       "r_n_pre": "0x41d045d0"
+      },
+      "1": {
+       "byte0": "10",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "ok",
+       "r_n_post": "0xbf403000",
+       "r_n_pre": "0xbf403c60"
+      },
+      "2": {
+       "byte0": "20",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41503000",
+       "r_n_pre": "0x41504590"
+      },
+      "3": {
+       "byte0": "30",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41b03000",
+       "r_n_pre": "0x41b045c0"
+      },
+      "4": {
+       "byte0": "40",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3f003000",
+       "r_n_pre": "0x3f0044a8"
+      },
+      "5": {
+       "byte0": "50",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40403000",
+       "r_n_pre": "0x40404508"
+      },
+      "6": {
+       "byte0": "60",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc1f03000",
+       "r_n_pre": "0xc1f0ac00"
+      },
+      "7": {
+       "byte0": "70",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3fc03000",
+       "r_n_pre": "0x3fc044d8"
+      },
+      "8": {
+       "byte0": "80",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41303000",
+       "r_n_pre": "0x41304580"
+      },
+      "9": {
+       "byte0": "90",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x3e803000",
+       "r_n_pre": "0x3e804488"
+      },
+      "10": {
+       "byte0": "a0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc0e03000",
+       "r_n_pre": "0xc0e03780"
+      },
+      "11": {
+       "byte0": "b0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": null,
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x41903000",
+       "r_n_pre": "0x419045b0"
+      },
+      "12": {
+       "byte0": "c0",
+       "category": "confirmed",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_SENT -- POST-sentinel register, written after the block and after the dump (harness/isa_helpers.py:67).",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x40a03000",
+       "r_n_pre": "0x40a04538"
+      },
+      "13": {
+       "byte0": "d0",
+       "category": "masked_overwritten",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_PRE / R_C2 -- PRE-sentinel scratch and C_LO's SECOND-CONSUMER destination (harness/isa_helpers.py:68,70).",
+       "other_regs_changed": [
+        10
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0xc110b600",
+       "r_n_pre": "0xc1103600"
+      },
+      "14": {
+       "byte0": "e0",
+       "category": "masked",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_ZERO / pad_reg -- the always-0 source falu2i seeding needs, and the program PADDING register (harness/isa_helpers.py:69, build_program(pad_reg=R_ZERO), slack() = mov_imm(R_ZERO,0)*4). Padding sits AFTER the block on the arm that carries a second consumer.",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      },
+      "15": {
+       "byte0": "f0",
+       "category": "masked",
+       "expected_low_half": "0x3000",
+       "harness_role": "R_IDX -- device_store index register, re-seeded to 0 before EVERY store (harness/isa_helpers.py:66). Any write to r15 is destroyed before the dump.",
+       "other_regs_changed": [
+        10,
+        13
+       ],
+       "outcome": "wrong_value",
+       "r_n_post": "0x00000000",
+       "r_n_pre": "0x00000000"
+      }
+     }
+    }
+   }
+  },
+  "refuted_union": []
+ },
+ "H1b_seed_determinism": {
+  "g17p_run02": {
+   "arm_carriers": 11,
+   "arm_carriers_with_multiple_pre_vectors": {},
+   "arm_carriers_with_one_pre_vector": 11,
+   "distinct_pre_by_carrier": {
+    "C_HI": 1,
+    "C_LO": 1
+   },
+   "seed_ok_counts": {
+    "False": 400,
+    "True": 16335
+   }
+  },
+  "g17p_run03": {
+   "arm_carriers": 11,
+   "arm_carriers_with_multiple_pre_vectors": {},
+   "arm_carriers_with_one_pre_vector": 11,
+   "distinct_pre_by_carrier": {
+    "C_HI": 1,
+    "C_LO": 1
+   },
+   "seed_ok_counts": {
+    "False": 400,
+    "True": 16335
+   }
+  }
+ },
+ "H1c_arithmetic_identity": {
+  "C_HI": {
+   "g17p_run02": {
+    "anchor": "100d0611891500c0",
+    "anchor_triple_is_among_them": true,
+    "byte+4": 137,
+    "byte+4_appears_in_identity": false,
+    "dst_from_byte0_high_nibble": 1,
+    "identity_holds": true,
+    "n_alternative_triples_over_all_32_halves": 4,
+    "observed_low_half": "0x470f",
+    "operands": {
+     "byte+1": 13,
+     "byte+3": 17,
+     "byte+5": 21,
+     "f[byte+1]": 2.59375,
+     "f[byte+3]": 1.625,
+     "f[byte+5]": 2.84375,
+     "h[byte+1]": "0x4130",
+     "h[byte+3]": "0x3e80",
+     "h[byte+5]": "0x41b0"
+    },
+    "predicted_from_bytes_1_3_5": "0x470f"
+   },
+   "g17p_run03": {
+    "anchor": "100d0611891500c0",
+    "anchor_triple_is_among_them": true,
+    "byte+4": 137,
+    "byte+4_appears_in_identity": false,
+    "dst_from_byte0_high_nibble": 1,
+    "identity_holds": true,
+    "n_alternative_triples_over_all_32_halves": 4,
+    "observed_low_half": "0x470f",
+    "operands": {
+     "byte+1": 13,
+     "byte+3": 17,
+     "byte+5": 21,
+     "f[byte+1]": 2.59375,
+     "f[byte+3]": 1.625,
+     "f[byte+5]": 2.84375,
+     "h[byte+1]": "0x4130",
+     "h[byte+3]": "0x3e80",
+     "h[byte+5]": "0x41b0"
+    },
+    "predicted_from_bytes_1_3_5": "0x470f"
+   }
+  },
+  "C_LO": {
+   "g17p_run02": {
+    "anchor": "100c0610891400c0",
+    "anchor_triple_is_among_them": true,
+    "byte+4": 137,
+    "byte+4_appears_in_identity": false,
+    "dst_from_byte0_high_nibble": 1,
+    "identity_holds": true,
+    "n_alternative_triples_over_all_32_halves": 2,
+    "observed_low_half": "0x3000",
+    "operands": {
+     "byte+1": 12,
+     "byte+3": 16,
+     "byte+5": 20,
+     "f[byte+1]": -0.0625,
+     "f[byte+3]": 5.5,
+     "f[byte+5]": 0.46875,
+     "h[byte+1]": "0xac00",
+     "h[byte+3]": "0x4580",
+     "h[byte+5]": "0x3780"
+    },
+    "predicted_from_bytes_1_3_5": "0x3000"
+   },
+   "g17p_run03": {
+    "anchor": "100c0610891400c0",
+    "anchor_triple_is_among_them": true,
+    "byte+4": 137,
+    "byte+4_appears_in_identity": false,
+    "dst_from_byte0_high_nibble": 1,
+    "identity_holds": true,
+    "n_alternative_triples_over_all_32_halves": 2,
+    "observed_low_half": "0x3000",
+    "operands": {
+     "byte+1": 12,
+     "byte+3": 16,
+     "byte+5": 20,
+     "f[byte+1]": -0.0625,
+     "f[byte+3]": 5.5,
+     "f[byte+5]": 0.46875,
+     "h[byte+1]": "0xac00",
+     "h[byte+3]": "0x4580",
+     "h[byte+5]": "0x3780"
+    },
+    "predicted_from_bytes_1_3_5": "0x3000"
+   }
+  }
+ },
+ "H2_length_rule": {
+  "cells_covered": 32,
+  "cells_disagreeing_across_runs": [],
+  "cells_with_more_than_one_length": [],
+  "db_json_stated_rule": "6, or 8 if (byte+2 & 0x02)",
+  "db_json_stated_rule_wrong_cells": [
+   {
+    "db_stated": 6,
+    "m": 0,
+    "measured": 10,
+    "opsel": 0
+   },
+   {
+    "db_stated": 6,
+    "m": 1,
+    "measured": 10,
+    "opsel": 0
+   },
+   {
+    "db_stated": 6,
+    "m": 2,
+    "measured": 10,
+    "opsel": 0
+   },
+   {
+    "db_stated": 6,
+    "m": 3,
+    "measured": 8,
+    "opsel": 0
+   },
+   {
+    "db_stated": 6,
+    "m": 0,
+    "measured": 10,
+    "opsel": 1
+   },
+   {
+    "db_stated": 6,
+    "m": 1,
+    "measured": 10,
+    "opsel": 1
+   },
+   {
+    "db_stated": 6,
+    "m": 2,
+    "measured": 10,
+    "opsel": 1
+   },
+   {
+    "db_stated": 6,
+    "m": 3,
+    "measured": 8,
+    "opsel": 1
+   },
+   {
+    "db_stated": 8,
+    "m": 0,
+    "measured": 10,
+    "opsel": 2
+   },
+   {
+    "db_stated": 8,
+    "m": 1,
+    "measured": 10,
+    "opsel": 2
+   },
+   {
+    "db_stated": 8,
+    "m": 2,
+    "measured": 10,
+    "opsel": 2
+   },
+   {
+    "db_stated": 8,
+    "m": 0,
+    "measured": 10,
+    "opsel": 3
+   },
+   {
+    "db_stated": 8,
+    "m": 1,
+    "measured": 10,
+    "opsel": 3
+   },
+   {
+    "db_stated": 8,
+    "m": 2,
+    "measured": 10,
+    "opsel": 3
+   },
+   {
+    "db_stated": 6,
+    "m": 1,
+    "measured": 8,
+    "opsel": 4
+   },
+   {
+    "db_stated": 6,
+    "m": 2,
+    "measured": 10,
+    "opsel": 4
+   },
+   {
+    "db_stated": 6,
+    "m": 1,
+    "measured": 8,
+    "opsel": 5
+   },
+   {
+    "db_stated": 6,
+    "m": 2,
+    "measured": 10,
+    "opsel": 5
+   },
+   {
+    "db_stated": 6,
+    "m": 3,
+    "measured": 8,
+    "opsel": 5
+   },
+   {
+    "db_stated": 8,
+    "m": 0,
+    "measured": 6,
+    "opsel": 6
+   },
+   {
+    "db_stated": 8,
+    "m": 2,
+    "measured": 10,
+    "opsel": 6
+   },
+   {
+    "db_stated": 8,
+    "m": 3,
+    "measured": 12,
+    "opsel": 6
+   },
+   {
+    "db_stated": 8,
+    "m": 0,
+    "measured": 10,
+    "opsel": 7
+   },
+   {
+    "db_stated": 8,
+    "m": 1,
+    "measured": 10,
+    "opsel": 7
+   },
+   {
+    "db_stated": 8,
+    "m": 2,
+    "measured": 10,
+    "opsel": 7
+   }
+  ],
+  "db_json_stated_rule_wrong_count": 25,
+  "fault_cases_by_cell": {
+   "4,0": 32,
+   "4,1": 64,
+   "4,2": 32,
+   "5,0": 32,
+   "5,1": 64,
+   "5,2": 32
+  },
+  "fault_rule_check_opsel_x_opflagsbit4": {
+   "4,True,fault": 128,
+   "5,True,fault": 128
+  },
+  "measured_table": {
+   "0,0": 10,
+   "0,1": 10,
+   "0,2": 10,
+   "0,3": 8,
+   "1,0": 10,
+   "1,1": 10,
+   "1,2": 10,
+   "1,3": 8,
+   "2,0": 10,
+   "2,1": 10,
+   "2,2": 10,
+   "2,3": 8,
+   "3,0": 10,
+   "3,1": 10,
+   "3,2": 10,
+   "3,3": 8,
+   "4,0": 6,
+   "4,1": 8,
+   "4,2": 10,
+   "4,3": 6,
+   "5,0": 6,
+   "5,1": 8,
+   "5,2": 10,
+   "5,3": 8,
+   "6,0": 6,
+   "6,1": 8,
+   "6,2": 10,
+   "6,3": 12,
+   "7,0": 10,
+   "7,1": 10,
+   "7,2": 10,
+   "7,3": 8
+  },
+  "zero_point_markers": {
+   "g17p_run02": 4,
+   "g17p_run03": 4
+  }
+ },
+ "H3_byte7_semantics": {
+  "byte7_other_bit_cases": {
+   "b7_lo/C_HI/g17p_run02/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_lo/C_HI/g17p_run02/v=1": {
+    "byte+7": "0xc1",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_lo/C_HI/g17p_run03/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_lo/C_HI/g17p_run03/v=1": {
+    "byte+7": "0xc1",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_lo/C_LO/g17p_run02/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_lo/C_LO/g17p_run02/v=1": {
+    "byte+7": "0xc1",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_lo/C_LO/g17p_run03/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_lo/C_LO/g17p_run03/v=1": {
+    "byte+7": "0xc1",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_HI/g17p_run02/v=0": {
+    "byte+7": "0x80",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=1": {
+    "byte+7": "0x84",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=10": {
+    "byte+7": "0xa8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=11": {
+    "byte+7": "0xac",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=12": {
+    "byte+7": "0xb0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=13": {
+    "byte+7": "0xb4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=14": {
+    "byte+7": "0xb8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=15": {
+    "byte+7": "0xbc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=16": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=17": {
+    "byte+7": "0xc4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=18": {
+    "byte+7": "0xc8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=19": {
+    "byte+7": "0xcc",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=2": {
+    "byte+7": "0x88",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=20": {
+    "byte+7": "0xd0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=21": {
+    "byte+7": "0xd4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=22": {
+    "byte+7": "0xd8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=23": {
+    "byte+7": "0xdc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=24": {
+    "byte+7": "0xe0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=25": {
+    "byte+7": "0xe4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=26": {
+    "byte+7": "0xe8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=27": {
+    "byte+7": "0xec",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=28": {
+    "byte+7": "0xf0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=29": {
+    "byte+7": "0xf4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=3": {
+    "byte+7": "0x8c",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=30": {
+    "byte+7": "0xf8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=31": {
+    "byte+7": "0xfc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=4": {
+    "byte+7": "0x90",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=5": {
+    "byte+7": "0x94",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=6": {
+    "byte+7": "0x98",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=7": {
+    "byte+7": "0x9c",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=8": {
+    "byte+7": "0xa0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run02/v=9": {
+    "byte+7": "0xa4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=0": {
+    "byte+7": "0x80",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=1": {
+    "byte+7": "0x84",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=10": {
+    "byte+7": "0xa8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=11": {
+    "byte+7": "0xac",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=12": {
+    "byte+7": "0xb0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=13": {
+    "byte+7": "0xb4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=14": {
+    "byte+7": "0xb8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=15": {
+    "byte+7": "0xbc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=16": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=17": {
+    "byte+7": "0xc4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=18": {
+    "byte+7": "0xc8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=19": {
+    "byte+7": "0xcc",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=2": {
+    "byte+7": "0x88",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=20": {
+    "byte+7": "0xd0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=21": {
+    "byte+7": "0xd4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=22": {
+    "byte+7": "0xd8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=23": {
+    "byte+7": "0xdc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=24": {
+    "byte+7": "0xe0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=25": {
+    "byte+7": "0xe4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=26": {
+    "byte+7": "0xe8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": -1.37109375,
+    "result_low_half": "0xbd7c",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=27": {
+    "byte+7": "0xec",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=28": {
+    "byte+7": "0xf0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=29": {
+    "byte+7": "0xf4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=3": {
+    "byte+7": "0x8c",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=30": {
+    "byte+7": "0xf8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=31": {
+    "byte+7": "0xfc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=4": {
+    "byte+7": "0x90",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=5": {
+    "byte+7": "0x94",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=6": {
+    "byte+7": "0x98",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=7": {
+    "byte+7": "0x9c",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 4.25,
+    "result_low_half": "0x4440",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=8": {
+    "byte+7": "0xa0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_HI/g17p_run03/v=9": {
+    "byte+7": "0xa4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "b7_mid/C_LO/g17p_run02/v=0": {
+    "byte+7": "0x80",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=1": {
+    "byte+7": "0x84",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=10": {
+    "byte+7": "0xa8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=11": {
+    "byte+7": "0xac",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=12": {
+    "byte+7": "0xb0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=13": {
+    "byte+7": "0xb4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=14": {
+    "byte+7": "0xb8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=15": {
+    "byte+7": "0xbc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=16": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=17": {
+    "byte+7": "0xc4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=18": {
+    "byte+7": "0xc8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=19": {
+    "byte+7": "0xcc",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=2": {
+    "byte+7": "0x88",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=20": {
+    "byte+7": "0xd0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=21": {
+    "byte+7": "0xd4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=22": {
+    "byte+7": "0xd8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=23": {
+    "byte+7": "0xdc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=24": {
+    "byte+7": "0xe0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=25": {
+    "byte+7": "0xe4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=26": {
+    "byte+7": "0xe8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=27": {
+    "byte+7": "0xec",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=28": {
+    "byte+7": "0xf0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=29": {
+    "byte+7": "0xf4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=3": {
+    "byte+7": "0x8c",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=30": {
+    "byte+7": "0xf8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=31": {
+    "byte+7": "0xfc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=4": {
+    "byte+7": "0x90",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=5": {
+    "byte+7": "0x94",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=6": {
+    "byte+7": "0x98",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=7": {
+    "byte+7": "0x9c",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=8": {
+    "byte+7": "0xa0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run02/v=9": {
+    "byte+7": "0xa4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=0": {
+    "byte+7": "0x80",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=1": {
+    "byte+7": "0x84",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=10": {
+    "byte+7": "0xa8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=11": {
+    "byte+7": "0xac",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=12": {
+    "byte+7": "0xb0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=13": {
+    "byte+7": "0xb4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=14": {
+    "byte+7": "0xb8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=15": {
+    "byte+7": "0xbc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=16": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=17": {
+    "byte+7": "0xc4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=18": {
+    "byte+7": "0xc8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=19": {
+    "byte+7": "0xcc",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=2": {
+    "byte+7": "0x88",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=20": {
+    "byte+7": "0xd0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=21": {
+    "byte+7": "0xd4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=22": {
+    "byte+7": "0xd8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=23": {
+    "byte+7": "0xdc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=24": {
+    "byte+7": "0xe0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=25": {
+    "byte+7": "0xe4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=26": {
+    "byte+7": "0xe8",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.8125,
+    "result_low_half": "0x3a80",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=27": {
+    "byte+7": "0xec",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=28": {
+    "byte+7": "0xf0",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=29": {
+    "byte+7": "0xf4",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=3": {
+    "byte+7": "0x8c",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=30": {
+    "byte+7": "0xf8",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=31": {
+    "byte+7": "0xfc",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=4": {
+    "byte+7": "0x90",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=5": {
+    "byte+7": "0x94",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=6": {
+    "byte+7": "0x98",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=7": {
+    "byte+7": "0x9c",
+    "dst_untouched": true,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     1
+    ],
+    "result_f": 1.09375,
+    "result_low_half": "0x3c60",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=8": {
+    "byte+7": "0xa0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "b7_mid/C_LO/g17p_run03/v=9": {
+    "byte+7": "0xa4",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     1,
+     0,
+     0,
+     1,
+     0,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "op_valid_marker/C_HI/g17p_run02/v=0": {
+    "byte+7": "0x40",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "op_valid_marker/C_HI/g17p_run02/v=1": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "op_valid_marker/C_HI/g17p_run03/v=0": {
+    "byte+7": "0x40",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "op_valid_marker/C_HI/g17p_run03/v=1": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "op_valid_marker/C_LO/g17p_run02/v=0": {
+    "byte+7": "0x40",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "op_valid_marker/C_LO/g17p_run02/v=1": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "op_valid_marker/C_LO/g17p_run03/v=0": {
+    "byte+7": "0x40",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "op_valid_marker/C_LO/g17p_run03/v=1": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   }
+  },
+  "saturate_cases": {
+   "saturate/C_HI/g17p_run02/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "saturate/C_HI/g17p_run02/v=1": {
+    "byte+7": "0xc2",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "saturate/C_HI/g17p_run03/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 7.05859375,
+    "result_low_half": "0x470f",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "saturate/C_HI/g17p_run03/v=1": {
+    "byte+7": "0xc2",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 2.84375,
+    "result_low_half": "0x41b0",
+    "third_operand_f": 2.84375,
+    "third_operand_h_byte+5": "0x41b0"
+   },
+   "saturate/C_LO/g17p_run02/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "saturate/C_LO/g17p_run02/v=1": {
+    "byte+7": "0xc2",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "saturate/C_LO/g17p_run03/v=0": {
+    "byte+7": "0xc0",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.125,
+    "result_low_half": "0x3000",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   },
+   "saturate/C_LO/g17p_run03/v=1": {
+    "byte+7": "0xc2",
+    "dst_untouched": false,
+    "instr_bits_56_63": [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ],
+    "result_f": 0.46875,
+    "result_low_half": "0x3780",
+    "third_operand_f": 0.46875,
+    "third_operand_h_byte+5": "0x3780"
+   }
+  }
+ },
+ "H3_fma12_opsel_legal_values": {
+  "legal_value_count": 1,
+  "opsel_values_reaching_12_bytes": [
+   6
+  ],
+  "per_opsel_m_values": {
+   "0": [],
+   "1": [],
+   "2": [],
+   "3": [],
+   "4": [],
+   "5": [],
+   "6": [
+    3
+   ],
+   "7": []
+  }
+ },
+ "H3_moved_counts": {
+  "half_alu_ext8.b5": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   }
+  },
+  "half_alu_ext8.b7_lo": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   }
+  },
+  "half_alu_ext8.b7_mid": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 32
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 32
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 32
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 32
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 28,
+    "values": 32
+   }
+  },
+  "half_alu_ext8.dst": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   }
+  },
+  "half_alu_ext8.op_valid_marker": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   }
+  },
+  "half_alu_ext8.opflags": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 16
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 16
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 16
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 16
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 30,
+    "values": 32
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 30,
+    "values": 32
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 30,
+    "values": 32
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 30,
+    "values": 32
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 28,
+    "values": 32
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 28,
+    "values": 32
+   }
+  },
+  "half_alu_ext8.opsel": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 6,
+    "values": 8
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 6,
+    "values": 8
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 6,
+    "values": 8
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 6,
+    "values": 8
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   }
+  },
+  "half_alu_ext8.rsv6": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 252,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 252,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 248,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 248,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 252,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 252,
+    "values": 256
+   }
+  },
+  "half_alu_ext8.saturate": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 1,
+    "values": 2
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 1,
+    "values": 2
+   }
+  },
+  "half_alu_ext8.srcA": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 0,
+    "values": 136
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 136
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 0,
+    "values": 136
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 136
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   }
+  },
+  "half_alu_ext8.srcB_desc": {
+   "E8_ADD@C_HI/g17p_run02": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_ADD@C_HI/g17p_run03": {
+    "moved": 128,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run02": {
+    "moved": 32,
+    "values": 256
+   },
+   "E8_ADD@C_LO/g17p_run03": {
+    "moved": 32,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run02": {
+    "moved": 248,
+    "values": 256
+   },
+   "E8_FMA@C_HI/g17p_run03": {
+    "moved": 248,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run02": {
+    "moved": 242,
+    "values": 256
+   },
+   "E8_FMA@C_LO/g17p_run03": {
+    "moved": 242,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run02": {
+    "moved": 248,
+    "values": 256
+   },
+   "E8_LIFT@C_HI/g17p_run03": {
+    "moved": 248,
+    "values": 256
+   }
+  },
+  "half_alu_fma12.dst": {
+   "F12_FMA@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   }
+  },
+  "half_alu_fma12.ext": {
+   "F12_FMA@C_HI/g17p_run02": {
+    "moved": 252,
+    "values": 256
+   },
+   "F12_FMA@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run02": {
+    "moved": 252,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run02": {
+    "moved": 252,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run03": {
+    "moved": 0,
+    "values": 256
+   }
+  },
+  "half_alu_fma12.opflags": {
+   "F12_FMA@C_HI/g17p_run02": {
+    "moved": 30,
+    "values": 32
+   },
+   "F12_FMA@C_HI/g17p_run03": {
+    "moved": 30,
+    "values": 32
+   },
+   "F12_FMA@C_LO/g17p_run02": {
+    "moved": 30,
+    "values": 32
+   },
+   "F12_FMA@C_LO/g17p_run03": {
+    "moved": 30,
+    "values": 32
+   },
+   "F12_LIFT@C_HI/g17p_run02": {
+    "moved": 28,
+    "values": 32
+   },
+   "F12_LIFT@C_HI/g17p_run03": {
+    "moved": 28,
+    "values": 32
+   }
+  },
+  "half_alu_fma12.opsel": {
+   "F12_FMA@C_HI/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "F12_FMA@C_HI/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   },
+   "F12_FMA@C_LO/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "F12_FMA@C_LO/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   },
+   "F12_LIFT@C_HI/g17p_run02": {
+    "moved": 7,
+    "values": 8
+   },
+   "F12_LIFT@C_HI/g17p_run03": {
+    "moved": 7,
+    "values": 8
+   }
+  },
+  "half_alu_fma12.srcA": {
+   "F12_FMA@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_FMA@C_LO/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run02": {
+    "moved": 254,
+    "values": 256
+   },
+   "F12_LIFT@C_HI/g17p_run03": {
+    "moved": 254,
+    "values": 256
+   }
+  }
+ },
+ "H3_srcB_desc_encodable_range": {
+  "0": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    3
+   ]
+  },
+  "1": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    3
+   ]
+  },
+  "2": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    3
+   ]
+  },
+  "3": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    3
+   ]
+  },
+  "4": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    1
+   ]
+  },
+  "5": {
+   "byte4_values_of_256": 128,
+   "m_values_giving_8_bytes": [
+    1,
+    3
+   ]
+  },
+  "6": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    1
+   ]
+  },
+  "7": {
+   "byte4_values_of_256": 64,
+   "m_values_giving_8_bytes": [
+    3
+   ]
+  }
+ },
+ "H4_citation_defects": {
+  "half_alu_ext8.srcA": {
+   "byte_named_by_committed_range_text": 6,
+   "citation_defect": true,
+   "field_bits": [
+    24,
+    31
+   ],
+   "field_bytes": [
+    3
+   ],
+   "text": "byte+6 swept 0x00..0xc0 all inert"
+  },
+  "half_alu_ext8.srcB_desc": {
+   "byte_named_by_committed_range_text": 7,
+   "citation_defect": true,
+   "field_bits": [
+    32,
+    39
+   ],
+   "field_bytes": [
+    4
+   ],
+   "text": "carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)"
+  },
+  "half_alu_fma12.srcA": {
+   "byte_named_by_committed_range_text": 4,
+   "citation_defect": true,
+   "field_bits": [
+    24,
+    31
+   ],
+   "field_bytes": [
+    3
+   ],
+   "text": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0"
+  }
+ },
+ "H5_rescores": {
+  "iter_at.grp": {
+   "g17p_20260830_rclean01": {
+    "r_i8": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ],
+      [
+       "invalid_run",
+       4
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ]
+    },
+    "r_i8s": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ]
+    }
+   },
+   "g17p_20260830_rclean07": {
+    "r_i8": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "wrong_value",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    },
+    "r_i8s": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "ok",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    }
+   },
+   "g17p_20260830_rclean08": {
+    "r_i8": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "wrong_value",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    },
+    "r_i8s": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "ok",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    }
+   },
+   "g17p_20260830_rclean09": {
+    "r_i8": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "wrong_value",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    },
+    "r_i8s": {
+     "0x-1": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x00": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x01": [
+      [
+       "hang",
+       1
+      ]
+     ],
+     "0x2f": [
+      [
+       "ok",
+       1
+      ]
+     ],
+     "0xaf": [
+      [
+       "ok",
+       1
+      ]
+     ]
+    }
+   }
+  },
+  "reg_move_cb.form": {
+   "g17p_20260830_run01/C1_alu": {
+    "legal_under_match_low_nibble_0xb": 16,
+    "outcomes_by_form_high_nibble": {
+     "0": "ok",
+     "1": "ok",
+     "10": "wrong_value",
+     "11": "wrong_value",
+     "12": "wrong_value",
+     "13": "wrong_value",
+     "14": "wrong_value",
+     "15": "wrong_value",
+     "2": "ok",
+     "3": "ok",
+     "4": "wrong_value",
+     "5": "wrong_value",
+     "6": "wrong_value",
+     "7": "wrong_value",
+     "8": "wrong_value",
+     "9": "wrong_value"
+    },
+    "values_dispatched_total": 256
+   },
+   "g17p_20260830_run01/C3_uni": {
+    "legal_under_match_low_nibble_0xb": 16,
+    "outcomes_by_form_high_nibble": {
+     "0": "ok",
+     "1": "ok",
+     "10": "wrong_value",
+     "11": "wrong_value",
+     "12": "wrong_value",
+     "13": "wrong_value",
+     "14": "wrong_value",
+     "15": "wrong_value",
+     "2": "ok",
+     "3": "ok",
+     "4": "wrong_value",
+     "5": "wrong_value",
+     "6": "wrong_value",
+     "7": "wrong_value",
+     "8": "wrong_value",
+     "9": "wrong_value"
+    },
+    "values_dispatched_total": 256
+   },
+   "g17p_20260830_run02/C1_alu": {
+    "legal_under_match_low_nibble_0xb": 16,
+    "outcomes_by_form_high_nibble": {
+     "0": "ok",
+     "1": "ok",
+     "10": "wrong_value",
+     "11": "wrong_value",
+     "12": "wrong_value",
+     "13": "wrong_value",
+     "14": "wrong_value",
+     "15": "wrong_value",
+     "2": "ok",
+     "3": "ok",
+     "4": "wrong_value",
+     "5": "wrong_value",
+     "6": "wrong_value",
+     "7": "wrong_value",
+     "8": "wrong_value",
+     "9": "wrong_value"
+    },
+    "values_dispatched_total": 256
+   },
+   "g17p_20260830_run02/C3_uni": {
+    "legal_under_match_low_nibble_0xb": 16,
+    "outcomes_by_form_high_nibble": {
+     "0": "ok",
+     "1": "ok",
+     "10": "wrong_value",
+     "11": "wrong_value",
+     "12": "wrong_value",
+     "13": "wrong_value",
+     "14": "wrong_value",
+     "15": "wrong_value",
+     "2": "ok",
+     "3": "ok",
+     "4": "wrong_value",
+     "5": "wrong_value",
+     "6": "wrong_value",
+     "7": "wrong_value",
+     "8": "wrong_value",
+     "9": "wrong_value"
+    },
+    "values_dispatched_total": 256
+   }
+  }
+ },
+ "_meta": {
+  "experiment": "EXP-0183-halfalu-descriptor",
+  "half_register_convention_used": "h = (reg << 1) | is_high; h2f/f2h are IEEE binary16 via struct '<e'. Derived, not assumed: see H1c's brute-force control.",
+  "method": "PURE ANALYSIS. Re-derived from committed raw only; EXP-0180's analysis/*.py were NOT imported and its conclusions were not assumed. No device, no SSH, no GPU.",
+  "raw_read": {
+   "EXP-0168": "all committed run directories",
+   "EXP-0169": [
+    "g17p_20260830_run01",
+    "g17p_20260830_run02"
+   ],
+   "EXP-0180": [
+    "g17p_run02",
+    "g17p_run03"
+   ]
+  }
+ }
+}

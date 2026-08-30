@@ -1,0 +1,542 @@
+diff --git a/docs/isa/agx3.xml b/docs/isa/agx3.xml
+index e09a4616..19e81628 100644
+--- a/docs/isa/agx3.xml
++++ b/docs/isa/agx3.xml
+@@ -423,11 +423,6 @@
+     <value value="100">mode_64</value>
+   </enum>
+ 
+-  <enum kind="ray_move_form" name="ray_move form">
+-    <value value="128" label="zero_init(b3=0x00)">zero_init</value>
+-    <value value="129" label="copy_reg(b3=0x08)">copy_reg</value>
+-  </enum>
+-
+   <enum kind="ray_move_b3" name="ray_move b3">
+     <value value="0" label="zero form">zero_form</value>
+     <value value="6" label="zero variant">zero_variant</value>
+@@ -529,11 +524,6 @@
+     <value value="20" label="acquire/wait">acquire_wait</value>
+   </enum>
+ 
+-  <enum kind="frame_marker_srcA_uni" name="frame_marker srcA_uni">
+-    <value value="0">gpr</value>
+-    <value value="1" label="uniform/hi">uniform_hi</value>
+-  </enum>
+-
+   <enum kind="ret_linkmode" name="ret linkmode">
+     <value value="2">leaf</value>
+     <value value="4">cf_merge</value>
+@@ -733,8 +723,8 @@
+   </enum>
+ 
+   <enum kind="shift_amt_move_kind" name="shift_amt_move kind">
+-    <value value="28">shift_amt</value>
+-    <value value="60">rotate_amt</value>
++    <value value="1" label="shift_amt (byte+2 = 0x1c)">shift_amt</value>
++    <value value="3" label="rotate_amt (byte+2 = 0x3c)">rotate_amt</value>
+   </enum>
+ 
+   <!-- ========================= instructions / groups ====================== -->
+@@ -802,7 +792,6 @@
+     <modifier name="srcA_size" bit="24" kind="opsize"/>
+     <src name="srcA_reg" bit="25:31"/>
+     <modifier name="ctrl_lo" bit="32:38"/>
+-    <!-- uni_mode [39]: constant, pinned by match/opcode -->
+     <modifier name="mods" bit="40:47"/>
+ 
+     <ins name="fadd" opsel="100"/>
+@@ -891,7 +880,6 @@
+     <exact bit="16:23">00001110</exact>
+     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+     <zero bit="8:15"/>
+-    <!-- op [16:23]: constant, pinned by match/opcode -->
+     <src name="srcA" bit="24:31"/>
+     <!-- srcmod [32:39]: inferred / not yet bit-decoded -->
+     <zero bit="32:39"/>
+@@ -1176,8 +1164,9 @@
+   <!-- ilogic: d = LUT2(a, b) -->
+   <!-- provenance: HW-VALIDATED (EXP-0013): all 8 named boolean kernels (and/or/xor/andn/orn/xnor/nand/nor) produce the correct LUT on a=0xAAAAAAAA,b=0xCCCCCCCC. R6 ... -->
+   <ins name="ilogic" length="10" label="d = LUT2(a, b)">
+-    <exact bit="0:7">00001011</exact>
++    <exact bit="0:3">1011</exact>
+     <exact bit="17:23">0001111</exact>
++    <dest name="dst" bit="4:7"/>
+     <src name="srcA" bit="8:15"/>
+     <modifier name="op_base" bit="16" kind="ilogic_op_base"/>
+     <src name="srcB" bit="24:31"/>
+@@ -1228,6 +1217,7 @@
+     <ins name="rcp_estimate" subop="00001001"/>
+     <ins name="rsqrt_estimate" subop="00001011"/>
+     <ins name="sqrt_estimate" subop="00001101"/>
++    <ins name="rsqrt_estimate_DEF_0171_5" subop="00001111" label="rsqrt_estimate (G17P precise lowering) -- DEF-0171-5"/>
+   </group>
+ 
+   <!-- icmp_pred: predicate[dst_pred] = (srcA <cond> srcB) -->
+@@ -1634,7 +1624,6 @@
+     <exact bit="0:3">0100</exact>
+     <exact bit="8:15">11101010</exact>
+     <dest name="dst" bit="4:7"/>
+-    <!-- subop [8:15]: constant, pinned by match/opcode -->
+     <modifier name="mode" bit="16:23" kind="rt_intersect_mode"/>
+     <src name="ray_param" bit="24:31"/>
+     <modifier name="as_type" bit="32:39" kind="rt_intersect_as_type"/>
+@@ -1720,9 +1709,6 @@
+     <exact bit="32:39">00100010</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- marker [16:23]: constant, pinned by match/opcode -->
+-    <!-- subop [24:31]: constant, pinned by match/opcode -->
+-    <!-- cmpmode [32:39]: constant, pinned by match/opcode -->
+     <src name="opA" bit="40:47"/>
+     <modifier name="opAmod" bit="48:55"/>
+     <modifier name="opAflags" bit="56:63"/>
+@@ -1735,9 +1721,9 @@
+   <!-- provenance: inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel ... -->
+   <ins name="ray_move" length="4" label="RAY register-marshalling MOVE (4 bytes)">
+     <exact bit="0:3">1011</exact>
++    <exact bit="16:23">10000001</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <modifier name="form" bit="16:23" kind="ray_move_form"/>
+     <modifier name="b3" bit="24:31" kind="ray_move_b3"/>
+   </ins>
+ 
+@@ -1801,7 +1787,6 @@
+     <modifier name="coeff_sel" bit="32:39"/>
+     <immediate name="src_slot" bit="40:47"/>
+     <modifier name="mode" bit="48:55" kind="iter_mode"/>
+-    <!-- c7 [56:63]: constant, pinned by match/opcode -->
+     <modifier name="loc" bit="64:71" kind="iter_loc"/>
+     <modifier name="b9" bit="72:79"/>
+   </ins>
+@@ -1964,8 +1949,7 @@
+   <!-- provenance: byte-diff EXP-M4-13 R8 (own-MSL + corpus context census, n=545): the CALL-marker role confirmed on own-MSL - k_call (noinline call) emits `43 00 00 ... -->
+   <ins name="frame_marker" length="4" label="byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family ...">
+     <exact bit="0:7">01000011</exact>
+-    <src name="srcA_reg" bit="8:14"/>
+-    <modifier name="srcA_uni" bit="15" kind="frame_marker_srcA_uni"/>
++    <src name="srcA_reg" bit="8:15"/>
+     <modifier name="subform" bit="16:23"/>
+     <modifier name="companion" bit="24:31"/>
+   </ins>
+@@ -2051,7 +2035,6 @@
+     <exact bit="8:15">00000001</exact>
+     <exact bit="16">0</exact>
+     <exact bit="18:23">010101</exact>
+-    <!-- b1 [8:15]: constant, pinned by match/opcode -->
+     <!-- b2 [17]: inferred / not yet bit-decoded -->
+     <zero bit="17"/>
+     <!-- operands [24:63]: inferred / not yet bit-decoded -->
+@@ -2066,7 +2049,6 @@
+     <exact bit="0:7">10010111</exact>
+     <exact bit="16:23">01010110</exact>
+     <modifier name="src_desc" bit="8:15"/>
+-    <!-- fmt_class [16:23]: constant, pinned by match/opcode -->
+     <dest name="dst" bit="24:31"/>
+     <modifier name="mode" bit="32:39"/>
+     <src name="src_lane0" bit="40:47"/>
+@@ -2114,7 +2096,6 @@
+     <exact bit="16:23">00101111</exact>
+     <dest name="dst_lo" bit="4:7"/>
+     <modifier name="b1" bit="8:15"/>
+-    <!-- subop [16:23]: constant, pinned by match/opcode -->
+     <src name="srcA" bit="24:31"/>
+     <modifier name="form" bit="32:39" kind="tex_coord_setup_form"/>
+     <modifier name="b5" bit="40:47"/>
+@@ -2131,7 +2112,6 @@
+     <exact bit="16:23">00100011</exact>
+     <!-- b1 [8:15]: inferred / not yet bit-decoded -->
+     <zero bit="8:15"/>
+-    <!-- op [16:23]: constant, pinned by match/opcode -->
+     <src name="srcA" bit="24:31"/>
+     <!-- mark [32:39]: inferred / not yet bit-decoded -->
+     <zero bit="32:39"/>
+@@ -2209,10 +2189,7 @@
+     <exact bit="8:15">00000000</exact>
+     <exact bit="16:23">01010100</exact>
+     <exact bit="32:39">10000001</exact>
+-    <!-- b1 [8:15]: constant, pinned by match/opcode -->
+-    <!-- marker [16:23]: constant, pinned by match/opcode -->
+     <modifier name="b3" bit="24:31"/>
+-    <!-- scope [32:39]: constant, pinned by match/opcode -->
+     <immediate name="dir_offset" bit="40:55"/>
+     <modifier name="reserved7" bit="56:63"/>
+   </ins>
+@@ -2249,8 +2226,7 @@
+   <ins name="n3_mov" length="4" label="d = mov/zero-extend(srcA)">
+     <exact bit="0:3">0011</exact>
+     <dest name="dst" bit="4:7"/>
+-    <src name="srcA_reg" bit="8:14"/>
+-    <modifier name="srcA_uni" bit="15" kind="frame_marker_srcA_uni"/>
++    <src name="srcA_reg" bit="8:15"/>
+     <modifier name="subform" bit="16:23"/>
+     <modifier name="companion" bit="24:31"/>
+   </ins>
+@@ -2312,8 +2288,6 @@
+     <modifier name="srcw" bit="8:15" kind="cvt_bf16_srcw"/>
+     <!-- opsel [16:23]: inferred / not yet bit-decoded -->
+     <zero bit="16:23"/>
+-    <!-- src [24:31]: constant, pinned by match/opcode -->
+-    <!-- fmt [32:39]: constant, pinned by match/opcode -->
+     <!-- b5 [40:47]: inferred / not yet bit-decoded -->
+     <zero bit="40:47"/>
+     <modifier name="dir" bit="48:55" kind="cvt_bf16_dir"/>
+@@ -2333,6 +2307,7 @@
+     <!-- tail [40:63]: inferred / not yet bit-decoded -->
+     <zero bit="40:63"/>
+ 
++    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
+     <ins name="bf" fmt="00000010"/>
+     <ins name="bf2" fmt="00000100"/>
+   </group>
+@@ -2349,6 +2324,7 @@
+     <!-- tail [40:63]: inferred / not yet bit-decoded -->
+     <zero bit="40:63"/>
+ 
++    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
+     <ins name="bf" fmt="00000010"/>
+     <ins name="bf2" fmt="00000100"/>
+   </group>
+@@ -2366,6 +2342,7 @@
+     <!-- tail [48:79]: inferred / not yet bit-decoded -->
+     <zero bit="48:79"/>
+ 
++    <ins name="bf_DEF_0171_2" fmt="00000000" label="bf (G17P scalar form) -- DEF-0171-2"/>
+     <ins name="bf" fmt="00000010"/>
+     <ins name="bf2" fmt="00000100"/>
+   </group>
+@@ -2592,7 +2569,6 @@
+     <exact bit="16:23">00100100</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="srcA" bit="8:15"/>
+-    <!-- opsel [16:23]: constant, pinned by match/opcode -->
+     <src name="srcB" bit="24:31"/>
+     <modifier name="mods" bit="32:47"/>
+   </ins>
+@@ -2621,7 +2597,6 @@
+     <exact bit="16:23">01000001</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+     <modifier name="optype" bit="24:31"/>
+   </ins>
+ 
+@@ -2632,7 +2607,6 @@
+     <exact bit="16:23">01000000</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+     <zero bit="24:31"/>
+   </ins>
+@@ -2644,7 +2618,6 @@
+     <exact bit="16:23">10000000</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+     <!-- b3 [24:31]: inferred / not yet bit-decoded -->
+     <zero bit="24:31"/>
+   </ins>
+@@ -2657,8 +2630,6 @@
+     <exact bit="24:31">00000000</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+-    <!-- b3 [24:31]: constant, pinned by match/opcode -->
+   </ins>
+ 
+   <!-- funary_imm: Float source-modifier / integer-logic move with an immediate/operand tail (10B, byte+2==0x0f) -->
+@@ -2668,7 +2639,6 @@
+     <exact bit="16:23">00001111</exact>
+     <dest name="dst" bit="4:7"/>
+     <src name="src" bit="8:15"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+     <src name="srcB" bit="24:31"/>
+     <modifier name="lut_a" bit="32:39"/>
+     <modifier name="mod" bit="40:47"/>
+@@ -3360,7 +3330,6 @@
+     <exact bit="8:15">00000000</exact>
+     <exact bit="16:23">00000110</exact>
+     <dest name="dst" bit="4:7"/>
+-    <!-- form [16:23]: constant, pinned by match/opcode -->
+     <modifier name="body" bit="24:63"/>
+     <modifier name="tail" bit="64:79"/>
+   </ins>
+diff --git a/docs/isa/encoding-tables.md b/docs/isa/encoding-tables.md
+index a80f39a9..67ea4311 100644
+--- a/docs/isa/encoding-tables.md
++++ b/docs/isa/encoding-tables.md
+@@ -89,10 +89,9 @@
+ | `srcA_size` | [24:25] (byte+3) | enum | `0x1`=b32; `0x0`=b16 |
+ | `srcA_reg` | [25:32] | register |  |
+ | `ctrl_lo` | [32:39] (byte+4) | modifier |  |
+-| `uni_mode` | [39:40] | enum | `0x1`=srcB_not_gpr |
+ | `mods` | [40:48] (byte+5) | modifier |  |
+ 
+-*d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-invariant) register, not a GPR and not an immediate. Selected when bit39=1 AND byte+1's exponent nibble < 8 (bit15=0); the minifloat immediate (falu2i) uses exp>=8 (bit15=1). uniform index = byte+1 = (ureg<<1)|size32. The uniform value is preloaded by the driver / the constant (uniform) program (EXP-0010/EXP-0020). RT-1a-FIX HW-VALIDATED.*
++*d = op(srcA_gpr, uniform_reg[usrc>>1])  ; srcB is a UNIFORM (thread-invariant) register, not a GPR and not an immediate. Selected when bit39=1 AND byte+1's exponent nibble < 8 (bit15=0); the minifloat immediate (falu2i) uses exp>=8 (bit15=1). uniform index = byte+1 = (ureg<<1)|size32. The uniform value is preloaded by the driver / the constant (uniform) program (EXP-0010/EXP-0020). RT-1a-FIX HW-VALIDATED. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `uni_mode` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `falu3` — 3-source float ALU (fma)
+ 
+@@ -118,13 +117,12 @@
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+ | `b1` | [8:16] (byte+1) | raw/unmapped |  |
+-| `op` | [16:24] (byte+2) | opcode-select | `0xe`=fmov |
+ | `srcA` | [24:32] (byte+3) | register |  |
+ | `srcmod` | [32:40] (byte+4) | raw/unmapped |  |
+ | `mod` | [40:48] (byte+5) | enum | `0x0`=mov; `0x2`=abs; `0xa`=neg |
+ | `ext` | [48:80] (byte+6) | raw/unmapped |  |
+ 
+-*d = mod(a)   ; float source-modifier move. byte+5 selects the modifier: 0x00 = mov (copy), 0x02 = fabs (|a|), 0x0a = fneg (-a). (bit1 = abs-enable, bit3 = negate; negate requires bit1 set -- byte+5=0x08 alone acts as mov.)*
++*d = mod(a)   ; float source-modifier move. byte+5 selects the modifier: 0x00 = mov (copy), 0x02 = fabs (|a|), 0x0a = fneg (-a). (bit1 = abs-enable, bit3 = negate; negate requires bit1 set -- byte+5=0x08 alone acts as mov.) FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `op` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `half_alu` — native fp16 (half) ALU (hadd/hmul); half2 packs 2 lanes
+ 
+@@ -180,7 +178,7 @@
+ | `srcB` | [32:40] (byte+4) | register |  |
+ | `tail` | [40:64] (byte+5) | raw/unmapped |  |
+ 
+-*d(bfloat) = op(a,b)  ; NATIVE bfloat (brain-float16) general ALU. byte0 0x11 is a DISTINCT group -- the bfloat sibling of the 0x10 native-fp16 ALU group and the 0x11 fp32->fp16 convert group -- reusing the SAME opsel byte+2 (0x1c add / 0x1d mul / 0x1e fma, the 10-byte form) as the 0x10/0x09 float groups. NOT lowered to fp32 (a single 0x11 op does the add; no widen-add-narrow sequence) and NOT the 0x10 fp16 group (byte0 differs). byte+1 = 0x02 scalar bfloat, 0x04 bfloat2 (each packed lane a separate 0x11 op). bfloat carries fp32 range (bf16 = top 16 bits of fp32), so bfloat->float is a free 0x03 widen and float->bfloat is a 0x11 byte+1==0x03 rounding convert. This descriptor names the 8-byte scalar (byte+1==0x02) add/mul; the bfloat2-packed (byte+1==0x04) and 10-byte fma (opsel 0x1e) forms tokenize by the length rule but are not separately named.*
++*d(bfloat) = op(a,b)  ; NATIVE bfloat (brain-float16) general ALU. byte0 0x11 is a DISTINCT group -- the bfloat sibling of the 0x10 native-fp16 ALU group and the 0x11 fp32->fp16 convert group -- reusing the SAME opsel byte+2 (0x1c add / 0x1d mul / 0x1e fma, the 10-byte form) as the 0x10/0x09 float groups. NOT lowered to fp32 (a single 0x11 op does the add; no widen-add-narrow sequence) and NOT the 0x10 fp16 group (byte0 differs). byte+1 = 0x02 scalar bfloat, 0x04 bfloat2 (each packed lane a separate 0x11 op). bfloat carries fp32 range (bf16 = top 16 bits of fp32), so bfloat->float is a free 0x03 widen and float->bfloat is a 0x11 byte+1==0x03 rounding convert. This descriptor names the 8-byte scalar (byte+1==0x02) add/mul; the bfloat2-packed (byte+1==0x04) and 10-byte fma (opsel 0x1e) forms tokenize by the length rule but are not separately named. ⚠ G17P's OWN NATIVE BFLOAT ALU DOES NOT TOKENIZE -- DEF-0171-2 (EXP-0171; re-derived in EXP-0175). Our own bfloat add / mul / fma compile on G17P to `31 00 1c 00 11 00 c0 81` (8B), `31 00 1d 00 11 00 c0 81` (8B) and `31 00 1e 00 86 02 10 00 c0 81` (10B). All three raise `unknown instruction length (byte0=0x31)`. The blocker is the LENGTH RULE in isadb.py, NOT this descriptor set: the low-nibble-1 bfloat branch is gated on byte+1 in {0x02,0x04} and G17P emits byte+1 == 0x00. Given a length, these bytes are already claimed correctly and unambiguously -- bf_add_dst / bf_mul_dst / bf_fma_dst each match them with 12 match bits against bf_alu8_var's 4. The length rule is the length-rule owner's file and is REPORTED, NOT PATCHED here. Separately, `bf_alu`'s match demands byte0 == 0x11 -- a full 8-bit byte0, the same dst-nibble over-fit as DEF-0171-1 (0x31 is dst r3, 0x11 is dst r1) -- and byte+1 == 0x02, which G17P does not emit; the dst-parameterised siblings cover the general case, so that match is left alone rather than widened blind.*
+ 
+ ### `fspecial` — special-function unit: rcp/rsqrt/exp2/round/sqrt/log2
+ 
+@@ -210,11 +208,11 @@
+ |---|---|---|---|
+ | `dst` | [4:8] | register |  |
+ | `srcA` | [8:16] (byte+1) | raw/unmapped |  |
+-| `subop` | [24:32] (byte+3) | opcode-select | `0x9`=rcp_estimate; `0xb`=rsqrt_estimate; `0xd`=sqrt_estimate |
++| `subop` | [24:32] (byte+3) | opcode-select | `0x9`=rcp_estimate; `0xb`=rsqrt_estimate; `0xd`=sqrt_estimate; `0xf`=rsqrt_estimate (G17P precise lowering) -- DEF-0171-5 |
+ | `b4` | [32:40] (byte+4) | raw/unmapped |  |
+ | `b5` | [40:48] (byte+5) | raw/unmapped |  |
+ 
+-*d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the correctly-rounded 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead.*
++*d = estimate(a) ; low-precision (~7.5-8 mantissa bit) hardware seed for the Newton-Raphson lowering of the correctly-rounded 1/x (subop 0x09), rsqrt (0x0b) and sqrt (0x0d). byte0 0x29, 6 bytes, byte+2==0x25 discriminator, byte+3 = function. Appears ONLY in the precise (non-fast-math) reciprocal/root lowerings; fast-math uses the single-op SFU (fspecial 0xaf/0x2f) instead. SUBOP 0x0F OBSERVED AND ENCODABLE (DEF-0171-5, EXP-0171 G17P; re-derived in EXP-0175): our own precise `rsqrt` lowers on G17P to `09 83 25 0f 00 c2`, i.e. byte+3 == 0x0f, a value the pre-2026-08-30 enum did not list. The descriptor's own match ([24,1,1] and [27,1,1] and [28,4,0]) leaves exactly two free bits, so the legal subop set is {0x09, 0x0b, 0x0d, 0x0f} -- 0x0f is not an anomaly, it is the fourth member. WHAT 0x0f COMPUTES IS NOT ESTABLISHED: EXP-0171's accept-set for this field is the singleton {0x0f}, which shows every other value breaks that carrier, not that a sub-op map was measured. RANGE CAVEAT for label auditors: validation.json records `256 of 256 sub-values` for this field, but only 4 of those 256 byte values are legal encodings of this instruction.*
+ 
+ ## Integer ALU
+ 
+@@ -334,12 +332,11 @@
+ 
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+-| `b1` | [8:16] (byte+1) | raw/unmapped |  |
+ | `b2` | [16:24] (byte+2) | raw/unmapped |  |
+ | `operands` | [24:64] (byte+3) | raw/unmapped |  |
+ | `tail` | [64:96] (byte+8) | raw/unmapped |  |
+ 
+-*d = rotate_left(a, k)  ; bit-rotate / funnel-shift by an IMMEDIATE amount. Single 12-byte op in the 0x27 family (byte+1==0x01, byte+2==0x56): the 3-operand form fits a funnel shift (hi,lo,shift); for a plain rotate hi==lo==a. Rotate by a REGISTER amount is a multi-instr lowering (0x3b shift-prep + funnel + (32-n) subtract + OR).*
++*d = rotate_left(a, k)  ; bit-rotate / funnel-shift by an IMMEDIATE amount. Single 12-byte op in the 0x27 family (byte+1==0x01, byte+2==0x56): the 3-operand form fits a funnel shift (hi,lo,shift); for a plain rotate hi==lo==a. Rotate by a REGISTER amount is a multi-instr lowering (0x3b shift-prep + funnel + (32-n) subtract + OR). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `b1` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `ishift` — arithmetic shift-right immediate
+ 
+@@ -382,7 +379,7 @@
+ | `width` | [84:90] | immediate |  |
+ | `b11hi` | [90:96] | modifier |  |
+ 
+-*bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k). EXP-M4-13 R6 (own-MSL byte-diff): the bitfield OFFSET immediate is offset = b6>>2 (start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20); the WIDTH immediate is width = (b10|b11<<8)>>4 (start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned shift-right a>>k lowers to offset=k, width=0 (width=0 => extract-to-MSB / all remaining bits). SIGNED (sign-extending) extract_bits sets sign_ext (b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN by a dst sweep (b3 0x0c/0x0a/0x06 = r6/r5/r3). WIDTH IS TAKEN MOD 32, OFFSET IS LITERAL (EXP-0139 DEF-0139-2, HW, dense 0..63): `width` is taken MOD 32 -- the mod-32 model fits 64/64 stable values while a literal/clamp-at-32 model fits only 37/64, so width == 0 (mod 32) is the no-mask (extract-to-MSB) case and width=32 behaves exactly like width=0. `offset` on the SAME instruction obeys the OPPOSITE rule: it is literal, and 32..63 shift the field out entirely (result 0). The asymmetry is load-bearing for an emitter.*
++*bitfield-extract extract_bits(a, off, cnt) (3-operand 12-byte form). Also the lowering for LOGICAL (unsigned) shift-right by an immediate: a>>k = extract_bits(a, k, 32-k). EXP-M4-13 R6 (own-MSL byte-diff): the bitfield OFFSET immediate is offset = b6>>2 (start bit50, PROVEN off 1/3/4/5/6/8 -> b6 0x04/0x0c/0x10/0x14/0x18/0x20); the WIDTH immediate is width = (b10|b11<<8)>>4 (start bit84, PROVEN width 1/4/8/12/16 -> 0x10/0x40/0x80/0xc0/0x100). An unsigned shift-right a>>k lowers to offset=k, width=0 (width=0 => extract-to-MSB / all remaining bits). SIGNED (sign-extending) extract_bits sets sign_ext (b6 bit1) and clears srcC_flags bit0 (b9 0x11->0x10); unsigned zero-extends. dst=b3 (reg<<1)|size PROVEN by a dst sweep (b3 0x0c/0x0a/0x06 = r6/r5/r3). WIDTH IS TAKEN MOD 32, OFFSET IS LITERAL (EXP-0139 DEF-0139-2, HW, dense 0..63): `width` is taken MOD 32 -- the mod-32 model fits 64/64 stable values while a literal/clamp-at-32 model fits only 37/64, so width == 0 (mod 32) is the no-mask (extract-to-MSB) case and width=32 behaves exactly like width=0. `offset` on the SAME instruction obeys the OPPOSITE rule: it is literal, and 32..63 shift the field out entirely (result 0). The asymmetry is load-bearing for an emitter. ⚠ `sign_ext` (byte+6 bit 1) IS NOT THE SIGN CONTROL -- DEF-0171-3 (EXP-0171, G17P; re-derived in EXP-0175). It is DENSE-INERT over both its sub-values in BOTH compiler anchors -- the unsigned `extract_bits` form (a7 00 56 04 02 00 10 00 f0 11 61 00) and the SIGNED one (a7 00 56 02 03 00 12 00 f0 10 61 00) -- on three carriers x two gated runs, while byte+6 AS A WHOLE moves 254 of its 256 values on every one of those carriers, so the instrument demonstrably has detection power. db.json's earlier 'signed sets sign_ext' was a CORRELATION ACROSS TWO COMPILER FORMS, not a control. The two anchors differ in byte+3 (0x04->0x02), byte+4 (0x02->0x03), byte+6 (0x10->0x12) and byte+9 `srcC_flags` (0x11->0x10); the attribution of signedness to srcC_flags bit 0 is INFERRED -- byte+9 was not swept. The field keeps its name only so its validation.json evidence row survives; treat its role as UNKNOWN. LABEL NOTE (EXP-0175): `b2_bit0`'s promotion from proven inertness rests on carriers of which only ONE STYLE has any detection power on byte+2 -- the SYNTH carrier moves 0 of 256 there -- so it is single-style evidence.*
+ 
+ ### `icmpsel` — compare -> select 0/1 (full condition codes)
+ 
+@@ -450,7 +447,7 @@
+ | `subform` | [16:24] (byte+2) | modifier |  |
+ | `extend` | [27:32] | modifier |  |
+ 
+-*r[n] = r[n] & 0xFFFF -- 16-bit ZERO-extend / narrow, IN PLACE on ONE register used as BOTH source and destination. n = byte0's HIGH nibble. REGISTER FIELD RECOVERED -- HW (EXP-0161, G17P; re-derived independently in EXP-0165, db_defects :: DEF-0161-2). The pre-2026-08-30 descriptor pinned byte0 to the full fixed byte 0x13 and modelled byte+1 as the source register, so the real register selector was invisible to an emitter and the modelled one did nothing. Measured: a dense byte0 sweep in a synthesized carrier (the instruction alone, r0..r14 seeded by device_load from an authored buffer, judged by the 16-register dump) shows byte0 = 0xN3 narrows r[N] AND NOTHING ELSE, for N = 0..10, 11 of 11 fits with 0 misfits in both gated runs; nibbles 0xB..0xF execute as a NO-OP (no register changes at all) -- 4 independent observations each. No byte0 value whose LOW nibble is not 3 ever performs the narrow (all 16 low-nibble buckets checked). GENERATED: 11 of 16 `r[n] = r[n] & 0xFFFF` encodings pass a host-computed 16-register prediction; the 5 failures are exactly the 0xB..0xF no-op nibbles. One anomaly is recorded rather than smoothed: nibble 0x8 (r8) narrowed correctly in 4 of 5 observations (both gated sweeps, gen01, gen02) and was a no-op once (gen03). byte+1 IS NOT A SOURCE REGISTER -- HW-TESTED INERT over all 256 values (128 values of bits 0-6 x both values of bit 7), in a carrier where the instruction is demonstrably live (its byte0 := 0x00 falsifier fires) and where fifteen device_loads and a sentinel store separate the source from the instruction, so ALU forwarding cannot explain it; reproduced in a SECOND register form (byte0 = 0x53, i.e. r5) as its own gated pair. This CLOSES EXP-0146's open question -- which left (a) 'byte+1 is not a source selector' and (b) 'the operand was ALU-forwarded from the preceding device_load' undecided -- as (a). EXP-0146's own carrier is also shown to be dead: the falsifier byte0 := 0x00 scores `ok` there (the correct a & 0xFFFF still comes out), so that arm proves nothing either way. byte+1 keeps its historical name `src_flag` (now the whole byte, not a 1-bit flag) ONLY so the per-field evidence chain in validation.json survives a db.json field cannot be renamed without editing that file; it is an inert byte, not a flag and not a source selector. MATCH: byte0's low nibble (3) is the group discriminator -- this is the same compact 4-byte n3 group as `n3_mov`, of which this descriptor is the ZERO-EXTEND member -- and byte+3's low 3 bits (0b001) are the zero-extend companion discriminator: all 32 of 256 byte+3 values with (v & 0x07) == 0x01 reproduce the narrow exactly and no other value does, so bits 3-7 of byte+3 (`extend`) are free. `subform` (byte+2) accepts (v & 0xC7) == 0x00, 8 of 256, identically in both register forms. NEGATIVE controls (EXP-M4-13, own-MSL) still stand: SIGN-extend short->int does NOT use this op (it lowers to an iadd/bfe sign path) and 8-bit narrow uchar does NOT either (ilogic AND 0xff), so this really is the 16-bit ZERO-extend.*
++*r[n] = r[n] & 0xFFFF -- 16-bit ZERO-extend / narrow, IN PLACE on ONE register used as BOTH source and destination. n = byte0's HIGH nibble. REGISTER FIELD RECOVERED -- HW (EXP-0161, G17P; re-derived independently in EXP-0165, db_defects :: DEF-0161-2). The pre-2026-08-30 descriptor pinned byte0 to the full fixed byte 0x13 and modelled byte+1 as the source register, so the real register selector was invisible to an emitter and the modelled one did nothing. Measured: a dense byte0 sweep in a synthesized carrier (the instruction alone, r0..r14 seeded by device_load from an authored buffer, judged by the 16-register dump) shows byte0 = 0xN3 narrows r[N] AND NOTHING ELSE, for N = 0..10, 11 of 11 fits with 0 misfits in both gated runs; nibbles 0xB..0xF execute as a NO-OP (no register changes at all) -- 4 independent observations each. No byte0 value whose LOW nibble is not 3 ever performs the narrow (all 16 low-nibble buckets checked). GENERATED: 11 of 16 `r[n] = r[n] & 0xFFFF` encodings pass a host-computed 16-register prediction; the 5 failures are exactly the 0xB..0xF no-op nibbles. One anomaly is recorded rather than smoothed: nibble 0x8 (r8) narrowed correctly in 4 of 5 observations (both gated sweeps, gen01, gen02) and was a no-op once (gen03). byte+1 IS NOT A SOURCE REGISTER -- HW-TESTED INERT over all 256 values (128 values of bits 0-6 x both values of bit 7), in a carrier where the instruction is demonstrably live (its byte0 := 0x00 falsifier fires) and where fifteen device_loads and a sentinel store separate the source from the instruction, so ALU forwarding cannot explain it; reproduced in a SECOND register form (byte0 = 0x53, i.e. r5) as its own gated pair. This CLOSES EXP-0146's open question -- which left (a) 'byte+1 is not a source selector' and (b) 'the operand was ALU-forwarded from the preceding device_load' undecided -- as (a). EXP-0146's own carrier is also shown to be dead: the falsifier byte0 := 0x00 scores `ok` there (the correct a & 0xFFFF still comes out), so that arm proves nothing either way. byte+1 keeps its historical name `src_flag` (now the whole byte, not a 1-bit flag) ONLY so the per-field evidence chain in validation.json survives a db.json field cannot be renamed without editing that file; it is an inert byte, not a flag and not a source selector. MATCH: byte0's low nibble (3) is the group discriminator -- this is the same compact 4-byte n3 group as `n3_mov`, of which this descriptor is the ZERO-EXTEND member -- and byte+3's low 3 bits (0b001) are the zero-extend companion discriminator: all 32 of 256 byte+3 values with (v & 0x07) == 0x01 reproduce the narrow exactly and no other value does, so bits 3-7 of byte+3 (`extend`) are free. `subform` (byte+2) accepts (v & 0xC7) == 0x00, 8 of 256, identically in both register forms. NEGATIVE controls (EXP-M4-13, own-MSL) still stand: SIGN-extend short->int does NOT use this op (it lowers to an iadd/bfe sign path) and 8-bit narrow uchar does NOT either (ilogic AND 0xff), so this really is the 16-bit ZERO-extend. RELATIONSHIP TO `n3_mov` (EXP-0174, G17P; recorded in EXP-0175): this is the NARROW member (byte+2 & 0x07 == 0) of the same low-nibble-3 instruction, not a separate opcode. DEF-0174-1 -- the one-bit-off operand byte -- applies to the MOVE sub-form and is corrected on `n3_mov` / `frame_marker`. It is deliberately NOT applied here: this descriptor's byte+1 is a single 8-bit `src_flag`, HW-TESTED INERT over all 256 values in two independent register forms (EXP-0161, re-derived EXP-0165), and EXP-0174 reconfirms `93 0a 00 01` leaves r5 untouched. An operand byte the narrow sub-form does not read is exactly what an inert byte+1 looks like; do not copy the move sub-form's operand model here without a sweep.*
+ 
+ ### `pack_convert` — pack_float_to_unorm/snorm2x16 (compute)
+ 
+@@ -459,7 +456,6 @@
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+ | `src_desc` | [8:16] (byte+1) | modifier |  |
+-| `fmt_class` | [16:24] (byte+2) | raw/unmapped |  |
+ | `dst` | [24:32] (byte+3) | register |  |
+ | `mode` | [32:40] (byte+4) | modifier |  |
+ | `src_lane0` | [40:48] (byte+5) | register |  |
+@@ -468,7 +464,7 @@
+ | `cvt_enable` | [64:72] (byte+8) | modifier |  |
+ | `fmt_sel` | [72:80] (byte+9) | enum | `0x40`=snorm2x16 (0x4x); `0x80`=unorm2x16 (0x8x); `0xc0`=unorm 8-bit lanes (0xcx) |
+ 
+-*packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byte+3) = source GPR. mode (byte+4) = mode/size (0x02/0x03). fmt_word (byte+5..+9) = the format-conversion / rounding descriptor -- kept raw (n=4; not individually decoded). OPERAND MODEL WRONG (EXP-0144, HW): the field named `src` at byte+3 is the DESTINATION. The real sources are byte+5 (`reg<<2`) and byte+6 (`reg<<3`), and byte+9 is a FORMAT selector (`0x4x` snorm2x16 / `0x8x` unorm2x16 / `0xcx` unorm 8-bit lanes). byte+7 rule recovered by revalidation where run03 lost it to hangs: 256/256, `(v & 0xfb) == 0x50`. EMITTER SUMMARY (EXP-0144, HW): destination = byte+3, sources = byte+5 / byte+6, format = byte+9. The old `src` name at byte+3 would have made an emitter write the result to the wrong register.*
++*packed format-conversion pack: pack_float_to_unorm2x16 / snorm / half -> a 32-bit packed word (COMPUTE, gated by byte+2==0x56). src_desc (byte+1) = source/mode descriptor. src (byte+3) = source GPR. mode (byte+4) = mode/size (0x02/0x03). fmt_word (byte+5..+9) = the format-conversion / rounding descriptor -- kept raw (n=4; not individually decoded). OPERAND MODEL WRONG (EXP-0144, HW): the field named `src` at byte+3 is the DESTINATION. The real sources are byte+5 (`reg<<2`) and byte+6 (`reg<<3`), and byte+9 is a FORMAT selector (`0x4x` snorm2x16 / `0x8x` unorm2x16 / `0xcx` unorm 8-bit lanes). byte+7 rule recovered by revalidation where run03 lost it to hangs: 256/256, `(v & 0xfb) == 0x50`. EMITTER SUMMARY (EXP-0144, HW): destination = byte+3, sources = byte+5 / byte+6, format = byte+9. The old `src` name at byte+3 would have made an emitter write the result to the wrong register. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `fmt_class` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `unpack_convert` — unpack_unorm/snorm2x16_to_float (compute)
+ 
+@@ -503,10 +499,11 @@
+ 
+ ### `ilogic` — 2-input bitwise LUT (all 16 boolean functions)
+ 
+-- **Length:** 10 bytes  ·  **Match:** byte+0==0x0b, bits[17:24]==0xf  ·  **Provenance:** HW-validated
++- **Length:** 10 bytes  ·  **Match:** bits[0:4]==0xb, bits[17:24]==0xf  ·  **Provenance:** HW-validated
+ 
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
++| `dst` | [4:8] | register |  |
+ | `srcA` | [8:16] (byte+1) | register |  |
+ | `op_base` | [16:17] (byte+2) | enum | `0x0`=xor-base; `0x1`=and/or-base |
+ | `srcB` | [24:32] (byte+3) | register |  |
+@@ -515,11 +512,11 @@
+ | `lut_a_z` | [37:40] | modifier |  |
+ | `lut_b` | [40:48] (byte+5) | modifier |  |
+ | `z6` | [48:56] (byte+6) | raw/unmapped |  |
+-| `outmod` | [56:64] (byte+7) | modifier | `0x80`=output/store |
++| `outmod` | [56:64] (byte+7) | modifier | `0x80`=sources-read-enable (NOT an output/store flag -- DEF-0171-4) |
+ | `z8` | [64:72] (byte+8) | raw/unmapped |  |
+ | `z9` | [72:80] (byte+9) | raw/unmapped |  |
+ 
+-*d = LUT2(a, b) ; 2-input bitwise logic (all 16 boolean functions). srcA (byte+1) / srcB (byte+3) = the two source register descriptors (srcA at the falu srcA position, srcB at byte+3). op_base (byte+2 bit0) picks the xor vs and/or base; lut_a (byte+4 low bits) and lut_b (byte+5 bit3) are the per-source / output inverts -> any of the 16 LUT2 functions. outmod (byte+7) bit7 = an output/store flag (set for the store-consumed forms, clear for the compare-consumed dec2 forms). z6/z8/z9 = zero tail. ~a is the fmov(0x0e) op with an invert. ALL 16 TWO-INPUT BOOLEAN FUNCTIONS (EXP-0146, HW-VALIDATED): EXP-0102 INT-12's '10 of the 16' was a statement about what MSL SOURCE reaches, not about the encoding. The selector triple (op_base, lut_a & 3, lut_b & 0x0f) produces ALL 16 two-input boolean functions from this instruction alone, collision-free -- one HW-validated encoding per function is tabulated in experiments/EXP-0146-m4-emit-int-misc/analysis/ilogic_lut_table.md. `lut_b`'s 1-D live bits are 0,1,2 and 4 ((v & 0x17) == 0 for AND, free mask 0xe8), but bit3 IS function-selecting jointly with lut_a (it turns AND into a_and_not_b on the xor base) -- use the joint table, not the 1-D mask. ⚠⚠ OPERAND LABELS ARE SWAPPED RELATIVE TO THE PUBLISHED LUT TABLE (EXP-0154 DEF-0154-5, HW-VALIDATED G17P). `ilogic` reaches all 16 boolean functions, and EXP-0146's table at `experiments/EXP-0146-m4-emit-int-misc/analysis/ilogic_lut_table.md` reproduces **16/16 on G17P — but only when its `a` is read as db.json's `srcB` (byte+3) and its `b` as db.json's `srcA` (byte+1).** Scored under db.json's own field names the table gives **8/16, and the eight that fail are EXACTLY the eight ASYMMETRIC functions.** An emitter that combines that table with these field names therefore emits half the boolean functions BACKWARDS while the symmetric half still looks correct — so the bug surfaces late and looks data-dependent. Either swap the names here or swap them at the table; do not leave both as they are. SEPARATELY (DEF-0154-2): db.json models byte0 as a fixed 8-bit match (0x0b) and lists **no destination field at all** for this instruction.*
++*d = LUT2(a, b) ; 2-input bitwise logic (all 16 boolean functions). srcA (byte+1) / srcB (byte+3) = the two source register descriptors (srcA at the falu srcA position, srcB at byte+3). op_base (byte+2 bit0) picks the xor vs and/or base; lut_a (byte+4 low bits) and lut_b (byte+5 bit3) are the per-source / output inverts -> any of the 16 LUT2 functions. outmod (byte+7) bit7 = an output/store flag (set for the store-consumed forms, clear for the compare-consumed dec2 forms). z6/z8/z9 = zero tail. ~a is the fmov(0x0e) op with an invert. ALL 16 TWO-INPUT BOOLEAN FUNCTIONS (EXP-0146, HW-VALIDATED): EXP-0102 INT-12's '10 of the 16' was a statement about what MSL SOURCE reaches, not about the encoding. The selector triple (op_base, lut_a & 3, lut_b & 0x0f) produces ALL 16 two-input boolean functions from this instruction alone, collision-free -- one HW-validated encoding per function is tabulated in experiments/EXP-0146-m4-emit-int-misc/analysis/ilogic_lut_table.md. `lut_b`'s 1-D live bits are 0,1,2 and 4 ((v & 0x17) == 0 for AND, free mask 0xe8), but bit3 IS function-selecting jointly with lut_a (it turns AND into a_and_not_b on the xor base) -- use the joint table, not the 1-D mask. ⚠⚠ OPERAND LABELS ARE SWAPPED RELATIVE TO THE PUBLISHED LUT TABLE (EXP-0154 DEF-0154-5, HW-VALIDATED G17P). `ilogic` reaches all 16 boolean functions, and EXP-0146's table at `experiments/EXP-0146-m4-emit-int-misc/analysis/ilogic_lut_table.md` reproduces **16/16 on G17P — but only when its `a` is read as db.json's `srcB` (byte+3) and its `b` as db.json's `srcA` (byte+1).** Scored under db.json's own field names the table gives **8/16, and the eight that fail are EXACTLY the eight ASYMMETRIC functions.** An emitter that combines that table with these field names therefore emits half the boolean functions BACKWARDS while the symmetric half still looks correct — so the bug surfaces late and looks data-dependent. Either swap the names here or swap them at the table; do not leave both as they are. SEPARATELY (DEF-0154-2): db.json models byte0 as a fixed 8-bit match (0x0b) and lists **no destination field at all** for this instruction. ⚠ BYTE0 IS `(dst << 4) | 0x0b` -- DEF-0171-1, HARDWARE-PROVEN (EXP-0171, G17P; independently re-derived from that experiment's raw in EXP-0175). The pre-2026-08-30 descriptor pinned byte0 to the full 8-bit value 0x0b, so it described DESTINATION r0 ONLY and an emitter following it could never write `ilogic` anywhere else; every other destination fell through to b_alu10_lof / b_alu10_loe, whose low-nibble match is accompanied by a modelled `dst`. MEASURED: a dense byte0 sweep in a 16-GPR-dump carrier puts the AND result (93 & 107 = 73) in register `byte0 >> 4` for EVERY value whose low nibble is 0xb -- 15 of 15 observable destinations, 0 misses, in BOTH gated runs. (r15 is unobservable in that carrier by construction: it is the harness's own store-index register, re-seeded before each dump.) `dst` is now modelled and the match is the low nibble. UNMODELLED DEGREE OF FREEDOM, recorded not folded (EXP-0175): byte0 BIT 3 is a DON'T-CARE on this datapath. The same sweep shows low nibble 0x3 reproduces the identical 16-register result for 15 of 16 destinations -- `0x23 03 1f 01 ...` gives a byte-identical register state to the anchor `0x2b 03 1f 01 ...`. Bit 3 is NOT folded into the match because byte0 low-nibble 3 is a populated, separately HW-validated group (n3_mov / mov_zext16 / n3_addr_prep) and this observation was made only at byte+2 == 0x1f; what bit 3 selects is UNKNOWN. ⚠ byte+7 BIT 7 IS A SOURCE-READ CONTROL, NOT AN OUTPUT/STORE FLAG -- DEF-0171-4 (EXP-0171, G17P, HW-VALIDATED; re-derived in EXP-0175). With bit 7 CLEAR the LUT still evaluates and the destination register is still written: the read-back buffer is un-poisoned and both integrity sentinels are intact on all 128 such values, and the DISCRIMINATOR is `nand` -- k_and/k_or/k_xor/k_andn write 0x00000000 but k_nand writes 0xFFFFFFFF, which is ~(0 & 0). A flag that zeroed the OUTPUT would give 0 for nand too. It is BOTH SOURCES that read as zero. Reproduced on five independent store-consumed carriers, both gated runs, and in a fresh-process adversarial re-run (20/20, 5 reps each). The effect is visible ONLY when the result is consumed by an adjacent memory operation: on a 16-register-dump carrier the same 256 values are inert, which is why EXP-0154 read the field as inert on G17P. ALTERNATIVE NOT EXCLUDED: a writeback/publish control whose absence is invisible when the consumer is far away. ACTIONABLE RULE FOR AN EMITTER (target-independent either way): clearing byte+7 bit 7 on a logic op whose result is consumed by a memory operation LOSES THE OPERANDS.*
+ 
+ ## Move / special register
+ 
+@@ -758,7 +755,6 @@
+ |---|---|---|---|
+ | `dst_lo` | [4:8] | register |  |
+ | `b1` | [8:16] (byte+1) | modifier |  |
+-| `subop` | [16:24] (byte+2) | opcode-select | `0x2f`=setup/modifier(2f) |
+ | `srcA` | [24:32] (byte+3) | register |  |
+ | `form` | [32:40] (byte+4) | enum | `0x42`=attribute-fetch/coord-address; `0x0`=float-modifier; `0x10`=bitfield/shift-prep; `0x12`=float-modifier(hi); `0x22`=float-modifier(merge) |
+ | `b5` | [40:48] (byte+5) | modifier |  |
+@@ -767,7 +763,7 @@
+ | `b8` | [64:72] (byte+8) | modifier |  |
+ | `b9` | [72:80] (byte+9) | modifier |  |
+ 
+-*texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.) EXP-M4-13 R7 CORRECTION: this 10-byte byte+2==0x2f op is POLYMORPHIC and NOT texture-specific -- across the own corpus it appears as (a) vertex attribute-fetch / varying destination-address setup (byte+4==0x42; byte+7 = dst-slot index = dst<<2) and (b) a float-classify / modifier ALU (isnan/isnormal/frexp/modf; byte+3 = srcA, byte+4 in {0x00,0x10,0x12,0x22}). The mnemonic is retained for stability but is a misnomer.*
++*texture COORDINATE / LOD / gather-offset SETUP ALU (byte0 low-nibble 0x0b, 10 bytes, byte+2 in {0x27,0x2f}, tail `.. 00 42 00 00 0X 00 00`). Computes the texel address / normalized cube-face-or-array coordinate / explicit-LOD or bias / const gather offset that the following tex_sample (0xb0/0x90) sampler op consumes as its coordinate/LOD register operands. Emitted 1..N per sample. (The 0x27 byte+2 form gets the same length but is not separately named here; the descriptor matches the 0x2f coord/interp form.) EXP-M4-13 R7 CORRECTION: this 10-byte byte+2==0x2f op is POLYMORPHIC and NOT texture-specific -- across the own corpus it appears as (a) vertex attribute-fetch / varying destination-address setup (byte+4==0x42; byte+7 = dst-slot index = dst<<2) and (b) a float-classify / modifier ALU (isnan/isnormal/frexp/modf; byte+3 = srcA, byte+4 in {0x00,0x10,0x12,0x22}). The mnemonic is retained for stability but is a misnomer. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `subop` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `coord_madf` — coordinate / interpolation fused mul-add (leader form)
+ 
+@@ -776,12 +772,11 @@
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+ | `b1` | [8:16] (byte+1) | raw/unmapped |  |
+-| `op` | [16:24] (byte+2) | raw/unmapped |  |
+ | `srcA` | [24:32] (byte+3) | register |  |
+ | `mark` | [32:40] (byte+4) | raw/unmapped |  |
+ | `body` | [40:80] (byte+5) | raw/unmapped |  |
+ 
+-*coordinate / interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (sibling 0x3e), 10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of the low-nibble-9 float group, in the vertex matrix-vector product -- a general fused mul/mul-add, not texture-specific. This descriptor covers ONLY the byte0-LEADER 0x2e form (gated on byte+2==0x23); the far more common op-select case is a 0x09 float op handled by the float-ALU op-select length rule, NOT here.*
++*coordinate / interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (sibling 0x3e), 10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of the low-nibble-9 float group, in the vertex matrix-vector product -- a general fused mul/mul-add, not texture-specific. This descriptor covers ONLY the byte0-LEADER 0x2e form (gated on byte+2==0x23); the far more common op-select case is a 0x09 float op handled by the float-ALU op-select length rule, NOT here. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `op` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ## Control flow / function ABI
+ 
+@@ -844,12 +839,11 @@
+ 
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+-| `srcA_reg` | [8:15] (byte+1) | register |  |
+-| `srcA_uni` | [15:16] | modifier | `0x0`=gpr; `0x1`=uniform/hi |
++| `srcA_reg` | [8:16] (byte+1) | register |  |
+ | `subform` | [16:24] (byte+2) | modifier |  |
+ | `companion` | [24:32] (byte+3) | modifier | `0x1`=zext_hi_zero / pre-call frame marker (43 00 00 01) |
+ 
+-*byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family (identical field layout to n3_mov; dst r4 is fixed by the matched byte0). TWO roles share the encoding: (1) CALL-SITE / FRAME-SETUP marker -- the special form `43 00 00 01` (srcA=0, subform=0x00, companion=0x01 = the SAME `X3 00 00 01` zero-extend-companion shape as mov_zext16 `13 00 00 01`) is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages this marker precedes the compiler helper-subroutine calls (write_childcount/write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030). (2) ORDINARY COMPACT MOVE into r4 -- the general byte+1/+2/+3 forms (e.g. `43 a6 21 00`, `43 08 0e c1`, `43 0a 07 9f`) are register moves: srcA_reg (byte+1 bits0-6) = source register, srcA_uni (byte+1 bit7) = uniform-file/high-half flag, subform (byte+2) = source-class/size sub-form, companion (byte+3) = second-operand/pack descriptor -- the same fields, values and neighbour ops (reg_move / rt_ray_mem / sr_read_wide) as n3_mov to other dst regs.*
++*byte0 0x43 is the dst=r4 member of the low-nibble-3 compact MOVE / zero-extend / half-pack family (identical field layout to n3_mov; dst r4 is fixed by the matched byte0). TWO roles share the encoding: (1) CALL-SITE / FRAME-SETUP marker -- the special form `43 00 00 01` (srcA=0, subform=0x00, companion=0x01 = the SAME `X3 00 00 01` zero-extend-companion shape as mov_zext16 `13 00 00 01`) is emitted immediately before every out-of-line CALL; `43 00 06 xx` is the non-leaf-frame prologue. In object/mesh stages this marker precedes the compiler helper-subroutine calls (write_childcount/write_uvb) -- NOT a mesh-emit op (set_vertex/index/primitive lower to ordinary 0xe7/0xd7 stores, EXP-0030). (2) ORDINARY COMPACT MOVE into r4 -- the general byte+1/+2/+3 forms (e.g. `43 a6 21 00`, `43 08 0e c1`, `43 0a 07 9f`) are register moves: srcA_reg (byte+1 bits0-6) = source register, srcA_uni (byte+1 bit7) = uniform-file/high-half flag, subform (byte+2) = source-class/size sub-form, companion (byte+3) = second-operand/pack descriptor -- the same fields, values and neighbour ops (reg_move / rt_ray_mem / sr_read_wide) as n3_mov to other dst regs. ⚠ OPERAND BYTE CORRECTED BY INFERENCE, NOT BY MEASUREMENT ON THIS DESCRIPTOR -- DEF-0174-1. byte+1 = `(S << 1) | hs` -- the ORDINARY AGX 8-bit operand descriptor, the same `(reg<<1)|size` shape every other operand byte in this database uses. S (bits 1..7) = the SOURCE GPR; hs (bit 0) = which 16-bit HALF of it is read (0 = low, 1 = high). ⚠ CORRECTED 2026-08-30, DEF-0174-1: the descriptor used to model this byte as `srcA_reg` = bits 0..6 plus `srcA_uni` = bit 7 with an enum {0: gpr, 1: uniform/hi} -- ONE BIT OFF. An emitter following that wrote S into bits 0..6, which the hardware reads as register S>>1 with half-select S&1: the WRONG REGISTER AND THE WRONG HALF, silently, with no fault. MEASURED (EXP-0174, dense byte+1 0..255 x 2 register plans x 2 gated runs, 100.000%% cross-run agreement): re-derived independently in EXP-0175 by scoring the two models against a host-computed 16-bit-granular oracle -- the corrected model fits 32 of 32 host-known values in every plan and run; db.json's fits 3 of 32. The aliasing period is 64, reproduced 128 of 128 (byte+1 = v and v+128 give byte-identical 16-register dumps), which is why bit 7 -- register bit 6 -- reads as inert. NO UNIFORM FILE IS REACHABLE THROUGH THIS BYTE at any value. The 16-bit granularity is independently visible in the same data: the one seeded source with a non-zero high half (r9 = 0x40200000) is the single case where a whole-32-bit-register reading fails and the half-granular oracle succeeds. EVIDENCE STATUS FOR *THIS* DESCRIPTOR: `STRUCTURAL`/`INFERRED`. EXP-0174 swept `n3_mov`; it did NOT sweep `frame_marker`. This descriptor's byte+1 fields were copied from the same (wrong) model, so the correction is applied here for consistency -- but nothing has executed a `frame_marker` with a chosen source register. OPEN QUESTION, recorded not resolved (EXP-0175 DEF-0175-1): `frame_marker` matches byte0 == 0x43 exactly, while EXP-0174 measured byte0 = (dst << 4) | 0x3 for this whole group, which makes 0x43 simply `dst = r4`. Whether `frame_marker` is a distinct instruction at all is unresolved; the corpus cannot adjudicate it (identical clean/leftover either way) and it needs its own experiment.*
+ 
+ ### `call` — direct out-of-line CALL
+ 
+@@ -907,14 +901,11 @@
+ 
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+-| `b1` | [8:16] (byte+1) | modifier |  |
+-| `marker` | [16:24] (byte+2) | modifier |  |
+ | `b3` | [24:32] (byte+3) | modifier |  |
+-| `scope` | [32:40] (byte+4) | modifier |  |
+ | `dir_offset` | [40:56] (byte+5) | immediate |  |
+ | `reserved7` | [56:64] (byte+7) | modifier |  |
+ 
+-*LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal): in a RACE-FREE frame (k_chain, no spills) the op is a NO-OP fence and every payload field is inert; in a SPILLING frame (k_bigframe / bigmid, 12 live temporaries around the call) the fields become load-bearing. byte0=0x07 is the fence-family opcode (0x07->0x00 corrupts the SAVE / HANGs the RESTORE when state actually spills). scope (byte+4=0x81) = scratch/stack scope: bit7 AND bit0 must both be set (0x81/0x83 pass; 0x00/0x80/0x01 corrupt; 0xff -> GPU page-fault; RESTORE-side corruption HANGs). dir_offset (bytes+5/+6, 16-bit LE) = scratch save/restore offset+direction: SAVE=0x0000, RESTORE=0x1fff; intermediate values relocate the scratch access (corruption scales with value). CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field -- byte+7 (reserved7) is RESERVED/inert on BOTH the SAVE and RESTORE instances. marker (byte+2) and b3 (byte+3) are RESERVED/inert; b1 (byte+1) is mostly reserved (low bits inert, only 0xff perturbs).*
++*LINK-REGISTER SAVE / RESTORE around a nested call in a non-leaf frame. save (before each CALL) = `07 00 54 00 81 00 00 00`; restore (after each CALL) = `07 00 54 00 81 ff 1f 00` (8 bytes). Same 0x07 fence/ordering family as the compute threadgroup_barrier (EXP-0025) and fragment pixel_order (EXP-0029), but an 8-byte form gated by byte+1==0x00 (the barrier/pixel-order forms are 6 bytes, byte+1 in {0x04,0x14}). A non-leaf callee spills its own link register because each inner CALL clobbers the hardware link register (ret 0x8f encodes no return target). HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL frame.metal): in a RACE-FREE frame (k_chain, no spills) the op is a NO-OP fence and every payload field is inert; in a SPILLING frame (k_bigframe / bigmid, 12 live temporaries around the call) the fields become load-bearing. byte0=0x07 is the fence-family opcode (0x07->0x00 corrupts the SAVE / HANGs the RESTORE when state actually spills). scope (byte+4=0x81) = scratch/stack scope: bit7 AND bit0 must both be set (0x81/0x83 pass; 0x00/0x80/0x01 corrupt; 0xff -> GPU page-fault; RESTORE-side corruption HANGs). dir_offset (bytes+5/+6, 16-bit LE) = scratch save/restore offset+direction: SAVE=0x0000, RESTORE=0x1fff; intermediate values relocate the scratch access (corruption scales with value). CORRECTION: dir_offset is 16-bit (bytes+5/+6), NOT the DB's former 24-bit field -- byte+7 (reserved7) is RESERVED/inert on BOTH the SAVE and RESTORE instances. marker (byte+2) and b3 (byte+3) are RESERVED/inert; b1 (byte+1) is mostly reserved (low bits inert, only 0xff perturbs). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `b1`, `marker`, `scope` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `spill_frame_marker` — four-byte 0x60 form (historical name; exact role unresolved)
+ 
+@@ -1019,7 +1010,6 @@
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+ | `dst` | [4:8] | register |  |
+-| `subop` | [8:16] (byte+1) | opcode-select | `0xea`=trace |
+ | `mode` | [16:24] (byte+2) | enum | `0x10`=dyn_origin/motion; `0x90`=const_origin; `0xd0`=const_origin+fntable; `0x11`=result_read |
+ | `ray_param` | [24:32] (byte+3) | register |  |
+ | `as_type` | [32:40] (byte+4) | enum | `0x8b`=primitive_AS; `0x1b`=instance_AS; `0xbb`=primitive_motion_AS |
+@@ -1027,7 +1017,7 @@
+ | `flags` | [48:56] (byte+6) | modifier |  |
+ | `b7` | [56:64] (byte+7) | raw/unmapped |  |
+ 
+-*DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 const origin, 0x10 dynamic-origin OR primitive-MOTION (the time-parameterised form -- motion sets 0x10 even with a const origin), 0xd0 const-origin + intersection-function-table present (bit7=const-origin, bit6=fn-table), 0x11 result-read. byte+3 = ray/parameter operand register, and also carries the MOTION TIME (device-loaded time 0x46 vs folded-constant 0x26). byte+4 = AS-type selector: 0x8b primitive AS, 0x1b instance AS, 0xbb primitive-MOTION AS (HW-validated end-to-end: motion-AS trace interpolates the hit distance LINEARLY with the time parameter). byte+6 bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse, op#2 (byte+2 0x10/0x11, trailing `26 9f`) result-read. The BVH TRAVERSAL itself is a compiler-generated shader loop (one -88-byte back-edge per intersector) using this op + the 0xdf AS-loads + the 0x5f ray-data ops -- NOT a fire-and-forget trace. PRIMITIVE TAG does not change the op (bounding_box op#1 == triangle op#1 byte-for-byte; curve differs only in the dst-reg nibble): tag discrimination lives in the AS + intersection-function-table. Works IDENTICALLY from a FRAGMENT shader (supportsRaytracingFromRender, HW-validated) -- only the bind stage differs.*
++*DEDICATED ray-intersection instruction (the raytracing:: intersect primitive). byte0 low-nibble 0x4 = group; byte0 HIGH nibble = result/destination register; byte+1 == 0xea = intersect sub-opcode (constant). byte+2 = mode: 0x90 const origin, 0x10 dynamic-origin OR primitive-MOTION (the time-parameterised form -- motion sets 0x10 even with a const origin), 0xd0 const-origin + intersection-function-table present (bit7=const-origin, bit6=fn-table), 0x11 result-read. byte+3 = ray/parameter operand register, and also carries the MOTION TIME (device-loaded time 0x46 vs folded-constant 0x26). byte+4 = AS-type selector: 0x8b primitive AS, 0x1b instance AS, 0xbb primitive-MOTION AS (HW-validated end-to-end: motion-AS trace interpolates the hit distance LINEARLY with the time parameter). byte+6 bit7 set when an intersection_function_table is bound. Emitted twice: op#1 traverse, op#2 (byte+2 0x10/0x11, trailing `26 9f`) result-read. The BVH TRAVERSAL itself is a compiler-generated shader loop (one -88-byte back-edge per intersector) using this op + the 0xdf AS-loads + the 0x5f ray-data ops -- NOT a fire-and-forget trace. PRIMITIVE TAG does not change the op (bounding_box op#1 == triangle op#1 byte-for-byte; curve differs only in the dst-reg nibble): tag discrimination lives in the AS + intersection-function-table. Works IDENTICALLY from a FRAGMENT shader (supportsRaytracingFromRender, HW-validated) -- only the bind stage differs. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `subop` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `rt_as_load` — acceleration-structure / ray-data load
+ 
+@@ -1080,16 +1070,13 @@
+ |---|---|---|---|
+ | `dst` | [4:8] | register |  |
+ | `src` | [8:16] (byte+1) | register |  |
+-| `marker` | [16:24] (byte+2) | opcode-select |  |
+-| `subop` | [24:32] (byte+3) | opcode-select |  |
+-| `cmpmode` | [32:40] (byte+4) | opcode-select |  |
+ | `opA` | [40:48] (byte+5) | register |  |
+ | `opAmod` | [48:56] (byte+6) | modifier |  |
+ | `opAflags` | [56:64] (byte+7) | modifier |  |
+ | `mark2` | [64:72] (byte+8) | opcode-select |  |
+ | `opB` | [72:80] (byte+9) | register |  |
+ 
+-*RAY-TRACING ray-vs-node coordinate-transform / AABB slab-test companion op executed inside the (software) BVH traversal loop, distinct from the dedicated rt_intersect primitive. byte0 low-nibble 0x2 (hi nibble=result reg); byte+2/+3/+4 = fixed sub-opcode 0x27 0x81 0x22; byte+8 = fixed 0x20 marker. Operands: byte+1 primary source, plus a swapping register PAIR at byte+5(opA)/byte+9(opB), with type/flag bytes at +6/+7. ~4-5 per intersector / ray-query kernel. R9 typed the former marker/subop/cmpmode/body raw region (64 bits/occ). The per-lane transform/slab-test arithmetic sequence itself is intentionally NOT reconstructed (clean-room rule 5).*
++*RAY-TRACING ray-vs-node coordinate-transform / AABB slab-test companion op executed inside the (software) BVH traversal loop, distinct from the dedicated rt_intersect primitive. byte0 low-nibble 0x2 (hi nibble=result reg); byte+2/+3/+4 = fixed sub-opcode 0x27 0x81 0x22; byte+8 = fixed 0x20 marker. Operands: byte+1 primary source, plus a swapping register PAIR at byte+5(opA)/byte+9(opB), with type/flag bytes at +6/+7. ~4-5 per intersector / ray-query kernel. R9 typed the former marker/subop/cmpmode/body raw region (64 bits/occ). The per-lane transform/slab-test arithmetic sequence itself is intentionally NOT reconstructed (clean-room rule 5). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `marker`, `subop`, `cmpmode` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `ray_move` — ray register-marshalling move (also MPP matmul transpose)
+ 
+@@ -1099,10 +1086,9 @@
+ |---|---|---|---|
+ | `dst` | [4:8] | register |  |
+ | `src` | [8:16] (byte+1) | register |  |
+-| `form` | [16:24] (byte+2) | enum | `0x81`=copy_reg(b3=0x08); `0x80`=zero_init(b3=0x00) |
+ | `b3` | [24:32] (byte+3) | modifier | `0x8`=reg32 plain copy; `0x0`=zero form; `0x12`=uniform/high-class-source copy; `0x22`=uniform/high-class-source copy; `0x6`=zero variant |
+ 
+-*RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode. b3 (byte+3) is an operand type/size/CLASS descriptor (0x08=reg32 plain copy, 0x00=zero, 0x12/0x22=uniform/high-class-source copy, 0x06=zero variant); HW-shown structurally significant (splice, A18 EXP-M4-14: b3 bit6=0x40 on a uniform-class-source copy -> CMDBUF_ERROR; inert on plain copies). NEGATIVE (splice): the b3/src VALUE-semantics could NOT be splice-resolved -- all 16 ray_move ops are INERT to committed_distance in the intersection_query testbed (the traversal re-derives origin/direction from the direct device loads of rin[], so the marshalled ray copy is not its data sink); a getter returning a marshalled ray field is needed to pin the value map (see hypotheses).*
++*RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); disambiguated by byte+2 in {0x80,0x81}. The SAME op is reused (35-38 per kernel) to marshal MPP matmul2d TRANSPOSE tile data -- i.e. matrix transpose is data movement, not a matrix opcode. b3 (byte+3) is an operand type/size/CLASS descriptor (0x08=reg32 plain copy, 0x00=zero, 0x12/0x22=uniform/high-class-source copy, 0x06=zero variant); HW-shown structurally significant (splice, A18 EXP-M4-14: b3 bit6=0x40 on a uniform-class-source copy -> CMDBUF_ERROR; inert on plain copies). NEGATIVE (splice): the b3/src VALUE-semantics could NOT be splice-resolved -- all 16 ray_move ops are INERT to committed_distance in the intersection_query testbed (the traversal re-derives origin/direction from the direct device loads of rin[], so the marshalled ray copy is not its data sink); a getter returning a marshalled ray field is needed to pin the value map (see hypotheses). FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `form` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ## Barrier / ordering
+ 
+@@ -1142,7 +1128,7 @@
+ | `flags` | [32:40] (byte+4) | modifier |  |
+ | `b5` | [40:48] (byte+5) | modifier |  |
+ 
+-*fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock). kind (byte+1): 0x14 acquire/wait, 0x04 release/signal. scope (byte+3): memory scope {0x50,0xd0} (bit7 differs) -- located mod. flags (byte+4): the raster-order/device fence flag (0x06, coincides with the match constant). b5 (byte+5, constant 0x00). Brackets an ordered RMW of a [[raster_order_group]] resource. Raw bytes retyped raw->mod by located role; scope/flags value map needs splice. ⚠ DESCRIPTOR SELF-CONTRADICTION (EXP-0147): this descriptor declares field `flags` at bits[32:40] AND carries a match constant pinning those same bits to 0x06. Hardware accepts 112 (acquire) / 224 (release) distinct values there with the program byte-exactly correct, so **every legal encoding with byte+4 != 0x06 is currently neither decodable nor emittable**. The match must be relaxed; not done here because it changes how existing programs decode and needs a corpus A/B like EXP-0148's. MATCH CORRECTED (EXP-0162, HW-VALIDATED G17P): the descriptor declared field `flags` at bits[32:40] while ALSO pinning those bits to 0x06, so every legal encoding with byte+4 != 0x06 was neither decodable nor emittable. Fixed by dropping the byte+4 pin and requiring **byte+3 bit4 and bit6** instead — a byte the corpus fitting never reached. Round-trip 302/0, corpus byte-identical, **zero firings move**, and four HW-verified encodings become decodable. Detection power was proved quantitatively first: corrupting byte+4 loses exactly 7 of 8 raster-order updates (texel 8*src -> 1*src; pixel clear+36*src -> clear+8*src). The decisive new evidence is cross-form: `07 14 54 51 0e 00` and `07 04 54 d1 0e 00` — the `threadgroup_barrier(mem_texture)` pair our own MSL compiles to — are **byte-for-byte substitutable in both directions with ordering intact**, so they ARE the pixel_order pair. The compute barrier, fragment tile barrier and device fence all lose the same 7 of 8 updates, contradicting the earlier over-claim on hardware rather than by corpus counting.*
++*fragment PIXEL-ORDERING op (raster_order_group / fragment-interlock). kind (byte+1): 0x14 acquire/wait, 0x04 release/signal. scope (byte+3): memory scope {0x50,0xd0} (bit7 differs) -- located mod. flags (byte+4): the raster-order/device fence flag (0x06, coincides with the match constant). b5 (byte+5, constant 0x00). Brackets an ordered RMW of a [[raster_order_group]] resource. Raw bytes retyped raw->mod by located role; scope/flags value map needs splice. ⚠ DESCRIPTOR SELF-CONTRADICTION (EXP-0147): this descriptor declares field `flags` at bits[32:40] AND carries a match constant pinning those same bits to 0x06. Hardware accepts 112 (acquire) / 224 (release) distinct values there with the program byte-exactly correct, so **every legal encoding with byte+4 != 0x06 is currently neither decodable nor emittable**. The match must be relaxed; not done here because it changes how existing programs decode and needs a corpus A/B like EXP-0148's. MATCH CORRECTED (EXP-0162, HW-VALIDATED G17P): the descriptor declared field `flags` at bits[32:40] while ALSO pinning those bits to 0x06, so every legal encoding with byte+4 != 0x06 was neither decodable nor emittable. Fixed by dropping the byte+4 pin and requiring **byte+3 bit4 and bit6** instead — a byte the corpus fitting never reached. Round-trip 302/0, corpus byte-identical, **zero firings move**, and four HW-verified encodings become decodable. Detection power was proved quantitatively first: corrupting byte+4 loses exactly 7 of 8 raster-order updates (texel 8*src -> 1*src; pixel clear+36*src -> clear+8*src). The decisive new evidence is cross-form: `07 14 54 51 0e 00` and `07 04 54 d1 0e 00` — the `threadgroup_barrier(mem_texture)` pair our own MSL compiles to — are **byte-for-byte substitutable in both directions with ordering intact**, so they ARE the pixel_order pair. The compute barrier, fragment tile barrier and device fence all lose the same 7 of 8 updates, contradicting the earlier over-claim on hardware rather than by corpus counting.  DEF-0181-1 -- `scope` CANNOT BE NARROWED, and the reason is a second defect (EXP-0181, re-derived from EXP-0147's committed raw). This descriptor's match pins instruction bits 28 and 30 (byte+3 bits 4 and 6), which lie INSIDE the 8-bit `scope` field, so `scope` declares 8 bits of which only 6 are choosable and assemble() refuses 192 of its 256 values. The free bits are 24..27, 29 and 31 -- NOT CONTIGUOUS -- so no single (start,width) field can express them, and truncating `scope` to the contiguous run 24..27 would make bit 31 unencodable, which is precisely the acquire-vs-release distinction (0x50 vs 0xd0) this descriptor documents. Splitting `scope` into three fields WOULD express them, but the match those boundaries would be drawn around is itself contradicted by the committed measurement: EXP-0147's dense M4 sweep (256 values x 2 gated runs, both carriers) accepts byte+3 iff bit4==1 AND (bit6 XOR bit7)==1 in the ACQUIRE member and iff bit4==1 AND bit7==1 in the RELEASE member. Neither accept set is contained in the match's legal set {high nibble 5,7,d,f}: each carrier accepts 32 values the match REJECTS (high nibbles 9 and b) and rejects 32 the match ADMITS. The bit-30 pin comes from EXP-0162 on G17P and the refuting sweep from EXP-0147 on M4, so this may be a target difference or a carrier difference; it is NOT resolved here and no boundary is moved on the strength of it. Consequence for a label auditor: `scope`'s recorded range "full 8-bit range, dense (256 cases)" overstates the field by 4x -- only 64 of those 256 values are legal under this descriptor.*
+ 
+ ## Fragment stage
+ 
+@@ -1158,11 +1144,10 @@
+ | `coeff_sel` | [32:40] (byte+4) | modifier |  |
+ | `src_slot` | [40:48] (byte+5) | immediate |  |
+ | `mode` | [48:56] (byte+6) | enum | `0x0`=center/linear-component; `0x4`=perspective-W-denominator; `0xf`=centroid/sample-W-denominator; `0x14`=centroid/sample-component |
+-| `c7` | [56:64] (byte+7) | modifier |  |
+ | `loc` | [64:72] (byte+8) | enum | `0x10`=pixel-center; `0x8`=centroid/sample; `0x9`=centroid/sample-first; `0x0`=mid-component; `0x20`=last-component |
+ | `b9` | [72:80] (byte+9) | modifier |  |
+ 
+-*r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle varying/coefficient slot (slot<<1); byte+3 = destination GPR; byte+6 = interpolation location: 0x00 pixel-centre/linear, 0x02 centroid or per-sample (paired with the 8-byte iter_at setup + a 0x04/0x03 position preamble), 0x04 the perspective denominator (W) channel. PERSPECTIVE-CORRECT interpolation is a multi-instruction lowering, NOT a single mode bit: linear component iters (byte+6==0x00) + a W-denominator iter (byte+6==0x04) + a 0xaf reciprocal (rcp of interpolated 1/w) + a per-component fmul. [[flat]] uses the separate 6-byte iter_flat op instead (no barycentric interp). The pull-model interpolate_at_center/centroid/sample compile BYTE-IDENTICALLY to the matching [[*_perspective]] qualifier.*
++*r_dst = interpolate(varying_slot=src_slot, mode)  ; per-fragment varying interpolation ('iter'). One op per float4 component. byte+5 = the per-triangle varying/coefficient slot (slot<<1); byte+3 = destination GPR; byte+6 = interpolation location: 0x00 pixel-centre/linear, 0x02 centroid or per-sample (paired with the 8-byte iter_at setup + a 0x04/0x03 position preamble), 0x04 the perspective denominator (W) channel. PERSPECTIVE-CORRECT interpolation is a multi-instruction lowering, NOT a single mode bit: linear component iters (byte+6==0x00) + a W-denominator iter (byte+6==0x04) + a 0xaf reciprocal (rcp of interpolated 1/w) + a per-component fmul. [[flat]] uses the separate 6-byte iter_flat op instead (no barycentric interp). The pull-model interpolate_at_center/centroid/sample compile BYTE-IDENTICALLY to the matching [[*_perspective]] qualifier. FOLDED INTO `match` (EXP-0175, from EXP-0173's audit): `c7` had ZERO free bits -- every bit of the span is pinned by this descriptor's own `match`, so there is exactly one legal value and it is not a field an emitter chooses. The name, span and pinned value are preserved in `match_notes`. An emitter-grade label on such a row was a vacuous claim (DEF-0170-1).*
+ 
+ ### `iter_at` — interpolate-at setup (centroid / sample)
+ 
+@@ -1170,14 +1155,14 @@
+ 
+ | Field | Bits | Type | Enum / values |
+ |---|---|---|---|
+-| `grp` | [0:8] (byte+0) | raw/unmapped |  |
++| `grp` | [7:8] | raw/unmapped |  |
+ | `lead` | [8:16] (byte+1) | raw/unmapped |  |
+ | `dst` | [24:32] (byte+3) | register |  |
+ | `c4` | [32:40] (byte+4) | raw/unmapped |  |
+ | `b5` | [40:48] (byte+5) | raw/unmapped |  |
+ | `loc` | [56:64] (byte+7) | enum | `0x1`=centroid; `0x3`=sample |
+ 
+-*interpolate-at SETUP: computes the custom barycentric coordinate for centroid / per-sample / interpolate_at_* interpolation, consumed by the following iter ops (which carry byte+6==0x02). byte+7 = 0x01 centroid, 0x03 sample. Preceded by a sample/centroid-position preamble read (byte0 0x04 centroid / 0x03 sample).*
++*interpolate-at SETUP: computes the custom barycentric coordinate for centroid / per-sample / interpolate_at_* interpolation, consumed by the following iter ops (which carry byte+6==0x02). byte+7 = 0x01 centroid, 0x03 sample. Preceded by a sample/centroid-position preamble read (byte0 0x04 centroid / 0x03 sample).  FIELD NARROWED (EXP-0181, from EXP-0168 section 7): `grp` declared bits 0..7 over a match that pins bits 0..6 to 0x2f, so byte0 has exactly TWO legal values, 0x2f and 0xaf, and every other value is a decode desync -- which is why three experiments hit hangs sweeping it and why EXP-0168's arm was stopped after 4 of 256 values. `grp` is now the single free bit 7. MEASURED, G17P, EXP-0168 rclean07/08/09 (three gated runs, identical in all three): grp=1 (byte0 0xaf) is `ok` on both the centroid carrier r_i8 and the 4-sample carrier r_i8s; grp=0 (byte0 0x2f) is `wrong_value` on r_i8 and `ok` on r_i8s. So bit 7 changes the observation at 1 sample and not at 4. The two out-of-descriptor values dispatched (0x00, 0x01) HUNG the device on both carriers, in all three runs.*
+ 
+ ### `iter_flat` — flat varying load (provoking-vertex attribute)
+ 
