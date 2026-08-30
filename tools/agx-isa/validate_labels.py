@@ -252,6 +252,43 @@ def main():
             errors.append("coverage.%s=%r but the corrected metric yields %r"
                           % (key, cov[key], want))
 
+    # --- coverage report (informational) -------------------------------------
+    # A label says how the evidence was obtained; it does NOT say how much of the
+    # field's encodable range was actually exercised. `range` is prose, so this can
+    # only report on verdicts that carried machine-readable counts. Fields where
+    # distinct_bytes < values_dispatched were under-covered by their own harness --
+    # the DEF-0166-1 signature, where assemble() left match-overlapping bits stuck.
+    cov_rows, thin, stuck = 0, [], []
+    for m, entry in val["instructions"].items():
+        for n, r in entry.items():
+            if n.startswith("_") or not isinstance(r, dict):
+                continue
+            if r.get("label") not in ("hardware-run", "isolated-byte-diff"):
+                continue
+            nv, nb = r.get("values_dispatched"), r.get("distinct_bytes")
+            enc = r.get("encodable_range")
+            if nv is None and nb is None:
+                continue
+            cov_rows += 1
+            if nb is not None and nv is not None and nb < nv:
+                stuck.append((m, n, nv, nb))
+            if enc and nv is not None and nv < enc:
+                thin.append((m, n, nv, enc))
+    if not args.quiet:
+        print()
+        print("  COVERAGE (only verdicts that recorded machine-readable counts)")
+        print("    rows with counts: %d of %d emitter-grade" % (cov_rows, counts["hardware-run"] + counts["isolated-byte-diff"]))
+        if stuck:
+            print("    UNDER-COVERED (distinct bytes < values dispatched -- DEF-0166-1 signature):")
+            for m, n, nv, nb in stuck:
+                print("      %s.%s  dispatched %d, distinct bytes %d" % (m, n, nv, nb))
+        if thin:
+            print("    THIN (dispatched < encodable range):")
+            for m, n, nv, enc in thin:
+                print("      %s.%s  dispatched %d of %d" % (m, n, nv, enc))
+        if not stuck and not thin and cov_rows:
+            print("    no under-covered or thin rows among those that reported counts")
+
     for w in warnings:
         print("WARN: %s" % w, file=sys.stderr)
     if errors:

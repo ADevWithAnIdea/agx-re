@@ -62,10 +62,9 @@ cannot be promoted by more sweeping**, and the reasons are already documented:
 So the target is: **every real instruction that CAN be made emittable, is** — with each exception
 named, evidenced, and justified. A truthful 92% with 8 documented blockers beats a claimed 100%.
 
-## Agent concurrency budget — 6
+## Agent concurrency budget — 4 (was 6, was 8)
 
-**User directive, 2026-08-29, revised twice from observed usage: run ~6 agents at a time.**
-(First set at 8, then lowered to 6.) Above the budget the account hits usage limits, which is what
+**User directive, revised three times from observed usage: 8 -> 6 -> 4.** Lowered to **4** on 2026-08-30 mid-wave, with the standing instruction "don't kill any as usual" -- so the count falls as agents finish and is never refilled above the budget. At the moment of the change seven were running; none was stopped. Above the budget the account hits usage limits, which is what
 killed entire waves earlier — an agent stopped by a usage limit loses whatever it had not written
 to disk, so overshooting costs more than it buys.
 

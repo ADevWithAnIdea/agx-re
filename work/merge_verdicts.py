@@ -145,8 +145,18 @@ def main():
                                 % (src, key, cur["label"], lab))
                 skipped += 1
                 continue
+            # `range` is free prose, so no tool can check COVERAGE -- a field can
+            # clear every gate we have on two dispatched values, because neither the
+            # merge policy nor EXP-0164's `stable_live` has a coverage term (EXP-0169
+            # found this in EXP-0164's gate; it applies equally here). Carry the
+            # machine-readable counts through whenever a verdict supplies them, so the
+            # question becomes answerable. `distinct_bytes` is the one that matters:
+            # DEF-0166-1 showed a sweep can dispatch 256 values while the hardware sees
+            # 8 distinct encodings, and only the byte count reveals that.
             val["instructions"][m][f] = {k: v[k] for k in
-                                         ("label", "range", "target", "evidence", "note")
+                                         ("label", "range", "target", "evidence", "note",
+                                          "values_dispatched", "distinct_bytes",
+                                          "encodable_range", "start", "width")
                                          if k in v}
             applied += 1
 
