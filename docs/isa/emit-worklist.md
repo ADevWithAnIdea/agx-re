@@ -15,8 +15,8 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 21 |
-| 2 | 26 |
+| 1 | 20 |
+| 2 | 27 |
 | 3 | 25 |
 | 4 | 14 |
 | 5 | 11 |
@@ -50,7 +50,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `flags` | 7 |
 | `mode` | 6 |
 
-## ONE field away (21 instructions)
+## ONE field away (20 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -69,14 +69,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mesh_out_src` | `sel` | tokenization-only |
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
-| `pop_reconverge` | `reserved` | untested |
 | `ret` | `scoreboard` | corpus-correlation |
 | `shift_amt_move` | `src_flag` | untested |
 | `stop` | `reserved` | untested |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `mode` | untested |
 
-## TWO fields away (26 instructions)
+## TWO fields away (27 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -99,6 +98,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mem_fence8` | `mask`, `tail` | corpus-correlation, tokenization-only |
 | `n2_op8` | `dst`, `body` | tokenization-only, tokenization-only |
 | `n3_sample_read` | `b1`, `b3` | untested, untested |
+| `pop_reconverge` | `scope`, `reserved` | untested, untested |
 | `ray_move_copy6` | `dst`, `src` | untested, untested |
 | `simd_ballot` | `pred`, `cache` | untested, single-template-inference |
 | `simd_reduce` | `op`, `dtype` | untested, untested |
@@ -120,7 +120,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 253 |
+| `untested` | 254 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 30 |

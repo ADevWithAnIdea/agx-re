@@ -16,24 +16,24 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 486,
+   "hardware-run": 485,
    "isolated-byte-diff": 64,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 253
+   "untested": 254
   },
   "by_label_pct": {
-   "hardware-run": 46.7,
+   "hardware-run": 46.6,
    "isolated-byte-diff": 6.2,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.3
+   "untested": 24.4
   },
   "emittable_instructions": 34,
   "emittable_mnemonics": [
@@ -3085,13 +3085,13 @@
     ]
    },
    "scope": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "0..255 dense (all 256 values)",
     "target": "M4",
     "evidence": [
      "EXP-0140"
     ],
-    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
+    "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical | WITHHELD 2026-08-30 for CONSISTENCY, on EXP-0191's detection gate. It fails the STRICT (arm-level) join exactly as the five fields withheld under DEF-0190-1 did: **512 valid observations per arm, ONE distinct payload, and no control of any kind at arm level.** It passes only at the looser CARRIER join, so EXP-0191's frozen trigger did not fire and that experiment correctly declined to bend its own rule. The decision to apply the strict join here is the orchestrator's, and it is made for consistency: the five already withheld were withheld on precisely this criterion, and leaving this one because a looser join rescues it would make the standard depend on which join happened to be written down. **EXP-0191 also establishes that DEF-0190-1's enumeration (8 arms with no observation, 128 with exactly one) is an UNDERCOUNT** -- `blind_arm_scan.py` requires ZERO empty observations, so arms mixing empty and single-valued records fall through both buckets. This is one of them."
    },
    "scope_kind": {
     "label": "hardware-run",

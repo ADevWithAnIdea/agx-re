@@ -1,0 +1,136 @@
+{
+ "artifacts_sha256": {
+  "PRE_REGISTRATION.md": {
+   "bytes": 13842,
+   "sha256": "0ea2c2fd38bbbddd3db7c77dd8bd3f310a820d646b86f1e1e74b35efadfb642e"
+  },
+  "README.md": {
+   "bytes": 4752,
+   "sha256": "e0952f28cf4e6e52bd44fe18b0fc1f192cfba30e842b10c5ff366732362c29a9"
+  },
+  "RESULTS.md": {
+   "bytes": 15102,
+   "sha256": "618703e05355ece5322d01e4936ecd81f9cf42d4bf253a5b2e2f390a212fa779"
+  },
+  "analysis/detection_gate.py": {
+   "bytes": 27903,
+   "sha256": "21b9e6bc1b227cc440b8a6df35eeded8c4a071d7f004a93a4e6483f5f39837cf"
+  },
+  "analysis/gate_results.json": {
+   "bytes": 442470,
+   "sha256": "fe290de7ec58a6835dfc2c8f0eb79543dcef899eb912bb7b3bc9e3c9de26f5ba"
+  },
+  "analysis/reclassify.json": {
+   "bytes": 3472,
+   "sha256": "0ff47d77ee20fb000c83ece3f5eeb5f1e06db79d0e4e6ed704982ddd867fcfe4"
+  }
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "device_contacted": false,
+  "provenance": "derived analysis of already-committed evidence",
+  "shaders_compiled": 0
+ },
+ "corpus": {
+  "note": "experiments/*/raw/**/*.jsonl, append-only, read-only",
+  "raw_files_scanned": 725,
+  "raw_lines_scanned": 5200282
+ },
+ "date": "2026-08-30",
+ "discrimination": {
+  "D1_no_observation_arms_must_fail": {
+   "n": 8,
+   "n_passing": 0,
+   "verdict": "PASS"
+  },
+  "D2_detect_summary_oracle": {
+   "disagreements": {
+    "EXP-0172-g17p-onefield-tail|frame_marker_compact@vhalf/vertex#0": {
+     "agree": false,
+     "gate_pass": false,
+     "self_reported_detect_any": true
+    },
+    "EXP-0172-g17p-onefield-tail|frame_marker_compact@vsrc/vertex#0": {
+     "agree": false,
+     "gate_pass": false,
+     "self_reported_detect_any": true
+    }
+   },
+   "n": 138,
+   "n_agree": 136
+  },
+  "D3_both_outcomes_present": {
+   "fail": 32,
+   "pass": 51,
+   "verdict": "PASS"
+  },
+  "D4_mixed_arm_liveness_arms_must_pass": {
+   "failures": {
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": {
+     "gate_pass": false,
+     "stable_live_on": "jump_cond.offset"
+    },
+    "EXP-0179-g17p-call|C1_flat/idx15|M": {
+     "gate_pass": false,
+     "stable_live_on": "call.offset"
+    }
+   },
+   "n": 57,
+   "n_passing": 55
+  }
+ },
+ "environment": {
+  "host_role": "repo host / analysis machine (M4). GPU work retired locally.",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.14.6"
+ },
+ "experiment": "EXP-0191-detection-gate",
+ "headline": {
+  "fields_emitter_grade": "550 of 1040 (unchanged)",
+  "fields_reclassified_by_the_frozen_rule": 0,
+  "instructions_emittable": "34 of 166 (unchanged)"
+ },
+ "inputs_sha256": {
+  "experiments/EXP-0190-indexer-refilter/analysis/audit.json": "caeeafc3760f2683281ad312832f68e9978d3e49747b192898cbb4622c76f86e",
+  "experiments/EXP-0190-indexer-refilter/analysis/blind_arms.json": "ccf036c286cd8294f4d2a4e144c80c79cb3b2b697d6d0e7386002346521fb77b",
+  "experiments/EXP-0190-indexer-refilter/analysis/classify_underscore.py": "76516faaf4a3a983061d79821ba942d3c364e7404b146c4c7b55c116db4e4b43",
+  "experiments/EXP-0190-indexer-refilter/analysis/collect_raw.py": "df9853372c9cc1dda3d3f8b9ab5fb9bb754a1ff4bb4429914bb31bbca1bcda51",
+  "tools/agx-isa/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "tools/agx-isa/validation.json": "37d92c05ea8855bd57ab5651bacf5f714abd18f7015a42b4b67e9ac9bf3802f2"
+ },
+ "key_counts": {
+  "arms_of_inert_fields": {
+   "fail_strict": 32,
+   "n": 83,
+   "pass_carrier": 79,
+   "pass_strict": 51
+  },
+  "field_verdicts_carrier": {
+   "FAILS": 3,
+   "SURVIVES-FULLY": 76
+  },
+  "field_verdicts_carrier_emitter_grade_now": {
+   "SURVIVES-FULLY": 22
+  },
+  "field_verdicts_strict": {
+   "FAILS": 25,
+   "SURVIVES": 1,
+   "SURVIVES-FULLY": 53
+  },
+  "n_inert_fields": 79,
+  "n_inert_fields_emitter_grade_now": 22,
+  "n_multi_degraded": 1
+ },
+ "kind": "PURE OFFLINE ANALYSIS -- no device contacted, no shader compiled",
+ "not_done": [
+  "no git commit",
+  "no edit to db.json, validation.json, docs/, PROVENANCE.md, or any other experiment directory"
+ ],
+ "repo_revision_at_preregistration": "cd2f05dd96e8bef4ffb797ca0cdb1fa7c1f6604f",
+ "repo_revision_at_write": "cd2f05dd96e8bef4ffb797ca0cdb1fa7c1f6604f",
+ "reproduction": "python3 analysis/detection_gate.py",
+ "runtime_seconds_observed": 24,
+ "target": "n/a (re-derivation of committed records captured on M4/G16G and G17P; each row carries its own target)",
+ "title": "a detection-power gate on every INERT verdict in the corpus",
+ "working_tree_dirty_at_write": true
+}

@@ -1,0 +1,84 @@
+{
+ "_meta": {
+  "experiment": "EXP-0191-detection-gate",
+  "form": "FIELD-SWEEP-PROTOCOL section 5, flat <mnemonic>.<field>, with start/width",
+  "frozen_rule": "live label in (hardware-run, isolated-byte-diff) AND the INERT verdict FAILS the gate at the CARRIER join level",
+  "n_post_hoc_candidates": 4,
+  "n_triggered_by_the_frozen_rule": 0
+ },
+ "fields": {},
+ "post_hoc_candidates": {
+  "jump_cond.offset": {
+   "current_label": "hardware-run",
+   "distinct_valid_payloads_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": 1
+   },
+   "invalid_reasons_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": {
+     "outcome:fault": 53,
+     "outcome:invalid_run": 55
+    }
+   },
+   "note": "POST-HOC, NOT PRE-REGISTERED, NOT A VERDICT OF EXP-0191. Every arm carrying this row's STABLE-LIVE promotion has fewer than 2 distinct VALID observation payloads, so audit.py's `moved` can only have counted fault-vs-ok SIGNATURE differences as movement. Needs its own pre-registered successor before any label changes.",
+   "stable_live_arms": [
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset"
+   ],
+   "start": 24,
+   "width": 48
+  },
+  "n3_sample_read.tail": {
+   "current_label": "isolated-byte-diff",
+   "distinct_valid_payloads_per_arm": {
+    "EXP-0147-m4-emit-pipeline-misc|n3_sample_read": 1
+   },
+   "invalid_reasons_per_arm": {
+    "EXP-0147-m4-emit-pipeline-misc|n3_sample_read": {
+     "outcome:fault": 116,
+     "outcome:invalid_run": 18
+    }
+   },
+   "note": "POST-HOC, NOT PRE-REGISTERED, NOT A VERDICT OF EXP-0191. Every arm carrying this row's STABLE-LIVE promotion has fewer than 2 distinct VALID observation payloads, so audit.py's `moved` can only have counted fault-vs-ok SIGNATURE differences as movement. Needs its own pre-registered successor before any label changes.",
+   "stable_live_arms": [
+    "EXP-0147-m4-emit-pipeline-misc|n3_sample_read"
+   ],
+   "start": 32,
+   "width": 48
+  },
+  "ret.linkmode": {
+   "current_label": "hardware-run",
+   "distinct_valid_payloads_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret.linkmode": 1
+   },
+   "invalid_reasons_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret.linkmode": {
+     "outcome:fault": 667,
+     "outcome:invalid_run": 5
+    }
+   },
+   "note": "POST-HOC, NOT PRE-REGISTERED, NOT A VERDICT OF EXP-0191. Every arm carrying this row's STABLE-LIVE promotion has fewer than 2 distinct VALID observation payloads, so audit.py's `moved` can only have counted fault-vs-ok SIGNATURE differences as movement. Needs its own pre-registered successor before any label changes.",
+   "stable_live_arms": [
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret.linkmode"
+   ],
+   "start": 8,
+   "width": 8
+  },
+  "ret_luse.linkmode": {
+   "current_label": "hardware-run",
+   "distinct_valid_payloads_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode": 1
+   },
+   "invalid_reasons_per_arm": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode": {
+     "outcome:fault": 658,
+     "outcome:invalid_run": 14
+    }
+   },
+   "note": "POST-HOC, NOT PRE-REGISTERED, NOT A VERDICT OF EXP-0191. Every arm carrying this row's STABLE-LIVE promotion has fewer than 2 distinct VALID observation payloads, so audit.py's `moved` can only have counted fault-vs-ok SIGNATURE differences as movement. Needs its own pre-registered successor before any label changes.",
+   "stable_live_arms": [
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode"
+   ],
+   "start": 8,
+   "width": 8
+  }
+ }
+}
