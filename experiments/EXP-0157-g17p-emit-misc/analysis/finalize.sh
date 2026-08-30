@@ -3,6 +3,7 @@
 # generated block in RESULTS.md. Run from the experiment directory.
 set -e
 cd "$(dirname "$0")/.."
+python3 analysis/trim_derived_inputs.py
 python3 analysis/verdicts.py raw/g17p_run01 raw/g17p_run02 raw/g17p_run03 \
         --out analysis/field_verdicts_RSH.json --report analysis/gate_report_RSH.json 2>/dev/null \
   || python3 analysis/verdicts.py raw/g17p_run01 raw/g17p_run02 \
@@ -12,6 +13,10 @@ python3 analysis/verdicts.py raw/g17p_raymove01 raw/g17p_raymove02 \
 python3 analysis/merge.py
 python3 analysis/emittability.py
 python3 analysis/lenrule.py raw > analysis/length_rule_stdout.txt
+if [ -s raw/g17p_reval03/sweep.jsonl ]; then
+  python3 analysis/faultconfirm.py raw/g17p_run01 raw/g17p_run02 raw/g17p_run03 \
+          raw/g17p_reval03 > analysis/fault_confirmation_stdout.txt || true
+fi
 python3 - <<'PY'
 import subprocess, re
 from pathlib import Path

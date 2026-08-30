@@ -1,7 +1,8 @@
 {
- "_doc": "CODEX section 6: derived input, too large to commit; regenerable by harness/cases.py. sweep.jsonl is committed in full and untouched.",
+ "_doc": "EXP-0157: replace oversized `00_cases.json` files with CODEX section 6 manifests.\n\n`00_cases.json` is a DERIVED INPUT -- `harness/cases.py` regenerates it exactly\nfrom the carriers and the resolved anchors, and every case's spliced bytes are\nalso recorded in that run's own `sweep.jsonl`. Some of them are 20-30 MB. This\nreplaces any over 2 MB with a manifest carrying its size, sha256, generation\ncommand, retention location on the test target, its resolved anchors, and a\nfirst-record excerpt.\n\n`sweep.jsonl` -- the actual observations -- is never touched. Run this after\n`work/pull.sh`.",
+ "generation_command": "python3 -B harness/run.py --run-id <id> ...",
  "n_groups_or_cases": 57,
- "origin": "raw/g17p_raymove01/00_cases.json",
+ "origin": "/Users/user/asahi_re/public/agx-re/experiments/EXP-0157-g17p-emit-misc/raw/g17p_raymove01/00_cases.json",
  "resolved_anchors": [
   {
    "anchor": {
@@ -688,7 +689,7 @@
    "instr": "sr_read_wide"
   }
  ],
- "retention_location": "users-MacBook-Neo.local:~/agxre/EXP-0157/raw/g17p_raymove01/00_cases.json",
+ "retention_location": "users-MacBook-Neo.local:~/agxre/EXP-0157//Users/user/asahi_re/public/agx-re/experiments/EXP-0157-g17p-emit-misc/raw/g17p_raymove01/00_cases.json",
  "sha256": "9efbe98a3ec1214b801780dfdfcfb76eec430154f3ffd3321117fbfce05bb670",
  "size_bytes": 11026865
 }

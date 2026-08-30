@@ -263,12 +263,14 @@ wrong value either inverts a quadrant or silences the unit entirely.
 
 ### 3.5 `n3_mov` — G17P reproduces M4
 
-In `u64eq`: `dst` 15/15 ok, `srcA_reg` 127/127 ok, `srcA_uni` 2/2 ok, `companion` 223 ok / 32
-silent zero, `subform` 89 ok / 86 silent zero / 33 fault / 31 not-written. EXP-0146 measured
-224 ok for `companion` and 90 ok / 118 silent / 32 fault for `subform` on M4 in the same carrier.
-**The load-bearing byte is `subform`, and the M4 result reproduces.** `srcA_reg`'s inertness — the
-contradiction EXP-0146 flagged and could not resolve — reproduces too, so it is a property of the
-instruction in this lowering, not an M4 artefact.
+Gated across run01 and run03 in `u64eq`: `dst` 15/15 ok, `srcA_reg` 127/127 ok, `srcA_uni` ok,
+`companion` 223 ok / 32 silent zero, `subform` 89 ok / 86 silent zero / 32 fault / 26 not-written
+/ 16 wrong value. EXP-0146 measured 224 ok for `companion` and 90 ok / 118 silent / 32 fault for
+`subform` on M4 in the same carrier. **The load-bearing byte is `subform`, and the M4 result
+reproduces on G17P.** `srcA_reg`'s inertness — the contradiction EXP-0146 flagged and could not
+resolve — reproduces too, so it is a property of the instruction in this lowering, not an M4
+artefact. `n3_mov` is one of the nine descriptors this experiment makes emittable, and the only
+one of them with **no pinned operand at all**: every `dst` and every `srcA_reg` value runs.
 
 ### 3.6 `h_coord_hi` / `h_coord_hi_ext` — carriers exist on G17P, and the operands are real
 
@@ -560,6 +562,30 @@ majority-of-3 *plus* cross-run agreement still let four contaminated cases throu
 isolation caught them. A `fault` that does not reproduce under the lease is re-classified and
 excluded from the gate.
 
+`analysis/faultconfirm.py` adjudicates it: a case is **confirmed** a fault when a majority of its
+five lease repeats faulted, **refuted** when they did not, and **unconfirmed** when the pass did
+not reach it.
+
+| | |
+|---|---:|
+| distinct `fault`/`hang` cases claimed by the gated captures | 1 251 |
+| **confirmed** under the lease (5 repeats each) | **178** |
+| **refuted** — not a fault at all | **1** |
+| unconfirmed — the pass was stopped before reaching them | 1 072 |
+
+**Of 179 fault verdicts actually adjudicated under isolation, 178 held and 1 did not (0.6 %).**
+That is worth recording next to EXP-0153's result, which is why §7A exists: there, *four of five*
+lease-tested faults were not faults. The difference is most likely load — EXP-0153's captures ran
+against sustained sibling pressure — but the honest reading is that §7A's caution is warranted
+and that this experiment's particular fault labels survived it well.
+
+The pass was **deliberately stopped at a 25-minute lease window** rather than run to completion:
+1 251 cases × 5 repeats measured out at ~2.4 hours of *exclusive* GPU on a machine with eight
+agents queued behind the lease. The partial is retained, every unreached case is reported
+`unconfirmed` and never as confirmed, and §9.1 bounds what the remainder can affect: **an
+unconfirmed fault can only be a value that is already outside every promoted ok-set.** No claim
+in §3 rests on a fault label. Per-field breakdown: `analysis/fault_confirmation.json`.
+
 ## 10. Deviations from the frozen contract
 
 All recorded here rather than by editing `PRE_REGISTRATION.md`.
@@ -606,9 +632,9 @@ All recorded here rather than by editing `PRE_REGISTRATION.md`.
 |---|---:|---|
 | `g17p_run01` | 20962 | gated capture 1 (arms R, S, H) — complete |
 | `g17p_run02` | 11854 | gated capture 2 — RETAINED PARTIAL, stopped, not reused |
-| `g17p_run03` | 3648 | targeted gated capture 2 for the carriers run02 never reached |
+| `g17p_run03` | 7126 | targeted gated capture 2 for the carriers run02 never reached |
 | `g17p_reval01` | — | **NOT PRESENT** — fault/hang confirmation, ATTEMPT 1 -- never ran, the shared gpulease.sh was mid-rewrite (section 10.8) |
-| `g17p_reval03` | — | **NOT PRESENT** — fault/hang confirmation RETRY over all three gated captures, 5x per case, UNDER THE GPU LEASE |
+| `g17p_reval03` | 970 | fault/hang confirmation RETRY over all three gated captures, 5x per case, UNDER THE GPU LEASE |
 | `g17p_raymove01` | 3258 | arm B2 capture 1 (ray_move in the 25 kB carrier) |
 | `g17p_raymove02` | 3258 | arm B2 capture 2 |
 | `g17p_bbox01` | 1948 | bounding-box carriers (single capture, reported not promoted) |
@@ -620,11 +646,9 @@ All recorded here rather than by editing `PRE_REGISTRATION.md`.
 | `g17p_qlen02` | 2048 | arm Q2 — length vs byte+2 |
 | `g17p_census01` | 0 | own-MSL compile census (no dispatches) |
 
-> ⚠ **`g17p_reval03` not on disk at the time this table was generated.** Those captures were queued behind other agents on `~/agxre/gpulease.sh`. Any claim in this report that depends on them is marked as such; nothing was promoted on their assumed content.
-
 ### Gate
 * **B2** — g17p_raymove01 + g17p_raymove02: 3059 common cases, **3058 agree**, 1 disagree; 8 of 57 scanned anchors live.
-* **RSH** — g17p_run01 + g17p_run02 + g17p_run03: 15033 common cases, **14863 agree**, 170 disagree; 47 of 119 scanned anchors live.
+* **RSH** — g17p_run01 + g17p_run02 + g17p_run03: 18474 common cases, **18259 agree**, 215 disagree; 47 of 119 scanned anchors live.
 
 ### Per-descriptor verdict
 
@@ -638,8 +662,8 @@ All recorded here rather than by editing `PRE_REGISTRATION.md`.
 | `n2_op6` | 6 | **EMITTABLE** | `dst` | — |
 | `n3_mov` | 5 | **EMITTABLE** | — | — |
 | `sfu_marker` | 0 | no fields in db.json | — | — |
-| `h_coord_hi` | 6 | not yet | `dst`, `srcA`, `srcB` | `mods` |
-| `h_coord_hi_ext` | 7 | not yet | — | `dst`, `ext`, `opsel`, `srcA`, `srcB`, `srcC`, `tail` |
+| `h_coord_hi` | 6 | **EMITTABLE** | `dst`, `srcA`, `srcB` | — |
+| `h_coord_hi_ext` | 7 | **EMITTABLE** | `dst`, `opsel`, `srcA`, `srcB`, `srcC` | — |
 | `scoreboard_fence` | 3 | not yet | — | `kind`, `mask`, `scope` |
 | `op04_len8` | 3 | not yet | — | `body`, `dst`, `mode` |
 | `mesh_out_src` | 1 | not yet | — | `sel` |
@@ -651,7 +675,7 @@ All recorded here rather than by editing `PRE_REGISTRATION.md`.
 | `n2_op8` | 4 | not yet | — | `body`, `dst`, `opsel`, `srcA_desc` |
 | `coord_madf` | 5 | not yet | — | `b1`, `body`, `mark`, `op`, `srcA` |
 
-**7 of 20 dispatched descriptors are EMITTABLE** under the DOC-02 rule (5 of them with full operand choice). 81 per-carrier field entries reached emitter grade, which reduce to **39 merge-ready `<mnemonic>.<field>` entries** in `analysis/field_verdicts.json` (the form `work/merge_verdicts.py` accepts); the per-carrier detail stays in `analysis/field_verdicts_by_carrier.json`.
+**9 of 20 dispatched descriptors are EMITTABLE** under the DOC-02 rule (5 of them with full operand choice). 97 per-carrier field entries reached emitter grade, which reduce to **47 merge-ready `<mnemonic>.<field>` entries** in `analysis/field_verdicts.json` (the form `work/merge_verdicts.py` accepts); the per-carrier detail stays in `analysis/field_verdicts_by_carrier.json`.
 <!-- END GENERATED -->
 
 ### What this does to `validation.json`
@@ -661,14 +685,16 @@ plain `<mnemonic>.<field>` keys, with the exact rule, outcome counts, carrier, a
 semantics folded into `note`. A dry run of the orchestrator's merger against it:
 
 ```
-applied 39 field verdicts, skipped 6
-emitter-grade: 552 -> 590 fields
-emittable instructions: 53 -> 60
-  now emittable: ... n2_op6, n3_mov, ray_move, ray_move_copy6, ray_move_zero6,
-                     rtq_state_move, sr_read_wide ...
+applied 47 field verdicts, skipped 6
+emitter-grade: 569 -> 615 fields
+emittable instructions: 55 -> 64
+  now emittable: ... h_coord_hi, h_coord_hi_ext, n2_op6, n3_mov, ray_move,
+                     ray_move_copy6, ray_move_zero6, rtq_state_move, sr_read_wide ...
 ```
 
-**Seven instructions newly emittable, +38 fields to emitter grade.** The six skips are this
+**Nine instructions newly emittable, +46 fields to emitter grade.** (The baseline moved from 552
+to 569 while this ran, because sibling experiments' verdicts landed in `validation.json` in the
+meantime; the delta this experiment contributes is +46 and +9.) The six skips are this
 experiment's deliberate declines — `op04_len8` ×3 (§4: its length is refuted) and
 `scoreboard_fence` ×3 (§5: a removal litmus is not an ordering litmus). The merger refuses to
 weaken a label without a human decision, which is exactly the right behaviour for a refutation,

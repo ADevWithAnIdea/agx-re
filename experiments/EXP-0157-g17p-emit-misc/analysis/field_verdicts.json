@@ -70,8 +70,8 @@
    "EXP-0157"
   ],
   "label": "hardware-run",
-  "note": "accepted set: (value & 0x7b) == 0x00 | outcomes fault=55, not_written=24, ok=3, silent_zero=34, wrong_value=81 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
-  "range": "197 values executed (boundaries + samples)",
+  "note": "accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wrong_value=90 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zero=36, wrong_value=84 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
   "target": "G17P"
  },
  "h_coord_hi.dst": {
@@ -79,8 +79,17 @@
    "EXP-0157"
   ],
   "label": "hardware-run",
-  "note": "outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
   "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi.mods": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
   "target": "G17P"
  },
  "h_coord_hi.opsel": {
@@ -88,8 +97,8 @@
    "EXP-0157"
   ],
   "label": "hardware-run",
-  "note": "accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.",
-  "range": "174 values executed (boundaries + samples)",
+  "note": "accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wrong_value=12 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.  ALSO: accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.",
+  "range": "255 values executed (boundaries + samples)",
   "target": "G17P"
  },
  "h_coord_hi.srcA": {
@@ -97,7 +106,7 @@
    "EXP-0157"
   ],
   "label": "hardware-run",
-  "note": "accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.",
+  "note": "accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.  ALSO: accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.",
   "range": "255 values executed (boundaries + samples)",
   "target": "G17P"
  },
@@ -106,8 +115,71 @@
    "EXP-0157"
   ],
   "label": "hardware-run",
-  "note": "accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.",
+  "note": "accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.  ALSO: accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.",
   "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.ext": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "233 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.opsel": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.srcA": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.srcB": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "239 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.srcC": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "253 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi_ext.tail": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)",
+  "range": "82 values executed (boundaries + samples)",
   "target": "G17P"
  },
  "n2_op6.dst": {

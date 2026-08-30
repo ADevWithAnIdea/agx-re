@@ -2,16 +2,19 @@
  "artifact_sha256": {
   "CAPTURE_CONTRACT.json": "7f65900a48b46017e6edba580b0f0b8b8c7570dc905c60b4e052fab18b240262",
   "PRE_REGISTRATION.md": "713464c342c6ea23bd8d22dfed43cf3aec63866fc7a77b00065405441864a7e5",
-  "PROGRESS.md": "6368fb63f9bc8de324abf4703f8929ceea9215da7a703007ebda2f7261d6e87b",
-  "README.md": "7b4397f697328be9e8710ec04abf86c1102fccb1fba4881cb9b9931bc9751aec",
-  "RESULTS.md": "b6f911649efb2e479eff767945eb0ab0e35e0696e96f5a74dfacd6cdcf5cedfd",
-  "analysis/emittability.py": "8a0339e165588bbcd0d3b4a7829912cac18bbf526c1b959e31a596831b67c8e3",
-  "analysis/finalize.sh": "2832a7823f3565f8fad522efec24f63165b89285a19b395b5246f367b6747f0e",
+  "PROGRESS.md": "5c1fd044aa307d88f5daa23319f24de6b908c91b3f01253e19b031897810daa8",
+  "README.md": "5ce0c017348d3bf8ed1773bdb8bb46f8d68a89e8e50b9a2be757de5b59d6e2e1",
+  "RESULTS.md": "380f4c01c93615a7f7477b8f39cd419a30ec804d53dc8aae74b14bafc039e206",
+  "analysis/emittability.py": "cfb74a7921a8598f1a83fa76b56c7eb450da14944647589c492cec593d2750a6",
+  "analysis/faultconfirm.py": "ccf0ecfa459a6492418b0caf6c1dcf758d6174ad534eef7f4ce7f7645669dae5",
+  "analysis/finalize.sh": "225f7f3ba447b05d42c6372148d8cec765eb9b96304b16a443f2cb8842ae21dd",
   "analysis/lenrule.py": "c4bea3ffcd570baaf2557fb5c115bb98bf79db6570e698725b79651d1e1f15ec",
-  "analysis/merge.py": "e2687f04a86513fe26de16ca54835525fad4078798d946148dc73a4395c9c649",
+  "analysis/merge.py": "4eae6654b1677ab4e0f28ff539ce18b1334c619de9ec6e1b8c646c8637db6e62",
   "analysis/resync.py": "f72ade729b63a4c1a42f5318d86773d27eb6bcca21d4787c8b958d08111d4a6c",
-  "analysis/summary.py": "aad1ebe03a9be8d0c3fa5b03bab7f4ebcd78516a09fefa4df1ad3b8998878181",
-  "analysis/verdicts.py": "390da4fa7a982f76df3b98524b2a556cc41ceaacf638402baf8ec7ec10aa06b4",
+  "analysis/shapes.py": "3c6dad4b6e4c4f84b01158d5e62d47a3b036cf89237caee418b545019a721881",
+  "analysis/summary.py": "cdc3cbe7f1d95d8e85c03a49c61936c0ca4acd3aef28febbd01398f1556c4733",
+  "analysis/trim_derived_inputs.py": "ec34f257f3b91dbc944d6df56790f5ff84025e1ebfacea1bbd3ebc4f1f52c4ca",
+  "analysis/verdicts.py": "bf22046aa610d679d23171eb70c79581718b3f9138af3d5a6e3ee329165e9de5",
   "harness/agxrun_persist_as.m": "370596f10108b2edcd1fe47ec85010afa0d5135bfe2fc199238c5b11585f56fa",
   "harness/anchors.py": "d2a4d6f1fe77abaa8de7dcaa6e6cbc89136f7bcfda6e03ad61aa8912efe3425b",
   "harness/build.sh": "5e79675bde57a635a30a490ee2e5e64933ba3b8f975b124b9e128cfc58bd19f3",
@@ -21,6 +24,7 @@
   "harness/chain.sh": "8da9854b854a71c25bdadd5efab0f7ce71d58734da44b16c5722a9bfde50f30e",
   "harness/chain2.sh": "aa8232298f79bd746152a76c83ddd3e340ae8e54553c1c9df5d2ce2c4c064c91",
   "harness/chain3.sh": "c5541b922e5fe95243a63f5d1a7de1b90a5ad8529c2e92aeb4f112360e703fed",
+  "harness/chain4.sh": "6352e578cb3d7c494300cb6eff434e121781a931d2545dfb3a0c53bfcffbdc7f",
   "harness/isa_helpers.py": "22b23b318b294238573c8ef4b75c5e2d898c7cbb02e1ca4326efdd5d354f55e1",
   "harness/reachprobe.py": "557ffdac42f578b87ad5a614af27846b25787a58119e059a650ef2e71a76b01e",
   "harness/run.py": "294534980adcf6489919f6f03f2a65c21cdda3309eb3bfad175ef7d6a8c956e6",
@@ -42,12 +46,14 @@
   "kernels/k_zext16.metal": "63cf4fa62a56c6e38f8c418eda02c23cc74b490a37864b911a9451d460e40919"
  },
  "authored_here": [
+  "analysis/faultconfirm.py",
   "analysis/finalize.sh",
   "analysis/lenrule.py",
   "analysis/merge.py",
   "analysis/resync.py",
   "analysis/shapes.py",
   "analysis/summary.py",
+  "analysis/trim_derived_inputs.py",
   "analysis/verdicts.py",
   "harness/agxrun_persist_as.m",
   "harness/build.sh",
@@ -108,7 +114,7 @@
   "ray_move_zinit"
  ],
  "experiment": "EXP-0157-g17p-emit-misc",
- "generated_utc": "2026-08-30T06:43:38Z",
+ "generated_utc": "2026-08-30T07:37:10Z",
  "post_freeze_additions": {
   "files": [
    "harness/run_lm.py (arms L/M/N/Q/Q2)",
@@ -122,192 +128,66 @@
  },
  "raw_runs": {
   "g17p_bbox01": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 1948
   },
   "g17p_census01": {
-   "files": [
-    "getter_diff.json",
-    "k_cand_baryx.hex",
-    "k_cand_baryy.hex",
-    "k_cand_td_dist.hex",
-    "provocation_census.json"
-   ],
    "records": 0
   },
   "g17p_fence01": {
-   "files": [
-    "00_build.json",
-    "00_env.json",
-    "sweep.jsonl"
-   ],
    "records": 2
   },
   "g17p_fence02": {
-   "files": [
-    "00_build.json",
-    "00_env.json",
-    "sweep.jsonl"
-   ],
    "records": 2
   },
   "g17p_lenmap01": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "sweep.jsonl"
-   ],
    "records": 6421
   },
   "g17p_qlen01": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "sweep.jsonl"
-   ],
    "records": 1793
   },
   "g17p_qlen02": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "sweep.jsonl"
-   ],
    "records": 2048
   },
   "g17p_raymove01": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 3258
   },
   "g17p_raymove02": {
-   "files": [
-    "00_build.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 3258
   },
   "g17p_reach01": {
-   "files": [
-    "00_build.json",
-    "00_env.json",
-    "sweep.jsonl"
-   ],
    "records": 29
   },
+  "g17p_reval02": {
+   "records": 786
+  },
+  "g17p_reval03": {
+   "records": 970
+  },
   "g17p_run01": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 20962
   },
   "g17p_run02": {
-   "files": [
-    "00_build.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "sweep.jsonl"
-   ],
-   "records": 10631
+   "records": 11854
+  },
+  "g17p_run03": {
+   "records": 7126
   },
   "lm_smoke": {
-   "files": [
-    "00_build.json",
-    "00_cases.json",
-    "00_env.json",
-    "00_manifest.json",
-    "sweep.jsonl"
-   ],
    "records": 20
   },
   "lm_smoke2": {
-   "files": [
-    "00_build.json",
-    "00_cases.json",
-    "00_env.json",
-    "00_manifest.json",
-    "sweep.jsonl"
-   ],
    "records": 257
   },
   "smoke01": {
-   "files": [
-    "00_build.json",
-    "00_cases.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 32
   },
   "smoke02": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 1
   },
   "smoke03": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 271
   },
   "smoke04": {
-   "files": [
-    "00_build.json",
-    "00_cases_MANIFEST.json",
-    "00_env.json",
-    "00_manifest.json",
-    "01_progress.json",
-    "02_neighbours_end.json",
-    "sweep.jsonl"
-   ],
    "records": 308
   }
  },

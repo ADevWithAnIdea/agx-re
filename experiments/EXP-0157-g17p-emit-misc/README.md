@@ -58,7 +58,17 @@ nothing at it is promoted.
 | `harness/run_lm.py` | arms L/M/N — the **hardware length probe** |
 | `kernels/k_rq_prim.metal`, `k_rq_inst.metal`, `k_rq_getters.metal` | authored ray-query carriers |
 | `kernels/k_provoke.metal` | authored provocations for `n2_op8` / `coord_madf` / `h_coord_hi*` |
-| `analysis/resync.py`, `analysis/verdicts.py` | resync tokenizer, verdict builder |
+| `harness/reachprobe.py` | the reachability control — `inert` vs `unreached` |
+| `harness/carriers_bbox.py`, `kernels/k_rq_bbox.metal` | bounding-box (custom-intersection) carriers |
+| `harness/chain*.sh` | capture chains: second gated run, then the lease-held fault confirmation |
+| `analysis/resync.py` | resync tokenizer (after-gap flagged) |
+| `analysis/verdicts.py` | per-field verdicts + the gate + the deliberate declines |
+| `analysis/merge.py` | emits BOTH the merge-ready `field_verdicts.json` and the per-carrier detail |
+| `analysis/emittability.py` | DOC-02's rule, plus the `single_value_only` operand report |
+| `analysis/lenrule.py` | the hardware length map |
+| `analysis/shapes.py` | classifies rejected values by OUTPUT SHAPE — how §3.4/§3.3b/§5 were found |
+| `analysis/faultconfirm.py` | adjudicates the lease-held fault-confirmation pass |
+| `analysis/summary.py`, `analysis/finalize.sh` | regenerate every number in `RESULTS.md` |
 | `raw/` | append-only captures |
 | `RESULTS.md` | observations, interpretation, limitations, verdict |
 

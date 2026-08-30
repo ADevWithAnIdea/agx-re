@@ -156,3 +156,38 @@ Append-only. One entry per milestone, timestamped. A kill costs at most one mile
   second captures, so the gate is `run01` vs the **union** of the later runs, not their
   intersection. Intersecting all three briefly under-reported the result as 3 emittable
   descriptors instead of 6, because run03 was still mid-capture.
+
+## 2026-08-30 — M15: run03 complete; the §7A fault-confirmation pass is RUNNING under the lease
+- `raw/g17p_run03` finished at 07:06:38Z with 7 126 records, covering the four carriers run02
+  never reached (u64eq, roundm, h4fma, h3mix).
+- Gate (run01 vs the union of run02+run03): **18 259 agree, 215 disagree (1.2 %)**, concentrated
+  in the fault-heaviest arm (`h4fma`/`h_coord_hi`).
+- **9 of 20 dispatched descriptors EMITTABLE.** Orchestrator merger dry-run:
+  **47 field verdicts applied, emitter-grade 569 → 615, emittable instructions 55 → 64** —
+  `h_coord_hi`, `h_coord_hi_ext`, `n2_op6`, `n3_mov`, `ray_move`, `ray_move_copy6`,
+  `ray_move_zero6`, `rtq_state_move`, `sr_read_wide`. The 6 skips are the deliberate
+  `op04_len8` and `scoreboard_fence` declines.
+- `raw/g17p_reval03` (fault/hang confirmation, 5x per case, under `gpulease.sh`) is in progress.
+
+## 2026-08-30 — M16: the fault-confirmation pass is BOUNDED, deliberately
+- `raw/g17p_reval03` re-runs **1 251 distinct fault/hang cases x 5 repeats = 6 255 measurements**
+  under the GPU lease. Measured rate ~1/s, i.e. ~2.4 hours of EXCLUSIVE GPU on a machine with
+  eight agents queued behind the lease.
+- **Bounded to a 25-minute lease window** rather than run to completion, and the partial is
+  retained and adjudicated by `analysis/faultconfirm.py`, which reports every case it did not
+  reach as `unconfirmed` — never as confirmed.
+- Justification is recorded in RESULTS §9.1/§9.2: contamination can only turn an `ok` into a
+  failure, never the reverse, so every promoted rule (all of which are computed from ok-sets) is
+  conservative. An unconfirmed fault can only be a value that is already outside every promoted
+  ok-set. **No claim in this report rests on a fault label.**
+
+## 2026-08-30 — M17: fault confirmation adjudicated; experiment COMPLETE
+- `raw/g17p_reval03`: 970 records before the 25-minute lease window closed.
+  **178 fault verdicts confirmed under isolation, 1 refuted, 1 072 unconfirmed** of 1 251 claimed.
+  Of the 179 actually adjudicated, **99.4 % held** — worth recording beside EXP-0153, where four
+  of five did not.
+- Final: **9 of 20 dispatched descriptors EMITTABLE**; merger dry-run applies 47 field verdicts,
+  emitter-grade 569 → 615, emittable instructions 55 → 64.
+- All deliverables on disk: frozen `PRE_REGISTRATION.md` + `CAPTURE_CONTRACT.json`, three gated
+  captures plus the B2 pair, `analysis/field_verdicts.json` (merge-ready) and
+  `field_verdicts_by_carrier.json`, `RESULTS.md`, `manifest.json`, this file.

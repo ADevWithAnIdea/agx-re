@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1060,
   "by_label": {
-   "hardware-run": 553,
+   "hardware-run": 588,
    "isolated-byte-diff": 111,
-   "corpus-correlation": 119,
-   "tokenization-only": 167,
+   "corpus-correlation": 106,
+   "tokenization-only": 166,
    "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 102
+   "untested": 81
   },
   "by_label_pct": {
-   "hardware-run": 52.2,
+   "hardware-run": 55.5,
    "isolated-byte-diff": 10.5,
-   "corpus-correlation": 11.2,
-   "tokenization-only": 15.8,
+   "corpus-correlation": 10.0,
+   "tokenization-only": 15.7,
    "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 9.6
+   "untested": 7.6
   },
-  "emittable_instructions": 67,
+  "emittable_instructions": 72,
   "emittable_mnemonics": [
    "atomic_mem",
    "atomic_rmw",
@@ -59,6 +59,8 @@
    "frag_tile_setup",
    "frame_prologue",
    "get_sr",
+   "h_coord_hi",
+   "h_coord_hi_ext",
    "half_alu",
    "half_alu_ext8",
    "hminmax",
@@ -78,6 +80,7 @@
    "link_save_restore",
    "matrix_mac",
    "mov_imm",
+   "n2_op6",
    "n3_sample_read",
    "pack_convert",
    "pixel_order",
@@ -89,10 +92,12 @@
    "reg_move_c9",
    "reg_move_cb",
    "ret_luse",
+   "rtq_state_move",
    "sel",
    "shift_amt_move",
    "simd_reduce",
    "spill_frame_marker",
+   "sr_read_wide",
    "stop",
    "tex_addr_setup",
    "tex_deriv",
@@ -105,7 +110,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 105,
+  "decodable_not_yet_emittable": 100,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -116,7 +121,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 67
+  "emittable_of_emitter_relevant": 72
  },
  "instructions": {
   "falu2": {
@@ -1448,47 +1453,58 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble proven a destination register by an own-MSL r0..r15 reg-sweep (compile-only)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "15 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle."
    },
    "src_desc": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x00 | outcomes ok=3, wrong_value=252 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
    },
    "opsel": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd7) == 0x03 | outcomes ok=3, silent_zero=60, wrong_value=192 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd5) == 0x05 | outcomes not_written=128, ok=7, silent_zero=116, wrong_value=4 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select."
    },
    "opA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
    },
    "opB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, silent_zero=96, wrong_value=16 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)"
    },
    "imm_sel": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "n2_op6 is an acknowledged catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select); per-sub-op value maps are mixed."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: accepted set: (value & 0x7e) == 0x06 | outcomes ok=3, silent_zero=244, wrong_value=8 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: outcomes ok=3, silent_zero=120, wrong_value=132 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance."
    }
   },
   "iunary": {
@@ -4947,12 +4963,13 @@
     "evidence": []
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "0x81 copy a computed source, 0x80 zero-initialise a component",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=32, ok=223 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+2: 223 of 256 values run; 32 FAULT. Load-bearing."
    },
    "b3": {
     "label": "isolated-byte-diff",
@@ -7017,18 +7034,22 @@
     ]
    },
    "subform": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "249 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=32, not_written=26, ok=89, silent_zero=86, wrong_value=16 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
    },
    "companion": {
-    "label": "corpus-correlation",
-    "range": "0x01 with subform 0x00 is the zero-extend high-half-zero companion",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=223, silent_zero=32 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)"
    }
   },
   "n3_addr_prep": {
@@ -7436,56 +7457,58 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble proven to span r0..r15 by an own-MSL sweep (compile-only)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "15 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence."
    },
    "sel": {
-    "label": "corpus-correlation",
-    "range": "0x7f simd-matrix wide builtin, 0x00 wide scalar base, 0x21/0x01/0x48 intersection_query property reads",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "127 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance)."
    },
    "width": {
-    "label": "corpus-correlation",
-    "range": "toggles 0x02<->0x06 across successive component reads; 0x22/0x26/0x46 across property kinds",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xce) == 0x46 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xcf) == 0x46 | outcomes fault=16, ok=3, silent_zero=236 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance."
    },
    "operand": {
-    "label": "corpus-correlation",
-    "range": "steps 0x00,0x10,0x18,.. with the wide-component index as dst advances",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
    },
    "marshal": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "82 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0157"
     ],
-    "note": "Getter/element operand descriptor; the marshal SEQUENCE is deliberately not reconstructed (clean-room rule 5)."
+    "note": "outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
    },
    "phase": {
-    "label": "corpus-correlation",
-    "range": "byte+7 0x80 marks the CANDIDATE (during-traversal) property read, 0x00 the COMMITTED (post-traversal) read; 0x20 a further candidate sub-variant",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
+     "EXP-0157"
     ],
-    "note": "SUPERSEDES an earlier n=26 'const 0x00 reserved byte' note."
+    "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general. [orchestrator: every swept value returned the correct oracle on all 3 carriers ['rq_all', 'rq_cdist', 'rq_cprim']; emitter-grade only within that envelope.]"
    }
   },
   "rt_query_traverse": {
@@ -8129,47 +8152,58 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "15 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.  ALSO: accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier."
    },
    "opsel": {
-    "label": "corpus-correlation",
-    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wrong_value=12 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.  ALSO: accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values."
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.  ALSO: accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result."
    },
    "ctrl": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wrong_value=90 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zero=36, wrong_value=84 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
    },
    "mods": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)"
    }
   },
   "h_coord_hi_ext": {
@@ -8183,54 +8217,67 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "15 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "srcA": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "opsel": {
-    "label": "corpus-correlation",
-    "range": "0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and coordinate forms) - the SAME enum as the 0x09/0x10 families, located by corpus",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "srcB": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "239 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "ext": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "233 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "srcC": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "253 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    },
    "tail": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": [],
-    "note": "Layout inherited from the HW-anchored half_alu / falu2 families; not independently exercised in the high-half form."
+    "label": "hardware-run",
+    "range": "82 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)"
    }
   },
   "packed_half2_hi": {
@@ -8335,18 +8382,22 @@
     "evidence": []
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
    },
    "optype": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
    }
   },
   "ray_move_zero6": {
@@ -8371,12 +8422,13 @@
     "evidence": []
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH)"
    },
    "b3": {
     "label": "untested",
@@ -8431,30 +8483,40 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "15 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2)"
    },
    "src": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped."
    },
    "form": {
-    "label": "corpus-correlation",
-    "range": "byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09 query-state)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=175, silent_zero=64, wrong_value=16 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=32, ok=191, silent_zero=32 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=62, ok=191, silent_zero=1 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier."
    },
    "b3": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "255 values executed (boundaries + samples)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0157"
+    ],
+    "note": "outcomes ok=207, wrong_value=48 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=255 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general."
    }
   },
   "funary_imm": {
