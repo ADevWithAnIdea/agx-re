@@ -226,3 +226,27 @@ GENERATED into any of the five kernels.
 * `ilogic.z6 / z8 / z9` (= `b_alu10_*.z6 / ext8 / ext9`): dense-INERT, 0/256 each, on all
   three carrier STYLES — but only ONE probe anchor, so they are held at
   `single-template-inference`, not promoted.
+
+## 2026-08-30 — M6 COMPLETE. Both gated runs, coverage gate, verdicts, isolation.
+`raw/g17p_20260830_run02/` (reverse order) finished 35,949/35,949, 1 contained hang, 0 arms
+abandoned, `ok` count 9246 — **identical to run01's**. Both pulled back.
+
+* `analysis/coverage.py`: **139 of 139 byte-sweeps dense-complete (256/256 distinct
+  encodings) in BOTH runs, 0 under-covered.**
+* `analysis/emit_verdicts.py`: 37 rows — **22 `hardware-run`, 5 `isolated-byte-diff`,
+  10 `single-template-inference`**; cross-run agreement **1.0000 on every promoted row**;
+  **26 of 27 carriers admitted**; all 37 rows carry `values_dispatched`, `distinct_bytes`,
+  `encodable_range`, `start`, `width`.
+* `analysis/closure.py`: **`bf_alu`, `bf_fma_dst`, `fspecial_est`, `ibitcount` close on
+  MOVEMENT evidence alone.** `ibfe` closes only with two promotions from proven inertness
+  (flagged). `ilogic` 5 blocking → 3. `b_alu10_lof`/`loe` 11 → 5 each. `iadd2` 2 → 1.
+* `raw/isolation/iso01.json` (fresh process, after both runs): 20 cases × 5 reps,
+  **20/20 reproducible**, 100 dispatches all with non-zero `GPUTIME_NS` (5.1–8.0 µs),
+  `all_zero_except_nand: true`, `nand_all_ones: true`. This also answers the throughput
+  question the NAT carriers raise (they ran ~30× faster than `carrier_dag`, because their
+  archive is 90 bytes of `_agc.main` instead of 2412): the dispatches are real, timed, and
+  value-dependent.
+
+`RESULTS.md` and `manifest.json` written. **Nothing committed; `db.json`,
+`validation.json`, `docs/` and `PROVENANCE.md` untouched.** The neo's shared `tools/` was
+read only, never edited. `~/agxre/EXP-0171/` left in place on the neo.

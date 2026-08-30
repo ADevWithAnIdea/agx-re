@@ -283,7 +283,7 @@ def main():
     # only report on verdicts that carried machine-readable counts. Fields where
     # distinct_bytes < values_dispatched were under-covered by their own harness --
     # the DEF-0166-1 signature, where assemble() left match-overlapping bits stuck.
-    cov_rows, thin, stuck = 0, [], []
+    cov_rows, thin, stuck, wide = 0, [], [], []
     for m, entry in val["instructions"].items():
         for n, r in entry.items():
             if n.startswith("_") or not isinstance(r, dict):
@@ -297,8 +297,15 @@ def main():
             cov_rows += 1
             if nb is not None and nv is not None and nb < nv:
                 stuck.append((m, n, nv, nb))
+            # A field wider than 16 bits cannot be swept exhaustively -- 2^24 is
+            # 16.7M dispatches -- so FIELD-SWEEP-PROTOCOL 3.3 prescribes a sampled
+            # set (0,1,2,max-1,max, every power of two, asymmetric interior) PLUS a
+            # DENSE 0..255 sweep of every spanned byte. Comparing the sample count
+            # against 2^w would flag every such field forever, which is crying wolf:
+            # bf_alu.tail moved 42 of 42 and bf_fma_dst.tail 50 of 50 on densely
+            # swept bytes. Report those separately from genuinely thin narrow fields.
             if enc and nv is not None and nv < enc:
-                thin.append((m, n, nv, enc))
+                (thin if enc <= 65536 else wide).append((m, n, nv, enc))
     if not args.quiet:
         print()
         print("  COVERAGE (only verdicts that recorded machine-readable counts)")
@@ -311,6 +318,10 @@ def main():
             print("    THIN (dispatched < encodable range):")
             for m, n, nv, enc in thin:
                 print("      %s.%s  dispatched %d of %d" % (m, n, nv, enc))
+        if wide:
+            print("    WIDE (>16-bit; protocol 3.3 sampled set + dense per-byte sweep, not exhaustive):")
+            for m, n, nv, enc in wide:
+                print("      %s.%s  sampled %d of 2^%d" % (m, n, nv, enc.bit_length() - 1))
         if not stuck and not thin and cov_rows:
             print("    no under-covered or thin rows among those that reported counts")
 

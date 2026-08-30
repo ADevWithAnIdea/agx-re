@@ -1,0 +1,242 @@
+{
+ "carrier_rejected_by_its_own_falsifier": [
+  "NAT:k_rsqrt@fspecial_est+18"
+ ],
+ "carriers_admitted": "26 of 27",
+ "cases_dispatched": 71898,
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/probes.metal + kernels/carrier_dag.metal (authored by us) and the AGX machine code the PUBLIC Metal runtime API compiled FROM THEM"
+ },
+ "closed_on_movement_evidence": [
+  "bf_alu",
+  "bf_fma_dst",
+  "fspecial_est",
+  "ibitcount"
+ ],
+ "closed_only_with_a_promotion_from_proven_inertness": [
+  "ibfe"
+ ],
+ "coverage": {
+  "byte_sweeps": 139,
+  "dense_complete_both_runs": 139,
+  "rows_with_all_five_coverage_keys": 37,
+  "under_covered": 0,
+  "verdict_rows": 37
+ },
+ "date": "2026-08-30",
+ "db_defects_reported_not_patched": [
+  "DEF-0171-1  ilogic's byte0 match [[0,8,11]] is over-fitted to destination r0; byte0 = (dst<<4)|0x0b, HARDWARE-PROVEN 15/15 observable registers. ilogic and b_alu10_lof/b_alu10_loe are ONE instruction.",
+  "DEF-0171-2  no length rule for byte0 == 0x31, so G17P's own native bfloat ALU does not tokenize at all; bf_alu's match (byte0==0x11, byte+1==0x02) and bf_fma_dst.fmt's enum {2,4} do not describe what G17P emits (byte0 0x31, byte+1 0x00).",
+  "DEF-0171-3  ibfe.sign_ext (byte+6 bit1) is NOT the sign control -- dense-inert in BOTH the signed and unsigned compiler anchors. The signed/unsigned difference rides on srcC_flags byte+9 bit0 (INFERRED; byte+9 not swept here).",
+  "DEF-0171-4  ilogic.outmod / b_alu10_*.outmod byte+7 bit7 is a SOURCE-READ control, not the 'output/store flag' db.json names: with it clear the LUT still evaluates and the destination is still written, but both sources read as ZERO (k_nand writes 0xFFFFFFFF = ~(0&0)).",
+  "DEF-0171-5  fspecial_est.subop == 0x0f in G17P's precise rsqrt lowering, a value absent from db.json's enum {9: rcp, 11: rsqrt, 13: sqrt}."
+ ],
+ "experiment": "EXP-0171-g17p-ilogic-srca",
+ "files": {
+  "CAPTURE_CONTRACT.json": {
+   "bytes": 8638,
+   "sha256": "92cc3ca7c57227b0037901f8100a332eb159c8a5aa84e9bfa3e94b212e8a3e0d"
+  },
+  "PRE_REGISTRATION.md": {
+   "bytes": 21375,
+   "sha256": "e3f5888ea7af66db9ce9ddfe203d0387eb6a9acd354081d751269122435be72a"
+  },
+  "PROGRESS.md": {
+   "bytes": 15649,
+   "sha256": "17da25f29afaddefeb0eeb156df4e23fe910e793cf85c7c489edd96b60fb220b"
+  },
+  "README.md": {
+   "bytes": 3601,
+   "sha256": "f4a1fa474b54d5af6d57ffd9193e880576a34b533d3cd93385edbe915157d986"
+  },
+  "RESULTS.md": {
+   "bytes": 16918,
+   "sha256": "53afa5f534f88d0bf9fb6efefb9502e55c85660a99d598c9ba1609a4f191b055"
+  },
+  "analysis/closure.json": {
+   "bytes": 2864,
+   "sha256": "4995acaddcb20254c78e7cdb69262e84e6f28d4415b0bafdee0e05301402dc9c"
+  },
+  "analysis/closure.py": {
+   "bytes": 3636,
+   "sha256": "52e2a8f8ee78783f87cd8c1cdf98c0b762c145e9691993ac7810653eb5b6e37a"
+  },
+  "analysis/coverage.json": {
+   "bytes": 62737,
+   "sha256": "27f822bb0463b5585fe808c4c1313c50201b3bfbcd8e731351114a8f6a318093"
+  },
+  "analysis/coverage.py": {
+   "bytes": 3122,
+   "sha256": "2a3dcb0413abedde49c9f33574462de02254c4c280a8929a551a19e6e7dc1ba4"
+  },
+  "analysis/emit_verdicts.py": {
+   "bytes": 25478,
+   "sha256": "7f5b0c6e0e263049bfec3facb5360a49a1b7337911c94fe3d3b59234ed7a8147"
+  },
+  "analysis/field_verdicts.json": {
+   "bytes": 262835,
+   "sha256": "eec431b46566e2c237b85666315a156fca2f8545df290db9a389b3fe2da4efa7"
+  },
+  "analysis/field_verdicts_flat.json": {
+   "bytes": 31697,
+   "sha256": "59fd8816cdf0b1e7e52869434fadc5817604cdfc5dce96f51bbdece3d08e2a8b"
+  },
+  "analysis/isolation.py": {
+   "bytes": 4494,
+   "sha256": "cc38e70782e8bd9a2c3d2087867ea1092644ebd4e4fd368004e6d26840d81506"
+  },
+  "analysis/premise_check.py": {
+   "bytes": 6431,
+   "sha256": "def877b74e31b9f24e8425b5d725b0c94489922c178f7e1276c1294f87d49a24"
+  },
+  "harness/anchors.py": {
+   "bytes": 4912,
+   "sha256": "8c45a4260d4e82266c1850346edd295c8d7c3e622169fcdfc66e5d8268676f7e"
+  },
+  "harness/casematrix.py": {
+   "bytes": 23832,
+   "sha256": "da810511a818f3b1f17ae08c3db16dc520c4cb1dd56b0f3d6a6890d7374014e1"
+  },
+  "harness/isa_helpers.py": {
+   "bytes": 11517,
+   "sha256": "5a23432f337d1fc7745ac4bdd0b3036187391ce61b5a35c75ff6c31e40421ea2"
+  },
+  "harness/run.py": {
+   "bytes": 13287,
+   "sha256": "7a41fb2d14c3576aea5eb60646bc92d4fc59df91336f1e59f8ddd94590f328a3"
+  },
+  "harness/sweeprun.py": {
+   "bytes": 17252,
+   "sha256": "0078beb5c5f6b97acc1139301350079ecca825f594f9f12a8ccf3a340943bef7"
+  },
+  "harness/sync.sh": {
+   "bytes": 1577,
+   "sha256": "019032d26f49fce1fec24af623fd5f618841837c68d98ea153f67e8ae243cdea"
+  },
+  "kernels/carrier_dag.metal": {
+   "bytes": 2085,
+   "sha256": "2516109178e7ffe23c9aff1d8b3d728ac2aac033660ac0774950409308d9081a"
+  },
+  "kernels/probes.metal": {
+   "bytes": 9819,
+   "sha256": "ed4636b7043682692026bf3deac008774060b5a3ccf44e5125f0347f60cb323a"
+  },
+  "raw/FREEZE_MARKER.txt": {
+   "bytes": 890,
+   "sha256": "d7fba1f829139d36e1ea7a7bc8bc9d687f1f12a0cfba1183b997deba46da6f33"
+  },
+  "raw/g17p_20260830_run01/00_env.json": {
+   "bytes": 431,
+   "sha256": "3734a3af487cfe7262492d8db1b02262e946e5d071ad595b107a939a2de50d91"
+  },
+  "raw/g17p_20260830_run01/01_progress.json": {
+   "bytes": 316,
+   "sha256": "d886ef66750061681b870bf9c00b4831c07e896e72bb11913806764e35fdfd87"
+  },
+  "raw/g17p_20260830_run01/02_summary.json": {
+   "bytes": 732,
+   "sha256": "c9b2efe1e741a057fc651b498b245b6939ffeae32524474b68e848d997212e48"
+  },
+  "raw/g17p_20260830_run01/03_matrix.json": {
+   "bytes": 420,
+   "sha256": "555bdf9e134d284192b4a8e6780ca808531a42ed7f0d0890d1dd8f331804bad2"
+  },
+  "raw/g17p_20260830_run01/baseline.jsonl": {
+   "bytes": 95587,
+   "sha256": "0224ea8645855d4a5e90fe182e21ea2f34ee212449365f8c5affa7628953cae9"
+  },
+  "raw/g17p_20260830_run01/sweep.jsonl": {
+   "bytes": 48991082,
+   "sha256": "a625061230aae2f954fad2f9416926a2c9bbec2dfa5d449c39800f45d08d90f4"
+  },
+  "raw/g17p_20260830_run02/00_env.json": {
+   "bytes": 432,
+   "sha256": "6b47b48b064d582ad38cd55351b8b19b3955ffe92c2c6ed8a8e300e207346d0c"
+  },
+  "raw/g17p_20260830_run02/01_progress.json": {
+   "bytes": 314,
+   "sha256": "9ccafbd3cc2829f02ba2209069eb56bc323f581b7de031bf45dc88b690ac4e15"
+  },
+  "raw/g17p_20260830_run02/02_summary.json": {
+   "bytes": 756,
+   "sha256": "d1ca1cc147b12a9d4ab7b0744eb8604c45a82abdc5591111b20ffb9e069851f9"
+  },
+  "raw/g17p_20260830_run02/03_matrix.json": {
+   "bytes": 420,
+   "sha256": "555bdf9e134d284192b4a8e6780ca808531a42ed7f0d0890d1dd8f331804bad2"
+  },
+  "raw/g17p_20260830_run02/baseline.jsonl": {
+   "bytes": 95786,
+   "sha256": "79c270ff2215d8c1bd495a65b0267bf50a316ed57ae07988697f93e468aea78e"
+  },
+  "raw/g17p_20260830_run02/sweep.jsonl": {
+   "bytes": 48916469,
+   "sha256": "07fa6978d2dba7cdd11c317962c4c5adba042d739916c025d50c526b08c55753"
+  },
+  "raw/isolation/iso01.json": {
+   "bytes": 58597,
+   "sha256": "a07e0d0db04c296ec36b9ef68075b67a545ae85e2d0f52e0b8b7e9593f810f6a"
+  },
+  "raw/run01.log": {
+   "bytes": 11219,
+   "sha256": "2b0c28ba530711f61709b1ee5f8ba6a9a16676fb110dc7b6ca766d30d071a98e"
+  },
+  "raw/run02.log": {
+   "bytes": 10130,
+   "sha256": "c3cc8eb4dbdd4ec623460b2449780e5bdceec810258c6dc50f7709d104c5e13c"
+  },
+  "work/anchors/anchor_report.json": {
+   "bytes": 27585,
+   "sha256": "30832158ad468ee23a9e6f1868d8802f2bc40e9748e876dee0446128569347fe"
+  },
+  "work/frozen/db.json": {
+   "bytes": 437352,
+   "sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5"
+  },
+  "work/frozen/isadb.py": {
+   "bytes": 146952,
+   "sha256": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8"
+  },
+  "work/frozen/validation.json": {
+   "bytes": 432715,
+   "sha256": "34e62ca2bdd655ec1751405a03055b7f9e54cd890134d2cdbadb8eb79865532e"
+  }
+ },
+ "frozen_contract": "CAPTURE_CONTRACT.json (sha of every authored blob; frozen before any dispatch)",
+ "gated_runs": [
+  "g17p_20260830_run01 (--order forward)",
+  "g17p_20260830_run02 (--order reverse)"
+ ],
+ "hazards_observed": {
+  "arms_abandoned": [],
+  "hangs": {
+   "run01": 0,
+   "run02": 1
+  },
+  "note": "the pre-registered fspecial_est byte+3 dense sweep, flagged as adjacent to the known fspecial byte+3 >= 192 hang region, produced NO hang"
+ },
+ "labels": {
+  "hardware-run": 22,
+  "isolated-byte-diff": 5,
+  "single-template-inference": 10
+ },
+ "matrix_sha256": "bce0b7dee4dcbd4c93d21bc24d52e282a2d37ce348026b0decf712102ee0001b",
+ "not_committed_by_this_agent": "nothing -- no git commit, and db.json / validation.json / docs/ / PROVENANCE.md were not edited",
+ "pinned_db_note": "resolved from work/frozen/ on the DEVICE (00_env.json isa_dir); the neo's shared tools/agx-isa/db.json is stale (f5db942f..., 171 instr / 1036 fields) and was read only, never edited",
+ "pinned_db_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+ "raw_size_note": "raw/ is 95 MB (two 48 MB append-only JSONL sweeps). Each record carries the full observed word vector, the comparator digest and its source, and the per-attempt fault classes, which is what makes the A3-style offline re-adjudication possible.",
+ "rows_promoted_from_proven_inertness": [
+  "b_alu10_loe.src_flag",
+  "b_alu10_lof.src_flag",
+  "ibfe.b2_bit0",
+  "ibfe.sign_ext",
+  "ilogic.lut_a_free"
+ ],
+ "target": "A18 Pro / G17P (users-MacBook-Neo.local, T8140, AGXAcceleratorG17P, 5 cores, macOS 26.6 / 25G5043d)",
+ "title": "close ilogic on G17P, and pull the srcA / tail levers"
+}
