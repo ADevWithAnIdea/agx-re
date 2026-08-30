@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 50 | 116 | 166 |
+| 51 | 115 | 166 |
 
 ## Distance to emittable
 
@@ -16,7 +16,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 |---:|---:|
 | 0 | 4 |
 | 1 | 22 |
-| 2 | 23 |
+| 2 | 22 |
 | 3 | 20 |
 | 4 | 13 |
 | 5 | 14 |
@@ -34,7 +34,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 39 |
+| `dst` | 37 |
 | `tail` | 12 |
 | `srcA` | 11 |
 | `b5` | 10 |
@@ -59,7 +59,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `cvt_f2i` | `b9` | untested |
 | `dev_scoreboard_fence` | `scope_flag` | corpus-correlation |
 | `falu2_uni` | `dst` | untested |
-| `frag_color_pack` | `dst` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
 | `half_alu` | `dst` | untested |
 | `half_alu_fma12` | `ext` | tokenization-only |
@@ -76,8 +75,9 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `rt_query_traverse` | `dst` | untested |
 | `simd_ballot` | `cache` | single-template-inference |
 | `simd_shuffle` | `cache` | single-template-inference |
+| `vtx_out_pos` | `slot` | single-template-inference |
 
-## TWO fields away (23 instructions)
+## TWO fields away (22 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -103,7 +103,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `ray_move` | `dst`, `src` | untested, untested |
 | `ray_move_copy6` | `dst`, `src` | untested, untested |
 | `tex_write` | `amode`, `rsv11` | untested, untested |
-| `vtx_out_pos` | `dst`, `slot` | untested, untested |
 
 ## Blocked by a descriptor problem, not a sweep
 
@@ -118,7 +117,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 183 |
+| `untested` | 180 |
 | `tokenization-only` | 128 |
 | `corpus-correlation` | 74 |
-| `single-template-inference` | 29 |
+| `single-template-inference` | 30 |

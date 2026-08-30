@@ -1386,3 +1386,82 @@ survived three experiments. A dedicated HANG-TOLERANT MAPPING run
 (`--hang-budget 80`, new flag) is under way to map the band exhaustively. It is
 explicitly **not** a gated verdict run — it changes a frozen safety parameter —
 and its raw is named `MAPPING_fcpdst_hangtolerant` to say so.
+
+## 2026-08-30 — M24: frag_color_pack CLOSED, and the "hazardous values" turn out
+##                  to be a 60-wide ILLEGAL ENCODING REGION at 0xC0
+### `frag_color_pack.dst` — EXP-0155's UNSTABLE row, settled
+`rfcp01` / `rfcp02`: 1,801 cases each, 80.8 s each, **19 hangs each — identical**,
+`stopped_early: false`, 0 refused, device survived both.
+
+**LIVE / `hardware-run` at 100.000% cross-run agreement**: 8 arms across **3
+genuinely distinct carrier dimensions** (immediate-source packs — the EXP-0155
+replica; 4x MSAA tile path; 4 RTs with register-source packs and 16 live
+colours), **191 of 195 swept values moved on every arm, all 8 bits live**, ladder
+passing and falsifier firing on all 8.
+EXP-0155 had 208 values, "2 carriers", 32 moved and a failed agreement gate — and
+its two "carriers" were two occurrences of one instruction in one program at one
+attachment format and one sample count. That is the R2 difference, measured.
+
+### The mapping run, and why it was worth overriding a frozen safety parameter
+`raw/g17p_20260830_MAPPING_fcpdst_hangtolerant` (`--hang-budget 80`; **NOT a
+gated verdict run** — it changes a pre-registered budget, and its name says so).
+On `frag_color_pack@r_fcp1/fragment#0`:
+```
+values 0..191   swept cleanly (191 wrong_value + 1 ok)   max clean value = 191 = 0xBF
+values 198..239 HANG -- 42 CONTIGUOUS VALUES
+values 192,193  contained fault (EXP-0155, confirmed)
+```
+**This is not a handful of bad values. It is a large contiguous ILLEGAL ENCODING
+REGION beginning at 0xC0**, and the driver consequence is a one-liner an
+implementer can use: **keep `frag_color_pack.dst` below 0xC0.**
+
+**Why three experiments in a row failed to find this.** With a per-field hang
+budget of 2, a forward sweep reaches the wall, spends its budget on the first two
+values, and stops. So each experiment could discover exactly **two** more
+hazardous values — against a region ~60 wide. EXP-0155 stopped at 194,
+EXP-0168's first render run at 197, its own gated runs at 199. My "defer the
+known bad values" fix was itself inadequate: it only moved the wall, twice.
+**A budget designed to protect the machine had quietly become a guarantee that
+the region could never be characterised.** The fix is not a bigger budget by
+default — it is a *deliberate, named, non-gated mapping pass* when a contiguous
+hazard is suspected, which is what `--hang-budget` now provides.
+
+That is rule R-D's real form, and it is stronger than how I first stated it:
+**when a hazard is contiguous, a per-field stop rule converges on the truth at
+two values per experiment — i.e. never. Detect the contiguity and switch to a
+mapping pass rather than deferring values one at a time.**
+
+## 2026-08-30 — M25: THE WALL IS EXACTLY 0xC0. Device work COMPLETE.
+The hang-tolerant mapping run dispatched **all 256 values** of
+`frag_color_pack.dst` on `r_fcp1/fragment#0`:
+
+```
+0x00 .. 0xBF   192 values   ALL CLEAN   (191 wrong_value + 1 ok)
+0xC0 .. 0xFF    64 values   ALL HANG    perfectly contiguous, no exceptions
+clean values >= 0xC0 : NONE
+```
+**`dst[7:6] == 0b11` is an illegal encoding that hangs the GPU.** The field's
+real `encodable_range` is **192, not 256**. Driver rule: keep
+`frag_color_pack.dst` below `0xC0`.
+
+*Discrepancy kept rather than smoothed:* EXP-0155 classified 192/193 as contained
+FAULTS on its carrier; this run classifies the whole block as HANGS (majority-of-3
+with an OS fault class). Both stand — the boundary is identical either way.
+
+The replicate arm (`#1`) was stopped after arm 0 completed: a second 256-value
+pass costs ~20 minutes of hang recovery to re-derive a boundary already fixed to
+a single value, and `rfcp01`/`rfcp02` already agree 100.000% on the region's edge
+(both hung at 198, 199, 255 identically).
+
+### DEVICE WORK COMPLETE — everything stopped, everything pulled back
+```
+raw/g17p_20260830_run02                       10,366  gated compute, forward   0 hangs   17M
+raw/g17p_20260830_run03                       10,366  gated compute, reverse   0 hangs   20M
+raw/g17p_20260830_rclean07/08/09         2,632 each  gated render, clean       4 hangs  2.3M ea
+raw/g17p_20260830_rfcp01/02              1,801 each  gated render, fcp        19 hangs  1.6M ea
+raw/g17p_20260830_MAPPING_fcpdst_hangtolerant       band mapping (NOT gated)  64 hangs  448K
+raw/prefreeze/                    anchors, matrix, smoke, 3 diagnostics                  372K
+raw/superseded/                   4 stopped runs + README explaining each                3.6M
+```
+**8 gated runs total** (2 compute + 5 render + rclean01), plus one named mapping
+pass. **The device survived every hang; no `macvdmtool`, no reset, no wedge.**

@@ -44,6 +44,19 @@ evidence. You are proving an emitter can choose a value and get the documented b
 > `iter_at.loc` one level up: there the *carrier* could not express the field; here the *oracle*
 > could not.
 >
+> **(c) A per-field hang budget CANNOT characterise a CONTIGUOUS hazard — it guarantees the region is
+> never mapped.** `frag_color_pack.dst` has an exact wall: **0x00..0xBF all clean, 0xC0..0xFF all hang,
+> contiguous with no exceptions**, so `dst[7:6] == 0b11` is illegal and the encodable range is **192, not
+> 256**. Three experiments walked into it and none saw it, because with a budget of 2 each run discovers
+> exactly **two** more hazardous values and stops: one halted at 194, the next at 197, the next at 199.
+> EXP-0168's own "defer the known-bad values" fix was inadequate — **it only moved the wall, twice.** A
+> budget meant to protect the machine had become a guarantee that the region could never be characterised.
+> So: when hangs at adjacent values suggest a **contiguous** hazard, stop treating it as a per-value
+> accident. Declare a named, non-gated **mapping pass** that deliberately overrides the frozen safety
+> parameter, say so in the run id (EXP-0168 used `MAPPING_..._hangtolerant`), and dispatch the whole range.
+> The device survived all 64 hangs — no reset, no wedge, no `macvdmtool`.
+>
+
 > **(b) A round trip is NOT an emitter gate.** `assert_round_trip()` — 28 files define it, 7
 > distinct bodies, all semantically identical and **all symmetric** — disassembles and then
 > re-assembles *from the disassembled fields*, so a defect symmetric across encode and decode

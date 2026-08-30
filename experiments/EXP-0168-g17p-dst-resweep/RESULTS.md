@@ -154,23 +154,36 @@ result about that form, not a gap. `matrix_mac.dst` is NOT ATTEMPTED by design.
 
 ---
 
-## 1b. VERDICTS — render/vertex arm, ONE gated run (PROVISIONAL)
+## 1b. VERDICTS — render/vertex arm, FIVE gated runs
 
-`raw/g17p_20260830_rclean01`: **2,632 cases in 85.1 s, 4 hangs,
-`stopped_early: false`, 0 refused arms**, run as a hang-free-families-first pass
-so the clean families were banked before any `frag_color_pack` hazard was
-dispatched.
+Two passes, hang-free families first so the clean results were banked before any
+`frag_color_pack` hazard was dispatched:
 
-> **Every row here is PROVISIONAL.** One gated run means cross-run agreement —
-> the pre-registered promotion gate — has **not been evaluated**. The analyser
-> stamps that on each row itself. The second gated run is **BLOCKED** (§9a).
+- `rclean07/08/09` (`--mnem vtx_out_pos,pixel_order,iter_at`) — **2,632 cases
+  each, 16.7–16.8 s each, 4 hangs each**, `stopped_early: false`, 0 refused.
+- `rfcp01/02` (`--mnem frag_color_pack`) — **1,801 cases each, 80.8 s each,
+  19 hangs each — identical**, `stopped_early: false`, 0 refused, device survived.
 
-| field | bucket | provisional label | arms | distinct carrier dims |
-|---|---|---|---|---|
-| `pixel_order.kind` | **LIVE** | `hardware-run` | 6 | 3 |
-| `vtx_out_pos.dst` | **LIVE** | `hardware-run` | 3 | live on 1, inert on 2 |
-| `vtx_out_pos.slot` | **INERT-ROBUST** | `single-template-inference` | 3 | **3** |
-| `iter_at.grp` | **LADDER-FAILED** | `untested` | 0 eligible | — |
+**Cross-run agreement is 100.000% on all five fields.** These are not provisional.
+
+| field | bucket | label | arms | distinct carrier dims | swept | moved | agreement |
+|---|---|---|---|---|---|---|---|
+| `frag_color_pack.dst` | LIVE | **`hardware-run`** | 8 | **3** | 195/256 | 191 | 100.000% |
+| `pixel_order.kind` | LIVE | **`hardware-run`** | 6 | **3** | 256 | 192–224 | 100.000% |
+| `vtx_out_pos.dst` | LIVE | **`hardware-run`** | 3 | live on 1 of 3 | 16 | 1 | 100.000% |
+| `vtx_out_pos.slot` | INERT-ROBUST | **`single-template-inference`** | 3 | **3** | 256 | 0 | 100.000% |
+| `iter_at.grp` | LADDER-FAILED | `untested` | 0 eligible | — | 4 | — | 100.000% |
+
+### `frag_color_pack.dst` — EXP-0155's UNSTABLE row, settled
+EXP-0155 recorded 208 values, "2 carriers", 32 moved, and failed cross-run
+agreement — and its two "carriers" were **two occurrences of one instruction in
+one program** at one attachment format and one sample count. Here: **8 arms
+across 3 genuinely distinct carrier dimensions** (immediate-source packs — the
+EXP-0155 replica; 4× MSAA tile path; 4 RTs with register-source packs and 16 live
+colours), 191 of 195 values moved on every arm, all **8 bits live**, ladder
+passing and falsifier firing on all 8, at **100.000%** agreement across two runs.
+Coverage is 195 of 256 rather than dense, and the missing 61 are the hazardous
+band — see §8.1.
 
 ### `vtx_out_pos.slot` — EXP-0147's own open follow-up, answered
 EXP-0147 called `slot` inert in a **single-varying** carrier, and its RESULTS.md
@@ -181,14 +194,14 @@ discriminator (`half/half2/float/float2/float4`). That third one exists because
 with uniform-width varyings the two candidate readings of `slot` — an ordinal
 into a slot table, and a byte offset into the output block — differ only by a
 constant factor and are **indistinguishable at every value**; mixing widths makes
-the map non-linear. Every arm passed its ladder and its falsifier. This is a real
+the map non-linear. Every arm passed its ladder and its falsifier. A real
 negative, not a carrier that could not see.
 
 ### `vtx_out_pos.dst` moves ONLY in the degenerate carrier
-1 of 16 moved on `r_v1` (single varying); **0 of 16** on `r_v8f` and `r_vmix`. A
-field live in the degenerate carrier and inert in the rich ones is an odd shape,
-and I will not explain it from one run. Reported as measured, flagged for the
-second gated run.
+1 of 16 moved on `r_v1` (single varying); **0 of 16** on `r_v8f` and `r_vmix`,
+reproducibly across all three runs. A field live in the degenerate carrier and
+inert in the rich ones is an odd shape; it is reported as measured and flagged,
+not explained.
 
 ### `pixel_order.kind`: the pre-registered model holds where it came from and
 ### BREAKS on the non-commutative carrier
@@ -213,25 +226,34 @@ and the model does not survive there. Observed live bits 1, 2, 4 (plus 5, 6 on
 `instr=acquire|release, field=byte1`, so no record under `raw/` was attributable
 to `pixel_order.kind`. These are.
 
-### `iter_at.grp` is NOT ESTABLISHED — both reasons recorded
-1. **Its ladder FAILED on both arms.** `iter_at.loc` (byte+7) did not produce ≥ 2
-   distinct hashes, *including on the 4-sample carrier* where EXP-0163 measured
-   it moving 128/256. Under R3, an arm that cannot show its ladder is DISCARDED
-   and its inertness is not evidence — so this is `untested`, **not "inert"**.
-2. **Only 3 of 256 values were dispatched.** Under a plain ascending order the
-   sweep hit `grp = 0`, hung, hit `grp = 1`, hung, and stopped on the
-   two-hangs-per-field budget **without ever reaching either legal value**
-   (0x2f, 0xaf). Identical in shape to `frag_color_pack.dst` 194..197: *the
-   hazard sits in front of the thing you came to measure, so every run spends its
-   budget before it learns anything.* `coverage_for()` now takes a `first` list
-   and the runner feeds it the descriptor's `legal_values`, giving the order
-   **0x2f, 0xaf, then the rest** — verified offline, **not yet run gated**.
+### `iter_at.grp` — a reproducible measurement I am deliberately NOT promoting
+The legal-values-first ordering fix worked: **0x2f and 0xaf are now dispatched in
+every run** (`rclean01` never got past 0x00/0x01 before the budget blew).
+Identical in all three runs, on both carriers:
 
-### `frag_color_pack.dst` — not in this run
-Deliberately deferred to a separate pass because its arms hang (§8.1) and a
-sibling experiment was live on the machine. Its coverage-gap fix (defer the whole
-192..197 band so 198..255 is banked first) is in place and verified offline but
-has **not** produced a gated run.
+```
+r_i8  (samples = 1)   grp = 0x2f -> wrong_value      grp = 0xaf -> ok
+r_i8s (samples = 4)   grp = 0x2f -> ok               grp = 0xaf -> ok
+both carriers         grp = 0x00 -> HANG             grp = 0x01 -> HANG
+```
+
+So **bit 7 — the only free bit the descriptor leaves — changes the observation on
+the 1-sample carrier and not on the 4-sample one.** A real, 3/3-reproducible
+asymmetry. It is still reported as **`untested`**, because the arm's liveness
+ladder (`iter_at.loc`) FAILED on both carriers, and R3 says an arm that cannot
+demonstrate detection power is DISCARDED. A field that "moves" in a carrier which
+has not shown it can resolve anything is not evidence, however good the number
+looks.
+
+### Which `db.json` these runs were keyed to, stated explicitly
+`db.json` moved to `a77f8cfa…` (172 instr / 1036 fields) while this experiment
+ran. **The render runs kept the `07ad894d…` pin** — deliberately, because
+cross-run agreement is only meaningful between runs keyed to the same descriptor,
+and because the new `assemble()` refuses match/field conflicts, which would break
+the `iter_at.grp` out-of-descriptor sweep that is the entire point of that arm.
+**All 12 render-relevant spans are byte-identical in both snapshots**, so these
+rows merge against the current db.json without a stale-span refusal. Checked, not
+assumed.
 
 ---
 
@@ -470,14 +492,26 @@ rather than quietly relaxing the gate.
 
 ## 8. New hardware facts beyond the field verdicts
 
-1. **`frag_color_pack.dst` = 194 and 196 are GENUINE HANGS on G17P** (not
-   contained faults). They are the first two values past the point where
-   EXP-0155's per-field stop rule fired — i.e. the first two values of the
-   `194..255` region that had never been dispatched on **any** target. This also
-   explains why that gap is **self-perpetuating**: under a forward order a sweep
-   reaches 194, hangs, spends its budget and stops. This experiment defers all
-   four hazardous values (192, 193, 194, 196) to the END of the order so
-   `197..255` is banked first.
+1. **`frag_color_pack.dst` bit pattern `[7:6] == 0b11` is ILLEGAL and hangs the
+   GPU.** Mapped exhaustively by a dedicated hang-tolerant run (§8.1a), all 256
+   values dispatched on one arm:
+
+   | range | values | outcome |
+   |---|---|---|
+   | `0x00`–`0xBF` | 192 | **all clean** (191 `wrong_value` + 1 `ok`) |
+   | `0xC0`–`0xFF` | 64 | **all HANG — perfectly contiguous, no exceptions** |
+
+   No clean value at or above `0xC0`; no fault-vs-hang mixture; the block is
+   exactly the top quarter of the encoding space.
+   **The field's real `encodable_range` is 192, not 256**, and the driver
+   consequence is a one-liner an implementer can use: **keep
+   `frag_color_pack.dst` below `0xC0`.**
+
+   *Discrepancy recorded, not smoothed:* EXP-0155 classified 192 and 193 as
+   **contained faults** on its carrier; this mapping run classifies the entire
+   `0xC0`–`0xFF` block as **hangs**, confirmed by majority-of-3 with an OS fault
+   class. Both observations stand; the boundary is identical either way.
+
 2. **`uniform_mov` byte+2 = 0x02 writes `0x30` and 0x0b writes `0x4b`**, while
    ten other form values write 0 — the form selector chooses the *value* as well
    as the form.
@@ -508,6 +542,32 @@ rather than quietly relaxing the gate.
    corpus** — the Apple compiler never emits those forms from any MSL we can
    write. They are reachable only by setting byte+2 on the `uniform_mov` anchor,
    which is the structural justification for the `REGMOVE/form` arm.
+
+---
+
+### 8.1a. Why three experiments failed to find a 64-value wall
+
+With a per-field hang budget of **2**, a forward sweep reaches the wall, spends
+its budget on the first two values, and stops. So **each experiment could
+discover exactly two more hazardous values** — against a region **64 wide**:
+
+| | stopped at | new values learned |
+|---|---|---|
+| EXP-0155 | 194 | 192, 193 |
+| EXP-0168 `rrun01` | 197 | 195, 197 (after the smoke found 194, 196) |
+| EXP-0168 `rfcp01/02` (gated) | 199 | 198, 199 |
+
+My own "defer the known bad values to the end of the order" fix was itself
+inadequate — it only **moved the wall**, twice. A budget designed to protect the
+machine had quietly become a guarantee that the region could never be
+characterised at all.
+
+The fix is not a larger default budget. It is a **deliberate, named, non-gated
+mapping pass** when a contiguous hazard is suspected — `renderrun.py
+--hang-budget N`, whose raw is written under a name that says it is not a gated
+verdict run (`MAPPING_fcpdst_hangtolerant`) because it overrides a frozen safety
+parameter. One such pass, 80 hangs tolerated, settled in minutes what three
+experiments could not.
 
 ---
 

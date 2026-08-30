@@ -461,6 +461,14 @@ def tail_findings(recs):
     return out
 
 
+# Fields whose REAL encodable range is narrower than 2**width, MEASURED.
+# frag_color_pack.dst: raw/g17p_20260830_MAPPING_fcpdst_hangtolerant dispatched
+# all 256 values on one arm -- 0x00..0xBF all clean, 0xC0..0xFF ALL HANG,
+# perfectly contiguous, no clean value at or above 0xC0. So dst[7:6] == 0b11 is
+# an illegal encoding and the field's encodable range is 192.
+MEASURED_ENCODABLE_RANGE = {"frag_color_pack.dst": 192}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("runs", nargs="+")
