@@ -26,14 +26,14 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emitter-grade LABELS (not proof) | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 32 | 134 | 166 |
+| 40 | 126 | 166 |
 
 ## Distance to a full set of emitter-grade labels
 
 | blocking fields | instructions |
 |---:|---:|
-| 1 | 24 |
-| 2 | 18 |
+| 1 | 23 |
+| 2 | 11 |
 | 3 | 24 |
 | 4 | 26 |
 | 5 | 11 |
@@ -53,41 +53,40 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | field name | instructions it blocks |
 |---|---:|
 | `_instruction` | 79 |
-| `dst` | 38 |
+| `dst` | 36 |
 | `srcA` | 14 |
 | `tail` | 13 |
-| `b3` | 11 |
+| `b3` | 10 |
 | `src` | 10 |
 | `src_flag` | 9 |
 | `b5` | 9 |
 | `src_reg` | 9 |
-| `opsel` | 8 |
 | `srcB` | 8 |
-| `cache` | 7 |
 | `b1` | 7 |
+| `opsel` | 7 |
 | `b4` | 7 |
 | `flags` | 7 |
+| `mode` | 6 |
 
-## ONE field away (24 instructions)
+## ONE field away (23 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
 | `call` | `tail` | untested |
-| `falu3` | `op` | untested |
-| `falu3_ext` | `op` | untested |
+| `copysign` | `_instruction` | corpus-correlation |
 | `frag_color_store` | `store_mode` | single-template-inference |
 | `frag_depth_store` | `_instruction` | corpus-correlation |
 | `frame_marker_compact` | `_instruction` | tokenization-only |
 | `fspecial_est` | `srcA` | untested |
+| `half_alu_fma12` | `ext` | untested |
 | `if_push` | `scope` | single-template-inference |
-| `irotate` | `operands` | untested |
 | `iter` | `b9` | single-template-inference |
 | `n1_word` | `_instruction` | tokenization-only |
 | `n2_compact2` | `_instruction` | tokenization-only |
 | `n2_op6` | `_instruction` | corpus-correlation |
 | `n3_word` | `_instruction` | tokenization-only |
 | `ret` | `scoreboard` | corpus-correlation |
-| `ret_luse` | `linkmode` | untested |
+| `ret_luse` | `linkmode` | corpus-correlation |
 | `rtq_pred` | `_instruction` | tokenization-only |
 | `sfu_marker` | `_instruction` | tokenization-only |
 | `shift_amt_move` | `src_flag` | untested |
@@ -97,27 +96,20 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `vary_slot` | `_instruction` | corpus-correlation |
 | `vtx_coord_xform` | `operand` | untested |
 
-## TWO fields away (18 instructions)
+## TWO fields away (11 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
-| `copysign` | `operands`, `_instruction` | untested, corpus-correlation |
 | `cubearray_coord_const` | `b3`, `_instruction` | tokenization-only, tokenization-only |
 | `cvt_f2i` | `b9`, `_instruction` | single-template-inference, corpus-correlation |
 | `dev_scoreboard_fence` | `scope_flag`, `_instruction` | corpus-correlation, corpus-correlation |
-| `falu3_srcmod12` | `opsel`, `ctrl` | untested, untested |
 | `get_sr` | `form`, `dst_hi` | untested, untested |
-| `half_alu_fma12` | `dst`, `ext` | untested, untested |
-| `half_pack` | `dstlo`, `b3` | untested, untested |
-| `ibitcount` | `cache`, `dst` | untested, untested |
 | `iunary` | `b1`, `opsel` | untested, untested |
 | `mesh_out_src` | `sel`, `_instruction` | tokenization-only, corpus-correlation |
 | `n4_cf_word` | `b3`, `_instruction` | tokenization-only, tokenization-only |
 | `n4_rt_word` | `dst`, `_instruction` | tokenization-only, tokenization-only |
 | `pop_reconverge` | `scope`, `reserved` | untested, untested |
 | `simd_ballot` | `pred`, `cache` | untested, single-template-inference |
-| `simd_reduce` | `op`, `dtype` | untested, untested |
-| `simd_shuffle` | `dir`, `cache` | untested, single-template-inference |
 | `tex_write` | `amode`, `rsv11` | untested, untested |
 
 ## Blocked by a descriptor problem, not a sweep
@@ -129,12 +121,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 - `op04_len8` — EMITTABLE VETO
 - `tg_addr_compute` — EMITTABLE VETO
 
-## Field-complete, blocked at the INSTRUCTION level (5)
+## Field-complete, blocked at the INSTRUCTION level (6)
 
 Every named field is emitter-grade; the instruction-level label is not. **These need a different dispatch than a field sweep** — the open question is whether the opcode/match bits themselves do what the descriptor claims, so the probe is to emit the instruction and check it acts, not to vary a field.
 
 | instruction | `_instruction` label |
 |---|---|
+| `copysign` | corpus-correlation |
 | `frag_depth_store` | corpus-correlation |
 | `frame_marker_compact` | tokenization-only |
 | `n2_op6` | corpus-correlation |
@@ -145,7 +138,7 @@ Every named field is emitter-grade; the instruction-level label is not. **These 
 
 | label | fields |
 |---|---:|
-| `untested` | 259 |
-| `corpus-correlation` | 141 |
+| `untested` | 244 |
+| `corpus-correlation` | 142 |
 | `tokenization-only` | 135 |
-| `single-template-inference` | 30 |
+| `single-template-inference` | 29 |

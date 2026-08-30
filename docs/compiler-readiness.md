@@ -22,7 +22,7 @@ emitter can apply, not as prose descriptions of them.
 > `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` §8 is explicit: a promotion checker **"must not derive a
 > single `N of 166 emittable` headline from field labels."** §9 requires **seven separate monotonic
 > dashboards** instead, because one number absorbing six kinds of evidence is exactly what let this
-> figure swing 79 → 41 → 55 → 38 → 37 → 34 → 33 → 32 in a single day.
+> figure swing 79 → 41 → 55 → 38 → 37 → 34 → 33 → 32 in a single day — **and then back up to 40 once the five gates were actually applied and a quiet window was measured.** The rise is not a relaxation: every row that crossed carries an actual-byte ledger, a pre-registered detection-power control, an independent semantic predictor and a measured-quiet confirmation, which is a strictly higher bar than any of the 79.
 >
 > **The §8 promotion checker, which opens cited raw instead of trusting citations, blocks 631 of 631
 > emitter-grade rows, and 0 of the 32 mnemonics previously called `emittable` have all rows clear.**
@@ -49,7 +49,7 @@ emitter can apply, not as prose descriptions of them.
 > 420 geometry/liveness rows are `no-data` largely because their raw is pre-EXP-0138
 > `.txt`/`.hex`, i.e. *format-unreadable*, not *absent*.
 >
-> The legacy label count (**32 of 166 instructions, 544 of 1040 fields**) is retained below as a
+> The legacy label count (**40 of 166 instructions, 559 of 1040 fields**) is retained below as a
 > historical promotion figure. It is **not** the completeness measure any more.
 
 ## 0. The headline
@@ -71,7 +71,7 @@ emitter can apply, not as prose descriptions of them.
 >
 > **Backward:** the emittability figure this document leans on has been **withdrawn repeatedly, and
 > the figure below is not current.** The arc for 2026-08-30 is **79 → 41 → 55 → 38 → 37 → 34 → 33 →
-> 32 of 166** emitter-relevant instructions (**544 of 1040** fields emitter-grade — the single rise of the day, EXP-0194, and it is M4-target); every fall came
+> 40 of 166** emitter-relevant instructions (**559 of 1040** fields emitter-grade — the single rise of the day, EXP-0194, and it is M4-target); every fall came
 > from an audit that reproduced the published number before disputing it, and every fall was
 > correct. The live figure is generated, not written by hand — see `docs/isa/emit-worklist.md`,
 > which is regenerated from the label corpus and now agrees with `tools/agx-isa/validate_labels.py`
