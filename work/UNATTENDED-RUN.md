@@ -11,6 +11,25 @@ instructions emittable and have closed all the RE goals in the next 12 hours."*
 This file is the single resume point. A successor session should read this first, then
 `work/RESUME-STATE.md`, then `experiments/NEO-TARGET-BRIEF.md`.
 
+## Live progress (update this as results land)
+
+| | at start | now |
+|---|---|---|
+| Emittable instructions | 38 / 165 | **53 / 165** |
+| Emitter-grade fields | 443 / 1036 | **552 / 1057 (52.2%)** |
+| Part-II questionnaire | 145/181, 21 open | **ALL resolved** except `SFU-04` (blocked by clean-room rule 5) |
+| Cross-target contradictions | 1 open (`tg_addr_compute`) | **0 open** — settled as genuinely target-driven (EXP-0156) |
+
+**Landed on G17P:** EXP-0153 (revalidation: 7 reproduced / 0 refuted), EXP-0154 (ALU),
+EXP-0156 (CF+MEM+bf16), EXP-0159 (questionnaire tail). **In flight:** EXP-0155 (TEX+FRAG),
+EXP-0157 (MISC), EXP-0158 (generator synthesis), EXP-0160 (one-field-from-emittable),
+EXP-0161 (carry_gen/fspecial), EXP-0162 (PACK + descriptor splices).
+
+**Concurrency: the GPU lease was REMOVED** (protocol §7). Unrestricted parallelism; contamination
+is handled by a poisoned read-back buffer, an integrity sentinel, the OS fault-class string, and
+majority-of-3 on faults. The deployed `gpulease.sh` on the neo is a no-op passthrough so in-flight
+callers still work.
+
 ## Baseline at start of the unattended run
 
 | | |
