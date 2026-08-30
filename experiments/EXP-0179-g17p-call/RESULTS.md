@@ -27,10 +27,15 @@ the call — verified against a 16-register dump predicted entirely on the host.
 And separately, **the compiler emits one too**: 17 of 27 authored MSL constructs produce an
 out-of-line call on the current G17P toolchain.
 
-**Status: PARTIAL.** Arms `G, T, M, B3, B5, B6, TL, R, L` are complete and gated. Arms
-`O` (the `ret.scoreboard` ordering observable), `F` (falsifiers F3/F4/F6) and `N` (the
-depth-2 no-link-save probe) are **PENDING an exclusive window** — they are the declared
-hang-prone tail and the orchestrator holds that window.
+**Status: PARTIAL.** Arms `G, T, M, B3, B5, B6, TL, R, L` are complete and gated, and arm `S`
+(the independent second method — the same four bytes mutated in a **real compiler-emitted**
+call) has run as its own two-run pair. Arms `O` (the `ret.scoreboard` ordering observable),
+`F` (falsifiers F3/F4/F6) and `N` (the depth-2 no-link-save probe) are **PENDING an exclusive
+window** — they are the declared hang-prone tail and the orchestrator holds that window.
+
+**The second method earned its keep: it CONTRADICTED one of the generated-carrier results.**
+`call.b6`, inert across all 256 values on both generated carriers, turns out to have a
+load-bearing bit 1 on the compiled call. See §3.
 
 ---
 
@@ -203,18 +208,39 @@ signature of a branch predicate, and it is exactly the shape `if_push`'s own des
 > **`call.b5` is legal iff `(b5 & 0x06) == 0` — 64 of 256 encodable values.** The rule holds
 > for all 256 values on both carriers in both runs.
 
-### `call.b6` and `call.tail` — INERT across the full range
+### `call.b6` — inert on BOTH generated carriers, and the second method says that was CARRIER BLINDNESS
 
-For each of these, the **complete observation** — all 16 registers, the POST sentinel and the
-callee breadcrumb — is **byte-identical for every one of the 256 values, on both carriers, in
-both runs** (exactly **one** distinct full observation per carrier). The corpus values
-`0x56` and `0x00` are not load-bearing. An emitter may write any value.
+On both generated carriers the complete observation — all 16 registers, the POST sentinel and
+the callee breadcrumb — is **byte-identical for every one of the 256 values in both runs**
+(exactly one distinct full observation per carrier). Read alone, that says `b6` is a
+don't-care.
 
-These are promoted under FIELD-SWEEP-PROTOCOL's never-moving clause because the two carriers
-differ **in the dimension H4 names for these bytes** — execution-mask stack depth and bank
-(`C2` sits one `if_push(scope=0x56, kind=0x1a)` deeper, in the alternate bank to the `0x54`
-the call pins in its own `match`). H4 is **refuted for `b6`**: it is not a mask-bank selector,
-or if it is, the bank is a don't-care for a call.
+**Arm S says otherwise, and arm S is right.** Mutating the same byte in the **real
+compiler-emitted call** inside our own compiled `c_frame.metal` (`k_chain`, a **backward**
+displacement, a **non-leaf** callee, the compiler's own bracket):
+
+> **`call.b6` bit 1 (`0x02`) MUST BE SET.** 128 of 256 values legal; bits 0 and 2..7 are
+> don't-care. 254/256 cross-run agreement; the two disagreements (`0x00`, `0x01`) are
+> *nondeterministic across runs* — `0.0` in one, `3.0` in the other — which is what reading an
+> unestablished return context looks like. The corpus value `0x56` has bit 1 set.
+
+The generated carriers' callee is a **leaf, entered and left immediately**, so it never
+exercises whatever `b6` bit 1 controls. That is the *same* failure shape as `ret.scoreboard`
+below — a carrier that cannot ask the question returning a confident "no movement" — except
+that here it was caught, by a second method rather than by argument. **The safe emitter rule
+is the intersection: set bit 1.**
+
+This is recorded as a narrowed promotion, not as a clean one: `hardware-run` is claimed for
+the rule *"bit 1 must be set"*, evidenced on the compiled carrier over two runs, and the
+generated carriers' inertness is reported as carrier blindness rather than as a finding.
+**H4 is refuted for `b6`**: it is not a mask-bank selector.
+
+### `call.tail` — INERT across the full range, on all three carriers
+
+The complete observation is byte-identical for all 256 values on both generated carriers in
+both runs, **and** all 256 values are legal on the real compiler-emitted call (256/256
+cross-run agreement). A don't-care in a generated leaf call *and* in a compiled non-leaf call.
+The corpus `0x00` is not load-bearing.
 
 ### `ret.scoreboard` — DECLINED, exactly as pre-registered
 
@@ -310,8 +336,9 @@ working bracket; **both `0x00` and `0xC0` produce a correct dump**, and `0x00` w
   codes from one another.
 * **The `b5` fault bit was not characterised beyond "it faults."** No fault-class breakdown
   was attempted per value.
-* Arm `S` (mutating the real compiler-emitted call in our own compiled `c_frame.metal`) is
-  **not yet run**; the second-method cross-check is outstanding.
+* **`call.b6`'s meaning is bounded, not explained.** We know bit 1 must be set and that the
+  other seven bits are don't-care; we do not know *what* bit 1 selects, and the generated
+  carrier cannot be used to find out.
 * Everything here is **G17P**. Nothing is promoted to any other target.
 
 ---
@@ -323,7 +350,7 @@ CALL  = 0f 05 54 <b3> 8f <b5> <b6> <off48 LE, signed> <tail>
         b3   : bits 5:2 must be one of {6,8,9,10,11,12,13,15}; bits 1:0 and 7:6 don't care.
                The compiler uses 0x1a (code 6).
         b5   : (b5 & 0x06) == 0. bit1 faults, bit2 suppresses the branch, rest don't care.
-        b6   : DON'T CARE (any of 256).
+        b6   : bit 1 (0x02) MUST BE SET; bits 0 and 2..7 don't care. 128 of 256 legal.
         off48: target = call_addr + 4 + offset. Forward displacements work.
         tail : DON'T CARE (any of 256).
   MUST be followed by  pop_reconverge  0f 06 <bank> 02 00 00   (bank 0x04/0x24/0x54 all work)
@@ -334,8 +361,34 @@ RET   = 8f <linkmode> 54 <scoreboard>
         scoreboard: no observable in a leaf return -- treat as unresolved, use the corpus 0x00.
 ```
 
-`call.b3`, `call.b5`, `call.b6` and `call.tail` move from **`tokenization-only`** to
-**`hardware-run`** (`analysis/field_verdicts.json`). Combined with `call.offset`, which was
+`call.b3`, `call.b5`, `call.b6` (narrowed, see §3) and `call.tail` move from
+**`tokenization-only`** to **`hardware-run`** (`analysis/field_verdicts.json`). Combined with `call.offset`, which was
 already emitter-grade, **every field of `call` is now characterised, and a call can be
 emitted.** P0.8 ranked blocker #2 is addressed for `call`; `ret.scoreboard` is not, and is
 declined rather than rounded up.
+
+---
+
+## 8. ARM S — the independent second method, and the one result it overturned
+
+`raw/g17p_20260830_splice01` (forward) and `splice02` (reverse), `analysis/splice_verdicts.json`.
+
+The four `call` bytes were mutated **in the real, compiler-emitted call** inside our own
+compiled `kernels/census/c_frame.metal` (`k_chain` → `nl_mid` → two leaves): a different
+program, a different register allocation, a **backward** displacement, a **non-leaf** callee,
+the compiler's own bracket. One call site at `_agc.main + 36`. The oracle is host-computed and
+never touches the GPU — `k_chain(3.0, 5.0) = (3+5) + (3×5) = 23.0f`, exactly representable —
+over a buffer poisoned with `0xDEADBEEF`, so *wrote 23* / *wrote something else* / *never ran*
+are three distinguishable outcomes. 1024 cases per run, dense 0..255 on each byte.
+
+| field | legal | cross-run agreement | verdict vs the generated arms |
+|---|---|---|---|
+| `call.b3` | 128/256 | **1.0000** | **identical 16-code table** — reproduced exactly |
+| `call.b5` | 64/256 | **1.0000** | `(b5 & 0x06) == 0` holds exactly |
+| `call.b6` | 128/256 | 0.9922 | **CONTRADICTS** — bit 1 must be set (see §3) |
+| `call.tail` | 256/256 | **1.0000** | inert here too |
+
+Arm S cannot count toward the "≥ 2 carriers" bar for a *generated* result, because its call
+bytes come from a compiled shader. What it can do is **contradict** a generated result, which
+is worth more than agreeing with one — and it did. Two of the four fields were confirmed on a
+third, structurally unrelated carrier; one was corrected.

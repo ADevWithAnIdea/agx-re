@@ -378,3 +378,84 @@ Apple binary introspection: NONE. No Apple binary was disassembled, decompiled,
 Reproduction: README.md
 Evidence: raw/ (append-only), analysis/field_verdicts.json, work/target_rows.json
 ```
+
+---
+
+## 11. AMENDMENT 01 — two rules adopted from EXP-0179, before any dispatch
+
+Adopted 2026-08-30 on the coordinator's message, **before the first device dispatch**. Both
+change the design, so they are recorded here and mirrored in `CAPTURE_CONTRACT.json`.
+
+### 11a. A frozen carrier can be DEAD, and only the hardware says so
+
+EXP-0179 froze a carrier in which **1,395 cases wrote the PRE sentinel and then nothing** —
+all 16 registers, the POST sentinel and the breadcrumb still `0xDEADBEEF`, `status OK`, tail
+intact — because an unconditional `if_push` with `scope_kind == 0x01` masked off the only
+lane of a one-thread dispatch. It retained that run, **burned the run id**, fixed the carrier
+and re-ran under new ids.
+
+Adopted here:
+
+* **New outcome class `carrier_dead`**, distinct from `silent_zero` and from `fault`:
+  `status == OK` **and** `pre_sent` landed **and** every one of the 16 `post[]` words plus
+  `post_sent` is still `0xDEADBEEF`. Against a zero-initialised buffer this is invisible;
+  against the poison it is unambiguous. `carrier_dead` **never** counts as movement and
+  **never** counts as inertness.
+* **Pilot gate, frozen:** if any (arm, carrier) shows `carrier_dead` on **> 0.5 %** of pilot
+  cases, or on its anchor case at all, that carrier is **rejected before the gated pair** and
+  the rejection is reported. It is not "worked around".
+* **Run-id burn rule, restated:** a run found defective is retained **in full and unedited**,
+  its id is **burned**, and the replacement takes a **new** id. Never topped up, never
+  reused, never deleted.
+* This is why the ladder runs **first** in every arm and why `F4` (the marker chain with no
+  instruction in front of it) is a pre-registered falsifier: it is the instrument's zero
+  point.
+
+### 11b. Inertness measured on a carrier that cannot express the field is NOT evidence of inertness
+
+EXP-0179 declined `ret.scoreboard` — inert over 0..255, agreement 1.0, zero disagreements,
+mechanically promotable — because the dimension it controls is **ordering**, and neither
+carrier differed there. It stayed `corpus-correlation`. That is the same shape as these 25
+rows, and it is the reason they were **held** rather than downgraded.
+
+**Frozen consequence: an `INERT-MULTI` verdict may map to `hardware-run` ONLY for a field
+whose controlled dimension appears in the "carriers differ?" column below as `YES`.** For
+every `NO` row, an inert reading maps to `corpus-correlation` at best, and the row is
+reported as *not answerable by this experiment* — never as "the field is inert".
+
+| field | dimension it controls | do the carriers/arms differ in it? | what an INERT reading may mean |
+|---|---|---|---|
+| `ext8.dst` (byte+1 — a SOURCE, per DEF-0180-B) | which half-register supplies an operand | **YES** — `SEED_A` vs `SEED_B` give different values at the same descriptor | `INERT-MULTI` → `hardware-run` (inert) |
+| `ext8.srcA`, `fma12.srcA` | operand selection | **YES** — same | `hardware-run` (inert) |
+| `ext8.b5` | third operand / modifier, instance-specific | **YES** — two instances (`E8_ADD` / `E8_FMA`) × two seed tables | `hardware-run` (inert) |
+| `ext8.srcB_desc`, `fma12.ext` byte+4 | **instruction LENGTH / framing** (DEF-0180-D) | **YES, but only after 11c** — `C_HI` has the dump immediately after the block, `C_LO` has 8 bytes of slack, and the `LEN` arm measures length directly | `NOT-A-FIELD` where identity changes; otherwise `hardware-run` |
+| `ext8.opsel`, `fma12.opsel` | operation select (+ conditional length) | **YES** — operand magnitudes differ, so hadd/hmul/hfma are distinguishable in both, and framing differs | `hardware-run` |
+| `ext8.opflags`, `fma12.opflags` | source **release** and result **publication / last-use ordering** | **PARTIAL** — release is visible in both (a released register reads 0 in `post[]`); *publication/ordering* is expressible only after 11c adds a second consumer to `C_LO` | release bits: `hardware-run`. Any bit inert on both carriers: **`corpus-correlation`, explicitly "the carriers cannot ask this"** |
+| `ext8.saturate` | output clamp | **YES** — `C_HI` result > 1.0, `C_LO` result < 1.0. This is the designed difference | `hardware-run` |
+| `ext8.op_valid_marker` | whether the op writes at all | **YES** — visible on both, at both result magnitudes | `hardware-run` |
+| `ext8.rsv6`, `ext8.b7_lo`, `ext8.b7_mid` | **UNKNOWN — no dimension can be named** | **NO** | **`corpus-correlation` / `untested` ONLY.** An inert reading here is pre-registered as *not promotable*, whatever the agreement statistics say |
+| `fma12.ext` (64 bits) | everything in bytes +4..+11 at once | n/a — the span is not a field | `NOT-A-FIELD` + `db_defects`; pre-registered as unable to reach `hardware-run` |
+
+`ext8.rsv6` is the sharpest case: `EXP-M4-14` labels it `hardware-run` on exactly the
+evidence this rule forbids — "0x00..0xc0 swept, every value kept the result — fully
+INERT/reserved". **Reproducing that inertness is therefore NOT sufficient to keep the row.**
+If this experiment measures it inert and no carrier can express what it controls, the honest
+outcome is **WITHDRAW to `corpus-correlation`**, and that is pre-registered here as the
+expected result rather than discovered afterwards.
+
+### 11c. Two carrier differences added to make the above true rather than aspirational
+
+1. **Tail slack.** `C_HI` places the 16-register post-dump **immediately** after the block, so
+   an over-consuming length swallows dump code and desyncs. `C_LO` places **8 bytes of
+   two-byte `mov_imm` markers** between the block and the post-dump, so an over-consuming
+   length eats markers instead and the program survives with a *readable* signature. The two
+   carriers therefore differ in exactly the framing dimension `srcB_desc` and `ext` byte+4
+   control, and `C_LO` turns a catastrophic desync into a measurement.
+2. **Second consumer.** `C_LO` emits, after the block and before the post-dump, one further
+   half-ALU op that reads **the same source half-registers** into a scratch GPR. A
+   release / last-use / publication flag in `opflags` that has no effect on the block's own
+   result can still change that second read. `C_HI` has no second consumer. This is the
+   ordering dimension `ret.scoreboard` lacked.
+
+Neither addition touches the field under test; both are recorded in `00_arm_resolution.json`
+and are constant across every case of a carrier, so neither can co-vary with a swept field.

@@ -44,6 +44,26 @@ evidence. You are proving an emitter can choose a value and get the documented b
 > `iter_at.loc` one level up: there the *carrier* could not express the field; here the *oracle*
 > could not.
 >
+> **(d) ON THE SHARED DRIVER, THE FIRST HANG CAN SILENTLY MANUFACTURE EVERY HANG AFTER IT.**
+> `tools/agxtest/persistrun.py` and the `rsdrv.py` render driver start a **fresh reader thread per
+> line and abandon it on timeout**, and that thread **re-resolves `self.proc` at execution time** — so
+> after the first watchdog timeout the abandoned thread wakes on the **replacement child's** stdout and
+> races the foreground reader. Responses return truncated (`OUT 0 ` with the hex missing), the shared
+> parser raises `ValueError: not enough values to unpack`, and the run dies. In EXP-0178's pilot **one
+> benign case poisoned every later request including the unspliced health check, and three consecutive
+> cases were recorded `hang` with `restarts=99` — all false.** This is the sibling of DEF-0153-2 (the
+> EOF spin fixed in the same file); the reader-thread lifetime bug is separate.
+>
+> Two consequences. **A false `hang` and a real inertness are indistinguishable in a summary**, so a
+> sweep that hits one genuine hang can withdraw fields for an artefact. And **any experiment that
+> recorded a cascade of hangs after a first real one may have a tail of artefacts** — EXP-0163 alone
+> recorded 88 non-OK cases, most hangs by design.
+>
+> Until the shared tool is fixed: **one reader thread per child, tagged by owner**, and **record a
+> malformed response as a MEASUREMENT FAILURE with the raw lines kept — never as a hang.** A malformed
+> response is not an observation and must not be scored as one. EXP-0178's `harness/saferunner.py` is
+> the reference subclass; it deliberately did not modify the shared tool while a sibling ran against it.
+>
 > **(c) A per-field hang budget CANNOT characterise a CONTIGUOUS hazard — it guarantees the region is
 > never mapped.** `frag_color_pack.dst` has an exact wall: **0x00..0xBF all clean, 0xC0..0xFF all hang,
 > contiguous with no exceptions**, so `dst[7:6] == 0b11` is illegal and the encodable range is **192, not

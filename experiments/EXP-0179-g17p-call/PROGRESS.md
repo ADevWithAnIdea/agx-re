@@ -169,3 +169,25 @@ ret.scoreboard ordering grid, 384 cases), arm **F** (F3 corrupt the 0x8f signatu
 callee with no ret, F6 unbalanced mask stack), arm **N** (depth-2 generated call with NO
 link_save_restore -- hardware stack vs single link register). Then arm **S**, the splice
 second method, which is NOT hang-prone and can run unlocked.
+
+## 2026-08-30 — M5: ARM S (second method) run unlocked — and it CORRECTED one of my results
+`raw/g17p_20260830_splice01` (forward) + `splice02` (reverse), 1024 cases each, dense 0..255
+on b3/b5/b6/tail, mutated in the REAL compiler-emitted call inside our own compiled
+`c_frame.metal` (`k_chain`, one call site at `_agc.main + 36`, BACKWARD displacement, NON-LEAF
+callee). Host oracle `k_chain(3,5) = 23.0f` exactly, over a 0xDEADBEEF-poisoned output.
+
+- `call.b3`: **identical 16-code table** to the generated carriers, 256/256 cross-run.
+- `call.b5`: `(b5 & 0x06) == 0` holds exactly, 256/256 cross-run.
+- `call.tail`: all 256 legal here too — a don't-care on all three carriers.
+- **`call.b6`: CONTRADICTS the generated arms.** Inert across 0..255 on both generated
+  carriers; on the compiled call **bit 1 (0x02) MUST BE SET** — 128 legal, 126 wrong, 2
+  NONDETERMINISTIC across runs (0.0 vs 3.0), 254/256 agreement. The generated callee is a
+  LEAF entered and left immediately and never exercises what b6 bit 1 controls: the same
+  carrier-blindness as `ret.scoreboard`, but caught by a second method instead of by argument.
+  Promotion NARROWED: `hardware-run` for the rule "bit 1 must be set", with the generated
+  carriers' inertness reported as blindness, not as a don't-care finding.
+
+`analysis/splice_verdicts.json` written; `analysis/field_verdicts.json` updated in place with
+`second_method_arm_S` per field and the corrected b6 semantics; `RESULTS.md` §3 and new §8.
+
+STILL PENDING THE EXCLUSIVE WINDOW: arms O, F (F3/F4/F6), N. ~400 cases, seconds of GPU time.

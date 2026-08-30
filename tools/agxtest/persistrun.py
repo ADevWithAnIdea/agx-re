@@ -49,6 +49,26 @@ class PersistRunner:
             raise RuntimeError(f"agxrun_persist did not become READY: {ready!r} {err}")
         self.device = ready.split(None, 1)[1].strip() if " " in ready else "?"
 
+    # ⚠ KNOWN DEFECT, NOT YET FIXED (DEF-0178-1, found by EXP-0178 2026-08-30):
+    # _read_line starts a FRESH READER THREAD PER LINE and ABANDONS it on timeout,
+    # and that thread re-resolves `self.proc` when it finally runs -- so after the
+    # first watchdog timeout the abandoned thread wakes on the REPLACEMENT child's
+    # stdout and races the foreground reader. Responses come back truncated
+    # ("OUT 0 " with the hex missing), request() raises ValueError on the split,
+    # and the run dies. In EXP-0178's pilot ONE benign case poisoned every later
+    # request including the unspliced health check, and three consecutive cases
+    # were recorded `hang` with restarts=99 -- all false.
+    #
+    # THE FIRST HANG CAN THEREFORE SILENTLY MANUFACTURE EVERY HANG AFTER IT, and a
+    # false hang is indistinguishable from real inertness in a summary. Any sweep
+    # that hits a genuine hang and then reports a cascade should be treated as
+    # suspect past the first one.
+    #
+    # Until this is fixed: use one reader thread per child tagged by owner, and
+    # record a malformed response as a MEASUREMENT FAILURE with the raw lines kept,
+    # never as a hang -- a malformed response is not an observation. EXP-0178's
+    # harness/saferunner.py is the reference subclass. This is the sibling of
+    # DEF-0153-2 below, which was the EOF spin in this same method.
     def _read_line(self, timeout):
         """Read one line from child stdout with a timeout.
 

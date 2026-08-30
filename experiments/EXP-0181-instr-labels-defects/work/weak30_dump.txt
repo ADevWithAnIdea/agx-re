@@ -1,0 +1,338 @@
+==============================================================================
+bf_add_dst  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "native bfloat 0x1c add for any dst register; generalises the HW-spliced byte0==0x11 bf_alu", "target": "M4", "evidence": ["EXP-M4-13", "EXP-O2D"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 86 values reclassified `no_store` (EXP-0140 §8 rule: invalid_run in BOTH gated runs with every trial STATUS OK)
+   fmt              s=8   w=8  opcode | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcA             s=24  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcB             s=32  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 190 values reclassified `no_store` (EXP-0140 §8 rule: invalid_run in BOTH gated runs with every trial STATUS OK)
+   tail             s=40  w=24 raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+==============================================================================
+bf_fma_dst  len= 10  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "native bfloat 0x1e fma for any dst register; generalises the HW-spliced byte0==0x11 bf_alu", "target": "M4", "evidence": ["EXP-M4-13", "EXP-O2D"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 81 values reclassified `no_store` (EXP-0140 §8 rule: invalid_run in BOTH gated runs with every trial STATUS OK)
+   fmt              s=8   w=8  opcode | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcA             s=24  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcB             s=32  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 128 values reclassified `no_store` (EXP-0140 §8 rule: invalid_run in BOTH gated runs with every trial STATUS OK)
+   srcC             s=40  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   tail             s=48  w=32 raw    | hardware-run             G17P     FIELD-SWEEP-PROTOCOL 3.3 set ev=EXP-0171
+        note: MOVED 50 of 50 on NAT:k_bffma@bf_fma_dst+46; cross-run agreement 1.0000 (50 agree / 0 disagree); 3 admitted carriers [FRAME,NAT,SYNTH | k_bffma]; accept-set size 0 = []; outcomes {"silent_zero": 49, "wrong_value": 1} The accept-set is empty BY CONSTRUCTION: this field spans 4 bytes, its anchor compo
+==============================================================================
+cvt_bf16  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "bfloat convert located by own-MSL byte-diff", "target": "M4", "evidence": ["EXP-M4-13", "EXP-O2D"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     byte0 high nibble 0..15 DENS ev=EXP-0162
+        note: EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'ok': 8, 'wrong_value': 8}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a 
+   srcw             s=8   w=8  opcode | hardware-run             G17P     byte+1 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'silent_zero': 236, 'ok': 2, 'wrong_value': 18}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstr
+   opsel            s=16  w=8  raw    | hardware-run             G17P     byte+2 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 132, 'ok': 40, 'silent_zero': 52, 'fault': 32}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instr
+   b5               s=40  w=8  raw    | hardware-run             G17P     byte+5 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 16, 'ok': 152, 'silent_zero': 88}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonst
+   dir              s=48  w=8  opcode | hardware-run             G17P     byte+6 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonst
+   b7               s=56  w=8  raw    | hardware-run             G17P     byte+7 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'ok': 128, 'wrong_value': 128}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishe
+==============================================================================
+cvt_f2h  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "located by own-MSL byte-diff", "target": "A18", "evidence": ["EXP-0013"]}
+   b1               s=8   w=8  raw    | hardware-run             M4       byte+1: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   op               s=16  w=8  raw    | hardware-run             G17P     256 distinct values dispatch ev=EXP-0168
+        note: 99.609% agreement over 256 shared values, 221 moved vs 1 disagreements (221.00x), ladder and falsifier passed in every run
+   src              s=24  w=8  raw    | isolated-byte-diff       M4       byte+3: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   b4               s=32  w=8  raw    | hardware-run             M4       byte+4: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   tail             s=40  w=8  raw    | isolated-byte-diff       M4       byte+5: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+==============================================================================
+cvt_f2h_dst  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "generalises the byte0==0x11 cvt_f2h to r0..r15; located over the corpus", "target": "M4", "evidence": ["EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     byte0 high nibble 0..15 DENS ev=EXP-0162
+        note: EXP-0144 reported this field `untested` because it gave byte0 only a bounded 24-value probe. Sweeping ONLY the high nibble covers the field exhaustively without touching the length. Outcomes: {'wrong_value': 15, 'ok': 1}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutat
+   srcfmt           s=8   w=8  raw    | hardware-run             G17P     byte+1 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 254, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.
+   opsel            s=16  w=8  opcode | hardware-run             G17P     byte+2 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 216, 'ok': 8, 'fault': 32}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.
+   src              s=24  w=8  raw    | hardware-run             G17P     byte+3 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'fault': 53, 'ok': 77, 'wrong_value': 126}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.
+   dhalf            s=32  w=8  raw    | hardware-run             G17P     byte+4 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 140, 'silent_zero': 114, 'ok': 2}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.
+   tail             s=40  w=8  raw    | hardware-run             G17P     byte+5 dense 0..255 (256 val ev=EXP-0162
+        note: outcomes {'wrong_value': 200, 'ok': 56}. detection power: 5 semantic vectors match IEEE RNE fp16 exactly on the unmutated instruction; 86 of 1304 cases fault and 115 silently zero, so the instrument separates the outcome classes.
+==============================================================================
+cvt_i2f  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "convert located by own-MSL byte-diff; behaviourally exercised via compiler-emitted code", "target": "M4+A18", "evidence": ["EXP-0013", "EXP-M4-13"]}
+   mode             s=16  w=8  mod    | hardware-run             M4       byte+2: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   dst              s=24  w=8  reg    | hardware-run             M4       byte+3: 250 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 255 measurements: 1 overturned by the majority vote (0.39%); where they disagree the revalidation wins.
+   src_class        s=32  w=8  mod    | hardware-run             M4       byte+4: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   src              s=40  w=8  reg    | hardware-run             M4       byte+5: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   cvtop            s=48  w=8  opcode | hardware-run             M4       byte+6: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   signflag         s=56  w=8  mod    | hardware-run             M4       byte+7: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 256 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+==============================================================================
+falu3  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "fma emitted by our own MSL and tokenized; no synthesized falu3 was executed", "target": "M4+A18", "evidence": ["EXP-0036", "EXP-M4-12", "EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             M4       0..15 dense (all 16 values)  ev=EXP-0138
+        note: 2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; by
+   srcA             s=8   w=8  reg    | hardware-run             G17P     253 values tested (sampled o ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 251, 'ok': 2}; ok at {0x5, 0x85}
+   op               s=16  w=8  opcode | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0160
+        note: carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK
+   srcB             s=24  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0160
+        note: carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=True model=M1 MASK
+   ctrl_len         s=32  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0138
+        note: 60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; b
+   srcC             s=40  w=8  reg    | hardware-run             G17P     255 values tested (sampled o ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 251, 'ok': 4}; ok at {0x8-0x9, 0x88-0x89}
+   ctrl             s=48  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0138
+   srcmods          s=56  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0138
+==============================================================================
+falu3_ext  len= 10  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "10-byte extended fma located by the EXP-M4-10 length rule and own-MSL corpus; no synthesized instance executed", "target": "M4", "evidence": ["EXP-M4-10"]}
+   dst              s=4   w=4  reg    | hardware-run             M4       0..15 dense (all 16 values)  ev=EXP-0138
+        note: 2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; by
+   srcA             s=8   w=8  reg    | hardware-run             G17P     256 values tested (dense ove ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 254, 'ok': 2}; ok at {0x5, 0x85}
+   op               s=16  w=8  opcode | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0160
+        note: carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 214, 'fault': 32, 'ok': 4, 'silent_zero': 6}; anchor value 0x1e; P1=True P2=True P3=True model=M1 MASK
+   srcB             s=24  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0160
+        note: carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes(seed set 1) {'wrong_value': 254, 'ok': 2}; anchor value 0x05; P1=True P2=True P3=False model=M1 MASK
+   ctrl_len         s=32  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0138
+        note: 60/64 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; b
+   srcC             s=40  w=8  reg    | hardware-run             G17P     256 values tested (dense ove ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x8-0x9, 0x88-0x89}
+   ext              s=48  w=32 raw    | isolated-byte-diff       M4       each of the 4 constituent by ev=EXP-0138
+        note: sweep not dense over the encodable range
+==============================================================================
+frag_depth_store  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "[[depth]] output op located by own-MSL byte-diff; distinct from the 16-byte texture write that shares byte0 0xd7", "target": "A18", "evidence": ["EXP-0029"]}
+   b3               s=24  w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+   b4               s=32  w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+   b5               s=40  w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+==============================================================================
+frame_marker_compact  len= 2  emitter_role= None
+  _instruction: {"label": "tokenization-only", "range": "2-byte compact marker, length-anchored", "target": "M4+A18", "evidence": ["EXP-0036", "EXP-M4-12", "EXP-M4-13"]}
+   b1               s=8   w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0172
+        note: LIVE: 152 of 256 values change the observation, identically in run01 and run03. b1 = 0x00 is the 4-byte spill_frame_marker, a different instruction. HAZARD: b1 = 3 and b1 = 7 hang the device on four of five carriers.
+==============================================================================
+h_coord_hi  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst)", "target": "M4", "evidence": ["EXP-M4-13", "EXP-M4-01"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     15 values executed (boundari ev=EXP-0157
+        note: outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)
+   srcA             s=8   w=8  reg    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x86 | outcomes ok=1, silent_zero=4, wrong_value=250 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so
+   opsel            s=16  w=8  opcode | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xd7) == 0x06 | outcomes not_written=160, ok=3, silent_zero=80, wrong_value=12 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256
+   srcB             s=24  w=8  reg    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x02 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.  ALSO: accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +5
+   ctrl             s=32  w=8  mod    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x04 | outcomes not_written=128, ok=1, silent_zero=36, wrong_value=90 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7b) == 0x00 | outcomes fault=62, not_written=24, ok=3, silent_zero=36, wrong_value=84 | carrier h4fma, anc
+   mods             s=40  w=8  mod    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x01 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x88 | outcomes ok=1, silent_zero=12, wrong_value=242 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)
+==============================================================================
+h_coord_hi_ext  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst)", "target": "M4", "evidence": ["EXP-M4-13", "EXP-M4-01"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     15 values executed (boundari ev=EXP-0157
+        note: outcomes not_written=1, silent_zero=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   srcA             s=8   w=8  reg    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x00 | outcomes ok=1, wrong_value=254 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   opsel            s=16  w=8  opcode | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x06 | outcomes ok=1, silent_zero=236, wrong_value=18 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   srcB             s=24  w=8  reg    | hardware-run             G17P     239 values executed (boundar ev=EXP-0157
+        note: outcomes silent_zero=1, wrong_value=238 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   ext              s=32  w=8  mod    | hardware-run             G17P     233 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0x7b) == 0x01 | outcomes fault=128, not_written=48, ok=3, wrong_value=54 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   srcC             s=40  w=8  reg    | hardware-run             G17P     253 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=252 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+   tail             s=48  w=16 raw    | hardware-run             G17P     82 values executed (boundari ev=EXP-0157
+        note: accepted set: (value & 0x1fef) == 0x200 | outcomes ok=2, silent_zero=66, wrong_value=14 | carrier h3mix, anchor +40, 2 agreeing captures (gate RSH)
+==============================================================================
+hminmax  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "half min/max located by own-MSL byte-diff (byte+2==0x1c sibling of iminmax)", "target": "M4", "evidence": ["EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 148 values reclassified `no_store` (EXP-0140 §8 rule: invalid_run in BOTH gated runs with every trial STATUS OK)
+   dst_full         s=8   w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcA             s=24  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   sel              s=32  w=3  opcode | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   selhi            s=35  w=5  mod    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   srcB             s=40  w=8  reg    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+==============================================================================
+irotate  len= 12  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "rotate-by-immediate is a single 12-byte 0x27 op; rotate-by-register is a multi-instruction lowering", "target": "A18", "evidence": ["EXP-0033"]}
+   b2               s=16  w=8  raw    | hardware-run             G17P     TWO of 256 dispatched values ev=EXP-0172
+        note: LIVE over its two legal values, and ASYMMETRIC: 0x56 -> 0x54 changes the observation on all three arms whose baseline is 0x56; 0x54 -> 0x56 changes nothing on either arm whose baseline is 0x54. Both directions were tested. The modelled 8-bit width is a fiction (DEF-0172-1).
+   operands         s=24  w=40 raw    | isolated-byte-diff       M4       BYTE-WISE MARGINAL ONLY: 5 c ev=EXP-0146,EXP-0166
+        note: ⚠ MARGINAL COVERAGE ONLY. 40-bit raw field swept BYTE-WISE — each of bytes +3..+7 over all 256 values with the other four at their compiled value (1280 of 2^40 combinations). No joint value, and neither `max` nor `max-1` of the 40-bit field was ever encoded, so FIELD-SWEEP-PROTOCOL §3.3's coverage b
+   tail             s=64  w=32 raw    | isolated-byte-diff       M4       BYTE-WISE MARGINAL ONLY: 4 c ev=EXP-0146,EXP-0166
+        note: ⚠ MARGINAL COVERAGE ONLY. 32-bit raw field swept BYTE-WISE — bytes +8..+11, each over all 256 values with the others at their compiled value (1024 of 2^32 combinations); neither `max` nor `max-1` was encoded, so §3.3's w>8 bar is not met (A6). Per-byte accept-sets (M4): +8 (v&0xb7)==0xb0; +9 (v&0x12
+==============================================================================
+iter_flat  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "[[flat]] emits this distinct 6-byte op (no barycentric interpolation); own-MSL byte-diff", "target": "A18", "evidence": ["EXP-0029"]}
+   b1               s=8   w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+   sel              s=24  w=8  raw    | isolated-byte-diff       G17P     0..255 dense (all 256 values ev=EXP-0155
+        note: swept 127/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (126/126 of 126 moved, 100.0% 
+   b4               s=32  w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+        note: [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]
+   b5               s=40  w=8  raw    | isolated-byte-diff       G17P     0..255 dense (all 256 values ev=EXP-0155
+        note: 1/256 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (192/192 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]
+==============================================================================
+mov_imm  len= 2  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "emitted for constant-folded builtins (threads_per_simdgroup = 0x20) and tokenized; no synthesized instance independently executed", "target": "M4+A18", "evidence": ["EXP-0031", "EXP-0010"]}
+   dst              s=4   w=4  reg    | hardware-run             M4       0..15 dense (all 16 values)  ev=EXP-0140
+        note: all 16 values executed with a host-computed oracle; four 12-register aliasing scans confirm no second register changes; 16/16 values reproduced identically across both gated runs
+   imm7             s=8   w=7  imm    | hardware-run             G17P     0..127 dense (all 128 values ev=EXP-0153
+   imm_top          s=15  w=1  mod    | hardware-run             G17P     2 distinct values dispatched ev=EXP-0168
+        note: 100.000% agreement over 6 shared values, 5 moved vs 0 disagreements (infx), ladder and falsifier passed in every run
+==============================================================================
+mov_zext16  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "16-bit zero-extend located by own-MSL byte-diff with negative controls (sign-extend and 8-bit narrow do NOT use this op)", "target": "M4", "evidence": ["EXP-M4-13"]}
+   src_reg          s=4   w=4  reg    | hardware-run             G17P     byte0 HIGH nibble: all 16 va ev=EXP-0161,EXP-0165
+        note: NAME RE-POINTED BY DEF-0161-2: this entry now labels byte0's HIGH NIBBLE, the ONE register the instruction uses as both source and destination (r[n] = r[n] & 0xFFFF). db.json modelled that nibble as part of a fixed match (byte0 == 0x13) until EXP-0165. Measured: byte0 = 0xN3 narrows r[N] AND NOTHING
+   src_flag         s=8   w=8  mod    | hardware-run             G17P     byte+1, now the WHOLE byte ( ev=EXP-0161,EXP-0165
+        note: FIELD MERGED BY DEF-0161-2: the old `src_reg` (bits 0-6) and `src_flag` (bit 7) are one inert byte, and db.json's name budget (a new field name hard-fails validate_labels.py without a validation.json edit) forced the merge onto this name. HW-TESTED INERT over the whole exercised range: every value r
+   subform          s=16  w=8  mod    | hardware-run             G17P     byte+2: 0..255 dense in B2_Z ev=EXP-0161,EXP-0165
+        note: POSITION UNCHANGED. Accepted set fits (v & 0xC7) == 0x00, exactly 8 of 256, IDENTICALLY in both register forms. NOT folded into `match`: doing so was measured (EXP-0165 work/cand2) and it steals 70 firings from `frame_marker`, whose 8-bit byte0 match would lose the specificity tie-break.
+   extend           s=27  w=5  mod    | hardware-run             G17P     byte+3 bits 3-7 (the field w ev=EXP-0161,EXP-0165
+        note: FIELD NARROWED BY DEF-0161-2. The dense byte+3 sweep accepts exactly the 32 values with (v & 0x07) == 0x01 and no others, so byte+3's LOW 3 BITS are the zero-extend companion discriminator and are now part of `match`; the remaining 5 bits are HW-tested free. The old 8-bit `extend` verdict is not tra
+==============================================================================
+n2_op6  len= 6  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "family located and tokenized over an own-MSL corpus (n=1747)", "target": "M4", "evidence": ["EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     15 values executed (boundari ev=EXP-0157
+        note: outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | PINNED: no value ot
+   src_desc         s=8   w=8  mod    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted 
+   opsel            s=16  w=8  enum   | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier insta
+   opA              s=24  w=8  reg    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 
+   opB              s=32  w=8  mod    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, 
+   imm_sel          s=40  w=8  imm    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it select
+==============================================================================
+n3_mov  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "compact 4-byte move family located over the own-MSL corpus", "target": "M4", "evidence": ["EXP-M4-13", "EXP-0036"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     0..15 dense (all 16 values), ev=EXP-0174
+        note: CORRECTS EXP-0168, which reported 'a write whose 4-bit destination nibble is 15 is discarded, and the slot reads 0'. That experiment's read-back path used r15 as its device_store index register and emitted mov_imm(15, 0) immediately before EVERY store, including the one whose data_reg was 15, so r15
+   srcA_reg         s=8   w=8  reg    | hardware-run             G17P     byte+1 dense 0..255 (all 256 ev=EXP-0174
+        note: DB DEFECT DEF-0174-1. db.json declares srcA_reg = bits 0..6 of byte+1 (instruction bits 8..14) and srcA_uni = bit 7. Measured, the register field is byte+1 bits 1..7 and bit 0 is the source-half select -- the modelled field is shifted by one bit, so an emitter following db.json writes the register n
+   subform          s=16  w=8  mod    | hardware-run             G17P     0..255 dense x byte+3 in {0x ev=EXP-0174
+        note: PARTIAL REFUTATION OF THIS EXPERIMENT'S OWN FROZEN MODEL, recorded rather than smoothed: PRE_REGISTRATION.md H3 froze the move mask as (b2 & 0x03) == 1 and (b2 & 0xE0) == 0, i.e. 8 values. The 65536-case cross-product shows bit 5 is FREE, so the mask is (b2 & 0xC0) == 0 and there are 16 move values.
+   companion        s=24  w=8  mod    | hardware-run             G17P     0..255 dense x byte+2 in {0x ev=EXP-0174
+        note: db.json calls this a 'companion / second-operand descriptor' whose value 0x01 with subform 0x00 is 'the ZERO-EXTEND high-half-zero companion'. That reading is superseded for the MOVE sub-form: 0x01 does not zero anything, it selects the high half as the destination. PARTIAL REFUTATION of this experi
+==============================================================================
+pack_convert  len= 10  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "pack_float_to_unorm2x16 / snorm / half located by own-MSL byte-diff", "target": "A18", "evidence": ["EXP-0033"]}
+   src_desc         s=8   w=8  mod    | hardware-run             M4       byte+1: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   dst              s=24  w=8  reg    | hardware-run             M4       byte+3: 250 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 500 measurements: 5 overturned by the majority vote (1.00%); where they disagree the revalidation wins. OPERAND-ROLE CORRECTION (EXP-0144, HW): byte+3 is the DESTINATION register (reg<<1, bit0 don't-care) -- sw
+   mode             s=32  w=8  mod    | hardware-run             M4       byte+4: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 512 measurements: 0 overturned by the majority vote (0.00%); where they disagree the revalidation wins.
+   src_lane0        s=40  w=8  reg    | hardware-run             M4       byte+5: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 =
+   src_lane1        s=48  w=8  reg    | hardware-run             M4       byte+6: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 =
+   b7               s=56  w=8  mod    | hardware-run             G17P     256 distinct values dispatch ev=EXP-0168
+        note: 100.000% agreement over 256 shared values, 188 moved vs 0 disagreements (infx), ladder and falsifier passed in every run
+   cvt_enable       s=64  w=8  mod    | hardware-run             M4       byte+8: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 =
+   fmt_sel          s=72  w=8  enum   | hardware-run             M4       byte+9: 256 of 256 values (d ev=EXP-0144
+        note: Derived from the rv01 REVALIDATION only. Compared against the contaminated run03/run05 on 2312 measurements: 2 overturned by the majority vote (0.09%); where they disagree the revalidation wins. FIELD-MODEL CORRECTION (EXP-0144, HW): the former 40-bit raw `fmt_word` is five located bytes -- byte+5 =
+==============================================================================
+psel  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "dominant corpus form 05 00 20 80", "target": "M4", "evidence": ["EXP-M4-13"]}
+   flag             s=8   w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0140
+        note: 512/512 comparable values reproduced identically across both gated runs (of 512 swept)
+   mode             s=16  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0140
+        note: 511/511 comparable values reproduced identically across both gated runs (of 512 swept)
+   sel              s=24  w=8  mod    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0140
+        note: 512/512 comparable values reproduced identically across both gated runs (of 512 swept)
+==============================================================================
+ret_luse  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "byte+2==0x56 last-use variant located over the own-MSL corpus", "target": "M4", "evidence": ["EXP-M4-13"]}
+   linkmode         s=8   w=8  enum   | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+   tail             s=24  w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0156
+        note: 2 values skipped as known-hang exclusions
+==============================================================================
+rtq_state_move  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "4-byte ray/query marshalling move located over the own-MSL RT corpus", "target": "M4", "evidence": ["EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     15 values executed (boundari ev=EXP-0157
+        note: outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures 
+   src              s=8   w=8  reg    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_com
+==============================================================================
+sel  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "located by own-MSL byte-diff", "target": "A18", "evidence": ["EXP-0010"]}
+   b1               s=8   w=8  mod    | hardware-run             M4       byte+1 swept 0..255 dense x2 ev=EXP-0140
+        note: db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (b
+   b2               s=16  w=8  mod    | hardware-run             M4       byte+2 swept 0..255 dense x2 ev=EXP-0140
+        note: db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (b
+   selFalse         s=24  w=8  imm    | hardware-run             M4       byte+3 swept 0..255 dense x2 ev=EXP-0140
+        note: db.json models `body` as one opaque 24-bit raw field; it is three located byte-fields. 255/128 byte+3 values >=0x80 and 1/128 values <0x80 matched their host-computed oracle exactly. FIELD-MODEL CORRECTION (EXP-0140, HW): `body` is not an opaque 24-bit field. byte+3 is the predicate-FALSE operand (b
+==============================================================================
+sfu_marker  len= 2  emitter_role= None
+  _instruction: {"label": "tokenization-only", "range": "byte-invariant 2-byte token (06 02); exact micro-op NOT characterized", "target": "M4+A18", "evidence": ["EXP-0036", "EXP-M4-12", "EXP-M4-13"]}
+   b0_hi            s=3   w=5  mod    | hardware-run             G16G+G17P byte+0 bits 3-7, exercised a ev=EXP-0146,EXP-0157,EXP-0165
+        note: NEW FIELD, added to db.json by EXP-0165. The descriptor previously claimed a byte-INVARIANT token with ZERO fields, so no evidence about it could be recorded at all. Measured: byte+0 accepts only (v & 0xF7) == 0x06 (2 of 256) -- 62 values return a WRONG value and 192 silently zero -- so within this 
+   b1_hi            s=10  w=6  mod    | hardware-run             G16G+G17P byte+1 bits 2-7, exercised a ev=EXP-0146,EXP-0157,EXP-0165
+        note: NEW FIELD, added to db.json by EXP-0165. byte+1 accepts only (v & 0x13) == 0x02 (32 of 256), so bits 2, 3, 5, 6 and 7 of the byte are free and bit 4 (this field's bit 2) must be 0. Both bytes of this 'byte-invariant marker' are load-bearing.
+==============================================================================
+shift_amt_move  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "compact 4-byte move family located over the own-MSL corpus", "target": "M4", "evidence": ["EXP-M4-13", "EXP-0036"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     16 values tested (dense over ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 1, 'wrong_value': 14, 'silent_zero': 1}; ok at {0x0}
+   src_reg          s=8   w=7  reg    | hardware-run             G17P     125 values tested (sampled o ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2, 'wrong_value': 123}; ok at {0x0-0x1}
+   src_flag         s=15  w=1  mod    | hardware-run             G17P     2 distinct values dispatched ev=EXP-0168
+        note: 100.000% agreement over 26 shared values, 22 moved vs 0 disagreements (infx), ladder and falsifier passed in every run
+   kind             s=16  w=8  enum   | hardware-run             G17P     256 values tested (dense ove ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'wrong_value': 234, 'ok': 4, 'silent_zero': 18}; ok at {0x14, 0x1c, 0x34, 0x3c}
+   op_desc          s=24  w=8  mod    | hardware-run             G17P     256 values tested (dense ove ev=EXP-0154
+        note: carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}
+==============================================================================
+sr_read_wide  len= 8  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "8-byte member of the get_sr low-nibble-4 datapath family; located over the own-MSL corpus (n=996)", "target": "M4", "evidence": ["EXP-M4-13"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     15 values executed (boundari ev=EXP-0157
+        note: outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the dest
+   sel              s=8   w=7  enum   | hardware-run             G17P     127 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the co
+   width            s=16  w=8  enum   | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06;
+   operand          s=32  w=8  imm    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: ou
+   marshal          s=40  w=16 mod    | hardware-run             G17P     82 values executed (boundari ev=EXP-0157
+        note: outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_c
+   phase            s=56  w=8  mod    | hardware-run             G17P     255 values executed (boundar ev=EXP-0157
+        note: outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value rep
+==============================================================================
+uniform_mov  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "4-byte uniform->GPR copy located by own-MSL byte-diff", "target": "A18", "evidence": ["EXP-0020"]}
+   dst              s=4   w=4  reg    | hardware-run             G17P     16 distinct values dispatche ev=EXP-0168
+        note: 100.000% agreement over 224 shared values, 214 moved vs 0 disagreements (infx), ladder and falsifier passed in every run
+   usrc             s=8   w=8  reg    | hardware-run             M4       0..255 dense (all 256 values ev=EXP-0140
+        note: 128/128 immediate-region values matched their host-computed oracle exactly; 8/8 mapped uniform indices returned the bound magic constant
+==============================================================================
+vary_slot  len= 4  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "slot descriptor emitted immediately before each vary_store; located over the corpus", "target": "M4", "evidence": ["EXP-M4-13"]}
+   sel              s=8   w=8  raw    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0155
+   slot             s=24  w=8  imm    | hardware-run             G17P     0..255 dense (all 256 values ev=EXP-0172
+        note: LIVE, but only bit 2 and only on one of four carriers. All 128 values with bit 2 set move the observation; all 128 with it clear do not; the other seven bits -- including bits 5-6, where the COMPILER encodes the varying index -- did nothing on any carrier (DEF-0172-3). An implementer should treat va
+==============================================================================
+vtx_coord_xform  len= 10  emitter_role= None
+  _instruction: {"label": "corpus-correlation", "range": "statically separated from simd_ballot by the fixed byte+2==0xa2 / byte+3==0xb0 pair", "target": "M4", "evidence": ["EXP-M4-13"]}
+   mode             s=8   w=8  raw    | hardware-run             M4       full 8-bit range, dense (256 ev=EXP-0147
+        note: Correct exactly when (mode & 0xf3) in {0x22,0xe2} (8/256, baseline 0x22). 240 of 256 values SUPPRESS THE DRAW ENTIRELY (no_draw, confirmed twice with a healthy device in between); 8 give a wrong pixel.
+   sel              s=32  w=8  raw    | isolated-byte-diff       M4       full 8-bit range, dense (256 ev=EXP-0147
+        note: 91 of 256 correct, 143 no_draw, 19 genuine 'Caused GPU Hang Error' faults, 1 wrong value. Intra-run 255/256 stable.
+   operand          s=40  w=40 raw    | isolated-byte-diff       M4       full 40-bit range, dense (13 ev=EXP-0147
+        note: 40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable.

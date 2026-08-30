@@ -37,7 +37,41 @@
   "movement": 128,
   "note": "",
   "range": "0..255 dense (all 256 values), 2 carriers",
-  "semantics": "BRANCH-TAKEN SELECTOR. The live field is bits 5:2 (a 4-bit code); bits 1:0 and 7:6 are INERT (outcome constant within every bits5:2 code, 0 violations over 256 values x 2 carriers x 2 runs). Codes that TAKE the call: {6, 8, 9, 10, 11, 12, 13, 15}. Codes that do NOT: {0,1,2,3,4,5,7,14} -- and the failure is always a clean FALL-THROUGH (callee never ran, breadcrumb still 0xDEADBEEF, control continued at the next instruction and returned), NEVER a fault. The compiler's 0x1a is code 6. This is the shape `if_push`'s own descriptor calls scope_kind, on the instruction that shares its leader.",
+  "second_method_arm_S": {
+   "REPRODUCES_GENERATED": "The 16-code table is IDENTICAL to the one the generated carriers produced, on a different program with a backward displacement and a non-leaf callee.",
+   "bits5_2_takes_call": {
+    "0": false,
+    "1": false,
+    "10": true,
+    "11": true,
+    "12": true,
+    "13": true,
+    "14": false,
+    "15": true,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false,
+    "6": true,
+    "7": false,
+    "8": true,
+    "9": true
+   },
+   "carrier": "S_kchain_compiled (REAL compiler-emitted call, backward displacement, NON-LEAF callee)",
+   "cross_run_agreement": 1.0,
+   "disagreeing_values": [],
+   "disagreements": 0,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "legal_values": 128,
+   "movement": 128,
+   "outcomes_run01": {
+    "ok": 128,
+    "wrong_value": 128
+   },
+   "values_dispatched": 256
+  },
+  "semantics": "BRANCH-TAKEN SELECTOR. The live field is bits 5:2 (a 4-bit code); bits 1:0 and 7:6 are INERT (outcome constant within every bits5:2 code, 0 violations over 256 values x 2 carriers x 2 runs). Codes that TAKE the call: {6, 8, 9, 10, 11, 12, 13, 15}. Codes that do NOT: {0,1,2,3,4,5,7,14} -- and the failure is always a clean FALL-THROUGH (callee never ran, breadcrumb still 0xDEADBEEF, control continued at the next instruction and returned), NEVER a fault. The compiler's 0x1a is code 6. This is the shape `if_push`'s own descriptor calls scope_kind, on the instruction that shares its leader. CONFIRMED BY ARM S: the identical 16-code table on the REAL compiler-emitted call, 256/256 cross-run agreement -- a different program, a BACKWARD displacement and a non-leaf callee.",
   "target": "G17P",
   "values_dispatched": 256
  },
@@ -81,7 +115,24 @@
   "movement": 192,
   "note": "",
   "range": "0..255 dense (all 256 values), 2 carriers",
-  "semantics": "TWO LIVE BITS, six inert. bit1 (0x02) set -> CMDBUF_ERROR fault, 128/128 values. bit2 (0x04) set with bit1 clear -> the call is NOT taken. bits 0, 3, 4, 5, 6, 7 are INERT (perfect 16/16 and 32/32 splits throughout). LEGAL RANGE: (b5 & 0x06) == 0, i.e. 64 of 256 encodable values, and the rule holds for all 256 values on both carriers in both runs.",
+  "second_method_arm_S": {
+   "RULE_HOLDS": true,
+   "carrier": "S_kchain_compiled (REAL compiler-emitted call, backward displacement, NON-LEAF callee)",
+   "cross_run_agreement": 1.0,
+   "disagreeing_values": [],
+   "disagreements": 0,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "legal_values": 64,
+   "movement": 192,
+   "outcomes_run01": {
+    "fault": 160,
+    "ok": 64,
+    "wrong_value": 32
+   },
+   "values_dispatched": 256
+  },
+  "semantics": "TWO LIVE BITS, six inert. bit1 (0x02) set -> CMDBUF_ERROR fault, 128/128 values. bit2 (0x04) set with bit1 clear -> the call is NOT taken. bits 0, 3, 4, 5, 6, 7 are INERT (perfect 16/16 and 32/32 splits throughout). LEGAL RANGE: (b5 & 0x06) == 0, i.e. 64 of 256 encodable values, and the rule holds for all 256 values on both carriers in both runs. CONFIRMED BY ARM S: `(b5 & 0x06) == 0` holds exactly on the REAL compiler-emitted call, 256/256 cross-run agreement.",
   "target": "G17P",
   "values_dispatched": 256
  },
@@ -116,12 +167,35 @@
    "EXP-0179"
   ],
   "gate_pass": true,
+  "governing_evidence": "arm S (compiled call), NOT the generated carriers",
   "label": "hardware-run",
   "min_cross_run_agreement": 1.0,
   "movement": 0,
-  "note": "",
+  "movement_note": "The top-level `movement: 0` and `min_cross_run_agreement: 1.0` are the GENERATED carriers' numbers and are NOT the governing evidence for this field -- those carriers are blind to it. The governing numbers are in `second_method_arm_S`: movement 254 of 256, cross-run agreement 0.9922, 128 of 256 values legal.",
+  "note": "PROMOTION SCOPE NARROWED BY THE SECOND METHOD. `hardware-run` is claimed for the RULE 'bit 1 must be set', evidenced on the compiled carrier over two runs; the generated carriers' inertness is reported as CARRIER BLINDNESS, not as a don't-care finding. This is the same failure shape as ret.scoreboard, caught by a second method rather than by argument.",
   "range": "0..255 dense (all 256 values), 2 carriers",
-  "semantics": "INERT over the full 0..255 range. The complete observation -- all 16 registers, the POST sentinel and the callee breadcrumb -- is BYTE-IDENTICAL for every one of the 256 values on both carriers in both runs (1 distinct observation per carrier). The corpus value 0x56 is not load-bearing. An emitter may write any value.",
+  "second_method_arm_S": {
+   "CONTRADICTS_GENERATED": "The two GENERATED carriers reported b6 INERT across all 256 values (one distinct full observation each, both runs). The compiled call says bit 1 is load-bearing. The generated callee is a LEAF entered and left immediately, so it does not exercise whatever b6 bit 1 controls -- the same carrier-blindness that makes ret.scoreboard undecidable here. The SAFE EMITTER RULE is the intersection: SET BIT 1.",
+   "RULE": "bit 1 (0x02) MUST BE SET; bits 0 and 2..7 are don't-care. 128 of 256 legal. The corpus value 0x56 has bit 1 set.",
+   "carrier": "S_kchain_compiled (REAL compiler-emitted call, backward displacement, NON-LEAF callee)",
+   "cross_run_agreement": 0.992188,
+   "disagreeing_values": [
+    0,
+    1
+   ],
+   "disagreements": 2,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "legal_values": 128,
+   "movement": 254,
+   "outcomes_run01": {
+    "ok": 128,
+    "silent_zero": 2,
+    "wrong_value": 126
+   },
+   "values_dispatched": 256
+  },
+  "semantics": "bit 1 (0x02) MUST BE SET; bits 0 and 2..7 are DON'T-CARE. 128 of 256 legal. CORRECTED BY ARM S. The two GENERATED carriers measured b6 inert across all 256 values (one distinct full observation per carrier, both runs) -- but the REAL compiler-emitted call in our own compiled c_frame.metal (k_chain, backward displacement, NON-LEAF callee) is bit1-load-bearing: 128 legal, 126 wrong_value, 2 nondeterministic, 254/256 cross-run agreement. The generated callee is a leaf entered and left immediately and does NOT exercise what b6 bit 1 controls. Safe emitter rule = the intersection: SET BIT 1 (the corpus 0x56 does).",
   "target": "G17P",
   "values_dispatched": 256
  },
@@ -161,7 +235,21 @@
   "movement": 0,
   "note": "",
   "range": "0..255 dense (all 256 values), 2 carriers",
-  "semantics": "INERT over the full 0..255 range, same evidence shape as call.b6: one distinct full observation per carrier across 256 values x 2 runs.",
+  "second_method_arm_S": {
+   "carrier": "S_kchain_compiled (REAL compiler-emitted call, backward displacement, NON-LEAF callee)",
+   "cross_run_agreement": 1.0,
+   "disagreeing_values": [],
+   "disagreements": 0,
+   "distinct_bytes": 256,
+   "encodable_range": 256,
+   "legal_values": 256,
+   "movement": 0,
+   "outcomes_run01": {
+    "ok": 256
+   },
+   "values_dispatched": 256
+  },
+  "semantics": "INERT over the full 0..255 range, same evidence shape as call.b6: one distinct full observation per carrier across 256 values x 2 runs. CONFIRMED BY ARM S: all 256 values also legal on the REAL compiler-emitted call (256/256 cross-run agreement), so `tail` is a don't-care in BOTH a generated leaf call and a compiled non-leaf call.",
   "target": "G17P",
   "values_dispatched": 256
  },

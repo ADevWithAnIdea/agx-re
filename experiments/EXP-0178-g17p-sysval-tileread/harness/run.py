@@ -14,6 +14,7 @@ import json
 import os
 import struct
 import subprocess
+import traceback
 import sys
 import time
 
@@ -94,14 +95,14 @@ def safe_request(runner, call):
     try:
         return call()
     except Exception as e:                                     # noqa: BLE001
+        tb = traceback.format_exc().strip().replace("\n", " | ")[-400:]
         try:
             runner._kill()
             runner._start()
         except Exception:                                      # noqa: BLE001
             pass
-        return {"status": "HANG", "outs": {}, "gputime_ns": None,
-                "error": "malformed runner response (child died mid-write): %s"
-                         % str(e)[:160],
+        return {"status": "RUNNER_EXCEPTION", "outs": {}, "gputime_ns": None,
+                "error": "runner raised: %s :: %s" % (str(e)[:120], tb),
                 "restarted": True}
 
 

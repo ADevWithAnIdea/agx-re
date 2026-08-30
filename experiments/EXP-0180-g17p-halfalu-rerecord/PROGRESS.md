@@ -169,3 +169,26 @@ exactly:
 selectors, not operand bits.** Three quarters of a 256-value `srcB_desc` sweep encode a
 *different-length instruction* — the `falu2_uni.uni_mode` lesson (EXP-0169 §16b) at scale.
 This is why every case in EXP-0180 records `tok_instr` **and** a hardware-measured length.
+
+## M5 — 2026-08-30 — PRE-REGISTRATION FROZEN. Device NOT touched.
+
+`PRE_REGISTRATION.md` (380+ lines) and `CAPTURE_CONTRACT.json` written before any build.
+`README.md` written. **No SSH to the neo has been issued at any point.**
+
+Design in one paragraph: two carriers (`C_HI` result > 1.0 / `C_LO` result < 1.0, different
+shaders, different buffer signatures, different seed permutations, different tail slack,
+`C_LO` with a second consumer), seven arms (`E8_ADD`, `E8_FMA`, `F12_FMA` generated on both
+carriers; `E8_LIFT`, `F12_LIFT` as EXP-0169-anchor controls; `LEN` = a four-marker chain that
+reads the **hardware's** instruction length directly; `DSTNIB` = the H0 destination probe),
+~16.7 k cases per gated run, seeds proved per case by a PRE-dump, no refreshed baseline
+anywhere, no abort path, and a frozen expressiveness rule that forbids promoting an inert
+reading on a carrier that cannot express the field.
+
+**Amendment 01 adopted before dispatch** on the coordinator's EXP-0179 relay: the
+`carrier_dead` outcome class + a pilot rejection gate; `gate_expressiveness`; two extra
+`C_LO` differences (tail slack for the framing dimension, a second consumer for the ordering
+dimension); the run-id burn rule.
+
+**Coordinator hold acknowledged. EXP-0179 has the device for a hang-candidate window. This
+experiment is QUIET — nothing dispatched, nothing to checkpoint.** Next milestone is the
+harness build, which is entirely offline.

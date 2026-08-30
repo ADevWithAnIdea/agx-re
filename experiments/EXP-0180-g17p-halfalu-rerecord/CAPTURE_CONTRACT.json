@@ -1,5 +1,19 @@
 {
- "amendments": [],
+ "amendments": [
+  {
+   "before_any_device_dispatch": true,
+   "changes": [
+    "new outcome class carrier_dead + a frozen pilot rejection gate",
+    "gate_expressiveness: inertness on a carrier that cannot express the field is not evidence of inertness",
+    "C_LO gains 8 bytes of tail slack (framing dimension) and a second consumer (ordering dimension)",
+    "run-id burn rule restated"
+   ],
+   "id": "amendment_01",
+   "note": "Nothing had been dispatched when this was adopted; the experiment was still entirely offline.",
+   "source": "coordinator message relaying two EXP-0179 findings",
+   "utc": "2026-08-30"
+  }
+ ],
  "arms": [
   {
    "carriers": [
@@ -80,15 +94,18 @@
    "result_magnitude": ">1.0",
    "role": "the only carrier on which saturate is observable",
    "seed_table": "SEED_A",
-   "source": "kernels/carrier_dag.metal"
+   "source": "kernels/carrier_dag.metal",
+   "tail": "post-dump IMMEDIATELY after the block: an over-consuming length swallows dump code and desyncs"
   },
   "C_LO": {
    "function": "k",
    "operands": "two SMALL fp16 halves",
    "result_magnitude": "<1.0",
    "role": "different buffer signature + uniform preload; a given half-register descriptor selects a DIFFERENT value",
+   "second_consumer": "one further half-ALU op after the block reads the SAME source half-registers into a scratch GPR, so an opflags release/publication/last-use bit with no effect on the block's own result can still change a downstream read (the ordering dimension EXP-0179's ret.scoreboard lacked)",
    "seed_table": "SEED_B",
-   "source": "kernels/carrier_uni.metal"
+   "source": "kernels/carrier_uni.metal",
+   "tail": "8 bytes of 2-byte mov_imm markers between the block and the post-dump: an over-consuming length eats markers and leaves a READABLE signature"
   }
  },
  "coverage_rule": {
@@ -110,6 +127,7 @@
  "experiment": "EXP-0180-g17p-halfalu-rerecord",
  "frozen_utc": "2026-08-30",
  "gates": {
+  "gate_expressiveness": "An INERT-MULTI verdict maps to hardware-run ONLY for a field whose controlled dimension is marked YES in PRE_REGISTRATION.md 11b. rsv6 / b7_lo / b7_mid have NO nameable dimension and NO carrier difference: an inert reading there is pre-registered as NOT promotable and maps to corpus-correlation at best, whatever the agreement statistics say. Adopted from EXP-0179's ret.scoreboard declination.",
   "gate_identity": "a value counts as movement only if tok_instr AND the hardware-measured length both equal the anchor's; values failing this are recorded, reported and EXCLUDED from encodable_range, which is restated as the MEASURED range",
   "gate_ladder": "the (arm,carrier) liveness ladder passed; a failing ladder supports NEITHER live NOR inert",
   "gate_live_moved_over_disagree": 2.0,
@@ -184,7 +202,8 @@
    "fault",
    "hang",
    "undecodable",
-   "invalid_run"
+   "invalid_run",
+   "carrier_dead"
   ],
   "path": "raw/<run_id>/sweep.jsonl"
  },
@@ -194,6 +213,7 @@
   "worktree_dirty": true
  },
  "runs": {
+  "burn_rule": "A run found defective is retained IN FULL AND UNEDITED, its id is BURNED, and the replacement takes a NEW id. Never topped up, never reused, never deleted.",
   "gated": [
    "g17p_20260830_run01 (order forward)",
    "g17p_20260830_run02 (order reverse)"
@@ -203,6 +223,7 @@
  },
  "safety": {
   "abort_path": "NONE. Every value dispatches regardless of outcome (FIELD-SWEEP-PROTOCOL 3(c)).",
+  "carrier_dead_detection": "status OK AND pre sentinel landed AND all 16 post[] words plus the POST sentinel still 0xDEADBEEF -> outcome carrier_dead. Never movement, never inertness. Pilot gate: >0.5% of a carrier's pilot cases carrier_dead, or its anchor case at all, REJECTS that carrier before the gated pair. Adopted from EXP-0179, which lost 1,395 cases to a frozen-but-dead carrier that only the hardware caught.",
   "hang_handling": "counted, PersistRunner restarted, case retried majority-of-3, never concluded from a single observation",
   "macvdmtool": "FORBIDDEN to this agent, without exception",
   "on_unresponsive_host": "STOP, report BLOCKED, do not scan, do not recover",
