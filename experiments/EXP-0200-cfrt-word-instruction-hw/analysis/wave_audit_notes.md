@@ -2,9 +2,10 @@
 
 Run: `python3 tools/agx-isa/wave_audit.py experiments/EXP-0200-cfrt-word-instruction-hw`
 
-The audit is right to print what it prints. Three of its lines are **keying
-artifacts of this experiment's raw schema**, not defects in the data, and one is
-a real and deliberate absence. Each is reconciled below with the correctly-keyed
+The audit is right to print what it prints. One of its lines (§2, `ALIASED`) is a
+**keying artifact of this experiment's raw schema**, not a defect in the data;
+one (§4) is a real and deliberate absence; the rest are genuine readings and §1
+and §5 are the ones that matter. Each is reconciled below with the correctly-keyed
 recomputation, which is in `analysis/field_verdicts.json` and reproducible from
 `raw/` by `analysis/assemble_verdicts.py` and `analysis/scan200.py`.
 

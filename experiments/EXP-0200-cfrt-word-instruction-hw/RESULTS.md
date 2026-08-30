@@ -244,17 +244,29 @@ hole in one carrier, so it is **not** a length verdict and **not** `canonical-re
 
 ## 6. Reading `wave_audit.py` against this experiment
 
-Several of its lines are keying artifacts of this raw schema — the 0.00 % cross-run
-agreement on `n4_rt_word.dst` is four carriers colliding on one `value` key, and the
-`ALIASED` flags are the deliberate globally-unique `value` required for correct cross-run
-pairing. Each is reconciled against the correctly-keyed recomputation in
+The tool was updated by the orchestrator mid-experiment (it now keys cross-run agreement by
+`(arm, value)` and excludes volatile timing fields). Under the updated tool **every
+`_instruction` row reads 100.00 % cross-run agreement, 0 disagreements**, across a forward
+run and a reversed-order run: `n1_word` 15/15, `n2_compact2` 18/18, `n3_word` 15/15,
+`n4_cf_word` 127/127, `n4_rt_word` 182/182, `rtq_pred` 47/47.
+
+`n4_rt_word.dst` reads **69.23 % (256/832 disagree)**, and that is **not** an artifact: all
+256 disagreeing values are `rq_ccount`, the carrier whose *unmutated* baseline collapsed to
+`0.0` in the reversed run and which EXP-0187's own frozen gate therefore drops. The three
+carriers the verdict rests on agree **256/256 = 100 %** each.
+
+The remaining `ALIASED` flags are a deliberate schema choice — `value` is a globally unique
+case id, which is what makes cross-run pairing correct — and the aliasing check that
+actually applies is Gate A's ledger (**0 match-bit collisions**) plus
+`contract200.py encodings` (**74 arms, all fills distinct**). Full reconciliation in
 **`analysis/wave_audit_notes.md`**. Nothing in `raw/` was altered.
 
-The audit's non-artifact readings are the important ones and they hold: `distinct oracles`
-is 4–13 on every row (not a constant oracle), hard outcomes are counted separately from
-valid payloads (384 faults never counted as movement), and `V` **computed per carrier** is
-**1** for `n4_rt_word.dst` — which is the honest, load-bearing number and the reason no
-semantic claim is made for it.
+The audit's other readings hold and are the important ones: `distinct oracles` is 4–13 on
+every row (not a constant oracle), hard outcomes are counted separately from valid payloads
+(384 faults never counted as movement), and `V` **computed per carrier** is **1** for
+`n4_rt_word.dst` — the honest, load-bearing number, and the reason no semantic claim is made
+for it. High agreement proves repeatability, not meaning: the ruler arm is perfectly
+reproducible *and* confounded, and stays withdrawn.
 
 ---
 

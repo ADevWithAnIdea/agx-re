@@ -118,6 +118,48 @@ For field `F` of width `w` in instruction `I`:
 6. **Record the silent zeros.** On Apple9 a wrong field value usually yields a **silent zero, not a
    fault**. A value that produces zero is a *result*, not a skipped case.
 
+## 3z. PRECONDITION: prove the offset is an instruction BOUNDARY before sweeping it
+
+**Adopted 2026-08-30 from EXP-0200. Run this BEFORE any field sweep at a signature-derived site.**
+
+`isadb.decode_one` answers *"do these bytes match a descriptor"*. It never answers *"does an
+instruction START here"*. Those are different questions, and the corpus has been conflating them:
+EXP-0200 scanned 7 signature-derived occurrences and **0 of 7 were boundaries**. Four of its six
+target descriptors are not instructions at the sites everyone had been sweeping — they are
+signatures matching **interior bytes of longer instructions**:
+
+| descriptor | sites | hardware boundaries | actually interior to |
+|---|---:|---:|---|
+| `n4_rt_word` `04 <dst> 20 80` | 3 | **0** | byte +6 of a 10-byte instruction (3/3) |
+| `n4_cf_word` `04 01 00 00` | 4 | **1** | byte +2 of the 6-byte `pop_reconverge` (3/3) |
+| `rtq_pred` `06 c2 00 00` | 1 | **0** | byte +6 of a 10-byte instruction |
+
+This mechanically explains DEF-0172-4: EXP-0172's 256-value `n4_cf_word.b3` sweep was sweeping
+**byte +5 of a `pop_reconverge`**. It is the same "shadowed, not absent" shape EXP-0204 found for
+`cubearray_coord_const` the same day, by a different method — so treat it as a general hazard, not
+two coincidences.
+
+**The instrument (the "stop-ruler"):** write a `stop` — `_instruction: hardware-run`, body
+HW-proven free filler — at every offset on a 2-byte grid, and see where the program stops producing
+output. **A halt proves the offset is a boundary the hardware honours.** ~105 s for ~900 offsets.
+It would have saved EXP-0172, EXP-0184 and EXP-0187 from sweeping operand tails.
+
+**Its claim is deliberately ONE-SIDED and must stay that way: a halt proves a boundary; a no-halt is
+INCONCLUSIVE.** Rest conclusions on span *consistency* across independent sites, never on a single
+reading.
+
+**Known confound — EXP-0200 found this in its own instrument and withdrew it.** `not_written` has
+**three** producers: halt, masked store, and a clobbered store-address register. Byte-identical
+8-byte fills read `not_written` at two offsets and `ok` at two others, 100% reproducibly. That is a
+Gate B failure of the ruler itself. A scan must therefore detect anchor inconsistency and return
+**`carrier-undecidable`**, not a length refutation. EXP-0200's first pass produced `LENGTH-REFUTED`
+before this check was added.
+
+**Also watch for a self-aliasing fill:** EXP-0200's `n2_compact2` fill `02 00` plus a stop composes
+to `02 00 0e …`, which satisfies `iminmax`'s match — so that arm never tested the intended
+descriptor at all. A pre-registered token record caught it. Record the tokenization of the composed
+bytes, not just the fill you intended.
+
 ## 4. Required record, per case — emit exactly these keys
 
 Append one JSON object per case to `raw/<run_id>/sweep.jsonl`, flushed immediately:

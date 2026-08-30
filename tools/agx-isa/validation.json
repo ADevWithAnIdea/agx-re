@@ -9353,7 +9353,16 @@
      "EXP-0036",
      "EXP-M4-12",
      "EXP-M4-13"
-    ]
+    ],
+    "axes": {
+     "geometry": "**NOT AN INSTRUCTION AT THE SITES THAT WERE SWEPT (EXP-0200).** A stop-ruler scan \u2014 write a `stop` at every offset on a 2-byte grid and see where the program halts, since a halt proves a boundary the hardware honours \u2014 found **0 of 7** signature-derived occurrences corpus-wide were boundaries. `isadb.decode_one` answers 'do these bytes match a descriptor', NEVER 'does an instruction start here'. 905 offsets x 2 runs in reversed order, 99.56% agreement. For THIS descriptor: 1 site(s) scanned, **0 hardware boundaries**, interior to byte +6 of a 10-byte instruction.",
+     "liveness": "see geometry \u2014 the swept site is not an instruction start",
+     "semantics": "unknown \u2014 sem_checked == 0 for the micro-op role, so NO hardware-run was raised",
+     "recipe": "generated-point where a real boundary exists; every candidate byte re-derived from the pinned `match` constraints (11/11), no donor instruction field",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET (busy machine). All six captures ran 19:16-19:48 UTC with 0 cases inside EXP-0204's 20:00-20:25 window, so nothing was reclassified. Gate A PASS: 736/736, 905/905, 1385/1385 requested == actual dispatched bytes, 0 match-bit collisions.",
+     "orchestrator_note": "One `generated-point`: at `cw_trans`+324, a hardware-verified 4-byte boundary where a stop halts and a 6-byte word breaks the program \u2014 **controls firing in OPPOSITE directions** \u2014 generated `06 c2 00 00` executes with the exact oracle 12.5 intact, both runs."
+    }
    }
   },
   "sfu_marker": {
@@ -11463,7 +11472,16 @@
      "EXP-0036",
      "EXP-M4-12",
      "EXP-M4-13"
-    ]
+    ],
+    "axes": {
+     "geometry": "**NOT AN INSTRUCTION AT THE SITES THAT WERE SWEPT (EXP-0200).** A stop-ruler scan \u2014 write a `stop` at every offset on a 2-byte grid and see where the program halts, since a halt proves a boundary the hardware honours \u2014 found **0 of 7** signature-derived occurrences corpus-wide were boundaries. `isadb.decode_one` answers 'do these bytes match a descriptor', NEVER 'does an instruction start here'. 905 offsets x 2 runs in reversed order, 99.56% agreement. For THIS descriptor: 4 site(s) scanned, **1 hardware boundaries**, interior to byte +2 of the 6-byte `pop_reconverge` `0f 06 04 01 00 00` (3/3 sites).",
+     "liveness": "see geometry \u2014 the swept site is not an instruction start",
+     "semantics": "unknown \u2014 sem_checked == 0 for the micro-op role, so NO hardware-run was raised",
+     "recipe": "generated-point where a real boundary exists; every candidate byte re-derived from the pinned `match` constraints (11/11), no donor instruction field",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET (busy machine). All six captures ran 19:16-19:48 UTC with 0 cases inside EXP-0204's 20:00-20:25 window, so nothing was reclassified. Gate A PASS: 736/736, 905/905, 1385/1385 requested == actual dispatched bytes, 0 match-bit collisions.",
+     "orchestrator_note": "**This mechanically explains EXP-0172's DEF-0172-4: its 256-value `b3` sweep was sweeping byte +5 of a `pop_reconverge`.** `b3` NOT swept here and no verdict raised \u2014 the standing decline is honoured. One `generated-point`: at the one real boundary (`cw_trans`+324), generated `04 42 20 80` executes with the exact oracle 12.5 intact in both runs."
+    }
    },
    "b3": {
     "label": "tokenization-only",
@@ -11486,7 +11504,16 @@
      "EXP-0036",
      "EXP-M4-12",
      "EXP-M4-13"
-    ]
+    ],
+    "axes": {
+     "geometry": "**NOT AN INSTRUCTION AT THE SITES THAT WERE SWEPT (EXP-0200).** A stop-ruler scan \u2014 write a `stop` at every offset on a 2-byte grid and see where the program halts, since a halt proves a boundary the hardware honours \u2014 found **0 of 7** signature-derived occurrences corpus-wide were boundaries. `isadb.decode_one` answers 'do these bytes match a descriptor', NEVER 'does an instruction start here'. 905 offsets x 2 runs in reversed order, 99.56% agreement. For THIS descriptor: 3 site(s) scanned, **0 hardware boundaries**, interior to byte +6 of a 10-byte instruction (3/3 sites).",
+     "liveness": "see geometry \u2014 the swept site is not an instruction start",
+     "semantics": "unknown \u2014 sem_checked == 0 for the micro-op role, so NO hardware-run was raised",
+     "recipe": "generated-point where a real boundary exists; every candidate byte re-derived from the pinned `match` constraints (11/11), no donor instruction field",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET (busy machine). All six captures ran 19:16-19:48 UTC with 0 cases inside EXP-0204's 20:00-20:25 window, so nothing was reclassified. Gate A PASS: 736/736, 905/905, 1385/1385 requested == actual dispatched bytes, 0 match-bit collisions.",
+     "orchestrator_note": "**`dst`'s head-start pair is DONE and EXP-0187's FROZEN GATE PASSES** (t1/ verified 27/27 against EXP-0187's own contract, locally and on device; run02 in reversed case order via a permutation-checked arms file, without touching the frozen harness). The wall is confirmed AND EXTENDED to `rq_bbox`, which EXP-0187 never measured: **64/256 fault, the fault set exactly `{v : (v & 0b110) == 0b100}`** on `rq_mdist`/`rq_inst`/`rq_bbox` in both runs \u2014 6/6 carrier-runs, 384 fault + 1152 clean, ZERO exceptions, 256/256 = 100% agreement per carrier. (`rq_ccount` excluded by the gate: its unmutated baseline collapsed to 0.0 in run02.) **BUT V = 1 PER CARRIER** \u2014 every accepted value returns the same answer, so the movement is ENTIRELY the wall: `bounded-map` for legality, `unknown` for effect. And the swept byte is **+7 of a 10-byte instruction**, so the geometry is misattributed. **Agent recommends DOWNGRADE; the frozen-gate result is preserved per corrections \u00a79.**"
+    }
    },
    "dst": {
     "label": "tokenization-only",

@@ -191,3 +191,12 @@ Machine-extracted: **31** defects from 6 experiments.
 ## `mesh_out_src.sel` — EXP-0207-g17p-frag-raster-sysval
 
 
+
+## Hardware-measured LENGTH corrections — EXP-0200
+
+- **`icmpsel` is 10 bytes, not 14.**
+- **`icmp_pred` at `rq_bbox`+960 is 10 bytes, not 6.**
+- `n4_rt_word` / `rtq_pred`: the swept signature sites are **byte +6/+7 of 10-byte instructions**,
+  not instruction starts. Re-target `n4_rt_word` at byte +7 of the 10-byte instruction at
+  `rq_mdist`+1300.
+- `n4_cf_word`: the signature is **byte +2 of the 6-byte `pop_reconverge`** at 3 of 4 sites.

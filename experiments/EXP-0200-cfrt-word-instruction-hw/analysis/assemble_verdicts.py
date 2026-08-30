@@ -413,6 +413,21 @@ def main():
         "transparency_admitted_arms": tr["admitted_arms"],
     }
 
+    # The dispatch's required per-row keys, filled uniformly. `_instruction`
+    # rows have no bit span, so start/width are null rather than a fake 0 --
+    # a 0/0 span would read as a real field of width zero.
+    for k, v in out.items():
+        if k.startswith("_"):
+            continue
+        v.setdefault("target", "G17P")
+        v.setdefault("evidence", ["EXP-0200"])
+        if k.endswith("._instruction"):
+            v.setdefault("start", None)
+            v.setdefault("width", None)
+            v.setdefault("span_note",
+                         "instruction-level row: no bit span. The GEOMETRY "
+                         "finding here is about where the instruction BEGINS, "
+                         "which is what the stop-scan measured.")
     p = EXP / "analysis" / "field_verdicts.json"
     p.write_text(json.dumps(out, indent=1, sort_keys=True))
     for k in sorted(out):

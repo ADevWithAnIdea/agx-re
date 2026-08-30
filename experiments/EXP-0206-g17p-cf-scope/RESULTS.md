@@ -328,6 +328,20 @@ The driver rule `emit 0x000000` is unaffected and is reconfirmed.
 
 ---
 
+### 2.8 The quiet window, and what it buys
+
+`run05` and `run07` — the two captures that between them re-ran six arms, including **both live
+findings** and **all four `ret.scoreboard` ordering arms** — executed with **0 to 2 foreign GPU
+processes** (measured, `raw/<run>/procs.jsonl`; run03 saw 4–14 and run04 3–21). For those arms the
+reproducibility axis records that **both confirming captures were quiet and agreed**, which is the
+closest this wave has come to Gate E. It is still short of a scheduled quiet window, because the
+arms confirmed by run03↔run04 (the `cl_leaf` / `cl_chain` / `cl_atomic` and `cf_nl2` families) had
+at least one busy capture. Every row's exact status is in
+`analysis/field_verdicts.json` → `axes.reproducibility`, computed per arm from the measured process
+counts rather than asserted.
+
+---
+
 ## 3. Verdicts, on the six independent axes
 
 `analysis/field_verdicts.json` carries these machine-readably, keyed `<mnemonic>.<field>`, with the
