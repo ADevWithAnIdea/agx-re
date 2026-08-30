@@ -16,9 +16,9 @@
   "total_instructions": 171,
   "total_fields": 1057,
   "by_label": {
-   "hardware-run": 417,
+   "hardware-run": 418,
    "isolated-byte-diff": 95,
-   "corpus-correlation": 166,
+   "corpus-correlation": 165,
    "tokenization-only": 194,
    "single-template-inference": 13,
    "api-accept-reject": 0,
@@ -28,7 +28,7 @@
   "by_label_pct": {
    "hardware-run": 39.5,
    "isolated-byte-diff": 9.0,
-   "corpus-correlation": 15.7,
+   "corpus-correlation": 15.6,
    "tokenization-only": 18.4,
    "single-template-inference": 1.2,
    "api-accept-reject": 0.0,
@@ -2261,14 +2261,14 @@
     "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 255}; ok at {255 values}"
    },
    "lut_a_sel": {
-    "label": "corpus-correlation",
-    "range": "byte+4 bits 0-1, the only selecting bits (EXP-0146, dense 0..255 on the byte)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "bits 32-33, fully exercised by EXP-0154's dense op_base 0..1 x lut_a 0..15 x lut_b 0..15 sweep (512 cases) on G17P",
+    "target": "G17P",
     "evidence": [
-     "EXP-0013",
+     "EXP-0154",
      "EXP-0146"
     ],
-    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
+    "note": "Promoted from EXP-0154's `ilogic.lut_a` verdict, which was ORPHANED when a concurrent db.json edit split lut_a into lut_a_sel/lut_a_free/lut_a_z mid-experiment. The dense sweep covered lut_a values 0..15 = bits 32-35, which fully contains lut_a_sel (32-33). lut_a_free (34-36) is only 2/3 covered and lut_a_z (37-39) is untouched, so NEITHER was promoted -- `ilogic` is therefore NOT emittable, and EXP-0154's reported 45 (vs the merged 44) counted against the pre-split field model. \u26a0 SEE ALSO the operand-swap trap: EXP-0146's LUT table reproduces 16/16 only when its `a` is read as db.json's `srcB` and its `b` as `srcA`; under db.json's own names it scores 8/16 and the failures are exactly the eight ASYMMETRIC functions."
    },
    "lut_a_free": {
     "label": "corpus-correlation",
@@ -2278,7 +2278,7 @@
      "EXP-0013",
      "EXP-0146"
     ],
-    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
+    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary. NOT promoted from EXP-0154's dense `lut_a` sweep: that sweep covered lut_a 0..15 = bits 32-35 only, which does not fully contain this field. Needs a sweep over the full byte+4 domain."
    },
    "lut_a_z": {
     "label": "corpus-correlation",
@@ -2288,7 +2288,7 @@
      "EXP-0013",
      "EXP-0146"
     ],
-    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary."
+    "note": "FIELD-MODEL CORRECTION (EXP-0146, HW, dense 0..255): `lut_a` is a 2-bit LUT selector inside an 8-bit byte -- only bits 0-1 select, bits 2-4 are don't-care and bits 5-7 must be clear (rule (v & 0xE3) == 0x00 for the carrier's AND, 8 of 256 values ok). The label is NOT promoted by this split; it still rests on EXP-0013's corpus correlation, with EXP-0146 supplying the boundary. NOT promoted from EXP-0154's dense `lut_a` sweep: that sweep covered lut_a 0..15 = bits 32-35 only, which does not fully contain this field. Needs a sweep over the full byte+4 domain."
    }
   },
   "fspecial": {
