@@ -130,6 +130,39 @@ instruction then read and zeroed.
 `kIOGPUCommandBufferCallbackErrorInnocentVictim` means "discarded, victim of another context's
 error/recovery" — a sibling's reset, not a property of your encoding. Segregate those and re-run.
 
+### The exception, found the hard way: CONFIRMATION runs need a quiet machine
+
+Everything above is right for *sweeps* and stays. It is **not** right for a re-run whose whole
+purpose is to confirm an earlier observation, and two experiments established that independently on
+2026-08-30:
+
+- **EXP-0160** re-ran cases for confirmation while the machine was busy and the re-run
+  **manufactured faults**: `imad` v=186 was `silent_zero` in *both* gated runs and `fault` 3/5 on the
+  unlocked re-run. It retracted that path and gated instead on an evidence-validity filter — two
+  agreeing clean dumps win outright, since **contamination can destroy an observation but never
+  fabricate a coherent one**. That filter is the reusable idea here.
+- **EXP-0158** ran its confirmation against 8-12 sibling experiments and got **102 of 174 cases
+  giving MIXED outcomes across five runs of byte-identical programs**, with 427 `ErrorHang`
+  observations arriving in streaks. Its cross-run gate FAILS and was left failing.
+
+And the instruments are not a complete defence, which is the part to internalise:
+
+- **`InnocentVictim` is not the only contamination signature.** EXP-0158's streaks carried none.
+- **A contaminated dispatch can report `STATUS OK` and write nothing.** EXP-0160 saw 25 observations
+  with all 16 registers *and both sentinels* still poisoned and no victim string anywhere. Against a
+  zero-initialised buffer those would have been 25 confident `silent_zero`s.
+
+**So: sweep unlocked, but do not treat a busy-machine re-run as confirmation.** For a confirmation
+or re-validation pass, either (a) get a genuinely quiet machine — coordinate it with the
+orchestrator, who owns the window — or (b) adjudicate offline from the poisoned buffer and the
+sentinel, per EXP-0160's filter, and say in `RESULTS.md` which of the two you did.
+
+**Do not reinstate a lease to solve this.** `~/agxre/gpulease.sh` is a passthrough shim that takes
+no lock; it is deliberate, and a private lock nobody else is pointed at buys exclusivity you would
+still have to verify by other means. If you need a quiet window, ask for one and **record concurrent
+GPU activity for the duration** (sample the process table into `raw/`) so "the machine was quiet" is
+a measurement rather than a claim.
+
 ### The one remaining rule
 
 **Never conclude `fault` from a single observation.** Re-run every `fault`/`hang`/victim case,
