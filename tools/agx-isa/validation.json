@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0",
+ "db_sha256": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -16,32 +16,33 @@
   "total_instructions": 172,
   "total_fields": 1062,
   "by_label": {
-   "hardware-run": 522,
+   "hardware-run": 524,
    "isolated-byte-diff": 92,
    "corpus-correlation": 91,
    "tokenization-only": 151,
    "single-template-inference": 19,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 187
+   "untested": 185
   },
   "by_label_pct": {
-   "hardware-run": 49.2,
+   "hardware-run": 49.3,
    "isolated-byte-diff": 8.7,
    "corpus-correlation": 8.6,
    "tokenization-only": 14.2,
    "single-template-inference": 1.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 17.6
+   "untested": 17.4
   },
-  "emittable_instructions": 40,
+  "emittable_instructions": 41,
   "emittable_mnemonics": [
    "bf_add_dst",
    "carry_gen",
    "cvt_bf16",
    "cvt_f2h_dst",
    "cvt_i2f",
+   "falu2",
    "falu3",
    "falu3_ext",
    "frag_depth_store",
@@ -78,7 +79,7 @@
    "tex_addr_setup",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 132,
+  "decodable_not_yet_emittable": 131,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -89,7 +90,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 40
+  "emittable_of_emitter_relevant": 41
  },
  "instructions": {
   "falu2": {
@@ -239,22 +240,32 @@
     "note": "RETRACTED as a register-index bit AND as a retention flag. HW-tested INERT for both addressing and retention in six families; role UNKNOWN. Never synthesize a meaning for it (EXP-0099/0105/0113/0119)."
    },
    "srcA_class": {
-    "label": "untested",
-    "range": "byte+5 bit0, within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+    "label": "hardware-run",
+    "range": "the field is 1 bit(s) wide, so its full encodable range is 2 values, and both were executed; EXP-0170 re-scored it over 64 common CASES at 100.0% per-value cross-run agreement (runs m4_20260828_run01 vs m4_20260828_run05)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 2 values dispatched, 1 carrier(s) tested, 127 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "RESTORED by orchestrator 2026-08-30 after EXP-0170. EXP-0164 withdrew this field on a pairing against EXP-0138's run02, which EXP-0138's own README disowns -- killed by a machine-wide MTLCompilerService collapse and replaced by run06. Scored against an eligible partner the field reaches 100.00% agreement on 64 common cases and passes the UNCHANGED EXP-0164 gate; no placeholder records are involved. Not superseded by any sweep in flight.",
+    "values_dispatched": 2,
+    "encodable_range": 2,
+    "start": 40,
+    "width": 1,
+    "distinct_bytes": null
    },
    "srcB_class": {
-    "label": "untested",
-    "range": "byte+5 bits[2:1], within the dense 0..7 sweep of the former 3-bit `mod_lo`",
+    "label": "hardware-run",
+    "range": "the field is 2 bit(s) wide, so its full encodable range is 4 values, and both were executed; EXP-0170 re-scored it over 64 common CASES at 100.0% per-value cross-run agreement (runs m4_20260828_run01 vs m4_20260828_run05)",
     "target": "M4",
     "evidence": [
      "EXP-0138"
     ],
-    "note": "EXP-0164 withheld: 4 values dispatched, 1 carrier(s) tested, 92 observations moved, but the movement does not reproduce across the two gated runs at >=99% per-value agreement with movement >= 2x the disagreement count. Needs a third gated run."
+    "note": "RESTORED by orchestrator 2026-08-30 after EXP-0170. EXP-0164 withdrew this field on a pairing against EXP-0138's run02, which EXP-0138's own README disowns -- killed by a machine-wide MTLCompilerService collapse and replaced by run06. Scored against an eligible partner the field reaches 100.00% agreement on 64 common cases and passes the UNCHANGED EXP-0164 gate; no placeholder records are involved. Not superseded by any sweep in flight.",
+    "values_dispatched": 4,
+    "encodable_range": 4,
+    "start": 41,
+    "width": 2,
+    "distinct_bytes": null
    }
   },
   "falu2i": {

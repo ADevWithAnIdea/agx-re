@@ -518,3 +518,152 @@ shift_amt_move         src_flag              2      26
 on `atomic_mem.addr_desc_hi` (4), `mov_imm.imm_top` (2), `falu_acc.cache` (2) and
 `shift_amt_move.src_flag` (2) is the field's real `encodable_range`, which the
 verdict rows will carry as `encodable_range` alongside `start`/`width`.
+
+## 2026-08-30 — M10: PREFREEZE SMOKE CAUGHT THREE CARRIER DEFECTS IN MY OWN
+##                  HARNESS. All three are the failure classes this experiment
+##                  was built to expose, and all three are now fixed.
+This is the whole point of running S1–S6 before a gated run, so it is recorded
+in full including the parts where I was the one who got it wrong.
+`raw/prefreeze/{diag_byte0,diag_fals2,diag_fals3}.json` + smoke summaries.
+
+**S4 PASSES first, which is what licenses everything else:** an empty program
+leaves all 104 words `0xDEADBEEF`. So `invalid_poison` really is distinguishable
+from `silent_zero` on this target.
+
+### Defect 1 — MY SEED TABLE COLLIDED WITH THE VALUE UNDER TEST (R1, again)
+`SEED_I[15]` was **0**, and `raw/prefreeze/diag_byte0.json` measures that the
+reg_move forms 0x00 / 0x01 / 0x03 **write zero**. So at `dst = 15` the dump
+could not distinguish "wrote 0 into r15" from "did nothing" — a by-construction
+blind spot of exactly the kind I convicted EXP-0140 of, sitting in my own
+oracle. `SEED_I[15] = 121` and `SEED_F[15] = 2.5` (an exact minifloat fixed
+point, asserted at import). `SEED_F[14]` must stay `+0.0` — it is the `+0.0`
+source every float seed adds to — so for `kind="float"` arms `dst = 14` remains
+undecidable when the instruction writes `+0.0`. That limit is recorded, and the
+int carrier covers r14.
+
+### Defect 2 — THE FALSIFIER WAS CONFOUNDED WITH THE FIELD UNDER TEST
+The generic falsifier forces `byte0 = 0x00` ("this is not the instruction"). For
+the four REGMOVE arms it produced a digest **identical to the baseline**, so the
+control had no power at all. The cause is structural: `uniform_mov`'s `byte0` is
+`opcode nibble (bits 0..3, match-pinned to 0xb) | dst (bits 4..7)`, so
+`byte0 = 0x00` **also sets dst = 0** — and the anchor's own dst is 0.
+
+A 256-value sweep of that byte settles it, and it is a hardware finding in its
+own right (`raw/prefreeze/diag_byte0.json`, at forms 0x00 and 0x01):
+- low nibble **0x0 and 0x1 are DIFFERENT instructions that write the SAME
+  destination register from the SAME dst bits** (0x0 writes `0x000000ab`), so
+  `byte0 = 0x00` is not "not an instruction", it is a structurally parallel one;
+- low nibbles **0x4, 0x6, 0x7, 0xc, 0xe, 0xf change the instruction LENGTH** —
+  their signature is a partially-poisoned dump (`r0..r8 = deadbeef`), i.e. the
+  rest of the program was misparsed;
+- low nibbles **0x5 and 0xd are the only two that are inert with the program
+  still completing** at BOTH forms. `0x55` (lo = 0x5, dst = 5, seed 65 ≠ 0) is
+  therefore a falsifier that provably fires.
+Two more arms had the same disease and needed individually measured values:
+`COPYSIGN/lowpress` (95/256 byte0 values fire; `byte0 = 0x00` writes `+0.0` into
+the destination just as copysign does → `0x05`) and `ATOMIC/highreg`
+(87/256 fire; `0x00` fires on `lowreg`/`minop` but **not** on this carrier
+→ `0x02`).
+
+**GENERALISABLE RULE #2, for FIELD-SWEEP-PROTOCOL, companion to the co-variation
+rule: a falsifier that clobbers a byte carrying BOTH the opcode and a field
+under test is confounded with that field's own values.** "Not this instruction"
+must be expressed in bits the field does not own, and the substitute must be
+*measured* to fire, not assumed to.
+
+### Defect 3 — TWO STOP ARMS WERE ONE CARRIER (R2, in my own harness)
+`STOP/terminal` fell through to `synth_program()`, which places the block under
+test in the BODY — byte-for-byte the same program shape as
+`synth_program_midstop()`. On hardware both produced the identical observation
+(whole dump poison, POST poison). Two arms, one carrier: the exact R2 violation
+I convicted EXP-0155 of. Fixed with a real second builder,
+`isa_helpers.synth_program_terminalstop()`: seeds → PRE → **dump** → POST →
+[stop under test] → witness write into `W_PROBE` → stop. Measured after the fix:
+
+| arm | baseline | falsifier |
+|---|---|---|
+| `STOP/terminal` | full dump present, `W_PROBE = 0xDEADBEEF` | full dump, **`W_PROBE = 0x4d = 77`** (did not terminate) |
+| `STOP/midprogram` | **whole dump poison**, POST poison | full dump present, POST = 111 |
+
+Baselines now differ, and each arm has its own two-state observable.
+
+### The ladder `stop` cannot have, named rather than waived
+`stop` has **no known-live field** — every bit is either the opcode or the
+`reserved` field under test — so R3's "sweep a known-live control of the same
+instruction" is unbuildable and both STOP arms have an empty ladder. Rather than
+let `ladder_pass = None` drift through the gate, `analysis/verdicts.py` now
+records `ladder_kind` on every verdict row: `field_control` (33 arms) or
+**`falsifier_contrast`** (the 2 STOP arms), where detection power comes from a
+mutation of the same instruction's own byte0 driving the observable to a second
+distinct state on that exact carrier. It is accepted only when the falsifier
+fires in every gated run, and the row always says which kind was used.
+
+### Also measured, and it removes a real worry
+All five STYLE-P observables are **deterministic**: 6 identical dispatches of
+`k_atomic_hi`, `k_atomic_lo`, `k_atomic_min`, `k_if_flat` and `k_if_nest3` each
+gave **1 distinct digest**. A nondeterministic observable would have made every
+cross-run agreement number meaningless.
+
+### Freeze state going into the gated runs
+Re-smoked all 35 arms: **PROBLEMS: NONE** — every live arm has `baseline = OK`,
+a ladder with ≥2 distinct digests (or `falsifier_contrast`), and a falsifier that
+fires. 2 arms `arm_not_run` with reasons. Matrix **10,366 cases**, sha256
+**`90f79d21d47cd77d6567a9ead2bff56403acf0be0278ef8cfbc1081af10176da`**
+(supersedes `4b93fa51…`, which supersedes the fixture's `2ce2b126…`).
+The three fixes are pre-observation: `raw/` still contains no gated case.
+
+## 2026-08-30 — M11: gated run02 DISPATCHED; render arm completed offline
+**run02 launched** (`--order forward`) with `gpuwatch.py` sampling the target
+process table alongside it, so "the machine was quiet" is a measurement.
+Throughput on real anchors is **~5.6 cases/s**, not the 44.9 EXP-0154 measured —
+this matrix pays for majority-of-3 confirmation, an OS-fault-class lookup on
+every non-`ok` case, and a baseline revalidation every 300 — so a gated run is
+**~30 min**, not ~4. Three runs is ~90 min of device time. Recorded because M6's
+estimate was wrong by 8x and the next experiment should not inherit it.
+
+Early run02 shape (first 12 arms): `wrong_value` 1675 · `ok` 710 ·
+`silent_zero` 367 · `fault` 274, and **14 `invalid_sentinel`** cases correctly
+diverted to re-run rather than being recorded as silent zeros. The
+validity/outcome separation is earning its keep on live data.
+
+### Two gaps closed in the render arm while run02 ran
+**1. `kernels/r_vmix.metal` DID NOT EXIST.** `rendercarriers.CARRIERS["r_vmix"]`
+named it and nothing on disk provided it, so that carrier would have failed at
+census. It is the arm's stated *discriminator* for `vtx_out_pos.slot`: with
+uniform-width varyings, "ordinal into a slot table" and "byte offset into the
+output block" differ only by a constant factor and are indistinguishable at
+every value of `slot`; mixed widths make the map non-linear. Authored to match
+`vtx_values_mix()`'s twelve predicted observables exactly —
+`half/half2/float/float2/float4` into 3 RGBA32Float targets, every value an
+exact power-of-two multiple so the oracle never depends on a rounding mode. All
+16 carriers now have their source on disk (checked, not assumed).
+
+**2. `iter_at.grp` had NO ARM AT ALL** — it is in this experiment's dispatched
+scope and the render harness targeted only three instructions. Added as its own
+family `itr`, deliberately bounded:
+- **the descriptor defect is carried in the target spec, not just in prose**:
+  `legal_values=[0x2f, 0xaf]`, `encodable_range=2`,
+  `declared_width_is_wrong=True`, `coverage_is_bounded_by_descriptor=True`. This
+  field **cannot** satisfy this experiment's own dense-coverage clause (2^8 for
+  w=8) because **only two encodings exist**. It is reported that way and the
+  orchestrator rules; I do not quietly relax my own gate for it.
+- **two carriers differing in the ONE dimension iter_at has ever moved in**:
+  `r_i8` (samples=1) and `r_i8s` (samples=4), same MSL source. Per M3 these are
+  *not* byte-identical programs — `rasterSampleCount` is an input to the
+  fragment compile — and the write-up says so rather than claiming byte-identity.
+  Reusing `r_v8.metal` is deliberate: eight distinct power-of-two varyings force
+  eight interpolated fetches, so `iter_at` is certain to be emitted and a
+  redirect is decodable.
+- **ladder = `iter_at.loc`**, byte+7, which is NOT covered by any of iter_at's
+  three match constants and which EXP-0163 measured moving 128/256 at samples=4
+  and inert at 1. The expected result is an **asymmetry between the two
+  carriers**, and that asymmetry is itself the detection-power proof — it says
+  which carrier an inert `grp` verdict may even be reported from.
+- **falsifier = the zero-hazard DATA falsifier only.** 254 of `grp`'s 256 values
+  are out-of-descriptor and two prior experiments hung on them; a byte-splice
+  falsifier here would spend the device rather than prove detection.
+- **byte-mate = the 7-bit pin at its own legal value 0x2f only** (a no-op control
+  that must reproduce the baseline). The out-of-descriptor region is **not** swept.
+
+`work/render_build/mocktest.py`: **MOCK TEST PASS** with the new family and
+carrier in place. `work/gfrun3` built on the target (75,960 B).

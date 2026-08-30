@@ -1,0 +1,229 @@
+{
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "e3f5888ea7af66db9ce9ddfe203d0387eb6a9acd354081d751269122435be72a",
+  "harness/anchors.py": "8c45a4260d4e82266c1850346edd295c8d7c3e622169fcdfc66e5d8268676f7e",
+  "harness/casematrix.py": "da810511a818f3b1f17ae08c3db16dc520c4cb1dd56b0f3d6a6890d7374014e1",
+  "harness/isa_helpers.py": "5a23432f337d1fc7745ac4bdd0b3036187391ce61b5a35c75ff6c31e40421ea2",
+  "harness/run.py": "7a41fb2d14c3576aea5eb60646bc92d4fc59df91336f1e59f8ddd94590f328a3",
+  "harness/sweeprun.py": "0078beb5c5f6b97acc1139301350079ecca825f594f9f12a8ccf3a340943bef7",
+  "harness/sync.sh": "019032d26f49fce1fec24af623fd5f618841837c68d98ea153f67e8ae243cdea",
+  "kernels/carrier_dag.metal": "2516109178e7ffe23c9aff1d8b3d728ac2aac033660ac0774950409308d9081a",
+  "kernels/probes.metal": "ed4636b7043682692026bf3deac008774060b5a3ccf44e5125f0347f60cb323a"
+ },
+ "carriers": {
+  "FRAME": "SYNTH plus a two-instruction framing probe (6B falu2i then 2B mov_imm) immediately after the block under test",
+  "NAT": "the probe kernel's own compiled archive, ONE byte spliced in place; operands LOADED from device buffers; result consumed by the COMPILER'S OWN device_store; observable = out[] in device memory; sentinels in a separate device buffer (index 4)",
+  "SYNTH": "carrier_dag.metal's whole _agc.main replaced by a program assembled from tools/agx-isa's field rules, with the instruction under test lifted byte-for-byte; observable = 16 GPRs dumped + PRE/POST sentinel words"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/probes.metal + kernels/carrier_dag.metal (authored by us) and the AGX machine code the PUBLIC Metal runtime API compiled FROM THEM"
+ },
+ "concurrency": {
+  "lease": "NOT taken -- sweeps run unlocked per FIELD-SWEEP-PROTOCOL sect 7",
+  "recorded": "00_env.json samples the concurrent agxrun_persist count"
+ },
+ "deliverable_constraints": [
+  "no git commit",
+  "no edits to db.json / validation.json / docs/ / PROVENANCE.md"
+ ],
+ "experiment": "EXP-0171-g17p-ilogic-srca",
+ "frozen_tool_snapshot_sha256": {
+  "work/frozen/db.json": "322847609de79055b651b79fbd630948bb97120bcefd037a3c7ae5a301ba64a5",
+  "work/frozen/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "work/frozen/validation.json": "34e62ca2bdd655ec1751405a03055b7f9e54cd890134d2cdbadb8eb79865532e"
+ },
+ "frozen_utc": "2026-08-30",
+ "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF; EXP-0082)",
+ "gated_runs": [
+  "g17p_20260830_run01",
+  "g17p_20260830_run02"
+ ],
+ "matrix": {
+  "anchor_report_sha256": "30832158ad468ee23a9e6f1868d8802f2bc40e9748e876dee0446128569347fe",
+  "cases": 35949,
+  "generator": "harness/casematrix.py::build_cases(anchor_report)",
+  "matrix_sha256": "bce0b7dee4dcbd4c93d21bc24d52e282a2d37ce348026b0decf712102ee0001b",
+  "per_group": {
+   "1:ILOGIC": {
+    "FRAME:k_and": 2049,
+    "NAT:k_and": 2053,
+    "NAT:k_andn": 773,
+    "NAT:k_nand": 773,
+    "NAT:k_or": 773,
+    "NAT:k_xor": 773,
+    "SYNTH:k_and": 2305
+   },
+   "2:IBITCOUNT": {
+    "FRAME:k_popcnt": 1025,
+    "NAT:k_clz": 1025,
+    "NAT:k_popcnt": 1025,
+    "SYNTH:k_popcnt": 1025
+   },
+   "3:BF_FMA_DST": {
+    "FRAME:k_bffma": 1843,
+    "NAT:k_bffma": 1843,
+    "SYNTH:k_bffma": 2099
+   },
+   "4:FSPECIAL_EST": {
+    "FRAME:k_rsqrt": 1025,
+    "NAT:k_rsqrt": 1025,
+    "SYNTH:k_rsqrt": 1025
+   },
+   "5:IADD2": {
+    "FRAME:k_u32add": 1025,
+    "NAT:k_u32add": 1025,
+    "SYNTH:k_u32add": 1025
+   },
+   "6:BF_ALU": {
+    "FRAME:k_bfadd": 1579,
+    "NAT:k_bfadd": 1579,
+    "NAT:k_bfmul": 1579,
+    "SYNTH:k_bfadd": 1835
+   },
+   "7:IBFE": {
+    "NAT:k_bfe": 1281,
+    "NAT:k_bfe_s": 1281,
+    "SYNTH:k_bfe": 1281
+   }
+  },
+  "skipped": [
+   [
+    "ILOGIC",
+    "NAT",
+    "k_and_sel",
+    "instr_absent"
+   ],
+   [
+    "ILOGIC",
+    "NAT",
+    "k_and_if",
+    "instr_absent"
+   ],
+   [
+    "FSPECIAL_EST",
+    "NAT",
+    "k_recip_fast",
+    "instr_absent"
+   ],
+   [
+    "FSPECIAL_EST",
+    "NAT",
+    "k_rsqrt_fast",
+    "instr_absent"
+   ]
+  ]
+ },
+ "not_run": {
+  "funary": "funary.op overlaps a set match bit (DEF-0166-1); the descriptor needs repair before a sweep means anything",
+  "icmp_pred": "EXP-0169 is concurrently building the divergent-block carrier",
+  "ilogic_predicate_consumed_pole": "not reachable from our own MSL on G17P (isel10); recorded as instr_absent",
+  "packed_half2_hi": "dropped: 3 blocking fields, one a 16-bit mods, and half-precision rounding leaves no exact host oracle"
+ },
+ "oracle": {
+  "co_variation_check": "PASSED at freeze -- NAT's read-back is the compiler's own device_store (a different instruction) and ilogic has no dst field; byte0 (which carries dst per DEF-0171-1) is swept ONLY on SYNTH. SYNTH dumps all 16 GPRs in a fixed order in every case. See PRE_REGISTRATION.md sect 5 and EXP-0140/EXP-0168's defect.",
+  "primary": "HOST-COMPUTED, no GPU involvement, for every NAT integer kernel (harness/sweeprun.py::host_oracle_nat)",
+  "recorded_per_case": "oracle.source names which one adjudicated the case; baseline_digest is recorded alongside so either adjudication can be redone offline",
+  "secondary": "the measured unmutated baseline, for the SYNTH/FRAME register-file observable and every float/half/bfloat arm"
+ },
+ "promotion_rule": {
+  "both_runs_cover_value": true,
+  "carrier_gates": "F1 (byte0:=0 falsifier must be non-ok) and F2 (dense ladder byte must move) per carrier; a carrier failing either is DISCARDED, not reported as inertness",
+  "coverage": "distinct_bytes == encodable_range for the field's own bits, counted from raw (analysis/coverage.py); NEVER the dispatched-value count (DEF-0166-1)",
+  "coverage_keys_emitted": [
+   "values_dispatched",
+   "distinct_bytes",
+   "encodable_range",
+   "start",
+   "width"
+  ],
+  "cross_run_agreement": ">=0.99 per value",
+  "hygiene": "sentinel_bad <= 1% of the field's cases; invalid_run cases never counted as evidence",
+  "movement": ">= 2x the disagreement count",
+  "never_moved": "promotable ONLY if the carriers differ in the dimension the field controls, named in the verdict row; unknown role -> single-template-inference, never hardware-run"
+ },
+ "raw_schema": "PRE_REGISTRATION.md sect 12",
+ "repo_revision": "dc367a43dc83b58d4b60b4d9f9fd92295379a9b1",
+ "repo_tree_dirty_at_freeze": true,
+ "step0_precedes_freeze": {
+  "findings_that_changed_the_design": [
+   "DEF-0171-1 (ilogic byte0 match over-fitted to dst r0; b_alu10_lof/loe are the same instruction)",
+   "DEF-0171-2 (no length rule for byte0==0x31; G17P's own bfloat ALU does not tokenize; bf_alu's match and bf_fma_dst.fmt's enum do not describe what G17P emits)",
+   "fspecial_est subop == 0x0f on G17P, absent from db.json's enum",
+   "the predicate-consumed ilogic pole is not reachable from our own MSL on G17P (isel10 instead)"
+  ],
+  "what": "harness/anchors.py -- compile our own MSL and tokenize it. NO GPU dispatch.",
+  "why": "so this contract can carry the exact case count and matrix hash rather than a promise; an underspecified frozen contract is an automatic stop (CODEX)."
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "host": "users-MacBook-Neo.local",
+  "ip_at_freeze": "192.168.10.243",
+  "machine": "Mac17,5",
+  "name": "A18 Pro / G17P",
+  "note": "the ONLY device dispatched to. The local M4 is retired for GPU work; M5 is out of scope.",
+  "os": "26.6"
+ },
+ "timeouts": {
+  "baseline_revalidate_every": 250,
+  "hang_stop_per_arm_carrier": 2,
+  "majority_of": 3,
+  "per_request_watchdog_s": 8,
+  "shdump_s": 300
+ },
+ "tools_readonly": [
+  "tools/shdump",
+  "tools/agxtest",
+  "tools/agx-isa"
+ ],
+ "verdict_keys_explicitly_disclaimed": [
+  "*.dst (EXP-0168 owns the name on all 14 descriptors)",
+  "bf_alu.opsel (EXP-0169)",
+  "b_alu10_lof.dst / b_alu10_loe.dst"
+ ],
+ "verdict_keys_owned": [
+  "b_alu10_loe.ext8",
+  "b_alu10_loe.ext9",
+  "b_alu10_loe.modA",
+  "b_alu10_loe.modB",
+  "b_alu10_loe.outmod",
+  "b_alu10_loe.srcA",
+  "b_alu10_loe.src_flag",
+  "b_alu10_loe.src_reg",
+  "b_alu10_loe.z6",
+  "b_alu10_lof.ext8",
+  "b_alu10_lof.ext9",
+  "b_alu10_lof.modA",
+  "b_alu10_lof.modB",
+  "b_alu10_lof.outmod",
+  "b_alu10_lof.srcA",
+  "b_alu10_lof.src_flag",
+  "b_alu10_lof.src_reg",
+  "b_alu10_lof.z6",
+  "bf_alu.srcA",
+  "bf_alu.srcB",
+  "bf_alu.tail",
+  "bf_fma_dst.fmt",
+  "bf_fma_dst.tail",
+  "fspecial_est.srcA",
+  "fspecial_est.subop",
+  "iadd2.b2_fmt",
+  "iadd2.srcA",
+  "ibfe.b2_bit0",
+  "ibfe.sign_ext",
+  "ibfe.srcA",
+  "ibitcount.tail",
+  "ilogic.lut_a_free",
+  "ilogic.lut_a_sel",
+  "ilogic.lut_a_z",
+  "ilogic.outmod",
+  "ilogic.z6",
+  "ilogic.z8",
+  "ilogic.z9"
+ ]
+}

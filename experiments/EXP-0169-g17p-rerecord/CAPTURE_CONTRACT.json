@@ -64,6 +64,15 @@
    "verified": "assemble/disassemble round-trip on falu2 and imm_encode/imm_decode against the pinned pair; harness/selftest.py still 0 failures; and anchors.py run on G17P BEFORE and AFTER the fix produced BYTE-IDENTICAL anchor_report.json and arm_resolution.json -- the difference is a field partition over the same bits, not a length rule, so no observation was affected. Both stale artefacts are retained: work/anchors_staledb_20260830/, work/frozen_neo_stale_20260830/.",
    "what": "work/frozen/ is populated from the PINNED work/db.snapshot.json plus tools/agx-isa/isadb.py, and that pair is pushed to the neo at ~/agxre/EXP-0169/work/frozen/ so isa_helpers._find_isadb() resolves to it on BOTH sides. pinned_inputs_sha256 gains work/frozen/db.json and work/frozen/isadb.py.",
    "why": "The neo's shared ~/agxre/tools/agx-isa/db.json is STALE: 1036 fields / 171 instructions against the pinned snapshot's 1060 / 172, with 65 field geometries differing -- three of them on falu2, this experiment's wave A primary descriptor. The stale copy predates EXP-0138's split of bits 40..42 into srcA_class (40,1) + srcB_class (41,2) and instead carries a single mod_lo (40,3). work/frozen did not exist on the neo, so _find_isadb() fell through to that stale copy. H4(a) tests EXP-0138's model AT srcB_class==1, a field name absent from the stale db, so raw_schema.field_is_a_db_field_name would have been violated and verdicts.field_geometry() would have keyed every falu2 verdict to mod_lo -- silently dropping two in-scope fields and inventing one out-of-scope field."
+  },
+  {
+   "consequence_for_the_gated_pair": "BLOCKING. C2_load seed non-determinism is invisible to every existing guard: the sentinels are mov_imm-materialised and always land; the retry loop breaks on the first non-fault attempt so majority_of:3 never engages; `match` is digest equality against a baseline refreshed only every 250 cases, so a differently-seeded baseline records up to 250 cases as MOVEMENT (a false LIVE); and sem_oracle is fed MODELLED seeds, so falu2/falu2i would have been labelled SEMANTIC-ORACLE-FAILED -> DOES-NOT-REPRODUCE on an artefact of my own seed path. C1_alu, C3_uni and C4_store are mov_imm-seeded and immune.",
+   "found": "(1) device_load on G17P is ASYNCHRONOUS and this harness issues NO wait or scoreboard barrier: registers landed = 0,0,0,0,2,5,8,8 of 8 for filler = 0,2,4,8,16,32,64,128 instructions between issue and use. HW-VALIDATED. (2) idx_off unit = 1 WORD (23 of 23 landed entries have word_index == idx_off), DIFFERENT from device_store's 4 words. (3) The smoke-S2 sequence landed 11 of 14 in pilot01 and 14 of 14 on five consecutive repeats in pilot03 -- the SAME program giving different seeds at different times. (4) run.py:232 int(calib.get('idx_unit_words', 1)) would have raised TypeError, because S3 wrote the key as null and .get returns None rather than the default -- the gated run would have died at startup.",
+   "id": "amendment_07",
+   "touches": "adds two pilot instruments and the measured calib.json. No case, encoding, carrier, oracle, ladder, coverage rule or promotion gate changes. The gated pair is NOT started; the fix for the C2_load seed path is referred to the orchestrator because it would require editing a frozen blob.",
+   "utc": "2026-08-30",
+   "what": "Two NEW pilot-stage instruments added: harness/calibprobe.py (pilot02, breaks the destination/offset confound in smoke S3) and harness/calibprobe2.py (pilot03, the load-latency test E1 and the S2-determinism repeat E2). work/calib.json is replaced by the MEASURED calibration. No frozen blob is edited; both probes build every program from the frozen isa_helpers helpers through the frozen run.build_prog_static path.",
+   "why": "harness/smoke.py step S3 FAILED to solve the device_load idx_off unit, and the S2 baseline on C2_load read 0 into r0,r1,r2. S3 varies destination and offset together so the pilot data could not attribute the failure. Diagnosis, not repair, was required before any gated dispatch."
   }
  ],
  "authored_sha256": {
@@ -74,6 +83,8 @@
   "analysis/reindex_check.py": "7b51ff5124671897e3cff6d4bdd5af0aaf4adec07411ead0bb7cbe2edab31fc1",
   "analysis/verdicts.py": "f98768981f2d510a40d45f8fa777822ebda8e6f70cdd1a5f90aa8f88b49172a6",
   "harness/anchors.py": "9970eb33cd914424530e69b76f69458a1e214f90129d740b25b759cff39af847",
+  "harness/calibprobe.py": "bf2cb637e190f9847adb68cb2d5767c0c549688d94094165a8b0ca22459c2279",
+  "harness/calibprobe2.py": "28f61982080037de89fec49d28ceda44991e64894b17d100454ada41d9c022cf",
   "harness/casematrix.py": "168646ff351ac6cdc8d19cf9ece7af1d990310df7366dbc58b5d63b4a9a14df3",
   "harness/isa_helpers.py": "a9d5a745473777c36aa1f58c92c1bf3e0627cab4bbb7892b88bb0146030e6535",
   "harness/procsample.py": "76513506031aebccc7250e46416dd36b2e3b7b2b214e7377775e194da183694d",
@@ -134,7 +145,7 @@
   "resolved_sha256": "RECORDED IN raw/<run>/00_env.json BEFORE THE FIRST GATED DISPATCH; must be identical in both gated runs",
   "rule_frozen_here": true
  },
- "pilot_run": "pilot01",
+ "pilot_run": "pilot01 (smoke), pilot02 (dst/offset confound), pilot03 (load latency)",
  "pinned_inputs_sha256": {
   "EXP-0164/analysis/collect_raw.py": "aa15cd24d69d6ab5f06a34f0dda6467c3325105402b1ed112b2a10e0b0c06cde",
   "EXP-0164/analysis/withhold_unverifiable.json": "79bfd5b986aae71d37de54e76293cbb5ae9554463019ecc1dd5e35f0fd7776cc",

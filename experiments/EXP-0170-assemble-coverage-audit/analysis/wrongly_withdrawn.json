@@ -1,0 +1,1001 @@
+{
+ "_meta": {
+  "NOT_a_merge_file": "deliberately NOT FIELD-SWEEP-PROTOCOL 5 schema -- no top-level `label` key, so work/merge_verdicts.py cannot consume it. EXP-0170 promotes NOTHING; this is a list for the orchestrator to rule on.",
+  "g17p_supersession": "4 of the 13 rows are inside EXP-0168-g17p-dst-resweep's pre-registered device scope; see each row's g17p_sweep_in_flight. falu2.srcA_class/srcB_class are in NEITHER EXP-0168's nor EXP-0169's scope (EXP-0169 owns the UNVERIFIABLE 144; these are in the UNSTABLE 41), so nothing in flight supersedes them.",
+  "gate": {
+   "MIN_AGREE_PCT": 99.0,
+   "MIN_COMMON": 2,
+   "MOVED_OVER_DISAGREE": 2.0,
+   "source": "imported verbatim from EXP-0164/analysis/audit.py"
+  },
+  "generated_by": "EXP-0170/analysis/emit_wrongly_withdrawn.py",
+  "listed_here": "only the fields whose verdict is NOT `AGREES`",
+  "mergeable": false,
+  "population": "the 266 fields in EXP-0164's withhold_inert_single.json (81), withhold_unstable.json (41) and withhold_unverifiable.json (144)",
+  "scorings": {
+   "S1": "EXP-0164 audit.json as committed",
+   "S2": "audit's run pair, placeholders dropped (D.2)",
+   "S2f": "audit's own runA/runB held fixed, placeholders dropped (the scoring the dispatch used; H8 is tested against this)",
+   "S3": "PRIMARY: D.2 + D.3 eligibility",
+   "S3b": "sensitivity: S3 with self-declared-used SCOPE.md runs re-admitted"
+  },
+  "verdict_totals_over_all_266": {
+   "AGREES": 253,
+   "STILL-WITHHELD-OTHER-REASON": 11,
+   "WRONGLY-WITHDRAWN": 2
+  }
+ },
+ "fields": {
+  "cvt_f2h.op": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 91.41,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 160,
+    "movedB": 160,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_f2h/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_rv01__cvt_f2h"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 91.41,
+     "bucket": "UNSTABLE",
+     "common": 256,
+     "placeholder_records_dropped": 0,
+     "runA": "m4_20260828_run03",
+     "runB": "m4_20260828_rv01__cvt_f2h",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_rv01__cvt_f2h"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_f2h"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "SINGLE-RUN",
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_f2h"
+     ]
+    }
+   },
+   "field": "op",
+   "g17p_sweep_in_flight": {
+    "action": "DEFER",
+    "cite": "PRE_REGISTRATION.md:53 group B ('the 12 one-field-away'), swept in its 4.6",
+    "experiment": "EXP-0168-g17p-dst-resweep",
+    "note": "an M4 restoration here would be superseded; EXP-0170 recommends waiting for the G17P row"
+   },
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "cvt_f2h",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": null,
+   "span_moved_since_EXP-0164_db": false,
+   "start": 16,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "cvt_f2i.dst": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 82.42,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 88,
+    "movedB": 88,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_f2i/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_rv01__cvt_f2i"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 98.14,
+     "bucket": "UNSTABLE",
+     "common": 215,
+     "placeholder_records_dropped": 41,
+     "runA": "m4_20260828_rv01__cvt_f2i",
+     "runB": "m4_20260828_run03",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_rv01__cvt_f2i"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_f2i"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "SINGLE-RUN",
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_f2i"
+     ]
+    }
+   },
+   "field": "dst",
+   "g17p_sweep_in_flight": {
+    "action": "DEFER",
+    "cite": "PRE_REGISTRATION.md:52 group A ('the `dst` field name', cvt_f2i listed), swept in its 4.6",
+    "experiment": "EXP-0168-g17p-dst-resweep",
+    "note": "an M4 restoration here would be superseded; EXP-0170 recommends waiting for the G17P row"
+   },
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "cvt_f2i",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": null,
+   "span_moved_since_EXP-0164_db": false,
+   "start": 24,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "cvt_i2f_src.dst_desc": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 89.45,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 92,
+    "movedB": 92,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_i2f_src/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_rv01__cvt_i2f_src"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 99.13,
+     "bucket": "STABLE-LIVE",
+     "common": 231,
+     "placeholder_records_dropped": 25,
+     "runA": "m4_20260828_rv01__cvt_i2f_src",
+     "runB": "m4_20260828_run03",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_rv01__cvt_i2f_src"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_i2f_src"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "SINGLE-RUN",
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__cvt_i2f_src"
+     ]
+    }
+   },
+   "field": "dst_desc",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "cvt_i2f_src",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": null,
+   "span_moved_since_EXP-0164_db": false,
+   "start": 24,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "falu2.srcA_class": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 96.88,
+    "bucket": "UNSTABLE",
+    "common": 64,
+    "movedA": 21,
+    "movedB": 22,
+    "raw_files": [
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run02/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run03/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run07/"
+    ],
+    "runA": "m4_20260828_run01",
+    "runB": "m4_20260828_run02"
+   },
+   "evidence": [
+    "EXP-0138"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 96.88,
+     "bucket": "UNSTABLE",
+     "common": 64,
+     "placeholder_records_dropped": 0,
+     "runA": "m4_20260828_run01",
+     "runB": "m4_20260828_run02",
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run02",
+      "EXP-0138/m4_20260828_run03",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06",
+      "EXP-0138/m4_20260828_run07"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 64,
+     "runA": "m4_20260828_run01",
+     "runB": "m4_20260828_run05",
+     "runs_excluded_as_ineligible": [
+      "EXP-0138/m4_20260828_run02",
+      "EXP-0138/m4_20260828_run03",
+      "EXP-0138/m4_20260828_run07"
+     ],
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06"
+     ]
+    }
+   },
+   "field": "srcA_class",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "falu2",
+   "recommendation": "RESTORE-CANDIDATE",
+   "source_experiment_self_conflict": null,
+   "span_moved_since_EXP-0164_db": false,
+   "start": 40,
+   "target": "M4",
+   "verdict": "WRONGLY-WITHDRAWN",
+   "why": "The audit paired run01 against run02. EXP-0138's own README disowns run02 (killed by a machine-wide MTLCompilerService collapse) and names run06 as its replacement; the gated pair EXP-0138 actually analysed is run01+run06 with run05 as a third annotating run. Scored against an eligible partner the field reaches 100.00% agreement on 64 common values and passes the UNCHANGED gate. Placeholders are not involved (0 dropped).",
+   "width": 1
+  },
+  "falu2.srcB_class": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 96.88,
+    "bucket": "UNSTABLE",
+    "common": 64,
+    "movedA": 15,
+    "movedB": 17,
+    "raw_files": [
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run02/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run03/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/",
+     "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run07/"
+    ],
+    "runA": "m4_20260828_run01",
+    "runB": "m4_20260828_run02"
+   },
+   "evidence": [
+    "EXP-0138"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 96.88,
+     "bucket": "UNSTABLE",
+     "common": 64,
+     "placeholder_records_dropped": 0,
+     "runA": "m4_20260828_run01",
+     "runB": "m4_20260828_run02",
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run02",
+      "EXP-0138/m4_20260828_run03",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06",
+      "EXP-0138/m4_20260828_run07"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 64,
+     "runA": "m4_20260828_run01",
+     "runB": "m4_20260828_run05",
+     "runs_excluded_as_ineligible": [
+      "EXP-0138/m4_20260828_run02",
+      "EXP-0138/m4_20260828_run03",
+      "EXP-0138/m4_20260828_run07"
+     ],
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0138/m4_20260828_run01",
+      "EXP-0138/m4_20260828_run05",
+      "EXP-0138/m4_20260828_run06"
+     ]
+    }
+   },
+   "field": "srcB_class",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "falu2",
+   "recommendation": "RESTORE-CANDIDATE",
+   "source_experiment_self_conflict": null,
+   "span_moved_since_EXP-0164_db": false,
+   "start": 41,
+   "target": "M4",
+   "verdict": "WRONGLY-WITHDRAWN",
+   "why": "Same as falu2.srcA_class: 96.88% against the disowned run02, 100.00% against run05.",
+   "width": 2
+  },
+  "pack_convert.b7": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 2.73,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 7,
+    "movedB": 124,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__pack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 248,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__pack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__pack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__pack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__pack_convert"
+     ]
+    }
+   },
+   "field": "b7",
+   "g17p_sweep_in_flight": {
+    "action": "DEFER",
+    "cite": "PRE_REGISTRATION.md:53 group B, swept in its 4.7; its :363 already cites EXP-0144's pack_convert.b7 placeholders",
+    "experiment": "EXP-0168-g17p-dst-resweep",
+    "note": "an M4 restoration here would be superseded; EXP-0170 recommends waiting for the G17P row"
+   },
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "pack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 56,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "unpack_convert.cache": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 64,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 256,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "cache",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 16,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "unpack_convert.dst": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 25.78,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 98,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 98.96,
+     "bucket": "UNSTABLE",
+     "common": 192,
+     "placeholder_records_dropped": 64,
+     "runA": "m4_20260828_rv01__unpack_convert",
+     "runB": "m4_20260828_run05",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "UNSTABLE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "dst",
+   "g17p_sweep_in_flight": {
+    "action": "DEFER",
+    "cite": "PRE_REGISTRATION.md:52 group A ('the `dst` field name', unpack_convert listed), swept in its 4.7",
+    "experiment": "EXP-0168-g17p-dst-resweep",
+    "note": "an M4 restoration here would be superseded; EXP-0170 recommends waiting for the G17P row"
+   },
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 24,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "unpack_convert.fmt_sel": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 52,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 0,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "fmt_sel",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 60,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 4
+  },
+  "unpack_convert.opdesc": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 128,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 64,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "opdesc",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 48,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "unpack_convert.size": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 64,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 2304,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "size",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 56,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 4
+  },
+  "unpack_convert.src": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 44,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 100.0,
+     "bucket": "STABLE-LIVE",
+     "common": 256,
+     "placeholder_records_dropped": 64,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "STABLE-LIVE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "src",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 40,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  },
+  "unpack_convert.src_class": {
+   "audit_scoring_EXP-0164": {
+    "agree_pct": 0.0,
+    "bucket": "UNSTABLE",
+    "common": 256,
+    "movedA": 0,
+    "movedB": 160,
+    "raw_files": [
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+     "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+    ],
+    "runA": "m4_20260828_run03",
+    "runB": "m4_20260828_run05"
+   },
+   "evidence": [
+    "EXP-0144"
+   ],
+   "exp0170_scoring": {
+    "S2_same_eligibility_placeholders_dropped": {
+     "agree_pct": 96.88,
+     "bucket": "UNSTABLE",
+     "common": 256,
+     "placeholder_records_dropped": 256,
+     "runA": "m4_20260828_run05",
+     "runB": "m4_20260828_rv01__unpack_convert",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3_primary_placeholders_dropped_and_disowned_runs_excluded": {
+     "agree_pct": null,
+     "bucket": "SINGLE-RUN",
+     "common": null,
+     "runA": null,
+     "runB": null,
+     "runs_excluded_as_ineligible": [
+      "EXP-0144/m4_20260828_run03",
+      "EXP-0144/m4_20260828_run05"
+     ],
+     "runs_used": [
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    },
+    "S3b_sensitivity_scope_md_runs_readmitted": {
+     "bucket": "UNSTABLE",
+     "runs_used": [
+      "EXP-0144/m4_20260828_run05",
+      "EXP-0144/m4_20260828_rv01__unpack_convert"
+     ]
+    }
+   },
+   "field": "src_class",
+   "g17p_sweep_in_flight": null,
+   "label_when_withheld": "hardware-run",
+   "mnemonic": "unpack_convert",
+   "recommendation": "REASON-UNSUPPORTED-BUT-STILL-SHORT",
+   "source_experiment_self_conflict": {
+    "EXP-0144/m4_20260828_run05": {
+     "but_retained_by": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/SCOPE.md:1-12",
+     "disowned_by": "experiments/EXP-0144-m4-emit-pack/RESULTS.md:29-33 ('run01-run05 ... back no label')",
+     "quote": "m4_20260828_run05 - PARTIAL BUT USED, within the scope stated here. ... Everything it recorded before that point is a valid measurement and IS used, within this scope: pack_convert - complete (arms C, S, F, W, X). Gated against m4_20260828_run03: 6,251/6,255 gated records byte-identical (99.936 %). unpack_convert - arms C, S and the full per-byte F sweep complete.",
+     "scoped_to": [
+      "pack_convert",
+      "unpack_convert"
+     ]
+    }
+   },
+   "span_moved_since_EXP-0164_db": false,
+   "start": 8,
+   "target": "M4",
+   "verdict": "STILL-WITHHELD-OTHER-REASON",
+   "why": "The audit's stated reason ('does not reproduce across the two gated runs at >=99% agreement') rests on m4_20260828_run03 and/or run05, which EXP-0144's own RESULTS.md disowns ('run01-run05 ... back no label'), and on never-dispatched `skipped_after_hangs` placeholders scored as observations. With placeholders dropped the same run pair agrees far better -- for five unpack_convert fields the audit's 0.00% becomes 100.00%. BUT once the disowned runs are excluded EXP-0144 has only ONE admissible run per instrument, so the field re-scores SINGLE-RUN, not STABLE-LIVE: it cannot clear a CROSS-RUN gate on committed evidence either way. Note EXP-0144 RESULTS.md 6.5 states it deliberately used a WITHIN-RUN majority-of-3 (escalated to 5) control instead of a cross-run gate, and why. Whether that control is accepted in place of a cross-run pair is an orchestrator policy call, not something this audit can settle.",
+   "width": 8
+  }
+ }
+}

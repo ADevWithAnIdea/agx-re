@@ -86,6 +86,35 @@ TARGETS = {
                     "ordering bracket the instruction is",
         "recovers_instruction": False,
     },
+    "iter_at": {
+        "stage": "fragment", "family": "itr",
+        "fields": {
+            # DECLARED 8 bits at start=0 -- but the descriptor's OWN match
+            # constant is [0, 7, 47], which PINS bits 0..6 to 0x2f. Only bit 7
+            # is free, so `grp` has exactly TWO legal values, 0x2f and 0xaf, and
+            # every other value is a DIFFERENT INSTRUCTION rather than a value
+            # of this field. Confirmed exhaustively offline in
+            # analysis/bitcheck.json. Same self-contradiction EXP-0162 fixed in
+            # `pixel_order`. db.json is NOT edited here (EXP-0165 owns it).
+            "grp": {"byte_index": 0, "fstart": 0, "fwidth": 8,
+                    "legal_values": [0x2f, 0xaf],
+                    "encodable_range": 2,
+                    "declared_width_is_wrong": True},
+        },
+        "withheld_as": "UNVERIFIABLE (EXP-0164)",
+        "prior": "NO RUN HAS EVER SWEPT PAST ~25 OF 256 VALUES. EXP-0155 hung "
+                 "at grp = 0x00, 0x01, 0x0f, 0x12, 0x16, 0x18 and EXP-0163 at "
+                 "0x00 and 0x50, and BOTH tripped the two-hang-per-field stop "
+                 "rule. The hangs are not bad luck: 254 of the 256 values are "
+                 "out-of-descriptor bit patterns, i.e. a decode desync.",
+        "controls": "which interpolation GROUP the varying fetch belongs to "
+                    "(bit 7 only, given the pin)",
+        "recovers_instruction": False,
+        # This field CANNOT satisfy this experiment's own dense-coverage clause
+        # (2^8 values for w=8) because only 2 encodings exist. It is reported
+        # with encodable_range=2 and the defect, and the orchestrator rules.
+        "coverage_is_bounded_by_descriptor": True,
+    },
     "frag_color_pack": {
         "stage": "fragment", "family": "fcp",
         "fields": {
@@ -217,6 +246,31 @@ LADDERS = {
              expect="unknown by construction -- this ladder is reported, and an "
                     "inert verdict does not depend on it"),
     ],
+    "itr": [
+        dict(id="L_data", mnemonic=None, field=None, values=[0], hazard="none",
+             cite="zero-splice control: the same program bytes with a different "
+                  "@buf0. Proves the whole vertex -> varying -> INTERPOLATE -> "
+                  "fragment -> pixel path is live and readable with no splice "
+                  "hazard at all. This is the ladder that does not depend on "
+                  "any hypothesis about iter_at.",
+             expect="every surface hash changes and matches the host-computed "
+                    "alt oracle exactly"),
+        dict(id="L_iter_loc", mnemonic="iter_at", field="loc",
+             values=[0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40],
+             hazard="low",
+             cite="EXP-0163 (G17P, HW-VALIDATED): `iter_at.loc` moves 128/256 "
+                  "at rasterSampleCount=4 and is INERT at 1 sample -- the "
+                  "canonical proof of rule R2 in this whole experiment. `loc` "
+                  "is byte+7 and is NOT covered by any of iter_at's three match "
+                  "constants ([0,7,47], [16,8,84], [48,8,10]), so unlike `grp` "
+                  "it is a genuine free field. EXP-0163 attributes NO device "
+                  "reset to loc; its 88 resets came from grp, dst, b5_tag, "
+                  "hint1 and simd_shuffle.dst.",
+             expect="INERT on the 1-sample carrier and >= 2 distinct hashes on "
+                    "the 4-sample carrier. That asymmetry is itself the "
+                    "detection-power proof, and it says which carrier a `grp` "
+                    "inert verdict may be reported from."),
+    ],
     "rog": [
         dict(id="L_data", mnemonic=None, field=None, values=[0], hazard="none",
              cite="zero-splice control: same bytes, different `src` uniform "
@@ -306,6 +360,16 @@ FALSIFIERS = {
                   "reproduces the baseline, this carrier's fragment observation "
                   "path is not live and every inert result on it is void."),
     ],
+    "itr": [
+        dict(id="F_data_alt", mnemonic=None, field=None, value=None,
+             predict="alt_oracle_exact",
+             note="@buf0 = the alt uniform. Pre-registered to NOT reproduce the "
+                  "baseline and to match the host-computed alt oracle exactly. "
+                  "The ONLY zero-hazard falsifier available on this instruction: "
+                  "254 of grp's 256 values are out-of-descriptor and two prior "
+                  "experiments hung on them, so a byte-splice falsifier here "
+                  "would spend the device, not prove detection."),
+    ],
     "rog": [
         dict(id="F_data_alt", mnemonic=None, field=None, value=None,
              predict="alt_oracle_exact",
@@ -364,6 +428,17 @@ BYTE_MATES = {
              "stopped and recorded PARTIAL."),
     ("vtx_out_pos", "slot"): None,        # whole byte
     ("pixel_order", "kind"): None,        # whole byte
+    ("iter_at", "grp"): dict(
+        raw_byte=0, mate_mask=0x7F, values=[0x2f], hazard="high",
+        note="`grp` is DECLARED as the whole of byte0, so on paper it has no "
+             "byte-mate -- but its own descriptor PINS bits 0..6 to 0x2f, so "
+             "the real free field is bit 7 alone and the 'byte-mate' is the "
+             "7-bit pin. Sweeping the pin is therefore a DECODE-BOUNDARY probe, "
+             "not an attribution control, and it is the exact region that hung "
+             "EXP-0155 and EXP-0163. Only the pin's own legal value 0x2f is "
+             "dispatched (a no-op control that must reproduce the baseline); "
+             "the out-of-descriptor region is NOT swept here. Hard budget 2 "
+             "hangs, then stopped and recorded PARTIAL."),
     ("frag_color_pack", "dst"): None,     # whole byte
 }
 

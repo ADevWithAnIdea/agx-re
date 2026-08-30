@@ -127,12 +127,32 @@ def analyse(runs):
             falsif[arm][run] = {"n": len(rs), "scored_ok": len(bad),
                                 "pass": len(rs) > 0 and not bad}
 
+    # Fields whose REAL encodable range is narrower than 2**width, because the
+    # descriptor's own `match` constant pins some of the bits the field is
+    # declared over. Measured exhaustively offline in analysis/bitcheck.json,
+    # not assumed. db.json is NOT edited here (EXP-0165 owns it) -- these rows
+    # carry the corrected number and the defect travels under `db_defects`.
+    ENCODABLE_RANGE = {
+        "iter_at.grp": 2,             # declared 0..7; match pins 0..6 -> bit 7 only
+        "pixel_order.scope": 32,      # declared 24..31; match pins 28..30
+        "reg_move_cb.form": 16,       # declared 16..23; match pins 16..19
+        "shift_amt_move.kind": 16,    # declared 16..23; match pins 16..19
+    }
+
     # ---- sweeps ------------------------------------------------------------
     # (mnemonic.field) -> arm -> run -> {value_key: outcome}
     sweeps = defaultdict(lambda: defaultdict(dict))
     moved_cnt = defaultdict(lambda: defaultdict(dict))
     covered = defaultdict(lambda: defaultdict(set))
-    widths = {}
+    # DISTINCT INSTRUCTION BYTES, counted from the raw's own `bytes` key and
+    # NEVER from the dispatched-value count. This is the only thing that reveals
+    # the DEF-0166-1 signature -- a sweep that dispatches 256 values while the
+    # hardware only ever sees 8 distinct encodings, because the field's bits
+    # were narrower than the sweep believed, or because the descriptor pins some
+    # of them. `values_dispatched` alone cannot show that, and a THIN or
+    # UNDER-COVERED row is exactly what it hides.
+    dbytes = defaultdict(lambda: defaultdict(set))
+    starts, widths = {}, {}
     placeholders = defaultdict(lambda: defaultdict(int))
     invalids = defaultdict(lambda: defaultdict(int))
     bytemate = defaultdict(lambda: defaultdict(dict))
@@ -159,8 +179,12 @@ def analyse(runs):
             sweeps[fk][arm].setdefault(run, {})[k] = r.get("outcome")
             moved_cnt[fk][arm].setdefault(run, {})[k] = bool(r.get("moved"))
             covered[fk][arm].add(r.get("value"))
+            if r.get("bytes"):
+                dbytes[fk][arm].add(r["bytes"])
             if r.get("fwidth"):
                 widths[fk] = r["fwidth"]
+            if r.get("fstart") is not None:
+                starts[fk] = r["fstart"]
 
     out = {"_meta": {
         "experiment": "EXP-0168-g17p-dst-resweep",
@@ -214,11 +238,27 @@ def analyse(runs):
             per_arm_report[arm] = {
                 "runs": runs_here,
                 "values_dispatched": len(covered[fk][arm]),
+                "distinct_bytes": len(dbytes[fk][arm]),
                 "moved": armmoved,
                 "pairs": pairs,
                 "ladder": lad,
-                "ladder_pass_all_runs": bool(lad) and all(
-                    v["pass"] for v in lad.values()),
+                # LADDER SUBSTITUTE, pre-declared and NAMED so it is never
+                # invisible in a verdict row. `stop` has no known-live field --
+                # every bit of it is either the opcode or the `reserved` field
+                # under test -- so R3's "sweep a known-live control of the same
+                # instruction" is unbuildable, and the arm's `ladder` is empty.
+                # Its detection power instead comes from the FALSIFIER CONTRAST:
+                # a mutation of this same instruction's own byte0 drives the
+                # observable to a second, distinct state, measured on this exact
+                # carrier. That is the same claim a ladder makes (the observable
+                # CAN resolve a difference here), reached through the control
+                # that does exist. It is accepted ONLY when the falsifier fires
+                # in every gated run, and the row says which kind was used.
+                "ladder_kind": ("field_control" if lad
+                                else "falsifier_contrast"),
+                "ladder_pass_all_runs": (
+                    all(v["pass"] for v in lad.values()) if lad
+                    else (bool(fal) and all(v["pass"] for v in fal.values()))),
                 "falsifier": fal,
                 "falsifier_pass_all_runs": bool(fal) and all(
                     v["pass"] for v in fal.values()),
@@ -255,9 +295,10 @@ def analyse(runs):
                       if r.get("arm") == a), "?") for a in arms))
             if not ladder_ok:
                 label = "still-underpowered"
-                reason.append("the liveness ladder did not pass in every run on "
-                              "the best arm -- an arm that cannot show its "
-                              "ladder is not evidence of inertness")
+                reason.append("the liveness ladder (kind=%s) did not pass in "
+                              "every run on the best arm -- an arm that cannot "
+                              "show its ladder is not evidence of inertness"
+                              % armrep.get("ladder_kind"))
             elif not fals_ok:
                 label = "still-underpowered"
                 reason.append("the pre-registered falsifier did not fail; the "
@@ -310,10 +351,33 @@ def analyse(runs):
                               % (bpair, bp["agree_pct"], AGREE_PCT,
                                  bp["move_over_disagree"], MOVE_OVER_DISAGREE))
 
+        # ---- machine-readable COVERAGE on every row ----------------------
+        # Required so `tools/agx-isa/validate_labels.py` can flag THIN and
+        # UNDER-COVERED rows instead of taking a label's word for it.
+        # `distinct_bytes` is the max over arms of the number of DISTINCT
+        # instruction byte strings the hardware actually saw for this field.
+        maxbytes = max((len(dbytes[fk][a]) for a in arms), default=0)
+        w = widths.get(fk, 8)
+        enc = ENCODABLE_RANGE.get(fk, 1 << w)
+        cov = {
+            "values_dispatched": maxcov,
+            "distinct_bytes": maxbytes,
+            "encodable_range": enc,
+            "start": starts.get(fk),
+            "width": widths.get(fk),
+            "dense_required": dense_needed,
+            "dense_ok": dense_ok,
+            # THE DEF-0166-1 CHECK, computed rather than asserted: if the
+            # hardware saw far fewer distinct encodings than we dispatched
+            # values, the sweep was narrower than it looks.
+            "bytes_per_value": (round(maxbytes / maxcov, 3) if maxcov else None),
+            "under_covered": bool(enc and maxcov < enc),
+        }
         out[fk] = {
             "label": label,
             "target": "G17P",
             "evidence": ["EXP-0168"],
+            "coverage": cov,
             "range": "%d distinct values dispatched on the best arm%s"
                      % (maxcov, "" if dense_ok else " (BELOW dense requirement)"),
             "carriers": sorted(arms),

@@ -101,11 +101,30 @@ KERNELS = {
 # --------------------------------------------------------------------------
 ARMS = [
     # ---- rank 1: THE PRIMARY TARGET -----------------------------------
+    # DEF-0171-1 (this experiment, anchor extraction): the instruction our own
+    # `a & b` kernels compile to on G17P is `2b 03 1f 01 ...`. `ilogic`'s match
+    # is `[[0,8,11]]` -- a FULL 8-bit byte0 -- so it only ever matches byte0
+    # 0x0b, i.e. destination r0; every other destination falls through to
+    # `b_alu10_lof`/`b_alu10_loe`, whose match is the LOW NIBBLE only
+    # (`[[0,4,11]]`) and which model byte0's high nibble as `dst`. The two
+    # descriptors have the same byte structure. So this arm sweeps ONE
+    # instruction and reports it under BOTH key sets, and the SYNTH carrier
+    # sweeps byte0 densely to PROVE the equivalence on hardware (predicted:
+    # every value with low nibble 0xb computes the same function into register
+    # value>>4, everything else is a different group and is non-ok).
     {"arm": "ILOGIC", "rank": 1, "instr": "ilogic", "kind": "int",
-     "verdict_fields": ["lut_a_free", "z6", "outmod", "z8", "z9"],
+     "verdict_keys": [
+         "ilogic.lut_a_free", "ilogic.z6", "ilogic.outmod", "ilogic.z8",
+         "ilogic.z9", "ilogic.lut_a_sel", "ilogic.lut_a_z",
+         "b_alu10_lof.modA", "b_alu10_lof.modB", "b_alu10_lof.z6",
+         "b_alu10_lof.outmod", "b_alu10_lof.ext8", "b_alu10_lof.ext9",
+         "b_alu10_lof.srcA", "b_alu10_lof.src_reg", "b_alu10_lof.src_flag",
+         "b_alu10_loe.modA", "b_alu10_loe.modB", "b_alu10_loe.z6",
+         "b_alu10_loe.outmod", "b_alu10_loe.ext8", "b_alu10_loe.ext9",
+         "b_alu10_loe.srcA", "b_alu10_loe.src_reg", "b_alu10_loe.src_flag"],
      "carriers": [
          {"c": "NAT",   "probe": "k_and",     "t": [4, 6, 7, 8, 9], "l": [1, 3, 5]},
-         {"c": "SYNTH", "probe": "k_and",     "t": [4, 6, 7, 8, 9], "l": [1, 3, 5]},
+         {"c": "SYNTH", "probe": "k_and",     "t": [0, 4, 6, 7, 8, 9], "l": [1, 3, 5]},
          {"c": "FRAME", "probe": "k_and",     "t": [4, 6, 7, 8, 9], "l": [1, 3, 5]},
          # the LUT dimension -- four more store-consumed carriers whose only
          # difference from k_and is WHICH boolean function the LUT selects.
@@ -113,84 +132,103 @@ ARMS = [
          {"c": "NAT",   "probe": "k_xor",     "t": [4, 7], "l": [1]},
          {"c": "NAT",   "probe": "k_andn",    "t": [4, 7], "l": [1]},
          {"c": "NAT",   "probe": "k_nand",    "t": [4, 7], "l": [1]},
-         # the PREDICATE-CONSUMED pole. db.json claims byte+7 bit7 is CLEAR on
-         # the "dec2" predicate-consumed forms; if either of these kernels
-         # yields such an anchor, that is a third consumer dimension.
+         # the PREDICATE-CONSUMED pole. Recorded as `instr_absent`: on G17P the
+         # `(a&b)!=0 ? 7 : 9` and the `if` form both lower to `isel10`, with no
+         # logic op at all, so db.json's "clear on the dec2 predicate-consumed
+         # forms" cannot be reached from our own MSL on this target.
          {"c": "NAT",   "probe": "k_and_sel", "t": [7], "l": [1]},
          {"c": "NAT",   "probe": "k_and_if",  "t": [7], "l": [1]},
      ],
-     "wide": [],
+     "wide": [], "anchor": {},
+     "locate": ["ilogic", "b_alu10_lof", "b_alu10_loe"],
      "xplant": ["k_and", "k_or", "k_xor", "k_andn", "k_nand"],
      "xplant_bytes": [2, 4, 5]},
 
     # ---- rank 2: `tail`, ONE field from closing ibitcount --------------
     {"arm": "IBITCOUNT", "rank": 2, "instr": "ibitcount", "kind": "int",
-     "verdict_fields": ["tail"],
+     "verdict_keys": ["ibitcount.tail"],
      "carriers": [
          {"c": "NAT",   "probe": "k_popcnt", "t": [7], "l": [3, 5, 6]},
          {"c": "NAT",   "probe": "k_clz",    "t": [7], "l": [3, 5, 6]},
          {"c": "SYNTH", "probe": "k_popcnt", "t": [7], "l": [3, 5, 6]},
          {"c": "FRAME", "probe": "k_popcnt", "t": [7], "l": [3, 5, 6]},
      ],
-     "wide": [], "xplant": [], "xplant_bytes": []},
+     "wide": [], "anchor": {}, "xplant": [], "xplant_bytes": []},
 
     # ---- rank 3: `tail` (w=32), ONE field from closing bf_fma_dst ------
+    # DEF-0171-2: tools/agx-isa has NO LENGTH RULE for byte0 == 0x31, so G17P's
+    # own native bfloat ALU does not tokenize at all (`<unknown>`, length None).
+    # The lengths are pinned here from the compiled programs themselves: the
+    # following `mov_imm` (`0c da`) lands exactly at +8 (bf add/mul) and +10
+    # (bf fma), which is db.json's own length for these descriptors.
     {"arm": "BF_FMA_DST", "rank": 3, "instr": "bf_fma_dst", "kind": "float",
-     "verdict_fields": ["tail"],
+     "verdict_keys": ["bf_fma_dst.tail", "bf_fma_dst.fmt"],
      "carriers": [
          {"c": "NAT",   "probe": "k_bffma", "t": [6, 7, 8, 9], "l": [3, 4, 5]},
-         {"c": "SYNTH", "probe": "k_bffma", "t": [6, 7, 8, 9], "l": [3, 4, 5]},
+         {"c": "SYNTH", "probe": "k_bffma", "t": [0, 6, 7, 8, 9], "l": [3, 4, 5]},
          {"c": "FRAME", "probe": "k_bffma", "t": [6, 7, 8, 9], "l": [3, 4, 5]},
      ],
-     "wide": [("tail", [6, 7, 8, 9])], "xplant": [], "xplant_bytes": []},
+     "wide": [("tail", [6, 7, 8, 9])],
+     "anchor": {"k_bffma": [46, 10]},
+     "xplant": [], "xplant_bytes": []},
 
     # ---- rank 4: `srcA` + `subop`, TWO fields from closing fspecial_est -
     # EXP-0161 could not promote either because BOTH its carriers were the
     # PRECISE forms, where the Newton-Raphson refinement that follows corrects
     # the estimate whatever the estimate was. SYNTH lifts the estimate ALONE
     # with nothing after it -- that is the dimension the fields control.
+    # NOTE the G17P anchor is `09 83 25 0f 00 c2`: byte+3 == 0x0f, a `subop`
+    # value db.json's enum {9: rcp, 11: rsqrt, 13: sqrt} does not contain.
     {"arm": "FSPECIAL_EST", "rank": 4, "instr": "fspecial_est", "kind": "float",
-     "verdict_fields": ["srcA", "subop"],
+     "verdict_keys": ["fspecial_est.srcA", "fspecial_est.subop"],
      "carriers": [
          {"c": "SYNTH", "probe": "k_rsqrt", "t": [1, 3], "l": [4, 5]},
          {"c": "FRAME", "probe": "k_rsqrt", "t": [1, 3], "l": [4, 5]},
          {"c": "NAT",   "probe": "k_rsqrt", "t": [1, 3], "l": [4, 5]},
+         # recorded as `instr_absent`: the fast forms use the single-op
+         # `fspecial` (0xaf), never `fspecial_est`, which is itself the result
+         # db.json asserts and this confirms on G17P.
          {"c": "NAT",   "probe": "k_recip_fast", "t": [1, 3], "l": [4, 5]},
          {"c": "NAT",   "probe": "k_rsqrt_fast", "t": [1, 3], "l": [4, 5]},
      ],
-     "wide": [], "xplant": [], "xplant_bytes": []},
+     "wide": [], "anchor": {}, "xplant": [], "xplant_bytes": []},
 
     # ---- rank 5: `srcA` + `b2_fmt`, TWO fields from closing iadd2 -------
     {"arm": "IADD2", "rank": 5, "instr": "iadd2", "kind": "int",
-     "verdict_fields": ["srcA", "b2_fmt"],
+     "verdict_keys": ["iadd2.srcA", "iadd2.b2_fmt"],
      "carriers": [
          {"c": "NAT",   "probe": "k_u32add", "t": [2, 7], "l": [3, 5]},
          {"c": "SYNTH", "probe": "k_u32add", "t": [2, 7], "l": [3, 5]},
          {"c": "FRAME", "probe": "k_u32add", "t": [2, 7], "l": [3, 5]},
      ],
-     "wide": [], "xplant": [], "xplant_bytes": []},
+     "wide": [], "anchor": {}, "xplant": [], "xplant_bytes": []},
 
     # ---- rank 6: `srcA`+`srcB`+`tail`, THREE from closing bf_alu --------
+    # Same DEF-0171-2 pin. `bf_alu.opsel` is EXP-0169's row: byte+2 is swept
+    # here as the LIVENESS LADDER (EXP-O2D proved 0x1c->0x1d turns add into
+    # mul on hardware) and NO opsel verdict is emitted.
     {"arm": "BF_ALU", "rank": 6, "instr": "bf_alu", "kind": "float",
-     "verdict_fields": ["srcA", "srcB", "tail"],
+     "verdict_keys": ["bf_alu.srcA", "bf_alu.srcB", "bf_alu.tail"],
      "carriers": [
          {"c": "NAT",   "probe": "k_bfadd", "t": [3, 4, 5, 6, 7], "l": [2]},
          {"c": "NAT",   "probe": "k_bfmul", "t": [3, 4, 5, 6, 7], "l": [2]},
-         {"c": "SYNTH", "probe": "k_bfadd", "t": [3, 4, 5, 6, 7], "l": [2]},
+         {"c": "SYNTH", "probe": "k_bfadd", "t": [0, 3, 4, 5, 6, 7], "l": [2]},
          {"c": "FRAME", "probe": "k_bfadd", "t": [3, 4, 5, 6, 7], "l": [2]},
      ],
-     "wide": [("tail", [5, 6, 7])], "xplant": [], "xplant_bytes": []},
+     "wide": [("tail", [5, 6, 7])],
+     "anchor": {"k_bfadd": [32, 8], "k_bfmul": [32, 8]},
+     "xplant": [], "xplant_bytes": []},
 
     # ---- rank 7: `srcA`, and a carrier PAIR that differs in exactly the
     # dimension `sign_ext` controls (k_bfe unsigned vs k_bfe_s signed) -------
     {"arm": "IBFE", "rank": 7, "instr": "ibfe", "kind": "int",
-     "verdict_fields": ["srcA", "sign_ext", "b2_bit0"],
+     "verdict_keys": ["ibfe.srcA", "ibfe.sign_ext", "ibfe.b2_bit0"],
      "carriers": [
          {"c": "NAT",   "probe": "k_bfe",   "t": [2, 6, 8], "l": [3, 10]},
          {"c": "NAT",   "probe": "k_bfe_s", "t": [2, 6, 8], "l": [3, 10]},
          {"c": "SYNTH", "probe": "k_bfe",   "t": [2, 6, 8], "l": [3, 10]},
      ],
-     "wide": [], "xplant": [], "xplant_bytes": []},
+     "wide": [], "anchor": {}, "xplant": [], "xplant_bytes": []},
 ]
 
 # Explicitly OUT of scope, and why -- naming them is part of the result.
@@ -203,6 +241,9 @@ OUT_OF_SCOPE = {
                        "of them a 16-bit `mods`, and half-precision rounding "
                        "leaves no exact host oracle. A 4th and 5th closure "
                        "candidate is not worth a weaker instrument.",
+    "bf_alu.opsel": "EXP-0169's row. byte+2 IS swept here as the liveness "
+                    "ladder (EXP-O2D: 0x1c->0x1d turns bfloat add into mul on "
+                    "hardware) but NO opsel verdict is emitted.",
     "icmp_pred": "EXP-0169 is concurrently building the divergent-block "
                  "carrier (`NAT_kcmp`) this instruction needs for `cond`. Two "
                  "experiments on one instrument buys no extra coverage.",
@@ -234,10 +275,38 @@ def wide_values(width):
     return sorted(vals)
 
 
-def _instr_occurrence(anc, mnemonic):
-    """First token of `mnemonic` in this probe's compiled `_agc.main`."""
+def _tokenizes_as(hexbytes):
+    """What the FROZEN db.json calls these bytes -- recorded per case so the
+    verdict keying is auditable. Returns None if nothing tokenizes them, which
+    is itself a recorded result (DEF-0171-2)."""
+    try:
+        import isadb
+        recs, left = isadb.disassemble(bytes.fromhex(hexbytes))
+        if len(recs) == 1 and not left and recs[0].get("length"):
+            return recs[0]["mnemonic"]
+    except Exception:
+        pass
+    return None
+
+
+def _instr_occurrence(anc, mnemonic, override=None):
+    """The anchor token for `mnemonic` in this probe's compiled `_agc.main`.
+
+    `override` = [offset, length] PINS the anchor when `tools/agx-isa` cannot
+    tokenize it (DEF-0171-2: no length rule for byte0 == 0x31, so G17P's own
+    bfloat ALU comes back `<unknown>`). The pin is evidenced by the compiled
+    program itself -- the following instruction starts exactly at
+    offset+length -- and is recorded in every case as `anchor_pinned: true`."""
+    if override:
+        off, ln = override
+        main = bytes.fromhex(anc["main_hex"])
+        if off + ln > len(main):
+            return None, None
+        return -1, {"off": off, "len": ln, "mn": mnemonic,
+                    "bytes": main[off:off + ln].hex(), "pinned": True}
+    want = mnemonic if isinstance(mnemonic, (list, tuple)) else [mnemonic]
     for k, tok in enumerate(anc.get("tokens", [])):
-        if tok["mn"] == mnemonic and tok.get("len"):
+        if tok["mn"] in want and tok.get("len"):
             return k, tok
     return None, None
 
@@ -261,7 +330,8 @@ def build_cases(anchors, ranks=None):
             if not anc or "tokens" not in anc:
                 skipped.append((spec["arm"], car["c"], probe, "no_anchor_report"))
                 continue
-            ti, tok = _instr_occurrence(anc, mn)
+            ti, tok = _instr_occurrence(anc, spec.get("locate", [mn]),
+                                        spec.get("anchor", {}).get(probe))
             if tok is None:
                 skipped.append((spec["arm"], car["c"], probe, "instr_absent"))
                 continue
@@ -271,7 +341,9 @@ def build_cases(anchors, ranks=None):
                       "instr": mn, "kind": spec["kind"], "carrier": car["c"],
                       "probe": probe, "instr_off": tok["off"],
                       "instr_len": ilen, "tok_index": ti,
-                      "anchor_bytes": tok["bytes"]}
+                      "anchor_bytes": tok["bytes"],
+                      "anchor_pinned": bool(tok.get("pinned")),
+                      "anchor_tokenizes_as": _tokenizes_as(tok["bytes"])}
 
             # ---- falsifier: byte0 := 0x00. Pre-registered to FAIL. ----
             mb = bytearray(base); mb[0] = 0x00
@@ -319,14 +391,16 @@ def build_cases(anchors, ranks=None):
         # host-computable, non-baseline answer, so it cannot pass by inertness.
         for src in spec["xplant"]:
             a_src = anchors.get(src)
-            _, tok_s = _instr_occurrence(a_src, mn) if a_src else (None, None)
+            _, tok_s = (_instr_occurrence(a_src, spec.get("locate", [mn]))
+                        if a_src else (None, None))
             if tok_s is None:
                 continue
             for dstk in spec["xplant"]:
                 if dstk == src:
                     continue
                 a_dst = anchors.get(dstk)
-                _, tok_d = _instr_occurrence(a_dst, mn) if a_dst else (None, None)
+                _, tok_d = (_instr_occurrence(a_dst, spec.get("locate", [mn]))
+                            if a_dst else (None, None))
                 if tok_d is None:
                     continue
                 b_d = bytearray(bytes.fromhex(tok_d["bytes"]))
@@ -342,8 +416,11 @@ def build_cases(anchors, ranks=None):
                     idx=idx, arm=spec["arm"], rank=spec["rank"], instr=mn,
                     kind=spec["kind"], carrier="NAT", probe=dstk,
                     instr_off=tok_d["off"], instr_len=tok_d["len"],
-                    tok_index=_instr_occurrence(a_dst, mn)[0],
-                    anchor_bytes=tok_d["bytes"], role="xplant",
+                    tok_index=_instr_occurrence(a_dst,
+                                                spec.get("locate", [mn]))[0],
+                    anchor_bytes=tok_d["bytes"], anchor_pinned=False,
+                    anchor_tokenizes_as=_tokenizes_as(tok_d["bytes"]),
+                    role="xplant",
                     field=None, byte_index=None, value=0, mut=mut,
                     bytes=b_d.hex(), xplant_from=src, xplant_to=dstk,
                     predict="out == host oracle of %s" % src))

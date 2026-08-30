@@ -57,8 +57,14 @@ R_SENT = 12         # POST-sentinel register, written AFTER the tested block
 R_PRE = 13          # scratch used to materialize the PRE sentinel
 N_REGS = 16
 
-SEED_I = {0: 10, 1: 21, 2: 34, 3: 47, 4: 58, 5: 65, 6: 71, 7: 83,
-          8: 94, 9: 101, 10: 113, 11: 119, 12: 125, 13: 127, 14: 3, 15: 0}
+# HIGH-POPCOUNT, PAIRWISE-OVERLAPPING seeds. EXP-0154's seeds (r0=10, r1=21)
+# are bit-disjoint, so a lifted logic op whose operands the compiler chose as
+# (r1, r0) computes 21 & 10 == 0 and the baseline itself is a silent zero --
+# indistinguishable from a broken encoding. Every value here is <= 127
+# (mov_imm.imm7's HW boundary, EXP-0128) and no pair ANDs to 0:
+#   min over all 91 pairs of popcount(a & b) == 2  (checked at import, below).
+SEED_I = {0: 107, 1: 93, 2: 55, 3: 122, 4: 47, 5: 115, 6: 77, 7: 118,
+          8: 31, 9: 101, 10: 59, 11: 89, 12: 125, 13: 127, 14: 3, 15: 0}
 
 SEED_F = {0: 5.0, 1: 1.5, 2: 3.0, 3: 0.5, 4: 7.0, 5: 9.0, 6: 11.0, 7: 13.0,
           8: 0.25, 9: 18.0, 10: 22.0, 11: 26.0, 12: 30.0, 13: 0.75,
@@ -256,6 +262,16 @@ def synth_program(kind, block_bytes, carrier_len, suffix=False):
 def expected_pre():
     return SENT_PRE & 0x7F
 
+
+# No pair of INT seeds may AND to zero (r14/r15 are the scratch/index regs and
+# are excluded: r15 must be 0, it is the device_store index register).
+_sk = [r for r in range(N_REGS) if r not in (14, 15)]
+for _i in range(len(_sk)):
+    for _j in range(_i + 1, len(_sk)):
+        if SEED_I[_sk[_i]] & SEED_I[_sk[_j]] == 0:
+            raise AssertionError("SEED_I[%d] & SEED_I[%d] == 0 -- a lifted "
+                                 "logic op on that pair has a degenerate "
+                                 "baseline" % (_sk[_i], _sk[_j]))
 
 for _r, _v in SEED_F.items():
     if f32(imm_value(_v)) != f32(_v):

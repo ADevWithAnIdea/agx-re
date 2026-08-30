@@ -15,7 +15,10 @@ thresholds and cannot have been retuned here.
 
 Three scorings are reported side by side:
   S1  the audit's own numbers, read from EXP-0164/analysis/audit.json
-  S2  same run pair the audit chose, placeholders dropped   (isolates D.2)
+  S2  EXP-0164's OWN run filter (PARTIAL.md + NONGATED) kept, placeholders
+      dropped -- isolates D.2 exactly
+  S2f diagnostic: the audit's OWN runA/runB pair held fixed, placeholders
+      dropped.  This is the scoring the dispatch used, so H8 is tested here.
   S3  placeholders dropped AND ineligible runs excluded     (D.2 + D.3) -- PRIMARY
   S3b sensitivity only: S3 with "PARTIAL BUT USED"/"retained ... are used"
       SCOPE.md runs re-admitted, since E1 is blunter than those files intend
@@ -106,6 +109,18 @@ def main():
     elig = json.load(open(os.path.join(HERE, "run_eligibility.json")))["runs"]
     ineligible = {tuple(k.split("/", 1)) for k, v in elig.items() if not v["eligible"]}
 
+    # EXP-0164's OWN run filter, reconstructed exactly: PARTIAL.md-in-raw-dir plus
+    # its NONGATED regex.  Used for S2 so that S2 isolates D.2 and nothing else.
+    partial_64 = set(idxD["_meta"]["partial_runs"])
+    inel_64 = set()
+    for exp, keys in indexD.items():
+        for k, arms in keys.items():
+            for arm, runs in arms.items():
+                for r in runs:
+                    if AUD.NONGATED.search(r) or (exp + "/" + r) in partial_64:
+                        inel_64.add((exp, r))
+    inel_64 = frozenset(inel_64)
+
     audit64 = json.load(open(os.path.join(A64, "audit.json")))["fields"]
     resolve = AUD.resolver()
 
@@ -113,7 +128,9 @@ def main():
     for f in WITHHOLD_FILES:
         for k, v in json.load(open(os.path.join(A64, f))).items():
             if k != "_meta":
-                withheld[k] = f.replace("withhold_", "").replace(".json", "").upper()
+                # normalise to classify()'s spelling: INERT_SINGLE -> INERT-SINGLE
+                withheld[k] = f.replace("withhold_", "").replace(".json", "").upper() \
+                               .replace("_", "-")
 
     # current db spans, so the output can carry start/width merge_verdicts checks
     dbnow = json.load(open(os.path.join(EXP, "work", "db.snapshot.json")))
@@ -129,7 +146,7 @@ def main():
         a64 = audit64.get(key) or {}
         ev = a64.get("evidence") or []
 
-        peS2 = gather(key, ev, indexD, resolve, pseudoD, ineligible=frozenset())
+        peS2 = gather(key, ev, indexD, resolve, pseudoD, ineligible=inel_64)
         peS3 = gather(key, ev, indexD, resolve, pseudoD, ineligible=ineligible)
         peS3b = gather(key, ev, indexD, resolve, pseudoD, ineligible=ineligible,
                        extra_ok=S3B_READMIT)
@@ -143,6 +160,28 @@ def main():
         b64 = best_cross({e: {a: v for a, v in ex.items()}
                           for e, ex in (a64.get("per_experiment") or {}).items()})
         bx2, bx3 = best_cross(peS2), best_cross(peS3)
+
+        # ---- S2f: the audit's OWN pair, placeholders dropped (the dispatch's method)
+        s2f = None
+        if b64:
+            _, eid64, arm64, cr64, _ = b64
+            exD = gather(key, ev, indexD, resolve, pseudoD,
+                         ineligible=frozenset()).get(eid64, {}).get(arm64)
+            if exD:
+                pair = {r: e for r, e in exD["runs"].items()
+                        if r in (cr64["runA"], cr64["runB"])}
+                # rebuild from the FULL per-run entries (runs dict is trimmed), so
+                # re-read the index directly
+                full = indexD.get(resolve(eid64), {}).get(key, {}).get(arm64, {})
+                pair = {r: full[r] for r in (cr64["runA"], cr64["runB"]) if r in full}
+                crf = AUD.cross_run(pair) if len(pair) == 2 else None
+                if crf:
+                    s2f = {"runA": crf["runA"], "runB": crf["runB"],
+                           "agree_pct": crf["agree_pct"], "common": crf["common"],
+                           "movedA": crf["movedA"], "movedB": crf["movedB"],
+                           "stable_live": AUD.stable_live(crf),
+                           "clears_99pct_bar": bool(crf["agree_pct"] is not None
+                                                    and crf["agree_pct"] >= AUD.MIN_AGREE_PCT)}
 
         if bS3 == "STABLE-LIVE":
             verdict = "WRONGLY-WITHDRAWN"
@@ -191,6 +230,7 @@ def main():
                          "runs_used": used(peS3),
                          "runs_excluded_as_ineligible": sorted(
                              set(used(peS2)) - set(used(peS3)))},
+            "S2f_audit_pair_placeholders_dropped": s2f,
             "S3b_sensitivity_scope_md_readmitted": {"bucket": bS3b,
                          "runs_used": used(peS3b)},
         }
@@ -205,6 +245,8 @@ def main():
                       "source": "imported verbatim from EXP-0164/analysis/audit.py"},
              "scorings": {"S1": "EXP-0164 audit.json as committed",
                           "S2": "audit's run pair, placeholders dropped (D.2)",
+                          "S2f": "audit's own runA/runB held fixed, placeholders dropped "
+                                 "(the scoring the dispatch used; H8 is tested against this)",
                           "S3": "PRIMARY: D.2 + D.3 eligibility",
                           "S3b": "sensitivity: S3 with self-declared-used SCOPE.md runs re-admitted"},
              "withheld_fields": len(rows)},

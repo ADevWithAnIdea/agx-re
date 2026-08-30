@@ -400,7 +400,12 @@ ARMS = [
          ladder=("src_reg", "field", None, None, "EXP-0101/EXP-0113 HW"),
          probe_reg=None),
 
-    dict(id="COPYSIGN/lowpress", style="S", probe="k_copysign", mn="copysign",
+    dict(id="COPYSIGN/lowpress",
+         # byte0=0x00 measured IDENTICAL to the baseline (both write +0.0 into
+         # the destination). 95/256 byte0 values fire; 0x05 is the lowest that
+         # fires with STATUS OK (raw/prefreeze/diag_fals2.json).
+         falsifier_byte0=0x05,
+         style="S", probe="k_copysign", mn="copysign",
          occ=0, kind="float",
          dim="two live float registers (EXP-0138's configuration, reproduced)",
          why="control half. EXP-0138 swept byte+3 over 256 values here and "
@@ -559,7 +564,12 @@ ARMS = [
          ladder=("oper_reg_hi", "field", None, None,
                  "EXP-0141: the operand register field selects the value added"),
          probe_reg=None),
-    dict(id="ATOMIC/highreg", style="P", probe="k_atomic_hi", mn="atomic_mem",
+    dict(id="ATOMIC/highreg",
+         # byte0=0x00 measured IDENTICAL to the baseline ON THIS CARRIER -- it
+         # fires on ATOMIC/lowreg and ATOMIC/minop but not here. 87/256 fire;
+         # 0x02 fires with STATUS OK (raw/prefreeze/diag_fals3.json).
+         falsifier_byte0=0x02,
+         style="P", probe="k_atomic_hi", mn="atomic_mem",
          occ=0, kind=None, dim="the atomic operand is in a HIGH register",
          why="addr_desc_hi sits immediately above the 7-bit operand-register "
              "field, so the register NUMBER is the dimension it would extend -- "

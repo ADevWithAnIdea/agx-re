@@ -245,3 +245,114 @@ cannot resolve, under BOTH db versions. Not blocking (HALF_ALU anchors from `k_h
 recorded as a finding.
 
 STATUS: about to run the pilot (`pilot01`).
+
+## 2026-08-30 — M8: the pilot did its job and found a SHOW-STOPPER in my own instrument
+
+`pilot01` (`harness/smoke.py`), then two new calibration probes, `pilot02`
+(`harness/calibprobe.py`) and `pilot03` (`harness/calibprobe2.py`). All three raws
+pulled back. Both new probes are NEW files — **no frozen blob was edited** — and both
+build every program from the frozen `isa_helpers` helpers through the frozen
+`run.build_prog_static` path, so what they measure is a property of the instrument the
+gated sweep would have used.
+
+### pilot01 — carriers green, 20 of 30 ladders pass, S3 calibration FAILED
+
+  * **S1/S2**: all four carriers compile, `_agc.main` located (C1/C2/C4 region 2412 B,
+    C3 1246 B), PRE and POST sentinels intact, poison accounted. On C1_alu, C3_uni and
+    C4_store the 16-GPR dump equals the `SEED_I` table **exactly**.
+  * **S2 on C2_load**: r3..r13 read the ramp correctly, **r0, r1, r2 read 0**.
+  * **S3**: could not solve the `idx_off` unit — every register read 0.
+  * **S5**: probe store landed, stray `[[72, 10]]` at `W_PROBE` = 72 as predicted.
+
+### pilot02 — the dst/offset confound broken, and BOTH candidates refuted
+
+`isa_helpers.load_reg(k, k)` sets `extmode = 2*k` (destination) and `idx_off = k`
+(offset) from the same `k`, so S2 could not distinguish "offsets 0,1,2 read zero" from
+"r0,r1,r2 are not writable". Varying one at a time refuted both: **`r5` from `idx_off`
+5, issued alone, read 0** — the identical construction that read the ramp correctly in
+S2. D1..D6, 13 records, every one zero.
+
+### pilot03 — the real cause: `device_load` IS ASYNCHRONOUS AND THIS HARNESS NEVER WAITS
+
+There is **no wait / scoreboard / barrier helper anywhere in `isa_helpers`**. E1 varies
+only the number of filler instructions between the 8 loads and the dump:
+
+| filler instrs | 0 | 2 | 4 | 8 | 16 | 32 | 64 | 128 |
+|---|---|---|---|---|---|---|---|---|
+| registers landed (of 8) | 0 | 0 | 0 | 0 | **2** | **5** | **8** | **8** |
+
+Monotone in filler, saturating at all-8. `H_LAT` **CONFIRMED**; the refuter (a fixed
+landed set independent of filler) is excluded. **HW-VALIDATED, G17P.**
+
+**And the part that stops the gated pair.** E2 replays the smoke-S2 sequence verbatim,
+five times: **14 of 14 landed, all five times** — including r0, r1, r2, which read 0
+in pilot01. *Same program, same carrier, different answer.* At pilot01 the machine
+carried load average 1.7–2.0 with EXP-0168/EXP-0171 dispatching; at pilot03 no `agxre`
+GPU process was running and load had fallen to 1.08. Contention as the cause is
+**INFERRED** (not measured — `procsample.py` will measure it); the
+**non-determinism itself is directly observed and is what matters.**
+
+### Why this is a show-stopper rather than a caveat
+
+Reading `harness/run.py`'s gated loop against this:
+
+1. `sent_bad` only checks the PRE/POST sentinels. Those are `mov_imm`-materialised and
+   always land, so **the sentinels cannot detect an unlanded seed.**
+2. The retry loop `break`s on the **first** attempt classifying as
+   `ok`/`silent_zero`/`wrong_value`, so `majority_of: 3` only engages for faults and
+   hangs. A single unlanded-seed dispatch is recorded verbatim.
+3. `match` is full-digest equality against the baseline. If the seeds land differently
+   in the baseline capture than in the case dispatch, `obs != base` and the case is
+   recorded as **movement**. That is a **FALSE `LIVE`** — the harness manufactures
+   apparent movement out of contention.
+4. Baselines refresh only every 250 cases (`BASELINE_EVERY`), so one unlucky baseline
+   capture can poison up to 250 consecutive cases.
+5. `sem_oracle` is fed the **modelled** seeds (`H.seed_values(kind, idx_unit)`), so a
+   case sourcing r0..r2 on C2_load mispredicts. And `verdicts.py` sets
+   `SEMANTIC-ORACLE-FAILED` on **any** `sem_failures > 0` — so `falu2` and `falu2i`,
+   this experiment's headline descriptors, would have been labelled
+   `DOES-NOT-REPRODUCE` **on an artefact of my own seed path.**
+
+C1_alu, C3_uni and C4_store are `mov_imm`-seeded and **immune** — their pilot dumps
+matched the seed table exactly. The defect is confined to **C2_load**, but C2_load is
+load-bearing: it is H3's whole point (provenance as detection power), it is required by
+H4(c) (`falu2.mod_hi` provenance-dependence), and it is the **second carrier** without
+which `HALF_ALU`, `HALF_EXT8`, `HALF_FMA12`, `BF_ALU` and `IBITCOUNT` can only ever
+reach `INERT-SINGLE` → `untested`.
+
+### Fixed with no code change: the calibration itself
+
+`work/calib.json` now carries the **measured** result. `device_load`'s `idx_off` unit
+is **1 WORD** (23 of 23 landed entries have `word_index == idx_off`), which is
+**a different unit from `device_store`'s 4 words** (EXP-0090/0119). This also removes a
+second latent show-stopper: `run.py:232` does `int(calib.get("idx_unit_words", 1))`,
+and S3 had written the key as **`null`** — `.get` returns `None`, not the default, so
+**`int(None)` would have raised `TypeError` and killed the gated run at startup.**
+
+### The 10 ladder failures, separately — these are NOT latency artefacts
+
+All of them are on `mov_imm`-seeded carriers (C1_alu, C3_uni), and each failure is
+identical on both of its carriers, i.e. reproducible:
+
+  * `RM_C0`, `RM_C2VAR` (C1 and C3): `L_src_reg` does not move — but
+    `L_known_move` DOES. The instruction has an observable effect; changing which
+    source register it names does not change it.
+  * `RM_C1`, `RM_C9` (C1 and C3): `L_dst` does not move either; `RM_C9`'s
+    byte0 falsifier scored `ok`.
+  * `RM_CB` **passes** on both carriers (all 5 steps).
+  * `GET_SR` (C1 and C3): `L_dst` moves, but `L_form` and `L_sr_sel` do **not** —
+    every probed `sr_sel` returned the same value.
+  * `HALF_EXT8@C1_alu`, `HALF_FMA12@C1_alu`: byte0 falsifier scored `ok` (and
+    `HALF_FMA12`'s `L_opsel` did not move). **Both PASS on C2_load** — which is
+    precisely H3's predicted carrier asymmetry, and another reason C2_load cannot
+    simply be dropped.
+
+Consequence as the design already specifies: 15 of the 18 `reg_move` fields and both
+`get_sr` fields have no demonstrated detection power on the carriers that work, so they
+are headed for `untested` / `NO-DETECTION-POWER` rather than an inert claim.
+
+**STATUS: STOPPED at the gate, deliberately.** The gated pair is NOT started. Fixing
+the C2_load seed path means editing frozen blobs (`isa_helpers` seed path and/or
+`run.py`'s per-case validity check), the liveness ladder is not green, and the finding
+is a hazard for the sibling experiments sweeping right now. Reporting to the
+orchestrator for a ruling rather than deciding unilaterally.

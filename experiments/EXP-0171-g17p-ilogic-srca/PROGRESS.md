@@ -62,3 +62,43 @@ detail): `ilogic` is **5** fields from emittable — `lut_a_free` (corpus-correl
 `outmod`, `z8`, `z9` (all `untested`, withdrawn by EXP-0164). Arm B ranked by closure distance:
 `ibitcount.tail` (1), `bf_fma_dst.tail` (1), `fspecial_est.{srcA,subop}` (2),
 `iadd2.{srcA,b2_fmt}` (2), `bf_alu.{srcA,srcB,tail}` (3), `ibfe.{srcA,sign_ext,b2_bit0}` (3).
+
+## 2026-08-30 — M3 FROZEN. Two descriptor defects found at anchor extraction.
+`PRE_REGISTRATION.md` + `CAPTURE_CONTRACT.json` written. Matrix **35,949 cases**,
+`matrix_sha256 bce0b7dee4dcbd4c93d21bc24d52e282a2d37ce348026b0decf712102ee0001b`,
+7 arms, 38 owned verdict keys. Step 0 (`harness/anchors.py`) is COMPILE-ONLY and ran
+before the freeze so the contract could carry the real case count; it dispatched nothing.
+
+Step 0 produced two first-class findings that changed the design:
+
+**DEF-0171-1 — `ilogic`'s byte0 match is over-fitted to destination r0.** Our own
+`out[g]=a[g]&b[g]` compiles on G17P to `2b 03 1f 01 00 00 00 80 00 00`. `ilogic`'s match
+is `[[0,8,11]]`, a FULL 8-bit byte0, so it only matches byte0 `0x0b` = dst r0; every other
+destination falls through to `b_alu10_lof`/`b_alu10_loe`, whose match is the LOW NIBBLE
+only and which model `dst` at byte0's high nibble. Verified on the frozen snapshot:
+`0b031f01...` -> `ilogic`, `2b031f01...` -> `b_alu10_lof`. Byte structure is parallel
+field-for-field (b1,b3,b4,b5,b6,b7,b8,b9). So EXP-0154's G17P `ilogic` rows are rows about
+**dst r0 only**, and one sweep here serves both key sets. The SYNTH carrier sweeps byte0
+densely to PROVE the equivalence (H7).
+
+**DEF-0171-2 — no length rule for byte0 == 0x31, so G17P's own bfloat ALU does not
+tokenize at all.** `bfloat +`/`*`/fma compile to `31 00 1c 00 11 00 c0 81` (8B),
+`31 00 1d ...` (8B), `31 00 1e 00 86 02 10 00 c0 81` (10B) -- all `<unknown>, length None`.
+`bf_alu`'s match demands byte0 `0x11` (the SAME dst-nibble over-fit) and byte+1 `0x02`,
+but G17P emits byte+1 `0x00`; `bf_fma_dst.fmt`'s enum `{2,4}` lacks the emitted `0x00`.
+Lengths PINNED in the matrix from the compiled programs themselves (the following
+`mov_imm 0cda` lands at exactly +8/+8/+10); every such case records `anchor_pinned: true`.
+
+Two more Step-0 observations: **`fspecial_est` byte+3 == `0x0f`** on G17P (absent from
+db.json's `{9,11,13}` enum), and **the predicate-consumed `ilogic` pole is unreachable from
+our own MSL on G17P** -- both `(a&b)!=0?7:9` and the `if` form lower to `isel10` with no
+logic op at all, recorded as `instr_absent` rather than dropped.
+
+Also fixed before freezing: `SEED_I` was EXP-0154's bit-disjoint table, under which a
+lifted logic op on the compiler's chosen (r1,r0) computes `21 & 10 == 0` -- a baseline that
+is itself a silent zero. Replaced with high-popcount seeds; no pair ANDs to 0, asserted at
+import.
+
+**Courtesy hazard notice (FIELD-SWEEP-PROTOCOL sect 7):** the FSPECIAL_EST arm sweeps
+`fspecial_est` byte+3 densely 0..255, adjacent to the known `fspecial` byte+3 >= 192 hang
+region. Arm aborts and reports PARTIAL after 2 genuine hangs.

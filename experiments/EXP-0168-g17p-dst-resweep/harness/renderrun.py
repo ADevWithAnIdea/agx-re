@@ -100,10 +100,40 @@ CENSUS_PATH = os.path.join(WORK, "render_census_%s.json")
 FROZEN_PATH = os.path.join(WORK, "render_frozen_arms.json")
 
 # Every mnemonic any arm or any ladder needs located, per stage.
-NEEDED = {
-    "vertex": ["vtx_out_pos", "vary_store"],
-    "fragment": ["pixel_order", "frag_color_pack"],
-}
+def _needed():
+    """Which mnemonics the census must locate, per stage.
+
+    DERIVED from renderarms.TARGETS and renderarms.LADDERS rather than
+    hand-listed. It WAS hand-listed as
+        {"vertex": ["vtx_out_pos", "vary_store"],
+         "fragment": ["pixel_order", "frag_color_pack"]}
+    and that silently defeated the `iter_at` arm: the carriers were built, the
+    fragment programs DID contain `iter_at` (offset 8 in both r_i8 and r_i8s,
+    confirmed by tokenizing the census's own recorded hex), and the census
+    simply never looked for it -- so `--mode freeze` would have skipped every
+    iter_at arm with "no occurrence in this carrier", which the code labels "a
+    STRUCTURAL RESULT about when the instruction is emitted". A hand-maintained
+    list turning a lookup omission into a structural claim about the hardware is
+    exactly the kind of by-construction wrong answer this experiment exists to
+    find. Deriving it means adding a TARGET cannot silently fail to be censused.
+    """
+    need = {"vertex": set(), "fragment": set()}
+    for mn, spec in RA.TARGETS.items():
+        need[spec["stage"]].add(mn)
+        for L in RA.LADDERS.get(spec["family"], []):
+            if L.get("mnemonic"):
+                need[spec["stage"]].add(L["mnemonic"])
+        for F in RA.FALSIFIERS.get(spec["family"], []):
+            if F.get("mnemonic"):
+                need[spec["stage"]].add(F["mnemonic"])
+    # `vary_store` is the vertex-stage ladder for the vtx family and is also the
+    # routing-sensitivity control quoted by other families' write-ups, so it is
+    # always located where it can be.
+    need["vertex"].add("vary_store")
+    return {k: sorted(v) for k, v in need.items()}
+
+
+NEEDED = _needed()
 
 
 def sha256_file(p):

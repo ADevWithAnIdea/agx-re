@@ -1,6 +1,20 @@
 {
- "idx_off_word_indices": null,
- "idx_unit_words": null,
+ "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+ "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+ "idx_off_word_indices": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "idx_unit_words": 1,
+ "load_is_asynchronous": true,
+ "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
  "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
- "status": "OK"
+ "status": "OK",
+ "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
 }

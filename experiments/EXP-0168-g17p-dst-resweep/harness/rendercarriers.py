@@ -293,6 +293,49 @@ CARRIERS = {
             "non-linear, so a dense slot sweep here separates the two readings "
             "-- which no number of additional uniform-width carriers can do.",
         vtx_values="mix", n_channels=12),
+    # ---- the `itr` family: iter_at, whose ONE dimension that matters is the
+    # sample count. EXP-0163 (G17P, HW-VALIDATED) showed `iter_at.loc` is inert
+    # at 1 sample and moves 128/256 at 4, because at one sample the centroid,
+    # the sample point and the pixel centre are the same point. These two
+    # carriers are the SAME MSL source at samples 1 and 4 -- and per this
+    # experiment's own M3 correction they are NOT byte-identical programs:
+    # rasterSampleCount is an input to the fragment compile (EXP-0163's own
+    # 00_inputs.json shows 174 B at 1 sample vs 482 B at 4). What is held
+    # constant is the source, the bound resources, the probe pixels and every
+    # other pipeline field. Reusing r_v8.metal is deliberate: its eight
+    # distinct power-of-two varyings force eight interpolated fetches, so
+    # `iter_at` is certain to be emitted and a redirect is decodable.
+    #
+    # CORRECTED AFTER THE FIRST CENSUS, and the correction is the point: these
+    # two carriers first pointed at r_v8.metal (default centre-perspective
+    # interpolation) and the on-device census found `vary_store` in the vertex
+    # program and **NO iter_at at all** in the fragment program. Plain smooth
+    # interpolation lowers to the location-implicit form; `iter_at` is what the
+    # compiler emits when the location is EXPLICIT -- which is why EXP-0155's
+    # carrier for this instruction was called `c_cent1`. kernels/r_icent.metal
+    # is r_v8 with [[centroid_perspective]] on all eight varyings, on BOTH
+    # members, so the pair still differs in exactly one dimension.
+    "r_i8": dict(
+        family="itr", kind="render", src="kernels/r_icent.metal",
+        color_format=125, rt_count=2, samples=1, width=W, height=H,
+        buf0=VTX_U, buf0_alt=VTX_U_ALT, out_buf=(1, OUT_BYTES), priority=1,
+        carrier_dim="CENTROID-qualified varying fetch at rasterSampleCount=1",
+        why="The CONTROL half of the pair, and the one EXP-0155 used alone. At "
+            "one sample the centroid, the sample point and the pixel centre "
+            "coincide, so a field selecting among them cannot express itself. "
+            "Kept explicitly so an inert result here is reported as the "
+            "carrier's blindness rather than the field's inertness.",
+        vtx_values="pow2", n_channels=8),
+    "r_i8s": dict(
+        family="itr", kind="render", src="kernels/r_icent.metal",
+        color_format=125, rt_count=2, samples=4, width=W, height=H,
+        buf0=VTX_U, buf0_alt=VTX_U_ALT, out_buf=(1, OUT_BYTES), priority=1,
+        carrier_dim="CENTROID-qualified varying fetch at rasterSampleCount=4",
+        why="THE carrier for anything on iter_at. It is the only dimension in "
+            "which this instruction has ever been shown to move, and EXP-0155's "
+            "two 'independent' iter_at carriers were BOTH samples=1 -- one "
+            "carrier labelled two.",
+        vtx_values="pow2", n_channels=8),
     "r_v4v": dict(
         family="vtx", kind="render", src="kernels/r_v4vec.metal",
         color_format=125, rt_count=4, samples=1, width=W, height=H,
