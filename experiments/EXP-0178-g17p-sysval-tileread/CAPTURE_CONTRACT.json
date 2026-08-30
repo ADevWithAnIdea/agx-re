@@ -1,4 +1,41 @@
 {
+ "amendments": [
+  {
+   "also": "A HARNESS/DEVICE HEALTH stop was added: if the UNSPLICED carrier itself fails to run after 5 consecutive full 40 s recovery cycles the arm stops, because every later case would be a 40-second-per-case artefact rather than an observation. This is explicitly NOT a hang budget -- hangs still never stop anything, and the full range is still dispatched.",
+   "changed_blobs": {
+    "harness/fakerunner.py": {
+     "after": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
+     "before": null
+    },
+    "harness/run.py": {
+     "after": "0df5699b40d8713ed00978179e5c8f7efe91fe6365b2de3f4c8344ba13c046f7",
+     "before": "5ea5ccc307f2169daedb308f8ba033adfebb1b58dca5c05d422f6cb31146b971"
+    },
+    "harness/saferunner.py": {
+     "after": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
+     "before": null
+    },
+    "harness/selftest.py": {
+     "after": "3ad44655bda4e13f5e8e3ff74c2e1764660f027f0da5d8675cba1968483cf9c9",
+     "before": "ed5c68c6ebd18da2ce949a7caa4bac15bf22e74b1c31dcd17de4557fbe57552c"
+    },
+    "harness/sweepplan.py": {
+     "after": "ed3659eb5db52e3d0eab89a5997a682da67d21b0062a6f30178b1532693cf7bd",
+     "before": "e5d2ce59925c4f0d8ac9289b96aa7ba5aab88824e682fda30574ef351372b8bd"
+    }
+   },
+   "fix": "ONE reader thread per child, tagged with the process it came from, so lines from a dead child are discarded instead of handed to the wrong request; and a malformed response recorded as a MEASUREMENT FAILURE (status MALFORMED) with the raw lines kept -- NEVER as a hang. A malformed response is not an observation and must not be scored as one.",
+   "hardware_fact_recorded_here": "The pre-registered falsifier is NOT a hang. Clearing byte0 bit 2 of the get_sr anchor (so the four bytes are no longer a get_sr) runs clean on G17P: STATUS OK, GPUTIME_NS 5000, integrity sentinel written, and the read-back collapses to the SR_BIAS-only silent-zero pattern. Verified by hand against the runner outside the harness. Every `hang` in work/pilot02..05 was a harness artefact; this experiment has caused no GPU reset at any point.",
+   "id": "amendment_01",
+   "not_touched": "tools/agxtest/persistrun.py and the repo's rsdrv.py are NOT modified: EXP-0179 is running against them and mutating them under that agent would be a courtesy violation of FIELD-SWEEP-PROTOCOL section 7. saferunner.py carries an UPSTREAM NOTES block with the before/after for both changes and which behaviours are defaults-preserving, so the orchestrator can lift it.",
+   "touches": "harness only. NO case, encoding, carrier, oracle, poison, sentinel, ladder, coverage rule, promotion gate or label changes. The device case matrix is byte-identical to the frozen one.",
+   "utc": "2026-08-30T12:15:47Z",
+   "verified_offline_no_device": "harness/selftest.py G1-G9 PASS, 0 failures. G9 drives harness/fakerunner.py in both a healthy and a --truncate mode and asserts the truncated response yields MALFORMED with the raw lines kept, never a crash and never a hang.",
+   "what": "Adds harness/saferunner.py (leak-free persistent-runner subclasses + a defensive response parser), harness/fakerunner.py (a no-device protocol stub) and selftest gate G9; run.py now uses the subclasses, captures a traceback on any runner exception, and carries a HARNESS/DEVICE HEALTH stop distinct from a hang budget.",
+   "why": "DIAGNOSIS, NOT REPAIR, found by the pilots (work/pilot01..05) BEFORE any gated dispatch. Both shared drivers -- tools/agxtest/persistrun.py and the rsdrv.py render driver -- start a FRESH reader thread per line and ABANDON it on timeout, and that thread re-resolves self.proc at EXECUTION time. After the first watchdog timeout the abandoned thread wakes on the REPLACEMENT child's stdout and races the foreground reader; responses come back truncated ('OUT 0 ' with the hex missing) and the shared parser raises ValueError: not enough values to unpack, killing the run. In work/pilot02..05 ONE benign case poisoned every later request including the unspliced health check, and three consecutive cases were recorded `hang` with restarts=99 -- ALL FALSE. This experiment deliberately has no hang budget, so hangs are expected and this defect would have manufactured a cascade of artefacts. It is the sibling of DEF-0153-2 (the EOF spin) in the same file.",
+   "why_this_is_not_a_post_hoc_repair": "The freeze exists to stop the harness being edited AFTER data is seen. At the moment of this amendment raw/ is EMPTY: zero gated dispatches have occurred, so no observation exists that these edits could have been fitted to. Everything run so far lives in work/ under pilot ids and is retained, never reused."
+  }
+ ],
  "anchor_resolution_rule": "Recorded in raw/<run>/00_arm_resolution.json BEFORE the first gated dispatch. get_sr anchors resolve by a clean pinned tokenization when available, else by an even-offset scan requiring (byte0 & 7)==4, byte1==anchor_sr and a successful pinned decode to get_sr with EXACTLY ONE match; ambiguity -> NOT ATTEMPTED. tile anchors resolve by byte pattern plus a pinned decode to tile_read or tile_read_mrt. tile_ct2 may compile to either; the arm is attributed to the instruction ACTUALLY FOUND and its field list is intersected with that descriptor's real field names. Neither anchor present -> NOT ATTEMPTED, never guessed.",
  "authored_sha256": {
   "PRE_REGISTRATION.md": "97af7c8453ac2d1025606e47d1698e7dba360bd30381d3b7f66bd7804ce34370",
@@ -6,13 +43,15 @@
   "analysis/covary_audit.json": "970487422850a35d31cacb3b899df16ff146ac3f762e50c559220b1a54602a93",
   "analysis/covary_audit.py": "2ab832ac84cc86df595b089ef62e0b60f1506dc7cbcbdaf23f7ada850d40e928",
   "analysis/verdicts.py": "16d9cf80ed76bedf673f334e8d7024e8c5146f689743b4daae53f332ec9b2830",
+  "harness/fakerunner.py": "b6a590b826c89aa773ae169c977fc3dd7041f0a29293bf79ed55822b87e3d0af",
   "harness/pinned_isa.py": "2488f7872a751ce67e8937e2f48533549b051ef6c24209b20d73c67cdfce1479",
   "harness/rendersweep.m": "ed39f2792f50a916c39ddeca7df5b67039d9b4ea3ebe77a3780092fdc03e968c",
   "harness/rsdrv.py": "ded4b92cbfdfd1753ef51b3ad871e9914f096a84ea4304c41f25193c7a04f897",
-  "harness/run.py": "5ea5ccc307f2169daedb308f8ba033adfebb1b58dca5c05d422f6cb31146b971",
-  "harness/selftest.py": "ed5c68c6ebd18da2ce949a7caa4bac15bf22e74b1c31dcd17de4557fbe57552c",
+  "harness/run.py": "0df5699b40d8713ed00978179e5c8f7efe91fe6365b2de3f4c8344ba13c046f7",
+  "harness/saferunner.py": "fce1387eaf94844d1f2761810523468a420d1731c612edcce33a01e89bd891c1",
+  "harness/selftest.py": "3ad44655bda4e13f5e8e3ff74c2e1764660f027f0da5d8675cba1968483cf9c9",
   "harness/shdump2.m": "fe558c36024f3f94b6c2fcfd9f80ee7347c43ca5cfbe10a9c4089913e9829359",
-  "harness/sweepplan.py": "e5d2ce59925c4f0d8ac9289b96aa7ba5aab88824e682fda30574ef351372b8bd",
+  "harness/sweepplan.py": "ed3659eb5db52e3d0eab89a5997a682da67d21b0062a6f30178b1532693cf7bd",
   "harness/sync.sh": "fe1fc40e31f2e7535930df3f152ba36341f70690fcbf277fa2a13851658bbe53",
   "kernels/sysval.metal": "6b14b1106220492488c221a36c0edb7d2349e970459e44e25d9a61c5d21ca939",
   "kernels/tilebuf.metal": "d1d85c915020fcacc8bbd466cf70e089b89843f72d3e5bb6c6a075091cb191ed"

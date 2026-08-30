@@ -129,6 +129,11 @@ GPU, in a `--truncate` mode that emits `OUT 0` with the payload missing.
 `harness/selftest.py` gate G9 drives both modes and asserts that the good mode
 parses and the truncated mode yields `MALFORMED` with the raw lines kept --
 never a crash and never a `hang`.
+
+[EXP-0180 note: those two paths are EXP-0178's. EXP-0180 carries its own
+`work/stub/fakerunner.py` and its own `harness/selftest.py` gate, so this
+wrapper is proven offline in THIS experiment's tree as well; the offline
+selftest is a CODE test and is not evidence for any hardware claim.]
 """
 import json
 import os

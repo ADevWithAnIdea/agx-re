@@ -77,3 +77,53 @@ on resume, re-orient from this file, `CAPTURE_CONTRACT.json`, and what is actual
     read-back still holds `0xDEADBEEF`. Motivated by the DSTORE finding that a
     `device_store` through an unbound slot is **silently dropped** with no fault and no
     diagnostic — absence of a fault proves nothing, so the poison is what adjudicates.
+
+## 2026-08-30 — M3: pilots (work/pilot01..05), then HELD for EXP-0179
+
+Pushed, built (`shdump2`, `rendersweep`, `agxrun_persist` all clean) and ran five pilots.
+All retained under `work/`, none reused, **zero gated dispatches — `raw/` is still empty.**
+
+**The compute `get_sr` carrier has full detection power on G17P.** Anchor resolved by the
+pinned tokenizer at offset 0, `04 82 10 06`, 58-byte program, **zero tokenization leftover**.
+Baseline `1000,1001,1002,…` = `simd_lane_id + 1000`, matching the host oracle;
+`exec_width = 32`. Ladder: `sr_sel` 0x82→0xa0 **moved**; `dst` relocation **moved** (collapses
+to 1000, i.e. the consumer reads the vacated register). Litmus: `sr_sel`→0x9d
+(`threadgroup_position_in_grid.y`, documented 0 in a one-threadgroup dispatch) drove **every
+slot to exactly 1000** — the measurement can see an SR read collapse to zero.
+
+**Root cause of EXP-0169's `untested` verdict, from its own committed files.** Its `k_sr` probe
+was *lifted* into a synthesized program and run at **grid=1 / tg=1** —
+`experiments/EXP-0169-g17p-rerecord/harness/casematrix.py:78` states the relaxation in so many
+words — and at that geometry every reachable special register reads 0, so `L_sr_sel` could not
+move and the ladder failed. Not the carrier program, not the oracle: the **dispatch geometry**
+left the field unable to express anything. Goes in `RESULTS.md` as a named finding.
+
+**The pre-registered falsifier is NOT a hang.** Clearing byte0 bit 2 runs clean on G17P —
+`STATUS OK`, `GPUTIME_NS 5000`, sentinel written, read-back collapses to the silent-zero
+pattern. Verified by hand against the runner, outside the harness. **This experiment has caused
+no GPU reset at any point.**
+
+**Harness defect found and fixed (amendment_01).** `tools/agxtest/persistrun.py` and the
+`rsdrv.py` render driver start a fresh reader thread per line and abandon it on timeout; the
+thread re-resolves `self.proc` at execution time, so after the first watchdog timeout it wakes
+on the *replacement* child's stdout and races the foreground reader. Responses come back
+truncated (`OUT 0 ` with the hex missing) and the shared parser raises. In the pilots one benign
+case poisoned every later request including the unspliced health check, and three consecutive
+cases were recorded `hang` with `restarts=99` — **all false**. Fixed in `harness/saferunner.py`
+(one reader thread per child, tagged by owner; malformed response recorded as a **measurement
+failure** with the raw lines kept, never as a hang), with an UPSTREAM NOTES block giving the
+before/after for `tools/agxtest/persistrun.py` and marking both changes defaults-preserving.
+The shared tools are deliberately **not** modified while EXP-0179 runs against them. Proven with
+no device by new selftest gate **G9** driving `harness/fakerunner.py`.
+
+Also added: a **harness/device health stop** (five consecutive failed full recovery cycles on
+the *unspliced* carrier) — explicitly not a hang budget; hangs still stop nothing and the full
+range is still dispatched.
+
+Offline gates after the amendment: `selftest.py` **G1–G9 PASS, 0 failures**;
+`covary_audit.py` **PASS**, 45 fields, 0 errors. Contract re-frozen,
+sha `885d1d8605c3…`, 17 authored blobs + 3 pinned.
+
+**STATUS: HELD.** Device released to EXP-0179 at its request; `pgrep` on the neo shows no
+`agxrun_persist`, `rendersweep`, `shdump` or `run.py` from this experiment. Waiting for the
+orchestrator's clear before the gated pair.

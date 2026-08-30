@@ -639,6 +639,10 @@ def main():
                 out["a_is_uniform"] = all(f32(p[3]) == f32(SP.SRC[1]) for p in px[:n])
             elif arm["oracle"] == "sr_vertex":
                 out["a_is_uniform"] = all(f32(p[3]) == f32(SP.SRC[1]) for p in px[:n])
+                # f_sv passes through sv.y and sv.z, which the vertex program
+                # writes as literal 0.0 with no special register in the path.
+                out["gb_are_zero"] = all(abs(p[1]) <= 1e-9 and abs(p[2]) <= 1e-9
+                                         for p in px[:n])
             elif arm["oracle"] in ("tile2", "mrt", "mrt3"):
                 # every attachment OTHER than the one that moved must still be
                 # byte-exactly correct.
@@ -651,9 +655,18 @@ def main():
             return out
 
         def is_zeroish(obs):
+            """Did the instruction under test contribute ZERO? This is carrier
+            specific and must not be written as "the observation is 0": on the
+            fragment [[position]] carrier a zero SR read still lands as the
+            pixel-centre offset C, not as 0.0."""
             if "words" in obs:
+                # compute: k_sr_c stores SR + SR_BIAS, so a zero read is SR_BIAS.
                 return all(w == SP.SR_BIAS for w in obs["words"][:arm["grid"]])
-            return all(abs(p[0]) <= 1e-9 for p in obs["pixels"])
+            n = arm["W"] * arm["H"]
+            if arm["oracle"] == "sr_frag":
+                return all(abs(p[0] - centre_c) <= 1e-9 for p in obs["pixels"][:n])
+            # sr_vertex: a zero read interpolates to 0 at every corner.
+            return all(abs(p[0]) <= 1e-9 for p in obs["pixels"][:n])
 
         # ------------------------------------------------------- record -----
         arm_hangs = [0]

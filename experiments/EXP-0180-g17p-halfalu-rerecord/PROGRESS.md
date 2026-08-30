@@ -222,3 +222,35 @@ Two items from the coordinator's EXP-0178 relay, both on this experiment's criti
    side by side in `raw/pilot01/geometry.jsonl`, with a frozen re-basing rule.
 
 **Status: QUIET. Zero SSH to the neo. Nothing to checkpoint.** Holding for the clear.
+
+## M7 — 2026-08-30 — db defects numbered; runner checked against DEF-0178-1. Still QUIET.
+
+* **`analysis/db_defects.json` written**, seven numbered entries the orchestrator can act on
+  (`DEF-0180-1` … `DEF-0180-7`) plus two **method** defects kept in a separate
+  `_method_defects_not_db` block so they cannot be mistaken for db edits:
+  * `DEF-0180-1` — `half_alu*.dst` at the wrong offset; destination is byte0 bits 4..7,
+    bits 8..15 are a SOURCE half-register descriptor. **LOAD-BEARING**; sits under two rows
+    currently labelled `hardware-run`.
+  * `DEF-0180-2` — the byte0 `0x10` length rule contradicts `isadb.instr_length`;
+    `byte+4 & 3` is a length selector inside `srcB_desc` and `ext`. **LOAD-BEARING.**
+  * `DEF-0180-3` — `half_alu_fma12.ext` is not a field (2^64, over-consumer).
+  * `DEF-0180-4/5/6` — three citation defects readable from committed text alone.
+  * `DEF-0180-7` — `isadb.instr_length` gates the half family on the full byte, so any half
+    op with `dst != r1` does not tokenize; the same function's docstring records that this
+    exact bug was fixed for the `0x09` family and never applied to `0x10`.
+  * `DEF-0180-A/B` (method) — the dead anchor, and "the falsifier was never a falsifier".
+
+  **Every entry is marked `PROPOSED`: offline derivation from committed evidence, no EXP-0180
+  device run yet.** The gated pair will restate each as CONFIRMED or REFUTED. `db.json`,
+  `validation.json`, `docs/` and `PROVENANCE.md` are untouched and stay that way.
+
+* **Runner checked against DEF-0178-1 and subclassed.** `harness/saferunner.py` is in place
+  (adopted from EXP-0178's own file, header preserved, render half removed, EXP-0180 rationale
+  prepended). One reader thread per child, queue tagged by owner, lines from a killed child
+  discarded; `MALFORMED` → `measurement_failed`, raw lines kept, retried, excluded from
+  `values_dispatched`. **`tools/agxtest/persistrun.py` is NOT modified** — EXP-0179 is running
+  against it. Parses clean.
+
+**Status: QUIET. Zero SSH to the neo. Nothing dispatched, nothing to checkpoint.**
+Remaining offline work: `kernels/*.metal`, `harness/{isa_helpers,casematrix,anchors,smoke,run,
+procsample,selftest}.py`, `work/stub/fakerunner.py`, `analysis/{verdicts,merge_check}.py`.

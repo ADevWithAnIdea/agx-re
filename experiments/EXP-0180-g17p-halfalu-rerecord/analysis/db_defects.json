@@ -1,0 +1,88 @@
+{
+ "_meta": {
+  "experiment": "EXP-0180-g17p-halfalu-rerecord",
+  "status": "PROPOSED \u2014 every entry is derived OFFLINE from committed evidence (EXP-0169 raw/g17p_20260830_run01/sweep.jsonl + baseline.jsonl, tools/agx-isa/db.json, tools/agx-isa/isadb.py, tools/agx-isa/validation.json). NONE has yet been confirmed by an EXP-0180 device run. Hardware confirmation is H0/H2/H3 of PRE_REGISTRATION.md; the gated pair will restate each entry as CONFIRMED or REFUTED.",
+  "db_sha256_pinned": "a77f8cfa163fcf720c0c1093e4ddc5815ceb43c218bb64a87c86d3dcf975dc22",
+  "owner_of_db_json": "the orchestrator. This experiment does NOT edit db.json, validation.json, docs/ or PROVENANCE.md."
+ },
+ "DEF-0180-1": {
+  "class": "wrong-operand model",
+  "instructions": [
+   "half_alu",
+   "half_alu_ext8",
+   "half_alu_fma12"
+  ],
+  "symptom": "db.json models the destination at bits 8..15 (`dst`) and pins ALL EIGHT bits of byte0 in `match: [[0,8,16]]`. The destination GPR is in fact byte0's HIGH NIBBLE (bits 4..7), and bits 8..15 are a SOURCE half-register descriptor.",
+  "evidence_offline": {
+   "destination": "EXP-0169 raw/g17p_20260830_run01, HALF_ALU@C1_alu `__falsifier_byte0`: `10 02 1c 03 00 c0` -> `00 02 1c 03 00 c0` moved the result 0x3FC0 from r1's LOW half to r0's LOW half, preserving r0's HIGH half (r0: 40a00000 -> 40a03fc0; r1: 00003fc0 -> 00000000).",
+   "byte+1_is_a_source": "same run, HALF_ALU@C1_alu `dst` sweep: byte+1 = 0x01/0x03/0x05/0x07 gives 1.9375 + {2.3125, 1.9375, 2.125, 1.75} = exactly h1/h3/h5/h7 = r0.hi/r1.hi/r2.hi/r3.hi, and releases that register (r0/r2/r3 -> 0). Even values read a zero LOW half and reproduce the baseline. Movement occurs at exactly 28 of 256 values: {2k+1} union {128+2k+1} for k=0..13 (r14/r15 seed to 0).",
+   "bit7_is_a_dont_care": "129..155 mirrors 1..27 exactly, in the same sweep."
+  },
+  "impact": "LOAD-BEARING. An emitter following db.json can only ever write r1, and `half_alu_ext8.dst` / `half_alu_fma12.dst` \u2014 both currently `hardware-run` \u2014 name a source, not a destination. Same class as fspecial / imad / cvt_bf16 / n3_mov.",
+  "corroboration_in_db": "db.json already records this structure for the neighbours: cvt_f2h `match [[0,8,17]]` = 'byte0 0x11 ... (dst r1)', generalised by cvt_f2h_dst to 'ANY dst register (byte0 high nibble)'; mov_zext16 DEF-0161-2: 'the pre-2026-08-30 descriptor pinned byte0 to the full fixed byte 0x13 and modelled byte+1 as the source register, so the real register selector was invisible to an emitter'; n3_mov: 'dst = byte0 high nibble (r0..r15)'.",
+  "hardware_test": "PRE_REGISTRATION.md H0 / arm DSTNIB: byte0 = n<<4 for n = 0..15, on both instruction shapes and both carriers."
+ },
+ "DEF-0180-2": {
+  "class": "length model \u2014 db.json contradicts its own tokenizer",
+  "instructions": [
+   "half_alu",
+   "half_alu_ext8",
+   "half_alu_fma12"
+  ],
+  "symptom": "db.json length_rule.byte0_table['0x10'] = '6, or 8 if (byte+2 & 0x02)'. isadb.instr_length (line ~1861) implements `6 + 2*(byte+4 & 3)`, with an 8-when-zero override if `byte+2 & 2`, plus a 4-byte compact case for byte+2 in {0x18,0x19,0x21,0x30,0x31,0x38,0x39}. The two rules disagree, and NEITHER has ever been measured on hardware.",
+  "consequence": "`byte+4 & 3` is a LENGTH SELECTOR that lies inside `half_alu_ext8.srcB_desc` (bits 32..39) and inside `half_alu_fma12.ext` (bits 32..95). Three quarters of a 256-value `srcB_desc` sweep encodes a DIFFERENT-LENGTH instruction. Its true encodable range as a field of the 8-byte descriptor is 64, not 256.",
+  "evidence_offline": "The code rule predicts EXP-0169's otherwise-unexplained HALF_ALU@C1_alu `srcB` (= byte+4) sweep exactly: v mod 4 == 0 -> 6B (2 spare bytes decode as a harmless pad) -> baseline; == 1 -> 8B (the anchor) -> baseline; == 2 -> 10B, swallows 4 bytes of the following dump code -> EVERY output word still 0xDEADBEEF (the program never stored anything); == 3 -> 12B, swallows 6 bytes -> r1 keeps its seed, the op did not write.",
+  "impact": "LOAD-BEARING. This is falu2_uni.uni_mode (EXP-0169 section 16b) at scale: movement measured across a length change is movement between two DIFFERENT INSTRUCTIONS.",
+  "hardware_test": "PRE_REGISTRATION.md H2/H3 / arm LEN: a four-`mov_imm` marker chain at byte +6 whose surviving marker count reads the hardware's instruction length directly (4 -> 6B, 3 -> 8B, 2 -> 10B, 1 -> 12B, 0 -> 14B)."
+ },
+ "DEF-0180-3": {
+  "class": "not-a-field / over-consumer",
+  "instructions": [
+   "half_alu_fma12"
+  ],
+  "symptom": "`ext` is 64 bits wide (bits 32..95, bytes +4..+11) with an encodable range of 2^64. It is not a field; it is the unmodelled tail of a 12-byte form for which length_rule.byte0_table has NO entry at all. db.json already flags half_alu_fma12 as an over-consumer (length_rule_gaps.doc02_over_consumers_20260828) and `emit_unsafe`.",
+  "impact": "PRE-REGISTERED: this row CANNOT reach `hardware-run` under docs/evidence-classification.md section 2's range bar whatever the outcome. A sampled 2048 of 2^64 is 0.0% coverage. Its honest verdict space is NOT-A-FIELD + this defect entry.",
+  "hardware_test": "arm LEN (does the hardware consume 12 bytes at all?) + the F12_FMA byte-wise sweep."
+ },
+ "DEF-0180-4": {
+  "class": "citation defect \u2014 the row's `range` documents a DIFFERENT BYTE than the field it labels",
+  "row": "half_alu_fma12.srcA",
+  "field_span": "bits 24..31 = byte+3",
+  "committed_range_text": "byte+4 0x83 -> fma(|a|,b,c); 0x82 -> |a| alone; 0x80 -> 0",
+  "symptom": "byte+4 lies inside `ext` (bits 32..95), not inside `srcA`. The evidence recorded for this row is about a byte the row does not cover \u2014 and, per DEF-0180-2, byte+4's low two bits are the length selector.",
+  "evidence_offline": "tools/agx-isa/validation.json, instruction half_alu_fma12, field srcA, evidence [EXP-M4-14]."
+ },
+ "DEF-0180-5": {
+  "class": "citation defect \u2014 one row's `range` documents TWO different fields",
+  "row": "half_alu_ext8.srcA",
+  "field_span": "bits 24..31 = byte+3",
+  "committed_range_text": "byte+3 0x02 works, 0x04/0x06 break; byte+6 swept 0x00..0xc0 all inert",
+  "symptom": "byte+3 is `srcA`; byte+6 is `rsv6` (bits 48..55). The second clause is evidence for a different row, recorded in this one \u2014 and it is the same sentence `rsv6`'s own row rests on."
+ },
+ "DEF-0180-6": {
+  "class": "citation defect \u2014 the row's `range` cites an example outside the field",
+  "row": "half_alu_ext8.srcB_desc",
+  "field_span": "bits 32..39 = byte+4",
+  "committed_range_text": "0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)",
+  "symptom": "byte+7 is `b7_lo`/`saturate`/`b7_mid`/`op_valid_marker` (bits 56..63), not `srcB_desc`. Also, per DEF-0180-2, '0x01 required' is not an operand requirement \u2014 it is the value that makes the instruction 8 bytes long."
+ },
+ "DEF-0180-7": {
+  "class": "tokenizer \u2014 the mirror image of DEF-0180-1",
+  "file": "tools/agx-isa/isadb.py",
+  "symptom": "`instr_length` gates the native-half family on the FULL byte (`if b0 == 0x10`), so any half-ALU whose destination register is not r1 is not lengthed and does not tokenize. The same function's own docstring records that this exact bug was fixed for the 0x09 float family: \\\"byte0's high nibble carries the dst register number (bits [4:8]) ... using the full byte mis-tokenizes any falu2 whose dst register is >= 1\\\". The fix was never applied to 0x10 (nor, apparently, to 0x11).",
+  "impact": "Any corpus census over the half family under-counts by construction, and an emitter cannot round-trip a half op with dst != r1.",
+  "evidence_offline": "isadb.py instr_length line ~1861 vs its own docstring; and EXP-0169's falsifier case, whose `00 02 1c 03 00 c0` the tokenizer called `pad_operand` while the hardware executed it as a half-ALU add writing r0."
+ },
+ "_method_defects_not_db": {
+  "DEF-0180-A": {
+   "scope": "EXP-0169's carrier, not db.json",
+   "symptom": "the lifted half_alu_ext8 / half_alu_fma12 anchors were COMPUTATIONALLY DEAD in C1_alu: their operand descriptors name half-registers 0x81/0x83 = registers 64/65, which the synthesized carrier never seeds, and the carrier's falu2i float seeds have ZERO low 16 bits so every even half-register descriptor reads 0.0. Result 0, written where 0 already was.",
+   "consequence": "rsv6 0/256, b7_lo 0/2, op_valid_marker 0/2 moved \u2014 not because the bits are inert but because there was nothing to disturb."
+  },
+  "DEF-0180-B": {
+   "scope": "EXP-0169's liveness ladder, not db.json",
+   "symptom": "`__falsifier_byte0` (byte0 -> 0x00) is NOT a falsifier for the byte0==0x10 family: per DEF-0180-1 it only RELOCATES the destination. It cannot null the op. half_alu moved anyway because its result happened to be non-zero; half_alu_ext8 and half_alu_fma12 could not because theirs was 0.",
+   "consequence": "SIXTEEN rows were held on a ladder step that was never a ladder step. Same class as iter_at.loc at one sample and get_sr at grid=1: a control that cannot express what it is asked."
+  }
+ }
+}
