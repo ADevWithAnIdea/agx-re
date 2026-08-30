@@ -7,7 +7,9 @@
   "gate": "cross-run agreement >= 99% AND min(movedA,movedB) >= 2.0 x disagreements, over >= 2 common values; the (arm,carrier) liveness ladder must have passed first",
   "gated_runs": [
    "raw/g17p_20260830_run01",
-   "raw/g17p_20260830_run02"
+   "raw/g17p_20260830_run02",
+   "raw/g17p_20260830_run03",
+   "raw/g17p_20260830_run04"
   ],
   "labels": "docs/evidence-classification.md section 2, and nothing else",
   "pairing": "per field, the two runs with the most distinct attributed values (EXP-0164 cross_run's own rule), so an arm captured in a separate later pair is not diluted by the earlier one",
@@ -154,6 +156,148 @@
     "field_geometry_source": "work/frozen/db.json",
     "path": "raw/g17p_20260830_run02",
     "records": 16827
+   },
+   "raw/g17p_20260830_run03": {
+    "00_env.json": {
+     "calibration": {
+      "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+      "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+      "idx_off_word_indices": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "idx_unit_words": 1,
+      "load_is_asynchronous": true,
+      "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
+      "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+      "status": "OK",
+      "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
+     },
+     "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+     "devices": {
+      "C1_alu": "Apple A18 Pro",
+      "C4_store": "Apple A18 Pro"
+     },
+     "experiment": "EXP-0169-g17p-rerecord",
+     "host": "users-MacBook-Neo.local",
+     "inputs": {
+      "imem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run03/imem_ramp.bin",
+      "mem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run03/mem_ramp.bin",
+      "uni": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run03/uni.bin"
+     },
+     "isadb_sha256": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
+     "load_idx_unit_words": 1,
+     "machine": "Mac17,5",
+     "matrix_cases": 7046,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3",
+     "os": "26.6 (25G5043d)",
+     "python": "3.9.6",
+     "target": "G17P",
+     "utc": "2026-08-30T11:34:13Z"
+    },
+    "02_summary.json": {
+     "cases": 7046,
+     "counters": {
+      "baseline_fail": 0,
+      "fault": 136,
+      "hang": 0,
+      "ok": 3054,
+      "sem_checked": 0,
+      "sem_match": 0,
+      "sentinel_bad": 2,
+      "silent_zero": 0,
+      "undecodable": 0,
+      "victim": 0,
+      "wrong_value": 3856
+     },
+     "elapsed_s": 187.4,
+     "hangs_seen": {
+      "C1_alu": 0,
+      "C4_store": 0
+     },
+     "matrix_len": 7046,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3"
+    },
+    "field_geometry_source": "work/frozen/db.json",
+    "path": "raw/g17p_20260830_run03",
+    "records": 7046
+   },
+   "raw/g17p_20260830_run04": {
+    "00_env.json": {
+     "calibration": {
+      "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+      "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+      "idx_off_word_indices": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ],
+      "idx_unit_words": 1,
+      "load_is_asynchronous": true,
+      "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
+      "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+      "status": "OK",
+      "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
+     },
+     "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+     "devices": {
+      "C1_alu": "Apple A18 Pro",
+      "C4_store": "Apple A18 Pro"
+     },
+     "experiment": "EXP-0169-g17p-rerecord",
+     "host": "users-MacBook-Neo.local",
+     "inputs": {
+      "imem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/imem_ramp.bin",
+      "mem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/mem_ramp.bin",
+      "uni": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/uni.bin"
+     },
+     "isadb_sha256": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
+     "load_idx_unit_words": 1,
+     "machine": "Mac17,5",
+     "matrix_cases": 7046,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3",
+     "os": "26.6 (25G5043d)",
+     "python": "3.9.6",
+     "target": "G17P",
+     "utc": "2026-08-30T11:38:18Z"
+    },
+    "02_summary.json": {
+     "cases": 7046,
+     "counters": {
+      "baseline_fail": 0,
+      "fault": 136,
+      "hang": 0,
+      "ok": 3054,
+      "sem_checked": 0,
+      "sem_match": 0,
+      "sentinel_bad": 2,
+      "silent_zero": 0,
+      "undecodable": 0,
+      "victim": 0,
+      "wrong_value": 3856
+     },
+     "elapsed_s": 179.4,
+     "hangs_seen": {
+      "C1_alu": 0,
+      "C4_store": 0
+     },
+     "matrix_len": 7046,
+     "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3"
+    },
+    "field_geometry_source": "work/frozen/db.json",
+    "path": "raw/g17p_20260830_run04",
+    "records": 7046
    }
   },
   "target": "G17P"
@@ -207,6 +351,189 @@
   ],
   "original_label": "tokenization-only",
   "original_range": "framing only (round-trips; no value semantics established)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.access_desc": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "DOES-NOT-REPRODUCE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.addr_mode": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": true,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.base_slot": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0083"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 census on the load path; store path probed at slots 0,3,31,32,63,127,128,255 - slot 128 writes are DISCARDED (mirror is load-only)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.elem_size": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.extmode": {
+  "fresh_class": "UNSTABLE",
+  "fresh_label": "untested",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "INCONCLUSIVE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.idx_off": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0082",
+   "EXP-0100"
+  ],
+  "original_label": "isolated-byte-diff",
+  "original_range": "boundary points 0x1FF, 0x200, 0x3FF, 0x400, 0x7FF at idx 1023/1024 - all landed outside the 8 KiB target, which is exactly what the 16-byte store unit predicts",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.index_reg": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0092"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..95 fully round-trip correct; 96,97,100,111,120,127 uniformly FAULT; 112 is genuinely NONDETERMINISTIC (fault or silent-all-zero across byte-identical splices)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.reserved13": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "DOES-NOT-REPRODUCE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.reserved7": {
+  "fresh_class": "INERT-MULTI",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "DOES-NOT-REPRODUCE",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.space": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_desc_hi": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..63 step 1 (64 of 64)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_format": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..255 step 1 (256 of 256)",
+  "reproduction": "REPRODUCES",
+  "sem_checked": 0,
+  "sem_failure_examples": [],
+  "sem_failures": 0
+ },
+ "device_store.st_format_ext": {
+  "fresh_class": "LIVE",
+  "fresh_label": "hardware-run",
+  "original_claims_inert": false,
+  "original_evidence": [
+   "EXP-0141"
+  ],
+  "original_label": "hardware-run",
+  "original_range": "0..127 step 1 (128 of 128)",
   "reproduction": "REPRODUCES",
   "sem_checked": 0,
   "sem_failure_examples": [],

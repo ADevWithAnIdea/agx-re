@@ -8,7 +8,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 51 | 115 | 166 |
+| 52 | 114 | 166 |
 
 ## Distance to emittable
 
@@ -17,7 +17,7 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 | 0 | 4 |
 | 1 | 22 |
 | 2 | 22 |
-| 3 | 20 |
+| 3 | 19 |
 | 4 | 13 |
 | 5 | 14 |
 | 6 | 7 |
@@ -61,7 +61,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `falu2_uni` | `dst` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
 | `half_alu` | `dst` | untested |
-| `half_alu_fma12` | `ext` | tokenization-only |
+| `half_alu_fma12` | `ext` | untested |
 | `iadd2` | `b2_fmt` | single-template-inference |
 | `if_push` | `scope` | untested |
 | `imageblock_store` | `b4` | single-template-inference |
@@ -118,6 +118,6 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | label | fields |
 |---|---:|
 | `untested` | 180 |
-| `tokenization-only` | 128 |
+| `tokenization-only` | 127 |
 | `corpus-correlation` | 74 |
-| `single-template-inference` | 30 |
+| `single-template-inference` | 28 |

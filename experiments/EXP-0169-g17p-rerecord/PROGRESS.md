@@ -433,3 +433,73 @@ mutations are `set_field` bit surgery on lifted anchor bytes (assemble only buil
 legal scaffolding), and **0 of 100 rows are UNDER-COVERED** — the very signature
 `coverage_of`'s `distinct_bytes` column was written to detect. Recorded as RESULTS §13.
 No re-run needed on that account.
+
+## 2026-08-30 — M12: DSTORE pair CAPTURED. Device work for EXP-0169 is COMPLETE.
+
+Coordinator gave the go on an exclusively idle neo. Re-oriented from disk first
+(`PROGRESS.md`, the 7 amendments, `raw/`), then re-pinned spans before dispatching.
+
+**Span re-check against the moved `db.json` (`a77f8cfa…`, 1036 fields), done BEFORE the
+run, not at merge time:** of my 100 Part-II rows, **99 spans byte-identical, 0 changed,
+1 folded**. All **13 `device_store` spans unchanged**, so the DSTORE arm was safe to run
+against the pinned snapshot.
+
+  * `g17p_20260830_run03` forward, 7046 cases, 179 s
+  * `g17p_20260830_run04` reverse, 7046 cases, 179 s
+  * **Counter dictionaries byte-identical between the two runs.** `matrix_sha256` matches
+    the Part-II pair. Both raws pulled back; neo confirmed idle and clear.
+
+### `0 HANGS`. The device never wobbled.
+
+**My own pre-registration courtesy warning was wrong, and that is the result.**
+`base_slot` 0..255 through unbound binding slots produced **0 faults and 0 hangs** on
+both carriers in both runs. Only `0x00` and `0x80` store at all (bit 7 is a don't-care);
+the other **254 values are SILENTLY DROPPED — `stray == []`, no fault, no diagnostic.**
+That is a load-bearing negative for a driver: the hardware will not tell you a binding
+slot is unbound.
+
+### §3(c): there IS a contiguous wall — in `index_reg`, and it is mapped EXACTLY
+
+My harness has **no per-field hang budget and no abort path**, so it dispatched all 256
+values of every field regardless of outcome — the §3(c) trap is avoided by construction.
+
+    device_store.index_reg :  fault <=> (v & 0x60) == 0x60
+                              64 values, 0x60-0x7F and 0xE0-0xFF, ZERO counterexamples
+                              over all 256 values, both carriers, both runs
+    device_store.extmode   :  fault <=> v >= 0xFC   (0xFC-0xFF, zero counterexamples)
+
+Bit 7 of `index_reg` is a don't-care (the `0x00–0x7F` map repeats exactly in
+`0x80–0xFF`). All 136 faults per run are these two walls. **They are faults, not hangs** —
+fault-contained, no reset, no wedge, full speed throughout. **No separate mapping pass was
+needed.**
+
+### Two self-catches, both from my own raw
+
+  * **`falu2_uni.uni_mode` WITHDRAWN.** I had it `LIVE` at full range; EXP-0175 folded it
+    into `match`. **EXP-0175 is right and I was wrong**: my own `tok_instr` column shows
+    value 1 tokenizes `falu2_uni` and value 0 tokenizes **`falu2`** — bit 39 is an
+    instruction-identity bit, so the "movement" was me encoding a different instruction.
+    Caught before merge, exactly as the schema was designed to allow.
+  * **3 new `DOES-NOT-REPRODUCE` rows are a defect in MY reproduction rule.**
+    `device_store.access_desc` / `.reserved7` / `.reserved13` are `INERT-MULTI` (256/256
+    `ok`, two carriers, both runs). Their committed entries carry a bare
+    `"0..255 step 1 (256 of 256)"` and an **empty note** — a coverage record asserting
+    neither live nor inert, which my keyword-based rule misreads as "claims live". No
+    claim exists to contradict; my result *supplies* the missing fact.
+
+`device_store.extmode` is `UNSTABLE` (97.3 %/92.6 %) and stays `untested` — characterised,
+not left open: by `outcome` the runs agree **256 of 256 on both carriers**, and every
+digest disagreement selects a **data register >= 31**, outside the 16 the harness seeds.
+Over `extmode 0x00–0x1F` agreement is **100 %**.
+
+### Final state
+
+**ACCEPTANCE TEST PASSED over all four gated runs: 113 of 113 bit-exactly attributed by
+EXP-0164's own unmodified indexer, 0 unattributed** (52 fields now on 2 arms).
+**99 ruled on: 54 LIVE, 34 NO-DETECTION-POWER, 4 INERT-MULTI, 3 INERT-SINGLE, 3
+SEMANTIC-ORACLE-FAILED (adjudicated), 1 UNSTABLE (characterised).**
+**0 of 113 rows missing a coverage key; 3 THIN, 0 UNDER-COVERED.**
+
+STATUS: **device work COMPLETE, neo idle and clear.** Nothing further is dispatching from
+this experiment. Outstanding for the orchestrator: the `C2_load` seed-path fix (a frozen
+blob edit, successor's call) and the 16 held rows.

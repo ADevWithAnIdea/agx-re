@@ -1,0 +1,43 @@
+{
+ "calibration": {
+  "async_note": "device_load on G17P is ASYNCHRONOUS and this harness issues no wait/scoreboard barrier. The number of landed registers grows monotonically with filler instructions inserted between the loads and their use: F=0,2,4,8 -> 0 of 8 landed; F=16 -> 2; F=32 -> 5; F=64 -> 8; F=128 -> 8. See raw/pilot03/calibprobe2.jsonl.",
+  "evidence": "device_load idx_off unit = 1 WORD, HW-VALIDATED on G17P: with sufficient filler between issue and use, r_k loaded at idx_off k reads ramp word k for every k in 0..13 (E1 F=64 and F=128: 8 of 8; E2: 14 of 14 on five consecutive repeats). Note this is a DIFFERENT unit from device_store, whose idx_off unit is 4 words (EXP-0090/EXP-0119, isa_helpers.STORE_STRIDE_WORDS).",
+  "idx_off_word_indices": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "idx_unit_words": 1,
+  "load_is_asynchronous": true,
+  "measured_by": "raw/pilot03 (calibprobe2.py) E1 F=64 and F=128, and raw/pilot03 E2 x5",
+  "note": "device_load idx_off unit in WORDS, solved from a ramp image in which every word is self-identifying. Frozen here BEFORE the gated runs; the C2_load semantic oracle depends on it.",
+  "status": "OK",
+  "supersedes": "harness/smoke.py S3, which could not solve the unit: its solver read all-zero registers because its hand-built program placed the dump immediately after the loads, with no slack. Retained unedited in raw/pilot01/."
+ },
+ "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+ "devices": {
+  "C1_alu": "Apple A18 Pro",
+  "C4_store": "Apple A18 Pro"
+ },
+ "experiment": "EXP-0169-g17p-rerecord",
+ "host": "users-MacBook-Neo.local",
+ "inputs": {
+  "imem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/imem_ramp.bin",
+  "mem": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/mem_ramp.bin",
+  "uni": "/Users/user/agxre/EXP-0169/work/run_g17p_20260830_run04/uni.bin"
+ },
+ "isadb_sha256": "c97c2a22fe4eb3aaa2140ff716686dcdbbbb099dcd68d2af77f7f9054174dd36",
+ "load_idx_unit_words": 1,
+ "machine": "Mac17,5",
+ "matrix_cases": 7046,
+ "matrix_sha256": "dfc41717034f52dd26dc0894ceac206966898ec27de6b1607f9dbcb66c82fff3",
+ "os": "26.6 (25G5043d)",
+ "python": "3.9.6",
+ "target": "G17P",
+ "utc": "2026-08-30T11:38:18Z"
+}

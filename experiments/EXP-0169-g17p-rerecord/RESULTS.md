@@ -481,3 +481,162 @@ refuse match/field conflicts. Two independent reasons that is harmless here:
 
 So this capture needs no re-run on that account, and the pinning is what makes the claim
 checkable rather than merely plausible.
+
+---
+
+# PART III — THE DSTORE GATED PAIR (run03/run04), 2026-08-30
+
+Run on an **exclusively idle** neo, as the coordinator arranged. Device work for this
+experiment is **complete**.
+
+| run | order | cases | elapsed | ok | wrong_value | fault | **hang** | sentinel_bad | victim |
+|---|---|---|---|---|---|---|---|---|---|
+| `g17p_20260830_run03` | forward | 7046 | 179 s | 3054 | 3856 | 136 | **0** | 2 | 0 |
+| `g17p_20260830_run04` | reverse | 7046 | 179 s | 3054 | 3856 | 136 | **0** | 2 | 0 |
+
+**The counter dictionaries are byte-identical between the two runs**, and `matrix_sha256`
+matches the other pair. Both carriers (`C4_store` 8256-word read-back, `C1_alu`) reported
+`hangs_seen: 0`.
+
+## 14. The courtesy warning was WRONG, and that is the result
+
+At pre-registration I warned that the DSTORE arm sweeps `device_store.base_slot` 0..255
+through **unbound binding slots** and was "the likeliest thing left to wedge the device".
+**It was not. `base_slot` produced 0 faults and 0 hangs on either carrier, over all 256
+values, in both runs.**
+
+`base_slot` 0..255, `C4_store` and `C1_alu`, identical in both runs:
+
+| outcome | values | which |
+|---|---|---|
+| `ok` (store lands, state matches baseline) | **2** | `0x00` and `0x80` |
+| `wrong_value` with **`stray == []`** | **254** | everything else |
+
+The 254 non-storing values leave the output buffer **entirely unpoisoned-free** — the
+probe store simply **does not happen**; `n_stray == 0`. The two working values write the
+expected `[[72, 10]]` at `W_PROBE`.
+
+> **HW-VALIDATED, G17P: a `device_store` through an unbound binding slot is SILENTLY
+> DROPPED. It does not fault, does not hang, and does not wedge the device.** Bit 7 of
+> `base_slot` is a **don't-care** — `0x00` and `0x80` both select binding slot 0.
+
+For a driver that is a load-bearing negative: an out-of-range `base_slot` gives **no
+diagnostic at all**, so binding-slot validity has to be guaranteed by construction in
+userspace; the hardware will not tell you.
+
+## 15. §3(c) — there IS a contiguous wall, it is in `index_reg`, and it is mapped EXACTLY
+
+The coordinator's new protocol rule applies, but not where anyone expected. My harness
+has **no per-field hang budget and no abort path** (`sweeprun.run_program` counts a hang,
+`run.py` retries and continues), so the sweep dispatched **all 256 values of every field
+regardless of outcome** — the region is mapped by construction, which is precisely what
+§3(c) asks for.
+
+**`device_store.index_reg` — an exact wall, zero counterexamples over all 256 values, on
+both carriers, in both runs:**
+
+    fault  <=>  (index_reg & 0x60) == 0x60
+
+| outcome | n | ranges |
+|---|---|---|
+| `fault` | **64** | `0x60–0x7F`, `0xE0–0xFF` |
+| `ok` | 162 | `0x0F–0x5F`, `0x8F–0xDF` |
+| `wrong_value` | 30 | `0x00–0x0E`, `0x80–0x8E` |
+
+The structure is fully explained: **bit 7 is a don't-care** (the map for `0x00–0x7F`
+repeats exactly in `0x80–0xFF`); low values `0x00–0x0E` name GPRs r0..r14 and so change
+the store address (`wrong_value`); `0x0F` = r15 = the harness's zeroed index register,
+hence baseline; and **bits 6:5 both set faults, unconditionally.**
+
+**`device_store.extmode` — a second, smaller wall:** `fault <=> extmode >= 0xFC`
+(`0xFC–0xFF`, 4 values, zero counterexamples).
+
+All 136 faults per run are these two walls (64 + 4, on each of two carriers). **They are
+faults, not hangs** — per-command-buffer errors, fault-contained, no reset, no wedge, and
+the sweep ran straight through them at full speed. A named non-gated mapping pass was
+**not required**, because the gated pair already mapped the whole range.
+
+## 16. Three `device_store` bytes are INERT over the full range — and one verdict of mine is WITHDRAWN
+
+### 16a. `access_desc`, `reserved7`, `reserved13`: `INERT-MULTI`
+
+All three: **256 of 256 values `ok` on two structurally different carriers, both runs** —
+the complete architectural state (16 GPRs, both sentinels, the stray map) is identical to
+the unmutated anchor at every value. Two of the three are named `reserved`, and this is
+the first evidence in the corpus that they behave that way.
+
+`verdicts.py` scored these `DOES-NOT-REPRODUCE`, and **that verdict is a defect in my own
+reproduction rule, not a corpus error.** The committed entries carry `range: "0..255
+step 1 (256 of 256)"` and an **empty note** — a pure *coverage* record that asserts
+neither live nor inert. My rule can only recognise an inert claim by keyword, so "no
+inert keyword" is misread as "claims live". A bare coverage string carries **no claim to
+contradict**; the correct verdict is `ORIGINAL-MAKES-NO-CLAIM`, and my result *supplies*
+the missing fact rather than contradicting one. Same family as the §4a regex defect.
+
+### 16b. `falu2_uni.uni_mode` — WITHDRAWN; EXP-0175's fold is CORRECT
+
+EXP-0175 folded 25 zero-free-bit fields into `match`, and `falu2_uni.uni_mode` (39,1) was
+one of them. My Part-II capture had called it **`LIVE`, full range 2/2**. Re-checked
+against my own raw, **my verdict is the artifact and the fold is right**:
+
+| value | bytes | `tok_instr` | `match` | outcome |
+|---|---|---|---|---|
+| 1 | `090f35018000` | **`falu2_uni`** | True | `ok` |
+| 0 | `090f35010000` | **`falu2`** | False | `wrong_value` |
+
+Clearing bit 39 does not select another *mode* of `falu2_uni` — **it turns the instruction
+into `falu2`.** The bit is an instruction-identity bit, so the field has exactly one legal
+value and belongs in `match`. The "movement" I measured was me encoding a different
+instruction.
+
+**`falu2_uni.uni_mode` is withdrawn from this experiment's verdicts.** The raw column that
+caught it (`tok_instr`, recorded per case precisely so a mutation that changes instruction
+identity is visible) is the reason this was self-caught rather than merged.
+
+## 17. `device_store.extmode` is `UNSTABLE` — and the reason is our own unseeded registers
+
+`extmode` missed the 99 % cross-run bar (97.3 % on C1_alu, 92.6 % on C4_store) and is
+correctly reported `untested` / `UNSTABLE`. The cause is characterised, not left open:
+
+  * By `outcome`, run03 and run04 agree on **256 of 256** values on **both** carriers —
+    **zero** disagreements.
+  * The disagreements are entirely in the **observation digest**, and **every single one
+    selects a data register ≥ 31** (`extmode = 2 * data_reg`; the smallest disagreeing
+    value is `0x3F`). Over `extmode 0x00–0x1F`, i.e. the 16 GPRs the harness actually
+    seeds, agreement is **100 %**.
+  * In each case the store still lands at word 72; only the *value* stored differs, run to
+    run.
+
+**HW-VALIDATED, G17P: `device_store` reading a data register outside the established
+register file returns non-deterministic contents** — the store's *destination* is stable,
+its *payload* is not. The conservative `UNSTABLE` label stands; the field is not promoted.
+
+## 18. Final tallies, and the re-pin against the moved `db.json`
+
+**Span re-check against the new `db.json` (`a77f8cfa…`, 172 instr / 1036 fields) before
+running:** of my 100 Part-II rows, **99 spans are byte-identical** and **0 changed**; the
+single casualty is `falu2_uni.uni_mode`, folded into `match` and withdrawn above (§16b).
+**Every one of the 13 `device_store` spans is unchanged**, so the DSTORE pair was safe to
+run against the pinned snapshot and its verdicts key cleanly to the current db.
+
+**Acceptance test, all four gated runs** — EXP-0164's own unmodified `collect_raw.py`:
+
+    EXP-0169 keys in the index : 113
+    fields ruled on            : 113
+      bit-exact attributed     : 113
+      NOT attributed           : 0
+    arms per attributed field  : {1: 61, 2: 52}
+
+**113 of 113, zero unattributed**, 5,153 cells, no unparseable lines. **H1 holds.**
+
+| | |
+|---|---|
+| rows emitted | 113 (99 ruled on, 14 foreign) |
+| `LIVE` | **54** |
+| `NO-DETECTION-POWER` | 34 |
+| `INERT-MULTI` | 4 |
+| `INERT-SINGLE` | 3 |
+| `SEMANTIC-ORACLE-FAILED` (adjudicated §4b) | 3 |
+| `UNSTABLE` (characterised §17) | 1 |
+| rows missing a coverage key | **0 of 113** |
+| `THIN` / `UNDER-COVERED` | 3 / **0** |
