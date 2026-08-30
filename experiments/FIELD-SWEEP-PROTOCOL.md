@@ -93,82 +93,56 @@ Already known and flagged `emit_unsafe` in `db.json` — do not re-derive, but d
 `vary_store` (0x57/byte+2=0x54 collision), `tg_addr_compute` (over-fitted match, two live operand
 bytes unmodelled), `falu_srcmod12b` (`opsel==4` corrupts an unrelated register).
 
-## 7. Concurrent sweeps CONTAMINATE each other — mandatory mitigation
+## 7. Run everything in parallel. Instrument instead of serializing.
 
-**Found the hard way, 2026-08-28, by two agents independently.** EXP-0143 reported its command
-buffers becoming *"innocent victims"* of sibling agents' faults; EXP-0147's smoke run hit a GPU
-**error cascade**. Ten agents driving one GPU with deliberately illegal encodings is
-self-defeating: another agent's contained fault surfaces in *your* command buffer as a failure,
-and a spurious `fault` recorded against a legal field value becomes a confident wrong label in
-`validation.json`.
+**There is no GPU lease. Run every sweep concurrently and unlocked.** The GPU has many hardware
+contexts and they isolate ordinary work correctly. This section replaces three earlier attempts
+(a blanket lease, then unlocked-with-majority-of-3, then a lease for fault verdicts only) — each
+was wrong in the same direction: they treated a **detectable, recoverable** event as a reason to
+serialize, and serializing cost far more than the contamination did. One bulk run once held the
+device for 14 minutes with eight agents queued behind it.
 
-This is the same class as the `...ErrorInnocentVictim` vs `...ErrorHang` distinction EXP-0136 had
-to exclude from its cross-run gate.
+### What actually happens
 
-**Required of every sweep from now on:**
+A GPU **hang** triggers a device-level reset. That reset kills in-flight command buffers in *other*
+contexts — correct recovery behaviour, not a context-isolation failure. Concurrency is not the
+problem; hangs are, and only briefly.
 
-1. **Never treat a single `fault`/`hang` observation as a property of the field.** Re-run any
-   faulting case at least once. A value is only `fault` if it faults *reproducibly*, in isolation.
-2. **Record the OS fault classification string**, not just the status. An
-   `ErrorInnocentVictim`-class failure is evidence about the *machine*, not about your encoding —
-   segregate those from your gated comparison the way EXP-0136 did.
-3. **Re-validate the baseline periodically mid-run.** If the unmutated carrier starts failing, you
-   are in a cascade: stop, note where, and resume in a fresh process rather than recording the
-   cascade as data.
-4. **Say in `RESULTS.md` how many other GPU experiments were running concurrently.** If you cannot
-   tell, say that. A sweep run alone and a sweep run against nine siblings are not the same
-   evidence, and the reader must be able to tell which they are holding.
+### The three instruments that make it a non-issue
 
-The orchestrator schedules GPU-contending experiments in small batches for this reason. If your
-dispatch says you are in a batch, the other members are named; desk-only work (modelling,
-classification, corpus analysis) is unaffected and can run alongside anything.
+**1. Poison your read-back buffer.** Fill every output with `0xDEADBEEF` before dispatch. This is
+the single most important one, because it distinguishes the three outcomes that otherwise look
+alike: *wrote the right value* / *wrote a wrong value* / **never ran at all**. On this ISA a wrong
+field value usually produces a silent zero, so a zero-initialised buffer cannot tell "wrote 0" from
+"did not execute".
 
-## 7A. ⚠ majority-of-3 is NOT sufficient for a `fault` verdict (EXP-0153, 2026-08-29)
+EXP-0153 is the proof: five cases passed majority-of-3 **and** agreed across two independent runs,
+and were still not faults. Isolation caught it — but so did the buffer, **offline, from data
+already captured**: poison everywhere except the pre-test sentinel proved the program ran and that
+neither following `device_store` executed. You do not need the device to adjudicate this.
 
-EXP-0153 found the limit of §7's scheme, and it matters. Five `F_imm_top` cases were recorded as
-reproducible **faults** in two unlocked gated runs — **each passed majority-of-3, and the two
-independent runs agreed with each other.** Re-run under the GPU lease, 5× each, **four of them are
-not faults at all** (`wrong_value`, 5/5).
+**2. Write an integrity sentinel through a path independent of the instruction under test**, and
+put it in a register no descriptor under test can name. A measurement without the sentinel is
+`invalid_run` and gets repeated. EXP-0138 lost six sweeps by seeding its sentinel in r11, which the
+instruction then read and zeroed.
 
-**Cross-run agreement did not defeat sustained sibling load. Only isolation did.** Under continuous
-concurrent pressure, contamination can be systematic enough to look reproducible *and* to survive an
-independent second run.
+**3. Record the OS fault-classification string on every non-`ok` case.**
+`kIOGPUCommandBufferCallbackErrorInnocentVictim` means "discarded, victim of another context's
+error/recovery" — a sibling's reset, not a property of your encoding. Segregate those and re-run.
 
-**So the rule is:** run bulk sweeps concurrently and unlocked, but **confirm every `fault`/`hang`
-verdict under `~/agxre/gpulease.sh` before promoting it.** Faults are the one verdict class where
-the cheap mitigations are insufficient.
+### The one remaining rule
 
-There is often a cheaper adjudication than re-running. In EXP-0153's case the corrected reading was
-provable **offline from the committed digest**: the read-back buffer was poison everywhere except
-the pre-test sentinel, which proves the program ran and that neither following `device_store`
-executed. **Poison your read-back buffer** (`0xDEADBEEF`) and much of this can be settled from
-already-captured data.
+**Never conclude `fault` from a single observation.** Re-run every `fault`/`hang`/victim case,
+majority-of-3 minimum, and adjudicate from the poisoned buffer where you can. EXP-0139 would have
+labelled **692 legal field values as `fault`** without this; EXP-0144's revalidation reached a
+**0.02% hang rate** purely by re-running victims.
 
+### Courtesy, not a rule
 
-## 7B. Lease hygiene — hold it for DISPATCH ONLY (orchestrator observation, 2026-08-30)
-
-Observed live: one agent held the lease for **13 minutes** around a bulk `--execute` run while
-**four other agents queued behind it**, all four of them doing exactly the §7A fault-confirmation
-the lease exists for. At the moment of inspection the holder had **zero live `agxrun`/`persist`
-processes** — it was holding the device through compile and analysis phases.
-
-**Rules:**
-
-1. **A bulk sweep NEVER takes the lease.** `--execute` over a full case matrix is ordinary work;
-   hardware contexts isolate it. Only known-hang-prone arms and §7A fault-confirmations qualify.
-2. **Hold it around actual dispatch, nothing else.** Release before compiling, before analysis,
-   before file transfer. Time spent holding the lease while not dispatching is dead time for every
-   other agent.
-3. **Prefer many short holds to one long one.** The lease has no fairness queue — a long hold
-   starves everyone, and fault-confirmations are usually small case sets × 5 reps, i.e. seconds.
-4. **If you must hold it a long time, say so** in `PROGRESS.md` with an expected duration, so the
-   orchestrator can see why the device is busy rather than diagnosing a dead holder.
-
-Diagnosing a suspected stuck lease (orchestrator only): `cat /tmp/agx_gpu.lock/owner` gives holder,
-pid and acquisition time; `ps -p <pid>` says whether it is alive; `pgrep -fl "agxrun|persist"` says
-whether it is actually using the device. A live holder with no GPU processes is holding it through
-non-dispatch work — message the agent rather than breaking the lease. Leases older than 15 minutes
-break automatically.
+If you are about to sweep a region you *know* hangs — `fspecial` byte+3 ≥ 192, control-flow
+displacement sweeps, `atomic_tg` byte+5 `0x7E`/`0x7F` — say so in `PROGRESS.md`. A hang resets the
+device for everyone, and it is useful for the orchestrator to know which agent caused it. Do not
+serialize for it.
 
 ## 8. Safety — this host has no out-of-band recovery
 

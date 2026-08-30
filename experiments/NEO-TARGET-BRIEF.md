@@ -39,45 +39,27 @@ Work under **`~/agxre/<EXP-NNNN>/`** on the neo. Rebuild binaries there rather t
 
 Do not read or modify anything on the neo outside your own working directory.
 
-## Concurrency: run in parallel by default; the lease is for hang-prone work ONLY
+## Concurrency: unrestricted. There is no lease.
 
-**Default: DO NOT take a lease. Run concurrently.** The GPU has many hardware contexts and they
-isolate ordinary work correctly. Serializing every sweep would make an 8-agent wave effectively
-single-threaded for no benefit.
+**Run every sweep concurrently and unlocked.** The GPU's hardware contexts isolate ordinary work.
+The lease that used to live here has been removed — it serialized an eight-agent wave behind one
+bulk run and bought nothing that instrumentation does not buy more cheaply.
 
-**What breaks isolation is a GPU *hang*, not concurrency.** A hang triggers a device-level reset,
-and that reset kills in-flight command buffers in *other* contexts. That is the recovery mechanism
-behaving correctly — and crucially, **the driver tells you it happened**:
+What replaces it, per `FIELD-SWEEP-PROTOCOL.md` §7:
 
-> `kIOGPUCommandBufferCallbackErrorInnocentVictim` — "Discarded (victim of GPU error/recovery)"
+1. **Poison your read-back buffer** with `0xDEADBEEF`. This distinguishes *wrote the right value* /
+   *wrote a wrong value* / **never ran at all** — and on this ISA a wrong field value usually
+   produces a silent zero, so a zero-initialised buffer cannot tell "wrote 0" from "did not
+   execute". EXP-0153 settled five suspect faults **offline from already-captured data** this way.
+2. **Integrity sentinel** through a path independent of the instruction under test, in a register
+   no descriptor under test can name.
+3. **Record the OS fault-classification string** on every non-`ok` case.
+   `…ErrorInnocentVictim` = a sibling's device reset, not your encoding.
+4. **Never conclude `fault` from one observation** — majority-of-3 minimum, and adjudicate from the
+   poisoned buffer where you can.
 
-**Contamination is therefore 100% detectable, never silent.** EXP-0139's numbers: 1,552 victim
-attempts against 2,656 genuine `…ErrorHang` and 50 `…ErrorPageFault`; **44% of gated-run faults did
-not reproduce**; and after re-validation only **3 of 29,685 cases** were genuinely
-nondeterministic. EXP-0144's revalidation reached a **0.02% hang rate** purely by re-running
-victims — no lease involved.
-
-### The rule
-
-1. **Run your bulk sweep concurrently, unlocked.** Most cases never hang.
-2. **Record the OS fault-classification string on every non-`ok` case.** This is what makes the
-   scheme work — a victim is identifiable, so it is re-runnable.
-3. **Never conclude `fault` from one observation.** Re-run every `fault`/`hang`/victim case;
-   majority-of-3 minimum. This alone recovers essentially all contamination.
-4. **Take the lease ONLY around work you have reason to believe HANGS**, because a hang harms
-   every other agent on the device:
-   ```sh
-   ~/agxre/gpulease.sh EXP-NNNN 900 -- <the hang-prone sweep>
-   ```
-   Known hang-prone: `fspecial` byte+3 ≥ 192 (EXP-0138, three reproducible hangs); control-flow
-   displacement sweeps (EXP-0128 stopped after two); `atomic_tg` byte+5 `0x7E`/`0x7F` (EXP-0141);
-   `min_lod_clamp`, which took the compiler service down machine-wide on G16G (EXP-0106); and any
-   arm that has already hung once for you.
-5. **Also take it while re-validating**, so your re-runs are not themselves victims.
-
-Lease mechanics: atomic via `mkdir` (macOS has no `flock`), stale leases broken after 15 minutes,
-releases on EXIT/INT/TERM, exit **75** on timeout. Hold it around a batch, never per case, never
-across analysis or file transfer.
+If you are about to sweep a region you know hangs, note it in `PROGRESS.md` as a courtesy — a hang
+resets the device for everyone — but do not serialize for it.
 
 ## Recovery
 
