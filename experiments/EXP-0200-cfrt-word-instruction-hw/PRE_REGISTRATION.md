@@ -387,3 +387,66 @@ because no RT ruler hole could be admitted. Length is a property of the decoder,
 but a context-dependent length rule would not be visible to this arm, and that
 limitation is recorded. The RT context is covered instead by the transparency
 arm, whose holes (offsets 966–10 234) sit well past the prologue.
+
+### A3 — `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` adopted (2026-08-30)
+
+The user added `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` while this experiment was
+running. It is **normative and overrides §8 above where they conflict**. This
+amendment is frozen **before the next dispatch**; the one capture already taken
+(`t1/raw/g17p_20260830_t1run01`, 1276 cases, 240 s) is **retained unchanged and
+not re-run** — §9/§10 of the corrections are explicit that existing raw is
+reclassified on the new axes, never discarded.
+
+**Gate A — the caller-to-actual-byte ledger.** `run200.py` now records, per
+case: `requested_bytes`, `actual_bytes` **sliced back out of the dispatched
+program blob** (a different code path from the one that wrote them, on
+purpose), `ledger_ok`, `decoded_from_actual`, `program_sha256`, `instr_offset`,
+`main_off`, `db_rev`, `harness_rev`. `analysis/ledger200.py` verifies
+`requested == decoded-from-actual` and reports requested cases, distinct
+requested values, **distinct actual encodings**, and `match`-bit collisions, per
+arm, for **both** targets. `analysis/verdicts200.py` refuses a verdict for any
+hole with a ledger mismatch.
+Target 1's harness predates Gate A and may not be edited, so its ledger is
+graded **`reconstructed`** rather than `dispatched-slice`, and the residual gap
+is stated rather than papered over (corrections §9: a bounded auditability
+status, not a retraction).
+
+**Gate B — controls.** Already satisfied in design; the vocabulary changes: a
+hole whose control did not fire is now reported `carrier-undecidable`, and zero
+movement there is explicitly **not** evidence of inertness.
+
+**Gate C — liveness is not semantics.** The per-case host prediction is now
+scored against a five-bucket observed classification (`correct_effect` /
+`different_but_coherent` / `no_write_or_dead_path` / `rejected_faulted_hung` /
+`invalid_or_contaminated`) as `sem_match`, and `sem_checked` / `sem_matched`
+are reported. **The semantic domain of this experiment is instruction framing —
+how many bytes the encoding consumes and whether the program survives it — and
+NOT the micro-op's computational role, which stays `unknown`.** Because
+`sem_checked == 0` for that role, **the legacy label may not become
+`hardware-run` and this experiment does not propose it.** The result is carried
+on the geometry / liveness / recipe axes instead.
+
+**Gate D — recipe.** Every byte of each candidate instruction is constructed
+from the pinned descriptor's own `match` constraints (re-derived and checked by
+`analysis/contract200.py encodings`), so **no instruction field comes from a
+compiler-emitted donor**. The surrounding program *is* a donor, so the
+compiler-recipe axis reads `generated-point`, never `canonical-recipe-proven`.
+
+**Gate E — clean confirmation.** The confirmation run must use **reversed case
+order**. `run200.py --reverse` reverses the frozen arm list and each arm's
+frozen fill list. For target 1, whose harness may not be touched,
+`analysis/reverse_arms.py` writes `harness/arms187_reversed.json` — the same 25
+arms with the same values, reversed in dispatch order only, with a permutation
+assertion that fails loudly otherwise — and `t1/run.py --arms <that file>`
+dispatches it. `t1/analysis/verdicts.py` indexes by (arm, value) and never reads
+position, so its frozen gate is unaffected.
+An **isolation pass** (`run200.py --roles ...`) re-runs only the readings a
+verdict rests on, with the concurrent-GPU process table sampled into `env.json`.
+**The machine is not quiet — eight or nine sibling experiments are dispatching
+throughout — so `reproducibility` is capped at `auditable` and cannot reach
+`independently-confirmed` here.** That is reported, not worked around.
+
+**Six-axis verdicts.** `analysis/field_verdicts.json` and `RESULTS.md` carry
+`encoding_geometry`, `liveness`, `semantics`, `compiler_recipe`, `target`,
+`reproducibility` per row, with exact numerators and denominators. The safe
+negative wording is `inert in <exact tested envelope>; global role unknown`.

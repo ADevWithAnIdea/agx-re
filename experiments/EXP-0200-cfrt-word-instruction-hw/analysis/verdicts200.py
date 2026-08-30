@@ -71,6 +71,32 @@ Rule 5's REFUTED branch fired against `op04_len8` in the design as a deliberate
 positive: `D_op04_len8` is pre-registered to read `written` if our own tokenizer
 is right and `not_written` if it is wrong, and either answer is publishable.
 
+AMENDMENT A3 -- RE_EXPERIMENT_PROCESS_CORRECTIONS (normative, and it OVERRIDES
+the labelling in section 7 above where they conflict).
+
+ 8. SIX INDEPENDENT AXES, never one label. Every word gets
+    `encoding_geometry`, `liveness`, `semantics`, `compiler_recipe`, `target`,
+    `reproducibility`, with exact numerators and denominators, never a
+    percentage alone.
+ 9. GATE A. A case counts only if its ledger is clean:
+    `actual_bytes == requested_bytes`, actual bytes sliced back out of the
+    dispatched program. `analysis/ledger200.py` reports it; this gate refuses a
+    verdict for any word with a ledger mismatch.
+10. GATE B. A hole whose control did not fire is `carrier-undecidable` -- NOT
+    "inert". Zero movement there is not evidence of anything.
+11. GATE C. `sem_checked` counts cases carrying a PRE-REGISTERED bucket
+    prediction compared against the observed bucket. THE SEMANTIC DOMAIN OF
+    THIS EXPERIMENT IS INSTRUCTION FRAMING -- how many bytes the encoding
+    consumes, and whether the program survives it. It is NOT the micro-op's
+    computational role, which stays `unknown`. Because `sem_checked == 0` for
+    that role, the legacy label CANNOT become `hardware-run`, and this gate
+    does not propose it. Liveness and geometry are reported on their own axes;
+    they are real progress on a different dashboard (corrections section 9).
+12. GATE E. The confirmation run must be in REVERSED case order and the
+    concurrent-GPU sample must be recorded. A busy machine caps
+    `reproducibility` at `auditable`; `independently-confirmed` additionally
+    needs the isolation pass to agree.
+
 Derived from EXP-0187 analysis/verdicts.py (our own code, cited).
 """
 import hashlib
@@ -190,6 +216,12 @@ def main():
         mov2 = agreed_outcome(*both(i1, i2, arm, "A_mov2"))
         push4 = agreed_outcome(*both(i1, i2, arm, "A_ifpush4"))
         reasons = []
+        led = [r for r in (list(i1.get(arm, {}).get("fills", {}).values())
+                           + list(i2.get(arm, {}).get("fills", {}).values()))
+               if r.get("ledger_ok") is False]
+        if led:
+            reasons.append("GATE A: %d case(s) whose actual dispatched bytes "
+                           "differ from the requested bytes" % len(led))
         if not st["baselines_ok"]:
             reasons.append("arm baselines not all ok")
         if not (creach == "not_written" and cre_sent):
@@ -207,6 +239,8 @@ def main():
                            % (st["moved"], st["disagree"]))
         holes[arm] = {"carrier": a["carrier"], "off": a["off"],
                       "covers": a.get("covers"), "admitted": not reasons,
+                      "status": "admitted" if not reasons
+                                else "carrier-undecidable",
                       "drop_reasons": reasons, "stats": st,
                       "C_reach": creach, "A_icmp6": icmp6,
                       "A_mov2": mov2, "A_ifpush4": push4,
@@ -310,6 +344,22 @@ def main():
         verdicts[word]["transparent_at"] = good
         verdicts[word]["not_transparent_at"] = bad
 
+    # ------------------------------------- GATE C: semantic-check accounting
+    sem = {}
+    for recs, tag in ((i1, "run1"), (i2, "run2")):
+        for arm, d in recs.items():
+            for fid, r in d["fills"].items():
+                w = r.get("instr")
+                if w not in verdicts:
+                    continue
+                e = sem.setdefault(w, {"sem_checked": 0, "sem_matched": 0,
+                                       "buckets": {}})
+                if r.get("sem_match") is not None:
+                    e["sem_checked"] += 1
+                    e["sem_matched"] += 1 if r["sem_match"] else 0
+                b = r.get("observed_bucket") or "?"
+                e["buckets"][b] = e["buckets"].get(b, 0) + 1
+
     # ------------------------------------------------------ field verdicts
     out = {}
     for word, v in sorted(verdicts.items()):
@@ -343,8 +393,41 @@ def main():
         if v["hazard_holes"]:
             note.append("HAZARD: %d admitted hole(s) returned a hard outcome "
                         "for some fills; see hazard_holes." % len(v["hazard_holes"]))
+        sm = sem.get(word, {"sem_checked": 0, "sem_matched": 0, "buckets": {}})
+        n_adm = sum(1 for h in holes.values() if h["admitted"])
+        n_undec = len(holes) - n_adm
+        axes = {
+            # GATE A + phase 1: did the requested bytes really exist, and did
+            # framing survive?
+            "encoding_geometry": ("geometry-mapped"
+                                  if v["verdict"] == "LENGTH-CONFIRMED"
+                                  else "ledger-verified"),
+            # GATE B: did anything move, in a carrier whose control fired?
+            "liveness": ("live" if v["verdict"] == "LENGTH-CONFIRMED"
+                         else ("carrier-undecidable" if not v["carriers"]
+                               else "accepted-inert in the tested envelope")),
+            # GATE C: the micro-op's computational role was NOT modelled.
+            "semantics": ("bounded-map (framing/consumed-length only; the "
+                          "micro-op's computational role is UNKNOWN)"
+                          if v["verdict"] == "LENGTH-CONFIRMED" else "unknown"),
+            # GATE D: the instruction's every byte came from the descriptor's
+            # own match constraints, but the surrounding program is a donor.
+            "compiler_recipe": ("generated-point" if v["verdict"] ==
+                                "LENGTH-CONFIRMED" else "not-generated"),
+            "target": "G17P-direct",
+            "reproducibility": "auditable",
+        }
         out["%s._instruction" % word] = {
             "label": v["label"], "verdict": v["verdict"], "range": rng,
+            "axes": axes,
+            "sem_checked": sm["sem_checked"], "sem_matched": sm["sem_matched"],
+            "sem_domain": "instruction framing: how many bytes of instruction "
+                          "stream the encoding consumes, and whether the "
+                          "program survives it. NOT the micro-op's "
+                          "computational role, which remains UNKNOWN.",
+            "observed_buckets": sm["buckets"],
+            "holes_admitted": n_adm, "holes_carrier_undecidable": n_undec,
+            "holes_total": len(holes),
             "target": "G17P", "evidence": ["EXP-0200"],
             "start": 0, "width": 0,
             "n_admitted_holes": nholes, "carriers": v["carriers"],
@@ -357,6 +440,15 @@ def main():
             "not_transparent_at": v["not_transparent_at"],
             "per_hole": v["per_hole"],
             "note": " ".join(note) or "no verdict",
+            "legacy_label_note":
+                "Legacy label deliberately NOT raised to `hardware-run`: "
+                "RE_EXPERIMENT_PROCESS_CORRECTIONS section 2 forbids it while "
+                "`sem_checked == 0` for the micro-op's computational role, and "
+                "this experiment models FRAMING, not computation. The result "
+                "belongs on the geometry / liveness / recipe dashboards. If the "
+                "orchestrator judges hardware-verified framing with a "
+                "both-directions-falsified control to meet `isolated-byte-diff`, "
+                "the evidence supports that; it does not support more.",
         }
     doc = {"_generated_by": "analysis/verdicts200.py", "_runs": [str(r1), str(r2)],
            "_gate": {"agree_min_pct": AGREE_MIN,

@@ -236,3 +236,108 @@ Reproduction: harness/sync.sh push; python3 harness/verify_remote.py;
               python3 analysis/verdicts.py raw/<run01> raw/<run02>
 Evidence: raw/prefreeze/, raw/<run01>/, raw/<run02>/, CAPTURE_CONTRACT.json
 ```
+
+---
+
+# AMENDMENT 2 — REVISION B pre-registration
+**Frozen 2026-08-30, BEFORE the first revision-B dispatch. Revision A's runs
+(`raw/g17p_20260830_run01`, `run02`) are RETAINED unchanged as revision-A
+evidence and are reclassified, not discarded (`RE_EXPERIMENT_PROCESS_CORRECTIONS.md`
+§9/§10). No hypothesis is edited to match data already captured.**
+
+`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` became normative after revision A ran and
+**overrides the gates above where they conflict.** Three of its requirements
+revision A does not meet, and this amendment exists to meet them.
+
+## B1. What revision A does NOT establish, stated first
+
+| Gate | Revision A status |
+|---|---|
+| **A — actual-byte ledger** | **NOT MET.** Revision A recorded the bytes it *intended* to write, recomputed by the same function that built the dispatched blob. That is exactly the ledger DEF-0166 defeats. No independent decode, no program hash. |
+| **B — detection power** | Met for the generic control on all 35 arms and for the in-dimension `dst` control on the two reuse carriers — but with **one readback plan** on 9 of 11 carriers, and **no multi-invocation dimension at all**. |
+| **C — semantics** | Met for `simd_reduce.op`, `simd_reduce.dtype`, `simd_shuffle.dir`. **NOT met for `simd_shuffle.cache`**, which moved but matched no pre-registered model, and therefore may not be `hardware-run` however clean the movement was. |
+| **E — clean confirmation** | Two runs, 100 % agreement, zero non-clean cases — but the same case ORDER, and `env.json` records a **busy** machine (EXP-0199/0204/0206 concurrent). |
+
+## B2. The added carriers and why they have detection power
+
+Four new carriers in `kernels/k_litmus.metal`, dispatched **grid 256 / tg 64 =
+4 threadgroups × 2 simdgroups each** (measured SIMD width 32):
+
+- **Multi-invocation ordering litmus** (§5 Phase 3, *"for synchronization, use a
+  real multi-invocation ordering litmus; scalar success cannot assign ordering
+  semantics"*). The subgroup result crosses **threadgroup memory** and is read
+  back from a lane in the **other simdgroup**; a **device atomic** that all 256
+  invocations contribute to is read back and checked against a host total, so
+  "all four threadgroups ran and their writes became visible" is measured.
+- **Repeated reads across barriers.** The operand is read again after two
+  barriers and the atomic — the point at which a *retain in register cache* /
+  *future reads undefined* hint must bite if it is one.
+- **Operand provenance** (§6). Each litmus is an `_ld` / `_alu` pair differing
+  only in how the operand was produced (device load vs pure ALU on the thread
+  id). Revision A found `simd_shuffle.cache` live on a load-seeded source, and
+  the compiler itself chose `cache=1` for `lb_shuffle_ld` and `cache=0` for
+  `lb_shuffle_alu` — the split is now a named dimension, not a guess.
+- **Three disjoint readback plans** (§6): out[0..255] the instruction's own
+  result, out[256..511] the same after the cross-simdgroup round trip,
+  out[512..767] the operand re-read. A hidden write or destination alias cannot
+  masquerade as inertness in all three.
+- **Unique per-invocation codewords** (§5 Phase 3): every one of the 256
+  invocations is seeded with a codeword unique across the whole dispatch, so
+  lane / width / swizzle / register / immediate readings of a result cannot
+  alias. Asserted in `carriers205.py`, not assumed.
+- **Pre AND post sentinels** (Gate B): out[1000]=12345 stored first,
+  out[1001]=54321 stored last. Both are required; the post sentinel proves the
+  program ran to completion past the barriers and the atomic.
+
+Calibration (`raw/prefreeze/calibration06_litmus.json`, pre-freeze): all four
+carriers `OK`, exactly one occurrence each, both sentinels present, tail still
+poison, and **all four host oracles matched** — plan 1, plan 2, plan 3 and the
+cross-threadgroup atomic total.
+
+## B3. Gate A, now met
+
+`run.py` re-reads the spliced archive **from the file handed to
+`newLibraryWithURL:`**, extracts the instruction bytes at `main_off + off`,
+decodes the field back out of those bytes with `locate205.get_bits`, and records
+per case: `requested_value`, `requested_bytes`, `actual_bytes`,
+`decoded_value`, `program_sha256`, `program_len`, `main_off`, `off`,
+`start`/`width`, plus `db_sha256` and `harness_sha256`. A case where
+`requested != decoded` or `requested_bytes != actual_bytes` is recorded with
+outcome **`ledger_mismatch`** and is not a hardware observation.
+
+## B4. Gate E, now met as far as a shared machine allows
+
+Revision B runs **runB01 forward and runB02 with carriers, arms and values in
+REVERSED order** (`--reverse`), so an ordering artefact cannot be shared by a
+run and its confirmation. Concurrent GPU processes are sampled into each
+`env.json`. **The neo is shared and cannot be made quiet by this experiment**;
+per EXP-0160's filter, two agreeing clean dumps still win outright, because
+contamination can destroy an observation but never fabricate a coherent one.
+Where the machine was busy, `RESULTS.md` says so rather than claiming quiet.
+
+## B5. Verdict shape (replaces §6's single label)
+
+Six independent axes per `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` §2 — encoding
+geometry, liveness, semantics, compiler recipe, target, reproducibility — with
+**exact numerators and denominators, never a percentage alone**, plus:
+
+- `sem_checked == 0` can never yield `hardware-run` / `semantically-mapped`.
+- A failed positive control makes the arm **`carrier-undecidable`**; zero
+  movement is not evidence of inertness.
+- Safe negative wording only: **`inert in <exact tested envelope>; global role
+  unknown`**. Never `unused`, `reserved`, `don't-care`, or `may be chosen
+  arbitrarily`.
+
+## B6. Falsifiers for revision B
+
+1. If the litmus carriers' **positive controls do not fire**, every `cache`
+   arm on them is `carrier-undecidable` and this amendment has answered nothing.
+2. If `simd_shuffle.cache` moves on `lb_shuffle_ld` but not `lb_shuffle_alu`,
+   the effect is **provenance-conditional**, and the correct statement is a
+   contextual field with a stated predicate — not a global one.
+3. If `simd_ballot.cache` moves on a litmus carrier and not on revision A's,
+   revision A's null was the single-simdgroup blind spot, exactly as suspected.
+4. If it moves on neither, the claim remains bounded to the tested envelope and
+   the ordering dimension is now *tested* rather than *unexpressed* — which
+   changes `carrier-undecidable` to `accepted-inert in <envelope>`, and nothing
+   stronger.

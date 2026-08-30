@@ -42,10 +42,14 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import models206 as MD          # noqa: E402
+
 VALID = {"ok", "silent_zero", "wrong_value", "not_written"}
 HARD = {"fault", "hang", "invalid_run", "measurement_failure",
         "nondeterministic", "undecodable", "carrier_start_failed"}
 AGREE_MIN = 0.99
+NOTHER = 0
 
 
 def payload(r):
@@ -99,9 +103,46 @@ def arm_stats(recs, runs):
         comparable = set(a) & set(b)
         disagree = {v for v in comparable if a[v] != b[v]}
     agreement = (1 - len(disagree) / len(comparable)) if comparable else None
+    # ---- GATE A: the actual-byte ledger ------------------------------------
+    led_ok = sum(1 for r in tgt if r.get("ledger_ok") is True)
+    led_bad = [r.get("value") for r in tgt if r.get("ledger_ok") is False]
+    req_vals = {r.get("value") for r in tgt}
+    act_enc = {(r.get("ledger") or {}).get("act_bytes") for r in tgt
+               if (r.get("ledger") or {}).get("act_bytes")}
+    # ---- GATE C: competing semantic models ---------------------------------
+    sem = {}
+    for r in tgt:
+        b = r.get("sem_bucket")
+        for m, pred in (r.get("sem_pred") or {}).items():
+            d = sem.setdefault(m, {"checked": 0, "hit": 0, "miss": 0,
+                                   "miss_values": []})
+            if pred is None or b is None:
+                continue
+            d["checked"] += 1
+            if pred == b:
+                d["hit"] += 1
+            else:
+                d["miss"] += 1
+                if len(d["miss_values"]) < 24:
+                    d["miss_values"].append([r.get("value"), pred, b])
+    survivors = [m for m, d in sem.items() if d["checked"] > 0 and d["miss"] == 0]
+    # ---- GATE E: contamination ---------------------------------------------
+    contaminated = sum(1 for r in tgt if r.get("contaminated"))
+    buckets = collections.Counter(r.get("sem_bucket") for r in tgt)
     return {
         "runs": rk,
         "n_records": len(tgt),
+        "ledger_ok": led_ok,
+        "ledger_bad": len(led_bad),
+        "ledger_bad_values": led_bad[:24],
+        "distinct_requested_values": len(req_vals),
+        "distinct_actual_encodings": len(act_enc),
+        "encoding_collision": len(act_enc) < len(req_vals),
+        "sem": sem,
+        "sem_checked_total": sum(d["checked"] for d in sem.values()),
+        "sem_surviving_models": sorted(survivors),
+        "buckets": dict(buckets),
+        "contaminated_cases": contaminated,
         "V": len({payload(r) for r in valid}),
         "L": len({r.get("value") for r in valid}),
         "values_dispatched": len({r.get("value") for r in tgt}),
@@ -211,6 +252,23 @@ def promote(st, ctl):
         why.append("fewer than 2 gated runs")
     if not ctl[0]:
         why.append(ctl[1])
+    # GATE A -- no hardware conclusion from a case whose requested bytes were not
+    # the bytes actually dispatched.
+    if st["ledger_bad"]:
+        why.append("GATE A: %d cases whose ACTUAL dispatched bytes did not decode "
+                   "to the requested value" % st["ledger_bad"])
+    if st["distinct_actual_encodings"] < st["distinct_requested_values"]:
+        why.append("GATE A: %d distinct requested values collapsed to %d distinct "
+                   "ACTUAL encodings (aliasing)"
+                   % (st["distinct_requested_values"],
+                      st["distinct_actual_encodings"]))
+    # GATE C -- `sem_checked == 0` can never produce `hardware-run`.
+    if st["sem_checked_total"] == 0:
+        why.append("GATE C: sem_checked == 0 -- liveness only, role unknown")
+    elif not st["sem_surviving_models"]:
+        why.append("GATE C: no pre-registered semantic model survived (%s)"
+                   % {m: "%d/%d" % (d["hit"], d["checked"])
+                      for m, d in st["sem"].items()})
     return ("PROMOTE" if not why else "REFUSED"), why
 
 
@@ -232,7 +290,50 @@ def inert(st, ctl):
         why.append("only %d of %d dispatched values produced a valid payload -- the "
                    "range is bounded by a hazard, not swept clean"
                    % (st["L"], st["values_dispatched"]))
+    if st["ledger_bad"]:
+        why.append("GATE A: %d cases failed the actual-byte ledger" % st["ledger_bad"])
     return ("INERT" if not why else "UNRESOLVED"), why
+
+
+def axes(st, ctl, promoted, inerted, n_other_agents):
+    """The six INDEPENDENT axes of RE_EXPERIMENT_PROCESS_CORRECTIONS section 2.
+    A result on one axis must never imply a result on another."""
+    geometry = ("geometry-mapped" if (st["ledger_bad"] == 0
+                                      and st["distinct_actual_encodings"]
+                                      >= st["distinct_requested_values"])
+                else ("ledger-verified" if st["ledger_ok"] else "unverified"))
+    if not ctl[0]:
+        liveness = "carrier-undecidable"
+    elif st["moved"] > 0 and st["V"] >= 2:
+        liveness = "live"
+    elif sum(st["hard"].values()) and st["V"] >= 1:
+        liveness = "live(legal-set-bounded)"
+    elif st["V"] == 1 and st["L"] == st["values_dispatched"]:
+        liveness = "accepted-inert"
+    else:
+        liveness = "carrier-undecidable"
+    if st["sem_checked_total"] == 0:
+        semantics = "unknown"
+    elif len(st["sem_surviving_models"]) == 1:
+        semantics = "semantically-mapped(single surviving model: %s)" \
+            % st["sem_surviving_models"][0]
+    elif st["sem_surviving_models"]:
+        semantics = "bounded-map(%d models still survive: %s)" \
+            % (len(st["sem_surviving_models"]), ",".join(st["sem_surviving_models"]))
+    else:
+        semantics = "hypothesis(all pre-registered models refuted)"
+    return {
+        "encoding_geometry": geometry,
+        "liveness": liveness,
+        "semantics": semantics,
+        # Nothing in this experiment builds a whole program from documented rules;
+        # every case mutates ONE field of our own compiled carrier.
+        "compiler_recipe": "generated-point" if promoted else "not-generated",
+        "target": "G17P-direct",
+        "reproducibility": ("auditable" if n_other_agents else
+                            ("independently-confirmed" if len(st["runs"]) >= 2
+                             else "incomplete")),
+    }
 
 
 def main():
@@ -244,6 +345,19 @@ def main():
         print(__doc__)
         return 0
     recs = load(runs)
+    global NOTHER
+    NOTHER = 0
+    procs = []
+    for d in runs:
+        f = os.path.join(d, "procs.jsonl")
+        if os.path.exists(f):
+            for ln in open(f):
+                try:
+                    procs.append(json.loads(ln))
+                except Exception:                               # noqa: BLE001
+                    pass
+    if procs:
+        NOTHER = max(p.get("n_other_agents", 0) for p in procs)
     by_arm = collections.defaultdict(list)
     for r in recs:
         a = r.get("arm")
@@ -258,8 +372,17 @@ def main():
         if st["role"] in ("control", "control_termination"):
             ctl_by_occ.setdefault((st["carrier"], st["region"], st["off"]), []).append((a, st))
 
-    out = {"_gate": "PRE_REGISTRATION.md section 7, recomputed from raw",
-           "_runs": runs, "_selftest": "passed", "arms": {}, "fields": {}}
+    out = {"_gate": "PRE_REGISTRATION.md section 7 + PRE_REGISTRATION_A2.md "
+                    "(Gates A/B/C/E), recomputed from raw",
+           "_runs": runs, "_selftest": "passed",
+           "_concurrency": {
+               "samples": len(procs),
+               "max_other_gpu_agent_processes": NOTHER,
+               "note": "GATE E: a confirmation run may not rely on a busy machine. "
+                       "This is a MEASUREMENT of how busy it was, taken from "
+                       "raw/<run>/procs.jsonl, not a claim in prose. Non-zero here "
+                       "caps every reproducibility axis at `auditable`."},
+           "arms": {}, "fields": {}}
     per_key = collections.defaultdict(list)
     for a, st in sorted(stats.items()):
         if st["role"] != "target":
@@ -273,7 +396,8 @@ def main():
         i, iw = inert(st, ctl)
         st = dict(st, control=[{"arm": n, "fires": f[0], "why": f[1]}
                                for n, f in fired],
-                  promote=p, promote_blockers=pw, inert=i, inert_blockers=iw)
+                  promote=p, promote_blockers=pw, inert=i, inert_blockers=iw,
+                  axes=axes(st, ctl, p == "PROMOTE", i == "INERT", NOTHER))
         out["arms"][a] = st
         per_key[st["key"]].append((a, st))
 
@@ -289,8 +413,28 @@ def main():
         verdict = ("hardware-run" if promoted else
                    ("hardware-run(INERT)" if inerts and len(inerts) == len(arms)
                     else "untested"))
+        sem_all = {}
+        for _, s2 in arms:
+            for m, d in s2["sem"].items():
+                a2 = sem_all.setdefault(m, {"checked": 0, "hit": 0, "miss": 0})
+                a2["checked"] += d["checked"]
+                a2["hit"] += d["hit"]
+                a2["miss"] += d["miss"]
+        surviving = sorted(m for m, d in sem_all.items()
+                           if d["checked"] > 0 and d["miss"] == 0)
         out["fields"][key] = {
             "verdict": verdict,
+            "axes_per_arm": {a: s2["axes"] for a, s2 in arms if "axes" in s2},
+            "semantic_models": sem_all,
+            "surviving_models": surviving,
+            "ledger_ok_total": sum(s2["ledger_ok"] for _, s2 in arms),
+            "ledger_bad_total": sum(s2["ledger_bad"] for _, s2 in arms),
+            "distinct_actual_encodings_per_arm":
+                {a: s2["distinct_actual_encodings"] for a, s2 in arms},
+            "buckets_total": dict(sum((collections.Counter(s2["buckets"])
+                                       for _, s2 in arms),
+                                      collections.Counter())),
+            "contaminated_cases": sum(s2["contaminated_cases"] for _, s2 in arms),
             "n_arms": len(arms),
             "V_max_per_arm": V,
             "V_union": len({p for _, s in arms for p in [s["V"]]}) and None,
@@ -317,9 +461,15 @@ def main():
                  st["hard"], st["promote"], st["inert"]))
     print("\n== per-field ==")
     for k, v in sorted(out["fields"].items()):
-        print("%-32s %-22s arms=%d Vmax=%d L=%d hard=%s agr_min=%s"
+        print("%-30s %-20s arms=%d Vmax=%d L=%d hard=%s agr=%s ledger=%d/%d "
+              "surviving=%s"
               % (k, v["verdict"], v["n_arms"], v["V_max_per_arm"], v["L_total"],
-                 v["hard_total"], v["agreement_min"]))
+                 v["hard_total"], v["agreement_min"], v["ledger_ok_total"],
+                 v["ledger_ok_total"] + v["ledger_bad_total"],
+                 v["surviving_models"] or "NONE"))
+        print("      buckets=%s  models=%s" % (v["buckets_total"],
+              {m: "%d/%d" % (d["hit"], d["checked"]) for m, d in
+               v["semantic_models"].items()}))
     print("\nwrote %s" % p)
     return 0
 

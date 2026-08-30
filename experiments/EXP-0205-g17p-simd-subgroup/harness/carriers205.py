@@ -249,6 +249,9 @@ def _base(metal, func, ins_words, dtype, doc, why, sec=False, ftype=False):
         "inputs": {1: ("in_%s.bin" % func,
                        pack_f32(ins_words) if ftype else pack_u32(ins_words))},
         "in_words": list(ins_words), "float_in": ftype,
+        "outs": {0: 4 * NWORDS},
+        "plan2_words": [], "post_sent_word": None, "post_sent_val": None,
+        "ctr_buf": None,
         "doc": doc, "why": why,
     }
 
@@ -381,6 +384,8 @@ def out_inputs(name):
 
 # -------------------------------------------------------- baseline oracles
 def baseline_oracle(name):
+    if name.startswith("lb_"):
+        return _litmus_plan1(name)
     if name in ("sb_ballot", "sb_reuse"):
         return [BALLOT_MASK] * 32
     if name == "sb_ballot2":
@@ -408,7 +413,9 @@ def baseline_oracle(name):
 
 
 def baseline_sec_oracle(name):
-    """Predicted out[32..63] for the reuse carriers (None elsewhere)."""
+    """Predicted secondary readback (None where the carrier has none)."""
+    if name.startswith("lb_"):
+        return _litmus_plan3(name)
     if name == "sb_reuse":
         return _reuse_sec([v & M32 for v in BALLOT_IN], (BALLOT_MASK >> 31) & 1)
     if name == "sh_reuse":
@@ -472,19 +479,30 @@ def summarize(name, blob):
     c = CARRIERS[name]
     words = u32s(blob)
     obs = {
-        "vals_u32": [words[i] for i in c["val_words"]],
-        "sec_u32": [words[i] for i in c["sec_words"]],
+        "vals_u32": [words[i] for i in c["val_words"] if i < len(words)],
+        "sec_u32": [words[i] for i in c["sec_words"] if i < len(words)],
+        "plan2_u32": [words[i] for i in c.get("plan2_words", []) if i < len(words)],
         "sent_u32": words[c["sent_word"]] if c["sent_word"] < len(words) else None,
         "tail_poison_ok": all(words[i] == POISON(i)
                               for i in c["tail_words"] if i < len(words)),
     }
+    pw = c.get("post_sent_word")
+    if pw is not None:
+        obs["post_sent_u32"] = words[pw] if pw < len(words) else None
     return obs, words
 
 
 def sentinel_ok(name, words):
+    """BOTH sentinels where the carrier has two (corrections Gate B: independent
+    pre/post sentinels).  The pre sentinel proves the program started; the post
+    sentinel proves it ran to completion past the barriers and the atomic."""
     c = CARRIERS[name]
     i = c["sent_word"]
-    return i < len(words) and words[i] == c["sent_val"]
+    ok = i < len(words) and words[i] == c["sent_val"]
+    pw = c.get("post_sent_word")
+    if pw is not None:
+        ok = ok and pw < len(words) and words[pw] == c["post_sent_val"]
+    return ok
 
 
 def unwritten(name, words):
@@ -502,3 +520,126 @@ def match_oracle(name, words, expect):
         if w >= len(words) or (words[w] & M32) != (expect[k] & M32):
             return False
     return True
+
+
+# ============================================================================
+# REVISION B -- the multi-invocation ordering litmus carriers.
+# ============================================================================
+# `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` section 5 Phase 3 is explicit for this
+# kind of work: "for synchronization, use a real multi-invocation ordering
+# litmus. Scalar success cannot assign ordering semantics."  Revision A's
+# carriers are one threadgroup, one simdgroup, one pass; if `cache` controls
+# memory or coherency behaviour they CANNOT see it, and zero movement there is
+# `carrier-undecidable` for that dimension rather than inertness (Gate B).
+#
+# These four carriers run 4 threadgroups x 64 threads (2 simdgroups each), pass
+# the subgroup result through THREADGROUP MEMORY and read it back from the OTHER
+# simdgroup, drive a DEVICE ATOMIC that all 256 invocations contribute to and
+# whose total is read back, and re-read the operand AFTER two barriers.  They
+# come in `_ld` / `_alu` pairs whose only difference is operand PROVENANCE
+# (corrections section 6), because revision A found `simd_shuffle.cache` live on
+# a device-load-seeded source and EXP-0129 found the same split on another field.
+#
+# THREE DISJOINT READBACK PLANS, per corrections section 6.
+
+LITMUS_N = 256
+LITMUS_TG = 64
+LNWORDS = 1024
+L_VAL = list(range(0, 256))          # plan 1: the instruction's own result
+L_PLAN2 = list(range(256, 512))      # plan 2: after a cross-simdgroup TG round trip
+L_SEC = list(range(512, 768))        # plan 3: the SOURCE, re-read after barriers
+L_PRE_SENT, L_PRE_VAL = 1000, 12345
+L_POST_SENT, L_POST_VAL = 1001, 54321
+L_TAIL = list(range(768, 1000)) + list(range(1002, 1024))
+
+LITMUS_IN = [(0x51C0DE00 + t * 0x00010001) & M32 for t in range(LITMUS_N)]
+
+
+def alu_codeword(t):
+    return ((0x51C0DE00 + t * 0x00010001) ^ (t << 20)) & M32
+
+
+LITMUS_ALU = [alu_codeword(t) for t in range(LITMUS_N)]
+# Unique codewords are the whole point (corrections section 5 Phase 3): a
+# repeated codeword would let lane / width / swizzle / register readings alias.
+assert len(set(LITMUS_IN)) == LITMUS_N
+assert len(set(LITMUS_ALU)) == LITMUS_N
+
+LITMUS_CTR_SEED = 0xDEADBEEF
+
+
+def _litmus(func, words, kind):
+    return {
+        "metal": "kernels/k_litmus.metal", "func": func,
+        "grid": LITMUS_N, "tg": LITMUS_TG, "nwords": LNWORDS,
+        "dtype": "u32", "sent_word": L_PRE_SENT, "sent_val": L_PRE_VAL,
+        "post_sent_word": L_POST_SENT, "post_sent_val": L_POST_VAL,
+        "val_words": L_VAL, "sec_words": L_SEC, "plan2_words": L_PLAN2,
+        "tail_words": L_TAIL, "has_sec": True,
+        "inputs": {1: ("in_%s.bin" % func, pack_u32(words)),
+                   2: ("ctr_%s.bin" % func, struct.pack("<I", LITMUS_CTR_SEED))},
+        "in_words": list(words), "float_in": False,
+        "outs": {0: 4 * LNWORDS, 2: 4},
+        "ctr_buf": 2,
+        "litmus_kind": kind,
+        "doc": "multi-invocation litmus, 4 threadgroups x 2 simdgroups, %s" % kind,
+        "why": "ordering / cross-invocation dimension for the two `cache` "
+               "fields, plus the operand-provenance dimension (_ld vs _alu).",
+    }
+
+
+CARRIERS.update({
+    "lb_ballot_ld":   _litmus("k_lb_ballot_ld",   LITMUS_IN,  "ballot/device-load"),
+    "lb_ballot_alu":  _litmus("k_lb_ballot_alu",  LITMUS_ALU, "ballot/ALU"),
+    "lb_shuffle_ld":  _litmus("k_lb_shuffle_ld",  LITMUS_IN,  "shuffle/device-load"),
+    "lb_shuffle_alu": _litmus("k_lb_shuffle_alu", LITMUS_ALU, "shuffle/ALU"),
+})
+CARRIER_TARGET.update({
+    "lb_ballot_ld": "simd_ballot", "lb_ballot_alu": "simd_ballot",
+    "lb_shuffle_ld": "simd_shuffle", "lb_shuffle_alu": "simd_shuffle",
+})
+
+SIMD_W = 32          # MEASURED in raw/prefreeze/calibration.json, not assumed
+
+
+def _litmus_plan1(name):
+    """Plan 1: the subgroup instruction's own result, per invocation."""
+    cw = CARRIERS[name]["in_words"]
+    if "ballot" in name:
+        out = []
+        for t in range(LITMUS_N):
+            base = (t // SIMD_W) * SIMD_W
+            m = 0
+            for i in range(SIMD_W):
+                if (cw[base + i] >> 3) & 1:
+                    m |= 1 << i
+            out.append(m & M32)
+        return out
+    return [cw[(t // SIMD_W) * SIMD_W + SHUF_LANE] & M32 for t in range(LITMUS_N)]
+
+
+def _litmus_plan2(name):
+    """Plan 2: r^cw written to threadgroup memory by the partner invocation in
+    the OTHER simdgroup of the same threadgroup, read back after a barrier."""
+    cw = CARRIERS[name]["in_words"]
+    r = _litmus_plan1(name)
+    out = []
+    for t in range(LITMUS_N):
+        tgbase = (t // LITMUS_TG) * LITMUS_TG
+        lid = t % LITMUS_TG
+        partner = tgbase + ((lid + 32) % LITMUS_TG)
+        out.append((r[partner] ^ cw[partner]) & M32)
+    return out
+
+
+def _litmus_plan3(name):
+    """Plan 3: the SOURCE codeword, re-read after both barriers and the atomic."""
+    return [x & M32 for x in CARRIERS[name]["in_words"][:LITMUS_N]]
+
+
+def litmus_ctr(name):
+    """The device atomic total: every one of the 256 invocations across all four
+    threadgroups adds (r & 0xFF) + 1 to a POISON-seeded counter, so the readback
+    proves all four threadgroups ran and their writes became visible."""
+    r = _litmus_plan1(name)
+    return (LITMUS_CTR_SEED + sum((x & 0xFF) + 1 for x in r)) & M32

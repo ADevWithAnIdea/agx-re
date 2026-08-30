@@ -30,7 +30,7 @@ USER = os.environ.get("NEO_USER", "user")
 REMOTE = "agxre/EXP-0202"
 SSHOPT = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
           "-o", "ConnectTimeout=15"]
-PUSHED_PREFIXES = ("harness/", "kernels/", "analysis/", "run.py")
+PUSHED_PREFIXES = ("harness/", "kernels/", "analysis/", "run.py", "run2.py")
 
 
 def main():

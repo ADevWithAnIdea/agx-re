@@ -1,41 +1,47 @@
 #!/usr/bin/env python3
-"""verdicts.py -- EXP-0204 verdicts, recomputed FROM raw/ only.
+"""verdicts.py -- EXP-0204 verdicts on the SIX INDEPENDENT AXES.
 
-Never from a run manifest, never from memory of what was run.  Reads every
-`raw/g17p_*/sweep.jsonl`, re-derives the counts, applies the gate frozen in
-PRE_REGISTRATION sec.8, and writes analysis/field_verdicts.json.
+Recomputed FROM raw/ only.  Never from a run manifest, never from memory.
 
-THE GATE (frozen; do not edit without a new pre-registration)
-  1. >= 2 gated runs on the same arm;
-  2. >= 99 % per-value cross-run agreement over values valid in BOTH runs
-     (foreign / InnocentVictim segregated; both figures reported);
-  3. moved >= 2*disagree  AND  moved > 0
-     -- written LITERALLY.  NOT `moved >= 2*max(disagree,1)`, which cannot
-     promote any width-1 field and silently suppressed `read_en` in EXP-0178
-     (FIELD-SWEEP-PROTOCOL sec.5b).  `selftest()` proves this form promotes a
-     1-bit field with 1 moved value and 0 disagreements, and refuses a field
-     with 0 moved;
-  4. the arm has detection power AND a moved control in the field's OWN
-     dimension (sec.9 rule 1);
-  5. V (distinct VALID observed payloads) >= 2 -- a field whose every legal value
-     produced one payload ran legally and was INDISTINGUISHABLE (wave_audit's
-     Case-C test);
-  6. for tex_deriv.dstsrc only: both runs measured QUIET.
+`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` sec.2: one label must no longer carry four
+conclusions.  Every field is scored separately on encoding geometry, liveness,
+semantics, compiler recipe, target and reproducibility, with EXACT NUMERATORS AND
+DENOMINATORS -- never a percentage alone (sec.5 Phase 2).  The legacy
+`docs/evidence-classification.md` label is emitted only as the strictest one all
+six axes support.
 
-`moved` counts ONLY status-OK, same-mnemonic, non-hard outcomes.  A GPU fault is
-not movement, and neither is our own disassembler failing to decode -- both were
-found being counted as movement in this corpus this week.
+THE GATES (frozen in PRE_REGISTRATION sec.15; do not edit without a new amendment)
+
+  A  actual-byte ledger: requested value == value decoded from the ACTUAL bytes
+     re-read from the dispatched program.  A round trip is not this gate.
+  B  a positive control in the arm's own dimension moved the same observable.
+     If it failed, the arm is `carrier-undecidable` and zero movement is NOT
+     evidence of inertness.
+  C  an independent semantic predictor assigned the case to a modelled bucket.
+     `sem_checked == 0` can never produce `hardware-run`.
+  D  a generated compiler recipe.  NOT ATTEMPTED here, so nothing is `emittable`.
+  E  two CLEAN runs (quiet machine) in reversed/shuffled order with identical
+     ledgers and no victim/cascade evidence.
+
+  and the arithmetic rule, written LITERALLY:
+        moved >= 2*disagree   AND   moved > 0
+  NOT `moved >= 2*max(disagree,1)`, which cannot promote any width-1 field
+  (FIELD-SWEEP-PROTOCOL sec.5b).  selftest() proves both directions before any
+  verdict is computed.
 """
-import collections, json, os, sys, glob
+import collections, glob, json, os, sys
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(HERE, "harness"))
 sys.path.insert(0, os.path.join(HERE, "pinned"))
 import carriers as CA                       # noqa: E402
+import arms as ARMSPEC                      # noqa: E402
+import isadb                                # noqa: E402
 
-HARD = {"fault", "hang", "undecodable", "malformed", "unreproduced", "not_run"}
-CONTROL_FIELDS = {"_baseline", "_detect", "_detect_summary", "_baseline_recheck",
-                  "_baseline_final", "_cascade_check", "_arm_not_run"}
+CONTROL = {"_baseline", "_detect", "_detect_summary", "_baseline_recheck",
+           "_baseline_final", "_cascade_check", "_arm_not_run", "_sites"}
+HARD = {"fault", "hang", "undecodable", "malformed", "unreproduced", "not_run",
+        "ledger_mismatch"}
 AGREE_BAR = 99.0
 
 
@@ -43,7 +49,7 @@ def selftest():
     """This gate must be able to say NO.  Thirteen checks in this corpus could not."""
     def gate(moved, disagree):
         return moved >= 2 * disagree and moved > 0
-    assert gate(1, 0), "width-1 trap: a 1-bit field with 1 moved / 0 disagree MUST pass"
+    assert gate(1, 0), "width-1 trap: 1 moved / 0 disagreements MUST pass"
     assert not gate(0, 0), "a field that never moved must NOT pass"
     assert not gate(1, 1), "moved must be >= 2x disagreements"
     assert gate(4, 2)
@@ -51,24 +57,25 @@ def selftest():
 
 
 def load(run_dir):
-    recs = []
     p = os.path.join(run_dir, "sweep.jsonl")
+    out = []
     if not os.path.exists(p):
-        return recs
+        return out
     for line in open(p, errors="replace"):
         try:
-            recs.append(json.loads(line))
+            out.append(json.loads(line))
         except Exception:
             pass
-    return recs
+    return out
 
 
-def quiet(run_dir):
-    """Was the machine quiet for the whole run?  A MEASUREMENT, not a claim."""
+def quietness(run_dir):
+    """A MEASUREMENT of whether the machine was quiet, not a claim."""
     p = os.path.join(run_dir, "procs.jsonl")
     if not os.path.exists(p):
-        return None, {"reason": "no procs.jsonl"}
-    n, busy, worst, names = 0, 0, 0, collections.Counter()
+        return {"quiet": None, "reason": "no procs.jsonl (run predates the sampler)"}
+    n = busy = worst = 0
+    names = collections.Counter()
     for line in open(p, errors="replace"):
         try:
             s = json.loads(line)
@@ -79,24 +86,30 @@ def quiet(run_dir):
             busy += 1
             worst = max(worst, s["n_foreign"])
             for f in s.get("foreign", []):
-                names[f["cmd"].split()[0][:60]] += 1
-    return (busy == 0 and n > 0), {"samples": n, "busy_samples": busy,
-                                   "max_foreign": worst,
-                                   "foreign_cmds": dict(names.most_common(6))}
+                names[f["cmd"].split()[0].split("/")[-1][:40]] += 1
+    return {"quiet": (busy == 0 and n > 0), "samples": n, "busy_samples": busy,
+            "max_concurrent_foreign_procs": worst,
+            "foreign_process_names": dict(names.most_common(6))}
+
+
+def payload(r):
+    o = r.get("observed") or {}
+    return json.dumps(o.get("hh"), sort_keys=True)
 
 
 def main():
     selftest()
     runs = sorted(d for d in glob.glob(os.path.join(HERE, "raw", "g17p_*"))
                   if os.path.isdir(d))
-    quietness = {os.path.basename(d): quiet(d) for d in runs}
-    per = collections.defaultdict(lambda: collections.defaultdict(dict))
-    detect = collections.defaultdict(dict)
-    hard = collections.defaultdict(lambda: collections.Counter())
-    bytes_seen = collections.defaultdict(set)
-    oracles = collections.defaultdict(set)
-    baseline_oracle = collections.defaultdict(dict)
+    q = {os.path.basename(d): quietness(d) for d in runs}
+    baseline_val = {(a["id"], f): a["baseline_fields"][f]
+                    for a in ARMSPEC.ARMS for f in a["fields"]}
 
+    # per (mnemonic, field, arm, run): value -> record
+    cell = collections.defaultdict(dict)
+    detect = collections.defaultdict(dict)
+    base_pl = collections.defaultdict(dict)
+    base_oracle = collections.defaultdict(dict)
     for d in runs:
         rid = os.path.basename(d)
         for r in load(d):
@@ -108,170 +121,249 @@ def main():
                     pass
                 continue
             if f == "_baseline":
+                base_pl[arm][rid] = payload(r)
                 o = r.get("oracle") or {}
-                baseline_oracle[arm][rid] = {"checked": o.get("checked"),
-                                             "agree": o.get("agree"),
-                                             "status": r["observed"].get("status")}
+                base_oracle[arm][rid] = {"checked": o.get("checked"),
+                                         "agree": o.get("agree"),
+                                         "match": r.get("match")}
                 continue
-            if f in CONTROL_FIELDS:
+            if f in CONTROL or r.get("value", -1) < 0:
                 continue
-            key = (r["instr"], f, arm)
-            out = r.get("outcome")
-            if r.get("bytes"):
-                bytes_seen[key].add(r["bytes"])
-            oracles[key].add(json.dumps(r.get("oracle"), sort_keys=True))
-            if out in HARD or out == "foreign":
-                hard[key][out] += 1
-                continue
-            per[key][rid][r["value"]] = json.dumps(r.get("observed", {}).get("hh"),
-                                                  sort_keys=True)
+            cell[(r["instr"], f, arm, rid)][r["value"]] = r
 
-    fields = {}
-    arms_out = {}
-    for (mnem, fname, arm), byrun in sorted(per.items()):
-        rk = sorted(byrun)
-        if len(rk) < 2:
-            agree = None
-            dis = common = 0
-            moved = 0
-        else:
-            a, b = byrun[rk[0]], byrun[rk[1]]
-            com = set(a) & set(b)
-            disv = [v for v in com if a[v] != b[v]]
-            common, dis = len(com), len(disv)
-            agree = 100.0 * (1 - dis / max(common, 1))
-        # movement = differs from the arm's own baseline observation, in BOTH runs
-        base = {}
-        for rid in rk:
-            bl = [v for v in byrun[rid]]
-            base[rid] = None
-        moved_vals = []
-        if len(rk) >= 2:
-            a, b = byrun[rk[0]], byrun[rk[1]]
-            # the baseline payload is the modal payload of the arm's own baseline
-            # value; recovered from the arm spec
-            bval = None
-            for spec in _ARMS:
-                if spec["id"] == arm:
-                    bval = spec["baseline_fields"].get(fname)
-            ba = a.get(bval)
-            for v in sorted(set(a) & set(b)):
-                if ba is not None and a[v] != ba and a[v] == b[v]:
-                    moved_vals.append(v)
-        moved = len(moved_vals)
-        V = len(set(byrun[rk[0]].values())) if rk else 0
-        key = f"{mnem}.{fname}"
-        dm = detect.get(arm, {})
-        dim_ok = all(bool((dm.get(r) or {}).get("dimension_controls_moved", {})
-                          .get(key)) for r in rk) if rk else False
-        pow_ok = all(bool((dm.get(r) or {}).get("detect_ok")) for r in rk) if rk else False
-        arms_out[f"{key}@{arm}"] = {
-            "runs": rk, "common_values": common, "disagreements": dis,
-            "cross_run_agreement_pct": None if agree is None else round(agree, 2),
-            "moved": moved, "moved_values_sample": moved_vals[:24],
-            "distinct_valid_payloads": V,
-            "distinct_encodings_dispatched": len(bytes_seen[(mnem, fname, arm)]),
-            "distinct_oracles": len(oracles[(mnem, fname, arm)]),
-            "hard_outcomes": dict(hard[(mnem, fname, arm)]),
-            "detection_power": pow_ok,
-            "dimension_control_moved": dim_ok,
-            "dimension_controls": (dm.get(rk[0], {}) if rk else {})
-                                  .get("dimension_controls_moved", {}).get(key, []),
-            "baseline_host_oracle": baseline_oracle.get(arm, {}),
-        }
-        fields.setdefault(key, []).append(f"{key}@{arm}")
-    return fields, arms_out, quietness, runs
+    fields = collections.defaultdict(list)
+    for (m, f, arm, rid) in cell:
+        if arm not in fields[(m, f)]:
+            fields[(m, f)].append(arm)
 
-
-_ARMS = []
-
-
-def build():
-    global _ARMS
-    import arms as A
-    _ARMS = A.ARMS
-    fields, arms_out, quietness, runs = main()
-
-    import isadb
     out = {
         "_experiment": "EXP-0204",
         "_target": "G17P (Apple A18 Pro, applegpu_g17p) -- DIRECT, not INFERRED",
-        "_spec": "docs/evidence-classification.md sec.2 labels; "
-                 "FIELD-SWEEP-PROTOCOL sec.5 shape; gate frozen in PRE_REGISTRATION sec.8",
-        "_runs": [os.path.basename(r) for r in runs],
-        "_machine_quiet": {k: {"quiet": v[0], **v[1]} for k, v in quietness.items()},
-        "_gate_selftest": "passed: promotes (moved=1,disagree=0); refuses (moved=0); "
-                          "refuses (moved=1,disagree=1)",
-        "arms": arms_out,
-        "fields": {},
+        "_spec": ("RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + "
+                  "docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; "
+                  "gates frozen in PRE_REGISTRATION sec.15"),
+        "_runs": {os.path.basename(d): q[os.path.basename(d)] for d in runs},
+        "_gate_selftest": ("passed: promotes (moved=1,disagree=0); refuses (moved=0); "
+                           "refuses (moved=1,disagree=1)"),
+        "_gate_D_note": ("Gate D (generated compiler recipe) was NOT ATTEMPTED in this "
+                         "experiment.  Every arm splices one field of a compiler-emitted "
+                         "occurrence, which is a liveness/semantics instrument, not a "
+                         "generation proof.  No instruction here is claimed emittable."),
+        "arms": {}, "fields": {}, "db_defects": {},
     }
-    for key, armids in sorted(fields.items()):
-        mnem, fname = key.split(".", 1)
-        desc = isadb._BY_MNEM[mnem]
-        fd = next(f for f in desc["fields"] if f["name"] == fname)
-        rows = [arms_out[a] for a in armids]
-        quiet_all = all((quietness.get(r) or (None,))[0] for r in out["_runs"])
-        # gate
-        passing = []
-        for a in armids:
-            r = arms_out[a]
-            ag = r["cross_run_agreement_pct"]
-            if (len(r["runs"]) >= 2 and ag is not None and ag >= AGREE_BAR
-                    and r["moved"] >= 2 * r["disagreements"] and r["moved"] > 0
-                    and r["detection_power"] and r["dimension_control_moved"]
-                    and r["distinct_valid_payloads"] >= 2):
-                passing.append(a)
-        needs_quiet = key in ("tex_deriv.dstsrc",)
-        gate_ok = bool(passing) and (quiet_all or not needs_quiet)
+
+    for (m, f), armlist in sorted(fields.items()):
+        key = f"{m}.{f}"
+        desc = isadb._BY_MNEM[m]
+        fd = next(x for x in desc["fields"] if x["name"] == f)
         w = fd["width"]
-        rng = (f"0..{(1 << w) - 1} dense (all {1 << w} values) x {len(armids)} arms"
-               if w <= 8 else
-               f"{max(r['common_values'] for r in rows)} sampled values of 2^{w} "
-               f"(boundaries + powers of two + all-ones prefixes + 16 hashed interior) "
-               f"x {len(armids)} arms")
-        label = ("hardware-run" if gate_ok else
-                 ("isolated-byte-diff"
-                  if any(r["moved"] > 0 for r in rows) else "untested"))
+        per_arm = {}
+        for arm in armlist:
+            rids = sorted(rid for (mm, ff, aa, rid) in cell
+                          if (mm, ff, aa) == (m, f, arm))
+            bval = baseline_val.get((arm, f))
+            rows = {rid: cell[(m, f, arm, rid)] for rid in rids}
+            # ---- Gate A: the actual-byte ledger -------------------------
+            led_ok = led_seen = 0
+            actual_enc = set()
+            requested = set()
+            for rid in rids:
+                for v, r in rows[rid].items():
+                    L = r.get("ledger") or {}
+                    requested.add(v)
+                    if L.get("actual_bytes"):
+                        actual_enc.add(L["actual_bytes"])
+                    if L.get("gate_a_ok") is not None:
+                        led_seen += 1
+                        led_ok += 1 if L["gate_a_ok"] else 0
+            # ---- outcome census over the FIRST run ----------------------
+            oc = collections.Counter()
+            sem = collections.Counter()
+            sem_checked = 0
+            r0 = rows[rids[0]] if rids else {}
+            for v, r in r0.items():
+                oc[r.get("outcome")] += 1
+                s = r.get("semantic") or {}
+                sem[s.get("bucket", "none")] += 1
+                if s.get("checked"):
+                    sem_checked += 1
+            # ---- liveness + cross-run ------------------------------------
+            moved = disagree = common = 0
+            moved_vals = []
+            if len(rids) >= 2:
+                a, b = rows[rids[0]], rows[rids[1]]
+                ba = base_pl.get(arm, {}).get(rids[0])
+                bb = base_pl.get(arm, {}).get(rids[1])
+                for v in sorted(set(a) & set(b)):
+                    ra, rb = a[v], b[v]
+                    if ra.get("outcome") in HARD or rb.get("outcome") in HARD:
+                        continue
+                    if ra.get("outcome") == "foreign" or rb.get("outcome") == "foreign":
+                        continue
+                    common += 1
+                    pa, pb = payload(ra), payload(rb)
+                    if pa != pb:
+                        disagree += 1
+                        continue
+                    if ba is not None and pa != ba:
+                        moved += 1
+                        moved_vals.append(v)
+            V = len({payload(r) for r in r0.values()
+                     if r.get("outcome") not in HARD and r.get("outcome") != "foreign"})
+            dm = detect.get(arm, {})
+            powered = all(bool((dm.get(r) or {}).get("detect_ok")) for r in rids) if rids else False
+            dim = [c for r in rids
+                   for c in ((dm.get(r) or {}).get("dimension_controls_moved", {})
+                             .get(key, []))]
+            dim_ok = bool(dim) and all(
+                bool((dm.get(r) or {}).get("dimension_controls_moved", {}).get(key))
+                for r in rids)
+            per_arm[arm] = {
+                "runs": rids,
+                "baseline_field_value": bval,
+                "baseline_host_oracle": base_oracle.get(arm, {}),
+                "gate_A_ledger": {"cases_with_ledger": led_seen, "cases_ok": led_ok,
+                                  "distinct_requested_values": len(requested),
+                                  "distinct_actual_encodings": len(actual_enc),
+                                  "passed": led_seen > 0 and led_ok == led_seen},
+                "gate_B_control": {"detection_power": powered,
+                                   "dimension_controls_moved": sorted(set(dim)),
+                                   "passed": bool(powered and dim_ok)},
+                "gate_C_semantics": {"sem_checked": sem_checked,
+                                     "buckets": dict(sem),
+                                     "passed": sem_checked > 0},
+                "outcomes_run1": dict(oc),
+                "cross_run": {"common_values": common, "disagreements": disagree,
+                              "agreement": (f"{common - disagree}/{common}"
+                                            if common else "0/0"),
+                              "agreement_pct": (round(100.0 * (common - disagree) / common, 2)
+                                                if common else None)},
+                "moved": moved, "moved_values_sample": moved_vals[:24],
+                "distinct_valid_payloads": V,
+            }
+            out["arms"][f"{key}@{arm}"] = per_arm[arm]
+
+        rows = list(per_arm.values())
+        clean_runs = [r for r in sorted({x for a in per_arm.values() for x in a["runs"]})
+                      if (q.get(r) or {}).get("quiet")]
+        # ---------------- axis scoring ---------------------------------
+        gA = [r for r in rows if r["gate_A_ledger"]["passed"]]
+        gB = [r for r in rows if r["gate_B_control"]["passed"]]
+        gC = [r for r in rows if r["gate_C_semantics"]["passed"]]
+        n_moved_arms = sum(1 for r in rows if r["moved"] > 0)
+        agr = [r["cross_run"]["agreement_pct"] for r in rows
+               if r["cross_run"]["agreement_pct"] is not None]
+        repro_arms = [r for r in rows
+                      if r["cross_run"]["agreement_pct"] is not None
+                      and r["cross_run"]["agreement_pct"] >= AGREE_BAR
+                      and r["moved"] >= 2 * r["cross_run"]["disagreements"]
+                      and r["moved"] > 0]
+        sem_correct = sum(r["gate_C_semantics"]["buckets"].get("correct", 0) for r in rows)
+        sem_total = sum(r["gate_C_semantics"]["sem_checked"] for r in rows)
+
+        geometry = ("ledger-verified" if gA and len(gA) == len(rows) else
+                    ("ledger-verified(partial)" if gA else "unverified"))
+        if not gB:
+            liveness = "carrier-undecidable"
+        elif n_moved_arms:
+            liveness = "live"
+        else:
+            liveness = "accepted-inert"
+        semantics = ("unknown" if sem_total == 0 else
+                     ("bounded-map" if sem_correct else "hypothesis"))
+        repro = ("independently-confirmed" if (repro_arms and clean_runs and
+                                               len(clean_runs) >= 2)
+                 else ("auditable" if repro_arms else "incomplete"))
+        # legacy label = the strictest all six axes support
+        if (geometry.startswith("ledger-verified") and liveness == "live"
+                and semantics == "bounded-map" and repro == "independently-confirmed"):
+            legacy = "hardware-run"
+        elif (geometry.startswith("ledger-verified") and liveness == "live"
+              and semantics == "bounded-map" and repro_arms):
+            legacy = "isolated-byte-diff"
+        else:
+            # RE_EXPERIMENT_PROCESS_CORRECTIONS sec.2, strict mapping:
+            # `isolated-byte-diff` "requires a PREDICTED SEMANTIC EFFECT at the
+            # tested point, not merely an isolated byte difference", and
+            # `hardware-run` requires semantic checks against an independent
+            # predictor.  Reproducible liveness with a refuted or absent semantic
+            # model therefore maps to the legacy `untested` -- which is NOT "no
+            # evidence".  The evidence is in `axes` and `counts`; do not round
+            # liveness up into the legacy label.
+            legacy = "untested"
+
+        enc = (1 << w) if w <= 8 else None
+        disp = max((r["gate_A_ledger"]["distinct_requested_values"] for r in rows),
+                   default=0)
         out["fields"][key] = {
-            "label": label,
-            "range": rng,
+            "label": legacy,
+            "axes": {
+                "encoding_geometry": geometry,
+                "liveness": liveness,
+                "semantics": semantics,
+                "compiler_recipe": "not-generated",
+                "target": "G17P-direct",
+                "reproducibility": repro,
+            },
             "target": "G17P",
             "evidence": ["EXP-0204"],
             "start": fd["start"], "width": fd["width"],
-            "arms": armids,
-            "arms_passing_gate": passing,
-            "n_arms": len(armids),
-            "values_dispatched": max(r["common_values"] for r in rows),
-            "distinct_bytes": max(r["distinct_encodings_dispatched"] for r in rows),
-            "distinct_oracles": max(r["distinct_oracles"] for r in rows),
-            "distinct_valid_payloads_max": max(r["distinct_valid_payloads"] for r in rows),
-            "moved_max": max(r["moved"] for r in rows),
-            "moved_total": sum(r["moved"] for r in rows),
-            "disagreements_total": sum(r["disagreements"] for r in rows),
-            "cross_run_agreement_min_pct": min(
-                [r["cross_run_agreement_pct"] for r in rows
-                 if r["cross_run_agreement_pct"] is not None] or [None]),
-            "hard_outcomes_total": dict(sum(
-                (collections.Counter(r["hard_outcomes"]) for r in rows),
-                collections.Counter())),
-            "arms_with_detection_power": sum(1 for r in rows if r["detection_power"]),
-            "arms_with_dimension_control_moved":
-                sum(1 for r in rows if r["dimension_control_moved"]),
+            "range": (f"0..{enc - 1} dense (all {enc} values) x {len(rows)} arms"
+                      if enc else
+                      f"{disp} sampled values of 2^{w} (boundaries + powers of two + "
+                      f"all-ones prefixes + 16 hashed interior) x {len(rows)} arms"),
+            "counts": {
+                "encodable_values": enc,
+                "dispatched_values_per_arm": disp,
+                "distinct_requested_values": disp,
+                "distinct_bytes": max((r["gate_A_ledger"]["distinct_actual_encodings"]
+                                       for r in rows), default=0),
+                "ledger_cases_ok_over_checked":
+                    f"{sum(r['gate_A_ledger']['cases_ok'] for r in rows)}/"
+                    f"{sum(r['gate_A_ledger']['cases_with_ledger'] for r in rows)}",
+                "arms": len(rows),
+                "arms_with_detection_power": sum(1 for r in rows
+                                                 if r["gate_B_control"]["detection_power"]),
+                "arms_with_dimension_control_moved": len(gB),
+                "arms_where_field_moved": n_moved_arms,
+                "moved_total": sum(r["moved"] for r in rows),
+                "disagreements_total": sum(r["cross_run"]["disagreements"] for r in rows),
+                "cross_run_common_total": sum(r["cross_run"]["common_values"] for r in rows),
+                "cross_run_agreement_min": (min(agr) if agr else None),
+                "sem_checked_total": sem_total,
+                "sem_correct_total": sem_correct,
+                "sem_buckets_total": dict(sum(
+                    (collections.Counter(r["gate_C_semantics"]["buckets"]) for r in rows),
+                    collections.Counter())),
+                "outcome_totals_run1": dict(sum(
+                    (collections.Counter(r["outcomes_run1"]) for r in rows),
+                    collections.Counter())),
+                "distinct_valid_payloads_max": max((r["distinct_valid_payloads"]
+                                                    for r in rows), default=0),
+                "arms_passing_repro_gate": len(repro_arms),
+                "clean_quiet_runs": clean_runs,
+            },
+            "gates": {"A": bool(gA), "B": bool(gB), "C": bool(gC),
+                      "D": False, "E": bool(len(clean_runs) >= 2 and repro_arms)},
             "dimension": CA.DIMENSION.get(key, ""),
-            "machine_quiet_required": needs_quiet,
-            "machine_quiet_observed": quiet_all,
+            "arms": [f"{key}@{a}" for a in armlist],
             "note": "",
         }
+
     p = os.path.join(HERE, "analysis", "field_verdicts.json")
-    with open(p, "w") as f:
-        json.dump(out, f, indent=1, sort_keys=True)
+    with open(p, "w") as fh:
+        json.dump(out, fh, indent=1, sort_keys=True)
     print("wrote", p)
     for k, v in sorted(out["fields"].items()):
-        print(f"  {k:24s} {v['label']:20s} moved_max={v['moved_max']:4d} "
-              f"agree_min={v['cross_run_agreement_min_pct']} "
-              f"V={v['distinct_valid_payloads_max']} arms={v['n_arms']} "
-              f"pass={len(v['arms_passing_gate'])}")
+        c = v["counts"]
+        print(f"  {k:22s} {v['label']:18s} "
+              f"geom={v['axes']['encoding_geometry']:26s} live={v['axes']['liveness']:20s} "
+              f"sem={v['axes']['semantics']:12s} repro={v['axes']['reproducibility']}")
+        print(f"      arms={c['arms']} moved_arms={c['arms_where_field_moved']} "
+              f"moved={c['moved_total']} disagree={c['disagreements_total']} "
+              f"common={c['cross_run_common_total']} ledger={c['ledger_cases_ok_over_checked']} "
+              f"distinct_bytes={c['distinct_bytes']} sem={c['sem_correct_total']}/{c['sem_checked_total']}")
 
 
 if __name__ == "__main__":
-    build()
+    main()

@@ -31,11 +31,13 @@ def dig(r):
 
 
 def main():
-    runs = sys.argv[1:] or ["raw/g17p_run21", "raw/g17p_run22"]
+    runs = sys.argv[1:] or ["raw/g17p_run31", "raw/g17p_run32"]
     R = [load(d) for d in runs]
     A = [anchors(d) for d in runs]
     out = {}
-    for arm in ("F12_EXT_A", "F12_EXT_B"):
+    for arm in ("F12_EXT_A", "F12_EXT_B", "F12_EXT_C"):
+        if arm not in A[0] or A[0][arm].get("observed") is None:
+            continue
         amk = A[0][arm]["hw_markers"]
         per = {}
         for bi in range(4, 12):

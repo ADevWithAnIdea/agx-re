@@ -131,8 +131,18 @@ def main():
 
     # G6 -- the promotion gate can return BOTH answers, and does not refuse a width-1 field
     #       by arithmetic (DEF-0178: `moved >= 2*max(disagree,1)` cannot promote width 1).
-    def synth(moved, disagree, dispatched, oracle_rate=1.0, distinct_pred=2):
+    def synth(moved, disagree, dispatched, oracle_rate=1.0, distinct_pred=2,
+              ledger_ok=None, sem_checked=None, distinct_actual=None):
+        ledger_ok = dispatched if ledger_ok is None else ledger_ok
+        sem_checked = dispatched if sem_checked is None else sem_checked
+        distinct_actual = dispatched if distinct_actual is None else distinct_actual
         return {"arm": "X", "dispatched": dispatched, "distinct_bytes": dispatched,
+                "distinct_actual_encodings": distinct_actual,
+                "ledger_ok": ledger_ok, "ledger_of": dispatched,
+                "ledger_bytes_match": dispatched, "ledger_failures": [],
+                "semantic_classes_run1": {"correct": sem_checked},
+                "semantic_classes_run2": {"correct": sem_checked},
+                "sem_checked_run1": sem_checked,
                 "decidable_run1": dispatched, "decidable_run2": dispatched,
                 "excluded": {}, "common": dispatched, "moved": moved,
                 "disagree": disagree, "disagree_keys": [],
@@ -164,6 +174,13 @@ def main():
     check("G6f gate REFUSES without a liveness control", lab_f4 == "untested", lab_f4)
     lab_f5, _, _ = V.gate([synth(256, 0, 256)], good_inst, 1 << 64, True)
     check("G6g gate REFUSES `ext` (2^64 not dense)", lab_f5 != "hardware-run", lab_f5)
+    lab_a1, _, _ = V.gate([synth(256, 0, 256, ledger_ok=255)], good_inst, 256, True)
+    check("GA gate REFUSES an incomplete actual-byte ledger", lab_a1 == "untested", lab_a1)
+    lab_a2, _, _ = V.gate([synth(256, 0, 256, distinct_actual=8)], good_inst, 256, True)
+    check("GA gate REFUSES aliased ACTUAL encodings (8 bytes, 256 values)",
+          lab_a2 == "untested", lab_a2)
+    lab_c1, _, _ = V.gate([synth(256, 0, 256, sem_checked=0)], good_inst, 256, True)
+    check("GC gate REFUSES sem_checked == 0", lab_c1 == "untested", lab_c1)
     check("G6h `ext` is FORCED to untested per PRE_REG 6",
           V.FORCE_LABEL.get(("half_alu_fma12", "ext")) == "untested")
 

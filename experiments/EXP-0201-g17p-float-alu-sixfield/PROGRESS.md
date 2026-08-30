@@ -51,3 +51,38 @@ Note for auditors: `CAPTURE_CONTRACT.json`'s `repo.revision` is rewritten by eac
 now reads `ff747ca3`; the revision at the ORIGINAL pre-registration freeze, before any build or
 device run, was **`f59821fe`**. It moved because sibling experiments land continuously. Per
 `SUBAGENT_BRIEF.md`, captures are gated on the AUTHORED BLOB HASHES, never on live `HEAD`.
+
+## 2026-08-30 — AMENDMENT A, frozen before its first dispatch
+`RE_EXPERIMENT_PROCESS_CORRECTIONS.md` landed in the repository while runs 01-04 were
+executing. It is normative and overrides this experiment's original gates where they conflict.
+`PRE_REGISTRATION-A.md` is the amendment, frozen (hashed into CAPTURE_CONTRACT.json) BEFORE the
+first dispatch of `g17p_20260830_a_run01`.
+
+Runs 01-04 are RETAINED UNCHANGED and reclassified on the six axes; nothing is discarded and
+nothing that already meets a gate is re-run (section 9/10 of the corrections).
+
+What the amendment adds:
+- **Gate A** caller -> ACTUAL-dispatched-byte ledger per case: requested value, requested bytes,
+  bytes re-extracted from the blob about to be dispatched, the value decoded back OUT of those
+  bytes by an independent expression, program sha256, main/instruction offsets, db + harness
+  hashes. The gate refuses any arm with a single mismatch or with distinct actual encodings
+  fewer than distinct requested values.
+- **Gate C** adversarial float inputs on five new arms: -0.0, +0.0, +inf, -inf, NaN, the
+  smallest denormal, and the 2^24 rounding boundary. `oracle_check.py` now compares library
+  members by BIT PATTERN (value equality cannot see +0.0 vs -0.0 and reports NaN != NaN) and
+  **it caught a real collision in the first draft of the adversarial copysign set** -- with all
+  signs opposite, copysign(a,b) equals -a and the library cannot tell a sign COPY from a
+  NEGATION. The set was changed before any device time.
+- **Gate E** `--order forward|reverse|shuffle`; the confirmation pair runs forward then
+  reversed, and promotion requires a STRICTLY quiet machine (zero foreign GPU-runner samples).
+- **Six independent verdict axes** (geometry / liveness / semantics / recipe / target /
+  reproducibility). Liveness never rounds up into semantics: the gate now refuses
+  `sem_checked == 0`, and the selftest asserts that it does.
+
+Re-derived runs 01+02 under the amended gate: all six fields NOT PROMOTED, blocked on Gate A
+(no actual-byte ledger) and Gate E (both runs measured BUSY). That is the correct answer for a
+capture taken before the gate existed.
+
+DECLARED HAZARD for the amendment runs: unchanged from above, plus the adversarial arms feed
+NaN/inf into a three-source float ALU whose op field is being swept, which has not been done on
+this device before.

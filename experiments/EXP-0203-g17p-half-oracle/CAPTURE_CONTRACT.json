@@ -33,12 +33,43 @@
    ],
    "utc": "2026-08-30T19:14:19Z",
    "why": "pilot01 refuted all seven frozen half_pack candidates for a side effect none of them expressed; the arithmetic member was correct. The release is keyed by the field under test, so the corrected oracle is MORE discriminating."
+  },
+  {
+   "applies_before": "g17p_run31 / g17p_run32",
+   "change": [
+    "Gate A actual-byte ledger per case + two new gate conjuncts",
+    "Gate C five-bucket semantic_class per case + GC_sem_checked_nonzero",
+    "Gate B second disjoint readback plan: new arms HP_C, HP_D, F12_EXT_C",
+    "Gate E confirmation pair = run31 forward vs run32 reverse",
+    "3b: G7 split into --g7 hardware (default) and --g7 frozen; both reported"
+   ],
+   "driver": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, added by the user mid-experiment)",
+   "id": "03",
+   "retained": "g17p_run21/22/23 are retained unedited; they meet Gates B/C/E and NOT Gate A",
+   "unchanged": [
+    "hypotheses",
+    "oracle models and provenance",
+    "falsifiers",
+    "controls",
+    "outcome domain",
+    "timeouts",
+    "recovery policy",
+    "forced untested on ext",
+    "field spans"
+   ],
+   "utc": "2026-08-30T19:25:04Z"
   }
  ],
  "case_matrix": {
-  "n_cases": 5296,
-  "sha256": "d34b2f121afb6d1308bd30a749802593f41a8f63f5f41288b2b059f410ad8e00"
+  "n_cases": 8410,
+  "sha256": "e8325420acc469507742272a4ce7a565a1b47ef825e6786405948fa448cbd151"
  },
+ "case_matrix_history": [
+  {
+   "n_cases": 5296,
+   "sha256": "d34b2f121afb6d1308bd30a749802593f41a8f63f5f41288b2b059f410ad8e00"
+  }
+ ],
  "clean_room": {
   "apple_binary_introspection": "NONE",
   "provenance": "OWN-SHADER + HW-PROBE"
@@ -75,7 +106,21 @@
   "G4": "moved >= 2*disagree AND moved > 0  (NOT 2*max(disagree,1))",
   "G5": ">= 2 distinct predicted post-digests AND oracle match rate >= 0.99 in BOTH runs",
   "G6": "every falsifier NON-matched, and the same-dimension liveness control fired (>=6/8 oracle matches and >=2 distinct observations)",
-  "G7": "tokenized mnemonic and surviving-marker count equal the anchor's"
+  "G7": "tokenized mnemonic and surviving-marker count equal the anchor's",
+  "GateA": "per case: requested value, requested bytes, ACTUAL bytes read back from the dispatched artifact, value decoded from those actual bytes, program sha256 + instruction offset, db + harness revision; require requested == decoded and distinct ACTUAL encodings == dispatched count. A round trip is NOT this gate.",
+  "GateB_readback_plans": "two disjoint register/readback plans per promotable field: layouts HI (R_IDX r15, markers r10-13, dst r1) and LO (R_IDX r0, markers r2-5, dst r7)",
+  "GateC_buckets": [
+   "correct",
+   "coherent_alt_model",
+   "no_write",
+   "silent_zero",
+   "unexplained",
+   "faulted_or_rejected",
+   "contaminated",
+   "measurement_failure",
+   "invalid_measurement",
+   "carrier_undecidable"
+  ]
  },
  "raw_schema": {
   "append_only": true,
@@ -131,15 +176,24 @@
  "repo_dirty_at_freeze": true,
  "repo_revision_at_freeze": "ff747ca3a2a526a8f96360846f1eeaed3fa26821",
  "runs": {
-  "gated": [
+  "burned": [
    "g17p_run01",
-   "g17p_run02",
-   "g17p_run03"
+   "g17p_run11"
+  ],
+  "gate_E_confirmation_pair": "g17p_run31 (forward) vs g17p_run32 (reverse)",
+  "gated": [
+   "g17p_run21",
+   "g17p_run22",
+   "g17p_run23",
+   "g17p_run31",
+   "g17p_run32"
   ],
   "order": {
    "g17p_run01": "forward",
    "g17p_run02": "forward",
-   "g17p_run03": "reverse"
+   "g17p_run03": "reverse",
+   "g17p_run31": "forward",
+   "g17p_run32": "reverse"
   },
   "pilot": [
    "pilot01"
@@ -147,16 +201,18 @@
   "reuse_policy": "run ids are NEVER reused or topped up; a partial capture is retained and a replacement takes a NEW id"
  },
  "source_sha256": {
-  "PRE_REGISTRATION.md": "2b0f39ccc80825ef7557e4417d0aae5af3499a6108fa0c2e6103db15b8312172",
+  "PRE_REGISTRATION.md": "cd45b056f5954df967e432bd02800f89b43b7d14f108eae0c2f9e8dfbad6e90d",
+  "analysis/ext_bytes.py": "acc2dc974d71093d430ca15259a815c4efeda8a9a9088ed26f39a0276db41687",
+  "analysis/finalize.py": "ae313888506478191354fdee35faa33231d3f24d439a3a6805e65699f22036c3",
   "analysis/fit_model_offline.py": "fdc010456944d1244fa8070b8594425567416ec43930ab291a610f1c31f8e87d",
-  "analysis/verdicts.py": "722adcc41f9aaa966dd4536649dc37a72b1b6e7ac9f6ae916705173aa8765b31",
-  "harness/casematrix.py": "1cf84ffdc18f4dc9ab732c9a27b9e8a1d147610e6702aac4c56923de34042e73",
-  "harness/isa_helpers.py": "b68e3ee5bb31a806e4b6a2adee3b2988f4ac9d628b6a13390ebb028826a054a1",
-  "harness/oracle.py": "0526d8aa56b1201addc33efc86ebd9968d04593856d4375594eb6a8b31ed6176",
+  "analysis/verdicts.py": "c5512a4124457d932d3febd2f0f75ddcf940dce544e188ced8474a32e5a2e6c5",
+  "harness/casematrix.py": "826b76ec8e3bd583d63c4bcbf84a0f7baa1dfce3733bf26b26f200d84efc78f2",
+  "harness/isa_helpers.py": "87ff7fa0940895bd8ab27263e9925474612b37966ea07a21b46193d8ee0ec384",
+  "harness/oracle.py": "514d9a6957c17c6d70fa10b909eefa7e008751eced2a4c176b8aae1d22b1b6ee",
   "harness/procsample.py": "1ea8940479b4a0fa8fb8f82022ed4dc873114ffa2ff6db0ec52e8b5c305fa09e",
-  "harness/run.py": "267436fd08bf4840a00fe4f409c22249762bf29d58de450be7d117c5234ef035",
+  "harness/run.py": "80fa3a54a975ec1252155b14d32360ef45244334ab1756de6cede6341366fa34",
   "harness/saferunner.py": "050c1a772dc2511519e266b232c8e30d97dc59a49101d282ca8b935873e9c15d",
-  "harness/selftest.py": "cb25111c1cae525bbf4b4ec326693232fcf64c99daa4c732c5f2f4c64e814817",
+  "harness/selftest.py": "34faab9eb4e9d9a36bd321bb3a82f1082f3d5cb079afc034adf1adb6f67f8684",
   "harness/verify_remote.py": "c461cb9e9a950e8dafd98738aab0054848126f47311a3460627b375d9e2b2942",
   "kernels/carrier_a.metal": "5d1ec03cd87a461fa1aa685a1ef128d9a52837a76217d6cf08663ac62b136f84",
   "kernels/carrier_b.metal": "943403b42053da9e5db134c11af8f6308c3e0a0ba533070b94cb8f6ccb7f8234",
@@ -184,6 +240,27 @@
   "work/frozen/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
   "work/stub/fakerunner.py": "495d7d62c3e2dfc50935fe21f0d913bccf47a37a14326831428c0c11087c1245"
  },
+ "source_sha256_history": [
+  {
+   "PRE_REGISTRATION.md": "2b0f39ccc80825ef7557e4417d0aae5af3499a6108fa0c2e6103db15b8312172",
+   "analysis/fit_model_offline.py": "fdc010456944d1244fa8070b8594425567416ec43930ab291a610f1c31f8e87d",
+   "analysis/verdicts.py": "722adcc41f9aaa966dd4536649dc37a72b1b6e7ac9f6ae916705173aa8765b31",
+   "harness/casematrix.py": "1cf84ffdc18f4dc9ab732c9a27b9e8a1d147610e6702aac4c56923de34042e73",
+   "harness/isa_helpers.py": "b68e3ee5bb31a806e4b6a2adee3b2988f4ac9d628b6a13390ebb028826a054a1",
+   "harness/oracle.py": "0526d8aa56b1201addc33efc86ebd9968d04593856d4375594eb6a8b31ed6176",
+   "harness/procsample.py": "1ea8940479b4a0fa8fb8f82022ed4dc873114ffa2ff6db0ec52e8b5c305fa09e",
+   "harness/run.py": "267436fd08bf4840a00fe4f409c22249762bf29d58de450be7d117c5234ef035",
+   "harness/saferunner.py": "050c1a772dc2511519e266b232c8e30d97dc59a49101d282ca8b935873e9c15d",
+   "harness/selftest.py": "cb25111c1cae525bbf4b4ec326693232fcf64c99daa4c732c5f2f4c64e814817",
+   "harness/verify_remote.py": "c461cb9e9a950e8dafd98738aab0054848126f47311a3460627b375d9e2b2942",
+   "kernels/carrier_a.metal": "5d1ec03cd87a461fa1aa685a1ef128d9a52837a76217d6cf08663ac62b136f84",
+   "kernels/carrier_b.metal": "943403b42053da9e5db134c11af8f6308c3e0a0ba533070b94cb8f6ccb7f8234",
+   "kernels/probes.metal": "8ab2e7577b0b5aec9f68822af65ebbe0b1f1bf2bed79aaab86910abb0857e102",
+   "work/frozen/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+   "work/frozen/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+   "work/stub/fakerunner.py": "495d7d62c3e2dfc50935fe21f0d913bccf47a37a14326831428c0c11087c1245"
+  }
+ ],
  "target": {
   "accelerator": "AGXAcceleratorG17P",
   "arch": "applegpu_g17p",

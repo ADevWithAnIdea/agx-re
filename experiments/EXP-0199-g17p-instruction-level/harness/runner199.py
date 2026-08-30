@@ -138,6 +138,8 @@ def render_cmd(frun, source, cfg, archive=None, scratch=None, build=None,
         cmd += ["--depth-compare", str(cfg["depth_compare"])]
     if cfg.get("clear"):
         cmd += ["--clear", ",".join(str(v) for v in cfg["clear"])]
+    for w in cfg.get("ledger", []):            # GATE A actual-byte windows
+        cmd += ["--ledger", w]
     return cmd
 
 
@@ -217,13 +219,15 @@ class RenderRunner(_Child):
 
 
 def compute_cmd(crun, source, function, archive, scratch, in_file, out_bytes,
-                grid, tg, fast_math=True):
+                grid, tg, fast_math=True, ledger=()):
     cmd = [crun, "--source", source, "--function", function,
            "--archive", archive, "--scratch", scratch,
            "--grid", str(grid), "--tg", str(tg),
            "--in", "1=%s" % in_file, "--out", "0=%d" % out_bytes, "--persist"]
     if not fast_math:
         cmd.append("--no-fast-math")
+    for w in ledger:                           # GATE A actual-byte windows
+        cmd += ["--ledger", w]
     return cmd
 
 
@@ -231,10 +235,11 @@ class ComputeRunner(_Child):
     """harness/crun199.m protocol: `<reqid> <nsplices> [<off>=<hex> ...]`."""
 
     def __init__(self, crun, source, function, archive, scratch, in_file,
-                 out_bytes, grid, tg, fast_math=True):
+                 out_bytes, grid, tg, fast_math=True, ledger=()):
         self._n = 0
         super().__init__(compute_cmd(crun, source, function, archive, scratch,
-                                     in_file, out_bytes, grid, tg, fast_math))
+                                     in_file, out_bytes, grid, tg, fast_math,
+                                     ledger))
 
     def run(self, splices, timeout=20.0):
         for attempt in range(MAX_FOREIGN_RETRIES + 1):

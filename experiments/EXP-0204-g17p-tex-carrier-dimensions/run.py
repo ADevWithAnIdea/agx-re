@@ -52,6 +52,11 @@ WORK = os.path.join(HERE, "work")
 AGXPARSE = os.path.join(HERE, "pinned", "agxparse.py")
 GFRUN = os.path.join(WORK, "gfrun4")
 
+DB_SHA = hashlib.sha256(open(os.path.join(HERE, "pinned", "db.json"), "rb")
+                        .read()).hexdigest()
+HARNESS_SHA = hashlib.sha256(
+    open(os.path.join(HERE, "harness", "gfrun4.m"), "rb").read()).hexdigest()
+
 REQ_TIMEOUT = 15.0
 MAX_HANGS_PER_FIELD = 2
 MAPPING_PASS = {("tex_deriv", "dstsrc"): 8}      # pre-registered, named
@@ -318,6 +323,12 @@ def main():
     ap.add_argument("--mnem", default="")
     ap.add_argument("--smoke-only", action="store_true")
     ap.add_argument("--deadline-s", type=float, default=0.0)
+    ap.add_argument("--order", default="forward",
+                    choices=("forward", "reverse", "shuffle"),
+                    help="case order within each field sweep.  GATE E requires "
+                         "the confirmation run to use REVERSED or SHUFFLED order, "
+                         "so an order-dependent artefact cannot reproduce itself.")
+    ap.add_argument("--seed", type=int, default=20260830)
     args = ap.parse_args()
     global DEADLINE
     DEADLINE = (time.time() + args.deadline_s) if args.deadline_s > 0 else None
@@ -344,6 +355,8 @@ def main():
 
     inputs = {"run_id": args.run_id,
               "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "case_order": args.order, "order_seed": args.seed,
+              "db_sha256": DB_SHA, "harness_gfrun4_sha256": HARNESS_SHA,
               "carriers": {}, "arms": {}}
     carriers = {}
     for name in need:
@@ -405,22 +418,64 @@ def main():
         jl.flush()
         os.fsync(jl.fileno())
 
-    def run_case(arm, patched):
+    def ledger(arm, patched, resp, requested_field=None, requested_value=None):
+        """GATE A -- the caller-to-actual-byte ledger.
+
+        `actual` is the spliced window RE-READ FROM THE FILE the harness handed
+        to Metal, through a separate filesystem read; `decoded` is that window
+        decoded by the PINNED database, independently of what we asked for.  No
+        hardware conclusion is drawn unless requested == decoded."""
+        L = {"requested_bytes": patched.hex(),
+             "abs_off": arm["abs_off"], "instr_off": arm["instr_off"],
+             "prog_hash_fnv1a64": resp.get("proghash"),
+             "db_sha256_12": DB_SHA[:12], "harness_sha256_12": HARNESS_SHA[:12]}
+        act = resp.get("actual") or ""
+        got = None
+        for part in act.split(","):
+            if "=" in part:
+                o, _, h = part.partition("=")
+                try:
+                    if int(o) == arm["abs_off"]:
+                        got = h
+                except ValueError:
+                    pass
+        L["actual_bytes"] = got
+        L["bytes_match"] = (got == patched.hex()) if got else None
+        if got and requested_field:
+            try:
+                buf = bytearray(bytes.fromhex(arm["stage_hex"]))
+                buf[arm["instr_off"]:arm["instr_off"] + len(patched)] = bytes.fromhex(got)
+                d, _ = isadb.decode_one(bytes(buf), arm["instr_off"])
+                L["decoded_mnemonic"] = d["mnemonic"]
+                L["decoded_value"] = d["fields"].get(requested_field)
+                L["requested_value"] = requested_value
+                L["gate_a_ok"] = (d["mnemonic"] == arm["mnemonic"]
+                                  and d["fields"].get(requested_field) == requested_value)
+            except (ValueError, IndexError, KeyError) as e:
+                L["decoded_mnemonic"] = None
+                L["decoded_value"] = None
+                L["requested_value"] = requested_value
+                L["gate_a_ok"] = False
+                L["decode_error"] = str(e)[:80]
+        return L
+
+    def run_case(arm, patched, requested_field=None, requested_value=None):
         resp = runners[arm["carrier"]].render(
             [(arm["abs_off"], patched.hex())], timeout=REQ_TIMEOUT)
         o = observe(resp, carriers[arm["carrier"]]["cfg"])
         o["sentinel"] = resp.get("sentinel", "")
+        o["_ledger"] = ledger(arm, patched, resp, requested_field, requested_value)
         return o
 
-    def run_confirmed(arm, patched):
-        obs = run_case(arm, patched)
+    def run_confirmed(arm, patched, rf=None, rv=None):
+        obs = run_case(arm, patched, rf, rv)
         if obs.get("status") == "OK":
             return obs, None
         if obs.get("status") == "FOREIGN_FAULT" or obs.get("os_class") == "InnocentVictim":
             return obs, {"n": 1, "status": [obs.get("status")],
                          "os_class": [obs.get("os_class", "")], "bad": 1,
                          "reproduced": False, "foreign_shortcut": True}
-        trials = [obs] + [run_case(arm, patched) for _ in range(CONFIRM_N - 1)]
+        trials = [obs] + [run_case(arm, patched, rf, rv) for _ in range(CONFIRM_N - 1)]
         nbad = sum(1 for t in trials if t.get("status") != "OK")
         rec = {"n": len(trials), "status": [t.get("status") for t in trials],
                "os_class": [t.get("os_class", "") for t in trials],
@@ -555,6 +610,11 @@ def main():
                 | {(1 << i) - 1 for i in range(1, w)}
                 | {(k * 0x9E3779B1) & ((1 << w) - 1)
                    for k in (3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59)})
+            if args.order == "reverse":
+                vals = list(reversed(vals))
+            elif args.order == "shuffle":
+                import random
+                random.Random(args.seed ^ hash(arm["id"]) ^ hash(fname)).shuffle(vals)
             bval = arm["decoded"].get(fname)
             moved = nfault = nok = 0
             field_hangs = swept = 0
@@ -581,7 +641,7 @@ def main():
                                       f"{BASELINE_RETRIES} attempts"})
                         break
                 patched = isadb_set(arm["mnemonic"], orig, fname, v)
-                obs, confirm = run_confirmed(arm, patched)
+                obs, confirm = run_confirmed(arm, patched, fname, v)
                 since_baseline += 1
                 swept += 1
                 genuine_hang = (confirm is not None and confirm["reproduced"]
@@ -625,10 +685,16 @@ def main():
                     nfault += 1
                 if outcome == "ok":
                     nok += 1
+                sem = OR.semantic_check(arm["mnemonic"], fname, arm["carrier"],
+                                        CA.PROBE_PIXELS, obs, base, v, bval)
+                led = obs.get("_ledger", {})
+                if led.get("gate_a_ok") is False:
+                    outcome = "ledger_mismatch"
                 emit({"instr": arm["mnemonic"], "field": fname, "value": v,
                       "bytes": patched.hex(), "observed": obs,
                       "oracle": OR.oracle_for(arm["mnemonic"], fname, v,
                                               arm["carrier"], bval),
+                      "semantic": sem, "ledger": led,
                       "match": (outcome == "ok"), "outcome": outcome,
                       "carrier": arm["id"], "confirm": confirm,
                       "note": "" if dm == arm["mnemonic"] else f"re-decodes as {dm}"})

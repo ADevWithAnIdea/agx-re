@@ -458,3 +458,77 @@ amendment was written.
 
 Unchanged: the case matrix and its sha256 `d34b2f12…`, the field spans, the falsifiers, the
 controls, the outcome domain, the timeouts, G1..G7, and the forced `untested` label on `ext`.
+
+---
+
+## Amendment 03 — 2026-08-30, frozen BEFORE the runs it governs (`g17p_run31`, `g17p_run32`)
+
+The user added `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` mid-experiment. It is **normative and
+overrides this contract's gates where they conflict** (its own preamble says so). This
+amendment states exactly what it changed, what it did not, and what happens to the three runs
+already captured.
+
+### What the already-captured runs `g17p_run21/22/23` do and do not satisfy
+
+They are **retained, unedited, and not withdrawn** (§9: "nothing already captured is wasted";
+"do not retroactively call an observation false merely because a later acceptance gate is
+stricter"). Scored against the new gates:
+
+| gate | runs 21/22/23 |
+|---|---|
+| Gate B (detection-power control, poisoned state, independent sentinels, complete state dump) | **MET** — `__ctl_live_srcA` / `__ctl_hp_live` 8/8 with 8 distinct payloads in every arm and both runs; `__ctl_unseeded` 3/3; poison `0xDEADBEEF`; independent PRE/POST sentinels; all 16 GPRs dumped before *and* after |
+| Gate B (two disjoint register/readback plans, §6) | **MET for `dst`** (layouts HI and LO); **NOT met for `half_pack` and `ext`**, which ran only on layout HI |
+| Gate C (competing models pre-registered, per-case prediction, five buckets) | **MET in substance** — 9 frozen fma12 models, 7 frozen half_pack models, per-case host prediction; but the bucket **classification was not written into the records** |
+| Gate E (two clean runs, reversed order, no cascade) | **MET** — `run21` forward and `run23` reverse; the three promotable fields have **0 cross-run disagreements** and no victim/cascade evidence |
+| **Gate A (actual-byte ledger)** | **NOT MET.** The records carry the REQUESTED bytes only. Nothing read the bytes back out of the artifact actually handed to the GPU. |
+
+Gate A is the one that requires new hardware time, so this amendment adds it and reruns.
+
+### What changes for `g17p_run31` (forward) and `g17p_run32` (reverse)
+
+1. **Gate A — actual-byte ledger, per case.** The spliced program is written to disk, **read
+   back from that file**, and the instruction bytes are extracted at the offset the program
+   builder reports. Each record gains `ledger = {program_sha256, program_len, instr_offset,
+   actual_block, actual_instr, requested_instr, requested_value, decoded_value, bytes_match,
+   ledger_ok, rev}`, where `decoded_value` is decoded from the **actual** bytes using
+   `db.json`'s own `start`/`width`, and `rev` pins the database and harness revisions. The
+   promotion gate gains `GA_ledger_complete` and `GA_non_aliased_actual` (distinct **actual**
+   encodings must equal the dispatched count). A round trip is explicitly **not** this gate
+   and is still recorded-never-cited.
+2. **Gate C — the five buckets are now written per case** as `semantic_class` ∈ {`correct`,
+   `coherent_alt_model`, `no_write`, `silent_zero`, `unexplained`, `faulted_or_rejected`,
+   `contaminated`, `measurement_failure`, `invalid_measurement`, `carrier_undecidable`}, with
+   `semantic_model_fits` naming which frozen competing models reproduce the observation. The
+   gate gains `GC_sem_checked_nonzero`. Offline gate G10 proves the classifier can reach every
+   bucket, including the ones that are not a pass.
+3. **Gate B §6 — a second, disjoint register/readback plan for every field that can still
+   promote.** New arms `HP_C` (carrier A / layout LO / seeds B), `HP_D` (carrier B / LO / A)
+   and `F12_EXT_C` (A / LO / B). In layout LO the fixed destination moves from r1 to **r7**,
+   because r1 is that layout's `R_ZERO` and would leave a zero low half to "preserve".
+4. **Gate E — the confirmation pair is `run31` (forward) vs `run32` (reverse)**, with
+   identical actual-byte ledgers required.
+5. Matrix: **8410 cases**, sha256 `e8325420acc469507742272a4ce7a565a1b47ef825e6786405948fa448cbd151`.
+
+### What does NOT change
+
+The hypotheses, the oracle models and their provenance, the falsifiers, the controls, the
+outcome domain, the timeouts, the recovery policy, the forced `untested` on `ext`, and the
+field spans. Amendments 01 and 02 stand.
+
+### Amendment 03b — the frozen G7 conjunct was defective, and both numbers are reported
+
+Discovered while analysing `run21/22`: G7 as frozen required **our own tokenizer's mnemonic**
+to match the anchor's, as well as the surviving-marker count. In these runs **every dispatched
+value of `half_alu_fma12.dst` and `half_pack.dstlo` returned `hw_markers == 4`, identical to
+its anchor** — the hardware consumed the same bytes for all of them — yet `isadb` disagreed
+with itself on 4 and 11 values respectively (`<unknown>`, `pad_operand`, `operand_word`, and
+one `half_pack` where the *anchor* was `<unknown>` because of DEF-0154-1's byte+1 == 0x05
+length gate). Excluding those is the mirror image of the trap FIELD-SWEEP-PROTOCOL names —
+treating our own disassembler as a hardware signal.
+
+`analysis/verdicts.py` therefore takes `--g7 hardware` (default: surviving-marker count only)
+or `--g7 frozen` (the literal conjunct), and **both numbers are reported for every field**.
+Every value the frozen form excluded was already `oracle_match: true` with an identical marker
+count, so the correction re-admits passing values and **cannot manufacture a promotion out of
+failures**. This is a post-observation change to an analysis rule, stated as such; the raw is
+untouched and either rule can be applied to it.

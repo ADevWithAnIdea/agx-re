@@ -67,6 +67,16 @@ def descriptor_bytes(mnemonic, overrides=None):
     return v.to_bytes(d["length"], "little")
 
 
+def field_span(mnemonic, field):
+    """(start, width) of a field, from the PINNED descriptor. Used by
+    analysis/ledger200.py to re-read a value out of the ACTUAL bytes rather
+    than trusting the value the caller asked for (GATE A)."""
+    for f in DESC[mnemonic]["fields"]:
+        if f["name"] == field:
+            return f["start"], f["width"]
+    raise KeyError("%s.%s not in the pinned db" % (mnemonic, field))
+
+
 def find_occurrences(main, mnemonic, step=1):
     """Every offset whose bytes satisfy EVERY `match` constraint of `mnemonic`.
     Byte granularity deliberately: a non-parcel-aligned hit is evidence the

@@ -60,6 +60,21 @@ PLAN = {
     "sh_xor":     [("dir", "target"), ("cache", "target"), ("lane", "control")],
     "sh_reuse":   [("dir", "target"), ("cache", "target"), ("lane", "control"),
                    ("dst", "control_dim")],
+
+    # ---- REVISION B: the multi-invocation ordering litmus carriers ----
+    # Added because RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 5 Phase 3
+    # requires a real multi-invocation ordering litmus for this kind of field,
+    # and revision A's single-simdgroup carriers cannot express that dimension.
+    # `dir` rides along on the shuffle litmus at no extra cost and gives the
+    # already-live field a second, structurally different confirmation.
+    "lb_ballot_ld":   [("pred", "target"), ("cache", "target"),
+                       ("psrc", "control"), ("dst", "control_dim")],
+    "lb_ballot_alu":  [("pred", "target"), ("cache", "target"),
+                       ("psrc", "control"), ("dst", "control_dim")],
+    "lb_shuffle_ld":  [("dir", "target"), ("cache", "target"),
+                       ("lane", "control"), ("dst", "control_dim")],
+    "lb_shuffle_alu": [("dir", "target"), ("cache", "target"),
+                       ("lane", "control"), ("dst", "control_dim")],
 }
 
 # AMENDMENT 1, 2026-08-30, made BEFORE any gated run and after pilot01 only.

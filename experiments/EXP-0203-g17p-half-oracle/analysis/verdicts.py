@@ -158,6 +158,20 @@ def arm_field_report(r1, r2, anch1, arm, field):
     common = sorted(set(dec1) & set(dec2))
     disagree = [k for k in common if dig(dec1[k]) != dig(dec2[k])]
     moved = [k for k in common if dig(dec1[k]) != anchor_digest] if anchor_digest else []
+    # GATE A is an ENCODING-GEOMETRY fact and is measured over EVERY dispatched case, not
+    # only the decidable ones: whether the requested bits reached the artifact has nothing to
+    # do with whether this carrier could observe their effect.  (Measuring it over the
+    # decidable subset was a real bug here -- it made 16 dispatched values with 16 distinct
+    # encodings read as "11 distinct actual encodings for 16 values", i.e. a false alias
+    # report, which the gate then refused on.)
+    led = [a1[k].get("ledger") or {} for k in a1]
+    led_ok = [x for x in led if x.get("ledger_ok") is True]
+    led_bad = [[list(k), (a1[k].get("ledger") or {}).get("decoded_value")]
+               for k in sorted(a1) if (a1[k].get("ledger") or {}).get("ledger_ok") is not True]
+    bytes_ok = [x for x in led if x.get("bytes_match") is True]
+    actual_enc = {x.get("actual_instr") for x in led if x.get("actual_instr")}
+    sem = collections.Counter(dec1[k].get("semantic_class") for k in dec1)
+    sem2 = collections.Counter(dec2[k].get("semantic_class") for k in dec2)
     om1 = [k for k in dec1 if dec1[k].get("oracle_match")]
     om2 = [k for k in dec2 if dec2[k].get("oracle_match")]
     alt = [k for k in dec1 if dec1[k].get("oracle_match_alt2r") and not dec1[k].get("oracle_match")]
@@ -167,6 +181,14 @@ def arm_field_report(r1, r2, anch1, arm, field):
     return {
         "arm": arm, "dispatched": len(a1),
         "distinct_bytes": len({r["bytes"] for r in a1.values()}),
+        "distinct_actual_encodings": len(actual_enc),
+        "ledger_ok": len(led_ok), "ledger_of": len(led),
+        "ledger_bytes_match": len(bytes_ok),
+        "ledger_failures": led_bad[:20],
+        "semantic_classes_run1": dict(sem), "semantic_classes_run2": dict(sem2),
+        "sem_checked_run1": sum(v for k, v in sem.items()
+                                if k in ("correct", "coherent_alt_model", "no_write",
+                                         "silent_zero", "unexplained")),
         "decidable_run1": len(dec1), "decidable_run2": len(dec2),
         "excluded": dict(excl), "common": len(common),
         "moved": len(moved), "disagree": len(disagree),
@@ -230,6 +252,12 @@ def gate(arms, insts, encodable_range, span_ok):
              "G5_oracle_discriminating": rep["oracle_distinct_predictions"] >= 2,
              "G5_oracle_rate": (rep["oracle_rate_run1"] >= ORACLE_MIN
                                 and rep["oracle_rate_run2"] >= ORACLE_MIN),
+             "GA_ledger_complete": (rep["ledger_of"] > 0
+                                    and rep["ledger_ok"] == rep["ledger_of"]
+                                    and rep["ledger_bytes_match"] == rep["ledger_of"]),
+             "GA_distinct_actual_encodings": (rep["distinct_actual_encodings"]
+                                              == rep["dispatched"]),
+             "GC_sem_checked_nonzero": rep.get("sem_checked_run1", 0) > 0,
              "G6_falsifiers_fired": bool(inst.get("falsifiers_all_mismatch")),
              "G6_liveness_control": bool(inst.get("ctl_live_ok")),
              "G7_identity_stable": not any(k.endswith("identity_changed")
@@ -243,10 +271,13 @@ def gate(arms, insts, encodable_range, span_ok):
         "G1_dense": len(covered) == encodable_range,
         "G1_span_only": span_ok,
         "G1_non_aliased": all(r["distinct_bytes"] == r["dispatched"] for r in arms),
+        "GA_non_aliased_actual": all(r["distinct_actual_encodings"] == r["dispatched"]
+                                     for r in arms),
         "G4_movement": (moved >= 2 * disagree) and moved > 0,
         "arms_passing": n_ok, "arms_total": len(arms), "per_arm": per_arm,
     }
     ok = (gates["G1_dense"] and gates["G1_span_only"] and gates["G1_non_aliased"]
+          and gates["GA_non_aliased_actual"]
           and gates["G4_movement"] and len(arms) > 0 and n_ok == len(arms))
     if ok:
         label = "hardware-run"

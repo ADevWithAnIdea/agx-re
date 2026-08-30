@@ -20,14 +20,16 @@ import sys
 from pathlib import Path
 
 EXP = Path(__file__).resolve().parent.parent
-AUTHORED = ["run.py", "PRE_REGISTRATION.md", "README.md",
+AUTHORED = ["run.py", "PRE_REGISTRATION.md", "PRE_REGISTRATION-A.md",
+            "README.md",
             "kernels/k_falu201.metal",
             "harness/carriers201.py", "harness/models201.py",
             "harness/locate201.py", "harness/saferunner201.py",
             "harness/gpuwatch.py", "harness/gated_run.sh", "harness/sync.sh",
             "harness/verify_remote.py",
             "analysis/gen_arms.py", "analysis/oracle_check.py",
-            "analysis/verdicts.py", "analysis/contract.py"]
+            "analysis/verdicts.py", "analysis/contract.py",
+            "analysis/maps.py", "analysis/manifest_build.py"]
 PINNED = ["pinned/db.json", "pinned/isadb.py", "pinned/agxparse.py",
           "pinned/persistrun.py", "pinned/shdump.m"]
 
@@ -67,6 +69,22 @@ def build():
         "timeouts": {"request_s": 8.0, "confirm_attempts": 3,
                      "innocent_retries": 3, "canary_retries": 3,
                      "compile_s": 600, "ssh_alarm_s": 180},
+        "amendment": {
+            "name": "AMENDMENT A",
+            "trigger": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, added "
+                       "while runs 01-04 were executing)",
+            "frozen_before_run_ids": ["g17p_20260830_a_run01",
+                                      "g17p_20260830_a_run02"],
+            "retained_unamended_runs": ["g17p_20260830_run01",
+                                        "g17p_20260830_run02",
+                                        "g17p_20260830_run03",
+                                        "g17p_20260830_run04"],
+            "adds": ["Gate A caller->actual-byte ledger per case",
+                     "Gate C adversarial float inputs (signed zero, inf, NaN, "
+                     "denormal, 2^24 rounding boundary)",
+                     "Gate E reversed case order + strict quiet requirement",
+                     "six independent verdict axes"],
+        },
         "gate": {"min_gated_runs": 2, "min_agree_pct": 99.0,
                  "rule": "moved >= 2*disagree AND moved > 0",
                  "min_distinct_bytes": 2,

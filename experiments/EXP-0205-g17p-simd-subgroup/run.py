@@ -160,7 +160,7 @@ class CarrierRunner:
         try:
             return self.runner.request(
                 archive=str(p), grid=self.spec["grid"], tg=self.spec["tg"],
-                ins=self.ins, outs={0: 4 * self.spec["nwords"]},
+                ins=self.ins, outs=dict(self.spec["outs"]),
                 timeout=REQ_TIMEOUT)
         finally:
             try:
@@ -220,6 +220,12 @@ class CarrierRunner:
             observed["sentinel_ok"] = C.sentinel_ok(self.name, words)
             observed["unwritten"] = C.unwritten(self.name, words)
             observed["gputime_ns"] = resp.get("gputime_ns")
+            cb = self.spec.get("ctr_buf")
+            if cb is not None:
+                raw = resp["outs"].get(cb, b"")
+                observed["ctr_u32"] = (C.u32s(raw)[0] if len(raw) >= 4 else None)
+                observed["ctr_expected"] = C.litmus_ctr(self.name)
+                observed["ctr_ok"] = observed["ctr_u32"] == observed["ctr_expected"]
             if resp["status"] != "OK":
                 return ("fault" if nbad >= 2 else "nondeterministic", observed,
                         None, resp["status"], statuses, classes, innocent)

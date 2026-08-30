@@ -1,6 +1,6 @@
 {
  "abort_policy": "NONE. No per-field hang budget (FIELD-SWEEP-PROTOCOL 3c). Every value dispatched.",
- "amended_utc": "2026-08-30T19:15:46Z",
+ "amended_utc": "2026-08-30T19:28:12Z",
  "amendments": [
   {
    "change": "the two control_dim `dst` arms sweep 0..191 instead of 0..255",
@@ -10,10 +10,34 @@
    "only_prior_capture": "raw/pilot01 (a declared pilot, retained, never gated)",
    "reason": "pilot01 dispatched dst=192 on both reuse carriers and got 3/3 CMDBUF_ERROR with ErrorHang on each -- the dst[7:6]==0b11 wall EXP-0168 mapped exactly on frag_color_pack.dst. `dst` is a CONTROL here, not a field under test: its job is to fire once (it fires at dst=0), and sweeping 0xC0..0xFF would cost up to 256 device resets across two runs on a shared machine while manufacturing InnocentVictim contamination in the very target arms it supports. FIELD-SWEEP-PROTOCOL 3(c) forbids a hang budget on a field being CHARACTERISED; this is not that. The 0xC0 observation is reported as a finding and mapping that wall on simd_ballot.dst / simd_shuffle.dst is recorded as a named debt.",
    "utc": "2026-08-30T19:15:46Z"
+  },
+  {
+   "calibration": "raw/prefreeze/calibration06_litmus.json (all 16 carriers OK, all four litmus oracles matched incl. the cross-threadgroup atomic)",
+   "changes": [
+    "Gate A: run.py now re-reads the spliced archive FROM THE DISPATCHED FILE, records actual_bytes + program_sha256 + main_off, independently decodes the field from those bytes, and records outcome `ledger_mismatch` when requested != decoded or requested_bytes != actual_bytes.",
+    "Gate B / section 5 Phase 3: four MULTI-INVOCATION ORDERING LITMUS carriers (kernels/k_litmus.metal), 4 threadgroups x 2 simdgroups, cross-simdgroup threadgroup-memory exchange, a cross-threadgroup device atomic read back and checked, operand re-read after two barriers, THREE disjoint readback plans, PRE and POST sentinels, unique per-invocation codewords.",
+    "Section 6 provenance: each litmus is an _ld / _alu pair differing only in how the operand was produced.",
+    "Gate E: revision B runs forward AND reversed case order (--reverse).",
+    "Section 2: verdicts move to six independent axes with exact numerators and denominators; sem_checked == 0 can never yield hardware-run; a failed positive control yields carrier-undecidable; safe negative wording only."
+   ],
+   "id": 2,
+   "made_before_any_revision_b_dispatch": true,
+   "name": "REVISION B",
+   "preregistration": "PRE_REGISTRATION.md -> AMENDMENT 2 (frozen before first revision-B dispatch)",
+   "revision_a_runs_retained": [
+    "raw/g17p_20260830_run01",
+    "raw/g17p_20260830_run02"
+   ],
+   "trigger": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md became normative after revision A ran and overrides the earlier gates where they conflict.",
+   "utc": "2026-08-30T19:28:12Z"
   }
  ],
  "arms": {
   "carriers": [
+   "lb_ballot_alu",
+   "lb_ballot_ld",
+   "lb_shuffle_alu",
+   "lb_shuffle_ld",
    "sb_active",
    "sb_ballot",
    "sb_ballot2",
@@ -26,8 +50,8 @@
    "sr_scan",
    "sr_sum"
   ],
-  "n_arms": 35,
-  "n_cases_per_run": 3708,
+  "n_arms": 51,
+  "n_cases_per_run": 5092,
   "roles": [
    "control",
    "control_dim",
@@ -35,22 +59,25 @@
   ]
  },
  "authored_sha256": {
-  "PRE_REGISTRATION.md": "2ad629ed3a4515572b1822fc154e6d640a542d893a3ffb425765c1ad71cf5776",
-  "analysis/calibrate.py": "9db836d17e6c063456a50c5831860a2a209a256f839e100d6669264814e2efeb",
+  "PRE_REGISTRATION.md": "0b135281480f084ce928754af49f9bbd7408ad6a31fe635d7f83e68fe7641aab",
+  "analysis/adversarial.py": "c306e60bdb86c826047a103e9a1fbcce76e77298614d0063e87fb8ec8299eb92",
+  "analysis/calibrate.py": "84a6274787403ed8fc95d7523d233cc9309a7e27194030c53745f99825b3ebd8",
   "analysis/gate_selftest.py": "c86668a401b7019c59ad3185e4c6730d2539009bcd623ed9fdafb4a958b81cfe",
-  "analysis/gen_arms.py": "017d2a600b17355bd2591f8fd694023079cc5bcf9c3b6a525c09bb350da46c13",
-  "analysis/semantics.py": "dc34c11862721356add9ba5657279c6325382e514fc2adfc89744f4e57ccad7c",
+  "analysis/gen_arms.py": "94287d77cce5bdc5e038b3545ba4641c04cfea11cbd52d02e28b79091917bb70",
+  "analysis/report.py": "cb2136f57c641464f27319131a83556905e99be46c6ce990d61c29410daa52d2",
+  "analysis/semantics.py": "021ac2a6d95ce1767ef518a67e217e1ce5be23223214fc85e82aefe96bb4b0a8",
   "analysis/verdicts.py": "b82d33ba125ccbf2c712a84be4cfdfdb35dd8a42cfc631651ab1c5d3892b3746",
-  "harness/arms205.json": "3ed6a1cd34c15e897b429061cd246381a1eaedfedcc1db3b7ba092026a15a382",
-  "harness/carriers205.py": "d1b85314f4fdc1ee215ca7e6cc81baefe61900a2adcdd0e67294832e358d41b0",
+  "harness/arms205.json": "0b7742a879332122d2c1de4168829c0dbd639ea34852dcaeb54cd7dfa1b4bd3a",
+  "harness/carriers205.py": "97f90f51c83b1f09940ce9f7ccb4466c7ec8e97094e476923dba1efb17ff4783",
   "harness/locate205.py": "1d04f3c66af8a42ba6c9619d87065d14959b0f3225edbaa789ce63d5498cd56b",
   "harness/saferunner205.py": "7a1efe002284ab6974dca126adc24ae7b825e02247f8c959fe07b77da9e61843",
   "harness/sync.sh": "b46b890345350bf22fae34f7c054528787c46b232706f11283c963b0790cf251",
   "harness/verify_remote.py": "b34b18cbf5b91f92bdca1d557fe68a4addfe86daa79be11852559c9ae47bd06c",
   "kernels/k_ballot.metal": "1327fa5ad1666db1d259af1ecdfeedd9cf832bdc9098ce4decca0cf6a2cd2585",
+  "kernels/k_litmus.metal": "fd8961c92ce5d1a7039e4b87db1a78e305b3d29d7fa5c7a919885dd9b7cf0d1a",
   "kernels/k_reduce.metal": "055d37961debab3cd5eaf92ff8425834ca0534233bd8155e8c30b2967abe0f97",
   "kernels/k_shuffle.metal": "da81aff0687e528a397dcee9783799160f5f68ee906b2bab4cad1ba3f23ae1fc",
-  "run.py": "034a42bb7e4ffd7972f6b5ce9c404efd07a68d0704b8aeea052ab09578151026"
+  "run.py": "335a51d006472a8c3dfcb7377adccc7b2965fcceb6634024fbbe5bca23eaa269"
  },
  "clean_room": {
   "apple_binary_introspection": "NONE",
@@ -105,6 +132,14 @@
  "frozen_utc": "2026-08-30T19:12:59Z",
  "gate": {
   "agree_min_pct": 99.0,
+  "axes": [
+   "encoding_geometry",
+   "liveness",
+   "semantics",
+   "compiler_recipe",
+   "target",
+   "reproducibility"
+  ],
   "cache_fields_extra": "simd_ballot.cache and simd_shuffle.cache additionally require an IN-DIMENSION control: a dense dst sweep must move out[32..63], the post-instruction content of the source register. With zero movement the verdict is UNRESOLVED, never inert.",
   "control_required": "a hardware-run field on the SAME instruction at the SAME occurrence must move in both runs",
   "movement_excludes": [
@@ -116,6 +151,7 @@
    "nondeterministic"
   ],
   "movement_rule": "moved >= 2*disagree AND moved >= 1",
+  "normative_overlay": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (wins on conflict)",
   "runs_required": 2,
   "selftest": "analysis/gate_selftest.py, 13/13, offline, run before any hardware data existed"
  },

@@ -47,6 +47,8 @@ sys.path.insert(0, str(HERE / "harness"))
 import carriers206 as C          # noqa: E402
 import locate206 as L            # noqa: E402
 import saferunner206 as SR       # noqa: E402
+sys.path.insert(0, str(HERE / "analysis"))
+import models206 as MD           # noqa: E402
 
 PINNED = L.PINNED
 SafeRunner, _AS = SR.make_classes(str(PINNED))
@@ -56,6 +58,11 @@ CONFIRM_ATTEMPTS = 3
 INNOCENT_RETRIES = 3
 CANARY_RETRIES = 3
 BASELINE_EVERY = 128
+PROC_SAMPLE_EVERY = 100
+TARGET = "G17P"
+ORDER = "forward"
+SEED = 0
+CASE_ID = 0
 BIN = HERE / "work" / "bin"
 WORK = HERE / "work"
 
@@ -170,6 +177,30 @@ class CarrierRunner:
         b[a:a + len(region_bytes)] = region_bytes
         return bytes(b)
 
+    def ledger(self, blob, region, off, ilen, start, width, requested, req_bytes):
+        """GATE A (RE_EXPERIMENT_PROCESS_CORRECTIONS section 3): the requested
+        bytes must really have existed in the program that was dispatched.
+
+        The actual instruction bytes are read back out of the FINAL DISPATCHED
+        BLOB at the region's absolute file offset -- not out of the intermediate
+        buffer we think we built -- and the field is decoded from them by a
+        bit-extract that is independent of the patcher that wrote it. A requested
+        bit an assembler could not clear (DEF-0166) cannot survive this.
+        """
+        a = self.regions[region]["abs"] + off
+        act = bytes(blob[a:a + ilen])
+        act_val = (int.from_bytes(act, "little") >> start) & ((1 << width) - 1)
+        return {
+            "req_bytes": req_bytes.hex(),
+            "act_bytes": act.hex(),
+            "act_decoded": act_val,
+            "requested": requested,
+            "ledger_ok": bool(act_val == (requested & ((1 << width) - 1))
+                              and act == req_bytes),
+            "prog_sha256_16": hashlib.sha256(blob).hexdigest()[:16],
+            "instr_abs_off": a,
+        }
+
     def submit(self, blob):
         self.seq += 1
         p = self.spdir / ("%s_%d.bin" % (self.name, self.seq))
@@ -275,6 +306,30 @@ class CarrierRunner:
         return res
 
 
+def sample_procs(f, case_id):
+    """FIELD-SWEEP-PROTOCOL section 7 / GATE E: "record concurrent GPU activity for
+    the duration (sample the process table into raw/) so `the machine was quiet` is
+    a MEASUREMENT rather than a claim". Run01 of this experiment was 7.5x slower
+    than its own pilot because two sibling experiments were sweeping the same GPU;
+    without this sample that would have been invisible in the evidence."""
+    try:
+        out = subprocess.check_output(
+            ["bash", "-lc", "ps -Ao pid,command | grep -E 'agxrun|rendersweep|gfrun"
+             "|shdump|run\\.py' | grep -v grep | cut -c1-160"],
+            text=True, timeout=20)
+    except Exception as e:                                      # noqa: BLE001
+        out = "ERR %s" % e
+    mine = os.getpid()
+    lines = [ln for ln in out.splitlines() if ln.strip()]
+    others = [ln for ln in lines if not ln.strip().startswith(str(mine))]
+    f.write(json.dumps({"case_id": case_id, "ts": time.time(),
+                        "n_gpu_procs": len(lines),
+                        "n_other_agents": len(others),
+                        "lines": lines}, separators=(",", ":")) + "\n")
+    f.flush()
+    os.fsync(f.fileno())
+
+
 def emit(f, rec):
     f.write(json.dumps(rec, sort_keys=True, separators=(",", ":"),
                        default=str) + "\n")
@@ -304,6 +359,8 @@ def env_report(run_dir, arms_path, run_id, args):
         "innocent_retries": INNOCENT_RETRIES,
         "canary_retries": CANARY_RETRIES,
         "limit_values": args.limit_values,
+        "order": args.order,
+        "target": TARGET,
         "only": args.only,
         "concurrent_gpu_procs": sh(
             "bash", "-lc",
@@ -315,7 +372,7 @@ def env_report(run_dir, arms_path, run_id, args):
 
 
 def main():
-    global REQ_TIMEOUT
+    global REQ_TIMEOUT, ORDER, SEED, CASE_ID
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
     ap.add_argument("--arms", default=str(HERE / "harness" / "arms206.json"))
@@ -324,8 +381,14 @@ def main():
     ap.add_argument("--limit-values", type=int, default=0,
                     help="PILOT ONLY: dispatch every Nth value")
     ap.add_argument("--req-timeout", type=float, default=REQ_TIMEOUT)
+    ap.add_argument("--order", default="forward",
+                    help="forward | reversed | shuffled:SEED. GATE E requires the "
+                         "two confirming runs to use REVERSED or SHUFFLED case "
+                         "order, so an order-dependent artefact cannot reproduce.")
     args = ap.parse_args()
     REQ_TIMEOUT = args.req_timeout
+    ORDER = args.order.split(":")[0]
+    SEED = int(args.order.split(":")[1]) if ":" in args.order else 0
 
     doc = json.loads(Path(args.arms).read_text())
     arms = doc["arms"]
@@ -335,6 +398,11 @@ def main():
     if args.carriers:
         keepc = set(args.carriers.split(","))
         arms = [a for a in arms if a["carrier"] in keepc]
+    if ORDER == "reversed":
+        arms = list(reversed(arms))
+    elif ORDER.startswith("shuffled"):
+        import random
+        random.Random(SEED).shuffle(arms)
 
     run_dir = HERE / "raw" / args.run_id
     if run_dir.exists():
@@ -345,6 +413,8 @@ def main():
     run_dir.mkdir(parents=True)
     env_report(run_dir, args.arms, args.run_id, args)
     sweep = open(run_dir / "sweep.jsonl", "a")
+    procs = open(run_dir / "procs.jsonl", "a")
+    sample_procs(procs, 0)
 
     by_carrier = {}
     for a in arms:
@@ -392,16 +462,24 @@ def main():
             off, ilen = a["off"], a["len"]
             start, width = a["start"], a["width"]
             force = [tuple(x) for x in a.get("force", [])]
-            vals = a["values"]
+            vals = list(a["values"])
             if args.limit_values > 1:
                 vals = vals[::args.limit_values]
+            if ORDER == "reversed":
+                vals = list(reversed(vals))
+            elif ORDER.startswith("shuffled"):
+                import random as _r
+                _r.Random(SEED + hash(a["arm"]) % 100000).shuffle(vals)
             baseline(a["arm"] + ":open")
-            # If the arm is a SYNTHESIZED descriptor (ret -> ret_luse), measure
-            # the construction itself before sweeping it.
+            # If the arm is a SYNTHESIZED descriptor (ret -> ret_luse, or
+            # frame_marker -> a mid-program stop), measure the construction itself
+            # before sweeping it: the `_force_baseline` case IS the observation
+            # that says whether the construction worked.
             if force:
                 mm = cr.mutate(reg, off, ilen, force)
-                r = cr.measure(cr.blob(reg, mm))
-                emit(sweep, {"carrier": carrier, "arm": a["arm"],
+                bl = cr.blob(reg, mm)
+                r = cr.measure(bl)
+                emit(sweep, {"carrier": carrier, "arm": a["arm"], "target": TARGET,
                              "instr": a["instr"], "field": "_force_baseline",
                              "value": -1, "region": reg,
                              "bytes": mm[off:off + ilen].hex(),
@@ -409,6 +487,7 @@ def main():
                              "observed": r["observed"], "vals": r["vals"],
                              "oracle": {"oh": cr.oracle_h, "expect_match": True},
                              "match": r["match"], "outcome": r["outcome"],
+                             "sem_bucket": MD.OUTCOME_BUCKET.get(r["outcome"]),
                              "class": HARD_CLASS.get(r["outcome"]),
                              "status": r["status"], "statuses": r["statuses"],
                              "fault_classes": r["fault_classes"],
@@ -418,25 +497,42 @@ def main():
                              "off": off, "instr_len": ilen,
                              "note": a.get("force_note", ""), "ts": time.time()})
             expect = a.get("expect") or {}
+            models = a.get("models") or {}
             for n, v in enumerate(vals):
                 mm = cr.mutate(reg, off, ilen, force + [(start, width, v)])
-                r = cr.measure(cr.blob(reg, mm))
+                req_bytes = mm[off:off + ilen]
+                bl = cr.blob(reg, mm)
+                led = cr.ledger(bl, reg, off, ilen, start, width, v, req_bytes)
+                r = cr.measure(bl)
                 em = expect.get(str(v), expect.get(v))
+                bucket = MD.OUTCOME_BUCKET.get(r["outcome"])
+                preds = {m: d.get(str(v)) for m, d in models.items()}
+                sem = {m: (None if p is None or bucket is None else (p == bucket))
+                       for m, p in preds.items()}
+                contaminated = bool(r["innocent_retries"]) or any(
+                    "Innocent" in str(c) for c in r["fault_classes"])
+                CASE_ID += 1
                 rec = {
+                    "case_id": CASE_ID, "case_order": CASE_ID, "target": TARGET,
                     "carrier": carrier, "arm": a["arm"], "key": a["key"],
                     "region": reg, "synthesized": a.get("synthesized"),
                     "instr": a["instr"], "field": a["field"], "value": v,
-                    "bytes": mm[off:off + ilen].hex(),
+                    "bytes": req_bytes.hex(),
+                    "ledger": led, "ledger_ok": led["ledger_ok"],
                     "token": L.token_at(mm, off),
                     "observed": r["observed"],
                     "oracle": {"oh": cr.oracle_h, "expect_match": em},
                     "match": r["match"],
-                    "prediction_ok": (None if em is None else (bool(r["match"]) == bool(em))),
+                    "prediction_ok": (None if em is None
+                                      else (bool(r["match"]) == bool(em))),
+                    "sem_bucket": bucket,
+                    "sem_pred": preds, "sem_hit": sem,
                     "outcome": r["outcome"],
                     "class": HARD_CLASS.get(r["outcome"]),
                     "status": r["status"], "statuses": r["statuses"],
                     "fault_classes": r["fault_classes"],
                     "innocent_retries": r["innocent_retries"],
+                    "contaminated": contaminated,
                     "gputime_ns": r["gputime_ns"],
                     "role": a.get("role", "target"), "occ": a.get("occ"),
                     "occ_dim": a.get("occ_dim"),
@@ -444,12 +540,12 @@ def main():
                     "start": start, "width": width,
                     "note": a.get("note", ""), "ts": time.time(),
                 }
-                # Full value vector retained for every case that is NOT a clean
-                # match, so a deviation is always fully reconstructible from raw.
                 if not r["match"]:
                     rec["vals"] = r["vals"]
                 emit(sweep, rec)
                 ncase += 1
+                if CASE_ID % PROC_SAMPLE_EVERY == 0:
+                    sample_procs(procs, CASE_ID)
                 if n and n % BASELINE_EVERY == 0:
                     baseline(a["arm"] + ":mid%d" % n)
             baseline(a["arm"] + ":close")
@@ -458,6 +554,8 @@ def main():
         cr.close()
         time.sleep(0.3)
 
+    sample_procs(procs, CASE_ID)
+    procs.close()
     sweep.close()
     print("cases=%d elapsed=%.1fs -> %s" % (ncase, time.time() - t0, run_dir))
     return 0

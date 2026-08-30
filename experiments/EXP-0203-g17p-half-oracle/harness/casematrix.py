@@ -104,6 +104,21 @@ def set_byte(blk, byte_index, value):
     return bytes(b)
 
 
+def get_field_bits(blk, start, width):
+    """Decode a field value out of raw bytes using db.json's own geometry.  Gate A uses this
+    on the ACTUAL bytes read back from the dispatched program, independently of what was
+    requested, so a requested bit that never reached the hardware shows up as a
+    requested/decoded disagreement."""
+    v = 0
+    for i in range(width):
+        bit = start + i
+        byi = bit >> 3
+        if byi >= len(blk):
+            return None
+        v |= ((blk[byi] >> (bit & 7)) & 1) << i
+    return v
+
+
 def field_geom(instr, name):
     for f in INS[instr]["fields"]:
         if f["name"] == name:

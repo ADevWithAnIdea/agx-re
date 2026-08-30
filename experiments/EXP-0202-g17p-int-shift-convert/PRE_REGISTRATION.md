@@ -384,3 +384,66 @@ Recorded in `analysis/field_verdicts.json` under `_db_defects` with the evidence
 Compile 600 s · per-request watchdog 8 s (compute) · SSH connect 15 s · every remote call wrapped
 in a hard alarm. Run ids are never reused; a partial capture is retained and a replacement takes a
 **new** id.
+
+---
+
+# AMENDMENT v3 — frozen 2026-08-30, BEFORE its first dispatch
+
+**Trigger.** `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` was added to the repository while
+`g17p_20260830_run02` was in flight. It is **normative and wins where it conflicts** with §6
+above. §4 of that document requires that a design change after observations are seen **retain the
+old run and start a named amendment whose revised pre-registration is frozen before its first
+dispatch**. That is what this is.
+
+**What is retained, not discarded.** `g17p_20260830_run02` ran to completion against
+`CAPTURE_CONTRACT.json` v2 and `harness/arms202.json`. It is retained **in full** as the
+**discovery** run and is cited only for liveness and geometry, never for a promotion. Its harness
+files — `run.py`, `harness/carriers202.py`, `harness/oracles202.py`, `analysis/gen_arms.py`,
+`analysis/census.py`, `harness/arms202.json` — are **not edited**, so its chain stays reproducible
+byte-for-byte. The amendment adds new files beside them.
+
+## A3.1 What changes
+
+| gate | change | new file |
+|---|---|---|
+| **A** actual-byte ledger | every case records `requested_value`, `requested_bytes`, `actual_bytes`, `decoded_actual` (decoded by the **pinned tokenizer**, a different code path from the patcher), `ledger_ok`, `main_sha256`, `off`, and the db/arms/harness/driver revisions. **No hardware conclusion for a field until every one of its cases satisfies `requested == decoded-from-actual`.** Reported: cases, distinct requested values, distinct **actual** encodings, and `match`-bit collisions. A round trip is explicitly not this gate. | `run2.py`, `analysis/verdicts.py` |
+| **B** detection power | unchanged in kind, but the failure verdict is renamed to what it is: a control that does not move **and** fail the oracle in both runs makes the arm **`carrier-undecidable`**, and zero movement is then **not** evidence of inertness. | `analysis/verdicts.py` |
+| **B/§6** register lifecycle and operand provenance — **a required dimension**, and the one `src_flag` most likely needs | five new `shift_amt_move` carriers whose staged amount is produced by a **different producer class**: ALU (`sam_alu`), thread-position system value (`sam_sys`), SIMD lane index (`sam_lane`), an overwrite / intervening-independent-ALU lifetime (`sam_ovr`), and a control-flow merge (`sam_cf`). The v1 set had, *in practice*, exactly one producer class: the compiler lowered the thread-invariant `constant uint&` amount through a GPR and emitted bytes **identical** to the memory-load carrier. | `kernels/k_sam2_202.metal` |
+| **B/§6** two disjoint readback plans | `pc_dump` keeps **four mutually distinct live values per lane at fixed store indices**, so a redirected `ibitcount.dst` shows up as one of the other three words taking the count instead of being invisible. | `kernels/k_pc2_202.metal` |
+| **C** semantics ≠ liveness | every case carries a pre-registered `predicted_bucket` ∈ {`ok`, `not_ok`, `rejected`} and a scored `sem_match`. **`sem_checked == 0` can never produce `hardware-run`.** Stable movement with no semantic check is reported as **`live; role unknown`**. | `harness/oracles202b.py` |
+| **E** clean confirmation | the confirmation pair runs in **opposite case order** (`--order forward` / `--order reverse`); a malformed response stays `measurement_failure` and is never a hardware outcome; the measured quiet-window state of each run is reported and a non-quiet window is labelled **CONTAMINATED**. | `run2.py`, `analysis/verdicts.py` |
+| verdict shape | six independent axes — encoding geometry, liveness, semantics, compiler recipe, target, reproducibility — with exact numerators and denominators. Negative wording is `inert in <exact tested envelope>; global role unknown`; never "unused" or "reserved". | `analysis/verdicts.py` |
+
+## A3.2 The pre-registered semantic models (Gate C), stated before the dispatch
+
+| field | model | what refutes it |
+|---|---|---|
+| `shift_amt_move.src_flag` | SOURCE-CLASS SELECT: at the compiled value the amount comes from the file the compiler chose (`ok`); at the other value it comes from the other file, whose contents at that index we did not place (`not_ok`) | every value of every powered arm coming out `ok` |
+| `ibitcount.cache` | WRITEBACK-ENABLE: `ok` at the compiled value, `not_ok` at the other | `ok` at both |
+| `ibitcount.dst` | `dst = reg<<1`; the store still reads the compiled register, so `ok` **iff** value == compiled — **plus a CROSS-TARGET TRANSFER TEST**: `iunary.dst`, the same byte, faults reproducibly at **192–241 and 243–255** on M4 (EXP-0139), and those values are predicted `rejected` on G17P | any of: a second value delivering; the M4 fault region not faulting |
+| `iunary.b1`, `iunary.opsel` | FUNCTION / DATAPATH SELECT: `ok` at the synthesized base, `not_ok` elsewhere | a second value delivering |
+| `cvt_f2i.b9` | **the LIVE model**: `ok` at the compiled value, `not_ok` elsewhere. If byte+9 is genuinely a reserved constant this is refuted at 255 of 256 values — **and that refutation is the result** | 256/256 `ok` |
+| `irotate.operands` byte+6 | **the strongest form**: an EXACT host-computed vector per value — rotate-left by `K` where `byte+6 = 4·(32−K)`, extrapolated from the census byte-diff over amounts {1,5,7,13,19,31} | any modelled value whose observed vector is not the predicted rotate |
+| `cvt_f2i.signflag` | bit 6 selects signed vs unsigned; scored on lane 7 (2³¹+2⁸, outside int32) against the arm's **own unmutated baseline** | lane 7 unchanged by the splice |
+
+## A3.3 What an inertness claim may say after this amendment
+
+§7 of the corrections document requires, for a general accepted-inert rule: **three structurally
+different carrier/context classes**, a positive control in **every** one, interactions with every
+plausible selector, **two clean isolated repetitions**, and an independent method. This experiment
+supplies the carrier classes and the controls; it does **not** supply an independent
+compiler-differential method for `src_flag` (the compiler emits only one value of it — that *is*
+the differential result, and it is negative). So the strongest inertness statement this experiment
+may make is bounded:
+
+> `inert in <exact tested envelope>; global role unknown`
+
+and where the control does not fire, the verdict is `carrier-undecidable`, which is a **recorded
+result**, not a failure.
+
+## A3.4 Runs
+
+`g17p_20260830_run02` — discovery, contract v2, `arms202.json`, **retained, never topped up**.
+`g17p_20260830_run03` — confirmation A, contract v3, `arms202b.json`, `--order forward`.
+`g17p_20260830_run04` — confirmation B, contract v3, `arms202b.json`, `--order reverse`.
+Run ids are never reused. `harness/gpuwatch.py` measures the window of every run.

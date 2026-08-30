@@ -53,3 +53,20 @@ with the 63 kB of gpuwatch samples it collected and **is never topped up or reus
 directory `run.py` created — the only correct order. `CAPTURE_CONTRACT.json` v2 records it.
 This is the third instance this week of a state-changing step behind `&&`/`&` not doing what it
 looked like it did.
+
+## 2026-08-30 — M6: `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` landed mid-run — AMENDMENT v3 frozen
+The document is normative and wins over this experiment's own §6 gate. `run02` was in flight; it
+is **retained in full as the discovery run** and its harness files are NOT edited, so its chain
+stays byte-reproducible. The amendment adds beside them: `run2.py` (actual-byte ledger, predicted
+outcome bucket, `--order reverse`), `harness/oracles202b.py`, `harness/carriers202b.py`,
+`kernels/k_sam2_202.metal` (five operand-PROVENANCE carriers: ALU / thread-position system value /
+SIMD lane / overwrite+intervening ALU / control-flow merge), `kernels/k_pc2_202.metal` (a second
+disjoint readback plan for `ibitcount.dst`), `analysis/census_b.py`, `analysis/gen_arms_b.py`.
+`analysis/verdicts.py` is rewritten onto the six axes (analysis programs may change; raw may not).
+`PRE_REGISTRATION.md` gains AMENDMENT v3, frozen **before** its first dispatch.
+
+## 2026-08-30 — M6a: the machine stopped being quiet DURING run02
+`ps` on the neo shows `EXP-0201/work/bin/agxrun_persist` and `EXP-0200/t1/work/bin/agxrun_persist_as`
+running alongside ours. `raw/g17p_20260830_run02/gpuwatch.jsonl` records it sample by sample. This
+is exactly why the quiet window is measured rather than claimed, and it is another reason run02 is
+scored as discovery only.

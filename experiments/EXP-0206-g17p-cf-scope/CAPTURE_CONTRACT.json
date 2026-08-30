@@ -3,34 +3,34 @@
  "amendments": [
   {
    "n": 1,
-   "utc": "2026-08-30T19:15:37Z",
+   "utc": "2026-08-30T19:26:20Z",
    "what": "Occurrence acceptance widened to allow a BOUNDED RESYNC past an instruction the pinned db.json cannot decode, and an explicit rejection of signature hits that lie INSIDE a decoded instruction.",
    "why": "The pre-freeze census found that every NON-LEAF callee our compiler emits ends with the 6-byte word `ef 02 54 00 00 50`, which the pinned DB has no descriptor for, immediately before the non-leaf return `8f 12 54 00`. A pure linear walk dies just short of the ONLY occurrences in the corpus carrying linkmode 0x12 -- exactly the value the leaf-only carriers of the withdrawn `ret_luse.linkmode` measurement could never reach. Keeping the unamended rule would have silently reproduced that blind spot. Separately, `call` carries a literal 0x8f at byte+4, so every direct call produces a spurious `ret` signature hit four bytes in; those are now rejected explicitly."
   },
   {
    "n": 2,
-   "utc": "2026-08-30T19:15:37Z",
+   "utc": "2026-08-30T19:26:20Z",
    "what": "Added target `stop.reserved@synth_mid`: a CONSTRUCTED mid-program stop, built by overwriting the optional 4-byte `frame_marker` with `0e 00 00 00`.",
    "why": "H6 assumed a kernel with an out-of-line callee would place the callee after the main body's stop, giving a mid-program terminator for free. The census REFUTED that: the callee lives in its own symbol region and `follows_code` is False at all nine natural stops. Without a constructed one there is no positive control in the termination dimension at all, and FIELD-SWEEP-PROTOCOL section 9 would force UNRESOLVED by default rather than by measurement."
   },
   {
    "n": 3,
-   "utc": "2026-08-30T19:15:37Z",
+   "utc": "2026-08-30T19:26:20Z",
    "what": "Carrier lists for `if_push.scope` and `pop_reconverge.scope` trimmed from six loop shapes to four, and `cl_atomic` added to `pop_reconverge.scope`.",
    "why": "Device-time budget, plus a census finding: `cl_atomic`'s compiled pop is `0f 06 24 02 00 00` -- scope 0x24, the OTHER documented bank -- while every loop carrier emits 0x04, so the compiler itself spans the dimension across the amended set. The two dropped loop shapes add no dimension value the four retained ones do not already carry."
   },
   {
    "n": 4,
-   "utc": "2026-08-30T19:15:37Z",
+   "utc": "2026-08-30T19:26:20Z",
    "what": "`not_written` reclassified from HARD to a VALID payload.",
    "why": "Pilot p01 (calibration): the synthesized mid-program stop returns sentinel-present + all 32 value words still POISON. That is a valid execution with the most informative payload in the experiment -- it is HOW a terminator announces itself -- and scoring it hard would have deleted the very observation the termination-dimension positive control exists to make. `invalid_run` (sentinel MISSING) remains hard."
   }
  ],
  "arms": {
-  "n_arms": 132,
-  "n_cases": 12173,
+  "n_arms": 52,
+  "n_cases": 5231,
   "n_no_occurrence": 0,
-  "sha256": "8fe0cc7bc58cebd1faa539c01f84b2d79583891c4b5fcdf6bdf855e272439778"
+  "sha256": "3be53e5221d9cbebfee68090806109d05485e2858e06e4a27f6e2d0ccb15a78a"
  },
  "calibration_not_citable": [
   "raw/prefreeze/**",
@@ -45,9 +45,13 @@
    "bytes": 19064,
    "sha256": "54d65f61370b2bbab07661746cee131dfe653f312039e5c512c12617d5b3bd12"
   },
+  "PRE_REGISTRATION_A2.md": {
+   "bytes": 9381,
+   "sha256": "d745b9aa802b7cfefc50c9bbd8b23b2f1ebbde986cf8af5834e3ae66d6240205"
+  },
   "PROGRESS.md": {
-   "bytes": 1889,
-   "sha256": "a2f570e9baf425bb5045a57696e2f77d6ece97ad3ef48236b12f93ab34e7a523"
+   "bytes": 3228,
+   "sha256": "3f3608aeceefd138de2d2fe85da483a827168602057145ab8b17c2b62d66c2c0"
   },
   "analysis/census.py": {
    "bytes": 6804,
@@ -62,16 +66,24 @@
    "sha256": "a546807ecce7d423e8f503045506bcbcb81ceb092c08312ff60ef6f5b28ea5ba"
   },
   "analysis/gen_arms.py": {
-   "bytes": 11971,
-   "sha256": "02cb29c484a6a2ce2c3febd5034f310f2c3171e62650f96564b9278b15406050"
+   "bytes": 13957,
+   "sha256": "41bdf675dc9b01d78401d7a2ffdd43c6ba8cbc384b41bcb99b498dbe036c0e8e"
+  },
+  "analysis/models206.py": {
+   "bytes": 12146,
+   "sha256": "fd5e2d91c85f18314febc08dc87863a88732f189f09238176699ca9ffd097343"
   },
   "analysis/targets206.py": {
-   "bytes": 15125,
-   "sha256": "c35a705a2701f2dbddf901ab28bb1475fb7398713943a12f169270f6c402d76b"
+   "bytes": 18219,
+   "sha256": "00c3266506ec4a2e885cfa6a9b772525e2f0d8f35bc34031512cc6a54204631d"
+  },
+  "analysis/verdicts206.py": {
+   "bytes": 14560,
+   "sha256": "cc97ed7ced9109b48535da21aa4fa5cd0018cf02de2e9e1b43b4927eb03633a5"
   },
   "harness/arms206.json": {
-   "bytes": 262680,
-   "sha256": "8fe0cc7bc58cebd1faa539c01f84b2d79583891c4b5fcdf6bdf855e272439778"
+   "bytes": 493979,
+   "sha256": "3be53e5221d9cbebfee68090806109d05485e2858e06e4a27f6e2d0ccb15a78a"
   },
   "harness/carriers206.py": {
    "bytes": 8828,
@@ -126,11 +138,11 @@
    "sha256": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
   },
   "run.py": {
-   "bytes": 20584,
-   "sha256": "739624c06df022924573842ae1bc3f6dc01afa68f6e209fd9f7ed250b9d13089"
+   "bytes": 25355,
+   "sha256": "c782e8d11bd5de420dcd3947668e0326284f7214570d670337e06b973b53061b"
   }
  },
- "frozen_utc": "2026-08-30T19:15:37Z",
+ "frozen_utc": "2026-08-30T19:26:19Z",
  "gated_runs": [
   "g17p_20260830_run01",
   "g17p_20260830_run02"
@@ -194,7 +206,7 @@
   "vals": "the full 32-word vector, retained on EVERY non-matching case and on every baseline, so a deviation is fully reconstructible"
  },
  "repo_dirty": true,
- "repo_revision_recorded_not_gated": "9bbc5d0b824935fcb131eae193b3868b45db6f14",
+ "repo_revision_recorded_not_gated": "2616a3c2f1a769a1ff69ae391a195108a2f5748a",
  "retries": {
   "canary_retries": 3,
   "confirm_attempts": 3,

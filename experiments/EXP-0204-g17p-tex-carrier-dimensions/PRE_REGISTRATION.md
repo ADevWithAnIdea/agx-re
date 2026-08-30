@@ -335,3 +335,112 @@ timeouts, or the raw schema.**
   (the latter on the last write of `twbuf` and `twcube`), which no prior experiment's arms contained.
   For `tex_write.rsv11` it chooses **0 everywhere, including the 1-component R32Float and
   2-component RG32Float destinations** — a first, negative, census-level result against H4.
+
+---
+
+## 15. AMENDMENT 2 — frozen 2026-08-30 12:30 UTC, BEFORE its first dispatch
+
+**Trigger.** The user added `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` to the repository root while
+this experiment was running. It is **normative and wins where it conflicts** with the gates in §8
+above. This amendment restates §8 under its five gates and its six verdict axes, and is frozen
+**before any dispatch under it**, as §4 of that document requires.
+
+**`raw/g17p_20260830_run01` is RETAINED, NOT REUSED and NOT TOPPED UP.** It ran under the original
+§8 gate, on a measurably busy machine, without an actual-byte ledger and without a semantic oracle.
+It was killed by an SSH hang-up at 404 cases and has no run manifest. It stands as a **discovery
+sweep** — its liveness observations and its `tex_deriv.dstsrc` hazard map are real evidence — and
+it is scored on the axes it can support and no others. Nothing captured is discarded (§9/§10).
+
+### 15.1 Gate A — the actual-byte ledger (NEW, mandatory)
+
+`harness/gfrun4.m` now re-reads the spliced window **from the file it hands to Metal**, through a
+separate filesystem read, and reports it as `ACTUAL <off>=<hex>` together with `PROGHASH` (FNV-1a
+64 over the whole dispatched program). `run.py` decodes those actual bytes with the **pinned**
+database and records, per case: requested value, requested bytes, actual bytes, decoded mnemonic,
+**decoded value**, program hash, instruction offset, db revision, harness revision. A case whose
+`requested value != value decoded from actual bytes` is recorded `ledger_mismatch` and **no
+hardware conclusion is drawn from it**. Reported per field: dispatched cases, distinct requested
+values, **distinct actual encodings**, and any `match`-bit collision. *A round trip is explicitly
+not this gate.*
+
+### 15.2 Gate B — positive control in every arm
+
+Unchanged in substance from §6 and already satisfied: every arm runs a full detection profile and
+must additionally show a control **in the field's own dimension** moving the same observable.
+**An arm whose control fails is `carrier-undecidable`, and zero movement on it is NOT evidence of
+inertness.**
+
+### 15.3 Gate C — semantics, separated from liveness (NEW)
+
+`harness/oracle.py` gains an independent predictor that classifies every case into the buckets the
+gate names — `correct` / `coherent_other` / `silent_zero` or `no_write` / `fault` / `hang` /
+`contaminated` / `measurement_failure` — plus `unchanged` and `unmodelled` (`unmodelled` is a
+**refutation** of the model, not a pass):
+
+- **`tex_sample.mode`** — the model is db.json's own class enum. Per carrier and probe pixel the
+  predictor holds the exact host-computed channel-0 value for each candidate class (bilinear
+  level-0 value, the unfiltered corner texels, the gather tap, the compare fraction, and the
+  implicit LOD for that carrier's own coordinate gradient), so an observation is assigned to a
+  class **without reference to the baseline**.
+- **`tex_write.{amode,rsv11}`** — the semantic question a texture store's address/format
+  descriptor answers is *where the write landed and with what*. The predictor reduces every probed
+  write surface to a per-texel state map over `{reset, C0, C1, C2, DRAW, other}` using the reset
+  sentinels `gfrun4.m` itself writes, and classifies a case as `correct_all_writes_landed` /
+  `write_suppressed` / `write_relocated` / `write_data_changed`.
+- **`tex_deriv.dstsrc`** — **NO semantic model is pre-registered.** Its carriers are deliberately
+  affine (that is what makes the derivative host-computable), and §5 Phase 3 of the corrections
+  document says an affine field makes many candidate operations indistinguishable. Therefore
+  `sem_checked` stays **0** for this field, and by §2 of that document `hardware-run` is
+  **unreachable** for it. Its ceiling in this experiment is **`live; role unknown`**. This is
+  stated in advance rather than discovered afterwards.
+
+**`sem_checked == 0` can never produce `hardware-run`.**
+
+### 15.4 Gate D — generated recipe
+
+**Not attempted, and therefore not claimed.** No field in this experiment is proposed as
+`canonical-recipe-proven` or the instruction as `emittable`. Every arm splices one field of a
+compiler-emitted occurrence; that is a liveness/semantics instrument, not a generation proof.
+
+### 15.5 Gate E — clean confirmation (STRICTER than §8)
+
+A confirmation run may not rely on a busy machine **at all** — this supersedes the earlier
+allowance to report a busy-machine figure as merely contaminated. Confirmation requires **two
+clean G17P runs in reversed or shuffled case order** with identical actual-byte ledgers and no
+victim/cascade evidence. `run.py --order {forward,reverse,shuffle}` implements the ordering.
+`raw/<run_id>/procs.jsonl` is the machine-quiet **measurement**; a run with any foreign sample is
+`BUSY` and cannot serve as a confirmation run. **A malformed runner response is
+`measurement_failure`, never a hardware outcome.**
+
+### 15.6 The verdict shape (replaces §8's single label)
+
+Every field is reported on **six independent axes** with **exact numerators and denominators,
+never a percentage alone**:
+
+| axis | statuses used here |
+|---|---|
+| encoding geometry | `unverified` / `ledger-verified` / `geometry-mapped` |
+| liveness | `live` / `accepted-inert` / `fault` / `hang` / `carrier-undecidable` |
+| semantics | `unknown` / `hypothesis` / `bounded-map` / `semantically-mapped` |
+| compiler recipe | `not-generated` (all four fields — Gate D not attempted) |
+| target | `G17P-direct` |
+| reproducibility | `incomplete` / `auditable` / `independently-confirmed` |
+
+The legacy label is emitted **only** as the strictest one all six axes support. Safe negative
+wording is `inert in <exact tested envelope>; global role unknown`, and the prior experiment's
+careful distinction — `tex_write.{amode,rsv11}` were recorded **unreached, not inert** — is
+preserved.
+
+### 15.7 §7 bar for an inertness promotion, and the Phase-5 distinctness test
+
+To promote `tex_write.{amode,rsv11}` from "accepted-inert in one carrier" to a general rule needs
+**≥3 structurally different carrier/context classes, a positive control in every one, interaction
+coverage, two clean isolated repetitions, and an independent method**. This experiment supplies
+five carriers; §5 Phase 5 says *"two generated carriers with the same leaf callee, state shape, or
+observation path count as ONE method"*, so their distinctness is argued explicitly:
+`twmip` (mip-level operand, observed on `TEXWM0/1/2`), `twbuf` (linear 1-D texel index, observed on
+`TEXWB`), `twcube` (face operand, observed on `TEXWC0..5`), `twcomp` (1- and 2-component
+destinations, observed on `TEXWR` / `TEXWG`) and `twdyn` (register-formed coordinate and a no-ALU
+contiguous vec4 store, observed on `TEXW`/`TEXWA`) have **five different destination resources and
+five different observation paths**, and four different address forms. `twdyn` additionally differs
+in operand provenance (§6 of the corrections document), which none of the prior carriers varied.

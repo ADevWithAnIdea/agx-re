@@ -109,7 +109,7 @@ TARGETS = [
                      "word. Withheld on DEF-0190-1 because the INERT bucket "
                      "returned moved=0 BY CONSTRUCTION.",
         "carriers": ["cf_nl2", "cf_nl3", "cf_nlif", "cf_wbrk", "cf_ifnl",
-                     "cf_lcont"],
+                     "cf_lcont", "cl_atomic"],
         "occ_dimension_field": "scope_kind",
         "max_occ_per_carrier": 2,
         "values": wide_values(16),
@@ -278,5 +278,66 @@ TARGETS.append({
     "predict": "if the synthesized stop terminates, the 24-bit body is inert at a "
                "LIVE terminator; if it does not, stop.reserved is UNRESOLVED",
 })
+
+# ---------------------------------------------------------------- ARM SELECTION
+# FROZEN SUBSET, added as contract amendment 5 after run01 was killed at 152 cases.
+#
+# WHY: the pilot measured 0.234 s/case on a quiet machine; run01 measured
+# **1.756 s/case with 46% faults**, because two SIBLING EXPERIMENTS (EXP-0202 and
+# one other) were sweeping the same GPU. Each `ErrorHang` resets the device, and
+# each reset costs seconds plus a train of `InnocentVictim` retries. The full
+# 12,173-case arm set would have taken about SIX HOURS per run, i.e. twelve for
+# the gated pair. Run01 is RETAINED at 152 cases as a partial capture, is never
+# topped up, and is not cited by any verdict.
+#
+# WHAT IS KEPT: for every field, occurrence classes that span the dimension under
+# test, and for the inertness targets at least THREE structurally different
+# carrier classes (RE_EXPERIMENT_PROCESS_CORRECTIONS section 7). Value coverage
+# per arm is UNCHANGED -- the reduction is in occurrences, never in the swept
+# range, because protocol section 3 coverage is a statement about the field's
+# value space.
+SELECT = {
+    "if_push.scope": [
+        ("cf_nl2", 106),    # scope_kind 0x1a (LOOP-ITERATION), compiled scope 0x56
+        ("cf_nl3", 182),    # scope_kind 0x1a, compiled scope 0x54  <- the M1/M2 discriminator
+        ("cf_nl2", 140),    # scope_kind 0x25 (NOT loop-iteration)  <- region-kind contrast
+        ("cf_ifnl", 126),   # scope_kind 0x1a in a third loop shape
+    ],
+    "pop_reconverge.scope": [
+        ("cf_nl2", 216),    # scope_kind 0x02 (loop body), compiled scope 0x04
+        ("cf_nl2", 222),    # scope_kind 0x01 (guard/outermost)
+        ("cl_atomic", 66),  # compiled scope 0x24 -- THE OTHER BANK, compiler-emitted
+    ],
+    "pop_reconverge.reserved": [
+        ("cf_nl2", 216),    # loop carrier
+        ("cf_ifnl", 184),   # loops inside an if/else
+        ("cl_atomic", 66),  # call carrier, other bank -- 3 structurally different classes
+    ],
+    "call.tail": [
+        ("cl_leaf", 54),    # leaf callee
+        ("cl_chain", 54),   # NON-LEAF callee (c_mid)
+        ("cl_atomic", 52),  # callee doing an atomic RMW and ending in a real ret_luse
+    ],
+    "ret.scoreboard": [
+        ("cl_pure", 32),     # ordering NEGATIVE: callee has no memory access at all
+        ("cl_stacross", 32), # SAME callee bytes, store->load hazard spanning the ret
+        ("cl_ldret", 34),    # different callee: the load is inside it
+        ("cl_chain", 104),   # NON-LEAF return, linkmode 0x12
+    ],
+    "ret_luse.linkmode": [
+        ("cl_atomic", 32),  # REAL compiler-emitted `8f 12 56 00` -- no synthesis
+        ("cl_leaf", 30),    # synthesized from a LEAF ret (linkmode 0x02)
+        ("cl_chain", 104),  # synthesized from a NON-LEAF ret (linkmode 0x12)
+    ],
+    "stop.reserved": [
+        ("cf_nl2", 268),    # loop carrier, final stop
+        ("cl_leaf", 88),    # leaf-call carrier, final stop
+        ("cl_atomic", 124), # atomic carrier, final stop
+    ],
+    "stop.reserved@synth_mid": [
+        ("cl_leaf", 50),
+        ("cl_chain", 50),
+    ],
+}
 
 BY_KEY = {t["key"]: t for t in TARGETS}

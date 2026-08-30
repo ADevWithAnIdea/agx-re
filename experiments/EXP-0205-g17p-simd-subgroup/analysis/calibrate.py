@@ -52,6 +52,11 @@ TARGETS = {
     "sh_xor":    ("simd_shuffle", ["dir", "cache", "mode", "lane", "src", "dst"]),
     "sh_reuse":  ("simd_shuffle", ["dir", "cache", "mode", "lane", "src", "dst"]),
     "sb_width":  (None, []),
+    # REVISION B litmus carriers (multi-invocation ordering, provenance pairs)
+    "lb_ballot_ld":   ("simd_ballot",  ["pred", "cache", "psrc", "dst"]),
+    "lb_ballot_alu":  ("simd_ballot",  ["pred", "cache", "psrc", "dst"]),
+    "lb_shuffle_ld":  ("simd_shuffle", ["dir", "cache", "mode", "lane", "src", "dst"]),
+    "lb_shuffle_alu": ("simd_shuffle", ["dir", "cache", "mode", "lane", "src", "dst"]),
 }
 
 
@@ -99,16 +104,26 @@ def main():
                             fast_math=False,
                             agxrun_persist=str(BIN / "agxrun_persist"))
         rec["device"] = runner.device
-        resp = runner.request(archive=arch, grid=spec["grid"], tg=spec["tg"],
-                              ins=ins, outs={0: 4 * spec["nwords"]}, timeout=12.0)
+        # The neo is shared. `kIOGPUCommandBufferCallbackErrorInnocentVictim`
+        # means a SIBLING experiment's device reset discarded our submission --
+        # it is not a property of our program, and FIELD-SWEEP-PROTOCOL 7 says
+        # to segregate and re-run those before concluding anything.
+        resp = None
+        for attempt in range(8):
+            resp = runner.request(archive=arch, grid=spec["grid"], tg=spec["tg"],
+                                  ins=ins, outs=dict(spec["outs"]), timeout=12.0)
+            if resp["status"] == "OK" or "InnocentVictim" not in (resp.get("error") or ""):
+                break
+            rec["innocent_victim_retries"] = attempt + 1
+            time.sleep(0.4 * (attempt + 1))
         rec["status"] = resp["status"]
         rec["gputime_ns"] = resp.get("gputime_ns")
         rec["error"] = resp.get("error")
         blob = resp["outs"].get(0, b"")
         if blob:
             obs, words = C.summarize(name, blob)
-            rec["observed_vals"] = ["0x%08x" % v for v in obs["vals_u32"]]
-            rec["observed_sec"] = ["0x%08x" % v for v in obs["sec_u32"]]
+            rec["observed_vals"] = ["0x%08x" % v for v in obs["vals_u32"][:16]]
+            rec["observed_sec"] = ["0x%08x" % v for v in obs["sec_u32"][:16]]
             rec["sentinel_ok"] = C.sentinel_ok(name, words)
             rec["tail_poison_ok"] = obs["tail_poison_ok"]
             rec["unwritten"] = C.unwritten(name, words)
@@ -116,11 +131,20 @@ def main():
             if exp is not None:
                 rec["oracle_vals"] = ["0x%08x" % (v & C.M32) for v in exp]
                 rec["oracle_match"] = C.match_oracle(name, words, exp)
+            cb = spec.get("ctr_buf")
+            if cb is not None:
+                craw = resp["outs"].get(cb, b"")
+                rec["ctr_u32"] = C.u32s(craw)[0] if len(craw) >= 4 else None
+                rec["ctr_expected"] = C.litmus_ctr(name)
+                rec["ctr_ok"] = rec["ctr_u32"] == rec["ctr_expected"]
+                rec["plan2_match"] = (obs.get("plan2_u32") == C._litmus_plan2(name))
+                rec["post_sent_u32"] = obs.get("post_sent_u32")
             sec = C.baseline_sec_oracle(name)
             if sec is not None:
-                rec["oracle_sec"] = ["0x%08x" % (v & C.M32) for v in sec]
-                rec["oracle_sec_match"] = all(
-                    words[32 + k] == (sec[k] & C.M32) for k in range(32))
+                rec["oracle_sec"] = ["0x%08x" % (v & C.M32) for v in sec[:16]]
+                sw = spec["sec_words"]
+                rec["oracle_sec_match"] = (len(sw) == len(sec)) and all(
+                    words[sw[k]] == (sec[k] & C.M32) for k in range(len(sec)))
             if name == "sb_width":
                 w = obs["vals_u32"]
                 rec["simd_width_measured"] = sorted({(v >> 16) & 0xFFFF for v in w})

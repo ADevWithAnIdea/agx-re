@@ -35,6 +35,7 @@ sys.path.insert(0, str(HERE))
 import carriers206 as C          # noqa: E402
 import locate206 as L            # noqa: E402
 import targets206 as T           # noqa: E402
+import models206 as M            # noqa: E402
 
 BIN = EXP / "work" / "bin"
 WORK = EXP / "work"
@@ -177,11 +178,18 @@ def main():
                         "occ": i, "occ_dim": row.get("dim"),
                         "src_mnemonic": row["src_mnemonic"],
                         "synthesized": synth}
+                # The arm's OWN baseline bucket: for the SYNTHESIZED mid-program
+                # stop the unswept program terminates and writes no value words,
+                # so its baseline is `dead`, not `correct`. A model that predicted
+                # `correct` there would be predicting the wrong thing.
+                base["baseline_bucket"] = "dead" if key.endswith("@synth_mid") \
+                    else "correct"
                 arms.append(dict(base, arm="%s@%s" % (key, tag),
                                  field=t["field"], start=start, width=width,
                                  values=list(t["values"]), force=force,
                                  force_note=t.get("force_note", ""),
                                  expect=expect_map(t, row), role="target",
+                                 models=M.predict(key, base, t["values"]),
                                  note=t["dimension"][:220]))
                 # ---- detection-power control at the SAME occurrence ----
                 ctl = t["control"]
@@ -219,11 +227,44 @@ def main():
                                      role="control",
                                      note="detection power: " + c2["why"][:200]))
 
+    # ---- FROZEN ARM SELECTION (contract amendment 5) --------------------------
+    # Keep only the target arms named in targets206.SELECT, and every CONTROL arm
+    # sitting at one of those same occurrences. Nothing else about an arm changes:
+    # value coverage per arm is untouched.
+    keep_occ = set()
+    kept = []
+    for a in arms:
+        if a.get("no_occurrence"):
+            continue
+        if a.get("role") == "target":
+            sel = T.SELECT.get(a["key"])
+            if sel is not None and (a["carrier"], a["off"]) not in sel:
+                continue
+            keep_occ.add((a["carrier"], a["region"], a["off"]))
+            kept.append(a)
+    seen_ctl = set()
+    for a in arms:
+        if a.get("role") in ("control", "control_termination") and \
+                (a["carrier"], a["region"], a["off"]) in keep_occ:
+            # De-duplicate: two targets at the SAME occurrence (e.g.
+            # pop_reconverge.scope and pop_reconverge.reserved) name the same
+            # control field, and dispatching it twice buys nothing.
+            if a["arm"] in seen_ctl:
+                continue
+            seen_ctl.add(a["arm"])
+            kept.append(a)
+    dropped = [a["arm"] for a in arms
+               if not a.get("no_occurrence") and a not in kept]
+    arms_all, arms = arms, kept
+
     doc = {"generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+           "selection": "targets206.SELECT (contract amendment 5)",
+           "arms_before_selection": len(arms_all),
+           "dropped_arms": dropped,
            "rule": "PRE_REGISTRATION.md section 4 (amended after census: bounded "
                    "resync acceptance, see CAPTURE_CONTRACT.json amendment 1)",
-           "arms": [a for a in arms if not a.get("no_occurrence")],
-           "no_occurrence": [a for a in arms if a.get("no_occurrence")]}
+           "arms": arms,
+           "no_occurrence": [a for a in arms_all if a.get("no_occurrence")]}
     out = EXP / "harness" / "arms206.json"
     out.write_text(json.dumps(doc, indent=1, sort_keys=True))
     ncase = sum(len(a["values"]) for a in doc["arms"])

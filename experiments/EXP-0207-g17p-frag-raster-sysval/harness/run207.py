@@ -490,7 +490,7 @@ def main():
             def raw_case(arcpath):
                 r = safe_request(runner, lambda: runner.request(
                     archive=arcpath, grid=arm["grid"], tg=arm["tg"], ins=ins,
-                    outs={0: nbytes_out, 4: nbytes_out}, timeout=REQ_TIMEOUT))
+                    outs={0: nbytes_out, 4: SP.CGRID * 4}, timeout=REQ_TIMEOUT))
                 if r["status"] != "OK" or 0 not in r["outs"] or 4 not in r["outs"]:
                     return None, r
                 sent = list(struct.unpack("<%dI" % SP.CGRID, r["outs"][4]))

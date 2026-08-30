@@ -35,6 +35,8 @@ FILES = ["PRE_REGISTRATION.md", "README.md", "run200.py",
          "harness/verify_remote200.py", "harness/arms200.json",
          "analysis/census200.py", "analysis/gen_arms200.py",
          "analysis/verdicts200.py", "analysis/contract200.py",
+         "analysis/ledger200.py", "analysis/reverse_arms.py",
+         "harness/arms187_reversed.json",
          "kernels/k_w200.metal"]
 # Target 1 is EXP-0187's apparatus carried in VERBATIM. Every one of these is
 # hashed here as well, and `harness/verify_remote200.py` additionally checks

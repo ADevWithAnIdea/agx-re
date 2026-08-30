@@ -1,0 +1,339 @@
+{
+  "experiment": "EXP-0199-g17p-instruction-level / AMENDMENT-01",
+  "frozen_utc": "2026-08-30T19:24:34Z",
+  "repo_revision_at_preregistration": "ff747ca3a2a526a8f96360846f1eeaed3fa26821",
+  "repo_dirty_files_at_preregistration": 14,
+  "note_on_revision": "CODEX/SUBAGENT_BRIEF: gate against THIS recorded revision, not live HEAD. Sibling experiments land continuously; HEAD moving is not contamination. Validity is decided by the authored-blob hashes below.",
+  "target": {
+    "name": "A18 Pro / G17P (the neo)",
+    "host": "192.168.170.254",
+    "device_name": "Apple A18 Pro",
+    "gpu_cores": 5,
+    "os": "macOS 26.6",
+    "kernel": "Darwin 25.6.0 xnu-12377.160.70.501.6~2 RELEASE_ARM64_T8140",
+    "clang": "Apple clang 21.0.0 (clang-2100.1.1.101)",
+    "python": "3.9.6",
+    "metal_support": "Metal 4",
+    "remote_workdir": "~/agxre/EXP-0199"
+  },
+  "clean_room": {
+    "category": "OWN-SHADER + HW-PROBE",
+    "inputs_inspected": "only MSL we authored (kernels/*.metal) and the AGX bytes the public Metal runtime produced from it",
+    "apple_binary_introspection": "NONE"
+  },
+  "authored_source_sha256": {
+    "kernels/k_line.metal": "cb669f6fde7abe924583e60eed4d76c96efc0748854c3b9d3ad2320a993c3fad",
+    "kernels/k_line2.metal": "3090e2f6fe9534f56806e2ff87cd9434a7375a3bc020903291dd4f4ccc77292d",
+    "kernels/k_line3.metal": "2d4d82d7a1af0ed8ada249336c6f549a7a2605c822f808a760808af964a47f8c",
+    "kernels/k_line4.metal": "0eccd8d8b516a105d329f44136f7363a5adc96e6b1a610e10e67caaaea84c330",
+    "kernels/k_sin.metal": "63b7b8dcd95c09ab40821103878ce2495f4b457a7b4a9db927afc34375eb725f",
+    "kernels/c_depth.metal": "717855ea9965977bdee33578c540c31f4b0625388b5256e1328b1e3ad8439075",
+    "kernels/c_vary4.metal": "058c3f61307ff13ecb144272bca148ac0f9055fc358f55afcad5b1343f0e741f",
+    "harness/crun199.m": "c779f66f1a0573e65ea27d2cc23c322a1df92a4149972aa5e1c70c23d892c8a0",
+    "harness/gfrun5.m": "99ea00eed79ff65892206dc87bebdc7f172240f2495587ed42e4a1e8b3e97e27",
+    "harness/runner199.py": "49a14aeb6e7a1036481637fb84c194f7a232a41cfef6d6120133e50efa1885cb"
+  },
+  "frozen_archive_sha256": {
+    "work/k_line.bin": "7c58b43a7b7c97cf3cabc817981c920c50241bf18d19018113f6da7b805e9d47",
+    "work/k_line3.bin": "083abc2aba19adaa64fefd0bea9dbc510bd001d12ffdfa42723e14cf76077286",
+    "work/c_depth.bin": "ebc6bded3c6e16a67469d221be992aace868dd88224360c7e1f670ff1f62ce35",
+    "work/c_vary4.bin": "af857b60f6342c89caf4e0d24f6a36398d7e4810f86060d87d595091946d565d",
+    "work/k_line_in.bin": "b1c175d1d78d79d86ad799c61fdabbd1ef6d54c563c9e788c2e327287b71cd6e",
+    "work/c_depth2.bin": "b695221429aeb73afa99c004235b816c354b604e4ed28ef31f891f203fdeb4dd"
+  },
+  "archive_reuse_rule": "Both gated runs use these EXACT archive files. A run whose archive hash differs is INVALID and is retained, not repaired.",
+  "carriers": {
+    "k_line3": {
+      "kind": "compute",
+      "function": "k_line3",
+      "grid": 32,
+      "tg": 32,
+      "archive": "work/k_line3.bin",
+      "main_off": 7392,
+      "main_len": 122,
+      "zero_pad_after_main": 6,
+      "in_buffer": "work/k_line_in.bin (32 uints, a[i] = (0x9E3779B9*(i+1)) mod 2^32)",
+      "out_bytes": 512,
+      "oracle": "o[i] = (((a[i]*3 + i*7 + 11) mod 2^32) XOR 0x13579BDF) + 0x2468ACE0 mod 2^32, i in 0..31; o[64+i] = 0xA5A50000+i (sentinel); o[32..63] and o[96..127] must remain 0xDEADBEEF poison",
+      "instruction_boundaries": [
+        0,
+        4,
+        14,
+        24,
+        38,
+        52,
+        62,
+        74,
+        84,
+        94,
+        104,
+        118
+      ],
+      "insertion_boundaries_used": [
+        38,
+        52,
+        62,
+        74,
+        84,
+        94,
+        104
+      ],
+      "max_insertion_bytes": 6
+    },
+    "c_depth": {
+      "kind": "render",
+      "vertex": "v_main",
+      "fragment": "f_main",
+      "archive": "work/c_depth.bin",
+      "frag_main_off": 14064,
+      "frag_main_len": 208,
+      "zero_pad_after_main": 0,
+      "color_format": 125,
+      "width": 16,
+      "height": 16,
+      "depth": true,
+      "depth_clear": 1.0,
+      "depth_compare": 7,
+      "clear_color": [
+        0.75,
+        0.75,
+        0.75,
+        0.75
+      ],
+      "anchor_frag_depth_store_off": 168,
+      "anchor_frag_depth_store_bytes": "d71454000003",
+      "anchor_n2_op6_offs": [
+        48,
+        88,
+        104
+      ],
+      "oracle": "DEPTH(x,y) = interpolated v0; PIX0.r(x,y) = 0.5 + 0.25*v0 -> DEPTH == (PIX0.r-0.5)*4 exactly, at three probe pixels with three DISTINCT values"
+    },
+    "c_vary4": {
+      "kind": "render",
+      "vertex": "v_main",
+      "fragment": "f_main",
+      "archive": "work/c_vary4.bin",
+      "vtx_main_off": 12800,
+      "vtx_main_len": 172,
+      "zero_pad_after_main": 4,
+      "color_format": 125,
+      "width": 16,
+      "height": 16,
+      "clear_color": [
+        0.75,
+        0.75,
+        0.75,
+        0.75
+      ],
+      "anchor_vary_slot_off": 28,
+      "anchor_vary_slot_bytes": "000c4000",
+      "anchor_vary_store_offs": [
+        104,
+        112,
+        120,
+        128,
+        136,
+        144,
+        152,
+        160
+      ],
+      "anchor_vary_store_outslot_byte": 4,
+      "oracle": "PIX0 = (1000, 2000, 3000, 4000) at every covered pixel"
+    },
+    "c_depth2": {
+      "kind": "render",
+      "vertex": "v_main",
+      "fragment": "f_main",
+      "archive": "work/c_depth2.bin",
+      "frag_main_off": 14576,
+      "frag_main_len": 226,
+      "zero_pad_after_main": 0,
+      "color_format": 125,
+      "width": 16,
+      "height": 16,
+      "depth": true,
+      "depth_clear": 1.0,
+      "depth_compare": 7,
+      "clear_color": [
+        0.75,
+        0.75,
+        0.75,
+        0.75
+      ],
+      "anchor_frag_depth_store_off": 186,
+      "anchor_frag_depth_store_bytes": "d71454000003",
+      "role": "ADVERSARIAL SECOND CARRIER for arm A (Phase 5): depth is a DECREASING function of a DIFFERENT varying, colour carries a THIRD varying, two varyings are interpolated instead of one.",
+      "oracle": "DEPTH(x,y) = 0.9 - 0.5*v1 ; PIX0.g = 0.125 + 0.5*v1  ->  DEPTH == 0.9 - (PIX0.g - 0.125) exactly"
+    }
+  },
+  "probe_pixels": [
+    [
+      8,
+      8
+    ],
+    [
+      5,
+      10
+    ],
+    [
+      11,
+      5
+    ]
+  ],
+  "readback_poison": "0xDEADBEEF, applied by BOTH runners to every read-back surface before every dispatch",
+  "raw_record_schema": {
+    "file": "raw/<run_id>/sweep.jsonl (one JSON object per case, appended and flushed immediately)",
+    "keys": [
+      "arm",
+      "case",
+      "kind",
+      "order_index",
+      "instr",
+      "field",
+      "value",
+      "site",
+      "role",
+      "carrier",
+      "splice",
+      "req_bytes",
+      "actual",
+      "ledger",
+      "prediction",
+      "outcome",
+      "observed",
+      "status",
+      "errdom",
+      "error",
+      "restarts",
+      "foreign_retries",
+      "t"
+    ],
+    "outcome_domain_compute": [
+      "ok",
+      "wrong_value",
+      "zero",
+      "halted_poison",
+      "never_ran",
+      "fault",
+      "hang",
+      "measurement_failed"
+    ],
+    "outcome_domain_render": [
+      "ok",
+      "depth_moved",
+      "color_moved",
+      "both_moved",
+      "tile_discarded",
+      "poison",
+      "fault",
+      "hang",
+      "measurement_failed"
+    ],
+    "observed_render_keys": [
+      "col",
+      "dep",
+      "ph",
+      "dh",
+      "n_pix_diff",
+      "col_r_hist",
+      "n_dep_diff",
+      "dep_hist"
+    ],
+    "note": "AMENDED before the amendment's first GATED dispatch (only raw/g17p_confsmoke, retained, ran before this): render cases now also record the EXACT number of differing pixels on each surface and a value histogram, so a semantic claim quotes numerators rather than a hash inequality. The full baseline surfaces are retained once per run."
+  },
+  "timeouts_seconds": {
+    "compute_request": 20,
+    "render_request": 25,
+    "child_ready": 120,
+    "ssh_wrapper": 5400
+  },
+  "watchdog": "runner199.py: ONE pump thread per child tagged by owner (DEF-0178-1). A timeout restarts the child and is recorded as hang; a truncated/unparseable response is recorded MALFORMED = measurement_failed and is EXCLUDED from agreement and from values_dispatched.",
+  "hang_policy": {
+    "known_hazards_excluded": [
+      "insert the 2-byte word 01 00 at any k_line boundary -- 5/5 GPU HANGS in prefreeze pilot02; excluded from the frozen matrix and reported as a hazard finding",
+      "frame_marker_compact b1 in {3,7} -- EXP-0172 recorded device hangs on four of five carriers; excluded from the 2-byte-form subset"
+    ],
+    "per_arm_budget": 6,
+    "on_budget_exceeded": "STOP that arm, mark it PARTIAL, record it"
+  },
+  "gate": {
+    "runs_required": 2,
+    "per_value_cross_run_agreement": ">= 0.99",
+    "movement_rule": "moved >= 2.0 * disagree AND moved > 0  (NOT max(disagree,1) -- see FIELD-SWEEP-PROTOCOL sec.5b: the max() form cannot promote a width-1 field by arithmetic)",
+    "measurement_failure_ceiling": 0.01,
+    "health_check_every_n_cases": 200,
+    "health_check_rule": "an unspliced request must reproduce the frozen baseline; a divergence marks every case after it CONTAMINATED"
+  },
+  "amends": "CAPTURE_CONTRACT.json (retained unchanged); runs g17p_run01*/g17p_run02*/smoke01/prefreeze are RETAINED as DISCOVERY and are not re-run",
+  "normative_source": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (user-added 2026-08-30); overrides the original gates where they conflict",
+  "repo_revision_at_amendment": "2616a3c2f1a769a1ff69ae391a195108a2f5748a",
+  "authored_source_md5_amendment01": {
+    "harness/crun199.m": "5afd9cbd59daa2e260980ea3138d836e",
+    "harness/gfrun5.m": "96b01045aeca3fa86ec36ae47cb55d10",
+    "harness/runner199.py": "acf09918d8d2a61e26ae8a937b23d233",
+    "kernels/c_depth2.metal": "ef138a077bdc2c1fc7c54c0629a80b5e",
+    "analysis/predictor.py": "723f83471f09fe4e5011db3f83f2791d",
+    "conf.py": "6c551403630fa2847be8faecba772f2a"
+  },
+  "harness_change": "crun199.m and gfrun5.m gain --ledger <off>:<len>, which prints `ACTUAL <off> <hex>` from the spliced file RE-READ FROM DISK, i.e. the exact bytes handed to newLibraryWithURL:. Nothing else changed; every pre-existing response line is produced under identical conditions.",
+  "gate_A_ledger": {
+    "windows": {
+      "c_depth": [
+        14232,
+        8
+      ],
+      "c_depth2": [
+        14762,
+        8
+      ],
+      "c_vary4": [
+        12828,
+        8
+      ],
+      "k_line3_insert": "off3+B, 8 bytes, B per case"
+    },
+    "assertion": "req_value == value decoded independently from ACTUAL bytes AND actual_bytes[0:len(req_bytes)] == req_bytes",
+    "on_failure": "outcome=invalid_ledger; excluded from every tally",
+    "not_this_gate": "a symmetric assemble/disassemble round trip"
+  },
+  "gate_C_models": {
+    "A": [
+      "M_A1 depth-attachment store",
+      "M_A2 fixed-function position.z",
+      "M_A3 general selectable tile store",
+      "M_A4 carrier artefact"
+    ],
+    "B": [
+      "M_B1 slot selector (db.json)",
+      "M_B2 bit-2 enable",
+      "M_B3 fully inert",
+      "M_PC out_slot == index<<5 (positive control)"
+    ],
+    "CD": [
+      "M_len2",
+      "M_len4",
+      "M_notinstr"
+    ],
+    "E": [
+      "none -- semantics declared unknown in advance; sem_checked == 0"
+    ],
+    "buckets": [
+      "correct_effect",
+      "coherent_alternative",
+      "silent_zero_or_no_write",
+      "rejected",
+      "invalid"
+    ],
+    "predictions_written_before_outputs_read": "analysis/predictions_<run_id>.json"
+  },
+  "gate_E_confirmation": {
+    "runs": [
+      "g17p_conf01 (shuffled, seed 20260830)",
+      "g17p_conf02 (reversed order)"
+    ],
+    "quiet_machine": false,
+    "why": "eight or nine agents share this device by standing policy; there is no lease and FIELD-SWEEP-PROTOCOL sec.7 forbids reinstating one",
+    "substitute": "concurrency MEASURED into raw/<run>/concurrency.jsonl, and every non-ok case adjudicated OFFLINE from the 0xDEADBEEF poison and the independent sentinels (EXP-0160 filter)"
+  }
+}

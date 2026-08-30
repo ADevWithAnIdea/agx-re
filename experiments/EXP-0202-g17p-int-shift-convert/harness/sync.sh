@@ -29,7 +29,7 @@ push)
       "$EXP/$d/" "$USER_@$NEO:agxre/EXP-0202/$d/"
   done
   sshpass -e rsync -az -e "ssh ${SSHOPT[*]}" \
-      "$EXP/run.py" "$USER_@$NEO:agxre/EXP-0202/"
+      "$EXP/run.py" "$EXP/run2.py" "$USER_@$NEO:agxre/EXP-0202/"
   if [ -f "$EXP/CAPTURE_CONTRACT.json" ]; then
     sshpass -e rsync -az -e "ssh ${SSHOPT[*]}" \
       "$EXP/CAPTURE_CONTRACT.json" "$USER_@$NEO:agxre/EXP-0202/"
