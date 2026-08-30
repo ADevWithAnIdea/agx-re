@@ -59,6 +59,15 @@ evidence. You are proving an emitter can choose a value and get the documented b
 > recorded a cascade of hangs after a first real one may have a tail of artefacts** — EXP-0163 alone
 > recorded 88 non-OK cases, most hangs by design.
 >
+> **WIDENED 2026-08-30 — a REAL hang is not required to start the cascade; a mere WATCHDOG TIMEOUT is
+> enough.** EXP-0178 verified by hand, outside the harness, that its pre-registered hang candidate is
+> not a hang at all: clearing byte0 bit 2 of a `get_sr` anchor runs clean on G17P with `STATUS OK`,
+> `GPUTIME_NS 5000` and the integrity sentinel written. **All four "hangs" in its pilots were
+> manufactured by the reader-thread defect on a case the hardware handles without complaint.** So the
+> suspect set is not "experiments that hit a real hang" but **any experiment whose runner ever timed
+> out** — a far larger set. Treat a hang cascade as unproven until re-measured on a runner with a
+> per-child reader thread.
+>
 > Until the shared tool is fixed: **one reader thread per child, tagged by owner**, and **record a
 > malformed response as a MEASUREMENT FAILURE with the raw lines kept — never as a hang.** A malformed
 > response is not an observation and must not be scored as one. EXP-0178's `harness/saferunner.py` is

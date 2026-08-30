@@ -59,7 +59,14 @@ class PersistRunner:
     # request including the unspliced health check, and three consecutive cases
     # were recorded `hang` with restarts=99 -- all false.
     #
-    # THE FIRST HANG CAN THEREFORE SILENTLY MANUFACTURE EVERY HANG AFTER IT, and a
+    # WIDENED: a REAL hang is not required. EXP-0178 verified by hand, outside the
+    # harness, that its pre-registered hang candidate runs CLEAN on G17P -- STATUS OK,
+    # GPUTIME_NS 5000, sentinel written -- so all four "hangs" in its pilots were
+    # manufactured by this defect on a case the hardware handles fine. A mere WATCHDOG
+    # TIMEOUT is enough, so the suspect set is any experiment whose runner ever timed
+    # out, not merely those that hit a real hang.
+    #
+    # THE FIRST TIMEOUT CAN THEREFORE SILENTLY MANUFACTURE EVERY HANG AFTER IT, and a
     # false hang is indistinguishable from real inertness in a summary. Any sweep
     # that hits a genuine hang and then reports a cascade should be treated as
     # suspect past the first one.
