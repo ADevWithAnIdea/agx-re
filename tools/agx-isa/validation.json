@@ -3048,7 +3048,7 @@
     "evidence": [
      "EXP-0184"
     ],
-    "note": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field values, every arm's control firing",
+    "note": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field values, every arm's control firing \u26a0 THE BASIS OF THIS DECLINE IS NOW KNOWN TO BE CARRIER-LIMITED (EXP-0188). EXP-0184 measured 0/256 across 10 occurrences at nesting depth 1-3 with every control firing, and stated its own limitation: the loop-iteration (`0x1a`) region kind was never reached, every push its compiler emitted being `0f 05 54 01`. EXP-0188 BUILT that carrier \u2014 six loop carriers all emit `scope_kind == 0x1a`, four emit both `0x54` and `0x56` \u2014 and **the field MOVES there: at four `0x1a` occurrences, 0x00 and 0x54 FAULT while 0x56 and 0xFF are correct**, consistent with bit 1 being live. So db.json's `0x54`/`0x56` nesting-parity claim is a REAL SEMANTIC, not an annotation. Not promoted because EXP-0188 never reached a gated pair (device wedge) and this is calibration only \u2014 but the field is NOT a don't-care, and the sixth `single-template-inference` decline of the day to be overturned by a carrier differing in the dimension the field controls.",
     "values_dispatched": 256,
     "distinct_bytes": 2560,
     "encodable_range": 256,
@@ -7334,7 +7334,8 @@
      "EXP-0036",
      "EXP-M4-12",
      "EXP-M4-13"
-    ]
+    ],
+    "note": "\u26a0 BOUNDED NEGATIVE, not an untested field (EXP-0187). **31 constructs authored and compiled across 12 cube / cube-array shapes** \u2014 sample, array, nearest, LOD, gradientcube, bias, both gathers, depth-cube-array compare, half, read, dynamic index \u2014 with **0 signature hits and 0 walk hits**. Treat this opcode as UNBUILDABLE FROM MSL rather than as a field awaiting a sweep; a successor needs a different provocation route, not a bigger sweep."
    }
   },
   "tg_addr_compute": {
@@ -10296,7 +10297,8 @@
      "EXP-0036",
      "EXP-M4-12",
      "EXP-M4-13"
-    ]
+    ],
+    "note": "\u26a0 A CARRIER NOW EXISTS. Prior censuses recorded 0 occurrences across 24 carriers and the field was declined on that measured basis \u2014 but **all 24 were COMPUTE kernels and this op is MESH-STAGE ONLY**. EXP-0187 emitted it on a `mesh_wide` mesh-stage program with one walk-confirmed occurrence: the first carrier ever found. The 'no carrier exists' reading was the census's blind spot, not the hardware's. Sweepable by a successor."
    }
   },
   "isel8": {
@@ -10980,14 +10982,12 @@
    },
    "dst": {
     "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "range": "\u26a0 THE 'no value semantics' TEXT IS REFUTED. One complete gated run on G17P, three carriers, dense 256/256 each: **fault \u27fa (dst & 0b110) == 0b100 \u2014 64 of 256 values fault the command buffer with ErrorHang**, identical on two INDEPENDENT carriers (committed-triangle and instancing paths), verified in both directions (every fault satisfies the rule; no clean value does). The other 192 return the correct ray-query answer, and all 256 still re-decode as `n4_rt_word`, so this is not the sweep encoding a different instruction.",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0187"
     ],
-    "note": "Length/framing token. Value bits deliberately NOT decoded (clean-room rule 5: no SFU range-reduction / marshalling recipe)."
+    "note": "Label held at `tokenization-only` ONLY because the gated PAIR did not complete \u2014 EXP-0187 lost its second run to the device wedge and its summary script is hard-coded so it cannot promote. The FAULT RULE is nonetheless established and an emitter must respect it. NOTE FOR ANY SUCCESSOR: the strongest control available (`if_push.scope_kind` at off+4, the only same-program-point control) did NOT fire, and neither did 96 whole-word liveness probes on the two MATCH bytes \u2014 while `dst` bit 2 was faulting the GPU. A liveness probe built on match bytes returns a confident FALSE NEGATIVE here. EXP-0187, one gated pair from a verdict."
    }
   },
   "n1_word": {
