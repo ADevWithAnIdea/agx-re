@@ -39,35 +39,45 @@ Work under **`~/agxre/<EXP-NNNN>/`** on the neo. Rebuild binaries there rather t
 
 Do not read or modify anything on the neo outside your own working directory.
 
-## GPU lease — REQUIRED for every device run
+## Concurrency: run in parallel by default; the lease is for hang-prone work ONLY
 
-One GPU, many agents. On the M4 concurrent sweeps contaminated each other badly: EXP-0139 measured
-**44% of gated-run faults failing to reproduce**, and without mitigation **692 legal field values
-would have been labelled `fault`**. That is now solved by serialization rather than by limiting how
-many agents exist.
+**Default: DO NOT take a lease. Run concurrently.** The GPU has many hardware contexts and they
+isolate ordinary work correctly. Serializing every sweep would make an 8-agent wave effectively
+single-threaded for no benefit.
 
-**`~/agxre/gpulease.sh` (source: `tools/gpulease.sh`) — wrap every GPU-touching command:**
+**What breaks isolation is a GPU *hang*, not concurrency.** A hang triggers a device-level reset,
+and that reset kills in-flight command buffers in *other* contexts. That is the recovery mechanism
+behaving correctly — and crucially, **the driver tells you it happened**:
 
-```sh
-~/agxre/gpulease.sh EXP-0154 900 -- <your command>
-```
+> `kIOGPUCommandBufferCallbackErrorInnocentVictim` — "Discarded (victim of GPU error/recovery)"
 
-- `EXP-NNNN` is your holder name, so a stuck lease is attributable.
-- Second argument is how long you will wait for the lease before giving up (exit **75**).
-- Atomic via `mkdir` (macOS has no `flock`). Leases older than **15 minutes are broken
-  automatically**, so a killed agent cannot deadlock the device.
-- Releases on EXIT/INT/TERM.
+**Contamination is therefore 100% detectable, never silent.** EXP-0139's numbers: 1,552 victim
+attempts against 2,656 genuine `…ErrorHang` and 50 `…ErrorPageFault`; **44% of gated-run faults did
+not reproduce**; and after re-validation only **3 of 29,685 cases** were genuinely
+nondeterministic. EXP-0144's revalidation reached a **0.02% hang rate** purely by re-running
+victims — no lease involved.
 
-**Hold the lease for a batch, not for each dispatch** — take it once around a whole sweep run, not
-once per case, or you will spend all your time queueing. Conversely do **not** hold it across
-analysis or file transfer; release, think, re-acquire.
+### The rule
 
-If you get exit 75, another agent has the device. Back off and retry; do not force it, and do not
-delete `/tmp/agx_gpu.lock` by hand — the staleness rule already handles genuinely dead holders.
+1. **Run your bulk sweep concurrently, unlocked.** Most cases never hang.
+2. **Record the OS fault-classification string on every non-`ok` case.** This is what makes the
+   scheme work — a victim is identifiable, so it is re-runnable.
+3. **Never conclude `fault` from one observation.** Re-run every `fault`/`hang`/victim case;
+   majority-of-3 minimum. This alone recovers essentially all contamination.
+4. **Take the lease ONLY around work you have reason to believe HANGS**, because a hang harms
+   every other agent on the device:
+   ```sh
+   ~/agxre/gpulease.sh EXP-NNNN 900 -- <the hang-prone sweep>
+   ```
+   Known hang-prone: `fspecial` byte+3 ≥ 192 (EXP-0138, three reproducible hangs); control-flow
+   displacement sweeps (EXP-0128 stopped after two); `atomic_tg` byte+5 `0x7E`/`0x7F` (EXP-0141);
+   `min_lod_clamp`, which took the compiler service down machine-wide on G16G (EXP-0106); and any
+   arm that has already hung once for you.
+5. **Also take it while re-validating**, so your re-runs are not themselves victims.
 
-§7's mitigations still apply *inside* your lease (majority-of-3 on faults, fault-class strings,
-baseline re-validation, integrity sentinel, poisoned read-back buffer). The lease removes
-*cross-agent* interference; it does not remove the hardware's own nondeterminism.
+Lease mechanics: atomic via `mkdir` (macOS has no `flock`), stale leases broken after 15 minutes,
+releases on EXIT/INT/TERM, exit **75** on timeout. Hold it around a batch, never per case, never
+across analysis or file transfer.
 
 ## Recovery
 
