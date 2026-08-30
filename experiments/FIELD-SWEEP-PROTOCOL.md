@@ -133,6 +133,24 @@ Append one JSON object per case to `raw/<run_id>/sweep.jsonl`, flushed immediate
 
 ## 5. Verdict per field
 
+> **PITFALL — an INERTNESS verdict needs a detection-power conjunct, or it cannot fail either.**
+> DEF-0190-1: an arm whose observable never varies returns `moved = 0` **by construction**, and a
+> classifier that reads `moved == 0` as "the field is inert" will certify it. Measured across this
+> corpus: **8 arms record no observation at all, and 128 arms — 80,138 field records — record
+> exactly ONE distinct `observed` payload across every case.** 21 fields rested entirely on such
+> arms and 5 held emitter-grade status through it.
+>
+> This is the mirror of the promotion-gate defect one section down: there a gate could not refuse,
+> here a gate cannot doubt. **Both are the same error — a check that cannot come out the other way.**
+> Ten distinct instances have now been found in this corpus.
+>
+> **The remedy needs no hardware and is already in the raw:** the `_detect`, `__ladder_L_*` and
+> `_live_control` records. Consume them as a **gate on INERT verdicts** — an arm that cannot show
+> its observable moving for a known-live control cannot establish that anything else is inert —
+> rather than as measurements in their own right.
+>
+## 5. Verdict per field
+
 > **PITFALL — a gate written `moved >= 2.0 * max(disagree, 1)` CANNOT promote any width-1 field.**
 > The rule is `moved >= 2.0 * disagree, AND moved > 0`. A 1-bit field has at most one value that can
 > differ from its own baseline, so the `max(..., 1)` form demands `moved >= 2` and refuses every such

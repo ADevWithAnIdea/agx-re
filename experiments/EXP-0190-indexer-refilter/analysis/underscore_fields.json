@@ -1,0 +1,3575 @@
+{
+ "_meta": {
+  "control_shaped_names": [
+   "_detect"
+  ],
+  "counts": {
+   "CONTROL-SHAPED": 1,
+   "FIELD-SWEEP": 14,
+   "SCAFFOLDING": 81
+  },
+  "experiment": "EXP-0190-indexer-refilter",
+  "field_sweep_names": [
+   "__2d_desc_lo",
+   "__2d_desc_mul",
+   "__dst_nibble",
+   "__len_b2",
+   "__len_b4",
+   "__lut2d",
+   "__raw_b0",
+   "__raw_b2",
+   "_b1_match",
+   "_b2_match",
+   "_b3_match",
+   "_byte0_hi",
+   "_match_b1",
+   "_match_b2"
+  ],
+  "n_names": 96,
+  "n_names_whose_classification_can_change_anything": 18,
+  "n_records": 28736,
+  "rule": "PRE_REGISTRATION.md section 4; hand-classified, one row per distinct name, no default bucket"
+ },
+ "names": {
+  "_ANCHOR_VERDICT": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {
+    "n2_op6.dst": 8,
+    "n2_op6.imm_sel": 8,
+    "n2_op6.opA": 8,
+    "n2_op6.opB": 8,
+    "n2_op6.opsel": 7,
+    "n2_op6.src_desc": 8,
+    "op04_len8.body": 5,
+    "op04_len8.mode": 5,
+    "ray_move.b3": 2,
+    "ray_move.dst": 2,
+    "ray_move.src": 2,
+    "ray_move_copy6.dst": 4,
+    "ray_move_copy6.src": 4,
+    "ray_move_zero6.dst": 4,
+    "ray_move_zinit.dst": 2,
+    "rtq_dualsrc.opA": 6,
+    "rtq_dualsrc.opB": 6,
+    "rtq_state_move.dst": 5,
+    "rtq_state_move.src": 8,
+    "sr_read_wide.dst": 11,
+    "sr_read_wide.marshal": 9,
+    "sr_read_wide.operand": 4,
+    "sr_read_wide.phase": 10,
+    "sr_read_wide.sel": 11,
+    "sr_read_wide.width": 11
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0157/harness/run.py:503 field='_ANCHOR_VERDICT', value=int(bool(live))",
+   "example_group": {
+    "arm": "rq_cdist|R",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "0481060000000000",
+     "24a1060000000000",
+     "44800200100c0100",
+     "44802200100c0100"
+    ],
+    "experiment": "EXP-0157-g17p-emit-misc",
+    "fields_hit": [
+     "dst",
+     "marshal",
+     "operand",
+     "phase",
+     "sel",
+     "width"
+    ],
+    "instr": "sr_read_wide",
+    "n": 12,
+    "run": "g17p_reval03"
+   },
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 541
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_bbox01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_reval02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_reval03/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "h_coord_hi": 7,
+    "h_coord_hi_ext": 3,
+    "n2_op6": 36,
+    "n3_mov": 4,
+    "op04_len8": 16,
+    "ray_move": 32,
+    "ray_move_copy6": 43,
+    "ray_move_zero6": 28,
+    "ray_move_zinit": 18,
+    "rtq_dualsrc": 64,
+    "rtq_pred": 51,
+    "rtq_state_move": 90,
+    "scoreboard_fence": 4,
+    "sfu_marker": 10,
+    "sr_read_wide": 135
+   },
+   "n_distinct_values": 2,
+   "n_groups": 94,
+   "n_groups_bytes_vary": 50,
+   "n_records": 541,
+   "n_runs": 11,
+   "outcomes": {
+    "inert_or_unreached": 403,
+    "live": 138
+   },
+   "reason": "the VALUE is a boolean verdict ('LIVE iff L1 or L2 moved the output off baseline'), not a value written into the encoding. 50 of 94 groups nevertheless vary their bytes -- because one group spans several ANCHORS -- so the structural test alone would have promoted a pure bookkeeping record. This is the clearest reason the classification must be by intent as well as by structure."
+  },
+  "_ERASE16": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 7
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_reach01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "rtq_dualsrc": 3,
+    "rtq_pred": 3,
+    "sr_read_wide_LIVECTRL": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 6,
+    "silent_zero": 1
+   },
+   "reason": "zero-erase probe, 16-byte window."
+  },
+  "_ERASE256": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 7
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_reach01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "rtq_dualsrc": 3,
+    "rtq_pred": 3,
+    "sr_read_wide_LIVECTRL": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 1,
+   "outcomes": {
+    "not_written": 1,
+    "ok": 6
+   },
+   "reason": "zero-erase probe, 256-byte window."
+  },
+  "_ERASE4": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157 (generated name; reachprobe.py:37 documents it)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 7
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_reach01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "rtq_dualsrc": 3,
+    "rtq_pred": 3,
+    "sr_read_wide_LIVECTRL": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 6,
+    "silent_zero": 1
+   },
+   "reason": "zero-erase reachability probe over a 4-byte window; no varying group."
+  },
+  "_ERASE64": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 7
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_reach01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "rtq_dualsrc": 3,
+    "rtq_pred": 3,
+    "sr_read_wide_LIVECTRL": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 6,
+    "silent_zero": 1
+   },
+   "reason": "zero-erase probe, 64-byte window."
+  },
+  "_INERT4": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 1
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_fence01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "scoreboard_fence": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1,
+   "n_runs": 1,
+   "outcomes": {
+    "silent_zero": 1
+   },
+   "reason": "inert 4-byte control; single record."
+  },
+  "_L1_opcode_group": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {
+    "n2_op6.dst": 8,
+    "n2_op6.imm_sel": 8,
+    "n2_op6.opA": 8,
+    "n2_op6.opB": 8,
+    "n2_op6.opsel": 7,
+    "n2_op6.src_desc": 8,
+    "op04_len8.body": 5,
+    "op04_len8.mode": 5,
+    "ray_move.b3": 2,
+    "ray_move.dst": 2,
+    "ray_move.src": 2,
+    "ray_move_copy6.dst": 3,
+    "ray_move_copy6.src": 3,
+    "ray_move_zero6.dst": 3,
+    "ray_move_zinit.dst": 2,
+    "rtq_dualsrc.opA": 5,
+    "rtq_dualsrc.opB": 5,
+    "rtq_state_move.dst": 5,
+    "rtq_state_move.src": 7,
+    "sr_read_wide.dst": 10,
+    "sr_read_wide.marshal": 8,
+    "sr_read_wide.operand": 3,
+    "sr_read_wide.phase": 9,
+    "sr_read_wide.sel": 10,
+    "sr_read_wide.width": 10
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0157/harness/cases.py:127 {'field':'_L1_opcode_group','value':ibytes[0]^0x01}",
+   "example_group": {
+    "arm": "rq_cdist|R",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "0581060000000000",
+     "25a1060000000000",
+     "45800200100c0100",
+     "45802200100c0100"
+    ],
+    "experiment": "EXP-0157-g17p-emit-misc",
+    "fields_hit": [
+     "dst",
+     "marshal",
+     "operand",
+     "phase",
+     "sel",
+     "width"
+    ],
+    "instr": "sr_read_wide",
+    "n": 12,
+    "run": "g17p_run02"
+   },
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 479
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_bbox01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "h_coord_hi": 6,
+    "h_coord_hi_ext": 3,
+    "n2_op6": 34,
+    "n3_mov": 3,
+    "op04_len8": 16,
+    "ray_move": 32,
+    "ray_move_copy6": 31,
+    "ray_move_zero6": 21,
+    "ray_move_zinit": 18,
+    "rtq_dualsrc": 53,
+    "rtq_pred": 43,
+    "rtq_state_move": 83,
+    "scoreboard_fence": 3,
+    "sfu_marker": 10,
+    "sr_read_wide": 123
+   },
+   "n_distinct_values": 33,
+   "n_groups": 83,
+   "n_groups_bytes_vary": 45,
+   "n_records": 479,
+   "n_runs": 9,
+   "outcomes": {
+    "fault": 64,
+    "not_written": 10,
+    "ok": 350,
+    "silent_zero": 28,
+    "wrong_value": 27
+   },
+   "reason": "rung 1 of the two-rung liveness ladder: ONE fixed mutation (byte0 xor 1) per anchor, used only to decide whether the anchor is live. Not a sweep; the 45/83 groups that 'vary' do so across anchors."
+  },
+  "_L2_erase": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157/harness/cases.py:131 {'field':'_L2_erase','value':0}",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 479
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_bbox01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_raymove02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run01/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run02/sweep.jsonl",
+    "EXP-0157-g17p-emit-misc/raw/g17p_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "h_coord_hi": 6,
+    "h_coord_hi_ext": 3,
+    "n2_op6": 34,
+    "n3_mov": 3,
+    "op04_len8": 16,
+    "ray_move": 32,
+    "ray_move_copy6": 31,
+    "ray_move_zero6": 21,
+    "ray_move_zinit": 18,
+    "rtq_dualsrc": 53,
+    "rtq_pred": 43,
+    "rtq_state_move": 83,
+    "scoreboard_fence": 3,
+    "sfu_marker": 10,
+    "sr_read_wide": 123
+   },
+   "n_distinct_values": 1,
+   "n_groups": 83,
+   "n_groups_bytes_vary": 0,
+   "n_records": 479,
+   "n_runs": 9,
+   "outcomes": {
+    "fault": 13,
+    "not_written": 16,
+    "ok": 399,
+    "silent_zero": 17,
+    "wrong_value": 34
+   },
+   "reason": "rung 2 of the same ladder -- zero the instruction and see whether anything moves. Single value, no group varies its bytes."
+  },
+  "_ZERO4": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 1
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/g17p_fence02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "scoreboard_fence": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1,
+   "n_runs": 1,
+   "outcomes": {
+    "wrong_value": 1
+   },
+   "reason": "zeroed 4-byte control; single record."
+  },
+  "__2d_desc_lo": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "imad.srcB": 2,
+    "imad.srcC_desc": 2
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0160/harness/casematrix.py:171 emit(field='__2d_desc_lo', value=(d<<8)|x)",
+   "example_group": {
+    "arm": "SYNTH+LIFTED:k_imad@imad[32:44]|IMAD_SRCC",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "9f00560002080000d02e0a00",
+     "9f00560002080008d02e0a00",
+     "9f0056000208000cd02e0a00",
+     "9f00560002080010d02e0a00"
+    ],
+    "experiment": "EXP-0160-g17p-last-field",
+    "fields_hit": [
+     "srcB",
+     "srcC_desc"
+    ],
+    "instr": "imad",
+    "n": 264,
+    "run": "g17p_20260830_run01"
+   },
+   "experiments": {
+    "EXP-0160-g17p-last-field": 528
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "imad": 528
+   },
+   "n_distinct_values": 132,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 2,
+   "n_records": 528,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 48,
+    "wrong_value": 480
+   },
+   "reason": "2-D sweep, 12 srcC_desc points x 11 srcC_lo points on imad; EXP-0160's verdicts.py:788 cites it as the evidence for the srcC split."
+  },
+  "__2d_desc_mul": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "imad.mulsel": 2,
+    "imad.srcC_desc": 2
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0160/harness/casematrix.py:175 emit(field='__2d_desc_mul', value=(d<<8)|x)",
+   "example_group": {
+    "arm": "SYNTH+LIFTED:k_imad@imad[32:44]|IMAD_SRCC",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "9f00560002080000002e0a00",
+     "9f00560002080000102e0a00",
+     "9f00560002080000402e0a00",
+     "9f00560002080000502e0a00"
+    ],
+    "experiment": "EXP-0160-g17p-last-field",
+    "fields_hit": [
+     "mulsel",
+     "srcC_desc"
+    ],
+    "instr": "imad",
+    "n": 192,
+    "run": "g17p_20260830_run01"
+   },
+   "experiments": {
+    "EXP-0160-g17p-last-field": 384
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "imad": 384
+   },
+   "n_distinct_values": 96,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 2,
+   "n_records": 384,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 128,
+    "wrong_value": 256
+   },
+   "reason": "2-D sweep, 12 srcC_desc points x 8 mulsel points on imad; cited by EXP-0160/analysis/verdicts.py:808."
+  },
+  "__baseline": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0161/harness/cases.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0161-g17p-carry-fspecial": 32
+   },
+   "files_sample": [
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_danger01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp02/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "carry_gen": 4,
+    "fspecial": 7,
+    "fspecial_est": 5,
+    "ibfe": 9,
+    "mov_zext16": 7
+   },
+   "n_distinct_values": 1,
+   "n_groups": 32,
+   "n_groups_bytes_vary": 0,
+   "n_records": 32,
+   "n_runs": 6,
+   "outcomes": {
+    "ok": 32
+   },
+   "reason": "the unmutated anchor; 0 of 32 groups vary."
+  },
+  "__dst_nibble": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "half_alu_ext8.dst": 6
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0180/harness/casematrix.py:284-287 dstnib_cases() + :335 field='__'+fname",
+   "example_group": {
+    "arm": "C_HI|DSTNIB",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "000d0611891500c0",
+     "100d0611891500c0",
+     "200d0611891500c0",
+     "300d0611891500c0"
+    ],
+    "experiment": "EXP-0180-g17p-halfalu-rerecord",
+    "fields_hit": [
+     "dst"
+    ],
+    "instr": "half_alu_ext8",
+    "n": 16,
+    "run": "g17p_run03"
+   },
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 128
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 128
+   },
+   "n_distinct_values": 16,
+   "n_groups": 6,
+   "n_groups_bytes_vary": 6,
+   "n_records": 128,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 120
+   },
+   "reason": "16-value sweep of byte0's high nibble on half_alu_ext8, value=n, one record per value, pre-registered hypothesis H0/DEF-0180-1 'destination GPR = byte0 bits 4..7'. This is the instance EXP-0189 found by hand."
+  },
+  "__falsifier_F1_opsel_hadd": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0180/harness/casematrix.py:230-247 falsifiers()",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 20,
+    "half_alu_fma12": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 24,
+   "n_groups_bytes_vary": 0,
+   "n_records": 32,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 24
+   },
+   "reason": "pre-registered-to-fail: opsel -> hadd MUST change an fma result. Instrument check; 0 of 24 groups vary."
+  },
+  "__falsifier_F2_srcA_zerolane": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0180/harness/casematrix.py:230-247",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 20,
+    "half_alu_fma12": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 24,
+   "n_groups_bytes_vary": 0,
+   "n_records": 32,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 24
+   },
+   "reason": "pre-registered-to-fail: srcA -> the one lane that is 0.0 must move; 0 of 24 vary."
+  },
+  "__falsifier_F3_dstnib_r7": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0180/harness/casematrix.py:230-247",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 20,
+    "half_alu_fma12": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 24,
+   "n_groups_bytes_vary": 0,
+   "n_records": 32,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 24
+   },
+   "reason": "pre-registered-to-fail: byte0 high nibble -> 7 must move the write to r7. Same encoding position as __dst_nibble but a single fixed value used as an instrument check; 0 of 24 groups vary."
+  },
+  "__falsifier_F4_zero_point": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0180/harness/casematrix.py:262",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 3
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 3
+   },
+   "reason": "the marker chain with no instruction in front of it -- the LEN instrument's zero point; 0 of 3 groups vary."
+  },
+  "__falsifier_b2": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0161 cases.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0161-g17p-carry-fspecial": 4
+   },
+   "files_sample": [
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "carry_gen": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 4
+   },
+   "reason": "falsifier; 0 of 4 vary."
+  },
+  "__falsifier_byte0": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169, EXP-0154 casematrix",
+   "example_group": null,
+   "experiments": {
+    "EXP-0154-g17p-emit-alu": 57,
+    "EXP-0160-g17p-last-field": 42,
+    "EXP-0161-g17p-carry-fspecial": 33,
+    "EXP-0169-g17p-rerecord": 74
+   },
+   "files_sample": [
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/sweep.jsonl",
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_ext_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_ext_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "bf_alu": 4,
+    "carry_gen": 6,
+    "device_store": 6,
+    "falu2": 7,
+    "falu2_ext": 9,
+    "falu2_srcmod10": 3,
+    "falu2_uni": 3,
+    "falu2i": 8,
+    "falu3": 11,
+    "falu3_ext": 11,
+    "falu3_srcmod12": 3,
+    "falu_acc": 3,
+    "fspecial": 6,
+    "fspecial_est": 8,
+    "get_sr": 4,
+    "half_alu": 4,
+    "half_alu_ext8": 4,
+    "half_alu_fma12": 4,
+    "half_pack": 7,
+    "iadd2": 4,
+    "ibfe": 13,
+    "ibfins": 3,
+    "ibitcount": 4,
+    "ilogic": 2,
+    "imad": 6,
+    "iminmax": 6,
+    "irotate": 2,
+    "isel10": 2,
+    "isel8": 7,
+    "isel_reg": 3,
+    "ishift": 2,
+    "mov_zext16": 9,
+    "reg_move_c0": 6,
+    "reg_move_c1": 6,
+    "reg_move_c2var": 6,
+    "reg_move_c9": 6,
+    "reg_move_cb": 6,
+    "shift_amt_move": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 185,
+   "n_groups_bytes_vary": 0,
+   "n_records": 206,
+   "n_runs": 20,
+   "outcomes": {
+    "fault": 9,
+    "ok": 19,
+    "silent_zero": 19,
+    "wrong_value": 159
+   },
+   "reason": "pre-registered-to-fail byte0 mutation; 0 of 185 groups vary."
+  },
+  "__ladder_L_b5": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 20
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 20
+   },
+   "n_distinct_values": 1,
+   "n_groups": 15,
+   "n_groups_bytes_vary": 0,
+   "n_records": 20,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 12
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_dst": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 64,
+    "EXP-0178-g17p-sysval-tileread": 15,
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 7,
+    "falu2_uni": 3,
+    "falu2i": 4,
+    "get_sr": 11,
+    "half_alu": 4,
+    "half_alu_ext8": 24,
+    "half_alu_fma12": 16,
+    "ibitcount": 4,
+    "reg_move_c0": 6,
+    "reg_move_c1": 6,
+    "reg_move_c2var": 6,
+    "reg_move_c9": 6,
+    "reg_move_cb": 6,
+    "tile_read": 4,
+    "tile_read_mrt": 4
+   },
+   "n_distinct_values": 5,
+   "n_groups": 103,
+   "n_groups_bytes_vary": 0,
+   "n_records": 111,
+   "n_runs": 11,
+   "outcomes": {
+    "no_draw": 2,
+    "ok": 20,
+    "silent_zero": 6,
+    "wrong_value": 83
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_ext_b5": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 12
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_fma12": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 9,
+   "n_groups_bytes_vary": 0,
+   "n_records": 12,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 12
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_ext_b9": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 12
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_fma12": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 9,
+   "n_groups_bytes_vary": 0,
+   "n_records": 12,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 12
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_extmode": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 6
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run04/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "device_store": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 6,
+   "n_groups_bytes_vary": 0,
+   "n_records": 6,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 6
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_form": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 14
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "get_sr": 4,
+    "ibitcount": 4,
+    "reg_move_cb": 6
+   },
+   "n_distinct_values": 2,
+   "n_groups": 14,
+   "n_groups_bytes_vary": 0,
+   "n_records": 14,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 4,
+    "wrong_value": 10
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_idx_off": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 6
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run04/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "device_store": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 6,
+   "n_groups_bytes_vary": 0,
+   "n_records": 6,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 6
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_known_move": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 30
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "reg_move_c0": 6,
+    "reg_move_c1": 6,
+    "reg_move_c2var": 6,
+    "reg_move_c9": 6,
+    "reg_move_cb": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 30,
+   "n_groups_bytes_vary": 0,
+   "n_records": 30,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 30
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_opsel": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 30,
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "bf_alu": 4,
+    "falu2": 7,
+    "falu2_uni": 3,
+    "falu2i": 4,
+    "half_alu": 4,
+    "half_alu_ext8": 24,
+    "half_alu_fma12": 16
+   },
+   "n_distinct_values": 2,
+   "n_groups": 54,
+   "n_groups_bytes_vary": 0,
+   "n_records": 62,
+   "n_runs": 6,
+   "outcomes": {
+    "ok": 11,
+    "silent_zero": 3,
+    "wrong_value": 48
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_rt": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 8
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run05/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "tile_read": 4,
+    "tile_read_mrt": 4
+   },
+   "n_distinct_values": 2,
+   "n_groups": 8,
+   "n_groups_bytes_vary": 0,
+   "n_records": 8,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 8
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_sr_sel": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 4,
+    "EXP-0178-g17p-sysval-tileread": 7
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "get_sr": 11
+   },
+   "n_distinct_values": 3,
+   "n_groups": 11,
+   "n_groups_bytes_vary": 0,
+   "n_records": 11,
+   "n_runs": 6,
+   "outcomes": {
+    "ok": 4,
+    "wrong_value": 7
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_src": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 10
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "ibitcount": 4,
+    "reg_move_cb": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 10,
+   "n_groups_bytes_vary": 0,
+   "n_records": 10,
+   "n_runs": 3,
+   "outcomes": {
+    "silent_zero": 1,
+    "wrong_value": 9
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_srcA": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 16,
+    "EXP-0180-g17p-halfalu-rerecord": 32
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "bf_alu": 4,
+    "half_alu": 4,
+    "half_alu_ext8": 24,
+    "half_alu_fma12": 16
+   },
+   "n_distinct_values": 2,
+   "n_groups": 40,
+   "n_groups_bytes_vary": 0,
+   "n_records": 48,
+   "n_runs": 6,
+   "outcomes": {
+    "ok": 8,
+    "wrong_value": 40
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_srcA_reg": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 14
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 7,
+    "falu2_uni": 3,
+    "falu2i": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 14,
+   "n_groups_bytes_vary": 0,
+   "n_records": 14,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 14
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_srcA_size": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 14
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 7,
+    "falu2_uni": 3,
+    "falu2i": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 14,
+   "n_groups_bytes_vary": 0,
+   "n_records": 14,
+   "n_runs": 3,
+   "outcomes": {
+    "silent_zero": 3,
+    "wrong_value": 11
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_srcB_desc_samelen": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 20
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 20
+   },
+   "n_distinct_values": 2,
+   "n_groups": 15,
+   "n_groups_bytes_vary": 0,
+   "n_records": 20,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 20
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_srcB_size": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 7
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 7
+   },
+   "n_distinct_values": 1,
+   "n_groups": 7,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 7
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__ladder_L_src_reg": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169/harness/casematrix.py:461, EXP-0178/harness/run.py:792, EXP-0180/harness/casematrix.py:349 -- field='__ladder_' + nm",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 24
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "reg_move_c0": 6,
+    "reg_move_c1": 6,
+    "reg_move_c2var": 6,
+    "reg_move_c9": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 24,
+   "n_groups_bytes_vary": 0,
+   "n_records": 24,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 18,
+    "wrong_value": 6
+   },
+   "reason": "a rung of the pre-registered LIVENESS LADDER: one mutation per rung, run to prove the arm can see a change at all before any inert verdict is allowed. The value is an encoding value, but the rung is an instrument check, not a sweep -- and NO ladder group varies its bytes, so the classification cannot change any number."
+  },
+  "__len_b2": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "half_alu_ext8.b4": 3,
+    "half_alu_ext8.opflags": 3,
+    "half_alu_ext8.opsel": 3
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0180/harness/casematrix.py:274-278 len_cases() + :327 field='__'+rec[0]",
+   "example_group": {
+    "arm": "C_HI|LEN",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "100d001100158c659c66ac67bc68",
+     "100d001101158c659c66ac67bc68",
+     "100d001102158c659c66ac67bc68",
+     "100d001103158c659c66ac67bc68"
+    ],
+    "experiment": "EXP-0180-g17p-halfalu-rerecord",
+    "fields_hit": [
+     "b4",
+     "opflags",
+     "opsel"
+    ],
+    "instr": "half_alu_ext8",
+    "n": 1536,
+    "run": "g17p_run03"
+   },
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 4608
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 4608
+   },
+   "n_distinct_values": 256,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 3,
+   "n_records": 4608,
+   "n_runs": 3,
+   "outcomes": {
+    "fault": 384,
+    "wrong_value": 4224
+   },
+   "reason": "256-value sweep of byte+2 at six fixed byte+4 settings; value=b2 is the byte written. Observable is marker-chain survival (hardware instruction length), which is a real readback, but it is a LENGTH oracle, not a semantic one -- flagged on any field it restores."
+  },
+  "__len_b4": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "half_alu_ext8.b4": 3,
+    "half_alu_ext8.opsel": 3
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0180/harness/casematrix.py:268-273 len_cases() + :327",
+   "example_group": {
+    "arm": "C_HI|LEN",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "100d041100158c659c66ac67bc68",
+     "100d041101158c659c66ac67bc68",
+     "100d041102158c659c66ac67bc68",
+     "100d041103158c659c66ac67bc68"
+    ],
+    "experiment": "EXP-0180-g17p-halfalu-rerecord",
+    "fields_hit": [
+     "b4",
+     "opsel"
+    ],
+    "instr": "half_alu_ext8",
+    "n": 512,
+    "run": "g17p_run03"
+   },
+   "experiments": {
+    "EXP-0180-g17p-halfalu-rerecord": 1536
+   },
+   "files_sample": [
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run02/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/g17p_run03/sweep.jsonl",
+    "EXP-0180-g17p-halfalu-rerecord/raw/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu_ext8": 1536
+   },
+   "n_distinct_values": 256,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 3,
+   "n_records": 1536,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 1536
+   },
+   "reason": "256-value sweep of byte+4 at two fixed byte+2 settings; same length oracle as __len_b2."
+  },
+  "__lut2d": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "ilogic.lut_a_free": 2,
+    "ilogic.lut_a_sel": 2,
+    "ilogic.lut_b": 2,
+    "ilogic.op_base": 2
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0154/harness/casematrix.py:210 field='__lut2d', value=(ob<<8)|(la<<4)|lb",
+   "example_group": {
+    "arm": "SYNTH+LIFTED:k_and@ilogic[32:42]|ILOGIC",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "0b051e01000000800000",
+     "0b051e01000100800000",
+     "0b051e01000200800000",
+     "0b051e01000300800000"
+    ],
+    "experiment": "EXP-0154-g17p-emit-alu",
+    "fields_hit": [
+     "lut_a_free",
+     "lut_a_sel",
+     "lut_b",
+     "op_base"
+    ],
+    "instr": "ilogic",
+    "n": 512,
+    "run": "g17p_20260829_run02"
+   },
+   "experiments": {
+    "EXP-0154-g17p-emit-alu": 1024
+   },
+   "files_sample": [
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "ilogic": 1024
+   },
+   "n_distinct_values": 512,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 2,
+   "n_records": 1024,
+   "n_runs": 2,
+   "outcomes": {
+    "fault": 66,
+    "ok": 16,
+    "silent_zero": 72,
+    "wrong_value": 870
+   },
+   "reason": "2-D sweep of ilogic op_base x lut_a_sel x lut_b; the value is the packed tuple of the three encoding positions written. EXP-0154's own verdicts.py:450 reads these records as the ILOGIC measurement."
+  },
+  "__power_b7": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0178/harness/run.py:808",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 4
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run05/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "tile_read": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "silent_zero": 4
+   },
+   "reason": "power probe; 0 of 4 vary."
+  },
+  "__power_fmt": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0178/harness/run.py:808",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 4
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run05/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "tile_read_mrt": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "silent_zero": 4
+   },
+   "reason": "power probe; 0 of 4 vary."
+  },
+  "__power_sr_sel": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0178/harness/run.py:808 record('power_probe',...)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 7
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "get_sr": 7
+   },
+   "n_distinct_values": 2,
+   "n_groups": 7,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 3,
+   "outcomes": {
+    "silent_zero": 5,
+    "wrong_value": 2
+   },
+   "reason": "detection-power probe; 0 of 7 groups vary."
+  },
+  "__raw_b0": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "carry_gen.dst": 4,
+    "fspecial.fn_hi": 4,
+    "fspecial_est.dst": 5,
+    "mov_zext16.src_reg": 5
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0161/harness/cases.py:419-425 field='__raw_b%d' % bi",
+   "example_group": {
+    "arm": "INPLACE:u64add@carry_gen+42|A_CARRY_INPLACE",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "000135032281",
+     "010135032281",
+     "020135032281",
+     "030135032281"
+    ],
+    "experiment": "EXP-0161-g17p-carry-fspecial",
+    "fields_hit": [
+     "dst"
+    ],
+    "instr": "carry_gen",
+    "n": 256,
+    "run": "g17p_20260829_run01"
+   },
+   "experiments": {
+    "EXP-0161-g17p-carry-fspecial": 4399
+   },
+   "files_sample": [
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_adj01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp02/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260830_supp03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "carry_gen": 1038,
+    "fspecial": 1037,
+    "fspecial_est": 1286,
+    "mov_zext16": 1038
+   },
+   "n_distinct_values": 256,
+   "n_groups": 24,
+   "n_groups_bytes_vary": 24,
+   "n_records": 4399,
+   "n_runs": 6,
+   "outcomes": {
+    "fault": 1113,
+    "ok": 497,
+    "silent_zero": 961,
+    "wrong_value": 1828
+   },
+   "reason": "raw whole-byte sweep at byte index 0, value=v is the byte written, `byte_index` recorded on every case. Byte-level by construction; collect_raw's bit-exact path resolves it to whichever db fields the varying bits land in."
+  },
+  "__raw_b2": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0161/harness/cases.py:419-425",
+   "example_group": null,
+   "experiments": {
+    "EXP-0161-g17p-carry-fspecial": 1024
+   },
+   "files_sample": [
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0161-g17p-carry-fspecial/raw/g17p_20260829_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "carry_gen": 1024
+   },
+   "n_distinct_values": 256,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 4,
+   "n_records": 1024,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 32,
+    "silent_zero": 16,
+    "wrong_value": 976
+   },
+   "reason": "same generator as __raw_b0 at byte index 2."
+  },
+  "__sens_byte0_bit2": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0178/harness/run.py:829 record('sensitivity',...)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 7
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run03/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "get_sr": 7
+   },
+   "n_distinct_values": 1,
+   "n_groups": 7,
+   "n_groups_bytes_vary": 0,
+   "n_records": 7,
+   "n_runs": 3,
+   "outcomes": {
+    "measurement_failed": 1,
+    "silent_zero": 4,
+    "wrong_value": 2
+   },
+   "reason": "sensitivity control; 0 of 7 groups vary."
+  },
+  "__sens_byte1": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0178/harness/run.py:832",
+   "example_group": null,
+   "experiments": {
+    "EXP-0178-g17p-sysval-tileread": 8
+   },
+   "files_sample": [
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run05/sweep.jsonl",
+    "EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "tile_read": 4,
+    "tile_read_mrt": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 8,
+   "n_groups_bytes_vary": 0,
+   "n_records": 8,
+   "n_runs": 2,
+   "outcomes": {
+    "no_draw": 4,
+    "silent_zero": 2,
+    "wrong_value": 2
+   },
+   "reason": "sensitivity control."
+  },
+  "__split_at0_r6": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0160/harness/casematrix.py:160 emit(value=77)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0160-g17p-last-field": 4
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_pack": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 4
+   },
+   "reason": "single fixed-value structural split probe; 0 of 2 groups vary."
+  },
+  "__split_at0and2": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0160/harness/casematrix.py:162",
+   "example_group": null,
+   "experiments": {
+    "EXP-0160-g17p-last-field": 4
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_pack": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 4
+   },
+   "reason": "as above."
+  },
+  "__split_at2_r6": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0160/harness/casematrix.py:156",
+   "example_group": null,
+   "experiments": {
+    "EXP-0160-g17p-last-field": 4
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_pack": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 4
+   },
+   "reason": "as above."
+  },
+  "__split_at2_r7": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0160/harness/casematrix.py:158",
+   "example_group": null,
+   "experiments": {
+    "EXP-0160-g17p-last-field": 4
+   },
+   "files_sample": [
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0160-g17p-last-field/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_pack": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 4
+   },
+   "reason": "as above."
+  },
+  "_b1_match": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0184 raw record note: 'db.json models byte+1 as a FIXED MATCH CONSTANT (0xc2); EXP-0138 (M4) measured it LIVE. Detection-power control AND the G17P half of a db defect.'",
+   "example_group": null,
+   "experiments": {
+    "EXP-0184-g17p-onefield-b": 1040
+   },
+   "files_sample": [
+    "EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0184-g17p-onefield-b/raw/prefreeze/pilot01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "copysign": 1040
+   },
+   "n_distinct_values": 256,
+   "n_groups": 5,
+   "n_groups_bytes_vary": 5,
+   "n_records": 1040,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 33,
+    "silent_zero": 264,
+    "wrong_value": 743
+   },
+   "reason": "256 distinct values of copysign byte+1 over 5 groups. The note calls it a detection-power control AND a db-defect measurement; it is a dense value sweep either way. Credits no db field (match bits)."
+  },
+  "_b2_match": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0184 / EXP-0187 raw record note: 'modelled as a fixed match constant; swept for the G17P record'",
+   "example_group": null,
+   "experiments": {
+    "EXP-0184-g17p-onefield-b": 512,
+    "EXP-0187-g17p-rtword-census": 160
+   },
+   "files_sample": [
+    "EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0187-g17p-rtword-census/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0187-g17p-rtword-census/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "copysign": 512,
+    "n4_rt_word": 160
+   },
+   "n_distinct_values": 256,
+   "n_groups": 12,
+   "n_groups_bytes_vary": 12,
+   "n_records": 672,
+   "n_runs": 4,
+   "outcomes": {
+    "ok": 224,
+    "wrong_value": 448
+   },
+   "reason": "256 distinct values of byte+2 over 12 groups; dense value sweep of an encoding position. Credits no db field."
+  },
+  "_b3_match": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0187 raw record note: 'fixed match constant in the pinned db; swept as a WHOLE-WORD liveness probe, never as a field'",
+   "example_group": null,
+   "experiments": {
+    "EXP-0187-g17p-rtword-census": 160
+   },
+   "files_sample": [
+    "EXP-0187-g17p-rtword-census/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0187-g17p-rtword-census/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "n4_rt_word": 160
+   },
+   "n_distinct_values": 16,
+   "n_groups": 10,
+   "n_groups_bytes_vary": 10,
+   "n_records": 160,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 160
+   },
+   "reason": "16 distinct values of n4_rt_word byte+3 over 10 groups. The note disclaims FIELD status, and it is right that db exposes no field there -- so including it credits nothing, but it is a value sweep and is classified as one."
+  },
+  "_baseline": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0163/run.py:425 and ~20 sibling harnesses",
+   "example_group": null,
+   "experiments": {
+    "EXP-0138-m4-emit-falu": 37,
+    "EXP-0139-m4-emit-ialu": 32,
+    "EXP-0141-m4-emit-mem": 19,
+    "EXP-0143-m4-emit-frag-simd": 3,
+    "EXP-0146-m4-emit-int-misc": 39,
+    "EXP-0147-m4-emit-pipeline-misc": 20,
+    "EXP-0153-g17p-revalidation": 25,
+    "EXP-0155-g17p-emit-tex-frag": 192,
+    "EXP-0157-g17p-emit-misc": 487,
+    "EXP-0163-g17p-inert-liveness": 144,
+    "EXP-0168-g17p-dst-resweep": 70,
+    "EXP-0172-g17p-onefield-tail": 127,
+    "EXP-0184-g17p-onefield-b": 735,
+    "EXP-0187-g17p-rtword-census": 428
+   },
+   "files_sample": [
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run05/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run06/sweep.jsonl",
+    "EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "-": 1650,
+    "atomic_mem": 4,
+    "atomic_rmw": 2,
+    "atomic_tg": 2,
+    "carry_gen": 3,
+    "compute_fence_scoped": 2,
+    "copysign": 3,
+    "dev_scoreboard_fence": 2,
+    "device_load": 9,
+    "falu2": 4,
+    "falu2_ext": 3,
+    "falu2_srcmod10": 3,
+    "falu2i": 16,
+    "falu3": 3,
+    "falu3_ext": 3,
+    "falu3_srcmod12": 3,
+    "falu_acc": 3,
+    "falu_srcmod12b": 3,
+    "frag_color_pack": 32,
+    "frag_color_store": 22,
+    "frag_depth_store": 3,
+    "frag_tile_setup": 22,
+    "frame_marker_compact": 6,
+    "fspecial": 2,
+    "fspecial_est": 2,
+    "get_sr": 16,
+    "half_alu": 3,
+    "half_alu_ext8": 3,
+    "half_alu_fma12": 3,
+    "iadd2": 12,
+    "ibfe": 10,
+    "ibfins": 2,
+    "ibitcount": 4,
+    "icmp_pred": 2,
+    "icmpsel": 2,
+    "ilogic": 3,
+    "imad": 2,
+    "imageblock_store": 20,
+    "iminmax": 2,
+    "irotate": 13,
+    "isel10": 2,
+    "isel10_c": 2,
+    "isel8": 2,
+    "isel_reg": 2,
+    "isel_reg8": 2,
+    "ishift": 2,
+    "iter": 34,
+    "iter_at": 39,
+    "iter_flat": 8,
+    "matrix_mac": 2,
+    "mem_fence": 2,
+    "mov_imm": 4,
+    "mov_zext16": 3,
+    "n2_op10": 3,
+    "n2_op6": 6,
+    "n2_op8": 3,
+    "n3_mov": 3,
+    "n3_sample_read": 2,
+    "n4_cf_word": 6,
+    "op57_fragment": 6,
+    "op57_vertex": 6,
+    "pixel_order": 28,
+    "psel": 1,
+    "ret": 1,
+    "scoreboard_fence": 2,
+    "sfu_marker": 4,
+    "shift_amt_move": 3,
+    "simd_ballot": 24,
+    "simd_reduce": 7,
+    "simd_shuffle": 55,
+    "sr_read_wide": 1,
+    "tex_coord_setup": 23,
+    "tex_deriv": 17,
+    "tex_sample": 63,
+    "tex_write": 25,
+    "threadgroup_barrier": 2,
+    "tile_read": 2,
+    "tile_read_mrt": 2,
+    "vary_slot": 20,
+    "vary_store": 19,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 14
+   },
+   "n_distinct_values": 5,
+   "n_groups": 706,
+   "n_groups_bytes_vary": 0,
+   "n_records": 2358,
+   "n_runs": 63,
+   "outcomes": {
+    "cascade_suspected": 20,
+    "fault": 3,
+    "ok": 2290,
+    "silent_zero": 4,
+    "wrong_value": 41
+   },
+   "reason": "the unmutated anchor. 0 of 706 groups vary their bytes, by definition."
+  },
+  "_baseline_check": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0146 run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0146-m4-emit-int-misc": 97
+   },
+   "files_sample": [
+    "EXP-0146-m4-emit-int-misc/raw/run04/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "carry_gen": 3,
+    "iadd2": 9,
+    "ilogic": 7,
+    "irotate": 14,
+    "mov_zext16": 8,
+    "n2_op10": 27,
+    "n2_op6": 11,
+    "n2_op8": 6,
+    "n3_mov": 5,
+    "sfu_marker": 2,
+    "shift_amt_move": 5
+   },
+   "n_distinct_values": 1,
+   "n_groups": 12,
+   "n_groups_bytes_vary": 0,
+   "n_records": 97,
+   "n_runs": 1,
+   "outcomes": {
+    "fault": 14,
+    "ok": 80,
+    "silent_zero": 3
+   },
+   "reason": "anchor recheck; 0 of 12 vary."
+  },
+  "_baseline_final": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0163, EXP-0172 run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0143-m4-emit-frag-simd": 2,
+    "EXP-0155-g17p-emit-tex-frag": 117,
+    "EXP-0163-g17p-inert-liveness": 144,
+    "EXP-0168-g17p-dst-resweep": 65,
+    "EXP-0172-g17p-onefield-tail": 126
+   },
+   "files_sample": [
+    "EXP-0143-m4-emit-frag-simd/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run04/sweep.jsonl",
+    "EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2i": 16,
+    "frag_color_pack": 25,
+    "frag_color_store": 20,
+    "frag_depth_store": 2,
+    "frag_tile_setup": 20,
+    "frame_marker_compact": 6,
+    "get_sr": 16,
+    "imageblock_store": 16,
+    "irotate": 10,
+    "iter": 26,
+    "iter_at": 32,
+    "iter_flat": 4,
+    "n4_cf_word": 6,
+    "pixel_order": 24,
+    "simd_ballot": 22,
+    "simd_reduce": 4,
+    "simd_shuffle": 52,
+    "tex_coord_setup": 22,
+    "tex_deriv": 14,
+    "tex_sample": 48,
+    "tex_write": 21,
+    "vary_slot": 18,
+    "vary_store": 18,
+    "vtx_out_pos": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 454,
+   "n_groups_bytes_vary": 0,
+   "n_records": 454,
+   "n_runs": 18,
+   "outcomes": {
+    "ok": 454
+   },
+   "reason": "the anchor re-run at the end of a run; 0 of 454 groups vary."
+  },
+  "_baseline_fwd": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 3
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "device_store": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 3
+   },
+   "reason": "anchor for the forwarding arm."
+  },
+  "_baseline_health": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141, EXP-0153 run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 766,
+    "EXP-0153-g17p-revalidation": 95
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run21/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run22/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-reval02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "-": 861
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 861,
+   "n_runs": 10,
+   "outcomes": {
+    "ok": 861
+   },
+   "reason": "periodic health check of the persistent runner; no bytes recorded."
+  },
+  "_baseline_recheck": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0155, EXP-0163 run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0143-m4-emit-frag-simd": 6,
+    "EXP-0147-m4-emit-pipeline-misc": 192,
+    "EXP-0155-g17p-emit-tex-frag": 554,
+    "EXP-0163-g17p-inert-liveness": 296,
+    "EXP-0168-g17p-dst-resweep": 37,
+    "EXP-0172-g17p-onefield-tail": 48
+   },
+   "files_sample": [
+    "EXP-0143-m4-emit-frag-simd/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "compute_fence_scoped": 12,
+    "frag_color_pack": 19,
+    "frag_color_store": 32,
+    "frag_depth_store": 6,
+    "frag_tile_setup": 64,
+    "frame_marker_compact": 2,
+    "imageblock_store": 32,
+    "irotate": 10,
+    "iter": 73,
+    "iter_at": 36,
+    "iter_flat": 11,
+    "matrix_mac": 6,
+    "n3_sample_read": 32,
+    "n4_cf_word": 6,
+    "pixel_order": 48,
+    "scoreboard_fence": 10,
+    "simd_ballot": 30,
+    "simd_reduce": 8,
+    "simd_shuffle": 32,
+    "tex_coord_setup": 126,
+    "tex_deriv": 13,
+    "tex_sample": 212,
+    "tex_write": 111,
+    "tile_read": 40,
+    "tile_read_mrt": 36,
+    "vary_slot": 28,
+    "vary_store": 54,
+    "vtx_coord_xform": 28,
+    "vtx_out_pos": 16
+   },
+   "n_distinct_values": 669,
+   "n_groups": 370,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1133,
+   "n_runs": 17,
+   "outcomes": {
+    "ok": 1133
+   },
+   "reason": "the anchor re-run mid-sweep to detect drift; 0 of 370 groups vary."
+  },
+  "_byte0": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0168/harness/casematrix.py:812 add(role='falsifier',...)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0168-g17p-dst-resweep": 66
+   },
+   "files_sample": [
+    "EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "atomic_mem": 6,
+    "copysign": 2,
+    "cvt_f2h": 4,
+    "cvt_f2i": 4,
+    "falu2": 2,
+    "falu2i": 2,
+    "falu_acc": 6,
+    "get_sr": 2,
+    "if_push": 8,
+    "mov_imm": 4,
+    "pack_convert": 6,
+    "shift_amt_move": 2,
+    "stop": 4,
+    "uniform_mov": 8,
+    "unpack_convert": 6
+   },
+   "n_distinct_values": 4,
+   "n_groups": 66,
+   "n_groups_bytes_vary": 0,
+   "n_records": 66,
+   "n_runs": 2,
+   "outcomes": {
+    "fault": 2,
+    "ok": 2,
+    "undecodable": 2,
+    "wrong_value": 60
+   },
+   "reason": "the pre-registered-to-fail byte0 falsifier (0x55); one value per arm, 0 of 66 groups vary."
+  },
+  "_byte0_hi": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {
+    "half_alu.dst": 3
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0138/harness/families.py:506 caseB('half_alu','_byte0_hi', v, ...)",
+   "example_group": {
+    "arm": "half_alu",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "00041c0200c0",
+     "10041c0200c0",
+     "20041c0200c0",
+     "30041c0200c0"
+    ],
+    "experiment": "EXP-0138-m4-emit-falu",
+    "fields_hit": [
+     "dst"
+    ],
+    "instr": "half_alu",
+    "n": 16,
+    "run": "m4_20260828_run05"
+   },
+   "experiments": {
+    "EXP-0138-m4-emit-falu": 48
+   },
+   "files_sample": [
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run05/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "half_alu": 48
+   },
+   "n_distinct_values": 16,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 3,
+   "n_records": 48,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 3,
+    "silent_zero": 42,
+    "wrong_value": 3
+   },
+   "reason": "16-value sweep of half_alu byte0's high nibble with a host oracle and a pre-registered expectation (v==1 matches the anchor). Named with an underscore only because db.json models byte0 as a fixed match constant -- the same shape as __dst_nibble, one instruction earlier."
+  },
+  "_byte1_11": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0156/harness/cases.py (arm 'atdev_rmw.control')",
+   "example_group": null,
+   "experiments": {
+    "EXP-0156-g17p-emit-cf-mem": 3
+   },
+   "files_sample": [
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem03/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem04/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/smoke-s01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "atomic_rmw": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 3
+   },
+   "reason": "single fixed control value (0x11); records carry no bytes at all."
+  },
+  "_byte2_56": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0156/harness/cases.py:198 (arm 'ret_luse.control')",
+   "example_group": null,
+   "experiments": {
+    "EXP-0156-g17p-emit-cf-mem": 4
+   },
+   "files_sample": [
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01a/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01d/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf02d/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/smoke-s01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "ret_luse": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 4,
+   "outcomes": {
+    "ok": 4
+   },
+   "reason": "single fixed control value (0x56) on the ret_luse control arm; 0 of 4 vary."
+  },
+  "_calibprobe": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 13
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot02/calibprobe.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 13
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 13,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 13
+   },
+   "reason": "runner calibration; no bytes."
+  },
+  "_cascade_check": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0155, EXP-0172 run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0155-g17p-emit-tex-frag": 2,
+    "EXP-0172-g17p-onefield-tail": 2
+   },
+   "files_sample": [
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "frag_color_pack": 1,
+    "imageblock_store": 2,
+    "tex_sample": 1
+   },
+   "n_distinct_values": 4,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 4
+   },
+   "reason": "DEF-0178-1 guard: re-run after a watchdog timeout to detect a manufactured hang cascade. An instrument, not a measurement."
+  },
+  "_detect": {
+   "classification": "CONTROL-SHAPED",
+   "db_fields_the_varying_bits_hit": {
+    "falu2i.ctrl_lo": 16,
+    "falu2i.dst": 16,
+    "falu2i.imm_exp": 16,
+    "falu2i.imm_flag": 16,
+    "falu2i.imm_mant": 16,
+    "falu2i.imm_sign": 16,
+    "falu2i.mods": 16,
+    "falu2i.opflags": 16,
+    "falu2i.opsel": 16,
+    "falu2i.srcA_reg": 16,
+    "falu2i.srcA_reg_top": 16,
+    "falu2i.srcA_size": 16,
+    "frag_color_store.flags": 16,
+    "frag_color_store.fmt": 16,
+    "frag_color_store.mask": 16,
+    "frag_color_store.rt_index": 16,
+    "frag_color_store.slice_addr": 16,
+    "frag_color_store.src": 16,
+    "frag_color_store.store_mode": 16,
+    "frag_tile_setup.access": 16,
+    "frag_tile_setup.b1": 16,
+    "frag_tile_setup.b5": 16,
+    "frag_tile_setup.sel": 16,
+    "frame_marker_compact.b1": 6,
+    "get_sr.dp_marker": 16,
+    "get_sr.dp_width": 16,
+    "get_sr.dst": 16,
+    "get_sr.dst_hi": 16,
+    "get_sr.form": 16,
+    "get_sr.sr_sel": 16,
+    "imageblock_store.b4": 10,
+    "imageblock_store.b6": 10,
+    "imageblock_store.fmt": 10,
+    "imageblock_store.slice_off": 10,
+    "imageblock_store.src": 10,
+    "imageblock_store.tail": 10,
+    "irotate.b2": 10,
+    "irotate.operands": 10,
+    "irotate.tail": 10,
+    "iter.b9": 14,
+    "iter.coeff_sel": 14,
+    "iter.dst": 14,
+    "iter.grp": 14,
+    "iter.lead": 14,
+    "iter.loc": 14,
+    "iter.mode": 14,
+    "iter.src_slot": 14,
+    "iter_at.b5": 20,
+    "iter_at.c4": 20,
+    "iter_at.dst": 20,
+    "iter_at.grp": 20,
+    "iter_at.lead": 20,
+    "iter_at.loc": 20,
+    "ret.linkmode": 1,
+    "ret.scoreboard": 1,
+    "simd_ballot.cache": 20,
+    "simd_ballot.dst": 20,
+    "simd_ballot.form": 20,
+    "simd_ballot.form_sig": 20,
+    "simd_ballot.pred": 20,
+    "simd_ballot.psrc": 20,
+    "simd_ballot.psrctype": 20,
+    "simd_shuffle.cache": 48,
+    "simd_shuffle.dir": 48,
+    "simd_shuffle.dst": 48,
+    "simd_shuffle.dsthi": 48,
+    "simd_shuffle.lane": 48,
+    "simd_shuffle.mode": 48,
+    "simd_shuffle.rsv9": 48,
+    "simd_shuffle.rtype": 48,
+    "simd_shuffle.src": 48,
+    "simd_shuffle.srctype": 48,
+    "tex_coord_setup.b1": 18,
+    "tex_coord_setup.b5": 18,
+    "tex_coord_setup.b6": 18,
+    "tex_coord_setup.b8": 18,
+    "tex_coord_setup.b9": 18,
+    "tex_coord_setup.dst_lo": 18,
+    "tex_coord_setup.form": 18,
+    "tex_coord_setup.idx": 18,
+    "tex_coord_setup.srcA": 18,
+    "tex_deriv.axis": 8,
+    "tex_deriv.b1": 8,
+    "tex_deriv.dstsrc": 8,
+    "tex_deriv.src_comp": 8,
+    "tex_deriv.tail": 8,
+    "tex_sample.chain": 8,
+    "tex_sample.comp_flags": 8,
+    "tex_sample.coord": 8,
+    "tex_sample.extra_coord": 8,
+    "tex_sample.kind": 8,
+    "tex_sample.lod_present": 8,
+    "tex_sample.mode": 8,
+    "tex_sample.result_desc": 8,
+    "tex_sample.result_sel": 8,
+    "tex_sample.samp_extra": 8,
+    "tex_sample.samp_slot_offset": 8,
+    "tex_sample.tex_slot": 8,
+    "tex_sample.tex_type": 8,
+    "tex_sample.variant": 8,
+    "tex_write.amode": 12,
+    "tex_write.coord_dim": 12,
+    "tex_write.coord_pack": 12,
+    "tex_write.coord_regs": 12,
+    "tex_write.data_desc": 12,
+    "tex_write.data_desc_hi": 12,
+    "tex_write.layer_reg": 12,
+    "tex_write.rsv10": 12,
+    "tex_write.rsv11": 12,
+    "tex_write.rsv15": 12,
+    "tex_write.rsv8": 12,
+    "tex_write.seq_idx": 12,
+    "tex_write.wop": 12,
+    "vary_slot.sel": 8,
+    "vary_slot.slot": 8,
+    "vary_store.b5_tag": 18,
+    "vary_store.b7": 18,
+    "vary_store.hint1": 18,
+    "vary_store.hint2": 18,
+    "vary_store.hint6": 18,
+    "vary_store.out_slot": 18,
+    "vary_store.out_slot_hi": 18,
+    "vary_store.src": 18
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0163/run.py:437-462 and EXP-0172/run.py:475 -- the DETECTION PROFILE loop",
+   "example_group": {
+    "arm": "iter_at@cent1/fragment#0",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "0014540a03000a01",
+     "5014540a03000a01",
+     "af00540a03000a01",
+     "af14540003000a01"
+    ],
+    "experiment": "EXP-0163-g17p-inert-liveness",
+    "fields_hit": [
+     "b5",
+     "c4",
+     "dst",
+     "grp",
+     "lead",
+     "loc"
+    ],
+    "instr": "iter_at",
+    "n": 11,
+    "run": "g17p_20260830_run01"
+   },
+   "experiments": {
+    "EXP-0163-g17p-inert-liveness": 1930,
+    "EXP-0172-g17p-onefield-tail": 1606
+   },
+   "files_sample": [
+    "EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2i": 330,
+    "frag_color_store": 174,
+    "frag_tile_setup": 108,
+    "frame_marker_compact": 12,
+    "get_sr": 172,
+    "imageblock_store": 86,
+    "irotate": 80,
+    "iter": 220,
+    "iter_at": 234,
+    "n4_cf_word": 6,
+    "ret": 4,
+    "simd_ballot": 232,
+    "simd_shuffle": 812,
+    "tex_coord_setup": 272,
+    "tex_deriv": 80,
+    "tex_sample": 182,
+    "tex_write": 258,
+    "vary_slot": 28,
+    "vary_store": 246
+   },
+   "n_distinct_values": 111,
+   "n_groups": 271,
+   "n_groups_bytes_vary": 265,
+   "n_records": 3536,
+   "n_runs": 5,
+   "outcomes": {
+    "inert": 1051,
+    "moved": 2485
+   },
+   "reason": "for every db field of the anchor's descriptor it writes two values (the complement of the current value, and 0) and records whether the observation changed; outcome is 'moved'/'inert'. Structurally a per-field 2-value hardware sweep with bytes and observations -- 265 of 271 groups vary their bytes and they land in real db fields. But both experiments consume it ONLY as `arms_with_proven_detection_power`, i.e. as the instrument check that licences their inert verdicts, and two values chosen to maximise the chance of a change is not the dense sweep FIELD-SWEEP-PROTOCOL section 3 requires. Held out of the headline; reported as a declared sensitivity."
+  },
+  "_detect_summary": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0163/run.py:472, EXP-0172/run.py:489, value=-1, bytes=''",
+   "example_group": null,
+   "experiments": {
+    "EXP-0163-g17p-inert-liveness": 144,
+    "EXP-0172-g17p-onefield-tail": 127
+   },
+   "files_sample": [
+    "EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0163-g17p-inert-liveness/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/sweep.jsonl",
+    "EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2i": 16,
+    "frag_color_store": 16,
+    "frag_tile_setup": 16,
+    "frame_marker_compact": 6,
+    "get_sr": 16,
+    "imageblock_store": 10,
+    "irotate": 10,
+    "iter": 14,
+    "iter_at": 20,
+    "n4_cf_word": 6,
+    "ret": 1,
+    "simd_ballot": 20,
+    "simd_shuffle": 48,
+    "tex_coord_setup": 18,
+    "tex_deriv": 8,
+    "tex_sample": 8,
+    "tex_write": 12,
+    "vary_slot": 8,
+    "vary_store": 18
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 271,
+   "n_runs": 5,
+   "outcomes": {
+    "has_power": 257,
+    "no_power": 14
+   },
+   "reason": "one per arm; carries the detection-power summary JSON in `note`. No bytes."
+  },
+  "_falsifier_barrier_off": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 2
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "threadgroup_barrier": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 2,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 2
+   },
+   "reason": "falsifier; 0 of 2 vary."
+  },
+  "_falsifier_dst00": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141, EXP-0153 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 5,
+    "EXP-0153-g17p-revalidation": 4
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run21/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run22/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 9
+   },
+   "n_distinct_values": 1,
+   "n_groups": 9,
+   "n_groups_bytes_vary": 0,
+   "n_records": 9,
+   "n_runs": 9,
+   "outcomes": {
+    "silent_zero": 5,
+    "wrong_value": 4
+   },
+   "reason": "pre-registered-to-fail dst=0 case; 0 of 9 vary."
+  },
+  "_falsifier_extmode0": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141, EXP-0153 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 3,
+    "EXP-0153-g17p-revalidation": 3
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run02/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 6
+   },
+   "n_distinct_values": 1,
+   "n_groups": 6,
+   "n_groups_bytes_vary": 0,
+   "n_records": 6,
+   "n_runs": 6,
+   "outcomes": {
+    "silent_zero": 3,
+    "wrong_value": 3
+   },
+   "reason": "pre-registered-to-fail extmode=0 case; 0 of 6 vary."
+  },
+  "_falsifier_fwd_am54": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 3
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run01/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "device_store": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "silent_zero": 3
+   },
+   "reason": "falsifier; 0 of 3 vary."
+  },
+  "_falsifier_ldformat0": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 2
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run21/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run22/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 2,
+   "n_runs": 2,
+   "outcomes": {
+    "silent_zero": 2
+   },
+   "reason": "falsifier; 0 of 2 vary."
+  },
+  "_falsifier_op_and": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 4
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run21/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run22/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "atomic_mem": 2,
+    "atomic_rmw": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 4,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 4,
+   "outcomes": {
+    "silent_zero": 4
+   },
+   "reason": "falsifier; 0 of 4 vary."
+  },
+  "_falsifier_op_bit": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0141 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0141-m4-emit-mem": 2
+   },
+   "files_sample": [
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run11/sweep.jsonl",
+    "EXP-0141-m4-emit-mem/raw/m4-20260828-run12/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "atomic_tg": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 2,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 2
+   },
+   "reason": "falsifier; 0 of 2 vary."
+  },
+  "_falsifier_oracle": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0153 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0153-g17p-revalidation": 18
+   },
+   "files_sample": [
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run02/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run03/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/smoke01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 4,
+    "iadd2": 7,
+    "ibfe": 3,
+    "mov_imm": 4
+   },
+   "n_distinct_values": 3,
+   "n_groups": 18,
+   "n_groups_bytes_vary": 0,
+   "n_records": 18,
+   "n_runs": 4,
+   "outcomes": {
+    "wrong_value": 18
+   },
+   "reason": "pre-registered-to-fail oracle check; 0 of 18 groups vary."
+  },
+  "_identity_splice": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py:626",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 20
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "compute_fence_scoped": 2,
+    "matrix_mac": 2,
+    "n3_sample_read": 2,
+    "pixel_order": 4,
+    "scoreboard_fence": 2,
+    "tile_read": 2,
+    "tile_read_mrt": 2,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 20,
+   "n_groups_bytes_vary": 0,
+   "n_records": 20,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 20
+   },
+   "reason": "splice the anchor back onto itself -- the null mutation; 0 of 20 groups vary."
+  },
+  "_latency_E1": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 8
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot03/calibprobe2.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 8
+   },
+   "n_distinct_values": 8,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 8,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 8
+   },
+   "reason": "latency probe; no bytes."
+  },
+  "_latency_E2": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 5
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot03/calibprobe2.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 5
+   },
+   "n_distinct_values": 5,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 5,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 5
+   },
+   "reason": "latency probe; no bytes."
+  },
+  "_litmus_power": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 20
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "compute_fence_scoped": 2,
+    "matrix_mac": 2,
+    "n3_sample_read": 2,
+    "pixel_order": 4,
+    "scoreboard_fence": 2,
+    "tile_read": 2,
+    "tile_read_mrt": 2,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 20,
+   "n_groups_bytes_vary": 0,
+   "n_records": 20,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 20
+   },
+   "reason": "detection-power litmus; 0 of 20 groups vary."
+  },
+  "_live_control": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {
+    "frag_tile_setup.access": 6,
+    "frag_tile_setup.b1": 6,
+    "imageblock_store.src": 8,
+    "iter.b9": 4,
+    "iter.coeff_sel": 4,
+    "iter.grp": 4,
+    "iter.lead": 4,
+    "iter.loc": 12,
+    "iter.mode": 12,
+    "simd_reduce.scope": 3,
+    "tex_coord_setup.dst_lo": 5,
+    "tex_sample.coord": 33,
+    "tex_sample.kind": 15,
+    "tex_sample.lod_present": 5,
+    "tex_sample.samp_extra": 5,
+    "tex_sample.tex_type": 28,
+    "tex_write.coord_pack": 12,
+    "tex_write.wop": 4
+   },
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0155/run.py:505 and EXP-0143/run.py:412, field='_live_control', value=-1",
+   "example_group": {
+    "arm": "tex_sample@t1_0",
+    "byte_offset": 0,
+    "bytes_sample": [
+     "05800c2090000000000110000100",
+     "0a800c2090000000000110000100"
+    ],
+    "experiment": "EXP-0155-g17p-emit-tex-frag",
+    "fields_hit": [
+     "kind"
+    ],
+    "instr": "tex_sample",
+    "n": 2,
+    "run": "g17p_20260829_run01"
+   },
+   "experiments": {
+    "EXP-0143-m4-emit-frag-simd": 3,
+    "EXP-0155-g17p-emit-tex-frag": 302
+   },
+   "files_sample": [
+    "EXP-0143-m4-emit-frag-simd/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run01/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run02/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run04/sweep.jsonl",
+    "EXP-0155-g17p-emit-tex-frag/raw/prefreeze/smoke02_sweep.jsonl"
+   ],
+   "instr_labels": {
+    "frag_color_pack": 6,
+    "frag_color_store": 6,
+    "frag_depth_store": 3,
+    "frag_tile_setup": 15,
+    "imageblock_store": 16,
+    "iter": 65,
+    "iter_at": 7,
+    "iter_flat": 6,
+    "simd_ballot": 3,
+    "simd_reduce": 9,
+    "simd_shuffle": 6,
+    "tex_coord_setup": 10,
+    "tex_deriv": 9,
+    "tex_sample": 108,
+    "tex_write": 24,
+    "vary_slot": 12
+   },
+   "n_distinct_values": 1,
+   "n_groups": 162,
+   "n_groups_bytes_vary": 89,
+   "n_records": 305,
+   "n_runs": 6,
+   "outcomes": {
+    "ok": 162,
+    "wrong_value": 143
+   },
+   "reason": "the ladder-rung liveness control; value is the sentinel -1, and the record carries the rung description in `note`. 89 of 162 groups vary bytes across RUNGS, not across values of one position."
+  },
+  "_liveness_dst_alt": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 8
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "pixel_order": 4,
+    "tile_read": 2,
+    "tile_read_mrt": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 8,
+   "n_groups_bytes_vary": 0,
+   "n_records": 8,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 8
+   },
+   "reason": "liveness control on an alternate destination; 0 of 8 groups vary."
+  },
+  "_liveness_spatial": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 6
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "n3_sample_read": 2,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 6,
+   "n_groups_bytes_vary": 0,
+   "n_records": 6,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 6
+   },
+   "reason": "spatial liveness control; 0 of 6 groups vary."
+  },
+  "_liveness_src_alt": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 14
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "n3_sample_read": 2,
+    "pixel_order": 4,
+    "tile_read": 2,
+    "tile_read_mrt": 2,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 14,
+   "n_groups_bytes_vary": 0,
+   "n_records": 14,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 14
+   },
+   "reason": "liveness control on an alternate source; 0 of 14 groups vary."
+  },
+  "_liveness_vp_alt": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 2
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "vtx_coord_xform": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 2,
+   "n_groups_bytes_vary": 0,
+   "n_records": 2,
+   "n_runs": 2,
+   "outcomes": {
+    "ok": 2
+   },
+   "reason": "viewport liveness control; 0 of 2 groups vary."
+  },
+  "_match_b1": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0138/harness/families.py:481-487 caseB('copysign','_match_b%d' % bi, v, ...)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0138-m4-emit-falu": 768
+   },
+   "files_sample": [
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run05/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "copysign": 768
+   },
+   "n_distinct_values": 256,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 3,
+   "n_records": 768,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 24,
+    "silent_zero": 720,
+    "wrong_value": 24
+   },
+   "reason": "256-value sweep of copysign byte+1, value=v is the byte written. Declared a FALSIFIER/structure probe, but it is a dense value sweep of an encoding position; db models those bits as match constants, so it credits no db field."
+  },
+  "_match_b2": {
+   "classification": "FIELD-SWEEP",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "can-change-attribution",
+   "emitter": "EXP-0138/harness/families.py:481-487",
+   "example_group": null,
+   "experiments": {
+    "EXP-0138-m4-emit-falu": 768
+   },
+   "files_sample": [
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run05/sweep.jsonl",
+    "EXP-0138-m4-emit-falu/raw/m4_20260828_run06/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "copysign": 768
+   },
+   "n_distinct_values": 256,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 3,
+   "n_records": 768,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 768
+   },
+   "reason": "same generator at byte+2."
+  },
+  "_natural": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0156/harness/cases.py:371 (arm 'mask_op.liveness')",
+   "example_group": null,
+   "experiments": {
+    "EXP-0156-g17p-emit-cf-mem": 3
+   },
+   "files_sample": [
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01c/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf02f/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/smoke-s01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "mask_op": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "fault": 1,
+    "hang": 1,
+    "skipped": 1
+   },
+   "reason": "the natural, unspliced encoding of the liveness arm; single value, 0 of 3 vary."
+  },
+  "_poscontrol": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0139/harness/casematrix.py:135, value=-1",
+   "example_group": null,
+   "experiments": {
+    "EXP-0139-m4-emit-ialu": 28
+   },
+   "files_sample": [
+    "EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "iadd2": 2,
+    "ibfe": 4,
+    "ibfins": 2,
+    "ibitcount": 2,
+    "icmp_pred": 2,
+    "icmpsel": 2,
+    "imad": 2,
+    "iminmax": 2,
+    "isel10": 2,
+    "isel10_c": 2,
+    "isel8": 2,
+    "isel_reg": 2,
+    "ishift": 2
+   },
+   "n_distinct_values": 1,
+   "n_groups": 28,
+   "n_groups_bytes_vary": 0,
+   "n_records": 28,
+   "n_runs": 2,
+   "outcomes": {
+    "wrong_value": 28
+   },
+   "reason": "positive control, value sentinel -1; 0 of 28 groups vary."
+  },
+  "_refuter_modlo2_unbound": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0153 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0153-g17p-revalidation": 3
+   },
+   "files_sample": [
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run01/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run02/sweep.jsonl",
+    "EXP-0153-g17p-revalidation/raw/g17p-20260830-run03/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "falu2": 3
+   },
+   "n_distinct_values": 1,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 3,
+   "n_runs": 3,
+   "outcomes": {
+    "wrong_value": 3
+   },
+   "reason": "pre-registered refuter; 0 of 3 groups vary."
+  },
+  "_rounding": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0156/harness/cases.py",
+   "example_group": null,
+   "experiments": {
+    "EXP-0156-g17p-emit-cf-mem": 6
+   },
+   "files_sample": [
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-bf03/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-bf04/sweep.jsonl",
+    "EXP-0156-g17p-emit-cf-mem/raw/smoke-s01/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "bf_add_dst": 6
+   },
+   "n_distinct_values": 2,
+   "n_groups": 3,
+   "n_groups_bytes_vary": 0,
+   "n_records": 6,
+   "n_runs": 3,
+   "outcomes": {
+    "ok": 3,
+    "wrong_value": 3
+   },
+   "reason": "rounding-mode control case; 0 of 3 groups vary."
+  },
+  "_sensitivity": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0147/harness/run.py:631 record('_sensitivity',...)",
+   "example_group": null,
+   "experiments": {
+    "EXP-0147-m4-emit-pipeline-misc": 20
+   },
+   "files_sample": [
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/sweep.jsonl",
+    "EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "compute_fence_scoped": 2,
+    "matrix_mac": 2,
+    "n3_sample_read": 2,
+    "pixel_order": 4,
+    "scoreboard_fence": 2,
+    "tile_read": 2,
+    "tile_read_mrt": 2,
+    "vtx_coord_xform": 2,
+    "vtx_out_pos": 2
+   },
+   "n_distinct_values": 3,
+   "n_groups": 20,
+   "n_groups_bytes_vary": 0,
+   "n_records": 20,
+   "n_runs": 2,
+   "outcomes": {
+    "no_draw": 4,
+    "ok": 6,
+    "silent_zero": 2,
+    "wrong_value": 8
+   },
+   "reason": "single-byte sensitivity control; 0 of 20 groups vary."
+  },
+  "_smoke_baseline": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 4
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "-": 4
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 4,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 4
+   },
+   "reason": "smoke-run anchor."
+  },
+  "_smoke_calib": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 1
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "device_load": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1,
+   "n_runs": 1,
+   "outcomes": {
+    "wrong_value": 1
+   },
+   "reason": "smoke-run calibration."
+  },
+  "_smoke_store_shape": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0169 harness",
+   "example_group": null,
+   "experiments": {
+    "EXP-0169-g17p-rerecord": 1
+   },
+   "files_sample": [
+    "EXP-0169-g17p-rerecord/raw/pilot01/smoke.jsonl"
+   ],
+   "instr_labels": {
+    "device_store": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 1,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1,
+   "n_runs": 1,
+   "outcomes": {
+    "ok": 1
+   },
+   "reason": "smoke-run check of the store shape."
+  },
+  "_start": {
+   "classification": "SCAFFOLDING",
+   "db_fields_the_varying_bits_hit": {},
+   "effect_of_classification": "no-effect (no group varies its bytes)",
+   "emitter": "EXP-0157",
+   "example_group": null,
+   "experiments": {
+    "EXP-0157-g17p-emit-misc": 1
+   },
+   "files_sample": [
+    "EXP-0157-g17p-emit-misc/raw/smoke02/sweep.jsonl"
+   ],
+   "instr_labels": {
+    "-": 1
+   },
+   "n_distinct_values": 1,
+   "n_groups": 0,
+   "n_groups_bytes_vary": 0,
+   "n_records": 1,
+   "n_runs": 1,
+   "outcomes": {
+    "fault": 1
+   },
+   "reason": "run-start marker; single record, no bytes."
+  }
+ }
+}

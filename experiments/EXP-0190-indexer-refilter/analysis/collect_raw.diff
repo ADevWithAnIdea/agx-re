@@ -1,0 +1,91 @@
+--- ../EXP-0189-closing-audit/analysis/collect_raw.py	2026-08-30 08:12:05
++++ analysis/collect_raw.py	2026-08-30 08:59:38
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-3.0-or-later
+-"""EXP-0164 step 1 -- index every per-value raw sweep record in the repository and
++"""EXP-0190 step 3 (inherited from EXP-0164 via EXP-0189, ONE behavioural change) -- index every per-value raw sweep record in the repository and
+ attribute it to the db.json FIELDS it actually varied.
+ 
+ READ-ONLY over experiments/*/raw/**.  Writes only work/raw_index.json.gz.
+@@ -28,15 +28,24 @@
+ Groups whose `bytes` column is missing/constant fall back to label-level
+ attribution and are marked so.
+ 
+-Usage:  python3 analysis/collect_raw.py
++EXP-0190's ONLY behavioural change is the `_`-prefix discard: see the comment at the
++test itself.  Everything else -- attribution, offset fitting, identification, the
++reduce step, the output schema -- is byte-identical to EXP-0189's copy (see
++analysis/collect_raw.diff).
++
++Usage:  python3 analysis/collect_raw.py [--legacy-underscore] [-o work/raw_index.json.gz]
+ """
+ import argparse, collections, gzip, hashlib, json, os, re, sys
+ 
++from classify_underscore import FIELD_SWEEP
++
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ EXP = os.path.abspath(os.path.join(HERE, ".."))
+ EXPDIR = os.path.abspath(os.path.join(EXP, ".."))
+ WORK = os.path.join(EXP, "work")
+ 
++LEGACY = False
++
+ HARD = {"fault", "hang", "undecodable", "killed", "not_written",
+         "no_draw", "lost_7_of_8", "nondeterministic"}
+ CONTAM = {"invalid_run", "victim", "skipped"}
+@@ -139,9 +148,14 @@
+ 
+ 
+ def main():
++    global LEGACY
+     ap = argparse.ArgumentParser()
+     ap.add_argument("-q", "--quiet", action="store_true")
++    ap.add_argument("--legacy-underscore", action="store_true",
++                    help="reproduce EXP-0164/EXP-0189's unconditional `_` discard")
++    ap.add_argument("-o", "--out", default=None)
+     args = ap.parse_args()
++    LEGACY = args.legacy_underscore
+     DB = load_db()
+ 
+     # (exp, instr, label, arm, run) -> [ (value, bytes_hex, sig, contam) ]
+@@ -192,7 +206,15 @@
+                     ac = [str(rec[k]) for k in ("carrier", "arm")
+                           if rec.get(k) not in (None, "")]
+                     arm = "|".join(ac) if ac else "-"
+-                    if fld.startswith("_"):
++                    if fld.startswith("_") and (LEGACY or fld not in FIELD_SWEEP):
++                        # EXP-0190: the unconditional form of this test discarded any
++                        # raw record whose `field` starts with `_`, including genuine
++                        # per-value FIELD sweeps that a harness happened to name with a
++                        # leading underscore (EXP-0180's `__dst_nibble` is the instance
++                        # EXP-0189 found by hand).  `FIELD_SWEEP` is the hand-classified,
++                        # committed name table in analysis/classify_underscore.py; every
++                        # other `_` name behaves exactly as before.  --legacy-underscore
++                        # restores the old behaviour verbatim for the control run.
+                         pseudo[exp][arm][runid].add(sig_of(rec))
+                         continue
+                     st["field_recs"] += 1
+@@ -339,7 +361,11 @@
+                      {r for r, f in byrest.items() if len(f) >= 2}},
+         }
+ 
+-    out = {"_meta": {"generated_by": "EXP-0189/analysis/collect_raw.py (verbatim copy of EXP-0164s)",
++    out = {"_meta": {"generated_by": "EXP-0190/analysis/collect_raw.py (EXP-0164/0189 + the "
++                                     "underscore-refilter of PRE_REGISTRATION section 8.1)",
++                     "underscore_filter": ("legacy: every `_` name discarded" if LEGACY else
++                                           "refiltered: FIELD-SWEEP names attributed"),
++                     "field_sweep_names": sorted(FIELD_SWEEP),
+                      "hard_classes": sorted(HARD),
+                      "contaminated_outcomes": sorted(CONTAM),
+                      "partial_runs": sorted(partial),
+@@ -353,7 +379,8 @@
+            "pseudo": {e: {a: {r: sorted(s) for r, s in rs.items()}
+                           for a, rs in arms.items()} for e, arms in pseudo.items()}}
+     os.makedirs(WORK, exist_ok=True)
+-    dst = os.path.join(WORK, "raw_index.json.gz")
++    dst = args.out or os.path.join(
++        WORK, "raw_index_legacy.json.gz" if LEGACY else "raw_index.json.gz")
+     with gzip.open(dst, "wt") as fh:
+         json.dump(out, fh, sort_keys=True)
+     if not args.quiet:

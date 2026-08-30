@@ -1,0 +1,69 @@
+--- ../EXP-0189-closing-audit/analysis/recount.py	2026-08-30 08:15:48
++++ analysis/recount.py	2026-08-30 09:04:31
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-3.0-or-later
+-"""EXP-0189 step 3 -- recount emittability under the CURRENT validate_labels.py rule.
++"""EXP-0190 step 5 (verbatim from EXP-0189 apart from the two input paths) -- recount emittability under the CURRENT validate_labels.py rule.
+ 
+ audit.py (inherited verbatim from EXP-0164) implements the OLD emittable rule, which
+ ignored `_instruction` for descriptors that have fields.  `tools/agx-isa/validate_labels.py`
+@@ -18,7 +18,7 @@
+ Reads only work/ snapshots + analysis/audit.json.  Writes only into analysis/.
+ Usage: python3 analysis/recount.py
+ """
+-import collections, gzip, json, os, re, sys
++import argparse, collections, gzip, json, os, re, sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ EXP = os.path.abspath(os.path.join(HERE, ".."))
+@@ -44,11 +44,14 @@
+     r"don'?t care|dont care)", re.I)
+ 
+ 
+-def load():
++def load(auditname="audit.json", indexname="raw_index.json.gz"):
++    """EXP-0190: the two input paths are arguments so the same code runs against the
++    legacy and the refiltered index.  Nothing else in this file changed; the rule
++    functions are asserted byte-identical by analysis/verify_inheritance.py."""
+     val = json.load(open(os.path.join(WORK, "validation.snapshot.json")))
+     db = json.load(open(os.path.join(WORK, "db.snapshot.json")))
+-    audit = json.load(open(os.path.join(HERE, "audit.json")))["fields"]
+-    idx = json.load(gzip.open(os.path.join(WORK, "raw_index.json.gz"), "rt"))
++    audit = json.load(open(os.path.join(HERE, auditname)))["fields"]
++    idx = json.load(gzip.open(os.path.join(WORK, indexname), "rt"))
+     return val, db, audit, idx
+ 
+ 
+@@ -151,7 +154,12 @@
+ 
+ 
+ def main():
+-    val, db, audit, idx = load()
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--audit", default="audit.json")
++    ap.add_argument("--index", default="raw_index.json.gz")
++    ap.add_argument("--suffix", default="")
++    args = ap.parse_args()
++    val, db, audit, idx = load(args.audit, args.index)
+     resolve = resolver()
+     DBF = {i["mnemonic"]: {f["name"]: (f["start"], f["width"]) for f in i.get("fields", [])}
+            for i in db["instructions"]}
+@@ -275,7 +283,7 @@
+         "ranked_losses": ranked,
+         "text_contradicts_evidence": contradictions,
+     }
+-    json.dump(reclass, open(os.path.join(HERE, "reclassify.json"), "w"),
++    json.dump(reclass, open(os.path.join(HERE, "reclassify%s.json" % args.suffix), "w"),
+               indent=1, sort_keys=True)
+     json.dump({"_meta": {"experiment": "EXP-0189-closing-audit",
+                          "rule": "tools/agx-isa/validate_labels.py as of 0de24f4f, "
+@@ -288,7 +296,7 @@
+                "instruction_entry_audit_summary": collections.Counter(
+                    v["verdict"] for v in ia.values() if v["label"] in EMIT_OK),
+                "instruction_entry_audit": ia},
+-              open(os.path.join(HERE, "emittability.json"), "w"), indent=1, sort_keys=True)
++              open(os.path.join(HERE, "emittability%s.json" % args.suffix), "w"), indent=1, sort_keys=True)
+ 
+     print("denominator (emitter-relevant): %d   published: %d" %
+           (len(rel), val["coverage"]["emittable_of_emitter_relevant"]))

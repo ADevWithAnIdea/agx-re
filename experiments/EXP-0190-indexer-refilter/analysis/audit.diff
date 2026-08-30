@@ -1,0 +1,185 @@
+--- ../EXP-0164-inert-audit/analysis/audit.py	2026-08-30 00:48:54
++++ analysis/audit.py	2026-08-30 09:00:58
+@@ -1,16 +1,25 @@
+ #!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-3.0-or-later
+-"""EXP-0164 step 2 -- bucket every emitter-grade field of the pinned
++"""EXP-0190 step 4 (inherited from EXP-0164, TWO non-behavioural changes) -- bucket every emitter-grade field of the pinned
+ validation.json snapshot against the raw index built by collect_raw.py.
+ 
+ Thresholds are frozen in ../PRE_REGISTRATION.md section 5 and are deliberately NOT
+-command-line tunable.
++command-line tunable.  EXP-0190 asserts at import time that they are byte-identical to
++EXP-0164's and aborts otherwise.
+ 
++EXP-0190's changes, both declared in PRE_REGISTRATION section 8.2:
++  (1) the raw index path and the output suffix are arguments, so the same code can be
++      run against the legacy and the refiltered index;
++  (2) the field-selection loop ALSO audits rows whose label is `untested` and whose
++      note records an EXP-0164/EXP-0189 withholding -- the fields the corrected indexer
++      might legitimately give back -- tagging every row `cohort`.
++No threshold, bucket rule, cross-run test or record shape is touched.
++
+ Outputs (analysis/):
+   audit.json, reclassify.json, experiment_coverage.json, emittability.json,
+   controls.json, mixed_arm_liveness.json
+ """
+-import collections, gzip, json, os, re, sys
++import argparse, collections, gzip, json, os, re, sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ EXP = os.path.abspath(os.path.join(HERE, ".."))
+@@ -48,13 +57,30 @@
+ }
+ 
+ 
+-def load():
++WITHDRAWN_NOTE = re.compile(r"EXP-0164|EXP-0189")
++
++
++def load(indexname):
+     val = json.load(open(os.path.join(WORK, "validation.snapshot.json")))
+     db = json.load(open(os.path.join(WORK, "db.snapshot.json")))
+-    idx = json.load(gzip.open(os.path.join(WORK, "raw_index.json.gz"), "rt"))
++    idx = json.load(gzip.open(os.path.join(WORK, indexname), "rt"))
+     return val, db, idx
+ 
+ 
++def cohort_of(fn, rec):
++    """emitter-grade | withdrawn | None(skip).  A `withdrawn` row is one this repo
++    demoted to `untested` on EXP-0164's or EXP-0189's re-derivation -- exactly the set
++    the underscore refilter could legitimately give back."""
++    if fn.startswith("_"):
++        return None
++    lab = rec.get("label")
++    if lab in EMIT_OK:
++        return "emitter-grade"
++    if lab == "untested" and WITHDRAWN_NOTE.search(str(rec.get("note") or "")):
++        return "withdrawn"
++    return None
++
++
+ def resolver():
+     dirs = sorted(d for d in os.listdir(EXPDIR) if os.path.isdir(os.path.join(EXPDIR, d)))
+     cache = {}
+@@ -193,7 +219,11 @@
+ 
+ 
+ def main():
+-    val, db, idx = load()
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--index", default="raw_index.json.gz")
++    ap.add_argument("--suffix", default="")
++    args = ap.parse_args()
++    val, db, idx = load(args.index)
+     resolve = resolver()
+     partial = set(idx["_meta"]["partial_runs"])
+     index, pseudo = idx["index"], idx["pseudo"]
+@@ -231,12 +261,14 @@
+     unverif_by_dir = collections.defaultdict(set)
+     for mn, fields in val["instructions"].items():
+         for fn, rec in fields.items():
+-            if fn.startswith("_") or rec.get("label") not in EMIT_OK:
++            coh = cohort_of(fn, rec)
++            if coh is None:
+                 continue
+             key = "%s.%s" % (mn, fn)
+             ev = rec.get("evidence") or []
+             per_exp = gather(key, ev, index, partial, resolve, pseudo)
+             r = build_record(mn, fn, rec, per_exp)
++            r["cohort"] = coh
+             r["raw_files"] = sorted({"experiments/%s/raw/%s/" % (resolve(e), run)
+                                      for e, ex in per_exp.items() for v in ex.values()
+                                      for run in v["runs"]})
+@@ -289,11 +321,12 @@
+              if f.endswith(".json") and f not in ("manifest.json", "CAPTURE_CONTRACT.json")})
+ 
+     # ---------------- withhold sets & emittability --------------------------
+-    strict = sorted(k for k, r in audit.items() if r["bucket"] in WITHHOLD)
++    EG = {k: r for k, r in audit.items() if r["cohort"] == "emitter-grade"}
++    strict = sorted(k for k, r in EG.items() if r["bucket"] in WITHHOLD)
+     lenient = sorted(k for k in strict
+                      if not (audit[k]["bucket"] == "UNVERIFIABLE" and
+                              audit[k]["unverifiable_reason"] == "field-named-but-unstructured"))
+-    inert_only = sorted(k for k, r in audit.items() if r["bucket"] == "INERT-SINGLE")
++    inert_only = sorted(k for k, r in EG.items() if r["bucket"] == "INERT-SINGLE")
+ 
+     def emittable(withheld):
+         w = set(withheld)
+@@ -317,8 +350,8 @@
+                     emit.append(m)
+         return sorted(emit), sorted(rel)
+ 
+-    unstable_only = sorted(k for k, r in audit.items() if r["bucket"] == "UNSTABLE")
+-    chain_broken = sorted(k for k, r in audit.items()
++    unstable_only = sorted(k for k, r in EG.items() if r["bucket"] == "UNSTABLE")
++    chain_broken = sorted(k for k, r in EG.items()
+                           if r["bucket"] in ("INERT-SINGLE", "UNSTABLE") or
+                           (r["bucket"] == "UNVERIFIABLE" and r["unverifiable_reason"] in
+                            ("no-field-records", "raw-present-but-unattributable")))
+@@ -406,29 +439,33 @@
+                         "pass": audit.get("iter.dst", {}).get("bucket") == "STABLE-LIVE"},
+         "C4_counts": {"expected_fields": val["coverage"]["by_label"]["hardware-run"] +
+                       val["coverage"]["by_label"]["isolated-byte-diff"],
+-                      "audited_fields": len(audit),
+-                      "pass": len(audit) == val["coverage"]["by_label"]["hardware-run"] +
++                      "audited_fields": len(EG),
++                      "pass": len(EG) == val["coverage"]["by_label"]["hardware-run"] +
+                       val["coverage"]["by_label"]["isolated-byte-diff"],
+                       "cited_experiments_accounted": len(expcov)},
+     }
+ 
+-    buckets = collections.Counter(r["bucket"] for r in audit.values())
+-    reasons = collections.Counter(r["unverifiable_reason"] for r in audit.values()
++    buckets = collections.Counter(r["bucket"] for r in EG.values())
++    reasons = collections.Counter(r["unverifiable_reason"] for r in EG.values()
+                                   if r["bucket"] == "UNVERIFIABLE")
+-    summary = {"total": len(audit), "buckets": dict(buckets),
++    withdrawn_buckets = collections.Counter(
++        r["bucket"] for r in audit.values() if r["cohort"] == "withdrawn")
++    summary = {"total": len(EG), "n_withdrawn_rows_audited": len(audit) - len(EG),
++               "withdrawn_buckets": dict(withdrawn_buckets), "buckets": dict(buckets),
+                "unverifiable_reasons": dict(reasons),
+-               "byte_level_only": sum(1 for r in audit.values() if r["byte_level_only"]),
+-               "mixed_arm_liveness": sum(1 for r in audit.values() if r["mixed_arm_liveness"])}
++               "byte_level_only": sum(1 for r in EG.values() if r["byte_level_only"]),
++               "mixed_arm_liveness": sum(1 for r in EG.values() if r["mixed_arm_liveness"])}
+ 
+-    meta = {"experiment": "EXP-0164-inert-audit",
++    meta = {"experiment": "EXP-0190-indexer-refilter",
++            "raw_index": args.index,
+             "validation_snapshot_sha256":
+-                "c40195cd9f65d9176c5bc518ede1c171cf3904c26ba81f7b93dc2414b1ad7091",
++                "21d006d0afcbe15c7481efb806199e3751e3ba2f3c110b7fd1b0a3803305836c",
+             "db_snapshot_sha256": val["db_sha256"],
+             "thresholds": {"min_common": MIN_COMMON, "min_agree_pct": MIN_AGREE_PCT,
+                            "moved_over_disagree": MOVED_OVER_DISAGREE},
+             "summary": summary}
+     json.dump({"_meta": meta, "fields": audit},
+-              open(os.path.join(HERE, "audit.json"), "w"), indent=1, sort_keys=True)
++              open(os.path.join(HERE, "audit%s.json" % args.suffix), "w"), indent=1, sort_keys=True)
+     json.dump({"_meta": {"experiment": "EXP-0164-inert-audit",
+                          "schema": "FIELD-SWEEP-PROTOCOL.md section 5 flat <mnemonic>.<field>",
+                          "policy": "withhold INERT-SINGLE, UNSTABLE, UNVERIFIABLE",
+@@ -457,16 +494,16 @@
+                "instructions_that_lose_emittable_status": variants["strict"]["lost"],
+                "why_each_instruction_is_lost": lost_detail,
+                "load_bearing_field_names": load_bearing},
+-              open(os.path.join(HERE, "reclassify.json"), "w"), indent=1, sort_keys=True)
+-    json.dump(expcov, open(os.path.join(HERE, "experiment_coverage.json"), "w"),
++              open(os.path.join(HERE, "reclassify%s.json" % args.suffix), "w"), indent=1, sort_keys=True)
++    json.dump(expcov, open(os.path.join(HERE, "experiment_coverage%s.json" % args.suffix), "w"),
+               indent=1, sort_keys=True)
+-    json.dump(emitjson, open(os.path.join(HERE, "emittability.json"), "w"),
++    json.dump(emitjson, open(os.path.join(HERE, "emittability%s.json" % args.suffix), "w"),
+               indent=1, sort_keys=True)
+-    json.dump(controls, open(os.path.join(HERE, "controls.json"), "w"),
++    json.dump(controls, open(os.path.join(HERE, "controls%s.json" % args.suffix), "w"),
+               indent=1, sort_keys=True)
+     json.dump({k: audit[k]["mixed_arm_liveness"] for k in sorted(audit)
+                if audit[k]["mixed_arm_liveness"]},
+-              open(os.path.join(HERE, "mixed_arm_liveness.json"), "w"),
++              open(os.path.join(HERE, "mixed_arm_liveness%s.json" % args.suffix), "w"),
+               indent=1, sort_keys=True)
+ 
+     print(json.dumps(summary, indent=1))

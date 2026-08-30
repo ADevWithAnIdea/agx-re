@@ -8,18 +8,18 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 42 | 124 | 166 |
+| 39 | 127 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 19 |
+| 1 | 21 |
 | 2 | 26 |
-| 3 | 24 |
-| 4 | 13 |
-| 5 | 12 |
+| 3 | 25 |
+| 4 | 14 |
+| 5 | 11 |
 | 6 | 9 |
 | 7 | 4 |
 | 8 | 2 |
@@ -50,7 +50,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `flags` | 7 |
 | `mode` | 6 |
 
-## ONE field away (19 instructions)
+## ONE field away (21 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -69,8 +69,10 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `mesh_out_src` | `sel` | tokenization-only |
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
+| `pop_reconverge` | `reserved` | untested |
 | `ret` | `scoreboard` | corpus-correlation |
 | `shift_amt_move` | `src_flag` | untested |
+| `stop` | `reserved` | untested |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `mode` | untested |
 
@@ -118,7 +120,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 249 |
+| `untested` | 253 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 30 |

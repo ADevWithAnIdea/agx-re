@@ -1,0 +1,1289 @@
+{
+ "_meta": {
+  "counts": {
+   "blocked_by_prior_ruling": 1,
+   "not_restored_never_moved": 1,
+   "remain_withheld": 151,
+   "restored": 1,
+   "withdrawn_rows_audited": 154
+  },
+  "db_sha256": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "experiment": "EXP-0190-indexer-refilter",
+  "policy": "PRE_REGISTRATION section 6: restore iff STABLE-LIVE under the unchanged EXP-0164 thresholds (>=99 % per-value cross-run agreement, moved >= 2.0 * disagreements, moved > 0)",
+  "published_today": {
+   "emittable_of_emitter_relevant": 37,
+   "emitter_grade_fields": 554,
+   "total_fields": 1040
+  },
+  "schema": "FIELD-SWEEP-PROTOCOL.md section 5, flat <mnemonic>.<field>, with start/width from work/db.snapshot.json (the merger refuses a row whose bits moved)"
+ },
+ "blocked_by_prior_ruling": {
+  "get_sr.form": {
+   "arms_tested": [
+    "EXP-0172:get_sr@srnarrow/compute#0",
+    "EXP-0172:get_sr@srnarrow/compute#1",
+    "EXP-0172:get_sr@srnarrow/compute#2",
+    "EXP-0172:get_sr@srnarrow/compute#3",
+    "EXP-0172:get_sr@srwide/compute#0",
+    "EXP-0172:get_sr@srwide/compute#1",
+    "EXP-0172:get_sr@srwide/compute#3",
+    "EXP-0172:get_sr@srwide/compute#4",
+    "EXP-0178:sr_compute|sr_compute",
+    "EXP-0178:sr_frag|sr_frag",
+    "EXP-0178:sr_vertex|sr_vertex"
+   ],
+   "bucket": "STABLE-LIVE",
+   "bucket_under_legacy_index": "STABLE-LIVE",
+   "cross_run": [
+    {
+     "arm": "sr_vertex|sr_vertex",
+     "attribution": [
+      "bit-exact"
+     ],
+     "cross_run": {
+      "agree": 2,
+      "agree_pct": 100.0,
+      "common": 2,
+      "disagreements": 0,
+      "movedA": 1,
+      "movedB": 1,
+      "n_valuesA": 2,
+      "n_valuesB": 2,
+      "runA": "g17p_20260830_run03",
+      "runB": "g17p_20260830_run04"
+     },
+     "experiment": "EXP-0178",
+     "moved_total": 2,
+     "n_gated_runs": 2,
+     "runs": {
+      "g17p_20260830_run03": {
+       "labels": [
+        "form"
+       ],
+       "moved": 1,
+       "n_cases": 2,
+       "n_contam": 0,
+       "n_values": 2
+      },
+      "g17p_20260830_run04": {
+       "labels": [
+        "form"
+       ],
+       "moved": 1,
+       "n_cases": 2,
+       "n_contam": 0,
+       "n_values": 2
+      }
+     }
+    }
+   ],
+   "evidence": [
+    "EXP-0178",
+    "EXP-0172"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 2,
+   "n_arms_that_tested_the_field": 11,
+   "not_restored_because": "EXP-0189 section 8a withdrew this on LABEL-DEFINITION grounds, not on movement: all 12 records carry oracle:null, match:false, outcome:'wrong_value' -- including cases whose bytes equal the arm's own unmutated anchor -- EXP-0178 filed no verdict for it (its field_verdicts.json has only sr_sel/dp_width/dp_marker), and EXP-0172 spanned the datapath-width dimension in both directions and concluded NOT emitter-grade. It passes THIS experiment's stable-live gate (2 values, three stage carriers, 100.00 % agreement) because that gate measures baseline-hash MOVEMENT, which EXP-0181 classifies as 'the BYTES are live -- nothing about semantics'. Movement was never the objection. Not restored here.",
+   "note_now": "ORCHESTRATOR RULING WITHDRAWN 2026-08-30 by EXP-0189's closing audit. I promoted this to `isolated-byte-diff`, overriding EXP-0172's eight-arm decline, on one carrier's movement. **Two of the three grounds I gave were wrong.** (1) `isolated-byte-diff` requires the field to have run WITH THE PREDICTED EFFECT; all 12 records are `oracle: null` / `foreign: true` and score the UNMUTATED BASELINE as `wrong_value`, so no predicted effect was ever established. (2) EXP-0178 filed no verdict for this field at all -- it referred it explicitly for ruling. (3) My 'eight arms that cannot express it' rebuttal was FACTUALLY WRONG about EXP-0172, which recorded `spanned: true` on the datapath-width dimension in BOTH flip directions -- so those arms could express it. The movement is real (the audit buckets it STABLE-LIVE) but that is not the same as the label, and `get_sr` loses emittable status by an independent second route (`dst_hi`) regardless.",
+   "range_now": "full encodable range, 2 of 2 values, on THREE stage carriers across two gated runs; 100.00% cross-run agreement, 0 disagreements, 0 measurement failures, 0 victims",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/",
+    "experiments/EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run03/",
+    "experiments/EXP-0178-g17p-sysval-tileread/raw/g17p_20260830_run04/"
+   ],
+   "recommend_label": "hardware-run",
+   "recovered_by": "evidence-citation-repair (already committed); the underscore refilter changes nothing for this row",
+   "start": 3,
+   "target": "G17P",
+   "width": 1
+  }
+ },
+ "headline": {
+  "C1_published_rule_no_withholding": 37,
+  "emittable_after_restoration": 37,
+  "emitter_grade_fields_after_restoration": 555,
+  "instructions_the_corrected_index_withdraws": [],
+  "instructions_the_legacy_index_would_have_withdrawn": [
+   "half_alu",
+   "half_alu_ext8"
+  ],
+  "strict_rederivation_with_CORRECTED_index": 37,
+  "strict_rederivation_with_LEGACY_index": 35,
+  "why_each": {
+   "half_alu": [
+    "field:dst"
+   ],
+   "half_alu_ext8": [
+    "field:dst"
+   ]
+  }
+ },
+ "not_restored_requires_dimension_argument": {
+  "call.tail": {
+   "arms_tested": [
+    "EXP-0179:C1_flat/idx15|TL",
+    "EXP-0179:C2_nested/idx7|TL",
+    "EXP-0179:S_kchain_compiled|S"
+   ],
+   "bucket": "INERT-MULTI",
+   "bucket_under_legacy_index": "INERT-MULTI",
+   "cross_run": [],
+   "evidence": [
+    "EXP-0179"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 3,
+   "not_restored_because": "never moved on any arm. Per the dispatch a never-moving field is promotable only if the carriers differ in the dimension the field controls; that is a per-field semantic argument this experiment does not make. Listed, not counted.",
+   "note_now": "WITHHELD 2026-08-30 by the orchestrator on EXP-0189's eighth cannot-fail finding. This row was promoted through `EXP-0179/analysis/analyze.py:140-142`, whose promotion gate has **no `moved >= 1` conjunct** -- `len(moved)` sits only in the right arm of an `or` whose left arm is `disagreements == 0`, so a perfectly reproducible, perfectly INERT field passes. EXP-0189 proved it constructively rather than by argument: a synthetic DEAD-CODE carrier fed to the unmodified pipeline yields `{\"label\":\"hardware-run\",\"movement\":0,\"range\":\"0..255 dense (all 256 values), 2 carriers\"}` -- **byte-for-byte the string published for this field**. Its sibling `call.b6` rode the same branch and was caught only because an independent second method (arm S, mutating the real compiler-emitted call) refuted it; `call.tail` never got a second method. The measurement may well be right -- inert is a plausible reading -- but it is indistinguishable from dead code under the gate that produced it, and that is not evidence. Needs a second method or a re-run under a gate with the missing conjunct.",
+   "range_now": "0..255 dense (all 256 values), 2 carriers",
+   "raw_files": [
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run01/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run03/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_run04/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_splice01/",
+    "experiments/EXP-0179-g17p-call/raw/g17p_20260830_splice02/"
+   ],
+   "recommend_label": "untested",
+   "recovered_by": "evidence-citation-repair (already committed); the underscore refilter changes nothing for this row",
+   "start": 104,
+   "target": "G17P",
+   "width": 8
+  }
+ },
+ "remain_withheld": {
+  "atomic_rmw.addr_desc_hi": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 4,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_rmw.amode": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_rmw.base_slot": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_rmw.op_msb": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_rmw.per_lane": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_rmw.rsv3": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_tg.amode": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_tg.op_desc": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 254,
+   "moved_total": 16,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_tg.ret_desc": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "atomic_tg.rsv10lo": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 64,
+   "moved_total": 7,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "b_alu10_loe.modA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_loe.modB": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_loe.outmod": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_loe.srcA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_loe.src_flag": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_loe.src_reg": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.modA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.modB": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.outmod": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.srcA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.src_flag": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "b_alu10_lof.src_reg": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "copysign.operands": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 443,
+   "n_arms_that_tested_the_field": 3,
+   "reason": null
+  },
+  "cvt_i2f_src.dst_desc": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 184,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "cvt_i2f_src.src_cache": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "device_load.access_desc": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "device_load.addr_mode": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "device_load.reserved13": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "device_load.reserved7": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu2_ext.ctrl": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 128,
+   "moved_total": 137,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu2_ext.srcA_size": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu2_ext.srcB_imm": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu2_ext.srcB_neg": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu2i.srcA_reg_top": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu3.op": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 428,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu3_ext.op": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 450,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu_srcmod12b.mod_hi": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 16,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu_srcmod12b.mod_lo": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 8,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu_srcmod12b.srcB_imm": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "falu_srcmod12b.srcB_neg": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "frag_color_pack.conv_scale": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "frag_color_pack.src_gate_select": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "frame_prologue.frame_size": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "frame_prologue.marker": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "frame_prologue.subop": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "fspecial_est.srcA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "get_sr.dst_hi": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 8,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "h_coord_hi_ext.ext": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 255,
+   "moved_total": 232,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "h_coord_hi_ext.srcB": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 255,
+   "moved_total": 274,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "h_coord_hi_ext.tail": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 584,
+   "moved_total": 413,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "half_alu_fma12.dst": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "field-named-but-unstructured"
+  },
+  "half_pack.b3": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 86,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "half_pack.dstlo": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 88,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "iadd2.addsub": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 2,
+   "moved_total": 20,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "iadd2.srcB_imm": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 85,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "iadd2.srcB_reg_hi": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 128,
+   "moved_total": 193,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ibfins.cache": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ibfins.mask_hi": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ibfins.mask_imm": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ibitcount.cache": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "icmp_pred.cond": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "icmp_pred.neg": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "if_push_pred.pred": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "if_push_pred.scope": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ilogic.dst": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "ilogic.lut_a_free": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "ilogic.lut_a_sel": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "imad.b11": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "imad.b1hi": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 128,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "imad.b2_bit0": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "imad.b2_fmt": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 64,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "imad.store_en": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "imageblock_load.slice_off": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "imageblock_store.slice_off": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "imageblock_store.src": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 111,
+   "n_arms_that_tested_the_field": 2,
+   "reason": null
+  },
+  "irotate.operands": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 1276,
+   "moved_total": 2365,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "isel10_c.flags": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 201,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "isel10_c.selFalse": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 13,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "isel10_c.selFalse_file": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 68,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "isel8.cmpA": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 1,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "isel8.cmpB": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ishift.pad9": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ishift.src_cache": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 257,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "iunary.b1": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "iunary.opsel": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "jump.branch_ctrl": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 254,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "jump.link": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "jump.offset": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "field-named-but-unstructured"
+  },
+  "jump_cond.cf_scope": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "jump_cond.reserved": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "link_save_restore.b3": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "link_save_restore.dir_offset": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "link_save_restore.reserved7": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.a_desc": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.a_reg": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.acc_en": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.b11_rsv": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 32,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "matrix_mac.b_reg": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.c_src": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.dst": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.dst_desc_lo": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 64,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "matrix_mac.dtype": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.mode": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.op_enable": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "matrix_mac.pad4": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "n3_sample_read.b1": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "n3_sample_read.b3": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "packed_half2_hi.srcA": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "packed_half2_hi.srcB": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "ray_move.b3": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "rt_query_traverse.dst": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 16,
+   "moved_total": 1318,
+   "n_arms_that_tested_the_field": 70,
+   "reason": null
+  },
+  "rt_query_traverse.opA": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "rt_query_traverse.opB": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "rt_query_traverse.sel": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "shift_amt_move.src_flag": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "simd_ballot.pred": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "simd_reduce.dtype": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "simd_reduce.op": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "simd_shuffle.dir": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "spill_frame_marker.b1": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "spill_frame_marker.b2": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "spill_frame_marker.b3": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.cache": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.form": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_cnt": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_desc9": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_hi": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_mode": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_reg": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.op_reg2": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.rsv11": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.rsv6": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_addr_setup.src_desc": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-raw"
+  },
+  "tex_deriv.dstsrc": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 65,
+   "moved_total": 198,
+   "n_arms_that_tested_the_field": 4,
+   "reason": null
+  },
+  "tex_sample.mode": {
+   "bucket": "UNVERIFIABLE",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "reason": "no-field-records"
+  },
+  "tg_addr_compute.b3": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "tg_addr_compute.b4": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "tg_addr_compute.b5": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "threadgroup_barrier.b5": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "threadgroup_barrier.flags": {
+   "bucket": "INERT-SINGLE",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "threadgroup_barrier.mem_scope": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "threadgroup_barrier.sub": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 260,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "unpack_convert.cache": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 128,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "unpack_convert.fmt_sel": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 16,
+   "moved_total": 156,
+   "n_arms_that_tested_the_field": 2,
+   "reason": null
+  },
+  "unpack_convert.opdesc": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 262,
+   "n_arms_that_tested_the_field": 2,
+   "reason": null
+  },
+  "unpack_convert.size": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 16,
+   "moved_total": 192,
+   "n_arms_that_tested_the_field": 2,
+   "reason": null
+  },
+  "unpack_convert.src": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 99,
+   "n_arms_that_tested_the_field": 2,
+   "reason": null
+  },
+  "unpack_convert.src_class": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 323,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "vary_store.b5_tag": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 128,
+   "moved_total": 128,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "vary_store.hint1": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 256,
+   "moved_total": 259,
+   "n_arms_that_tested_the_field": 1,
+   "reason": null
+  },
+  "vtx_out_pos.dst": {
+   "bucket": "UNSTABLE",
+   "max_values_dispatched": 16,
+   "moved_total": 5,
+   "n_arms_that_tested_the_field": 3,
+   "reason": null
+  }
+ },
+ "restore": {
+  "falu2i.imm_flag": {
+   "arms_tested": [
+    "EXP-0169:C1_alu|FALU2I"
+   ],
+   "bucket": "STABLE-LIVE",
+   "bucket_under_legacy_index": "STABLE-LIVE",
+   "cross_run": [
+    {
+     "arm": "C1_alu|FALU2I",
+     "attribution": [
+      "bit-exact"
+     ],
+     "cross_run": {
+      "agree": 512,
+      "agree_pct": 100.0,
+      "common": 512,
+      "disagreements": 0,
+      "movedA": 7,
+      "movedB": 7,
+      "n_valuesA": 2,
+      "n_valuesB": 2,
+      "runA": "g17p_20260830_run01",
+      "runB": "g17p_20260830_run02"
+     },
+     "experiment": "EXP-0169",
+     "moved_total": 14,
+     "n_gated_runs": 2,
+     "runs": {
+      "g17p_20260830_run01": {
+       "labels": [
+        "imm_exp",
+        "imm_flag"
+       ],
+       "moved": 7,
+       "n_cases": 530,
+       "n_contam": 0,
+       "n_values": 2
+      },
+      "g17p_20260830_run02": {
+       "labels": [
+        "imm_exp",
+        "imm_flag"
+       ],
+       "moved": 7,
+       "n_cases": 530,
+       "n_contam": 0,
+       "n_values": 2
+      }
+     }
+    }
+   ],
+   "evidence": [
+    "EXP-0169"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 14,
+   "n_arms_that_tested_the_field": 1,
+   "note_now": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+   "range_now": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "raw_files": [
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/",
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/"
+   ],
+   "recommend_label": "hardware-run",
+   "recovered_by": "evidence-citation-repair (already committed); the underscore refilter changes nothing for this row",
+   "start": 8,
+   "target": "G17P",
+   "width": 1
+  }
+ }
+}

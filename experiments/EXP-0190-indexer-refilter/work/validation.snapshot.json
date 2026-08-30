@@ -16,27 +16,28 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 486,
+   "hardware-run": 490,
    "isolated-byte-diff": 64,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 253
+   "untested": 249
   },
   "by_label_pct": {
-   "hardware-run": 46.7,
+   "hardware-run": 47.1,
    "isolated-byte-diff": 6.2,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.3
+   "untested": 23.9
   },
-  "emittable_instructions": 34,
+  "emittable_instructions": 37,
   "emittable_mnemonics": [
+   "atomic_mem",
    "bf_add_dst",
    "bf_alu",
    "bf_fma_dst",
@@ -63,16 +64,18 @@
    "n3_mov",
    "pack_convert",
    "pixel_order",
+   "pop_reconverge",
    "psel",
    "reg_move_cb",
    "ret_luse",
    "rtq_state_move",
    "sel",
    "sr_read_wide",
+   "stop",
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 138,
+  "decodable_not_yet_emittable": 135,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -83,7 +86,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 34
+  "emittable_of_emitter_relevant": 37
  },
  "instructions": {
   "falu2": {
@@ -336,14 +339,13 @@
     "width": 4
    },
    "imm_flag": {
-    "label": "hardware-run",
-    "range": "full encodable range, 2 of 2 values, on the EXP-0169 C1_alu/FALU2I arm across two gated runs: 512 common per-value keys, 100.00% cross-run agreement, 0 disagreements, 7 moved in EACH run, all movement in the non-fault class",
+    "label": "untested",
+    "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
     "target": "G17P",
     "evidence": [
-     "EXP-0169",
-     "EXP-0190"
+     "EXP-0169"
     ],
-    "note": "RESTORED 2026-08-30: this row returns via the committed CITATION REPAIRS, not the indexer fix -- it buckets STABLE-LIVE under the defective index too. Its previous note claimed it was \"inert on the ONE carrier that had detection power\", which is FALSE: 512 common per-value keys at 100.00% cross-run agreement, 0 disagreements, 7 moved in each of two gated runs, all movement in the non-fault class.",
+    "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -3103,13 +3105,13 @@
     "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical"
    },
    "reserved": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "35 values sampled",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": ""
    }
   },
   "mask_op": {
@@ -3662,7 +3664,7 @@
     ]
    },
    "reserved": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "the full 24-bit body corrupted; HW-proven non-load-bearing padding",
     "target": "A18",
     "evidence": [
@@ -3670,7 +3672,7 @@
      "EXP-0010",
      "EXP-0168-g17p-dst-resweep"
     ],
-    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-0003, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": "The 'end-of-program flags/scope' hypothesis is DISPROVEN. True end-of-program is out of band (the metadata code length). A driver emits 0x000000. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-0003, EXP-0010 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    }
   },
   "tex_sample": {
@@ -4495,31 +4497,31 @@
     ]
    },
    "amode": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": "db.json documents 0x11 vs 0x01 at byte+1 as the form selector and byte+2 as `amode`; byte+2 has no observable role here."
    },
    "rsv3": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "Was `tokenization-only`. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": "Was `tokenization-only`."
    },
    "base_slot": {
-    "label": "untested",
+    "label": "hardware-run",
     "range": "0..255 step 1 (256 of 256)",
     "target": "M4",
     "evidence": [
      "EXP-0141"
     ],
-    "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only. | WITHHELD 2026-08-30 on DEF-0190-1, the TENTH cannot-fail check found in this corpus. `audit.py`'s INERT buckets have **no detection-power conjunct**: `moved` is derived from the hash of `observed`, so an arm whose observable NEVER VARIES returns `moved = 0` BY CONSTRUCTION, and `classify()` reads that as 'the field is inert'. `INERT-MULTI` is not withheld, so such a field keeps emitter-grade status. Measured across the corpus: **8 arms record no observation at all, and 128 arms (80,138 field records) record exactly ONE distinct `observed` payload across every case.** 21 INERT-* fields rest entirely on such arms; this is one of the 5 that were emitter-grade. It is the eighth finding inverted -- there, a promotion gate could not fail; here, an INERTNESS gate cannot fail. The measurement is not refuted: the field may well be inert. But an arm that cannot vary its observable cannot establish inertness either, and that is the same error this corpus has now made ten different ways. REMEDY, needing no hardware and already IN the corpus: the `_detect`, `__ladder_L_*` and `_live_control` records -- discarded by the same underscore filter -- consumed as a GATE on INERT verdicts rather than as measurements."
+    "note": "db.json calls it 'a base-register-table slot, NOT the Metal buffer index'; with one bound target the slot is unobservable. Tested with ONE atomic target buffer only."
    },
    "ret_flag": {
     "label": "hardware-run",

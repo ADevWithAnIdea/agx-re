@@ -1,0 +1,4557 @@
+{
+ "_meta": {
+  "counts": {
+   "instruction_entries_withheld": 2,
+   "lenient": 149,
+   "strict": 165
+  },
+  "db_sha256": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "experiment": "EXP-0189-closing-audit",
+  "policy": "withhold INERT-SINGLE, UNSTABLE, UNVERIFIABLE (EXP-0164 frozen rule)",
+  "schema": "FIELD-SWEEP-PROTOCOL.md section 5, flat <mnemonic>.<field>, start/width carried from work/db.snapshot.json"
+ },
+ "instruction_entries_without_dispatch_record": {
+  "call_indirect": {
+   "cited_dir_has_records": [],
+   "cited_dirs": [
+    "EXP-0035-function-abi"
+   ],
+   "dirs_where_bytes_match_this_descriptor": [
+    "EXP-0146-m4-emit-int-misc"
+   ],
+   "dirs_with_per_value_records": {},
+   "evidence": [
+    "EXP-0035"
+   ],
+   "label": "isolated-byte-diff",
+   "n_dirs_with_per_value_records": 0,
+   "verdict": "bytes-seen-only"
+  },
+  "spill_frame_marker": {
+   "cited_dir_has_records": [],
+   "cited_dirs": [
+    "EXP-M4-14-a18-splice",
+    "EXP-0041-scratch-helper-abi"
+   ],
+   "dirs_where_bytes_match_this_descriptor": [
+    "EXP-0156-g17p-emit-cf-mem"
+   ],
+   "dirs_with_per_value_records": {},
+   "evidence": [
+    "EXP-M4-14",
+    "EXP-0041"
+   ],
+   "label": "hardware-run",
+   "n_dirs_with_per_value_records": 0,
+   "verdict": "bytes-seen-only"
+  }
+ },
+ "instructions_that_lose_emittable_status": [
+  "half_alu",
+  "half_alu_ext8"
+ ],
+ "lenient_subset": [
+  "atomic_rmw.addr_desc_hi",
+  "atomic_rmw.amode",
+  "atomic_rmw.base_slot",
+  "atomic_rmw.op_msb",
+  "atomic_rmw.per_lane",
+  "atomic_rmw.rsv3",
+  "atomic_tg.amode",
+  "atomic_tg.op_desc",
+  "atomic_tg.ret_desc",
+  "atomic_tg.rsv10lo",
+  "b_alu10_loe.modA",
+  "b_alu10_loe.modB",
+  "b_alu10_loe.outmod",
+  "b_alu10_loe.srcA",
+  "b_alu10_loe.src_flag",
+  "b_alu10_loe.src_reg",
+  "b_alu10_lof.modA",
+  "b_alu10_lof.modB",
+  "b_alu10_lof.outmod",
+  "b_alu10_lof.srcA",
+  "b_alu10_lof.src_flag",
+  "b_alu10_lof.src_reg",
+  "copysign.operands",
+  "cvt_i2f_src.dst_desc",
+  "cvt_i2f_src.src_cache",
+  "device_load.access_desc",
+  "device_load.addr_mode",
+  "device_load.reserved13",
+  "device_load.reserved7",
+  "falu2_ext.ctrl",
+  "falu2_ext.srcA_size",
+  "falu2_ext.srcB_imm",
+  "falu2_ext.srcB_neg",
+  "falu2i.srcA_reg_top",
+  "falu3.op",
+  "falu3_ext.op",
+  "falu_srcmod12b.mod_hi",
+  "falu_srcmod12b.mod_lo",
+  "falu_srcmod12b.srcB_imm",
+  "falu_srcmod12b.srcB_neg",
+  "frag_color_pack.conv_scale",
+  "frag_color_pack.src_gate_select",
+  "frame_prologue.frame_size",
+  "frame_prologue.marker",
+  "frame_prologue.subop",
+  "fspecial_est.srcA",
+  "get_sr.dst_hi",
+  "h_coord_hi_ext.ext",
+  "h_coord_hi_ext.srcB",
+  "h_coord_hi_ext.tail",
+  "half_pack.b3",
+  "half_pack.dstlo",
+  "iadd2.addsub",
+  "iadd2.srcB_imm",
+  "iadd2.srcB_reg_hi",
+  "ibfins.cache",
+  "ibfins.mask_hi",
+  "ibfins.mask_imm",
+  "ibitcount.cache",
+  "icmp_pred.cond",
+  "icmp_pred.neg",
+  "if_push_pred.pred",
+  "if_push_pred.scope",
+  "ilogic.dst",
+  "ilogic.lut_a_free",
+  "ilogic.lut_a_sel",
+  "imad.b11",
+  "imad.b1hi",
+  "imad.b2_bit0",
+  "imad.b2_fmt",
+  "imad.store_en",
+  "imageblock_load.slice_off",
+  "imageblock_store.slice_off",
+  "imageblock_store.src",
+  "irotate.operands",
+  "isel10_c.flags",
+  "isel10_c.selFalse",
+  "isel10_c.selFalse_file",
+  "isel8.cmpA",
+  "isel8.cmpB",
+  "ishift.pad9",
+  "ishift.src_cache",
+  "iunary.b1",
+  "iunary.opsel",
+  "jump.branch_ctrl",
+  "jump.link",
+  "jump_cond.cf_scope",
+  "jump_cond.reserved",
+  "link_save_restore.b3",
+  "link_save_restore.dir_offset",
+  "link_save_restore.reserved7",
+  "matrix_mac.a_desc",
+  "matrix_mac.a_reg",
+  "matrix_mac.acc_en",
+  "matrix_mac.b11_rsv",
+  "matrix_mac.b_reg",
+  "matrix_mac.c_src",
+  "matrix_mac.dst",
+  "matrix_mac.dst_desc_lo",
+  "matrix_mac.dtype",
+  "matrix_mac.mode",
+  "matrix_mac.op_enable",
+  "matrix_mac.pad4",
+  "n3_sample_read.b1",
+  "n3_sample_read.b3",
+  "packed_half2_hi.srcA",
+  "packed_half2_hi.srcB",
+  "ray_move.b3",
+  "rt_query_traverse.dst",
+  "rt_query_traverse.opA",
+  "rt_query_traverse.opB",
+  "rt_query_traverse.sel",
+  "shift_amt_move.src_flag",
+  "simd_ballot.pred",
+  "simd_reduce.dtype",
+  "simd_reduce.op",
+  "simd_shuffle.dir",
+  "spill_frame_marker.b1",
+  "spill_frame_marker.b2",
+  "spill_frame_marker.b3",
+  "tex_addr_setup.cache",
+  "tex_addr_setup.form",
+  "tex_addr_setup.op_cnt",
+  "tex_addr_setup.op_desc9",
+  "tex_addr_setup.op_hi",
+  "tex_addr_setup.op_mode",
+  "tex_addr_setup.op_reg",
+  "tex_addr_setup.op_reg2",
+  "tex_addr_setup.rsv11",
+  "tex_addr_setup.rsv6",
+  "tex_addr_setup.src_desc",
+  "tex_deriv.dstsrc",
+  "tex_sample.mode",
+  "tg_addr_compute.b3",
+  "tg_addr_compute.b4",
+  "tg_addr_compute.b5",
+  "threadgroup_barrier.b5",
+  "threadgroup_barrier.flags",
+  "threadgroup_barrier.mem_scope",
+  "threadgroup_barrier.sub",
+  "unpack_convert.cache",
+  "unpack_convert.fmt_sel",
+  "unpack_convert.opdesc",
+  "unpack_convert.size",
+  "unpack_convert.src",
+  "unpack_convert.src_class",
+  "vary_store.b5_tag",
+  "vary_store.hint1",
+  "vtx_out_pos.dst"
+ ],
+ "ranked_losses": [
+  {
+   "blocking_fields": [
+    {
+     "bucket": "UNVERIFIABLE",
+     "evidence": [
+      "EXP-0138-m4-emit-falu",
+      "EXP-0180",
+      "EXP-0183"
+     ],
+     "field": "dst",
+     "max_values_dispatched": 0,
+     "moved_total": 0,
+     "n_arms_tested": 0,
+     "reason": "field-named-but-unstructured",
+     "start": 4,
+     "width": 4
+    }
+   ],
+   "instruction_gate_blocks": false,
+   "mnemonic": "half_alu",
+   "n_blocking_fields": 1
+  },
+  {
+   "blocking_fields": [
+    {
+     "bucket": "UNVERIFIABLE",
+     "evidence": [
+      "EXP-0180",
+      "EXP-0183"
+     ],
+     "field": "dst",
+     "max_values_dispatched": 0,
+     "moved_total": 0,
+     "n_arms_tested": 0,
+     "reason": "field-named-but-unstructured",
+     "start": 4,
+     "width": 4
+    }
+   ],
+   "instruction_gate_blocks": false,
+   "mnemonic": "half_alu_ext8",
+   "n_blocking_fields": 1
+  }
+ ],
+ "strict": {
+  "atomic_rmw.addr_desc_hi": {
+   "arms_tested": [
+    "EXP-0141:atdev|atdev_atomic_rmw_b6"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 4,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 4 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+6 bits 6..7: DON'T-CARE (0x01/0x41/0x81/0xC1 all select index 3)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run21/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run22/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 54,
+   "target": "M4",
+   "width": 2
+  },
+  "atomic_rmw.amode": {
+   "arms_tested": [
+    "EXP-0141:atdev|atdev_atomic_rmw_b2"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run21/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run22/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "atomic_rmw.base_slot": {
+   "arms_tested": [
+    "EXP-0141:atdev|atdev_atomic_rmw_b4"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run21/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run22/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "M4",
+   "width": 8
+  },
+  "atomic_rmw.op_msb": {
+   "arms_tested": [
+    "EXP-0156:atdev|atdev_atomic_rmw_b12"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem03/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 103,
+   "target": "G17P",
+   "width": 1
+  },
+  "atomic_rmw.per_lane": {
+   "arms_tested": [
+    "EXP-0156:atdev|atdev_atomic_rmw_b12"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem03/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 102,
+   "target": "G17P",
+   "width": 1
+  },
+  "atomic_rmw.rsv3": {
+   "arms_tested": [
+    "EXP-0141:atdev|atdev_atomic_rmw_b3"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run21/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run22/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 8
+  },
+  "atomic_tg.amode": {
+   "arms_tested": [
+    "EXP-0141:attg|attg_atomic_tg_b2"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "atomic_tg.op_desc": {
+   "arms_tested": [
+    "EXP-0156:attg|attg_atomic_tg_b5"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 254,
+   "moved_total": 16,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 254 values dispatched over 1 arm(s), 16 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mtg03/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mtg04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "G17P",
+   "width": 8
+  },
+  "atomic_tg.ret_desc": {
+   "arms_tested": [
+    "EXP-0141:attg|attg_atomic_tg_b3"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 8
+  },
+  "atomic_tg.rsv10lo": {
+   "arms_tested": [
+    "EXP-0156:attg|attg_atomic_tg_b10"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 64,
+   "moved_total": 7,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 64 values dispatched over 1 arm(s), 7 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem03/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-mem04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 80,
+   "target": "G17P",
+   "width": 6
+  },
+  "b_alu10_loe.modA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_loe.modB": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_loe.outmod": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_loe.srcA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_loe.src_flag": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 15,
+   "target": "G17P",
+   "width": 1
+  },
+  "b_alu10_loe.src_reg": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 7
+  },
+  "b_alu10_lof.modA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_lof.modB": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_lof.outmod": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_lof.srcA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "b_alu10_lof.src_flag": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "2 of 2 sub-values, DENSE (2 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 15,
+   "target": "G17P",
+   "width": 1
+  },
+  "b_alu10_lof.src_reg": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "128 of 128 sub-values, DENSE (128 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 7
+  },
+  "copysign.operands": {
+   "arms_tested": [
+    "EXP-0184:cs_chain|cs_chain#0/copysign.operands",
+    "EXP-0184:cs_load|P/cs_load#0/operands",
+    "EXP-0184:cs_load|cs_load#0/copysign.operands"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0184"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 443,
+   "n_arms_that_tested_the_field": 3,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 3 arm(s), 443 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/prefreeze/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "cvt_i2f_src.dst_desc": {
+   "arms_tested": [
+    "EXP-0144:c_i2f_src|F"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 184,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 184 observations moved.",
+   "range": "byte+3: 255 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_i2f_src/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 8
+  },
+  "cvt_i2f_src.src_cache": {
+   "arms_tested": [
+    "EXP-0144:c_i2f_src|F"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+2: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__cvt_i2f_src/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "device_load.access_desc": {
+   "arms_tested": [
+    "EXP-0141:synth|L_access_desc"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "M4",
+   "width": 8
+  },
+  "device_load.addr_mode": {
+   "arms_tested": [
+    "EXP-0141:synth|L_addr_mode"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "device_load.reserved13": {
+   "arms_tested": [
+    "EXP-0141:synth|L_reserved13"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 104,
+   "target": "M4",
+   "width": 8
+  },
+  "device_load.reserved7": {
+   "arms_tested": [
+    "EXP-0141:synth|L_reserved7"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "M4",
+   "width": 8
+  },
+  "falu2_ext.ctrl": {
+   "arms_tested": [
+    "EXP-0160:SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]|F2E_CTRL"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0160"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 128,
+   "moved_total": 137,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 128 values dispatched over 1 arm(s), 137 observations moved.",
+   "range": "0..127 dense (all 128 values), each under TWO independent seed sets",
+   "raw_files": [
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm03/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm04/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm05b/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm06/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run01/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 7
+  },
+  "falu2_ext.srcA_size": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]|FALU2_EXT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 1
+  },
+  "falu2_ext.srcB_imm": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]|FALU2_EXT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 39,
+   "target": "G17P",
+   "width": 1
+  },
+  "falu2_ext.srcB_neg": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]|FALU2_EXT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 43,
+   "target": "G17P",
+   "width": 1
+  },
+  "falu2i.srcA_reg_top": {
+   "arms_tested": [
+    "EXP-0169:C1_alu|FALU2I"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "raw_files": [
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/",
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 31,
+   "target": "G17P",
+   "width": 1
+  },
+  "falu3.op": {
+   "arms_tested": [
+    "EXP-0160:SYNTH+LIFTED:k_fma@falu3[56:64]|F3_OP"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0160"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 428,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 428 observations moved.",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "raw_files": [
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm01/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm02/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm03/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm04/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm05b/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm06/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run01/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "falu3_ext.op": {
+   "arms_tested": [
+    "EXP-0160:SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]|F3E_OP"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0160"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 450,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 450 observations moved.",
+   "range": "0..255 dense (all 256 values), each under TWO independent seed sets",
+   "raw_files": [
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm01/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm02/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm03/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm04/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm05b/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_confirm06/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run01/",
+    "experiments/EXP-0160-g17p-last-field/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "falu_srcmod12b.mod_hi": {
+   "arms_tested": [
+    "EXP-0138:carrier"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 16,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 16 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..15 dense (all 16 values)",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 44,
+   "target": "M4",
+   "width": 4
+  },
+  "falu_srcmod12b.mod_lo": {
+   "arms_tested": [
+    "EXP-0138:carrier_uni"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 8,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 8 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..7 dense (all 8 values)",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run02/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run03/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run07/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "M4",
+   "width": 3
+  },
+  "falu_srcmod12b.srcB_imm": {
+   "arms_tested": [
+    "EXP-0138:carrier"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..1 dense (all 2 values)",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 39,
+   "target": "M4",
+   "width": 1
+  },
+  "falu_srcmod12b.srcB_neg": {
+   "arms_tested": [
+    "EXP-0138:carrier"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0138"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..1 dense (all 2 values)",
+   "raw_files": [
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run01/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run05/",
+    "experiments/EXP-0138-m4-emit-falu/raw/m4_20260828_run06/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 43,
+   "target": "M4",
+   "width": 1
+  },
+  "frag_color_pack.conv_scale": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x42,0x80,0x82,0xc0,0xc1,0xc2,0xff swept: bit1 = component-1 enable, bits6-7 = scale/exponent (0x82 halves G from 0x80 to 0x40); extreme values alias/overflow across the 2-wide pair; no value faults",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "A18",
+   "width": 8
+  },
+  "frag_color_pack.src_gate_select": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x01,0x05,0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x80,0x85,0xff swept on both pack ops: bit2 gates both components, bit6 gates component 0, and the low bits can REROUTE which source channel feeds a slot; no value in the swept range faults",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 64,
+   "target": "A18",
+   "width": 8
+  },
+  "frag_color_store.rt_index": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0029",
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "RT0=0x00, RT1=0x02, RT2=0x04 (rt<<1), splice-proven; MRT emits one store per target",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "frag_color_store.src": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0029",
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "byte+3 source colour GPR, splice-proven",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "frame_prologue.frame_size": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "bytes+3/+4 at 0x00/0x01/0x08/0xff (nonzero -> huge frame -> GPU fault); byte+5 at 0x10, 0x1f, 0x20, 0x21, 0x30, 0x40",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 24
+  },
+  "frame_prologue.marker": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00, 0x04, 0x54, 0x55, 0xff all run to baseline - RESERVED/inert",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "A18",
+   "width": 8
+  },
+  "frame_prologue.subop": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x01,0x02,0x03,0x04,0x0b,0x13,0x23,0x43 swept: only values with bits[1:0]==0b11 run (0x03/0x0b/0x13/0x23/0x43); 0x00/0x01/0x02/0x04 fault",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "fspecial_est.srcA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "256 of 256 sub-values, DENSE (256 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "get_sr.dst_hi": {
+   "arms_tested": [
+    "EXP-0168:GETSR/dump"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0168"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 8,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 8 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "8 distinct values dispatched on the best arm",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 29,
+   "target": "G17P",
+   "width": 3
+  },
+  "h_coord_hi_ext.ext": {
+   "arms_tested": [
+    "EXP-0157:h3mix|H"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 255,
+   "moved_total": 232,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 255 values dispatched over 1 arm(s), 232 observations moved.",
+   "range": "233 values executed (boundaries + samples)",
+   "raw_files": [
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run01/",
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 8
+  },
+  "h_coord_hi_ext.srcB": {
+   "arms_tested": [
+    "EXP-0157:h3mix|H"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 255,
+   "moved_total": 274,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 255 values dispatched over 1 arm(s), 274 observations moved.",
+   "range": "239 values executed (boundaries + samples)",
+   "raw_files": [
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run01/",
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "h_coord_hi_ext.tail": {
+   "arms_tested": [
+    "EXP-0157:h3mix|H"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 584,
+   "moved_total": 413,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 584 values dispatched over 1 arm(s), 413 observations moved.",
+   "range": "82 values executed (boundaries + samples)",
+   "raw_files": [
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run01/",
+    "experiments/EXP-0157-g17p-emit-misc/raw/g17p_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "G17P",
+   "width": 16
+  },
+  "half_alu.dst": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0138-m4-emit-falu",
+    "EXP-0180",
+    "EXP-0183"
+   ],
+   "label_now": "hardware-run",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0..15 dense on the family's shared byte0 (EXP-0180 DSTNIB arm, two carriers, both gated runs, 16/16 identical), and 14 of 16 exercised IN THIS SIX-BYTE FORM in every one of 33,470 gated cases: the seed program's own half-adds are `[j<<4][h_B][opsel4][h_A][00][C0]` and nothing but byte0 names register j, so the per-case identity r_j.lo == fp16(h[byte+1] + h[byte+3]) re-proves the destination each time -- 228,690 checks per run, ZERO mismatches, both runs, j = 0..13. Values 14 and 15 are unobservable in that harness (R_ZERO pad register and R_IDX store index).",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  },
+  "half_alu_ext8.dst": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0180",
+    "EXP-0183"
+   ],
+   "label_now": "hardware-run",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  },
+  "half_alu_fma12.dst": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0180",
+    "EXP-0183"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  },
+  "half_pack.b3": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_half2@half_pack[32:42]|HALF_PACK"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 86,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 86 observations moved.",
+   "range": "242 values tested (sampled over 8-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "half_pack.dstlo": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_half2@half_pack[32:42]|HALF_PACK"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 88,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 88 observations moved.",
+   "range": "239 values tested (sampled over 8-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "iadd2.addsub": {
+   "arms_tested": [
+    "EXP-0146:u64sub"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0146",
+    "EXP-0166"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 20,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 2 values dispatched over 1 arm(s), 20 observations moved.",
+   "range": "0..1 dense (2 of 2 encodings actually spliced), 2/2 values comparable across both gated runs; 1 moved the observable, 1 reproduced it, 0 disagreed; accept-set {0x0}",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 7,
+   "target": "M4",
+   "width": 1
+  },
+  "iadd2.srcB_imm": {
+   "arms_tested": [
+    "EXP-0146:u64sub"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0146",
+    "EXP-0166"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 85,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 85 observations moved.",
+   "range": "0..255 dense (256 of 256 encodings actually spliced), 256/256 values comparable across both gated runs; 252 moved the observable, 4 reproduced it, 0 disagreed; accept-set {0x8, 0x9, 0xa, 0xb}",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "M4",
+   "width": 8
+  },
+  "iadd2.srcB_reg_hi": {
+   "arms_tested": [
+    "EXP-0146:u64sub"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0146",
+    "EXP-0166"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 128,
+   "moved_total": 193,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 128 values dispatched over 1 arm(s), 193 observations moved.",
+   "range": "0..127 dense (128 of 128 encodings actually spliced), 128/128 values comparable across both gated runs; 64 moved the observable, 64 reproduced it, 0 disagreed",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 9,
+   "target": "M4",
+   "width": 7
+  },
+  "ibfins.cache": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_rot_var@ibfins[42:54]|IBFINS"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 17,
+   "target": "G17P",
+   "width": 1
+  },
+  "ibfins.mask_hi": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_rot_var@ibfins[42:54]|IBFINS"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "G17P",
+   "width": 1
+  },
+  "ibfins.mask_imm": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_rot_var@ibfins[42:54]|IBFINS"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "256 values tested (dense over 8-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "G17P",
+   "width": 8
+  },
+  "ibitcount.cache": {
+   "arms_tested": [
+    "EXP-0169:C1_alu|IBITCOUNT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "raw_files": [
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run01/",
+    "experiments/EXP-0169-g17p-rerecord/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 17,
+   "target": "G17P",
+   "width": 1
+  },
+  "icmp_pred.cond": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0090",
+    "EXP-0112"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "cond=7 (inverted guard, skips the loop regardless of trip count) and the natural value, each executed over 12 data points",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "M4",
+   "width": 8
+  },
+  "icmp_pred.neg": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_div@icmp_pred+0x0cc|ICMP_PRED"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..1 dense (all 2 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 15,
+   "target": "M4",
+   "width": 1
+  },
+  "if_push_pred.pred": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0115"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "0..15 EXHAUSTIVE, crossed against icmp_pred.dst_pred 0..15: COMPLETELY INERT - matched or mismatched, it never changes anything",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 12,
+   "target": "M4",
+   "width": 4
+  },
+  "if_push_pred.scope": {
+   "arms_tested": [
+    "EXP-0140:cf|if_push_pred.scope@4"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0140"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run01/",
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/",
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "ilogic.dst": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171",
+    "EXP-0175"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "0..14 dense (15 of 16 destination nibbles; 0x?b byte0)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  },
+  "ilogic.lut_a_free": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "8 of 8 sub-values, DENSE (8 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 34,
+   "target": "G17P",
+   "width": 3
+  },
+  "ilogic.lut_a_sel": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0171"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "4 of 4 sub-values, DENSE (4 distinct encodings of the byte)",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 2
+  },
+  "imad.b11": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_imad@imad+0x020|IMAD"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 88,
+   "target": "M4",
+   "width": 8
+  },
+  "imad.b1hi": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_imad@imad+0x020|IMAD"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 128,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 128 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..127 dense (all 128 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 9,
+   "target": "M4",
+   "width": 7
+  },
+  "imad.b2_bit0": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_imad@imad[32:44]|IMAD"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 1
+  },
+  "imad.b2_fmt": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_imad@imad+0x020|IMAD"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 64,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 64 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..63 dense (all 64 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 18,
+   "target": "M4",
+   "width": 6
+  },
+  "imad.store_en": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_imad@imad[32:44]|IMAD"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 values tested (dense over 1-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 17,
+   "target": "G17P",
+   "width": 1
+  },
+  "imageblock_load.slice_off": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2D"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "imageblock_store.slice_off": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2D"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "0x00 / 0x04 / 0x08 for imageblock struct fields at byte offsets 0 / 8 / 16 (offset>>1), HW-proven",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "imageblock_store.src": {
+   "arms_tested": [
+    "EXP-0172:imageblock_store@ibms4/fragment#0",
+    "EXP-0172:imageblock_store@ibsamp/fragment#0"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0172"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 111,
+   "n_arms_that_tested_the_field": 2,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 2 arm(s), 111 observations moved.",
+   "range": "0..245 dense executed, 2 arms x 2 gated runs; 246 and 247 are a REPRODUCED device hang and stopped the sweep at 248 of 256",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "irotate.operands": {
+   "arms_tested": [
+    "EXP-0146:rot_imm"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0146",
+    "EXP-0166"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 1276,
+   "moved_total": 2365,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 1276 values dispatched over 1 arm(s), 2365 observations moved.",
+   "range": "BYTE-WISE MARGINAL ONLY: 5 constituent bytes x 0..255 dense each (1280 encodings); the 40-bit field was NEVER swept jointly and its max/max-1 were never encoded",
+   "raw_files": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run02/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 40
+  },
+  "isel10_c.flags": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_div@isel10_c+0x0d6|ISEL10_C"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 201,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 201 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "M4",
+   "width": 8
+  },
+  "isel10_c.selFalse": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_div@isel10_c+0x0d6|ISEL10_C"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 13,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 13 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "M4",
+   "width": 8
+  },
+  "isel10_c.selFalse_file": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_div@isel10_c+0x0d6|ISEL10_C"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 68,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 68 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 64,
+   "target": "M4",
+   "width": 8
+  },
+  "isel8.cmpA": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_rsqrt@isel8[18:32]|ISEL8"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 1,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 1 observations moved.",
+   "range": "254 values tested (sampled over 8-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "isel8.cmpB": {
+   "arms_tested": [
+    "EXP-0154:SYNTH+LIFTED:k_rsqrt@isel8[18:32]|ISEL8"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0154"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "253 values tested (sampled over 8-bit domain)",
+   "raw_files": [
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run02/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run03/",
+    "experiments/EXP-0154-g17p-emit-alu/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "ishift.pad9": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_ashr@ishift+0x012|ISHIFT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "M4",
+   "width": 8
+  },
+  "ishift.src_cache": {
+   "arms_tested": [
+    "EXP-0139:NAT:k_ashr@ishift+0x012|ISHIFT"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0139"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 257,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 257 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_reval02/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run01/",
+    "experiments/EXP-0139-m4-emit-ialu/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "iter.mode": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0029",
+    "EXP-0155-g17p-emit-tex-frag",
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0x00 pixel-centre/linear, 0x02 centroid or per-sample, 0x04 perspective denominator (3 of 256)",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "A18",
+   "width": 8
+  },
+  "iter.src_slot": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0029",
+    "EXP-0163-g17p-inert-liveness"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0x00 -> 0x02 (slot<<1): switched the interpolated output from color.x to color.y",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "iunary.b1": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "(byte0 bit7, byte+1) sub-op pairs: (0x27,0x05)=popcount, (0xa7,0x05)=find_msb, (0xa7,0x04)=reverse_bits",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "iunary.opsel": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "byte+2 swept: only 0x54/0x55 break the stored result, every other value computes; 0x56 = the integer-unary/format-convert datapath",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "A18",
+   "width": 8
+  },
+  "jump.branch_ctrl": {
+   "arms_tested": [
+    "EXP-0156:cfN|jump.branch_ctrl"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 254,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 254 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01d/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf02d/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "jump.link": {
+   "arms_tested": [
+    "EXP-0140:cf|jump.link@13"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0140"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run01/",
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run02/",
+    "experiments/EXP-0140-m4-emit-mov-cf/raw/m4_20260828_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "M4",
+   "width": 8
+  },
+  "jump.offset": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0115",
+    "EXP-0010"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "162 independently constructed splice points per run around a valid target (deltas -32..+9 dense plus far-forward/backward probes)",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 48
+  },
+  "jump_cond.cf_scope": {
+   "arms_tested": [
+    "EXP-0156:cf0|jump_cond.cf_scope@NAT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01b/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf02e/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-jcn1/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-jcn2/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 8
+  },
+  "jump_cond.reserved": {
+   "arms_tested": [
+    "EXP-0156:cf0|jump_cond.reserved@NAT"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf01b/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-cf02e/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-jcn1/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-jcn2/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "G17P",
+   "width": 8
+  },
+  "link_save_restore.b3": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00, 0x01, 0xff all reproduce the baseline - RESERVED/inert",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "link_save_restore.dir_offset": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "SAVE=0x0000, RESTORE=0x1fff, plus a systematic scaling sweep (+5: 0x00->0x01->0xff; +6: 0x00->0x01->0x1f) showing corruption scaling with the value",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 16
+  },
+  "link_save_restore.reserved7": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00, 0x01, 0xff on both the SAVE and the RESTORE instance - inert",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.a_desc": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "corrupting byte+3 zeroes the result - load-bearing, not padding",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.a_reg": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C",
+    "RT-10-isa-pass2"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "spliced to B's register -> B*B; swapped with byte+6 -> B*A (matmul is non-commutative, so the operand identity is unambiguous)",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.acc_en": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x01 -> a*b+c, 0x00 -> a*b (simdgroup_multiply clears it)",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 88,
+   "target": "A18",
+   "width": 1
+  },
+  "matrix_mac.b11_rsv": {
+   "arms_tested": [
+    "EXP-0147:matrix_mac"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 32,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 32 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+11 bits 3-7, DON'T-CARE (within the dense 128-value x2-run sweep of the field)",
+   "raw_files": [
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/",
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 91,
+   "target": "M4",
+   "width": 5
+  },
+  "matrix_mac.b_reg": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C",
+    "RT-10-isa-pass2"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "swapped with byte+5 -> B*A",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.c_src": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "accumulator source register, splice-validated",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.dst": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "destination fragment register, splice-validated",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 64,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.dst_desc_lo": {
+   "arms_tested": [
+    "EXP-0147:matrix_mac"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 64,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 64 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+9 bits 0-5, DON'T-CARE (within the dense 256-value x2-run sweep of the byte)",
+   "raw_files": [
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/",
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "M4",
+   "width": 6
+  },
+  "matrix_mac.dtype": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00 half, 0x02 float/bfloat; splicing 0x02 -> 0x00 garbles fp32",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.mode": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x56 standalone, 0x54 tiled; splicing standalone -> tiled ZEROES the result (tiled sources its accumulator from the MPP tile context) - SEMANTIC, not a scheduling hint",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.op_enable": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C",
+    "RT-10-isa-pass2"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x24 enables the multiply; corrupting it drops the multiply and passes C through",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 80,
+   "target": "A18",
+   "width": 8
+  },
+  "matrix_mac.pad4": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-O2C"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "splice-inert padding",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "A18",
+   "width": 8
+  },
+  "n3_sample_read.b1": {
+   "arms_tested": [
+    "EXP-0147:n3_sample_read"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "full 8-bit range, dense (256 cases) x2 runs",
+   "raw_files": [
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/",
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "M4",
+   "width": 8
+  },
+  "n3_sample_read.b3": {
+   "arms_tested": [
+    "EXP-0147:n3_sample_read"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "full 8-bit range, dense (256 cases) x2 runs",
+   "raw_files": [
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run01/",
+    "experiments/EXP-0147-m4-emit-pipeline-misc/raw/m4_20260828_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 8
+  },
+  "packed_half2_hi.srcA": {
+   "arms_tested": [
+    "EXP-0162:c_ph2|packed_half2_hi"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0162"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+1 dense 0..255 (256 values actually dispatched)",
+   "raw_files": [
+    "experiments/EXP-0162-g17p-pack-and-splices/raw/g17p_20260829_run01__packed_half2_hi/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "packed_half2_hi.srcB": {
+   "arms_tested": [
+    "EXP-0162:c_ph2|packed_half2_hi"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0162"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "byte+3 dense 0..255 (256 values actually dispatched)",
+   "raw_files": [
+    "experiments/EXP-0162-g17p-pack-and-splices/raw/g17p_20260829_run01__packed_half2_hi/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "ray_move.b3": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x08 reg32 plain copy, 0x00 zero, 0x12/0x22 uniform/high-class copy, 0x06 zero variant; bit6 (0x40) on a uniform-class-source copy -> CMDBUF_ERROR, inert on plain copies",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "rt_query_traverse.dst": {
+   "arms_tested": [
+    "EXP-0184:rq_ccount|rq_ccount#0/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#1/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#10/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#11/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#12/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#13/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#2/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#3/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#4/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#5/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#6/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#7/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#8/rt_query_traverse.dst",
+    "EXP-0184:rq_ccount|rq_ccount#9/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#0/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#1/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#10/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#11/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#12/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#13/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#2/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#3/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#4/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#5/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#6/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#7/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#8/rt_query_traverse.dst",
+    "EXP-0184:rq_cdist|rq_cdist#9/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#0/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#1/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#10/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#11/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#12/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#13/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#2/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#3/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#4/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#5/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#6/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#7/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#8/dst",
+    "EXP-0184:rq_mdist|P/rq_mdist#9/dst",
+    "EXP-0184:rq_mdist|rq_mdist#0/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#1/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#10/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#11/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#12/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#13/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#2/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#3/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#4/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#5/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#6/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#7/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#8/rt_query_traverse.dst",
+    "EXP-0184:rq_mdist|rq_mdist#9/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#0/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#1/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#10/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#11/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#12/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#13/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#2/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#3/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#4/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#5/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#6/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#7/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#8/rt_query_traverse.dst",
+    "EXP-0184:rq_mprim|rq_mprim#9/rt_query_traverse.dst"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0184"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 16,
+   "moved_total": 1318,
+   "n_arms_that_tested_the_field": 70,
+   "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 70 arm(s), 1318 observations moved.",
+   "range": "0..15 dense (all 16 values)",
+   "raw_files": [
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run01/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/g17p_20260830_run02/",
+    "experiments/EXP-0184-g17p-onefield-b/raw/prefreeze/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  },
+  "rt_query_traverse.opA": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x18, 0x1a, 0x00, 0xff swept - INERT on the load-bearing committed-path instance",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "rt_query_traverse.opB": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x42,0x48,0x50,0x60,0xc8,0xff swept: {0x42,0x48,0xc8} give the correct near hit, {0x00,0x0a,0x0f,0x1a,0x20,0x50,0x60,0xff} skip it, {0x02,0x06,0x07,0x40} HANG the traversal (contained)",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "A18",
+   "width": 8
+  },
+  "rt_query_traverse.sel": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x02,0x06,0x07,0x0a,0x0f,0x1a,0x20,0x40,0x48,0x50,0x60,0xff swept: 0x07=sel0 and 0x0f=sel1 preserve correctness, other values corrupt operand selection. Only the committed-path op is load-bearing; the other 17 rtq ops in the kernel are inert on this byte",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "A18",
+   "width": 8
+  },
+  "shift_amt_move.src_flag": {
+   "arms_tested": [
+    "EXP-0168:SHIFTMOVE/gpr"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0168"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 2 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "2 distinct values dispatched on the best arm",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run02/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_run03/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 15,
+   "target": "G17P",
+   "width": 1
+  },
+  "simd_ballot.pred": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "RT-ISA-FIX",
+    "RT-10-isa-pass2"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "byte+1 low nibble 0x7 identifies the family (splicing 0x17 -> 0x14 zeroes the ballot); the HIGH nibble (0x07 active-mask/any/all vs 0x17 ballot(predicate)) is NOT cleanly splice-convertible - its operands co-vary",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 12,
+   "target": "A18",
+   "width": 4
+  },
+  "simd_reduce.dtype": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0018",
+    "RT-ISA-FIX"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "0x03 int-reduce, 0x07 int-minmax, 0x12 float-reduce, 0x09 inclusive-scan, 0x0b exclusive-scan; splicing 0x03 -> 0x01/0x07 left the sum unchanged, refuting RT-5's competing enum",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "A18",
+   "width": 8
+  },
+  "simd_reduce.op": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0018",
+    "EXP-O2D"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "(byte0 bit7, byte+1) op-select; float simd_product = 0xbf byte+1 0x06, HW-validated against simd_sum",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "simd_shuffle.dir": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0018"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "byte0 bit7: 0x47 broadcast/up/fill_up vs 0xc7 xor/down/fill_down",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 7,
+   "target": "A18",
+   "width": 1
+  },
+  "simd_shuffle.lane": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0104",
+    "EXP-0115",
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "label_now": "hardware-run",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "28 swept points in the dynamic form and 60 independently constructed raw-byte splices in the static form",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "M4",
+   "width": 8
+  },
+  "simd_shuffle.mode": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0018",
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0172-g17p-onefield-tail",
+    "EXP-O2D"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0x00 quad, 0x04 SIMD, 0x05 simd_updown, 0x06 rotate/shuffle_and_fill",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "spill_frame_marker.b1": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "swept, runtime-inert",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "spill_frame_marker.b2": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "swept, runtime-inert",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "A18",
+   "width": 8
+  },
+  "spill_frame_marker.b3": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0xff faults; the other swept values are inert - the only live byte",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.cache": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x54,0x55,0x56,0x50,0x74,0x14 all give an identical sampled result - the WHOLE byte is inert here",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 17,
+   "target": "A18",
+   "width": 1
+  },
+  "tex_addr_setup.form": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x01,0x05,0x07,0x0d swept: 0x01 coordinate projection (samples level 0), 0x05 sample-address + explicit LOD/gradient, 0x07 raw-coordinate passthrough, 0x0d alias of 0x05",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_cnt": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x08 -> L1, 0x0c -> L2, 0x18 -> L1, {0x00,0x04,0x0a,0x0e,0x10} -> L0",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 80,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_desc9": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0xc0,0xc2,0xc4,0xc6,0xe4,0xf4 preserve; 0xc8,0xcc,0x44,0x84 drop the operand (hi-nibble in {c,e,f} AND low-nibble in {0,2,4,6})",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_hi": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00 and 0x40 preserve the operand (bit6 inert); 0x02,0x04,0x08..0xff corrupt it to level 0",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_mode": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "bit2 set {0x04,0x06,0x0c,0xff} keeps the operand active; bit2 clear {0x00,0x02,0x08,0x10,0x20,0x40} makes it read 0",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_reg": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff swept: only 0x06 tracks the LOD input (lod=1 -> 1100, lod=2 -> 2000); every other value reads a zero register",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.op_reg2": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x0c -> L1, 0x02/0x06 -> L2, all other swept values -> L0",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.rsv11": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00,0x02,0x04,0x06,0x08,0x0c,0x10,0x20,0x40,0xff all leave the result unchanged - RESERVED pad",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 88,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.rsv6": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "0x00..0x40 inert; only 0xff perturbs",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_addr_setup.src_desc": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-M4-14"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-raw.",
+   "range": "only 0xf0 and 0xff preserve the operand; every value 0x00..0x40 makes it read 0 (hi-nibble 0xf = 'operand is a register')",
+   "raw_files": [],
+   "reason": "no-raw",
+   "recommend_label": "untested",
+   "start": 64,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_deriv.axis": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0016",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "0x92 = dfdx/X, 0x90 = dfdy/Y (2 of 256)",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_deriv.dstsrc": {
+   "arms_tested": [
+    "EXP-0172:tex_deriv@deriv/fragment#1",
+    "EXP-0172:tex_deriv@deriv/fragment#2",
+    "EXP-0172:tex_deriv@deriv/fragment#4",
+    "EXP-0172:tex_deriv@deriv/fragment#5"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0172"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 65,
+   "moved_total": 198,
+   "n_arms_that_tested_the_field": 4,
+   "note": "EXP-0189 withheld (UNSTABLE): 65 values dispatched over 4 arm(s), 198 observations moved.",
+   "range": "39 of 65 sampled 24-bit values on each of 4 arms x 2 gated runs (0, 1, 2, max-1, max, every power of two, every all-ones prefix, 16 hashed interior samples); the sweep STOPPED at the reproduced hang values 0x3FFFF / 0x7FFFF",
+   "raw_files": [
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run01/",
+    "experiments/EXP-0172-g17p-onefield-tail/raw/g17p_20260830_run02/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "G17P",
+   "width": 24
+  },
+  "tex_sample.mode": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "RT-5-isa-tex-simd-mat-rt-frag-falsify",
+    "EXP-0016"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: no-field-records.",
+   "range": "op+6 spliced 0x00 / 0x10 / 0x20 on a linear sample: filtering does NOT change (a NEGATIVE result - filtering is the SAMPLER's job); 0x20 selects the calculate_lod query",
+   "raw_files": [],
+   "reason": "no-field-records",
+   "recommend_label": "untested",
+   "start": 80,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_sample.result_desc": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0034",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "companion+3 0xa4/0xac/0xb4/0xbc - bit2 = gather, bits[3:5] = gather component R/G/B/A, all four HW-validated",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "tex_sample.samp_slot_offset": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0016",
+    "EXP-0034",
+    "EXP-0106",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "sampler slot 0x00 (s0) and 0x01 (s1) spliced (linear -> nearest); out-of-range reads an unbound sampler (zeros). Constant gather offset packs into the same byte: (1,0)->0x08, (1,1)->0x88",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 72,
+   "target": "M4+A18",
+   "width": 8
+  },
+  "tex_sample.tex_slot": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0016",
+    "EXP-0114",
+    "EXP-0172-g17p-onefield-tail"
+   ],
+   "label_now": "hardware-run",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "upper nibble 0x0..0xF EXHAUSTIVE (16/16) plus 12 representative low-nibble values at both populated slots",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 64,
+   "target": "M4",
+   "width": 8
+  },
+  "tex_sample.variant": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0016",
+    "EXP-0034",
+    "EXP-0172-g17p-onefield-tail",
+    "EXP-M4-10"
+   ],
+   "label_now": "hardware-run",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "dimension/LOD/compare codes 0x00,0x03,0x04,0x07,0x09,0x13,0x17,0x20,0x29,0x37,0x39,0x53,0x79,0x80,0x97,0xc3 spliced and read back; a wrong dim code silently reads the base slice or 0 (no hang)",
+   "raw_files": [],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "M4+A18",
+   "width": 8
+  },
+  "tg_addr_compute.b3": {
+   "arms_tested": [
+    "EXP-0156:tgac|tgac.b3"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg01b/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg02b/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "G17P",
+   "width": 8
+  },
+  "tg_addr_compute.b4": {
+   "arms_tested": [
+    "EXP-0156:tgac|tgac.b4"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg01b/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg02b/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "G17P",
+   "width": 8
+  },
+  "tg_addr_compute.b5": {
+   "arms_tested": [
+    "EXP-0156:tgac|tgac.b5"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0156"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg01b/",
+    "experiments/EXP-0156-g17p-emit-cf-mem/raw/g17p-20260830-tg02b/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "G17P",
+   "width": 8
+  },
+  "threadgroup_barrier.b5": {
+   "arms_tested": [
+    "EXP-0141:tgtile|tgtile_threadgroup_barrier_b5"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "M4",
+   "width": 8
+  },
+  "threadgroup_barrier.flags": {
+   "arms_tested": [
+    "EXP-0141:tgtile|tgtile_threadgroup_barrier_b4"
+   ],
+   "bucket": "INERT-SINGLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (INERT-SINGLE): 256 values dispatched over 1 arm(s), 0 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 32,
+   "target": "M4",
+   "width": 8
+  },
+  "threadgroup_barrier.mem_scope": {
+   "arms_tested": [
+    "EXP-0141:tgtile|tgtile_threadgroup_barrier_b3"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 256 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "M4",
+   "width": 8
+  },
+  "threadgroup_barrier.sub": {
+   "arms_tested": [
+    "EXP-0141:tgtile|tgtile_threadgroup_barrier_b1"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 260,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 260 observations moved.",
+   "range": "0..255 step 1 (256 of 256)",
+   "raw_files": [
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run11/",
+    "experiments/EXP-0141-m4-emit-mem/raw/m4-20260828-run12/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "M4",
+   "width": 8
+  },
+  "unpack_convert.cache": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 128,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 128 observations moved.",
+   "range": "byte+2: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 16,
+   "target": "M4",
+   "width": 8
+  },
+  "unpack_convert.fmt_sel": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F",
+    "EXP-0144:c_unpack|X"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 16,
+   "moved_total": 156,
+   "n_arms_that_tested_the_field": 2,
+   "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 2 arm(s), 156 observations moved.",
+   "range": "byte+7: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 60,
+   "target": "M4",
+   "width": 4
+  },
+  "unpack_convert.opdesc": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F",
+    "EXP-0144:c_unpack|W"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 262,
+   "n_arms_that_tested_the_field": 2,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 2 arm(s), 262 observations moved.",
+   "range": "byte+6: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 48,
+   "target": "M4",
+   "width": 8
+  },
+  "unpack_convert.size": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F",
+    "EXP-0144:c_unpack|X"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 16,
+   "moved_total": 192,
+   "n_arms_that_tested_the_field": 2,
+   "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 2 arm(s), 192 observations moved.",
+   "range": "byte+7: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 56,
+   "target": "M4",
+   "width": 4
+  },
+  "unpack_convert.src": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F",
+    "EXP-0144:c_unpack|W"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 99,
+   "n_arms_that_tested_the_field": 2,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 2 arm(s), 99 observations moved.",
+   "range": "byte+5: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 40,
+   "target": "M4",
+   "width": 8
+  },
+  "unpack_convert.src_class": {
+   "arms_tested": [
+    "EXP-0144:c_unpack|F"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0144"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 323,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 323 observations moved.",
+   "range": "byte+1: 256 of 256 values (dense 0..255)",
+   "raw_files": [
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run03/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_run05/",
+    "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__unpack_convert/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "M4",
+   "width": 8
+  },
+  "vary_store.b5_tag": {
+   "arms_tested": [
+    "EXP-0155:vary_store@c_iter/vert106"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 128,
+   "moved_total": 128,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 128 values dispatched over 1 arm(s), 128 observations moved.",
+   "range": "0..127 dense (all 128 values)",
+   "raw_files": [
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_faultconfirm/",
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/",
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 41,
+   "target": "G17P",
+   "width": 7
+  },
+  "vary_store.hint1": {
+   "arms_tested": [
+    "EXP-0155:vary_store@c_iter/vert106"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 256,
+   "moved_total": 259,
+   "n_arms_that_tested_the_field": 1,
+   "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 259 observations moved.",
+   "range": "0..255 dense (all 256 values)",
+   "raw_files": [
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run03/",
+    "experiments/EXP-0155-g17p-emit-tex-frag/raw/g17p_20260829_run04/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 8,
+   "target": "G17P",
+   "width": 8
+  },
+  "vary_store.src": {
+   "arms_tested": [],
+   "bucket": "UNVERIFIABLE",
+   "evidence": [
+    "EXP-0037",
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "label_now": "isolated-byte-diff",
+   "max_values_dispatched": 0,
+   "moved_total": 0,
+   "n_arms_that_tested_the_field": 0,
+   "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved. Reason: field-named-but-unstructured.",
+   "range": "byte+3 source GPR (reg<<1), in-order 0,2,4,..,14 over r0..r7",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean07/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean08/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean09/"
+   ],
+   "reason": "field-named-but-unstructured",
+   "recommend_label": "untested",
+   "start": 24,
+   "target": "A18",
+   "width": 8
+  },
+  "vtx_out_pos.dst": {
+   "arms_tested": [
+    "EXP-0168:r_v1|vtx_out_pos@r_v1/vertex#0",
+    "EXP-0168:r_v8f|vtx_out_pos@r_v8f/vertex#0",
+    "EXP-0168:r_vmix|vtx_out_pos@r_vmix/vertex#0"
+   ],
+   "bucket": "UNSTABLE",
+   "evidence": [
+    "EXP-0168"
+   ],
+   "label_now": "untested",
+   "max_values_dispatched": 16,
+   "moved_total": 5,
+   "n_arms_that_tested_the_field": 3,
+   "note": "EXP-0189 withheld (UNSTABLE): 16 values dispatched over 3 arm(s), 5 observations moved.",
+   "range": "0..15 dense (16 of 16 values), 3 run(s)",
+   "raw_files": [
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean01/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean07/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean08/",
+    "experiments/EXP-0168-g17p-dst-resweep/raw/g17p_20260830_rclean09/"
+   ],
+   "reason": null,
+   "recommend_label": "untested",
+   "start": 4,
+   "target": "G17P",
+   "width": 4
+  }
+ },
+ "text_contradicts_evidence": [
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.lod_present",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 2048,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 88,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "iter_at.loc",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 1792,
+   "note": "LIVE: moved the observation on 7 arm(s) across atoff4, cent4, ms4cent, ms4out. Inert on atoff1, cent1 -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 10 arms",
+   "start": 56,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "vary_store.hint6",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 1792,
+   "note": "LIVE: moved the observation on 7 arm(s) across vflat, vhalf, vmany, vsrc. Inert on vclip, vmany -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 9 arms",
+   "start": 48,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.result_sel",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 1172,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@t1_2, where the field is demonstrably live (252/252 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 32,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "FULLY INERT",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "field": "vtx_coord_xform.operand",
+   "label": "isolated-byte-diff",
+   "max_values_dispatched": 1334,
+   "moved_total": 1026,
+   "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable.",
+   "range": "full 40-bit range, dense (1339 cases) x2 runs",
+   "start": 40,
+   "width": 40
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "tex_coord_setup.b5",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 1008,
+   "note": "LIVE: moved the observation on 8 arm(s) across bits, fclass, ms4out, sball, vhalf, vsrc. Inert on fclass -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 9 arms",
+   "start": 40,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "tex_coord_setup.b8",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 896,
+   "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 9 arms",
+   "start": 64,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0180",
+    "EXP-0183"
+   ],
+   "field": "half_alu_ext8.srcC",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 848,
+   "note": "RENAMED FROM `b5`, span unchanged (bits 40..47), and RETYPED mod -> reg. The committed text 'largely inert (bits3/4 null in this instance)' is withdrawn.",
+   "range": "256 of 256 dispatched, 254 moved, 2 carriers, both gated runs, identical. Identified as the fma's THIRD OPERAND (the addend) by a host-computed oracle: r[byte0>>4].lo == fp16(h[byte+1] * h[byte+3] + h[byte+5]) reproduces the observed result exactly on both carriers, with the anchor's operand triple recovered by brute force over all 32 half-registers. Corroborated independently: with instruction bit 57 set the result becomes exactly h[byte+5].",
+   "start": 40,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "simd_shuffle.rsv9",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 656,
+   "note": "LIVE: moved the observation on 2 arm(s) across stype. Inert on sball, scache, sdiv, stype -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 8 arms",
+   "start": 72,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "fully INERT",
+   "evidence": [
+    "EXP-0180",
+    "EXP-0183"
+   ],
+   "field": "half_alu_ext8.rsv6",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 576,
+   "note": "RANGE TEXT WITHDRAWN AND REPLACED. The committed text -- 'byte+6 swept 0x00..0xc0, every value kept the result, fully INERT/reserved' (EXP-M4-14, which has no committed raw tree at all) -- is REFUTED. Its role is UNKNOWN; it reads inert only on the E8_ADD arm, whose base writes nothing at all and which therefore has no detection power.",
+   "range": "256 of 256 dispatched, 2 carriers, both gated runs, identical. LIVE: moves the observation on 252 of 256 values (C_HI) and 248 of 256 (C_LO), and on the lifted anchor.",
+   "start": 48,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "iter.grp",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 398,
+   "note": "[orchestrator: representative arm re-pointed from iter@frag0W to iter@frag1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 0,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0154",
+    "EXP-0160",
+    "EXP-0165"
+   ],
+   "field": "imad.srcB",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 368,
+   "note": "NAME MOVED BY DEF-0160-6: this entry now labels byte+6, which EXP-0154 swept under the name `srcC_lo` and labelled from its ok-set alone without identifying a role. The role is now identified: byte+6 is a MULTIPLICAND REGISTER SELECTOR, reg = v >> 3; bit 0 = 1 makes that source read 0; bits 1 and 2 are inert. EXP-0154's ok-set {0x0, 0x2, 0x4, 0x6} is exactly the four values naming r0. Re-derived i",
+   "range": "byte+6: 0..255 dense (256 values, EXP-0154), plus an 11-point x 12-point 2-D probe against byte+7 in TWO independent seed sets (EXP-0160)",
+   "start": 48,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.tex_type",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 359,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_2, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 96,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.samp_extra",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 258,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 104,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "iter_flat.b5",
+   "label": "isolated-byte-diff",
+   "max_values_dispatched": 256,
+   "moved_total": 257,
+   "note": "1/256 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (192/192 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 40,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "INERT",
+   "evidence": [
+    "EXP-0179"
+   ],
+   "field": "call.b6",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "note": "CORRECTED BY THE EXPERIMENT ITSELF, 2026-08-30. EXP-0179 first reported `b6` INERT across 0..255 on both GENERATED carriers; its independent second method (arm S, mutating the real compiler-emitted call inside our own compiled `c_frame.metal`) shows BIT 1 IS LOAD-BEARING and must be set. The generated leaf callee is BLIND to that dimension -- the same failure shape as `ret.scoreboard`, and caught ",
+   "range": "0..255 dense on three carriers. Legal iff BIT 1 IS SET -- 128 of 256, so `encodable_range` is 128, not 256.",
+   "start": 48,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "frag_color_store.flags",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "note": "[orchestrator: representative arm re-pointed from fcs@iter0 to fcs@pack0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 32,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "fully inert",
+   "evidence": [
+    "EXP-0161",
+    "EXP-0165"
+   ],
+   "field": "fspecial.src_cache",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "note": "POSITION UNCHANGED. CARRIER-DEPENDENT: accepted set is (v & 0x02) == 0x02 (128 of 256) in D_FSPEC_INPLACE, where the operand comes straight from a device_load, and fully inert (256 of 256) in D3_FSPEC_SYNTH. Do not assume inert.",
+   "range": "byte+2: 0..255 dense in two carriers x two gated runs",
+   "start": 16,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "no semantic",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "field": "matrix_mac.dst_en",
+   "label": "hardware-run",
+   "max_values_dispatched": 4,
+   "moved_total": 256,
+   "note": "Correct A*B+C iff bit6==1 and bit7==0 (0x40-0x7f, 64/64). Bits 0-5 don't-care. 0x00-0x3f and 0x80-0xbf give a SILENT ZERO; 0xc0-0xff give a wrong value. Verified as an exact set identity over all 256 values in both runs. FIELD-MODEL CORRECTION (EXP-0147, HW, dense 256 x2 runs): the hardware rule is simple -- correct A*B+C iff bit6 == 1 and bit7 == 0 (0x40..0x7f, 64/64 values); bits 0-5 are don't-c",
+   "range": "byte+9 bits 6-7 (within the dense 256-value x2-run sweep of the byte)",
+   "start": 78,
+   "width": 2
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "tex_coord_setup.idx",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 256,
+   "note": "LIVE: moved the observation on 1 arm(s) across vsrc. Inert on bits, fclass, ms4out, sball, vhalf, vsrc -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 9 arms",
+   "start": 56,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "INERT",
+   "evidence": [
+    "EXP-0160",
+    "EXP-0165"
+   ],
+   "field": "iminmax.dst_full",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 224,
+   "note": "NAME MOVED BY DEF-0160-2: this entry now labels byte+5, which EXP-0160 swept under the name `srcB`. **It is NOT a register selector**: bits 3, 5, 6 and 7 are INERT (0 of 512 flip-pairs differ each, re-measured in EXP-0165) and no value->register model fits (reg = v>>1 and reg = v>>2 each explain only 32 of 256 cases). Its live bits are 0, 1, 2 and 4 and its anchor value 0xc0 is falu2's standard `m",
+   "range": "byte+5: 0..255 dense (all 256 values), each under TWO independent seed sets x two gated runs",
+   "start": 40,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.comp_flags",
+   "label": "hardware-run",
+   "max_values_dispatched": 16,
+   "moved_total": 178,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (14/14 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..15 dense (all 16 values)",
+   "start": 8,
+   "width": 4
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.kind",
+   "label": "hardware-run",
+   "max_values_dispatched": 16,
+   "moved_total": 140,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..15 dense (all 16 values)",
+   "start": 0,
+   "width": 4
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "Inert",
+   "evidence": [
+    "EXP-0163"
+   ],
+   "field": "tex_coord_setup.b6",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 128,
+   "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+   "range": "0..255 dense (all 256 values) x 9 arms",
+   "start": 48,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "field": "rtq_state_move.src",
+   "label": "hardware-run",
+   "max_values_dispatched": 255,
+   "moved_total": 122,
+   "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251,",
+   "range": "255 values executed (boundaries + samples)",
+   "start": 8,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "FULLY INERT",
+   "evidence": [
+    "EXP-0147"
+   ],
+   "field": "n3_sample_read.tail",
+   "label": "isolated-byte-diff",
+   "max_values_dispatched": 1582,
+   "moved_total": 116,
+   "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related.",
+   "range": "full 48-bit range, dense (1603 cases) x2 runs",
+   "start": 32,
+   "width": 48
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0168-g17p-dst-resweep",
+    "EXP-M4-14"
+   ],
+   "field": "frag_color_pack.src_present_mask",
+   "label": "hardware-run",
+   "max_values_dispatched": 8,
+   "moved_total": 115,
+   "note": "RETRACTION: the 24-bit fmt_word is NOT an inert attachment-format constant. byte+7 == 0xff hard-faults the GPU. | EXP-0189 citation repair: the records supporting this row live in EXP-0168-g17p-dst-resweep; the original citation EXP-M4-14 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
+   "range": "0x10, 0x40, 0x50, 0x60, 0xd0, 0xe0, 0xff swept on BOTH pack ops: 0x10 = component-0 only, 0x40 = component-1 only, 0x50/0xd0 = both, 0x60/0xe0 = both zeroed, 0xff = ILLEGAL, hard GPU fault",
+   "start": 56,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "framing only",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "field": "atomic_mem.oper_reg_hi",
+   "label": "hardware-run",
+   "max_values_dispatched": 64,
+   "moved_total": 83,
+   "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5",
+   "range": "byte+6 bits 0..5 = bits 1..6 of the RMW operand-register index; indices 0..3 each constructed and read back",
+   "start": 48,
+   "width": 6
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "iter_flat.sel",
+   "label": "isolated-byte-diff",
+   "max_values_dispatched": 256,
+   "moved_total": 58,
+   "note": "swept 127/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (126/126 of 126 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 24,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0161",
+    "EXP-0165"
+   ],
+   "field": "fspecial.fnclass",
+   "label": "hardware-run",
+   "max_values_dispatched": 16,
+   "moved_total": 56,
+   "note": "POSITION UNCHANGED. Map measured BY COMPUTED VALUE. fn_hi=1 (0xaf): class&3 = 1 -> rsqrt, 2 -> exp2, 3 -> rsqrt, 0 -> +inf for every input. fn_hi=0 (0x2f): 0 -> rint, 1 -> rsqrt, 2 -> log2, 3 -> NaN for 11 of 12 positive-finite inputs. Bit 3 is a DON'T-CARE (v and v+8 identical in all 8 pairs, three carriers). Bit 2 is NOT: live at class&3 = 0 on both datapaths (4/12 store nothing) and at class&3 ",
+   "range": "byte+1 low nibble: 0..15 dense in three carriers x two gated runs",
+   "start": 8,
+   "width": 4
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "framing only",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "field": "atomic_rmw.oper_reg_hi",
+   "label": "hardware-run",
+   "max_values_dispatched": 64,
+   "moved_total": 32,
+   "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0",
+   "range": "byte+6 bits 0..5 = bits 1..6 of the RMW operand-register index; indices 0..3 each constructed and read back",
+   "start": 48,
+   "width": 6
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0141"
+   ],
+   "field": "device_load.ldform_hi11",
+   "label": "hardware-run",
+   "max_values_dispatched": 64,
+   "moved_total": 32,
+   "note": "Was `untested` with range `none`. EXP-0082's 6-value probe found 3 inert and 2 'undecodable'; the dense sweep resolves it to a clean low-3-bits-must-be-zero rule.",
+   "range": "0..63 step 1 (64 of 64)",
+   "start": 90,
+   "width": 6
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "tex_sample.chain",
+   "label": "hardware-run",
+   "max_values_dispatched": 16,
+   "moved_total": 24,
+   "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..15 dense (all 16 values)",
+   "start": 4,
+   "width": 4
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0155"
+   ],
+   "field": "iter_flat.b4",
+   "label": "hardware-run",
+   "max_values_dispatched": 256,
+   "moved_total": 16,
+   "note": "[orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+   "range": "0..255 dense (all 256 values)",
+   "start": 32,
+   "width": 8
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0169"
+   ],
+   "field": "falu2i.imm_flag",
+   "label": "untested",
+   "max_values_dispatched": 2,
+   "moved_total": 14,
+   "note": "inert on the ONE carrier that had detection power; a second, structurally different carrier is required before this can be called inert (EXP-0164's own rule)",
+   "range": "0..1 dense (all 2 values), 2 distinct encodings, 1 carriers",
+   "start": 8,
+   "width": 1
+  },
+  {
+   "bucket": "STABLE-LIVE",
+   "claim_matched": "inert",
+   "evidence": [
+    "EXP-0037",
+    "EXP-0163-g17p-inert-liveness",
+    "EXP-0168-g17p-dst-resweep"
+   ],
+   "field": "vary_store.out_slot",
+   "label": "isolated-byte-diff",
+   "max_values_dispatched": 8,
+   "moved_total": 14,
+   "note": "Position vs varying is the SLOT RANGE, not a distinct opcode. | EXP-0189 citation repair: the records supporting this row live in EXP-0163-g17p-inert-liveness, EXP-0168-g17p-dst-resweep; the original citation EXP-0037 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is.",
+   "range": "[[position]].xyzw = 0x00/0x20/0x40/0x60 (slots 0-3), user varyings 0x80/0xa0/0xc0/0xe0 (slots 4-7)",
+   "start": 32,
+   "width": 8
+  }
+ ]
+}
