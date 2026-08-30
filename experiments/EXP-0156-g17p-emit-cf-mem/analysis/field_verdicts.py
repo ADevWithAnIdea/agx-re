@@ -38,6 +38,13 @@ GATE = {
     "jump_cond.reserved@P1": ["jc.live.cf0.P1", "jc.live.cfN.P1", "jc.live.cf0.P2", "jc.live.cfN.P2",
                           "jc.live.cf0.NAT", "jc.live.cfN.NAT"], "jump_cond.reserved@P2": ["jc.live.cf0.P1", "jc.live.cfN.P1", "jc.live.cf0.P2", "jc.live.cfN.P2",
                           "jc.live.cf0.NAT", "jc.live.cfN.NAT"],
+    # ADDENDUM-PREREG.md §2: the natural-offset sweep, gated by the SAME
+    # liveness controls as the poison-offset arms (the gate is about whether
+    # the branch is decided at all, which the six jc.live.* cases establish).
+    "jump_cond.cf_scope@NAT": ["jc.live.cf0.P1", "jc.live.cfN.P1", "jc.live.cf0.P2", "jc.live.cfN.P2",
+                              "jc.live.cf0.NAT", "jc.live.cfN.NAT"],
+    "jump_cond.reserved@NAT": ["jc.live.cf0.P1", "jc.live.cfN.P1", "jc.live.cf0.P2", "jc.live.cfN.P2",
+                              "jc.live.cf0.NAT", "jc.live.cfN.NAT"],
     "mask_op.mask_bank": ["mask_op.liveness"], "mask_op.scope_kind": ["mask_op.liveness"],
     "atdev_atomic_mem_b12": ["atdev.baseline", "atdev.falsifier"],
     "atdevimm_atomic_mem_b12": ["atdevimm.baseline", "atdevimm.falsifier"],
@@ -207,8 +214,19 @@ def main():
                    "cross_run_exact_agreement_pct":
                        e["cross_run_exact_agreement_pct"],
                    "arm": arm, "note": "; ".join(note)}
-            if k in fv and fv[k]["label"] == "hardware-run" and label != "hardware-run":
-                continue          # keep the stronger of two arms for one field
+            # Two arms can cover one field (e.g. jump_cond.cf_scope was swept at
+            # both poison offsets AND at the natural offset). Keep the STRONGEST
+            # evidence, not the first seen: a `hardware-run` beats anything else,
+            # and among equals the arm with the strictest observable wins -- the
+            # `@NAT` arms measure inertness in a program that still computes its
+            # exact right answer, the `@P1`/`@P2` arms only taken-vs-not-taken.
+            if k in fv:
+                prev = fv[k]
+                better = (label == "hardware-run" and prev["label"] != "hardware-run")
+                stricter = (label == prev["label"] == "hardware-run"
+                            and arm.endswith("@NAT") and not prev["arm"].endswith("@NAT"))
+                if not (better or stricter):
+                    continue
             fv[k] = ent
     fv["_meta"] = {
         "experiment": "EXP-0156", "target": "G17P (Apple A18 Pro, applegpu_g17p)",

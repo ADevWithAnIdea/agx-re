@@ -1039,6 +1039,7 @@
     "vertex_ok_replicate": "outcome `ok` iff (value mod 8) in [6]"
    },
    "hardware_says": "byte+2 is a DON'T-CARE: all 256 values leave the observation identical to the unmutated baseline, in BOTH the 6-byte fragment form (c_kill, c_mask) and the 8-byte vertex form (c_iter, c_vary16) -- four independent programs. The discriminator is byte+1, and only its LOW THREE BITS: (byte+1 & 7) == 6 keeps the 8-byte vertex varying store; (byte+1 & 7) in {4,5} keeps the 6-byte fragment kill/target-mask op; the upper five bits are don't-care.",
+   "independent_agreement": "EXP-0162 (commit f517d1e8) settled the same descriptor by a different method (corpus tokenization + its own splices) as match [[0,8,87],[9,1,1]] -- byte+1 bit 1 set -- with emit_unsafe removed. That is the minimal form of the rule measured here and the two are exactly consistent: (byte+1 & 7) == 6 has bit 1 set and both fragment residues {4,5} have it clear. EXP-0162 also reports byte+2 inert 256/256 independently.",
    "note": "This is the EXP-0091 collision, unresolved since then. It is now resolved by behaviour on G17P, from two code paths (the dedicated 0x57 probe and the vary_store field sweep) that agree exactly.",
    "recommended_descriptor_change": "match vary_store on byte0 == 0x57 AND (byte+1 & 7) == 6, length 8; add a SEPARATE 6-byte descriptor for byte0 == 0x57 AND (byte+1 & 7) in {4,5} (the fragment kill / target-mask op). Drop byte+2 from the discrimination entirely -- it is hardware-proven inert. Field `hint2` (byte+2) and `hint6`/`b7` are then don't-care operands, not selectors.",
    "severity": "high -- this is the `emit_unsafe` flag db.json already carries"
@@ -1874,6 +1875,54 @@
    "run01": "wrong_value",
    "run02": "wrong_value"
   }
+ },
+ "fault_confirmation": {
+  "checked_genuine": 114,
+  "control_records_wrongly_selected": 19,
+  "cross_run_fault_or_hang_total": 1010,
+  "isolation_caveat": "this process broke a genuinely stale lease (holder EXP-0158-run03, age 902s) and EXP-0156 wrote itself as owner seconds later: the shared mkdir-based lease races on a stale break, so the pass ran under a HELD but not provably EXCLUSIVE lease",
+  "not_reproduced": 2,
+  "refuted_or_partial": [
+   {
+    "arm": "tex_write@w1",
+    "field": "tex_write.coord_pack",
+    "lease_5x": [
+     "wrong_value",
+     "wrong_value",
+     "wrong_value",
+     "wrong_value",
+     "wrong_value"
+    ],
+    "n_fault_of_5": 0,
+    "unlocked": [
+     "fault",
+     "fault"
+    ],
+    "value": 5
+   },
+   {
+    "arm": "ibs@t1",
+    "field": "imageblock_store.src",
+    "lease_5x": [
+     "fault",
+     "silent_zero",
+     "fault",
+     "fault",
+     "fault"
+    ],
+    "n_fault_of_5": 4,
+    "unlocked": [
+     "fault",
+     "fault"
+    ],
+    "value": 246
+   }
+  ],
+  "reproduced_5_of_5": 112,
+  "run": "g17p_20260829_faultconfirm",
+  "spec": "FIELD-SWEEP-PROTOCOL 7A / CAPTURE_CONTRACT amendment A3",
+  "status": "PARTIAL -- stopped by hand at ~1 record/85s; targets were processed in the frozen arm PRIORITY order, so the coverage is the priority end of the matrix. Fault semantics resting on the unchecked values remain the two-gated-run reading.",
+  "unchecked": 896
  },
  "field_rollup": {
   "frag_color_pack.comp_off": {

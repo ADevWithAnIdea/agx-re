@@ -92,3 +92,39 @@ Timestamped milestone log. Written after every milestone so a kill costs at most
 - **STILL PENDING:** `jcn1`/`jcn2` (the `jump_cond` scope sweep at the natural offset)
   remain queued behind eight `gpulease` waiters. Strengthening only; cannot weaken the
   gated poison-target verdicts. Fold-in commands are in `RESULTS.md` §13.2.
+- **ADDENDUM §2 COMPLETE — `jcn1`/`jcn2` gated.** `jump_cond.cf_scope@NAT` and
+  `.reserved@NAT`: **256/256 `ok` in both runs**, 0 hangs, 0 invalid runs, 3/3 baseline
+  checks each, **100.0 % exact cross-run agreement**. Every case reproduced the exact
+  fall-through oracle, so both fields are now inert **in a program that still computes its
+  right answer**, not merely on taken-vs-not-taken. `field_verdicts.py` was fixed to pick
+  the STRICTEST arm when two cover one field (it was silently keeping the weaker
+  poison-offset arm because the `@NAT` gate keys were missing from its GATE table).
+  `jcn1`'s first attempt exited 75 on a lease timeout — no directory, id never consumed.
+- **`emittability.py` made drift-proof.** The orchestrator had already merged these
+  verdicts into `validation.json` (commit `39520163`), which made the before/after delta
+  collapse to zero. The baseline is now computed by **subtracting every EXP-0156-attributed
+  label**, and the `db.json`/`validation.json` hashes are pinned in `emittability.json`.
+  Totals also drifted under us (171→172 instructions, 1057→1060 fields) as db.json changed.
+- **FINAL: delta +9 instructions, +44 fields** (52→61 of 172; 525→569 of 1060 at snapshot
+  `db.json 83b83a35…`). 48 `hardware-run` verdicts, 4 `untested`, 5 `db_defects`,
+  12 `insufficient`. `manifest.json --check` clean at 113 files. Nothing committed.
+- **DEF-0156-1 — `RESULTS.md` DESTROYED BY A RUNAWAY WRITE, AND RECONSTRUCTED.**
+  The edit that replaced §13.2 sliced `s[s.index("### 13.2 …"):s.index("## 14. …")]`, but an
+  earlier edit had put §14 **ahead of** §13, so the slice was **reversed → empty string**,
+  and `str.replace("", block)` inserts at every character position. Result:
+  **83,178,232 bytes / 1,531,963 lines, only 116 unique lines** — the new §13.2 repeated
+  ~50 000 times with the original characters interleaved singly between copies. Every other
+  section, including the `# ` title, was gone.
+  **Unaffected:** `raw/` (all 24 run dirs), every `analysis/*.json`, `manifest.json`,
+  `PROGRESS.md`, both pre-registrations, `CAPTURE_CONTRACT.json`, `README.md`, `harness/`,
+  `kernels/`. Exactly one file was hit; a repo-wide scan found no other anomaly.
+  **Repair (document only, no hardware run):** restored from commit `2013bf66`
+  (756 lines / 47,780 B), re-applied the post-commit edits **once each** with every
+  replacement asserting a non-empty anchor occurring exactly once, lifted §13.2 verbatim
+  from a surviving copy, and corrected the §13/§14 inversion that made the reversed slice
+  possible. **Some post-commit prose may not be recovered verbatim** — recorded in
+  `RESULTS.md` §16, not papered over. Every figure was re-checked against the untouched
+  `analysis/*.json`.
+- **Also recorded: three defects in this experiment's own analysis code** (`RESULTS.md`
+  §15) — the missing `@NAT` GATE entries that kept the weaker arm, first-seen-beats-strictest
+  de-duplication, and an emittability baseline that read our own already-merged rows back.

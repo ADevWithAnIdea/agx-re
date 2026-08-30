@@ -1,0 +1,4586 @@
+{
+ "_meta": {
+  "experiment": "EXP-0155-g17p-emit-tex-frag",
+  "orchestrator_policy": "stable-live = per-value cross-run agreement >=99% on common values AND >=1 moved in both runs AND moved >= 2x disagreements (so movement is not explicable by run-to-run noise). Representative arm must be the strongest stable-live arm. Never-observed-live on a single carrier => withheld as underpowered. Movement that does not reproduce => withheld.",
+  "target": "G17P",
+  "withheld": {
+   "simd_ballot.cache": "never-moved; single carrier only",
+   "simd_shuffle.cache": "never-moved; single carrier only",
+   "tex_coord_setup.b1": "live-but-not-reproducible",
+   "tex_coord_setup.b5": "never-moved; single carrier only",
+   "tex_coord_setup.b6": "never-moved; single carrier only",
+   "tex_coord_setup.b8": "never-moved; single carrier only",
+   "tex_coord_setup.b9": "never-moved; single carrier only",
+   "tex_coord_setup.form": "live-but-not-reproducible",
+   "tex_coord_setup.idx": "never-moved; single carrier only",
+   "tex_coord_setup.srcA": "live-but-not-reproducible",
+   "tex_sample.coord": "live-but-not-reproducible",
+   "vary_slot.slot": "live-but-not-reproducible",
+   "vary_store.b7": "never-moved; single carrier only",
+   "vary_store.hint2": "never-moved; single carrier only",
+   "vary_store.hint6": "never-moved; single carrier only"
+  }
+ },
+ "frag_color_pack.comp_off": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0",
+   "fcp@pack1"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   },
+   "fcp@pack1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_pack.dst": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0",
+   "fcp@pack1"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 193,
+    "moved04": 193,
+    "stable_live": true
+   },
+   "fcp@pack1": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 193,
+    "moved04": 193,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 191,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "frag_color_pack.fmt_class": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 255,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_pack.mode": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0",
+   "fcp@pack1"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "fcp@pack1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_pack.src_desc": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0",
+   "fcp@pack1"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "fcp@pack1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 192,
+   "ok_inert": 64,
+   "silent_zero": 192
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_pack.val": {
+  "arm": "fcp@pack0",
+  "arms": [
+   "fcp@pack0",
+   "fcp@pack1"
+  ],
+  "carrier": "c_pack",
+  "cross_run": {
+   "fcp@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   },
+   "fcp@pack1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_store.flags": {
+  "arm": "fcs@pack0",
+  "arms": [
+   "fcs@iter0",
+   "fcs@pack0"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fcs@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "fcs@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from fcs@iter0 to fcs@pack0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_store.fmt": {
+  "arm": "fcs@iter0",
+  "arms": [
+   "fcs@iter0",
+   "fcs@pack0"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fcs@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "fcs@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 172,
+    "moved04": 172,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 248,
+   "ok_inert": 8,
+   "silent_zero": 56
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_store.mask": {
+  "arm": "fcs@iter0",
+  "arms": [
+   "fcs@iter0",
+   "fcs@pack0"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fcs@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "fcs@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 128
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_color_store.slice_addr": {
+  "arm": "fcs@iter0",
+  "arms": [
+   "fcs@iter0"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fcs@iter0": {
+    "agree": 100.0,
+    "common": 81,
+    "disagreements": 0,
+    "moved03": 72,
+    "moved04": 72,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 81,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 72,
+   "ok_inert": 9,
+   "silent_zero": 68
+  },
+  "range": "81 sampled values of 2^32 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 81,
+  "target": "G17P"
+ },
+ "frag_color_store.store_mode": {
+  "arm": "fcs@iter0",
+  "arms": [
+   "fcs@iter0",
+   "fcs@pack0"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fcs@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "fcs@pack0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fcs@iter0', 'fcs@pack0'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_depth_store.b3": {
+  "arm": "fds@depth0",
+  "arms": [
+   "fds@depth0"
+  ],
+  "carrier": "c_depth",
+  "cross_run": {
+   "fds@depth0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 252
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_depth_store.b4": {
+  "arm": "fds@depth0",
+  "arms": [
+   "fds@depth0"
+  ],
+  "carrier": "c_depth",
+  "cross_run": {
+   "fds@depth0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 248,
+   "ok_inert": 8,
+   "silent_zero": 248
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_depth_store.b5": {
+  "arm": "fds@depth0",
+  "arms": [
+   "fds@depth0"
+  ],
+  "carrier": "c_depth",
+  "cross_run": {
+   "fds@depth0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_tile_setup.access": {
+  "arm": "fts@iter0",
+  "arms": [
+   "fts@iter0",
+   "fts@iter1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fts@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "fts@iter1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_tile_setup.b1": {
+  "arm": "fts@iter0",
+  "arms": [
+   "fts@iter0",
+   "fts@iter1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fts@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "fts@iter1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 64,
+    "moved04": 64,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 64
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_tile_setup.b5": {
+  "arm": "fts@iter0",
+  "arms": [
+   "fts@iter0",
+   "fts@iter1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fts@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "fts@iter1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "frag_tile_setup.sel": {
+  "arm": "fts@iter0",
+  "arms": [
+   "fts@iter0",
+   "fts@iter1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "fts@iter0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "fts@iter1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "imageblock_store.b4": {
+  "arm": "ibs@t1",
+  "arms": [
+   "ibs@t1",
+   "ibs@tc"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "ibs@t1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "ibs@tc": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['ibs@t1', 'ibs@tc'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "imageblock_store.b6": {
+  "arm": "ibs@t1",
+  "arms": [
+   "ibs@t1",
+   "ibs@tc"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "ibs@t1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "ibs@tc": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 128
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "imageblock_store.fmt": {
+  "arm": "ibs@t1",
+  "arms": [
+   "ibs@t1",
+   "ibs@tc"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "ibs@t1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "ibs@tc": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 248,
+   "ok_inert": 8,
+   "silent_zero": 104
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "imageblock_store.src": {
+  "arm": "ibs@t1",
+  "arms": [
+   "ibs@t1",
+   "ibs@tc"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "ibs@t1": {
+    "agree": 100.0,
+    "common": 248,
+    "disagreements": 0,
+    "moved03": 246,
+    "moved04": 246,
+    "stable_live": true
+   },
+   "ibs@tc": {
+    "agree": 100.0,
+    "common": 248,
+    "disagreements": 0,
+    "moved03": 246,
+    "moved04": 246,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 249/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 244,
+   "ok_inert": 2,
+   "silent_zero": 235
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 249,
+  "target": "G17P"
+ },
+ "imageblock_store.tail": {
+  "arm": "ibs@t1",
+  "arms": [
+   "ibs@t1",
+   "ibs@tc"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "ibs@t1": {
+    "agree": 100.0,
+    "common": 81,
+    "disagreements": 0,
+    "moved03": 73,
+    "moved04": 73,
+    "stable_live": true
+   },
+   "ibs@tc": {
+    "agree": 100.0,
+    "common": 81,
+    "disagreements": 0,
+    "moved03": 73,
+    "moved04": 73,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 81,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 73,
+   "ok_inert": 8,
+   "silent_zero": 70
+  },
+  "range": "81 sampled values of 2^32 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 81,
+  "target": "G17P"
+ },
+ "iter.b9": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag1",
+   "iter@frag0W",
+   "iter@cent1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter@cent1', 'iter@frag0W', 'iter@frag1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter.c7": {
+  "arm": "iter@cent1",
+  "arms": [
+   "iter@frag1",
+   "iter@frag0W",
+   "iter@cent1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from iter@frag1 to iter@cent1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter.coeff_sel": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag1",
+   "iter@frag0W",
+   "iter@cent1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter.dst": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 190,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "iter.grp": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag0W",
+   "iter@cent4"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent4": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from iter@frag0W to iter@frag1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 238,
+   "moved_output": 8,
+   "ok_inert": 2,
+   "silent_zero": 8
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter.lead": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag1",
+   "iter@frag0W",
+   "iter@cent1"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent1": {
+    "agree": 99.61,
+    "common": 256,
+    "disagreements": 1,
+    "moved03": 33,
+    "moved04": 32,
+    "stable_live": true
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 32,
+    "moved04": 32,
+    "stable_live": true
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 223,
+    "moved04": 223,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 32,
+   "moved_output": 191,
+   "ok_inert": 33,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter.loc": {
+  "arm": "iter@frag1",
+  "arms": [
+   "iter@frag1",
+   "iter@frag0W",
+   "iter@cent1",
+   "iter@cent4"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "iter@cent1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 48,
+    "moved04": 48,
+    "stable_live": true
+   },
+   "iter@cent4": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 96,
+    "moved04": 96,
+    "stable_live": true
+   },
+   "iter@frag0W": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter@frag1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 192,
+   "ok_inert": 64,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_at.b5": {
+  "arm": "iter_at@cent1_1",
+  "arms": [
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 99.61,
+    "common": 256,
+    "disagreements": 1,
+    "moved03": 1,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 4,
+    "moved04": 4,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 4,
+   "ok_inert": 252,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_at.c4": {
+  "arm": "iter_at@cent1_0",
+  "arms": [
+   "iter_at@cent1_0",
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_at.dst": {
+  "arm": "iter_at@cent1_0",
+  "arms": [
+   "iter_at@cent1_0",
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 190,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "iter_at.grp": {
+  "arm": "iter_at@cent1_0",
+  "arms": [
+   "iter_at@cent1_0",
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 2,
+    "moved04": 2,
+    "stable_live": true
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 2,
+    "moved04": 2,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 2,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "2/3 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 1,
+   "moved_output": 0,
+   "ok_inert": 0,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 3,
+  "target": "G17P"
+ },
+ "iter_at.lead": {
+  "arm": "iter_at@cent1_0",
+  "arms": [
+   "iter_at@cent1_0",
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_at.loc": {
+  "arm": "iter_at@cent1_0",
+  "arms": [
+   "iter_at@cent1_0",
+   "iter_at@cent1_1"
+  ],
+  "carrier": "c_cent1",
+  "cross_run": {
+   "iter_at@cent1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "iter_at@cent1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter_at@cent1_0', 'iter_at@cent1_1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_flat.b1": {
+  "arm": "iter_flat@flat1",
+  "arms": [
+   "iter_flat@flat1",
+   "iter_flat@flat0"
+  ],
+  "carrier": "c_flat",
+  "cross_run": {
+   "iter_flat@flat0": {
+    "agree": 100.0,
+    "common": 6,
+    "disagreements": 0,
+    "moved03": 5,
+    "moved04": 5,
+    "stable_live": true
+   },
+   "iter_flat@flat1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 192,
+   "ok_inert": 2,
+   "silent_zero": 64
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_flat.b4": {
+  "arm": "iter_flat@flat0",
+  "arms": [
+   "iter_flat@flat1",
+   "iter_flat@flat0"
+  ],
+  "carrier": "c_flat",
+  "cross_run": {
+   "iter_flat@flat0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "iter_flat@flat1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 254,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_flat.b5": {
+  "arm": "iter_flat@flat0",
+  "arms": [
+   "iter_flat@flat1",
+   "iter_flat@flat0"
+  ],
+  "carrier": "c_flat",
+  "cross_run": {
+   "iter_flat@flat0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "iter_flat@flat1": {
+    "agree": 99.61,
+    "common": 256,
+    "disagreements": 1,
+    "moved03": 191,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 1,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "1/256 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (192/192 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 191,
+   "ok_inert": 64,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "iter_flat.sel": {
+  "arm": "iter_flat@flat0",
+  "arms": [
+   "iter_flat@flat1",
+   "iter_flat@flat0"
+  ],
+  "carrier": "c_flat",
+  "cross_run": {
+   "iter_flat@flat0": {
+    "agree": 100.0,
+    "common": 126,
+    "disagreements": 0,
+    "moved03": 126,
+    "moved04": 126,
+    "stable_live": true
+   },
+   "iter_flat@flat1": {
+    "agree": 100.0,
+    "common": 126,
+    "disagreements": 0,
+    "moved03": 124,
+    "moved04": 124,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 127/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (126/126 of 126 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 122,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 127,
+  "target": "G17P"
+ },
+ "simd_ballot.dst": {
+  "arm": "sballot@simd0",
+  "arms": [
+   "sballot@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sballot@simd0": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 190,
+   "ok_inert": 2,
+   "silent_zero": 2
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "simd_ballot.form": {
+  "arm": "sballot@simd0",
+  "arms": [
+   "sballot@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sballot@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 254,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_ballot.form_sig": {
+  "arm": "sballot@simd0",
+  "arms": [
+   "sballot@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sballot@simd0": {
+    "agree": 100.0,
+    "common": 34,
+    "disagreements": 0,
+    "moved03": 34,
+    "moved04": 34,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 35/65 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 65,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 32,
+   "ok_inert": 0,
+   "silent_zero": 0
+  },
+  "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 35,
+  "target": "G17P"
+ },
+ "simd_ballot.psrc": {
+  "arm": "sballot@simd0",
+  "arms": [
+   "sballot@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sballot@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_ballot.psrctype": {
+  "arm": "sballot@simd0",
+  "arms": [
+   "sballot@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sballot@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_reduce.b0hi": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0",
+   "sreduce@simd8"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   },
+   "sreduce@simd8": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 2,
+  "outcome_counts": {
+   "fault_or_hang": 1,
+   "moved_output": 0,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..1 dense (all 2 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 2,
+  "target": "G17P"
+ },
+ "simd_reduce.cache": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 2,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 1,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..1 dense (all 2 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 2,
+  "target": "G17P"
+ },
+ "simd_reduce.dst": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 3,
+   "moved_output": 190,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "simd_reduce.opcls": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0",
+   "sreduce@simd8"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   },
+   "sreduce@simd8": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 2,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 1,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..1 dense (all 2 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 2,
+  "target": "G17P"
+ },
+ "simd_reduce.opmarker": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_reduce.scope": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0",
+   "sreduce@simd8"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   },
+   "sreduce@simd8": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 2,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 1,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..1 dense (all 2 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 2,
+  "target": "G17P"
+ },
+ "simd_reduce.shape": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0",
+   "sreduce@simd8"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "sreduce@simd8": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_reduce.src": {
+  "arm": "sreduce@simd0",
+  "arms": [
+   "sreduce@simd0"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sreduce@simd0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_shuffle.dst": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 194,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 1,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "isolated-byte-diff",
+  "liveness": "stable-live",
+  "note": "1/195 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 2,
+   "moved_output": 190,
+   "ok_inert": 2,
+   "silent_zero": 2
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 195,
+  "target": "G17P"
+ },
+ "simd_shuffle.dsthi": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_shuffle.rsv9": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1",
+   "sshuffle@simd6"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "sshuffle@simd6": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['sshuffle@simd1', 'sshuffle@simd6'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_shuffle.rtype": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1",
+   "sshuffle@simd6"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "sshuffle@simd6": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 192,
+   "ok_inert": 64,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_shuffle.src": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "simd_shuffle.srctype": {
+  "arm": "sshuffle@simd1",
+  "arms": [
+   "sshuffle@simd1",
+   "sshuffle@simd6"
+  ],
+  "carrier": "c_simd",
+  "cross_run": {
+   "sshuffle@simd1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   },
+   "sshuffle@simd6": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "compute",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_coord_setup.dst_lo": {
+  "arm": "tex_coord@lo_0",
+  "arms": [
+   "tex_coord@lo_0"
+  ],
+  "carrier": "t_lodoff",
+  "cross_run": {
+   "tex_coord@lo_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 5,
+    "moved04": 5,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 16,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 5,
+   "ok_inert": 11,
+   "silent_zero": 0
+  },
+  "range": "0..15 dense (all 16 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 16,
+  "target": "G17P"
+ },
+ "tex_coord_setup.subop": {
+  "arm": "tex_coord@lo_0",
+  "arms": [
+   "tex_coord@lo_0"
+  ],
+  "carrier": "t_lodoff",
+  "cross_run": {
+   "tex_coord@lo_0": {
+    "agree": 99.61,
+    "common": 256,
+    "disagreements": 1,
+    "moved03": 256,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 9,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "9/256 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 0,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_deriv.b1": {
+  "arm": "tex_deriv@d0",
+  "arms": [
+   "tex_deriv@d0",
+   "tex_deriv@d1"
+  ],
+  "carrier": "t_deriv",
+  "cross_run": {
+   "tex_deriv@d0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "tex_deriv@d1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_deriv.dstsrc": {
+  "arm": "tex_deriv@d1",
+  "arms": [
+   "tex_deriv@d0",
+   "tex_deriv@d1"
+  ],
+  "carrier": "t_deriv",
+  "cross_run": {
+   "tex_deriv@d0": {
+    "agree": 100.0,
+    "common": 39,
+    "disagreements": 0,
+    "moved03": 38,
+    "moved04": 38,
+    "stable_live": true
+   },
+   "tex_deriv@d1": {
+    "agree": 100.0,
+    "common": 39,
+    "disagreements": 0,
+    "moved03": 39,
+    "moved04": 39,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 2,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "2/39 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from tex_deriv@d0 to tex_deriv@d1, where the field is demonstrably live (39/39 of 39 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 65,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 36,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 39,
+  "target": "G17P"
+ },
+ "tex_deriv.src_comp": {
+  "arm": "tex_deriv@d0",
+  "arms": [
+   "tex_deriv@d0",
+   "tex_deriv@d1"
+  ],
+  "carrier": "t_deriv",
+  "cross_run": {
+   "tex_deriv@d0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   },
+   "tex_deriv@d1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 252,
+   "ok_inert": 4,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_deriv.tail": {
+  "arm": "tex_deriv@d0",
+  "arms": [
+   "tex_deriv@d0",
+   "tex_deriv@d1"
+  ],
+  "carrier": "t_deriv",
+  "cross_run": {
+   "tex_deriv@d0": {
+    "agree": 100.0,
+    "common": 65,
+    "disagreements": 0,
+    "moved03": 63,
+    "moved04": 63,
+    "stable_live": true
+   },
+   "tex_deriv@d1": {
+    "agree": 100.0,
+    "common": 65,
+    "disagreements": 0,
+    "moved03": 63,
+    "moved04": 63,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 65,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 63,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 65,
+  "target": "G17P"
+ },
+ "tex_sample.chain": {
+  "arm": "tex_sample@lo_1",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 16,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 15,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..15 dense (all 16 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 16,
+  "target": "G17P"
+ },
+ "tex_sample.comp_flags": {
+  "arm": "tex_sample@lo_1",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 12,
+    "moved04": 12,
+    "stable_live": true
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 12,
+    "moved04": 12,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 10,
+    "disagreements": 0,
+    "moved03": 8,
+    "moved04": 8,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@tc_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 12,
+    "moved04": 12,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (14/14 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 16,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 14,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..15 dense (all 16 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 16,
+  "target": "G17P"
+ },
+ "tex_sample.extra_coord": {
+  "arm": "tex_sample@t1_0",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 98.83,
+    "common": 256,
+    "disagreements": 3,
+    "moved03": 3,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 64,
+    "moved04": 64,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@tc_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_sample.kind": {
+  "arm": "tex_sample@lo_1",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 14,
+    "moved04": 14,
+    "stable_live": true
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 16,
+    "disagreements": 0,
+    "moved03": 15,
+    "moved04": 15,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 16,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 15,
+   "ok_inert": 1,
+   "silent_zero": 8
+  },
+  "range": "0..15 dense (all 16 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 16,
+  "target": "G17P"
+ },
+ "tex_sample.lod_present": {
+  "arm": "tex_sample@lo_0",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@tc_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_sample.result_sel": {
+  "arm": "tex_sample@t1_2",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 240,
+    "moved04": 240,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 98.83,
+    "common": 256,
+    "disagreements": 3,
+    "moved03": 238,
+    "moved04": 239,
+    "stable_live": false
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 98.83,
+    "common": 256,
+    "disagreements": 3,
+    "moved03": 248,
+    "moved04": 251,
+    "stable_live": false
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 252,
+    "moved04": 252,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 76.56,
+    "common": 256,
+    "disagreements": 60,
+    "moved03": 90,
+    "moved04": 86,
+    "stable_live": false
+   },
+   "tex_sample@tc_0": {
+    "agree": 92.58,
+    "common": 256,
+    "disagreements": 19,
+    "moved03": 7,
+    "moved04": 12,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@t1_2, where the field is demonstrably live (252/252 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 248,
+   "ok_inert": 8,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_sample.samp_extra": {
+  "arm": "tex_sample@lo_1",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t1_1": {
+    "agree": 99.22,
+    "common": 256,
+    "disagreements": 2,
+    "moved03": 2,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_sample@tc_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_sample.tex_type": {
+  "arm": "tex_sample@lo_2",
+  "arms": [
+   "tex_sample@t1_0",
+   "tex_sample@t1_1",
+   "tex_sample@t1_2",
+   "tex_sample@t2_0",
+   "tex_sample@t2_1",
+   "tex_sample@t2_2",
+   "tex_sample@lo_0",
+   "tex_sample@lo_1",
+   "tex_sample@lo_2",
+   "tex_sample@tc_0"
+  ],
+  "carrier": "t_sample",
+  "cross_run": {
+   "tex_sample@lo_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 30,
+    "moved04": 30,
+    "stable_live": true
+   },
+   "tex_sample@lo_1": {
+    "agree": 100.0,
+    "common": 34,
+    "disagreements": 0,
+    "moved03": 33,
+    "moved04": 33,
+    "stable_live": true
+   },
+   "tex_sample@lo_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_sample@t1_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_sample@t1_1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_sample@t1_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_sample@t2_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_sample@t2_1": {
+    "agree": 100.0,
+    "common": 34,
+    "disagreements": 0,
+    "moved03": 32,
+    "moved04": 32,
+    "stable_live": true
+   },
+   "tex_sample@t2_2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 240,
+    "moved04": 240,
+    "stable_live": true
+   },
+   "tex_sample@tc_0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 241,
+    "moved04": 241,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_2, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 254,
+   "ok_inert": 2,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.amode": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1', 'tex_write@w2'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.coord_dim": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 192,
+    "moved04": 192,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 192,
+   "ok_inert": 64,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.coord_pack": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 8,
+    "disagreements": 0,
+    "moved03": 4,
+    "moved04": 4,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 2,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "2/256 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 126,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.coord_regs": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 65,
+    "disagreements": 0,
+    "moved03": 64,
+    "moved04": 64,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 65,
+    "disagreements": 0,
+    "moved03": 64,
+    "moved04": 64,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 65,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 64,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 65,
+  "target": "G17P"
+ },
+ "tex_write.data_desc": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 224,
+   "ok_inert": 32,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.data_desc_hi": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 248,
+    "moved04": 248,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 248,
+   "ok_inert": 8,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.layer_reg": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 255,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.rsv10": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 240,
+    "moved04": 240,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 240,
+    "moved04": 240,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 240,
+   "ok_inert": 16,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.rsv11": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 0,
+    "moved04": 0,
+    "stable_live": false
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "inert-envelope",
+  "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1'].]",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 0,
+   "ok_inert": 256,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.rsv15": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.rsv8": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 255,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.seq_idx": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 254,
+    "moved04": 254,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 254,
+   "ok_inert": 2,
+   "silent_zero": 12
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "tex_write.wop": {
+  "arm": "tex_write@w0",
+  "arms": [
+   "tex_write@w0",
+   "tex_write@w1",
+   "tex_write@w2"
+  ],
+  "carrier": "t_write",
+  "cross_run": {
+   "tex_write@w0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_write@w1": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   },
+   "tex_write@w2": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 128,
+    "moved04": 128,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 128,
+   "ok_inert": 128,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "fragment",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "vary_slot.sel": {
+  "arm": "vary_slot@iter_v0",
+  "arms": [
+   "vary_slot@iter_v0",
+   "vary_slot@v16_v0",
+   "vary_slot@v16_v6"
+  ],
+  "carrier": "c_iter",
+  "cross_run": {
+   "vary_slot@iter_v0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   },
+   "vary_slot@v16_v0": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 255,
+    "moved04": 255,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 240,
+   "ok_inert": 1,
+   "silent_zero": 0
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "vertex",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "vary_store.b5_tag": {
+  "arm": "vary_store@c_iter/vert106",
+  "arms": [
+   "vary_store@c_iter/vert106"
+  ],
+  "carrier": "c_iter/vert106",
+  "cross_run": {
+   "vary_store@c_iter/vert106": {
+    "agree": 100.0,
+    "common": 128,
+    "disagreements": 0,
+    "moved03": 95,
+    "moved04": 95,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 9,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "9/128 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 128,
+  "outcome_counts": {
+   "fault_or_hang": 64,
+   "moved_output": 22,
+   "ok_inert": 33,
+   "silent_zero": 21
+  },
+  "range": "0..127 dense (all 128 values)",
+  "semantics": "",
+  "stage": "vertex",
+  "swept_both_runs": 128,
+  "target": "G17P"
+ },
+ "vary_store.hint1": {
+  "arm": "vary_store@c_iter/vert106",
+  "arms": [
+   "vary_store@c_iter/vert106"
+  ],
+  "carrier": "c_iter/vert106",
+  "cross_run": {
+   "vary_store@c_iter/vert106": {
+    "agree": 100.0,
+    "common": 256,
+    "disagreements": 0,
+    "moved03": 224,
+    "moved04": 224,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 14,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "isolated-byte-diff",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "14/256 values disagree between the two gated runs; validated at points, not over a range",
+  "of": 256,
+  "outcome_counts": {
+   "fault_or_hang": 128,
+   "moved_output": 82,
+   "ok_inert": 32,
+   "silent_zero": 82
+  },
+  "range": "0..255 dense (all 256 values)",
+  "semantics": "",
+  "stage": "vertex",
+  "swept_both_runs": 256,
+  "target": "G17P"
+ },
+ "vary_store.out_slot_hi": {
+  "arm": "vary_store@c_iter/vert106",
+  "arms": [
+   "vary_store@c_iter/vert106"
+  ],
+  "carrier": "c_iter/vert106",
+  "cross_run": {
+   "vary_store@c_iter/vert106": {
+    "agree": 100.0,
+    "common": 2,
+    "disagreements": 0,
+    "moved03": 1,
+    "moved04": 1,
+    "stable_live": true
+   }
+  },
+  "cross_run_disagreements": 0,
+  "evidence": [
+   "EXP-0155"
+  ],
+  "label": "hardware-run",
+  "label_under_frozen_rule_literal_run01_only": "hardware-run",
+  "liveness": "stable-live",
+  "note": "",
+  "of": 2,
+  "outcome_counts": {
+   "fault_or_hang": 0,
+   "moved_output": 1,
+   "ok_inert": 1,
+   "silent_zero": 1
+  },
+  "range": "0..1 dense (all 2 values)",
+  "semantics": "",
+  "stage": "vertex",
+  "swept_both_runs": 2,
+  "target": "G17P"
+ }
+}

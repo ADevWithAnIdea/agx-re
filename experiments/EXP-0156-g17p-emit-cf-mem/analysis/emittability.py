@@ -25,11 +25,21 @@ def main():
     veto = {m for m, d in ins.items() if d.get("emit_unsafe")}
 
     def label(m, f, proposed):
-        if proposed:
-            k = "%s.%s" % (m, f)
-            if k in fv and isinstance(fv[k], dict) and "label" in fv[k]:
-                return fv[k]["label"]
-        return (val.get(m, {}).get(f) or {}).get("label", "untested")
+        """`after`  = validation.json as it stands PLUS this experiment's verdicts.
+        `before` = validation.json with every EXP-0156-attributed label REMOVED.
+
+        The subtraction matters: the orchestrator merges verdicts into
+        validation.json continuously, and by the time this script is re-run our
+        own rows are already in it. Computing `before` from a live snapshot would
+        then report a delta of zero. Excluding rows whose `evidence` names
+        EXP-0156 makes the delta reproducible whenever it is run."""
+        k = "%s.%s" % (m, f)
+        if proposed and k in fv and isinstance(fv[k], dict) and "label" in fv[k]:
+            return fv[k]["label"]
+        ent = val.get(m, {}).get(f) or {}
+        if not proposed and "EXP-0156" in (ent.get("evidence") or []):
+            return "untested"          # our own row: subtract it for the baseline
+        return ent.get("label", "untested")
 
     out = {}
     for tag, proposed in (("before", False), ("after", True)):
@@ -52,6 +62,22 @@ def main():
         out[tag] = {"emittable": sorted(emit), "n_emittable": len(emit),
                     "n_instructions": len(ins), "fields_emitter_grade": fg,
                     "fields_total": ft, "blocked": blocked}
+    # The ABSOLUTE counts drift: the orchestrator edits db.json and
+    # validation.json continuously while eleven experiments run, so the
+    # instruction and field TOTALS move under us (171->172, 1057->1060 during
+    # this experiment alone). The DELTA is the stable, meaningful number; the
+    # hashes below pin which snapshot produced these totals.
+    import hashlib
+    out["snapshot"] = {
+        "db_json_sha256": hashlib.sha256(
+            (REPO / "tools/agx-isa/db.json").read_bytes()).hexdigest(),
+        "validation_json_sha256": hashlib.sha256(
+            (REPO / "tools/agx-isa/validation.json").read_bytes()).hexdigest(),
+        "note": "`before` subtracts every EXP-0156-attributed label from "
+                "validation.json, so the delta is reproducible whenever this "
+                "script is re-run -- including after the orchestrator has "
+                "already merged these verdicts.",
+    }
     delta = sorted(set(out["after"]["emittable"]) - set(out["before"]["emittable"]))
     out["newly_emittable"] = delta
     # TARGET MIXING, stated explicitly (CODEX target discipline): validation.json's

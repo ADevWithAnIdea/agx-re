@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "418d780ca2920a7235deb55878b4e5e82563f2370c6ce6f9fea7d05643e7c91f",
+ "db_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1060,
   "by_label": {
-   "hardware-run": 474,
-   "isolated-byte-diff": 95,
-   "corpus-correlation": 151,
-   "tokenization-only": 185,
-   "single-template-inference": 13,
+   "hardware-run": 548,
+   "isolated-byte-diff": 111,
+   "corpus-correlation": 121,
+   "tokenization-only": 168,
+   "single-template-inference": 8,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 142
+   "untested": 104
   },
   "by_label_pct": {
-   "hardware-run": 44.7,
-   "isolated-byte-diff": 9.0,
-   "corpus-correlation": 14.2,
-   "tokenization-only": 17.5,
-   "single-template-inference": 1.2,
+   "hardware-run": 51.7,
+   "isolated-byte-diff": 10.5,
+   "corpus-correlation": 11.4,
+   "tokenization-only": 15.8,
+   "single-template-inference": 0.8,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 13.4
+   "untested": 9.8
   },
-  "emittable_instructions": 55,
+  "emittable_instructions": 66,
   "emittable_mnemonics": [
    "atomic_mem",
    "atomic_rmw",
@@ -52,6 +52,10 @@
    "device_store",
    "falu2",
    "falu_acc",
+   "frag_color_pack",
+   "frag_color_store",
+   "frag_depth_store",
+   "frag_tile_setup",
    "frame_prologue",
    "get_sr",
    "half_alu",
@@ -61,8 +65,12 @@
    "ibfe",
    "ibitcount",
    "if_push",
+   "imageblock_store",
    "isel10",
    "ishift",
+   "iter",
+   "iter_at",
+   "iter_flat",
    "iunary",
    "jump",
    "jump_cond",
@@ -82,9 +90,12 @@
    "ret_luse",
    "sel",
    "shift_amt_move",
+   "simd_reduce",
    "spill_frame_marker",
    "stop",
    "tex_addr_setup",
+   "tex_deriv",
+   "tex_write",
    "threadgroup_barrier",
    "tile_read",
    "tile_read_mrt",
@@ -93,7 +104,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 117,
+  "decodable_not_yet_emittable": 106,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -104,7 +115,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 55
+  "emittable_of_emitter_relevant": 66
  },
  "instructions": {
   "falu2": {
@@ -3258,27 +3269,31 @@
     ]
    },
    "kind": {
-    "label": "corpus-correlation",
-    "range": "companion low nibble 5 = sample/gather/read, 0xd = compute sample_compare",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0016",
-     "EXP-0034"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "chain": {
-    "label": "corpus-correlation",
-    "range": "bit5 marks a chained second texture op",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0016"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (15/15 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "comp_flags": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (14/14 of 16 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "result_desc": {
     "label": "isolated-byte-diff",
@@ -3289,10 +3304,13 @@
     ]
    },
    "result_sel": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@t1_2, where the field is demonstrably live (252/252 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "coord": {
     "label": "corpus-correlation",
@@ -3314,12 +3332,13 @@
     ]
    },
    "extra_coord": {
-    "label": "corpus-correlation",
-    "range": "array layer = op+3>>3, 3D z = coord-imm & 0x7f, cube face = imm>>1, MSAA sample = imm>>1 - splice-proven on M4 for the read path",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-10"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "tex_slot": {
     "label": "hardware-run",
@@ -3353,24 +3372,31 @@
     "note": "RETRACTION: op+6 is NOT the filter selector."
    },
    "lod_present": {
-    "label": "corpus-correlation",
-    "range": "op+7 bit2 = explicit LOD/bias present (own-MSL byte-diff)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0034"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "tex_type": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_2, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "samp_extra": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from tex_sample@t1_0 to tex_sample@lo_1, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    }
   },
   "tex_write": {
@@ -3383,92 +3409,121 @@
     ]
    },
    "coord_pack": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "2/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "amode": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1', 'tex_write@w2'].]"
    },
    "seq_idx": {
-    "label": "corpus-correlation",
-    "range": "0x88 + N for the Nth write in a shader",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "layer_reg": {
-    "label": "corpus-correlation",
-    "range": "0x20 present for an array/layer store, 0 for plain 2d/3d",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "coord_regs": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "rsv8": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "coord_dim": {
-    "label": "corpus-correlation",
-    "range": "0x04 2d/2d_array, 0x08 3d, 0x0c cube (3 observed values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "rsv10": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "rsv11": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['tex_write@w0', 'tex_write@w1'].]"
    },
    "wop": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "data_desc": {
-    "label": "corpus-correlation",
-    "range": "0x3a/0x09 contiguous vec4 register block vs 0xfa/0x08 scattered sources",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "data_desc_hi": {
-    "label": "corpus-correlation",
-    "range": "second half of the same write-data descriptor",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "rsv15": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    }
   },
   "tex_deriv": {
@@ -3481,34 +3536,31 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dstsrc": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "2/39 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from tex_deriv@d0 to tex_deriv@d1, where the field is demonstrably live (39/39 of 39 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "src_comp": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "axis": {
     "label": "isolated-byte-diff",
@@ -3520,14 +3572,13 @@
     "note": "Fine-vs-coarse derivative decode is an open follow-up."
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    }
   },
   "simd_reduce": {
@@ -3541,36 +3592,40 @@
     ]
    },
    "scope": {
-    "label": "corpus-correlation",
-    "range": "1 = SIMD-group, 0 = 2x2 quad (byte0 0xb7/0x37 quad forms)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0018"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b0hi": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "opcls": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "cache": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0086",
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
+     "EXP-0155"
     ],
-    "note": "The literal 0x54/0x56 bit. DOWNGRADED to UNKNOWN - the original 'source cache/last-use hint, not an op change' claim rested on a same-instruction self-check that is structurally incapable of detecting a liveness bug (EXP-0086). Emit exactly what you copied."
+    "note": ""
    },
    "op": {
     "label": "isolated-byte-diff",
@@ -3582,35 +3637,40 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 (reg<<1): a 4-way live-reduce chain steps 0x0c,0x0a,0x06,0x02 with the dst lane - own-MSL compile-only",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "opmarker": {
-    "label": "single-template-inference",
-    "range": "0x02 in every own compile; no variation observed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "src": {
-    "label": "corpus-correlation",
-    "range": "byte+5 (reg<<2): steps 0x18,0x14,0x0c,0x04 with the src lane - own-MSL compile-only",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
+     "EXP-0155"
     ],
-    "note": "CORRECTION: byte+4 (opmarker), previously labelled 'src', is a constant op-marker."
+    "note": ""
    },
    "shape": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dtype": {
     "label": "isolated-byte-diff",
@@ -3664,26 +3724,31 @@
     "note": "Literal 0x54/0x56 bit - DOWNGRADED to UNKNOWN (EXP-0086)."
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3, located by own-MSL byte-diff",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "1/195 values disagree between the two gated runs; validated at points, not over a range"
    },
    "src": {
-    "label": "corpus-correlation",
-    "range": "byte+4, located by own-MSL byte-diff",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "srctype": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "lane": {
     "label": "hardware-run",
@@ -3696,28 +3761,31 @@
     "note": "Out-of-range behaviour is NOT uniform across the family and NOT a wraparound: dynamic simd_shuffle aliases idx>=32 as (idx & 0x1C); the STATIC single-instruction form instead returns a HARD ZERO; simd_shuffle_xor and quad_shuffle hard-zero in both forms."
    },
    "rtype": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dsthi": {
-    "label": "corpus-correlation",
-    "range": "byte+8 dst register high bits, located",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "rsv9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['sshuffle@simd1', 'sshuffle@simd6'].]"
    }
   },
   "simd_ballot": {
@@ -3752,42 +3820,49 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 destination mask register, located",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "psrc": {
-    "label": "corpus-correlation",
-    "range": "byte+4 predicate source register, located",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "psrctype": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "form": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "form_sig": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "65 sampled values of 2^24 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "swept 35/65 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    }
   },
   "atomic_rmw": {
@@ -5080,30 +5155,40 @@
     ]
    },
    "grp": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from iter@frag0W to iter@frag1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "lead": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 destination GPR, located by own-MSL byte-diff",
-    "target": "A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0155"
+    ],
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "coeff_sel": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "src_slot": {
     "label": "isolated-byte-diff",
@@ -5123,22 +5208,31 @@
     "note": "Perspective-correct interpolation is a MULTI-INSTRUCTION lowering, not a mode bit."
    },
    "c7": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from iter@frag1 to iter@cent1, where the field is demonstrably live (255/255 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "loc": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b9": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 3 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter@cent1', 'iter@frag0W', 'iter@frag1'].]"
    }
   },
   "iter_at": {
@@ -5151,42 +5245,58 @@
     ]
    },
    "grp": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "2/3 values disagree between the two gated runs; validated at points, not over a range"
    },
    "lead": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "c4": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b5": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "loc": {
-    "label": "corpus-correlation",
-    "range": "byte+7 0x01 centroid, 0x03 sample (2 observed values)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0029"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['iter_at@cent1_0', 'iter_at@cent1_1'].]"
    }
   },
   "iter_flat": {
@@ -5199,44 +5309,40 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "sel": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "swept 127/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (126/126 of 126 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (254/254 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "b5": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "1/256 values disagree between the two gated runs; validated at points, not over a range [orchestrator: representative arm re-pointed from iter_flat@flat1 to iter_flat@flat0, where the field is demonstrably live (192/192 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    }
   },
   "frag_color_store": {
@@ -5250,12 +5356,13 @@
     ]
    },
    "store_mode": {
-    "label": "single-template-inference",
-    "range": "0x54 in 130/130 corpus stores - no variation observed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fcs@iter0', 'fcs@pack0'].]"
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -5266,12 +5373,13 @@
     ]
    },
    "flags": {
-    "label": "corpus-correlation",
-    "range": "0x00 in every plain store; 0x08 in the MRT/array-slice variant",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: representative arm re-pointed from fcs@iter0 to fcs@pack0, where the field is demonstrably live (128/128 of 256 moved, 100.0% cross-run agreement); the original arm showed it inert.]"
    },
    "rt_index": {
     "label": "isolated-byte-diff",
@@ -5282,29 +5390,31 @@
     ]
    },
    "mask": {
-    "label": "corpus-correlation",
-    "range": "0x01 in plain stores",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "fmt": {
-    "label": "corpus-correlation",
-    "range": "byte+7 tracks the ATTACHMENT format, proven by a colour-format sweep with the shader return width held at float4: RGBA8Unorm/sRGB/BGRA8=0x4e, RGBA16Float=0x0e, RGBA32Float=0x2e, R32Float=0x22, R8Unorm=0x42",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13",
-     "EXP-0108"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "slice_addr": {
-    "label": "corpus-correlation",
-    "range": "0x00000000 in single-RT stores; carries the layer/slice address only in array-target stores",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "81 sampled values of 2^32 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    }
   },
   "tile_read": {
@@ -5400,20 +5510,22 @@
     ]
    },
    "src": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "swept 249/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['ibs@t1', 'ibs@tc'].]"
    },
    "slice_off": {
     "label": "isolated-byte-diff",
@@ -5425,32 +5537,31 @@
     "note": "Explicit imageblocks address by BYTE OFFSET; simple MRT frag_color_store addresses by RT INDEX (rt<<1). Do not conflate them."
    },
    "b6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "fmt": {
-    "label": "corpus-correlation",
-    "range": "0x0e half4, 0x22 float (2 observed values)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-O2D"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "tail": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "81 sampled values of 2^32 (boundaries + powers of two + 16 asymmetric interior)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    }
   },
   "imageblock_load": {
@@ -5527,36 +5638,40 @@
     ]
    },
    "b1": {
-    "label": "single-template-inference",
-    "range": "0x02 in every observed instance",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "sel": {
-    "label": "corpus-correlation",
-    "range": "steps 0x0c -> 0x30 -> 0xc0 across RT0/RT1/RT2 and 0x00/0x08 around a tile read",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
    },
    "access": {
-    "label": "corpus-correlation",
-    "range": "0x06 store-setup vs 0x08 tile-read (own-MSL render byte-diff)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
    },
    "b5": {
-    "label": "single-template-inference",
-    "range": "0x00 in every observed instance",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "[orchestrator: never moved an observable on any of 2 carriers over the full sweep in both gated runs; emitter-grade only within that envelope. Carriers ['fts@iter0', 'fts@iter1'].]"
    }
   },
   "frag_color_pack": {
@@ -5569,44 +5684,58 @@
     ]
    },
    "src_desc": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "fmt_class": {
-    "label": "corpus-correlation",
-    "range": "0x54 tilebuffer/attachment (fragment) vs 0x56 compute pack",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "dst": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "swept 195/256 of the frozen value set in both runs (incomplete: a hang/deadline budget stopped it); the values that did run agree across both runs"
    },
    "mode": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "comp_off": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "val": {
-    "label": "corpus-correlation",
-    "range": "byte+6 carries the colour component value",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-14"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "src_present_mask": {
     "label": "hardware-run",
@@ -5644,34 +5773,31 @@
     ]
    },
    "b3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b4": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b5": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    }
   },
   "pixel_order": {
@@ -6281,10 +6407,13 @@
     "note": "MIS-TOKENIZATION FLAGGED: this descriptor currently also swallows the 6-byte fragment kill/target-mask op (byte0=0x57, byte+2=0x54) as an 8-byte vertex vary_store. A proper split is a pending DB change (EXP-0091)."
    },
    "hint1": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "14/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "hint2": {
     "label": "corpus-correlation",
@@ -6312,20 +6441,22 @@
     "note": "Position vs varying is the SLOT RANGE, not a distinct opcode."
    },
    "out_slot_hi": {
-    "label": "corpus-correlation",
-    "range": "byte+5 bit0 extends the slot to 8-15 (wraps byte+4 back through 0x00)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..1 dense (all 2 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b5_tag": {
-    "label": "single-template-inference",
-    "range": "constant 0x20 tag in every observed instance",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "0..127 dense (all 128 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": "9/128 values disagree between the two gated runs; validated at points, not over a range"
    },
    "hint6": {
     "label": "untested",
@@ -6351,10 +6482,13 @@
     "note": "The mnemonic is a MISNOMER: the same encoding also serves vertex attribute-fetch address setup and float-classify (isnan/isnormal/frexp/modf) ALU."
    },
    "dst_lo": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "b1": {
     "label": "untested",
@@ -6363,10 +6497,13 @@
     "evidence": []
    },
    "subop": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0155"
+    ],
+    "note": "9/256 values disagree between the two gated runs; validated at points, not over a range"
    },
    "srcA": {
     "label": "corpus-correlation",
@@ -9277,12 +9414,13 @@
     ]
    },
    "sel": {
-    "label": "corpus-correlation",
-    "range": "{0x04,0x0a,0x0c} output-class forms observed",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0155"
+    ],
+    "note": ""
    },
    "slot": {
     "label": "corpus-correlation",

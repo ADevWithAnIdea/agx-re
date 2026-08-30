@@ -417,62 +417,6 @@
      "tokenization-only"
     ]
    ],
-   "cvt_bf16": [
-    [
-     "dst",
-     "untested"
-    ],
-    [
-     "srcw",
-     "corpus-correlation"
-    ],
-    [
-     "opsel",
-     "untested"
-    ],
-    [
-     "src",
-     "untested"
-    ],
-    [
-     "fmt",
-     "untested"
-    ],
-    [
-     "b5",
-     "untested"
-    ],
-    [
-     "dir",
-     "corpus-correlation"
-    ],
-    [
-     "b7",
-     "untested"
-    ]
-   ],
-   "cvt_f2h_dst": [
-    [
-     "dst",
-     "untested"
-    ],
-    [
-     "opsel",
-     "corpus-correlation"
-    ],
-    [
-     "src",
-     "untested"
-    ],
-    [
-     "dhalf",
-     "untested"
-    ],
-    [
-     "tail",
-     "untested"
-    ]
-   ],
    "dev_scoreboard_fence": [
     [
      "scope_flag",
@@ -651,6 +595,20 @@
     [
      "b5",
      "tokenization-only"
+    ]
+   ],
+   "frag_sample_submit": [
+    [
+     "b1",
+     "corpus-correlation"
+    ],
+    [
+     "b2",
+     "corpus-correlation"
+    ],
+    [
+     "body",
+     "corpus-correlation"
     ]
    ],
    "frag_tile_setup": [
@@ -1510,22 +1468,6 @@
     ]
    ],
    "packed_half2_hi": [
-    [
-     "dst",
-     "untested"
-    ],
-    [
-     "srcA",
-     "untested"
-    ],
-    [
-     "opsel",
-     "corpus-correlation"
-    ],
-    [
-     "srcB",
-     "untested"
-    ],
     [
      "mods",
      "untested"
@@ -2256,7 +2198,9 @@
    "atomic_tg",
    "bf_add_dst",
    "copysign",
+   "cvt_bf16",
    "cvt_f2h",
+   "cvt_f2h_dst",
    "cvt_f2i",
    "cvt_i2f",
    "cvt_i2f_src",
@@ -2311,57 +2255,65 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "fields_emitter_grade": 552,
-  "fields_total": 1057,
-  "n_emittable": 59,
-  "n_instructions": 171
+  "fields_emitter_grade": 569,
+  "fields_total": 1060,
+  "n_emittable": 61,
+  "n_instructions": 172
  },
  "before": {
   "blocked": {
    "atomic_mem": [
     [
      "op_lsb",
-     "tokenization-only"
+     "untested"
+    ],
+    [
+     "op",
+     "untested"
     ],
     [
      "per_lane",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "op_msb",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "atomic_rmw": [
     [
      "op_lsb",
-     "tokenization-only"
+     "untested"
+    ],
+    [
+     "op",
+     "untested"
     ],
     [
      "per_lane",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "op_msb",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "atomic_tg": [
     [
      "op_desc",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "rsv10lo",
-     "tokenization-only"
+     "untested"
     ],
     [
      "op",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "op_hi_rsv",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "b_alu10_lo6": [
@@ -2619,7 +2571,7 @@
     ],
     [
      "fmt",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "srcA",
@@ -2681,7 +2633,7 @@
     ],
     [
      "fmt",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "srcA",
@@ -2820,62 +2772,6 @@
     [
      "b3",
      "tokenization-only"
-    ]
-   ],
-   "cvt_bf16": [
-    [
-     "dst",
-     "untested"
-    ],
-    [
-     "srcw",
-     "corpus-correlation"
-    ],
-    [
-     "opsel",
-     "untested"
-    ],
-    [
-     "src",
-     "untested"
-    ],
-    [
-     "fmt",
-     "untested"
-    ],
-    [
-     "b5",
-     "untested"
-    ],
-    [
-     "dir",
-     "corpus-correlation"
-    ],
-    [
-     "b7",
-     "untested"
-    ]
-   ],
-   "cvt_f2h_dst": [
-    [
-     "dst",
-     "untested"
-    ],
-    [
-     "opsel",
-     "corpus-correlation"
-    ],
-    [
-     "src",
-     "untested"
-    ],
-    [
-     "dhalf",
-     "untested"
-    ],
-    [
-     "tail",
-     "untested"
     ]
    ],
    "dev_scoreboard_fence": [
@@ -3058,6 +2954,20 @@
      "tokenization-only"
     ]
    ],
+   "frag_sample_submit": [
+    [
+     "b1",
+     "corpus-correlation"
+    ],
+    [
+     "b2",
+     "corpus-correlation"
+    ],
+    [
+     "body",
+     "corpus-correlation"
+    ]
+   ],
    "frag_tile_setup": [
     [
      "b1",
@@ -3223,7 +3133,7 @@
     ],
     [
      "opsel",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "opflags",
@@ -3377,7 +3287,7 @@
     ],
     [
      "sel",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "selhi",
@@ -3729,21 +3639,21 @@
    "jump": [
     [
      "branch_ctrl",
-     "corpus-correlation"
+     "untested"
     ]
    ],
    "jump_cond": [
     [
      "cf_scope",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "offset",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "reserved",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "mask_op": [
@@ -3982,22 +3892,6 @@
    ],
    "packed_half2_hi": [
     [
-     "dst",
-     "untested"
-    ],
-    [
-     "srcA",
-     "untested"
-    ],
-    [
-     "opsel",
-     "corpus-correlation"
-    ],
-    [
-     "srcB",
-     "untested"
-    ],
-    [
      "mods",
      "untested"
     ]
@@ -4015,7 +3909,7 @@
    "pop_reconverge": [
     [
      "reserved",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "ray_move": [
@@ -4089,7 +3983,7 @@
    "ret": [
     [
      "linkmode",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "scoreboard",
@@ -4099,11 +3993,11 @@
    "ret_luse": [
     [
      "linkmode",
-     "corpus-correlation"
+     "untested"
     ],
     [
      "tail",
-     "tokenization-only"
+     "untested"
     ]
    ],
    "rt_as_load": [
@@ -4682,8 +4576,16 @@
    ],
    "tg_addr_compute": [
     [
-     "<instruction-level emit_unsafe veto>",
-     "veto"
+     "b3",
+     "untested"
+    ],
+    [
+     "b4",
+     "untested"
+    ],
+    [
+     "b5",
+     "untested"
     ]
    ],
    "tg_atomic_prep10": [
@@ -4743,7 +4645,9 @@
   },
   "emittable": [
    "copysign",
+   "cvt_bf16",
    "cvt_f2h",
+   "cvt_f2h_dst",
    "cvt_f2i",
    "cvt_i2f",
    "cvt_i2f_src",
@@ -4793,12 +4697,12 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "fields_emitter_grade": 513,
-  "fields_total": 1057,
-  "n_emittable": 50,
-  "n_instructions": 171
+  "fields_emitter_grade": 525,
+  "fields_total": 1060,
+  "n_emittable": 52,
+  "n_instructions": 172
  },
- "field_delta": 39,
+ "field_delta": 44,
  "loop_instructions": {
   "device_load": "EMITTABLE",
   "device_store": "EMITTABLE",
@@ -4854,6 +4758,11 @@
   "jump_cond",
   "ret_luse"
  ],
+ "snapshot": {
+  "db_json_sha256": "83b83a350ece33b8fd9e98b773f02be2da89a5f942824896574ff22827042341",
+  "note": "`before` subtracts every EXP-0156-attributed label from validation.json, so the delta is reproducible whenever this script is re-run -- including after the orchestrator has already merged these verdicts.",
+  "validation_json_sha256": "631af9202ddd5457db981646edaa0e6324277eb21d6d916447912bd5863bdcf0"
+ },
  "target_mixing": {
   "atomic_mem": {
    "fields_still_resting_on_M4_labels": [

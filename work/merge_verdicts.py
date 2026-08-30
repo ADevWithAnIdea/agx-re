@@ -13,7 +13,7 @@ silently taking the stronger one would hide a refutation. So it stops.
   python3 work/merge_verdicts.py --dry-run experiments/EXP-01*/analysis/field_verdicts.json
   python3 work/merge_verdicts.py          experiments/EXP-01*/analysis/field_verdicts.json
 """
-import argparse, json, os, subprocess, sys
+import argparse, hashlib, json, os, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VAL = os.path.join(ROOT, "tools", "agx-isa", "validation.json")
@@ -24,6 +24,7 @@ LABELS = ["hardware-run", "isolated-byte-diff", "corpus-correlation",
           "host-private", "untested"]
 STRENGTH = {l: i for i, l in enumerate(LABELS)}   # lower index == stronger
 EMIT_OK = {"hardware-run", "isolated-byte-diff"}
+DATA_WORD_ROLE = "data-word"
 
 
 def load_db_fields():
@@ -57,6 +58,21 @@ def recompute_coverage(val, dbf):
     cov["emittable_instructions"] = len(emittable)
     cov["emittable_mnemonics"] = emittable
     cov["decodable_not_yet_emittable"] = len(val["instructions"]) - len(emittable)
+
+    # The corrected metric (EXP-0148): six of the scaffolding descriptors are data
+    # words by their own committed semantics, so they are not instructions an
+    # emitter emits and must not sit in the denominator. validate_labels.py
+    # recomputes these independently and FAILS if we leave them stale -- which is
+    # exactly what happened after the EXP-0155 merge, so recompute them here too.
+    db = json.load(open(DB))
+    dw = sorted(i["mnemonic"] for i in db["instructions"]
+                if i.get("emitter_role") == DATA_WORD_ROLE)
+    rel = [i["mnemonic"] for i in db["instructions"]
+           if i.get("emitter_role") != DATA_WORD_ROLE]
+    cov["data_word_descriptors"] = len(dw)
+    cov["data_word_mnemonics"] = dw
+    cov["emitter_relevant_instructions"] = len(rel)
+    cov["emittable_of_emitter_relevant"] = len([m for m in emittable if m not in set(dw)])
     return cov
 
 
@@ -70,6 +86,7 @@ def main():
 
     val = json.load(open(VAL))
     dbf = load_db_fields()
+    db_sha = hashlib.sha256(open(DB,"rb").read()).hexdigest()
     before = dict(val["coverage"]["by_label"])
     before_emit = val["coverage"]["emittable_instructions"]
 
@@ -115,6 +132,7 @@ def main():
             print("  -", p)
 
     cov = recompute_coverage(val, dbf)
+    val["db_sha256"] = db_sha   # keep the pin honest; a stale hash means stale labels
     print("\napplied %d field verdicts, skipped %d" % (applied, skipped))
     print("emitter-grade: %d -> %d fields" % (
         before.get("hardware-run", 0) + before.get("isolated-byte-diff", 0),

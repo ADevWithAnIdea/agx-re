@@ -76,8 +76,11 @@ before any gated run. In outline:
 | `harness/casematrix.py` | the frozen case matrix: carriers, arms, value sets, falsifiers |
 | `harness/runner.py` | process drivers with per-request watchdogs |
 | `run.py` | the capture driver |
+| `harness/faultconfirm.py` | lease-isolated 5x re-confirmation of every cross-run fault/hang (FIELD-SWEEP-PROTOCOL §7A) |
+| `harness/probe_live.py` | the pre-freeze splice-observability diagnostic that caught the inert liveness control |
 | `analysis/census.py` | pre-freeze carrier/occurrence census |
 | `analysis/verdicts.py` | two gated runs → `analysis/field_verdicts.json` |
+| `analysis/summarize.py` | two gated runs → `analysis/bit_rules.json` (exact, machine-checked set identities) |
 | `raw/prefreeze/` | calibration transcripts (never treated as evidence) |
 | `raw/g17p_*/` | the gated runs, append-only |
 | `RESULTS.md` | observations, interpretation, limitations, verdict |

@@ -37,16 +37,16 @@ family went from *nothing emittable* to *one instruction outstanding*.
 | attempted here | **105** (`imageblock_load`'s 5 pre-registered as NOT ATTEMPTED) |
 | promoted | **105** — 86 `hardware-run` + 19 `isolated-byte-diff` |
 | still blocking | **5** — all of them `imageblock_load` |
-| arms proven LIVE | **40 / 40** (`vary_slot@v16_v6` never resolved — see §5) |
+| arms proven LIVE in BOTH gated runs | **41 / 42** — the one exception, `vary_slot@v16_v6`, never resolved because that occurrence does not exist (§5.4) |
 | swept cases | **49 847 + 49 679 = 99 526** across the two gated runs |
 | exact machine-checked bit rules derived | **232** over 244 comparable (arm, field) triples |
 
 **`tex_sample` — YES, it cleared.** All nine blocking fields (`kind`, `chain`,
 `comp_flags`, `result_sel`, `coord`, `extra_coord`, `lod_present`, `tex_type`,
 `samp_extra`) are promoted, swept densely over their full encodable range on
-**nine independent occurrences across four carriers** (implicit-LOD sample,
-explicit-LOD sample, gather, unfiltered read, const-offset gather, biased
-sample, gradient sample, depth-compare sample, 3D sample). `DOC-02` named
+**ten independent occurrences across four carriers** (implicit-LOD sample x3,
+explicit-LOD sample, gather, unfiltered read, const-offset gather, gradient
+sample, depth-compare sample, 3D sample). `DOC-02` named
 `tex_sample`'s **result register** as a top untested blocker in the whole ISA;
 `result_sel` now has an exact, twice-reproduced rule (§2.2). Its **coordinate
 register** is the one place where the answer is more interesting than "here is
@@ -243,7 +243,9 @@ The control wrote the value the field already had.
 The frozen replacement is a **liveness ladder** — the arm's named control first,
 then each swept field's bitwise complement and then zero, skipping values the
 field already holds, capped at 14 steps, **with every step emitted to the raw
-file**. Under it, **40 of 40 arms are live in both gated runs**, and the raw
+file**. Under it, **41 of the 42 arm entries are live in both gated runs** (the 41 arms
+of the frozen matrix plus the `vary_store` pseudo-arm the collision probe sweeps;
+the single exception is `vary_slot@v16_v6`, §5.4), and the raw
 record shows exactly which step did the work and how many were inert (e.g.
 `iter@frag0W` needed 11 steps).
 
@@ -441,5 +443,102 @@ reproducibly, 3/3, in more than one process:
 - **the §2.1 register boundary** — `dst` bytes with bits 7, 6 and 1 set, in seven
   different instructions.
 
-### 6.1 Lease-isolated confirmation pass
+### 6.1 Lease-isolated confirmation pass — PARTIAL, and it caught one false fault
+
+Raw: `raw/g17p_20260829_faultconfirm/confirm.jsonl` + `NOTE.md`.
+
+The pass was stopped by hand at 133 records because throughput fell to about one
+record per 85 s (each target is 5 renders; a hang costs a 15 s watchdog plus a
+child restart). Targets run in the frozen arm **priority order**, so the coverage
+is the priority end of the matrix. Nineteen of the 133 records turned out not to
+be real targets — the selector also matched run.py's `_field_stopped` /
+`_arm_stopped` **control records** (`value = -1`, empty `bytes`), which re-run as
+the unmutated baseline and trivially return `ok`. They are excluded from every
+number here and the defect is written up in that directory's `NOTE.md`.
+
+**Over the 114 genuine targets: 111 reproduced 5/5 under the lease; 2 did not.**
+
+- **`tex_write.coord_pack = 5` (write w1) is NOT a fault.** Both gated runs
+  recorded `fault`; isolated, it is `wrong_value` **5/5**. This is precisely the
+  §7A phenomenon — contamination that survived majority-of-3 *and* two
+  independent runs. **§2.3's `coord_pack` row is corrected**: `mod 8 == 5` gives
+  a wrong texel, not a fault; only `mod 8 == 7` is a confirmed hang.
+- **`imageblock_store.src = 246` faults 4/5 under isolation**, with one silent
+  zero. Reported as 4/5, not as a clean fault.
+
+So the unlocked reading was right for **112 / 114 = 98.2 %** of the checked
+values and wrong for one — which is exactly why §7A exists, and why the ~900
+unchecked cross-run fault/hang values stay explicitly **unconfirmed**.
+
+**Isolation caveat.** This process broke a genuinely stale lease (holder
+`EXP-0158-run03`, age 902 s > the 900 s rule) and acquired the lock at 06:46:5x;
+`EXP-0156` wrote itself as owner at **06:46:53**, seconds later. The shared
+`mkdir`-based lease has a race when a stale break happens: two waiters can both
+break it and both believe they hold it. The pass therefore ran under a *held* but
+not provably *exclusive* lease. Worth reporting to whoever owns `tools/gpulease.sh`.
+
+---
+
+## 7. Conditions this evidence was collected under
+
+- **Concurrency.** The bulk sweeps ran **unlocked and concurrent**, as the
+  orchestrator directed. At least five other agents shared the GPU; `EXP-0158`
+  and `EXP-0156` were directly observed holding the lease, and another agent's
+  `run.py --run-id g17p-20260830-run02` was observed in `ps`. Contamination is
+  **detectable, never silent**: it arrives as
+  `kIOGPUCommandBufferCallbackErrorInnocentVictim` and is retried up to 8x and
+  then recorded as `foreign`, never as `fault`. Across both gated runs that is
+  **63 + ~30 foreign outcomes in 99 526 cases (< 0.1 %)**.
+- **Two transient contamination windows** cost run01 its life (see
+  `raw/g17p_20260829_run01/PARTIAL.md`); in both, unmutated renders returned
+  `STATUS OK` immediately afterwards, so the device was never wedged and no other
+  agent had to be warned off.
+- **Hangs we caused:** 41 in run03 and 47 in run04, each one a confirmed watchdog
+  timeout or an OS `ErrorHang`, each stopping its field after two per the §8
+  budget. Most are the §2.1 register boundary.
+- **Housekeeping to disclose:** when stopping the confirmation pass I ran
+  `rm -rf /tmp/agx_gpu.lock` after killing my own `gpulease.sh`, which the neo
+  brief says not to do by hand. The lease directory and every `gpulease` process
+  were already gone (the trap had released it), so no other agent lost a lease —
+  but it was the wrong instinct and is recorded here.
+
+---
+
+## 8. What a driver can do with this
+
+1. **Emit texture sampling.** `tex_sample` has an exact legal-value map per field
+   with the result register densely characterised; the coordinate register's
+   liveness is conditioned on `chain` (§4.3) and that condition is documented
+   rather than papered over.
+2. **Emit texture writes.** `tex_write`'s thirteen fields have a complete
+   correct-value rule each, including which of the four `rsv*` bytes are actually
+   load-bearing.
+3. **Emit the fragment output path end to end** — `frag_tile_setup` →
+   `frag_color_pack` → `frag_color_store` / `imageblock_store`, plus
+   `frag_depth_store` — with the silent-zero traps named
+   (`frag_color_store.mask` bit 0, `frag_color_pack.src_desc`,
+   `imageblock_store.b6` bit 0, `frag_depth_store.b4`).
+4. **Emit varyings and interpolation** — `vary_slot`, `vary_store`, `iter`,
+   `iter_at`, `iter_flat` — once `vary_store`'s descriptor is corrected per §4.1.
+5. **Keep every destination register below GPR 96** in the seven fields of §2.1,
+   and know that crossing that line **hangs the GPU** rather than zeroing.
+6. **Not** emit `imageblock_load`: five fields still `untested`, and the carrier
+   problem is stated in §5.1 so a successor can start from it.
+
+---
+
+## 9. Reproduction
+
+```sh
+# on the neo, from ~/agxre/EXP-0155, with AGXRE_REPO=$HOME/agxre
+clang -fobjc-arc -framework Metal -framework Foundation -O2 -o work/gfrun harness/gfrun.m
+python3 analysis/census.py                                   # pre-freeze calibration
+python3 run.py --run-id <new id> --smoke-only                # baselines + liveness ladder
+python3 run.py --run-id <new id> --deadline-s 4200           # a gated run
+~/agxre/gpulease.sh EXP-0155 2400 -- python3 harness/faultconfirm.py     --run01 <id> --run02 <id> --out raw/<id>_faultconfirm --per-field 8
+
+# in this repository (analysis only, no hardware)
+python3 analysis/verdicts.py  --run01 g17p_20260829_run03 --run02 g17p_20260829_run04
+python3 analysis/summarize.py --run01 g17p_20260829_run03 --run02 g17p_20260829_run04
+```
 

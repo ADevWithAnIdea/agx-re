@@ -162,11 +162,61 @@ def db_defects(rules_path):
                 "from' blocker."}}
 
 
+def faultconfirm_block(raw_root, rid, bf1, bf2):
+    """Fold in the lease-isolated 5x re-confirmation (amendment A3).
+
+    Control records (`value == -1`, empty `bytes`) are EXCLUDED: the pass's
+    selector wrongly matched run.py's _field_stopped/_arm_stopped sentinels,
+    which re-run as the unmutated baseline and trivially return `ok`.  They are
+    not refutations and are counted separately."""
+    path = os.path.join(raw_root, rid, "confirm.jsonl")
+    if not os.path.exists(path):
+        return {"status": "not run"}
+    recs = []
+    with open(path) as f:
+        for ln in f:
+            ln = ln.strip()
+            if ln:
+                recs.append(json.loads(ln))
+    conf = [r for r in recs if "confirmed" in r]
+    genuine = [r for r in conf if r.get("value", -1) >= 0 and r.get("bytes")]
+    sentinel = [r for r in conf if not (r.get("value", -1) >= 0 and r.get("bytes"))]
+    total = next((r.get("total_cross_run_fault_or_hang")
+                  for r in recs if r.get("_meta")), None)
+    refuted = [{"arm": r["carrier"], "field": f'{r["instr"]}.{r["field"]}',
+                "value": r["value"], "unlocked": r["unlocked_outcomes"],
+                "lease_5x": r["lease_outcomes"],
+                "n_fault_of_5": sum(1 for o in r["lease_outcomes"]
+                                    if o in ("fault", "hang"))}
+               for r in genuine if not r["confirmed"]]
+    return {
+      "spec": "FIELD-SWEEP-PROTOCOL 7A / CAPTURE_CONTRACT amendment A3",
+      "run": rid,
+      "cross_run_fault_or_hang_total": total,
+      "checked_genuine": len(genuine),
+      "reproduced_5_of_5": len(genuine) - len(refuted),
+      "not_reproduced": len(refuted),
+      "control_records_wrongly_selected": len(sentinel),
+      "unchecked": (total - len(genuine)) if total else None,
+      "refuted_or_partial": refuted,
+      "isolation_caveat": "this process broke a genuinely stale lease (holder "
+                          "EXP-0158-run03, age 902s) and EXP-0156 wrote itself as "
+                          "owner seconds later: the shared mkdir-based lease races "
+                          "on a stale break, so the pass ran under a HELD but not "
+                          "provably EXCLUSIVE lease",
+      "status": "PARTIAL -- stopped by hand at ~1 record/85s; targets were "
+                "processed in the frozen arm PRIORITY order, so the coverage is "
+                "the priority end of the matrix. Fault semantics resting on the "
+                "unchecked values remain the two-gated-run reading."}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run01", required=True)
     ap.add_argument("--run02", required=True)
     ap.add_argument("--raw-root", default=os.path.join(EXP, "raw"))
+    ap.add_argument("--faultconfirm", default="g17p_20260829_faultconfirm",
+                    help="the lease-isolated 5x re-confirmation pass (A3)")
     args = ap.parse_args()
 
     R = {}
@@ -338,7 +388,9 @@ def main():
            "per_arm_field_verdicts": verdicts,
            "field_rollup": roll,
            "emittability": emit,
-           "db_defects": db_defects(rules_path=os.path.join(HERE, "bit_rules.json"))}
+           "db_defects": db_defects(rules_path=os.path.join(HERE, "bit_rules.json")),
+           "fault_confirmation": faultconfirm_block(args.raw_root, args.faultconfirm,
+                                                    bf1, bf2)}
     with open(os.path.join(EXP, "analysis", "field_verdicts.json"), "w") as f:
         json.dump(out, f, indent=1, sort_keys=True)
 

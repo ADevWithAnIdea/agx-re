@@ -63,3 +63,36 @@
   `foreign` either way), the foreign backoff is shortened, and a cascade guard
   settles and re-validates the baseline after 8 consecutive foreign outcomes.
   The two gated runs are captured under NEW ids `run02` / `run03`.
+
+- **~06:08Z — run02 stopped and retained as PARTIAL (amendment A2).** EXP-0153's
+  `persistrun.py` EOF-spin defect was relayed mid-run; `harness/runner.py` here
+  carried the identical bug (an exited child returns `""`, not `None`, so the
+  caller spins at 100 % CPU with no timeout). Fixed, and the gated pair
+  re-captured under NEW ids so both runs share identical runner code.
+
+- **~06:28Z — GATED RUN 03 complete.** 49,847 cases, 1,449 s, 41 hangs, no
+  cascade. Pulled into the repo.
+
+- **~06:38Z — GATED RUN 04 complete.** 49,679 cases, 213 s, 47 hangs, no cascade.
+  Pulled into the repo. **99,526 gated cases total.**
+
+- **~06:45Z — analysis.** `analysis/verdicts.py` → `field_verdicts.json`:
+  **105 of 110 blocking fields promoted (86 `hardware-run`, 19
+  `isolated-byte-diff`); 17 of 18 instructions EMITTABLE; `tex_sample` CLEARED
+  (9/9).** `analysis/summarize.py` → `bit_rules.json`: **232 exact,
+  machine-checked set identities** over 244 comparable (arm, field) triples.
+  Headline hardware findings: a single destination-register rule shared by seven
+  instructions (GPR >= 96 faults; +bit1 hangs — reproduces EXP-0143's M4 boundary
+  on G17P); the **0x57 collision RESOLVED** (byte+2 is a don't-care in all four
+  programs; byte+1's low three bits are the form/length selector).
+
+- **~07:05Z — lease-isolated fault confirmation (A3), PARTIAL.** 114 genuine
+  cross-run fault/hang values re-run 5x: **112 reproduce, 2 do not** — including
+  one true §7A false fault (`tex_write.coord_pack = 5`, `fault` in both gated
+  runs, `wrong_value` 5/5 isolated). Stopped by hand at ~1 record/85 s; ~900
+  values remain unconfirmed and are labelled as such. Two defects in the pass
+  recorded in its `NOTE.md` (control records wrongly selected; the shared lease
+  races on a stale break).
+
+- **~07:10Z — deliverables written**: `RESULTS.md`, `README.md`, `manifest.json`,
+  `analysis/{field_verdicts,bit_rules}.json`, all raw pulled back into the repo.

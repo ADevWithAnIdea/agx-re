@@ -197,8 +197,8 @@ budget (§7) and are reported `untested`; their single-run numbers are published
 | **`ret_luse.tail`** | 254 of 256 | **12** | same 12-value set | `ret_luse` is a drop-in variant of `ret` |
 | `if_push_pred.level` | 252 of 256 | 16 | `(v & 0x3C) == 0x00` | **NOT GATED — one run only (§7).** See §3 on the M4 comparison |
 | **`jump_cond.offset`** | 56 (dense 58..110 + far) | **2** | — | checkerboard, §1.2 |
-| **`jump_cond.cf_scope`** | 0..255 dense, at **both** poison targets | 0 "not-taken" | — | every value still takes the branch |
-| **`jump_cond.reserved`** | 0..255 dense, at both poison targets | 0 "not-taken" | — | every value still takes the branch |
+| **`jump_cond.cf_scope`** | 0..255 dense at **three** targets (P1, P2, natural) | **256/256 at the natural offset** | — | INERT: at the natural offset every value reproduces the exact fall-through oracle; at both poison targets every value still takes the branch |
+| **`jump_cond.reserved`** | 0..255 dense at three targets | **256/256 at the natural offset** | — | INERT, same as `cf_scope` |
 
 `ret.linkmode`'s rule is **exactly EXP-0140's M4 rule**, now measured independently on
 G17P — the first cross-target confirmation of that rule.
@@ -436,8 +436,20 @@ about, and the honest conclusion is a **do-not-emit hole plus a downgrade, not a
 
 **CF work was then STOPPED**, per the dispatch's explicit instruction ("EXP-0128
 safety-stopped its CF arm after two hangs; stop after two") and `PRE_REGISTRATION.md` §9.
-No further hang-prone control-flow arm was launched. A partial sweep honestly bounded is
-worth more than a wedged host.
+A partial sweep honestly bounded is worth more than a wedged host.
+
+**Precisely what "stopped" means here**, since one CF arm did complete afterwards — an
+earlier draft of this section overstated it as "no further hang-prone control-flow arm was
+launched", which was wrong. The stop applies to **the three arms the hangs came from**:
+`if_push_pred.level`, `ret.scoreboard` and `mask_op`. **None of those three was
+re-dispatched.** The `jump_cond.*@NAT` arm was **launched at 06:28:18Z, before `cf02f`'s
+hangs**, and its second half (`jcn1`) had to be relaunched only because `gpulease.sh`
+**timed out waiting for the GPU lease** — exit **75**, `run.py` never started, **no run
+directory created and the id never consumed**. That is a scheduling failure, not a hang.
+`jump_cond` arms have a **zero-hang record across four complete runs** (`cf01b`, `cf02e`,
+`jcn1`, `jcn2`) and take 3-6 seconds each. Finishing an already-dispatched arm with that
+record is not the same as opening new hang-prone work, and the distinction is recorded here
+rather than left to the reader.
 
 ### Consequence for the verdicts
 
@@ -526,11 +538,15 @@ acceptance, which is what the label asserts.
 1. **One carrier shape per instruction.** The CF results are for EXP-0090/EXP-0112's single
    skeleton; the bf16 results are for scalar `bfloat` add/fma and `half`/`half2` in one
    dispatch shape (grid 8 / tg 8). A field inert here may be live in another shape.
-2. **"Inert" always means "inert on this observable."** `jump_cond.cf_scope` and
-   `.reserved` are dense-inert on *whether the branch is taken*; a scope effect that does
-   not change control flow in an 8-lane single-threadgroup dispatch would be invisible.
-   That is why `ADDENDUM-PREREG.md` §2 adds the natural-offset sweep, where inertness means
-   the program still computes its exact right answer.
+2. **"Inert" always means "inert on this observable."** This was the weakest of the
+   promotions and `ADDENDUM-PREREG.md` §2 was written to fix it — **and it did**:
+   `jump_cond.cf_scope` and `.reserved` are now dense-inert at the **natural** offset,
+   where the branch is taken *and lands correctly*, so all 512 cases reproduce the exact
+   host-computed fall-through oracle. Inertness there means the program still computes its
+   right answer, which is the same standard EXP-0140 used for `jump.branch_ctrl`. What
+   remains unexcluded is narrower: a scope effect invisible in an 8-lane,
+   single-threadgroup dispatch — one that only matters across threadgroups or under
+   contention, say — would still not show up.
 3. **The bf16 operand map is only half decoded.** byte+3 and byte+4 are *proven* live
    operand selectors — out-of-range values make exactly one addend vanish, which is
    directly visible because the output becomes exactly `a` (or exactly `b`) rather than
@@ -564,10 +580,22 @@ every field this experiment deliberately did not close and why.
 `analysis/emittability.json` recomputes instruction-level emittability from
 `tools/agx-isa/validation.json` (read-only) plus these verdicts.
 
-| | before | after |
-|---|---:|---:|
-| instructions emittable | 50 / 171 | **59 / 171** |
-| fields at emitter grade | 513 / 1057 | **552 / 1057** |
+**The DELTA is the stable number; the absolute totals drift.** The orchestrator edits
+`db.json` and `validation.json` continuously while eleven experiments run — during this
+experiment alone the instruction total moved 171 → 172 and the field total 1057 → 1060 — and
+by the time the analysis was last re-run the orchestrator had **already merged these
+verdicts into `validation.json`** (commit `39520163`), which made a naive before/after
+delta collapse to zero. `analysis/emittability.py` therefore computes its baseline by
+**subtracting every `EXP-0156`-attributed label** from `validation.json` rather than
+trusting a snapshot, so the delta is reproducible whenever it is re-run.
+
+| | delta | absolute, at the pinned snapshot |
+|---|---:|---|
+| instructions emittable | **+9** | 52 → **61** of 172 |
+| fields at emitter grade | **+44** | 525 → **569** of 1060 |
+
+Snapshot pinned in `analysis/emittability.json`:
+`db.json` sha256 `83b83a350ece33b8…`, `validation.json` sha256 `631af9202ddd5457…`.
 
 **Newly emittable (9):** `jump`, `jump_cond`, `pop_reconverge`, `ret_luse`, `atomic_mem`,
 `atomic_rmw`, `atomic_tg`, `bf_add_dst`, `hminmax`.
@@ -626,6 +654,71 @@ No Apple binary was disassembled, decompiled, symbol-dumped, strings-scanned or 
 The only machine code inspected or spliced is the compiled form of MSL we wrote.
 `tools/agx-isa/db.json`, `tools/agx-isa/validation.json`, `docs/` and `PROVENANCE.md` were
 **not** edited, and nothing was committed.
+
+---
+
+## 13. The two confirmation runs — both PASSED
+
+### 13.1 `revbf1` / `revbf2` — every bf16/half fault is REAL (complete)
+
+`FIELD-SWEEP-PROTOCOL` §7A (added mid-experiment, after EXP-0153 found that majority-of-3
+plus cross-run agreement can still be defeated by sustained sibling load) requires every
+`fault`/`hang` verdict to be **confirmed inside the GPU lease** before promotion. The
+bf16/half captures ran **free and unleased**, so all **154** cases that *both* gated runs
+recorded as `fault` were re-dispatched under `~/agxre/gpulease.sh`, **5 replicates each,
+twice** (`raw/g17p-20260830-revbf1`, `revbf2`; forced `--replicates 5`, 0 hangs, 0 aborts).
+
+| outcome pair across the two isolated runs | cases |
+|---|---:|
+| `fault` / `fault` (5 of 5 trials each) | **150** |
+| `fault` / `invalid_run` | 3 |
+| `invalid_run` / `fault` | 1 |
+| **became `ok`** | **0** |
+
+**Zero of the 154 flipped to `ok`.** The four non-`fault`/`fault` cases are all
+`h2.h_alu_hi.b0` (`0x67`, `0xD7`, `0xE7`, `0xFE`); every one of them still shows `fault` on
+its first trial in the run that scored it `invalid_run`, and the `invalid_run` label there
+is the *integrity sentinel failing because the fault left the buffer unwritten* — not a
+value that works. The recorded OS fault classification is
+`kIOGPUCommandBufferCallbackErrorPageFault` (**a GPU address fault caused by our own
+encoding**), never `...ErrorInnocentVictim`, so these are not sibling contamination.
+
+**Consequence: nothing moves.** No accepted-value set changes, so no label, no rule and no
+emittability count in this document changes. The fault counts quoted in §1 and §6 are
+confirmed. This is the opposite of EXP-0153's experience — where four of five "reproducible"
+faults evaporated under isolation — and the difference is worth recording: those free-running
+bf16 captures were clean, and we now know that rather than assuming it.
+
+### 13.2 `jcn1` / `jcn2` — COMPLETE, and the `jump_cond` scope verdicts are now strong
+
+`ADDENDUM-PREREG.md` §2 asked whether `jump_cond.cf_scope` and `.reserved` are inert in a
+program that still **computes its exact right answer**, rather than only inert on
+taken-vs-not-taken. Both runs are in:
+
+| | `jcn1` | `jcn2` |
+|---|---|---|
+| cases | 512 | 512 |
+| `jump_cond.cf_scope@NAT` | **256 / 256 `ok`** | **256 / 256 `ok`** |
+| `jump_cond.reserved@NAT` | **256 / 256 `ok`** | **256 / 256 `ok`** |
+| hangs / invalid runs | 0 / 0 | 0 / 0 |
+| baseline re-validations | 3 / 3 passed | 3 / 3 passed |
+| duration | 5.7 s | 3.2 s |
+
+Gate: 512 common cases, **0 only-in-one-run, accepted sets identical, 100.0 % exact
+cross-run agreement**. Every one of the 512 cases reproduced the exact host-computed
+fall-through oracle `[7, 17, 27, 37, 47, 57, 67, 77]`.
+
+**Prediction met, refuter did not fire.** So the two verdicts no longer rest on the coarse
+observable: `analysis/field_verdicts.json` now cites the `@NAT` arm for both fields
+(`accepted_count: 256`), and `analysis/field_verdicts.py` picks the **strictest** arm when
+two cover one field rather than the first one it happens to see.
+
+**`jcn1` had to be relaunched**, and the reason matters: its first attempt exited **75**
+from `gpulease.sh` after waiting 3600 s for the lease behind eight other waiters.
+`run.py` never started, so **no directory was created and the id was never consumed** — the
+same benign failure the first `cf01d` attempt hit, already documented in
+`raw/BURNED_RUN_IDS.md`. It is a scheduling failure, not a hang, and §7 explains why
+finishing this already-dispatched arm is consistent with the CF stop.
 
 ---
 
@@ -702,55 +795,67 @@ have no `validation.json` slot to merge into until `db.json` models them.
 
 ---
 
-## 13. The §7A fault re-validation — PASSED; and one strengthening run still pending
+## 15. Defects found in THIS experiment's own analysis code
 
-### 13.1 `revbf1` / `revbf2` — every bf16/half fault is REAL (complete)
+Three bugs in the analysis scripts were found and fixed after the captures were complete.
+None of them touched `raw/`, and all three are recorded because each one had, for a while,
+made this document say something slightly wrong.
 
-`FIELD-SWEEP-PROTOCOL` §7A (added mid-experiment, after EXP-0153 found that majority-of-3
-plus cross-run agreement can still be defeated by sustained sibling load) requires every
-`fault`/`hang` verdict to be **confirmed inside the GPU lease** before promotion. The
-bf16/half captures ran **free and unleased**, so all **154** cases that *both* gated runs
-recorded as `fault` were re-dispatched under `~/agxre/gpulease.sh`, **5 replicates each,
-twice** (`raw/g17p-20260830-revbf1`, `revbf2`; forced `--replicates 5`, 0 hangs, 0 aborts).
+**A-1 — the GATE table silently kept the WEAKER arm.** `analysis/field_verdicts.py` gates
+each arm on its pre-registered liveness/falsifier controls. The two `@NAT` arms added by
+`ADDENDUM-PREREG.md` §2 were never given entries in that table, so `GATE.get(arm, [])`
+returned `[]`, `gate_ok` evaluated false, and both scored `corpus-correlation` instead of
+`hardware-run`. The `@P1` arm — which has an accepted set of **0** because at a poison
+offset the store never runs — then overwrote them as the "stronger" label. For a while
+`field_verdicts.json` therefore cited the coarse poison-offset evidence for
+`jump_cond.cf_scope`/`.reserved` while the far better natural-offset evidence sat unused.
+Fixed by adding the missing GATE entries.
 
-| outcome pair across the two isolated runs | cases |
-|---|---:|
-| `fault` / `fault` (5 of 5 trials each) | **150** |
-| `fault` / `invalid_run` | 3 |
-| `invalid_run` / `fault` | 1 |
-| **became `ok`** | **0** |
+**A-2 — first-seen beat strictest.** The same function's de-duplication kept whichever arm
+it happened to encounter first when two arms cover one field. It now prefers a
+`hardware-run` over anything weaker and, among equals, the arm with the **strictest
+observable** (`@NAT`, where inertness means the program still computes its right answer,
+over `@P1`/`@P2`, where it only means the branch was taken).
 
-**Zero of the 154 flipped to `ok`.** The four non-`fault`/`fault` cases are all
-`h2.h_alu_hi.b0` (`0x67`, `0xD7`, `0xE7`, `0xFE`); every one of them still shows `fault` on
-its first trial in the run that scored it `invalid_run`, and the `invalid_run` label there
-is the *integrity sentinel failing because the fault left the buffer unwritten* — not a
-value that works. The recorded OS fault classification is
-`kIOGPUCommandBufferCallbackErrorPageFault` (**a GPU address fault caused by our own
-encoding**), never `...ErrorInnocentVictim`, so these are not sibling contamination.
+**A-3 — the emittability baseline was reading our own rows back.** `analysis/emittability.py`
+computed "before" straight from `tools/agx-isa/validation.json`. By the time the analysis
+was last re-run the orchestrator had already merged EXP-0156's verdicts into that file
+(commit `39520163`), so "before" already contained them and the reported delta collapsed to
+**zero newly emittable instructions**. The baseline now **subtracts every
+`EXP-0156`-attributed label**, which makes the delta reproducible no matter when the script
+is run, and `emittability.json` pins the `db.json` / `validation.json` hashes behind the
+absolute totals. See §10.
 
-**Consequence: nothing moves.** No accepted-value set changes, so no label, no rule and no
-emittability count in this document changes. The fault counts quoted in §1 and §6 are
-confirmed. This is the opposite of EXP-0153's experience — where four of five "reproducible"
-faults evaporated under isolation — and the difference is worth recording: those free-running
-bf16 captures were clean, and we now know that rather than assuming it.
+---
 
-### 13.2 `jcn1` / `jcn2` — still queued (disclosed)
+## 16. DEF-0156-1 — this document was destroyed by a runaway write, and reconstructed
 
-`ADDENDUM-PREREG.md` §2: `jump_cond.cf_scope` and `.reserved` swept densely at the
-**natural** offset under `n = 0`, where the branch is taken *and lands correctly*, so
-inertness would mean "the program still computes its exact right answer" rather than "the
-store did not run either way". At the time of writing these two runs were still **queued on
-a heavily contended GPU lease** (eight `gpulease` waiters).
+**What happened.** After the last commit of this file (`2013bf66`), the edit that replaced
+§13.2 with the completed `jcn1`/`jcn2` section computed its target range as
+`s[s.index("### 13.2 …") : s.index("## 14. …")]`. By then an earlier edit had inserted §14
+**ahead of** §13, so that slice was **reversed and evaluated to the empty string**, and
+`str.replace("", new_section)` inserts its argument at *every character position*. The
+result was `RESULTS.md` at **83,178,232 bytes / 1,531,963 lines**, of which `sort -u` finds
+only **116 unique lines**: the new §13.2 block repeated roughly fifty thousand times with
+the original document's characters interleaved one at a time between the copies. Every
+other section was gone, including the `# `-level title.
 
-This arm can only **strengthen** the two `jump_cond` scope verdicts; it cannot weaken them,
-because the poison-target sweeps that produced them gated cleanly on their own — dense
-0..255 at **two** independent targets, identical accepted sets in both runs, liveness gate
-fired. It is listed in §9 as the named limitation those verdicts carry.
+**What was NOT affected.** `raw/` (all 24 run directories, append-only), every
+`analysis/*.json`, `manifest.json`, `PROGRESS.md`, `PRE_REGISTRATION.md`,
+`ADDENDUM-PREREG.md`, `CAPTURE_CONTRACT.json`, `README.md`, `harness/` and `kernels/`. The
+corruption hit exactly one file. No hardware run was repeated for this repair.
 
-**To fold it in when it lands** (the pairing is already wired into `analysis/verdicts.py`):
+**How it was reconstructed.** The broken file was preserved outside the repository; the
+committed version at `2013bf66` (756 lines, 47,780 bytes) was restored, and the post-commit
+edits were re-applied **once each**, every replacement now asserting that its anchor is
+non-empty and occurs exactly once — the guard whose absence caused this. The §13.2 text was
+lifted verbatim from one surviving copy in the broken file. The §13/§14 inversion that made
+the reversed slice possible was also corrected.
 
-```sh
-harness/sync.sh pull g17p-20260830-jcn1; harness/sync.sh pull g17p-20260830-jcn2
-python3 analysis/verdicts.py && python3 analysis/field_verdicts.py
-python3 analysis/emittability.py && python3 analysis/make_manifest.py
-```
+**Honest limitation.** The reconstruction is faithful for everything listed in §15 and in
+the edits above, but the corrupted window is not byte-recoverable: **some post-commit
+wording may not be restored verbatim.** Any small phrasing difference between this document
+and the version that existed immediately before the corruption is unrecorded. Nothing
+numeric was reconstructed from memory — every figure in this document is regenerated from
+`analysis/gate_report.json`, `analysis/field_verdicts.json` and `analysis/emittability.json`,
+which were untouched, and was re-checked against them after the repair.
