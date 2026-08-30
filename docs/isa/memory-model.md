@@ -672,3 +672,67 @@ Additional explicit non-guarantees, restated from §3/§6 so they are not lost b
   through MEM-22) — the open-item list reproduced in §8.
 - `docs/P0-P1-CLOSURE.md`, row P1.5 — live closure status for this subsystem (still
   `OPEN`; this chapter documents what EXP-0076 bounded, not a closure).
+
+
+---
+
+## 2026-08-30 G17P wave — facts added from the emit/closure experiments
+
+> Drafted by EXP-0186, which audited which results had reached this deliverable and found
+> **20 of 22 emitter-facing facts missing or refuted-but-still-stated**. Every block below is
+> traced to a committed experiment artifact, carries its evidence label and the **target it was
+> measured on**, and keeps the bounds the measuring experiment stated. Where a result is
+> deliberately bounded it says so; a doc that drops the bound is worse than no doc.
+
+### ⛔ An unbound binding slot is SILENTLY DROPPED — the hardware will not tell you
+
+`HW-VALIDATED`, `target: G17P`, `EXP-0169` §14. A gated pair on an exclusively idle machine
+(7,046 cases each, counter dictionaries **byte-identical between runs**, 0 hangs, 0 victims, 0
+baseline failures) swept `device_store.base_slot` across the **full** `0..255` range on two
+structurally different carriers.
+
+| outcome | values | which |
+|---|---|---|
+| store lands, state matches baseline | **2** | `0x00` and `0x80` |
+| store does not happen at all — **`stray == []`**, output buffer untouched | **254** | everything else |
+
+> **A `device_store` through an unbound binding slot is SILENTLY DROPPED. It does not fault, it
+> does not hang, and it does not wedge the device.** Bit 7 of `base_slot` is a **don't-care** —
+> `0x00` and `0x80` both select binding slot 0. The experiment's own pre-registered hazard
+> warning ("the likeliest thing left to wedge the device") was **wrong, and that is the result**:
+> `base_slot` produced **0 faults and 0 hangs** over all 256 values on both carriers in both runs.
+
+**Driver consequence, load-bearing:** an out-of-range or unbound `base_slot` gives **no
+diagnostic at all**, so binding-slot validity must be guaranteed **by construction in
+userspace**. The same shape appears in a second instruction family — see `tile_read`'s
+`rt_index`, where 256 values across four carriers produce not one fault.
+
+**Read the "254" correctly.** It is conditional on those slots being **unbound** in this
+carrier, which binds one buffer. It is **not** a claim that `base_slot` has only two legal
+values; `EXP-0141`'s M4 census records slots 1..30 returning their own bound buffer when they
+*are* bound.
+
+> ⚠ **UNRESOLVED CROSS-TARGET CONTRADICTION, recorded rather than smoothed.**
+> `docs/compiler-readiness.md` records from the M4 wave that *"slot 128 writes are DISCARDED;
+> the 128..255 mirror is load-only"*, while `EXP-0169` measures `0x80` (= 128) as one of only
+> **two** values that **do** store on G17P. The two runs differ in **target** *and* in **how many
+> buffers were bound**, so the likely reconciliation is the binding population rather than a
+> hardware divergence — but that is a **hypothesis**, not a measurement, and no experiment has
+> tested it. An emitter should treat the low slot number as canonical and not rely on the bit-7
+> mirror for stores on either target.
+
+- ⛔ **Two exact `device_store` fault walls, zero counterexamples over all 256 values on both
+  carriers in both runs** (`HW-VALIDATED`, `target: G17P`, `EXP-0169` §15):
+  **`index_reg` faults iff `(index_reg & 0x60) == 0x60`** — 64 values, `0x60`–`0x7F` and
+  `0xE0`–`0xFF`, with **bit 7 a don't-care** (the `0x00`–`0x7F` map repeats exactly in
+  `0x80`–`0xFF`) — and **`extmode` faults iff `extmode >= 0xFC`** — 4 values. All 136 faults per
+  run are these two walls. They are **faults, not hangs**: fault-contained, no reset, no wedge,
+  with the sweep running through them at full speed. The mask rule subsumes and explains the
+  earlier sampled M4 points (`96, 97, 100, 111, 120, 127 uniformly FAULT`).
+- ⚠ **A `device_store` reading a data register outside the established register file has a
+  STABLE destination and a NON-DETERMINISTIC payload.** `device_store.extmode` misses the 99%
+  cross-run bar (97.3% / 92.6%) and stays `untested` — but it is characterised, not dismissed: by
+  **outcome** the two runs agree **256 of 256 on both carriers**, every digest disagreement
+  selects a data register **≥ 31** (`extmode = 2 × data_reg`; the smallest disagreeing value is
+  `0x3F`), and over `extmode 0x00`–`0x1F` agreement is **100%**. The store still lands at the
+  right word; only the value differs run to run. `target: G17P`, `EXP-0169` §17.

@@ -1442,3 +1442,94 @@ Evidence: as cited inline. Where a claim rests on an uncommitted or in-flight
   experiment (EXP-0142/0143/0145/0149-0159, EXP-0153), it is labelled IN FLIGHT and
   is not used as evidence for anything.
 ```
+
+
+---
+
+## 2026-08-30 G17P wave — facts added from the emit/closure experiments
+
+> Drafted by EXP-0186, which audited which results had reached this deliverable and found
+> **20 of 22 emitter-facing facts missing or refuted-but-still-stated**. Every block below is
+> traced to a committed experiment artifact, carries its evidence label and the **target it was
+> measured on**, and keeps the bounds the measuring experiment stated. Where a result is
+> deliberately bounded it says so; a doc that drops the bound is worse than no doc.
+
+**`nir_op_mov` is CLOSED.** `EXP-0174` found and **generated** the register-to-register move that
+`EXP-0087` → `EXP-0090` → `EXP-0101` → `EXP-0113` → `EXP-0140` had concluded did not exist:
+`n3_mov` moves one GPR to a **different** GPR. All **240 ordered `(dst, src)` pairs with
+`dst != src`** were generated from the descriptor's bit geometry in both instruction orders and
+two independent register plans; of the 960 dispatched per run, **840 were decidable and all 840
+matched a full host-computed 16-register prediction, with 0 failures** (the other 120 land on a
+plan's blind or pad-masked slot and are covered by the other plan). Plus **1680 generated
+half-moves matched, 0 failed.** Two gated runs, G17P. The encoding is in `docs/isa/README.md` (`n3_mov`).
+
+The retracted `validation.json` note — *"AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON
+APPLE9"* — was correct **about the `reg_move_*` family**, which really is one instruction with a
+single 8-bit `byte+2` field and really is not a general move. It was wrong about the ISA. The
+instruction was in the DB the whole time under a different descriptor, which is the same shape as
+`fspecial` and `imad`: **the corpus contained the answer and the descriptor's field model hid
+it.**
+
+**Three bounds an implementer must budget for.** (1) The move is **16-bit granular**, so every
+32-bit copy is **two instructions** — phi lowering, parallel-copy breaking and spill reload all
+pay double. (2) `db.json`'s operand model for `n3_mov` is **one bit off** and fails silently (see
+`docs/isa/README.md`); use bits 1..7 for the source register and treat bit 0 as the source-half
+select. (3) Whether any `byte+2` value performs a **single 32-bit** move is **not established**.
+
+`docs/isa/register-move-and-liveness.md` records that this repository received a report from an
+external compiler engineer building a NIR→Apple9 back end who *"could not get a basic
+register-to-register move to work."* That report is now answered.
+
+| 1 | `nir_op_mov` (GPR→GPR) | **CLOSED** | `n3_mov`, generated end-to-end on G17P (`EXP-0174`/`EXP-0175`); 16-bit granular, so a 32-bit copy is two instructions |
+
+- **`half_alu_ext8`** — `opsel` 6 selects the fma form (`byte+2 = 0x1e`), **but `opsel` is a
+  length input and only 3 of its 8 values keep the 8-byte framing**. `dst`, `srcA`, `b5`, `rsv6`,
+  `opflags`, `b7_lo`, `saturate`, `b7_mid` are `hardware-run` on G17P at full range
+  (`EXP-0180`, gated pair, 16,735 cases each, 100.0000% cross-run agreement, zero
+  disagreements). **Three previously documented semantic claims are REFUTED** — all three traced
+  to `EXP-M4-14`, which has no `raw/` tree:
+  - ⛔ **`saturate` is NOT a clamp.** On the high carrier (result `7.0586`) setting it yields
+    **`2.84375`** — the third operand's value, not `1.0` — and on the low carrier (result
+    `0.125`, where a clamp *must* be a no-op) it changes the result to **`0.46875`**, again the
+    third operand. **A clamp cannot change a sub-unit result.** Bit 57 suppresses the multiply
+    term. The two-carrier magnitude difference was designed to separate exactly this.
+  - ⛔ **`op_valid_marker`'s bit-63 claim is false.** 0 of 2 values moved, two carriers, three
+    arms, both runs. The op **is** nullable from byte+7 — but by **`b7_mid` bit 2 = instruction
+    bit 60** (`b7_mid ∈ {4,5,6,7}` leaves the destination untouched), **not bit 63**. The bit is
+    real; the committed bit number is wrong.
+  - ⛔ **`rsv6` is not reserved and not inert.** LIVE at **252/256** and **248/256** on two
+    carriers, with **13 distinct architectural results**. Its entire prior evidence was one
+    clause of an `ext8.srcA` claim that documents a *different byte*.
+  - **`srcB_desc`'s "`0x01` required" is a LENGTH requirement, not an operand one.** `byte+4 & 3`
+    is the length selector; only **64 of 256** values keep the 8-byte framing, and inside that
+    subset a same-length step to a different half-register **does not move on any arm** — byte+4
+    has no detectable operand role.
+
+  **Bound, and it is load-bearing:** the **add+saturate instance** had **no working carrier**.
+  Its arm (`E8_ADD`) was **rejected for no detection power** — 0 of 3 falsifiers and 0 of 4 ladder
+  steps, on both carriers in both runs, because its base writes nothing at all. The `b5` and
+  `srcB_desc` claims are explicitly about that instance, so they are **refuted only in the fma
+  instance**, and the record says so rather than generalising.
+
+Store `base_slot`: probed on **M4** at 0, 3, 31, 32, 63, 127, 128, 255 — **slot 128 writes are
+DISCARDED**; the 128..255 mirror is load-only. ⚠ **This does not reproduce on G17P**, where
+`EXP-0169` measures `0x00` and `0x80` as the only two values that store at all and bit 7 as a
+don't-care. The two carriers differ in target **and** in how many buffers are bound, so the
+likely reconciliation is binding population rather than hardware — but that is untested. Treat
+the low slot number as canonical on both targets. **And on either target an unbound slot is
+SILENTLY DROPPED: 0 faults, 0 hangs, `stray == []`, no diagnostic** (`EXP-0169` §14, G17P,
+256/256 on two carriers in both runs).
+
+Store `index_reg`: on M4, r0..r95 round-trip; 96, 97, 100, 111, 120, 127 uniformly FAULT; **r112
+is genuinely nondeterministic**. On **G17P** the rule is exact and subsumes those points:
+**`fault ⟺ (index_reg & 0x60) == 0x60`** — 64 values, `0x60`–`0x7F` and `0xE0`–`0xFF`, bit 7 a
+don't-care, zero counterexamples over 256/256 on two carriers in both runs (`EXP-0169` §15).
+Also on G17P: **`extmode` faults iff `extmode >= 0xFC`.**
+
+| **`tex_sample`** | **`coord` is CLOSED** — `hardware-run` on G17P, `(reg << 1) \| is32`, fragment-stage register aliasing at **period 16** (`EXP-0172` §2.1). Still `untested`: `comp_flags`, `result_sel`, `tex_type`, `samp_extra`. |
+| **`frag_color_pack`** | `dst` is `hardware-run` on G17P — 191 of 195 values move on all 8 arms, all 8 bits live — with an **illegal region `0xC0`–`0xFF` that HANGS**, so the encodable range is **192, not 256** (`EXP-0168` §8.1). Still `untested`: `src_desc`, `mode`, `comp_off`. `corpus-correlation`: `fmt_class`, `val`. |
+| **`iter_at`** | `loc` is `hardware-run` on G17P — **bit 1 alone**, centroid vs per-sample, and **inert below 2 samples** (`EXP-0163` §2). `grp` stays `untested` **deliberately**: `EXP-0168` had a reproducible 3/3 observation and declined to promote it because that arm's ladder failed on both carriers. Still `untested`: `lead`, `dst`, `c4`, `b5`. |
+| **`vary_store`** (VS output) | `hint6` is `hardware-run` on G17P — **bit 4 alone; setting it makes all four fragment output channels read 0.0** (`EXP-0163` §4). Still `untested`: `hint1`, `b7`; `corpus-correlation`: `hint2`, `out_slot_hi`; `single-template-inference`: `b5_tag`. |
+
+| `pop_reconverge` | **REQUIRED after a `call`** — omit it and the command buffer faults, with or without the frame marker (`EXP-0179` arm M, both carriers, both runs). `scope_kind = 0x02` closes a call; `0x01` does **not** (the callee runs and never returns), and `scope_kind = 0` remains the single fatal value. The mask **bank** is a don't-care (`0x04`/`0x24`/`0x54`). |
+| `ret.scoreboard` | **DECLINED — and this is the strongest decline in the corpus, not another inconclusive.** Three earlier experiments declined it because they could not build an ordering observable. `EXP-0179` arm O **built one** out of `device_load` asynchrony, **proved it fires** as a clean monotone step (C1_flat lands from filler 10, C2_nested from 6, byte-identical in both runs), and the field **still did not move it** — exactly one distinct threshold per arm across all sixteen scoreboard values. Stays `corpus-correlation`, **bounded to a leaf return with one outstanding async load**. Fourth experiment to decline the family. |

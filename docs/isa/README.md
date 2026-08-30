@@ -1630,3 +1630,223 @@ bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, n
 extend. The A18 instruction database is built from scratch (Phase 1).
 
 Source: `experiments/EXP-0001-shader-byte-extraction/`.
+
+
+---
+
+## 2026-08-30 G17P wave — facts added from the emit/closure experiments
+
+> Drafted by EXP-0186, which audited which results had reached this deliverable and found
+> **20 of 22 emitter-facing facts missing or refuted-but-still-stated**. Every block below is
+> traced to a committed experiment artifact, carries its evidence label and the **target it was
+> measured on**, and keeps the bounds the measuring experiment stated. Where a result is
+> deliberately bounded it says so; a doc that drops the bound is worse than no doc.
+
+Added by the 2026-08-30 G17P wave — these are `target: G17P`, and the last one changes how the
+list must be read:
+
+- **The half-ALU family's destination is byte0's high nibble, and `db.json` models it as a
+  source** — an emitter following the descriptor writes **`r1`** every time, with no fault
+  (EXP-0180, DEF-0180-1).
+- **`n3_mov`'s source-register field is one bit off in `db.json`** — write the register number
+  where the descriptor says and the hardware reads register `S >> 1` at half `S & 1`: **the wrong
+  register *and* the wrong half**, silently (EXP-0174, DEF-0174-1).
+- **A `device_store` through an unbound binding slot is silently dropped** — 254 of 256
+  `base_slot` values store nothing at all, with **0 faults and 0 hangs**, no stray write and no
+  diagnostic. Binding validity must be guaranteed by construction in userspace (EXP-0169 §14).
+- **`vary_store.hint6` bit 4 makes the entire fragment output read `0.0`** — the whole varying
+  block is lost, not just the component being stored (EXP-0163 §4).
+- **`tex_sample.coord` pointed at a register the program does not keep live** returns the
+  previous result unchanged, never a fault — and the fragment-stage register index **aliases with
+  period 16**, so a "safe-looking" high register is not safe (EXP-0172 §2.1).
+- ⚠️ **`instance_id` is not base-inclusive while `vertex_id` is** — a back end that treats them
+  alike gets instanced draws with a non-zero `baseInstance` silently wrong (EXP-0178 §3.5).
+
+> **And the premise sharpened: absence of a fault is not evidence the operation happened.**
+> Across **256 `rt_index` values on four `tile_read`/`tile_read_mrt` carriers in two gated runs
+> there is not a single fault** (EXP-0178 §5), and the `device_store` unbound-slot sweep produced
+> **0 faults and 0 hangs over its full 256-value range** (EXP-0169 §14) — a hazard its own
+> pre-registration had warned was the likeliest thing left to wedge the device. **A status code
+> can never be the oracle on this hardware; the read-back must be poisoned before the run and
+> checked after it.** Two instruction families, two experiments, same conclusion.
+
+- ⛔ **The half-ALU family's DESTINATION is byte0's high nibble, and `db.json` models it as a
+  source — an emitter following the descriptor can only ever write `r1`.** `target: G17P`.
+  For the `0x10`/`0x11` leaders (`half_alu`, `half_alu_ext8`, `half_alu_fma12`):
+
+  | field | what it actually is |
+  |---|---|
+  | **byte0 high nibble** | **destination register `n`.** `byte0 = n<<4` writes **`r[n]`'s LOW 16 bits** and **preserves `r[n]`'s HIGH 16 bits** |
+  | `db.json`'s `dst` (bits 8..15) | appears in the arithmetic as a **SOURCE** |
+  | byte+4 | does **not** appear in the arithmetic at all — it is the **length selector** (see the length rule below) |
+
+  `db.json` pins all eight bits of byte0 in `match`, so a descriptor-driven emitter has no way
+  to name a destination and every half-ALU result lands in `r1`. There is no fault: the program
+  runs and writes the wrong register. Confirmed **three independent ways** on G17P — a dense
+  destination-nibble sweep (`n = 0..15`, 16/16, two carriers, both gated runs, 100.0000%
+  agreement); structurally (the seed program's 14 low-half writes land in `r_j` in **every one of
+  33,470 gated cases**); and arithmetically (`r1.lo = 0x470f = 1.625 × 2.59375 + 2.84375` =
+  byte+3 × byte+1 + byte+5). Two nibbles are excluded with cause and are harness artefacts, not
+  exceptions: `n=15` is the store index register the harness re-seeds, and on the low carrier
+  `n=13` is the second-consumer destination. This is the same defect class already documented one
+  family over for `mov_zext16`, `n3_mov`, `cvt_f2h_dst` and `falu3`. `EXP-0180` (DEF-0180-1).
+
+- ⛔ **Three exact, contiguous illegal-encoding regions found by sweeps that deliberately ran
+  without a hang budget.** `target: G17P`. Each was mapped over the *full* 256-value range with
+  zero counterexamples; a per-field budget of 2 would have reported "two bad values" for all
+  three (see `experiments/FIELD-SWEEP-PROTOCOL.md` §3(c)).
+
+  | field | rule | region | class |
+  |---|---|---|---|
+  | `frag_color_pack.dst` | `dst[7:6] == 0b11` | `0xC0`–`0xFF`, **64 values** | **HANG** — `0x00`–`0xBF` are all clean, so the real encodable range is **192, not 256** |
+  | `device_store.index_reg` | `(v & 0x60) == 0x60` | `0x60`–`0x7F` and `0xE0`–`0xFF`, **64 values** | fault (bit 7 is a don't-care — the `0x00`–`0x7F` map repeats exactly in `0x80`–`0xFF`) |
+  | `device_store.extmode` | `v >= 0xFC` | `0xFC`–`0xFF`, **4 values** | fault |
+  | `half_alu*.opflags` | `(byte+2 >> 3) >= 16 ∧ (byte+2 & 7) ∈ {4,5}` | opflags bit 4 set with `opsel` = hadd or hmul | fault, 128 cases, zero counterexamples |
+
+  The three fault walls are **faults, not hangs** — per-command-buffer errors, fault-contained,
+  no reset and no wedge, with the sweeps running through them at full speed. The
+  `frag_color_pack.dst` wall **is** hangs: 64 of them, and the device survived all 64 with no
+  reset. `EXP-0168` §8.1, `EXP-0169` §15, `EXP-0180` §4.
+
+- ⛔ **In a VERTEX shader every `sr_sel` with bit 7 clear FAULTS the command buffer** — all 128
+  values `0x00`–`0x7F`, contiguous, zero counterexamples, both gated runs. Nothing at or above
+  `0x80` faults in any stage. **A back end must never emit a bit-7-clear selector**, and must
+  know that the failure mode is stage-dependent: **loud in vertex, near-silent in compute**,
+  where the same encoding does not fault at all and instead writes **one lane of 64**, leaving
+  the other 63 untouched. The single-lane effect is the *whole program* retiring one invocation,
+  not the SR datapath: an integrity sentinel written by a separate `device_store` carrying no
+  SR value lands on that same single lane. `HW-VALIDATED`, `target: G17P`, `EXP-0178` §3.1–§3.3
+  (256 values × 3 stage carriers × 2 gated runs, 100.00% cross-run agreement, zero
+  disagreements).
+
+  > **This REFINES `EXP-0092`; it does not refute it.** That exhaustive M4 sweep found no
+  > `sr_sel` value raising `STATUS != OK` — and it ran on a **compute** carrier, which
+  > `EXP-0178`'s compute arm reproduces exactly (0 faults in 256 values, both runs). **The
+  > divergence is STAGE, not target.** The M4 record is correct about what it measured. An
+  > experiment can be exhaustive over the whole encodable range, densely swept and cross-run
+  > agreed **and still be blind**, because one carrier cannot see a dimension it does not vary.
+
+- ⚠ **`vertex_id` is base-inclusive in hardware; `instance_id` is NOT.** `0xdd` returns
+  `index + baseVertex`; `0xd8` returns the **raw instance ordinal**, and `baseInstance` is added
+  **in software**. A back end that assumes the two behave alike gets instanced draws with a
+  non-zero `baseInstance` **silently wrong**. `HW-VALIDATED`, `target: G17P`, `EXP-0178` §3.5 —
+  and the compiler-inserted constant was **measured, not assumed**: seven selectors with no
+  vertex-stage meaning (`0x9c`, `0x9d`, `0x9e`, `0xa0`, `0xa1`, `0xa4`, `0xc5`) all read exactly
+  `5`, seven independent zero-expectations agreeing on `K = baseInstance = 5`. Subtracting `K`,
+  `0xdd` ramps `9, 10, 11` across three vertices (`baseVertex = 9`) and `0xd8` reads flat `2`.
+
+  **Bounded, and the bound matters.** *In a vertex program that does not declare
+  `[[base_vertex]]`/`[[base_instance]]`, selectors `0x88` and `0x8a` read 0 on G17P.* The
+  alternative — that the driver only arms them when the shader declares the builtin — is **not
+  excluded**, so this is deliberately **not** recorded as refuting the enum entry (unlike
+  `0xa8`, where the shader asks for nothing and the register still contradicts its documented
+  meaning). `EXP-0178`'s vertex arm is reported **differentially** for the same reason: its
+  harness scored `0x8a` as correct because oracle and observation both said 5, which is a right
+  answer for the wrong reason, and its two passes are not cited as validations of anything.
+
+- **CALL is EMITTABLE — every byte generated, none copied.** `target: G17P`, `HW-VALIDATED`.
+  192 distinct generated calls × 2 gated runs = **384/384 correct, zero faults, zero hangs, zero
+  disagreements**; each `call`, callee and `ret` was produced from the descriptor's declared bit
+  positions with nothing lifted from a compiled shader (`EXP-0179` §2–§3).
+
+> **Confirmed on the documentation target, and the hazard is sharper than "no fault".**
+> `EXP-0178` §5 re-measured every value set above on **G17P**, over **four** carriers (two per
+> instruction, differing in attachment count, spatial extent, the arithmetic consuming the read,
+> and the presence of a colour store that reads no tilebuffer at all) and two gated runs —
+> 9,428 cases per run, zero measurement failures, zero innocent victims. The M4 sets were frozen
+> into the analysis **before** the runs as the hypothesis under test, and **every one transfers
+> unchanged**: `read_en` = byte+6 bit 0, `rt_index` correct only at `0x00/0x01/0x80/0x81`
+> (`_mrt`: `0x08/0x09/0x88/0x89`), the `dst` fault wall **exactly `0xf6`–`0xff`, contiguous,
+> byte-identical on all four carriers**, and `_mrt.fmt`'s eight legal encodings with **104 of
+> 256 values silently zeroing**.
+>
+> **The sharpening: across all 256 `rt_index` values on four carriers in two runs there is NOT A
+> SINGLE FAULT.** Absence of a fault proves nothing about whether the read landed. A poisoned
+> read-back, never the status code, must be the oracle — the same lesson the `device_store`
+> unbound-slot result teaches in a second instruction family.
+>
+> **Still not emittable, and why.** `tile_read` remains blocked by `b2`, `b4`, `b6_hi`, `b7`,
+> `tail`; `tile_read_mrt` by `b4`, `b6_hi`, `tail`. `b2`/`b4`/`b6_hi` never moved on either
+> carrier over their full ranges in both runs, but they stay `untested` **as a limit of the
+> carriers, not as "the field is inert"** — the dimension a `raw`-typed byte controls is
+> unknown. `b7` *moves* (229 of 256) but does **not reproduce** (91.0% cross-run agreement, 23
+> disagreeing values), and that instability reproduces `EXP-0164`'s M4 instability, making it a
+> property of the field rather than of one machine's weather.
+
+### ✅ `nir_op_mov` IS CLOSED — `n3_mov` moves one GPR to a DIFFERENT GPR (EXP-0174/EXP-0175) — `target: G17P`
+
+Evidence label **`HW-VALIDATED`, generated with zero copied bytes.** This closes the gap
+`docs/isa/register-move-and-liveness.md` records an external compiler engineer hitting head-on.
+
+`n3_mov` is a **16-bit half-register move** with independent source-half and destination-half
+selection:
+
+- **`iter_at.loc` is bit 1 ALONE — two classes of exactly 128 values.** `bit1 = 0` → **centroid**,
+  `bit1 = 1` → **per-sample**; **bit 0 and bits 2..7 are don't-care** (`0x81` behaves exactly as
+  `0x01`, `0x83` exactly as `0x03`). This **refines** the enum `{1: centroid, 3: sample}`: the
+  enum lists two legal values, the hardware has one selector bit and seven free bits, which is
+  strictly more useful to an emitter — it now knows what it may leave alone. `HW-VALIDATED`,
+  `target: G17P`, `EXP-0163` §2. Read back at probe pixel (8,8) of a 4-sample resolved target,
+  a `centroid_perspective` varying is `3249.99976` for `loc & 2 == 0` and `3312.49976` for
+  `loc & 2 != 0`, other channels untouched.
+
+  > **The field has NO EFFECT below 2 samples, and that is why it read inert for a whole wave.**
+  > `0 / 256` values move at `rasterSampleCount == 1`; `128 / 256` move at 4. At one sample the
+  > centroid, the sample point and the pixel centre are the same point, so no location selector
+  > can move anything: the field was structurally unreachable, not inert. **Two carriers
+  > identical in the dimension a field controls are one carrier.**
+  >
+  > *Method bound, corrected by the experiment against its own earlier draft:* the two builds are
+  > **not** byte-identical. The vertex stage is (166 B, same sha256); the fragment stage is 174 B
+  > at one sample and 482 B at four. This is a controlled comparison of the same source under one
+  > changed pipeline parameter, **not** a byte-for-byte splice pair, and a reviewer should read it
+  > that way. What is held constant is what the claim rests on: both `loc` values the compiler
+  > itself chooses are present on both sides.
+
+- ⛔ **`vary_store.hint6` bit 4 makes the ENTIRE fragment output read 0.0.** Bit 4 alone, two
+  classes of 128, measured on **7 arms across 5 carriers** with "exactly the values with bit 4
+  set" moving on every one and both runs agreeing. Setting it loses **all four fragment output
+  channels — the whole varying block, not just this component.** The compiler's own values
+  `0x48`–`0x4d` all have it clear. `HW-VALIDATED`, `target: G17P`, `EXP-0163` §4.
+
+- **`tex_sample.coord` is an operand byte of the form `(reg << 1) | is32`** — the same source-byte
+  convention `db.json` already documents for `falu2`, where bit 0 selects the 32-bit operand and
+  the upper 7 bits are a register index. `HW-VALIDATED`, `target: G17P`, `EXP-0172` §2.1: 256
+  values on each of four arms over two gated runs at **100% per-value cross-run agreement**
+  (`EXP-0155` got 73–93% and reported the field unstable; the instability was a rule, not noise).
+
+  > **On the fragment stage the register index ALIASES WITH PERIOD 16** — the live registers recur
+  > at `reg`, `reg+16`, … `reg+112`. That is a **smaller period than the mod-64 ALU aliasing**
+  > `EXP-0112` HW-validated, and it is why 32 of 256 values move rather than 4. The moving set is
+  > reproduced with zero exceptions in both runs by
+  > `moved ⟺ (v & 1) == 1 ∧ ((v >> 1) mod 16) ∈ {6, 8, 10, 14}`.
+  >
+  > **A coordinate pointed at a register the program does not keep live produces a silent
+  > unchanged result, never a fault** — the Apple9 silent-failure signature again.
+  >
+  > *Scope:* filtered, implicit-LOD sampling was **deliberately excluded**. That its
+  > derivative/LOD dependence caused `EXP-0155`'s instability is **supported** (the derivative-free
+  > carriers are 100% reproducible) but **not demonstrated on a filtered arm**. One arm of four
+  > has detection power; the other three move at zero of 256.
+
+- **Four bytes `db.json` declares inert or reserved are LIVE, and none of the effects is small**
+  (`HW-VALIDATED`, `target: G17P`, `EXP-0163` §4). Each rule is **form-specific** and must be read
+  with its form:
+  - **`tex_coord_setup.b6` bits 2, 3, 4, 5 must ALL be clear** — exactly the 16 values with
+    `(v & 0x3c) == 0` reproduce the baseline; any of those bits set and the addressed varying
+    reads `0.0`.
+  - **`tex_coord_setup.idx` bit 7** (on the byte+4 == `0x42` form): clear it and that one varying
+    reads `0.0` while the other three are untouched — the byte really is that store's destination
+    selector, as `db.json`'s own `dst<<2` note implies. **Inert over all 256 values on the
+    byte+4 == `0x00` form.**
+  - **`tex_coord_setup.b8` bit 3** (plus bit 4 on two arms): same signature, zeroing exactly the
+    one varying the occurrence addresses. Live only on the `0x42` form.
+  - **`tex_coord_setup.b5`** bits 0, 1, 2, 4 (+3 on the `0x42` form): bit 0 set → the varying reads
+    `0.0`; bit 3 with `b6` clear shifts the varying's **value** slightly (6.08333 → 6.0918 /
+    6.10946) — an address/offset perturbation rather than a kill.
+
+- **`simd_shuffle.rsv9` is NOT reserved.** On the `mode == 0x06` rotate / shuffle-and-fill form,
+  bits 6 and 7 change the fill **result value** (31 → 116 → 256 across the combinations, bit 2
+  giving a further distinct value) and bit 1 suppresses the stores that follow; 240–248 of 256
+  values move. **Inert on the `0x00` / `0x04` / `0x05` forms.** `HW-VALIDATED`, `target: G17P`,
+  `EXP-0163` §4.

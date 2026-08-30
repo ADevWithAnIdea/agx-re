@@ -3,11 +3,29 @@
 This is the live status board for closing every P0 and P1 item in
 `APPLE9_RE_IMPLEMENTATION_GAPS.md` (the authoritative task list, superseding the removed
 `AGX_RE_INFORMATION_GAPS.md` audit) using the local M4/G16G as the **sole test target**.
-**User directive (2026-08-27): the A18 Pro/G17P is hands-off (never SSH, probe, or reboot
-it; `macvdmtool` is never used), and all testing runs locally on the M4, which is
-Apple9-equal to the A18 Pro for every driver-emittable subsystem (`EXP-M4-*`
-byte-identity).** A18-specific replication is suspended, not a closure gate; every result
-still records its actual M4 target and must not be relabeled as directly observed on A18.
+
+> ### ⚠ SUPERSEDED 2026-08-28 — read this before the paragraph below it
+>
+> **The A18 Pro / G17P is now THE test target and closure is measured against full G17P**
+> (`CLAUDE.md`, user directive 2026-08-28). The 2026-08-27 hands-off directive quoted below was
+> **lifted**; the local M4 is **retired from GPU testing** because local GPU work destabilized
+> the host running this session. The paragraph is retained rather than deleted because the rows
+> in this table were written under both regimes and each records the target it actually ran on —
+> which is the point. **Committed M4/G16G evidence stays valid on its own target and is not
+> retracted, but it is supporting evidence, not closure evidence, and must never be relabelled.**
+>
+> That distinction stopped being bureaucratic on 2026-08-30. `get_sr.sr_sel` was measured on M4
+> to fault at no value anywhere in `0x00`–`0xFF`; on **G17P in a vertex shader every bit-7-clear
+> selector faults, 128 of 128**. The M4 result was *correct for the stage it was measured on* —
+> a compute carrier — and the G17P compute arm reproduces it exactly. **The divergence is stage,
+> not target.** An experiment can be exhaustively swept, cross-run agreed, and still blind,
+> which is precisely why a single-target, single-carrier claim cannot close a row.
+
+**Historical, superseded — the 2026-08-27 regime:** the A18 Pro/G17P is hands-off (never SSH,
+probe, or reboot it; `macvdmtool` is never used), and all testing runs locally on the M4, which is
+Apple9-equal to the A18 Pro for every driver-emittable subsystem (`EXP-M4-*` byte-identity).
+A18-specific replication is suspended, not a closure gate; every result still records its actual
+M4 target and must not be relabeled as directly observed on A18.
 
 **Priority directive (user, 2026-08-27): the load/store/SSBO gaps are the compiler critical
 path and jump the queue.** Concretely: Part-II `MEM-01…MEM-22` + `ATOM-*` (element scaling,
@@ -169,3 +187,30 @@ All sixteen rows must be `CLOSED`, with target-qualified evidence and intact pro
 chains. The final audit must positively reproduce the claimed generation paths and prove
 that no required field or supported operation depends on captured Apple templates or on
 inspection of Apple's implementation.
+
+
+---
+
+## 2026-08-30 G17P wave — facts added from the emit/closure experiments
+
+> Drafted by EXP-0186, which audited which results had reached this deliverable and found
+> **20 of 22 emitter-facing facts missing or refuted-but-still-stated**. Every block below is
+> traced to a committed experiment artifact, carries its evidence label and the **target it was
+> measured on**, and keeps the bounds the measuring experiment stated. Where a result is
+> deliberately bounded it says so; a doc that drops the bound is worse than no doc.
+
+**RANKED BLOCKERS — three of the five original blockers CLOSED on 2026-08-30, all on G17P.**
+(1) ~~`get_sr.sr_sel` untested on G17P~~ **CLOSED:** `sr_sel`, `dp_width` and `dp_marker` are
+`hardware-run` on G17P over three stage carriers (`EXP-0178`), and `get_sr` is EMITTABLE — with
+the new stage rule that a bit-7-clear selector faults in vertex. (2) ~~no call can be emitted~~
+**CLOSED:** `EXP-0179` generated 192 distinct calls with 384/384 correct and moved
+`call.{b3,b5,b6,tail}` from `tokenization-only` to `hardware-run`; the emitter contract adds a
+constraint nobody had — **`pop_reconverge` after a call is REQUIRED, the frame marker is
+OPTIONAL**. `ret.scoreboard` remains declined, now on a control that **fired**. (3)
+`vary_store.{hint1,b5_tag}` — **partly answered**: `hint6` is `hardware-run` (`EXP-0163`).
+(4) `iter.b9` / `iter_at.grp` — **partly answered**: `iter_at.loc` is `hardware-run` and is bit 1
+alone (`EXP-0163`); `grp` was deliberately not promoted. (5) ~~`tile_read`/`tile_read_mrt`
+measured only on M4~~ **CLOSED as a measurement:** re-measured on G17P over four carriers with
+every M4 value set transferring unchanged (`EXP-0178` §5) — though **neither instruction is
+emittable**, `tile_read` still blocked by `b2`/`b4`/`b6_hi`/`b7`/`tail` and `tile_read_mrt` by
+`b4`/`b6_hi`/`tail`.
