@@ -13,12 +13,18 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
 - Allowed: compile our own MSL, manipulate/run our own compiled bytes, observe outputs (OWN-SHADER);
   hardware probing (HW-PROBE); black-box data tracing at the userspace↔kernel boundary (DATA-TRACE);
   reading public/open-source refs — `gpu_knowledge/`, `mesa/` (PUBLIC).
-- **Never leave `/Users/user/asahi_re/public/agx-re`** on the host. If any step's cleanliness is
-  unclear, STOP and report — do not guess. **This includes scratch, pilot and dry-run files: do
-  NOT write to `/tmp` or anywhere outside the repo, not even briefly.** Use a `work/` subdirectory
-  inside your own experiment directory. Two agents have already tripped this while root-causing
-  (EXP-0098, EXP-0109); both self-disclosed and relocated, which is the right response — but the
-  rule is absolute, and a quick throwaway probe is exactly when it gets broken.
+- **Never leave `/Users/user/asahi_re/public/agx-re` on the LOCAL machine.** If any step's
+  cleanliness is unclear, STOP and report — do not guess. **This includes scratch, pilot and
+  dry-run files: do NOT write to local `/tmp` or anywhere outside the repo, not even briefly.**
+  Use a `work/` subdirectory inside your own experiment directory. Two agents have already tripped
+  this while root-causing (EXP-0098, EXP-0109); both self-disclosed and relocated, which is the
+  right response — but the rule is absolute, and a quick throwaway probe is exactly when it gets
+  broken.
+- **On the neo (the remote target) this rule is different, because it is a compute target rather
+  than the evidence store.** Work under a dedicated directory there (e.g. `~/agxre/<EXP-NNNN>/`),
+  keep it tidy, and **copy every artifact you intend to keep back into your experiment directory
+  in this repo**. Nothing on the neo is evidence until it is pulled back and committed here. Do
+  not read or modify anything on the neo outside your own working directory.
 
 ## Targets
 
@@ -37,6 +43,15 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
   where you were — do not attempt any recovery yourself.
 - **M5 (`192.168.170.253`) is a separate completed workstream — do not probe it.**
 
+**Recovery model (remote target).** Illegal shader encodings are usually fault-contained
+(per-command-buffer error, no wedge). The structural gain of the G17P pivot is that a wedge now
+costs the **remote** machine, not the orchestrator and not this repo — on the M4 a bad run took out
+WindowServer and killed agents mid-capture. Still: isolate one change per dispatch, hard-timeout
+every compile/dispatch/render/trace, and save progress incrementally (`PROGRESS.md` after every
+milestone). **Evidence lives in this repo on the M4, so pull results back promptly** — do not let
+captures accumulate only on the neo, where a reboot loses them. If the neo stops responding:
+**STOP and report BLOCKED** with where you were; recovery is the orchestrator's job.
+
 ## Process — the parts that most often bite (full contract: `../CODEX.md`)
 - **Pre-register before you build.** Commit-ready `PRE_REGISTRATION.md` (+ `CAPTURE_CONTRACT.json`
   where the dispatch says so): falsifiable hypothesis, variables, expected observation + a refuter,
@@ -45,8 +60,8 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
 - **Baseline before mutation**; change one variable at a time; asymmetric/boundary values.
 - `raw/` is append-only immutable evidence: text logs / JSON only — never binary archives,
   `.metallib`, or Apple blobs. Keep failures, faults, and no-ops; they bound the hardware.
-- Separate **observed** from **interpreted**; state the exact tested range and target (M4 vs A18 —
-  never silently generalize); label evidence (`HW-VALIDATED` / `DATA-TRACE-VALIDATED` /
+- Separate **observed** from **interpreted**; state the exact tested range and target (**G17P is now the test target**; older results are
+  M4/G16G — never silently generalize between them); label evidence (`HW-VALIDATED` / `DATA-TRACE-VALIDATED` /
   `OWN-SHADER-DIFF` / `STRUCTURAL` / `INFERRED` / `UNKNOWN`). Tokenizing bytes or a round trip
   never proves an encoding can be *synthesized*.
 - **Assume the host will crash mid-run.** It has repeatedly. Design so a kill costs at most one
