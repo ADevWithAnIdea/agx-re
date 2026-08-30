@@ -125,3 +125,61 @@ oracle 12.5 intact.** One hole, one carrier: `generated-point`, not a verdict.
 
 **Claims downgraded:** none. **Bounded unknowns:** whether the RT compact-word
 region is executed at all under a grid-of-1 traversal (A5 answers this).
+
+## 2026-08-30 M3 — A5 stop-scan complete; the finding; deliverables written
+
+**New raw observations.** `raw/g17p_20260830_t2scan01` (905 cases, 105 s;
+`rq_inst` failed to start — a measured absence) and
+`raw/g17p_20260830_t2scan02rev` (1385 cases, 186 s, REVERSED order).
+**99.56 % cross-run agreement over 905 shared offsets; 75 offsets halt in both.**
+
+**New GEOMETRY facts (the deliverable of this experiment).**
+- `n4_rt_word` `04 <dst> 20 80` is **not an instruction** at any of the 3 sites
+  scanned: it is bytes +6..+9 of a **10-byte** instruction, at `rq_mdist` +1306,
+  `rq_bbox` +1316 and `rq_bbox` +6378. Our tokenizer calls the enclosing bytes
+  `icmpsel` **length 14** — the hardware says 10.
+- `n4_cf_word` `04 01 00 00` is bytes +2..+5 of the **6-byte** `pop_reconverge`
+  `0f 06 04 01 00 00` at 3 sites in 3 carriers — **and it also exists as a real
+  4-byte instruction** at `cw_trans` +324, a boundary the hardware honours.
+  **Shadowed, not absent** — the same shape EXP-0204 found for
+  `cubearray_coord_const` the same day, by a different method.
+- `rtq_pred` `06 c2 00 00` is bytes +6..+9 of a **10-byte** span at `rq_bbox`
+  +966; our tokenizer lengths that span at 6 (`icmp_pred`).
+- Local instruction-length sequence measured directly at `cw_trans` +320:
+  **2, 2, 4, 6, 10, 8** bytes.
+
+**New LIVENESS facts.** `n4_rt_word.dst`: the hazard wall
+`(dst & 0b110) == 0b100` confirmed as a gated forward+reversed pair and
+**extended to `rq_bbox`**, which EXP-0187 never measured — 6/6 carrier-runs, 384
+fault + 1152 clean observations, zero exceptions, 100 % per-value agreement.
+
+**New SEMANTIC facts.** None. `V = 1` per carrier across all 1152 clean
+observations: the movement is entirely the wall. Legality is a `bounded-map`;
+effect is `unknown`.
+
+**New GENERATED RECIPES.** One `generated-point`: at `cw_trans` +324, a
+hardware-verified 4-byte boundary with a halting stop control and a firing
+over-length control, generated `06 c2 00 00` and `04 42 20 80` both execute with
+the carrier's exact oracle 12.5 intact, in both runs.
+
+**Claims downgraded.** The stop-ruler arm, withdrawn by this experiment against
+its own pre-registration as `carrier-undecidable` — its own data shows
+byte-identical fills reading oppositely at different holes. `verdicts200.py`
+rule 13 now detects that signature and refuses a length verdict in either
+direction. No prior experiment's claim is retracted; `n4_rt_word.dst` is
+**re-attributed**, not withdrawn.
+
+**Bounded unknowns.** `n1_word` / `n2_compact2` / `n3_word` remain unmeasured —
+the ruler is confounded and the fine scan windows were centred on the 4-byte
+occurrences. A ~250-offset fine scan of `cw_trans` +60…+560 would close it in
+under a minute.
+
+**Cross-check against EXP-0204's declared hang window (20:00–20:25 UTC):** all
+six EXP-0200 captures ran **19:16–19:48 UTC**; **0 cases** fall inside it, so
+nothing is reclassified on that ground.
+
+**Deliverables written:** `RESULTS.md`, `analysis/field_verdicts.json` (six axes
+per row), `analysis/boundary_map.json`, `analysis/ledger.json`,
+`analysis/t2_verdicts.json`, `analysis/wave_audit_notes.md`, `manifest.json`
+(83 files), `CAPTURE_CONTRACT.json` v8 (v1..v8 retained in `raw/prefreeze/`).
+**Nothing committed; `tools/agx-isa/`, `docs/` and `PROVENANCE.md` untouched.**

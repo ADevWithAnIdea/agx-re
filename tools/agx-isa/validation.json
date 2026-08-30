@@ -3557,7 +3557,19 @@
     "distinct_bytes": 2,
     "encodable_range": 2,
     "start": 3,
-    "width": 1
+    "width": 1,
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "LIVE \u2014 and it is a READ-ENABLE CONDITIONAL ON `dp_width`, which nobody had identified. Inert at dp_width 0x10 on 6/6 arms; LIVE at 0x14 on 5/5 non-vertex arms; and the effect FOLLOWS THE FIELD into carriers whose compiler chose 0x10, refuting the named alternative.",
+     "semantics": "bounded-map: at dp_width 0x14, form=1 makes the read contribute EXACTLY ZERO \u2014 out(form=1) == out(form=0) - lane*65536 for all 64 lanes, and the 18-selector map collapses from 6 payloads to 1. H8 was frozen in Amendment 4 BEFORE its own capture; 22/24 predicted cells held.",
+     "counts": "distinct VALID payloads / legal values = 2 / 2 (best arm sr_hi); hard outcomes counted SEPARATELY: none",
+     "stage": "compute + fragment + vertex",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "isolated-byte-diff",
+     "orchestrator_note": "**MY 2026-08-30 PROMOTION OF THIS ROW WAS STILL WRONG AND ITS WITHDRAWAL STILL CORRECT.** I promoted it over an eight-arm decline on one carrier's movement, and two of my three grounds were bad. This is a NEW result on new evidence with a conditional nobody had found -- not a vindication of that ruling."
+    }
    },
    "dst": {
     "label": "hardware-run",
@@ -3624,7 +3636,19 @@
     ],
     "note": "EXP-0189 withheld (INERT-SINGLE): 8 values dispatched over 1 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 29,
-    "width": 3
+    "width": 3,
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "inert in the exact tested envelope; **`dst_hi` DOES NOT EXTEND THE DESTINATION REGISTER ON G17P.** The register-dump carrier proves a relocated write IS visible: `dst`->10 clobbers named codeword slot 9 and `dp_width`->0x50 clobbers slot 8, while `dst_hi` across 8/8 clobbers NOTHING. That is a controlled negative, not a blind one.",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads / legal values = 1 / 8 across 5 arms, 2 stages; hard outcomes counted SEPARATELY: 7 no_draw on the vertex arm only",
+     "stage": "compute + fragment",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested",
+     "orchestrator_note": "db-defect candidate recorded, not applied."
+    }
    }
   },
   "mov_imm": {
@@ -5839,7 +5863,18 @@
     "evidence": [
      "EXP-0163"
     ],
-    "note": "INERT-ROBUST over the stated envelope: every value executed on 6 arms across 6 structurally different carriers (atoff1, cent4, mrt3, vflat, vhalf, vmany), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 6 arms across 6 structurally different carriers (atoff1, cent4, mrt3, vflat, vhalf, vmany), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "inert in the exact tested envelope (4 carriers, all POWERED); global role unknown",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads / legal values = 1 / 256 across 4 carriers; hard outcomes counted SEPARATELY: none",
+     "stage": "fragment",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested"
+    }
    }
   },
   "iter_at": {
@@ -5981,7 +6016,18 @@
     "evidence": [
      "EXP-0163"
     ],
-    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 7 structurally different carriers (cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`."
+    "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 7 structurally different carriers (cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "inert in the exact tested envelope (6 new carriers, all POWERED -- detection-power control fires); global role unknown",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads / legal values = 1 / 256 across SIX new carriers; hard outcomes counted SEPARATELY: none (3 victim on sm_dual)",
+     "stage": "fragment",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested"
+    }
    },
    "src": {
     "label": "isolated-byte-diff",
@@ -7826,7 +7872,18 @@
     "evidence": [
      "EXP-0141"
     ],
-    "note": "NOT PROMOTED. No own-MSL kernel we could compile emits `80 02 00 xx`, so the instruction had to be SYNTHESISED into the load/ALU/store program, which has no scoreboard/ordering observable. What IS newly established: the instruction can be emitted from scratch and every value of the byte is accepted without fault."
+    "note": "NOT PROMOTED. No own-MSL kernel we could compile emits `80 02 00 xx`, so the instruction had to be SYNTHESISED into the load/ALU/store program, which has no scoreboard/ordering observable. What IS newly established: the instruction can be emitted from scratch and every value of the byte is accepted without fault.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "**CARRIER-UNDECIDABLE, not inert** \u2014 no arm in this experiment can express what a scope flag controls.",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads / legal values = 1 / 256; hard outcomes counted SEPARATELY: none",
+     "stage": "compute",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested"
+    }
    }
   },
   "n3_mov": {
@@ -9384,11 +9441,12 @@
      "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
      "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
      "liveness": "inert in the tested envelope; global role unknown",
-     "hazard": "REPRODUCIBLE FAULT MAP: 128 of 191 legal values FAULT, 100% cross-run agreement. This is a first-class capability-map fact (\u00a76: behaviour at first invalid entry) and is NOT erased by the promotion withdrawal",
+     "hazard": "REPRODUCIBLE FAULT MAP: **64 legal values fault** (predicate `(v & 0x18) == 0x10`), 100% cross-run agreement. **CORRECTED by EXP-0208 from my own figure of 128** \u2014 I counted RECORDS across 2 runs and reported them as values. First-class capability-map fact (\u00a76: behaviour at the first invalid entry), retained despite the promotion withdrawal.",
      "counts": {
       "legal": 191,
       "distinct_valid_payloads": 1,
-      "faults": 128
+      "faulting_values": 64,
+      "faulting_records": 128
      },
      "target": "G17P-direct"
     }
@@ -10681,21 +10739,16 @@
     ],
     "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
     "axes": {
-     "geometry": "ledger-verified: distinct encodings were dispatched (no match-bit aliasing found)",
-     "semantics": "unknown -- no independent predictor discriminated between field values (Gate C)",
+     "geometry": "CORRECTED by EXP-0208: 4 encodings COLLAPSE \u2014 but they are baseline-identical no-op mutations, NOT match-bit aliases; cause identified from raw. My earlier note said no aliasing was found.",
+     "liveness": "LIVE \u2014 **THE WITHDRAWAL WAS A CARRIER LIMIT, NOT A HAZARD MAP.** A carrier with 8 distinct indexed-constant sources yields **11 distinct valid payloads**; EXP-0147's single-source carrier yielded 1 across 817 legal values.",
+     "semantics": "unknown \u2014 the oracle is `baseline_equality` only, so no semantic claim is made and the label stays `untested` with liveness `live`.",
+     "counts": "distinct VALID payloads / legal values = 11 / 1096 (vx_wide); hard outcomes counted SEPARATELY: 239 no_draw, 1 fault, 2 invalid_run",
+     "stage": "vertex",
      "recipe": "not-generated",
-     "reproducibility": "auditable: raw committed, 100% cross-run agreement",
-     "frozen_gate": "PASSED its own pre-registered gate at the time; insufficient for the CURRENT semantic gate",
-     "promotion_status_note": "`label: untested` is a PROMOTION status, NOT an evidence status. Per RE_EXPERIMENT_PROCESS_CORRECTIONS.md \u00a79 the observations below are RETAINED as superseded history and are not withdrawn; the withdrawal scoped ONLY the emitter-grade promotion.",
-     "liveness": "inert in the tested envelope; global role unknown",
-     "hazard": "REPRODUCIBLE HAZARD MAP: 987 `no_draw` + 39 `fault` over 817 legal values, 100% cross-run agreement. First-class capability-map fact, retained",
-     "counts": {
-      "legal": 817,
-      "distinct_valid_payloads": 1,
-      "no_draw": 987,
-      "faults": 39
-     },
-     "target": "M4-direct"
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 99.78%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested (label HELD)",
+     "orchestrator_note": "**CORRECTS MY OWN INTERPRETATION FROM THIS MORNING.** I withheld this row via EXP-0193 describing its movement as \"a reproducible hazard map, not a semantic.\" The WITHDRAWAL was right -- the evidence did not support promotion -- but the INTERPRETATION was wrong: V=1 was our carrier's blind spot, exactly as the user's standing challenge predicts. Third time today that challenge has been vindicated on hardware."
     }
    }
   },
@@ -10718,7 +10771,19 @@
      "EXP-M4-12",
      "EXP-M4-13"
     ],
-    "note": "\u26a0 A CARRIER NOW EXISTS. Prior censuses recorded 0 occurrences across 24 carriers and the field was declined on that measured basis \u2014 but **all 24 were COMPUTE kernels and this op is MESH-STAGE ONLY**. EXP-0187 emitted it on a `mesh_wide` mesh-stage program with one walk-confirmed occurrence: the first carrier ever found. The 'no carrier exists' reading was the census's blind spot, not the hardware's. Sweepable by a successor."
+    "note": "\u26a0 A CARRIER NOW EXISTS. Prior censuses recorded 0 occurrences across 24 carriers and the field was declined on that measured basis \u2014 but **all 24 were COMPUTE kernels and this op is MESH-STAGE ONLY**. EXP-0187 emitted it on a `mesh_wide` mesh-stage program with one walk-confirmed occurrence: the first carrier ever found. The 'no carrier exists' reading was the census's blind spot, not the hardware's. Sweepable by a successor.",
+    "axes": {
+     "geometry": "geometry-mapped \u2014 Gate A: 0 ledger failures in 12,440 ledgered records",
+     "liveness": "**CARRIER-UNDECIDABLE, not inert.** Dispatched for the FIRST TIME EVER -- the agent built `meshsweep207.m`, the mesh-pipeline sweep runner this repo lacked. But its frame can only be DESTROYED, never moved to a different valid payload, so the arm cannot decide the question either way.",
+     "semantics": "unknown",
+     "counts": "distinct VALID payloads / legal values = 1 / 127; hard outcomes counted SEPARATELY: 129 no_draw",
+     "stage": "mesh",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E not met on EVERY row: reversed case order and identical ledgers were met, but a quiet machine was never available. Cross-run 100.00%. All four captures ran 19:37-19:47 UTC with 0 records inside EXP-0204's 20:00-20:25 hang window (arithmetic in RESULTS \u00a710.2).",
+     "proposed_label_pending_gate_E": "untested",
+     "orchestrator_note": "Shadowing checked: `mesh_out_src` IS shadowed by `op04_len8`, keyed on byte+2 -- but all 256 swept values keep length 2, so the sweep is unaffected."
+    }
    }
   },
   "isel8": {

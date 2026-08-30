@@ -34,3 +34,42 @@ Append-only. One entry per milestone, so a kill costs at most one milestone.
   observable is not selected by the field under test.
 - `CAPTURE_CONTRACT.json` frozen, **25 blobs**; repo revision pinned `f59821fe`.
 - Nothing has run on the device yet.
+
+## 2026-08-30 — M2: census x3, pilots x4 (all PRE-FREEZE, retained in raw/prefreeze/)
+- `census01`: `interpolant<>` is FRAGMENT-ONLY (one compile error failed the whole library and
+  with it all eight fragment arms); MSL declares only `memory_order_relaxed`; `mesh_wide2/3`
+  emit no `mesh_out_src`. → Amendment 1.
+- `census02`: neither fence carrier emits `dev_scoreboard_fence` at all (reproducing EXP-0141
+  on a far stronger carrier); `mesh_wideP2` emits it with non-degenerate geometry; `f_dual`
+  fuses dual-source blending into ONE store; `f_mask` emits no `frag_color_store` and does not
+  tokenize. → Amendment 2 (`fen_syn`, the pre-spliced fence arm).
+- `census03`: `fen_syn` resolves; `sr_dump` resolves with a dst_hi baseline of 0 against
+  `sr_c`'s 1. All 30 archives built.
+- `pilot01/02/03/04`: found and fixed, before any gated run — a NaN/inf in the `pixels` array
+  making the response unparseable (recorded `measurement_failed`, never a hardware outcome);
+  `v_sv` indexing its corner array with an unfolded `vertex_id` under `baseVertex 9`;
+  a baseline-retry policy that spent four 40 s health cycles on a carrier that simply draws
+  nothing. → Amendment 3 (the whole `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` adoption).
+
+## 2026-08-30 — M3: the two gated runs
+- `raw/g17p_20260830_run01` (forward) 6193 records, `run02` (reverse) 6192. **0 hangs, 0
+  watchdog timeouts, 0 malformed responses, 0 ledger failures.** 11 `InnocentVictim` retried
+  in place, never scored.
+
+## 2026-08-30 — M4: the interaction capture (Amendment 4, frozen before its own dispatch)
+- `raw/g17p_20260830_int01/int02`, forward and reverse. **H8 confirmed 22 of 24 predicted
+  cells:** `get_sr.form` is inert at `dp_width` 0x10 on 6 of 6 arms and live at 0x14 on 5 of 5
+  non-vertex arms — **and the effect follows the FIELD into carriers whose compiler chose
+  0x10**, which refutes the "it is something else about sr_hi" alternative by name.
+
+## 2026-08-30 — M5: analysis, and the cross-experiment checks
+- Verdicts, answers, census, covary and `tools/agx-isa/wave_audit.py` all run and agree.
+- **EXP-0204's 20:00–20:25 UTC hang window does not touch this experiment**: all four captures
+  ran 19:37–19:47 UTC, **0 records inside the window** (arithmetic, in RESULTS §10.2).
+- **Gate E recorded INCOMPLETE on every row** (reversed order + identical ledgers met; a quiet
+  machine never available). Serialized quiet confirmation is the named next step for all seven.
+- **Shadowing checked, per EXP-0204's `cubearray_coord_const` lesson**: `mesh_out_src` IS
+  shadowed by the 8-byte `op04_len8` residue, keyed on **byte+2**, which is why four mesh
+  carriers read "absent" — but all 256 swept values keep length 2, so the sweep is unaffected.
+- **`dp_width` behaves like a bitfield, not the 4-value enum `db.json` documents** (§10.3),
+  and a tempting `(dp & 0x14) == 0x14` rule is recorded as REFUTED, not adopted.

@@ -367,7 +367,10 @@ def inert(st, ctl):
     return ("INERT" if not why else "UNRESOLVED"), why
 
 
-def axes(st, ctl, promoted, inerted, n_other_agents):
+QUIET_MAX = 2   # foreign GPU processes, measured; <= this counts as a quiet capture
+
+
+def axes(st, ctl, promoted, inerted, n_other_agents, quiet_pair=None):
     """The six INDEPENDENT axes of RE_EXPERIMENT_PROCESS_CORRECTIONS section 2.
     A result on one axis must never imply a result on another."""
     geometry = ("geometry-mapped" if (st["ledger_bad"] == 0
@@ -411,6 +414,8 @@ def axes(st, ctl, promoted, inerted, n_other_agents):
         # every case mutates ONE field of our own compiled carrier.
         "compiler_recipe": "generated-point" if promoted else "not-generated",
         "target": "G17P-direct",
+        # Whether THIS ARM's confirming pair ran quiet is decided per arm by
+        # `quiet_pair`, computed from raw/<run>/procs.jsonl. See axes() caller.
         # GATE E RULING (orchestrator, 2026-08-30): Gate E is currently UNMEETABLE
         # for every experiment in this wave -- a dedicated quiet-window helper in
         # EXP-0204 sampled 86 times and never once found a quiet machine, with up to
@@ -419,12 +424,39 @@ def axes(st, ctl, promoted, inerted, n_other_agents):
         # `independently-confirmed` is not claimed by any row here even where the two
         # runs agree perfectly.
         "reproducibility": (
-            "INCOMPLETE - Gate E not met (concurrent foreign GPU work throughout; "
-            "max %d other GPU processes sampled). Two gated runs in different case "
-            "orders DID agree; a quiet confirmation is still owed." % n_other_agents
-            if len(st["runs"]) >= 2 else
-            "INCOMPLETE - fewer than two gated runs for this arm"),
+            ("INCOMPLETE - fewer than two gated captures for this arm"
+             if len(st["runs"]) < 2 else
+             ("auditable; BOTH confirming captures ran with <= %d foreign GPU "
+              "processes (measured from procs.jsonl) and agreed - the closest this "
+              "wave has come to Gate E, still short of a scheduled quiet window"
+              % QUIET_MAX) if quiet_pair == "both" else
+             ("INCOMPLETE - Gate E not met: one confirming capture was quiet "
+              "(<= %d foreign processes) and the other was not (up to %d). The two "
+              "agreed." % (QUIET_MAX, n_other_agents)) if quiet_pair == "one" else
+             ("INCOMPLETE - Gate E not met: concurrent foreign GPU work throughout "
+              "(up to %d other GPU processes sampled). The gated captures DID agree "
+              "in different case orders; a quiet confirmation is owed."
+              % n_other_agents))),
     }
+
+
+RUN_QUIET = {}
+
+
+def quiet_of(st):
+    """Was THIS arm's confirming pair quiet? Uses the per-run maximum foreign GPU
+    process count measured in raw/<run>/procs.jsonl, not a claim in prose."""
+    pair = st.get("agreement_pair")
+    if not pair:
+        return None
+    q = [RUN_QUIET.get(r) for r in pair]
+    if any(v is None for v in q):
+        return None
+    if all(v <= QUIET_MAX for v in q):
+        return "both"
+    if any(v <= QUIET_MAX for v in q):
+        return "one"
+    return "none"
 
 
 def main():
@@ -449,6 +481,17 @@ def main():
                     pass
     if procs:
         NOTHER = max(p.get("n_other_agents", 0) for p in procs)
+    for d in runs:
+        f = os.path.join(d, "procs.jsonl")
+        if os.path.exists(f):
+            vals = []
+            for ln in open(f):
+                try:
+                    vals.append(json.loads(ln).get("n_other_agents", 0))
+                except Exception:                               # noqa: BLE001
+                    pass
+            if vals:
+                RUN_QUIET[os.path.basename(d.rstrip("/"))] = max(vals)
     by_arm = collections.defaultdict(list)
     for r in recs:
         a = r.get("arm")
@@ -488,7 +531,8 @@ def main():
         st = dict(st, control=[{"arm": n, "fires": f[0], "why": f[1]}
                                for n, f in fired],
                   promote=p, promote_blockers=pw, inert=i, inert_blockers=iw,
-                  axes=axes(st, ctl, p == "PROMOTE", i == "INERT", NOTHER))
+                  axes=axes(st, ctl, p == "PROMOTE", i == "INERT", NOTHER,
+                            quiet_pair=quiet_of(st)))
         out["arms"][a] = st
         per_key[st["key"]].append((a, st))
 
@@ -501,9 +545,27 @@ def main():
         ag = [s["agreement"] for _, s in arms if s["agreement"] is not None]
         promoted = [a for a, s in arms if s["promote"] == "PROMOTE"]
         inerts = [a for a, s in arms if s["inert"] == "INERT"]
-        verdict = ("hardware-run" if promoted else
-                   ("hardware-run(INERT)" if inerts and len(inerts) == len(arms)
-                    else "untested"))
+        sem_all_pre = {}
+        for _, s2 in arms:
+            for m, d in s2["sem"].items():
+                a2 = sem_all_pre.setdefault(m, {"checked": 0, "miss": 0})
+                a2["checked"] += d["checked"]
+                a2["miss"] += d["miss"]
+        surviving = sorted(m for m, d in sem_all_pre.items()
+                           if d["checked"] > 0 and d["miss"] == 0)
+        # The FIELD verdict is capped by the FIELD-level surviving models, not the
+        # per-arm ones. An arm can carry a model that survives on that arm while the
+        # same model is refuted on a sibling arm -- `ret_luse.linkmode`'s `M1_link`
+        # does exactly that. Gate C is a statement about the field's semantics, so
+        # a model refuted anywhere in the field's own evidence has not survived.
+        if promoted and surviving:
+            verdict = "PROMOTE(semantic)"
+        elif promoted:
+            verdict = "live; role unknown (Gate C: no model survives field-wide)"
+        elif inerts and len(inerts) == len(arms) and surviving:
+            verdict = "accepted-inert in tested envelope"
+        else:
+            verdict = "UNRESOLVED"
         sem_all = {}
         for _, s2 in arms:
             for m, d in s2["sem"].items():
@@ -511,8 +573,6 @@ def main():
                 a2["checked"] += d["checked"]
                 a2["hit"] += d["hit"]
                 a2["miss"] += d["miss"]
-        surviving = sorted(m for m, d in sem_all.items()
-                           if d["checked"] > 0 and d["miss"] == 0)
         out["fields"][key] = {
             "verdict": verdict,
             "axes_per_arm": {a: s2["axes"] for a, s2 in arms if "axes" in s2},
@@ -526,6 +586,15 @@ def main():
                                        for _, s2 in arms),
                                       collections.Counter())),
             "contaminated_cases": sum(s2["contaminated_cases"] for _, s2 in arms),
+            "foreign_cascade_window_cases":
+                sum(s2["foreign_cascade_window_cases"] for _, s2 in arms),
+            "agreement_pair_per_arm": {a: s2.get("agreement_pair")
+                                       for a, s2 in arms},
+            "V_per_arm": {a: s2["V"] for a, s2 in arms},
+            "L_per_arm": {a: s2["L"] for a, s2 in arms},
+            "moved_per_arm": {a: s2["moved"] for a, s2 in arms},
+            "hard_per_arm": {a: s2["hard"] for a, s2 in arms},
+            "agreement_per_arm": {a: s2["agreement"] for a, s2 in arms},
             "n_arms": len(arms),
             "V_max_per_arm": V,
             "V_union": len({p for _, s in arms for p in [s["V"]]}) and None,

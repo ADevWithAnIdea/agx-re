@@ -8,10 +8,10 @@ Section 2 requires every field to carry independent status on six axes. The data
 
 | source | rows carrying an `axes` object |
 |---|---:|
-| validation.json (inline) | 23 |
+| validation.json (inline) | 28 |
 | EXP-0208-axis-reclassification/analysis/axes.json | 496 |
-| **union (an inline object wins)** | **496** |
-| **db.json fields with NO axes object** | **544 of 1040** |
+| **union (an inline object wins)** | **501** |
+| **db.json fields with NO axes object** | **539 of 1040** |
 
 ## Cross-check against this run's re-derivation
 
@@ -19,12 +19,12 @@ Section 2 requires every field to carry independent status on six axes. The data
 |---|---:|
 | geometry:agree | 401 |
 | geometry:disagree | 80 |
-| geometry:not-comparable | 15 |
+| geometry:not-comparable | 20 |
 | liveness:answer-asserted-without-a-firing-control | 128 |
-| liveness:declared-with-control-or-no-records | 146 |
+| liveness:declared-with-control-or-no-records | 149 |
 | semantics:agree | 435 |
 | semantics:disagree | 51 |
-| semantics:not-comparable | 10 |
+| semantics:not-comparable | 15 |
 
 ## Disagreements - 224 row(s)
 

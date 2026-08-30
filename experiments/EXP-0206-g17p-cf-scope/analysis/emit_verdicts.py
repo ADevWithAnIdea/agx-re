@@ -42,6 +42,58 @@ LEGACY = {
 }
 
 
+# The exact parameter interval actually exercised, in the field's own units, with
+# the carrier composition that bounds it. `docs/evidence-classification.md`: "the
+# range is the claim's real scope; an implementer may not extrapolate past it."
+RANGES = {
+    "if_push.scope":
+        "0..255 dense (all 256 values) at FOUR occurrences: three with "
+        "scope_kind 0x1a (LOOP-ITERATION, the region kind EXP-0184 could not "
+        "reach) and one with 0x25, across three loop shapes. LIVE at the single "
+        "occurrence whose compiled value is 0x56; inert over all 256 at the "
+        "three whose compiled value is 0x54.",
+    "pop_reconverge.scope":
+        "0..255 dense (all 256 values) at THREE occurrence classes on two "
+        "carriers: loop-body pop (scope_kind 0x02, compiled 0x04), "
+        "guard/outermost pop (scope_kind 0x01, compiled 0x04) and "
+        "call-reconvergence pop (scope_kind 0x02, compiled 0x24 -- the OTHER "
+        "documented bank, compiler-emitted). Inert in that envelope.",
+    "pop_reconverge.reserved":
+        "52 of 65,536 values (FIELD-SWEEP-PROTOCOL section 3 sampling for w > 8: "
+        "boundaries, every single-bit value, every single-bit hole, 23 "
+        "asymmetric interior samples) at three occurrences on three carriers. "
+        "LIVE at the lane-divergent carrier: the LOW BYTE (bits 32..39) must be "
+        "zero; the high byte is inert over the 9 high-byte values tested.",
+    "call.tail":
+        "0..255 dense (all 256 values) at three call sites with three DIFFERENT "
+        "callee structures (leaf; non-leaf that itself calls two leaves; atomic "
+        "RMW callee returning through a real ret_luse). All three share ONE "
+        "read-back plan. Inert in that envelope.",
+    "ret.scoreboard":
+        "0..255 dense (all 256 values) at FOUR occurrences spanning the "
+        "memory/execution-ORDERING dimension: nothing outstanding at the return; "
+        "a load inside the callee; a store->load hazard spanning the return; a "
+        "non-leaf return with a saved link. Inert in that envelope. NOT tested: "
+        "any multi-invocation ordering litmus.",
+    "ret_luse.linkmode":
+        "0..255 dense (all 256 values) at THREE occurrences: a REAL "
+        "compiler-emitted `8f 12 56 00`, a synthesized leaf return, and a "
+        "synthesized NON-LEAF return. Accepted set is `v & 3 == 2` (64 of 256) at "
+        "all three; bit 4 (0x10) separates two distinct valid payloads at the "
+        "non-leaf occurrence only.",
+    "stop.reserved":
+        "73 of 16,777,216 values (protocol section 3 sampling for w > 8) at the "
+        "FINAL stop of three structurally different carriers. Inert in that "
+        "envelope, with a termination-dimension positive control that FIRES "
+        "(byte 0 -> 0x0f or 0x8f faults; six other byte-0 values are harmless).",
+    "stop.reserved@synth_mid":
+        "73 of 16,777,216 values at a CONSTRUCTED mid-program stop on two "
+        "carriers (built over the optional 4-byte frame marker). The program "
+        "terminates there in 292 of 292 cases; the 24-bit body is inert in that "
+        "envelope.",
+}
+
+
 def main():
     gate = json.load(open(os.path.join(HERE, "gate206.json")))
     arms = gate["arms"]
@@ -106,7 +158,7 @@ def main():
             "evidence": ["EXP-0206"],
             "start": rec.get("start"),
             "width": rec.get("width"),
-            "range": None,               # filled by RESULTS.md authoring step
+            "range": RANGES.get(key),
             "counts": {
                 "n_arms": f["n_arms"],
                 "distinct_valid_payloads_max_per_arm": f["V_max_per_arm"],
@@ -118,6 +170,14 @@ def main():
                 "semantic_buckets": f["buckets_total"],
                 "contaminated_cases": f["contaminated_cases"],
                 "cross_run_agreement_min": f["agreement_min"],
+                "cross_run_agreement_per_arm": f.get("agreement_per_arm"),
+                "agreement_pair_per_arm": f.get("agreement_pair_per_arm"),
+                "V_per_arm": f.get("V_per_arm"),
+                "L_per_arm": f.get("L_per_arm"),
+                "moved_per_arm": f.get("moved_per_arm"),
+                "hard_per_arm": f.get("hard_per_arm"),
+                "foreign_cascade_window_cases_rescored_as_measurement_failure":
+                    f.get("foreign_cascade_window_cases"),
             },
             "hard_outcomes_counted_separately": f["hard_total"],
             "semantic_models": f["semantic_models"],

@@ -259,6 +259,37 @@
    "status": "carrier-undecidable"
   }
  },
+ "ruler_calibration": {
+  "anchor_readings": {
+   "A_icmp6": {
+    "cw_bar@ruler10": "ok",
+    "cw_bar@ruler70": "silent_zero",
+    "cw_mix@ruler10": "ok",
+    "cw_trans@ruler118": "fault",
+    "cw_trans@ruler442": "wrong_value"
+   },
+   "A_ifpush4": {
+    "cw_bar@ruler10": "invalid_run",
+    "cw_bar@ruler70": "not_written",
+    "cw_mix@ruler10": "invalid_run",
+    "cw_trans@ruler118": "wrong_value",
+    "cw_trans@ruler442": "wrong_value"
+   },
+   "A_mov2": {
+    "cw_bar@ruler10": "ok",
+    "cw_bar@ruler70": "not_written",
+    "cw_mix@ruler10": "ok",
+    "cw_trans@ruler118": "not_written",
+    "cw_trans@ruler442": "not_written"
+   }
+  },
+  "calibrated": false,
+  "why": [
+   "A_mov2, a known-length hardware-run word, reads ['not_written', 'ok'] across admitted holes: {'cw_bar@ruler10': 'ok', 'cw_bar@ruler70': 'not_written', 'cw_mix@ruler10': 'ok', 'cw_trans@ruler118': 'not_written', 'cw_trans@ruler442': 'not_written'}",
+   "A_ifpush4, a known-length hardware-run word, reads ['invalid_run', 'not_written', 'wrong_value'] across admitted holes: {'cw_bar@ruler10': 'invalid_run', 'cw_bar@ruler70': 'not_written', 'cw_mix@ruler10': 'invalid_run', 'cw_trans@ruler118': 'wrong_value', 'cw_trans@ruler442': 'wrong_value'}",
+   "A_icmp6, a known-length hardware-run word, reads ['fault', 'ok', 'silent_zero', 'wrong_value'] across admitted holes: {'cw_bar@ruler10': 'ok', 'cw_bar@ruler70': 'silent_zero', 'cw_mix@ruler10': 'ok', 'cw_trans@ruler118': 'fault', 'cw_trans@ruler442': 'wrong_value'}"
+  ]
+ },
  "transparency": {
   "cw_bar@n4_cf_word_168": {
    "X_null": "ok",
@@ -2684,7 +2715,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -2715,7 +2746,7 @@
      "why": "anchor A_mov2 read ok"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   },
   "n2_compact2._instruction": {
@@ -2784,7 +2815,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -2815,7 +2846,7 @@
      "why": "anchor A_mov2 read ok"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   },
   "n3_word._instruction": {
@@ -2883,7 +2914,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -2914,7 +2945,7 @@
      "why": "anchor A_mov2 read ok"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   },
   "n4_cf_word._instruction": {
@@ -2965,7 +2996,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -3008,7 +3039,7 @@
      "why": "anchor A_ifpush4 read wrong_value"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   },
   "n4_rt_word._instruction": {
@@ -3066,7 +3097,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -3118,7 +3149,7 @@
      "why": "anchor A_ifpush4 read wrong_value"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   },
   "rtq_pred._instruction": {
@@ -3160,7 +3191,7 @@
      }
     }
    },
-   "range": "NOT ESTABLISHED (LENGTH-REFUTED); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
+   "range": "NOT ESTABLISHED (CARRIER-UNDECIDABLE); total bytes consumed measured on hardware at 0 admitted stop-ruler hole(s) across 0 carrier(s), against a known-2-byte (mov_imm) / known-4-byte (if_push) / known-6-byte (icmp_pred) anchor set at the same stop offsets",
    "refuting_holes": [
     {
      "arm": "cw_bar@ruler70",
@@ -3199,7 +3230,7 @@
      "why": "anchor A_ifpush4 read wrong_value"
     }
    ],
-   "verdict": "LENGTH-REFUTED",
+   "verdict": "CARRIER-UNDECIDABLE",
    "width": 0
   }
  }

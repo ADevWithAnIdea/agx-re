@@ -1,0 +1,161 @@
+{
+ "arms": {
+  "v1": {
+   "file": "harness/arms202.json",
+   "sha256": "fee4cbfddc1826458c97442e376be59eb6bef99958f73b9d6464268172bd7bfa"
+  },
+  "v3": {
+   "file": "harness/arms202b.json",
+   "sha256": "96e9f5e3f26c39238919378d0ca34d7176497fce2aae7c6547f61f864b9a13f3"
+  }
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": "kernels/*.metal authored by us and the _agc.main bytes the public Metal runtime compiled from them",
+  "provenance": [
+   "HW-PROBE",
+   "OWN-SHADER"
+  ]
+ },
+ "date_utc": "2026-08-30",
+ "db_defects": [
+  "DEF-0202-1 irotate.operands is five sub-fields",
+  "DEF-0202-2 ibitcount.dst bit0 not a register bit and dst[7:6]==0b11 illegal",
+  "DEF-0202-3 the src_flag enum is unsupported on G17P by any observation we can make",
+  "DEF-0202-4 ibitcount.form enum missing the value 21"
+ ],
+ "deliverables": [
+  "README.md",
+  "PRE_REGISTRATION.md (+ AMENDMENT v3)",
+  "CAPTURE_CONTRACT.json (v1/v2/v3 in raw/prefreeze)",
+  "RESULTS.md",
+  "PROGRESS.md",
+  "manifest.json",
+  "harness/",
+  "kernels/",
+  "analysis/",
+  "raw/"
+ ],
+ "experiment": "EXP-0202-g17p-int-shift-convert",
+ "gates": {
+  "A_actual_byte_ledger": "20324 of 20324 cases verified across run03+run04; 0 requested/actual mismatches; 0 encoding collisions",
+  "B_detection_power": "every occurrence carries a pre-registered control on the same instruction; the dimension control for shift_amt_move.src_flag is b_alu10_lo7.src_flag and it did NOT fire -> carrier-undecidable",
+  "C_semantics": "a pre-registered predicted outcome bucket on every case; sem_checked/sem_match reported per field and per arm",
+  "D_compiler_recipe": "not-generated except irotate byte+6, which is generated-point (an amount we chose produced the predicted rotate at all 32 amounts)",
+  "E_clean_confirmation": "NOT MET -- the window was measured in both runs and was never quiet. Cross-run agreement is nevertheless 10156/10156 in opposite case order."
+ },
+ "normative_gate": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (landed mid-experiment; PRE_REGISTRATION.md AMENDMENT v3 frozen before its first dispatch)",
+ "pinned_inputs_sha256": {
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "pinned/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "pinned/persistrun.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8",
+  "pinned/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "repo_revision_at_freeze": "170555c9051b831378d9c5fcb1180d60c8012dd7",
+ "repo_revision_at_pre_registration": "f59821fe5e896b09a1bd33b41e7a9f1b7df6b4b4",
+ "reused_verbatim": {
+  "harness/gpuwatch.py": {
+   "source": "experiments/EXP-0168-g17p-dst-resweep/harness/gpuwatch.py",
+   "why": "quiet-window measurement, unchanged but for the experiment id"
+  },
+  "harness/saferunner202.py": {
+   "source": "experiments/EXP-0184-g17p-onefield-b/harness/saferunner184.py",
+   "why": "one reader thread per child (DEF-0178-1); the acceleration-structure subclass removed, no ray carriers here"
+  },
+  "run.py / harness/locate202.py / harness/carriers202.py": {
+   "source": "experiments/EXP-0184-g17p-onefield-b",
+   "why": "driver, signature-scan locator and carrier shape; values and oracles are this experiment's own"
+  }
+ },
+ "runs": [
+  {
+   "gpuwatch": {
+    "quiet": false,
+    "samples": 874,
+    "samples_with_foreign_gpu_proc": 760,
+    "sha256": "6b4af5e95b22d465d9bf5c268979457e18a642c7f257962b596d683e57cb339c"
+   },
+   "run_id": "raw/g17p_20260830_run01"
+  },
+  {
+   "cases": 9140,
+   "gpuwatch": {
+    "quiet": false,
+    "samples": 329,
+    "samples_with_foreign_gpu_proc": 213,
+    "sha256": "bc9aff1d72f6e403f368d7fcc695713ea7083c8b717f105e5685e6e305878622"
+   },
+   "lines": 9490,
+   "outcomes": {
+    "carrier_ready": 27,
+    "fault": 642,
+    "invalid_run": 2,
+    "not_written": 196,
+    "ok": 490,
+    "silent_zero": 1066,
+    "unexpected_ok": 2330,
+    "wrong_value": 4737
+   },
+   "run_id": "raw/g17p_20260830_run02",
+   "sha256": "5a2499a25ea5cafaac38ec019170fdedd474ac1379910e1b65c4fd81542e79f6"
+  },
+  {
+   "cases": 10162,
+   "gpuwatch": {
+    "quiet": false,
+    "samples": 201,
+    "samples_with_foreign_gpu_proc": 201,
+    "sha256": "bbb697720e59def7d6c6ae3598b86214118c768019fa3f69f5818e72c1f9e61a"
+   },
+   "lines": 10596,
+   "outcomes": {
+    "carrier_ready": 33,
+    "fault": 706,
+    "invalid_run": 2,
+    "not_written": 196,
+    "ok": 558,
+    "silent_zero": 1114,
+    "unexpected_ok": 2367,
+    "wrong_value": 5620
+   },
+   "run_id": "raw/g17p_20260830_run03",
+   "sha256": "103c0a0baad2153cb89cecc40c33d27a5238da7660b7b950710306eafa3c9370"
+  },
+  {
+   "cases": 10162,
+   "gpuwatch": {
+    "quiet": false,
+    "samples": 209,
+    "samples_with_foreign_gpu_proc": 209,
+    "sha256": "44cc389c89039b4128e7f92b9cc24ffc7cb0d4961a5bdbe6e37c0c712ca28dee"
+   },
+   "lines": 10596,
+   "outcomes": {
+    "carrier_ready": 33,
+    "fault": 706,
+    "invalid_run": 2,
+    "not_written": 196,
+    "ok": 558,
+    "silent_zero": 1114,
+    "unexpected_ok": 2367,
+    "wrong_value": 5620
+   },
+   "run_id": "raw/g17p_20260830_run04",
+   "sha256": "56a16974ab11672644026eabebfb15bf2c6b4877aa552cf2bc8522cb25199268"
+  }
+ ],
+ "target": {
+  "arch": "applegpu_g17p",
+  "build": "25G5043d",
+  "device": "Apple A18 Pro / G17P",
+  "gpu_cores": 5,
+  "host": "192.168.170.254",
+  "metal_family": "Apple9",
+  "os": "macOS 26.6",
+  "ran_on_m4": false,
+  "soc": "T8140"
+ },
+ "title": "integer / shift / rotate / convert: 8 fields across 5 instructions, on G17P",
+ "tool_defect_reported_not_fixed": "tools/agx-isa/wave_audit.py's cross-run line pools by `value` across arms AND compares gputime_ns; see analysis/wave_audit_recheck.txt"
+}

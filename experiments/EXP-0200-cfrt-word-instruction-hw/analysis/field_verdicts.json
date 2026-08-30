@@ -1,0 +1,454 @@
+{
+ "_db_defects": {
+  "DEF-0200-1": {
+   "claim": "`n4_rt_word` (`04 <dst> 20 80`) is not a 4-byte instruction at any site measured on G17P. At rq_mdist +1306, rq_bbox +1316 and rq_bbox +6378 it is bytes +6..+9 of a 10-byte instruction.",
+   "consequence": "EXP-0187's and this experiment's `n4_rt_word.dst` hazard wall is a REAL, reproducible hardware fact about that operand byte, and is NOT a field of a compact word.",
+   "method": "stop-scan: a `stop` at the occurrence does not halt; a `stop` 6 bytes before and 4 bytes after both do, in both runs, at all three sites.",
+   "our_tokenizer_says": "icmpsel, length 14 -- which over-consumes by 4 relative to the hardware's 10",
+   "severity": "HIGH -- it invalidates the geometry of every `n4_rt_word` result ever recorded, including this experiment's own target 1"
+  },
+  "DEF-0200-2": {
+   "claim": "`n4_cf_word` (`04 01 00 00`) is bytes +2..+5 of the 6-byte `pop_reconverge` `0f 06 04 01 00 00` at rq_mdist +1210, rq_bbox +1216 and cw_trans +842.",
+   "consequence": "This is the mechanical explanation of EXP-0172's DEF-0172-4. `n4_cf_word` DOES also occur as a real 4-byte instruction: cw_trans +324 is a boundary the hardware honours with a 4-byte span. So the descriptor is not wrong everywhere -- it is SHADOWED at interior positions, exactly the shape EXP-0204 found for `cubearray_coord_const`.",
+   "severity": "HIGH"
+  },
+  "DEF-0200-3": {
+   "claim": "`icmp_pred` at rq_bbox +960 (`2a 00 2b c0 06 00 ...`) has a hardware span of 10 bytes; the pinned length rule gives 6. The `rtq_pred` signature at +966 is its tail.",
+   "severity": "MEDIUM"
+  },
+  "DEF-0200-4": {
+   "claim": "A signature scan cross-checked with `decode_one` at the offset is NOT sufficient to establish that an occurrence exists: 0 of the 7 signature-derived 4-byte occurrences the hardware scanned turned out to be boundaries. `decode_one` at an offset answers 'do these bytes match a descriptor', never 'does an instruction start here'.",
+   "severity": "METHOD"
+  }
+ },
+ "_provenance": {
+  "clean_room": "OWN-SHADER + HW-PROBE. No Apple binary introspected.",
+  "exp0204_hang_window_overlap_cases": 0,
+  "gate_A_ledger": {
+   "raw/g17p_20260830_t2run01": {
+    "grade": "dispatched-slice",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 736,
+     "decode_bad": 0,
+     "decode_na": 736,
+     "decode_ok": 0,
+     "ledger_bad": 0,
+     "ledger_ok": 736
+    }
+   },
+   "raw/g17p_20260830_t2run02rev": {
+    "grade": "dispatched-slice",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 736,
+     "decode_bad": 0,
+     "decode_na": 736,
+     "decode_ok": 0,
+     "ledger_bad": 0,
+     "ledger_ok": 736
+    }
+   },
+   "raw/g17p_20260830_t2scan01": {
+    "grade": "dispatched-slice",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 905,
+     "decode_bad": 0,
+     "decode_na": 905,
+     "decode_ok": 0,
+     "ledger_bad": 0,
+     "ledger_ok": 905
+    }
+   },
+   "raw/g17p_20260830_t2scan02rev": {
+    "grade": "dispatched-slice",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 1385,
+     "decode_bad": 0,
+     "decode_na": 1385,
+     "decode_ok": 0,
+     "ledger_bad": 0,
+     "ledger_ok": 1385
+    }
+   },
+   "raw/t1_frozen0187/g17p_20260830_t1run01": {
+    "grade": "reconstructed",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 1276,
+     "decode_bad": 0,
+     "decode_na": 128,
+     "decode_ok": 1148,
+     "ledger_bad": 0,
+     "ledger_ok": 0
+    }
+   },
+   "raw/t1_frozen0187/g17p_20260830_t1run02rev": {
+    "grade": "reconstructed",
+    "problem_arms": 0,
+    "totals": {
+     "cases": 1276,
+     "decode_bad": 0,
+     "decode_na": 128,
+     "decode_ok": 1148,
+     "ledger_bad": 0,
+     "ledger_ok": 0
+    }
+   }
+  },
+  "gate_E": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+  "stop_scan": {
+   "cross_run_agreement_pct": 99.558,
+   "halting_offsets_in_both_runs": 75,
+   "per_carrier": {
+    "cw_trans": {
+     "dispatched": 79,
+     "halts": 12
+    },
+    "rq_bbox": {
+     "dispatched": 464,
+     "halts": 40
+    },
+    "rq_mdist": {
+     "dispatched": 362,
+     "halts": 23
+    }
+   },
+   "shared_offsets": 905
+  },
+  "target": "Apple A18 Pro / G17P (applegpu_g17p, AGXAcceleratorG17P, 5 cores, macOS 26.6, Metal family Apple9)",
+  "transparency": {
+   "halted": 2,
+   "oracle_survived": 60,
+   "other": 3,
+   "total": 65
+  },
+  "transparency_admitted_arms": [
+   "cw_trans@n4_cf_word_324",
+   "cw_trans@pad_operand_142"
+  ]
+ },
+ "n1_word._instruction": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "unverified -- the stop-ruler arm designed to measure it is CONFOUNDED (see limitations), and the fine stop-scan window did not reach these offsets",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED.",
+  "note": "The one thing measured cleanly: at cw_trans +292 and +316, walk-confirmed `n1_word` boundaries, a `stop` did NOT halt while stops at +320/+322/+324 in the same finely scanned window DID. That is suggestive that these walk boundaries are also wrong, but no-halt is not proof of interiority and no verdict is drawn from it.",
+  "range": "NOT ESTABLISHED. 9 ruler holes x 2 runs dispatched; the arm is withdrawn as carrier-undecidable because byte-identical fills read oppositely at different holes.",
+  "target_device": "G17P"
+ },
+ "n2_compact2._instruction": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "unverified -- the stop-ruler arm designed to measure it is CONFOUNDED (see limitations), and the fine stop-scan window did not reach these offsets",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED.",
+  "note": "The one thing measured cleanly: at cw_trans +292 and +316, walk-confirmed `n1_word` boundaries, a `stop` did NOT halt while stops at +320/+322/+324 in the same finely scanned window DID. That is suggestive that these walk boundaries are also wrong, but no-halt is not proof of interiority and no verdict is drawn from it.",
+  "range": "NOT ESTABLISHED. 9 ruler holes x 2 runs dispatched; the arm is withdrawn as carrier-undecidable because byte-identical fills read oppositely at different holes.",
+  "target_device": "G17P"
+ },
+ "n3_word._instruction": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "unverified -- the stop-ruler arm designed to measure it is CONFOUNDED (see limitations), and the fine stop-scan window did not reach these offsets",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED.",
+  "note": "The one thing measured cleanly: at cw_trans +292 and +316, walk-confirmed `n1_word` boundaries, a `stop` did NOT halt while stops at +320/+322/+324 in the same finely scanned window DID. That is suggestive that these walk boundaries are also wrong, but no-halt is not proof of interiority and no verdict is drawn from it.",
+  "range": "NOT ESTABLISHED. 9 ruler holes x 2 runs dispatched; the arm is withdrawn as carrier-undecidable because byte-identical fills read oppositely at different holes.",
+  "target_device": "G17P"
+ },
+ "n4_cf_word._instruction": {
+  "axes": {
+   "compiler_recipe": "generated-point -- `04 01 00 00` generated at cw_trans +324, a boundary the hardware honours, and executed with the carrier oracle intact",
+   "encoding_geometry": "geometry-mapped -- the descriptor is a TAIL MATCH inside `pop_reconverge`. See db_defects.",
+   "liveness": "carrier-undecidable at the 3 scanned natural sites",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "enclosing_spans": [
+   [
+    "cw_trans",
+    840,
+    846,
+    6,
+    2
+   ],
+   [
+    "rq_bbox",
+    1214,
+    1220,
+    6,
+    2
+   ],
+   [
+    "rq_mdist",
+    1208,
+    1214,
+    6,
+    2
+   ]
+  ],
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED.",
+  "note": "rq_mdist +1210, rq_bbox +1216 and cw_trans +842 are each at +2 of a 6-byte span `0f 06 04 01 00 00`, which our own tokenizer already names `pop_reconverge`. This is the mechanical explanation for EXP-0172's DEF-0172-4 ('n4_cf_word has no observable effect at all'): its 256-value `b3` sweep was sweeping byte+5 of a pop_reconverge.",
+  "range": "3 natural occurrences stop-scanned at 2-byte granularity on 3 carriers; all 3 are interior to a 6-byte span whose head is `0f 06` (pop_reconverge)",
+  "sites_scanned": 3,
+  "target_device": "G17P"
+ },
+ "n4_cf_word.b3": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "MISATTRIBUTED -- byte+5 of a 6-byte pop_reconverge at all 3 scanned sites",
+   "liveness": "carrier-undecidable",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "untested",
+  "label_change": "NONE. DECLINED, and the decline is honoured, not re-litigated: EXP-0172 dispatched 256 values and reported STILL-UNDERPOWERED; EXP-0184 declined re-running it. Only 11 sampled values rode along here with the `_instruction` fills.",
+  "note": "Reported only because the geometry finding above changes what a future sweep should target: b3 is the last byte of a pop_reconverge, whose `reserved` field is already documented non-load-bearing.",
+  "range": "11 sampled values {00,01,02,04,08,10,20,40,7f,80,ff} as ride-along fills; NOT a field sweep and NOT a verdict",
+  "start": 24,
+  "target_device": "G17P",
+  "width": 8
+ },
+ "n4_rt_word._instruction": {
+  "axes": {
+   "compiler_recipe": "not-generated at a natural site; generated-point at one hardware-verified 4-byte boundary (cw_trans +324), see note",
+   "encoding_geometry": "geometry-mapped -- AND THE DESCRIPTOR IS WRONG AT EVERY SITE MEASURED. See db_defects.",
+   "liveness": "the BYTES are live (an illegal value in them faults the command buffer, reproducibly); the four-byte INSTRUCTION was not observed to exist at any measured site",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "enclosing_spans": [
+   [
+    "rq_bbox",
+    1310,
+    1320,
+    10,
+    6
+   ],
+   [
+    "rq_bbox",
+    6372,
+    6382,
+    10,
+    6
+   ],
+   [
+    "rq_mdist",
+    1300,
+    1310,
+    10,
+    6
+   ]
+  ],
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED -- and the reason is a positive finding, not an absence of evidence.",
+  "note": "At all 3 scanned occurrences -- rq_mdist +1306, rq_bbox +1316, rq_bbox +6378 -- a `stop` written at the occurrence does NOT halt the program while a `stop` 6 bytes earlier and 4 bytes later BOTH do, in both runs. The enclosing span is exactly 10 bytes at all three, and the occurrence sits at +6 of it. So `04 <dst> 20 80` is the operand TAIL of a 10-byte instruction, not a 4-byte compact word. This is the same shadowing EXP-0204 independently found for `cubearray_coord_const`.",
+  "range": "3 natural occurrences stop-scanned at 2-byte granularity in a +/-32-byte window, on 2 carriers; 0 of 3 are an instruction boundary the hardware honours",
+  "sites_interior_to_a_10_byte_instruction": 3,
+  "sites_scanned": 3,
+  "sites_that_are_a_hardware_boundary": 0,
+  "target_device": "G17P"
+ },
+ "n4_rt_word.dst": {
+  "axes": {
+   "compiler_recipe": "not-generated",
+   "encoding_geometry": "ledger-verified (256/256 distinct actual encodings, 0 match-bit collisions) but MISATTRIBUTED: the byte is +7 of a 10-byte instruction, not byte+1 of a 4-byte word",
+   "liveness": "live -- 64 of 256 values are rejected by the hardware, reproducibly, on 3 carriers in 2 runs",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "bounded-map for LEGALITY only (the predicate below classifies 256/256 values on 3 carriers in both runs); UNKNOWN for effect -- V=1 across all clean values",
+   "target": "G17P-direct"
+  },
+  "carrier_excluded": [
+   "rq_ccount/g17p_20260830_t1run02rev: {'silent_zero': 256}"
+  ],
+  "clean_observations": 1408,
+  "evidence": [
+   "EXP-0200",
+   "EXP-0187"
+  ],
+  "fault_observations": 384,
+  "hazard_predicate": "(dst & 0b110) == 0b100",
+  "label": "hardware-run",
+  "label_basis": "EXP-0187's frozen gate, honoured unchanged and re-run as a forward+reversed pair here; it returns LIVE. Recorded per corrections section 9: an experiment's own frozen gate result is preserved, and the current axes are scored separately below.",
+  "label_under_current_gates": "DOWNGRADE RECOMMENDED. The movement is ENTIRELY the fault wall: across 1152 clean observations the distinct valid payload count is 1. That is a legality map, not a semantic. And the swept byte is +7 of a 10-byte instruction, so the field's geometry is misattributed.",
+  "note": "The hazard wall EXP-0187 measured in one run is confirmed in a gated forward+reversed pair and EXTENDED to rq_bbox, which EXP-0187 never measured. 64 of 256 values fault; the fault set is exactly {v : (v & 0b110) == 0b100} with zero exceptions. 192 of 256 values are accepted and all return the same correct answer, so no value has been shown to select anything.",
+  "per_carrier": {
+   "rq_bbox": {
+    "cross_run": {
+     "agreeing": 256,
+     "agreement_pct": 100.0,
+     "common_values": 256
+    },
+    "g17p_20260830_t1run01": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    },
+    "g17p_20260830_t1run02rev": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    }
+   },
+   "rq_ccount": {
+    "cross_run": {
+     "agreeing": 0,
+     "agreement_pct": 0.0,
+     "common_values": 256
+    },
+    "g17p_20260830_t1run01": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 0,
+     "fault_set_equals_predicate": false,
+     "ok": 256,
+     "other": {}
+    },
+    "g17p_20260830_t1run02rev": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 0,
+     "fault": 0,
+     "fault_set_equals_predicate": false,
+     "ok": 0,
+     "other": {
+      "silent_zero": 256
+     }
+    }
+   },
+   "rq_inst": {
+    "cross_run": {
+     "agreeing": 256,
+     "agreement_pct": 100.0,
+     "common_values": 256
+    },
+    "g17p_20260830_t1run01": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    },
+    "g17p_20260830_t1run02rev": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    }
+   },
+   "rq_mdist": {
+    "cross_run": {
+     "agreeing": 256,
+     "agreement_pct": 100.0,
+     "common_values": 256
+    },
+    "g17p_20260830_t1run01": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    },
+    "g17p_20260830_t1run02rev": {
+     "dispatched": 256,
+     "distinct_encodings": 256,
+     "distinct_valid_payloads": 1,
+     "fault": 64,
+     "fault_set_equals_predicate": true,
+     "ok": 192,
+     "other": {}
+    }
+   }
+  },
+  "predicate_holds_in": "6 of 8 carrier-runs",
+  "range": "0..255 dense (all 256 values), 3 carriers, 2 runs (forward + reversed case order)",
+  "start": 8,
+  "target_device": "G17P",
+  "width": 8
+ },
+ "rtq_pred._instruction": {
+  "axes": {
+   "compiler_recipe": "generated-point -- `06 c2 00 00` generated at cw_trans +324, a boundary the hardware honours, and executed with the carrier oracle intact, with a stop control and a 6-byte over-length control both firing in opposite directions",
+   "encoding_geometry": "1 site scanned; interior to a 10-byte span. See db_defects.",
+   "liveness": "carrier-undecidable at the scanned natural site",
+   "reproducibility": "INCOMPLETE -- Gate E not met. Both runs of every pair executed on a machine running eight to nine concurrent sibling experiments; a quiet confirmation window was not obtainable (EXP-0204 sampled 86 times and never once found one). No case of this experiment falls inside EXP-0204's declared 20:00-20:25Z hang window -- all six captures ran 19:16-19:48Z -- so no case is reclassified on that ground, and the runs are internally clean (see fault_classes).",
+   "semantics": "unknown",
+   "target": "G17P-direct"
+  },
+  "enclosing_spans": [
+   [
+    "rq_bbox",
+    960,
+    970,
+    10,
+    6
+   ]
+  ],
+  "evidence": [
+   "EXP-0200"
+  ],
+  "label": "tokenization-only",
+  "label_change": "NONE PROPOSED.",
+  "note": "One site only -- the other rtq_pred occurrences fell outside the fine scan window. It is at +6 of a 10-byte span our tokenizer lengths at 6 (`icmp_pred`), so either the icmp_pred length rule or the rtq_pred boundary is wrong there; the scan says the hardware consumes 10.",
+  "range": "1 natural occurrence stop-scanned (rq_bbox +966); interior to [960, 970), a 10-byte span",
+  "sites_scanned": 1,
+  "target_device": "G17P"
+ }
+}

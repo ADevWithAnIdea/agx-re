@@ -1,0 +1,60 @@
+role arm                                                      runs       n     L     V    ok   coh  dead   rej payload split
+cont CTRL:b6@cl_atomic._agc.main+52                           03,04     32    16     1    32     0     0     0 ok:32
+cont CTRL:b6@cl_chain._agc.main+54                            03,04     32    16     3    14    18     0     0 wron:14 ok:14 wron:4
+cont CTRL:b6@cl_leaf._agc.main+54                             03,04     32    16     2    19    13     0     0 ok:19 wron:13
+cont CTRL:linkmode@cl_chain.l__ZL5c_midjj+104                 03,04     32     4     2     6     2     0    24 ok:6 wron:2
+cont CTRL:linkmode@cl_ldret.l__ZL4m_ldPU9M+34                 03,05     32     4     1     8     0     0    24 ok:8
+cont CTRL:linkmode@cl_pure.l__ZL2pfj+32                       03,05     32     4     1     8     0     0    24 ok:8
+cont CTRL:linkmode@cl_stacross.l__ZL2pfj+32                   03,05     32     4     1     8     0     0    24 ok:8
+cont CTRL:offset@cl_atomic._agc.main+52                       03,04     16     8     2    10     6     0     0 ok:10 wron:6
+cont CTRL:offset@cl_chain._agc.main+54                        03,04     16     4     1     8     0     0     8 ok:8
+cont CTRL:offset@cl_leaf._agc.main+54                         03,04     16     4     1     8     0     0     8 ok:8
+cont CTRL:scope_kind@cf_ifnl._agc.main+126                    03,05     32    16     2     8    24     0     0 wron:24 ok:8
+cont CTRL:scope_kind@cf_ifnl._agc.main+184                    03,05     32    15     2     2    28     0     2 wron:28 ok:2
+cont CTRL:scope_kind@cf_nl2._agc.main+106                     03,04,06    48    16     1    48     0     0     0 ok:48
+cont CTRL:scope_kind@cf_nl2._agc.main+140                     03,04     32     9     4     2    16     0    14 wron:8 wron:6 wron:2 ok:2
+cont CTRL:scope_kind@cf_nl2._agc.main+216                     03,04     32    14     1    28     0     0     4 ok:28
+cont CTRL:scope_kind@cf_nl2._agc.main+222                     03,04     32    15     1    30     0     0     2 ok:30
+cont CTRL:scope_kind@cf_nl3._agc.main+182                     03,05     32    13     1    26     0     0     6 ok:26
+cont CTRL:scope_kind@cl_atomic._agc.main+66                   03,04     32    15     2    28     2     0     2 ok:28 wron:2
+cont CTRL:tail@cl_atomic.l__ZL4m_atPU9M+32                    03,04     32    16     1    32     0     0     0 ok:32
+cont CTRL:tail@cl_chain.l__ZL5c_midjj+104                     03,04     32    16     1    32     0     0     0 ok:32
+cont CTRL:tail@cl_leaf.l__ZL6lf_addjj+30                      03,04     32    16     1    32     0     0     0 ok:32
+cont CTRL:tail@cl_pure.l__ZL2pfj+32                           03,05     32    16     1    32     0     0     0 ok:32
+cont CTRL:byte0@cf_nl2._agc.main+268                          03,04     16     6     1    12     0     0     4 ok:12
+cont CTRL:byte0@cl_atomic._agc.main+124                       03,04     16     6     1    12     0     0     4 ok:12
+cont CTRL:byte0@cl_leaf._agc.main+88                          03,04     16     6     1    12     0     0     4 ok:12
+cont CTRL:synth_word@cl_chain._agc.main+50                    03,04      6     3     2     4     0     2     0 ok:4 not_:2
+cont CTRL:synth_word@cl_leaf._agc.main+50                     03,04      6     3     2     4     0     2     0 ok:4 not_:2
+targ call.tail@cl_atomic._agc.main+52                         03,04    512   256     1   512     0     0     0 ok:512
+targ call.tail@cl_chain._agc.main+54                          03,04    512   256     1   512     0     0     0 ok:512
+targ call.tail@cl_leaf._agc.main+54                           03,04    512   256     1   512     0     0     0 ok:512
+targ if_push.scope@cf_ifnl._agc.main+126                      03,05    512   256     1   512     0     0     0 ok:512
+targ if_push.scope@cf_nl2._agc.main+106                       03,04,06   448   130     2   226     0     2   220 ok:226 not_:2
+targ if_push.scope@cf_nl2._agc.main+140                       03,04,06   768   256     1   768     0     0     0 ok:768
+targ if_push.scope@cf_nl3._agc.main+182                       03,05    512   256     1   512     0     0     0 ok:512
+targ pop_reconverge.reserved@cf_ifnl._agc.main+184            03,05    104    52     2    18    86     0     0 wron:86 ok:18
+targ pop_reconverge.reserved@cf_nl2._agc.main+216             03,04    104    52     1   104     0     0     0 ok:104
+targ pop_reconverge.reserved@cl_atomic._agc.main+66           03,04    104    52     1   104     0     0     0 ok:104
+targ pop_reconverge.scope@cf_nl2._agc.main+216                03,04    512   256     1   512     0     0     0 ok:512
+targ pop_reconverge.scope@cf_nl2._agc.main+222                03,04    512   256     1   512     0     0     0 ok:512
+targ pop_reconverge.scope@cl_atomic._agc.main+66              03,04    512   256     1   512     0     0     0 ok:512
+targ ret.scoreboard@cl_chain.l__ZL5c_midjj+104                03,04    512   256     1   512     0     0     0 ok:512
+targ ret.scoreboard@cl_ldret.l__ZL4m_ldPU9M+34                03,05    512   256     1   512     0     0     0 ok:512
+targ ret.scoreboard@cl_pure.l__ZL2pfj+32                      03,05    512   256     1   512     0     0     0 ok:512
+targ ret.scoreboard@cl_stacross.l__ZL2pfj+32                  03,05    512   256     1   512     0     0     0 ok:512
+targ ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32            03,04    512    64     1   128     0     0   384 ok:128
+targ ret_luse.linkmode@cl_chain.l__ZL5c_midjj+104             03,04    512    66     3    64    64     2   382 wron:64 ok:64 not_:2
+targ ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30              03,04    512    64     1   128     0     0   384 ok:128
+targ stop.reserved@cf_nl2._agc.main+268                       03,04    146    73     1   146     0     0     0 ok:146
+targ stop.reserved@cl_atomic._agc.main+124                    03,04    146    73     1   146     0     0     0 ok:146
+targ stop.reserved@cl_leaf._agc.main+88                       03,04    146    73     1   146     0     0     0 ok:146
+targ stop.reserved@synth_mid@cl_chain._agc.main+50            03,04    146    73     1     0     0   146     0 not_:146
+targ stop.reserved@synth_mid@cl_leaf._agc.main+50             03,04    146    73     1     0     0   146     0 not_:146
+
+ledger: 10670/10670 ok
+contaminated cases: 697 of 9938
+g17p_20260830_run03 concurrency: 54 samples, other GPU procs min=4 max=14 mean=8.9
+g17p_20260830_run04 concurrency: 38 samples, other GPU procs min=3 max=21 mean=9.1
+g17p_20260830_run05 concurrency: 16 samples, other GPU procs min=0 max=2 mean=1.1
+g17p_20260830_run06 concurrency: 3 samples, other GPU procs min=1 max=2 mean=1.7

@@ -1,0 +1,53 @@
+
+=== work/gated_view
+  call.tail                          hardware-run
+       records=1536   via field-keyed            runs=2
+       V(distinct VALID payloads)=3     L(legal values)=256    
+       distinct oracles=3     
+       distinct encodings dispatched=768   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 100.00% (0/768 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  if_push.scope                      untested
+       records=2240   via field-keyed            runs=4
+       V(distinct VALID payloads)=4     L(legal values)=256    
+       distinct oracles=6     
+       distinct encodings dispatched=512   
+       hard outcomes (NOT movement): {'fault': 211, 'hang': 9}
+       cross-run agreement: 100.00% (0/352 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  pop_reconverge.reserved            untested
+       records=312    via field-keyed            runs=3
+       V(distinct VALID payloads)=4     L(legal values)=52     
+       distinct oracles=3     
+       distinct encodings dispatched=104   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 100.00% (0/104 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  pop_reconverge.scope               hardware-run
+       records=1536   via field-keyed            runs=2
+       V(distinct VALID payloads)=2     L(legal values)=256    
+       distinct oracles=4     
+       distinct encodings dispatched=512   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 100.00% (0/768 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  ret.scoreboard                     hardware-run
+       records=2048   via field-keyed            runs=3
+       V(distinct VALID payloads)=4     L(legal values)=256    
+       distinct oracles=8     
+       distinct encodings dispatched=512   
+       hard outcomes (NOT movement): none
+       cross-run agreement: 100.00% (0/256 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  ret_luse.linkmode                  corpus-correlation
+       records=1536   via field-keyed            runs=2
+       V(distinct VALID payloads)=5     L(legal values)=256    
+       distinct oracles=8     
+       distinct encodings dispatched=256   
+       hard outcomes (NOT movement): {'fault': 1150}
+       cross-run agreement: 100.00% (0/192 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  stop.reserved                      hardware-run
+       records=730    via field-keyed            runs=2
+       V(distinct VALID payloads)=4     L(legal values)=73     
+       distinct oracles=4     
+       distinct encodings dispatched=73    
+       hard outcomes (NOT movement): none
+       cross-run agreement: 100.00% (0/365 disagree)  [keyed (arm,value); volatile timing fields excluded]
+  stop.reserved@synth_mid            hardware-run
+       NO RAW RECORDS under either keying  <-- claim unsupported by this raw

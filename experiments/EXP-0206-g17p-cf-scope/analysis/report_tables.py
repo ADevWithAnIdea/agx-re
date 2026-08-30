@@ -10,7 +10,9 @@ import collections, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.dirname(HERE)
-GATED = ["g17p_20260830_run03", "g17p_20260830_run04"]
+GATED = ["g17p_20260830_run03", "g17p_20260830_run04",
+         "g17p_20260830_run05", "g17p_20260830_run06",
+         "g17p_20260830_run07"]
 VALID = {"ok", "silent_zero", "wrong_value", "not_written"}
 
 

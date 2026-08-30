@@ -3,6 +3,23 @@
 **Target:** Apple A18 Pro / **G17P** (`applegpu_g17p`, `AGXAcceleratorG17P`, 5 cores, macOS 26.6
 build 25G5043d, Metal family Apple9), `192.168.170.254`. **Nothing ran on the M4.**
 
+## Outcome (full detail in `RESULTS.md`)
+
+| field | proposed label | axis summary |
+|---|---|---|
+| `irotate.operands` | `isolated-byte-diff` | **live**; **byte+6 semantically mapped** — `byte+6 = 4·(32−K)` is rotate-LEFT-by-K, 264 exact vector matches, 0 misses, 32 distinct amounts recovered independently of the model |
+| `shift_amt_move.src_flag` | `untested` | **carrier-undecidable** — inert on 11 occurrences / 9 carriers / 7 producer classes / 128 indices, but the same-dimension control is inert too |
+| `ibitcount.cache` | `isolated-byte-diff` | **live and ASYMMETRIC** over its full 2-value encodable range, 10 occurrences, 9 carriers |
+| `ibitcount.dst` | `isolated-byte-diff` | **live**; bit 0 is not a register bit, and `dst[7:6] == 0b11` faults — 64 contiguous values, 5 occurrences, 2 readback plans |
+| `iunary.b1` | `untested` | **live**, reached by synthesis (no compiled `iunary` exists in 56 carriers); `b1 & 7` alone decides |
+| `iunary.opsel` | `untested` | **live**; the deciding bit is byte+2 bit 1 — the same bit `ibitcount` models as `cache` |
+| `cvt_f2i.b9` | `single-template-inference` | **accepted-inert** over a much wider envelope; the pre-registered live model refuted at 255/256 per arm |
+| `cvt_f2i._instruction` | **`hardware-run`** | the signed convert **saturates** (`int(2³¹+2⁸) = 0x7FFFFFFF`), and byte+7 is a width + sign + saturation-bound descriptor |
+| *(new)* `b_alu10_lo7.src_flag` | `untested` | the same-dimension control; inert at both values on 3 occurrences |
+
+**Gate A: 20 324 of 20 324 cases ledger-verified. Cross-run: 10 156 of 10 156 agree, 0 disagree, in
+opposite case order. Gate E: NOT MET — the window was measured and was never quiet.**
+
 ## The question
 
 Eight fields across five instructions block their families from being *emittable*. Each is one or

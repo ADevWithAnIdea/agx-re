@@ -129,3 +129,17 @@
   cases fall in it**: run03 spans 19:27:16–19:45:43Z, run04 19:31:00–19:50:28Z,
   run05 19:50–19:5xZ — all before the window opens. The filter is retained and its
   count (0) is reported per field.
+- 2026-08-30 19:55Z — **run05 COMPLETE: 1,444 cases in 306.3 s**, and its
+  `procs.jsonl` records something the wave has not seen: **the machine was QUIET**
+  — 16 samples, 0 to 2 foreign GPU processes, mean 1.1 (run03 saw 4–14, run04 3–21).
+  Every arm now has cross-run agreement **1.0000**.
+- 2026-08-30 19:55Z — `run06` launched on `cf_nl2` (shuffled, seed 307) to add a
+  QUIET capture of the headline `if_push.scope@cf_nl2+106` arm. That arm was already
+  paired via run04's partial (122 common values, 122/122 identical), so run06 is a
+  strengthening third capture, not a dependency.
+- 2026-08-30 19:57Z — `run07` queued behind run06: a QUIET MIRROR of run05
+  (same five carriers, shuffled seed 407). If both land quiet, six arms — including
+  BOTH live findings and all four `ret.scoreboard` ordering arms — will have two
+  confirming captures on a measured-quiet machine, which is as close to Gate E as
+  this wave has come. It is queued rather than run concurrently because run06's arm
+  produces genuine device hangs, and a hang resets every context.

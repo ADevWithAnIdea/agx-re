@@ -10,11 +10,23 @@ nothing else. Verdicts are **recomputed from `raw/` on every invocation**, never
 manifest, and the gate **runs a five-case self-test first and refuses to produce verdicts if it
 fails**.
 
-**Gated pair:** `g17p_20260830_run03` (forward case order) and `g17p_20260830_run04` (reversed
-case order), 5,231 cases each. Regenerate everything with:
+**Gated captures.** Four, and the reason there are four rather than two is recorded rather than
+tidied away:
+
+| run id | order | scope | cases | note |
+|---|---|---|---:|---|
+| `g17p_20260830_run03` | forward | all 52 arms | 5,231 | complete |
+| `g17p_20260830_run04` | reversed | all 52 arms | 3,824 | **stopped inside the genuinely hang-heavy `if_push.scope@cf_nl2+106` arm; RETAINED, never topped up, id never reused** |
+| `g17p_20260830_run05` | shuffled (206) | the five carriers holding the six arms run04 never reached | 1,428 | a **new** id, not a top-up |
+| `g17p_20260830_run06` | shuffled (307) | `cf_nl2`, completing the second pass on the arm run04 was stopped inside | 1,268 | a **new** id |
+
+Every arm therefore has **two** captures in **different case orders**. Where more than two runs
+hold an arm, the gate uses the pair with the largest set of values valid in both, and records which
+pair it used in `agreement_pair`. Regenerate everything with:
 
 ```bash
-python3 analysis/verdicts206.py raw/g17p_20260830_run03 raw/g17p_20260830_run04
+python3 analysis/verdicts206.py raw/g17p_20260830_run03 raw/g17p_20260830_run04 \
+                                raw/g17p_20260830_run05 raw/g17p_20260830_run06
 python3 analysis/emit_verdicts.py
 python3 analysis/report_tables.py
 ```
@@ -77,8 +89,8 @@ A symmetric assemble/disassemble round trip is not used anywhere in this experim
 ### 1.3 Gate E — how busy the machine was, measured rather than claimed
 
 `raw/<run>/procs.jsonl` samples the process table at run start, every 100 cases, and at run end.
-Throughout both gated runs the neo carried **8–21 other GPU processes** from sibling experiments
-(EXP-0200, EXP-0201, EXP-0202, EXP-0207). Consequences, stated rather than hidden:
+Throughout run03 and run04 the neo carried **8–21 other GPU processes** from sibling experiments
+(EXP-0200, EXP-0201, EXP-0202, EXP-0207); by run05/run06 the fan-out had thinned to as few as 2. Consequences, stated rather than hidden:
 
 * **No verdict here claims `independently-confirmed`.** Per the orchestrator's ruling of
   2026-08-30, **Gate E is currently unmeetable for the whole wave** — EXP-0204's dedicated

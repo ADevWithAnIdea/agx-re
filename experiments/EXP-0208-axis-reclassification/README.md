@@ -30,15 +30,16 @@ nothing to recover.
 The dispatch's warning was the design driver: *finding "no raw" is the most likely way to be
 wrong.* Two confirmed defects in this corpus manufactured false absences, and building this
 experiment found **seven more keyings** on top of them. An exact `(instr, field)` index over
-`raw/**/*.jsonl` — the shape of `EXP-0189/analysis/collect_raw.py` — sees **7,179 of 28,870**
-record groups. The other 21,691 are keyed in ways it cannot see:
+`raw/**/*.jsonl` — the shape of `EXP-0189/analysis/collect_raw.py` — sees **8,223 of the
+28,870** record groups this experiment indexes. The other 20,647 are keyed in ways it cannot
+see:
 
 | # | Keying | Where it appears |
 |---|---|---|
 | K1 | exact `instr` + `field` | the EXP-0138+ sweep era |
 | K2 | `field: null`, byte index in the record | EXP-0171: 71,262 byte-level sweeps |
 | K3 | **dotted** `"n3_mov.dst"` in `field` | EXP-0174 — a bare-name lookup misses every one |
-| K4 | leading `_`/`__` (`_detect`, `__ladder_L_*`, `_live_control`) | 32,026 records, dropped by 0189's `not startswith("_")` |
+| K4 | leading `_`/`__` (`_detect`, `__ladder_L_*`, `_live_control`) | 11,278 groups, dropped by 0189's `not startswith("_")` |
 | K5 | `mnem` only, no field | EXP-0148 token resync: 2.9 M framing records |
 | K6 | composite names `op_lsb\|op\|per_lane\|op_msb`, `lut_a+lut_b+op_base`, `size+reg_sel`, `src_class+match[8:12]=4`, `cache@bytemate` | EXP-0141/0144/0156 |
 | K7 | byte-position names `byte+12`, `byte3`, `b11hi`, and record-carried `byte`/`byte_index` | EXP-0144/0162/0171 |
@@ -48,7 +49,8 @@ record groups. The other 21,691 are keyed in ways it cannot see:
 | K11 | pre-EXP-0138 `.log`/`.txt` splice transcripts | `RT-5`, `RT-10`, `EXP-0013`, `EXP-O2C/D` |
 | K12 | sibling descriptor: raw says `ilogic`, the row is `b_alu10_loe` at the same `(start,width)` | EXP-0171 → 248 rows. **Reported separately and never counted as direct evidence.** |
 
-`analysis/index_jsonl.py` indexes K1–K9 across **860 files / 5.25 M records**;
+`analysis/index_jsonl.py` indexes K1–K9 across **860 files / 5,251,950 lines**, yielding
+28,870 groups over 4,203,397 keyed records;
 `analysis/index_nonjsonl.py` covers 17,087 `.json`/`.txt`/`.log`/`.md` files;
 `analysis/curated_prose.json` is hand-verified K11 with the file and the verbatim quote.
 Only **git-tracked** files count as committed evidence (`work/tracked_files.txt`).
@@ -61,7 +63,7 @@ Only **git-tracked** files count as committed evidence (`work/tracked_files.txt`
    within a single carrier**.
 2. **EXP-0191's validity rule, not "outcome == ok".** `silent_zero`, `wrong_value` and
    `no_draw` **are observations**; faults, hangs, undecodables and contaminated cases are not.
-   Scoring only `ok` cases moved 116 rows from `live` to `inert` — `isel_reg8.cmp_mode` has
+   Scoring only `ok` cases would move 131 rows from `live` to `inert` — `isel_reg8.cmp_mode` has
    **17 distinct valid payloads across 256 values** and zero `ok` cases.
 
 ## Reproduce

@@ -97,3 +97,28 @@ additionally records how many cases the tokenizer's own decode independently con
 reported **CONTAMINATED**; the EXP-0160 validity filter is applied instead (two agreeing
 sentinel-valid dumps stand, because contamination can destroy an observation but never fabricate a
 coherent one). No promotion rests on a clean-window claim that was not measured.
+
+## 2026-08-30 — M8: run04 (confirmation B, REVERSE case order) complete; verdicts computed
+10162 cases in 423 s. **Cross-run agreement over the pair: 10156 of 10156 shared cases agree, ZERO
+disagreements** — and zero even without collapsing `ok`/`unexpected_ok`. **Gate A: 20324 of 20324
+cases across both runs satisfy `requested bytes == actual bytes` AND `requested value == the value
+decoded from the actual dispatched bytes`; 0 encoding collisions.**
+
+**EXP-0189's `UNSTABLE` refusal of `irotate.operands` does not reproduce.** Under a ledger-verified
+pair in opposite case order the field's partition is exactly reproducible: 0 of 3212 (arm, value)
+pairs disagree.
+
+## 2026-08-30 — M8a: `tools/agx-isa/wave_audit.py` reports 0-25 % agreement here. Both causes are in the checker.
+Committed verbatim as `analysis/wave_audit.txt`; re-derived three ways by
+`analysis/wave_audit_recheck.py`. (1) It pools by `value` **across every arm of a field**, and
+run04 iterates in reversed order by design, so a different arm wins in each run — it compares
+different arms. (2) It compares the whole `observed` dict, **which contains `gputime_ns`**, a
+nondeterministic timing measurement. Keyed by `(arm, value)` with `gputime_ns` excluded: **0
+disagreements on every one of the nine fields.** Reported, not fixed — `tools/agx-isa/` is not this
+experiment's to edit, and this line will silently read near-total disagreement for ANY experiment
+whose raw carries a timing field inside `observed`.
+
+## 2026-08-30 — M9: COMPLETE. Six axes recorded; Gate E is the only one left open.
+`RESULTS.md`, `manifest.json`, `analysis/field_verdicts.json` (nine field rows + one instruction row
++ four `db_defects`). Nothing was committed by this agent; `tools/agx-isa/`, `docs/` and
+`PROVENANCE.md` were not touched.

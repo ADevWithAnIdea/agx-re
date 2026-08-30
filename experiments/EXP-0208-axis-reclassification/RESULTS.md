@@ -5,7 +5,7 @@ Pro for the whole run. No Apple binary was read or introspected. **No label was 
 
 ```
 Clean-room provenance: derived analysis of already-committed evidence
-Inputs inspected: experiments/**/raw/**/*.jsonl (860 files, 5,251,950 records),
+Inputs inspected: experiments/**/raw/**/*.jsonl (860 files, 5,251,950 lines -> 4,203,397 keyed records),
                   17,087 committed .json/.txt/.log/.md files, tools/agx-isa/{db,validation}.json,
                   52 committed revisions of validation.json via git
 Apple binary introspection: NONE. No shader compiled, no device contacted.
@@ -50,6 +50,15 @@ returning a silent zero.** That is a densely-swept, geometry-mapped, demonstrabl
 field whose *semantics* nobody could explain — the row's own note says so ("no ≤4-bit rule
 explains the partition"). Unexplained semantics is `semantics: unknown`. It is not
 `liveness: untested`, and it is certainly not "no evidence".
+
+Two measurement rules decide these verdicts and both were wrong in earlier tooling.
+**(i) Union, never sum** -- EXP-0194's scanner summed per-group distinct-payload counts, so a
+field inert in *both* of two runs reports "2 distinct observed payloads"; every set here is
+unioned and liveness is read from the maximum *within a single carrier*. **(ii) EXP-0191's
+validity rule, not `outcome == "ok"`** -- `silent_zero`, `wrong_value` and `no_draw` are
+observations; faults, hangs, undecodables and contaminated cases are not. **131 of the 183
+`live` rows are live only under (ii)**: they have >=2 distinct valid payloads and fewer than
+2 payloads among strictly-`ok` cases. `isel_reg8.cmp_mode` has zero `ok` cases at all.
 
 66 of the 212 once-promoted rows do read `inert` or `accepted-inert` from their raw. That is
 the withdrawal being *right* — and it survives as a bounded fact with its exact envelope,
@@ -110,7 +119,7 @@ contiguous, 68 hang records, 0 exceptions.
 
 `analysis/contradictions.json`. Three shapes, all verified by hand on samples:
 
-**(a) "0 values dispatched / UNVERIFIABLE" against a full dense sweep — 71 rows.** e.g.
+**(a) "0 values dispatched / UNVERIFIABLE" against a real dense sweep — 80 rows.** e.g.
 `atomic_rmw.amode`, whose note reads *"EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched
 over 0 arm(s)"*. Hand-verified: `EXP-0141-m4-emit-mem/raw/m4-20260828-run2{1,2}/sweep.jsonl`
 carry **512 records, 256 distinct values, every one `ok`**. Same for `device_load.{addr_mode,
@@ -119,8 +128,8 @@ access_desc,reserved7,reserved13}`, `jump.{branch_ctrl,link}`, `jump_cond.{cf_sc
 `atomic_rmw.*`. **This is EXP-0197's finding, quantified: the clause is a restatement of
 EXP-0189's collector input filter, not a fact about the evidence.**
 
-**(b) "nothing moved / fully inert" against a moving observable — 5 rows.**
-`falu3_ext.op`, `iadd2.addsub`, `ilogic.{z6,z8,z9}`. Under EXP-0191's validity rule (which
+**(b) "nothing moved / fully inert" against a moving observable — 8 rows.**
+`falu3_ext.op`, `iadd2.addsub`, `ilogic.{z6,z8,z9}` and three more. Under EXP-0191's validity rule (which
 this corpus wrote and then did not apply here) the observable does move.
 
 **(c) "no raw" against 4,707 records — 1 row.** `stop.reserved`; hand-verified at 1,030
@@ -147,7 +156,7 @@ the fact.
   exactly (`B*B+C` row-independent; `A*A+C` column-independent; `B*A+C = 704` everywhere;
   `A*B` alone `= 8(i+1)(j+1)`, `D77 = 512`). Two experiments, same result:
   `reproducibility: independently-confirmed`, `semantics: bounded-map`.
-* **`EXP-M4-14/splice_results.json`** — 26 rows recovered. `tex_addr_setup.op_mode`: bit 2
+* **`EXP-M4-14/splice_results.json`** — 29 rows recovered. `tex_addr_setup.op_mode`: bit 2
   gates the operand (10 values). `tex_addr_setup.rsv11`: **11 values spliced, all inert** —
   a bounded accepted-inert, not an absence. `rt_query_traverse.opB`: **`0x02/0x06/0x40/0x07`
   HANG** (traversal non-termination). `frame_prologue.subop`: every passing value shares

@@ -29,13 +29,14 @@ envelopes; two are honestly `carrier-undecidable`. Nothing was rounded up.**
 | `dev_scoreboard_fence.scope_flag` | **CARRIER-UNDECIDABLE** | `carrier-undecidable` | `hypothesis` | `untested` | 256/256 dispatched, **0 of 4 controls moved anything at all** |
 
 **Run hygiene.** 2 gated runs × 6193 / 6192 records, plus 2 interaction runs × 150, in
-**opposite case order** (Gate E). **0 hangs, 0 watchdog timeouts, 0 malformed responses, 0
-`macvdmtool`.** 11 `invalid_run` (`InnocentVictim`, a sibling experiment's device reset)
+**opposite case order**. **0 hangs, 0 watchdog timeouts, 0 malformed responses, 0
+`macvdmtool`.** **Gate E is INCOMPLETE and is reported as such on every row** — see §10. 11 `invalid_run` (`InnocentVictim`, a sibling experiment's device reset)
 retried in place and never scored. Cross-run per-value agreement **100.00 %** on every field
 except `sm_dual` (0.9883, 3 victim cases) and the two vertex arms (0.9970 / 0.9978).
-**Gate A: 0 ledger failures in 12 685 records** — every dispatched case's requested value
-equals the value independently decoded from the bytes actually in the dispatched program,
-and the two runs' per-value actual bytes are identical.
+**Gate A: 0 ledger failures.** 12 685 records across the four gated captures, **12 440 of
+them carrying an actual-byte ledger** (12 184 `case` records plus every control): in every
+one, the requested value equals the value independently decoded from the bytes actually
+present in the dispatched program, and the two runs' per-value actual bytes are identical.
 
 ---
 
@@ -334,6 +335,16 @@ why nothing was promoted to `hardware-run`.
 `analysis/summary_table.txt` (per arm, per run) and `analysis/field_verdicts.json` (per
 field, with the six axes). Never a percentage alone.
 
+> **Why `tools/agx-isa/wave_audit.py` prints larger `V` and `L` than the table below.** That
+> tool globs **every** `.jsonl` under `raw/`, so it pools the gated runs with
+> `raw/prefreeze/pilot0{1..4}` — different builds, different carriers, some of them
+> deliberately defective — and it pools all arms of a field together. `analysis/verdicts.py`
+> restricts itself to the gated `g17p_*_run*` pair and computes `V` **per arm**, which is the
+> quantity a verdict is allowed to rest on. Both numbers are correct for what they measure;
+> the per-arm one is the conservative one and it is the one used here. The two agree exactly
+> where it matters: `V = 1` for `mesh_out_src.sel` and `dev_scoreboard_fence.scope_flag`
+> under both, and `V > 1` for `vtx_coord_xform.operand` and `get_sr.form` under both.
+
 | field | encodable | dispatched | distinct actual encodings | legal | silent | faults | hangs | no-draw | aliases | untested |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `frag_color_store.store_mode` | 256 | 256 | 256 | 256 | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -365,7 +376,7 @@ field, with the six axes). Never a percentage alone.
   on every case and Gate R7 refuses a field whose moving cells stopped decoding as the
   instruction. 0 such cells.
 * **Requested bytes that were never dispatched.** Gate A reads the bytes back out of the file
-  the runner was handed and decodes them independently: **0 ledger failures in 12 685
+  the runner was handed and decodes them independently: **0 ledger failures in 12 440 ledgered
   records**, and the two runs' per-value actual bytes are identical.
 * **An order-dependent artefact.** The confirmation run dispatches every field's values in
   **reversed** order.
@@ -386,3 +397,116 @@ leave that open.
 **distinct VALID payloads, legal values and hard-outcome counts kept separate**. Six
 `db_defects` candidates are recorded there too, with evidence and **not applied** —
 `tools/agx-isa/db.json` is the orchestrator's file.
+
+
+---
+
+## 10. Gate E status, contamination window, and two cautions taken from sibling experiments
+
+### 10.1 Gate E is INCOMPLETE, on every row, and it is written that way
+
+Gate E has two clauses. **One is met:** two gated runs, in **reversed case order**, with
+**identical per-value actual-byte ledgers** (0 mismatches; 12 440 ledgered records, 12 184 of them `case`) and
+per-value agreement of 100.00 % everywhere except `sm_dual` (0.9883) and the two vertex arms
+(0.9970 / 0.9978). **One is not met:** a genuinely quiet machine. This experiment ran
+throughout alongside a multi-agent fan-out, and a sibling experiment's dedicated quiet-window
+helper sampled the machine 86 times without ever finding it idle (up to 17 concurrent foreign
+GPU processes). So `analysis/field_verdicts.json` records, on every field:
+
+> `reproducibility: auditable; Gate E INCOMPLETE (two runs in reversed order with identical
+> ledgers, but no quiet-machine confirmation)`
+
+Nothing here is presented as `independently-confirmed`, and a serialized quiet confirmation
+is the named next step for **every** row, not only the promoted ones.
+
+### 10.2 The EXP-0204 hang window does not touch this experiment — checked, not assumed
+
+EXP-0204 declared ~18 genuine device hangs between roughly **20:00–20:25 UTC** from a
+budgeted `tex_deriv` mapping pass. Every capture in this experiment ran **before** that
+window, and the check is arithmetic rather than a claim:
+
+| capture | first case (UTC) | last case (UTC) | records inside 20:00–20:25 UTC |
+|---|---|---|---:|
+| `g17p_20260830_run01` | 19:37:13 | 19:41:21 | **0** |
+| `g17p_20260830_run02` | 19:41:32 | 19:46:35 | **0** |
+| `g17p_20260830_int01` | 19:46:55 | 19:46:56 | **0** |
+| `g17p_20260830_int02` | 19:46:56 | 19:46:57 | **0** |
+
+So none of the hard outcomes reported above can be attributed to that cascade — and equally,
+none of them is *excused* by it. The 11 `InnocentVictim` cases this experiment did see came
+from other concurrent work; each was retried in place and none was scored. This matters most
+for `vtx_coord_xform.operand`, whose prior withdrawal rested on 987 `no_draw` + 39 `fault`:
+misattributing a foreign cascade there would repeat that error in the opposite direction.
+The 239 `no_draw` on `vx_wide` reproduce **per value** across both runs at 99.78 % agreement
+and are therefore a property of the encoding, not of the machine's mood.
+
+### 10.3 A documented enum is a hypothesis — and `dp_width` behaves like a **bitfield**
+
+EXP-0204 found `tex_sample.mode` is a bitfield rather than the enum `db.json` documents, and
+that one of its named values is inert. The same caution applies directly here: `db.json`
+gives `get_sr.dp_width` an enum of four values `{16: std 32-bit read, 80: top dst bank,
+17: bool/helper-thread (inferred), 20: lane-id datapath (inferred)}`. The interaction map
+says that reading is at best incomplete:
+
+* `form` is inert at `dp_width` **0x00, 0x04, 0x10, 0x11** on every arm, and live at **0x14**
+  on all five non-vertex arms. 0x14 = 0x10 | 0x04, and neither 0x10 nor 0x04 alone arms it —
+  **two bits together do**, which is bitfield behaviour, not enum behaviour.
+* `0x15` arms it on four of six arms; `0x50` and `0x54` arm it on `sr_dump` **only**.
+  A tempting rule `(dp_width & 0x14) == 0x14` fits 0x14, 0x15 and 0x54 but is **contradicted
+  at 0x54 on three arms**, so it is recorded as a *refuted candidate*, not adopted.
+
+The claim that survives is the pre-registered one and nothing more: **inert at 0x10 on 6 of 6
+arms, live at 0x14 on 5 of 5 non-vertex arms, in both gated orders.** The remaining 248
+`dp_width` values are untested and the bit structure is open.
+
+### 10.4 `mesh_out_src` **is** shadowed — but the shadowing does not touch the sweep
+
+EXP-0204 found `cubearray_coord_const` decoding as `pad_operand` at an interior boundary,
+which made two prior provocation attempts read as false negatives. Checked here, offline,
+across every offset of all six mesh programs (odd offsets included):
+
+* **Every `04 <b1<0x80>` pair in the four "absent" carriers decodes as `op04_len8`** — the
+  8-byte low-nibble-4 residue that `db.json` itself flags `emit_unsafe` for over-consuming
+  the following leader. So `occ_absent(0 of 0)` on `me_p1` / `me_p3` / `me_w2` / `me_w3` is a
+  statement about **our length rule**, not proof the compiler emitted nothing there.
+* The discriminator is **byte+2, not byte+1**: `instr_length` returns 2 for `04 xx e7 …` (the
+  mesh source op feeding a device store) and 8 for `04 xx c4 …`. Confirmed by splicing byte+1
+  to 0x00 / 0x02 / 0x30 / 0x54 / 0x7f at both kinds of site.
+* **Consequence for the sweep: none.** All 256 spliced `sel` values at `me_p2` offset 40 still
+  tokenize as `mesh_out_src`, length 2 (`tok_same_instr` true on 256/256), because byte+2
+  stays `0xe7`. Gate R7 holds, and the 129 `no_draw` are not the sweep silently encoding an
+  8-byte instruction.
+
+The bounded reading is therefore: the four non-emitting mesh carriers contain no
+`04 xx e7 …` pair, which is what "no mesh_out_src" means **under our length model**; whether
+a 2-byte source op hides at one of the `04 xx c4 …` sites is **undetermined** and is a named
+next question.
+
+### 10.5 `rsv*` / `b<N>` names are our guesses
+
+EXP-0204 found `tex_write.rsv10` is the mip **level**. Two of this experiment's targets carry
+such names — `iter.b9` and `frag_color_store.store_mode` — and both came back inert on the
+dimensions built for them. Neither result licenses the word "reserved": the wording used
+throughout is **`inert in <exact tested envelope>; global role unknown`**.
+
+---
+
+## 11. What the next experiment should do
+
+1. **Serialized quiet confirmation** of all seven rows (Gate E clause 2). Nothing here needs
+   re-discovery; it needs a quiet machine.
+2. **A dense `dp_width` × `form` map** (256 × 2) on `sr_c` and `sr_f`. That is what would move
+   `get_sr.form` from `isolated-byte-diff` to `hardware-run`, and it would settle the bit
+   structure §10.3 leaves open.
+3. **A mesh carrier whose output value is separately observable** — the `me_p2` frame can be
+   destroyed but not moved, so `mesh_out_src.sel` is undecidable rather than inert. A mesh
+   program writing to a device buffer from the mesh stage would give the read-back path that
+   the fragment carriers have.
+4. **An ordering litmus that a fence can actually break.** `fen_syn` proves the fence can be
+   synthesised and executed at every value; it does not prove anything about scope, because
+   dropping the device-scope barrier itself changed nothing on that carrier.
+5. **Decode the `[[sample_mask]]` store form** (§5.1) — an undecoded fragment store shape on
+   the documentation target.
+6. **Probe whether `get_sr.dst_hi` reaches registers no carrier here reads.** The codeword
+   ledger covers sixteen live registers; a carrier holding 32 or 64 live codewords would
+   close the remaining gap in §3.3's interpretation.

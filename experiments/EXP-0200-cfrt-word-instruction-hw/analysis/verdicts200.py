@@ -268,6 +268,21 @@ def main():
                 s.add(f["fid"])
         return sorted(s)
 
+    # ---- RULE 13: is the ruler calibrated at all? ------------------------
+    calib = {"anchor_readings": {}, "calibrated": True, "why": []}
+    adm_arms = [a for a, h in holes.items() if h["admitted"]]
+    for anch in ("A_mov2", "A_ifpush4", "A_icmp6"):
+        vals = {}
+        for a in adm_arms:
+            vals[a] = holes[a][anch]
+        calib["anchor_readings"][anch] = vals
+        distinct = {v for v in vals.values() if v is not None}
+        if len(distinct) > 1:
+            calib["calibrated"] = False
+            calib["why"].append(
+                "%s, a known-length hardware-run word, reads %s across admitted "
+                "holes: %s" % (anch, sorted(distinct), vals))
+
     verdicts = {}
     for word in TARGETS_2B + TARGETS_4B:
         anchor = "A_mov2" if word in TARGETS_2B else "A_ifpush4"
@@ -298,7 +313,9 @@ def main():
                 conf.append({"arm": arm, "carrier": h["carrier"],
                              "n_fills_not_written": len(nw)})
         carriers = sorted({c["carrier"] for c in conf})
-        if refute:
+        if not calib["calibrated"]:
+            verdict, label = "CARRIER-UNDECIDABLE", "tokenization-only"
+        elif refute:
             verdict, label = "LENGTH-REFUTED", "tokenization-only"
         elif len(conf) >= 2 and len(carriers) >= 2:
             verdict, label = "LENGTH-CONFIRMED", "hardware-run"
@@ -451,6 +468,7 @@ def main():
                 "the evidence supports that; it does not support more.",
         }
     doc = {"_generated_by": "analysis/verdicts200.py", "_runs": [str(r1), str(r2)],
+           "ruler_calibration": calib,
            "_gate": {"agree_min_pct": AGREE_MIN,
                      "movement_rule": "moved >= 2*disagree AND moved >= 1",
                      "measurement_failure_max_pct": MEAS_FAIL_MAX_PCT},

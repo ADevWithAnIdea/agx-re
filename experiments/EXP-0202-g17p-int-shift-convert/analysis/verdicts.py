@@ -192,6 +192,11 @@ def INSTRUCTION_ROW(per_arm, quiet_note):
                                   "measured and was NOT quiet")},
      "range": "seven authored carriers, host-computed oracles; byte+7 swept dense 0..255",
      "target": "G17P", "evidence": ["EXP-0202"],
+     "start": None, "width": None, "distinct_bytes": None,
+     "not_a_bit_field": "this row is a BEHAVIOURAL claim about the instruction, so "
+                        "start/width/distinct_bytes do not apply; the per-field rows "
+                        "carry them",
+     "gate_A_actual_byte_ledger": True,
      "note":
        "Raises the instruction-level row from `corpus-correlation` (EXP-0013 on M4/A18, never "
        "re-run on G17P). Directly observed on G17P, identically in two gated runs in opposite case "

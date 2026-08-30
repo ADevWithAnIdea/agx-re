@@ -11607,14 +11607,19 @@
    "semantics": "bounded-map",
    "target": "G17P-direct"
   },
+  "distinct_bytes": null,
   "evidence": [
    "EXP-0202"
   ],
+  "gate_A_actual_byte_ledger": true,
   "label": "hardware-run",
+  "not_a_bit_field": "this row is a BEHAVIOURAL claim about the instruction, so start/width/distinct_bytes do not apply; the per-field rows carry them",
   "note": "Raises the instruction-level row from `corpus-correlation` (EXP-0013 on M4/A18, never re-run on G17P). Directly observed on G17P, identically in two gated runs in opposite case order: (a) seven authored convert carriers -- stored, ALU-consumed, rint-rounded, vector, uniform-sourced, half-sourced and the out-of-range carrier -- each reproduce a host-computed truncate-toward-zero vector at their unmutated baseline; (b) with lane 7 fed 2147483904.0 = 2^31 + 2^8 (exactly representable in f32, OUTSIDE int32), the SIGNED convert returns 0x7FFFFFFF: the hardware SATURATES, it does not wrap. That is a hardware fact no in-range test can reach. (c) Sweeping byte+7 dense 0..255 gives an exact, reproducible seven-way map of that out-of-range lane: 0x0000FFFF at 0x08-0x1F, 0x7FFFFFFF at 0x40-0x5F, 0x80000000 at 0x60-0x7F, 0x000000FF at 0x80-0x9F, 0x00007FFF at 0xC0-0xDF, 0x00008000 at 0xE0-0xFF, and 0 elsewhere -- always with bit 3 SET and bit 4 a don't-care. Read as a descriptor: bit 3 = enable, bits 7..5 = destination class, and the observed saturation bounds are exactly {u8, u16, s16, s32} maxima and their minima. This CONFIRMS EXP-0013's 'bit 6 selects signed vs unsigned' only in part and REFINES it: byte+7 is a destination width + signedness + saturation-bound descriptor, and bit 6 alone does not isolate the sign. Corroborated by our own compiler, which emits 0x48 for float->int and 0x08 for half->ushort. The bit-field row `cvt_f2i.signflag` is NOT relabelled here: its arm carries no pre-registered control on that occurrence, so the mechanical gate returns `carrier-undecidable` for the FIELD even though the instruction-level claim stands. That arm-design gap is recorded, not papered over.",
   "range": "seven authored carriers, host-computed oracles; byte+7 swept dense 0..255",
+  "start": null,
   "target": "G17P",
-  "verdict": "INSTRUCTION EXECUTED WITH PREDICTED SEMANTICS"
+  "verdict": "INSTRUCTION EXECUTED WITH PREDICTED SEMANTICS",
+  "width": null
  },
  "cvt_f2i.b9": {
   "V_max_distinct_valid_payloads": 1,
