@@ -1,0 +1,679 @@
+{
+ "_db_sha256": "f5db942f03c9ad3870a102e0e34f705217ffa7ea5883dd960d0ffec93e76e36e",
+ "_note": "Blocking fields for the 32 float/integer ALU instructions in the EXP-0154 dispatch, computed as db.json fields x validation.json labels at repo revision 3a885d58. A field is BLOCKING when its label is not hardware-run / isolated-byte-diff.",
+ "instructions": {
+  "carry_gen": {
+   "blocked": [
+    "dst",
+    "srcA",
+    "srcB",
+    "cmpmode",
+    "b5"
+   ],
+   "labels": {
+    "b5": "tokenization-only",
+    "cmpmode": "corpus-correlation",
+    "dst": "untested",
+    "srcA": "corpus-correlation",
+    "srcB": "untested"
+   },
+   "length": 6,
+   "n_fields": 5
+  },
+  "falu2_ext": {
+   "blocked": [
+    "ctrl"
+   ],
+   "labels": {
+    "ctrl": "tokenization-only",
+    "dst": "hardware-run",
+    "ext_tail": "isolated-byte-diff",
+    "mod_hi": "hardware-run",
+    "mod_lo": "hardware-run",
+    "opflags": "hardware-run",
+    "opsel": "hardware-run",
+    "srcA_reg": "hardware-run",
+    "srcA_size": "hardware-run",
+    "srcB_imm": "hardware-run",
+    "srcB_neg": "hardware-run",
+    "srcB_reg": "hardware-run",
+    "srcB_size": "hardware-run"
+   },
+   "length": 8,
+   "n_fields": 13
+  },
+  "falu2_srcmod10": {
+   "blocked": [
+    "opsel",
+    "ctrl"
+   ],
+   "labels": {
+    "ctrl": "untested",
+    "dst": "hardware-run",
+    "ext_srcmod": "isolated-byte-diff",
+    "mod_hi": "hardware-run",
+    "mod_lo": "hardware-run",
+    "opflags": "hardware-run",
+    "opsel": "corpus-correlation",
+    "srcA_reg": "hardware-run",
+    "srcA_size": "hardware-run",
+    "srcB_imm": "hardware-run",
+    "srcB_neg": "hardware-run",
+    "srcB_reg": "hardware-run",
+    "srcB_size": "hardware-run"
+   },
+   "length": 10,
+   "n_fields": 13
+  },
+  "falu2_uni": {
+   "blocked": [
+    "opsel",
+    "opflags",
+    "ctrl_lo"
+   ],
+   "labels": {
+    "ctrl_lo": "untested",
+    "dst": "hardware-run",
+    "mods": "hardware-run",
+    "opflags": "untested",
+    "opsel": "untested",
+    "srcA_reg": "isolated-byte-diff",
+    "srcA_size": "hardware-run",
+    "uni_mode": "isolated-byte-diff",
+    "usrc": "isolated-byte-diff"
+   },
+   "length": 6,
+   "n_fields": 9
+  },
+  "falu3": {
+   "blocked": [
+    "op",
+    "srcB",
+    "srcC"
+   ],
+   "labels": {
+    "ctrl": "hardware-run",
+    "ctrl_len": "hardware-run",
+    "dst": "hardware-run",
+    "op": "untested",
+    "srcA": "hardware-run",
+    "srcB": "untested",
+    "srcC": "untested",
+    "srcmods": "hardware-run"
+   },
+   "length": 8,
+   "n_fields": 8
+  },
+  "falu3_ext": {
+   "blocked": [
+    "op",
+    "srcB",
+    "srcC"
+   ],
+   "labels": {
+    "ctrl_len": "hardware-run",
+    "dst": "hardware-run",
+    "ext": "isolated-byte-diff",
+    "op": "untested",
+    "srcA": "hardware-run",
+    "srcB": "untested",
+    "srcC": "untested"
+   },
+   "length": 10,
+   "n_fields": 7
+  },
+  "falu3_srcmod12": {
+   "blocked": [
+    "opsel",
+    "ctrl"
+   ],
+   "labels": {
+    "ctrl": "untested",
+    "dst": "hardware-run",
+    "ext_srcmod": "isolated-byte-diff",
+    "mod_hi": "hardware-run",
+    "mod_lo": "hardware-run",
+    "opflags": "hardware-run",
+    "opsel": "untested",
+    "srcA_reg": "hardware-run",
+    "srcA_size": "hardware-run",
+    "srcB_imm": "hardware-run",
+    "srcB_neg": "hardware-run",
+    "srcB_reg": "hardware-run",
+    "srcB_size": "hardware-run"
+   },
+   "length": 12,
+   "n_fields": 13
+  },
+  "falu_acc": {
+   "blocked": [
+    "srcA",
+    "srcB"
+   ],
+   "labels": {
+    "cache": "isolated-byte-diff",
+    "dst": "hardware-run",
+    "op": "hardware-run",
+    "srcA": "untested",
+    "srcB": "untested"
+   },
+   "length": 4,
+   "n_fields": 5
+  },
+  "falu_srcmod12b": {
+   "blocked": [
+    "ext_srcmod"
+   ],
+   "labels": {
+    "ctrl": "hardware-run",
+    "dst": "hardware-run",
+    "ext_srcmod": "tokenization-only",
+    "mod_hi": "hardware-run",
+    "mod_lo": "hardware-run",
+    "opflags": "hardware-run",
+    "opsel": "hardware-run",
+    "srcA_reg": "hardware-run",
+    "srcA_size": "hardware-run",
+    "srcB_imm": "hardware-run",
+    "srcB_neg": "hardware-run",
+    "srcB_reg": "hardware-run",
+    "srcB_size": "hardware-run"
+   },
+   "length": 12,
+   "n_fields": 13
+  },
+  "fspecial": {
+   "blocked": [
+    "fn_hi",
+    "fnclass",
+    "dst",
+    "src_cache",
+    "src",
+    "src_class",
+    "src_ext",
+    "fnsel",
+    "precsel",
+    "roundmode",
+    "sched_flag"
+   ],
+   "labels": {
+    "dst": "corpus-correlation",
+    "fn_hi": "corpus-correlation",
+    "fnclass": "corpus-correlation",
+    "fnsel": "tokenization-only",
+    "precsel": "tokenization-only",
+    "roundmode": "corpus-correlation",
+    "sched_flag": "tokenization-only",
+    "src": "corpus-correlation",
+    "src_cache": "tokenization-only",
+    "src_class": "corpus-correlation",
+    "src_ext": "corpus-correlation"
+   },
+   "length": 10,
+   "n_fields": 11
+  },
+  "fspecial_est": {
+   "blocked": [
+    "dst",
+    "b4",
+    "b5"
+   ],
+   "labels": {
+    "b4": "tokenization-only",
+    "b5": "tokenization-only",
+    "dst": "untested",
+    "srcA": "isolated-byte-diff",
+    "subop": "hardware-run"
+   },
+   "length": 6,
+   "n_fields": 5
+  },
+  "half_alu_fma12": {
+   "blocked": [
+    "ext"
+   ],
+   "labels": {
+    "dst": "hardware-run",
+    "ext": "tokenization-only",
+    "opflags": "hardware-run",
+    "opsel": "isolated-byte-diff",
+    "srcA": "hardware-run"
+   },
+   "length": 12,
+   "n_fields": 5
+  },
+  "half_pack": {
+   "blocked": [
+    "dstlo",
+    "src",
+    "b3"
+   ],
+   "labels": {
+    "b3": "tokenization-only",
+    "dstlo": "corpus-correlation",
+    "src": "corpus-correlation"
+   },
+   "length": 4,
+   "n_fields": 3
+  },
+  "iadd2": {
+   "blocked": [
+    "srcB_ext"
+   ],
+   "labels": {
+    "addsub": "hardware-run",
+    "b2_bit0": "hardware-run",
+    "b2_fmt": "hardware-run",
+    "dst": "hardware-run",
+    "lenbit": "hardware-run",
+    "opc_tail": "isolated-byte-diff",
+    "opc_tail2": "isolated-byte-diff",
+    "opmode": "hardware-run",
+    "srcA": "isolated-byte-diff",
+    "srcB_ext": "corpus-correlation",
+    "srcB_imm": "hardware-run",
+    "srcB_imm_hi": "hardware-run",
+    "srcB_reg_hi": "hardware-run",
+    "store_en": "hardware-run"
+   },
+   "length": 10,
+   "n_fields": 14
+  },
+  "ibfe": {
+   "blocked": [
+    "dst",
+    "b5"
+   ],
+   "labels": {
+    "b11hi": "hardware-run",
+    "b2_bit0": "hardware-run",
+    "b2_fmt": "hardware-run",
+    "b4": "hardware-run",
+    "b5": "tokenization-only",
+    "b6_bit0": "hardware-run",
+    "b7": "hardware-run",
+    "dst": "corpus-correlation",
+    "lenhi": "isolated-byte-diff",
+    "offset": "hardware-run",
+    "sign_ext": "hardware-run",
+    "srcA": "isolated-byte-diff",
+    "srcC_flags": "isolated-byte-diff",
+    "store_en": "hardware-run",
+    "width": "hardware-run",
+    "width_lo": "isolated-byte-diff"
+   },
+   "length": 12,
+   "n_fields": 16
+  },
+  "ibfe_mesh_attr": {
+   "blocked": [
+    "operands",
+    "opdesc",
+    "tail"
+   ],
+   "labels": {
+    "opdesc": "tokenization-only",
+    "operands": "tokenization-only",
+    "tail": "tokenization-only"
+   },
+   "length": 12,
+   "n_fields": 3
+  },
+  "ibfins": {
+   "blocked": [
+    "dst",
+    "mask_imm",
+    "b6hi",
+    "b7",
+    "srcdesc",
+    "b10"
+   ],
+   "labels": {
+    "b10": "untested",
+    "b11": "hardware-run",
+    "b4": "hardware-run",
+    "b6hi": "untested",
+    "b7": "untested",
+    "cache": "hardware-run",
+    "dst": "corpus-correlation",
+    "form": "isolated-byte-diff",
+    "mask_hi": "hardware-run",
+    "mask_imm": "corpus-correlation",
+    "srcC": "isolated-byte-diff",
+    "srcdesc": "corpus-correlation"
+   },
+   "length": 12,
+   "n_fields": 12
+  },
+  "icmp_pred": {
+   "blocked": [
+    "srcA",
+    "srcB",
+    "opclass"
+   ],
+   "labels": {
+    "cmpmode": "isolated-byte-diff",
+    "cond": "hardware-run",
+    "dst_pred": "hardware-run",
+    "neg": "hardware-run",
+    "opclass": "corpus-correlation",
+    "opdesc_hi": "isolated-byte-diff",
+    "srcA": "untested",
+    "srcB": "untested"
+   },
+   "length": 6,
+   "n_fields": 8
+  },
+  "icmpsel": {
+   "blocked": [
+    "dst_full",
+    "srcA",
+    "cmpmode",
+    "neg_lo",
+    "cond",
+    "cache",
+    "sel_marker",
+    "sel_operand",
+    "tail"
+   ],
+   "labels": {
+    "cache": "tokenization-only",
+    "cmpmode": "corpus-correlation",
+    "cond": "corpus-correlation",
+    "dst": "isolated-byte-diff",
+    "dst_full": "untested",
+    "fmt": "isolated-byte-diff",
+    "mark0": "isolated-byte-diff",
+    "neg_lo": "corpus-correlation",
+    "sel_marker": "tokenization-only",
+    "sel_operand": "tokenization-only",
+    "srcA": "corpus-correlation",
+    "tail": "tokenization-only"
+   },
+   "length": 14,
+   "n_fields": 12
+  },
+  "ilogic": {
+   "blocked": [
+    "srcA",
+    "op_base",
+    "srcB",
+    "lut_a_sel",
+    "lut_a_free",
+    "lut_a_z",
+    "lut_b",
+    "z6",
+    "outmod",
+    "z8",
+    "z9"
+   ],
+   "labels": {
+    "lut_a_free": "corpus-correlation",
+    "lut_a_sel": "corpus-correlation",
+    "lut_a_z": "corpus-correlation",
+    "lut_b": "corpus-correlation",
+    "op_base": "corpus-correlation",
+    "outmod": "corpus-correlation",
+    "srcA": "corpus-correlation",
+    "srcB": "corpus-correlation",
+    "z6": "tokenization-only",
+    "z8": "tokenization-only",
+    "z9": "tokenization-only"
+   },
+   "length": 10,
+   "n_fields": 11
+  },
+  "imad": {
+   "blocked": [
+    "dst",
+    "srcB",
+    "srcC_lo",
+    "srcC_desc",
+    "mulsel"
+   ],
+   "labels": {
+    "b0bit7": "hardware-run",
+    "b10": "isolated-byte-diff",
+    "b11": "hardware-run",
+    "b1hi": "hardware-run",
+    "b2_bit0": "hardware-run",
+    "b2_fmt": "hardware-run",
+    "b9": "isolated-byte-diff",
+    "dst": "corpus-correlation",
+    "lenbit": "hardware-run",
+    "mulsel": "corpus-correlation",
+    "opmode": "hardware-run",
+    "srcB": "tokenization-only",
+    "srcC_desc": "corpus-correlation",
+    "srcC_lo": "tokenization-only",
+    "store_en": "hardware-run"
+   },
+   "length": 12,
+   "n_fields": 15
+  },
+  "iminmax": {
+   "blocked": [
+    "dst_full",
+    "srcA",
+    "srcB"
+   ],
+   "labels": {
+    "dst": "isolated-byte-diff",
+    "dst_full": "untested",
+    "fmt": "isolated-byte-diff",
+    "sel": "hardware-run",
+    "selhi": "isolated-byte-diff",
+    "srcA": "untested",
+    "srcB": "untested"
+   },
+   "length": 6,
+   "n_fields": 7
+  },
+  "int_alu_ehi": {
+   "blocked": [
+    "flags",
+    "dst",
+    "opmode",
+    "b5",
+    "srcdesc",
+    "srcB",
+    "srcC"
+   ],
+   "labels": {
+    "b5": "tokenization-only",
+    "dst": "corpus-correlation",
+    "flags": "tokenization-only",
+    "opmode": "tokenization-only",
+    "srcB": "tokenization-only",
+    "srcC": "tokenization-only",
+    "srcdesc": "tokenization-only"
+   },
+   "length": 10,
+   "n_fields": 7
+  },
+  "irotate": {
+   "blocked": [
+    "b1",
+    "b2",
+    "operands",
+    "tail"
+   ],
+   "labels": {
+    "b1": "tokenization-only",
+    "b2": "tokenization-only",
+    "operands": "tokenization-only",
+    "tail": "tokenization-only"
+   },
+   "length": 12,
+   "n_fields": 4
+  },
+  "isel10": {
+   "blocked": [
+    "cmpA",
+    "cmpB",
+    "cmp_mode",
+    "selTrue",
+    "cc",
+    "flags",
+    "selFalse"
+   ],
+   "labels": {
+    "cc": "corpus-correlation",
+    "cmpA": "untested",
+    "cmpB": "untested",
+    "cmp_mode": "untested",
+    "dst": "isolated-byte-diff",
+    "flags": "untested",
+    "opsel": "isolated-byte-diff",
+    "selFalse": "untested",
+    "selFalse_file": "isolated-byte-diff",
+    "selTrue": "untested"
+   },
+   "length": 10,
+   "n_fields": 10
+  },
+  "isel10_c": {
+   "blocked": [
+    "cmpA",
+    "cmpB",
+    "cmp_mode",
+    "selTrue",
+    "cc"
+   ],
+   "labels": {
+    "cc": "corpus-correlation",
+    "cmpA": "untested",
+    "cmpB": "untested",
+    "cmp_mode": "untested",
+    "dst": "isolated-byte-diff",
+    "flags": "isolated-byte-diff",
+    "opsel": "isolated-byte-diff",
+    "selFalse": "hardware-run",
+    "selFalse_file": "isolated-byte-diff",
+    "selTrue": "untested"
+   },
+   "length": 10,
+   "n_fields": 10
+  },
+  "isel8": {
+   "blocked": [
+    "cmpA",
+    "cmpB",
+    "cmp_mode",
+    "selTrue",
+    "cc",
+    "flags"
+   ],
+   "labels": {
+    "cc": "corpus-correlation",
+    "cmpA": "untested",
+    "cmpB": "untested",
+    "cmp_mode": "untested",
+    "dst": "isolated-byte-diff",
+    "flags": "untested",
+    "opsel": "isolated-byte-diff",
+    "selTrue": "untested"
+   },
+   "length": 8,
+   "n_fields": 8
+  },
+  "isel_reg": {
+   "blocked": [
+    "cmpA",
+    "cmpB",
+    "cmp_mode",
+    "selTrue",
+    "cc",
+    "selFalse"
+   ],
+   "labels": {
+    "cc": "corpus-correlation",
+    "cmpA": "untested",
+    "cmpB": "untested",
+    "cmp_mode": "untested",
+    "dst": "isolated-byte-diff",
+    "flags": "isolated-byte-diff",
+    "selFalse": "untested",
+    "selFalse_file": "isolated-byte-diff",
+    "selTrue": "untested"
+   },
+   "length": 10,
+   "n_fields": 9
+  },
+  "isel_reg8": {
+   "blocked": [
+    "cmpA",
+    "cmpB",
+    "cmp_mode",
+    "selTrue",
+    "cc",
+    "flags"
+   ],
+   "labels": {
+    "cc": "corpus-correlation",
+    "cmpA": "untested",
+    "cmpB": "untested",
+    "cmp_mode": "untested",
+    "dst": "isolated-byte-diff",
+    "flags": "untested",
+    "selTrue": "untested"
+   },
+   "length": 8,
+   "n_fields": 7
+  },
+  "ishift": {
+   "blocked": [
+    "srcA",
+    "opB"
+   ],
+   "labels": {
+    "form": "isolated-byte-diff",
+    "op8": "isolated-byte-diff",
+    "opB": "untested",
+    "pad9": "hardware-run",
+    "shamt": "hardware-run",
+    "shift_type": "isolated-byte-diff",
+    "srcA": "untested",
+    "src_cache": "hardware-run",
+    "src_class": "hardware-run"
+   },
+   "length": 10,
+   "n_fields": 9
+  },
+  "mov_zext16": {
+   "blocked": [
+    "src_reg",
+    "src_flag",
+    "subform",
+    "extend"
+   ],
+   "labels": {
+    "extend": "corpus-correlation",
+    "src_flag": "corpus-correlation",
+    "src_reg": "corpus-correlation",
+    "subform": "corpus-correlation"
+   },
+   "length": 4,
+   "n_fields": 4
+  },
+  "shift_amt_move": {
+   "blocked": [
+    "dst",
+    "src_reg",
+    "src_flag",
+    "kind",
+    "op_desc"
+   ],
+   "labels": {
+    "dst": "corpus-correlation",
+    "kind": "corpus-correlation",
+    "op_desc": "untested",
+    "src_flag": "corpus-correlation",
+    "src_reg": "corpus-correlation"
+   },
+   "length": 4,
+   "n_fields": 5
+  }
+ },
+ "total_blocking_fields": 135
+}

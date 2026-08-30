@@ -1,0 +1,134 @@
+{
+ "amendments": [
+  {
+   "id": "amendment_01",
+   "matrix_v1_sha256": "39686b79b0feb2653bf5a7967fc4945b0de8c4664d05d45eb152023ba49c3820",
+   "matrix_v2_sha256": "8661979ed0ae0640535dfe8c11c2e26aae79f634f8accad10c46a9625f54efd3",
+   "retained_partial": "raw/g17p_20260829_run01 (2,306 cases under matrix v1) is RETAINED EXACTLY AS IT STOPPED, not topped up, not reused, not deleted. The gated pair is run02 + run03 under matrix v2.",
+   "touches": "case SELECTION only. Nothing in program construction, splicing, poisoning, majority-of-3, victim classification, the sentinels, the oracle or outcome classification changed.",
+   "utc": "2026-08-29",
+   "what": "Case matrix reduced from 38,089 to 23,267 cases and the redundant IADD2_64 arm dropped; harness/run.py round-trips the mutated BLOCK instead of the whole 2412-byte padded program; harness/run.py gains --order forward|reverse.",
+   "why": "Measured throughput on G17P is ~3.3 dispatches/s (dominated by per-request MTLLibrary+pipeline creation from the spliced archive, not by our Python). The original matrix needed ~3.4 h per gated run, ~7 h for the pair, with a network drop already having killed one dispatch. The reduction sweeps DENSELY exactly the fields that are below emitter grade in tools/agx-isa/validation.json - the ones that actually decide whether an instruction becomes emittable - and samples (boundaries + all powers of two + interior points, ~30 values) the fields already at emitter grade, which are only being CONFIRMED on G17P and are never promoted from a sampled sweep. IADD2_64 tested the same instruction as IADD2 in a second carrier; EXP-0146 already covered the u64 form on M4."
+  }
+ ],
+ "authored_sha256": {
+  "PRE_REGISTRATION.md": "2d3dc8266926e01babceb63d8631214e7e69596b19f4dba7914f40a42677e24c",
+  "harness/anchors.py": "f0eb06b0ea73c445ee09282e4b76267034fc64e914a0f5b2fc8fb7a2382c8e81",
+  "harness/casematrix.py": "bfb31c7991c9953cf1d8cf491f73c5b96bc5ef68b53f6f550a70e5ccacd0a425",
+  "harness/isa_helpers.py": "d47777b7f1d111706e90d449d756683d4a3f37c706c639e1a1809aa3dcb4e567",
+  "harness/run.py": "2a1b6de4c94cd41f8d466503753e810d56446d9609ca6e8c6e96bf637c227b36",
+  "harness/smoke.py": "63b3f5cf6216bc275e92272bdf94ac30f7fb9e31908b0295d644efad74bffe24",
+  "harness/sweeprun.py": "385cb59b9245f5c31f1e8e4136950c13069963854dece1a4990c6c27d7cca702",
+  "harness/sync.sh": "240f39d50f691fd58fbb825cd0b6a546636fd15292a2ed74f136ccae1209599c",
+  "kernels/carrier_dag.metal": "1651459a7e5af4c5563bb527dbefd52af18dab8871a2f964d7ec1b9c5f1bfe62",
+  "kernels/probes.metal": "2d7b4ee47411338553005c185ddda404c243f89a1a275d9a299dc9511931e1eb"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE"
+  ],
+  "inputs": "kernels/probes.metal + kernels/carrier_dag.metal (authored by us) and the AGX bytes the public runtime API compiled from them"
+ },
+ "concurrency": {
+  "lease": "NOT taken - bulk sweeps run unlocked per the 2026-08-29 orchestrator directive",
+  "lease_reserved_for": "hang-prone arms only; this experiment opens none"
+ },
+ "experiment": "EXP-0154-g17p-emit-alu",
+ "frozen_utc": "2026-08-29",
+ "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF)",
+ "gated_runs": [
+  "g17p_20260829_run02",
+  "g17p_20260829_run03"
+ ],
+ "matrix": {
+  "cases": 23267,
+  "generator": "harness/casematrix.py::build_cases(anchor_report)",
+  "matrix_sha256": "8661979ed0ae0640535dfe8c11c2e26aae79f634f8accad10c46a9625f54efd3",
+  "superseded": {
+   "cases": 38089,
+   "generator": "harness/casematrix.py::build_cases(anchor_report)",
+   "matrix_sha256": "39686b79b0feb2653bf5a7967fc4945b0de8c4664d05d45eb152023ba49c3820"
+  }
+ },
+ "not_run": {
+  "falu2_uni": "needs a uniform-bound carrier",
+  "falu_srcmod12b": "emit_unsafe",
+  "fspecial": "hang hazard, EXP-0138 stopped that arm",
+  "half_alu_fma12": "emit_unsafe",
+  "ibfe_mesh_attr": "fragment/mesh only",
+  "icmpsel": "no own-MSL anchor",
+  "int_alu_ehi": "no own-MSL anchor",
+  "isel10_c": "no own-MSL anchor",
+  "isel_reg8": "no own-MSL anchor"
+ },
+ "promotion_rule": "identical per-value outcome map in BOTH gated runs (victim-class excluded); labels per PRE_REGISTRATION section 7",
+ "raw_schema": {
+  "also": [
+   "raw/<run_id>/00_env.json",
+   "raw/<run_id>/01_progress.json",
+   "raw/<run_id>/02_summary.json",
+   "raw/<run_id>/baseline.jsonl"
+  ],
+  "keys": [
+   "idx",
+   "arm",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed{digest,regs,pre,post}",
+   "oracle{digest}",
+   "match",
+   "outcome",
+   "carrier",
+   "kind",
+   "rt_ok",
+   "victim",
+   "sentinel_bad",
+   "attempts[{status,outcome,error,victim}]",
+   "predict",
+   "byte_index",
+   "fstart",
+   "fwidth",
+   "note",
+   "seq",
+   "t"
+  ],
+  "outcomes": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "path": "raw/<run_id>/sweep.jsonl"
+ },
+ "repo_revision": "3a885d58c4d286eda61a8808029c8a7aecb1dfec",
+ "repo_tree_clean_at_freeze": true,
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "cores": 5,
+  "gpu": "G17P",
+  "host": "users-MacBook-Neo.local",
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro",
+  "os": "macOS 26.6",
+  "remote_workdir": "~/agxre/EXP-0154"
+ },
+ "timeouts": {
+  "baseline_revalidate_every_cases": 250,
+  "per_request_s": 8.0,
+  "retries_majority_of": 3,
+  "shdump_s": 300
+ },
+ "tools_readonly": {
+  "db.json": "f5db942f03c9ad3870a102e0e34f705217ffa7ea5883dd960d0ffec93e76e36e",
+  "isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "note": "identical sha256 on the repo host and on the neo; used READ-ONLY and unmodified"
+ }
+}

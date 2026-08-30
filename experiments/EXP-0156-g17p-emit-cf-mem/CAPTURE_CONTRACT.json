@@ -1,0 +1,297 @@
+{
+ "carrier_facts_from_the_compile_only_pilot": {
+  "atomic_dev.metal": {
+   "main_len": 108,
+   "site": [
+    "atomic_mem",
+    70,
+    14,
+    "6701540000000000004000002000"
+   ]
+  },
+  "atomic_dev_imm.metal": {
+   "main_len": 108,
+   "site": [
+    "atomic_mem",
+    70,
+    14,
+    "6701540000800200004000002000"
+   ]
+  },
+  "atomic_tg.metal": {
+   "main_len": 194,
+   "site": [
+    "atomic_tg",
+    128,
+    12,
+    "670354000000000020000004"
+   ]
+  },
+  "bf_add.metal": {
+   "main_len": 80,
+   "raw_site": [
+    "bf_add_dst",
+    32,
+    "21001c001100c081"
+   ]
+  },
+  "bf_fma.metal": {
+   "main_len": 96,
+   "raw_site": [
+    "bf_fma_dst",
+    46,
+    "21001e0086041000c081"
+   ]
+  },
+  "carrier_cf.metal": {
+   "cf_starts": "matches EXP-0112 CF_STARTS_EXPECT exactly",
+   "load_slots": [
+    2,
+    1
+   ],
+   "main_len": 152,
+   "main_sha256_prefix": "21a9ef2358ff3d35",
+   "store_slots": [
+    0
+   ]
+  },
+  "h2_fma.metal": {
+   "main_len": 98,
+   "raw_sites": [
+    [
+     "half_alu_lo",
+     46,
+     "20001e04810800c0"
+    ],
+    [
+     "h_alu_hi",
+     54,
+     "28011b09"
+    ]
+   ]
+  },
+  "h_max.metal": {
+   "main_len": 78,
+   "raw_site": [
+    "hminmax",
+    32,
+    "22001c0010c0"
+   ]
+  },
+  "tg_tile.metal": {
+   "main_len": 134,
+   "site": [
+    "tg_addr_compute",
+    46,
+    6,
+    "1c0200000000"
+   ]
+  }
+ },
+ "case_matrix": {
+  "dispatched": 13979,
+  "groups": {
+   "BF": 7696,
+   "CF": 3210,
+   "MEM": 1545,
+   "TGAC": 1540
+  },
+  "skipped_known_hangs": 12,
+  "total": 13991
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": "our own MSL and the machine code compiled from it; instruction bytes assembled by our own tools/agx-isa",
+  "provenance": "HW-PROBE + OWN-SHADER"
+ },
+ "emittability_at_freeze": {
+  "fields_emitter_grade": 443,
+  "fields_total": 1036,
+  "instructions_emittable": 45,
+  "instructions_total": 171,
+  "source": "computed from tools/agx-isa/validation.json at the pinned revision; the dispatch's '38 of 171' counts the five instruction-level emit_unsafe vetoes (vary_store, tg_addr_compute, half_alu_fma12, falu_srcmod12b, op04_len8) and a stricter reading of the per-field gate"
+ },
+ "experiment": "EXP-0156-g17p-emit-cf-mem",
+ "forbidden_edits": [
+  "tools/agx-isa/db.json",
+  "tools/agx-isa/validation.json",
+  "docs/**",
+  "PROVENANCE.md",
+  "git commit"
+ ],
+ "frozen_utc": "2026-08-30T05:18:58Z",
+ "gate": [
+  "both runs of a pair dispatched the same case set for the arm",
+  "accepted-value sets identical across the two runs",
+  "the arm's liveness gate / falsifier behaved as pre-registered",
+  "periodic baseline checks passed in both runs"
+ ],
+ "gpu_lease": {
+  "command": "~/agxre/gpulease.sh EXP-0156 <wait_s> -- <cmd>",
+  "free": [
+   "mem",
+   "bf"
+  ],
+  "held_for": [
+   "tgac",
+   "cf"
+  ],
+  "policy": "orchestrator directive 2026-08-29: lease only work believed to HANG"
+ },
+ "harness_sha256": {
+  "baseline.py": "bd539a9dee0c27c8cc1e768ef592ce33ebff2039730b0b237a0483b80db2f1a4",
+  "build.sh": "5b93c496460358ee5b711f078c04385a4855cf7c9b7829ab65aaf7ef69e462b4",
+  "carriers.py": "36b17d65fea626d963d0cfcb0fbe2a0878083276b7734fcbd7378155c6485da7",
+  "cases.py": "618201d16dfe92ab0a0ab8eaa709fbaf19568ac98ea2dae8c2d55b736d851858",
+  "isa_helpers.py": "9735f2210f53382ed8fde4250f205d981347c7542274b6ff13c467d176e842ab",
+  "pilot_locate.py": "c8e84a00cf88fa0b56a2eaf3687f732ff81540e23f8010cb5d24d8fbbb89f29b",
+  "run.py": "c4fbd6eaf256ddaf406797820697c4aa79647276f212554e0b4946002d26967a",
+  "sync.sh": "0f2ae064a8e0b2a95f7e45dff15f418dcaf69389772c6443e43e10049885c529"
+ },
+ "kernel_sha256": {
+  "atomic_dev.metal": "a0474dc913cb2feb524ed4e329b1e8997e6776b6b45d9e6edcd2e5f955d414c6",
+  "atomic_dev_imm.metal": "e7ba3c9c574a46111f640df01557afc026f15509f93410d478f183597efe420b",
+  "atomic_tg.metal": "33c7e84e5c92f6ff65b24293c2b1c465b293c08c10edc89b403833cc48999f49",
+  "bf_add.metal": "e9c7a480bb55f20830c4a0ca233519d7b4166bb8c68301a9e0df4b20f5d6fa69",
+  "bf_fma.metal": "0b051c755e01abac6eb711b730af039da8a4814a09f122fb6c41ad4c2864db2f",
+  "carrier_cf.metal": "49740e671e78c571ba8c8deaa9cf990dad1e2c96a7c63e2322f9e23a21477726",
+  "dev_fence.metal": "02fe5c8fd4b920251f2bac9df4c682fcc41247b6adc45e7d45ae91811ba5da94",
+  "h2_fma.metal": "7edcf92c5fa51d40051619f65fcd2998031192786af22ce68197c85863c71d10",
+  "h_max.metal": "3043b9abe7686619bb5f6b7172afb9314cfbe052fdc62eb2b3d8dee6fd715325",
+  "tg_tile.metal": "02aeb5e9ce2d0a5cfea497680690d119081635dc1a489c0786e6cad567461b2a"
+ },
+ "planned_run_ids": {
+  "bf": [
+   "g17p-20260829-bf01",
+   "g17p-20260829-bf02"
+  ],
+  "cf": [
+   "g17p-20260829-cf01",
+   "g17p-20260829-cf02"
+  ],
+  "mem": [
+   "g17p-20260829-mem01",
+   "g17p-20260829-mem02"
+  ],
+  "rule": "never reused, never topped up; a partial capture is retained under its own id",
+  "tgac": [
+   "g17p-20260829-tg01",
+   "g17p-20260829-tg02"
+  ]
+ },
+ "prereg_sha256": "f1e0ec2d959c820cc9a563eef8d6932836159f96fbd6784e18991874323b1d73",
+ "raw_record_schema": {
+  "case_keys": [
+   "kind",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed",
+   "oracle",
+   "match",
+   "outcome",
+   "carrier",
+   "note",
+   "i",
+   "group",
+   "arm",
+   "expect_match",
+   "status",
+   "mode",
+   "dispatch",
+   "rt",
+   "attempts",
+   "fault_class",
+   "trial_statuses",
+   "trial_outcomes",
+   "trial_errors",
+   "replicates",
+   "unstable",
+   "sentinel_ok",
+   "prog_sha256",
+   "restarted"
+  ],
+  "file": "raw/<run_id>/sweep.jsonl (append-only, fflush+fsync per record)",
+  "kinds": [
+   "case",
+   "baseline_check"
+  ],
+  "outcome_values": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "invalid_run",
+   "skipped"
+  ],
+  "per_run_metadata": [
+   "00_inputs.json",
+   "01_summary.json"
+  ]
+ },
+ "repo_revision_pinned_at_freeze": {
+  "git_dirty": true,
+  "git_rev": "7dc67d768ada3c016771923bffd5b9647dd14813",
+  "note": "Per SUBAGENT_BRIEF: the revision is pinned HERE and captures are compared against THIS value, never against live HEAD. Sibling experiments landing commits is not contamination."
+ },
+ "safety": {
+  "cf_total_hang_budget": 4,
+  "excluded_known_hangs": {
+   "atomic_tg.op_desc": [
+    126,
+    127
+   ],
+   "if_push_pred.level": [
+    62,
+    63,
+    180,
+    181
+   ],
+   "jump.branch_ctrl": [
+    0,
+    1
+   ],
+   "ret.scoreboard": [
+    8,
+    12
+   ],
+   "ret_luse.tail": [
+    8,
+    12
+   ]
+  },
+  "macvdmtool": "FORBIDDEN to this agent, without exception",
+  "per_arm_hang_budget": 2,
+  "run_hang_budget": 8
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "clang": "Apple clang 21.0.0 (clang-2100.1.1.101)",
+  "gpu_cores": 5,
+  "host": "users-MacBook-Neo (192.168.10.243)",
+  "hw_model": "Mac17,5",
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro / G17P",
+  "os": "macOS 26.6",
+  "python": "3.9.6"
+ },
+ "timeouts": {
+  "compile_s": 180,
+  "per_request_s": 8.0,
+  "scp_wrapper_s": 900,
+  "ssh_wrapper_s": 600
+ },
+ "tool_sha256": {
+  "tools/agx-isa/db.json": "f5db942f03c9ad3870a102e0e34f705217ffa7ea5883dd960d0ffec93e76e36e",
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agx-isa/validation.json": "88762aaa3766c6f0d7f42859015b347c5bf90a64bcdbd61915d18e91c2916f79",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
+  "tools/gpulease.sh": "ea05e62846e4970670ffc70404b34f611315a5795c6b7254ee0d53104784d857",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ }
+}

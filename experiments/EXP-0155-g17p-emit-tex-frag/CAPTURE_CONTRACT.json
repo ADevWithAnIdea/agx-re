@@ -1,0 +1,784 @@
+{
+ "arms": {
+  "fcp@pack0": {
+   "carrier": "c_pack",
+   "cases": 1536,
+   "fields": [
+    "src_desc",
+    "fmt_class",
+    "dst",
+    "mode",
+    "comp_off",
+    "val"
+   ],
+   "mnemonic": "frag_color_pack",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "fcp@pack1": {
+   "carrier": "c_pack",
+   "cases": 1280,
+   "fields": [
+    "src_desc",
+    "dst",
+    "mode",
+    "comp_off",
+    "val"
+   ],
+   "mnemonic": "frag_color_pack",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "fcs@iter0": {
+   "carrier": "c_iter",
+   "cases": 1105,
+   "fields": [
+    "store_mode",
+    "flags",
+    "mask",
+    "fmt",
+    "slice_addr"
+   ],
+   "mnemonic": "frag_color_store",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "fcs@pack0": {
+   "carrier": "c_pack",
+   "cases": 1024,
+   "fields": [
+    "fmt",
+    "mask",
+    "flags",
+    "store_mode"
+   ],
+   "mnemonic": "frag_color_store",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "fds@depth0": {
+   "carrier": "c_depth",
+   "cases": 768,
+   "fields": [
+    "b3",
+    "b4",
+    "b5"
+   ],
+   "mnemonic": "frag_depth_store",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "fts@iter0": {
+   "carrier": "c_iter",
+   "cases": 1024,
+   "fields": [
+    "b1",
+    "sel",
+    "access",
+    "b5"
+   ],
+   "mnemonic": "frag_tile_setup",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "fts@iter1": {
+   "carrier": "c_iter",
+   "cases": 1024,
+   "fields": [
+    "b1",
+    "sel",
+    "access",
+    "b5"
+   ],
+   "mnemonic": "frag_tile_setup",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "ibs@t1": {
+   "carrier": "t_sample",
+   "cases": 1105,
+   "fields": [
+    "src",
+    "b4",
+    "b6",
+    "fmt",
+    "tail"
+   ],
+   "mnemonic": "imageblock_store",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "ibs@tc": {
+   "carrier": "t_coord",
+   "cases": 1105,
+   "fields": [
+    "src",
+    "b4",
+    "b6",
+    "fmt",
+    "tail"
+   ],
+   "mnemonic": "imageblock_store",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "iter@cent1": {
+   "carrier": "c_cent1",
+   "cases": 1280,
+   "fields": [
+    "loc",
+    "coeff_sel",
+    "c7",
+    "b9",
+    "lead"
+   ],
+   "mnemonic": "iter",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "iter@cent4": {
+   "carrier": "c_cent4",
+   "cases": 512,
+   "fields": [
+    "loc",
+    "grp"
+   ],
+   "mnemonic": "iter",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "iter@frag0W": {
+   "carrier": "c_iter",
+   "cases": 1536,
+   "fields": [
+    "lead",
+    "coeff_sel",
+    "c7",
+    "loc",
+    "b9",
+    "grp"
+   ],
+   "mnemonic": "iter",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "iter@frag1": {
+   "carrier": "c_iter",
+   "cases": 1792,
+   "fields": [
+    "grp",
+    "lead",
+    "dst",
+    "coeff_sel",
+    "c7",
+    "loc",
+    "b9"
+   ],
+   "mnemonic": "iter",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "iter_at@cent1_0": {
+   "carrier": "c_cent1",
+   "cases": 1536,
+   "fields": [
+    "grp",
+    "lead",
+    "dst",
+    "c4",
+    "b5",
+    "loc"
+   ],
+   "mnemonic": "iter_at",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "iter_at@cent1_1": {
+   "carrier": "c_cent1",
+   "cases": 1536,
+   "fields": [
+    "grp",
+    "lead",
+    "dst",
+    "c4",
+    "b5",
+    "loc"
+   ],
+   "mnemonic": "iter_at",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "iter_flat@flat0": {
+   "carrier": "c_flat",
+   "cases": 1024,
+   "fields": [
+    "b1",
+    "sel",
+    "b4",
+    "b5"
+   ],
+   "mnemonic": "iter_flat",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "iter_flat@flat1": {
+   "carrier": "c_flat",
+   "cases": 1024,
+   "fields": [
+    "b1",
+    "sel",
+    "b4",
+    "b5"
+   ],
+   "mnemonic": "iter_flat",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "sballot@simd0": {
+   "carrier": "c_simd",
+   "cases": 1345,
+   "fields": [
+    "cache",
+    "dst",
+    "psrc",
+    "psrctype",
+    "form",
+    "form_sig"
+   ],
+   "mnemonic": "simd_ballot",
+   "occ": 0,
+   "stage": "compute"
+  },
+  "sreduce@simd0": {
+   "carrier": "c_simd",
+   "cases": 1032,
+   "fields": [
+    "scope",
+    "b0hi",
+    "opcls",
+    "cache",
+    "dst",
+    "opmarker",
+    "src",
+    "shape"
+   ],
+   "mnemonic": "simd_reduce",
+   "occ": 0,
+   "stage": "compute"
+  },
+  "sreduce@simd8": {
+   "carrier": "c_simd",
+   "cases": 262,
+   "fields": [
+    "scope",
+    "shape",
+    "b0hi",
+    "opcls"
+   ],
+   "mnemonic": "simd_reduce",
+   "occ": 2,
+   "stage": "compute"
+  },
+  "sshuffle@simd1": {
+   "carrier": "c_simd",
+   "cases": 1538,
+   "fields": [
+    "cache",
+    "dst",
+    "src",
+    "srctype",
+    "rtype",
+    "dsthi",
+    "rsv9"
+   ],
+   "mnemonic": "simd_shuffle",
+   "occ": 1,
+   "stage": "compute"
+  },
+  "sshuffle@simd6": {
+   "carrier": "c_simd",
+   "cases": 768,
+   "fields": [
+    "srctype",
+    "rtype",
+    "rsv9"
+   ],
+   "mnemonic": "simd_shuffle",
+   "occ": 4,
+   "stage": "compute"
+  },
+  "tex_coord@lo_0": {
+   "carrier": "t_lodoff",
+   "cases": 2320,
+   "fields": [
+    "dst_lo",
+    "b1",
+    "subop",
+    "srcA",
+    "form",
+    "b5",
+    "b6",
+    "idx",
+    "b8",
+    "b9"
+   ],
+   "mnemonic": "tex_coord_setup",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_deriv@d0": {
+   "carrier": "t_deriv",
+   "cases": 642,
+   "fields": [
+    "b1",
+    "dstsrc",
+    "src_comp",
+    "tail"
+   ],
+   "mnemonic": "tex_deriv",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_deriv@d1": {
+   "carrier": "t_deriv",
+   "cases": 642,
+   "fields": [
+    "b1",
+    "dstsrc",
+    "src_comp",
+    "tail"
+   ],
+   "mnemonic": "tex_deriv",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "tex_sample@lo_0": {
+   "carrier": "t_lodoff",
+   "cases": 1584,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord",
+    "kind",
+    "chain"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_sample@lo_1": {
+   "carrier": "t_lodoff",
+   "cases": 1584,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord",
+    "kind",
+    "chain"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "tex_sample@lo_2": {
+   "carrier": "t_lodoff",
+   "cases": 1552,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 2,
+   "stage": "fragment"
+  },
+  "tex_sample@t1_0": {
+   "carrier": "t_sample",
+   "cases": 1584,
+   "fields": [
+    "kind",
+    "chain",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord",
+    "lod_present",
+    "tex_type",
+    "samp_extra"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_sample@t1_1": {
+   "carrier": "t_sample",
+   "cases": 1584,
+   "fields": [
+    "kind",
+    "chain",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord",
+    "lod_present",
+    "tex_type",
+    "samp_extra"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "tex_sample@t1_2": {
+   "carrier": "t_sample",
+   "cases": 1584,
+   "fields": [
+    "kind",
+    "chain",
+    "comp_flags",
+    "result_sel",
+    "coord",
+    "extra_coord",
+    "lod_present",
+    "tex_type",
+    "samp_extra"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 2,
+   "stage": "fragment"
+  },
+  "tex_sample@t2_0": {
+   "carrier": "t_texops",
+   "cases": 1072,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "kind",
+    "chain"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_sample@t2_1": {
+   "carrier": "t_texops",
+   "cases": 1072,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "kind",
+    "chain"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "tex_sample@t2_2": {
+   "carrier": "t_texops",
+   "cases": 1072,
+   "fields": [
+    "tex_type",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel",
+    "kind",
+    "chain"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 2,
+   "stage": "fragment"
+  },
+  "tex_sample@tc_0": {
+   "carrier": "t_coord",
+   "cases": 1296,
+   "fields": [
+    "tex_type",
+    "extra_coord",
+    "samp_extra",
+    "lod_present",
+    "comp_flags",
+    "result_sel"
+   ],
+   "mnemonic": "tex_sample",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_write@w0": {
+   "carrier": "t_write",
+   "cases": 3137,
+   "fields": [
+    "coord_pack",
+    "amode",
+    "seq_idx",
+    "layer_reg",
+    "coord_regs",
+    "rsv8",
+    "coord_dim",
+    "rsv10",
+    "rsv11",
+    "wop",
+    "data_desc",
+    "data_desc_hi",
+    "rsv15"
+   ],
+   "mnemonic": "tex_write",
+   "occ": 0,
+   "stage": "fragment"
+  },
+  "tex_write@w1": {
+   "carrier": "t_write",
+   "cases": 3137,
+   "fields": [
+    "coord_pack",
+    "amode",
+    "seq_idx",
+    "layer_reg",
+    "coord_regs",
+    "rsv8",
+    "coord_dim",
+    "rsv10",
+    "rsv11",
+    "wop",
+    "data_desc",
+    "data_desc_hi",
+    "rsv15"
+   ],
+   "mnemonic": "tex_write",
+   "occ": 1,
+   "stage": "fragment"
+  },
+  "tex_write@w2": {
+   "carrier": "t_write",
+   "cases": 1536,
+   "fields": [
+    "wop",
+    "amode",
+    "coord_dim",
+    "data_desc",
+    "rsv8",
+    "rsv15"
+   ],
+   "mnemonic": "tex_write",
+   "occ": 2,
+   "stage": "fragment"
+  },
+  "vary_slot@iter_v0": {
+   "carrier": "c_iter",
+   "cases": 512,
+   "fields": [
+    "sel",
+    "slot"
+   ],
+   "mnemonic": "vary_slot",
+   "occ": 0,
+   "stage": "vertex"
+  },
+  "vary_slot@v16_v0": {
+   "carrier": "c_vary16",
+   "cases": 512,
+   "fields": [
+    "sel",
+    "slot"
+   ],
+   "mnemonic": "vary_slot",
+   "occ": 0,
+   "stage": "vertex"
+  },
+  "vary_slot@v16_v6": {
+   "carrier": "c_vary16",
+   "cases": 512,
+   "fields": [
+    "sel",
+    "slot"
+   ],
+   "mnemonic": "vary_slot",
+   "occ": 6,
+   "stage": "vertex"
+  }
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs": "kernels/*.metal authored by us; only the machine code the public newLibraryWithSource:/MTLBinaryArchive API produced from them is inspected or spliced",
+  "provenance": "OWN-SHADER + HW-PROBE"
+ },
+ "experiment": "EXP-0155-g17p-emit-tex-frag",
+ "falsifiers": [
+  [
+   "vary_slot@iter_v0",
+   "sel",
+   0
+  ],
+  [
+   "vary_slot@v16_v0",
+   "sel",
+   0
+  ],
+  [
+   "tex_sample@t1_0",
+   "kind",
+   10
+  ],
+  [
+   "tex_sample@t1_1",
+   "kind",
+   2
+  ],
+  [
+   "tex_sample@t1_2",
+   "kind",
+   10
+  ],
+  [
+   "tex_sample@t2_0",
+   "tex_type",
+   254
+  ],
+  [
+   "tex_sample@lo_1",
+   "tex_type",
+   254
+  ],
+  [
+   "tex_coord@lo_0",
+   "dst_lo",
+   9
+  ],
+  [
+   "tex_write@w0",
+   "coord_pack",
+   239
+  ],
+  [
+   "tex_write@w1",
+   "coord_pack",
+   223
+  ],
+  [
+   "tex_write@w2",
+   "wop",
+   117
+  ],
+  [
+   "ibs@t1",
+   "src",
+   255
+  ],
+  [
+   "ibs@tc",
+   "src",
+   255
+  ],
+  [
+   "iter_at@cent1_0",
+   "lead",
+   0
+  ],
+  [
+   "iter_flat@flat1",
+   "sel",
+   0
+  ],
+  [
+   "fcp@pack0",
+   "val",
+   128
+  ],
+  [
+   "fts@iter0",
+   "b1",
+   253
+  ],
+  [
+   "sreduce@simd8",
+   "scope",
+   0
+  ]
+ ],
+ "frozen_utc": "2026-08-30T05:26:33Z",
+ "liveness": "per-arm FROZEN ladder: the arm's named control, then for each swept field its bitwise complement and then zero, skipping values the field already holds; capped at 14 steps. Every attempt is emitted. An arm with no changing step is reported NOT LIVE and its verdicts are withheld.",
+ "not_attempted": {
+  "imageblock_load": "no carrier in our set emits it -- the explicit-layout fragment imageblock does not compile (EXP-0142) and the programmable-blending route compiles to tile_read (raw/prefreeze/census_transcript.txt). Its five blocking fields stay `untested`.",
+  "min_lod_clamp": "deliberately excluded from every carrier: on G16G it took MTLCompilerService down machine-wide (EXP-0106) and that outage is host-software-wide, not a recoverable GPU fault."
+ },
+ "oracle": "INERT: host-computed expectation is 'identical to this arm's own unmutated baseline'. No predictive oracle survived the pre-freeze census (see casematrix.PREDICTIVE).",
+ "pre_registered_sweep_cases": 52090,
+ "protocol": {
+  "baseline_every": 250,
+  "baseline_retries": 4,
+  "confirm_n": 3,
+  "foreign_fault": "OS class InnocentVictim -> retried up to 8x with backoff, then recorded `foreign`, never `fault`",
+  "genuine_hang": "confirmed watchdog timeout OR OS class ErrorHang",
+  "integrity_sentinel": "gfrun re-reads the patched archive off disk through a separate NSData read and byte-compares every spliced window (SENTINEL_FAIL otherwise); MTLPipelineOptionFailOnBinaryArchiveMiss proves the ARCHIVE supplied the machine code",
+  "max_hangs_per_arm": 6,
+  "max_hangs_per_field": 2,
+  "readback_poison": "0xDEADBEEF pre-fill on every host read-back",
+  "req_timeout_s": 15.0,
+  "unique_splice_path": "gfrun writes a fresh scratch archive path per request (gReqSeq)"
+ },
+ "repo_revision_at_freeze": "7dc67d768ada3c016771923bffd5b9647dd14813",
+ "revision_gate": "captures are valid if the AUTHORED source hashes below match; repo HEAD moving because a sibling experiment landed is NOT contamination (SUBAGENT_BRIEF)",
+ "runs": {
+  "run01": "g17p_20260829_run01",
+  "run02": "g17p_20260829_run02 (independent gated replicate; a field is promoted only on cross-run agreement)"
+ },
+ "source_sha256": {
+  "analysis/census.py": "7c3b9b5d79cf66ef3279f0f29eadfe947d3f3e06de7394af99ca2e911cd202ba",
+  "harness/casematrix.py": "d512d43f0b335ad817c1f6dc20ff0bbaa15ccf271d2ce33f42b7f7212495ad52",
+  "harness/gfrun.m": "f38f071ce6d01cafbd0a76833057830c059e283811470a2e6f51fbf91f6b91db",
+  "harness/runner.py": "c76f70b27902a0f61e63e01b50dd68d81c13aaa8cf51a433361089285827c36c",
+  "kernels/c_at.metal": "f4e96607124019a81c509502f4a1fc3a94c7de1ec08225a9b026534c539c1f91",
+  "kernels/c_bary.metal": "1b27f0fb26c5f7dc0116a093fbf46e28cfc7563f4dfe25e997f469302db32db3",
+  "kernels/c_cent.metal": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+  "kernels/c_depth.metal": "3a0a56e2ee834fcde7580c822934789109eecf704514030f367b0d407f3f67e0",
+  "kernels/c_flat.metal": "6741f372dea5cc8fa511bb424c2e04a97e349d76eedea0d1ff70da22f317dee2",
+  "kernels/c_iter.metal": "80cc3905aec0932795027a109911ea5ac7e45450ae24d7b5ceba48b6b61f99b8",
+  "kernels/c_kill.metal": "a89f10c195b67549825a3589ca5afcfc8de4459004ef0db41e7242c83e2c0f98",
+  "kernels/c_mask.metal": "3c6efc49e44b827418a23ef0e437ea6e69c7b14f6106e6a1a599661c6cd56d6b",
+  "kernels/c_pack.metal": "00798813866f305319ecf15502e0f52e81db69c989e15b4fe2d1c296c8e13475",
+  "kernels/c_simd.metal": "f726a9317a8a62b5e5804e7992e7874cd93b6ed26b9eedd0cbc1fc1f2a91e932",
+  "kernels/c_vary16.metal": "a4dcf05e159b542e94531efa1167d4b7b772e4c2ddee72d8483b14b0d7135a7f",
+  "kernels/t_coord.metal": "600082283de278476609e2fd59e10e4820156845a76677cd15ece65091332f56",
+  "kernels/t_deriv.metal": "58bf697026cbe1fe0b88f71c98453e37fc49a856256054d7a6d181197979abf6",
+  "kernels/t_iblock.metal": "09c0b24498ab7a340835e09b085df5a7a1add210d62d90788d56f8a8c2df4e97",
+  "kernels/t_lodoff.metal": "e311d90489b053ad77779d693d987799dc0c34ed02bafc7e6e4bed19d49350e0",
+  "kernels/t_sample.metal": "cc326242812f7b50368d62eb538ca6664765140f7a87e20a53dc7909691b594b",
+  "kernels/t_texops.metal": "176afb1978b59b20123cf6a1e2b6e83e926643177863ef5d3f0fe5018825ae58",
+  "kernels/t_write.metal": "e74d7f3e31f538f91a2db05607e6df7bd846c0d3773526fd4f77ca4bc3d3014c",
+  "run.py": "f9e820cc9e229e0d3e4637e5d0edb296d10772624937b5cbc424da633b3b25f3",
+  "tools/agx-isa/db.json": "418d780ca2920a7235deb55878b4e5e82563f2370c6ce6f9fea7d05643e7c91f",
+  "tools/agx-isa/validation.json": "3066932adcee33daf3ebc5094dd226a189c347b9a953e2ceda04a6452834f3cd"
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "device": "Apple A18 Pro",
+  "gpu_cores": 5,
+  "host": "users-MacBook-Neo",
+  "label_for_every_result": "G17P",
+  "metal_family": "Apple9",
+  "os": "macOS 26.6"
+ },
+ "value_sets": {
+  "width<=8": "dense, all 2^w values",
+  "width>8": "boundaries {0,1,2,max-1,max} + all powers of two + all (2^i)-1 + 16 deterministic asymmetric interior samples"
+ }
+}

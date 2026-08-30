@@ -1,0 +1,151 @@
+{
+ "arms": {
+  "A": {
+   "carrier": "synth",
+   "cases": 1035,
+   "claim": "device_load destination rule",
+   "m4_source": "EXP-0141"
+  },
+  "B": {
+   "carrier": "uni",
+   "cases": 195,
+   "claim": "falu2 source-class model + inline minifloat",
+   "m4_source": "EXP-0138"
+  },
+  "C": {
+   "carrier": "u64",
+   "cases": 7,
+   "claim": "native 64-bit integer ADD via iadd2.addsub",
+   "m4_source": "EXP-0146"
+  },
+  "D": {
+   "carrier": "uni,dag",
+   "cases": 386,
+   "claim": "register-file model (aliasing + fault bound)",
+   "m4_source": "EXP-0112 + EXP-0139"
+  },
+  "E": {
+   "carrier": "bfe,shr",
+   "cases": 195,
+   "claim": "ibfe offset LITERAL vs width mod-32",
+   "m4_source": "EXP-0139"
+  },
+  "F": {
+   "carrier": "uni",
+   "cases": 140,
+   "claim": "mov_imm is 7-bit; imm_top=1 does not write",
+   "m4_source": "EXP-0140"
+  },
+  "G": {
+   "carrier": "desk-side",
+   "cases": 0,
+   "claim": "instruction-length rule corrections on a G17P-compiled corpus",
+   "m4_source": "EXP-0148"
+  }
+ },
+ "authored_sha256": {
+  "harness/anchors.py": "069dbd104a93fccb0f8b31efe976d868ccb93f760de753fb664512adb3d9f2c3",
+  "harness/carriers.py": "ce81f48f11241e3e4f1db1b7655c04f13710ca04daf8ab98f4390784b284d055",
+  "harness/cases.py": "8734865c00e37bfbc487d2572e9e4f1e055ffc77ad6b28a72e7bb7a0b49ecd73",
+  "harness/isa_helpers.py": "22b23b318b294238573c8ef4b75c5e2d898c7cbb02e1ca4326efdd5d354f55e1",
+  "harness/run.py": "f4b18d00eb3629bb31fad777f356dd18b04fe43c636d1251c8b832cb0128b872",
+  "kernels/carrier_dag.metal": "8b402a5827067fc2e83c796c501d23ac59a8e8fb50c15b639a25f42f7e7fadba",
+  "kernels/carrier_synth.metal": "1bcf6d70674a4d104a00e31d9ed5afa3cf8cc4495b50be0841c14fa359717cf0",
+  "kernels/carrier_uni.metal": "1cb6f83a715389ae30bb14c5bfe4d6601317c1082eed11395f431bbe6fdf7a1a",
+  "kernels/ialu_probes.metal": "922af2a9b572513d3e047d4d043aeb02aa51ef17d2f707557a065b1c71078e13",
+  "kernels/k_u64sub.metal": "fdfa01ede52fb0bccacd981ceae934f94f5e2a983fc18e50cbb33bec6f1714a6"
+ },
+ "experiment": "EXP-0153-g17p-revalidation",
+ "forbidden": [
+  "edit db.json",
+  "edit validation.json",
+  "edit docs/",
+  "edit PROVENANCE.md",
+  "git commit",
+  "macvdmtool"
+ ],
+ "frozen_utc": "2026-08-30T05:19:51Z",
+ "hang_budget": {
+  "abandon_carrier_after": 6,
+  "abort_arm_after": 2
+ },
+ "mitigations": [
+  "poisoned read-back buffer (0xDEADBEEF+i per word)",
+  "pre-test integrity sentinel on synth/uni/dag carriers",
+  "unique archive path per request, unlinked after",
+  "OS fault-classification string recorded on every non-OK case",
+  "InnocentVictim retried and segregated",
+  "fault requires >=2 of 3 non-innocent attempts",
+  "unmutated-carrier health check every 120 cases",
+  "carrier main length and splice anchors DISCOVERED on target, never assumed"
+ ],
+ "n_cases_per_run": 1958,
+ "outcomes": [
+  "ok",
+  "silent_zero",
+  "not_written",
+  "wrong_value",
+  "fault",
+  "hang",
+  "nondeterministic"
+ ],
+ "raw_schema_keys": [
+  "arm",
+  "i",
+  "rep",
+  "carrier",
+  "instr",
+  "field",
+  "value",
+  "bytes",
+  "observed",
+  "oracle",
+  "match",
+  "outcome",
+  "status",
+  "rt",
+  "statuses",
+  "fault_classes",
+  "innocent_retries",
+  "observations",
+  "confirmed",
+  "expect_match",
+  "note"
+ ],
+ "repo_dirty_files": 9,
+ "repo_revision": "7dc67d768ada3c016771923bffd5b9647dd14813",
+ "revision_gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF)",
+ "runs_planned": [
+  "run01 (gated, unlocked)",
+  "run02 (gated, unlocked)",
+  "reval01 (non-ok cases x5, UNDER GPU LEASE)"
+ ],
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "device": "Apple A18 Pro",
+  "gpu_cores": 5,
+  "host": "192.168.10.243",
+  "hw_model": "Mac17,5",
+  "metal_family": "Apple9",
+  "name": "G17P",
+  "os_build": "25G5043d",
+  "os_version": "26.6",
+  "workdir": "~/agxre/EXP-0153"
+ },
+ "timeouts_sec": {
+  "agxparse": 60,
+  "gpu_request": 10.0,
+  "shdump_compile": 180,
+  "ssh_wrapper": "per-invocation perl alarm"
+ },
+ "tool_sha256": {
+  "tools/agx-isa/db.json": "f5db942f03c9ad3870a102e0e34f705217ffa7ea5883dd960d0ffec93e76e36e",
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agxtest/agxrun.m": "d5e167bfdde140c23f132cccd78a17dd897a3b1e2bef8280109e2b4a9a895c9e",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/agxtest/persistrun.py": "fb057160bd96792b342053e7f45f800261b44df435110551b746a4407520f20d",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ }
+}

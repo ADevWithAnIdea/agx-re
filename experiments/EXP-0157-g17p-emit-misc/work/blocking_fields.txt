@@ -1,0 +1,196 @@
+==============================================================================
+mesh_out_src | len=2 | match=[[0, 8, 4]] | {}
+ sem: MESH-stage compact source op feeding the immediately-following device store (byte+2==0xe7) of a mesh vertex/primitive output. Occupies the same structural slot as the 8-byte sr_read_wide (mesh_point `04 88 06 ..`) but is a distinct 2-byte compact encoding (byte+1 < 0x80). byte+1 left raw.
+ prov: OWN-SHADER (EXP-M4-13 R5, byte-diff/bracket, NOT HW-dispatch-validated): mesh corpus mesh-stage hex (mesh_transform/tri/line/maxout/grid3d/amplify_dyn/obj_reduce/payload_large/pervertex_wide); length 2 bracketed by an if_push (0f 05 54 01) before and a 14-byte device_store (e7 02 54|64 ..) after in every sample; mesh_transform own recompile byte-checked.
+ INSTR-LABEL: corpus-correlation | 2-byte mesh compact source op feeding the following 0xe7 store; located over the corpus | target M4 ['EXP-M4-13', 'EXP-0030']
+   - sel s=8 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+op04_len8 | len=8 | match=[[0, 4, 4]] | {'emit_unsafe': True}
+ sem: 8-byte low-nibble-4 datapath-read RESIDUE (byte0 low nibble 4; more-specific get_sr / sr_read_wide / rt_intersect win first). RENAMED from the misleading 'frag_pos_read': this is NOT a fragment-position read. HW-VALIDATED NEGATIVE (splice, A18 EXP-M4-14 + census EXP-M4-13 R9): [[position]]/[[front_facing]] lower to get_sr (special-register read, 4B: sr_sel 0xa0/0xa1 position, 0xc5 front_facing) + iter (interpolation), splice-confirmed on live A18 -- see get_sr and iter. This 8-byte op materialises from NONE of 7 distinct own-MSL fragment provocations ([[position]]/[[front_facing]]/[[flat]]/[[c
+ prov: census EXP-M4-13 R8/R9 (own-MSL, compile-only) + HW-VALIDATED NEGATIVE (splice, A18 EXP-M4-14): the real [[position]]/[[front_facing]] mechanism is get_sr(sr_sel 0xa0/0xa1/0xc5)+iter, splice-confirmed on the A18 render harness (own-MSL frag_face.metal, frag_pos preamble) -- so the former name frag_pos_read was WRONG. This 8-byte byte0==0x04 residue is provoked by NONE of 7 own-MSL fragment shaders
+ INSTR-LABEL: hardware-run | HW-VALIDATED NEGATIVE: renamed from the misleading `frag_pos_read`. [[position]]/[[front_facing]] lower to get_sr + iter, splice-confirmed on live A18 | target A18 ['EXP-M4-14', 'EXP-M4-13']
+   - dst s=4 w=4 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-M4-14', 'EXP-M4-13']  <<<BLOCKING
+   - mode s=8 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-M4-14', 'EXP-M4-13']  <<<BLOCKING
+   - body s=16 w=48 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-M4-14', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+scoreboard_fence | len=4 | match=[[0, 8, 7], [16, 1, 0]] | {}
+ sem: compute memory / scoreboard fence (4 bytes): 07 <kind> <scope> <mask>. A short ordering fence the compiler inserts before an out-of-line CALL (`07 22 02 00`, immediately preceding the 43 frame marker) and around break/continue divergence (`07 02 00 00` / `07 00 00 00`). byte+2 in {0x00,0x02} distinguishes it from the 6-byte threadgroup_barrier / mem_fence / pixel_order (byte+2==0x54) of the same 0x07 family. Orders scoreboard/register state across the control-flow edge; NOT a cross-lane threadgroup-memory barrier.
+ prov: HW-observed byte-diff (RT-ISA-FIX): `07 22 02 00` precedes every out-of-line call in the RT-1b stress census (followed by 43 00 00 01); `07 02 00 00` / `07 00 00 00` appear around break/continue in our for/while/nested CF kernels (which run correct on HW). Length 4 gives clean whole-kernel tokenization. FIELD TYPING (EXP-M4-13 R7, own-MSL compile-only): byte-diff over own CF / atomic-fence / noinl
+ INSTR-LABEL: corpus-correlation | 4-byte 0x07 fence located over the own-MSL corpus around calls and break/continue divergence | target A18 ['EXP-0025', 'RT-ISA-FIX']
+   - kind s=8 w=8 t=enum :: corpus-correlation rng='0x22 (pre-call), 0x02 / 0x00 (control-flow) observed' ev=['RT-ISA-FIX']  <<<BLOCKING
+        enum: {'0': 'CF-edge fence (break/continue)', '2': 'CF-edge fence (variant)', '34': 'pre-call / pre-atomic register+scoreboard fence', '192': 'wide/device-order fence (inferred)', '194': 'wide/device-order fence (inferred)'}
+   - scope s=17 w=7 t=enum :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+        enum: {'1': 'ordered (byte+2 0x02: default CF/call scope)', '0': 'unordered (byte+2 0x00)', '16': 'extended scope (byte+2 0x20: nested-divergence)', '17': 'extended+ordered (byte+2 0x22)'}
+   - mask s=24 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+n2_op8 | len=8 | match=[[0, 4, 2]] | {}
+ sem: Generic 8-byte low-nibble-2 op (dst = byte0 high nibble), catch-all for 8-byte forms that are NOT the register-operand SELECTs (isel8, byte+2 low3==7) nor the 0x25 isel_reg8. In practice the transcendental SFU RANGE-REDUCTION select (byte+1 == 0xc2, byte+2 in {0x19,0x29,0x49,0x59}, tail `.. 80 08`): a compiler-generated argument-reduction step. Length-classified only; SFU per-op-select semantics deliberately NOT reconstructed (clean-room rule 5).
+ prov: byte-diff EXP-M4-13 R5 catch-all. dst=byte0-hi from the family reg-sweep; length 8 from the low-nibble-2 length rule. byte fields captured for clean tokenization + round-trip; op semantics UNRESOLVED (SFU internal). NOT HW-dispatch validated.
+ INSTR-LABEL: tokenization-only | length-anchored over the own-MSL corpus (+4/+2 lands on the next op leader in every occurrence); exact micro-op role NOT characterized | target M4+A18 ['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']
+   - dst s=4 w=4 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - srcA_desc s=8 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - opsel s=16 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - body s=24 w=40 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+n2_op6 | len=6 | match=[[0, 4, 2]] | {}
+ sem: Compact 6-byte low-nibble-2 select/predicate/helper. dst = byte0 high nibble (reg-sweep PROVEN across r0..r15). src_desc (byte+1) = source/mode descriptor (bit7 = uniform/special-file flag). opsel (byte+2) = op/mode selector: 0x00 = compact select/move (dominant), others select the sub-op. imm_sel (byte+6) = trailing small index/immediate -- in the output-write-mask helper family (SPIRV-Cross masking_write_outputs kernels) it steps the mask/location index 0..0xd; in the shuffle-helper family the tail is a lane/mode word; in the transcendental family it is an SFU coefficient/select. opA (byte+3
+ prov: byte-diff EXP-M4-13 R6/R8 (own-MSL + permissive-thirdparty corpus, n=1747): dst=byte0-hi from the family reg-sweep. src_desc/opsel/imm_sel LOCATED by covariation (opsel==0x00 for compact select-moves; imm_sel steps the write-mask location index across masking_write_outputs_mask_location_0/1 kernels; bit7 of src_desc = uniform-file). R8: opA(byte+3) TYPED reg and opB(byte+4) TYPED mod by the corpus
+ INSTR-LABEL: corpus-correlation | family located and tokenized over an own-MSL corpus (n=1747) | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: corpus-correlation rng='byte0 high nibble proven a destination register by an own-MSL r0..r15 reg-sweep ' ev=['EXP-M4-13']  <<<BLOCKING
+   - src_desc s=8 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+   - opsel s=16 w=8 t=enum :: untested rng='none' ev=[]  <<<BLOCKING
+        enum: {'0': 'compact_select/move', '2': 'mode2', '8': 'mode8', '16': 'mode10', '18': 'mode12', '41': 'mode29'}
+   - opA s=24 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - opB s=32 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+   - imm_sel s=40 w=8 t=imm :: untested rng='none' ev=[]  <<<BLOCKING
+==============================================================================
+n2_op10 | len=10 | match=[[0, 4, 2]] | {}
+ sem: 10-byte low-nibble-2 op (dst = byte0 high nibble), the catch-all for 10-byte forms not covered by the named selects (isel10/isel10_c/isel_reg/rt_transform_test). Dominant real member: the SFU transcendental range-reduction / round-mode MARSHALLING op (byte+2==0x21) -- byte+1 = source register, byte+3 = sub-op descriptor, byte+4:9 = a coefficient/marshalling immediate word. Also absorbs the all-zero `X2 00 00 ..` OVER-READ artifact (byte+2==0x00) of the byte0==0x22 default-to-10 length rule. The SFU / RT-getter marshalling SEQUENCE is deliberately NOT reconstructed (rule 5).
+ prov: byte-diff EXP-M4-13 R7 (own-MSL + corpus). Split the raw body into typed fields: own-MSL conversions_pack__round_modes fast-math vs no-fast-math pairs differ ONLY in byte0-hi (dst) and byte+1 (src reg) while byte+4:9 stays a fixed coefficient word -> byte+1=src reg, byte+2=form selector (0x21 SFU marshal), byte+3=sub-op descriptor, byte+4:9=imm marshalling word. The byte+2==0x00 members are the kn
+ INSTR-LABEL: tokenization-only | length-anchored over the own-MSL corpus (+4/+2 lands on the next op leader in every occurrence); exact micro-op role NOT characterized | target M4+A18 ['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']
+   - dst s=4 w=4 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - src s=8 w=8 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - opsel s=16 w=8 t=enum :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+        enum: {'33': 'sfu_roundmode_marshal', '0': 'zero_pad_overread'}
+   - opdesc s=24 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - immword s=32 w=48 t=imm :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+n3_mov | len=4 | match=[[0, 4, 3]] | {}
+ sem: d = mov/zero-extend(srcA) ; compact 4-byte register move / 16-bit zero-extend / half-pack. dst = byte0 high nibble (r0..r15) PROVEN by parallel-extend diffs. srcA_reg (byte+1 bits0-6) = source register; srcA_uni (byte+1 bit7) = uniform-file/high-half flag. subform (byte+2) = source-class / size sub-form selector (0x00 full-word move; 0x20 a source-class variant; 0x01/0x02 half/size selects). companion (byte+3) = companion / second-operand descriptor: value 0x01 with subform 0x00 is the ZERO-EXTEND high-half-zero companion `X3 00 00 01` (emitted after the low-half move to zero the upper 16 bits
+ prov: byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=1516): dst=byte0-hi and srcA=byte+1 PROVEN by k_zext4 / parallel-extend diffs (identical bodies stepping the high nibble). companion==0x01 zero-extend companion corroborated by the mov_zext16 lowering (`13 00 00 01`, EXP-0013 HW) and its X3-nibble corpus siblings. subform/companion per-value semantics LOCATED but inferred (not every
+ INSTR-LABEL: corpus-correlation | compact 4-byte move family located over the own-MSL corpus | target M4 ['EXP-M4-13', 'EXP-0036']
+   - dst s=4 w=4 t=reg :: corpus-correlation rng='byte0 high nibble proven a destination register by parallel-extend diffs / an ow' ev=['EXP-M4-13']  <<<BLOCKING
+   - srcA_reg s=8 w=7 t=reg :: corpus-correlation rng='byte+1 bits0-6 source register' ev=['EXP-M4-13']  <<<BLOCKING
+   - srcA_uni s=15 w=1 t=mod :: corpus-correlation rng='byte+1 bit7 uniform-file / high-half flag' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'0': 'gpr', '1': 'uniform/hi'}
+   - subform s=16 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+   - companion s=24 w=8 t=mod :: corpus-correlation rng='0x01 with subform 0x00 is the zero-extend high-half-zero companion' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'1': 'zext_hi_zero'}
+==============================================================================
+coord_madf | len=10 | match=[[0, 8, 46], [16, 8, 35]] | {}
+ sem: coordinate / interpolation fused multiply-add ALU, byte0 LEADER form 0x2e (sibling 0x3e), 10 bytes: `2e/3e b1 23 a0 42 00 00 06 02 00`. Appears in the texture coordinate-generation path (cube/array/3D normalized-coordinate math) and, as a byte+2 OP-SELECT (0x26/0x2e) of the low-nibble-9 float group, in the vertex matrix-vector product -- a general fused mul/mul-add, not texture-specific. This descriptor covers ONLY the byte0-LEADER 0x2e form (gated on byte+2==0x23); the far more common op-select case is a 0x09 float op handled by the float-ALU op-select length rule, NOT here.
+ prov: inferred (byte-diff + clean tokenization, EXP-0037): 10-byte length aligns k_tex_array_cube (`2e 87 23 a0 42 00 00 06 02 00`) cleanly between sample bundles; byte-exact re-serialization. Fused-mul-add semantics inferred from co-occurrence in mvp*pos; not splice-decoded.
+ INSTR-LABEL: corpus-correlation | byte0-LEADER 0x2e form gated on byte+2==0x23; the far more common case is a 0x09 float op handled by the float op-select length rule | target M4 ['EXP-0037', 'EXP-M4-13']
+   - b1 s=8 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - op s=16 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - srcA s=24 w=8 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - mark s=32 w=8 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - body s=40 w=40 t=raw :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+sr_read_wide | len=8 | match=[[0, 4, 4], [15, 1, 1], [24, 8, 0], [16, 1, 0], [17, 1, 1]] | {}
+ sem: d[dst] = wide_special_read(sel, width) ; 8-byte member of the get_sr low-nibble-4 datapath family. dst = byte0 high nibble (PROVEN, spans r0..r15). sel (byte+1 bits0-6; bit7 always 1 = match) = the special-register / property / builtin SELECTOR: 0x7f = the simd-matrix load/store wide builtin (appears only in subgroupMatrixLoad/Store kernels); 0x00 = a wide scalar builtin base; 0x21/0x01/0x48 = intersection_query committed/candidate PROPERTY reads (type / geometry-id / primitive-id / instance-id / distance / barycentrics / transform component). width (byte+2, low bits 0/1 fixed by match) = the 
+ prov: byte-diff EXP-M4-13 R6 (own-MSL + permissive-thirdparty corpus, n=659): dst=byte0-hi PROVEN by nibble histogram; sel values PINNED by kernel co-occurrence (0x7f only in subgroupMatrixLoad/Store; 0xa1/0x81 only in intersection_query getters); width toggle and operand step READ off the mat2x4/mat4x4 explicit-identity sweep (byte+2 02<->06, byte+4 00/10/18/.. tracking the component). marshal kept mod
+ INSTR-LABEL: corpus-correlation | 8-byte member of the get_sr low-nibble-4 datapath family; located over the own-MSL corpus (n=996) | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: corpus-correlation rng='byte0 high nibble proven to span r0..r15 by an own-MSL sweep (compile-only)' ev=['EXP-M4-13']  <<<BLOCKING
+   - sel s=8 w=7 t=enum :: corpus-correlation rng='0x7f simd-matrix wide builtin, 0x00 wide scalar base, 0x21/0x01/0x48 intersectio' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'127': 'simd_matrix_ld/st_builtin', '0': 'wide_builtin_base', '33': 'rtq_property(a1)', '1': 'rtq_property(81)', '72': 'rtq_property(c8)'}
+   - width s=16 w=8 t=enum :: corpus-correlation rng='toggles 0x02<->0x06 across successive component reads; 0x22/0x26/0x46 across pro' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'34': 'w22', '2': 'w02', '6': 'w06', '70': 'w46', '38': 'w26'}
+   - operand s=32 w=8 t=imm :: corpus-correlation rng='steps 0x00,0x10,0x18,.. with the wide-component index as dst advances' ev=['EXP-M4-13']  <<<BLOCKING
+   - marshal s=40 w=16 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - phase s=56 w=8 t=mod :: corpus-correlation rng='byte+7 0x80 marks the CANDIDATE (during-traversal) property read, 0x00 the COMMI' ev=['EXP-M4-13']  <<<BLOCKING
+==============================================================================
+h_coord_hi | len=6 | match=[[0, 4, 8], [16, 3, 6], [21, 1, 1]] | {}
+ sem: d.hi(half) = fused-multiply[-add] coordinate op writing the HIGH 16-bit half; op-select 0x26 (hmul_coord, 2-source) / 0x2e (hfma_coord, fused mul-add). Emitted by half-precision geometry / interpolation. 6-byte 2-source form.
+ prov: byte-diff EXP-M4-13 R2 (OWN-SHADER): corpus half_fma `38 88 26 82 00 86` / h2_many `38 07 2e 82 00 84` (6B, byte+4==0x00). op-select 0x26/0x2e == byte+2. Field semantics INFERRED.
+ INSTR-LABEL: corpus-correlation | high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst) | target M4 ['EXP-M4-13', 'EXP-M4-01']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - srcA s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - opsel s=16 w=8 t=opcode :: corpus-correlation rng='0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and c' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'38': 'hmul_coord', '46': 'hfma_coord'}
+   - srcB s=24 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - ctrl s=32 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+   - mods s=40 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+==============================================================================
+h_coord_hi_ext | len=8 | match=[[0, 4, 8], [16, 3, 6], [21, 1, 1]] | {}
+ sem: d.hi(half) = fused-mul[-add] coordinate op (0x26/0x2e) writing the HIGH 16-bit half, 8-byte extended form (byte+4 low2==1: 3rd source / ext tail at byte+5). See h_coord_hi.
+ prov: byte-diff EXP-M4-13 R2 (OWN-SHADER): half vec2 high-half `48 86 26 82 01 84 00 c0` (8B, byte+4==0x01). Length 6+2*(byte+4&3). Operand semantics INFERRED, NOT HW-dispatch-validated.
+ INSTR-LABEL: corpus-correlation | high-half / packed-half2 forms located over the own-MSL corpus (byte0 low-nibble 8, high nibble = dst) | target M4 ['EXP-M4-13', 'EXP-M4-01']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - srcA s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - opsel s=16 w=8 t=opcode :: corpus-correlation rng='0x1c hadd / 0x1d hmul / 0x1e hfma (h_alu_hi) or 0x24 / 0x26 / 0x2e (packed and c' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'38': 'hmul_coord', '46': 'hfma_coord'}
+   - srcB s=24 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - ext s=32 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+   - srcC s=40 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - tail s=48 w=16 t=raw :: untested rng='none' ev=[]  <<<BLOCKING
+==============================================================================
+compute_fence_scoped | len=4 | match=[[0, 8, 135]] | {}
+ sem: 4-byte compute scoreboard / memory FENCE, 0x87 high-scope family, scoped variants NOT covered by dev_scoreboard_fence (which needs byte+1==0x02, byte+2==0x00). Observed byte+1 in {0x9e,0x8e,0x90,0x86,0x00} and byte+2 in {0x26,0x80,0x02}. 0x87 = the 0x07 scoreboard_fence family with bit7 set (wider memory/device scope). kind (byte+1) = wait/scope descriptor, scope (byte+2) = memory-scope operand, mask (byte+3) = scoreboard mask; the operand VALUE maps are partial (need splice, like the HW-anchored 0x07 scoreboard_fence).
+ prov: census EXP-M4-13 R8 (own-MSL, 57 tokens): the length rule already lengths 0x87 fences (EXP-M4-01); these scoped forms had no matching descriptor. Field ROLES inherited from the HW-anchored 0x07 scoreboard_fence (kind/scope/mask); scope-enum VALUES intentionally not fabricated (need splice).
+ INSTR-LABEL: corpus-correlation | byte+1 in {0x9e,0x8e,0x90,0x86,0x00} and byte+2 in {0x26,0x80,0x02} observed over the corpus | target M4 ['EXP-M4-13']
+   - kind s=8 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - scope s=16 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - mask s=24 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+rtq_pred | len=4 | match=[[0, 8, 6], [8, 8, 194], [16, 16, 0]] | {}
+ sem: Ray-query traversal predicate/condition word. Byte-INVARIANT 4-byte token (06 c2 00 00) the intersection_query compiler emits immediately after the candidate-status compare (icmp_pred, byte0 0x0a) and before its consumer (if_push conditional branch, or a predicated iadd2). Exclusively emitted inside intersection_query / ray-query traversal loops. Exact micro-op NOT-YET-CHARACTERIZED; documented as a fixed encoding + length only.
+ prov: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 c2 00 00 across 260 corpus occurrences in 44 own-compiled ray-query shaders, ALWAYS directly after a 6-byte icmp_pred; reproduced in an isolated OWN ray-query kernel. Length 4 anchored by clean resync of the following branch/iadd2 to program end. Compile-only host: semantics inferred, NOT GPU-dispatch-validated.
+ INSTR-LABEL: tokenization-only | byte-invariant 4-byte token (06 c2 00 00); exact micro-op NOT characterized | target M4+A18 ['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']
+   (NO FIELDS)
+==============================================================================
+sfu_marker | len=2 | match=[[0, 8, 6], [8, 8, 2]] | {}
+ sem: SFU / transcendental helper marker word. Byte-INVARIANT 2-byte token (06 02) the compiler emits adjacent to special-function-unit and varying/mesh output ops -- after a 6-byte low-nibble-2 min/max range-reduction op and before an fspecial (2f/af) SFU op or a 0x80 output word. Fixed control token with no operand bits; exact micro-op NOT-YET-CHARACTERIZED. Per clean-room rule 5 the adjacent range-reduction coefficient words are left raw.
+ prov: byte-diff EXP-M4-13 R2 (OWN-MSL): invariant 06 02 across 59 corpus occurrences in 22 own-compiled shaders; reproduced in an isolated OWN fast::sin kernel. Length 2 was already in the committed rule (EXP-M4-12 S1); this descriptor only NAMES the family-only token. Compile-only host: semantics inferred, NOT GPU-dispatch-validated.
+ INSTR-LABEL: tokenization-only | byte-invariant 2-byte token (06 02); exact micro-op NOT characterized | target M4+A18 ['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']
+   (NO FIELDS)
+==============================================================================
+rtq_dualsrc | len=12 | match=[[0, 8, 23], [8, 8, 2], [16, 8, 0]] | {}
+ sem: intersection_query traversal dual-source op (12 B): reads two operands (opA at +4..+7, opB at +8..+11), each a 4-byte source-operand descriptor, and updates ray-query state inside the `while(q.next())` loop. byte0/1/2 = `17 02 00` opcode; byte+3 a mode byte (0x00, rarely 0x86/0x88). The two operand words vary as register indices across the get_committed_* / candidate / commit kernels. Exact operand sub-fields and precise semantics (which traversal quantity) need an isolating splice; NOT the traversal record layout, just this single op's encoding.
+ prov: byte-diff (EXP-M4-13 R7) over the OWN-MSL intersection_query corpus (rq_pred, g_bary, g_geom, g_commit, s_commitbbox, rtq_*, rq_bary/rq_xform): 343 occurrences, byte0/1/2 invariant, +4..+11 vary as a parallel operand pair. Length 12 is anchored -- +12 lands on a clean op leader (n3_mov/jump_cond/if_push/icmp_pred) in every occurrence while the old +10 landed on UNDEC. Operand-field roles byte-diff
+ INSTR-LABEL: corpus-correlation | located and length-anchored over the own-MSL RT corpus | target M4 ['EXP-M4-13']
+   - b3 s=24 w=8 t=mod :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - opA s=32 w=32 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+   - opB s=64 w=32 t=reg :: tokenization-only rng='framing only (round-trips; no value semantics established)' ev=['EXP-0036', 'EXP-M4-12', 'EXP-M4-13']  <<<BLOCKING
+==============================================================================
+rtq_state_move | len=4 | match=[[0, 4, 11], [16, 8, 9], [24, 8, 0]] | {}
+ sem: Intersection-query compact register move (4B). byte+2==0x09, byte+3==0x00, byte+1 = source selector. Emitted once per intersection_query kernel, reading a fixed query-state / result register into a GPR.
+ prov: byte-diff EXP-M4-13 R2 (own-MSL): identical `8b 14 09 00` / `6b 14 09 00` in rt_query_abort/bbox_commit/candidate_getters/curve/transforms. Not splice-validated.
+ INSTR-LABEL: corpus-correlation | 4-byte ray/query marshalling move located over the own-MSL RT corpus | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - src s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - form s=16 w=8 t=enum :: corpus-correlation rng='byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'9': 'query_state_read'}
+   - b3 s=24 w=8 t=raw :: untested rng='none' ev=[]  <<<BLOCKING
+==============================================================================
+ray_move | len=4 | match=[[0, 4, 11], [16, 8, 129]] | {}
+ sem: RAY register-marshalling MOVE (4 bytes). byte0 low-nibble 0xb, HIGH nibble = destination register; byte+1 = source register. Marshals the ray fields (origin.xyz / direction.xyz / min_distance / max_distance, and the ray_data payload) into the contiguous register block the rt_intersect op consumes, and moves results out. byte+2 == 0x81 (byte+3 == 0x08) = copy a computed source register; byte+2 == 0x80 (byte+1 == 0x00, byte+3 == 0x00) = zero-initialise a component (e.g. a const origin float3(0,0,0)). A compact move in the 0xNb family (sibling of the compact call-argument move / uniform_mov); dis
+ prov: inferred (byte-diff, EXP-O2C): the 'RT-specific 4-byte moves in the 0x?b group, byte+2 0x81/0x80' flagged in EXP-0023. Present in every RT kernel marshalling the ray struct (zero-init 0x80 for const origins, copy 0x81 for device-loaded direction), and 35-38x in the matmul2d transpose kernels. HW observation (splice, A18 EXP-M4-14): b3 retyped raw->mod as an operand type/class descriptor (structura
+ INSTR-LABEL: corpus-correlation | 35-38 per kernel; also reused for MPP matmul2d TRANSPOSE tile data, so matrix transpose is data movement, not a matrix opcode | target M4+A18 ['EXP-O2C', 'EXP-M4-13']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - src s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - form s=16 w=8 t=enum :: corpus-correlation rng='0x81 copy a computed source, 0x80 zero-initialise a component' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'129': 'copy_reg(b3=0x08)', '128': 'zero_init(b3=0x00)'}
+   - b3 s=24 w=8 t=mod :: isolated-byte-diff rng='0x08 reg32 plain copy, 0x00 zero, 0x12/0x22 uniform/high-class copy, 0x06 zero v' ev=['EXP-M4-14']
+        enum: {'8': 'reg32 plain copy', '0': 'zero form', '18': 'uniform/high-class-source copy', '34': 'uniform/high-class-source copy', '6': 'zero variant'}
+==============================================================================
+ray_move_copy6 | len=4 | match=[[0, 4, 11], [16, 8, 65]] | {}
+ sem: RAY register-marshalling MOVE, bit6 copy form (4B). dst=byte0 hi nibble, src=byte+1, byte+2==0x41, byte+3==0x08 (32-bit register operand). The dominant move in the ray-struct marshalling grid after rt_intersect. R9 typed the former b3 raw byte.
+ prov: byte-diff EXP-M4-13 R9 (own-MSL): across 711 corpus occurrences byte+3 is invariant 0x08 while byte0 hi-nibble spans all 16 dst regs and byte+1 spans ~15 src regs -> byte+3 is an operand type/size descriptor (0x08=reg32), not a per-instance operand. Field bit-packing inferred, not splice-validated.
+ INSTR-LABEL: corpus-correlation | 4-byte ray/query marshalling move located over the own-MSL RT corpus | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - src s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - form s=16 w=8 t=enum :: corpus-correlation rng='byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'65': 'copy_b6(b3=0x08)'}
+   - optype s=24 w=8 t=mod :: untested rng='none' ev=[]  <<<BLOCKING
+        enum: {'8': 'reg32'}
+==============================================================================
+ray_move_zero6 | len=4 | match=[[0, 4, 11], [16, 8, 64]] | {}
+ sem: RAY register-marshalling MOVE, bit6 zero form (4B). byte+2==0x40 -> writes a zero/const component in the bit6 source-class (the no-source counterpart of the 0x41 copy form).
+ prov: byte-diff EXP-M4-13 R2 (own-MSL): bracketed in the RT marshalling grid immediately before the 0x41 copy run. Not splice-validated.
+ INSTR-LABEL: corpus-correlation | 4-byte ray/query marshalling move located over the own-MSL RT corpus | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - src s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - form s=16 w=8 t=enum :: corpus-correlation rng='byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'64': 'zero_b6(b3=0x00)'}
+   - b3 s=24 w=8 t=raw :: untested rng='none' ev=[]  <<<BLOCKING
+==============================================================================
+ray_move_zinit | len=4 | match=[[0, 4, 11], [16, 8, 128]] | {}
+ sem: RAY register-marshalling MOVE, zero-init form (4B). byte+2==0x80 -> zero/const component (e.g. const origin float3(0,0,0)) in the bit7 source-class. Sibling of ray_move (0x81).
+ prov: byte-diff EXP-M4-13 R2 (own-MSL): bracketed inside the marshalling grid of rt_assume_identity / rt_query_*. Not splice-validated.
+ INSTR-LABEL: corpus-correlation | 4-byte ray/query marshalling move located over the own-MSL RT corpus | target M4 ['EXP-M4-13']
+   - dst s=4 w=4 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - src s=8 w=8 t=reg :: untested rng='none' ev=[]  <<<BLOCKING
+   - form s=16 w=8 t=enum :: corpus-correlation rng='byte+2 discriminates the sub-form (0x41 copy / 0x40 zero / 0x80 zero-init / 0x09' ev=['EXP-M4-13']  <<<BLOCKING
+        enum: {'128': 'zero_init'}
+   - b3 s=24 w=8 t=raw :: untested rng='none' ev=[]  <<<BLOCKING
