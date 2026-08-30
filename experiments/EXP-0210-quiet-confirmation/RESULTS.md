@@ -182,3 +182,106 @@ scripts, which §4 explicitly allows to change). The captures here therefore ran
 produced **byte-identical actual instruction bytes on all 5245 keys** of the committed run —
 but the contract should be re-frozen so the experiment can verify itself. I did not touch it.
 
+## 4. EXP-0202 — `irotate.operands`, `ibitcount.cache`, `ibitcount.dst`, `cvt_f2i._instruction`
+
+**Three captures, and only the last two are the pair.**
+
+| capture | run id | order | result |
+|---|---|---|---|
+| `e0202_q01` | `g17p_quiet01` | forward | 10596 records, 807.7 s. Q1 = 0 foreign runners, Q3 = no foreign submitter — but **`recoveryCount` 12977 → 15096, +2119**. Frozen refuter **R1 fires**. Retained, never reused, **supports no verdict**; it is what forced AMENDMENT-03. |
+| `e0202_q03` | `g17p_quiet03` | forward | 10596 records, 803.4 s, 397 samples. **QUIET** under A03 (Q1 0, Q2a pass, Q3 no foreign submitter, Q4 ok). Q2b **+2118**, all ours. |
+| `e0202_q04` | `g17p_quiet04` | reverse | *(see table below)* |
+
+### 4.1 The device-reset finding, which is the most useful thing this capture produced
+
+> **A single EXP-0202 capture resets the G17P about 2100 times in roughly 13 minutes**, on an
+> otherwise idle machine, deterministically: `g17p_quiet01` +2119 and `g17p_quiet03` +2118.
+
+Those resets come from EXP-0202's own pre-registered fault regions — `ibitcount.dst` 192..255
+and `irotate` byte+3 192..255, the two mapped hazard walls, plus the `(v & 7) == 7` class. The
+fault counts are byte-for-byte reproducible: comparing the quiet forward capture against the
+**committed busy** `run03`, the hard-outcome tallies are **exactly equal** — 706 `fault`,
+2 `invalid_run`, 196 `not_written` in each — with **10590/10590 actual bytes identical** and
+**9686/9686 = 100.00 %** payload agreement.
+
+Two consequences, both worth carrying forward:
+
+1. **EXP-0202's faults are hardware, not contamination.** They reproduce identically with no
+   other GPU client on the machine.
+2. **This family of sweeps is, by itself, a large reset source for everyone else.** Every
+   device reset discards in-flight command buffers in other contexts — the documented
+   mechanism behind `kIOGPUCommandBufferCallbackErrorInnocentVictim`. `recoveryCount` was not
+   sampled during the 2026-08-30 fan-out, so this cannot be attributed retrospectively; but
+   ~2100 resets per capture is a concrete reason the concurrent wave saw victim streaks, and
+   a concrete reason to keep this experiment off a shared machine.
+
+### 4.2 The pair, and one field that does not pass
+
+| | `e0202_q03` / `g17p_quiet03` (forward) | `e0202_q04` / `g17p_quiet04` (reverse) |
+|---|---|---|
+| quiet verdict (A03) | **QUIET** | **QUIET** |
+| max foreign dispatch runners | 0 of 397 samples | 0 of 397 samples |
+| `recoveryCount` delta | +2118 (**ours**) | +2118 (**ours**) |
+| foreign submitters (Q3) | none | none |
+| records | 10596 | 10596 |
+| duration | 803.4 s | 803.4 s |
+
+**Ledger: 10590 / 10590 keys byte-identical**, 0 ledger differences on any field. Six keys are
+duplicated (`cvt_f2i` `mode = 0` *control* records, present twice per arm); they are compared
+as multisets, not first-record-wins.
+
+**`InnocentVictim`, like for like:** committed busy `run03` **167**, `run04` **160**; quiet
+`quiet03` **0**, `quiet04` **0**. `fault` (706) and `invalid_run` (2) are **identical in all
+four runs** — this experiment's fault regions are deterministic hardware behaviour, not
+contamination.
+
+Per field, keyed (arm, field, value, carrier, instr), volatile timing and container hashes
+excluded:
+
+| field owed | comparable | agree | disagree | both-hard (counted separately) | ledger diffs | **Gate E** |
+|---|---:|---:|---:|---:|---:|---|
+| `irotate.operands` | 3054 | 3054 | 0 | 158 | 0 | **MET** |
+| `ibitcount.dst` | 958 | 958 | 0 | 322 | 0 | **MET** |
+| `cvt_f2i._instruction` (`b9` 1536 · `dst` 96 · `mode` 90 · `signflag` 256 · `_baseline` 401) | 2379 | 2379 | 0 | 0 | 0 | **MET** |
+| **`ibitcount.cache`** | **20** | **19** | **1** | 0 | 0 | **NOT MET** |
+
+**The one failure, in full.** Arm `PC/pc_two#0/cache`, value 0:
+
+```
+quiet03 (fwd)  wrong_value  vals_u32 = [68, 193, 464, 962, 2015, 4064, 8130, 16321]
+quiet04 (rev)  wrong_value  vals_u32 = [4, 1, 16, 2, 31, 32, 2, 1]
+quiet01 (fwd)  wrong_value  vals_u32 = [68, 193, 464, 962, 2015, 4064, 8130, 16321]
+run03  (busy)  wrong_value  vals_u32 = [68, 193, 464, 962, 2015, 4064, 8130, 16321]
+run04  (busy)  wrong_value  vals_u32 = [68, 193, 464, 962, 2015, 4064, 8130, 16321]
+```
+
+Both sides are `status OK` with the integrity sentinel written, no fault, no victim, and
+byte-identical dispatched instruction bytes. Four of five captures agree; the **reverse-order
+quiet** one does not. That is the signature of an **order- or state-dependent** result, not of
+contamination — and note that the committed *busy* pair agreed here, so the quiet window made
+this row look **worse**, not better. `ibitcount.cache` is a 1-bit field with 2 values on 10
+arms, so a single case is 5 % of it.
+
+**This is reported as a failure, not adjudicated away.** `PRE_REGISTRATION.md` §2 refuter R1
+names exactly this: a cross-run disagreement that is not confined to a hard-outcome class.
+`pc_two` is EXP-0202's two-occurrence carrier and its own note records that `cache` is
+**asymmetric** — value 1 universally safe, value 0 context-dependent. The successor this asks
+for is an isolated repeat of that single arm at both values under both orders, with the
+preceding case pinned, which this experiment did not run.
+
+### 4.3 EXP-0202's own gate on the quiet pair
+
+Its `analysis/verdicts.py`, run unedited, reproduces **every one of its committed verdict
+strings and axes** for the four owed rows. Its own quiet gate reads `{"A": false, "B": true}` —
+and the reason A reads false is worth passing on, because it is the **same defect this
+experiment's AMENDMENT-02 fixed in its own instrument**: 1 of 396 samples caught a process
+named `(agxrun_persist)`, `etime 00:00`, `ppid 28834` — an **exiting** child of EXP-0202's own
+`run2.py`. Its filter is `'agxrun' in comm and 'EXP-0202' not in comm`, and a zombie's comm is
+the bare parenthesised name rather than the full path, so it classifies its own dying child as
+foreign. For contrast the same gate reads the committed busy pair as **201/201** and
+**209/209** samples carrying genuinely foreign `EXP-0200` and `EXP-0206` runners.
+
+Also worth flagging, since it will mislead a reader: `_cross_run`, `_contamination` and
+`innocent_victim_cases` in `field_verdicts.json` are **hardcoded prose about run03/run04**, not
+recomputed from the runs actually passed in. They still say "run03 167, run04 160" when the
+tool is pointed at the quiet pair.

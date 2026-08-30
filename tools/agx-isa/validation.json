@@ -6261,7 +6261,7 @@
      "EXP-0115",
      "EXP-0010"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: field-named-but-unstructured.",
+    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: field-named-but-unstructured. **AUDITABILITY GAP \u2014 flagged by EXP-0208, refined by the orchestrator 2026-08-30.** This row holds an emitter-grade label but has **no machine-locatable per-field raw**: an independent probe over **880 `raw/**/*.jsonl` files under four keyings** (field name, `field: null` byte sweeps at the field's own span, `__`-prefixed falsifier records, dotted `mnem.field` names) found nothing. Under \u00a78 rule R1 this row is REJECTED for promotion until its evidence is locatable. **BUT THE EVIDENCE EXISTS \u2014 it is simply in a format no indexer reaches.** Non-JSONL raw carries it in prose form: `backward jump at main[106] = `0f0054d4ffffffffff00`  offset_field=d4ffffffffff (signed -44)`, and `splice offset->0 (jump to self) -> [] [HANG]` \u2014 a decoded offset field AND a hazard observation. So this is an AUDITABILITY gap, **not** an evidence gap, and the row must NOT be retracted on that basis. The fix is to index the pre-EXP-0138 `.txt`/`.log` era, not to re-run the hardware.",
     "start": 24,
     "width": 48,
     "axes": {
@@ -9099,7 +9099,7 @@
     "evidence": [
      "EXP-O2C"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records. **AUDITABILITY GAP \u2014 flagged by EXP-0208, refined by the orchestrator 2026-08-30.** This row holds an emitter-grade label but has **no machine-locatable per-field raw**: an independent probe over **880 `raw/**/*.jsonl` files under four keyings** (field name, `field: null` byte sweeps at the field's own span, `__`-prefixed falsifier records, dotted `mnem.field` names) found nothing. Under \u00a78 rule R1 this row is REJECTED for promotion until its evidence is locatable. Two `field: null` records exist for the mnemonic. EXP-0208 separately recovered `matrix_mac.{a_reg,b_reg,acc_en}` as a **bounded-map confirmed in two independent experiments against pre-stated predictions**, from pre-EXP-0138 `.log` raw that no indexer in this corpus reaches \u2014 so treat this family as under-indexed rather than unsupported, and re-index before judging it.",
     "start": 8,
     "width": 8,
     "axes": {
@@ -14636,7 +14636,7 @@
     "evidence": [
      "EXP-O2D"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
+    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records. **AUDITABILITY GAP \u2014 flagged by EXP-0208, refined by the orchestrator 2026-08-30.** This row holds an emitter-grade label but has **no machine-locatable per-field raw**: an independent probe over **880 `raw/**/*.jsonl` files under four keyings** (field name, `field: null` byte sweeps at the field's own span, `__`-prefixed falsifier records, dotted `mnem.field` names) found nothing. Under \u00a78 rule R1 this row is REJECTED for promotion until its evidence is locatable. Non-JSONL raw searched: 82 files mention the mnemonic, **0 lines name this field**. EXP-0208 hand-checked: only instruction-level framing records. Genuine evidence gap.",
     "start": 40,
     "width": 8,
     "axes": {
@@ -17987,7 +17987,7 @@
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
+    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw. **AUDITABILITY GAP \u2014 flagged by EXP-0208, refined by the orchestrator 2026-08-30.** This row holds an emitter-grade label but has **no machine-locatable per-field raw**: an independent probe over **880 `raw/**/*.jsonl` files under four keyings** (field name, `field: null` byte sweeps at the field's own span, `__`-prefixed falsifier records, dotted `mnem.field` names) found nothing. Under \u00a78 rule R1 this row is REJECTED for promotion until its evidence is locatable. Non-JSONL raw was also searched: 83 files mention the mnemonic but **0 lines name this field**. EXP-0208 hand-checked and found only instruction-level FRAMING records. This looks like a genuine evidence gap \u2014 the row needs re-running or retracting, not just re-indexing.",
     "start": 8,
     "width": 8,
     "axes": {
@@ -20235,7 +20235,7 @@
     "evidence": [
      "EXP-M4-14"
     ],
-    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw.",
+    "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-raw. **AUDITABILITY GAP \u2014 flagged by EXP-0208, refined by the orchestrator 2026-08-30.** This row holds an emitter-grade label but has **no machine-locatable per-field raw**: an independent probe over **880 `raw/**/*.jsonl` files under four keyings** (field name, `field: null` byte sweeps at the field's own span, `__`-prefixed falsifier records, dotted `mnem.field` names) found nothing. Under \u00a78 rule R1 this row is REJECTED for promotion until its evidence is locatable. Non-JSONL raw searched: 60 files mention the mnemonic, **0 lines name this field**. EXP-0208 notes the experiment has `dst` and `opB` records but **not `opA`** \u2014 so a sibling field's evidence may have been read across. Genuine evidence gap.",
     "start": 24,
     "width": 8,
     "axes": {
