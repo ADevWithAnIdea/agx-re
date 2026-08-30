@@ -1,5 +1,10 @@
 # Unattended run — goal, plan, and resume point
 
+**DEADLINE: 10:00 AM PST** (set 2026-08-29, ~11h30m from the setting message). A successor
+session should compute remaining time against that wall-clock and prioritise accordingly: with
+under ~2 hours left, **stop dispatching new sweeps** and spend the remainder auditing, merging
+verdicts, and writing the honest final accounting. An unmerged result is not progress.
+
 **Set 2026-08-29 by the user:** *"you are unattended; your goal is to have 100% of the real
 instructions emittable and have closed all the RE goals in the next 12 hours."*
 
