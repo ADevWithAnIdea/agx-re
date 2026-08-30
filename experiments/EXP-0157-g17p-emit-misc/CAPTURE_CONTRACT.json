@@ -1,0 +1,108 @@
+{
+ "experiment": "EXP-0157-g17p-emit-misc",
+ "fault_adjudication": {
+  "fault_requires": "reproduction in >=2 of 3 non-innocent attempts",
+  "innocent_victim_retries": 6,
+  "single_observation_never_a_fault": true
+ },
+ "frozen_utc": "2026-08-30T05:41:10Z",
+ "gate": "two independent captures of the SAME resolved case list; a field is promoted only from cases that agree in both, after re-validating every non-ok case under the GPU lease",
+ "not_edited": [
+  "tools/agx-isa/db.json",
+  "tools/agx-isa/validation.json",
+  "tools/agxtest/agxrun_persist.m",
+  "docs/**",
+  "PROVENANCE.md"
+ ],
+ "outcomes": [
+  "ok",
+  "silent_zero",
+  "wrong_value",
+  "not_written",
+  "fault",
+  "hang",
+  "nondeterministic",
+  "live",
+  "inert_or_unreached",
+  "cascade_suspected"
+ ],
+ "raw_tree_schema": {
+  "raw/<run_id>/00_build.json": "per-carrier _agc.main offset, length, sha256, strict leftover, resync token counts",
+  "raw/<run_id>/00_cases.json": "the RESOLVED case list (anchors + every case), replayable by run02",
+  "raw/<run_id>/00_env.json": "target identity, tool hashes, kernel+harness hashes, concurrent GPU processes",
+  "raw/<run_id>/00_manifest.json": "run parameters and case counts",
+  "raw/<run_id>/01_progress.json": "per-(arm,carrier,instr,anchor) cases run, seconds, hangs, liveness, abort reason",
+  "raw/<run_id>/02_neighbours_end.json": "concurrent GPU runner processes at end of run",
+  "raw/<run_id>/sweep.jsonl": "one append-only JSON record per case (FIELD-SWEEP-PROTOCOL section 4 schema)"
+ },
+ "record_schema_keys": [
+  "arm",
+  "carrier",
+  "instr",
+  "anchor_idx",
+  "anchor",
+  "after_gap",
+  "field",
+  "value",
+  "bytes",
+  "observed",
+  "oracle",
+  "match",
+  "outcome",
+  "status",
+  "statuses",
+  "fault_classes",
+  "innocent_retries",
+  "expect_match",
+  "note"
+ ],
+ "repo_revision_at_freeze": "d85772eb5e0d60f83709ea14812e890a1911d39d",
+ "source_sha256": {
+  "PRE_REGISTRATION.md": "713464c342c6ea23bd8d22dfed43cf3aec63866fc7a77b00065405441864a7e5",
+  "analysis/resync.py": "f72ade729b63a4c1a42f5318d86773d27eb6bcca21d4787c8b958d08111d4a6c",
+  "harness/agxrun_persist_as.m": "f1d6b35c6f567495750368948a8aca940a6658e08020eb7919c007c220fde630",
+  "harness/anchors.py": "d2a4d6f1fe77abaa8de7dcaa6e6cbc89136f7bcfda6e03ad61aa8912efe3425b",
+  "harness/build.sh": "5e79675bde57a635a30a490ee2e5e64933ba3b8f975b124b9e128cfc58bd19f3",
+  "harness/carriers.py": "f5e0e4342855851d7632148ad474b02950b82689a54cd84414dfa370286330f2",
+  "harness/cases.py": "196813eae3c76c797a8b0e7226e3b887f73ac3847a088ec9fec80dc3b6e82289",
+  "harness/isa_helpers.py": "22b23b318b294238573c8ef4b75c5e2d898c7cbb02e1ca4326efdd5d354f55e1",
+  "harness/run.py": "df92a671f791ffd18e48f01539f73b52fae07871ce62083c998b92ba8d5cb617",
+  "harness/runner_as.py": "538278194bcdb37a3ce3883409fca59de52b678de41a3e7f64bbb8499c804679",
+  "kernels/c_hcoord.metal": "0120689d45e01289a3d2b293b4492fd39fe3f17cb0a4b24a5ae087cf94eb84b7",
+  "kernels/carrier_synth.metal": "1bcf6d70674a4d104a00e31d9ed5afa3cf8cc4495b50be0841c14fa359717cf0",
+  "kernels/k_provoke.metal": "935bb4a79017e4c0cbdbeeddc300597ffc4a5d5cc21f568824b9bd94e9b58fda",
+  "kernels/k_roundmodes.metal": "c7c3af6383e2df688ff6dca9d84d4a66ffdbd028338f6f7063da0bdaa1ff4c16",
+  "kernels/k_rq_getters.metal": "164fa7cdfbe20b8b288b4ce0a30a8729982acb41ba83e4bc56cfe534575213b0",
+  "kernels/k_rq_inst.metal": "e58d532d4820c2eb71171ec1be7a0a59fad15274a8ec332445ada0f27d2fa1c2",
+  "kernels/k_rq_prim.metal": "dc7daa7a846f1125695d530f0a6135f16c2c02c3a41fdeb0bdcb74222ec3907f",
+  "kernels/k_sfu_mix.metal": "c5fa2278965968bb9865a81f867a2fa9518b4aa05829d43756704860ab725fc8",
+  "kernels/k_sfu_sin.metal": "a9114762ab85985f415b76ae368c649ec2f7c977aaaef3de5af89b5c9d43a6a5",
+  "kernels/k_u64eq.metal": "eb702b04107e95ead6851cef6a3743cbdc5215851da3497e4898f646b36f6a10",
+  "kernels/k_zext16.metal": "63cf4fa62a56c6e38f8c418eda02c23cc74b490a37864b911a9451d460e40919"
+ },
+ "stop_rules": {
+  "baseline_fail_twice": "abandon carrier, resume in a fresh process",
+  "hangs_abandon_carrier": 6,
+  "hangs_abort_arm": 2
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "gpu": "G17P",
+  "gpu_cores": 5,
+  "host": "users-MacBook-Neo.local",
+  "hw_model": "Mac17,5",
+  "label_for_every_record": "G17P",
+  "name": "Apple A18 Pro",
+  "os_build": "25G5043d",
+  "os_version": "26.6",
+  "soc": "T8140"
+ },
+ "timeouts": {
+  "baseline_recheck_every_cases": 120,
+  "per_request_watchdog_s": 12,
+  "remote_call_alarm_s": 120,
+  "shdump_s": 300
+ }
+}

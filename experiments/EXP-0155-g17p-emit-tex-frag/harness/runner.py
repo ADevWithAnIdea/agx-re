@@ -52,6 +52,13 @@ class _Child:
         self.device = ln.split(None, 1)[1].strip() if " " in ln else "?"
 
     def _readline(self, timeout):
+        """Read one line, or None on timeout OR on a DEAD CHILD.
+
+        BUG FIX (EXP-0153, 2026-08-29): returning readline()'s raw result meant
+        an exited child produced "" -- not None -- forever, which matched none of
+        the caller's branches and span at 100% CPU with no timeout.  A closed
+        stdout is a wedge, so it must read as None like a timeout does.  The same
+        defect was found and fixed in the shared tools/agxtest/persistrun.py."""
         box = [None]
 
         def rd():
@@ -63,6 +70,8 @@ class _Child:
         t.start()
         t.join(timeout)
         if t.is_alive():
+            return None
+        if not box[0]:          # "" == EOF == the child is gone
             return None
         return box[0]
 
@@ -128,7 +137,7 @@ class RenderRunner(_Child):
                 if attempt:
                     out["foreign_retries"] = attempt
                 return out
-            time.sleep(0.4 * (attempt + 1))
+            time.sleep(0.25 * (attempt + 1))
         out["foreign_retries"] = MAX_FOREIGN_RETRIES
         out["status"] = "FOREIGN_FAULT"
         return out
@@ -193,7 +202,7 @@ class ComputeRunner(_Child):
                 if attempt:
                     out["foreign_retries"] = attempt
                 return out
-            time.sleep(0.4 * (attempt + 1))
+            time.sleep(0.25 * (attempt + 1))
         out["foreign_retries"] = MAX_FOREIGN_RETRIES
         out["status"] = "FOREIGN_FAULT"
         return out

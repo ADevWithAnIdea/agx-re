@@ -1,0 +1,473 @@
+{
+ "db_defects": {
+  "coord_madf.no_carrier_on_G17P": {
+   "claim": "db.json: byte0-LEADER 0x2e coordinate FMA, gated on byte+2 == 0x23 (EXP-0037, cube/array coordinate generation).",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "NOT EMITTED by any of 9 own-MSL texture provocations on G17P (cube, cube-array, 3D, 2D-array, sample_compare, gather, explicit level, gradientcube, read_write 3D), with and without fast-math.",
+   "note": "All 5 fields stay `untested` on G17P for want of a carrier.",
+   "target": "G17P"
+  },
+  "mesh_out_src.length": {
+   "claim": "db.json declares `04 XX` to be a 2-byte MESH-stage compact source op.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "CONFIRMED for byte+1 bit7 CLEAR and REFUTED for bit7 SET, in a COMPUTE program. Splicing `04 XX` ahead of four 2-byte marker instructions: all 128 values with bit7 clear consume exactly 2 bytes (every marker runs); all 128 with bit7 set consume 4 (the first marker is swallowed). No value changed the stored result, so `sel` has no observable effect in a compute program.",
+   "note": "`mesh_out_src`'s match is byte0 == 0x04 with no constraint on byte+1, so as written it also matches the 4-byte form. It collides with `op04_len8`, whose match is only the byte0 low nibble.",
+   "target": "G17P"
+  },
+  "n2_op8.no_carrier_on_G17P": {
+   "claim": "db.json: the transcendental SFU range-reduction select; EXP-0146 found it in `fast::sin` on M4/G16G.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "NOT EMITTED by any of 17 own-MSL provocations on G17P across two independent rounds (fast/precise sin, cos, tan, sinpi/cospi/tanpi, exp/log/pow, atan2/asin/acos, sinh/cosh/tanh, rsqrt/sqrt/divide, modf/fract/fmod, half transcendentals, large-argument forms, with and without fast-math). Also absent from every ray-query carrier.",
+   "note": "A statement about what G17P's compiler emits, not about the silicon. The M4 evidence stands on its own target. All 4 fields stay `untested` on G17P for want of a carrier.",
+   "target": "G17P"
+  },
+  "op04_len8.length": {
+   "claim": "db.json declares a FIXED length of 8 for every byte0 low-nibble-4 residue.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Refuted on hardware. A register-witness probe (harness/run_lm.py, both positive controls passing) measures the CONSUMED length directly. All six `op04_len8` byte patterns taken from our own G17P compiles consume TWELVE bytes, not eight.",
+   "note": "This resolves the item EXP-0148 left OPEN, by a different method: EXP-0148 scored six STATIC length rules on corpus tokenization, and round-trip is blind to over-consumption by construction. This asks the silicon. It does NOT re-run EXP-0148's six rules.",
+   "rule": "For a `04` leader the consumed length is a joint function of byte+1 bit 7 and byte+2 (and, in the bit7-clear family, byte+3 bit 7). With byte+2 = 0x00 and byte+3 = 0x00: byte+1 bit7 SET -> 4, CLEAR -> 8. With the candidates' own tails: byte+1 bit7 SET -> 8, CLEAR -> 12 (128/128 split, reproduced on three independent candidates). Full measured map: analysis/length_rule.json and analysis/length_map_q.json.",
+   "target": "G17P"
+  },
+  "rtq_dualsrc.reachability": {
+   "claim": "db.json models `17 02 00 ..` as a 12-byte intersection_query dual-source op.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Same as rtq_pred: inert at 11 of 11 anchors under triangle geometry and 12 of 12 under bounding-box geometry, and a 256-byte erase at three of those offsets leaves the oracle correct. UNREACHED.",
+   "target": "G17P"
+  },
+  "rtq_pred.reachability": {
+   "claim": "db.json models `06 c2 00 00` as a ray-query traversal predicate word.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Not refuted, but NOT REACHABLE from either own-MSL ray-query carrier we can build. Erasing all four bytes at 8 of 8 resolved anchors (triangle geometry) and 10 of 10 (bounding-box geometry) leaves the traversal oracle exactly correct; erasing 256 CONTIGUOUS bytes at three of those offsets also leaves it correct, while the same 4-byte erase over a live `sr_read_wide` anchor breaks it immediately.",
+   "note": "Those regions are UNREACHED, not inert. Nothing about the descriptor may be concluded from this experiment.",
+   "target": "G17P"
+  },
+  "sfu_marker.fields": {
+   "claim": "db.json: 'byte-INVARIANT 2-byte token (06 02) ... fixed control token with no operand bits'. It therefore has ZERO fields.",
+   "evidence": [
+    "EXP-0157",
+    "EXP-0146"
+   ],
+   "measured": "Refuted on G17P, reproducing EXP-0146's M4 result EXACTLY and in THREE independent carriers (fast::sin, fast::cos, sin+cos+tan): byte+0 accepts only (v & 0xf7) == 0x06 (2 of 256) and byte+1 only (v & 0x13) == 0x02 (32 of 256). Both bytes are load-bearing.",
+   "note": "A descriptor with zero fields cannot be counted against emittability and cannot be emitted with any variation; it needs two 8-bit fields.",
+   "target": "G17P"
+  }
+ },
+ "h_coord_hi.ctrl": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x7b) == 0x00 | outcomes fault=55, not_written=24, ok=3, silent_zero=34, wrong_value=81 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "range": "197 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes not_written=1, silent_zero=14 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH)",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi.opsel": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xd7) == 0x06 | outcomes fault=79, not_written=1, ok=3, silent_zero=87, wrong_value=4 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | byte+2 op-select. (v & 0xd7) == 0x06 in BOTH half carriers -- the one cross-carrier constant in this instruction. Faults on 76-80 of 256 values.",
+  "range": "174 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi.srcA": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x87 | outcomes ok=1, silent_zero=14, wrong_value=240 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | A real source-register field: 240 of 255 values return a DIFFERENT non-zero result. Only the compiler's own value (up to bit 7) reproduces the oracle, so it is pinned in this carrier.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "h_coord_hi.srcB": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xff) == 0x04 | outcomes ok=1, wrong_value=254 | carrier h4fma, anchor +52, 2 agreeing captures (gate RSH) | Same shape as srcA: 254 of 255 values return a different result.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes not_written=1, silent_zero=1, wrong_value=13 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.  ALSO: outcomes silent_zero=15 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | PINNED: no value other than the compiler's own reproduces the oracle.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.imm_sel": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x7e) == 0x10 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: accepted set: (value & 0x7e) == 0x06 | outcomes ok=3, silent_zero=244, wrong_value=8 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.  ALSO: outcomes ok=3, silent_zero=120, wrong_value=132 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+6. In the fast::sin carrier 240 of 255 values ZERO the range-reduced row while leaving the others correct, and (v & 0x7e) == 0x00 zeroes every row -- so it selects which reduced result survives. The accepted set is (v & 0x7e) == 0x06 here and differs per carrier instance.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.opA": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=17, wrong_value=238 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xff) == 0x83 | outcomes ok=1, wrong_value=254 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=117, silent_zero=138 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.opB": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=64, wrong_value=191 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: outcomes fault=108, ok=5, silent_zero=72, wrong_value=50 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0xa6) == 0x26 | outcomes not_written=127, ok=15, silent_zero=96, wrong_value=16 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.opsel": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xcf) == 0x03 | outcomes fault=128, ok=3, wrong_value=124 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd7) == 0x03 | outcomes ok=3, silent_zero=60, wrong_value=192 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.  ALSO: accepted set: (value & 0xd5) == 0x05 | outcomes not_written=128, ok=7, silent_zero=116, wrong_value=4 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH) | byte+2, strongly constrained and the only field in the family that FAULTS on half its range in the SFU carriers. The accepted mask differs per carrier instance. Output-shape analysis in the fast::sin carrier resolves the rejected values: bit 1 SET (60 values) makes the SFU produce nothing; (v & 0xd7) == 0x13 (4 values) sign-flips one row; 122 values drop the quadrant correction for the range-reduced row. So in this lowering opsel is part of the SFU argument-reduction control, not a generic select.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n2_op6.src_desc": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x7e) == 0x08 | outcomes ok=3, wrong_value=252 | carrier sfumix, anchor +60, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x04 | outcomes ok=3, silent_zero=2, wrong_value=250 | carrier sfusin, anchor +68, 2 agreeing captures (gate RSH)  ALSO: accepted set: (value & 0x7e) == 0x00 | outcomes ok=3, wrong_value=252 | carrier u64eq, anchor +50, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n3_mov.companion": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=223, silent_zero=32 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n3_mov.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=15 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n3_mov.srcA_reg": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=127 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "127 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n3_mov.srcA_uni": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=1 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "1 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "n3_mov.subform": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=32, not_written=26, ok=89, silent_zero=86, wrong_value=16 | carrier u64eq, anchor +60, 2 agreeing captures (gate RSH)",
+  "range": "249 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "op04_len8.body": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes fault=3, not_written=118, ok=26 | carrier rq_mdist, anchor +384, 2 agreeing captures (gate RSH) | DECLINED. This experiment REFUTED the descriptor's length on hardware: the six real `op04_len8` patterns from our own G17P compiles consume TWELVE bytes, not the eight db.json declares (harness/run_lm.py, both controls passing). Every field offset in the descriptor is therefore measured against a model that is wrong, and the sweep's near-total inertness is explained by splicing only 8 of the instruction's 12 bytes. No field of a descriptor whose LENGTH is refuted may be promoted. Left `untested`; the corrected length model is in db_defects.  ALSO: outcomes fault=3, not_written=118, ok=26 | carrier rq_mprim, anchor +384, 2 agreeing captures (gate RSH) | DECLINED. This experiment REFUTED the descriptor's length on hardware: the six real `op04_len8` patterns from our own G17P compiles consume TWELVE bytes, not the eight db.json declares (harness/run_lm.py, both controls passing). Every field offset in the descriptor is therefore measured against a model that is wrong, and the sweep's near-total inertness is explained by splicing only 8 of the instruction's 12 bytes. No field of a descriptor whose LENGTH is refuted may be promoted. Left `untested`; the corrected length model is in db_defects.",
+  "range": "147 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "op04_len8.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes ok=15 | carrier rq_mdist, anchor +384, 2 agreeing captures (gate RSH) | Not promotable: the descriptor's LENGTH is refuted on hardware (12 bytes, not 8), so this field's offset is measured against a wrong model. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=15 | carrier rq_mprim, anchor +384, 2 agreeing captures (gate RSH) | Not promotable: the descriptor's LENGTH is refuted on hardware (12 bytes, not 8), so this field's offset is measured against a wrong model. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "op04_len8.mode": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes ok=255 | carrier rq_mdist, anchor +384, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_mprim, anchor +384, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move.b3": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+3: all 256 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=15 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | Destination nibble: all 16 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move.form": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=32, ok=223 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+2: 223 of 256 values run; 32 FAULT. Load-bearing.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move.src": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_all, anchor +72, 2 agreeing captures (gate B2) | byte+1: all 256 values reproduce the oracle. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_copy6.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=15 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_copy6.form": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_copy6.optype": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_copy6.src": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_zero6.b3": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_zero6.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=15 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_zero6.form": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH)",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "ray_move_zero6.src": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +64, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "rt_ray_mem.field_off": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "isolated-byte-diff",
+  "note": "outcomes ok=3 | carrier k_rq_getters.metal :: k_cand_baryx / k_cand_baryy / k_cand_td_dist, anchor +None, 1 agreeing captures (gate differential-compilation) | byte+10 of the 14-byte rt_ray_mem is the RAY-QUERY PROPERTY SELECTOR. Three intersection_query<triangle_data> kernels that differ ONLY in the getter they read compile to programs that are byte-identical except at 14 offsets, each a single byte taking 0xc4 (barycentric.x) / 0xc6 (barycentric.y) / 0xc8 (triangle distance) -- the selector steps by 2 per property. Each of the three programs was executed and returned its own host-computed oracle exactly, so the byte change produced the predicted effect. db.json already models this byte as `field_off` at `corpus-correlation`; this is an independent confirmation by a second method, and it upgrades the label to isolated-byte-diff. | This is why sweeping `sr_read_wide.sel` never yielded another property: on G17P the property selector is not in sr_read_wide at all. Raw: raw/g17p_census01/getter_diff.json plus the three committed .hex files, reproduced from the committed kernel source.",
+  "range": "three values observed: 0xc4, 0xc6, 0xc8 (the field's range was NOT swept)",
+  "target": "G17P"
+ },
+ "rtq_state_move.b3": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=207, wrong_value=48 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=255 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "rtq_state_move.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=13, silent_zero=1, wrong_value=1 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=14, silent_zero=1 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH)  ALSO: outcomes ok=13, silent_zero=2 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2)",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "rtq_state_move.form": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=175, silent_zero=64, wrong_value=16 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=32, ok=191, silent_zero=32 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.  ALSO: outcomes fault=62, ok=191, silent_zero=1 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+2: load-bearing; the rejected values split between silent zero and fault depending on the carrier.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "rtq_state_move.src": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=39, silent_zero=4, wrong_value=212 | carrier rq_cdist, anchor +1534, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_mtype, anchor +1556, 2 agreeing captures (gate RSH) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.  ALSO: outcomes ok=251, silent_zero=4 | carrier rq_all, anchor +142, 2 agreeing captures (gate B2) | byte+1 IS a per-instance operand in rq_cdist -- only 39 of 256 values reproduce the oracle and 212 return a DIFFERENT value, the signature of a real register read. In rq_mtype and bb_commit the same field is almost entirely inert, so the claim is carrier-scoped.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "scoreboard_fence.kind": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes ok=71, silent_zero=128, wrong_value=56 | carrier u64eq, anchor +56, 2 agreeing captures (gate RSH) | DECLINED. The u64eq carrier DOES detect this fence's removal -- replacing its four bytes with a hardware-verified inert filler (two mov_imm(r13,0), whose inertness arm L's CTRL_INERT established on this target) breaks the oracle, which is more than EXP-0141 or EXP-0147 could show. But detecting REMOVAL is not detecting ORDERING: nothing here shows two different fence values producing two different, host-predictable orderings, so an accepted value may preserve the required ordering or may merely be indistinguishable here. Per the dispatch, promotion needs ordering-specific litmus power. Left `untested`.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "scoreboard_fence.mask": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes ok=102, wrong_value=136 | carrier u64eq, anchor +56, 2 agreeing captures (gate RSH) | DECLINED. The u64eq carrier DOES detect this fence's removal -- replacing its four bytes with a hardware-verified inert filler (two mov_imm(r13,0), whose inertness arm L's CTRL_INERT established on this target) breaks the oracle, which is more than EXP-0141 or EXP-0147 could show. But detecting REMOVAL is not detecting ORDERING: nothing here shows two different fence values producing two different, host-predictable orderings, so an accepted value may preserve the required ordering or may merely be indistinguishable here. Per the dispatch, promotion needs ordering-specific litmus power. Left `untested`.",
+  "range": "238 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "scoreboard_fence.scope": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "untested",
+  "note": "outcomes ok=63, wrong_value=64 | carrier u64eq, anchor +56, 2 agreeing captures (gate RSH) | DECLINED. The u64eq carrier DOES detect this fence's removal -- replacing its four bytes with a hardware-verified inert filler (two mov_imm(r13,0), whose inertness arm L's CTRL_INERT established on this target) breaks the oracle, which is more than EXP-0141 or EXP-0147 could show. But detecting REMOVAL is not detecting ORDERING: nothing here shows two different fence values producing two different, host-predictable orderings, so an accepted value may preserve the required ordering or may merely be indistinguishable here. Per the dispatch, promotion needs ordering-specific litmus power. Left `untested`.",
+  "range": "127 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.dst": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes silent_zero=15 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.  ALSO: outcomes silent_zero=15 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | Destination nibble. PINNED in all three carriers: no value other than the compiler's own reproduces the getter's result, because the following code reads exactly that register. An emitter cannot choose the destination from this evidence.",
+  "range": "15 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.marshal": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=82 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=82 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT, both constituent bytes dense. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "82 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.operand": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.phase": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "outcomes ok=255 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.  ALSO: outcomes ok=255 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | HW-TESTED INERT across all 256 values in both candidate-getter carriers. db.json reads byte+7 0x80 as the CANDIDATE-vs-COMMITTED selector; that is not observable here. | HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.sel": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).  ALSO: accepted set: (value & 0x87) == 0x01 | outcomes ok=15, silent_zero=112 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+1 bits 0-6. Load-bearing but NOT the property selector: the low three bits must be 0b001 and bits 3-6 are don't-care, so 16 different values all return the correct property. Differential compilation locates the actual ray-query property selector at rt_ray_mem byte+10 (0xc4 barycentric.x / 0xc6 barycentric.y / 0xc8 triangle distance).",
+  "range": "127 values executed (boundaries + samples)",
+  "target": "G17P"
+ },
+ "sr_read_wide.width": {
+  "evidence": [
+   "EXP-0157"
+  ],
+  "label": "hardware-run",
+  "note": "accepted set: (value & 0xce) == 0x06 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cdist, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xce) == 0x46 | outcomes fault=32, ok=7, silent_zero=216 | carrier rq_cprim, anchor +328, 2 agreeing captures (gate RSH) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.  ALSO: accepted set: (value & 0xcf) == 0x46 | outcomes fault=16, ok=3, silent_zero=236 | carrier rq_all, anchor +808, 2 agreeing captures (gate B2) | byte+2. Load-bearing: only a masked subset reproduces the result and 32 of 256 values FAULT. The constraint shared by both carriers is (v & 0x8e) == 0x06; bit 6 varies per instance.",
+  "range": "255 values executed (boundaries + samples)",
+  "target": "G17P"
+ }
+}

@@ -1,0 +1,380 @@
+{
+ "db_defects": {
+  "coord_madf.no_carrier_on_G17P": {
+   "claim": "db.json: byte0-LEADER 0x2e coordinate FMA, gated on byte+2 == 0x23 (EXP-0037, cube/array coordinate generation).",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "NOT EMITTED by any of 9 own-MSL texture provocations on G17P (cube, cube-array, 3D, 2D-array, sample_compare, gather, explicit level, gradientcube, read_write 3D), with and without fast-math.",
+   "note": "All 5 fields stay `untested` on G17P for want of a carrier.",
+   "target": "G17P"
+  },
+  "mesh_out_src.length": {
+   "claim": "db.json declares `04 XX` to be a 2-byte MESH-stage compact source op.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "CONFIRMED for byte+1 bit7 CLEAR and REFUTED for bit7 SET, in a COMPUTE program. Splicing `04 XX` ahead of four 2-byte marker instructions: all 128 values with bit7 clear consume exactly 2 bytes (every marker runs); all 128 with bit7 set consume 4 (the first marker is swallowed). No value changed the stored result, so `sel` has no observable effect in a compute program.",
+   "note": "`mesh_out_src`'s match is byte0 == 0x04 with no constraint on byte+1, so as written it also matches the 4-byte form. It collides with `op04_len8`, whose match is only the byte0 low nibble.",
+   "target": "G17P"
+  },
+  "n2_op8.no_carrier_on_G17P": {
+   "claim": "db.json: the transcendental SFU range-reduction select; EXP-0146 found it in `fast::sin` on M4/G16G.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "NOT EMITTED by any of 17 own-MSL provocations on G17P across two independent rounds (fast/precise sin, cos, tan, sinpi/cospi/tanpi, exp/log/pow, atan2/asin/acos, sinh/cosh/tanh, rsqrt/sqrt/divide, modf/fract/fmod, half transcendentals, large-argument forms, with and without fast-math). Also absent from every ray-query carrier.",
+   "note": "A statement about what G17P's compiler emits, not about the silicon. The M4 evidence stands on its own target. All 4 fields stay `untested` on G17P for want of a carrier.",
+   "target": "G17P"
+  },
+  "op04_len8.length": {
+   "claim": "db.json declares a FIXED length of 8 for every byte0 low-nibble-4 residue.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Refuted on hardware. A register-witness probe (harness/run_lm.py, both positive controls passing) measures the CONSUMED length directly. All six `op04_len8` byte patterns taken from our own G17P compiles consume TWELVE bytes, not eight.",
+   "note": "This resolves the item EXP-0148 left OPEN, by a different method: EXP-0148 scored six STATIC length rules on corpus tokenization, and round-trip is blind to over-consumption by construction. This asks the silicon. It does NOT re-run EXP-0148's six rules.",
+   "rule": "For a `04` leader the consumed length is a joint function of byte+1 bit 7 and byte+2 (and, in the bit7-clear family, byte+3 bit 7). With byte+2 = 0x00 and byte+3 = 0x00: byte+1 bit7 SET -> 4, CLEAR -> 8. With the candidates' own tails: byte+1 bit7 SET -> 8, CLEAR -> 12 (128/128 split, reproduced on three independent candidates). Full measured map: analysis/length_rule.json and analysis/length_map_q.json.",
+   "target": "G17P"
+  },
+  "rtq_dualsrc.reachability": {
+   "claim": "db.json models `17 02 00 ..` as a 12-byte intersection_query dual-source op.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Same as rtq_pred: inert at 11 of 11 anchors under triangle geometry and 12 of 12 under bounding-box geometry, and a 256-byte erase at three of those offsets leaves the oracle correct. UNREACHED.",
+   "target": "G17P"
+  },
+  "rtq_pred.reachability": {
+   "claim": "db.json models `06 c2 00 00` as a ray-query traversal predicate word.",
+   "evidence": [
+    "EXP-0157"
+   ],
+   "measured": "Not refuted, but NOT REACHABLE from either own-MSL ray-query carrier we can build. Erasing all four bytes at 8 of 8 resolved anchors (triangle geometry) and 10 of 10 (bounding-box geometry) leaves the traversal oracle exactly correct; erasing 256 CONTIGUOUS bytes at three of those offsets also leaves it correct, while the same 4-byte erase over a live `sr_read_wide` anchor breaks it immediately.",
+   "note": "Those regions are UNREACHED, not inert. Nothing about the descriptor may be concluded from this experiment.",
+   "target": "G17P"
+  },
+  "sfu_marker.fields": {
+   "claim": "db.json: 'byte-INVARIANT 2-byte token (06 02) ... fixed control token with no operand bits'. It therefore has ZERO fields.",
+   "evidence": [
+    "EXP-0157",
+    "EXP-0146"
+   ],
+   "measured": "Refuted on G17P, reproducing EXP-0146's M4 result EXACTLY and in THREE independent carriers (fast::sin, fast::cos, sin+cos+tan): byte+0 accepts only (v & 0xf7) == 0x06 (2 of 256) and byte+1 only (v & 0x13) == 0x02 (32 of 256). Both bytes are load-bearing.",
+   "note": "A descriptor with zero fields cannot be counted against emittability and cannot be emitted with any variation; it needs two 8-bit fields.",
+   "target": "G17P"
+  }
+ },
+ "ray_move.b3@rq_all": {
+  "anchor": 72,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "ray_move.dst@rq_all": {
+  "anchor": 72,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 15,
+  "outcomes": {
+   "ok": 15
+  },
+  "range": "15 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "ray_move.form@rq_all": {
+  "anchor": 72,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 223,
+  "outcomes": {
+   "fault": 32,
+   "ok": 223
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "ray_move.src@rq_all": {
+  "anchor": 72,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "rtq_state_move.b3@rq_all": {
+  "anchor": 142,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "rtq_state_move.dst@rq_all": {
+  "anchor": 142,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 13,
+  "outcomes": {
+   "ok": 13,
+   "silent_zero": 2
+  },
+  "range": "15 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "rtq_state_move.form@rq_all": {
+  "anchor": 142,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 191,
+  "outcomes": {
+   "fault": 62,
+   "ok": 191,
+   "silent_zero": 1
+  },
+  "range": "254 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "rtq_state_move.src@rq_all": {
+  "anchor": 142,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 251,
+  "outcomes": {
+   "ok": 251,
+   "silent_zero": 4
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.dst@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 0,
+  "outcomes": {
+   "silent_zero": 15
+  },
+  "range": "15 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.marshal.byte+5@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.marshal.byte+6@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.marshal@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 82,
+  "outcomes": {
+   "ok": 82
+  },
+  "range": "82 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.operand@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.phase@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": null,
+  "label": "hardware-run",
+  "note": "HW-TESTED INERT in this carrier: every value reproduced the carrier's oracle exactly. Inert here does NOT mean don't-care in general.",
+  "ok_values": 255,
+  "outcomes": {
+   "ok": 255
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.sel@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": "(value & 0x87) == 0x01",
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 15,
+  "outcomes": {
+   "ok": 15,
+   "silent_zero": 112
+  },
+  "range": "127 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ },
+ "sr_read_wide.width@rq_all": {
+  "anchor": 808,
+  "anchor_after_gap": false,
+  "anchor_live": true,
+  "carrier": "rq_all",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "exact_rule": "(value & 0xcf) == 0x46",
+  "label": "hardware-run",
+  "note": "",
+  "ok_values": 3,
+  "outcomes": {
+   "fault": 16,
+   "ok": 3,
+   "silent_zero": 236
+  },
+  "range": "255 values executed (boundaries + samples)",
+  "semantics": "",
+  "target": "G17P"
+ }
+}

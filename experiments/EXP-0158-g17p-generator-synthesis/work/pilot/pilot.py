@@ -325,11 +325,21 @@ def main():
     def emit_case(arm, params, hexstr, idx, expect, note=""):
         tag = "%s_%s" % (arm, "_".join("%s%s" % (k, v) for k, v in sorted(params.items())))
         tag = tag.replace(".", "p").replace("-", "m")[:90]
-        rec = run_program(work, tag, hexstr, 40, bin_dir)
+        # An `InnocentVictim` failure is the driver telling us this command
+        # buffer was discarded because ANOTHER agent's work faulted.  It is
+        # evidence about the machine, never about our encoding, so it is
+        # retried rather than recorded (NEO-TARGET-BRIEF.md; protocol section 7).
+        victim_retries = 0
+        for attempt in range(6):
+            rec = run_program(work, tag if attempt == 0 else "%s_v%d" % (tag, attempt),
+                              hexstr, 40, bin_dir)
+            if "InnocentVictim" not in (rec["fault_class"] or ""):
+                break
+            victim_retries += 1
         outcome, got = classify(rec, idx, expect)
         row = {"arm": arm, "params": params, "outcome": outcome, "observed": got,
                "expect": expect, "status": rec["status"], "fault_class": rec["fault_class"],
-               "ms": rec["ms"], "note": note,
+               "ms": rec["ms"], "note": note, "victim_retries": victim_retries,
                "sentinel": (rec["words"][S.sentinel_word_index()]
                             if len(rec["words"]) > S.sentinel_word_index() else None),
                "words_head": rec["words"][:8], "tag": rec["tag"]}

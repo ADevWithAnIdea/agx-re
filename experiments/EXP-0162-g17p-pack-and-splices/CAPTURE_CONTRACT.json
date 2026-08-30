@@ -1,0 +1,173 @@
+{
+ "experiment": "EXP-0162-g17p-pack-and-splices",
+ "frozen_utc": "2026-08-29",
+ "repo_revision_at_freeze": "afea465ef67dc713b684a16370cc732d1c5a230c",
+ "revision_gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF.md)",
+ "target": {
+  "name": "Apple A18 Pro",
+  "gpu": "G17P",
+  "arch": "applegpu_g17p",
+  "accelerator": "AGXAcceleratorG17P",
+  "cores": 5,
+  "os": "macOS 26.6",
+  "host": "users-MacBook-Neo.local",
+  "ip": "192.168.10.243",
+  "label_for_every_result": "G17P"
+ },
+ "clean_room": {
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE",
+   "PUBLIC"
+  ],
+  "apple_binary_introspection": "NONE",
+  "public_use": "IEEE-754 / bfloat16 / MSL conversion definitions, host oracle only"
+ },
+ "authored_inputs_sha256": {
+  "kernels/carriers.metal": "83608acd4b35c45af2860da60981adf2852ac9d8268eaae458f48fd455a5fb34",
+  "kernels/render_probe.metal": "11672181e599b4854729e92ab47519e7bde6d9edcfe8026893256a08acbf157a",
+  "harness/oracle.py": "b4961de76c184f58c1630382f81f46c08031ae9c3af46953dd70e695bdff626f",
+  "harness/probe.py": "52d9d0307a5a3036c9fcb29c5d59d5525d8c9991939de1f0fec9bc2214d99294",
+  "harness/rendersweep.m": "9e3628e2cd0e6125e17bf0dca6b2ff096db961ecb376cdb2bf26834e050421fe",
+  "harness/rsdrv.py": "e6cfe407e27958a822e2510589ed9b9c39adb4d41dd7a4c85c0514cedec8864f",
+  "harness/shdump2.m": "223ff47fa6e16e7d6121fc7628e1a4391c4c26766946f511b6e8a959bde81771",
+  "harness/locate.py": "97486ba7811cff42aed537805a7137d6219eca25c6c1e7b7c2212134328aa0b1",
+  "analysis/corpus_scan.py": "79667b06241dcafca2520cb2b701fbc2a2997c204579680c135b9acaf94cf526",
+  "analysis/scan57.py": "e4b3c98b8494f3eed250e4d865a8457e2022596904c12fef7d7af63b4941a66e",
+  "harness/cases162.py": "890996f916fdf8291d3415aae4775513ea2872a995b69f02f825384b2f49f804",
+  "harness/probe162.py": "c24a3d0968a1498fa59ee541c8e4925df3221db25fae040424768b9be6d979c6",
+  "harness/runcompute.py": "0be107332a821339f0714421f7a52e064abeac992c8b46df2ef476b742ea495e"
+ },
+ "repo_tool_inputs_sha256": {
+  "tools/agx-isa/db.json": "acf40b4be3ece5a206205805cc48104107f5d18af2edea7f4a5f84f2d530d9b7",
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agxtest/persistrun.py": "cc53d8efbbdb1839b79ab12749150be4d8075581e6987d0cb2e4b66bec35dc13",
+  "tools/agxtest/agxrun_persist.m": "04e892e734679fb0450c2e246e65c409a0b0d565975a844361b6be2f3ece1834",
+  "tools/shdump/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad",
+  "tools/shdump/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f"
+ },
+ "anchors_located_by_pilot": {
+  "c_f2bf.cvt_bf16": {
+   "off": 156,
+   "bytes": "0101148105024000",
+   "len": 8
+  },
+  "c_f2h_dst.cvt_f2h_dst": {
+   "off": 156,
+   "bytes": "c10114810402",
+   "len": 6
+  },
+  "c_ph2.half_alu": {
+   "off": 108,
+   "bytes": "900405000020",
+   "len": 6,
+   "synth_packed_half2_hi": "980424000020"
+  },
+  "f_rog.fragment.pixel_order_acquire": {
+   "off": 248,
+   "bytes": "071454500600",
+   "len": 6
+  },
+  "f_rog.fragment.pixel_order_release": {
+   "off": 254,
+   "bytes": "070454d00600",
+   "len": 6
+  },
+  "f_kill.fragment.frag_kill": {
+   "off": 54,
+   "bytes": "571454000001",
+   "len_hypothesised": 6,
+   "next_instr_off": 60,
+   "next_instr_bytes": "070254010000"
+  },
+  "f_vary.vertex.vary_store_first": {
+   "off": 106,
+   "bytes": "5746540400404a00",
+   "len": 8
+  }
+ },
+ "raw_record_schema": {
+  "required_keys": [
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed",
+   "oracle",
+   "match",
+   "outcome",
+   "carrier",
+   "note"
+  ],
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "not_written",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable",
+   "no_draw",
+   "invalid_run"
+  ],
+  "extra_keys": [
+   "reps",
+   "votes",
+   "fault_class",
+   "sentinel",
+   "arm",
+   "run_id",
+   "target"
+  ],
+  "file": "raw/<run_id>/sweep.jsonl",
+  "flush": "per case, immediately"
+ },
+ "environment": {
+  "transport": "sshpass ssh, every remote call under `perl -e 'alarm N; exec'`",
+  "remote_workdir": "~/agxre/EXP-0162",
+  "builds": "clang -fobjc-arc -framework Metal -framework Foundation on the neo"
+ },
+ "timeouts_s": {
+  "compile": 180,
+  "compute_request": 8.0,
+  "render_request": 12.0,
+  "ssh_call": 900,
+  "lease_hold_s": 900
+ },
+ "concurrency": {
+  "policy": "FIELD-SWEEP-PROTOCOL section 7 + 7A",
+  "bulk": "concurrent, unlocked",
+  "fault_promotion": "re-confirmed 5x under ~/agxre/gpulease.sh before promotion",
+  "majority": "3, escalating to 5 on disagreement",
+  "victim_rule": "kIOGPUCommandBufferCallbackErrorInnocentVictim -> discard + re-run"
+ },
+ "poison": {
+  "word": "0xDEADBEEF + word_index",
+  "binding": "output buffer bound as an input file so agxrun_persist reuses it"
+ },
+ "stop_rules": [
+  "2 genuine hangs in one arm -> stop that arm, report PARTIAL",
+  "baseline failure mid-run -> cascade, stop and resume in a fresh process",
+  "neo unresponsive -> STOP and report BLOCKED; macvdmtool forbidden"
+ ],
+ "gates_for_any_db_proposal": {
+  "db_json_edited": false,
+  "proposal_file": "analysis/proposed_db_changes.json",
+  "validated_against": "a COPY of tools/agx-isa/",
+  "roundtrip_must_be": "ALL PASS (302 OK / 0 FAIL)",
+  "corpus_frozen_metrics": {
+   "clean_files": 832,
+   "strict_leftover_bytes": 389368,
+   "files": 1080
+  }
+ },
+ "amendment_1": {
+  "when": "2026-08-29, after two smoke runs in work/smoke, BEFORE any gated capture",
+  "changes": [
+   "per-word EXPECT_MASK {3:0xFFFF} for the half/bfloat carriers",
+   "c_f2bf semantic set rebuilt: 31 rows, discriminating value at v0",
+   "fourth competing bf16 model TIES_DOWN (ties toward zero, EXP-0133's unorm16 store rule)"
+  ],
+  "raw_dir_state_at_amendment": "empty"
+ }
+}

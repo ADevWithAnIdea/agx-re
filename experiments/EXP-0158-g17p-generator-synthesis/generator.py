@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
-"""EXP-0149 dataflow-DAG generator.
+"""EXP-0158 dataflow-DAG generator (G17P).
 
 Passes 1 (DAG structure) and 2 (linear-scan register allocation) are carried
 over UNCHANGED from `experiments/EXP-0112-m4-program-generator/generator.py`
-(our own code; EXP-0112 is committed, read-only evidence and is not modified).
+(our own code; EXP-0112 is committed, read-only evidence and is not modified),
+INCLUDING its RNG seed string -- so the 100 MAIN_DAG programs have exactly the
+DAG SHAPES EXP-0112 ran.  Holding the shapes constant is deliberate: it makes
+field provenance and target the only variables between the two experiments.
+
 Pass 3 -- instruction emission -- is REWRITTEN on top of `synth.py`, so that
-every field value is tagged RULE / FREE / CARRIER / COPIED and the experiment
-can report how many programs contain zero COPIED fields.
+every field value is tagged RULE / FREE / PILOT / CARRIER / COPIED and the
+experiment can report how many programs contain zero COPIED fields.
+
+Pass 3 also gains an `imm_mode`:
+  "falu2i"  -- a constant costs one falu2i with a packed minifloat immediate
+               (what EXP-0112 did);
+  "inline"  -- a constant rides in the CONSUMING instruction's own srcB
+               operand field as EXP-0138's inline 8-bit float immediate, so a
+               `const` leaf needs no separate seed instruction at all and an
+               `add_imm`/`mul_imm` needs no minifloat encode.  Values are
+               snapped onto the inline grid so the oracle stays exact.
 """
 import random
 import sys
@@ -249,8 +262,24 @@ def allocate_registers(nodes):
 # ---------------------------------------------------------------------------
 # Pass 3 -- SYNTHESISED emission + host oracle
 # ---------------------------------------------------------------------------
+def snap_to_inline_grid(k):
+    """Nearest EXACTLY representable inline-immediate value to k, taking the
+    sign convention frozen from the pilot into account.  Returns
+    (code, srcB_neg, exact_value)."""
+    import frozen_pilot as FP
+    best = None
+    negs = (0, 1) if FP.INLINE_NEG_WORKS else (0,)
+    for code in range(64):
+        for neg in negs:
+            v = S.inline_srcB_value(code, neg)
+            d = abs(v - k)
+            if best is None or d < best[0]:
+                best = (d, code, neg, v)
+    return best[1], best[2], best[3]
+
+
 def emit_program(led, nodes, leaves, reg_of, base_slot_out, base_slot_in,
-                 salt, offnatural, out_idx_off_start=0):
+                 salt, offnatural, out_idx_off_start=0, imm_mode="falu2i"):
     instrs = []
     val = {}
     oracle_words = {}
@@ -260,9 +289,17 @@ def emit_program(led, nodes, leaves, reg_of, base_slot_out, base_slot_in,
         reg = reg_of[n.id]
         cs = "%s#%d" % (salt, n.id)
         if n.type == "const":
-            kv = S.imm_value(n.k)
-            instrs.append(S.falu2i(led, reg, "fadd", S.R_UNWRITTEN, n.k,
-                                   last_use_srcA=True, load_sourced=False, salt=cs))
+            if imm_mode == "inline":
+                code, neg, kv = snap_to_inline_grid(n.k)
+                instrs.append(S.falu2_imm(led, reg, "fadd", S.R_UNWRITTEN, None,
+                                          last_use_srcA=True, salt=cs,
+                                          offnatural=offnatural, srcB_neg=neg,
+                                          imm_code_override=code,
+                                          load_sourced=False))
+            else:
+                kv = S.imm_value(n.k)
+                instrs.append(S.falu2i(led, reg, "fadd", S.R_UNWRITTEN, n.k,
+                                       last_use_srcA=True, load_sourced=False, salt=cs))
             val[n.id] = S.f32(0.0 + kv)
         elif n.type == "load":
             instrs.append(S.device_load(led, S.R_IDX, n.idx_off, n.elem_code, base_slot_in,
@@ -274,16 +311,34 @@ def emit_program(led, nodes, leaves, reg_of, base_slot_out, base_slot_in,
             srcA = n.srcA
             last = nodes[srcA].a_reads[-1] == n.id
             producer_is_load = (nodes[srcA].type == "load")
-            instrs.append(S.falu2i(led, reg, n.op, reg_of[srcA], n.k, last_use_srcA=last,
-                                   load_sourced=producer_is_load, salt=cs))
-            kv = S.imm_value(n.k)
+            if imm_mode == "inline" and not producer_is_load:
+                # NOT used when srcA is load-sourced: EXP-0101 H1's bridge rule
+                # is only established for the falu2i `mods` form, and this
+                # experiment does not assume it transfers to the inline-imm
+                # class.  Named, not silently assumed.
+                code, neg, kv = snap_to_inline_grid(n.k)
+                instrs.append(S.falu2_imm(led, reg, n.op, reg_of[srcA], None,
+                                          last_use_srcA=last, salt=cs,
+                                          offnatural=offnatural, srcB_neg=neg,
+                                          imm_code_override=code,
+                                          load_sourced=False))
+            else:
+                instrs.append(S.falu2i(led, reg, n.op, reg_of[srcA], n.k, last_use_srcA=last,
+                                       load_sourced=producer_is_load, salt=cs))
+                kv = S.imm_value(n.k)
             a = val[srcA]
             val[n.id] = S.f32(a + kv) if n.op == "fadd" else S.f32(a * kv)
         elif n.type in ("add_reg", "mul_reg"):
             srcA, srcB = n.srcA, n.srcB
             last = nodes[srcA].a_reads[-1] == n.id
+            # EXP-0158 pilot P2: if EITHER operand came from a device_load,
+            # mod_hi = 0xC is the only value of sixteen that delivers it.  The
+            # srcB half is not separately established, so the conservative
+            # reading (either operand load-sourced -> 0xC) is used and stated.
+            ls = (nodes[srcA].type == "load") or (nodes[srcB].type == "load")
             instrs.append(S.falu2(led, reg, n.op, reg_of[srcA], reg_of[srcB],
-                                  last_use_srcA=last, salt=cs, offnatural=offnatural))
+                                  last_use_srcA=last, salt=cs, offnatural=offnatural,
+                                  load_sourced=ls))
             a, b = val[srcA], val[srcB]
             val[n.id] = S.f32(a + b) if n.op == "fadd" else S.f32(a * b)
         else:
@@ -321,15 +376,17 @@ IMEM_WORDS = _make_imem_words()
 
 
 def build_dag_program(seed, n_nodes, carrier_len, base_slot_out, base_slot_in,
-                      offnatural=True):
+                      offnatural=True, imm_mode="falu2i"):
     """seed -> DAG -> registers -> SYNTHESISED bytes + oracle + provenance."""
     led = S.Ledger()
     nodes, leaves = generate_dag(seed, n_nodes)
     reg_of = allocate_registers(nodes)
     salt = "dag%d" % seed
     setup = [S.mov_imm(led, S.R_IDX, 0, salt=salt)]
+    setup += S.sentinel_instrs(led, base_slot_out, salt)
     body, oracle, n_stores = emit_program(led, nodes, leaves, reg_of, base_slot_out,
-                                          base_slot_in, salt, offnatural)
+                                          base_slot_in, salt, offnatural,
+                                          imm_mode=imm_mode)
     instrs = setup + body + [S.stop(led)]
     prog = S.build_program(led, instrs, carrier_len)
     S.assert_round_trip(prog)
@@ -337,7 +394,8 @@ def build_dag_program(seed, n_nodes, carrier_len, base_slot_out, base_slot_in,
             "max_live_registers": _max_concurrent_live(nodes),
             "byte_length": len(prog),
             "prov_counts": led.counts(), "copied_fields": led.copied_fields(),
-            "carrier_fields": led.carrier_fields(),
+            "carrier_fields": led.carrier_fields(), "pilot_fields": led.pilot_fields(),
+            "imm_mode": imm_mode,
             "n_offnatural": len(led.offnatural())}
     return prog.hex(), oracle, meta
 

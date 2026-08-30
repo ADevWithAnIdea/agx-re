@@ -47,6 +47,7 @@ MAX_HANGS_PER_FIELD = 2     # FIELD-SWEEP-PROTOCOL sec.8: stop an AREA after two
 MAX_HANGS_PER_ARM = 6       # ... and the whole arm after six
 CONFIRM_N = 3               # sec.7.1: majority-of-3 before ANY `fault` verdict
 MAX_LADDER = 14             # liveness-ladder cap (see the ladder() docstring)
+FOREIGN_CASCADE_N = 8       # consecutive InnocentVictim outcomes -> settle + re-validate
 BASELINE_EVERY = 250        # sec.7.3: re-validate the unmutated carrier
 BASELINE_RETRIES = 4        # a baseline failure is only a cascade if ALL fail
 POISON = 0xDEADBEEF
@@ -398,10 +399,22 @@ def main():
     def run_confirmed(arm, patched_instr):
         """sec.7.1: NEVER treat a single fault/hang as a property of the field.
         Re-run any non-OK case up to CONFIRM_N times; the verdict is the
-        MAJORITY.  Returns (observation, confirm_record)."""
+        MAJORITY.  Returns (observation, confirm_record).
+
+        EXCEPTION (harness fix after run01, see raw/g17p_20260829_run01/PARTIAL.md):
+        a case the runner has ALREADY classified FOREIGN_FAULT -- i.e. it came
+        back kIOGPUCommandBufferCallbackErrorInnocentVictim on all 8 of its own
+        retries -- is returned immediately.  classify() maps InnocentVictim to
+        `foreign` unconditionally, so three more confirmation trials cannot
+        change the verdict; they only lengthen a contaminated window, which is
+        what collapsed run01's throughput.  This changes no classification."""
         obs = run_case(arm, patched_instr)
         if obs.get("status") == "OK":
             return obs, None
+        if obs.get("status") == "FOREIGN_FAULT" or obs.get("os_class") == "InnocentVictim":
+            return obs, {"n": 1, "status": [obs.get("status")],
+                         "os_class": [obs.get("os_class", "")], "bad": 1,
+                         "reproduced": False, "foreign_shortcut": True}
         trials = [obs]
         for _ in range(CONFIRM_N - 1):
             trials.append(run_case(arm, patched_instr))
@@ -523,6 +536,7 @@ def main():
             return False, b, BASELINE_RETRIES
 
         desc = isadb._BY_MNEM[arm["mnemonic"]]
+        consec_foreign = [0]
         # Cross-occurrence coordinate map for the tex_sample predictive oracle,
         # built entirely from OUR OWN compiled bytes (00_inputs.json records it).
         armbase = None
@@ -601,6 +615,27 @@ def main():
                     outcome = "undecodable" if outcome == "ok" else outcome
                 if outcome in ("wrong_value", "silent_zero"):
                     detect += 1
+                if outcome == "foreign":
+                    consec_foreign[0] += 1
+                    if consec_foreign[0] >= FOREIGN_CASCADE_N:
+                        time.sleep(3.0)
+                        okb, bb, tries = baseline_holds()
+                        emit({"instr": arm["mnemonic"], "field": "_cascade_check",
+                              "value": ncases, "bytes": orig.hex(), "observed": bb,
+                              "oracle": None, "match": bool(okb),
+                              "outcome": "ok" if okb else "fault",
+                              "carrier": arm["id"],
+                              "note": f"{consec_foreign[0]} consecutive foreign "
+                                      f"(InnocentVictim) outcomes: settled 3 s and "
+                                      f"re-validated the unmutated carrier; "
+                                      f"baseline_ok={okb} after {tries} retries"})
+                        ncases += 1
+                        consec_foreign[0] = 0
+                        if not okb:
+                            cascade.append((arm["id"], fname, ncases))
+                            break
+                else:
+                    consec_foreign[0] = 0
                 if outcome == "silent_zero":
                     nzero += 1
                 if outcome in ("fault", "hang"):

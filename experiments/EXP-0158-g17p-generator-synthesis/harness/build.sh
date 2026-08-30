@@ -1,9 +1,10 @@
 #!/bin/sh
-# EXP-0112 harness build: compile OUR OWN read-only tool sources
-# (tools/shdump, tools/agxtest) into this experiment's work/bin. The tools
-# are never edited; their sources are hash-recorded by the runner. Local M4
-# only; no SSH anywhere. (Verbatim pattern from EXP-0090/EXP-0099/EXP-0101
-# harness/build.sh.)
+# EXP-0158 harness build (G17P): compile OUR OWN read-only tool sources
+# (tools/shdump, tools/agxtest) into this experiment's work/bin, ON THE TARGET,
+# from source, every run. The tools are never edited; their sources are
+# hash-recorded by the runner. Rebuilding rather than copying a binary is the
+# NEO-TARGET-BRIEF.md instruction and also means the binaries are demonstrably
+# the ones this repository's committed source produces.
 set -e
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUT="$1"

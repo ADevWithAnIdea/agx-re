@@ -1,0 +1,1418 @@
+{
+ "arms": {
+  "fcp@pack0": {
+   "abs_off": 15036,
+   "all_hits": [
+    76,
+    102
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "comp_off": 0,
+    "conv_scale": 194,
+    "dst": 0,
+    "fmt_class": 84,
+    "mode": 2,
+    "src_desc": 4,
+    "src_gate_select": 69,
+    "src_present_mask": 208,
+    "val": 32
+   },
+   "instr_off": 76,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_pack",
+   "note": "packs colour channels 0/1 for the 8-bit attachment store",
+   "occ": 0,
+   "orig": "97045400020020d045c2",
+   "stage": "fragment"
+  },
+  "fcp@pack1": {
+   "abs_off": 15062,
+   "all_hits": [
+    76,
+    102
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "comp_off": 4,
+    "conv_scale": 194,
+    "dst": 1,
+    "fmt_class": 84,
+    "mode": 2,
+    "src_desc": 4,
+    "src_gate_select": 69,
+    "src_present_mask": 208,
+    "val": 16
+   },
+   "instr_off": 102,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_pack",
+   "note": "second pack op (channels 2/3) -- adversarial replicate",
+   "occ": 1,
+   "orig": "97045401020410d045c2",
+   "stage": "fragment"
+  },
+  "fcs@iter0": {
+   "abs_off": 15208,
+   "all_hits": [
+    104
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "flags": 0,
+    "fmt": 46,
+    "mask": 1,
+    "rt_index": 0,
+    "slice_addr": 0,
+    "src": 0,
+    "store_mode": 84
+   },
+   "instr_off": 104,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_store",
+   "note": "the only colour store in the program: it writes the observed pixel",
+   "occ": 0,
+   "orig": "e70654000000012e00000000",
+   "stage": "fragment"
+  },
+  "fcs@pack0": {
+   "abs_off": 15084,
+   "all_hits": [
+    124
+   ],
+   "carrier": "c_pack",
+   "decoded": {
+    "flags": 0,
+    "fmt": 78,
+    "mask": 1,
+    "rt_index": 0,
+    "slice_addr": 0,
+    "src": 0,
+    "store_mode": 84
+   },
+   "instr_off": 124,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "frag_color_store",
+   "note": "adversarial replicate on an 8-bit (BGRA8Unorm) attachment where fmt differs",
+   "occ": 0,
+   "orig": "e70654000000014e00000000",
+   "stage": "fragment"
+  },
+  "fds@depth0": {
+   "abs_off": 14210,
+   "all_hits": [
+    162
+   ],
+   "carrier": "c_depth",
+   "decoded": {
+    "b3": 0,
+    "b4": 0,
+    "b5": 3
+   },
+   "instr_off": 162,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_depth_store",
+   "note": "the only depth store; the depth attachment is read back directly and the written depth is an interpolated gradient, so 'wrote the wrong value' and 'did not write' are distinguishable",
+   "occ": 0,
+   "orig": "d71454000003",
+   "stage": "fragment"
+  },
+  "fts@iter0": {
+   "abs_off": 15196,
+   "all_hits": [
+    92,
+    98
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "access": 6,
+    "b1": 2,
+    "b5": 0,
+    "sel": 0
+   },
+   "instr_off": 92,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_tile_setup",
+   "note": "store-setup bracket immediately preceding the observed colour store",
+   "occ": 0,
+   "orig": "870254000600",
+   "stage": "fragment"
+  },
+  "fts@iter1": {
+   "abs_off": 15202,
+   "all_hits": [
+    92,
+    98
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "access": 8,
+    "b1": 2,
+    "b5": 0,
+    "sel": 12
+   },
+   "instr_off": 98,
+   "length": 6,
+   "located_via": "tokenize",
+   "mnemonic": "frag_tile_setup",
+   "note": "second bracket around the same store",
+   "occ": 1,
+   "orig": "8702540c0800",
+   "stage": "fragment"
+  },
+  "ibs@t1": {
+   "abs_off": 14762,
+   "all_hits": [
+    106
+   ],
+   "carrier": "t_sample",
+   "decoded": {
+    "b4": 0,
+    "b6": 1,
+    "fmt": 46,
+    "slice_off": 0,
+    "src": 0,
+    "tail": 0
+   },
+   "instr_off": 106,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "imageblock_store",
+   "note": "the pre-freeze census found the RGBA32Float colour output of the implicit-LOD sample carrier is encoded as imageblock_store, not frag_color_store: it writes the observed pixel, so the whole instruction is live on the read-back float",
+   "occ": 0,
+   "orig": "e71654000000012e00000000",
+   "stage": "fragment"
+  },
+  "ibs@tc": {
+   "abs_off": 15708,
+   "all_hits": [
+    172
+   ],
+   "carrier": "t_coord",
+   "decoded": {
+    "b4": 0,
+    "b6": 1,
+    "fmt": 46,
+    "slice_off": 0,
+    "src": 0,
+    "tail": 0
+   },
+   "instr_off": 172,
+   "length": 12,
+   "located_via": "tokenize",
+   "mnemonic": "imageblock_store",
+   "note": "adversarial replicate of the store on the 3D/cube/array carrier",
+   "occ": 0,
+   "orig": "e71654000000012e00000000",
+   "stage": "fragment"
+  },
+  "iter@cent1": {
+   "abs_off": 15158,
+   "all_hits": [
+    20,
+    38,
+    58,
+    78,
+    88,
+    98
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 4,
+    "grp": 47,
+    "lead": 5,
+    "loc": 9,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 38,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "centroid/sample-qualified iter -- covers mode/loc values the plain-centre carrier never emits",
+   "occ": 1,
+   "orig": "2f055404030004020900",
+   "stage": "fragment"
+  },
+  "iter@cent4": {
+   "abs_off": 15178,
+   "all_hits": [
+    24,
+    42,
+    68,
+    108,
+    118,
+    136,
+    154,
+    172,
+    190,
+    208,
+    226,
+    262,
+    290,
+    308,
+    322
+   ],
+   "carrier": "c_cent4",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 6,
+    "grp": 47,
+    "lead": 5,
+    "loc": 9,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 42,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "iter",
+   "note": "MULTISAMPLED (4x, resolved): centroid and per-sample locations are genuinely distinct from pixel centre only here",
+   "occ": 1,
+   "orig": "2f055406030004020900",
+   "stage": "fragment"
+  },
+  "iter@frag0W": {
+   "abs_off": 15104,
+   "all_hits": [
+    0,
+    20,
+    30,
+    40,
+    50
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 0,
+    "grp": 47,
+    "lead": 13,
+    "loc": 16,
+    "mode": 4,
+    "src_slot": 0
+   },
+   "instr_off": 0,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "the perspective-W-denominator iter; its result feeds the rcp that scales all four channels",
+   "occ": 0,
+   "orig": "2f0d5400030004021000",
+   "stage": "fragment"
+  },
+  "iter@frag1": {
+   "abs_off": 15124,
+   "all_hits": [
+    0,
+    20,
+    30,
+    40,
+    50
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "b9": 0,
+    "c7": 2,
+    "coeff_sel": 3,
+    "dst": 10,
+    "grp": 47,
+    "lead": 5,
+    "loc": 16,
+    "mode": 0,
+    "src_slot": 2
+   },
+   "instr_off": 20,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "iter",
+   "note": "this iter produces colour channel 0 (EXP-0143 pilot: src_slot 0x02->0x08 makes channel 0 equal channel 3)",
+   "occ": 1,
+   "orig": "2f05540a030200021000",
+   "stage": "fragment"
+  },
+  "iter_at@cent1_0": {
+   "abs_off": 15128,
+   "all_hits": [
+    8,
+    30
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b5": 0,
+    "c4": 3,
+    "dst": 10,
+    "grp": 175,
+    "lead": 20,
+    "loc": 1
+   },
+   "instr_off": 8,
+   "length": 8,
+   "located_via": "tokenize",
+   "mnemonic": "iter_at",
+   "note": "interpolate-at setup for the centroid varyings; EXP-0143 pilot proved lead 0x14->0x00 changes channels 0 and 1",
+   "occ": 0,
+   "orig": "af14540a03000a01",
+   "stage": "fragment"
+  },
+  "iter_at@cent1_1": {
+   "abs_off": 15150,
+   "all_hits": [
+    8,
+    30
+   ],
+   "carrier": "c_cent1",
+   "decoded": {
+    "b5": 4,
+    "c4": 3,
+    "dst": 8,
+    "grp": 175,
+    "lead": 4,
+    "loc": 3
+   },
+   "instr_off": 30,
+   "length": 8,
+   "located_via": "tokenize",
+   "mnemonic": "iter_at",
+   "note": "second interpolate-at setup; pilot-proven live",
+   "occ": 1,
+   "orig": "af04540803040a03",
+   "stage": "fragment"
+  },
+  "iter_flat@flat0": {
+   "abs_off": 15040,
+   "all_hits": [
+    0,
+    6
+   ],
+   "carrier": "c_flat",
+   "decoded": {
+    "b1": 11,
+    "b4": 0,
+    "b5": 5,
+    "sel": 137
+   },
+   "instr_off": 0,
+   "length": 6,
+   "located_via": "scan",
+   "mnemonic": "iter_flat",
+   "note": "adversarial second occurrence of the same op in the same program",
+   "occ": 0,
+   "orig": "1f0b54890005",
+   "stage": "fragment"
+  },
+  "iter_flat@flat1": {
+   "abs_off": 15046,
+   "all_hits": [
+    0,
+    6
+   ],
+   "carrier": "c_flat",
+   "decoded": {
+    "b1": 3,
+    "b4": 1,
+    "b5": 5,
+    "sel": 6
+   },
+   "instr_off": 6,
+   "length": 6,
+   "located_via": "scan",
+   "mnemonic": "iter_flat",
+   "note": "flat varying load feeding a colour channel; the four [[flat]] values are distinct so a selector change is unambiguous",
+   "occ": 1,
+   "orig": "1f0354060105",
+   "stage": "fragment"
+  },
+  "sballot@simd0": {
+   "abs_off": 9650,
+   "all_hits": [
+    354
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "cache": 84,
+    "dst": 6,
+    "form": 0,
+    "form_sig": 1188440,
+    "pred": 0,
+    "psrc": 2,
+    "psrctype": 12
+   },
+   "instr_off": 354,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "simd_ballot",
+   "note": "simd_ballot(predicate); the 32-bit mask is written by every lane",
+   "occ": 0,
+   "orig": "17075406020c00582212",
+   "stage": "compute"
+  },
+  "sreduce@simd0": {
+   "abs_off": 9338,
+   "all_hits": [
+    42,
+    50,
+    68,
+    76,
+    84,
+    92,
+    100,
+    108,
+    120
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "b0hi": 0,
+    "cache": 1,
+    "dst": 24,
+    "dtype": 1,
+    "op": 1,
+    "opcls": 1,
+    "opmarker": 2,
+    "scope": 1,
+    "shape": 22,
+    "src": 72
+   },
+   "instr_off": 42,
+   "length": 8,
+   "located_via": "scan",
+   "mnemonic": "simd_reduce",
+   "note": "a live SIMD-group reduction whose result every lane writes to the output buffer",
+   "occ": 0,
+   "orig": "bf01561802481601",
+   "stage": "compute"
+  },
+  "sreduce@simd8": {
+   "abs_off": 9364,
+   "all_hits": [
+    42,
+    50,
+    68,
+    76,
+    84,
+    92,
+    100,
+    108,
+    120
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "b0hi": 0,
+    "cache": 0,
+    "dst": 28,
+    "dtype": 7,
+    "op": 2,
+    "opcls": 0,
+    "opmarker": 2,
+    "scope": 1,
+    "shape": 20,
+    "src": 4
+   },
+   "instr_off": 68,
+   "length": 8,
+   "located_via": "scan",
+   "mnemonic": "simd_reduce",
+   "note": "the opcls=0 / dtype=7 reduce (census occ 2) -- adversarial replicate exercising the other value of the op-class bit",
+   "occ": 2,
+   "orig": "3f02541c02041407",
+   "stage": "compute"
+  },
+  "sshuffle@simd1": {
+   "abs_off": 9474,
+   "all_hits": [
+    168,
+    178,
+    218,
+    278,
+    288,
+    306
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "cache": 0,
+    "dir": 0,
+    "dst": 2,
+    "dsthi": 18,
+    "lane": 10,
+    "mode": 4,
+    "rsv9": 0,
+    "rtype": 46,
+    "src": 3,
+    "srctype": 72
+   },
+   "instr_off": 178,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "simd_shuffle",
+   "note": "simd_broadcast(u,5): the source lane is directly predictable from the input buffer, so the arm has a true predictive oracle",
+   "occ": 1,
+   "orig": "4704540203480a2e1200",
+   "stage": "compute"
+  },
+  "sshuffle@simd6": {
+   "abs_off": 9584,
+   "all_hits": [
+    168,
+    178,
+    218,
+    278,
+    288,
+    306
+   ],
+   "carrier": "c_simd",
+   "decoded": {
+    "cache": 0,
+    "dir": 1,
+    "dst": 0,
+    "dsthi": 2,
+    "lane": 2,
+    "mode": 4,
+    "rsv9": 0,
+    "rtype": 44,
+    "src": 2,
+    "srctype": 72
+   },
+   "instr_off": 288,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "simd_shuffle",
+   "note": "the census's dir=1 (xor/down) occurrence -- adversarial replicate on the other direction; EXP-0115 reports THREE out-of-bounds shuffle modes, so the mode/type fields are swept densely here",
+   "occ": 4,
+   "orig": "c70454000248022c0200",
+   "stage": "compute"
+  },
+  "tex_coord@lo_0": {
+   "abs_off": 15496,
+   "all_hits": [
+    120
+   ],
+   "carrier": "t_lodoff",
+   "decoded": {
+    "b1": 1,
+    "b5": 0,
+    "b6": 0,
+    "b8": 0,
+    "b9": 0,
+    "dst_lo": 6,
+    "form": 66,
+    "idx": 4,
+    "srcA": 0,
+    "subop": 47
+   },
+   "instr_off": 120,
+   "length": 10,
+   "located_via": "scan",
+   "mnemonic": "tex_coord_setup",
+   "note": "THE ONLY tex_coord_setup our whole carrier set emits.  The pre-freeze census showed neither a float2 2D sample nor a 3D/cube/array sample emits it -- only the const-offset gather / bias / gradient / depth-compare carrier does.  It feeds the four sample ops whose results are the four observed colour channels",
+   "occ": 0,
+   "orig": "6b012f00420000040000",
+   "stage": "fragment"
+  },
+  "tex_deriv@d0": {
+   "abs_off": 16104,
+   "all_hits": [
+    56,
+    66,
+    76,
+    86
+   ],
+   "carrier": "t_deriv",
+   "decoded": {
+    "axis": 146,
+    "b1": 5,
+    "dstsrc": 131156,
+    "src_comp": 4,
+    "tail": 64
+   },
+   "instr_off": 56,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "tex_deriv",
+   "note": "each of the four derivatives goes to its OWN colour channel and the alpha channel adds an ALU-only sentinel, so a zeroed derivative, an axis swap and a dead dispatch are three different read-back vectors",
+   "occ": 0,
+   "orig": "37055400020492400000",
+   "stage": "fragment"
+  },
+  "tex_deriv@d1": {
+   "abs_off": 16114,
+   "all_hits": [
+    56,
+    66,
+    76,
+    86
+   ],
+   "carrier": "t_deriv",
+   "decoded": {
+    "axis": 144,
+    "b1": 7,
+    "dstsrc": 131668,
+    "src_comp": 4,
+    "tail": 64
+   },
+   "instr_off": 66,
+   "length": 10,
+   "located_via": "tokenize",
+   "mnemonic": "tex_deriv",
+   "note": "second derivative op in the same program -- adversarial replicate",
+   "occ": 1,
+   "orig": "37075402020490400000",
+   "stage": "fragment"
+  },
+  "tex_sample@lo_0": {
+   "abs_off": 15522,
+   "all_hits": [
+    146,
+    160,
+    174,
+    188
+   ],
+   "carrier": "t_lodoff",
+   "decoded": {
+    "chain": 2,
+    "comp_flags": 4,
+    "coord": 37,
+    "extra_coord": 0,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 0,
+    "result_desc": 33,
+    "result_sel": 144,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 128,
+    "tex_type": 1,
+    "variant": 32
+   },
+   "instr_off": 146,
+   "length": 14,
+   "located_via": "scan",
+   "mnemonic": "tex_sample",
+   "note": "depth-compare sample (variant 0x20): the widest variant coverage in the set, and the only one with a compare reference operand",
+   "occ": 0,
+   "orig": "25840c2190252000800100000100",
+   "stage": "fragment"
+  },
+  "tex_sample@lo_1": {
+   "abs_off": 15536,
+   "all_hits": [
+    146,
+    160,
+    174,
+    188
+   ],
+   "carrier": "t_lodoff",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 0,
+    "coord": 36,
+    "extra_coord": 2,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 0,
+    "result_desc": 38,
+    "result_sel": 145,
+    "samp_extra": 14,
+    "samp_slot_offset": 136,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 1
+   },
+   "instr_off": 160,
+   "length": 14,
+   "located_via": "scan",
+   "mnemonic": "tex_sample",
+   "note": "const-offset gather (variant 0x01, samp_extra 0x0e): the only occurrence in the set with a non-zero samp_extra",
+   "occ": 1,
+   "orig": "05800c269124010200880000010e",
+   "stage": "fragment"
+  },
+  "tex_sample@lo_2": {
+   "abs_off": 15550,
+   "all_hits": [
+    146,
+    160,
+    174,
+    188
+   ],
+   "carrier": "t_lodoff",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 0,
+    "coord": 37,
+    "extra_coord": 0,
+    "kind": 13,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 33,
+    "result_sel": 17,
+    "samp_extra": 0,
+    "samp_slot_offset": 0,
+    "tex_slot": 1,
+    "tex_type": 1,
+    "variant": 4
+   },
+   "instr_off": 174,
+   "length": 14,
+   "located_via": "scan",
+   "mnemonic": "tex_sample",
+   "note": "gradient sample (variant 0x04, mode 0x10 filtered)",
+   "occ": 2,
+   "orig": "0d800c2111250400010010000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t1_0": {
+   "abs_off": 14710,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_sample",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 0,
+    "coord": 0,
+    "extra_coord": 0,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 32,
+    "result_sel": 144,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 0
+   },
+   "instr_off": 54,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "sample 0's result is colour channel 0 and nothing else reaches channel 0; channel 3 is a texture-unit-independent ALU sentinel, so a dead texture unit and a dead shader are separable",
+   "occ": 0,
+   "orig": "05800c2090000000000110000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t1_1": {
+   "abs_off": 14724,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_sample",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 2,
+    "coord": 1,
+    "extra_coord": 0,
+    "kind": 13,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 32,
+    "result_sel": 16,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 0
+   },
+   "instr_off": 68,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "sample 1 -> channel 1; adversarial replicate of the same op in the same program with a different coordinate register pair",
+   "occ": 1,
+   "orig": "0d820c2010010000000110000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t1_2": {
+   "abs_off": 14738,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_sample",
+   "decoded": {
+    "chain": 1,
+    "comp_flags": 4,
+    "coord": 1,
+    "extra_coord": 0,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 160,
+    "result_sel": 144,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 1,
+    "tex_type": 1,
+    "variant": 0
+   },
+   "instr_off": 82,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "sample 2 -> channel 2; third independent replicate",
+   "occ": 2,
+   "orig": "15840ca090010000010110000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t2_0": {
+   "abs_off": 15158,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_texops",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 0,
+    "coord": 72,
+    "extra_coord": 0,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 32,
+    "result_sel": 144,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 9
+   },
+   "instr_off": 54,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "EXPLICIT-LOD sample -> channel 0: a different `variant` value, so the tex_type/lod_present rules are tested off the implicit-LOD path",
+   "occ": 0,
+   "orig": "05800c2090480900000110000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t2_1": {
+   "abs_off": 15172,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_texops",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 2,
+    "coord": 73,
+    "extra_coord": 0,
+    "kind": 13,
+    "lod_present": 0,
+    "mode": 0,
+    "result_desc": 36,
+    "result_sel": 16,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 1,
+    "tex_type": 1,
+    "variant": 0
+   },
+   "instr_off": 68,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "GATHER -> channel 1: exercises result_desc's gather encoding and a third variant value",
+   "occ": 1,
+   "orig": "0d820c2410490000010100000100",
+   "stage": "fragment"
+  },
+  "tex_sample@t2_2": {
+   "abs_off": 15186,
+   "all_hits": [
+    54,
+    68,
+    82
+   ],
+   "carrier": "t_texops",
+   "decoded": {
+    "chain": 1,
+    "comp_flags": 4,
+    "coord": 73,
+    "extra_coord": 1,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 0,
+    "result_desc": 160,
+    "result_sel": 145,
+    "samp_extra": 0,
+    "samp_slot_offset": 0,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 23
+   },
+   "instr_off": 82,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "unfiltered READ -> channel 2: no sampler is involved, so any sampler-side field that still matters here is a real finding",
+   "occ": 2,
+   "orig": "15840ca091491701000000000100",
+   "stage": "fragment"
+  },
+  "tex_sample@tc_0": {
+   "abs_off": 15656,
+   "all_hits": [
+    120,
+    134,
+    148
+   ],
+   "carrier": "t_coord",
+   "decoded": {
+    "chain": 0,
+    "comp_flags": 0,
+    "coord": 0,
+    "extra_coord": 1,
+    "kind": 5,
+    "lod_present": 0,
+    "mode": 16,
+    "result_desc": 32,
+    "result_sel": 144,
+    "samp_extra": 0,
+    "samp_slot_offset": 1,
+    "tex_slot": 0,
+    "tex_type": 1,
+    "variant": 128
+   },
+   "instr_off": 120,
+   "length": 14,
+   "located_via": "tokenize",
+   "mnemonic": "tex_sample",
+   "note": "a 3D sample: the ONLY place tex_type=2 (volumetric) and the third coordinate register (extra_coord) are live",
+   "occ": 0,
+   "orig": "05800c2090008001000110000100",
+   "stage": "fragment"
+  },
+  "tex_write@w0": {
+   "abs_off": 15304,
+   "all_hits": [
+    280,
+    296,
+    312,
+    334
+   ],
+   "carrier": "t_write",
+   "decoded": {
+    "amode": 84,
+    "coord_dim": 4,
+    "coord_pack": 16,
+    "coord_regs": 64,
+    "data_desc": 58,
+    "data_desc_hi": 9,
+    "layer_reg": 32,
+    "rsv10": 0,
+    "rsv11": 0,
+    "rsv15": 0,
+    "rsv8": 0,
+    "seq_idx": 0,
+    "wop": 136
+   },
+   "instr_off": 280,
+   "length": 16,
+   "located_via": "scan",
+   "mnemonic": "tex_write",
+   "note": "write 0 lands in texel (1,0) of a texture reset to (-1,-2,-3,-4) before every render: 'wrote here', 'did not write' and 'wrote somewhere else' are three distinguishable read-backs",
+   "occ": 0,
+   "orig": "d71054002040000000040000883a0900",
+   "stage": "fragment"
+  },
+  "tex_write@w1": {
+   "abs_off": 15320,
+   "all_hits": [
+    280,
+    296,
+    312,
+    334
+   ],
+   "carrier": "t_write",
+   "decoded": {
+    "amode": 84,
+    "coord_dim": 4,
+    "coord_pack": 32,
+    "coord_regs": 64,
+    "data_desc": 58,
+    "data_desc_hi": 9,
+    "layer_reg": 32,
+    "rsv10": 0,
+    "rsv11": 0,
+    "rsv15": 0,
+    "rsv8": 0,
+    "seq_idx": 16,
+    "wop": 137
+   },
+   "instr_off": 296,
+   "length": 16,
+   "located_via": "scan",
+   "mnemonic": "tex_write",
+   "note": "write 1 -> texel (3,2); adversarial replicate",
+   "occ": 1,
+   "orig": "d72054102040000000040000893a0900",
+   "stage": "fragment"
+  },
+  "tex_write@w2": {
+   "abs_off": 15336,
+   "all_hits": [
+    280,
+    296,
+    312,
+    334
+   ],
+   "carrier": "t_write",
+   "decoded": {
+    "amode": 84,
+    "coord_dim": 4,
+    "coord_pack": 64,
+    "coord_regs": 64,
+    "data_desc": 58,
+    "data_desc_hi": 9,
+    "layer_reg": 32,
+    "rsv10": 0,
+    "rsv11": 0,
+    "rsv15": 0,
+    "rsv8": 0,
+    "seq_idx": 32,
+    "wop": 138
+   },
+   "instr_off": 312,
+   "length": 16,
+   "located_via": "scan",
+   "mnemonic": "tex_write",
+   "note": "write 2 -> texel (5,4); third replicate on the highest-value fields",
+   "occ": 2,
+   "orig": "d740542020400000000400008a3a0900",
+   "stage": "fragment"
+  },
+  "vary_slot@iter_v0": {
+   "abs_off": 12914,
+   "all_hits": [
+    18
+   ],
+   "carrier": "c_iter",
+   "decoded": {
+    "sel": 12,
+    "slot": 0
+   },
+   "instr_off": 18,
+   "length": 4,
+   "located_via": "tokenize",
+   "mnemonic": "vary_slot",
+   "note": "the vertex program feeds every fragment varying and the fragment program writes all four straight to the observed pixel, so any change to a varying-output descriptor must move a read-back float",
+   "occ": 0,
+   "orig": "000c4000",
+   "stage": "vertex"
+  },
+  "vary_slot@v16_v0": {
+   "abs_off": 15906,
+   "all_hits": [
+    18
+   ],
+   "carrier": "c_vary16",
+   "decoded": {
+    "sel": 12,
+    "slot": 0
+   },
+   "instr_off": 18,
+   "length": 4,
+   "located_via": "tokenize",
+   "mnemonic": "vary_slot",
+   "note": "12-varying replicate (slots past 7) on a DIFFERENT shader -- adversarial cross-check of vary_slot@iter_v0",
+   "occ": 0,
+   "orig": "000c4000",
+   "stage": "vertex"
+  },
+  "vary_slot@v16_v6": {
+   "error": "occurrence 6 not found (1 hits, via tokenize)"
+  }
+ },
+ "carriers": {
+  "c_cent1": {
+   "archive_sha256": "a8ab779399ace50722739806b42d8c11e877d096f75c938b86f71428f9797df1",
+   "path": "/Users/user/agxre/EXP-0155/work/c_cent1.bin",
+   "src_sha256": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+   "stages": {
+    "fragment": {
+     "abs_off": 15120,
+     "hex": "04c2110601000000af14540a03000a01130021082f055400030005020900af04540803040a032f055404030004020900af0054020300024820012f055400030205020800af0054060308024820012f0554040306040208002f05540a0304050220002f05540803080402200009010f8300010000190b1f030002000029050f870003000039091f07000400008702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 174
+    },
+    "vertex": {
+     "abs_off": 12912,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_cent4": {
+   "archive_sha256": "73325378d549a5c969e65248d8c447a0e1aa54b32604308024cecf8145ade912",
+   "path": "/Users/user/agxre/EXP-0155/work/c_cent4.bin",
+   "src_sha256": "7c58a8eebe6b9ae6a839f3feccc78c25967f2457892ee3afa037ab0fe0f07b19",
+   "stages": {
+    "fragment": {
+     "abs_off": 15136,
+     "hex": "24c21106010000001c80220000000800af04540a03040a032f055400020005020100af14540803080a012f055406030004020900af04540c03060a031c820200000018002f055404030006020100af005410030c02482001af005400030000482001af0054040208004820012f0554060302040208002f055412030404022000af04540803040a032f05540e030605020800c9070f91000100002f055406030004020100d9131f11000200002f05540a030805022000e90f0f81000300002f05540e030606020800af04540203060a032f05540c030806022000f90b1f01000400002f055400030001020900a90f0f8500030000af005406030c00482001b90d1f05000400002f0554040306040208008b980100af0054000300004820019b9a01002f05540803080402200069050f87000300002f05540403060102080004c250062f05540203080102200079091f07000400004b9801005b9a010029050f810003000039031f01000400000b1801001b1a010013a0478114220000000013a0478300020000000003a0478504020000000003204f890002000000008702540006008702540c0800e70654180000232e08000008e70654100000222e08000008e70654080000212e08000008e70654000000202e080000080702540c02000e000000",
+     "len": 482
+    },
+    "vertex": {
+     "abs_off": 12928,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_depth": {
+   "archive_sha256": "a2163b6e66d958c2b33b98eb0fae8b34c1356514ec65528abf372b954887e345",
+   "path": "/Users/user/agxre/EXP-0155/work/c_depth.bin",
+   "src_sha256": "3a0a56e2ee834fcde7580c822934789109eecf704514030f367b0d407f3f67e0",
+   "stages": {
+    "fragment": {
+     "abs_off": 14048,
+     "hex": "1f0b5400010502050f05820405c2208087025400060067004408008020005989004048002f0554000300040210001c80023e00000008af005400030000482001648410062f05540e0302000210002c80023e00000004090f1f01000100003c80023e0000000c9f11540e02183000160562012709020803c000009f015408031e38001404120d3f0b830a4200800c000010000b092f00420000001000870254010000d714540000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 202
+    },
+    "vertex": {
+     "abs_off": 11984,
+     "hex": "0cdd1006a71754000300ac200b00200429b12c818000198126811180020019a93505c100000429032ea1a298420200083c80233e0000000c406049012e912288420200105b00260040000014000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c005706560aa0404d000e000000",
+     "len": 130
+    }
+   }
+  },
+  "c_flat": {
+   "archive_sha256": "3e4187bafc9ecd4cae4b4f69f6eb54d2b70bb2e675f325cc480f8895849b7a46",
+   "path": "/Users/user/agxre/EXP-0155/work/c_flat.bin",
+   "src_sha256": "6741f372dea5cc8fa511bb424c2e04a97e349d76eedea0d1ff70da22f317dee2",
+   "stages": {
+    "fragment": {
+     "abs_off": 15040,
+     "hex": "1f0b548900051f03540601051f03540000051f03548301053b1609c04b1009008702540006008702540c0800e70654040000012e000000000702540c02000e000000",
+     "len": 66
+    },
+    "vertex": {
+     "abs_off": 12816,
+     "hex": "0cdd1006a71754000300ac2019b12c8180000b00200419a93503c100000419812681118002002c80233e0000000c404039032ea1a2984202000c49c92481c10000085981240041020008698124005102001479012c034102001057265402004049005786540620404b005716540040404b005746540460404b0057065408804048005706540aa0404a005706560cc0404d005706550ee0404c000e000000",
+     "len": 158
+    }
+   }
+  },
+  "c_iter": {
+   "archive_sha256": "46433662cc70d89cf909b4b6f4670fd4b5acb4088c4443fc73a2aa27689ab779",
+   "path": "/Users/user/agxre/EXP-0155/work/c_iter.bin",
+   "src_sha256": "80cc3905aec0932795027a109911ea5ac7e45450ae24d7b5ceba48b6b61f99b8",
+   "stages": {
+    "fragment": {
+     "abs_off": 15104,
+     "hex": "2f0d5400030004021000af0054060300004820012f05540a0302000210002f0554040306000210002f0554020304000210002f055408030800021000090b0f870001000019030f870002000029050f870003000039091f07000400008702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 126
+    },
+    "vertex": {
+     "abs_off": 12896,
+     "hex": "0cdd1006a71754040300ac200c80233e0000000c400019b12c8580000985218519a93503c10000041981248500082b00260040000008000039032ea1a2984202000c49b12485c00059e52481c000198536c12101000269053ec922004002001479012ed582024202001057265402004049005786540620404b005746540440404b005716540060404b005706540880404a005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 174
+    }
+   }
+  },
+  "c_kill": {
+   "archive_sha256": "6e325343b777f37352fdd8645275ac115e65fa25c9b530179f53758f56603f3a",
+   "path": "/Users/user/agxre/EXP-0155/work/c_kill.bin",
+   "src_sha256": "a89f10c195b67549825a3589ca5afcfc8de4459004ef0db41e7242c83e2c0f98",
+   "stages": {
+    "fragment": {
+     "abs_off": 13824,
+     "hex": "2f0d5400030004021000af005400030000482001248410062f05540203020002100009033f01000100001a0125c12280030220819f1154020308100016059f0154020306080016050b0229048702540006008702540100005714540000010702540100001c800240000000072c800240000080093c8002400000800a8702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 152
+    },
+    "vertex": {
+     "abs_off": 11856,
+     "hex": "0cdd1006a71754000300ac200c80233e0000000c400029b12c818000198126811180020019a93505c100000429032ea1a298420200083b0026004000000c000049b13401c100001057265402004049005746540420404a005786540640404b0057165400604048005706550880404c000e000000",
+     "len": 116
+    }
+   }
+  },
+  "c_mask": {
+   "archive_sha256": "2e15924a7e496aebc24b25352a4b651e5e2fcdb1b87ffb9caf6beb1b73856c3a",
+   "path": "/Users/user/agxre/EXP-0155/work/c_mask.bin",
+   "src_sha256": "3c6efc49e44b827418a23ef0e437ea6e69c7b14f6106e6a1a599661c6cd56d6b",
+   "stages": {
+    "fragment": {
+     "abs_off": 13936,
+     "hex": "2f0d5400030004021000af005400030000482001248410062f05540203020002100009033f01000100001a0125c122800302208f9f1154020308100016059f0154020306080016050b0229048702540006008702540100005714540000010702540100001c800240000000072c800240000080093c8002400000800a8702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 152
+    },
+    "vertex": {
+     "abs_off": 11968,
+     "hex": "0cdd1006a71754000300ac200c80233e0000000c400029b12c818000198126811180020019a93505c100000429032ea1a298420200083b0026004000000c000049b13401c100001057265402004049005746540420404a005786540640404b0057165400604048005706550880404c000e000000",
+     "len": 116
+    }
+   }
+  },
+  "c_pack": {
+   "archive_sha256": "a63653e045dbea301986053315f050103be50b5e8c2d0bd829a805356955089f",
+   "path": "/Users/user/agxre/EXP-0155/work/c_pack.bin",
+   "src_sha256": "00798813866f305319ecf15502e0f52e81db69c989e15b4fe2d1c296c8e13475",
+   "stages": {
+    "fragment": {
+     "abs_off": 14960,
+     "hex": "2f0d5400030004021000af0054040300024820012f0554000302000210002f0554080304000210002f05540203060002100009012f85000100002f05540603080002100049092f850002000097045400020020d045c219032f850003000029073f050004000097045401020410d045c28702540006008702540c0800e70654000000014e000000000702540c02000e000000",
+     "len": 146
+    },
+    "vertex": {
+     "abs_off": 12800,
+     "hex": "0cdd10060b002600400000040000a71754000300ac201c80233e0000000c400019b12c81800009013e019100020029a93503c100000839012ea1a2984202000c4ccd233e1204660240005ccd233e1204660640006c9a233e060ccc0840a07ccd233e1204660a40805746540400404a005786540620404b005726540040404b005716540260404b0057065408804049005706540aa04048005706560cc0404d005706550ee0404c000e000000",
+     "len": 172
+    }
+   }
+  },
+  "c_simd": {
+   "archive_sha256": "8602818298db564250c90d1a7a278b131ed9929b8afa22e22bdaeb9a05541540",
+   "path": "/Users/user/agxre/EXP-0155/work/c_simd.bin",
+   "src_sha256": "f726a9317a8a62b5e5804e7992e7874cd93b6ed26b9eedd0cbc1fc1f2a91e932",
+   "stages": {
+    "compute": {
+     "abs_off": 9296,
+     "hex": "0ca0100667105424010020005101004046009f0154000240008815046700440001802000110000404600bf01561802481601bf03541a024816011f0154020348462811013f02541c02041407bf00541e024816013f015410024816013f16541202001602bf06541402001412bf0154160348160914825006b701540a024816019f11540003068804110423002f9f1002000000001384279d0002000000009f015405030208041104470454000348042c1a004704540203480a2e12009f0154230302140411041284278486020f0882009f015405030414001504470454000348462e12009f015408022c90ac110512222f8486000f0882024704540003480a2e12004704540c02480a2c020072041f0486000f088202470554020348042c0200c70454000248022c020012a2078201a40502c70554040348042c02009f0154200200880c100433226e9f020a000000003ba5278110020000000022260f828124050217075406020c00582212e700541800102000170000901100e700541000102000178000901100e700540800102000170001901100e7005400001021001780019011000e000000",
+     "len": 424
+    }
+   }
+  },
+  "c_vary16": {
+   "archive_sha256": "b6d74563370b9a8c4bc26e424f08968c9440c26f100630daebb7a953b0723549",
+   "path": "/Users/user/agxre/EXP-0155/work/c_vary16.bin",
+   "src_sha256": "a4dcf05e159b542e94531efa1167d4b7b772e4c2ddee72d8483b14b0d7135a7f",
+   "stages": {
+    "fragment": {
+     "abs_off": 18560,
+     "hex": "2f0d5400030004021000af00540a0300024820012f0554120210000210002f0554020314000210002f0554060318000210002f0554080302000210002f05540c0304000210002f055400030600021000a9090f8b000100002f055408030800021000890d0f8b000200002f05540e030c0002100069010f8b000300002f05540003120002100049090f8b000400002f05541a031600021000c90f0f8b000600002f05540e030a0002100009012f8b0009000019032f8b000a0000291b0f8b000b000039070f8b000c0000b90f2f8b000500002f05540e030e00021000a9173815891938110915180119111803790f2f8b0007000059133f0b00080000690f380d490b3809290d1805390918078702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 302
+    },
+    "vertex": {
+     "abs_off": 15888,
+     "hex": "0cdd1006a71754020300ac200c80233e0000000c400009b12c8380002983218319a93501c0000985248300082b00200439012ea1a198420249b12483c00009c12d83800059e52485c000098526d5a000698336c9220040020014798124025102001489c12483c100001099f52485c1000010a98336c9220140020010b981240441020010c9c92483c1000010d9ff3405c1000010e9033ec9220240020010f9012c04510200045716540200404b005706540620404b005706540440404b005706540060404b005706540880404a005706540aa0404a005706560cc04048005706540ee0404800570655100041480057065412204148005706541440414800570654166041480057065418804148005706541aa0414d005706541cc0414c005726541ee04149000e000000",
+     "len": 298
+    }
+   }
+  },
+  "t_coord": {
+   "archive_sha256": "64ca9a6eab24769fe47731ce8fb31e430d68d84f20fa0e22c521fac7534ba62c",
+   "path": "/Users/user/agxre/EXP-0155/work/t_coord.bin",
+   "src_sha256": "600082283de278476609e2fd59e10e4820156845a76677cd15ece65091332f56",
+   "stages": {
+    "fragment": {
+     "abs_off": 15536,
+     "hex": "1701540003102458502f00000b14210caf0054000300104820001b0e210c2b10210c1701540403102458502f00041701540203102458502f000849092e8123a042000006020059053e0123a04200000602001705540e00040004f0c400008b172700c200000800009b192700c2000008000087025400060005800c20900080010001100001000d840c201001100080011000010015880ca190010d040101100201003b1e01088702540c0800e71654000000012e000000000702540c02000e000000",
+     "len": 194
+    },
+    "vertex": {
+     "abs_off": 13584,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94
+    }
+   }
+  },
+  "t_deriv": {
+   "archive_sha256": "92543c7590fc2eec7607565b251b728b73b976f59d1145b529bdb4cc37a5927b",
+   "path": "/Users/user/agxre/EXP-0155/work/t_deriv.bin",
+   "src_sha256": "58bf697026cbe1fe0b88f71c98453e37fc49a856256054d7a6d181197979abf6",
+   "stages": {
+    "fragment": {
+     "abs_off": 16048,
+     "hex": "2f055400030004021000af0054000300004820012f0554020302000210002f05540403040002100019032f810001000029053f0100020000370554000204924000003707540202049040000037075406030892400000370d54040208904000003905140780008702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 136
+    },
+    "vertex": {
+     "abs_off": 13856,
+     "hex": "0cdd10060b0026004000000400000a80218026c81722a2b01c80233e0000000c40000a802182a6b0070282010200298226c80702a2b02980348149020008398034814102000c19b13400900009b1340080082905258380001909350380004981260782044202001059012e0b8202420200145746540400404a005786540620404b00572654004040490057165402604048005706550880404c005706560aa0404d000e000000",
+     "len": 166
+    }
+   }
+  },
+  "t_lodoff": {
+   "archive_sha256": "d9d364f757b970eb157abd2d88e885f1f48097240d44a58837e0a996b267c092",
+   "path": "/Users/user/agxre/EXP-0155/work/t_lodoff.bin",
+   "src_sha256": "e311d90489b053ad77779d693d987799dc0c34ed02bafc7e6e4bed19d49350e0",
+   "stages": {
+    "fragment": {
+     "abs_off": 15376,
+     "hex": "0b002000111d348180020b0c610c1b0e610c1705541600040004f0c408008b112700c200000400009b132700c200000400000b152700c200000400001b172700c200000400004b1d2700c20000040000cb0d2700c20000080000db0f2700c20000080000eb1f2700c200000800005b8127004200000400006b012f004200000400007b1f2700c2000004000087025400060025840c219025200080010000010005800c269124010200880000010e0d800c211125040001001000010015800ca01125040100001000010039090c2100428702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 236
+    },
+    "vertex": {
+     "abs_off": 13424,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94
+    }
+   }
+  },
+  "t_sample": {
+   "archive_sha256": "23f44471de36dba7f6a9f6e6262712a278280f163724dc8d9ec4bf2dca2873ff",
+   "path": "/Users/user/agxre/EXP-0155/work/t_sample.bin",
+   "src_sha256": "cc326242812f7b50368d62eb538ca6664765140f7a87e20a53dc7909691b594b",
+   "stages": {
+    "fragment": {
+     "abs_off": 14656,
+     "hex": "0b0c210c1b0e210c2b112700c200000400003b132700c200000400004b152700c200000800005b172700c2000008000087025400060005800c20900000000001100001000d820c201001000000011000010015840ca0900100000101100001003b1c01088702540c0800e71654000000012e000000000702540c02000e000000",
+     "len": 128
+    },
+    "vertex": {
+     "abs_off": 12704,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94
+    }
+   }
+  },
+  "t_texops": {
+   "archive_sha256": "89dfe3eafa708c3608e05f29b40327388a6a87d7a12c0659966ed703487976e5",
+   "path": "/Users/user/agxre/EXP-0155/work/t_texops.bin",
+   "src_sha256": "176afb1978b59b20123cf6a1e2b6e83e926643177863ef5d3f0fe5018825ae58",
+   "stages": {
+    "fragment": {
+     "abs_off": 15104,
+     "hex": "0b0c210c1b0e210c2b112700c200000400003b132700c200000400004b152700c200000800005b172700c2000008000087025400060005800c20904809000001100001000d820c241049000001010000010015840ca0914917010000000001003b1801688702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 128
+    },
+    "vertex": {
+     "abs_off": 13152,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94
+    }
+   }
+  },
+  "t_write": {
+   "archive_sha256": "cd3fc0e61820a38c737bda16d10a0111fd20208cc1e2c289d47044521c68ed36",
+   "path": "/Users/user/agxre/EXP-0155/work/t_write.bin",
+   "src_sha256": "e74d7f3e31f538f91a2db05607e6df7bd846c0d3773526fd4f77ca4bc3d3014c",
+   "stages": {
+    "fragment": {
+     "abs_off": 15024,
+     "hex": "1f0b5480000502050f2b820405c2208087025400060067004408008020005989004048001b0020040c8123000000000040008c8323000000000040209c8223000000000040200c8563000000000040401c8463000000000040400b1021081b1821082b2021083b12210c3b2801082b0021046b14210c7b16210cab032700420000040000bb1b2700c20000040000eb1d2700c2000004000074841066fb1f2700c2000004000063002000af04540c03180a032b0567004200000800002f05540c0200060220003b236700c200000800006b256700c200000800007b276700c200000800009f81540e021c38001605620d2f09010803c09f015408031e38001404920d7f0b830a4200800c000c10008b096f004200000c1000d71054002040000000040000883a0900d72054102040000000040000893a0900d740542020400000000400008a3a0900870254010000d784543060030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 374
+    },
+    "vertex": {
+     "abs_off": 12784,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c40604b00260040000010000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c000e000000",
+     "len": 112
+    }
+   }
+  }
+ },
+ "run_id": "g17p_20260829_run03",
+ "started_utc": "2026-08-30T06:08:34Z"
+}

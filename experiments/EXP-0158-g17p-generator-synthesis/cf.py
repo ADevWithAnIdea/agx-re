@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EXP-0149 CF (control-flow) family -- RETAINED AS THE HONEST NEGATIVE.
+"""EXP-0158 CF (control-flow) family -- RETAINED AS THE HONEST NEGATIVE.
 
 This is EXP-0090's P3 loop+if/else->select skeleton, reused byte-for-byte the
 way EXP-0112 reused it.  It is NOT synthesised and this experiment does not
@@ -127,5 +127,6 @@ def build_cf_program(a_val, n_val, cond_override=None, liveness_violate=False):
     out0 = arm_true if natural else arm_false
     meta = {"acc": acc, "natural_select_true": natural, "guard_taken": guard_taken,
             "prov_counts": led.counts(), "copied_fields": led.copied_fields(),
-            "carrier_fields": led.carrier_fields(), "n_offnatural": len(led.offnatural())}
+            "carrier_fields": led.carrier_fields(), "pilot_fields": led.pilot_fields(),
+            "n_offnatural": len(led.offnatural())}
     return prog.hex(), out0, meta

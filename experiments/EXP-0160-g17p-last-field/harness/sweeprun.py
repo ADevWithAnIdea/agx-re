@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+"""EXP-0160 sweep engine (G17P). Engine reused verbatim from EXP-0154
+(same project, same rules) except `classify`, which now separates a FRAMING
+BREAK (poison words in the dump: the read-back buffer is pre-filled with
+0xDEADBEEF, so a poisoned word proves the store never ran) from a genuine
+wrong value. EXP-0153 showed this distinction can be adjudicated offline from
+the committed digest alone.
+
+
+Wraps `tools/agxtest/persistrun.py` (READ-ONLY, unmodified) so a whole field
+sweep is ONE `agxrun_persist` process: the carrier MSL is compiled once with
+`tools/shdump`, `_agc.main` is located once with `tools/shdump/agxparse.py`,
+and each case then splices its own SYNTHESIZED program over the whole region
+and issues one request.
+
+Carrier style used by this experiment is SYNTH-WITH-LIFTED-BLOCK:
+  * the whole `_agc.main` is replaced by a program we assembled from
+    `tools/agx-isa`'s own field rules (seeds -> PRE sentinel -> BLOCK ->
+    16-register dump -> POST sentinel -> stop);
+  * the BLOCK is a contiguous run of instructions lifted BYTE-FOR-BYTE out of
+    the compiled form of our own MSL (kernels/probes.metal), so every byte the
+    hardware executes in the instruction under test is either a compiler-valid
+    anchor byte or the one byte this case is sweeping.
+
+This is what fixes EXP-0138's self-inflicted sentinel trap: the operands the
+lifted instruction names are registers WE seeded, and neither integrity
+sentinel lives in a register the instruction can name while it runs.
+
+Records are appended to `<run_dir>/sweep.jsonl` and flushed+fsynced IMMEDIATELY.
+
+CLEAN-ROOM: pure process/file plumbing over our own tools; the only machine
+code inspected or spliced is the compiled form of OUR OWN MSL.
+"""
+from __future__ import print_function
+
+import importlib.util
+import json
+import os
+import struct
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+EXP = HERE.parent
+sys.path.insert(0, str(HERE))
+import isa_helpers as H  # noqa: E402
+
+
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, str(path))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _find_tools():
+    for cand in (EXP.parents[1] / "tools", Path.home() / "agxre" / "tools"):
+        if (cand / "shdump" / "agxparse.py").exists():
+            return cand
+    raise RuntimeError("cannot locate tools/")
+
+
+TOOLS = _find_tools()
+agxparse = _load("agxparse", TOOLS / "shdump" / "agxparse.py")
+# persistrun.py was fixed on 2026-08-29 (DEF-0153-2: it could spin at 100% CPU
+# forever when the child exited). This experiment PINS its own copy under
+# `<exp>/tools/persistrun.py` so a sibling agent editing the shared
+# `~/agxre/tools` copy mid-run cannot change what we ran against.
+_PR = (EXP / "tools" / "persistrun.py")
+if not _PR.exists():
+    _PR = TOOLS / "agxtest" / "persistrun.py"
+persistrun = _load("persistrun", _PR)
+PERSISTRUN_PATH = str(_PR)
+SHDUMP = TOOLS / "shdump" / "shdump"
+AGXRUN_PERSIST = TOOLS / "agxtest" / "agxrun_persist"
+
+OUTCOMES = ("ok", "silent_zero", "wrong_value", "fault", "hang", "undecodable")
+
+# FIELD-SWEEP-PROTOCOL 7.2: an `...ErrorInnocentVictim`-class command-buffer
+# failure is evidence about the MACHINE (a sibling GPU context's fault
+# splashing into ours after a device reset), not about our encoding. Matched
+# against the OS's own localizedDescription, printed verbatim by agxrun_persist.
+VICTIM_MARKERS = ("InnocentVictim", "innocent victim", "Ignored (for causing prior",
+                  "IOAF code 4", "IOAF code 2", "Discarded")
+
+
+def is_victim(err):
+    if not err:
+        return False
+    low = err.lower()
+    return any(m.lower() in low for m in VICTIM_MARKERS)
+
+
+class Carrier:
+    """One compiled carrier + one live persistent runner."""
+
+    def __init__(self, source, function, workdir, timeout=8.0):
+        self.source = Path(source)
+        self.function = function
+        self.workdir = Path(workdir)
+        self.workdir.mkdir(parents=True, exist_ok=True)
+        self.timeout = timeout
+        self.base_path = self.workdir / ("base_%s.bin" % function)
+        r = subprocess.run([str(SHDUMP), "-o", str(self.base_path),
+                            "-f", function, "--no-fast-math", str(self.source)],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           timeout=300)
+        if r.returncode != 0 or not self.base_path.exists():
+            raise RuntimeError("shdump failed for %s: %s"
+                               % (function, r.stderr.decode()[-800:]))
+        self.basebuf = self.base_path.read_bytes()
+        loc = agxparse.locate_region(self.basebuf, "_agc.main")
+        if loc is None:
+            raise RuntimeError("could not locate _agc.main in %s" % function)
+        self.region_off, self.region_len = loc
+        _, pieces = agxparse.extract_agx(self.basebuf)
+        self.main_bytes = pieces["_agc.main"]
+        self.runner = persistrun.PersistRunner(
+            source=str(self.source), function=function, fast_math=False,
+            agxrun_persist=str(AGXRUN_PERSIST))
+        self.device = self.runner.device
+        # unique splice-archive path per request (FIELD-SWEEP-PROTOCOL 7)
+        self.spliced_path = self.workdir / ("spliced_%s_%d.bin"
+                                            % (function, os.getpid()))
+        self.hangs = 0
+        self.poison_path = self._write_poison()
+
+    def _write_poison(self):
+        p = self.workdir / ("poison_%d.bin" % os.getpid())
+        p.write_bytes(struct.pack("<%dI" % H.OUT_WORDS,
+                                  *([H.POISON] * H.OUT_WORDS)))
+        return str(p)
+
+    def run_program(self, prog, extra_ins=None, grid=1, tg=1, timeout=None):
+        """Splice `prog` over the WHOLE `_agc.main` region and dispatch it."""
+        if len(prog) != self.region_len:
+            raise ValueError("program %d != region %d" % (len(prog), self.region_len))
+        spliced = bytearray(self.basebuf)
+        spliced[self.region_off:self.region_off + self.region_len] = prog
+        self.spliced_path.write_bytes(bytes(spliced))
+        ins = {0: self.poison_path}
+        if extra_ins:
+            ins.update(extra_ins)
+        resp = self.runner.request(archive=str(self.spliced_path), grid=grid, tg=tg,
+                                   ins=ins, outs={0: H.OUT_WORDS * 4},
+                                   timeout=timeout or self.timeout)
+        if resp["status"] == "HANG":
+            self.hangs += 1
+        raw = resp["outs"].get(0, b"")
+        words = [struct.unpack_from("<I", raw, i)[0]
+                 for i in range(0, len(raw) - 3, 4)]
+        return resp, words
+
+    def restart(self):
+        try:
+            self.runner.close()
+        except Exception:
+            try:
+                self.runner._kill()
+            except Exception:
+                pass
+        self.runner = persistrun.PersistRunner(
+            source=str(self.source), function=self.function, fast_math=False,
+            agxrun_persist=str(AGXRUN_PERSIST))
+
+    def close(self):
+        try:
+            self.runner.close()
+        except Exception:
+            pass
+
+
+def digest(words):
+    """The 18 words this experiment interprets: r0..r15, PRE, POST."""
+    regs = [words[H.W_REG0 + i * H.STORE_STRIDE_WORDS] for i in range(H.N_REGS)]
+    return {"regs": regs, "pre": words[H.W_PRE], "post": words[H.W_POST]}
+
+
+def digest_hex(d):
+    return "".join("%08x" % v for v in d["regs"]) + \
+           "%08x%08x" % (d["pre"], d["post"])
+
+
+class Log:
+    """Append-only JSONL case log, flushed+fsynced per record."""
+
+    def __init__(self, path):
+        self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.f = open(str(self.path), "a", buffering=1)
+        self.n = 0
+
+    def write(self, rec):
+        self.n += 1
+        rec = dict(rec)
+        rec.setdefault("note", "")
+        rec["seq"] = self.n
+        rec["t"] = round(time.time(), 3)
+        self.f.write(json.dumps(rec, sort_keys=True) + "\n")
+        self.f.flush()
+        os.fsync(self.f.fileno())
+
+    def close(self):
+        self.f.close()
+
+
+def classify(status, obs, base):
+    """FIELD-SWEEP-PROTOCOL 4 `outcome` for one case.
+
+    `obs`/`base` are digest dicts. `ok` requires the FULL 16-register
+    architectural state after the block to match the unmutated anchor's --
+    a strictly stronger oracle than a single output word, because a field
+    value that computes the right answer but disturbs another register is
+    not something an emitter may use interchangeably.
+
+    A dumped word still holding the 0xDEADBEEF poison means that register's
+    `device_store` NEVER RAN -- the mutation changed the instruction's LENGTH
+    and desynchronised the stream. That is a framing break, reported through
+    the separate `frame` key; the protocol-4 `outcome` stays `wrong_value`
+    because the observed architectural state is, in fact, wrong."""
+    if status == "HANG":
+        return "hang"
+    if status != "OK":
+        return "fault"
+    if obs is None:
+        return "undecodable"
+    if obs["regs"] == base["regs"]:
+        return "ok"
+    bad = [i for i in range(H.N_REGS) if obs["regs"][i] != base["regs"][i]]
+    if all(obs["regs"][i] == 0 for i in bad):
+        return "silent_zero"
+    return "wrong_value"
+
+
+def poison_count(obs):
+    if obs is None:
+        return None
+    return sum(1 for v in obs["regs"] if v == H.POISON)

@@ -72,12 +72,32 @@ static BOOL                gFastMath = YES;
 // hardware without ever surfacing as a candidate, so `q.next()` would return
 // false immediately and the CANDIDATE getters would still be dead. Non-opaque
 // geometry forces every hit through the candidate path.
-static const float kTris[] = {
-    -8.0f, -8.0f, 1.0f,   8.0f, -8.0f, 1.0f,   0.0f,  8.0f, 1.0f,
-    -8.0f, -8.0f, 2.0f,   8.0f, -8.0f, 2.0f,   0.0f,  8.0f, 2.0f,
+static const float kTrisG0[] = {          // geometry 0: primitive ids 0,1,2
     -8.0f, -8.0f, 3.0f,   8.0f, -8.0f, 3.0f,   0.0f,  8.0f, 3.0f,
+    -8.0f, -8.0f, 2.0f,   8.0f, -8.0f, 2.0f,   0.0f,  8.0f, 2.0f,
+    -8.0f, -8.0f, 1.0f,   8.0f, -8.0f, 1.0f,   0.0f,  8.0f, 1.0f,
 };
-static const int kNTris = 3;
+static const float kTrisG1[] = {          // geometry 1: primitive id 0
+    -8.0f, -8.0f, 4.0f,   8.0f, -8.0f, 4.0f,   0.0f,  8.0f, 4.0f,
+};
+// EXP-0157 ADDITION (post-freeze, recorded as a deviation): BOUNDING-BOX
+// geometry. The reachability probe showed that a triangle-only query never
+// executes the code containing `rtq_pred` and `rtq_dualsrc` -- erasing 256
+// contiguous bytes at those offsets leaves the result exactly correct. Custom
+// (bounding-box) geometry drives the OTHER traversal path, where a candidate
+// is a box the shader must range-test and commit explicitly.
+// Three axis-aligned boxes straddling the +z axis at z in [1,1.5], [2,2.5],
+// [3,3.5] -- so the same ray hits all three, with primitive ids 0, 1, 2.
+static const float kBoxes[] = {
+    -8.0f, -8.0f, 1.0f,   8.0f, 8.0f, 1.5f,
+    -8.0f, -8.0f, 2.0f,   8.0f, 8.0f, 2.5f,
+    -8.0f, -8.0f, 3.0f,   8.0f, 8.0f, 3.5f,
+};
+static const int kNBoxes = 3;
+
+static const int kNTrisG0 = 3;
+static const int kNTrisG1 = 1;
+static const int kNTris   = 4;
 
 static int                        gAccelIdx  = -1;
 static const char                *gAccelKind = "primitive";
@@ -104,7 +124,7 @@ static id<MTLAccelerationStructure> build_accel(MTLAccelerationStructureDescript
     // That is evidence about the MACHINE, not about the descriptor, so it is
     // retried rather than reported as a build failure; a genuinely bad
     // descriptor fails all ACCEL_BUILD_TRIES attempts.
-    const int ACCEL_BUILD_TRIES = 8;
+    const int ACCEL_BUILD_TRIES = 30;
     for (int attempt = 1; attempt <= ACCEL_BUILD_TRIES; attempt++) {
         id<MTLCommandBuffer> cb = [gQueue commandBuffer];
         id<MTLAccelerationStructureCommandEncoder> aenc = [cb accelerationStructureCommandEncoder];
@@ -118,7 +138,7 @@ static id<MTLAccelerationStructure> build_accel(MTLAccelerationStructureDescript
                          ACCEL_BUILD_TRIES, [[cb error] localizedDescription]];
         fprintf(stderr, "accel build retry %d: %s\n", attempt, [*err UTF8String]);
         gQueue = [gDev newCommandQueue];
-        usleep(120000 * attempt);
+        usleep(200000 * (attempt < 10 ? attempt : 10));
     }
     return nil;
 }
@@ -127,18 +147,39 @@ static id<MTLAccelerationStructure> build_accel(MTLAccelerationStructureDescript
 // it in a single-instance instance-AS when --accel-kind instance was asked for
 // (our own intersection_query<instancing> kernels need that flavour).
 static id<MTLAccelerationStructure> make_accel(NSString **err) {
-    id<MTLBuffer> vbuf = [gDev newBufferWithBytes:kTris length:sizeof(kTris)
-                                          options:MTLResourceStorageModeShared];
-    MTLAccelerationStructureTriangleGeometryDescriptor *g =
+    if (strcmp(gAccelKind, "bbox") == 0) {
+        id<MTLBuffer> bb = [gDev newBufferWithBytes:kBoxes length:sizeof(kBoxes)
+                                            options:MTLResourceStorageModeShared];
+        MTLAccelerationStructureBoundingBoxGeometryDescriptor *gb =
+            [MTLAccelerationStructureBoundingBoxGeometryDescriptor descriptor];
+        [gb setBoundingBoxBuffer:bb];
+        [gb setBoundingBoxBufferOffset:0];
+        [gb setBoundingBoxStride:6 * sizeof(float)];
+        [gb setBoundingBoxCount:kNBoxes];
+        [gb setOpaque:NO];
+        MTLPrimitiveAccelerationStructureDescriptor *pdb =
+            [MTLPrimitiveAccelerationStructureDescriptor descriptor];
+        [pdb setGeometryDescriptors:@[gb]];
+        gPrimAccel = build_accel((MTLAccelerationStructureDescriptor *)pdb, err);
+        return gPrimAccel;
+    }
+    id<MTLBuffer> v0 = [gDev newBufferWithBytes:kTrisG0 length:sizeof(kTrisG0)
+                                        options:MTLResourceStorageModeShared];
+    id<MTLBuffer> v1 = [gDev newBufferWithBytes:kTrisG1 length:sizeof(kTrisG1)
+                                        options:MTLResourceStorageModeShared];
+    MTLAccelerationStructureTriangleGeometryDescriptor *g0 =
         [MTLAccelerationStructureTriangleGeometryDescriptor descriptor];
-    [g setVertexBuffer:vbuf];
-    [g setVertexBufferOffset:0];
-    [g setVertexStride:3 * sizeof(float)];
-    [g setTriangleCount:kNTris];
-    [g setOpaque:NO];
+    [g0 setVertexBuffer:v0]; [g0 setVertexBufferOffset:0];
+    [g0 setVertexStride:3 * sizeof(float)];
+    [g0 setTriangleCount:kNTrisG0]; [g0 setOpaque:NO];
+    MTLAccelerationStructureTriangleGeometryDescriptor *g1 =
+        [MTLAccelerationStructureTriangleGeometryDescriptor descriptor];
+    [g1 setVertexBuffer:v1]; [g1 setVertexBufferOffset:0];
+    [g1 setVertexStride:3 * sizeof(float)];
+    [g1 setTriangleCount:kNTrisG1]; [g1 setOpaque:NO];
     MTLPrimitiveAccelerationStructureDescriptor *pd =
         [MTLPrimitiveAccelerationStructureDescriptor descriptor];
-    [pd setGeometryDescriptors:@[g]];
+    [pd setGeometryDescriptors:@[g0, g1]];
     gPrimAccel = build_accel((MTLAccelerationStructureDescriptor *)pd, err);
     if (!gPrimAccel) return nil;
     if (strcmp(gAccelKind, "instance") != 0) return gPrimAccel;
@@ -334,7 +375,8 @@ int main(int argc, char *argv[]) {
                             aerr ? [aerr UTF8String] : "?");
                     printf("ACCEL %s BUILD_FAIL 0\n", gAccelKind);
                 } else {
-                    printf("ACCEL %s OK %d\n", gAccelKind, kNTris);
+                    printf("ACCEL %s OK %d\n", gAccelKind,
+                           strcmp(gAccelKind, "bbox") == 0 ? kNBoxes : kNTris);
                 }
             }
             fflush(stdout);

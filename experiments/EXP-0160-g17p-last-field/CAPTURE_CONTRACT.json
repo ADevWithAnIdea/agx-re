@@ -1,0 +1,304 @@
+{
+ "amendments": [
+  {
+   "file": "harness/confirm_faults.py",
+   "handling": "confirm01 is RETAINED untouched and cited; the re-adjudication runs under the NEW run id g17p_20260830_confirm02. No case matrix, kernel, carrier, seed set, promotion rule or sweep record was changed.",
+   "id": "amendment_01",
+   "protocol": "SUBAGENT_BRIEF: never reuse or overwrite a run id; a partial capture is retained, never topped up.",
+   "sha256_after": "a2a17c9bc4036edf01776c7c517b461fded96ee0689017692567939f168fae3a",
+   "sha256_before": "4b3612e4d3e8a3eb6e0782375ce108d37d76345092e999419bfeb76c03ecd61c",
+   "utc": "2026-08-30T06:57:17Z",
+   "what": "Retry the per-arm baseline dispatch (8 attempts with backoff + child restart) instead of accepting a single failure.",
+   "why": "In raw/g17p_20260830_confirm01 one victim-class failure on the F3_OP / seed-set-2 baseline made all 32 of that arm's suspect cases `undecodable`, because there was nothing to compare them against. A baseline dispatch is not evidence about an encoding; retrying it does not change the method or the case matrix."
+  },
+  {
+   "file": "(procedure) FIELD-SWEEP-PROTOCOL section 7A GPU lease",
+   "handling": "Recorded here and in RESULTS.md so a reader knows which regime this evidence was taken under.",
+   "id": "amendment_02",
+   "utc": "2026-08-30T06:57:17Z",
+   "what": "Both gated sweeps and the fault adjudication ran UNLOCKED rather than under ~/agxre/gpulease.sh.",
+   "why": "experiments/NEO-TARGET-BRIEF.md and FIELD-SWEEP-PROTOCOL section 7B were revised on disk during this experiment: the lease has been REMOVED ('Concurrency: unrestricted. There is no lease.') and 'a bulk sweep NEVER takes the lease'. At the moment of the decision six agents were queued behind one holder. Isolation is instead provided by the poisoned read-back buffer, the two integrity sentinels, majority-of-3, the two-run gate, and the 5-repetition adjudication runs."
+  },
+  {
+   "file": "analysis/verdicts.py",
+   "handling": "No label depends on it.",
+   "id": "amendment_03",
+   "utc": "2026-08-30T06:57:17Z",
+   "what": "Added the M4 extension `affine_in_product` for integer arms and fixed its `addend_depends_only_on_high5` predicate.",
+   "why": "analysis/verdicts.py is not among the frozen authored inputs (only analysis/modelfit.py is). The promotion rule in PRE_REGISTRATION section 7 is unchanged; the addition is a reported diagnostic, and it is NOT a promotion path."
+  }
+ ],
+ "arms": {
+  "F2E_CTRL": {
+   "anchor_field_value": 1,
+   "anchor_instr_hex": "09011c0501000082",
+   "block": [
+    32,
+    40
+   ],
+   "field": "ctrl",
+   "field_start": 32,
+   "field_width": 7,
+   "instr": "falu2_ext",
+   "probe": "k_sat_add",
+   "probe_main_len": 58,
+   "probe_main_sha256": "3b89abec3e804af8394886ce1386a11a95c4754c8f501262b24c321d09f56155",
+   "seed_kind": "float",
+   "tgt": 0
+  },
+  "F2I_CTRLLO": {
+   "anchor_field_value": 0,
+   "anchor_instr_hex": "09c9140180c0",
+   "block": [
+    18,
+    24
+   ],
+   "field": "ctrl_lo",
+   "field_start": 32,
+   "field_width": 7,
+   "instr": "falu2i",
+   "probe": "k_addimm",
+   "probe_main_len": 42,
+   "probe_main_sha256": "86f315a3d9c7a016101d9354250947404803f4d3f211579a8cee50aaab153dcf",
+   "seed_kind": "float",
+   "tgt": 0
+  },
+  "F3E_OP": {
+   "anchor_field_value": 30,
+   "anchor_instr_hex": "09011e05820802000082",
+   "block": [
+    56,
+    66
+   ],
+   "field": "op",
+   "field_start": 16,
+   "field_width": 8,
+   "instr": "falu3_ext",
+   "probe": "k_sat_fma",
+   "probe_main_len": 84,
+   "probe_main_sha256": "4884948a9fd9dde8e08552fb2084276229e91a18ed9946d5140ca0218943a5a6",
+   "seed_kind": "float",
+   "tgt": 0
+  },
+  "F3_OP": {
+   "anchor_field_value": 30,
+   "anchor_instr_hex": "09011e05810802c0",
+   "block": [
+    56,
+    64
+   ],
+   "field": "op",
+   "field_start": 16,
+   "field_width": 8,
+   "instr": "falu3",
+   "probe": "k_fma",
+   "probe_main_len": 82,
+   "probe_main_sha256": "7a2b090b8eecaa314a98bffac3f5526ce63879eaef0c8b786081dfb56643074a",
+   "seed_kind": "float",
+   "tgt": 0
+  },
+  "HALFPACK_SRC": {
+   "anchor_field_value": 24,
+   "anchor_instr_hex": "18031805",
+   "block": [
+    32,
+    42
+   ],
+   "field": "src",
+   "field_start": 16,
+   "field_width": 8,
+   "instr": "half_pack",
+   "probe": "k_half2",
+   "probe_main_len": 60,
+   "probe_main_sha256": "17d8f379b60deebfaf01249f5f3d78888acf2085d59576ec4836a11b45279126",
+   "seed_kind": "int",
+   "tgt": 6
+  },
+  "IMAD_SRCC": {
+   "anchor_field_value": 96,
+   "anchor_instr_hex": "9f00560002080060d02e0a00",
+   "block": [
+    32,
+    44
+   ],
+   "field": "srcC_desc",
+   "field_start": 56,
+   "field_width": 8,
+   "instr": "imad",
+   "probe": "k_imad",
+   "probe_main_len": 62,
+   "probe_main_sha256": "47fe9dbd8df73dcfa71702aaadc5d1cc6b22aef316def539a8254d6c4d822718",
+   "seed_kind": "int",
+   "tgt": 0
+  },
+  "IMINMAX_SRCB": {
+   "anchor_field_value": 192,
+   "anchor_instr_hex": "02011e0507c0",
+   "block": [
+    32,
+    38
+   ],
+   "field": "srcB",
+   "field_start": 40,
+   "field_width": 8,
+   "instr": "iminmax",
+   "probe": "k_imin",
+   "probe_main_len": 56,
+   "probe_main_sha256": "8b2ffcb5794a9e982141603ab1bb668d62fcee25f6294dd00875d7401d355d8e",
+   "seed_kind": "int",
+   "tgt": 0
+  },
+  "ISEL8_CMPMODE": {
+   "anchor_field_value": 130,
+   "anchor_instr_hex": "7281270982040202",
+   "block": [
+    18,
+    32
+   ],
+   "field": "cmp_mode",
+   "field_start": 32,
+   "field_width": 8,
+   "instr": "isel8",
+   "probe": "k_rsqrt",
+   "probe_main_len": 134,
+   "probe_main_sha256": "9425b8bdcce7457d59dceacfbbba7a4e9e836cb8b379ba3fefbafa539fe10755",
+   "seed_kind": "float",
+   "tgt": 6
+  }
+ },
+ "authored_inputs_sha256": {
+  "analysis/modelfit.py": "4d2dac5858d15f0922d73769b104e397345a1a64347770c248be1b90ed492398",
+  "harness/anchors.py": "81c78f49f2e97a0e2fab4dadaf9c737cd759015667d2e453eda6df34c6f3d01e",
+  "harness/casematrix.py": "bc443d9eb8bfc67876a4a6cfa86ec4624c6507acf0ae7f266b8b1247652fa526",
+  "harness/confirm_faults.py": "4b3612e4d3e8a3eb6e0782375ce108d37d76345092e999419bfeb76c03ecd61c",
+  "harness/isa_helpers.py": "4f7c368bfeb87b0624cb1fd23e1d27419949360ae533f043a4af8d0a0b5666c5",
+  "harness/run.py": "8ac3d12da13e9fadde2103cd98cc6e99b97003991cb14517c24ac0da4d6aa42c",
+  "harness/sweeprun.py": "d677c69b7b944527a5652b3be77a99d0bffd24eeb53e5a9e48d452d1e10035fd",
+  "kernels/carrier_dag.metal": "c77777bf48c2b4d3e0fd6863c2dc54450922f5f74a8067de898e73a493050b8b",
+  "kernels/probes.metal": "945990276a6d9cee89c74971045515861f0ab375d0eabae5f7062dccd5c01ef7"
+ },
+ "case_matrix": {
+  "n_cases": 4064,
+  "per_arm": {
+   "F2E_CTRL": 258,
+   "F2I_CTRLLO": 258,
+   "F3E_OP": 514,
+   "F3_OP": 514,
+   "HALFPACK_SRC": 522,
+   "IMAD_SRCC": 970,
+   "IMINMAX_SRCB": 514,
+   "ISEL8_CMPMODE": 514
+  },
+  "seed_sets": [
+   1,
+   2
+  ],
+  "sha256": "f2a2fec3746748253b2c914dbda8a16391fca3433a3219f6074d7a4e66cc2af8"
+ },
+ "environment": {
+  "grid": 1,
+  "seeds": {
+   "SEED_F": "EXP-0154 set",
+   "SEED_F2": "new",
+   "SEED_I": "EXP-0154 set",
+   "SEED_I2": "new"
+  },
+  "threadgroup": 1
+ },
+ "experiment": "EXP-0160-g17p-last-field",
+ "frozen_utc": "2026-08-30T06:38:34Z",
+ "not_edited": [
+  "tools/agx-isa/db.json",
+  "tools/agx-isa/validation.json",
+  "docs/",
+  "PROVENANCE.md"
+ ],
+ "note_on_revision": "Pinned at pre-registration per SUBAGENT_BRIEF; captures are gated on the AUTHORED BLOB HASHES below, never on live HEAD.",
+ "pinned_toolchain_note": "Copied to ~/agxre/EXP-0160/tools/ so a sibling agent editing the shared ~/agxre/tools cannot change what this experiment ran against.",
+ "pinned_toolchain_sha256": {
+  "tools/agx-isa/db.json": "acf40b4be3ece5a206205805cc48104107f5d18af2edea7f4a5f84f2d530d9b7",
+  "tools/agx-isa/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "tools/agx-isa/validation.json": "12d209237b643f579fe40e3f446956dad7fde853b78d4f47b76a891b87d35cfe",
+  "tools/agxtest/persistrun.py": "cc53d8efbbdb1839b79ab12749150be4d8075581e6987d0cb2e4b66bec35dc13"
+ },
+ "promotion_rule": "PRE_REGISTRATION.md section 7 (P1..P5); model class M1 MASK / M2 CLASS TABLE / M3 REGMAP / M4 ARITH",
+ "raw_schema": {
+  "keys": [
+   "idx",
+   "arm",
+   "instr",
+   "field",
+   "value",
+   "sset",
+   "bytes",
+   "observed",
+   "oracle",
+   "match",
+   "outcome",
+   "frame",
+   "poison_words",
+   "carrier",
+   "kind",
+   "rt_ok",
+   "victim",
+   "sentinel_bad",
+   "attempts",
+   "predict",
+   "anchor_value",
+   "fstart",
+   "fwidth",
+   "note",
+   "seq",
+   "t"
+  ],
+  "observed": "16-register dump (r0..r15) + PRE sentinel + POST sentinel, read back from a buffer pre-filled with 0xDEADBEEF",
+  "one_json_object_per_case": true,
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ],
+  "path": "raw/<run_id>/sweep.jsonl"
+ },
+ "repo_dirty_at_freeze": true,
+ "repo_revision": "443981cc240592e205d638c805d0decaefc24af7",
+ "runs_planned": [
+  {
+   "locked": false,
+   "order": "forward",
+   "run_id": "g17p_20260830_run01"
+  },
+  {
+   "locked": false,
+   "order": "reverse",
+   "run_id": "g17p_20260830_run02"
+  },
+  {
+   "locked": true,
+   "order": "n/a",
+   "reps": 5,
+   "run_id": "g17p_20260830_confirm01",
+   "tool": "harness/confirm_faults.py under ~/agxre/gpulease.sh"
+  }
+ ],
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "addr": "192.168.10.243",
+  "arch": "applegpu_g17p",
+  "gpu_cores": 5,
+  "metal_family": "Apple9",
+  "name": "Apple A18 Pro / G17P",
+  "os": "macOS 26.6",
+  "remote_workdir": "~/agxre/EXP-0160"
+ },
+ "timeouts_s": {
+  "gpulease_wait": 900,
+  "per_request_watchdog": 8.0,
+  "remote_ssh_alarm": 120,
+  "remote_sweep_alarm": 5400,
+  "shdump_compile": 300
+ }
+}

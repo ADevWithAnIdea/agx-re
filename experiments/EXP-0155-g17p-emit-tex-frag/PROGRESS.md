@@ -44,3 +44,22 @@
 
 - **~22:35Z — run01 launched** (gated, unlocked per the orchestrator's
   concurrency correction; `InnocentVictim` retried, never recorded as `fault`).
+
+- **~05:56Z — run01 STOPPED BY HAND at 33,185 / 52,090 cases (24 of 41 arms) and
+  RETAINED as PARTIAL.** Twice the device entered a transient window in which
+  nearly every command buffer came back `InnocentVictim`; because the harness
+  retried a foreign fault 8× *and then* applied majority-of-3 on top, one
+  contaminated case cost ~45 s and 24 renders and throughput fell from ~105
+  cases/s to under 1 case per 100 s. The first window followed a **genuine,
+  reproducible hang of our own** — `tex_sample.tex_type = 32` on the `t_texops`
+  gather occurrence, 3/3 `kIOGPUCommandBufferCallbackErrorHang`. Unmutated
+  renders of `c_iter` and `t_sample` returned `STATUS OK` immediately after the
+  stop, so the device was **not** wedged. Recorded in
+  `raw/g17p_20260829_run01/PARTIAL.md`; the id is never reused and the capture
+  is never used to promote a field.
+
+- **~06:00Z — harness fix (amendment A1, no classification change) + run02.**
+  A case already classified `FOREIGN_FAULT` is no longer re-confirmed (it is
+  `foreign` either way), the foreign backoff is shortened, and a cascade guard
+  settles and re-validates the baseline after 8 consecutive foreign outcomes.
+  The two gated runs are captured under NEW ids `run02` / `run03`.

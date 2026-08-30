@@ -1,4 +1,30 @@
 {
+ "amendments": [
+  {
+   "capture_impact": "run01 is retained as an append-only PARTIAL and is NOT used to promote any field. The two gated runs are captured under NEW ids g17p_20260829_run02 and g17p_20260829_run03 with identical code.",
+   "classification_impact": "NONE. classify() maps os_class==InnocentVictim to `foreign` unconditionally, so the removed trials could not change any verdict.",
+   "id": "A1",
+   "utc": "2026-08-30T06:00Z",
+   "what": "Harness retry economics only. (1) A case already classified FOREIGN_FAULT by the runner's own 8 InnocentVictim retries is no longer put through the majority-of-3 confirmation; (2) the foreign backoff is 0.25*(n+1)s instead of 0.4*(n+1)s; (3) a cascade guard settles 3s and re-validates the arm baseline after 8 consecutive `foreign` outcomes.",
+   "why": "run01 collapsed from ~105 cases/s to <1 case/100s inside two transient InnocentVictim windows, because one contaminated case cost 24 renders and ~45s. See raw/g17p_20260829_run01/PARTIAL.md."
+  },
+  {
+   "capture_impact": "run02 stopped at ~12.8k cases and retained as PARTIAL so the two gated runs share identical runner code. The gated pair is g17p_20260829_run03 and g17p_20260829_run04.",
+   "classification_impact": "NONE for any case that completed; it converts a silent infinite spin into the HANG path the protocol already defines.",
+   "id": "A2",
+   "utc": "2026-08-30T06:08Z",
+   "what": "harness/runner.py::_readline now treats a closed child stdout (readline() returning \"\") as a wedge, returning None exactly as a timeout does.",
+   "why": "EXP-0153 found the identical defect in the shared tools/agxtest/persistrun.py: an exited child produced \"\" forever, matched none of the caller's branches, and spun at 100% CPU with no timeout, losing a whole run and loading the shared GPU."
+  },
+  {
+   "capture_impact": "adds raw/g17p_20260829_faultconfirm/ (append-only).",
+   "classification_impact": "Strengthens fault semantics; a value that does not reproduce under the lease is recorded as contamination, not as a property of the encoding.",
+   "id": "A3",
+   "utc": "2026-08-30T06:08Z",
+   "what": "Every value recorded `fault` or `hang` in BOTH gated runs is re-confirmed 5x under the GPU lease (~/agxre/gpulease.sh) before its behaviour is stated, and the lease-confirmed outcome is what RESULTS.md reports.",
+   "why": "FIELD-SWEEP-PROTOCOL 7A (EXP-0153): five cases passed majority-of-3 AND agreed across two independent unlocked runs, yet four were not faults at all when re-run isolated. Cross-run agreement does not defeat sustained sibling load; only isolation does."
+  }
+ ],
  "arms": {
   "fcp@pack0": {
    "carrier": "c_pack",
@@ -736,8 +762,11 @@
  "repo_revision_at_freeze": "7dc67d768ada3c016771923bffd5b9647dd14813",
  "revision_gate": "captures are valid if the AUTHORED source hashes below match; repo HEAD moving because a sibling experiment landed is NOT contamination (SUBAGENT_BRIEF)",
  "runs": {
-  "run01": "g17p_20260829_run01",
-  "run02": "g17p_20260829_run02 (independent gated replicate; a field is promoted only on cross-run agreement)"
+  "faultconfirm": "g17p_20260829_faultconfirm (lease-isolated 5x re-confirmation of every cross-run fault/hang)",
+  "run01_PARTIAL": "g17p_20260829_run01 (retained, not used for promotion)",
+  "run02_PARTIAL": "g17p_20260829_run02 (retained, not used for promotion)",
+  "run03": "g17p_20260829_run03 (gated)",
+  "run04": "g17p_20260829_run04 (gated; a field is promoted only on cross-run agreement)"
  },
  "source_sha256": {
   "analysis/census.py": "7c3b9b5d79cf66ef3279f0f29eadfe947d3f3e06de7394af99ca2e911cd202ba",

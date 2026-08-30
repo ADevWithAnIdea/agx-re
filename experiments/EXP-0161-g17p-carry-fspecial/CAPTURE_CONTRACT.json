@@ -1,0 +1,340 @@
+{
+ "anchors": {
+  "A_CARRY_INPLACE": {
+   "anchor_bytes": "320135032281",
+   "block": null,
+   "instr": "carry_gen",
+   "ioff": 42,
+   "main_len": 90,
+   "main_sha256": "a99a99dd37027d47876ca0d17e5456db90fdd9e31c7dab131251aa373a1ca54f",
+   "source_kernel": "k_u64add",
+   "style": "inplace"
+  },
+  "A_CARRY_SYNTH": {
+   "anchor_bytes": "320135032281",
+   "block": [
+    32,
+    72
+   ],
+   "instr": "carry_gen",
+   "ioff": 10,
+   "main_len": 90,
+   "main_sha256": "a99a99dd37027d47876ca0d17e5456db90fdd9e31c7dab131251aa373a1ca54f",
+   "source_kernel": "k_u64add",
+   "style": "synth"
+  },
+  "B_ZEXT_INPLACE": {
+   "anchor_bytes": "13000001",
+   "block": null,
+   "instr": "mov_zext16",
+   "ioff": 18,
+   "main_len": 40,
+   "main_sha256": "9cb41b248b9752c7d2ca21cd232df83da86fff3ed83965185eda9035326ba309",
+   "source_kernel": "k_zext16",
+   "style": "inplace"
+  },
+  "B_ZEXT_SYNTH": {
+   "anchor_bytes": "13000001",
+   "block": [
+    18,
+    22
+   ],
+   "instr": "mov_zext16",
+   "ioff": 0,
+   "main_len": 40,
+   "main_sha256": "9cb41b248b9752c7d2ca21cd232df83da86fff3ed83965185eda9035326ba309",
+   "source_kernel": "k_zext16",
+   "style": "synth"
+  },
+  "C_IBFE_BFE": {
+   "anchor_bytes": "a700560002001000f0118100",
+   "block": null,
+   "instr": "ibfe",
+   "ioff": 18,
+   "main_len": 48,
+   "main_sha256": "6a86d0d9dafc989fea1d13196612bdc6f89c6050288d3c1f9744e805a842852e",
+   "source_kernel": "k_bfe",
+   "style": "inplace"
+  },
+  "C_IBFE_SHR": {
+   "anchor_bytes": "a700560002001400f0110100",
+   "block": null,
+   "instr": "ibfe",
+   "ioff": 18,
+   "main_len": 48,
+   "main_sha256": "65b6f1d91595b3d1994afeab651685fc8f3e5b1b9424671661b3ccb8bbfa5bb7",
+   "source_kernel": "k_shr_const",
+   "style": "inplace"
+  },
+  "C_IBFE_SYNTH": {
+   "anchor_bytes": "a700560002001000f0118100",
+   "block": [
+    18,
+    30
+   ],
+   "instr": "ibfe",
+   "ioff": 0,
+   "main_len": 48,
+   "main_sha256": "6a86d0d9dafc989fea1d13196612bdc6f89c6050288d3c1f9744e805a842852e",
+   "source_kernel": "k_bfe",
+   "style": "synth"
+  },
+  "D2_FSPEC_LOG2": {
+   "anchor_bytes": "2f0256000200b0400000",
+   "block": null,
+   "instr": "fspecial",
+   "ioff": 18,
+   "main_len": 46,
+   "main_sha256": "959abd9aebb18ba1be35421230a6842ab9768e300806b38665e1038343c02d21",
+   "source_kernel": "k_log2",
+   "style": "inplace"
+  },
+  "D3_FSPEC_SYNTH": {
+   "anchor_bytes": "af0156000200b0400000",
+   "block": [
+    18,
+    28
+   ],
+   "instr": "fspecial",
+   "ioff": 0,
+   "main_len": 46,
+   "main_sha256": "bb10c04cc6555273e42b5e5bcb967dfef4b9af63e0dc73607db5932cea513408",
+   "source_kernel": "k_rsqrt",
+   "style": "synth"
+  },
+  "D_FSPEC_INPLACE": {
+   "anchor_bytes": "af0156000200b0400000",
+   "block": null,
+   "instr": "fspecial",
+   "ioff": 18,
+   "main_len": 46,
+   "main_sha256": "bb10c04cc6555273e42b5e5bcb967dfef4b9af63e0dc73607db5932cea513408",
+   "source_kernel": "k_rsqrt",
+   "style": "inplace"
+  },
+  "E_FSPEC_EST": {
+   "anchor_bytes": "2981250b00c2",
+   "block": null,
+   "instr": "fspecial_est",
+   "ioff": 18,
+   "main_len": 134,
+   "main_sha256": "9425b8bdcce7457d59dceacfbbba7a4e9e836cb8b379ba3fefbafa539fe10755",
+   "source_kernel": "k_rsqrt_precise",
+   "style": "inplace"
+  }
+ },
+ "authored_input_sha256": {
+  "harness/anchors.py": "c575724a09cc7a234ae458a541eff8bf6c8fa97de3d4817c8e6d3da8a4c5784d",
+  "harness/cases.py": "a1bddabcd9b9a4b86f4012651e018d645e6b42fbeabb4829114546c14215c41d",
+  "harness/isa_helpers.py": "1092b737f6d623bcf081192e595ff588270e39c295df61f2d94bf6c430703557",
+  "harness/pilot_seed.py": "3effc6d07ed7b04c9910c324bd24c823a362572217445e6ae54e18f93871b201",
+  "harness/run.py": "14e7253bbc9aefdf59426b0c42fbfecb23a9713c5600655f84bc90c5611b8d41",
+  "harness/smoke.py": "ac974f2db0ea3f30a56ea54fde406013ae01d14b5fdaed8aaf2fde07bda38b67",
+  "harness/sweeprun.py": "fcbf96948a15fbbfce335101631f081c56010d3b740030c2c5dc305c5d91f337",
+  "harness/sync.sh": "4ea2506d19d80ebe34d6d665ecc4b9a1bd87373f035ae9b608e9e63bfe38dbf4",
+  "kernels/carrier_seed.metal": "b23543e82fb3314ea22b992900c7712ace79698e0d4bf376f03297344e482c7c",
+  "kernels/probes.metal": "f261e463f9a4197a9b81a0c00797f3baf89749d2a66e3a25a55b5f54c821ab56",
+  "work/frozen/db.json": "acf40b4be3ece5a206205805cc48104107f5d18af2edea7f4a5f84f2d530d9b7",
+  "work/frozen/isadb.py": "1d60d36d2da7b681028c201013a510603d8fb7909bb59186e7534296e3b6e0d1",
+  "work/frozen/validation.json": "18577767b4af268b0d9c34ef66113702d1e2f66313ac72066bd18cb2e88e5763"
+ },
+ "case_matrix": {
+  "danger_cases": 65,
+  "danger_sha256": "b2976008ccecea8d70988ddacbdd9eb9a83e1644d5ee47a49e2e761fbd687c19",
+  "matrix_sha256": "38965f912e777d40eba4c39068af84d6db5052efcbefed4f5a82993d1528d2a1",
+  "per_arm": {
+   "A_CARRY_INPLACE": 1555,
+   "A_CARRY_SYNTH": 1555,
+   "B_ZEXT_INPLACE": 900,
+   "B_ZEXT_SYNTH": 900,
+   "C_IBFE_BFE": 134,
+   "C_IBFE_SHR": 130,
+   "C_IBFE_SYNTH": 130,
+   "D2_FSPEC_LOG2": 788,
+   "D3_FSPEC_SYNTH": 2276,
+   "D_FSPEC_INPLACE": 2276,
+   "E_FSPEC_EST": 1298
+  },
+  "unlocked_cases": 11942
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": "kernels/probes.metal and kernels/carrier_seed.metal (authored by us) and the AGX machine code the PUBLIC runtime API compiled from them",
+  "provenance": "OWN-SHADER + HW-PROBE"
+ },
+ "experiment": "EXP-0161-g17p-carry-fspecial",
+ "frozen_utc": "2026-08-30T06:41:38Z",
+ "gates": {
+  "F1_carry_byte0": "carry_gen byte0 := 0x00 MUST NOT be ok (EXP-0154's arm died here)",
+  "F1b_carry_b2": "carry_gen byte+2 := 0x00 MUST NOT be ok (EXP-0038 A18 neutralisation)",
+  "F2_zext_byte0": "mov_zext16 byte0 := 0x00 MUST NOT be ok",
+  "F3_ibfe_byte0": "ibfe byte0 := 0x00 MUST NOT be ok",
+  "F4_fspecial_byte0": "fspecial byte0 := 0x00 MUST NOT be ok",
+  "baseline": "every arm's unmutated case MUST be ok and, for INPLACE arms, MUST match the host-computed oracle",
+  "cross_run": "a field verdict requires agreement between run01 (forward) and run02 (reverse); disagreements are listed, not averaged",
+  "fault_promotion": "NO fault/hang verdict is promoted without 5x lease confirmation (FIELD-SWEEP-PROTOCOL 7A)",
+  "hang_stop": "two GENUINE hangs in one arm stop that arm; it is reported PARTIAL"
+ },
+ "prefreeze_observations": {
+  "raw/prefreeze/pilot_seed.json": "HW-PROBE pilot: a device_store's data-register read is NOT interlocked against a pending device_load on G17P; the first ~5 stores after a load wave read the register's PRE-LOAD value. Fixed by two load waves + 6 drain stores; see harness/isa_helpers.py::seed_instrs.",
+  "raw/prefreeze/smoke_postfix.json": "smoke AFTER that fix: seeding 15/15 stable over 8 repeats; all four pre-registered falsifiers FIRE; all 7 INPLACE carriers reproduce their host-computed oracle unmutated."
+ },
+ "raw_schema": {
+  "append_only": true,
+  "file": "raw/<run_id>/sweep.jsonl",
+  "keys": [
+   "idx",
+   "arm",
+   "style",
+   "instr",
+   "field",
+   "value",
+   "bytes",
+   "observed",
+   "outcome",
+   "carrier",
+   "kind",
+   "rt_ok",
+   "victim",
+   "sentinel_bad",
+   "attempts",
+   "predict",
+   "byte_index",
+   "fstart",
+   "fwidth",
+   "note",
+   "seq",
+   "t"
+  ],
+  "outcome_domain": [
+   "ok",
+   "silent_zero",
+   "wrong_value",
+   "fault",
+   "hang",
+   "undecodable"
+  ]
+ },
+ "repo_revision": {
+  "dirty": true,
+  "head": "443981cc240592e205d638c805d0decaefc24af7",
+  "note": "pinned AT PRE-REGISTRATION per SUBAGENT_BRIEF: captures are gated on the authored blob hashes below, NOT on live HEAD. The orchestrator lands sibling experiments continuously; HEAD moving is not contamination."
+ },
+ "stimulus": {
+  "A_U32": [
+   "0x12345678",
+   "0xFFFFFFFF",
+   "0x0000FF00",
+   "0xDEADBEEF",
+   "0x00000001",
+   "0x80000000",
+   "0x7FFFFFFF",
+   "0xA5A5A5A5",
+   "0x0F0F0F0F",
+   "0xFEDCBA98",
+   "0x00010001",
+   "0xC0FFEE33"
+  ],
+  "F_IN": [
+   4.0,
+   9.0,
+   0.25,
+   16.0,
+   2.0,
+   64.0,
+   0.5,
+   100.0,
+   1.5,
+   36.0,
+   0.125,
+   81.0
+  ],
+  "SEED_F32": [
+   4.0,
+   9.0,
+   0.25,
+   16.0,
+   2.0,
+   64.0,
+   0.5,
+   100.0,
+   1.5,
+   36.0,
+   0.125,
+   81.0,
+   6.25,
+   121.0,
+   3.0,
+   0.0
+  ],
+  "SEED_U32": [
+   "0x80112233",
+   "0x8F4E7A15",
+   "0x0A2C51E7",
+   "0xA7D30B49",
+   "0x161F94AB",
+   "0xC48A2D5D",
+   "0x23654EBF",
+   "0xE2B0C721",
+   "0x310D3883",
+   "0x47F6A9E5",
+   "0x5613BA47",
+   "0xF5E0CBA9",
+   "0x64CD1C0B",
+   "0x73BA8D6D",
+   "0xEE9F7ECF",
+   "0x00000000"
+  ],
+  "U64_A": [
+   "0x0123456789ABCDEF",
+   "0x00000001F0000000",
+   "0x0000000312345678",
+   "0xFFFFFFFFFFFFFFFF",
+   "0x0000000A7FFFFFFF",
+   "0x0000000C80000000",
+   "0x0000000000000000",
+   "0xDEADBEEFCAFEBABE",
+   "0x8000000000000000",
+   "0x7FFFFFFFFFFFFFFF",
+   "0xFFFFFFFF00000000",
+   "0xFFFFFFFFFFFFFFFE"
+  ],
+  "U64_B": [
+   "0x00000000FEDCBA98",
+   "0x0000000210000000",
+   "0x0000000411111111",
+   "0x0000000000000001",
+   "0x0000000B80000000",
+   "0x0000000D80000000",
+   "0x0000000000000000",
+   "0x1234567887654321",
+   "0x8000000000000000",
+   "0x0000000000000001",
+   "0x00000000FFFFFFFF",
+   "0x0000000000000003"
+  ],
+  "carry_pair": [
+   1,
+   3
+  ],
+  "carry_pair_sum_lo": "0x3721855E",
+  "poison": "0xDEADBEEF + i, per word"
+ },
+ "target": {
+  "accelerator": "AGXAcceleratorG17P",
+  "arch": "applegpu_g17p",
+  "gpu_cores": 5,
+  "host": "192.168.10.243",
+  "label_for_every_verdict": "G17P",
+  "metal_family": "Apple9",
+  "model": "Mac17,5",
+  "name": "Apple A18 Pro / G17P",
+  "os": "macOS 26.6"
+ },
+ "timeouts": {
+  "danger_per_request_s": 12.0,
+  "per_request_s": 8.0,
+  "remote_wrapper": "perl alarm on every ssh/scp",
+  "shdump_s": 300
+ }
+}

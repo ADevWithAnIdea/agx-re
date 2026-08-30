@@ -1,0 +1,457 @@
+{
+ "baseline": {
+  "corpus": {
+   "files": 1080,
+   "clean": 832,
+   "leftover": 388872
+  },
+  "roundtrip": {
+   "ok": 302,
+   "fail": 0,
+   "crash": 0
+  },
+  "functional": {
+   "071454500600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (acquire, compiler's own)"
+   },
+   "070454d00600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (release, compiler's own)"
+   },
+   "071454510e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "pixel_order acquire == threadgroup_barrier(mem_texture) acquire (HW ok)"
+   },
+   "070454d10e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "pixel_order release == threadgroup_barrier(mem_texture) release (HW ok)"
+   },
+   "071454500e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "acquire with byte+4 = 0x0e (HW ok, undecodable under the old match)"
+   },
+   "070454d00a00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "release with byte+4 = 0x0a (HW ok, undecodable under the old match)"
+   },
+   "070454610900": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!compute threadgroup_barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "0702540c0200": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!fragment tile barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "070454840a00": {
+    "mnemonic": "mem_fence",
+    "length": 6,
+    "note": "!device mem_fence (HW: ordering LOST -- must stay mem_fence)"
+   },
+   "571454000001": {
+    "mnemonic": "<undecodable>",
+    "length": null,
+    "error": "truncated instruction at offset 0 (need 8, have 6)",
+    "note": "frag_sample_submit (6 bytes; bytes +6..+7 belong to the NEXT op)"
+   },
+   "5746540400404a00": {
+    "mnemonic": "vary_store",
+    "length": 8,
+    "note": "vary_store (8 bytes, vertex form)"
+   }
+  },
+  "firings_total": 25382
+ },
+ "pixel_order": {
+  "corpus": {
+   "files": 1080,
+   "clean": 832,
+   "leftover": 388872
+  },
+  "roundtrip": {
+   "ok": 302,
+   "fail": 0,
+   "crash": 0
+  },
+  "functional": {
+   "071454500600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (acquire, compiler's own)"
+   },
+   "070454d00600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (release, compiler's own)"
+   },
+   "071454510e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order acquire == threadgroup_barrier(mem_texture) acquire (HW ok)"
+   },
+   "070454d10e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order release == threadgroup_barrier(mem_texture) release (HW ok)"
+   },
+   "071454500e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "acquire with byte+4 = 0x0e (HW ok, undecodable under the old match)"
+   },
+   "070454d00a00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "release with byte+4 = 0x0a (HW ok, undecodable under the old match)"
+   },
+   "070454610900": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!compute threadgroup_barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "0702540c0200": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!fragment tile barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "070454840a00": {
+    "mnemonic": "mem_fence",
+    "length": 6,
+    "note": "!device mem_fence (HW: ordering LOST -- must stay mem_fence)"
+   },
+   "571454000001": {
+    "mnemonic": "<undecodable>",
+    "length": null,
+    "error": "truncated instruction at offset 0 (need 8, have 6)",
+    "note": "frag_sample_submit (6 bytes; bytes +6..+7 belong to the NEXT op)"
+   },
+   "5746540400404a00": {
+    "mnemonic": "vary_store",
+    "length": 8,
+    "note": "vary_store (8 bytes, vertex form)"
+   }
+  },
+  "firing_delta": {},
+  "firings_total": 25382
+ },
+ "vary_store": {
+  "corpus": {
+   "files": 1080,
+   "clean": 833,
+   "leftover": 388604
+  },
+  "roundtrip": {
+   "ok": 302,
+   "fail": 0,
+   "crash": 0
+  },
+  "functional": {
+   "071454500600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (acquire, compiler's own)"
+   },
+   "070454d00600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (release, compiler's own)"
+   },
+   "071454510e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "pixel_order acquire == threadgroup_barrier(mem_texture) acquire (HW ok)"
+   },
+   "070454d10e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "pixel_order release == threadgroup_barrier(mem_texture) release (HW ok)"
+   },
+   "071454500e00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "acquire with byte+4 = 0x0e (HW ok, undecodable under the old match)"
+   },
+   "070454d00a00": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "release with byte+4 = 0x0a (HW ok, undecodable under the old match)"
+   },
+   "070454610900": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!compute threadgroup_barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "0702540c0200": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!fragment tile barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "070454840a00": {
+    "mnemonic": "mem_fence",
+    "length": 6,
+    "note": "!device mem_fence (HW: ordering LOST -- must stay mem_fence)"
+   },
+   "571454000001": {
+    "mnemonic": "frag_sample_submit",
+    "length": 6,
+    "note": "frag_sample_submit (6 bytes; bytes +6..+7 belong to the NEXT op)"
+   },
+   "5746540400404a00": {
+    "mnemonic": "vary_store",
+    "length": 8,
+    "note": "vary_store (8 bytes, vertex form)"
+   }
+  },
+  "firing_delta": {
+   "reg_move_c1": [
+    84,
+    83
+   ],
+   "iter": [
+    470,
+    479
+   ],
+   "mov_imm": [
+    620,
+    619
+   ],
+   "falu2i": [
+    259,
+    260
+   ],
+   "get_sr": [
+    1138,
+    1141
+   ],
+   "if_push": [
+    370,
+    371
+   ],
+   "frag_sample_submit": [
+    0,
+    10
+   ],
+   "threadgroup_barrier": [
+    280,
+    283
+   ],
+   "frag_tile_setup": [
+    199,
+    200
+   ],
+   "icmp_pred": [
+    606,
+    608
+   ],
+   "fspecial": [
+    261,
+    262
+   ],
+   "stop": [
+    842,
+    843
+   ],
+   "pad_operand": [
+    1166,
+    1167
+   ],
+   "operand_word": [
+    244,
+    239
+   ],
+   "frag_color_store": [
+    95,
+    96
+   ],
+   "scoreboard_fence": [
+    209,
+    211
+   ],
+   "falu2": [
+    1049,
+    1063
+   ],
+   "n2_op6": [
+    549,
+    550
+   ],
+   "frag_color_pack": [
+    164,
+    166
+   ],
+   "vary_store": [
+    621,
+    611
+   ],
+   "jump_cond": [
+    302,
+    303
+   ]
+  },
+  "firings_total": 25419
+ },
+ "both": {
+  "corpus": {
+   "files": 1080,
+   "clean": 833,
+   "leftover": 388604
+  },
+  "roundtrip": {
+   "ok": 302,
+   "fail": 0,
+   "crash": 0
+  },
+  "functional": {
+   "071454500600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (acquire, compiler's own)"
+   },
+   "070454d00600": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order (release, compiler's own)"
+   },
+   "071454510e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order acquire == threadgroup_barrier(mem_texture) acquire (HW ok)"
+   },
+   "070454d10e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "pixel_order release == threadgroup_barrier(mem_texture) release (HW ok)"
+   },
+   "071454500e00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "acquire with byte+4 = 0x0e (HW ok, undecodable under the old match)"
+   },
+   "070454d00a00": {
+    "mnemonic": "pixel_order",
+    "length": 6,
+    "note": "release with byte+4 = 0x0a (HW ok, undecodable under the old match)"
+   },
+   "070454610900": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!compute threadgroup_barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "0702540c0200": {
+    "mnemonic": "threadgroup_barrier",
+    "length": 6,
+    "note": "!fragment tile barrier (HW: ordering LOST -- must stay tgbar)"
+   },
+   "070454840a00": {
+    "mnemonic": "mem_fence",
+    "length": 6,
+    "note": "!device mem_fence (HW: ordering LOST -- must stay mem_fence)"
+   },
+   "571454000001": {
+    "mnemonic": "frag_sample_submit",
+    "length": 6,
+    "note": "frag_sample_submit (6 bytes; bytes +6..+7 belong to the NEXT op)"
+   },
+   "5746540400404a00": {
+    "mnemonic": "vary_store",
+    "length": 8,
+    "note": "vary_store (8 bytes, vertex form)"
+   }
+  },
+  "firing_delta": {
+   "reg_move_c1": [
+    84,
+    83
+   ],
+   "iter": [
+    470,
+    479
+   ],
+   "mov_imm": [
+    620,
+    619
+   ],
+   "falu2i": [
+    259,
+    260
+   ],
+   "get_sr": [
+    1138,
+    1141
+   ],
+   "if_push": [
+    370,
+    371
+   ],
+   "frag_sample_submit": [
+    0,
+    10
+   ],
+   "threadgroup_barrier": [
+    280,
+    283
+   ],
+   "frag_tile_setup": [
+    199,
+    200
+   ],
+   "icmp_pred": [
+    606,
+    608
+   ],
+   "fspecial": [
+    261,
+    262
+   ],
+   "stop": [
+    842,
+    843
+   ],
+   "pad_operand": [
+    1166,
+    1167
+   ],
+   "operand_word": [
+    244,
+    239
+   ],
+   "frag_color_store": [
+    95,
+    96
+   ],
+   "scoreboard_fence": [
+    209,
+    211
+   ],
+   "falu2": [
+    1049,
+    1063
+   ],
+   "n2_op6": [
+    549,
+    550
+   ],
+   "frag_color_pack": [
+    164,
+    166
+   ],
+   "vary_store": [
+    621,
+    611
+   ],
+   "jump_cond": [
+    302,
+    303
+   ]
+  },
+  "firings_total": 25419
+ }
+}

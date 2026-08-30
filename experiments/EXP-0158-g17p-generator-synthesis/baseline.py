@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""EXP-0149 carrier baseline: re-derive our own carrier kernels' compiled
-length and base_slot ORDER fresh before every capture (never trusted from a
-constant).  Compile + static disassemble only -- no GPU dispatch.
+"""EXP-0158 carrier baseline (G17P): re-derive our own carrier kernels'
+compiled length and base_slot ORDER fresh before every capture, on THIS
+target, never trusted from a constant.  Compile + static disassemble only --
+no GPU dispatch.
 
 Adapted from EXP-0112's baseline.py (our own code).  The ORDER check is kept:
 EXP-0112 documented a real hardware failure caused by inferring base_slot from
-a structurally different stand-in kernel.
+a structurally different stand-in kernel.  Re-running it here matters twice
+over, because the carrier is compiled by the A18's own toolchain and neither
+its length nor its slot order may be assumed to match the M4's.
 """
 import subprocess, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-sys.path.insert(0, str(REPO / "tools" / "agx-isa"))
-import isadb  # noqa: E402
 sys.path.insert(0, str(HERE))
 import generator as G   # noqa: E402
-import cf as CF          # noqa: E402
+import cf as CF         # noqa: E402
+import synth as S       # noqa: E402
+isadb = S.isadb         # the PINNED snapshot, not the live tools/agx-isa copy
 
 
 def compiled_main(bin_dir, kernel_path):
@@ -68,7 +71,10 @@ def main():
     b_cf = compiled_main(bin_dir, HERE / "kernels" / "carrier_cf.metal")
     print("carrier_cf.metal _agc.main length (--no-fast-math):", len(b_cf))
     assert len(b_cf) == CF.CARRIER_LEN, (
-        "carrier_cf.metal length drifted: expected %d, got %d" % (CF.CARRIER_LEN, len(b_cf)))
+        "carrier_cf.metal length drifted: expected %d, got %d.  If this fires on "
+        "G17P it is a REAL FINDING (the A18 toolchain lays the carrier out "
+        "differently), not a nuisance -- record it, do not silently retune."
+        % (CF.CARRIER_LEN, len(b_cf)))
     loads, stores = slots_used(b_cf)
     print("carrier_cf device_load base_slot (in order):", loads, "store:", stores)
     assert set(loads) == {CF.SLOT_A, CF.SLOT_N}, "carrier_cf load slots drifted: %r" % (loads,)

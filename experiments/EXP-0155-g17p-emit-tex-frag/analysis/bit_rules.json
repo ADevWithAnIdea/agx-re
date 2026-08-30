@@ -1,0 +1,8212 @@
+{
+ "frag_color_pack|fcp@pack0|comp_off": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack0|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 1,
+   "wrong_value": 191
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack0|fmt_class": {
+  "counts": {
+   "ok": 255,
+   "undecodable": 1
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "undecodable": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `undecodable` iff (value & 0xff) in ['0x56']",
+    "values": [
+     86
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack0|mode": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack0|src_desc": {
+  "counts": {
+   "ok": 64,
+   "silent_zero": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     6
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4, 6]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1, 2, 3, 5, 7]"
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack0|val": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 249,
+    "statement": "outcome `ok` iff (value & 0xf9) in ['0x20']",
+    "values": [
+     32
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack1|comp_off": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x4']",
+    "values": [
+     4
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack1|dst": {
+  "counts": {
+   "hang": 1,
+   "ok": 1,
+   "wrong_value": 191
+  },
+  "n_agree": 193,
+  "n_common": 195,
+  "rules": {
+   "hang": {
+    "kind": "mask",
+    "mask": 192,
+    "statement": "outcome `hang` iff (value & 0xc0) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x1']",
+    "values": [
+     1
+    ]
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack1|mode": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack1|src_desc": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     6
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4, 6]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [0, 1, 2, 3, 5, 7]"
+   }
+  }
+ },
+ "frag_color_pack|fcp@pack1|val": {
+  "counts": {
+   "ok": 4,
+   "silent_zero": 4,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 249,
+    "statement": "outcome `ok` iff (value & 0xf9) in ['0x10']",
+    "values": [
+     16
+    ]
+   },
+   "silent_zero": {
+    "kind": "mask",
+    "mask": 249,
+    "statement": "outcome `silent_zero` iff (value & 0xf9) in ['0x1']",
+    "values": [
+     1
+    ]
+   }
+  }
+ },
+ "frag_color_store|fcs@iter0|flags": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_color_store|fcs@iter0|fmt": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 56,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     46,
+     47
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [46, 47]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     20,
+     21,
+     22,
+     23,
+     32,
+     33,
+     64,
+     65,
+     66,
+     67,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     96,
+     97
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 128) in [0, 1, 2, 3, 20, 21, 22, 23, 32, 33, 64, 65, 66, 67, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 96, 97]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     92,
+     93,
+     94,
+     95,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 24, 25, 26, 27, 28, 29, 30, 31, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 92, 93, 94, 95, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   }
+  }
+ },
+ "frag_color_store|fcs@iter0|mask": {
+  "counts": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [1]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "frag_color_store|fcs@iter0|slice_addr": {
+  "counts": {
+   "ok": 9,
+   "silent_zero": 68,
+   "wrong_value": 4
+  },
+  "n_agree": 81,
+  "n_common": 81,
+  "rules": {}
+ },
+ "frag_color_store|fcs@iter0|store_mode": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_color_store|fcs@pack0|flags": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `ok` iff (value & 0x80) in ['0x0']",
+    "values": [
+     0
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `wrong_value` iff (value & 0x80) in ['0x80']",
+    "values": [
+     128
+    ]
+   }
+  }
+ },
+ "frag_color_store|fcs@pack0|fmt": {
+  "counts": {
+   "ok": 84,
+   "silent_zero": 84,
+   "wrong_value": 88
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     6,
+     7,
+     14,
+     15,
+     18,
+     19,
+     26,
+     27,
+     34,
+     35,
+     38,
+     39,
+     42,
+     43,
+     46,
+     47,
+     50,
+     51,
+     54,
+     55,
+     58,
+     59,
+     62,
+     63,
+     78,
+     79,
+     98,
+     99,
+     102,
+     103,
+     106,
+     107,
+     110,
+     111,
+     114,
+     115,
+     118,
+     119,
+     122,
+     123,
+     126,
+     127
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [6, 7, 14, 15, 18, 19, 26, 27, 34, 35, 38, 39, 42, 43, 46, 47, 50, 51, 54, 55, 58, 59, 62, 63, 78, 79, 98, 99, 102, 103, 106, 107, 110, 111, 114, 115, 118, 119, 122, 123, 126, 127]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     8,
+     9,
+     20,
+     21,
+     28,
+     29,
+     32,
+     33,
+     36,
+     37,
+     40,
+     41,
+     44,
+     45,
+     48,
+     49,
+     52,
+     53,
+     56,
+     57,
+     60,
+     61,
+     64,
+     65,
+     96,
+     97,
+     100,
+     101,
+     104,
+     105,
+     108,
+     109,
+     112,
+     113,
+     116,
+     117,
+     120,
+     121,
+     124,
+     125
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 128) in [0, 1, 8, 9, 20, 21, 28, 29, 32, 33, 36, 37, 40, 41, 44, 45, 48, 49, 52, 53, 56, 57, 60, 61, 64, 65, 96, 97, 100, 101, 104, 105, 108, 109, 112, 113, 116, 117, 120, 121, 124, 125]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     10,
+     11,
+     12,
+     13,
+     16,
+     17,
+     22,
+     23,
+     24,
+     25,
+     30,
+     31,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [2, 3, 4, 5, 10, 11, 12, 13, 16, 17, 22, 23, 24, 25, 30, 31, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]"
+   }
+  }
+ },
+ "frag_color_store|fcs@pack0|mask": {
+  "counts": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [1]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "frag_color_store|fcs@pack0|store_mode": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_depth_store|fds@depth0|b3": {
+  "counts": {
+   "ok": 4,
+   "silent_zero": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "frag_depth_store|fds@depth0|b4": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [0]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 32) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "frag_depth_store|fds@depth0|b5": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter0|access": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter0|b1": {
+  "counts": {
+   "ok": 128,
+   "silent_zero": 64,
+   "wrong_value": 64
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     5
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [4, 5]"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter0|b5": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter0|sel": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter1|access": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter1|b1": {
+  "counts": {
+   "ok": 192,
+   "silent_zero": 64
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [2, 3, 4, 5, 6, 7]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1]"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter1|b5": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "frag_tile_setup|fts@iter1|sel": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "imageblock_store|ibs@t1|b4": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "imageblock_store|ibs@t1|b6": {
+  "counts": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [1]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "imageblock_store|ibs@t1|fmt": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 104,
+   "wrong_value": 144
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     46,
+     47
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [46, 47]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     10,
+     11,
+     12,
+     13,
+     16,
+     17,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     28,
+     29,
+     32,
+     33,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 128) in [0, 1, 2, 3, 10, 11, 12, 13, 16, 17, 20, 21, 22, 23, 24, 25, 28, 29, 32, 33, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     14,
+     15,
+     18,
+     19,
+     26,
+     27,
+     30,
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     78,
+     79,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [4, 5, 6, 7, 8, 9, 14, 15, 18, 19, 26, 27, 30, 31, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 78, 79, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   }
+  }
+ },
+ "imageblock_store|ibs@t1|src": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "silent_zero": 235,
+   "wrong_value": 9
+  },
+  "n_agree": 249,
+  "n_common": 249,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `fault` iff (value & 0xfe) in ['0xf6']",
+    "values": [
+     246
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 248,
+    "statement": "outcome `hang` iff (value & 0xf8) in ['0xf8']",
+    "values": [
+     248
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0', '0xc0']",
+    "values": [
+     0,
+     192
+    ]
+   }
+  }
+ },
+ "imageblock_store|ibs@t1|tail": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 70,
+   "wrong_value": 3
+  },
+  "n_agree": 81,
+  "n_common": 81,
+  "rules": {}
+ },
+ "imageblock_store|ibs@tc|b4": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "imageblock_store|ibs@tc|b6": {
+  "counts": {
+   "ok": 128,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [1]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "imageblock_store|ibs@tc|fmt": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 96,
+   "wrong_value": 152
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     46,
+     47
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [46, 47]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     16,
+     17,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     28,
+     29,
+     32,
+     33,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 128) in [0, 1, 2, 3, 16, 17, 20, 21, 22, 23, 24, 25, 28, 29, 32, 33, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     18,
+     19,
+     26,
+     27,
+     30,
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     78,
+     79,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 26, 27, 30, 31, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 78, 79, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   }
+  }
+ },
+ "imageblock_store|ibs@tc|src": {
+  "counts": {
+   "fault": 1,
+   "hang": 1,
+   "ok": 2,
+   "silent_zero": 221,
+   "wrong_value": 16
+  },
+  "n_agree": 241,
+  "n_common": 249,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 247,
+    "statement": "outcome `fault` iff (value & 0xf7) in ['0xf6']",
+    "values": [
+     246
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 247,
+    "statement": "outcome `hang` iff (value & 0xf7) in ['0xf7']",
+    "values": [
+     247
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0', '0xc0']",
+    "values": [
+     0,
+     192
+    ]
+   }
+  }
+ },
+ "imageblock_store|ibs@tc|tail": {
+  "counts": {
+   "ok": 8,
+   "silent_zero": 70,
+   "wrong_value": 3
+  },
+  "n_agree": 81,
+  "n_common": 81,
+  "rules": {}
+ },
+ "iter_at|iter_at@cent1_0|b5": {
+  "counts": {
+   "ok": 255
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 255 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_0|c4": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_0|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 190
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0xa']",
+    "values": [
+     10
+    ]
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_0|lead": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [0, 1, 2, 3, 5, 6, 7]"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_0|loc": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_1|b5": {
+  "counts": {
+   "ok": 252,
+   "wrong_value": 4
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `wrong_value` iff (value & 0xfc) in ['0x14']",
+    "values": [
+     20
+    ]
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_1|c4": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_1|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 190
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x8']",
+    "values": [
+     8
+    ]
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_1|lead": {
+  "counts": {
+   "ok": 32,
+   "silent_zero": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1, 2, 3, 5, 6, 7]"
+   }
+  }
+ },
+ "iter_at|iter_at@cent1_1|loc": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat0|b4": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat0|b5": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 191
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat0|sel": {
+  "counts": {
+   "fault": 1,
+   "wrong_value": 124
+  },
+  "n_agree": 125,
+  "n_common": 126,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     124
+    ],
+    "statement": "outcome `fault` iff (value mod 128) in [124]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat1|b1": {
+  "counts": {
+   "ok": 2,
+   "silent_zero": 64,
+   "undecodable": 62,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 247,
+    "statement": "outcome `ok` iff (value & 0xf7) in ['0x3']",
+    "values": [
+     3
+    ]
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 4) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat1|b4": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat1|b5": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 191
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "iter_flat|iter_flat@flat1|sel": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 122
+  },
+  "n_agree": 127,
+  "n_common": 127,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     124,
+     125
+    ],
+    "statement": "outcome `fault` iff (value mod 128) in [124, 125]"
+   },
+   "hang": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     127
+    ],
+    "statement": "outcome `hang` iff (value mod 128) in [127]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     6,
+     102
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [6, 102]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]"
+   }
+  }
+ },
+ "iter|iter@cent1|b9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@cent1|c7": {
+  "counts": {
+   "ok": 1,
+   "undecodable": 254
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x2']",
+    "values": [
+     2
+    ]
+   }
+  }
+ },
+ "iter|iter@cent1|coeff_sel": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@cent1|lead": {
+  "counts": {
+   "ok": 223,
+   "silent_zero": 32
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [0, 1, 2, 3, 5, 6, 7]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [4]"
+   }
+  }
+ },
+ "iter|iter@cent1|loc": {
+  "counts": {
+   "ok": 208,
+   "wrong_value": 48
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     33,
+     34,
+     35,
+     37,
+     38,
+     39,
+     41,
+     42,
+     43,
+     45,
+     46,
+     47,
+     48,
+     49,
+     52,
+     53,
+     56,
+     57,
+     60,
+     61
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 37, 38, 39, 41, 42, 43, 45, 46, 47, 48, 49, 52, 53, 56, 57, 60, 61]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     32,
+     36,
+     40,
+     44,
+     50,
+     51,
+     54,
+     55,
+     58,
+     59,
+     62,
+     63
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [32, 36, 40, 44, 50, 51, 54, 55, 58, 59, 62, 63]"
+   }
+  }
+ },
+ "iter|iter@cent4|grp": {
+  "counts": {
+   "fault": 10,
+   "ok": 2,
+   "silent_zero": 9,
+   "undecodable": 8,
+   "wrong_value": 221
+  },
+  "n_agree": 250,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     47
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [47]"
+   },
+   "undecodable": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `undecodable` iff (value & 0xff) in ['0x1f', '0x37', '0x47', '0x9f', '0xc7', '0xef', '0xf7', '0xff']",
+    "values": [
+     31,
+     55,
+     71,
+     159,
+     199,
+     239,
+     247,
+     255
+    ]
+   }
+  }
+ },
+ "iter|iter@cent4|loc": {
+  "counts": {
+   "ok": 160,
+   "wrong_value": 96
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     33,
+     34,
+     35,
+     37,
+     41,
+     42,
+     43,
+     45,
+     48,
+     49,
+     52,
+     53,
+     56,
+     57,
+     60,
+     61
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 33, 34, 35, 37, 41, 42, 43, 45, 48, 49, 52, 53, 56, 57, 60, 61]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     6,
+     7,
+     14,
+     15,
+     22,
+     23,
+     30,
+     31,
+     32,
+     36,
+     38,
+     39,
+     40,
+     44,
+     46,
+     47,
+     50,
+     51,
+     54,
+     55,
+     58,
+     59,
+     62,
+     63
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [6, 7, 14, 15, 22, 23, 30, 31, 32, 36, 38, 39, 40, 44, 46, 47, 50, 51, 54, 55, 58, 59, 62, 63]"
+   }
+  }
+ },
+ "iter|iter@frag0W|b9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@frag0W|c7": {
+  "counts": {
+   "ok": 1,
+   "undecodable": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x2']",
+    "values": [
+     2
+    ]
+   }
+  }
+ },
+ "iter|iter@frag0W|coeff_sel": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@frag0W|grp": {
+  "counts": {
+   "fault": 238,
+   "ok": 2,
+   "silent_zero": 8,
+   "undecodable": 8
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     47
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [47]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 32) in [14]"
+   },
+   "undecodable": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `undecodable` iff (value & 0xff) in ['0x1f', '0x37', '0x47', '0x9f', '0xc7', '0xef', '0xf7', '0xff']",
+    "values": [
+     31,
+     55,
+     71,
+     159,
+     199,
+     239,
+     247,
+     255
+    ]
+   }
+  }
+ },
+ "iter|iter@frag0W|lead": {
+  "counts": {
+   "fault": 32,
+   "ok": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4
+    ],
+    "statement": "outcome `fault` iff (value mod 8) in [4]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [0, 1, 2, 3, 5, 6, 7]"
+   }
+  }
+ },
+ "iter|iter@frag0W|loc": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@frag1|b9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "iter|iter@frag1|c7": {
+  "counts": {
+   "ok": 1,
+   "undecodable": 31,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x2']",
+    "values": [
+     2
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 146,
+    "statement": "outcome `wrong_value` iff (value & 0x92) in ['0x0', '0x10', '0x12', '0x80', '0x82', '0x90', '0x92']",
+    "values": [
+     0,
+     16,
+     18,
+     128,
+     130,
+     144,
+     146
+    ]
+   }
+  }
+ },
+ "iter|iter@frag1|coeff_sel": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "iter|iter@frag1|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 190
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0xa']",
+    "values": [
+     10
+    ]
+   }
+  }
+ },
+ "iter|iter@frag1|grp": {
+  "counts": {
+   "fault": 129,
+   "ok": 1,
+   "silent_zero": 8,
+   "wrong_value": 117
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x2f']",
+    "values": [
+     47
+    ]
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 32) in [14]"
+   }
+  }
+ },
+ "iter|iter@frag1|lead": {
+  "counts": {
+   "fault": 32,
+   "ok": 33,
+   "wrong_value": 191
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4
+    ],
+    "statement": "outcome `fault` iff (value mod 8) in [4]"
+   }
+  }
+ },
+ "iter|iter@frag1|loc": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16,
+     17,
+     20,
+     21,
+     24,
+     25,
+     28,
+     29
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16, 17, 20, 21, 24, 25, 28, 29]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     18,
+     19,
+     22,
+     23,
+     26,
+     27,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 22, 23, 26, 27, 30, 31]"
+   }
+  }
+ },
+ "op57_fragment|c_kill/frag@88|byte1": {
+  "counts": {
+   "fault": 64,
+   "ok": 64,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     3
+    ],
+    "statement": "outcome `fault` iff (value mod 4) in [3]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4, 5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     6
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1, 2, 6]"
+   }
+  }
+ },
+ "op57_fragment|c_kill/frag@88|byte2": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "op57_fragment|c_mask/frag@88|byte1": {
+  "counts": {
+   "fault": 64,
+   "ok": 64,
+   "silent_zero": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     3
+    ],
+    "statement": "outcome `fault` iff (value mod 4) in [3]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [4, 5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     6
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1, 2, 6]"
+   }
+  }
+ },
+ "op57_fragment|c_mask/frag@88|byte2": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "op57_vertex|c_iter/vert@106|byte1": {
+  "counts": {
+   "fault": 128,
+   "ok": 32,
+   "silent_zero": 82,
+   "wrong_value": 1
+  },
+  "n_agree": 243,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     3,
+     4,
+     5,
+     7
+    ],
+    "statement": "outcome `fault` iff (value mod 8) in [3, 4, 5, 7]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     6
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [6]"
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 239,
+    "statement": "outcome `wrong_value` iff (value & 0xef) in ['0xa2']",
+    "values": [
+     162
+    ]
+   }
+  }
+ },
+ "op57_vertex|c_iter/vert@106|byte2": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "op57_vertex|c_vary16/vert@166|byte1": {
+  "counts": {
+   "fault": 64,
+   "ok": 32,
+   "silent_zero": 130,
+   "wrong_value": 2
+  },
+  "n_agree": 228,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     3
+    ],
+    "statement": "outcome `fault` iff (value mod 4) in [3]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     6
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [6]"
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `wrong_value` iff (value & 0xff) in ['0x5', '0xa8']",
+    "values": [
+     5,
+     168
+    ]
+   }
+  }
+ },
+ "op57_vertex|c_vary16/vert@166|byte2": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "simd_ballot|sballot@simd0|cache": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "simd_ballot|sballot@simd0|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "silent_zero": 2,
+   "wrong_value": 188
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x6']",
+    "values": [
+     6
+    ]
+   },
+   "silent_zero": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `silent_zero` iff (value & 0xfe) in ['0x20']",
+    "values": [
+     32
+    ]
+   }
+  }
+ },
+ "simd_ballot|sballot@simd0|form": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 253,
+    "statement": "outcome `ok` iff (value & 0xfd) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "simd_ballot|sballot@simd0|form_sig": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "wrong_value": 32
+  },
+  "n_agree": 35,
+  "n_common": 35,
+  "rules": {}
+ },
+ "simd_ballot|sballot@simd0|psrc": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "simd_ballot|sballot@simd0|psrctype": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0xc']",
+    "values": [
+     12
+    ]
+   }
+  }
+ },
+ "simd_reduce|sreduce@simd0|dst": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 190
+  },
+  "n_agree": 195,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `fault` iff (value & 0xc2) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 194,
+    "statement": "outcome `hang` iff (value & 0xc2) in ['0xc2']",
+    "values": [
+     194
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x18']",
+    "values": [
+     24
+    ]
+   }
+  }
+ },
+ "simd_reduce|sreduce@simd0|opmarker": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "simd_reduce|sreduce@simd0|shape": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     20,
+     22,
+     28,
+     30
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [20, 22, 28, 30]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     21,
+     23,
+     24,
+     25,
+     26,
+     27,
+     29,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 29, 31]"
+   }
+  }
+ },
+ "simd_reduce|sreduce@simd0|src": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x48']",
+    "values": [
+     72
+    ]
+   }
+  }
+ },
+ "simd_reduce|sreduce@simd8|shape": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     20,
+     22,
+     28,
+     30
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [20, 22, 28, 30]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     21,
+     23,
+     24,
+     25,
+     26,
+     27,
+     29,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 29, 31]"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|dst": {
+  "counts": {
+   "fault": 1,
+   "hang": 1,
+   "ok": 2,
+   "silent_zero": 2,
+   "wrong_value": 188
+  },
+  "n_agree": 194,
+  "n_common": 195,
+  "rules": {
+   "fault": {
+    "kind": "mask",
+    "mask": 193,
+    "statement": "outcome `fault` iff (value & 0xc1) in ['0xc0']",
+    "values": [
+     192
+    ]
+   },
+   "hang": {
+    "kind": "mask",
+    "mask": 193,
+    "statement": "outcome `hang` iff (value & 0xc1) in ['0xc1']",
+    "values": [
+     193
+    ]
+   },
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x2']",
+    "values": [
+     2
+    ]
+   },
+   "silent_zero": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `silent_zero` iff (value & 0xfe) in ['0x22']",
+    "values": [
+     34
+    ]
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|dsthi": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16,
+     17,
+     18,
+     19
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16, 17, 18, 19]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|rsv9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|rtype": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46,
+     48,
+     50,
+     52,
+     54,
+     56,
+     58,
+     60,
+     62
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     33,
+     35,
+     37,
+     39,
+     41,
+     43,
+     45,
+     47,
+     49,
+     51,
+     53,
+     55,
+     57,
+     59,
+     61,
+     63
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63]"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|src": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1]"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd1|srctype": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x48']",
+    "values": [
+     72
+    ]
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd6|rsv9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd6|rtype": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     32,
+     34,
+     36,
+     38,
+     40,
+     42,
+     44,
+     46,
+     48,
+     50,
+     52,
+     54,
+     56,
+     58,
+     60,
+     62
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     33,
+     35,
+     37,
+     39,
+     41,
+     43,
+     45,
+     47,
+     49,
+     51,
+     53,
+     55,
+     57,
+     59,
+     61,
+     63
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63]"
+   }
+  }
+ },
+ "simd_shuffle|sshuffle@simd6|srctype": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x48']",
+    "values": [
+     72
+    ]
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|b1": {
+  "counts": {
+   "ok": 254,
+   "undecodable": 1
+  },
+  "n_agree": 255,
+  "n_common": 256,
+  "rules": {
+   "undecodable": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `undecodable` iff (value & 0xff) in ['0x35']",
+    "values": [
+     53
+    ]
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|b5": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|b6": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|b8": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|b9": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|dst_lo": {
+  "counts": {
+   "ok": 11,
+   "wrong_value": 5
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     10,
+     11,
+     12,
+     13,
+     15
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 15]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     8,
+     9,
+     14
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 8, 9, 14]"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|form": {
+  "counts": {
+   "ok": 253
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 253 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|idx": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|srcA": {
+  "counts": {
+   "ok": 248
+  },
+  "n_agree": 248,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 248 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_coord_setup|tex_coord@lo_0|subop": {
+  "counts": {
+   "undecodable": 247
+  },
+  "n_agree": 247,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_deriv|tex_deriv@d0|b1": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [5]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [0, 1, 2, 3, 4, 6, 7]"
+   }
+  }
+ },
+ "tex_deriv|tex_deriv@d0|dstsrc": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 36
+  },
+  "n_agree": 37,
+  "n_common": 39,
+  "rules": {}
+ },
+ "tex_deriv|tex_deriv@d0|src_comp": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x4']",
+    "values": [
+     4
+    ]
+   }
+  }
+ },
+ "tex_deriv|tex_deriv@d0|tail": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 63
+  },
+  "n_agree": 65,
+  "n_common": 65,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     64,
+     65
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [64, 65]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     13,
+     15,
+     16,
+     19,
+     21,
+     27,
+     31,
+     32,
+     35,
+     37,
+     59,
+     63,
+     75,
+     87,
+     89,
+     103,
+     111,
+     117,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 7, 8, 13, 15, 16, 19, 21, 27, 31, 32, 35, 37, 59, 63, 75, 87, 89, 103, 111, 117, 125, 126, 127]"
+   }
+  }
+ },
+ "tex_deriv|tex_deriv@d1|b1": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [0, 1, 2, 3, 4, 5, 6]"
+   }
+  }
+ },
+ "tex_deriv|tex_deriv@d1|dstsrc": {
+  "counts": {
+   "wrong_value": 37
+  },
+  "n_agree": 37,
+  "n_common": 39,
+  "rules": {}
+ },
+ "tex_deriv|tex_deriv@d1|src_comp": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 252,
+    "statement": "outcome `ok` iff (value & 0xfc) in ['0x4']",
+    "values": [
+     4
+    ]
+   }
+  }
+ },
+ "tex_deriv|tex_deriv@d1|tail": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 63
+  },
+  "n_agree": 65,
+  "n_common": 65,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     64,
+     65
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [64, 65]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     13,
+     15,
+     16,
+     19,
+     21,
+     27,
+     31,
+     32,
+     35,
+     37,
+     59,
+     63,
+     75,
+     87,
+     89,
+     103,
+     111,
+     117,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 7, 8, 13, 15, 16, 19, 21, 27, 31, 32, 35, 37, 59, 63, 75, 87, 89, 103, 111, 117, 125, 126, 127]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|chain": {
+  "counts": {
+   "ok": 16
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 16 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|comp_flags": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 12
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|coord": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|extra_coord": {
+  "counts": {
+   "ok": 253
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 253 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|kind": {
+  "counts": {
+   "ok": 2,
+   "silent_zero": 1,
+   "undecodable": 7,
+   "wrong_value": 6
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 16) in [14]"
+   },
+   "undecodable": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     7,
+     8,
+     9,
+     10
+    ],
+    "statement": "outcome `undecodable` iff (value mod 16) in [0, 1, 2, 7, 8, 9, 10]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     3,
+     4,
+     6,
+     11,
+     12,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [3, 4, 6, 11, 12, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|result_sel": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_0|tex_type": {
+  "counts": {
+   "ok": 226,
+   "wrong_value": 30
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_sample|tex_sample@lo_1|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|coord": {
+  "counts": {
+   "ok": 206,
+   "wrong_value": 32
+  },
+  "n_agree": 238,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_sample|tex_sample@lo_1|extra_coord": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 189
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     2
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [2]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1,
+     3
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [0, 1, 3]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|kind": {
+  "counts": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 1,
+   "wrong_value": 13
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     15
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [15]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 16) in [14]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|result_sel": {
+  "counts": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     4,
+     17
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [4, 17]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|samp_extra": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [8, 9, 10, 11, 12, 13, 14, 15]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 5, 6, 7]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_1|tex_type": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 1,
+   "wrong_value": 31
+  },
+  "n_agree": 35,
+  "n_common": 35,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     32,
+     33
+    ],
+    "statement": "outcome `fault` iff (value mod 64) in [32, 33]"
+   },
+   "hang": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     63
+    ],
+    "statement": "outcome `hang` iff (value mod 64) in [63]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|comp_flags": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 12
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 1, 2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|coord": {
+  "counts": {
+   "ok": 67,
+   "wrong_value": 122
+  },
+  "n_agree": 189,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_sample|tex_sample@lo_2|extra_coord": {
+  "counts": {
+   "ok": 192,
+   "wrong_value": 64
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     0,
+     1,
+     2
+    ],
+    "statement": "outcome `ok` iff (value mod 4) in [0, 1, 2]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 4,
+    "residues": [
+     3
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 4) in [3]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|result_sel": {
+  "counts": {
+   "ok": 16,
+   "wrong_value": 237
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 159,
+    "statement": "outcome `ok` iff (value & 0x9f) in ['0x0', '0x4', '0x10', '0x11']",
+    "values": [
+     0,
+     4,
+     16,
+     17
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@lo_2|tex_type": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|coord": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|extra_coord": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     2
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 2]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|kind": {
+  "counts": {
+   "ok": 1,
+   "silent_zero": 8,
+   "wrong_value": 7
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     3,
+     4,
+     6,
+     7
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [3, 4, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     8,
+     9,
+     10,
+     13
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 8, 9, 10, 13]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|result_sel": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_0|tex_type": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|coord": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|extra_coord": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     2
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 2]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|kind": {
+  "counts": {
+   "ok": 1,
+   "silent_zero": 1,
+   "wrong_value": 13
+  },
+  "n_agree": 15,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     13
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [13]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 16) in [14]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|result_sel": {
+  "counts": {
+   "ok": 5,
+   "wrong_value": 248
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|samp_extra": {
+  "counts": {
+   "ok": 254
+  },
+  "n_agree": 254,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 254 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_1|tex_type": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|coord": {
+  "counts": {
+   "ok": 100,
+   "wrong_value": 112
+  },
+  "n_agree": 212,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     9,
+     10,
+     13,
+     14,
+     17,
+     21,
+     22,
+     25,
+     26,
+     29,
+     30
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [0, 1, 2, 3, 5, 6, 9, 10, 13, 14, 17, 21, 22, 25, 26, 29, 30]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     4,
+     7,
+     8,
+     11,
+     12,
+     15,
+     16,
+     19,
+     20,
+     23,
+     24,
+     27,
+     28,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [4, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24, 27, 28, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|extra_coord": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [0, 1, 2, 5]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     3,
+     4,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [3, 4, 6, 7]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|kind": {
+  "counts": {
+   "fault": 1,
+   "ok": 1,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     6
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [6]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [5]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|result_sel": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 252
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t1_2|tex_type": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|kind": {
+  "counts": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 7,
+   "wrong_value": 7
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     15
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [15]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     3,
+     4,
+     6,
+     7,
+     11,
+     12,
+     14
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 16) in [3, 4, 6, 7, 11, 12, 14]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     8,
+     9,
+     10,
+     13
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 8, 9, 10, 13]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|result_sel": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_0|tex_type": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 254
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|comp_flags": {
+  "counts": {
+   "fault": 2,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 6
+  },
+  "n_agree": 11,
+  "n_common": 11,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     8,
+     9
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [8, 9]"
+   },
+   "hang": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     15
+    ],
+    "statement": "outcome `hang` iff (value mod 16) in [15]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 4, 5, 6, 7]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|kind": {
+  "counts": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 6,
+   "wrong_value": 8
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     15
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [15]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     13
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [13]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     3,
+     4,
+     6
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [3, 4, 6]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     5,
+     7,
+     8,
+     9,
+     10
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 5, 7, 8, 9, 10]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|lod_present": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 125
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|result_sel": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     16
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [16]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_1|tex_type": {
+  "counts": {
+   "fault": 1,
+   "hang": 1,
+   "ok": 2,
+   "wrong_value": 30
+  },
+  "n_agree": 34,
+  "n_common": 35,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     32
+    ],
+    "statement": "outcome `fault` iff (value mod 64) in [32]"
+   },
+   "hang": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     63
+    ],
+    "statement": "outcome `hang` iff (value mod 64) in [63]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 64) in [0, 1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 64) in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|chain": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 15
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|comp_flags": {
+  "counts": {
+   "ok": 2,
+   "wrong_value": 14
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|kind": {
+  "counts": {
+   "fault": 1,
+   "ok": 1,
+   "silent_zero": 12,
+   "wrong_value": 2
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     6
+    ],
+    "statement": "outcome `fault` iff (value mod 16) in [6]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [5]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     10,
+     11,
+     12,
+     14,
+     15
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 16) in [0, 1, 2, 3, 4, 7, 8, 10, 11, 12, 14, 15]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     9,
+     13
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [9, 13]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|lod_present": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|result_sel": {
+  "counts": {
+   "ok": 138,
+   "wrong_value": 58
+  },
+  "n_agree": 196,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_sample|tex_sample@t2_2|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@t2_2|tex_type": {
+  "counts": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 240,
+    "statement": "outcome `ok` iff (value & 0xf0) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|comp_flags": {
+  "counts": {
+   "ok": 4,
+   "wrong_value": 12
+  },
+  "n_agree": 16,
+  "n_common": 16,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [0, 1, 2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|extra_coord": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [1]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [0]"
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|lod_present": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|result_sel": {
+  "counts": {
+   "ok": 237
+  },
+  "n_agree": 237,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 237 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|samp_extra": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_sample|tex_sample@tc_0|tex_type": {
+  "counts": {
+   "ok": 15,
+   "wrong_value": 241
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {}
+ },
+ "tex_write|tex_write@w0|amode": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|coord_dim": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|coord_pack": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 126
+  },
+  "n_agree": 254,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [0, 1, 2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [4, 5, 6, 7]"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|coord_regs": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 64
+  },
+  "n_agree": 65,
+  "n_common": 65,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     64
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [64]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     13,
+     15,
+     16,
+     19,
+     21,
+     27,
+     31,
+     32,
+     35,
+     37,
+     59,
+     63,
+     65,
+     75,
+     87,
+     89,
+     103,
+     111,
+     117,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 7, 8, 13, 15, 16, 19, 21, 27, 31, 32, 35, 37, 59, 63, 65, 75, 87, 89, 103, 111, 117, 125, 126, 127]"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|data_desc": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `ok` iff (value & 0xd0) in ['0x10']",
+    "values": [
+     16
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `wrong_value` iff (value & 0xd0) in ['0x0', '0x40', '0x50', '0x80', '0x90', '0xc0', '0xd0']",
+    "values": [
+     0,
+     64,
+     80,
+     128,
+     144,
+     192,
+     208
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w0|data_desc_hi": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     9
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [9]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|layer_reg": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x20']",
+    "values": [
+     32
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w0|rsv10": {
+  "counts": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 240,
+    "statement": "outcome `ok` iff (value & 0xf0) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w0|rsv11": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|rsv15": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_write|tex_write@w0|rsv8": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w0|seq_idx": {
+  "counts": {
+   "ok": 2,
+   "silent_zero": 12,
+   "wrong_value": 242
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x0']",
+    "values": [
+     0
+    ]
+   },
+   "silent_zero": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `silent_zero` iff (value & 0xfe) in ['0x22', '0x24', '0x2a', '0x2c', '0x2e', '0x30']",
+    "values": [
+     34,
+     36,
+     42,
+     44,
+     46,
+     48
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w0|wop": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `ok` iff (value & 0x80) in ['0x80']",
+    "values": [
+     128
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `wrong_value` iff (value & 0x80) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|amode": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|coord_dim": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|coord_pack": {
+  "counts": {
+   "fault": 1,
+   "hang": 1,
+   "ok": 4,
+   "wrong_value": 2
+  },
+  "n_agree": 8,
+  "n_common": 9,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     5
+    ],
+    "statement": "outcome `fault` iff (value mod 8) in [5]"
+   },
+   "hang": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     7
+    ],
+    "statement": "outcome `hang` iff (value mod 8) in [7]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [0, 1, 2, 3]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     4,
+     6
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 8) in [4, 6]"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|coord_regs": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 64
+  },
+  "n_agree": 65,
+  "n_common": 65,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     64
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [64]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     7,
+     8,
+     13,
+     15,
+     16,
+     19,
+     21,
+     27,
+     31,
+     32,
+     35,
+     37,
+     59,
+     63,
+     65,
+     75,
+     87,
+     89,
+     103,
+     111,
+     117,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [0, 1, 2, 3, 4, 7, 8, 13, 15, 16, 19, 21, 27, 31, 32, 35, 37, 59, 63, 65, 75, 87, 89, 103, 111, 117, 125, 126, 127]"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|data_desc": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `ok` iff (value & 0xd0) in ['0x10']",
+    "values": [
+     16
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `wrong_value` iff (value & 0xd0) in ['0x0', '0x40', '0x50', '0x80', '0x90', '0xc0', '0xd0']",
+    "values": [
+     0,
+     64,
+     80,
+     128,
+     144,
+     192,
+     208
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|data_desc_hi": {
+  "counts": {
+   "ok": 8,
+   "wrong_value": 248
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     9
+    ],
+    "statement": "outcome `ok` iff (value mod 32) in [9]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 32,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 32) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|layer_reg": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x20']",
+    "values": [
+     32
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|rsv10": {
+  "counts": {
+   "ok": 16,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 240,
+    "statement": "outcome `ok` iff (value & 0xf0) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|rsv11": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|rsv15": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_write|tex_write@w1|rsv8": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|seq_idx": {
+  "counts": {
+   "ok": 2,
+   "silent_zero": 12,
+   "wrong_value": 242
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `ok` iff (value & 0xfe) in ['0x10']",
+    "values": [
+     16
+    ]
+   },
+   "silent_zero": {
+    "kind": "mask",
+    "mask": 254,
+    "statement": "outcome `silent_zero` iff (value & 0xfe) in ['0x22', '0x24', '0x2a', '0x2c', '0x2e', '0x30']",
+    "values": [
+     34,
+     36,
+     42,
+     44,
+     46,
+     48
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w1|wop": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `ok` iff (value & 0x80) in ['0x80']",
+    "values": [
+     128
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `wrong_value` iff (value & 0x80) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w2|amode": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "tex_write|tex_write@w2|coord_dim": {
+  "counts": {
+   "ok": 64,
+   "wrong_value": 192
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "statement": "outcome `ok` iff (value mod 16) in [4, 5, 6, 7]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15]"
+   }
+  }
+ },
+ "tex_write|tex_write@w2|data_desc": {
+  "counts": {
+   "ok": 32,
+   "wrong_value": 224
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `ok` iff (value & 0xd0) in ['0x10']",
+    "values": [
+     16
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 208,
+    "statement": "outcome `wrong_value` iff (value & 0xd0) in ['0x0', '0x40', '0x50', '0x80', '0x90', '0xc0', '0xd0']",
+    "values": [
+     0,
+     64,
+     80,
+     128,
+     144,
+     192,
+     208
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w2|rsv15": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     0
+    ],
+    "statement": "outcome `ok` iff (value mod 2) in [0]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 2,
+    "residues": [
+     1
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 2) in [1]"
+   }
+  }
+ },
+ "tex_write|tex_write@w2|rsv8": {
+  "counts": {
+   "ok": 1,
+   "wrong_value": 255
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "tex_write|tex_write@w2|wop": {
+  "counts": {
+   "ok": 128,
+   "wrong_value": 128
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `ok` iff (value & 0x80) in ['0x80']",
+    "values": [
+     128
+    ]
+   },
+   "wrong_value": {
+    "kind": "mask",
+    "mask": 128,
+    "statement": "outcome `wrong_value` iff (value & 0x80) in ['0x0']",
+    "values": [
+     0
+    ]
+   }
+  }
+ },
+ "vary_slot|vary_slot@iter_v0|sel": {
+  "counts": {
+   "ok": 1,
+   "undecodable": 15,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0xc']",
+    "values": [
+     12
+    ]
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]"
+   }
+  }
+ },
+ "vary_slot|vary_slot@iter_v0|slot": {
+  "counts": {
+   "ok": 253
+  },
+  "n_agree": 253,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 253 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "vary_slot|vary_slot@v16_v0|sel": {
+  "counts": {
+   "ok": 1,
+   "undecodable": 15,
+   "wrong_value": 240
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "ok": {
+    "kind": "mask",
+    "mask": 255,
+    "statement": "outcome `ok` iff (value & 0xff) in ['0xc']",
+    "values": [
+     12
+    ]
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 16,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13,
+     14,
+     15
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 16) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]"
+   }
+  }
+ },
+ "vary_slot|vary_slot@v16_v0|slot": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "vary_store|vary_store@c_iter/vert106|b5_tag": {
+  "counts": {
+   "fault": 64,
+   "ok": 33,
+   "silent_zero": 21,
+   "wrong_value": 1
+  },
+  "n_agree": 119,
+  "n_common": 128,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 64,
+    "residues": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "statement": "outcome `fault` iff (value mod 64) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     32,
+     48,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127
+    ],
+    "statement": "outcome `ok` iff (value mod 128) in [32, 48, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     33,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     43,
+     47,
+     49,
+     50,
+     52,
+     53,
+     54,
+     56,
+     57,
+     58,
+     60,
+     61,
+     62,
+     96
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 128) in [33, 35, 36, 37, 38, 39, 40, 43, 47, 49, 50, 52, 53, 54, 56, 57, 58, 60, 61, 62, 96]"
+   },
+   "wrong_value": {
+    "kind": "modulo",
+    "m": 128,
+    "residues": [
+     41
+    ],
+    "statement": "outcome `wrong_value` iff (value mod 128) in [41]"
+   }
+  }
+ },
+ "vary_store|vary_store@c_iter/vert106|b7": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "vary_store|vary_store@c_iter/vert106|hint1": {
+  "counts": {
+   "fault": 128,
+   "ok": 32,
+   "silent_zero": 82
+  },
+  "n_agree": 242,
+  "n_common": 256,
+  "rules": {
+   "fault": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     3,
+     4,
+     5,
+     7
+    ],
+    "statement": "outcome `fault` iff (value mod 8) in [3, 4, 5, 7]"
+   },
+   "ok": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     6
+    ],
+    "statement": "outcome `ok` iff (value mod 8) in [6]"
+   },
+   "silent_zero": {
+    "kind": "modulo",
+    "m": 8,
+    "residues": [
+     0,
+     1,
+     2
+    ],
+    "statement": "outcome `silent_zero` iff (value mod 8) in [0, 1, 2]"
+   }
+  }
+ },
+ "vary_store|vary_store@c_iter/vert106|hint2": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ },
+ "vary_store|vary_store@c_iter/vert106|hint6": {
+  "counts": {
+   "ok": 256
+  },
+  "n_agree": 256,
+  "n_common": 256,
+  "rules": {
+   "inert": {
+    "kind": "inert",
+    "statement": "ALL 256 agreed values leave the observation identical to the unmutated baseline"
+   }
+  }
+ }
+}

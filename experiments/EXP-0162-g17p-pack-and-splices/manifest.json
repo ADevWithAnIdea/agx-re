@@ -1,0 +1,161 @@
+{
+ "experiment": "EXP-0162-g17p-pack-and-splices",
+ "title": "the EXP-0144 PACK coverage gap, plus the pixel_order and vary_store descriptor defects",
+ "date": "2026-08-29/30",
+ "target": {
+  "name": "Apple A18 Pro",
+  "gpu": "G17P",
+  "arch": "applegpu_g17p",
+  "accelerator": "AGXAcceleratorG17P",
+  "cores": 5,
+  "os": "macOS 26.6",
+  "host": "users-MacBook-Neo.local (192.168.10.243)",
+  "label_on_every_result": "G17P"
+ },
+ "clean_room": {
+  "category": [
+   "OWN-SHADER",
+   "HW-PROBE",
+   "PUBLIC"
+  ],
+  "apple_binary_introspection": "NONE",
+  "public_use": "IEEE-754 / bfloat16 / MSL conversion definitions, host oracle only"
+ },
+ "repo_revision_at_freeze": "afea465ef67dc713b684a16370cc732d1c5a230c",
+ "toolchain_on_target": {
+  "shdump": "tools/shdump/shdump.m (unmodified)",
+  "shdump2": "EXP-0147's harness/shdump2.m (unmodified, adds --nrt/--samples)",
+  "agxrun_persist": "tools/agxtest/agxrun_persist.m (unmodified)",
+  "rendersweep": "EXP-0147's harness/rendersweep.m (unmodified)",
+  "clang": "21.0.0 (Xcode on the target)"
+ },
+ "authored_inputs_sha256": {
+  "analysis/ab_run.py": "2df5128824acfd44ae7b1290bf8dd6a2563a19aba353eda1b73f3dee667df5cc",
+  "analysis/compute_analysis.py": "c73657b2ac9219b91886121e279f9bf2616f22a35d5af6a693fe94dd8c266b84",
+  "analysis/corpus_scan.py": "79667b06241dcafca2520cb2b701fbc2a2997c204579680c135b9acaf94cf526",
+  "analysis/make_variant.py": "e271ef0f133a08c9c13ad6f840327b0323eb213bddf618d84c180ecdd1297b35",
+  "analysis/make_verdicts.py": "f76ccedecd10038f3060cf572f1e944a0f3a738a241710514a32ce52f592d453",
+  "analysis/scan57.py": "e4b3c98b8494f3eed250e4d865a8457e2022596904c12fef7d7af63b4941a66e",
+  "harness/cases162.py": "e49c195ae5a0b7b88f9fa3d220cb3e917dca5ad34ab2b95001f8f4c74415e7c7",
+  "harness/locate.py": "97486ba7811cff42aed537805a7137d6219eca25c6c1e7b7c2212134328aa0b1",
+  "harness/oracle.py": "b4961de76c184f58c1630382f81f46c08031ae9c3af46953dd70e695bdff626f",
+  "harness/probe.py": "52d9d0307a5a3036c9fcb29c5d59d5525d8c9991939de1f0fec9bc2214d99294",
+  "harness/probe162.py": "c24a3d0968a1498fa59ee541c8e4925df3221db25fae040424768b9be6d979c6",
+  "harness/renderplan.py": "ce359e0c5cf6d80da282486cec4fb5800a953909339a4ec1498229a8e7855bfa",
+  "harness/rendersweep.m": "9e3628e2cd0e6125e17bf0dca6b2ff096db961ecb376cdb2bf26834e050421fe",
+  "harness/rsdrv.py": "e6cfe407e27958a822e2510589ed9b9c39adb4d41dd7a4c85c0514cedec8864f",
+  "harness/runcompute.py": "c42d903d3dc9eccc8384760cfe230400539e7507558a2f285e24dfbe2fd6ee55",
+  "harness/runrender.py": "cffdda63675e8ac2da303a6f832a02984d2761549fd3539ebdda59e3fca159c0",
+  "harness/shdump2.m": "223ff47fa6e16e7d6121fc7628e1a4391c4c26766946f511b6e8a959bde81771",
+  "kernels/carriers.metal": "83608acd4b35c45af2860da60981adf2852ac9d8268eaae458f48fd455a5fb34",
+  "kernels/pipe_render_ref.metal": "9269fb902f6f04e39641a4a7838827f1f717d1fad448e3c244d7f92506f7ab01",
+  "kernels/render_probe.metal": "11672181e599b4854729e92ab47519e7bde6d9edcfe8026893256a08acbf157a"
+ },
+ "raw_captures": [
+  {
+   "path": "raw/g17p_20260829_run01__cvt_bf16/sweep.jsonl",
+   "lines": 1869,
+   "sha256": "4b5fcbd66cade577251ee75ddfc257fe76762482493e54c59d2c598bc91d75cf"
+  },
+  {
+   "path": "raw/g17p_20260829_run01__cvt_f2h_dst/sweep.jsonl",
+   "lines": 1326,
+   "sha256": "0743314568e19bc05b484dff186284949fa8e8eeadcc985ef132ee7eb45e5ed1"
+  },
+  {
+   "path": "raw/g17p_20260829_run01__packed_half2_hi/sweep.jsonl",
+   "lines": 1325,
+   "sha256": "4b6c9db47d143c567a2da062850d46602cc50db536df4e902c189ac614ec32d3"
+  },
+  {
+   "path": "raw/g17p_20260829_run02__kill/sweep.jsonl",
+   "lines": 3,
+   "sha256": "b23c164212479fe81cdbffe09f8f4c267b49d80cd8e337b333325ebc73458787"
+  },
+  {
+   "path": "raw/g17p_20260829_run02__rog/sweep.jsonl",
+   "lines": 3,
+   "sha256": "932cd1d401fd438b62be49f79ee08a2aef8c8f4ce3dc50720c7ff4bae5e598e1"
+  },
+  {
+   "path": "raw/g17p_20260829_run02__vary/sweep.jsonl",
+   "lines": 17,
+   "sha256": "09a87cc170dae37a777e82f9660958c411e3df5f05b39b24a0842647c0e97779"
+  },
+  {
+   "path": "raw/g17p_20260829_run04__kill/sweep.jsonl",
+   "lines": 26,
+   "sha256": "cb80382c47513c292cffc65deba1488f1a706cc3e2e3730fe8e744a6f8832ff8"
+  },
+  {
+   "path": "raw/g17p_20260829_run04__rog/sweep.jsonl",
+   "lines": 2099,
+   "sha256": "76087345fbc04c96b9684495149904a5852e1e4ea100fd0e1b93d3b8476afff9"
+  },
+  {
+   "path": "raw/g17p_20260829_run04__vary/sweep.jsonl",
+   "lines": 18,
+   "sha256": "92ad87cd76cde9703622c2144c3f6b8590ab38c2558ea0062878214bb80fa6e6"
+  },
+  {
+   "path": "raw/g17p_20260829_run05__kill/sweep.jsonl",
+   "lines": 1140,
+   "sha256": "ab7665a89f5f0ca088de8a67d18d9b52bc5280351636c14883a57fb5000c860e"
+  },
+  {
+   "path": "raw/g17p_20260829_run05__vary/sweep.jsonl",
+   "lines": 329,
+   "sha256": "5d548ff7cb1fd53514244df2b5d4f3a88f761af30c6b6d7b4964db56d6f63e6d"
+  }
+ ],
+ "runs": {
+  "g17p_20260829_run01": "compute; cvt_bf16 / cvt_f2h_dst / packed_half2_hi; PROMOTED",
+  "g17p_20260829_run02": "render; ABORTED at baseline (sibling-agent InnocentVictim cascade); RETAINED UNUSED, backs no label, id never reused",
+  "g17p_20260829_run03": "launched under the GPU lease, killed while still queued; NEVER CAPTURED A CASE, so no directory exists",
+  "g17p_20260829_run04": "render; rog complete (2048 cases, 0 hangs); kill/vary stopped early at 2 hangs; PROMOTED",
+  "g17p_20260829_run05": "render; kill/vary re-run with a per-(target,byte) hang cap; PROMOTED"
+ },
+ "concurrency": {
+  "other_gpu_experiments_observed": [
+   "EXP-0155",
+   "EXP-0156",
+   "EXP-0157",
+   "EXP-0158",
+   "EXP-0159",
+   "EXP-0160"
+  ],
+  "policy": "unlocked (the GPU lease was removed from experiments/NEO-TARGET-BRIEF.md mid-experiment)",
+  "mitigations": [
+   "poisoned read-back 0xDEADBEEF+i",
+   "independent integrity sentinel",
+   "OS fault-classification string per case",
+   "majority-of-3 escalating to 5",
+   "InnocentVictim attempts discarded and re-run",
+   "baseline re-validated every 100 cases"
+  ]
+ },
+ "totals": {
+  "sweep_cases": 7898,
+  "baselines": "95/97 passed (the 2 failures are run02's aborts)",
+  "reproducible_faults": 369,
+  "genuine_hangs": 10,
+  "discarded_and_rerun_attempts": 3121
+ },
+ "db_json_edited": false,
+ "ab_metrics": {
+  "files": 1080,
+  "clean": 833,
+  "leftover": 388604
+ },
+ "outputs": [
+  "PRE_REGISTRATION.md",
+  "CAPTURE_CONTRACT.json",
+  "README.md",
+  "RESULTS.md",
+  "PROGRESS.md",
+  "analysis/field_verdicts.json",
+  "analysis/proposed_db_changes.json",
+  "analysis/compute_analysis.json",
+  "analysis/ab/metrics.json"
+ ]
+}
