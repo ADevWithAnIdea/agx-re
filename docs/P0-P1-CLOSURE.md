@@ -63,16 +63,17 @@ Evidence strength is defined by `CODEX.md`. Tokenization or a byte-exact round t
 cannot close a synthesis gap.
 
 > [!IMPORTANT]
-> **Target scope for closure (user directive, 2026-08-28): these rows are measured against G16G —
-> the local Apple M4 — only.** The A18 Pro / G17P is hands-off per `CLAUDE.md`, so requiring G17P
-> evidence would make every row permanently uncloseable. `APPLE9_RE_IMPLEMENTATION_GAPS.md`'s
-> whole-handoff gate item 10 has been amended to match (it previously demanded *"Independent G16G
-> and G17P evidence matrices"*).
+> **Target scope for closure — CURRENT RULE (user directive, 2026-08-28, superseding the G16G-only
+> amendment made earlier the same day): these rows are measured against FULL G17P** — the A18 Pro at
+> `users-MacBook-Neo.local`, now the sole test target and verified working end-to-end. Local M4 GPU
+> testing is **retired**; it destabilized the machine hosting this repo.
 >
-> G17P replication is **deferred, not abandoned**, and is expected to be cheap: every experiment is
-> committed and re-runnable, so that pass is re-running them on a G17P host rather than re-deriving
-> anything. Until then, no row may silently generalize an M4 result to A18 — G17P claims stay
-> `INFERRED` per CODEX target discipline, and each row records the target it actually ran on.
+> Committed G16G evidence is **NOT retracted** and stays valid on its own target, but it no longer
+> satisfies a row by itself. The upside is large: G17P is the documentation target, so new evidence
+> is **direct rather than `INFERRED`**, retiring a standing inference debt across the whole corpus.
+>
+> *(Audit trail: the superseded note read "these rows are measured against G16G — the local Apple
+> M4 — only.")*
 
 ## P0 — complete-driver and unchanged-UAPI blockers
 

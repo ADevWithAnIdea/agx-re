@@ -74,9 +74,17 @@ is preferable to a fact that can contaminate the project.
 
 ## Target discipline
 
-- **All live testing runs locally on the M4/G16G** (user directive 2026-08-27). The A18
-  Pro/G17P is **hands-off**: never SSH, probe, or otherwise touch it, and never run
-  `macvdmtool` against any target — in particular NEVER `macvdmtool --neo reboot`.
+- **All live testing runs on the A18 Pro / G17P** (user directive 2026-08-28, superseding the
+  2026-08-27 M4-only directive). Target: `users-MacBook-Neo.local`, DHCP — currently
+  `192.168.10.243`, re-find it after any reboot. `AGXAcceleratorG17P`, arch `applegpu_g17p`,
+  5 GPU cores, macOS 26.6, Metal family Apple9, **full Xcode present**.
+- **Local M4 GPU testing is RETIRED.** It destabilized WindowServer, took `MTLCompilerService`
+  down machine-wide, and repeatedly killed agents mid-capture. The M4 is now the repo host and
+  analysis machine only. Its committed evidence stays valid **on its own target** and is not
+  retracted, but closure is measured against **full G17P**.
+- **`macvdmtool`:** orchestrator only, NEVER a subagent, and ONLY when the neo is genuinely
+  unresponsive. Always tell the user. Unattended, no permission needed; otherwise ask first. A
+  reboot moves the machine to a new DHCP address in `192.168.10.0/24`.
 - The M4 is Apple9-equal to the A18 Pro for every driver-emittable subsystem
   (`EXP-M4-*` byte-identity), so M4 observations are the operational Apple9 evidence.
   Do not promote an M4 observation to a G17P-specific fact without a recorded validation

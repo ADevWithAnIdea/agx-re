@@ -2965,16 +2965,26 @@ feature restriction or conservative lowering rather than an assumption.
 This discovery/documentation assignment is complete only when all of the following facts and
 specifications exist. None of these items asks the RE agent to implement the production component.
 
-> **Target scope (user directive, 2026-08-28): this gate is measured against G16G (the local Apple
-> M4) only.** The A18 Pro / G17P is hands-off (`CLAUDE.md`) and its replication is a later, separate
-> pass expected to be inexpensive because every experiment here is committed and re-runnable. Where
-> an item below names both parts, read it as G16G for closure purposes; G17P evidence remains
-> welcome and, where it exists, is recorded — but its absence does not block a row.
+> **Target scope — SUPERSEDED TWICE ON 2026-08-28; the CURRENT rule is the last one.**
+>
+> 1. Originally: independent G16G **and** G17P matrices.
+> 2. Amended to **G16G only**, because the A18 Pro was hands-off and requiring G17P made every row
+>    permanently uncloseable.
+> 3. **CURRENT (user directive, later the same day): measured against FULL G17P.** The hands-off
+>    directive was lifted; the A18 Pro — `users-MacBook-Neo.local`, `AGXAcceleratorG17P`, 5 GPU
+>    cores — is now the sole test target, verified working end-to-end. Local M4 GPU testing is
+>    retired because it destabilized its own host.
+>
+> **What this means for existing work:** committed G16G evidence is **NOT retracted** and stays
+> valid on its own target, but it no longer satisfies this gate by itself. Because G17P *is* the
+> documentation target, evidence gathered there is **direct rather than `INFERRED`** — this
+> converts a large standing inference debt into observation. Re-running a committed experiment on
+> G17P should be cheap precisely because every one is committed and re-runnable.
 
 1. A field-by-field Apple9 mapping and Linux end-to-end evidence for every existing Asahi queue,
    render, and compute UAPI field, with no new or repurposed field assumed.
 2. A fully documented and experimentally validated Apple9 userspace helper/scratch protocol for VS,
-   FS, CS, and preambles, including spill exhaustion and recovery on G16G (G17P deferred, per the target-scope note above).
+   FS, CS, and preambles, including spill exhaustion and recovery on **G17P** (per the target-scope note above).
 3. A documented unchanged-UAPI mapping for graphics code selection plus complete code-container,
    extent, metadata, and resource-specification construction rules supporting multiple pipelines.
 4. Bit-exact specifications for every userspace-emitted VDM, CDM, PPP, USC, ZLS, PBE, attachment,
@@ -2991,7 +3001,7 @@ specifications exist. None of these items asks the RE agent to implement the pro
    render, texture, PBE, and host transition.
 9. Documented robustness, sparse residency, VM, query, timestamp, indirect-command, and fault
    behavior for every feature that a later implementation may advertise.
-10. A **G16G** evidence matrix covering simple/complex compute, direct/indexed/
+10. A **G17P** evidence matrix covering simple/complex compute, direct/indexed/
     indirect draw, MRT, MSAA, depth/stencil, pipeline switches, multiple commands, links/barriers,
     spills, partial renders, exhaustion, and fault recovery.
     > **AMENDED 2026-08-28 (user directive).** This item originally demanded *"Independent G16G and

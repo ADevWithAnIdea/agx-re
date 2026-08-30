@@ -24,11 +24,13 @@ check what the current UAPI requires userspace to supply.
 **Current active goal: close all sixteen P0/P1 rows** (P0.1–P0.8, P1.1–P1.8) in
 `docs/P0-P1-CLOSURE.md`, as defined by `APPLE9_RE_IMPLEMENTATION_GAPS.md` ( DRV-UAPI-01…04,
 DRV-CMD-01, DRV-ISA-01, DRV-SHADER-01, DRV-ABI-01, DRV-PBE-01…DRV-RASTER-01; plus its P2, DOC,
-and Part-II compiler-questionnaire tail). Execution strategy per that board: **all testing runs
-locally on the M4** (user directive 2026-08-27: the A18 Pro is hands-off and the M4 —
-Apple9-equal for every driver-emittable subsystem — is the sole test target; A18 replication is
-suspended, not a closure gate). Every result records the target it actually ran on; no
-cross-target promotion without a recorded validation or an explicit `INFERRED` label.
+and Part-II compiler-questionnaire tail). Execution strategy — **REVISED 2026-08-28**: **all new testing runs on the A18 Pro / G17P**
+(`users-MacBook-Neo.local`, DHCP, currently `192.168.10.243`). The earlier directive making the M4
+the sole target is superseded: local GPU work destabilized the host it ran on. **Closure is now
+measured against full G17P**, the actual documentation target. Committed M4/G16G evidence stays
+valid on its own target and is not retracted — but new evidence lands on G17P, which converts a
+large `INFERRED` debt into direct observation. Every result still records the target it actually
+ran on; no cross-target promotion without a recorded validation or an explicit `INFERRED` label.
 
 **Phase status (do not redo, do not contaminate):**
 - **A18 Pro base documentation** (`docs/`, `tools/agx-isa`, `EXP-0001…0046`) — complete;
@@ -182,21 +184,30 @@ absent/emulated is a first-class result.
 
 | | |
 |---|---|
-| Host = **the only test target** | **This machine: Apple M4 (G16G), 10 GPU cores, macOS 26.6.2 (25G82), Metal 4.** **All testing runs locally** (compile / extract / trace / probe / splice; no SSH anywhere). The M4 is **Apple9-equal to the A18 Pro** — every driver-emittable subsystem byte-identical per `EXP-M4-*` — so local M4 evidence *is* the operational Apple9 evidence; G17P-specific claims not directly observed stay `INFERRED` per CODEX target discipline. |
-| A18 Pro = documentation target, **HANDS-OFF** | `192.168.170.254`. SoC **T8140**, **G17P**, macOS **26.6**, 5 active GPU cores. **User directive (2026-08-27): never SSH, probe, or otherwise touch this machine. Never run `macvdmtool` against it — in particular NEVER `macvdmtool --neo reboot`.** It is the nominal documentation target only; no closure work depends on reaching it. |
+| **A18 Pro / G17P = THE test target** (user directive, 2026-08-28) | **`users-MacBook-Neo.local`, currently `192.168.10.243` (DHCP — the static lease does not work; re-find it after any reboot).** SoC **T8140**, **AGXAcceleratorG17P**, arch `applegpu_g17p`, **5 GPU cores**, `Mac17,5`, macOS **26.6**, Metal family **Apple9**. Access over SSH as user `user`. Verified end-to-end 2026-08-28: runtime `newLibraryWithSource:` compiles, dispatch returns correct values, `CB_STATUS 4`. **Full Xcode is present** (`/Applications/Xcode.app`) — unlike the M4, which had Command Line Tools only. **All new RE runs here.** |
+| Local M4 (G16G) = **RETIRED from testing** | The Mac Mini hosting this repo. **Do NOT run GPU experiments locally any more** (user directive, 2026-08-28): local GPU work destabilized WindowServer, took `MTLCompilerService` down machine-wide, and repeatedly killed the orchestrator's own agents mid-capture. Its committed evidence — 443/1036 fields emitter-grade, 38/171 instructions emittable, all `EXP-M4-*` and `EXP-00xx`–`EXP-01xx` — **remains valid on its own target and is not retracted**. The M4 is now the repo host and analysis machine only. |
+| *(superseded)* | The 2026-08-27 hands-off directive on the A18 Pro at `192.168.170.254` is **LIFTED by the user, 2026-08-28**. That static IP never worked; the machine is on DHCP — see the row above. |
 | M5 (**historical, deferred**) | `192.168.170.253`. SoC **T8142**, **G17g**, macOS **27.0**, 8 GPU cores. Goal complete — **do not probe it for Apple9 work**; M5 results are not A18/M4 evidence. |
 
-**Recovery model (memorize this):**
-- **`macvdmtool` is never used** — against any target (and `macvdmtool --neo reboot` above all).
-- Illegal shader encodings on the local M4 are usually fault-contained (per-command-buffer
-  error, no wedge). Occasional crashes are an expected part of GPU RE.
-- Because every experiment runs on the host itself, a hard host wedge has **no out-of-band
-  recovery**. Mitigate: one change per run, hard timeouts, watchdogs for sweeps, and
-  incremental on-disk progress (`PROGRESS.md` per milestone) so a kill or wedge costs at
-  most one milestone.
-- **If the host wedges or behaves strangely:** stop, mark the current goal **BLOCKED**,
-  write down where you were, and wait for the user to reboot manually — do not thrash, and
-  do not attempt any tool-based reboot.
+**Recovery model (memorize this) — REVISED 2026-08-28 for the G17P pivot:**
+- **`macvdmtool`:** the **orchestrator only** (NEVER a subagent) may run it, and **only when the
+  neo has genuinely become unresponsive** (SSH timing out, not merely slow). Always tell the user
+  it was used. When the user has explicitly said "you are unattended", no permission is needed;
+  **otherwise ask first.** A reboot moves the machine to a **new DHCP address in
+  `192.168.10.0/24`**, which must then be re-found before work resumes.
+- Illegal shader encodings are usually fault-contained (per-command-buffer error, no wedge).
+  Occasional crashes are an expected part of GPU RE.
+- **The structural gain from the pivot:** experiments no longer run on the machine hosting this
+  session. A GPU wedge now costs the *remote* host, not the orchestrator and not the repo. On the
+  M4 a bad run took out WindowServer, killed `MTLCompilerService` machine-wide, and destroyed
+  agents mid-capture — that failure mode is gone.
+- Still mitigate: one change per run, hard timeouts, watchdogs for sweeps, and incremental on-disk
+  progress (`PROGRESS.md` per milestone) so a kill costs at most one milestone. Evidence lives in
+  this repo on the M4; the neo is a compute target, so **pull results back promptly** rather than
+  letting them accumulate only there.
+- **If the neo wedges:** confirm it is genuinely unresponsive, apply `macvdmtool` per the rule
+  above, re-find the DHCP address, then record the wedge **and the encoding that caused it** — a
+  reproducible wedge is itself a hardware fact worth documenting, not just an obstacle.
 
 ---
 

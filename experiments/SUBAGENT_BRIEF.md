@@ -21,22 +21,21 @@ CLEAN ROOM ABOVE ALL — better NO result than a TAINTED one.
   rule is absolute, and a quick throwaway probe is exactly when it gets broken.
 
 ## Targets
-- **Local M4 / G16G (this host, 10 cores, macOS 26.6, Metal 4) — the ONLY test target.**
-  All testing runs locally, no SSH anywhere. The M4 is Apple9-equal to the A18 Pro
-  (byte-identical for every driver-emittable subsystem, `EXP-M4-*`), so local evidence is
-  the operational Apple9 evidence. Build ObjC: `clang -fobjc-arc -framework Metal -framework
-  Foundation`; runtime `newLibraryWithSource:` (no `metal` CLI).
-- **A18 Pro / G17P (`192.168.170.254`) is HANDS-OFF (user directive 2026-08-27): never SSH,
-  probe, or touch it.** Never run `macvdmtool` against any target — in particular NEVER
-  `macvdmtool --neo reboot`.
-- **M5 (`192.168.170.253`) is a separate completed workstream — do not probe it.**
 
-**Recovery model (local host only):** illegal shader encodings are usually fault-contained
-(per-command-buffer error, no wedge). This host is the repo's home with NO out-of-band
-recovery: isolate one change per dispatch, hard-timeout every compile/dispatch/render/trace,
-and save progress incrementally (`PROGRESS.md` entry after every milestone). If the host
-wedges or behaves strangely: STOP, report BLOCKED with where you were, and wait for the user
-to reboot manually — never attempt any tool-based reboot.
+- **A18 Pro / G17P is THE test target** (user directive 2026-08-28). `users-MacBook-Neo.local`,
+  **DHCP — currently `192.168.10.243`**; if it moves, ask the orchestrator, do not scan blindly.
+  `AGXAcceleratorG17P`, arch `applegpu_g17p`, **5 GPU cores**, macOS 26.6, Metal family Apple9,
+  **full Xcode present** (`/Applications/Xcode.app`) — richer than the M4 ever was.
+  Build ObjC there: `clang -fobjc-arc -framework Metal -framework Foundation`; runtime
+  `newLibraryWithSource:` is verified working.
+- **The local M4 is RETIRED for GPU work — do NOT run experiments on it.** Local GPU testing
+  destabilized WindowServer, took `MTLCompilerService` down machine-wide, and killed agents
+  mid-capture. The M4 hosts the repo and does analysis only. Committed M4 evidence stays valid on
+  its own target; **closure is now measured against full G17P**.
+- **`macvdmtool` is FORBIDDEN to subagents, without exception.** Only the orchestrator may run it,
+  only when the neo is unresponsive. If the neo stops answering, **STOP and report BLOCKED** with
+  where you were — do not attempt any recovery yourself.
+- **M5 (`192.168.170.253`) is a separate completed workstream — do not probe it.**
 
 ## Process — the parts that most often bite (full contract: `../CODEX.md`)
 - **Pre-register before you build.** Commit-ready `PRE_REGISTRATION.md` (+ `CAPTURE_CONTRACT.json`
