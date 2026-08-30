@@ -138,6 +138,20 @@ def main():
             # bits; the name is only a handle for them.
             want = dbspan.get((m, f))
             got = (v.get("start"), v.get("width"))
+            # DEF-0212-1 (EXP-0212): the guard below only fires when the verdict
+            # NAMES the bits it measured. A verdict that omits start/width skipped
+            # it entirely -- `sfu_marker.b0_hi` had its span moved (3,5)->(5,3) and
+            # would have passed silently. The guard was only as strong as the
+            # verdict's honesty about which bits it measured. So: if db.json knows
+            # the span and the verdict does not state one, REFUSE. Stating the bits
+            # you measured is cheap; attaching a verdict to the wrong byte is not.
+            if got == (None, None) and want:
+                problems.append(
+                    "%s: %s states no start/width, but db.json has start=%s width=%s. "
+                    "A verdict is a claim about BITS; the name is only a handle for them, "
+                    "and names get reused across a descriptor repair. Re-emit the verdict "
+                    "with the bits it actually measured." % (src, key, want[0], want[1]))
+                continue
             if got != (None, None) and want and got != want:
                 problems.append(
                     "%s: %s claims bits start=%s width=%s but db.json now has start=%s "

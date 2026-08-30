@@ -28,14 +28,20 @@ def a_real_field():
 
 
 M, F, START, WIDTH = a_real_field()
+# The base fixture NAMES its bits. DEF-0212-1's guard refuses a verdict that does
+# not, and it fires before the label/evidence/range rules -- so without this the
+# later cases never reach the rule they are testing. The selftest caught that
+# reordering itself, which is the point of asserting each rule independently.
 OK = {"label": "hardware-run", "range": "0..1 dense", "target": "M4",
-      "evidence": ["EXP-0138"], "note": "selftest"}
+      "evidence": ["EXP-0138"], "note": "selftest",
+      "start": START, "width": WIDTH}
+
 
 
 def variant(**kw):
     d = dict(OK)
     d.update(kw)
-    return d
+    return {k: v for k, v in d.items() if v is not None}
 
 
 CASES = [
@@ -50,6 +56,10 @@ CASES = [
                                                                                 "empty evidence"),
     ("hardware-run, no real range",    {"%s.%s" % (M, F): variant(range="tested")},
                                                                                 "without a real range"),
+    # DEF-0212-1: a verdict that names no bits must be refused when db.json knows
+    # them. This one skipped the span guard entirely until EXP-0212 found it.
+    ("verdict states no start/width",  {"%s.%s" % (M, F): variant(start=None, width=None)},
+                                                                                "states no start/width"),
 ]
 
 
