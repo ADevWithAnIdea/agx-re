@@ -1364,6 +1364,16 @@ def main():
     ap.add_argument("--deadline-s", type=float, default=0.0)
     ap.add_argument("--smoke", action="store_true",
                     help="write to work/ instead of raw/ (calibration, not evidence)")
+    ap.add_argument("--hang-budget", type=int, default=0,
+                    help="OVERRIDE the pre-registered per-field/per-arm/total "
+                         "hang budgets for a deliberately HANG-TOLERANT MAPPING "
+                         "run. A run using this is NOT a gated verdict run -- it "
+                         "changes a frozen safety parameter -- and its raw is "
+                         "written under a name that says so. It exists because "
+                         "with a budget of 2 a contiguous hazardous band can "
+                         "only ever be explored 2 values per experiment, which "
+                         "is why frag_color_pack.dst 194..255 has defeated three "
+                         "experiments in a row.")
     ap.add_argument("--skip-hazard", action="store_true",
                     help="skip every hazard=high ladder and byte-mate control")
     ap.add_argument("--no-bytemate", dest="bytemate", action="store_false")
@@ -1381,6 +1391,13 @@ def main():
                     help="do not dense-sweep an arm whose ladder failed")
     ap.set_defaults(bytemate=True)
     args = ap.parse_args()
+    if args.hang_budget:
+        RA.MAX_HANGS_PER_FIELD = args.hang_budget
+        RA.MAX_HANGS_PER_ARM = args.hang_budget
+        RA.MAX_HANGS_TOTAL = args.hang_budget * 8
+        print("HANG BUDGET OVERRIDDEN to %d/field, %d/arm, %d total -- this is a "
+              "MAPPING run, not a gated verdict run" % (RA.MAX_HANGS_PER_FIELD,
+              RA.MAX_HANGS_PER_ARM, RA.MAX_HANGS_TOTAL))
     if args.mode == "census":
         if not args.run_id:
             sys.exit("--mode census needs --run-id")

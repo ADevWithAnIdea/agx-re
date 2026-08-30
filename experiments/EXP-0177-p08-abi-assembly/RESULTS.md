@@ -14,7 +14,7 @@ closure evidence, and is labelled that way in every entry.
 
 **P0.8 is not "queued", and it is not close to closed.** Both halves of that sentence matter.
 
-Twenty-two non-quarantined experiments bear on the row, four of them large and gated, and
+Twenty-four non-quarantined experiments supply evidence to the row (enumerated in `analysis/p08_evidence.json`), four of them large and gated, and
 between them they answer most of what the row asks *semantically*. But of the **28
 instructions a VS/FS/CS stage ABI and its prolog/epilog linkage must emit**,
 `tools/agx-isa/validation.json` marks **12 emittable (42.9%)** — and seven of those twelve
@@ -124,6 +124,14 @@ Two G17P findings here are load-bearing for a driver and easy to miss:
   `== 3` or `== 7` **faults**, `== 0,1,2` **silently zero** — and `byte+2` is a **don't-care
   across all 256 values on four independent programs**, so the `byte+2 == 0x54` the current
   descriptor leans on selects nothing. The recommended split has not been applied.
+- **The slot an emitter must get right is `vary_store.out_slot`, not `vary_slot.slot`.**
+  EXP-0155 §2.4 found `vary_slot.sel` (byte+1) live at exactly one value (`0x0c`) and
+  `vary_slot.slot` (byte+3) inert across all 256 values on two different vertex programs.
+  EXP-0172 §2.3 then confirmed the positive half on hardware: `slot` *is* live, but it is
+  **exactly bit 2** — all 128 values with bit 2 set move the observation, all 128 with it clear
+  do not, with no exceptions in either gated run — and bit 2 is **not** where the compiler puts
+  the index (its own baselines are `0x00`/`0x20`/`0x40`, the varying index shifted left by 5).
+  EXP-0172's own note: *"it is a lever, but not the one an implementer wants."*
 - **A fragment colour-store variant `db.json` does not decode.** EXP-0163 §4b found a store
   with `byte+1 == 0x86`, matching neither `frag_color_store` (`0x06`) nor `imageblock_store`
   (`0x16`), falling through to a **14-byte compute `device_store`** in a fragment program that
@@ -563,7 +571,12 @@ partial-render result).
 3. **Provenance ownership is detected by a heuristic** (`analysis/provenance_check.py`): a row
    is "owned" if its evidence cell *starts with* the experiment id. Older rows use a different
    citation style, and the script was checked by hand against lines 47, 48, 51, 95 and 117
-   before the result was relied on.
+   before the result was relied on. The orchestrator committed a `PROVENANCE.md` table-rendering
+   repair (`54691d21`, "57% of rows were outside it") **between two runs of this script**; the
+   ownership summary is byte-identical before and after that repair, and the four
+   no-row experiments (EXP-0109, EXP-0117, EXP-0111, EXP-0108) were re-verified by hand
+   against the repaired file — EXP-0109 appears only inside EXP-0137's row, EXP-0117 only
+   inside EXP-0130's, EXP-0108 only inside EXP-0132's, and EXP-0111 not at all.
 4. **Sub-area assignment is a judgement call.** The row's own scope line reads "linking and
    sideband" as one phrase; this assembly splits them for precision. `analysis/isa_status.py`'s
    `SUBAREA_INSTRUCTIONS` table is the explicit, editable statement of which instruction

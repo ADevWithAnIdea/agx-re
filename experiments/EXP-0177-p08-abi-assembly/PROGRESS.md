@@ -126,3 +126,27 @@ No device, no SSH, no GPU. Read-only over committed artifacts.
   provoking vertex FIXED to the first-fetched vertex per primitive with no Metal control.
 - [M14] Writing deliverables: analysis/p08_evidence.json, analysis/p08_gaps.md,
   analysis/p08_closure_cell_draft.md, RESULTS.md.
+- [M15] All deliverables written:
+    README.md, PRE_REGISTRATION.md, RESULTS.md, manifest.json,
+    analysis/isa_status.py + isa_status.json,
+    analysis/provenance_check.py + provenance_check.json,
+    analysis/p08_evidence.json (10 sub-areas, 72 established + 60 not-established entries),
+    analysis/p08_gaps.md (19 ranked gaps + boundaries + non-evidence),
+    analysis/p08_closure_cell_draft.md (DRAFTED, NOT APPLIED).
+  HEADLINE (computed, reproducible): 28 stage-ABI instructions, 12 emittable (42.9%),
+  7 of those with a sub-emitter-grade `_instruction` label (EXP-0173 sec.7.2 defect),
+  so 5 of 28 clear both bars -- frame_prologue, link_save_restore, pixel_order,
+  pop_reconverge, spill_frame_marker. NONE is an input/output/sysval/interpolation/
+  tilebuffer instruction; two are compromised in their own right.
+  24 non-quarantined experiments supply evidence; 4 experiments named for this row are
+  non-evidence (EXP-0050, EXP-0071, EXP-0057 quarantined; EXP-0118 ungated).
+  Closure rules 1, 3, 4 and 6 all fail; rule 2 partial; rule 5 mixed.
+- [M16] Nothing outside experiments/EXP-0177-p08-abi-assembly/ was written or modified.
+  docs/, PROVENANCE.md, db.json, validation.json untouched. No git commit. No device.
+- [M17] Reproducibility check: isa_status.json is byte-reproducible. provenance_check.json
+  differed between two runs because the orchestrator committed a PROVENANCE.md table-rendering
+  repair (54691d21, "57% of rows were outside it") in between. The ownership SUMMARY is
+  byte-identical before and after, and the four no-row experiments were re-verified by hand
+  against the repaired file: EXP-0109 appears only inside EXP-0137's row, EXP-0117 only inside
+  EXP-0130's, EXP-0108 only inside EXP-0132's, EXP-0111 not at all. Finding stands.
+- [M18] DONE.

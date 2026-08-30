@@ -41,6 +41,10 @@ Two mechanical checks back the narrative:
 
 Both are re-runnable and read-only.
 
+**There is no `raw/`.** This experiment made no observations — it made no device contact, no
+compilation and no splice. Its artifacts are the two scripts, their JSON outputs, and the three
+derived reports; `manifest.json` hashes all of them.
+
 ## Commands
 
 ```sh
