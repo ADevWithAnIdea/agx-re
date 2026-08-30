@@ -50,7 +50,19 @@ class PersistRunner:
         self.device = ready.split(None, 1)[1].strip() if " " in ready else "?"
 
     def _read_line(self, timeout):
-        """Read one line from child stdout with a timeout. Returns None on timeout."""
+        """Read one line from child stdout with a timeout.
+
+        Returns None on timeout OR on child EOF. Both are 'no usable response'
+        and the caller treats either as a wedge.
+
+        DEF-0153-2 (EXP-0153, 2026-08-29): this previously returned the raw
+        readline() result. When the child process exits, readline() returns ""
+        immediately and forever -- not None -- so the empty string fell through
+        every startswith() branch in request()'s loop and it spun at 100% CPU
+        with no timeout, hanging the run indefinitely. EXP-0153 lost a run to
+        this and had to subclass around it. An exited child is now reported as a
+        wedge, which is what it actually is.
+        """
         result = [None]
 
         def rd():
@@ -61,7 +73,10 @@ class PersistRunner:
         t.join(timeout)
         if t.is_alive():
             return None            # timed out -> caller treats as wedge
-        return result[0]
+        line = result[0]
+        if line == "" or line is None:
+            return None            # EOF: child died -> also a wedge
+        return line
 
     def _kill(self):
         if self.proc and self.proc.poll() is None:

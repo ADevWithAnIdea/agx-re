@@ -47,6 +47,25 @@ import anchors as A  # noqa: E402
 sys.path.insert(0, str(H.TOOLS / "agxtest"))
 from persistrun import PersistRunner  # noqa: E402
 
+
+class GuardedRunner(PersistRunner):
+    """`tools/agxtest/persistrun.py` is used READ-ONLY; this subclass fixes one
+    hazard from OUR side rather than editing the shared tool.
+
+    `PersistRunner._read_line` returns None on watchdog timeout and `""` on
+    EOF. `request()`'s response loop recognises neither prefix in `""`, so a
+    child that has EXITED produces an unbounded stream of empty strings and the
+    parent busy-loops forever. Observed live: EXP-0153's `g17p-20260830-run02`
+    stalled at case 215/258 of `D_iadd2_dst` with the parent at 61 % CPU and no
+    `agxrun_persist` child of its own (that capture is retained as PARTIAL and
+    was NOT reused). Mapping EOF onto the watchdog's own None makes `request()`
+    treat a dead child as a wedge, so it kills, restarts and returns HANG --
+    which the sweep already handles."""
+
+    def _read_line(self, timeout):
+        ln = PersistRunner._read_line(self, timeout)
+        return None if ln == "" else ln
+
 FAULT_RX = re.compile(r"kIOGPUCommandBufferCallbackError\w+")
 
 HANG_STOP_ARM = 2
@@ -177,7 +196,7 @@ def run_carrier(carrier, arms, bin_dir, work, fres, mains, progress, health,
     nw = _nwords(carrier)
 
     def start():
-        runner[0] = PersistRunner(
+        runner[0] = GuardedRunner(
             source=str(EXP / spec["metal"]), function=spec["func"],
             fast_math=False,
             agxrun_persist=str(Path(bin_dir) / "agxrun_persist"))
@@ -461,6 +480,11 @@ def main():
                     help="path to a previous sweep.jsonl; re-run only its "
                          "non-ok cases")
     ap.add_argument("--repeats", type=int, default=1)
+    ap.add_argument("--revalidate-only", default=None,
+                    help="comma-separated outcomes to re-run (default: every "
+                         "non-ok case). FIELD-SWEEP-PROTOCOL 7.1 only requires "
+                         "the fault/hang class, and the GPU lease this pass "
+                         "holds is a scarce shared resource.")
     a = ap.parse_args()
     work = Path(a.work); work.mkdir(parents=True, exist_ok=True)
     raw = Path(a.raw); raw.mkdir(parents=True, exist_ok=True)
@@ -498,9 +522,12 @@ def main():
                 r = json.loads(line)
                 if r["arm"] == "_HEALTH":
                     continue
-                if r["outcome"] != "ok":
+                want = ([x.strip() for x in a.revalidate_only.split(",")]
+                        if a.revalidate_only else None)
+                if (r["outcome"] in want) if want else (r["outcome"] != "ok"):
                     only_cases.add((r["arm"], r["i"]))
-        print("revalidating %d distinct non-ok cases" % len(only_cases), flush=True)
+        print("revalidating %d distinct cases (filter=%s)"
+              % (len(only_cases), a.revalidate_only or "all non-ok"), flush=True)
 
     by_carrier = {}
     for arm in arms:

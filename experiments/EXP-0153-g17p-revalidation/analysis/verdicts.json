@@ -1,0 +1,585 @@
+{
+ "A_device_load_destination": {
+  "A_dst_ext9_R20": {
+   "accepted_max": [
+    121,
+    123,
+    125,
+    127
+   ],
+   "accepted_min": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "m4": "64 of 128 (v & 1 == 1)",
+   "mask_rule": {
+    "expr": "v & 0x1 == 0x1",
+    "mask": 1,
+    "pattern": 1
+   },
+   "n_accepted": 64,
+   "n_total": 128,
+   "outcomes": {
+    "ok": 64,
+    "wrong_value": 64
+   }
+  },
+  "A_dst_ext9_R7": {
+   "accepted_max": [
+    121,
+    123,
+    125,
+    127
+   ],
+   "accepted_min": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "m4": "64 of 128 (v & 1 == 1)",
+   "mask_rule": {
+    "expr": "v & 0x1 == 0x1",
+    "mask": 1,
+    "pattern": 1
+   },
+   "n_accepted": 64,
+   "n_total": 128,
+   "outcomes": {
+    "ok": 64,
+    "wrong_value": 64
+   }
+  },
+  "A_dst_lo_R20": {
+   "accepted_max": [
+    1
+   ],
+   "accepted_min": [
+    1
+   ],
+   "m4": "1 of 4 (v & 3 == 1)",
+   "mask_rule": {
+    "expr": "v & 0x3 == 0x1",
+    "mask": 3,
+    "pattern": 1
+   },
+   "n_accepted": 1,
+   "n_total": 4,
+   "outcomes": {
+    "ok": 1,
+    "wrong_value": 3
+   }
+  },
+  "A_dst_lo_R7": {
+   "accepted_max": [
+    1
+   ],
+   "accepted_min": [
+    1
+   ],
+   "m4": "1 of 4 (v & 3 == 1)",
+   "mask_rule": {
+    "expr": "v & 0x3 == 0x1",
+    "mask": 3,
+    "pattern": 1
+   },
+   "n_accepted": 1,
+   "n_total": 4,
+   "outcomes": {
+    "ok": 1,
+    "wrong_value": 3
+   }
+  },
+  "A_dst_pair": {
+   "accepted_max": [
+    249,
+    251,
+    253,
+    255
+   ],
+   "accepted_min": [
+    129,
+    131,
+    133,
+    135
+   ],
+   "m4": "64 of 512 (v & 0x181 == 0x81)",
+   "mask_rule": {
+    "expr": "v & 0x181 == 0x81",
+    "mask": 385,
+    "pattern": 129
+   },
+   "n_accepted": 64,
+   "n_total": 512,
+   "outcomes": {
+    "ok": 64,
+    "wrong_value": 448
+   }
+  },
+  "A_extmode": {
+   "accepted_max": [
+    124,
+    125,
+    126,
+    127
+   ],
+   "accepted_min": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "m4": "128 of 256 (v & 0x80 == 0)",
+   "mask_rule": {
+    "expr": "v & 0x80 == 0x0",
+    "mask": 128,
+    "pattern": 0
+   },
+   "n_accepted": 128,
+   "n_total": 256,
+   "outcomes": {
+    "fault": 4,
+    "ok": 128,
+    "wrong_value": 124
+   }
+  },
+  "A_extmode_detail": {
+   "R_reachable": "0..63",
+   "accepted_at_or_above_128": 0,
+   "accepted_below_128": 128,
+   "accepted_odd_below_128": 64,
+   "fault_values": [
+    252,
+    253,
+    254,
+    255
+   ],
+   "m4": "0..127 all accepted (both parities); 128..255 silently zero",
+   "m4_fault_note": "EXP-0141 raw run11/run12: extmode 252..255 fault reproducibly with `Caused GPU Hang Error`; this is EXP-0112's R = 126/127 fault, in the field where EXP-0112 actually measured it (device_load's extmode-target register, extmode = 2*R)",
+   "m4_fault_values": [
+    252,
+    253,
+    254,
+    255
+   ]
+  }
+ },
+ "B_falu2_source_class": {
+  "falu2.minifloat": {
+   "m4": "10 HW points confirmed (k = 0,2,3,31,32,48,56,61,62,63)",
+   "m4_ten_points_outcome": {
+    "0": "ok",
+    "2": "ok",
+    "3": "ok",
+    "31": "ok",
+    "32": "ok",
+    "48": "ok",
+    "56": "ok",
+    "61": "ok",
+    "62": "ok",
+    "63": "ok"
+   },
+   "model_fit_64_127": "64/64",
+   "outcomes": {
+    "ok": 64
+   }
+  },
+  "falu2.mod_lo": {
+   "m4": "98/98 in each of three runs (294/294 overall)",
+   "model_fit": "64/64",
+   "outcomes": {
+    "ok": 64
+   },
+   "per_value_fit": {
+    "0": "8/8",
+    "1": "8/8",
+    "2": "8/8",
+    "3": "8/8",
+    "4": "8/8",
+    "5": "8/8",
+    "6": "8/8",
+    "7": "8/8"
+   }
+  },
+  "falu2.nongpr_file_map": {
+   "indices_returning_non_baseline": {
+    "6": 106.0,
+    "7": 207.0,
+    "8": 308.0,
+    "9": 409.0,
+    "10": 6.0
+   },
+   "m4": "indices 6..9 held 101/202/303/404 (bound constant float4&)",
+   "outcomes": {
+    "ok": 63,
+    "wrong_value": 1
+   }
+  }
+ },
+ "C_native_64bit_add": {
+  "iadd2.addsub_native_64bit_add": {
+   "add_repetitions_exact": "5/5",
+   "baseline_subtract_ok": true,
+   "bytes_after": "9f015600020800501705",
+   "bytes_before": "1f015600020800501705",
+   "falsifier_detected": true,
+   "m4": "exact on 8 rows in both gated runs and 5/5 in run05",
+   "observed_rows": [
+    81985533492365447,
+    17179869184,
+    30656522121,
+    0,
+    94489280511,
+    111669149696,
+    0,
+    17357459451642379743,
+    0,
+    9223372036854775808,
+    18446744073709551615,
+    1
+   ],
+   "oracle_rows": [
+    81985533492365447,
+    17179869184,
+    30656522121,
+    0,
+    94489280511,
+    111669149696,
+    0,
+    17357459451642379743,
+    0,
+    9223372036854775808,
+    18446744073709551615,
+    1
+   ]
+  }
+ },
+ "D_register_model": {
+  "register_model.falu2_srcB": {
+   "aliasing_non_ok": {},
+   "aliasing_ok_64_112": 49,
+   "aliasing_total_64_112": 49,
+   "m4": "r(R mod 64) for R in [64,112]; 126/127 FAULT (EXP-0112)",
+   "outcomes": {
+    "ok": 128
+   },
+   "v113_125": {
+    "113": "ok",
+    "114": "ok",
+    "115": "ok",
+    "116": "ok",
+    "117": "ok",
+    "118": "ok",
+    "119": "ok",
+    "120": "ok",
+    "121": "ok",
+    "122": "ok",
+    "123": "ok",
+    "124": "ok",
+    "125": "ok"
+   },
+   "v126": "ok",
+   "v126_fault_classes": null,
+   "v127": "ok",
+   "v127_fault_classes": null
+  },
+  "register_model.iadd2_dst": {
+   "alias_140_141": {
+    "140": "wrong_value",
+    "141": "wrong_value"
+   },
+   "alias_140_141_observed": {
+    "140": 99,
+    "141": 99
+   },
+   "fault_boundary_reg": 96,
+   "fault_values": [
+    192,
+    255
+   ],
+   "m4_alias_140_141": "did NOT reach r6 (EXP-0112's mod-64 aliasing refuted for this field)",
+   "m4_fault_boundary_reg": 96,
+   "m4_reached_r6_at": [
+    12,
+    13
+   ],
+   "n_fault": 64,
+   "outcomes": {
+    "fault": 64,
+    "ok": 188,
+    "wrong_value": 4
+   },
+   "reached_r6_at": [
+    12,
+    13
+   ]
+  }
+ },
+ "E_ibfe_out_of_range": {
+  "ibfe.offset": {
+   "competing_model": "mod 32",
+   "competing_model_fit": "32/64",
+   "m4": "literal 64/64 vs mod-32 32/64",
+   "outcomes": {
+    "ok": 64
+   },
+   "preregistered_model": "LITERAL",
+   "preregistered_model_fit": "64/64"
+  },
+  "ibfe.offset@k_shr": {
+   "inert_values": [
+    4,
+    5
+   ],
+   "n_inert": 2,
+   "n_total": 64,
+   "outcomes": {
+    "ok": 2,
+    "silent_zero": 2,
+    "wrong_value": 60
+   }
+  },
+  "ibfe.width": {
+   "competing_model": "literal-clamp",
+   "competing_model_fit": "37/64",
+   "m4": "mod-32 64/64 vs literal-clamp 37/64",
+   "outcomes": {
+    "ok": 64
+   },
+   "preregistered_model": "mod 32",
+   "preregistered_model_fit": "64/64"
+  }
+ },
+ "F_mov_imm": {
+  "mov_imm.imm7": {
+   "m4": "hardware-run 0..127; imm7 == 12 does NOT TOKENIZE (decoder), hardware never tested",
+   "n_ok": 128,
+   "n_total": 128,
+   "non_ok": {},
+   "v12_observed": 12,
+   "v12_outcome": "ok",
+   "v12_roundtrip": false
+  },
+  "mov_imm.imm_top": {
+   "m4": "padded: destination KEEPS its previous value (7), proving a non-write rather than a silent zero; unpadded: the following 2-byte instruction is consumed",
+   "padded": {
+    "128": {
+     "out0": 7,
+     "outcome": "ok"
+    },
+    "129": {
+     "out0": 7,
+     "outcome": "ok"
+    },
+    "140": {
+     "out0": 7,
+     "outcome": "ok"
+    },
+    "200": {
+     "out0": 7,
+     "outcome": "ok"
+    },
+    "255": {
+     "out0": 7,
+     "outcome": "ok"
+    }
+   },
+   "unpadded": {
+    "128": {
+     "fault_classes": [
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang"
+     ],
+     "outcome": "fault",
+     "status": "CMDBUF_ERROR"
+    },
+    "129": {
+     "fault_classes": [
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang"
+     ],
+     "outcome": "fault",
+     "status": "CMDBUF_ERROR"
+    },
+    "140": {
+     "fault_classes": [
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang"
+     ],
+     "outcome": "fault",
+     "status": "CMDBUF_ERROR"
+    },
+    "200": {
+     "fault_classes": [
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang"
+     ],
+     "outcome": "fault",
+     "status": "CMDBUF_ERROR"
+    },
+    "255": {
+     "fault_classes": [
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang",
+      "kIOGPUCommandBufferCallbackErrorHang"
+     ],
+     "outcome": "fault",
+     "status": "CMDBUF_ERROR"
+    }
+   }
+  }
+ },
+ "PARTIAL": false,
+ "cross_run_agreement": {
+  "A_CTRL": {
+   "disagreements": [],
+   "n_agree": 3,
+   "n_common": 3,
+   "n_disagree": 0
+  },
+  "A_dst_ext9_R20": {
+   "disagreements": [],
+   "n_agree": 128,
+   "n_common": 128,
+   "n_disagree": 0
+  },
+  "A_dst_ext9_R7": {
+   "disagreements": [],
+   "n_agree": 128,
+   "n_common": 128,
+   "n_disagree": 0
+  },
+  "A_dst_lo_R20": {
+   "disagreements": [],
+   "n_agree": 4,
+   "n_common": 4,
+   "n_disagree": 0
+  },
+  "A_dst_lo_R7": {
+   "disagreements": [],
+   "n_agree": 4,
+   "n_common": 4,
+   "n_disagree": 0
+  },
+  "A_dst_pair": {
+   "disagreements": [],
+   "n_agree": 512,
+   "n_common": 512,
+   "n_disagree": 0
+  },
+  "A_extmode": {
+   "disagreements": [],
+   "n_agree": 256,
+   "n_common": 256,
+   "n_disagree": 0
+  },
+  "B_CTRL": {
+   "disagreements": [],
+   "n_agree": 3,
+   "n_common": 3,
+   "n_disagree": 0
+  },
+  "B_modlo": {
+   "disagreements": [],
+   "n_agree": 64,
+   "n_common": 64,
+   "n_disagree": 0
+  },
+  "B_srcB_nongpr": {
+   "disagreements": [],
+   "n_agree": 128,
+   "n_common": 128,
+   "n_disagree": 0
+  },
+  "C_i64add": {
+   "disagreements": [],
+   "n_agree": 7,
+   "n_common": 7,
+   "n_disagree": 0
+  },
+  "D_falu2_srcB": {
+   "disagreements": [],
+   "n_agree": 128,
+   "n_common": 128,
+   "n_disagree": 0
+  },
+  "D_iadd2_dst": {
+   "disagreements": [],
+   "n_agree": 258,
+   "n_common": 258,
+   "n_disagree": 0
+  },
+  "E_CTRL": {
+   "disagreements": [],
+   "n_agree": 2,
+   "n_common": 2,
+   "n_disagree": 0
+  },
+  "E_offset": {
+   "disagreements": [],
+   "n_agree": 64,
+   "n_common": 64,
+   "n_disagree": 0
+  },
+  "E_shr": {
+   "disagreements": [],
+   "n_agree": 65,
+   "n_common": 65,
+   "n_disagree": 0
+  },
+  "E_width": {
+   "disagreements": [],
+   "n_agree": 64,
+   "n_common": 64,
+   "n_disagree": 0
+  },
+  "F_CTRL": {
+   "disagreements": [],
+   "n_agree": 2,
+   "n_common": 2,
+   "n_disagree": 0
+  },
+  "F_imm7": {
+   "disagreements": [],
+   "n_agree": 128,
+   "n_common": 128,
+   "n_disagree": 0
+  },
+  "F_imm_top": {
+   "disagreements": [],
+   "n_agree": 10,
+   "n_common": 10,
+   "n_disagree": 0
+  }
+ },
+ "cross_run_total": {
+  "n_agree": 1958,
+  "n_common": 1958,
+  "n_disagree": 0
+ },
+ "gated": true,
+ "health": {
+  "raw/g17p-20260830-run01": {
+   "cascade_suspected": [],
+   "n": 26,
+   "n_ok": 26
+  },
+  "raw/g17p-20260830-run03": {
+   "cascade_suspected": [],
+   "n": 26,
+   "n_ok": 26
+  }
+ },
+ "n_runs": 2,
+ "runs": [
+  "raw/g17p-20260830-run01",
+  "raw/g17p-20260830-run03"
+ ],
+ "target": "G17P"
+}

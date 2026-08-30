@@ -1,0 +1,194 @@
+{
+ "anchors": {
+  "bfe": {
+   "bytes": "a700560002001000f0118100",
+   "length": 12,
+   "offset": 18
+  },
+  "shr": {
+   "bytes": "a710540002001000f0130500",
+   "length": 12,
+   "offset": 42
+  },
+  "u64": {
+   "bytes": "1f015600020800501705",
+   "length": 10,
+   "offset": 32
+  }
+ },
+ "arms": [
+  {
+   "arm": "A_CTRL",
+   "carrier": "synth",
+   "doc": "Baseline + two pre-registered falsifiers for arm A.",
+   "field": "_controls",
+   "instr": "device_load",
+   "n_cases": 3
+  },
+  {
+   "arm": "A_dst_lo_R7",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target r7.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "A_dst_ext9_R7",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target r7.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "A_dst_lo_R20",
+   "carrier": "synth",
+   "doc": "dst_lo 0..3 EXHAUSTIVE at target r20.",
+   "field": "dst_lo",
+   "instr": "device_load",
+   "n_cases": 4
+  },
+  {
+   "arm": "A_dst_ext9_R20",
+   "carrier": "synth",
+   "doc": "dst_ext9 0..127 EXHAUSTIVE at target r20.",
+   "field": "dst_ext9",
+   "instr": "device_load",
+   "n_cases": 128
+  },
+  {
+   "arm": "A_dst_pair",
+   "carrier": "synth",
+   "doc": "FULL 2-D (dst_lo, dst_ext9) product, all 512 encodable combinations at r7. M4: exactly 64 accepted, v & 0x181 == 0x81.",
+   "field": "dst_pair",
+   "instr": "device_load",
+   "n_cases": 512
+  },
+  {
+   "arm": "A_extmode",
+   "carrier": "synth",
+   "doc": "extmode 0..255 DENSE, each paired with a consumer that reads r(extmode>>1). Tests extmode = 2*R over the whole 8-bit field, including odd values (bit 0 don't-care on M4) and the R >= 64 region (silent zero on M4).",
+   "field": "extmode",
+   "instr": "device_load",
+   "n_cases": 256
+  },
+  {
+   "arm": "B_CTRL",
+   "carrier": "uni",
+   "doc": "Baseline, oracle falsifier, and EXP-0138's own pre-registered mod_lo refuter.",
+   "field": "_controls",
+   "instr": "falu2",
+   "n_cases": 3
+  },
+  {
+   "arm": "B_modlo",
+   "carrier": "uni",
+   "doc": "falu2.mod_lo 0..7 DENSE x 4 operand configurations x {fadd, fmul} = 64 cases, scored against EXP-0138's REPLACEMENT source-class model (not its refuted pre-registration).",
+   "field": "mod_lo",
+   "instr": "falu2",
+   "n_cases": 64
+  },
+  {
+   "arm": "B_srcB_nongpr",
+   "carrier": "uni",
+   "doc": "srcB_reg 0..127 DENSE with mod_lo=2 (the non-GPR class). Covers BOTH halves of EXP-0138's find: the operand-file index map (0..63) and the inline 8-bit minifloat immediate (64..127), including all ten M4 HW-confirmed k values.",
+   "field": "srcB_reg@mod_lo=2",
+   "instr": "falu2",
+   "n_cases": 128
+  },
+  {
+   "arm": "D_falu2_srcB",
+   "carrier": "uni",
+   "doc": "srcB_reg 0..127 DENSE in the GPR class. The direct G17P re-test of EXP-0112's aliasing rule and fault bound.",
+   "field": "srcB_reg@mod_lo=0",
+   "instr": "falu2",
+   "n_cases": 128
+  },
+  {
+   "arm": "F_CTRL",
+   "carrier": "uni",
+   "doc": "Baseline + oracle falsifier for arm F.",
+   "field": "_controls",
+   "instr": "mov_imm",
+   "n_cases": 2
+  },
+  {
+   "arm": "F_imm7",
+   "carrier": "uni",
+   "doc": "imm7 0..127 DENSE with a poisoned read-back buffer, so 'wrote 0' and 'did not write' are distinguishable.",
+   "field": "imm7",
+   "instr": "mov_imm",
+   "n_cases": 128
+  },
+  {
+   "arm": "F_imm_top",
+   "carrier": "uni",
+   "doc": "imm_top=1 at five immediates, each in a PAIRED padded/unpadded form -- EXP-0140's decisive control.",
+   "field": "imm_top",
+   "instr": "mov_imm",
+   "n_cases": 10
+  },
+  {
+   "arm": "D_iadd2_dst",
+   "carrier": "dag",
+   "doc": "iadd2.dst 0..255 DENSE with a relocation oracle. Answers both halves of the register-model question on G17P: where the fault boundary is, and whether mod-64 aliasing holds for this field.",
+   "field": "dst",
+   "instr": "iadd2",
+   "n_cases": 258
+  },
+  {
+   "arm": "C_i64add",
+   "carrier": "u64",
+   "doc": "One bit of one instruction. 12 input rows per dispatch including 2^63+2^63, 0x7FFF..F+1, 0xFFFFFFFF00000000+0xFFFFFFFF and 0xFFFF..E+3.",
+   "field": "addsub",
+   "instr": "iadd2",
+   "n_cases": 7
+  },
+  {
+   "arm": "E_CTRL",
+   "carrier": "bfe",
+   "doc": "Baseline + falsifier for the ibfe carrier.",
+   "field": "_controls",
+   "instr": "ibfe",
+   "n_cases": 2
+  },
+  {
+   "arm": "E_offset",
+   "carrier": "bfe",
+   "doc": "ibfe.offset 0..63 DENSE, scored against the LITERAL model. The mod-32 competitor is scored on the same records by analysis/verdicts.py.",
+   "field": "offset",
+   "instr": "ibfe",
+   "n_cases": 64
+  },
+  {
+   "arm": "E_width",
+   "carrier": "bfe",
+   "doc": "ibfe.width 0..63 DENSE, scored against the mod-32 model; the literal-clamp competitor is scored on the same records offline.",
+   "field": "width",
+   "instr": "ibfe",
+   "n_cases": 64
+  },
+  {
+   "arm": "E_shr",
+   "carrier": "shr",
+   "doc": "ibfe.offset swept in a SECOND, independent lowering of the same instruction -- EXP-0139's adversarial cross-check, repeated on G17P.",
+   "field": "offset",
+   "instr": "ibfe",
+   "n_cases": 65
+  }
+ ],
+ "mainlens": {
+  "bfe": 48,
+  "dag": 1590,
+  "shr": 72,
+  "synth": 170,
+  "u64": 60,
+  "uni": 1246
+ },
+ "n_cases": 1958,
+ "repeats": 1,
+ "revalidate_source": null,
+ "run_id": "g17p-20260830-run02",
+ "target": "G17P"
+}

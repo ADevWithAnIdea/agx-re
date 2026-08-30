@@ -844,12 +844,12 @@
    },
    "addsub": {
     "label": "hardware-run",
-    "range": "2 values tested (dense over 1-bit domain)",
+    "range": "the single bit, in both polarities, over 12 input rows x 5 repetitions x 2 gated runs",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0153"
     ],
-    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
+    "note": ""
    },
    "lenbit": {
     "label": "hardware-run",
@@ -898,12 +898,12 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "27 values tested (sampled over 8-bit domain)",
+    "range": "0..255 dense (all 256 values), relocation oracle",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0153"
     ],
-    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 2, 'wrong_value': 10, 'silent_zero': 13, 'fault': 2}; ok at {0x0-0x1}"
+    "note": ""
    },
    "opmode": {
     "label": "hardware-run",
@@ -1712,12 +1712,12 @@
    },
    "offset": {
     "label": "hardware-run",
-    "range": "0..63 dense (all 64 values)",
-    "target": "M4",
+    "range": "0..63 dense (the whole 6-bit field), in two independent lowerings",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0153"
     ],
-    "note": "32 values return a silent zero; second independent carrier IBFE_SH DIFFERS (untested over 0..63 dense (all 64 values))"
+    "note": ""
    },
    "b7": {
     "label": "hardware-run",
@@ -1757,12 +1757,12 @@
    },
    "width": {
     "label": "hardware-run",
-    "range": "0..63 dense (all 64 values)",
-    "target": "M4",
+    "range": "0..63 dense (the whole 6-bit field)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0153"
     ],
-    "note": "second independent carrier IBFE_SH DIFFERS (untested over 0..63 dense (all 64 values))"
+    "note": ""
    },
    "b11hi": {
     "label": "hardware-run",
@@ -2826,12 +2826,12 @@
    },
    "extmode": {
     "label": "hardware-run",
-    "range": "0..255 step 1 (256 of 256)",
-    "target": "M4",
+    "range": "0..255 dense, each paired with a consumer reading r(v>>1)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0153"
     ],
-    "note": "Confirms EXP-0101's extmode = 2*R over the FULL 8-bit field and adds two facts EXP-0101 could not: bit0 is a don't-care, and the field cannot reach r64+."
+    "note": ""
    },
    "base_slot": {
     "label": "hardware-run",
@@ -2881,21 +2881,21 @@
    },
    "dst_lo": {
     "label": "hardware-run",
-    "range": "0..3 step 1 (4 of 4)",
-    "target": "M4",
+    "range": "0..3 dense (all 4 values), at two independent target registers r7 and r20",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0153"
     ],
-    "note": "THE headline. EXP-0112's generator copied (dst_lo, dst_ext9) verbatim from a compiled shader because nobody had swept them. Swept exhaustively (4/4 values) at four independent target registers plus the full 512-value 2-D product."
+    "note": ""
    },
    "dst_ext9": {
     "label": "hardware-run",
-    "range": "0..127 step 1 (128 of 128)",
-    "target": "M4",
+    "range": "0..127 dense (all 128 values), at two independent target registers r7 and r20",
+    "target": "G17P",
     "evidence": [
-     "EXP-0141"
+     "EXP-0153"
     ],
-    "note": "Refutes the residue of EXP-M4-13's dst = dst_lo | (dst_ext9 << 2) model: the field carries no register information at all. The ld_format dependence is the addendum's pre-registered refuter PARTIALLY FIRING -- reported, not smoothed over."
+    "note": ""
    },
    "idx_off": {
     "label": "hardware-run",
@@ -3153,22 +3153,21 @@
    },
    "imm7": {
     "label": "hardware-run",
-    "range": "0..127 load-bearing (EXP-0031 point-validated 0x11/0x20/0x21/0x40; EXP-0128 established the 128..255 boundary from the other side)",
-    "target": "M4",
+    "range": "0..127 dense (all 128 values), against a poisoned read-back buffer",
+    "target": "G17P",
     "evidence": [
-     "EXP-0128",
-     "EXP-0031"
+     "EXP-0153"
     ],
-    "note": "WIDTH CORRECTED 8 -> 7 bits (EXP-0128). Values 128..255 DO NOT WRITE THE REGISTER AT ALL. An emitter must range-check to 0..127; EXP-0031's original validation used only values < 128 so the 8-bit reading was never tested at the top. [CORRECTED by EXP-0140: EXP-0128 reported a 'silent zero' only because its read-back buffer was zero-initialised. Against a 0xDEADBEEF-poisoned buffer the register keeps its previous value, and unpadded the instruction CONSUMES THE FOLLOWING 2-byte instruction. Bit 7 selects a different, longer instruction; it neither extends the immediate nor zeroes.]"
+    "note": ""
    },
    "imm_top": {
     "label": "hardware-run",
-    "range": "set vs clear, across the 128..255 half of the field",
-    "target": "M4",
+    "range": "1, at five immediates (128, 129, 140, 200, 255), each in a PAIRED padded/unpadded form",
+    "target": "G17P",
     "evidence": [
-     "EXP-0128"
+     "EXP-0153"
     ],
-    "note": "The inert 8th bit. Setting it does not add 128 to the immediate -- it do not write the register at alles the whole move. Combined with iadd2's N=0 self-read this produced two real GPU hangs in EXP-0128's pilot. [CORRECTED by EXP-0140: EXP-0128 reported a 'silent zero' only because its read-back buffer was zero-initialised. Against a 0xDEADBEEF-poisoned buffer the register keeps its previous value, and unpadded the instruction CONSUMES THE FOLLOWING 2-byte instruction. Bit 7 selects a different, longer instruction; it neither extends the immediate nor zeroes.]"
+    "note": ""
    }
   },
   "uniform_mov": {

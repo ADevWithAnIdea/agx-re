@@ -286,3 +286,53 @@ vector or case value is affected.
 health checks, retained as evidence and never reused): every carrier compiled,
 every anchor resolved, and all six carriers tokenized **end-to-end with zero
 leftover bytes** on G17P.
+
+## 13. AMENDMENT 2 — 2026-08-30T05:41 UTC, between gated captures
+
+Two changes, both operational, neither touching a hypothesis, oracle, carrier,
+input vector or case value.
+
+**(a) `harness/run.py :: GuardedRunner`.** The second gated capture
+(`g17p-20260830-run02`) stalled at case 215/258 of `D_iadd2_dst`. Diagnosed, not
+guessed: its `agxrun_persist` child had exited, and
+`tools/agxtest/persistrun.py :: request()` then busy-looped forever — its read
+loop treats a line as unrecognised rather than as EOF, so a dead child produces
+an unbounded stream of empty strings. The parent was observed at 61.3 % CPU in
+state `RN` with no `agxrun_persist` child of its own in `ps`. `persistrun.py` is
+used READ-ONLY, so the fix is a **subclass in this experiment** that maps EOF
+onto the watchdog's existing wedge path; the tool is unmodified. Recorded as
+`db_defects → DEF-0153-2`.
+
+Per `SUBAGENT_BRIEF` ("a partial capture is retained, never reused") the 1731
+records of `run02` are kept exactly as captured, carry their own `PARTIAL.md`,
+and are **not** used as the second gated run. The replacement was captured under
+the **new** id `g17p-20260830-run03`.
+
+**(b) `--revalidate-only`.** §5 planned to re-run every non-`ok` case five
+times under the GPU lease. That is 854 cases × 5 = 4270 requests, and the lease
+is a scarce resource shared with five sibling experiments. FIELD-SWEEP-PROTOCOL
+§7.1 only requires the **fault/hang class** to be re-run in isolation, so the
+pass was narrowed to `fault, hang, nondeterministic, silent_zero` — 75 cases ×
+5 = 375 measurements (`g17p-20260830-reval02`). The `wrong_value` cases keep the
+evidence they already have: majority-of-3 within each gated run, plus exact
+agreement between two independent runs.
+
+This narrowing is recorded because it is a **reduction in scope from the frozen
+plan**, and because it turned out to matter: the pass showed that 4 of the 5
+`F_imm_top` unpadded cases are not faults at all (RESULTS.md §4.1).
+
+**Hash after both amendments** (this is what every gated capture's
+`00_env.json` records):
+
+| file | sha256 |
+|---|---|
+| `harness/anchors.py` | `d2a4d6f1fe77abaa8de7dcaa6e6cbc89136f7bcfda6e03ad61aa8912efe3425b` |
+| `harness/run.py` @ `smoke01`, `run01`, `run02` | `f4b18d00eb3629bb…` |
+| `harness/run.py` @ `run03` (after amendment (a)) | `1df3a4184a863b3c…` |
+| `harness/run.py` @ `reval02` (after amendment (b)) | `7fe845586cf96fc7…` |
+
+`harness/cases.py` (`8734865c00e3…`), `harness/carriers.py` (`ce81f48f1124…`),
+`harness/isa_helpers.py` (`22b23b318b29…`) and every `kernels/*.metal` are
+**byte-identical in all five captures**, as each capture's own `00_env.json`
+records. Those are the files that determine *what was measured*; only the
+executor's plumbing changed.
