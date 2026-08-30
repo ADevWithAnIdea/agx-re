@@ -100,3 +100,42 @@ is not progress, and the merge (`work/merge_verdicts.py`) is where a wave's valu
 | VPN drop kills SSH | Hard-timeout every remote call; lease self-releases, no wedge |
 | WindowServer/compiler-service collapse | **Solved by the pivot** — GPU work no longer runs on the session host |
 | Cross-agent GPU contamination | Fault-class recording + majority-of-3 re-runs |
+
+## Merge policy revision, 2026-08-30 — "inert" is not a free pass
+
+**User challenge:** *"i really don't buy anything is inert -- encoding space is expensive so it
+seems like apple would use it well."* They are right, and the audit that followed proved it on our
+own data before any new hardware run.
+
+Re-deriving EXP-0155 field-by-field from `raw/` per carrier, **every field examined that looked
+inert was live on a carrier the analysis had not picked**:
+
+| field | reads inert on | actually live on | both runs |
+|---|---|---|---|
+| `tex_sample.samp_extra` | 9 of 10 arms | `lo_1` (explicit LOD), 128/256 moved | 128 / 128 |
+| `frag_color_store.flags` | `fcs@iter0` | `fcs@pack0`, 128/256 moved | 128 / 128 |
+| `tex_sample.coord` | 3 arms | 3 arms, up to 157/256 | unstable |
+
+EXP-0163 then supplied the mechanism for a fourth: `iter_at.loc` selects centroid-vs-sample
+interpolation and was only ever swept on a **samples=1** carrier, where centroid and sample are the
+same point. The field could not have moved anything there *whatever it does*. That is the whole
+hypothesis in one line.
+
+**The rule now applied at merge time** (implemented in the flattening step, recorded in each
+`_meta.orchestrator_policy`):
+
+1. **stable-live** — moves an observable, **>=99% per-value cross-run agreement**, and
+   **movement >= 2x the disagreement count** so a handful of flipped cases cannot masquerade as a
+   live field. The representative arm must be the strongest such arm, not the first one seen.
+2. **inert-envelope** — never moved anything, but on **>=2 structurally different carriers**.
+   Emitter-grade only within the recorded envelope, which is written into the note.
+3. **withheld** — never moved anything on exactly **one** carrier (underpowered), or movement that
+   does not reproduce.
+
+Applied to EXP-0155 this withheld 15 of 105 offered verdicts and re-pointed 14 to a stronger arm.
+The published number is **66/166, not the agent's 72/166**; `tex_sample`, `tex_coord_setup`,
+`vary_slot`, `vary_store`, `simd_ballot` and `simd_shuffle` stay non-emittable.
+
+**Two experiments now test this directly:** EXP-0163 hunts liveness for the 22 never-moved fields on
+new carriers; EXP-0164 audits every already-merged emitter-grade field in `validation.json` for the
+same weakness and reports what the honest count would be.
