@@ -2,7 +2,7 @@
  "_license": "GPL-3.0-or-later",
  "spec": "docs/evidence-classification.md",
  "generated": "2026-08-28",
- "db_sha256": "1ada4e7bb7879cd607829d7e7e657c8d3e5b9b000b63c5d602adfa3f7740be04",
+ "db_sha256": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
  "_conventions": {
   "default": "untested. A field with no committed experiment that exercised it is untested with evidence []. Positional knowledge alone is not a label.",
   "evidence_ids": "directory-name prefixes under experiments/ - this includes the RT-* red-team splice-and-observe experiments (A18 Pro), which are committed experiments with retained raw evidence, alongside EXP-NNNN and EXP-M4-NN / EXP-O2X.",
@@ -14,28 +14,28 @@
  },
  "coverage": {
   "total_instructions": 172,
-  "total_fields": 1036,
+  "total_fields": 1040,
   "by_label": {
-   "hardware-run": 547,
-   "isolated-byte-diff": 81,
+   "hardware-run": 553,
+   "isolated-byte-diff": 83,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 28,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 173
+   "untested": 169
   },
   "by_label_pct": {
-   "hardware-run": 52.8,
-   "isolated-byte-diff": 7.8,
+   "hardware-run": 53.2,
+   "isolated-byte-diff": 8.0,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.7,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 16.7
+   "untested": 16.2
   },
-  "emittable_instructions": 50,
+  "emittable_instructions": 54,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
@@ -49,6 +49,7 @@
    "cvt_i2f",
    "device_store",
    "falu2",
+   "falu2_uni",
    "falu3",
    "falu3_ext",
    "falu_acc",
@@ -59,11 +60,13 @@
    "get_sr",
    "h_coord_hi",
    "h_coord_hi_ext",
+   "half_alu",
    "half_alu_ext8",
    "hminmax",
    "iminmax",
    "irotate",
    "isel10",
+   "iter_at",
    "iter_flat",
    "iunary",
    "link_save_restore",
@@ -74,6 +77,7 @@
    "pixel_order",
    "pop_reconverge",
    "psel",
+   "reg_move_cb",
    "ret_luse",
    "rtq_state_move",
    "sel",
@@ -88,7 +92,7 @@
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 122,
+  "decodable_not_yet_emittable": 118,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -99,7 +103,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 50
+  "emittable_of_emitter_relevant": 54
  },
  "instructions": {
   "falu2": {
@@ -517,13 +521,14 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, 1 carrier (C3_uni), two gated runs, 16/16 per-value records IDENTICAL across runs; 15 of 16 moved. Outcomes identical in both runs: 1 ok / 1 silent_zero / 14 wrong_value.",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0169",
+     "EXP-0183"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "RULING SUPPLIED. The row read `untested` only because EXP-0169 deferred it by coordinator directive ('`dst` -> EXP-0168'), and EXP-0168's committed field_verdicts.json contains NO falu2_uni.dst row -- the ruling was never made, and it is one of the 22 one-field-away blockers. Re-derived by EXP-0183 from EXP-0169's raw sweep.jsonl directly, not from its analysis. EXP-0169's ladder and falsifier both passed on this arm. CAVEAT: one carrier only, and the `__falsifier_byte0` step (byte0 -> 0x00) changes the opcode nibble as well as the field, so it is a weak falsifier here -- as it was for the half family (DEF-0180-B).",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -5598,23 +5603,31 @@
   },
   "iter_at": {
    "_instruction": {
-    "label": "corpus-correlation",
+    "label": "hardware-run",
     "range": "centroid / per-sample setup located by own-MSL byte-diff",
-    "target": "A18",
-    "evidence": [
-     "EXP-0029"
-    ]
-   },
-   "grp": {
-    "label": "untested",
-    "range": "0..255 dense (5 of 256 values), 3 run(s)",
     "target": "G17P",
     "evidence": [
-     "EXP-0168"
+     "EXP-0163",
+     "EXP-0168",
+     "EXP-0029"
     ],
-    "start": 0,
-    "width": 8,
-    "note": "EXP-0168 render arm: a REPRODUCIBLE result deliberately NOT promoted. The dispatch-ordering fix worked -- 0x2f and 0xaf now dispatch in every run, where an earlier run never got past 0x00/0x01 -- and the observation is identical 3/3: on carrier r_i8 (samples=1) 0x2f gives `wrong_value` and 0xaf gives `ok`; on r_i8s (samples=4) BOTH give `ok`; 0x00/0x01 hang on both. So bit 7 changes the observation at 1 sample and not at 4. It stays `untested` because the arm's liveness ladder (`iter_at.loc`) FAILED on both carriers, and the standing rule discards an arm that cannot demonstrate detection power. The number looks good; that is not the bar. Note also DEF-0170-1: `grp` declares 8 bits at start=0 while its own match pins bits 0..6, so it has only TWO legal values (0x2f, 0xaf) and every other value encodes a DIFFERENT instruction -- which is why every sweep of this field across three experiments has hit hangs."
+    "note": "ORCHESTRATOR REFRESH 2026-08-30 from corpus-correlation (A18, EXP-0029), applying the same rule EXP-0181 used for the other 30 stale descriptor labels: `corpus-correlation` asserts nothing was executed, and this instruction has been DISPATCHED on G17P repeatedly. EXP-0163 ran it in a CONTROLLED experiment -- `k_cent.metal` built twice from the same source with one changed pipeline parameter (`rasterSampleCount`) -- and separated `loc` BY VALUE: 0/256 at one sample, 128/256 at four, establishing `loc` is bit 1 alone with two equivalence classes of 128 and bits 0 and 2-7 free, which is strictly better than the `{1: centroid, 3: sample}` enum it replaces. EXP-0168 additionally dispatched `grp` on two carriers. All six field rows are emitter-grade, so this label was the only remaining blocker."
+   },
+   "grp": {
+    "label": "isolated-byte-diff",
+    "range": "0..1 dense (both legal values of the narrowed field; byte0 0x2f and 0xaf), three gated runs (rclean07/08/09), two carriers, identical in all three: grp=1 (0xaf) is `ok` on both carriers; grp=0 (0x2f) is `wrong_value` on r_i8 (1 sample) and `ok` on r_i8s (4 samples).",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0168",
+     "EXP-0181",
+     "EXP-0183"
+    ],
+    "note": "RE-SPANNED by EXP-0181 (bits 0..7 -> bit 7) and RE-DERIVED from EXP-0168's raw by EXP-0183. EXP-0168 filed `untested` on a '5 of 256' sweep; against the field's REAL encodable range of 2 the same raw is a DENSE 2-of-2 sweep reproducible in three runs. NOT recommended for `hardware-run`: r_i8s's own baseline record says 'baseline vs HOST oracle: MISMATCH', so only one of the two carriers has a valid oracle, and EXP-0168's ladder clause (`iter_at.loc`) was not met. The two out-of-descriptor byte0 values dispatched (0x00, 0x01) HUNG the device on both carriers in all three runs -- a hardware fact about the 254 illegal byte0 values, not about this field.",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 7,
+    "width": 1
    },
    "lead": {
     "label": "hardware-run",
@@ -6459,18 +6472,19 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "label": "hardware-run",
+    "range": "0..15 dense on the family's shared byte0 (EXP-0180 DSTNIB arm, two carriers, both gated runs, 16/16 identical), and 14 of 16 exercised IN THIS SIX-BYTE FORM in every one of 33,470 gated cases: the seed program's own half-adds are `[j<<4][h_B][opsel4][h_A][00][C0]` and nothing but byte0 names register j, so the per-case identity r_j.lo == fp16(h[byte+1] + h[byte+3]) re-proves the destination each time -- 228,690 checks per run, ZERO mismatches, both runs, j = 0..13. Values 14 and 15 are unobservable in that harness (R_ZERO pad register and R_IDX store index).",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0180",
+     "EXP-0183"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 8,
-    "width": 8
+    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). The old row described byte+1, which is a SOURCE; its evidence is carried over to the new `srcA` row below, NOT to this one. COUNT CAVEAT, stated so the owner can choose: the 16-of-16 figure is from the DSTNIB arm, which varied this same byte0 on an 8-byte instance of the family; only 14 of 16 were dispatched in the 6-byte form itself. A conservative owner may prefer 14/14/16, which would set the THIN flag.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "opsel": {
     "label": "hardware-run",
@@ -6502,44 +6516,62 @@
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carrier, two gated runs, 256/256 identical; 28 of 256 moved (carrier-limited -- EXP-0169's seeds had zero low halves, so only the 28 odd/high descriptors could reach a non-zero lane; DEF-0180-A). Additionally exercised as a live source with a HOST-COMPUTED ORACLE at 14 distinct values in the 6-byte form itself: r_j.lo == fp16(h[byte+1] + h[byte+3]) held in 228,690 per-case checks per run with zero mismatches, in both of EXP-0180's runs.",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0169",
+     "EXP-0180",
+     "EXP-0183"
     ],
-    "note": "moved on 1 of 1 ladder-passing carriers",
+    "note": "RENAMED + RE-ROLED, span unchanged (bits 8..15). This is the row formerly filed as `half_alu.dst`; byte+1 is a SOURCE half-register descriptor h=(reg<<1)|is_high, not the destination. Its `untested` label was a DEFERRAL ('another experiment owns this field's verdict -> EXP-0168'), and EXP-0168's committed field_verdicts.json contains no such row, so the ruling was never made. Re-derived from EXP-0169's raw by EXP-0183.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
+   },
+   "srcB": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carrier",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0169",
+     "EXP-0183"
+    ],
+    "note": "RENAMED, span unchanged (bits 24..31). This is the row formerly filed as `half_alu.srcA`; the name `srcA` moved to byte+1 to match the low-nibble-8 sibling `h_alu_hi`. Evidence and label are EXP-0169's, unchanged.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
     "start": 24,
     "width": 8
    },
-   "srcB": {
-    "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0169"
-    ],
-    "note": "moved on 1 of 1 ladder-passing carriers",
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 32,
-    "width": 8
-   },
    "src_modifier": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carriers",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carrier",
     "target": "G17P",
     "evidence": [
      "EXP-0169"
     ],
-    "note": "moved on 1 of 1 ladder-passing carriers",
+    "note": "unchanged span; start/width added so merge_verdicts' DEF-0166-2 span guard can see this row.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
     "start": 40,
+    "width": 8
+   },
+   "ctrl": {
+    "label": "hardware-run",
+    "range": "0..255 dense (all 256 values), 256 distinct encodings, 1 carrier",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0169",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `srcB`, span unchanged (bits 32..39). The label and counts are EXP-0169's. The NAME changed because the operand role is REFUTED: EXP-0180's seed instructions carry byte+4 = 0x00 = h0 = r0's LOW half, which is non-zero in all 32,670 observed pre-vectors, and the observed result is exactly fp16(h[byte+1] + h[byte+3]) in 228,690 checks per run with zero mismatches -- byte+4 does not enter the arithmetic. Its low two bits are the measured LENGTH selector.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 32,
     "width": 8
    }
   },
@@ -7746,6 +7778,21 @@
      "EXP-0162"
     ],
     "note": "outcomes {'ok': 128, 'wrong_value': 128}. detection power: 31 semantic vectors on the UNMUTATED instruction, each with a host-computed oracle; the sweep separates ok / wrong_value / silent_zero / not_written (poisoned read-back) and 71 of 1816 cases fault, so the instrument demonstrably distinguishes all five outcome classes."
+   },
+   "fmt": {
+    "label": "isolated-byte-diff",
+    "range": "0..255 dense (all 256 values), one gated run, majority-of-3 per case; 52 values accepted (`ok`). EVERY accepted value has bit 0 set and none of the bit-0-clear values is accepted, which is why bit 32 is all that remains pinned in `match`. Encodable range 128 (bit 32 pinned).",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0162",
+     "EXP-0183"
+    ],
+    "note": "CREATED by EXP-0183 when the 8-bit `match` pin [32,8,1] was narrowed to [32,1,1]. The old pin demanded byte+4 == 0x01, and **0x01 is a value the hardware REJECTS** (`wrong_value` in EXP-0162's dense sweep) -- so the HW-validated anchor `01 01 14 81 05 02 40 00`, which our own GPU executed correctly, did not decode as cvt_bf16 at all; it fell through to the least-specific `bf_alu8_var`. Single gated run, hence `isolated-byte-diff` rather than `hardware-run`.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 128,
+    "start": 32,
+    "width": 8
    }
   },
   "bf_add_dst": {
@@ -9741,13 +9788,14 @@
     "note": "RETRACTION / HARD NEGATIVE: the five reg_move_* descriptors are ONE instruction with a single 8-bit byte+2 field, and NONE of them is a general GPR-to-GPR move. The readback is independent of the producer's VALUE and of the producer's FAMILY, depends only on src_reg, is register-pair-quantized (reg and reg^1 read identically) and varies with the kernel's buffer signature - the signature of a fixed per-kernel PRELOADED/UNIFORM-FILE slot. The 0x00000100 seen on failure is that slot's content, not a sentinel. byte+2 values 0x26 and 0x0F are NONDETERMINISTIC across runs. AS OF 2026-08-28 NO VALIDATED GPR-TO-GPR MOVE EXISTS ON APPLE9."
    },
    "dst": {
-    "label": "untested",
-    "range": "swept but NOT ruled on here: 0..15 dense (all 16 values), 16 distinct encodings, 2 carriers",
+    "label": "hardware-run",
+    "range": "0..15 dense (all 16 values), 16 distinct encodings, TWO carriers (C1_alu and C3_uni, which differ in the kernel buffer signature -- the dimension EXP-0087 showed this instruction's read-back depends on), two gated runs, 16/16 identical in all four; 14 of 16 moved on each carrier.",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0169",
+     "EXP-0183"
     ],
-    "note": "another experiment owns this field's verdict (coordinator directive 2026-08-30): `dst` -> EXP-0168, `get_sr.form` -> EXP-0172. The raw is committed and attributable; the ruling is theirs.",
+    "note": "RULING SUPPLIED, same reason as falu2_uni.dst: deferred to EXP-0168, which never filed a row. Re-derived by EXP-0183 from EXP-0169's raw.",
     "values_dispatched": 16,
     "distinct_bytes": 16,
     "encodable_range": 16,
@@ -9770,17 +9818,19 @@
    },
    "form": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values), 256 distinct encodings, 2 carriers",
+    "range": "0..15 dense (all 16 values of the free high nibble; the encoded byte is (form << 4) | 0x0b), 2 carriers x 2 gated runs, identical in all four: form 0..3 (0x0b/0x1b/0x2b/0x3b) `ok`, form 4..15 `wrong_value`.",
     "target": "G17P",
     "evidence": [
-     "EXP-0169"
+     "EXP-0169",
+     "EXP-0181",
+     "EXP-0183"
     ],
-    "note": "moved on 2 of 2 ladder-passing carriers",
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 16,
-    "width": 8
+    "note": "RE-SPANNED by EXP-0181 (bits 16..23 -> 20..23) and RE-DERIVED from EXP-0169's raw by EXP-0183. The old row's counts (256 dispatched / 256 distinct / encodable 256) counted 240 values that encode a DIFFERENT instruction, because this descriptor's own match pins byte+2's low nibble to 0xb. Honest counts are 16/16/16. The corpus emits only form 1, 2 and 3.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "b3": {
     "label": "hardware-run",
@@ -11325,37 +11375,43 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 8,
-    "width": 8
+    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). The old `dst` row's evidence describes byte+1 and is carried to `srcA`.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "opsel": {
     "label": "isolated-byte-diff",
-    "range": "6 of 8 encodable values after gate_identity (75.0%), 8 distinct encodings, 2 ladder-passing carriers",
+    "range": "3 of 8 values keep the 8-byte framing (opsel 4 hadd / 5 hmul / 6 hfma); the other five length the instruction to 10 or 8 bytes at this byte+4 and therefore encode a DIFFERENT instruction. 8 of 8 dispatched, 7 of 8 moved, 2 carriers, both gated runs, identical.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "ENCODABLE RANGE CORRECTED from 8 to 3 (DEF-0180-2, re-derived EXP-0183 over the measured 32-cell length map).",
     "values_dispatched": 8,
     "distinct_bytes": 8,
-    "encodable_range": 8,
+    "encodable_range": 3,
     "start": 16,
     "width": 3
    },
    "opflags": {
     "label": "hardware-run",
-    "range": "32 of 32 encodable values after gate_identity (100.0%), 32 distinct encodings, 2 ladder-passing carriers",
+    "range": "32 of 32 dispatched, 30 moved, 2 carriers, both gated runs, identical. EXACT FAULT WALL: opflags bit 4 (instruction bit 23) set together with opsel 4 or 5 faults the command buffer unconditionally -- 128 LEN-arm cases, zero counterexamples, reproduced independently in the field sweeps.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "range text extended with the measured fault wall.",
     "values_dispatched": 32,
     "distinct_bytes": 32,
     "encodable_range": 32,
@@ -11364,50 +11420,28 @@
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers, both gated runs; 254 of 256 moved. Additionally identified as an OPERAND by a host-computed oracle: r[byte0>>4].lo == fp16(h[byte+1] * h[byte+3] + h[byte+5]) on both carriers in both runs.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "RENAMED + RE-ROLED, span unchanged (bits 8..15). Formerly `half_alu_ext8.dst`; byte+1 is a SOURCE, not the destination.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
-    "start": 24,
-    "width": 8
-   },
-   "srcB_desc": {
-    "label": "isolated-byte-diff",
-    "range": "128 of 256 encodable values after gate_identity (50.0%), 256 distinct encodings, 2 ladder-passing carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0180"
-    ],
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 32,
-    "width": 8
-   },
-   "b5": {
-    "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0180"
-    ],
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 40,
+    "start": 8,
     "width": 8
    },
    "rsv6": {
     "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "range": "256 of 256 dispatched, 2 carriers, both gated runs, identical. LIVE: moves the observation on 252 of 256 values (C_HI) and 248 of 256 (C_LO), and on the lifted anchor.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "RANGE TEXT WITHDRAWN AND REPLACED. The committed text -- 'byte+6 swept 0x00..0xc0, every value kept the result, fully INERT/reserved' (EXP-M4-14, which has no committed raw tree at all) -- is REFUTED. Its role is UNKNOWN; it reads inert only on the E8_ADD arm, whose base writes nothing at all and which therefore has no detection power.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
@@ -11416,50 +11450,103 @@
    },
    "b7_lo": {
     "label": "hardware-run",
-    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
+    "range": "2 of 2 dispatched, 1 moved, 2 carriers, both gated runs, identical. Role UNKNOWN.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
     "start": 56,
     "width": 1
    },
-   "saturate": {
-    "label": "hardware-run",
-    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0180"
-    ],
-    "values_dispatched": 2,
-    "distinct_bytes": 2,
-    "encodable_range": 2,
-    "start": 57,
-    "width": 1
-   },
    "b7_mid": {
     "label": "hardware-run",
-    "range": "32 of 32 encodable values after gate_identity (100.0%), 32 distinct encodings, 2 ladder-passing carriers",
+    "range": "32 of 32 dispatched, 28 moved, 2 carriers, both gated runs, identical. **Bit 2 of this field (instruction bit 60, byte+7 bit 4) NULLS THE WRITE**: all sixteen values with bit 2 set leave the destination untouched and all sixteen without it write -- 16/16 both ways, both carriers, both runs.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "RANGE TEXT EXTENDED with the op-nulling rule. This is the control that `op_valid_marker` (bit 63) was wrongly believed to be.",
     "values_dispatched": 32,
     "distinct_bytes": 32,
     "encodable_range": 32,
     "start": 58,
     "width": 5
    },
-   "op_valid_marker": {
+   "srcB": {
     "label": "hardware-run",
-    "range": "2 of 2 encodable values after gate_identity (100.0%), 2 distinct encodings, 2 ladder-passing carriers",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers; 254 of 256 moved.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "RENAMED FROM `srcA`, span unchanged (bits 24..31). Label and counts are EXP-0180's, unchanged; only the name moved, because byte+1 took the name `srcA` to match `h_alu_hi`.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 24,
+    "width": 8
+   },
+   "b4": {
+    "label": "isolated-byte-diff",
+    "range": "256 of 256 dispatched, 2 carriers, both gated runs, identical. ENCODABLE RANGE 64, not 256: byte+4's low two bits are the measured length selector, so at this descriptor's op-selects 4 and 6 only the 64 values with (v & 3) == 1 keep the 8-byte framing (at op-select 5, 128 values do -- both m=1 and m=3 give 8 bytes). Inside that subset the pre-registered same-length step (byte+4 += 4) does NOT move the observation on any arm, so no operand role is detectable in bits 34..39.",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `srcB_desc`, span unchanged (bits 32..39), and its RANGE TEXT WITHDRAWN. The committed text -- '0x01 required in the add+saturate instance; carries the fma srcA-negate (byte+7 0xc0 -> 0xc8)' -- is refuted twice over: '0x01 required' is a LENGTH requirement, and byte+7 is a different field entirely (DEF-0180-6, citation defect).",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 64,
+    "start": 32,
+    "width": 8
+   },
+   "srcC": {
+    "label": "hardware-run",
+    "range": "256 of 256 dispatched, 254 moved, 2 carriers, both gated runs, identical. Identified as the fma's THIRD OPERAND (the addend) by a host-computed oracle: r[byte0>>4].lo == fp16(h[byte+1] * h[byte+3] + h[byte+5]) reproduces the observed result exactly on both carriers, with the anchor's operand triple recovered by brute force over all 32 half-registers. Corroborated independently: with instruction bit 57 set the result becomes exactly h[byte+5].",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `b5`, span unchanged (bits 40..47), and RETYPED mod -> reg. The committed text 'largely inert (bits3/4 null in this instance)' is withdrawn.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 40,
+    "width": 8
+   },
+   "mul_suppress": {
+    "label": "hardware-run",
+    "range": "2 of 2 dispatched, 1 moved, 2 carriers, both gated runs, identical. Setting the bit makes the result EXACTLY the third operand h[byte+5]: 2.84375 on C_HI (unmodified result 7.0586) and 0.46875 on C_LO (unmodified result 0.125). BOUND: measured on the fma instance (opsel 6) only.",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `saturate`, span unchanged (bit 57), and its ENUM DELETED. The committed enum -- '1 = output-clamp/saturate ON (clamps to [0,1])' -- is REFUTED at value level: a clamp to [0,1] cannot change 0.125, and this bit changes it to 0.46875. The bit suppresses the multiply term of the fma.",
+    "values_dispatched": 2,
+    "distinct_bytes": 2,
+    "encodable_range": 2,
+    "start": 57,
+    "width": 1
+   },
+   "b7_hi": {
+    "label": "hardware-run",
+    "range": "2 of 2 dispatched, 0 moved -- INERT on two carriers, three arms and both gated runs. byte+7 0x40 (bit clear) and 0xc0 (bit set) both write the destination.",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `op_valid_marker`, span unchanged (bit 63), and its ENUM DELETED. The committed claim -- 'every byte+7 value without bit7 set nulls the op; required op-valid marker' -- is REFUTED. The op IS nullable from byte+7, but by instruction bit 60 (b7_mid bit 2), not bit 63.",
     "values_dispatched": 2,
     "distinct_bytes": 2,
     "encodable_range": 2,
@@ -11479,27 +11566,31 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "range": "0..15 dense: all 16 values of byte0's high nibble dispatched on two carriers in both gated runs, 16/16 per-value records identical across runs. 15 of 16 CONFIRMED (the result lands in r[n]'s low 16 bits with r[n]'s high 16 bits preserved); n=15 is UNDECIDABLE in this harness because r15 is its device_store index register, re-seeded to 0 before every store -- a carrier limit, not a hardware property, and the same one EXP-0168 recorded for falu2.dst. Control: r15 is never non-zero in any of the 16,335 observed cases, and r14 is non-zero in exactly ONE of 11,115 C_HI cases -- the DSTNIB n=14 case itself.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
-    "values_dispatched": 256,
-    "distinct_bytes": 256,
-    "encodable_range": 256,
-    "start": 8,
-    "width": 8
+    "note": "MOVED: bits 8..15 -> bits 4..7 (DEF-0180-1). byte0 is shared across the whole low-nibble-0 family and the DSTNIB arm varied exactly these bits.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 4,
+    "width": 4
    },
    "opsel": {
     "label": "isolated-byte-diff",
-    "range": "6 of 8 encodable values after gate_identity (75.0%), 8 distinct encodings, 2 ladder-passing carriers",
+    "range": "8 of 8 dispatched, 7 moved, 2 carriers, both gated runs, identical. ENCODABLE RANGE 1: exactly one op-select value (6, hfma) yields a 12-byte instruction under the measured length map, at byte+4 & 3 == 3.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "ENCODABLE RANGE CORRECTED from 8 to 1. NOT folded into `match` even though one legal value normally means it should be (falu2_uni.uni_mode, EXP-0175): folding [16,3,6] MEASURABLY REGRESSES the corpus -- 841 -> 835 clean files, +748 leftover bytes, half_alu_fma12 firings 7 -> 0. That is the same G17P-measurement-versus-M4-corpus disagreement EXP-0182 measured for the length rule, and it sits inside EXP-0180's own stated bound. The folded variant is committed as EXP-0183 work/cand_final_plus_fold; the decision is the db owner's.",
     "values_dispatched": 8,
     "distinct_bytes": 8,
-    "encodable_range": 8,
+    "encodable_range": 1,
     "start": 16,
     "width": 3
    },
@@ -11518,30 +11609,48 @@
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers; 254 of 256 moved.",
     "target": "G17P",
     "evidence": [
-     "EXP-0180"
+     "EXP-0180",
+     "EXP-0183"
     ],
+    "note": "RENAMED + RE-ROLED, span unchanged (bits 8..15). Formerly `half_alu_fma12.dst`.",
+    "values_dispatched": 256,
+    "distinct_bytes": 256,
+    "encodable_range": 256,
+    "start": 8,
+    "width": 8
+   },
+   "ext": {
+    "label": "untested",
+    "range": "1856 of 18446744073709551616 encodable values after gate_identity (0.0%), 2041 distinct encodings, 2 ladder-passing carriers. NOT A FIELD: 64 bits wide, so no sampled set can establish it.",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RANGE TEXT CORRECTED. What its first byte does is MEASURED: byte+4's low two bits are the length selector and this 12-byte form is reachable only at (opsel 6, m 3), re-derived by EXP-0183 over 32 of 32 cells with zero ambiguity. EXP-0180 REFUTED ITS OWN DEF-0180-3: half_alu_fma12 really is 12 bytes there, so the earlier 'this descriptor OVER-CONSUMES the following instruction's leader' claim is WITHDRAWN. The residue is that bits 34..95 are unmodelled, which is why the descriptor keeps `emit_unsafe`.",
+    "values_dispatched": 2048,
+    "distinct_bytes": 2041,
+    "encodable_range": 18446744073709551616,
+    "start": 32,
+    "width": 64
+   },
+   "srcB": {
+    "label": "hardware-run",
+    "range": "256 of 256 encodable values after gate_identity (100.0%), 256 distinct encodings, 2 ladder-passing carriers; 254 of 256 moved.",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0180",
+     "EXP-0183"
+    ],
+    "note": "RENAMED FROM `srcA`, span unchanged (bits 24..31).",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256,
     "start": 24,
     "width": 8
-   },
-   "ext": {
-    "label": "untested",
-    "range": "1856 of 18446744073709551616 encodable values after gate_identity (0.0%), 2041 distinct encodings, 2 ladder-passing carriers",
-    "target": "G17P",
-    "evidence": [
-     "EXP-0180"
-    ],
-    "values_dispatched": 2048,
-    "distinct_bytes": 2041,
-    "encodable_range": 18446744073709551616,
-    "start": 32,
-    "width": 64,
-    "note": "EXP-0180: NOT A FIELD. Declared 64 bits wide, so its encodable range is 2^64 and no sampled set can establish it -- pre-registered as unable to reach `hardware-run` whatever the outcome. What the byte it starts at actually does is now MEASURED: byte+4 is a pure LENGTH SELECTOR. The length of the byte0==0x10 family was mapped over 4,096 cases with zero ambiguous cells as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3,7 -> 10/10/10/8; opsel 4 -> 6/8/10/6; opsel 5 -> 6/8/10/8; opsel 6 -> 6/8/10/12. **db.json's stated rule is wrong in 25 of 32 cells and isadb.instr_length's implemented rule in 18 of 32**, including (opsel 4, m 3) where it predicts 12 and 6 is measured. Bound: bytes +6.. carry the marker chain, so a dependence on byte +6 or later is untested. The correct disposition is to fold the length bits into the descriptor and delete this pseudo-field (DEF-0180-2/-3); EXP-0180 also REFUTED its own DEF-0180-3 -- half_alu_fma12 really is 12 bytes at (opsel 6, m 3), so it is not an over-consumer there."
    }
   },
   "falu_srcmod12b": {
@@ -11765,12 +11874,19 @@
    },
    "kind": {
     "label": "hardware-run",
-    "range": "256 values tested (dense over 8-bit domain)",
+    "range": "0..15 dense (all 16 values of the free high nibble; the encoded byte is (kind << 4) | 0x0c), both targets, 2 gated runs each. G17P (EXP-0154 k_rot_var): `ok` at kind 1 and 3, `wrong_value` at every EVEN kind, `silent_zero` at every other ODD kind. M4 (EXP-0146 run01/run02): `ok` at kind 0,1,2,3 and `silent_zero` at 4..15.",
     "target": "G17P",
     "evidence": [
-     "EXP-0154"
+     "EXP-0146",
+     "EXP-0154",
+     "EXP-0181"
     ],
-    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'wrong_value': 234, 'ok': 4, 'silent_zero': 18}; ok at {0x14, 0x1c, 0x34, 0x3c}"
+    "note": "**NOT RE-DERIVED BY EXP-0183** -- carried through verbatim from EXP-0181's analysis/orphaned_validation_rows.json so the re-span is not lost, and flagged as such. Its span moved (16..23 -> 20..23) and the CURRENT row carries no start/width, so merge_verdicts' span guard CANNOT protect it: its recorded 'ok at {0x14, 0x1c, 0x34, 0x3c}' mixes two value spaces (0x14 and 0x34 are not legal under this descriptor's match at all). Target should be G16G+G17P, and G17P's accept set is a strict SUBSET of M4's -- worth stating rather than merging.",
+    "values_dispatched": 16,
+    "distinct_bytes": 16,
+    "encodable_range": 16,
+    "start": 20,
+    "width": 4
    },
    "op_desc": {
     "label": "hardware-run",

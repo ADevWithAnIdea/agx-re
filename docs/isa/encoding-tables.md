@@ -126,18 +126,19 @@
 
 ### `half_alu` — native fp16 (half) ALU (hadd/hmul); half2 packs 2 lanes
 
-- **Length:** 6 bytes  ·  **Match:** byte+0==0x10  ·  **Provenance:** HW-validated
+- **Length:** 6 bytes  ·  **Match:** bits[0:4]==0x0  ·  **Provenance:** HW-validated
 
 | Field | Bits | Type | Enum / values |
 |---|---|---|---|
-| `dst` | [8:16] (byte+1) | register |  |
+| `dst` | [4:8] | register |  |
+| `srcA` | [8:16] (byte+1) | register |  |
 | `opsel` | [16:19] (byte+2) | opcode-select | `0x4`=hadd; `0x5`=hmul |
 | `opflags` | [19:24] | modifier |  |
-| `srcA` | [24:32] (byte+3) | register |  |
-| `srcB` | [32:40] (byte+4) | register |  |
+| `srcB` | [24:32] (byte+3) | register |  |
+| `ctrl` | [32:40] (byte+4) | modifier |  |
 | `src_modifier` | [40:48] (byte+5) | modifier |  |
 
-*d(half) = op(a, b)  ; NATIVE half-precision (fp16) float ALU. byte0 0x10 is the 16-bit-destination sibling of the 0x09 float ALU (and the 0x11 narrow-convert group); same op-select (byte+2 low-3 bits: 0b100=hadd/0x1c, 0b101=hmul/0x1d) and same 6/8-byte length bit (byte+2 bit1). A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE 0x10 op, then a 0x18 pack assembles the 32-bit result. (short2/2x-int16 does NOT pack: two separate 32-bit 0x9f integer adds.) HW-VALIDATED (splice, A18 EXP-M4-14, own-MSL pureh.metal k_pureadd `10 03 1c 02 00 c0`, a=[1,2,4,8] in r1(byte+3=0x02), b=[16,32,64,128] in r0(byte+4=0x00)): srcA (byte+3) is the FIRST, negatable source -- RETYPES the former 'srcB@byte+3'; sweeping byte+3 0x02->0x04/06/08 yields result=b alone (srcA read as 0). srcB (byte+4) = second source operand descriptor (baseline 0x00 reads b; low bits gate/type it, bit1 0x02 nulls the op; exact register-vs-type bit packing partially resolved). src_modifier (byte+5) = source-modifier/control byte: bits6:7 (0xc0) are a required operand-valid base (clearing -> op yields 0); bit3 (0x08) = srcA-negate (0xc8 -> -a+b, CONFIRMED); bit0 (0x01) suppresses srcB (result = srcA); bits1/2 (0x02/0x04) suppress srcA (result = srcB).*
+*d(half) = op(h[byte+1], h[byte+3])  ; NATIVE half-precision (fp16) float ALU, 6-byte form. byte0 low nibble 0x0 is the family tag and byte0 HIGH nibble is the destination GPR. Operands are half-register descriptors h = (reg<<1)|is_high. byte+2 = op-select (low 3 bits: 4 = hadd, 5 = hmul) + opflags. byte+5 is the source/control modifier byte. A half2 (packed 2xfp16) op executes BOTH 16-bit lanes in ONE op, then a 0x18 pack assembles the 32-bit result; the HIGH-half sibling is `h_alu_hi` (byte0 low nibble 8). [CORRECTED 2026-08-30, EXP-0183 from EXP-0180's committed raw] **THE DESTINATION IS byte0's HIGH NIBBLE** (bits 4..7); the low nibble 0x0 is the family tag. The previous descriptor pinned the WHOLE of byte0 in `match`, so an emitter following it could only ever write r1, and the field it called `dst` (bits 8..15) is in fact a SOURCE half-register descriptor. Re-derived on G17P three independent ways, all cross-checked over EXP-0180's two gated runs (16,735 cases each, byte-identical): (1) the DSTNIB arm ran byte0 = n<<4 for n = 0..15 on two carriers -- the result lands in r[n]'s LOW 16 bits with r[n]'s HIGH 16 bits preserved for n = 0..14, and n = 15 is UNOBSERVABLE because the harness's own store index register is r15 (r15 is never non-zero in any of the 16,335 observed cases, so this is a carrier limit, not a hardware property -- the same limit EXP-0168 recorded for falu2.dst); (2) STRUCTURALLY, the seed program's fourteen SIX-BYTE half-adds are `[j<<4] [h_B] [(opflags<<3)|4] [h_A] [0x00] [0xC0]` and nothing but byte0 names register j -- the per-case identity `r_j.lo == fp16(h[byte+1] + h[byte+3])` holds in **228,690 checks per run with zero mismatches, in both runs**, for j = 0..13; (3) ARITHMETICALLY, the 8-byte fma anchor computes `r[byte0>>4].lo = fp16(h[byte+1] * h[byte+3] + h[byte+5])` on both carriers. Operand bytes are the ODD bytes (+1, +3, and +5 in the 8-byte form); the final byte of the instruction is the modifier byte. Half-register descriptor h = (reg<<1)|is_high. Same class as cvt_f2h_dst / bf_add_dst / n3_mov, which db.json already models this way, and identical in shape to the low-nibble-8 sibling `h_alu_hi`. INSTRUCTION LENGTH, MEASURED (EXP-0180 LEN arm; re-derived independently by EXP-0183 from the same raw, 32 of 32 cells, ZERO ambiguous cells and ZERO cross-run disagreements) as a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0-3 and 7 -> 10/10/10/8; opsel 4 (hadd) -> 6/8/10/6; opsel 5 (hmul) -> 6/8/10/8; opsel 6 (hfma) -> 6/8/10/12. **BOUND: bytes +6.. carry the marker chain in every LEN case, so a length dependence on byte +6 or later is UNTESTED.** This measured table is NOT the rule the tokenizer implements: EXP-0182 measured that adopting it verbatim costs 17 clean corpus files and 3,220 leftover bytes, because the G17P measurement and the M4 corpus disagree exactly on the compact forms -- precisely where the bound above says the measurement is silent. `isadb.instr_length` therefore implements only the nine (opsel, m) cells where BOTH sources agree. Recorded here so the disagreement is visible rather than smoothed away. SUPERSEDED HERE: the EXP-M4-14 reading in which byte+3 was `srcA` and byte+4 `srcB` -- byte+4 is refuted as an operand (see the `ctrl` field note) and the two sources are byte+1 and byte+3.*
 
 ### `falu_acc` — compact 4-byte float accumulate (reduction)
 
@@ -1375,7 +1376,7 @@
 
 ### `cvt_bf16`
 
-- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+3==0x81, byte+4==0x01
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x1, byte+3==0x81, bits[32:33]==0x1
 
 ### `bf_add_dst`
 
@@ -1607,11 +1608,11 @@
 
 ### `half_alu_ext8`
 
-- **Length:** 8 bytes  ·  **Match:** byte+0==0x10
+- **Length:** 8 bytes  ·  **Match:** bits[0:4]==0x0
 
 ### `half_alu_fma12`
 
-- **Length:** 12 bytes  ·  **Match:** byte+0==0x10
+- **Length:** 12 bytes  ·  **Match:** bits[0:4]==0x0
 
 ### `falu_srcmod12b`
 
@@ -1707,7 +1708,6 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `lownibble_0x4 + byte+1==0xea` | 8  [RAY TRACING: dedicated ray-INTERSECT op. byte0 hi nibble=result reg; byte+2 mode (0x90 const-origin / 0x10 dyn-origin / 0xd0 +fn-table); byte+6 bit7=intersection-function-table present. Emitted 2x/kernel (traverse + result-read). ABSENT from a software Moller-Trumbore loop. EXP-0023 HW] |
 | `0xdf` | 14  [RAY TRACING: dedicated acceleration-structure / ray-data load (memory-family sibling of 0x67/0xe7, byte+2==0x54). BVH-node/ray/stack fetch during the (software) traversal loop. EXP-0023] |
 | `byte0 low-3-bits 0b100` | 4 get_sr (SR#=byte1, dst=byte0-hi; byte+3 lo-nibble==6 suffix, covers 0xNc & 0xN4 forms) \| 2 mov_imm (byte0==0x0c, no suffix). EXP-0031 |
-| `0x10` | 6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU, sibling of 0x09. EXP-0033] |
 | `0x27 (byte+1==0x05, byte+2==0x56)` | 8  [popcount / bit-scan single op (ibitcount). EXP-0033] |
 | `0x27 (byte+1==0x01)` | 12  [ROTATE-by-immediate funnel shift (irotate). EXP-0033] |
 | `0xa7 (byte+1 in {0x04,0x05})` | 8  [reverse_bits / find-MSB bit-scan (ibitcount). EXP-0033] |
@@ -1744,6 +1744,7 @@ Parcels are 2 bytes (all lengths even). Length is a function of byte 0 plus a pe
 | `get_sr SR 0x84` | simd_is_helper_thread (FS): the get_sr-family leader `04 84 11 06`, read then compared. Distinct from 0x82 simd_lane_id / 0x85 simd_group_id. EXP-O2D |
 | `simd_reduce byte+1==0x06 bit7` | FLOAT simd_product / prefix-product (bit7=1, byte0=0xbf) vs simd_sum (bit7=0, byte0=0x3f); byte+7 0x32 = FLOAT exclusive-scan. INTEGER product has no native reduce op (shuffle+multiply tree). EXP-O2D |
 | `simd_shuffle byte+1==0x06` | simd_shuffle_and_fill_up/down (fill data = a separate preceding 0x67 load) / rotate; modulo variant changes byte+6 (0x4a->0x42) + a tail modulo byte. EXP-O2D |
+| `0x?0 (byte0 low nibble 0x0; high nibble = dst reg)` | NATIVE-HALF (fp16) float ALU, sibling of 0x09 and of the low-nibble-8 `h_alu_hi`. MEASURED ON HARDWARE (EXP-0180 LEN arm, 4,096 cases over two gated runs; re-derived independently by EXP-0183 from the same raw -- 32 of 32 cells, ZERO cells with more than one observed length, ZERO cross-run disagreements). As a function of (opsel = byte+2 & 7, m = byte+4 & 3): opsel 0,1,2,3,7 -> 10/10/10/8 ; opsel 4 (hadd) -> 6/8/10/6 ; opsel 5 (hmul) -> 6/8/10/8 ; opsel 6 (hfma) -> 6/8/10/12. The previous entry here read '6, or 8 if (byte+2 & 0x02)  [NATIVE-HALF (fp16) float ALU, sibling of 0x09. EXP-0033]', which is wrong in 25 of these 32 cells. BOUND: bytes +6.. carry the LEN arm's marker chain in every case, so a length dependence on byte +6 or later is UNTESTED. **THIS TABLE IS DOCUMENTATION, NOT THE IMPLEMENTED RULE.** `isadb.instr_length` is Python and is not driven by this entry. EXP-0182 measured that adopting the table above verbatim costs 17 clean corpus files and 3,220 leftover bytes (it kills half_compact4 8->0 and half_alu_fma12 7->0), because the G17P measurement and the M4 own-shader corpus genuinely disagree on the compact forms -- exactly where the bound above says the measurement is silent. The tokenizer therefore implements only the NINE (opsel, m) cells where both sources agree: opsel 4 or 5 with m in {0,1,2}, and opsel 6 with m in {1,2,3}. Widening that is a deliberate decision for the db owner, not a consequence of this table. EXP-0033 / EXP-0180 / EXP-0182 / EXP-0183. |
 
 ---
 

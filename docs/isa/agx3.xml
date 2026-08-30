@@ -712,16 +712,6 @@
     <value value="240" label="reg-operand">reg_operand</value>
   </enum>
 
-  <enum kind="half_alu_ext8_saturate" name="half_alu_ext8 saturate">
-    <value value="0" label="no clamp">no_clamp</value>
-    <value value="1" label="output-clamp/saturate ON (clamps to [0,1])">output_clamp_saturate_ON</value>
-  </enum>
-
-  <enum kind="half_alu_ext8_op_valid_marker" name="half_alu_ext8 op_valid_marker">
-    <value value="0" label="op nulled (result 0)">op_nulled</value>
-    <value value="1" label="op valid (required)">op_valid</value>
-  </enum>
-
   <enum kind="shift_amt_move_kind" name="shift_amt_move kind">
     <value value="1" label="shift_amt (byte+2 = 0x1c)">shift_amt</value>
     <value value="3" label="rotate_amt (byte+2 = 0x3c)">rotate_amt</value>
@@ -1996,15 +1986,16 @@
     <zero bit="40:47"/>
   </ins>
 
-  <!-- half_alu: d(half) = op(a, b) -->
+  <!-- half_alu: d(half) = op(h[byte+1], h[byte+3]) -->
   <!-- provenance: HW-VALIDATED (EXP-0033): half_add / half2_add / half2_mul read back exact for both packed lanes; op-select (0x1c/0x1d) mirrors the HW-validated 0x09 ... -->
-  <group name="half_alu" length="6" label="d(half) = op(a, b)">
-    <exact bit="0:7">00010000</exact>
+  <group name="half_alu" length="6" label="d(half) = op(h[byte+1], h[byte+3])">
+    <exact bit="0:3">0000</exact>
     <exact bit="16:18">opsel</exact>
-    <dest name="dst" bit="8:15"/>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
     <modifier name="opflags" bit="19:23"/>
-    <src name="srcA" bit="24:31"/>
-    <src name="srcB" bit="32:39"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="ctrl" bit="32:39"/>
     <modifier name="src_modifier" bit="40:47"/>
 
     <ins name="hadd" opsel="100"/>
@@ -2283,7 +2274,7 @@
   <ins name="cvt_bf16" length="8" label="bfloat convert (8-byte)">
     <exact bit="0:3">0001</exact>
     <exact bit="24:31">10000001</exact>
-    <exact bit="32:39">00000001</exact>
+    <exact bit="32">1</exact>
     <dest name="dst" bit="4:7"/>
     <modifier name="srcw" bit="8:15" kind="cvt_bf16_srcw"/>
     <!-- opsel [16:23]: inferred / not yet bit-decoded -->
@@ -2293,6 +2284,7 @@
     <modifier name="dir" bit="48:55" kind="cvt_bf16_dir"/>
     <!-- b7 [56:63]: inferred / not yet bit-decoded -->
     <zero bit="56:63"/>
+    <modifier name="fmt" bit="33:39"/>
   </ins>
 
   <!-- bf_add_dst: d(bfloat) = a + b -->
@@ -3139,42 +3131,41 @@
     <immediate name="b7" bit="56:63"/>
   </ins>
 
-  <!-- half_alu_ext8: 8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu ... -->
+  <!-- half_alu_ext8: 8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte ... -->
   <!-- provenance: census + family inheritance EXP-M4-13 R8 (own-MSL half/bf16 corpus, 88 tokens): byte0==0x10 is the HW-anchored fp16 ALU leader (half_alu, EXP-0033) ... -->
-  <group name="half_alu_ext8" length="8" label="8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte half_alu ...">
-    <exact bit="0:7">00010000</exact>
+  <group name="half_alu_ext8" length="8" label="8-byte EXTENDED native-half (fp16) float ALU, the length-polymorphic sibling of the 6-byte ...">
+    <exact bit="0:3">0000</exact>
     <exact bit="16:18">opsel</exact>
-    <dest name="dst" bit="8:15"/>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
     <modifier name="opflags" bit="19:23"/>
-    <src name="srcA" bit="24:31"/>
-    <modifier name="srcB_desc" bit="32:39"/>
-    <modifier name="b5" bit="40:47"/>
+    <src name="srcB" bit="24:31"/>
+    <modifier name="b4" bit="32:39"/>
+    <src name="srcC" bit="40:47"/>
     <modifier name="rsv6" bit="48:55"/>
     <modifier name="b7_lo" bit="56"/>
-    <modifier name="saturate" bit="57" kind="half_alu_ext8_saturate"/>
+    <modifier name="mul_suppress" bit="57"/>
     <modifier name="b7_mid" bit="58:62"/>
-    <modifier name="op_valid_marker" bit="63" kind="half_alu_ext8_op_valid_marker"/>
+    <modifier name="b7_hi" bit="63"/>
 
     <ins name="hadd" opsel="100"/>
     <ins name="hmul" opsel="101"/>
     <ins name="hfma" opsel="110"/>
   </group>
 
-  <!-- half_alu_fma12: 12-byte fp16 form (byte0==0x10) -->
+  <!-- half_alu_fma12: 12-byte fp16 fma form (byte0 low nibble 0x0) -->
   <!-- provenance: census EXP-M4-13 R8/R10 (own-MSL half corpus): 121/126 half_alu_fma12 instances embed a real op-leader in ext => candidate length-rule ... -->
-  <group name="half_alu_fma12" length="12" label="12-byte fp16 form (byte0==0x10)">
-    <exact bit="0:7">00010000</exact>
-    <exact bit="16:18">opsel</exact>
-    <dest name="dst" bit="8:15"/>
+  <ins name="half_alu_fma12" length="12" label="12-byte fp16 fma form (byte0 low nibble 0x0)">
+    <exact bit="0:3">0000</exact>
+    <dest name="dst" bit="4:7"/>
+    <src name="srcA" bit="8:15"/>
+    <!-- opcode opsel = hfma -->
+    <exact bit="16:18">110</exact>
     <modifier name="opflags" bit="19:23"/>
-    <src name="srcA" bit="24:31"/>
+    <src name="srcB" bit="24:31"/>
     <!-- ext [32:95]: inferred / not yet bit-decoded -->
     <zero bit="32:95"/>
-
-    <ins name="hadd" opsel="100"/>
-    <ins name="hmul" opsel="101"/>
-    <ins name="hfma" opsel="110"/>
-  </group>
+  </ins>
 
   <!-- falu_srcmod12b: 12-byte EXTENDED 2-source float ALU, op-select bit17==0 sub-form -->
   <!-- provenance: census + family inheritance EXP-M4-13 R8 (own-MSL float corpus, 35 tokens, all bit17==0): REUSES the falu3_srcmod12 (EXP-M4-13 R7) byte layout ... -->

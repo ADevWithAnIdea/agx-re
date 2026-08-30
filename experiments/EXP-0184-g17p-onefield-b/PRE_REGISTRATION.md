@@ -244,3 +244,18 @@ experiment STOPS and reports BLOCKED. Nothing outside
   executes**, not merely the generator. `analysis/contract.py`'s file list is the only other blob
   that changed. From this point `harness/arms184.json` is frozen and is not edited again;
   `harness/verify_remote.py` re-checks it on the device before every gated run.
+- **2026-08-30, AFTER both gated runs, analysis only.** Three post-run changes, all to analysis
+  code, **none to a gate threshold and none to a raw capture**:
+  (a) `analysis/verdicts.py` now routes a `_`-prefixed pseudo-field — a probe of a byte the pinned
+  descriptor models as a fixed MATCH CONSTANT — out of `verdicts` into a separate
+  `match_byte_probes` section, because changing such a byte changes *which instruction the bytes
+  are* (`encodable_range` collapses to 1) and it therefore cannot carry a field label however
+  cleanly it moves. This is a **strengthening**: it can only remove a promotion, never add one, and
+  it removed exactly one (`copysign._b2_match`, which the first pass had labelled `hardware-run`).
+  (b) the same file's inert/live *note text* now reports "N of the M arms that had detection power
+  (K swept in total)" instead of "N of K", which was misleading for `rt_query_traverse` where 46 of
+  56 arms sit on occurrences the query never executes.
+  (c) `analysis/partitions.py` and `analysis/finalize.py` were added; both are pure derivations
+  from `raw/`. `AGREE_MIN`, the movement rule, the control rule, the baseline rule and the label
+  policy in §6 are **byte-for-byte unchanged**, and the verdicts were recomputed from `raw/` after
+  the edit rather than carried over.

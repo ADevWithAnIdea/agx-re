@@ -69,3 +69,14 @@
   own it. The regenerated copy is `analysis/match_overlap_regenerated.json`; one command fixes
   the live one.
 - README.md, RESULTS.md, manifest.json, raw/README.md written. **No git commit.**
+
+## 2026-08-30 — M4: DONE. db.json is STABLE and now committed by the orchestrator
+- `tools/agx-isa/db.json` sha256 `2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4`
+  landed in commit `9b8d88f9` (swept in by the orchestrator's tools commit; **I did not
+  `git commit`**). HEAD's db.json hashes identically to what I wrote.
+- Full analysis chain re-run end to end after pruning `work/`: `rederive.py`,
+  `make_validation_updates.py` (0 problems, 0 uncovered rows), `simulate_merge.py`
+  (48 → 53 emittable, 636 emitter-grade), `halfdst_decode_check.py` (26/32 decode, 21/32 with
+  `dst` == byte0 high nibble, against 7/32 and 0/32 before).
+- Handover for the orchestrator: `analysis/validation_updates.json` — **apply the whole file
+  or none of it**; seven field names survive at a different span and no tool can see that.

@@ -8,14 +8,14 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 55 | 111 | 166 |
+| 59 | 107 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 22 |
+| 1 | 18 |
 | 2 | 22 |
 | 3 | 18 |
 | 4 | 11 |
@@ -34,7 +34,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | field name | instructions it blocks |
 |---|---:|
-| `dst` | 37 |
+| `dst` | 34 |
 | `srcA` | 11 |
 | `tail` | 10 |
 | `src` | 9 |
@@ -50,7 +50,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `body` | 5 |
 | `b1` | 5 |
 
-## ONE field away (22 instructions)
+## ONE field away (18 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -58,19 +58,15 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `cubearray_coord_const` | `b3` | tokenization-only |
 | `cvt_f2i` | `b9` | untested |
 | `dev_scoreboard_fence` | `scope_flag` | corpus-correlation |
-| `falu2_uni` | `dst` | untested |
 | `frag_color_store` | `store_mode` | single-template-inference |
-| `half_alu` | `dst` | untested |
 | `half_alu_fma12` | `ext` | untested |
 | `iadd2` | `b2_fmt` | single-template-inference |
 | `if_push` | `scope` | untested |
 | `imageblock_store` | `b4` | single-template-inference |
 | `iter` | `b9` | single-template-inference |
-| `iter_at` | `grp` | untested |
 | `mesh_out_src` | `sel` | tokenization-only |
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
-| `reg_move_cb` | `dst` | untested |
 | `ret` | `scoreboard` | corpus-correlation |
 | `rt_query_traverse` | `dst` | untested |
 | `simd_ballot` | `cache` | single-template-inference |
@@ -117,7 +113,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 173 |
+| `untested` | 169 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 28 |

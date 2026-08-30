@@ -23,6 +23,8 @@ FILES = ["PRE_REGISTRATION.md", "README.md", "run.py",
          "analysis/census.py", "analysis/gen_arms.py", "analysis/verdicts.py",
          "analysis/contract.py", "analysis/gen_pilot.py",
          "harness/arms184.json", "harness/arms_pilot.json",
+         "analysis/partitions.py", "analysis/finalize.py", "RESULTS.md",
+         "manifest.json", "PROGRESS.md",
          "kernels/k_cs184.metal", "kernels/k_cvt184.metal",
          "kernels/k_cf184.metal", "kernels/k_rq184.metal"]
 PINNED = ["pinned/db.json", "pinned/isadb.py", "pinned/agxparse.py",

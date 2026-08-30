@@ -1,0 +1,73 @@
+{
+ "experiment": "EXP-0184-g17p-onefield-b",
+ "title": "G17P one-field-away, batch B: rt_query_traverse.dst, if_push.scope, cvt_f2i.b9, copysign.operands",
+ "date_utc": "2026-08-30",
+ "target": {
+  "device": "Apple A18 Pro / G17P",
+  "host": "users-MacBook-Neo.local (192.168.10.243)",
+  "soc": "T8140", "arch": "applegpu_g17p", "gpu_cores": 5,
+  "os": "macOS 26.6", "build": "25G5043d", "metal_family": "Apple9",
+  "ran_on_m4": false
+ },
+ "clean_room": {
+  "provenance": ["HW-PROBE", "OWN-SHADER"],
+  "inputs_inspected": "kernels/*.metal authored by us, and the _agc.main bytes the public Metal runtime compiled from them",
+  "apple_binary_introspection": "NONE"
+ },
+ "pinned_inputs": {
+  "note": "EXP-0182 owns tools/agx-isa/isadb.py and EXP-0183 owns tools/agx-isa/db.json; both were snapshotted before any other work and neither was read or written through its shared path. Resolution is by absolute path with a hard exit if absent.",
+  "pinned/db.json": "1ada4e7bb7879cd607829d7e7e657c8d3e5b9b000b63c5d602adfa3f7740be04",
+  "pinned/isadb.py": "9cda47a1d4b3857c9f20423ab5d63c38050d37220da06bc5d2dc12a77d6ef1a8",
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/persistrun.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8",
+  "pinned/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "reused_verbatim": {
+  "harness/agxrun_persist_as.m": {
+   "sha256": "370596f10108b2edcd1fe47ec85010afa0d5135bfe2fc199238c5b11585f56fa",
+   "source": "experiments/EXP-0157-g17p-emit-misc/harness/agxrun_persist_as.m",
+   "why": "the acceleration-structure-capable persistent runner and its authored two-geometry, four-non-opaque-triangle scene; copied byte-for-byte so the ray geometry is identical and comparable"
+  }
+ },
+ "runs": [
+  {"run_id": "raw/prefreeze/pilot01", "gated": false, "cases": 417, "seconds": 8.6,
+   "purpose": "calibration; NO VERDICT CITES IT"},
+  {"run_id": "raw/g17p_20260830_run01", "gated": true, "cases": 7176, "seconds": 67.4,
+   "lines": 7516, "sha256": "320c061b5568e068f8905404bacf204ed62b1dce850ebb937a3d5f4517af66a6"},
+  {"run_id": "raw/g17p_20260830_run02", "gated": true, "cases": 7176, "seconds": 69.1,
+   "lines": 7516, "sha256": "b341a095e87e03e52e72dff8238f69e454b631dd0cdc2a9f0c49733ff9c2fca7"}
+ ],
+ "arms": {"file": "harness/arms184.json", "n_arms": 147, "n_cases": 7176,
+          "sha256_recorded_in": "raw/<run>/env.json:arms_sha256 = 128087d8f999da7c00b56e0cd15c14d0557b442f6196b3564d324940c88c5a29"},
+ "run_hygiene": {"hangs": 0, "watchdog_timeouts": 0, "malformed_responses": 0,
+                 "invalid_runs": 0, "innocent_victim": 0,
+                 "contained_faults": 90, "faults_in_target_arms": 0,
+                 "per_value_cross_run_agreement_pct": 100.0,
+                 "cross_run_disagreements": 0,
+                 "concurrent_gpu_procs": "empty in both gated runs"},
+ "verdicts": {
+  "rt_query_traverse.dst": "LIVE -> hardware-run",
+  "copysign.operands": "LIVE -> hardware-run",
+  "if_push.scope": "INERT-ROBUST -> single-template-inference (NOT promoted)",
+  "cvt_f2i.b9": "INERT-ROBUST -> single-template-inference (NOT promoted)"
+ },
+ "emittability_delta": {
+  "file": "work/emitcheck/emittability_delta.json",
+  "before": 60, "after": 62,
+  "newly_emittable": ["rt_query_traverse", "copysign"],
+  "note": "read-only simulation against the live tools/agx-isa/validation.json; this experiment does NOT edit validation.json, db.json, isadb.py, docs/ or PROVENANCE.md"
+ },
+ "db_defects_recorded_not_applied": [
+  "rt_query_traverse.dst is modelled 4 bits wide and only 2 are live",
+  "copysign.operands is typed `raw` and is a live operand descriptor with accept set {0x00,0x01,0x80,0x81}",
+  "copysign byte+1 and byte+2 are modelled as fixed match constants and are load-bearing (encodable_range 1 -- NOT claimed as fields)"
+ ],
+ "artifacts": {
+  "pre_registration": "PRE_REGISTRATION.md (frozen before any build; 4 append-only amendments)",
+  "contract": "CAPTURE_CONTRACT.json (23 blobs; v1..v5 retained under raw/prefreeze/)",
+  "verdicts": "analysis/field_verdicts.json",
+  "partitions": "analysis/partitions.json",
+  "results": "RESULTS.md",
+  "progress": "PROGRESS.md"
+ }
+}

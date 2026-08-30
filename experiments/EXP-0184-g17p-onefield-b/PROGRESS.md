@@ -65,3 +65,20 @@ BEFORE any build or device run.
   `dst` control firing 15/16. Both go to the dense gated sweep.
 - **Hang density on the control-flow sweep: 0 of 54 dispatches.** The gated run has no abort path
   (protocol 3c); this is the courtesy note that a control-flow sweep is about to run.
+
+## 2026-08-30 M3 — two gated runs complete, verdicts computed
+
+- `raw/g17p_20260830_run01` (67.4 s) and `raw/g17p_20260830_run02` (69.1 s), **7176 cases each**,
+  7516 raw lines each, byte-identical arm list (`arms_sha256 128087d8…`), pinned db/isadb hashes
+  recorded in each run's `env.json`. `concurrent_gpu_procs` was **empty in both** — the machine
+  being quiet is a measurement here, not a claim.
+- **0 hangs, 0 watchdog timeouts, 0 malformed responses, 0 invalid runs, 0 `InnocentVictim`.**
+  90 contained command-buffer faults, all inside *control* arms. The false-hang cascade the
+  leak-free runner exists to prevent never had an opportunity to start, which is worth saying
+  plainly rather than claiming the runner fixed something.
+- **Per-value cross-run agreement: 100.000 % on every one of the 147 arms; 0 disagreements.**
+- **LIVE (→ `hardware-run`): `rt_query_traverse.dst`, `copysign.operands`.**
+  **INERT-ROBUST (→ `single-template-inference`, NOT promoted): `if_push.scope`, `cvt_f2i.b9`.**
+- Read-only emittability simulation (`work/emitcheck/emittability_delta.json`; `validation.json`
+  is **not** edited here): **60 → 62 emittable, `copysign` and `rt_query_traverse` newly emittable.**
+- Three `db_defects` recorded in `analysis/field_verdicts.json`, none applied to `db.json`.
