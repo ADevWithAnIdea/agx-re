@@ -1624,6 +1624,133 @@ are `INTERPRETED` from a field-interaction pattern, not measured; OPT-07/08 did 
 vertex-stage output-slot indexing (writing a varying *from* the vertex stage at a dynamic slot).
 Everything here is **M4/G16G**; A18/G17P is deferred.
 
+
+### 2026-08-30 second wave (EXP-0199…0208) — READ THE BOUND FIRST
+
+> **Every fact in this subsection is `target: G17P` and `Gate E: NOT MET`** (except where noted).
+> Gates A, B and C passed — actual-byte ledgers, pre-registered detection-power controls, and
+> independent semantic predictors — but nine experiments ran concurrently, so no confirmation run
+> had a quiet machine. Per `RE_EXPERIMENT_PROCESS_CORRECTIONS.md` Gate E, **a contaminated run
+> cannot confirm at all**. These are recorded as *liveness and geometry*, not as promotions.
+> `EXP-0210` is re-running the confirmations serialized on an idle device.
+
+**The structural one — read this before trusting any sweep site in this document:**
+
+- **`isadb.decode_one` answers "do these bytes match a descriptor". It NEVER answers "does an
+  instruction start here."** A stop-ruler scan (write a `stop` at every offset on a 2-byte grid;
+  a halt proves a boundary the hardware honours) found **0 of 7 signature-derived occurrences were
+  boundaries**. `n4_rt_word` `04 <dst> 20 80` is byte **+6 of a 10-byte instruction** (3/3 sites);
+  `rtq_pred` `06 c2 00 00` likewise; `n4_cf_word` `04 01 00 00` is byte **+2 of the 6-byte
+  `pop_reconverge`** (3/4). This mechanically explains DEF-0172-4 — that experiment's 256-value
+  `b3` sweep was sweeping byte +5 of a `pop_reconverge`. Same shape as `cubearray_coord_const`
+  being **shadowed by `pad_operand`** at an interior boundary (EXP-0204), found the same day by a
+  different method. Now a protocol precondition (`FIELD-SWEEP-PROTOCOL.md` §3z). (EXP-0200)
+
+**Documented rules that are WRONG:**
+
+- **`tex_sample.mode` is a BITFIELD, not the documented enum, and `0x10` ("filtered sample") is
+  INERT** — splicing `0x10`↔`0x00` leaves the observation bit-identical on all five representative
+  arms in both runs. Exact live rule, zero exceptions on the six 100%-agreement arms:
+  `(mode & 0x2C) != 0`. Bit 3 live everywhere; **bit 2 live exactly where a filter is used; bit 5
+  live exactly where the LOD is implicit** (inert under explicit `level()`). The pre-registered
+  enum model was refuted 1/30. *Derived after the sweep → hypothesis, not a result.* (EXP-0204)
+- **`ret`/`ret_luse.linkmode`'s accepted set is `v & 3 == 2` (64/256), NOT `v & 7 == 4`** — and
+  **`0x04`/`0x05`, which `db.json` calls `cf_merge`, FAULT**. Within the accepted set **bit 4 =
+  restore-link**: at a non-leaf return 32 values are correct (bit 4 set) and 32 give one identical
+  *coherent wrong* payload; at both leaf returns all 64 are correct. (EXP-0206)
+- **`falu3.op` low-3 class 5 is `0.0 * b`, NOT a constant zero** — the result's sign follows srcB
+  and an infinite srcB yields NaN. Classes 4 (`-b`), 6 (`a*b+c`), 7 (no output) confirmed
+  bit-exactly; classes 0/1/2 refuted on a 3-source carrier. **`falu3_ext.op` accepts exactly
+  `(v & 0xC7) == 0x06` — the two `op` fields DO NOT share an operation map**, though `db.json`
+  carries one identical note on both. (EXP-0201)
+- **`vary_slot`'s declared semantics are refuted** — `slot` produced **zero relocations** across
+  256 values × 2 captures, while the positive control `vary_store.out_slot` matched `index<<5` on
+  26/32 with six exact predicted relocations on the same observable. (EXP-0199)
+- **`pop_reconverge.reserved` is not reserved** — its **low byte must be zero** (9 zero-low-byte
+  values correct; 43 non-zero all give one identical wrong payload); high byte inert over 9
+  values. **Gate E MET for this row** (quiet pair). (EXP-0206)
+- **`tex_write.rsv10` is the write's mip LEVEL, not reserved.** (EXP-0204)
+- **`frame_marker_compact` is 4 bytes, not 2**, in the tested envelope: `60 XX` is correct at 0/7
+  insertion boundaries and 0/254 byte+1 values; `60 XX 00 00` is correct at 7/7. Control
+  `00 00 00 00` is correct at only 2/7, so a 4-byte insertion is not automatically benign.
+  *Bounded: straight-line COMPUTE carriers only.* (EXP-0199)
+- **`sfu_marker` accepts 8 of the 32 values `db.json` declares** — exactly `(b0 & 0x1f) == 0x06`.
+  `0x0e` satisfies the declared match but is `stop`. (EXP-0199)
+- **`frag_depth_store`'s byte+2 declared match `0x54` is NOT ENFORCED AT ALL** (256/256 ok, both
+  carriers), and byte+1's declared full-byte match `0x14` needs only 2 bits. (EXP-0199)
+- **`get_sr.dst_hi` does NOT extend the destination register on G17P.** The register-dump carrier
+  proves a relocated write *is* visible — `dst`→10 clobbers codeword slot 9, `dp_width`→0x50
+  clobbers slot 8 — while `dst_hi` across 8/8 clobbers nothing. **`dp_width` is itself a bitfield,
+  not the documented 4-value enum.** (EXP-0207)
+- **`simd_reduce.op` decodes only bits [2:0]**; bits [7:3] are inert-within-field on all four
+  carriers and the observation repeats with period 8 across the full 256-value sweep. **`op` and
+  `dtype` are NOT independent** — the `{0,1,2,3} → {ior,isum,smax,umax}` map holds at `opcls=1,
+  dtype=3`, but at `dtype=7` op 0 and 3 return exclusive-scan shapes. (EXP-0205)
+
+**New emitter-usable rules:**
+
+- **`irotate`: `byte+6 = 4 * (32 - K)` gives rotate-LEFT-by-K.** Independently of the model,
+  searching all 32 amounts recovers a single amount at exactly the 33 modelled values — **32
+  distinct amounts, zero formula disagreements** over 3212 (arm,value) pairs. The prior `UNSTABLE`
+  refusal does not reproduce (0/3212 disagree). (EXP-0202)
+- **`cvt_f2i` SATURATES**: `int(2^31 + 2^8)` returns `0x7FFFFFFF`. byte+7 is a width + sign +
+  **saturation-bound** descriptor (7-way map), refining the older "bit 6 = signed vs unsigned".
+  (EXP-0202)
+- **`half_pack` writes the destination's HIGH 16 bits and preserves the LOW 16**, and **zeroes
+  both named source half-lanes** — a side effect none of the seven pre-registered candidate models
+  predicted. Its `dstlo`/`b3` are **SOURCE half-register descriptors**, and because `db.json` pins
+  all eight bits of byte0, **every db-expressible encoding writes `r1`**. (EXP-0203)
+- **`half_alu_fma12.ext` hides a third fp16 source at bits 40..47** (`srcC`, 256/256 oracle match
+  on 3 arms, bit 7 a measured don't-care); bits 32..33 are the length selector and 34..39
+  modifiers. Nothing is declared inert — byte+10 reads dead on one carrier and moves on two others
+  *in the same runs*. (EXP-0203)
+- **`get_sr.form` is a read-enable CONDITIONAL ON `dp_width`** — inert at `dp_width` 0x10 on 6/6
+  arms, live at 0x14 on 5/5 non-vertex arms, and the effect follows the field into carriers whose
+  compiler chose 0x10. At 0x14, `form=1` makes the read contribute exactly zero:
+  `out(form=1) == out(form=0) - lane*65536` for all 64 lanes. (EXP-0207)
+- **A mid-program `stop` terminates, and the final `stop` IS executed** — byte 0 → `0x0f`/`0x8f`
+  faults reproducibly on 3 carriers in 2 runs while 6 other values are harmless. This bounds the
+  older claim that corrupting any of it is a no-op. (EXP-0206)
+- **Denormals are flushed to zero by the `falu3` FMA** (operand and/or result). (EXP-0201)
+
+**Hazard walls (capability-map facts, first-class per §6):**
+
+- **The `0xC0` destination wall is ISA-WIDE, not a `frag_color_pack` quirk.** The same `v >= 0xC0`
+  wall appears independently on `ibitcount.dst`, `irotate.operands`, `ibfe.b2_bit0` and
+  `ibfe.sign_ext` across three experiments — **`dst[7:6] == 0b11` is likely illegal generally**,
+  encodable range 192. Confirmed on hardware for `ibitcount.dst`: 64 contiguous values fault,
+  mapped with no abort path and no hangs. M4's hole at 242 does **not** reproduce on G17P.
+  (EXP-0208, EXP-0202)
+- **`n4_rt_word.dst` faults exactly on `{v : (v & 0b110) == 0b100}`** — 6/6 carrier-runs, 384
+  fault + 1152 clean, zero exceptions, extended to a carrier the original experiment never
+  measured. *But V=1 per carrier: every accepted value returns the same answer, so the movement is
+  entirely the wall, and the swept byte is +7 of a 10-byte instruction.* (EXP-0200)
+- **`tex_deriv.dstsrc`'s hazard family:** `0x03FFFF, 0x07FFFF, 0x0FFFFF, 0x1FFFFF, 0x3FFFFF,
+  0x7FFFFF, 0xFFFFFE, 0xFFFFFF` plus `0xFBEEE7`. Mapped and excluded, the cross-run partition is
+  exactly reproducible. A per-field hang budget of 2 could never attribute this. (EXP-0204)
+- **Inserting the 2-byte word `01 00` at a `k_line` boundary hung the GPU 5/5 times.** Device
+  recovered every time. (EXP-0199)
+
+**Fields that are `carrier-undecidable` — NOT inert:**
+
+- **`shift_amt_move.src_flag`** — nine carriers spanning seven operand-producer classes, 768
+  byte-identical comparisons. The deciding instrument was the sibling `b_alu10_lo7.src_flag`: same
+  bit, same enum, same family, and one the compiler emits at **both** values — also inert, while
+  its own `src_reg` control moves at 19/20. The harness has not been shown able to see a
+  source-class change at all. (EXP-0202)
+- **`mesh_out_src.sel`** — dispatched for the first time ever (a mesh-pipeline sweep runner had to
+  be written), but its frame can only be **destroyed**, never moved to a different valid payload.
+  (EXP-0207)
+- **`dev_scoreboard_fence.scope_flag`**, **`n1_word`/`n2_compact2`/`n3_word`**. (EXP-0207, EXP-0200)
+
+**And one inert result that survived a real litmus:** `simd_ballot.cache` stayed inert through a
+multi-invocation ordering litmus (4 threadgroups × 2 simdgroups, cross-simdgroup exchange, a
+cross-threadgroup atomic checked against a host total) with its in-dimension control firing —
+recorded as *inert in the exact tested envelope; global role unknown*, with two unexercised
+dimensions named. Its sibling **`simd_shuffle.cache` is LIVE and contextual**: clearing byte+2
+bit 1 where the compiler set it returns **foreign data** or a silent zero with a wrong atomic
+total, isolated by a matched pair differing only in **operand provenance**. (EXP-0205)
+
 ## Confirmed: this is a wholly different ISA from G13/G14
 The public dougallj/applegpu (G13) decoder produces `<disassembly failed>` or nonsense on G17P
 bytes. applegpu is therefore a **structural template + ISA-agnostic testbed**, not a decoder to

@@ -38,8 +38,13 @@ import sys
 import time
 
 # Union of the patterns the seven confirmed experiments used, plus this repo's runners.
-PATTERNS = ("agxrun", "agxrun_persist", "agxrender", "renderpersist", "rendersweep",
-            "gfrun", "shdump", "MTLCompilerService", "persistrun", "agxtest")
+# AMENDMENT 01 (2026-08-30): split into dispatch runners (which contend for the GPU, fault,
+# hang, and manufacture InnocentVictim in a neighbour) and the shader-compiler XPC service
+# (which does not dispatch, and whose parent is launchd so a ppid walk cannot see it as ours).
+RUNNER_PATTERNS = ("agxrun", "agxrun_persist", "agxrender", "renderpersist", "rendersweep",
+                   "gfrun", "shdump", "persistrun", "agxtest")
+COMPILER_PATTERNS = ("MTLCompilerService",)
+PATTERNS = RUNNER_PATTERNS + COMPILER_PATTERNS
 
 IOREG = ["ioreg", "-rc", "AGXAcceleratorG17P", "-d", "1", "-w", "0"]
 NUM = {
@@ -86,7 +91,15 @@ def gpu_stats():
     return d
 
 
-def proc_rows(exclude):
+def all_pids():
+    try:
+        out = subprocess.check_output(["ps", "-Ao", "pid"], text=True, timeout=10)
+    except Exception:                                               # noqa: BLE001
+        return set()
+    return {int(x) for x in out.split()[1:] if x.isdigit()}
+
+
+def proc_rows(exclude, baseline):
     try:
         out = subprocess.check_output(["ps", "-Ao", "pid,ppid,%cpu,comm,args"],
                                       text=True, timeout=15)
@@ -102,7 +115,11 @@ def proc_rows(exclude):
         blob = p[3] + " " + p[4]
         if any(pat in blob for pat in PATTERNS):
             rows.append({"pid": pid, "cpu": p[2], "cmd": p[4][-110:],
-                         "ours": pid in mine, "excluded": pid in exclude})
+                         "ours": pid in mine, "excluded": pid in exclude,
+                         "kind": ("compiler"
+                                  if any(q in blob for q in COMPILER_PATTERNS)
+                                  else "runner"),
+                         "new_since_start": pid not in baseline})
     return rows, {}
 
 
@@ -116,16 +133,21 @@ def main():
     a = ap.parse_args()
     exclude = {int(x) for x in a.exclude_pid.split(",") if x.strip().isdigit()}
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
+    baseline = all_pids()
     end = time.time() + a.seconds
     n = 0
     with open(a.out, "a") as f:
         while time.time() < end:
-            rows, err = proc_rows(exclude)
+            rows, err = proc_rows(exclude, baseline)
             rec = {"ts": round(time.time(), 3), "label": a.label,
                    "loadavg": os.getloadavg(),
                    "procs": rows,
                    "n_foreign": sum(1 for r in rows
                                     if not r["ours"] and not r["excluded"]),
+                   "n_foreign_runner": sum(1 for r in rows
+                                           if r["kind"] == "runner"
+                                           and not r["ours"] and not r["excluded"]),
+                   "n_compiler_svc": sum(1 for r in rows if r["kind"] == "compiler"),
                    "gpu": gpu_stats()}
             rec.update(err)
             f.write(json.dumps(rec, sort_keys=True) + "\n")
