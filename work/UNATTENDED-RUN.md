@@ -205,13 +205,13 @@ experiment did not itself measure, and **24 still need a donor** (12 control-flo
 
 ## The number
 
-**33 of 166 emitter-relevant instructions emittable; 546 of 1040 fields emitter-grade.**
+**32 of 166 emitter-relevant instructions emittable; 543 of 1040 fields emitter-grade.**
 
 > **This figure was 55/638 until the closing audit (EXP-0189) tested it and it did not survive.**
 > That audit reimplemented the *current* rule — including the `_instruction` gate I had added
 > hours earlier — and **reproduced 55 exactly before withholding anything**, so 38 was measured
 > against my own rule rather than a different one. I then withheld one more (`call.tail`) on its
-> eighth finding. The full arc of the day is **79 → 41 → 55 → 38 → 37 → 34 → 33**, and every fall came from
+> eighth finding. The full arc of the day is **79 → 41 → 55 → 38 → 37 → 34 → 33 → 32**, and every fall came from
 > an audit that could reproduce the published number before disputing it.
 >
 > **The shortfall is not the merges made during this run, and that is measured rather than
@@ -231,8 +231,20 @@ the corpus was overwhelmingly M4 evidence being counted toward a G17P goal.
 
 ## The number moved DOWN more than it moved up, and that is the result
 
-79 → 41 → 55. Every fall was a withdrawal an independent audit confirmed, and each was caused by
+79 → 41 → 55 → … → 32. Every fall was a withdrawal an independent audit confirmed, and each was caused by
 finding that a **check could not come out the other way**:
+
+> **The last withdrawal is the sharpest instance in the corpus.** EXP-0193 applied EXP-0192's
+> *unchanged* criterion to the full 337-arm STABLE-LIVE population — 503 fields, 23 experiments —
+> and it fired three more times. One of them, `frag_color_pack.fmt_class`, was an 8-bit field with
+> **255 legal values in which all 512 records carry one identical payload**. Its entire claim to
+> emitter grade was **two cells our own disassembler could not decode** — `status: OK`, sentinel
+> written, pixel readback byte-identical to the other 255 values. The hardware never moved; our
+> tokenizer disagreed with itself, and a promotion gate counted that as evidence.
+>
+> The population sweep is also the strongest form the criterion can take: a rule that has now
+> withdrawn seven rows, run against every arm it could possibly apply to, with the control
+> (`call.b5`) reproducing EXP-0192's committed counters exactly and **0 of 503 rows unlocatable**.
 
 | what looked like evidence | why it could not fail |
 |---|---|
@@ -300,6 +312,7 @@ that had already passed.
 | 9 | an indexer filter | discarded any raw record whose field name starts with `_`, hiding real sweeps |
 | 10 | an **inertness** gate | `moved = 0` **by construction** on an arm whose observable never varies |
 | 11 | a promotion gate | `sig_of()` separates `ok` from `fault`, so **`moved` counts a FAULT as movement** |
+| 12 | a promotion gate | `sig_of()` also separates `ok` from **`undecodable`**, so **`moved` counts OUR OWN DISASSEMBLER's disagreement as hardware movement** |
 
 **#8 and #10 are the same error in opposite directions** — one gate that cannot refuse, one that
 cannot doubt. #2 and #9 were load-bearing for months. Four of the ten were found by the very agent

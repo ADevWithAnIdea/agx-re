@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 483,
-   "isolated-byte-diff": 63,
+   "hardware-run": 481,
+   "isolated-byte-diff": 62,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 257
+   "untested": 260
   },
   "by_label_pct": {
-   "hardware-run": 46.4,
-   "isolated-byte-diff": 6.1,
+   "hardware-run": 46.2,
+   "isolated-byte-diff": 6.0,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.7
+   "untested": 25.0
   },
-  "emittable_instructions": 33,
+  "emittable_instructions": 32,
   "emittable_mnemonics": [
    "bf_add_dst",
    "bf_alu",
@@ -68,10 +68,9 @@
    "rtq_state_move",
    "sel",
    "sr_read_wide",
-   "uniform_mov",
-   "vtx_coord_xform"
+   "uniform_mov"
   ],
-  "decodable_not_yet_emittable": 139,
+  "decodable_not_yet_emittable": 140,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -82,7 +81,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 33
+  "emittable_of_emitter_relevant": 32
  },
  "instructions": {
   "falu2": {
@@ -6197,13 +6196,13 @@
     "note": ""
    },
    "fmt_class": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0155"
     ],
-    "note": ""
+    "note": "WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 255 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic. **THIS IS THE SHARPEST INSTANCE IN THE CORPUS: the 'movement' was OUR OWN DISASSEMBLER, not the hardware.** All 512 records carry ONE identical `observed` payload. The two moved cells are both value 86 with `outcome: undecodable` and the note 're-decodes as `pack_convert`' -- while `status: OK`, the sentinel is written, and the pixel readback is BYTE-IDENTICAL to the other 255 values. A tokenizer disagreement promoted an 8-bit field with 255 legal values to emitter grade."
    },
    "dst": {
     "label": "hardware-run",
@@ -9136,13 +9135,13 @@
     "evidence": []
    },
    "optype": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "255 values executed (boundaries + samples)",
     "target": "G17P",
     "evidence": [
      "EXP-0157"
     ],
-    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH)"
+    "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 191 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic."
    }
   },
   "ray_move_zero6": {
@@ -10398,13 +10397,13 @@
     "note": "91 of 256 correct, 143 no_draw, 19 genuine 'Caused GPU Hang Error' faults, 1 wrong value. Intra-run 255/256 stable."
    },
    "operand": {
-    "label": "isolated-byte-diff",
+    "label": "untested",
     "range": "full 40-bit range, dense (1339 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable."
+    "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic."
    }
   },
   "mesh_out_src": {

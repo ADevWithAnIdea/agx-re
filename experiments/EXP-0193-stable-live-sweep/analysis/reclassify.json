@@ -1,0 +1,77 @@
+{
+ "_meta": {
+  "action": "RECOMMENDED withholding to `untested`; this experiment edits no label. The orchestrator owns validation.json.",
+  "experiment": "EXP-0193-stable-live-sweep",
+  "scope": "the full 337-arm STABLE-LIVE population",
+  "trigger": "EXP-0192/PRE_REGISTRATION.md section 4.2 Case C, inherited unchanged"
+ },
+ "frag_color_pack.fmt_class": {
+  "L_legal_values_max": 255,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0155-g17p-emit-tex-frag|fcp@pack0"
+  ],
+  "case": "C",
+  "current_label": "hardware-run",
+  "evidence": [
+   "EXP-0155"
+  ],
+  "n_fault_cells": {
+   "EXP-0155-g17p-emit-tex-frag|fcp@pack0": 2
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 255 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0193 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. Criterion inherited unchanged from EXP-0192. The fault wall itself remains a valid legal-set bound.",
+  "stable_live_arms": [
+   "EXP-0155-g17p-emit-tex-frag|fcp@pack0"
+  ],
+  "start": 16,
+  "target": "G17P",
+  "width": 8
+ },
+ "ray_move_copy6.optype": {
+  "L_legal_values_max": 191,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0157-g17p-emit-misc|rq_cdist|R"
+  ],
+  "case": "C",
+  "current_label": "hardware-run",
+  "evidence": [
+   "EXP-0157"
+  ],
+  "n_fault_cells": {
+   "EXP-0157-g17p-emit-misc|rq_cdist|R": 128
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 191 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0193 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. Criterion inherited unchanged from EXP-0192. The fault wall itself remains a valid legal-set bound.",
+  "stable_live_arms": [
+   "EXP-0157-g17p-emit-misc|rq_cdist|R"
+  ],
+  "start": 24,
+  "target": "G17P",
+  "width": 8
+ },
+ "vtx_coord_xform.operand": {
+  "L_legal_values_max": 817,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0147-m4-emit-pipeline-misc|vtx_coord_xform"
+  ],
+  "case": "C",
+  "current_label": "isolated-byte-diff",
+  "evidence": [
+   "EXP-0147"
+  ],
+  "n_fault_cells": {
+   "EXP-0147-m4-emit-pipeline-misc|vtx_coord_xform": 1026
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 821 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0193 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. Criterion inherited unchanged from EXP-0192. The fault wall itself remains a valid legal-set bound.",
+  "stable_live_arms": [
+   "EXP-0147-m4-emit-pipeline-misc|vtx_coord_xform"
+  ],
+  "start": 40,
+  "target": "M4",
+  "width": 40
+ }
+}

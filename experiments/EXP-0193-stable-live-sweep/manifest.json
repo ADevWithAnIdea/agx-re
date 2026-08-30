@@ -1,0 +1,124 @@
+{
+ "artifacts": {
+  "PRE_REGISTRATION.md": {
+   "bytes": 17079,
+   "sha256": "19f7ccbe85c0b80678bda6958c9d3ffdf20bdaac6077a52e9342dad0360e677d"
+  },
+  "PROGRESS.md": {
+   "bytes": 2549,
+   "sha256": "9198dd244e60703aa482fa3a9ed3c7d547cf7452a771cdc9ada017b6c4be50ed"
+  },
+  "README.md": {
+   "bytes": 5144,
+   "sha256": "6d3c1737d33f9cf2b2cde676751c3d6ce411264d5c4aae365cc1a4ea562be8d4"
+  },
+  "RESULTS.md": {
+   "bytes": 14987,
+   "sha256": "ade88785471e417cbf03eafadadfbe7babbc06a1271949b3dbd7671671627b35"
+  },
+  "analysis/population_audit.json": {
+   "bytes": 2528912,
+   "sha256": "11829349567ea3b537e09c6cd9cf5d6b44899b5b205e687942fc6a5be3d14a3c"
+  },
+  "analysis/population_audit.py": {
+   "bytes": 21555,
+   "sha256": "624ffb36a7c3ffac37903a544242603e78c4c19b521cee10db981c4a8da5a99b"
+  },
+  "analysis/reclassify.json": {
+   "bytes": 3515,
+   "sha256": "611b8236d9abdd79f49614ff404c78efc232bb44bf0cf9d5330547b49d688594"
+  },
+  "work/run01_stderr.txt": {
+   "bytes": 320,
+   "sha256": "f4de7d08b0cee89242aa5da949113897951c294cc640f33cdb5c7aa63ca7bd00"
+  },
+  "work/run01_stdout.txt": {
+   "bytes": 2300,
+   "sha256": "15c4b0f62f837c00d5e01d8958812e55289da25bddeae255c0da90bfb49e1a5e"
+  },
+  "work/run02_stderr.txt": {
+   "bytes": 320,
+   "sha256": "f4de7d08b0cee89242aa5da949113897951c294cc640f33cdb5c7aa63ca7bd00"
+  },
+  "work/run02_stdout.txt": {
+   "bytes": 2300,
+   "sha256": "15c4b0f62f837c00d5e01d8958812e55289da25bddeae255c0da90bfb49e1a5e"
+  }
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "inputs_inspected": "experiments/*/raw/**/*.jsonl (our own append-only capture records), tools/agx-isa/{db,validation}.json, EXP-0190/analysis+work, EXP-0191/analysis, EXP-0192/analysis",
+  "provenance": "derived analysis of already-committed evidence (OWN-SHADER/HW-PROBE lineage)"
+ },
+ "controls": {
+  "R1_call_b5": "PASS - Case A, V = 3, 4, 2, all five per-arm counters matching EXP-0192's committed table",
+  "R2_rederivation": "PASS - ret.linkmode A; ret_luse.linkmode, jump_cond.offset, n3_sample_read.tail all C",
+  "R3_discrimination": "PASS - 497 Case A and 6 Case C in the same run",
+  "R4_attribution": "PASS - 0 of 503 rows unlocatable in the pinned index"
+ },
+ "criterion": {
+  "entry_point": "EXP-0192/analysis/valid_payload_audit.py::classify_row",
+  "owner": "EXP-0192-fault-as-movement",
+  "source": "experiments/EXP-0192-fault-as-movement/PRE_REGISTRATION.md section 4.2",
+  "status": "INHERITED UNCHANGED - imported and called, not reimplemented, not tuned"
+ },
+ "date": "2026-08-30",
+ "deterministic": "run01 and run02 stdout byte-identical",
+ "device_contacted": false,
+ "experiment": "EXP-0193-stable-live-sweep",
+ "files_outside_this_directory_written": "NONE (verified: git status shows only this directory; every frozen input hash unchanged after the run)",
+ "frozen_input_hashes_sha256": {
+  "experiments/EXP-0190-indexer-refilter/analysis/audit.json": "caeeafc3760f2683281ad312832f68e9978d3e49747b192898cbb4622c76f86e",
+  "experiments/EXP-0190-indexer-refilter/work/raw_index.json.gz": "b4f13a2f9694d9ffbd9998f2fa9685d2dc034994c7e706364cdc3071b72af756",
+  "experiments/EXP-0191-detection-gate/analysis/detection_gate.py": "21b9e6bc1b227cc440b8a6df35eeded8c4a071d7f004a93a4e6483f5f39837cf",
+  "experiments/EXP-0191-detection-gate/analysis/gate_results.json": "fe290de7ec58a6835dfc2c8f0eb79543dcef899eb912bb7b3bc9e3c9de26f5ba",
+  "experiments/EXP-0192-fault-as-movement/analysis/reclassify.json": "e1b06f56bd344de6111c76e97e2636c613b9274f844ea5bbadfcddc75a17959b",
+  "experiments/EXP-0192-fault-as-movement/analysis/valid_payload_audit.json": "9dc1ef7ff42da88f9bdcef4bfbcc9a0093261fce9db8df11479d61215ba4f06a",
+  "experiments/EXP-0192-fault-as-movement/analysis/valid_payload_audit.py": "204d78feb852934bd4f01013a2cee79a12dde01ea6a558c689427a68202fe027",
+  "tools/agx-isa/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "tools/agx-isa/validation.json": "01c7c7c98fb347b76e02e811a5c8d35154c79191ea393d0247c6c3d0fca0d7d8"
+ },
+ "gpu_used": false,
+ "kind": "pure offline analysis of already-committed evidence",
+ "labels_edited": "NONE. analysis/reclassify.json is a recommendation; the orchestrator owns tools/agx-isa/validation.json.",
+ "population": {
+  "definition": "every <mnemonic>.<field> key of EXP-0190/analysis/audit.json for which some per_experiment[eid][arm].stable_live is true",
+  "n_experiments": 23,
+  "n_fields": 503,
+  "n_stable_live_arms": 337
+ },
+ "repo_revision_at_preregistration": "7286bf04c500f726fbe3bf096a166e90b6a34e0f",
+ "repo_tree_clean_at_freeze": true,
+ "reproduction": "python3 analysis/population_audit.py",
+ "result": {
+  "case_A": 497,
+  "case_B": 0,
+  "case_C": 6,
+  "case_C_already_withheld_by_EXP_0192": [
+   "jump_cond.offset",
+   "n3_sample_read.tail",
+   "ret_luse.linkmode"
+  ],
+  "case_C_new": [
+   "frag_color_pack.fmt_class",
+   "ray_move_copy6.optype",
+   "vtx_coord_xform.operand"
+  ],
+  "emittable_lost": [
+   "vtx_coord_xform"
+  ],
+  "headline_if_accepted": "32 of 166 emittable, 543 of 1040 emitter-grade fields",
+  "headline_now": "33 of 166 emittable, 546 of 1040 emitter-grade fields",
+  "unverifiable": 0
+ },
+ "runtime_seconds": 7.6,
+ "shader_compiled": false,
+ "ssh_used": false,
+ "status": "COMPLETE",
+ "target_note": "No verdict is promoted across targets. frag_color_pack.fmt_class and ray_move_copy6.optype are G17P; vtx_coord_xform.operand is M4/G16G.",
+ "targets_of_the_underlying_evidence": [
+  "G17P (A18 Pro)",
+  "M4/G16G"
+ ],
+ "title": "The full 337-arm STABLE-LIVE population under EXP-0192's frozen fault-as-movement criterion"
+}

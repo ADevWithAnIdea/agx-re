@@ -1,0 +1,74 @@
+{
+ "population": {
+  "definition": "every <mnemonic>.<field> key of EXP-0190/analysis/audit.json for which some per_experiment[eid][arm].stable_live is true; same enumeration as EXP-0191 detection_gate.py slcheck",
+  "n_stable_live_arms": 337,
+  "n_stable_live_arms_committed_by_EXP_0191": 337,
+  "n_fields": 503,
+  "n_experiments": 23,
+  "n_scope_rows_scored": 503
+ },
+ "controls": {
+  "R1_pass": true,
+  "R1_V": [
+   3,
+   4,
+   2
+  ],
+  "R2_pass": true,
+  "R3": {
+   "n_case_A": 497,
+   "n_case_B": 0,
+   "n_case_C": 6,
+   "both_directions_observed": true
+  },
+  "R4_unverifiable": 0
+ },
+ "summary": {
+  "n_rows_examined": 503,
+  "case_B_stands_legality_only": [],
+  "case_C_all": [
+   "frag_color_pack.fmt_class",
+   "jump_cond.offset",
+   "n3_sample_read.tail",
+   "ray_move_copy6.optype",
+   "ret_luse.linkmode",
+   "vtx_coord_xform.operand"
+  ],
+  "case_C_already_withheld_by_EXP_0192": [
+   "jump_cond.offset",
+   "n3_sample_read.tail",
+   "ret_luse.linkmode"
+  ],
+  "case_C_new_in_EXP_0193": [
+   "frag_color_pack.fmt_class",
+   "ray_move_copy6.optype",
+   "vtx_coord_xform.operand"
+  ],
+  "case_C_emitter_grade_actionable": [
+   "frag_color_pack.fmt_class",
+   "ray_move_copy6.optype",
+   "vtx_coord_xform.operand"
+  ],
+  "unverifiable_here": [],
+  "criterion_fired_on_a_new_row": true,
+  "projected_counts": {
+   "total_fields": 1040,
+   "emitter_grade_fields_now": 546,
+   "emitter_grade_fields_after": 543,
+   "emitter_relevant_instructions": 166,
+   "emittable_now": 33,
+   "emittable_after": 32,
+   "emittable_lost": [
+    "vtx_coord_xform"
+   ],
+   "headline_now": "33 of 166 emittable, 546 of 1040 emitter-grade fields",
+   "headline_after": "32 of 166 emittable, 543 of 1040 emitter-grade fields"
+  }
+ }
+}
+frag_color_pack.fmt_class    hardware-run         case=C  V=[1] L=[255] faults=[2] arms=1
+jump_cond.offset             untested             case=C  V=[1, 0, 1, 1] L=[36, 0, 2, 3] faults=[0, 0, 53, 0] arms=4
+n3_sample_read.tail          untested             case=C  V=[1] L=[1522] faults=[116] arms=1
+ray_move_copy6.optype        hardware-run         case=C  V=[1] L=[191] faults=[128] arms=1
+ret_luse.linkmode            untested             case=C  V=[1] L=[32] faults=[658] arms=1
+vtx_coord_xform.operand      isolated-byte-diff   case=C  V=[1] L=[817] faults=[1026] arms=1
