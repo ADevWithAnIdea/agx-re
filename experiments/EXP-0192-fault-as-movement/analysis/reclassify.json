@@ -1,0 +1,73 @@
+{
+ "_meta": {
+  "action": "RECOMMENDED withholding to `untested`; this experiment edits no label. The orchestrator owns validation.json.",
+  "experiment": "EXP-0192-fault-as-movement",
+  "trigger": "PRE_REGISTRATION.md section 4.2 Case C"
+ },
+ "jump_cond.offset": {
+  "L_legal_values_max": 36,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0140-m4-emit-mov-cf|cf|jump_cond.offset",
+   "EXP-0156-g17p-emit-cf-mem|cf0|jc.liveness",
+   "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset",
+   "EXP-0156-g17p-emit-cf-mem|cfN|jc.liveness"
+  ],
+  "case": "C",
+  "current_label": "hardware-run",
+  "evidence": [
+   "EXP-0156"
+  ],
+  "n_fault_cells": {
+   "EXP-0140-m4-emit-mov-cf|cf|jump_cond.offset": 0,
+   "EXP-0156-g17p-emit-cf-mem|cf0|jc.liveness": 0,
+   "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": 53,
+   "EXP-0156-g17p-emit-cf-mem|cfN|jc.liveness": 0
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 36 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0192 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. The fault wall itself remains a valid legal-set bound.",
+  "start": 24,
+  "target": "G17P",
+  "width": 48
+ },
+ "n3_sample_read.tail": {
+  "L_legal_values_max": 1522,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0147-m4-emit-pipeline-misc|n3_sample_read"
+  ],
+  "case": "C",
+  "current_label": "isolated-byte-diff",
+  "evidence": [
+   "EXP-0147"
+  ],
+  "n_fault_cells": {
+   "EXP-0147-m4-emit-pipeline-misc|n3_sample_read": 116
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 1536 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0192 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. The fault wall itself remains a valid legal-set bound.",
+  "start": 32,
+  "target": "M4",
+  "width": 48
+ },
+ "ret_luse.linkmode": {
+  "L_legal_values_max": 32,
+  "V_valid_payloads_max": 1,
+  "arms": [
+   "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode"
+  ],
+  "case": "C",
+  "current_label": "hardware-run",
+  "evidence": [
+   "EXP-0156"
+  ],
+  "n_fault_cells": {
+   "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode": 658
+  },
+  "reason": "no arm shows 2 distinct valid payloads, yet 32 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+  "recommended_note": "EXP-0192 withheld: the STABLE-LIVE promotion rests only on ok<->fault signature transitions. No arm produced two distinct VALID observation payloads, while >=2 field values ran legally and were indistinguishable -- an inertness observation that collect_raw.py::sig_of re-scored as movement. The fault wall itself remains a valid legal-set bound.",
+  "start": 8,
+  "target": "G17P",
+  "width": 8
+ }
+}

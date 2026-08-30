@@ -1,0 +1,1022 @@
+{
+ "_meta": {
+  "contaminated_outcomes": [
+   "invalid_run",
+   "skipped",
+   "victim"
+  ],
+  "controls": [
+   "call.b5"
+  ],
+  "criterion": "PRE_REGISTRATION.md section 4.2, frozen before any count was computed, at repo revision 8d01daa35a53a478f72fe800dc94d27492c11d77 (tree clean)",
+  "device_contacted": false,
+  "experiment": "EXP-0192-fault-as-movement",
+  "hard_classes": [
+   "fault",
+   "hang",
+   "killed",
+   "lost_7_of_8",
+   "no_draw",
+   "nondeterministic",
+   "not_written",
+   "undecodable"
+  ],
+  "input_hashes": {
+   "experiments/EXP-0190-indexer-refilter/analysis/audit.json": "caeeafc3760f2683281ad312832f68e9978d3e49747b192898cbb4622c76f86e",
+   "experiments/EXP-0190-indexer-refilter/work/raw_index.json.gz": "b4f13a2f9694d9ffbd9998f2fa9685d2dc034994c7e706364cdc3071b72af756",
+   "experiments/EXP-0191-detection-gate/analysis/detection_gate.py": "21b9e6bc1b227cc440b8a6df35eeded8c4a071d7f004a93a4e6483f5f39837cf",
+   "experiments/EXP-0191-detection-gate/analysis/reclassify.json": "0ff47d77ee20fb000c83ece3f5eeb5f1e06db79d0e4e6ed704982ddd867fcfe4",
+   "tools/agx-isa/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+   "tools/agx-isa/validation.json": "e1208340f5d8b16e5201c964d1a27fb14ee8214a2be09cbc446d4dd0ebf6d075"
+  },
+  "question": "does a field whose movement consists only of ok<->fault transitions, with fewer than two distinct VALID payloads, meet the hardware-run / isolated-byte-diff bar?",
+  "reused_implementations": [
+   "EXP-0190/analysis/collect_raw.py (via work/raw_index.json.gz; its sig_of signature is split, not recomputed)",
+   "EXP-0190/analysis/audit.py (via analysis/audit.json)",
+   "EXP-0191/analysis/detection_gate.py::payload_of (imported unmodified)"
+  ],
+  "scope_rows": [
+   "jump_cond.offset",
+   "ret.linkmode",
+   "ret_luse.linkmode",
+   "n3_sample_read.tail"
+  ]
+ },
+ "seven_stable_live_arms_from_EXP_0191": {},
+ "summary": {
+  "R2_control_broken": [],
+  "R2_control_check": {
+   "call.b5": "A"
+  },
+  "case_A_stands": [
+   "ret.linkmode"
+  ],
+  "case_B_stands_legality_only": [],
+  "case_C_withhold": [
+   "jump_cond.offset",
+   "n3_sample_read.tail",
+   "ret_luse.linkmode"
+  ],
+  "criterion_fired": true,
+  "n_rows_examined": 4,
+  "unverifiable_here": []
+ },
+ "verdicts": {
+  "call.b5": {
+   "arms": {
+    "EXP-0179-g17p-call|C1_flat/idx15|B5": {
+     "L_legal_values": 128,
+     "V_all_signatures": 4,
+     "V_valid_payloads": 3,
+     "hard_class_counts": {
+      "fault": 384
+     },
+     "n_cases": 768,
+     "n_fault_cells": 384,
+     "n_fault_only_values": 128,
+     "n_keyed_cells": 768,
+     "per_run": {
+      "g17p_20260830_run01": {
+       "L_legal_values": 128,
+       "V_all_signatures": 4,
+       "V_valid_payloads": 3,
+       "moved": 128,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p_20260830_run03": {
+       "L_legal_values": 128,
+       "V_all_signatures": 4,
+       "V_valid_payloads": 3,
+       "moved": 128,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p_20260830_run04": {
+       "L_legal_values": 128,
+       "V_all_signatures": 4,
+       "V_valid_payloads": 3,
+       "moved": 128,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      }
+     }
+    },
+    "EXP-0179-g17p-call|C2_nested/idx7|B5": {
+     "L_legal_values": 128,
+     "V_all_signatures": 5,
+     "V_valid_payloads": 4,
+     "hard_class_counts": {
+      "fault": 416
+     },
+     "n_cases": 768,
+     "n_fault_cells": 416,
+     "n_fault_only_values": 128,
+     "n_keyed_cells": 768,
+     "per_run": {
+      "g17p_20260830_run01": {
+       "L_legal_values": 96,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 96,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p_20260830_run03": {
+       "L_legal_values": 128,
+       "V_all_signatures": 4,
+       "V_valid_payloads": 3,
+       "moved": 128,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p_20260830_run04": {
+       "L_legal_values": 128,
+       "V_all_signatures": 4,
+       "V_valid_payloads": 3,
+       "moved": 128,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      }
+     }
+    },
+    "EXP-0179-g17p-call|S_kchain_compiled|S": {
+     "L_legal_values": 96,
+     "V_all_signatures": 3,
+     "V_valid_payloads": 2,
+     "hard_class_counts": {
+      "fault": 320
+     },
+     "n_cases": 512,
+     "n_fault_cells": 320,
+     "n_fault_only_values": 160,
+     "n_keyed_cells": 512,
+     "per_run": {
+      "g17p_20260830_splice01": {
+       "L_legal_values": 96,
+       "V_all_signatures": 3,
+       "V_valid_payloads": 2,
+       "moved": 96,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p_20260830_splice02": {
+       "L_legal_values": 96,
+       "V_all_signatures": 3,
+       "V_valid_payloads": 2,
+       "moved": 96,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      }
+     }
+    }
+   },
+   "bucket": "STABLE-LIVE",
+   "case": "A",
+   "cross_run": {
+    "C1_flat/idx15|B5": {
+     "agree": 256,
+     "agree_pct": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "movedA": 128,
+     "movedB": 128,
+     "n_valuesA": 256,
+     "n_valuesB": 256,
+     "runA": "g17p_20260830_run01",
+     "runB": "g17p_20260830_run03"
+    },
+    "C2_nested/idx7|B5": {
+     "agree": 128,
+     "agree_pct": 50.0,
+     "common": 256,
+     "disagreements": 128,
+     "movedA": 96,
+     "movedB": 128,
+     "n_valuesA": 256,
+     "n_valuesB": 256,
+     "runA": "g17p_20260830_run01",
+     "runB": "g17p_20260830_run03"
+    },
+    "S_kchain_compiled|S": {
+     "agree": 256,
+     "agree_pct": 100.0,
+     "common": 256,
+     "disagreements": 0,
+     "movedA": 96,
+     "movedB": 96,
+     "n_valuesA": 256,
+     "n_valuesB": 256,
+     "runA": "g17p_20260830_splice01",
+     "runB": "g17p_20260830_splice02"
+    }
+   },
+   "evidence": [
+    "EXP-0179"
+   ],
+   "geometry": {
+    "start": 40,
+    "width": 8
+   },
+   "is_control": true,
+   "live_label": "hardware-run",
+   "live_note": "",
+   "live_range": "0..255 dense (all 256 values), 2 carriers",
+   "moved_total": 928,
+   "n_attributing_arms": 3,
+   "reason": "an attributing arm shows 4 distinct VALID payloads",
+   "record_level": {
+    "EXP-0179-g17p-call|C1_flat/idx15|B5": {
+     "L_legal_values": 128,
+     "V_valid_payloads": 3,
+     "invalid_reasons": {
+      "outcome:fault": 384
+     },
+     "n_fault_only_values": 128,
+     "n_records": 768,
+     "outcomes": {
+      "fault": 384,
+      "ok": 192,
+      "wrong_value": 192
+     }
+    },
+    "EXP-0179-g17p-call|C2_nested/idx7|B5": {
+     "L_legal_values": 128,
+     "V_valid_payloads": 4,
+     "invalid_reasons": {
+      "outcome:fault": 416
+     },
+     "n_fault_only_values": 128,
+     "n_records": 768,
+     "outcomes": {
+      "fault": 416,
+      "ok": 128,
+      "wrong_value": 224
+     }
+    },
+    "EXP-0179-g17p-call|S_kchain_compiled|S": {
+     "L_legal_values": 96,
+     "V_valid_payloads": 2,
+     "invalid_reasons": {
+      "outcome:fault": 320
+     },
+     "n_fault_only_values": 160,
+     "n_records": 512,
+     "outcomes": {
+      "fault": 320,
+      "ok": 128,
+      "wrong_value": 64
+     }
+    }
+   },
+   "snapshot_label": "hardware-run",
+   "stable_live_arms": [
+    "C1_flat/idx15|B5",
+    "S_kchain_compiled|S"
+   ],
+   "target": "G17P",
+   "verdict": "STANDS"
+  },
+  "jump_cond.offset": {
+   "arms": {
+    "EXP-0140-m4-emit-mov-cf|cf|jump_cond.offset": {
+     "L_legal_values": 36,
+     "V_all_signatures": 1,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {},
+     "n_cases": 88,
+     "n_fault_cells": 0,
+     "n_fault_only_values": 0,
+     "n_keyed_cells": 36,
+     "per_run": {
+      "m4_20260828_run01": {
+       "L_legal_values": 0,
+       "V_all_signatures": 0,
+       "V_valid_payloads": 0,
+       "moved": 0,
+       "n_cases": 52,
+       "n_contam": 52,
+       "n_keyed_cells": 0,
+       "n_values_indexed": 0
+      },
+      "m4_20260828_run02": {
+       "L_legal_values": 36,
+       "V_all_signatures": 1,
+       "V_valid_payloads": 1,
+       "moved": 0,
+       "n_cases": 36,
+       "n_contam": 0,
+       "n_keyed_cells": 36,
+       "n_values_indexed": 36
+      }
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cf0|jc.liveness": {
+     "L_legal_values": 0,
+     "V_all_signatures": 0,
+     "V_valid_payloads": 0,
+     "hard_class_counts": {},
+     "n_cases": 9,
+     "n_fault_cells": 0,
+     "n_fault_only_values": 0,
+     "n_keyed_cells": 0,
+     "per_run": {
+      "g17p-20260830-cf01b": {
+       "L_legal_values": 0,
+       "V_all_signatures": 0,
+       "V_valid_payloads": 0,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 2,
+       "n_keyed_cells": 0,
+       "n_values_indexed": 0
+      },
+      "g17p-20260830-cf02e": {
+       "L_legal_values": 0,
+       "V_all_signatures": 0,
+       "V_valid_payloads": 0,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 2,
+       "n_keyed_cells": 0,
+       "n_values_indexed": 0
+      },
+      "smoke-s01": {
+       "L_legal_values": 0,
+       "V_all_signatures": 0,
+       "V_valid_payloads": 0,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 2,
+       "n_keyed_cells": 0,
+       "n_values_indexed": 0
+      }
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": {
+     "L_legal_values": 2,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {
+      "fault": 53
+     },
+     "n_cases": 112,
+     "n_fault_cells": 53,
+     "n_fault_only_values": 27,
+     "n_keyed_cells": 57,
+     "per_run": {
+      "g17p-20260830-cf01b": {
+       "L_legal_values": 2,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 2,
+       "n_cases": 56,
+       "n_contam": 27,
+       "n_keyed_cells": 29,
+       "n_values_indexed": 29
+      },
+      "g17p-20260830-cf02e": {
+       "L_legal_values": 2,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 2,
+       "n_cases": 56,
+       "n_contam": 28,
+       "n_keyed_cells": 28,
+       "n_values_indexed": 28
+      }
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cfN|jc.liveness": {
+     "L_legal_values": 3,
+     "V_all_signatures": 1,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {},
+     "n_cases": 9,
+     "n_fault_cells": 0,
+     "n_fault_only_values": 0,
+     "n_keyed_cells": 9,
+     "per_run": {
+      "g17p-20260830-cf01b": {
+       "L_legal_values": 3,
+       "V_all_signatures": 1,
+       "V_valid_payloads": 1,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 0,
+       "n_keyed_cells": 3,
+       "n_values_indexed": 3
+      },
+      "g17p-20260830-cf02e": {
+       "L_legal_values": 3,
+       "V_all_signatures": 1,
+       "V_valid_payloads": 1,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 0,
+       "n_keyed_cells": 3,
+       "n_values_indexed": 3
+      },
+      "smoke-s01": {
+       "L_legal_values": 3,
+       "V_all_signatures": 1,
+       "V_valid_payloads": 1,
+       "moved": 0,
+       "n_cases": 3,
+       "n_contam": 0,
+       "n_keyed_cells": 3,
+       "n_values_indexed": 3
+      }
+     }
+    }
+   },
+   "bucket": "STABLE-LIVE",
+   "case": "C",
+   "cross_run": {
+    "cf0|jc.liveness": {
+     "agree": 0,
+     "agree_pct": null,
+     "common": 0,
+     "disagreements": 0,
+     "movedA": 0,
+     "movedB": 0,
+     "n_valuesA": 0,
+     "n_valuesB": 0,
+     "runA": "g17p-20260830-cf01b",
+     "runB": "g17p-20260830-cf02e"
+    },
+    "cf0|jump_cond.offset": {
+     "agree": 28,
+     "agree_pct": 100.0,
+     "common": 28,
+     "disagreements": 0,
+     "movedA": 2,
+     "movedB": 2,
+     "n_valuesA": 29,
+     "n_valuesB": 28,
+     "runA": "g17p-20260830-cf01b",
+     "runB": "g17p-20260830-cf02e"
+    },
+    "cfN|jc.liveness": {
+     "agree": 3,
+     "agree_pct": 100.0,
+     "common": 3,
+     "disagreements": 0,
+     "movedA": 0,
+     "movedB": 0,
+     "n_valuesA": 3,
+     "n_valuesB": 3,
+     "runA": "g17p-20260830-cf01b",
+     "runB": "g17p-20260830-cf02e"
+    }
+   },
+   "evidence": [
+    "EXP-0156"
+   ],
+   "geometry": {
+    "start": 24,
+    "width": 48
+   },
+   "is_control": false,
+   "live_label": "hardware-run",
+   "live_note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)",
+   "live_range": "56 values sampled",
+   "moved_total": 4,
+   "n_attributing_arms": 4,
+   "reason": "no arm shows 2 distinct valid payloads, yet 36 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+   "record_level": {
+    "EXP-0140-m4-emit-mov-cf|cf|jump_cond.offset": {
+     "L_legal_values": 36,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:skipped": 52
+     },
+     "n_fault_only_values": 0,
+     "n_records": 88,
+     "outcomes": {
+      "ok": 36,
+      "skipped": 52
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cf0|jc.liveness": {
+     "L_legal_values": 1,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:invalid_run": 6
+     },
+     "n_fault_only_values": 0,
+     "n_records": 9,
+     "outcomes": {
+      "invalid_run": 6,
+      "ok": 3
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cf0|jump_cond.offset": {
+     "L_legal_values": 2,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:fault": 53,
+      "outcome:invalid_run": 55
+     },
+     "n_fault_only_values": 27,
+     "n_records": 112,
+     "outcomes": {
+      "fault": 53,
+      "invalid_run": 55,
+      "ok": 4
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cfN|jc.liveness": {
+     "L_legal_values": 3,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {},
+     "n_fault_only_values": 0,
+     "n_records": 9,
+     "outcomes": {
+      "ok": 9
+     }
+    }
+   },
+   "snapshot_label": "hardware-run",
+   "stable_live_arms": [
+    "cf0|jump_cond.offset"
+   ],
+   "target": "G17P",
+   "verdict": "WITHHOLD"
+  },
+  "n3_sample_read.tail": {
+   "arms": {
+    "EXP-0147-m4-emit-pipeline-misc|n3_sample_read": {
+     "L_legal_values": 1522,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {
+      "fault": 116
+     },
+     "n_cases": 3206,
+     "n_fault_cells": 116,
+     "n_fault_only_values": 64,
+     "n_keyed_cells": 3160,
+     "per_run": {
+      "m4_20260828_run01": {
+       "L_legal_values": 1522,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 56,
+       "n_cases": 1603,
+       "n_contam": 11,
+       "n_keyed_cells": 1578,
+       "n_values_indexed": 1578
+      },
+      "m4_20260828_run02": {
+       "L_legal_values": 1522,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 60,
+       "n_cases": 1603,
+       "n_contam": 7,
+       "n_keyed_cells": 1582,
+       "n_values_indexed": 1582
+      }
+     }
+    }
+   },
+   "bucket": "STABLE-LIVE",
+   "case": "C",
+   "cross_run": {
+    "n3_sample_read": {
+     "agree": 1574,
+     "agree_pct": 100.0,
+     "common": 1574,
+     "disagreements": 0,
+     "movedA": 60,
+     "movedB": 56,
+     "n_valuesA": 1582,
+     "n_valuesB": 1578,
+     "runA": "m4_20260828_run02",
+     "runB": "m4_20260828_run01"
+    }
+   },
+   "evidence": [
+    "EXP-0147"
+   ],
+   "geometry": {
+    "start": 32,
+    "width": 48
+   },
+   "is_control": false,
+   "live_label": "isolated-byte-diff",
+   "live_note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related.",
+   "live_range": "full 48-bit range, dense (1603 cases) x2 runs",
+   "moved_total": 116,
+   "n_attributing_arms": 1,
+   "reason": "no arm shows 2 distinct valid payloads, yet 1536 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+   "record_level": {
+    "EXP-0147-m4-emit-pipeline-misc|n3_sample_read": {
+     "L_legal_values": 1536,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:fault": 116,
+      "outcome:invalid_run": 18
+     },
+     "n_fault_only_values": 64,
+     "n_records": 3206,
+     "outcomes": {
+      "fault": 116,
+      "invalid_run": 18,
+      "ok": 3072
+     }
+    }
+   },
+   "snapshot_label": "isolated-byte-diff",
+   "stable_live_arms": [
+    "n3_sample_read"
+   ],
+   "target": "M4",
+   "verdict": "WITHHOLD"
+  },
+  "ret.linkmode": {
+   "arms": {
+    "EXP-0140-m4-emit-mov-cf|cf|ret.linkmode@12": {
+     "L_legal_values": 32,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {
+      "fault": 242
+     },
+     "n_cases": 533,
+     "n_fault_cells": 242,
+     "n_fault_only_values": 224,
+     "n_keyed_cells": 277,
+     "per_run": {
+      "m4_20260828_run01": {
+       "L_legal_values": 0,
+       "V_all_signatures": 0,
+       "V_valid_payloads": 0,
+       "moved": 0,
+       "n_cases": 256,
+       "n_contam": 256,
+       "n_keyed_cells": 0,
+       "n_values_indexed": 0
+      },
+      "m4_20260828_run02": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "m4_20260828_run03": {
+       "L_legal_values": 3,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 3,
+       "n_cases": 21,
+       "n_contam": 0,
+       "n_keyed_cells": 21,
+       "n_values_indexed": 21
+      }
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret.linkmode": {
+     "L_legal_values": 32,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {
+      "fault": 667
+     },
+     "n_cases": 768,
+     "n_fault_cells": 667,
+     "n_fault_only_values": 224,
+     "n_keyed_cells": 763,
+     "per_run": {
+      "g17p-20260830-cf01a": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 2,
+       "n_keyed_cells": 254,
+       "n_values_indexed": 254
+      },
+      "g17p-20260830-cf01d": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 0,
+       "n_keyed_cells": 256,
+       "n_values_indexed": 256
+      },
+      "g17p-20260830-cf02d": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 3,
+       "n_keyed_cells": 253,
+       "n_values_indexed": 253
+      }
+     }
+    },
+    "EXP-0179-g17p-call|C1_flat/idx15|L": {
+     "L_legal_values": 4,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 2,
+     "hard_class_counts": {},
+     "n_cases": 12,
+     "n_fault_cells": 0,
+     "n_fault_only_values": 0,
+     "n_keyed_cells": 12,
+     "per_run": {
+      "g17p_20260830_run01": {
+       "L_legal_values": 4,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 2,
+       "moved": 2,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      },
+      "g17p_20260830_run03": {
+       "L_legal_values": 4,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 2,
+       "moved": 2,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      },
+      "g17p_20260830_run04": {
+       "L_legal_values": 4,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 2,
+       "moved": 2,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      }
+     }
+    },
+    "EXP-0179-g17p-call|C2_nested/idx7|L": {
+     "L_legal_values": 4,
+     "V_all_signatures": 3,
+     "V_valid_payloads": 3,
+     "hard_class_counts": {},
+     "n_cases": 12,
+     "n_fault_cells": 0,
+     "n_fault_only_values": 0,
+     "n_keyed_cells": 12,
+     "per_run": {
+      "g17p_20260830_run01": {
+       "L_legal_values": 4,
+       "V_all_signatures": 1,
+       "V_valid_payloads": 1,
+       "moved": 0,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      },
+      "g17p_20260830_run03": {
+       "L_legal_values": 4,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 2,
+       "moved": 2,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      },
+      "g17p_20260830_run04": {
+       "L_legal_values": 4,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 2,
+       "moved": 2,
+       "n_cases": 4,
+       "n_contam": 0,
+       "n_keyed_cells": 4,
+       "n_values_indexed": 4
+      }
+     }
+    }
+   },
+   "bucket": "STABLE-LIVE",
+   "case": "A",
+   "cross_run": {
+    "cfN|ret.linkmode": {
+     "agree": 253,
+     "agree_pct": 100.0,
+     "common": 253,
+     "disagreements": 0,
+     "movedA": 32,
+     "movedB": 32,
+     "n_valuesA": 256,
+     "n_valuesB": 253,
+     "runA": "g17p-20260830-cf01d",
+     "runB": "g17p-20260830-cf02d"
+    }
+   },
+   "evidence": [
+    "EXP-0156"
+   ],
+   "geometry": {
+    "start": 8,
+    "width": 8
+   },
+   "is_control": false,
+   "live_label": "hardware-run",
+   "live_note": "",
+   "live_range": "0..255 dense (all 256 values)",
+   "moved_total": 64,
+   "n_attributing_arms": 4,
+   "reason": "an attributing arm shows 3 distinct VALID payloads",
+   "record_level": {
+    "EXP-0140-m4-emit-mov-cf|cf|ret.linkmode@12": {
+     "L_legal_values": 32,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:fault": 242,
+      "outcome:skipped": 256
+     },
+     "n_fault_only_values": 224,
+     "n_records": 533,
+     "outcomes": {
+      "fault": 242,
+      "ok": 35,
+      "skipped": 256
+     }
+    },
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret.linkmode": {
+     "L_legal_values": 32,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:fault": 667,
+      "outcome:invalid_run": 5
+     },
+     "n_fault_only_values": 224,
+     "n_records": 768,
+     "outcomes": {
+      "fault": 667,
+      "invalid_run": 5,
+      "ok": 96
+     }
+    },
+    "EXP-0179-g17p-call|C1_flat/idx15|L": {
+     "L_legal_values": 4,
+     "V_valid_payloads": 2,
+     "invalid_reasons": {},
+     "n_fault_only_values": 0,
+     "n_records": 12,
+     "outcomes": {
+      "ok": 6,
+      "wrong_value": 6
+     }
+    },
+    "EXP-0179-g17p-call|C2_nested/idx7|L": {
+     "L_legal_values": 4,
+     "V_valid_payloads": 3,
+     "invalid_reasons": {},
+     "n_fault_only_values": 0,
+     "n_records": 12,
+     "outcomes": {
+      "ok": 4,
+      "wrong_value": 8
+     }
+    }
+   },
+   "snapshot_label": "hardware-run",
+   "stable_live_arms": [
+    "cfN|ret.linkmode"
+   ],
+   "target": "G17P",
+   "verdict": "STANDS"
+  },
+  "ret_luse.linkmode": {
+   "arms": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode": {
+     "L_legal_values": 32,
+     "V_all_signatures": 2,
+     "V_valid_payloads": 1,
+     "hard_class_counts": {
+      "fault": 658
+     },
+     "n_cases": 768,
+     "n_fault_cells": 658,
+     "n_fault_only_values": 224,
+     "n_keyed_cells": 754,
+     "per_run": {
+      "g17p-20260830-cf01a": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 1,
+       "n_keyed_cells": 255,
+       "n_values_indexed": 255
+      },
+      "g17p-20260830-cf01d": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 1,
+       "n_keyed_cells": 255,
+       "n_values_indexed": 255
+      },
+      "g17p-20260830-cf02d": {
+       "L_legal_values": 32,
+       "V_all_signatures": 2,
+       "V_valid_payloads": 1,
+       "moved": 32,
+       "n_cases": 256,
+       "n_contam": 12,
+       "n_keyed_cells": 244,
+       "n_values_indexed": 244
+      }
+     }
+    }
+   },
+   "bucket": "STABLE-LIVE",
+   "case": "C",
+   "cross_run": {
+    "cfN|ret_luse.linkmode": {
+     "agree": 244,
+     "agree_pct": 100.0,
+     "common": 244,
+     "disagreements": 0,
+     "movedA": 32,
+     "movedB": 32,
+     "n_valuesA": 255,
+     "n_valuesB": 244,
+     "runA": "g17p-20260830-cf01d",
+     "runB": "g17p-20260830-cf02d"
+    }
+   },
+   "evidence": [
+    "EXP-0156"
+   ],
+   "geometry": {
+    "start": 8,
+    "width": 8
+   },
+   "is_control": false,
+   "live_label": "hardware-run",
+   "live_note": "",
+   "live_range": "0..255 dense (all 256 values)",
+   "moved_total": 64,
+   "n_attributing_arms": 1,
+   "reason": "no arm shows 2 distinct valid payloads, yet 32 distinct values are observed LEGAL: >=2 legal values are indistinguishable, which is an INERTNESS observation that `moved` re-scored as movement",
+   "record_level": {
+    "EXP-0156-g17p-emit-cf-mem|cfN|ret_luse.linkmode": {
+     "L_legal_values": 32,
+     "V_valid_payloads": 1,
+     "invalid_reasons": {
+      "outcome:fault": 658,
+      "outcome:invalid_run": 14
+     },
+     "n_fault_only_values": 224,
+     "n_records": 768,
+     "outcomes": {
+      "fault": 658,
+      "invalid_run": 14,
+      "ok": 96
+     }
+    }
+   },
+   "snapshot_label": "hardware-run",
+   "stable_live_arms": [
+    "cfN|ret_luse.linkmode"
+   ],
+   "target": "G17P",
+   "verdict": "WITHHOLD"
+  }
+ }
+}

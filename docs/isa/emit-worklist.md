@@ -8,16 +8,16 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 39 | 127 | 166 |
+| 38 | 128 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 20 |
-| 2 | 27 |
-| 3 | 25 |
+| 1 | 21 |
+| 2 | 25 |
+| 3 | 27 |
 | 4 | 14 |
 | 5 | 11 |
 | 6 | 9 |
@@ -36,7 +36,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 |---|---:|
 | `dst` | 38 |
 | `srcA` | 14 |
-| `tail` | 12 |
+| `tail` | 13 |
 | `b3` | 11 |
 | `src` | 10 |
 | `src_flag` | 9 |
@@ -50,7 +50,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `flags` | 7 |
 | `mode` | 6 |
 
-## ONE field away (20 instructions)
+## ONE field away (21 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -70,12 +70,13 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `n4_cf_word` | `b3` | tokenization-only |
 | `n4_rt_word` | `dst` | tokenization-only |
 | `ret` | `scoreboard` | corpus-correlation |
+| `ret_luse` | `linkmode` | untested |
 | `shift_amt_move` | `src_flag` | untested |
 | `stop` | `reserved` | untested |
 | `tex_deriv` | `dstsrc` | untested |
 | `tex_sample` | `mode` | untested |
 
-## TWO fields away (27 instructions)
+## TWO fields away (25 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
@@ -93,11 +94,9 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `isel8` | `cmpA`, `cmpB` | untested, untested |
 | `ishift` | `src_cache`, `pad9` | untested, untested |
 | `iunary` | `b1`, `opsel` | untested, untested |
-| `jump_cond` | `cf_scope`, `reserved` | untested, untested |
 | `mask_op` | `mask_bank`, `scope_kind` | corpus-correlation, single-template-inference |
 | `mem_fence8` | `mask`, `tail` | corpus-correlation, tokenization-only |
 | `n2_op8` | `dst`, `body` | tokenization-only, tokenization-only |
-| `n3_sample_read` | `b1`, `b3` | untested, untested |
 | `pop_reconverge` | `scope`, `reserved` | untested, untested |
 | `ray_move_copy6` | `dst`, `src` | untested, untested |
 | `simd_ballot` | `pred`, `cache` | untested, single-template-inference |
@@ -120,7 +119,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 254 |
+| `untested` | 257 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 30 |

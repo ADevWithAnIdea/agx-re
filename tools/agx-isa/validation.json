@@ -16,26 +16,26 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 485,
-   "isolated-byte-diff": 64,
+   "hardware-run": 483,
+   "isolated-byte-diff": 63,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 254
+   "untested": 257
   },
   "by_label_pct": {
-   "hardware-run": 46.6,
-   "isolated-byte-diff": 6.2,
+   "hardware-run": 46.4,
+   "isolated-byte-diff": 6.1,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 24.4
+   "untested": 24.7
   },
-  "emittable_instructions": 34,
+  "emittable_instructions": 33,
   "emittable_mnemonics": [
    "bf_add_dst",
    "bf_alu",
@@ -65,14 +65,13 @@
    "pixel_order",
    "psel",
    "reg_move_cb",
-   "ret_luse",
    "rtq_state_move",
    "sel",
    "sr_read_wide",
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 138,
+  "decodable_not_yet_emittable": 139,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -83,7 +82,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 34
+  "emittable_of_emitter_relevant": 33
  },
  "instructions": {
   "falu2": {
@@ -3020,13 +3019,13 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
    "offset": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "56 values sampled",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK)"
+    "note": "27 values reclassified `no_store` (EXP-0140 \u00a78 rule: invalid_run in BOTH gated runs with every trial STATUS OK) | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 36 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
    },
    "reserved": {
     "label": "untested",
@@ -6482,12 +6481,14 @@
    },
    "linkmode": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
+    "range": "STANDS on EXP-0179s `call` sweep, which hit this field with ZERO faults and 2-3 distinct VALID payloads over 4 values on two arms. The dense 0..255 sweep in EXP-0156 is a FAULT WALL (667 of 768 cases fault, one valid payload) and does NOT support the label: the valid-payload evidence covers 4 values, not 256.",
     "target": "G17P",
     "evidence": [
-     "EXP-0156"
+     "EXP-0156",
+     "EXP-0179",
+     "EXP-0192"
     ],
-    "note": ""
+    "note": "EXP-0192: survived the fault-as-movement criterion as Case A, but ONLY because a second arm exists. Its twin `ret_luse.linkmode` has identical label, range and bucket and NO second arm anywhere in the corpus -- the two were never equally supported."
    },
    "scoreboard": {
     "label": "corpus-correlation",
@@ -7767,13 +7768,13 @@
     "note": "EXP-0164 withheld: 256 values dispatched, 1 carrier(s) tested, 0 observations moved. Never moved anything on the ONE carrier tried, so the probe could not have shown liveness either way (the EXP-0155 samp_extra failure mode). Needs a second, structurally different carrier."
    },
    "tail": {
-    "label": "isolated-byte-diff",
+    "label": "untested",
     "range": "full 48-bit range, dense (1603 cases) x2 runs",
     "target": "M4",
     "evidence": [
      "EXP-0147"
     ],
-    "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related."
+    "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related. | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 1522 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
    }
   },
   "cvt_f2h_dst": {
@@ -10981,13 +10982,13 @@
     "note": "EXP-0181 refresh from corpus-correlation: EXP-0156 tested this descriptor's ENTIRE identity claim as a pre-registered control: byte+2 0x54 -> 0x56 with expect_match=True, and it matched in both gated runs -- so ret_luse really is the HW-VALIDATED `ret` (EXP-0035) with one byte changed, at the same accepted sets for both of its fields (linkmode v&0x07==0x04, tail the same 12 values). An identity claim confirmed by a pre-registered hardware control is exactly what this label is for."
    },
    "linkmode": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "0..255 dense (all 256 values)",
     "target": "G17P",
     "evidence": [
      "EXP-0156"
     ],
-    "note": ""
+    "note": "WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 32 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power."
    },
    "tail": {
     "label": "hardware-run",

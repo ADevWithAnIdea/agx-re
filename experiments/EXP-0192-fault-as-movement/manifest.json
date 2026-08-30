@@ -1,0 +1,92 @@
+{
+ "experiment": "EXP-0192-fault-as-movement",
+ "title": "Does fault-vs-ok movement meet the hardware-run / isolated-byte-diff bar?",
+ "status": "COMPLETE",
+ "kind": "pure offline analysis of already-committed evidence",
+ "device_contacted": false,
+ "shaders_compiled": 0,
+ "frozen_at_revision": "8d01daa35a53a478f72fe800dc94d27492c11d77",
+ "frozen_tree_clean": true,
+ "predecessor": "EXP-0191-detection-gate (post_hoc_candidates)",
+ "reused_implementations": [
+  "EXP-0190-indexer-refilter/analysis/collect_raw.py (via work/raw_index.json.gz)",
+  "EXP-0190-indexer-refilter/analysis/audit.py (via analysis/audit.json)",
+  "EXP-0191-detection-gate/analysis/detection_gate.py::payload_of (imported unmodified)"
+ ],
+ "targets_of_underlying_evidence": {
+  "EXP-0156": "G17P",
+  "EXP-0179": "G17P",
+  "EXP-0140": "M4",
+  "EXP-0147": "M4"
+ },
+ "criterion": "PRE_REGISTRATION.md section 4.2 (Case A/B stand, Case C withhold)",
+ "criterion_fired": true,
+ "verdicts": {
+  "ret.linkmode": "STANDS (case A)",
+  "ret_luse.linkmode": "WITHHOLD (case C)",
+  "jump_cond.offset": "WITHHOLD (case C)",
+  "n3_sample_read.tail": "WITHHOLD (case C)",
+  "call.b5 (control)": "STANDS (case A) - control not withheld"
+ },
+ "headline_before": {
+  "emittable": "34 / 166",
+  "emitter_grade_fields": "549 / 1040",
+  "source": "tools/agx-isa/validate_labels.py at this revision"
+ },
+ "headline_if_accepted": {
+  "emittable": "33 / 166",
+  "emitter_grade_fields": "546 / 1040",
+  "family_lost": "ret_luse"
+ },
+ "input_hashes": {
+  "tools/agx-isa/validation.json": "e1208340f5d8b16e5201c964d1a27fb14ee8214a2be09cbc446d4dd0ebf6d075",
+  "tools/agx-isa/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "experiments/EXP-0190-indexer-refilter/work/raw_index.json.gz": "b4f13a2f9694d9ffbd9998f2fa9685d2dc034994c7e706364cdc3071b72af756",
+  "experiments/EXP-0190-indexer-refilter/analysis/audit.json": "caeeafc3760f2683281ad312832f68e9978d3e49747b192898cbb4622c76f86e",
+  "experiments/EXP-0191-detection-gate/analysis/detection_gate.py": "21b9e6bc1b227cc440b8a6df35eeded8c4a071d7f004a93a4e6483f5f39837cf",
+  "experiments/EXP-0191-detection-gate/analysis/reclassify.json": "0ff47d77ee20fb000c83ece3f5eeb5f1e06db79d0e4e6ed704982ddd867fcfe4"
+ },
+ "reproduction": "python3 analysis/valid_payload_audit.py",
+ "edits_outside_this_directory": "NONE. No label changed; reclassify.json is a recommendation.",
+ "clean_room": {
+  "provenance": "derived analysis of already-committed evidence",
+  "apple_binary_introspection": "NONE"
+ },
+ "artifacts": [
+  {
+   "path": "PRE_REGISTRATION.md",
+   "bytes": 13119,
+   "sha256": "ce51c07caa218c05caf4f523107670b4c32a13fb638dc0fad6aa6698635a8321"
+  },
+  {
+   "path": "PROGRESS.md",
+   "bytes": 1854,
+   "sha256": "45675495adaf70058e321b03273e42978172699460241111f3cbbffcd761545e"
+  },
+  {
+   "path": "README.md",
+   "bytes": 3708,
+   "sha256": "a35c8fde7b3f082a3b80e50ee98a3906a0e71ebf79ab245f8d7ebfad237a25f0"
+  },
+  {
+   "path": "RESULTS.md",
+   "bytes": 11070,
+   "sha256": "e5c218d5b6f2c0087c08e6244f726ca873de2d8a07d94fd0aebbc951881bb308"
+  },
+  {
+   "path": "analysis/reclassify.json",
+   "bytes": 3398,
+   "sha256": "e1b06f56bd344de6111c76e97e2636c613b9274f844ea5bbadfcddc75a17959b"
+  },
+  {
+   "path": "analysis/valid_payload_audit.json",
+   "bytes": 25530,
+   "sha256": "9dc1ef7ff42da88f9bdcef4bfbcc9a0093261fce9db8df11479d61215ba4f06a"
+  },
+  {
+   "path": "analysis/valid_payload_audit.py",
+   "bytes": 18717,
+   "sha256": "204d78feb852934bd4f01013a2cee79a12dde01ea6a558c689427a68202fe027"
+  }
+ ]
+}
