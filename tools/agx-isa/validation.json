@@ -11183,7 +11183,7 @@
      "EXP-M4-14",
      "EXP-M4-13"
     ],
-    "note": "LENGTH-RULE DEFECT FLAGGED: the fixed 8-byte length for byte0==0x04 is a CANDIDATE OVER-CONSUMER of a following instruction leader."
+    "note": "LENGTH-RULE DEFECT FLAGGED: the fixed 8-byte length for byte0==0x04 is a CANDIDATE OVER-CONSUMER of a following instruction leader. | EMITTABLE VETO (orchestrator, 2026-08-30): the declared 8-byte length is REFUTED ON HARDWARE. EXP-0157 measured the consumed length directly with a register-witness probe (2304 measurements, both controls passing, one proving it can detect a 6-byte length): all six patterns from our own G17P compiles consume TWELVE bytes. The corrected rule was not applied to the decoder because it regresses the corpus gate (823 clean files, -10; 390568 leftover bytes, +1964; own firings 55 -> 1). Until that conflict is resolved an emitter MUST NOT emit this descriptor -- emitting 8 bytes would desynchronise every instruction after it."
    },
    "dst": {
     "label": "tokenization-only",
