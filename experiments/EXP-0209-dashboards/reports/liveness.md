@@ -10,10 +10,10 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
-| `PASS` | 181 | 1212 | the raw meets the rule |
+| `PASS` | 180 | 1212 | the raw meets the rule |
 | `REJECT` | 83 | 1212 | the raw CONTRADICTS the rule |
 | `INSUFFICIENT` | 537 | 1212 | the raw lacks what the rule needs |
-| `N/A` | 411 | 1212 | the rule does not apply to this claim |
+| `N/A` | 412 | 1212 | the rule does not apply to this claim |
 
 ### `REJECT` — 83 row(s), by reason
 

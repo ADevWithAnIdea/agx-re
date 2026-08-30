@@ -159,11 +159,52 @@ def baseline_key(a):
     return vkey(a["baselines"][0]) if a["baselines"] else None
 
 
+def span_bits(hexstr, start, width):
+    """A THIRD independent implementation of the field extraction -- byte-wise
+    over the hex string -- used only to re-derive Gate A offline."""
+    b = bytes.fromhex(hexstr)
+    v = 0
+    for i in range(width):
+        bit = start + i
+        if bit // 8 >= len(b):
+            return None
+        v |= ((b[bit // 8] >> (bit % 8)) & 1) << i
+    return v
+
+
 def ledger(a1, a2):
-    """GATE A, per arm."""
+    """GATE A, per arm, RE-DERIVED OFFLINE from the raw.
+
+    The driver's own `ledger_ok` compares the requested value against the
+    TOKENIZER's decode of the whole db field. That is wrong for an arm that
+    sweeps a SUB-SPAN of a wider field: `irotate.operands` is 40 bits and its
+    byte-wise arms request 8 of them, so the tokenizer correctly returns the
+    whole 40-bit value and the comparison fails on 3232 cases of run03 -- with
+    `requested_bytes == actual_bytes` TRUE in every one of them. The defect is in
+    the comparison, not in the dispatch, and §9 of
+    RE_EXPERIMENT_PROCESS_CORRECTIONS.md is explicit that such a case is
+    reclassified from raw rather than re-run.
+
+    The correct assertion, computed here from `actual_bytes` + `start` + `width`:
+
+        requested_bytes == actual_bytes
+        AND  bits(actual_bytes, start, width) == requested value
+
+    plus, when the arm's span IS the whole db field, the tokenizer's independent
+    decode must agree too.
+    """
     cases = list(a1["cases"].values()) + list(a2["cases"].values())
-    have = [c for c in cases if "ledger_ok" in c]
-    okn = sum(1 for c in have if c["ledger_ok"])
+    have = [c for c in cases if "actual_bytes" in c]
+    okn = 0
+    tokx = 0
+    for c in have:
+        sb = span_bits(c["actual_bytes"], c["start"], c["width"])
+        same = c.get("requested_bytes") == c.get("actual_bytes")
+        val = c["value"] & ((1 << c["width"]) - 1)
+        if same and sb == val:
+            okn += 1
+        if c.get("decoded_via") == "pinned_tokenizer" and c.get("decoded_actual") == val:
+            tokx += 1
     req = {c.get("requested_value") for c in have}
     act = {c.get("actual_bytes") for c in have}
     byact = {}
@@ -172,6 +213,7 @@ def ledger(a1, a2):
     collisions = {k: sorted(v) for k, v in byact.items() if len(v) > 1}
     return {"cases_with_ledger": len(have), "cases_total": len(cases),
             "ledger_ok": okn, "ledger_fail": len(have) - okn,
+            "tokenizer_cross_check_agrees": tokx,
             "distinct_requested_values": len(req),
             "distinct_actual_encodings": len(act),
             "encoding_collisions": len(collisions),

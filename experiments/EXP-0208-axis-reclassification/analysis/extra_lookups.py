@@ -35,7 +35,7 @@ for d in db["instructions"]:
         FIELDS[d["mnemonic"]][f["name"]] = (f.get("start"), f.get("width"))
 
 MATCHANN = re.compile(r"match\[[0-9:]+\]\s*=\s*\w+")
-BYTEPOS = re.compile(r"^byte[+_]?(\d+)$")
+BYTEPOS = re.compile(r"^(?:byte[+_]?|b)(\d+)(?:_?(?:hi|lo|hinib|lonib|bit\d+))?$")
 
 def components(name):
     n = MATCHANN.sub("", name)
@@ -107,6 +107,13 @@ for m, f in rows:
         bp = byte_pos(fl)
         if bp is not None and b0 is not None and b0 <= bp <= b1:
             L9.append(g); continue
+        # L9' the record's own byte index (`byte`, `byte_index`, ...) landing in the span
+        if b0 is not None and g.get("fidx") and any(b0 <= i <= b1 for i in g["fidx"]):
+            L9.append(g); continue
+        # L12 name containment: legacy/split names (`dst_desc` -> `dst_desc_lo`)
+        na, nb2 = re.sub(r"[^a-z0-9]", "", fl.lower()), re.sub(r"[^a-z0-9]", "", f.lower())
+        if len(na) >= 3 and len(nb2) >= 3 and (na.startswith(nb2) or nb2.startswith(na)):
+            L10.append(dict(g, why="name-containment")); continue
         if st is not None and w and g.get("fstart") and g.get("fwidth"):
             for s2 in g["fstart"]:
                 for w2 in g["fwidth"]:

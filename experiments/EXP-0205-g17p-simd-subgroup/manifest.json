@@ -4,6 +4,17 @@
   "category": "OWN-SHADER + HW-PROBE + PUBLIC"
  },
  "committed": false,
+ "deliverables": {
+  "CAPTURE_CONTRACT.json": "frozen hashes, arms, instruments, timeouts, gate, amendments",
+  "PRE_REGISTRATION.md": "frozen hypotheses + AMENDMENT 1 + AMENDMENT 2 (revision B)",
+  "README.md": "question, method, headline results, reproduction, attestation",
+  "RESULTS.md": "six-axis verdicts, exact counts, limitations, next experiments",
+  "analysis/field_verdicts.json": "rich verdicts + db_defects (revision B)",
+  "analysis/field_verdicts_flat.json": "flat, keyed <mnemonic>.<field>",
+  "analysis/field_verdicts_revA.json": "revision A retained and reclassified",
+  "analysis/gate_selftest.py": "offline proof the gate can return 'no' (13/13)",
+  "analysis/report_revA.txt / report_revB.txt": "derived bit-structure + census"
+ },
  "edits_outside_this_directory": "NONE (tools/agx-isa, docs/ and PROVENANCE.md untouched)",
  "experiment": "EXP-0205",
  "files": {
@@ -16,8 +27,8 @@
    "sha256": "0b135281480f084ce928754af49f9bbd7408ad6a31fe635d7f83e68fe7641aab"
   },
   "PROGRESS.md": {
-   "bytes": 5947,
-   "sha256": "243cf54d1a6697757c701a73e488c66bdae49561fd1103ddb7a220889b9b9e0d"
+   "bytes": 10138,
+   "sha256": "50195705e0c6109c2e288952dbd387403c60ba499f54bd925e9c99c274af9292"
   },
   "README.md": {
    "bytes": 5799,
@@ -118,6 +129,10 @@
   "kernels/k_shuffle.metal": {
    "bytes": 3563,
    "sha256": "da81aff0687e528a397dcee9783799160f5f68ee906b2bab4cad1ba3f23ae1fc"
+  },
+  "manifest.json": {
+   "bytes": 12053,
+   "sha256": "525bd29c46b0613bbd45cfc21df7af96936f3c48c015c7988912cada16d463bf"
   },
   "pinned/agxparse.py": {
    "bytes": 18730,
@@ -231,6 +246,7 @@
   "requires_device": false,
   "script": "analysis/gate_selftest.py"
  },
+ "raw_size_note": "raw/ is ~50 MB of PLAIN JSON TEXT -- no binary, no archive, no Apple blob. The two revision-B runs dominate at ~22 MB each because every litmus case records three 256-word readback plans plus the ledger, which is exactly the complete-state capture RE_EXPERIMENT_PROCESS_CORRECTIONS.md section 4 asks for. Flagged for the orchestrator: if that is too large to commit, the protocol's alternative is a manifest with origin, size, hash, generation command and a lawful excerpt -- every one of which is already in this file and in README.md. Do NOT compress into an archive; raw stays text.",
  "repo_revision": "7ca1c13feb5161fd35801466d86e0ebcce319c88",
  "runs": {
   "g17p_20260830_run01": {
@@ -290,7 +306,7 @@
   "decode": "pinned/isadb.py + pinned/db.json (READ-ONLY)",
   "dispatch": "agxrun_persist (pinned/agxrun_persist.m) via the pinned leak-free saferunner"
  },
- "utc": "2026-08-30T19:38:35Z",
+ "utc": "2026-08-30T19:39:43Z",
  "verdict_files": {
   "flat": "analysis/field_verdicts_flat.json",
   "reports": [

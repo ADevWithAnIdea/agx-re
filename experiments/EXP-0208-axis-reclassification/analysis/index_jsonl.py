@@ -32,7 +32,7 @@ FIELD_KEYS = ("field", "field_name", "fld")
 VAL_KEYS = ("value", "val", "requested", "requested_value")
 BYTE_KEYS = ("bytes", "actual_bytes", "instr_bytes", "encoded", "hex")
 REQ_KEYS = ("requested_bytes", "req_bytes", "bytes_requested", "anchor_bytes")
-FIDX_KEYS = ("byte_index", "byteidx", "byte_off")
+FIDX_KEYS = ("byte_index", "byteidx", "byte_off", "byte", "b_idx", "byte_no")
 
 def main():
     files = []

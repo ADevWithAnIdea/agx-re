@@ -7,7 +7,7 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 | axis | PASS | REJECT | INSUFFICIENT | N/A | rows |
 |---|---:|---:|---:|---:|---:|
 | audit | 467 | 556 | 149 | 40 | 1212 |
-| geometry | 511 | 91 | 438 | 172 | 1212 |
+| geometry | 526 | 72 | 442 | 172 | 1212 |
 | liveness | 143 | 147 | 581 | 341 | 1212 |
 | recipe | 41 | 55 | 535 | 581 | 1212 |
 | semantics | 5 | 42 | 584 | 581 | 1212 |
@@ -15,7 +15,7 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 
 ## Rows that clear EVERY rule that applies to them
 
-63 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
+66 of 1212 claim rows have no blocking rule. This is not an emittability count: it is a count of CLAIM ROWS whose cited raw survives all nine section-8 conditions, and a row can be here because most rules returned `N/A` for it.
 
 | row | label | target | rules that returned PASS |
 |---|---|---|---|
@@ -35,6 +35,9 @@ Section 8: *"It must not derive a single `N of 166 emittable` headline from fiel
 | `get_sr.dst_hi` | untested | G17P | R1, R2, R3, R4, R6 |
 | `get_sr.form` | untested | G17P | R1, R2, R3, R4 |
 | `h_coord_hi_ext.tail` | untested | G17P | R1, R2, R3, R4 |
+| `iadd2.b2_fmt` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
+| `ibfe.b2_bit0` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
+| `ibfe.sign_ext` | single-template-inference | G17P | R1, R2, R3, R4, R6 |
 | `ibfins.b10` | untested | G17P | R1, R2, R3, R4 |
 | `ibfins.b6hi` | untested | G17P | R1, R2, R3, R4 |
 | `ibitcount.cache` | untested | G17P | R1, R2, R3, R4, R6 |

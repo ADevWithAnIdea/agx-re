@@ -2,7 +2,7 @@
  "_concurrency": {
   "max_other_gpu_agent_processes": 21,
   "note": "GATE E: a confirmation run may not rely on a busy machine. This is a MEASUREMENT of how busy it was, taken from raw/<run>/procs.jsonl, not a claim in prose. Non-zero here caps every reproducibility axis at `auditable`.",
-  "samples": 36
+  "samples": 45
  },
  "_gate": "PRE_REGISTRATION.md section 7 + PRE_REGISTRATION_A2.md (Gates A/B/C/E), recomputed from raw",
  "_runs": [
@@ -11,6 +11,56 @@
  ],
  "_selftest": "passed",
  "arms": {
+  "CTRL:b6@cl_atomic._agc.main+52": {
+   "L": 16,
+   "V": 1,
+   "agreement": null,
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 16
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "b6",
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 16,
+   "occ_dim": null,
+   "off": 52,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 48,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
   "CTRL:b6@cl_chain._agc.main+54": {
    "L": 16,
    "V": 3,
@@ -181,6 +231,59 @@
    "values_dispatched": 8,
    "width": 8
   },
+  "CTRL:byte0@cl_atomic._agc.main+124": {
+   "L": 6,
+   "V": 1,
+   "agreement": null,
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 6,
+    "reject": 2
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "_byte0",
+   "hard": {
+    "fault": 2
+   },
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 8,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 8,
+   "n_valid": 6,
+   "occ_dim": null,
+   "off": 124,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control_termination",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 0,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 8
+  },
   "CTRL:byte0@cl_leaf._agc.main+88": {
    "L": 6,
    "V": 1,
@@ -289,6 +392,61 @@
    "unclassified": {},
    "values_dispatched": 16,
    "width": 8
+  },
+  "CTRL:offset@cl_atomic._agc.main+52": {
+   "L": 8,
+   "V": 2,
+   "agreement": null,
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 3,
+    "correct": 5
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 8,
+   "distinct_encodings": 8,
+   "distinct_requested_values": 8,
+   "encoding_collision": false,
+   "field": "offset",
+   "hard": {},
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 8,
+   "moved": 3,
+   "moved_values": [
+    281474976710538,
+    281474976710540,
+    281474976710544
+   ],
+   "n_records": 8,
+   "n_valid": 8,
+   "occ_dim": null,
+   "off": 52,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 56,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 8,
+   "width": 48
   },
   "CTRL:offset@cl_chain._agc.main+54": {
    "L": 4,
@@ -801,6 +959,62 @@
    "values_dispatched": 16,
    "width": 8
   },
+  "CTRL:scope_kind@cl_atomic._agc.main+66": {
+   "L": 15,
+   "V": 2,
+   "agreement": null,
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "coherent": 1,
+    "correct": 14,
+    "reject": 1
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "scope_kind",
+   "hard": {
+    "fault": 1
+   },
+   "instr": "pop_reconverge",
+   "key": "pop_reconverge.scope",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 1,
+   "moved_values": [
+    1
+   ],
+   "n_records": 16,
+   "n_valid": 15,
+   "occ_dim": 2,
+   "off": 66,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "_agc.main",
+   "role": "control",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
+  },
   "CTRL:synth_word@cl_chain._agc.main+50": {
    "L": 3,
    "V": 2,
@@ -906,6 +1120,56 @@
    "unclassified": {},
    "values_dispatched": 3,
    "width": 32
+  },
+  "CTRL:tail@cl_atomic.l__ZL4m_atPU9M+32": {
+   "L": 16,
+   "V": 1,
+   "agreement": null,
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 16
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "disagree": 0,
+   "distinct_actual_encodings": 16,
+   "distinct_encodings": 16,
+   "distinct_requested_values": 16,
+   "encoding_collision": false,
+   "field": "tail",
+   "hard": {},
+   "instr": "ret_luse",
+   "key": "ret_luse.linkmode",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 16,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 16,
+   "n_valid": 16,
+   "occ_dim": 18,
+   "off": 32,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "region": "l__ZL4m_atPU9MTLdeviceN5metal7_atomicIjvEEjj",
+   "role": "control",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {},
+   "sem_checked_total": 0,
+   "sem_surviving_models": [],
+   "start": 24,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 16,
+   "width": 8
   },
   "CTRL:tail@cl_chain.l__ZL5c_midjj+104": {
    "L": 16,
@@ -1014,7 +1278,7 @@
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "accepted-inert",
     "reproducibility": "auditable",
     "semantics": "semantically-mapped(single surviving model: M1_inert)",
     "target": "G17P-direct"
@@ -1028,7 +1292,18 @@
    "carrier": "cl_atomic",
    "comparable": 0,
    "contaminated_cases": 1,
-   "control": [],
+   "control": [
+    {
+     "arm": "CTRL:b6@cl_atomic._agc.main+52",
+     "fires": false,
+     "why": "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert"
+    },
+    {
+     "arm": "CTRL:offset@cl_atomic._agc.main+52",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
    "disagree": 0,
    "distinct_actual_encodings": 256,
    "distinct_encodings": 256,
@@ -1038,7 +1313,6 @@
    "hard": {},
    "inert": "UNRESOLVED",
    "inert_blockers": [
-    "no control arm",
     "cross-run agreement None < 0.99",
     "fewer than 2 gated runs"
    ],
@@ -1063,8 +1337,7 @@
     "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
     "moved=0",
     "cross-run agreement None < 0.99",
-    "fewer than 2 gated runs",
-    "no control arm"
+    "fewer than 2 gated runs"
    ],
    "region": "_agc.main",
    "role": "target",
@@ -1688,6 +1961,351 @@
    "values_dispatched": 256,
    "width": 8
   },
+  "call.tail@cl_leaf._agc.main+54": {
+   "L": 256,
+   "V": 1,
+   "agreement": null,
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "auditable",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 256
+   },
+   "carrier": "cl_leaf",
+   "comparable": 0,
+   "contaminated_cases": 4,
+   "control": [
+    {
+     "arm": "CTRL:offset@cl_leaf._agc.main+54",
+     "fires": true,
+     "why": "control produced a valid<->hard split (4 valid, 4 hard)"
+    },
+    {
+     "arm": "CTRL:b6@cl_leaf._agc.main+54",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
+   "encoding_collision": false,
+   "field": "tail",
+   "hard": {},
+   "inert": "UNRESOLVED",
+   "inert_blockers": [
+    "cross-run agreement None < 0.99",
+    "fewer than 2 gated runs"
+   ],
+   "instr": "call",
+   "key": "call.tail",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 256,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 256,
+   "n_valid": 256,
+   "occ_dim": null,
+   "off": 54,
+   "prediction": {
+    "checked": 0,
+    "held": 0,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0",
+    "cross-run agreement None < 0.99",
+    "fewer than 2 gated runs"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 256,
+     "hit": 256,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 256,
+     "hit": 1,
+     "miss": 255,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       24,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_low_bit": {
+     "checked": 256,
+     "hit": 128,
+     "miss": 128,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       9,
+       "reject",
+       "correct"
+      ],
+      [
+       11,
+       "reject",
+       "correct"
+      ],
+      [
+       13,
+       "reject",
+       "correct"
+      ],
+      [
+       15,
+       "reject",
+       "correct"
+      ],
+      [
+       17,
+       "reject",
+       "correct"
+      ],
+      [
+       19,
+       "reject",
+       "correct"
+      ],
+      [
+       21,
+       "reject",
+       "correct"
+      ],
+      [
+       23,
+       "reject",
+       "correct"
+      ],
+      [
+       25,
+       "reject",
+       "correct"
+      ],
+      [
+       27,
+       "reject",
+       "correct"
+      ],
+      [
+       29,
+       "reject",
+       "correct"
+      ],
+      [
+       31,
+       "reject",
+       "correct"
+      ],
+      [
+       33,
+       "reject",
+       "correct"
+      ],
+      [
+       35,
+       "reject",
+       "correct"
+      ],
+      [
+       37,
+       "reject",
+       "correct"
+      ],
+      [
+       39,
+       "reject",
+       "correct"
+      ],
+      [
+       41,
+       "reject",
+       "correct"
+      ],
+      [
+       43,
+       "reject",
+       "correct"
+      ],
+      [
+       45,
+       "reject",
+       "correct"
+      ],
+      [
+       47,
+       "reject",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 768,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 104,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 256,
+   "width": 8
+  },
   "carrier_open": {
    "L": 0,
    "V": 0,
@@ -2206,7 +2824,7 @@
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "live",
     "reproducibility": "auditable",
     "semantics": "hypothesis(all pre-registered models refuted)",
     "target": "G17P-direct"
@@ -4040,7 +4658,7 @@
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "accepted-inert",
     "reproducibility": "auditable",
     "semantics": "semantically-mapped(single surviving model: M1_inert)",
     "target": "G17P-direct"
@@ -4054,7 +4672,13 @@
    "carrier": "cl_atomic",
    "comparable": 0,
    "contaminated_cases": 0,
-   "control": [],
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cl_atomic._agc.main+66",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
    "disagree": 0,
    "distinct_actual_encodings": 52,
    "distinct_encodings": 52,
@@ -4064,7 +4688,6 @@
    "hard": {},
    "inert": "UNRESOLVED",
    "inert_blockers": [
-    "no control arm",
     "cross-run agreement None < 0.99",
     "fewer than 2 gated runs"
    ],
@@ -4089,8 +4712,7 @@
     "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
     "moved=0",
     "cross-run agreement None < 0.99",
-    "fewer than 2 gated runs",
-    "no control arm"
+    "fewer than 2 gated runs"
    ],
    "region": "_agc.main",
    "role": "target",
@@ -5310,7 +5932,7 @@
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "accepted-inert",
     "reproducibility": "auditable",
     "semantics": "semantically-mapped(single surviving model: M3_inert)",
     "target": "G17P-direct"
@@ -5324,7 +5946,13 @@
    "carrier": "cl_atomic",
    "comparable": 0,
    "contaminated_cases": 2,
-   "control": [],
+   "control": [
+    {
+     "arm": "CTRL:scope_kind@cl_atomic._agc.main+66",
+     "fires": true,
+     "why": "control produced 2 distinct valid payloads"
+    }
+   ],
    "disagree": 0,
    "distinct_actual_encodings": 256,
    "distinct_encodings": 256,
@@ -5334,7 +5962,6 @@
    "hard": {},
    "inert": "UNRESOLVED",
    "inert_blockers": [
-    "no control arm",
     "cross-run agreement None < 0.99",
     "fewer than 2 gated runs"
    ],
@@ -5359,8 +5986,7 @@
     "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
     "moved=0",
     "cross-run agreement None < 0.99",
-    "fewer than 2 gated runs",
-    "no control arm"
+    "fewer than 2 gated runs"
    ],
    "region": "_agc.main",
    "role": "target",
@@ -5992,13 +6618,13 @@
    "width": 8
   },
   "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32": {
-   "L": 15,
+   "L": 64,
    "V": 1,
    "agreement": null,
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "live(legal-set-bounded)",
     "reproducibility": "auditable",
     "semantics": "hypothesis(all pre-registered models refuted)",
     "target": "G17P-direct"
@@ -6007,38 +6633,44 @@
     "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
    },
    "buckets": {
-    "correct": 15,
-    "reject": 46
+    "correct": 64,
+    "reject": 192
    },
    "carrier": "cl_atomic",
    "comparable": 0,
-   "contaminated_cases": 15,
-   "control": [],
+   "contaminated_cases": 65,
+   "control": [
+    {
+     "arm": "CTRL:tail@cl_atomic.l__ZL4m_atPU9M+32",
+     "fires": false,
+     "why": "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert"
+    }
+   ],
    "disagree": 0,
-   "distinct_actual_encodings": 61,
-   "distinct_encodings": 61,
-   "distinct_requested_values": 61,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
    "encoding_collision": false,
    "field": "linkmode",
    "hard": {
-    "fault": 46
+    "fault": 192
    },
    "inert": "UNRESOLVED",
    "inert_blockers": [
-    "no control arm",
+    "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert",
     "cross-run agreement None < 0.99",
     "fewer than 2 gated runs",
-    "only 15 of 61 dispatched values produced a valid payload -- the range is bounded by a hazard, not swept clean"
+    "only 64 of 256 dispatched values produced a valid payload -- the range is bounded by a hazard, not swept clean"
    ],
    "instr": "ret_luse",
    "key": "ret_luse.linkmode",
    "ledger_bad": 0,
    "ledger_bad_values": [],
-   "ledger_ok": 61,
+   "ledger_ok": 256,
    "moved": 0,
    "moved_values": [],
-   "n_records": 61,
-   "n_valid": 15,
+   "n_records": 256,
+   "n_valid": 64,
    "occ_dim": 18,
    "off": 32,
    "prediction": {
@@ -6052,8 +6684,8 @@
     "moved=0",
     "cross-run agreement None < 0.99",
     "fewer than 2 gated runs",
-    "no control arm",
-    "GATE C: no pre-registered semantic model survived ({'M1_link': '1/2', 'M2_accepted_set': '38/61', 'M3_exact': '47/61', 'M4_inert': '15/61'})"
+    "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert",
+    "GATE C: no pre-registered semantic model survived ({'M1_link': '1/2', 'M2_accepted_set': '160/256', 'M3_exact': '193/256', 'M4_inert': '64/256'})"
    ],
    "region": "l__ZL4m_atPU9MTLdeviceN5metal7_atomicIjvEEjj",
    "role": "target",
@@ -6074,9 +6706,9 @@
      ]
     },
     "M2_accepted_set": {
-     "checked": 61,
-     "hit": 38,
-     "miss": 23,
+     "checked": 256,
+     "hit": 160,
+     "miss": 96,
      "miss_values": [
       [
        2,
@@ -6192,13 +6824,18 @@
        60,
        "correct",
        "reject"
+      ],
+      [
+       62,
+       "reject",
+       "correct"
       ]
      ]
     },
     "M3_exact": {
-     "checked": 61,
-     "hit": 47,
-     "miss": 14,
+     "checked": 256,
+     "hit": 193,
+     "miss": 63,
      "miss_values": [
       [
        2,
@@ -6269,13 +6906,63 @@
        58,
        "reject",
        "correct"
+      ],
+      [
+       62,
+       "reject",
+       "correct"
+      ],
+      [
+       66,
+       "reject",
+       "correct"
+      ],
+      [
+       70,
+       "reject",
+       "correct"
+      ],
+      [
+       74,
+       "reject",
+       "correct"
+      ],
+      [
+       78,
+       "reject",
+       "correct"
+      ],
+      [
+       82,
+       "reject",
+       "correct"
+      ],
+      [
+       86,
+       "reject",
+       "correct"
+      ],
+      [
+       90,
+       "reject",
+       "correct"
+      ],
+      [
+       94,
+       "reject",
+       "correct"
+      ],
+      [
+       98,
+       "reject",
+       "correct"
       ]
      ]
     },
     "M4_inert": {
-     "checked": 61,
-     "hit": 15,
-     "miss": 46,
+     "checked": 256,
+     "hit": 64,
+     "miss": 192,
      "miss_values": [
       [
        0,
@@ -6400,12 +7087,12 @@
      ]
     }
    },
-   "sem_checked_total": 185,
+   "sem_checked_total": 770,
    "sem_surviving_models": [],
    "start": 8,
    "synthesized": false,
    "unclassified": {},
-   "values_dispatched": 61,
+   "values_dispatched": 256,
    "width": 8
   },
   "ret_luse.linkmode@cl_chain.l__ZL5c_midjj+104": {
@@ -6921,27 +7608,28 @@
    "width": 8
   },
   "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30": {
-   "L": 1,
+   "L": 64,
    "V": 1,
-   "agreement": null,
+   "agreement": 1.0,
    "axes": {
     "compiler_recipe": "not-generated",
     "encoding_geometry": "geometry-mapped",
-    "liveness": "carrier-undecidable",
+    "liveness": "live(legal-set-bounded)",
     "reproducibility": "auditable",
     "semantics": "hypothesis(all pre-registered models refuted)",
     "target": "G17P-direct"
    },
    "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t",
     "g17p_20260830_run04": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
    },
    "buckets": {
-    "correct": 1,
-    "reject": 1
+    "correct": 70,
+    "reject": 209
    },
    "carrier": "cl_leaf",
-   "comparable": 0,
-   "contaminated_cases": 0,
+   "comparable": 6,
+   "contaminated_cases": 69,
    "control": [
     {
      "arm": "CTRL:tail@cl_leaf.l__ZL6lf_addjj+30",
@@ -6950,101 +7638,454 @@
     }
    ],
    "disagree": 0,
-   "distinct_actual_encodings": 2,
-   "distinct_encodings": 2,
-   "distinct_requested_values": 2,
+   "distinct_actual_encodings": 256,
+   "distinct_encodings": 256,
+   "distinct_requested_values": 256,
    "encoding_collision": false,
    "field": "linkmode",
    "hard": {
-    "fault": 1
+    "fault": 209
    },
    "inert": "UNRESOLVED",
    "inert_blockers": [
     "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert",
-    "cross-run agreement None < 0.99",
-    "fewer than 2 gated runs",
-    "only 1 of 2 dispatched values produced a valid payload -- the range is bounded by a hazard, not swept clean"
+    "only 64 of 256 dispatched values produced a valid payload -- the range is bounded by a hazard, not swept clean"
    ],
    "instr": "ret_luse",
    "key": "ret_luse.linkmode",
    "ledger_bad": 0,
    "ledger_bad_values": [],
-   "ledger_ok": 2,
+   "ledger_ok": 279,
    "moved": 0,
    "moved_values": [],
-   "n_records": 2,
-   "n_valid": 1,
+   "n_records": 279,
+   "n_valid": 70,
    "occ_dim": 2,
    "off": 30,
    "prediction": {
-    "checked": 0,
-    "held": 0,
+    "checked": 1,
+    "held": 1,
     "refuted": 0
    },
    "promote": "REFUSED",
    "promote_blockers": [
     "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
     "moved=0",
-    "cross-run agreement None < 0.99",
-    "fewer than 2 gated runs",
     "control did NOT fire (V=1, valid=16, hard=0) -- this arm has no demonstrated detection power and BARS every verdict on its target, live AND inert",
-    "GATE C: no pre-registered semantic model survived ({'M1_link': '0/0', 'M2_accepted_set': '1/2', 'M3_exact': '1/2', 'M4_inert': '1/2'})"
+    "GATE C: no pre-registered semantic model survived ({'M1_link': '1/3', 'M2_accepted_set': '174/279', 'M3_exact': '210/279', 'M4_inert': '70/279'})"
    ],
    "region": "l__ZL6lf_addjj",
    "role": "target",
    "runs": [
+    "g17p_20260830_run03",
     "g17p_20260830_run04"
    ],
    "sem": {
     "M1_link": {
-     "checked": 0,
-     "hit": 0,
-     "miss": 0,
-     "miss_values": []
-    },
-    "M2_accepted_set": {
-     "checked": 2,
+     "checked": 3,
      "hit": 1,
-     "miss": 1,
+     "miss": 2,
      "miss_values": [
       [
+       18,
+       "coherent",
+       "correct"
+      ],
+      [
+       18,
+       "coherent",
+       "correct"
+      ]
+     ]
+    },
+    "M2_accepted_set": {
+     "checked": 279,
+     "hit": 174,
+     "miss": 105,
+     "miss_values": [
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "correct",
+       "reject"
+      ],
+      [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       12,
+       "correct",
+       "reject"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       20,
+       "correct",
+       "reject"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       26,
+       "reject",
+       "correct"
+      ],
+      [
+       28,
+       "correct",
+       "reject"
+      ],
+      [
+       30,
+       "reject",
+       "correct"
+      ],
+      [
+       34,
+       "reject",
+       "correct"
+      ],
+      [
+       36,
+       "correct",
+       "reject"
+      ],
+      [
        254,
+       "reject",
+       "correct"
+      ],
+      [
+       252,
+       "correct",
+       "reject"
+      ],
+      [
+       250,
+       "reject",
+       "correct"
+      ],
+      [
+       246,
+       "reject",
+       "correct"
+      ],
+      [
+       244,
+       "correct",
+       "reject"
+      ],
+      [
+       242,
+       "reject",
+       "correct"
+      ],
+      [
+       238,
+       "reject",
+       "correct"
+      ],
+      [
+       236,
+       "correct",
+       "reject"
+      ],
+      [
+       234,
+       "reject",
+       "correct"
+      ],
+      [
+       230,
        "reject",
        "correct"
       ]
      ]
     },
     "M3_exact": {
-     "checked": 2,
-     "hit": 1,
-     "miss": 1,
+     "checked": 279,
+     "hit": 210,
+     "miss": 69,
      "miss_values": [
       [
+       6,
+       "reject",
+       "correct"
+      ],
+      [
+       10,
+       "reject",
+       "correct"
+      ],
+      [
+       14,
+       "reject",
+       "correct"
+      ],
+      [
+       18,
+       "reject",
+       "correct"
+      ],
+      [
+       22,
+       "reject",
+       "correct"
+      ],
+      [
+       26,
+       "reject",
+       "correct"
+      ],
+      [
+       30,
+       "reject",
+       "correct"
+      ],
+      [
+       34,
+       "reject",
+       "correct"
+      ],
+      [
        254,
+       "reject",
+       "correct"
+      ],
+      [
+       250,
+       "reject",
+       "correct"
+      ],
+      [
+       246,
+       "reject",
+       "correct"
+      ],
+      [
+       242,
+       "reject",
+       "correct"
+      ],
+      [
+       238,
+       "reject",
+       "correct"
+      ],
+      [
+       234,
+       "reject",
+       "correct"
+      ],
+      [
+       230,
+       "reject",
+       "correct"
+      ],
+      [
+       226,
+       "reject",
+       "correct"
+      ],
+      [
+       222,
+       "reject",
+       "correct"
+      ],
+      [
+       218,
+       "reject",
+       "correct"
+      ],
+      [
+       214,
+       "reject",
+       "correct"
+      ],
+      [
+       210,
+       "reject",
+       "correct"
+      ],
+      [
+       206,
+       "reject",
+       "correct"
+      ],
+      [
+       202,
+       "reject",
+       "correct"
+      ],
+      [
+       198,
+       "reject",
+       "correct"
+      ],
+      [
+       194,
        "reject",
        "correct"
       ]
      ]
     },
     "M4_inert": {
-     "checked": 2,
-     "hit": 1,
-     "miss": 1,
+     "checked": 279,
+     "hit": 70,
+     "miss": 209,
      "miss_values": [
       [
-       255,
+       0,
+       "correct",
+       "reject"
+      ],
+      [
+       1,
+       "correct",
+       "reject"
+      ],
+      [
+       3,
+       "correct",
+       "reject"
+      ],
+      [
+       4,
+       "correct",
+       "reject"
+      ],
+      [
+       5,
+       "correct",
+       "reject"
+      ],
+      [
+       7,
+       "correct",
+       "reject"
+      ],
+      [
+       8,
+       "correct",
+       "reject"
+      ],
+      [
+       9,
+       "correct",
+       "reject"
+      ],
+      [
+       11,
+       "correct",
+       "reject"
+      ],
+      [
+       12,
+       "correct",
+       "reject"
+      ],
+      [
+       13,
+       "correct",
+       "reject"
+      ],
+      [
+       15,
+       "correct",
+       "reject"
+      ],
+      [
+       16,
+       "correct",
+       "reject"
+      ],
+      [
+       17,
+       "correct",
+       "reject"
+      ],
+      [
+       19,
+       "correct",
+       "reject"
+      ],
+      [
+       20,
+       "correct",
+       "reject"
+      ],
+      [
+       21,
+       "correct",
+       "reject"
+      ],
+      [
+       23,
+       "correct",
+       "reject"
+      ],
+      [
+       24,
+       "correct",
+       "reject"
+      ],
+      [
+       25,
+       "correct",
+       "reject"
+      ],
+      [
+       27,
+       "correct",
+       "reject"
+      ],
+      [
+       28,
+       "correct",
+       "reject"
+      ],
+      [
+       29,
+       "correct",
+       "reject"
+      ],
+      [
+       31,
        "correct",
        "reject"
       ]
      ]
     }
    },
-   "sem_checked_total": 6,
+   "sem_checked_total": 840,
    "sem_surviving_models": [],
    "start": 8,
    "synthesized": true,
    "unclassified": {},
-   "values_dispatched": 2,
+   "values_dispatched": 256,
    "width": 8
   },
   "stop.reserved@cf_nl2._agc.main+268": {
@@ -7098,6 +8139,346 @@
    "n_valid": 73,
    "occ_dim": null,
    "off": 268,
+   "prediction": {
+    "checked": 73,
+    "held": 73,
+    "refuted": 0
+   },
+   "promote": "REFUSED",
+   "promote_blockers": [
+    "V=1 < 2: fewer than two distinct VALID payloads (Case C -- the values ran legally and were indistinguishable)",
+    "moved=0",
+    "cross-run agreement None < 0.99",
+    "fewer than 2 gated runs"
+   ],
+   "region": "_agc.main",
+   "role": "target",
+   "runs": [
+    "g17p_20260830_run03"
+   ],
+   "sem": {
+    "M1_inert": {
+     "checked": 73,
+     "hit": 73,
+     "miss": 0,
+     "miss_values": []
+    },
+    "M2_exact": {
+     "checked": 73,
+     "hit": 1,
+     "miss": 72,
+     "miss_values": [
+      [
+       1,
+       "reject",
+       "correct"
+      ],
+      [
+       2,
+       "reject",
+       "correct"
+      ],
+      [
+       3,
+       "reject",
+       "correct"
+      ],
+      [
+       4,
+       "reject",
+       "correct"
+      ],
+      [
+       5,
+       "reject",
+       "correct"
+      ],
+      [
+       7,
+       "reject",
+       "correct"
+      ],
+      [
+       8,
+       "reject",
+       "correct"
+      ],
+      [
+       16,
+       "reject",
+       "correct"
+      ],
+      [
+       32,
+       "reject",
+       "correct"
+      ],
+      [
+       42,
+       "reject",
+       "correct"
+      ],
+      [
+       64,
+       "reject",
+       "correct"
+      ],
+      [
+       85,
+       "reject",
+       "correct"
+      ],
+      [
+       127,
+       "reject",
+       "correct"
+      ],
+      [
+       128,
+       "reject",
+       "correct"
+      ],
+      [
+       129,
+       "reject",
+       "correct"
+      ],
+      [
+       165,
+       "reject",
+       "correct"
+      ],
+      [
+       195,
+       "reject",
+       "correct"
+      ],
+      [
+       240,
+       "reject",
+       "correct"
+      ],
+      [
+       256,
+       "reject",
+       "correct"
+      ],
+      [
+       512,
+       "reject",
+       "correct"
+      ],
+      [
+       1024,
+       "reject",
+       "correct"
+      ],
+      [
+       2048,
+       "reject",
+       "correct"
+      ],
+      [
+       3855,
+       "reject",
+       "correct"
+      ],
+      [
+       4096,
+       "reject",
+       "correct"
+      ]
+     ]
+    },
+    "M3_any_live": {
+     "checked": 73,
+     "hit": 1,
+     "miss": 72,
+     "miss_values": [
+      [
+       1,
+       "coherent",
+       "correct"
+      ],
+      [
+       2,
+       "coherent",
+       "correct"
+      ],
+      [
+       3,
+       "coherent",
+       "correct"
+      ],
+      [
+       4,
+       "coherent",
+       "correct"
+      ],
+      [
+       5,
+       "coherent",
+       "correct"
+      ],
+      [
+       7,
+       "coherent",
+       "correct"
+      ],
+      [
+       8,
+       "coherent",
+       "correct"
+      ],
+      [
+       16,
+       "coherent",
+       "correct"
+      ],
+      [
+       32,
+       "coherent",
+       "correct"
+      ],
+      [
+       42,
+       "coherent",
+       "correct"
+      ],
+      [
+       64,
+       "coherent",
+       "correct"
+      ],
+      [
+       85,
+       "coherent",
+       "correct"
+      ],
+      [
+       127,
+       "coherent",
+       "correct"
+      ],
+      [
+       128,
+       "coherent",
+       "correct"
+      ],
+      [
+       129,
+       "coherent",
+       "correct"
+      ],
+      [
+       165,
+       "coherent",
+       "correct"
+      ],
+      [
+       195,
+       "coherent",
+       "correct"
+      ],
+      [
+       240,
+       "coherent",
+       "correct"
+      ],
+      [
+       256,
+       "coherent",
+       "correct"
+      ],
+      [
+       512,
+       "coherent",
+       "correct"
+      ],
+      [
+       1024,
+       "coherent",
+       "correct"
+      ],
+      [
+       2048,
+       "coherent",
+       "correct"
+      ],
+      [
+       3855,
+       "coherent",
+       "correct"
+      ],
+      [
+       4096,
+       "coherent",
+       "correct"
+      ]
+     ]
+    }
+   },
+   "sem_checked_total": 219,
+   "sem_surviving_models": [
+    "M1_inert"
+   ],
+   "start": 8,
+   "synthesized": false,
+   "unclassified": {},
+   "values_dispatched": 73,
+   "width": 24
+  },
+  "stop.reserved@cl_atomic._agc.main+124": {
+   "L": 73,
+   "V": 1,
+   "agreement": null,
+   "axes": {
+    "compiler_recipe": "not-generated",
+    "encoding_geometry": "geometry-mapped",
+    "liveness": "accepted-inert",
+    "reproducibility": "auditable",
+    "semantics": "semantically-mapped(single surviving model: M1_inert)",
+    "target": "G17P-direct"
+   },
+   "baseline_per_run": {
+    "g17p_20260830_run03": "{\"nunwritten\": 0, \"sent\": 1515852340, \"t"
+   },
+   "buckets": {
+    "correct": 73
+   },
+   "carrier": "cl_atomic",
+   "comparable": 0,
+   "contaminated_cases": 0,
+   "control": [
+    {
+     "arm": "CTRL:byte0@cl_atomic._agc.main+124",
+     "fires": true,
+     "why": "control produced a valid<->hard split (6 valid, 2 hard)"
+    }
+   ],
+   "disagree": 0,
+   "distinct_actual_encodings": 73,
+   "distinct_encodings": 73,
+   "distinct_requested_values": 73,
+   "encoding_collision": false,
+   "field": "reserved",
+   "hard": {},
+   "inert": "UNRESOLVED",
+   "inert_blockers": [
+    "cross-run agreement None < 0.99",
+    "fewer than 2 gated runs"
+   ],
+   "instr": "stop",
+   "key": "stop.reserved",
+   "ledger_bad": 0,
+   "ledger_bad_values": [],
+   "ledger_ok": 73,
+   "moved": 0,
+   "moved_values": [],
+   "n_records": 73,
+   "n_valid": 73,
+   "occ_dim": null,
+   "off": 124,
    "prediction": {
     "checked": 73,
     "held": 73,
@@ -8410,7 +9791,7 @@
  },
  "fields": {
   "call.tail": {
-   "L_total": 512,
+   "L_total": 768,
    "V_max_per_arm": 1,
    "V_union": null,
    "agreement_min": null,
@@ -8418,13 +9799,14 @@
    "arms_promoted": [],
    "arms_unresolved": [
     "call.tail@cl_atomic._agc.main+52",
-    "call.tail@cl_chain._agc.main+54"
+    "call.tail@cl_chain._agc.main+54",
+    "call.tail@cl_leaf._agc.main+54"
    ],
    "axes_per_arm": {
     "call.tail@cl_atomic._agc.main+52": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "accepted-inert",
      "reproducibility": "auditable",
      "semantics": "semantically-mapped(single surviving model: M1_inert)",
      "target": "G17P-direct"
@@ -8436,35 +9818,44 @@
      "reproducibility": "auditable",
      "semantics": "semantically-mapped(single surviving model: M1_inert)",
      "target": "G17P-direct"
+    },
+    "call.tail@cl_leaf._agc.main+54": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "auditable",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
     }
    },
    "buckets_total": {
-    "correct": 512
+    "correct": 768
    },
-   "contaminated_cases": 3,
+   "contaminated_cases": 7,
    "distinct_actual_encodings_per_arm": {
     "call.tail@cl_atomic._agc.main+52": 256,
-    "call.tail@cl_chain._agc.main+54": 256
+    "call.tail@cl_chain._agc.main+54": 256,
+    "call.tail@cl_leaf._agc.main+54": 256
    },
    "hard_total": {},
    "ledger_bad_total": 0,
-   "ledger_ok_total": 512,
-   "n_arms": 2,
+   "ledger_ok_total": 768,
+   "n_arms": 3,
    "semantic_models": {
     "M1_inert": {
-     "checked": 512,
-     "hit": 512,
+     "checked": 768,
+     "hit": 768,
      "miss": 0
     },
     "M2_exact": {
-     "checked": 512,
-     "hit": 2,
-     "miss": 510
+     "checked": 768,
+     "hit": 3,
+     "miss": 765
     },
     "M3_low_bit": {
-     "checked": 512,
-     "hit": 256,
-     "miss": 256
+     "checked": 768,
+     "hit": 384,
+     "miss": 384
     }
    },
    "surviving_models": [
@@ -8497,7 +9888,7 @@
     "if_push.scope@cf_nl2._agc.main+106": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "live",
      "reproducibility": "auditable",
      "semantics": "hypothesis(all pre-registered models refuted)",
      "target": "G17P-direct"
@@ -8594,7 +9985,7 @@
     "pop_reconverge.reserved@cl_atomic._agc.main+66": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "accepted-inert",
      "reproducibility": "auditable",
      "semantics": "semantically-mapped(single surviving model: M1_inert)",
      "target": "G17P-direct"
@@ -8666,7 +10057,7 @@
     "pop_reconverge.scope@cl_atomic._agc.main+66": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "accepted-inert",
      "reproducibility": "auditable",
      "semantics": "semantically-mapped(single surviving model: M3_inert)",
      "target": "G17P-direct"
@@ -8767,10 +10158,10 @@
    "verdict": "untested"
   },
   "ret_luse.linkmode": {
-   "L_total": 82,
+   "L_total": 194,
    "V_max_per_arm": 3,
    "V_union": null,
-   "agreement_min": null,
+   "agreement_min": 1.0,
    "arms_inert": [],
    "arms_promoted": [],
    "arms_unresolved": [
@@ -8782,7 +10173,7 @@
     "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "live(legal-set-bounded)",
      "reproducibility": "auditable",
      "semantics": "hypothesis(all pre-registered models refuted)",
      "target": "G17P-direct"
@@ -8798,7 +10189,7 @@
     "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
-     "liveness": "carrier-undecidable",
+     "liveness": "live(legal-set-bounded)",
      "reproducibility": "auditable",
      "semantics": "hypothesis(all pre-registered models refuted)",
      "target": "G17P-direct"
@@ -8806,49 +10197,49 @@
    },
    "buckets_total": {
     "coherent": 32,
-    "correct": 48,
+    "correct": 166,
     "dead": 2,
-    "reject": 237
+    "reject": 591
    },
-   "contaminated_cases": 81,
+   "contaminated_cases": 200,
    "distinct_actual_encodings_per_arm": {
-    "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32": 61,
+    "ret_luse.linkmode@cl_atomic.l__ZL4m_atPU9M+32": 256,
     "ret_luse.linkmode@cl_chain.l__ZL5c_midjj+104": 256,
-    "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30": 2
+    "ret_luse.linkmode@cl_leaf.l__ZL6lf_addjj+30": 256
    },
    "hard_total": {
-    "fault": 237
+    "fault": 591
    },
    "ledger_bad_total": 0,
-   "ledger_ok_total": 319,
+   "ledger_ok_total": 791,
    "n_arms": 3,
    "semantic_models": {
     "M1_link": {
-     "checked": 4,
-     "hit": 3,
-     "miss": 1
+     "checked": 7,
+     "hit": 4,
+     "miss": 3
     },
     "M2_accepted_set": {
-     "checked": 319,
-     "hit": 199,
-     "miss": 120
+     "checked": 791,
+     "hit": 494,
+     "miss": 297
     },
     "M3_exact": {
-     "checked": 319,
-     "hit": 239,
-     "miss": 80
+     "checked": 791,
+     "hit": 594,
+     "miss": 197
     },
     "M4_inert": {
-     "checked": 319,
-     "hit": 48,
-     "miss": 271
+     "checked": 791,
+     "hit": 166,
+     "miss": 625
     }
    },
    "surviving_models": [],
    "verdict": "untested"
   },
   "stop.reserved": {
-   "L_total": 146,
+   "L_total": 219,
    "V_max_per_arm": 1,
    "V_union": null,
    "agreement_min": null,
@@ -8856,10 +10247,19 @@
    "arms_promoted": [],
    "arms_unresolved": [
     "stop.reserved@cf_nl2._agc.main+268",
+    "stop.reserved@cl_atomic._agc.main+124",
     "stop.reserved@cl_leaf._agc.main+88"
    ],
    "axes_per_arm": {
     "stop.reserved@cf_nl2._agc.main+268": {
+     "compiler_recipe": "not-generated",
+     "encoding_geometry": "geometry-mapped",
+     "liveness": "accepted-inert",
+     "reproducibility": "auditable",
+     "semantics": "semantically-mapped(single surviving model: M1_inert)",
+     "target": "G17P-direct"
+    },
+    "stop.reserved@cl_atomic._agc.main+124": {
      "compiler_recipe": "not-generated",
      "encoding_geometry": "geometry-mapped",
      "liveness": "accepted-inert",
@@ -8877,32 +10277,33 @@
     }
    },
    "buckets_total": {
-    "correct": 146
+    "correct": 219
    },
    "contaminated_cases": 0,
    "distinct_actual_encodings_per_arm": {
     "stop.reserved@cf_nl2._agc.main+268": 73,
+    "stop.reserved@cl_atomic._agc.main+124": 73,
     "stop.reserved@cl_leaf._agc.main+88": 73
    },
    "hard_total": {},
    "ledger_bad_total": 0,
-   "ledger_ok_total": 146,
-   "n_arms": 2,
+   "ledger_ok_total": 219,
+   "n_arms": 3,
    "semantic_models": {
     "M1_inert": {
-     "checked": 146,
-     "hit": 146,
+     "checked": 219,
+     "hit": 219,
      "miss": 0
     },
     "M2_exact": {
-     "checked": 146,
-     "hit": 2,
-     "miss": 144
+     "checked": 219,
+     "hit": 3,
+     "miss": 216
     },
     "M3_any_live": {
-     "checked": 146,
-     "hit": 2,
-     "miss": 144
+     "checked": 219,
+     "hit": 3,
+     "miss": 216
     }
    },
    "surviving_models": [

@@ -79,3 +79,21 @@ source index on four carriers **purely because the prediction differs at the com
 the observed word vectors are byte-identical. Fixed in `analysis/verdicts.py` (`OUTCOME_NORM`).
 This is the corrections document's "a difference from baseline is not a semantic oracle" in its
 sharpest form, and it was found by re-deriving from raw rather than reading a summary.
+
+## 2026-08-30 — M7: run03 (confirmation A, forward) complete — and Gate A caught its first thing
+10162 cases in 405 s, 0 hangs, 0 malformed responses, 706 contained faults, 2 invalid runs.
+**Gate A reported 3232 failures — and every one of them is a defect in the CHECK, not the
+dispatch.** The driver compared the requested value against the pinned tokenizer's decode of the
+WHOLE db field; the arms that sweep a SUB-SPAN of a wider field (`irotate.operands` is 40 bits and
+its byte-wise arms request 8 of them, `irotate.tail` is 32 bits) therefore compared 8 bits against
+40. `requested_bytes == actual_bytes` is **TRUE in all 3232**. §9 of the corrections document is
+explicit that this is reclassified from raw, not re-run: `analysis/verdicts.py` now re-derives
+Gate A offline from `actual_bytes` + `start` + `width` with a THIRD independent bit extractor, and
+additionally records how many cases the tokenizer's own decode independently confirms.
+
+## 2026-08-30 — M7a: the confirmation window is NOT quiet, and it is MEASURED
+`raw/g17p_20260830_run03/gpuwatch.jsonl`: **201 of 201 samples** carry a foreign GPU process
+(`EXP-0206`, `EXP-0200`). Under `PRE_REGISTRATION.md` §6 rule 8 and Gate E the cross-run figure is
+reported **CONTAMINATED**; the EXP-0160 validity filter is applied instead (two agreeing
+sentinel-valid dumps stand, because contamination can destroy an observation but never fabricate a
+coherent one). No promotion rests on a clean-window claim that was not measured.

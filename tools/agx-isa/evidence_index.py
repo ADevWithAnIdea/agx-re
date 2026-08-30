@@ -182,6 +182,19 @@ def bucket_of(outcome):
     return _BUCKET_OF.get(outcome.lower())
 
 
+def _byte_at(blob, i):
+    """The byte actually dispatched at index i, out of a hex blob."""
+    if not isinstance(blob, str):
+        return None
+    h = re.sub(r"[^0-9a-f]", "", blob.strip().lower().removeprefix("0x"))
+    if len(h) % 2 or (i + 1) * 2 > len(h):
+        return None
+    try:
+        return int(h[2 * i:2 * i + 2], 16)
+    except ValueError:
+        return None
+
+
 def _digest(obj):
     try:
         return hashlib.blake2b(json.dumps(obj, sort_keys=True, default=str).encode(),
@@ -223,6 +236,13 @@ def _new_cell():
         "ledger_agree": 0,
         "ledger_disagree": 0,
         "ledger_examples": [],
+        # A byte-span (K2) record's `value` is the BYTE the harness asked for, not
+        # the field's value, so comparing it against the decoded FIELD would
+        # manufacture a disagreement for every field wider or narrower than that
+        # byte. The two ledgers are therefore kept apart.
+        "byte_ledger_records": 0,
+        "byte_ledger_agree": 0,
+        "byte_ledger_disagree": 0,
         "outcomes": collections.Counter(),
         "hard": collections.Counter(),
         "valid_payloads": set(),
@@ -415,13 +435,15 @@ class Indexer(object):
         for f, keying in targets:
             if f not in best or keying < best[f]:
                 best[f] = keying
+        bidx = rec.get("byte_index")
         for f, keying in sorted(best.items()):
             cell = cells[(mnem, f)]
             self._fill(cell, rec, keying, run, target, value, blob, mnem, f,
-                       outcome, hard, bucket, observed, oracle, where)
+                       outcome, hard, bucket, observed, oracle, where,
+                       byte_index=bidx if isinstance(bidx, int) else None)
 
     def _fill(self, cell, rec, keying, run, target, value, blob, mnem, field,
-              outcome, hard, bucket, observed, oracle, where):
+              outcome, hard, bucket, observed, oracle, where, byte_index=None):
         cell["records"] += 1
         cell["keying"][keying] += 1
         cell["runs"][run] += 1
@@ -447,16 +469,44 @@ class Indexer(object):
                 if av is not None:
                     cell["ledger_decoded"] += 1
                     _add(cell, "actual_field_values", av)
-                    if isinstance(value, int):
-                        if av == value:
-                            cell["ledger_agree"] += 1
+                # WHICH LEDGER APPLIES. A record can name a field AND carry a
+                # `byte_index` -- EXP-0169 sweeps byte 5 of `bf_alu.tail` and labels
+                # it `field: "tail"`, so `value` there is a BYTE, not the 24-bit
+                # field. Comparing it against the decoded field would report 1,536
+                # false Gate A disagreements. The caller's own declared bit span
+                # (`fstart`/`fwidth`) wins where present; a byte index wins next.
+                declared = (rec.get("fstart"), rec.get("fwidth"))
+                span = (self.spec.get(mnem, {}).get("fields") or {}).get(field)
+                field_keyed = (declared == span and None not in declared) or \
+                    (byte_index is None and keying == "k1")
+                if field_keyed and av is not None and isinstance(value, int):
+                    # Gate A proper: the caller named this field's own bits, so
+                    # `value` IS the field's requested value.
+                    if av == value:
+                        cell["ledger_agree"] += 1
+                    else:
+                        cell["ledger_disagree"] += 1
+                        if len(cell["ledger_examples"]) < 8:
+                            cell["ledger_examples"].append(
+                                {"file": where[0], "line": where[1],
+                                 "keying": "field", "requested": value,
+                                 "actual_bytes": blob[:48], "decoded": av})
+                elif byte_index is not None and isinstance(value, int):
+                    # Gate A for a byte sweep: compare the requested BYTE against
+                    # the byte actually dispatched at that index.
+                    ab = _byte_at(blob, byte_index)
+                    if ab is not None:
+                        cell["byte_ledger_records"] += 1
+                        if ab == (value & 0xff):
+                            cell["byte_ledger_agree"] += 1
                         else:
-                            cell["ledger_disagree"] += 1
+                            cell["byte_ledger_disagree"] += 1
                             if len(cell["ledger_examples"]) < 8:
                                 cell["ledger_examples"].append(
                                     {"file": where[0], "line": where[1],
-                                     "requested": value, "actual_bytes": blob[:48],
-                                     "decoded": av})
+                                     "keying": "byte", "byte_index": byte_index,
+                                     "requested": value,
+                                     "actual_bytes": blob[:48], "decoded": ab})
         if outcome:
             cell["outcomes"][outcome] += 1
         if hard:
@@ -531,7 +581,7 @@ def fingerprint(expdir):
         h.update(("%s|%d|%d;" % (os.path.relpath(p, expdir), st.st_size,
                                  int(st.st_mtime))).encode())
         n += 1
-    h.update(b"|schema=6")
+    h.update(b"|schema=8")
     return h.hexdigest(), n
 
 
@@ -916,6 +966,42 @@ def selftest():
               ("x", 7), "r1", "G17P")
     chk("a clean record IS counted as a valid payload",
         len(cells[("tst", "f")]["valid_payloads"]) == n_before + 1)
+
+    # Gate A must not manufacture a disagreement out of a byte sweep: a K2
+    # record's `value` is the requested BYTE, not the field's value, and comparing
+    # it against a 24-bit field would report every such record as a mismatch.
+    cellsK = collections.defaultdict(_new_cell)
+    specW = {"wide": {"length": 4, "match": [], "emitter_role": None,
+                      "fields": {"tail": (8, 24)}}}
+    ixw = Indexer(specW)
+    ixw.handle({"instr": "wide", "field": None, "byte_index": 1, "value": 0x11,
+                "bytes": "0011223f", "outcome": "ok"}, cellsK, ctrl, meta,
+               ("z", 1), "r1", "G17P")
+    # ...and the same must hold when the record NAMES the field but still carries a
+    # byte_index, which is how EXP-0169 writes bf_alu.tail.
+    cellsN = collections.defaultdict(_new_cell)
+    ixw.handle({"instr": "wide", "field": "tail", "byte_index": 1, "value": 0x11,
+                "bytes": "0011223f", "outcome": "ok"}, cellsN, ctrl, meta,
+               ("z", 3), "r1", "G17P")
+    cn = cellsN[("wide", "tail")]
+    chk("a FIELD-NAMED record carrying a byte_index is scored on the byte ledger",
+        cn["byte_ledger_agree"] == 1 and cn["ledger_disagree"] == 0)
+    cellsD = collections.defaultdict(_new_cell)
+    ixw.handle({"instr": "wide", "field": "tail", "fstart": 8, "fwidth": 24,
+                "value": 0x3f2211, "bytes": "0011223f", "outcome": "ok"},
+               cellsD, ctrl, meta, ("z", 4), "r1", "G17P")
+    cd = cellsD[("wide", "tail")]
+    chk("a record declaring the field's own bit span IS scored on the field ledger",
+        cd["ledger_agree"] == 1)
+    cw = cellsK[("wide", "tail")]
+    chk("a K2 byte sweep is scored on the BYTE ledger, not the field ledger",
+        cw["byte_ledger_records"] == 1 and cw["byte_ledger_agree"] == 1
+        and cw["ledger_disagree"] == 0)
+    ixw.handle({"instr": "wide", "field": None, "byte_index": 1, "value": 0x99,
+                "bytes": "0011223f", "outcome": "ok"}, cellsK, ctrl, meta,
+               ("z", 2), "r1", "G17P")
+    chk("a byte the assembler could not set IS a byte-ledger disagreement",
+        cw["byte_ledger_disagree"] == 1)
 
     # K2: an unkeyed byte sweep must reach the field whose span covers that byte.
     cells2 = collections.defaultdict(_new_cell)

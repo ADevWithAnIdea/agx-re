@@ -10,90 +10,91 @@ This report is one of six. Section 8 requires geometry, liveness, semantics, rec
 
 | verdict | rows | of | meaning |
 |---|---:|---:|---|
-| `PASS` | 538 | 1212 | the raw meets the rule |
-| `REJECT` | 82 | 1212 | the raw CONTRADICTS the rule |
-| `INSUFFICIENT` | 420 | 1212 | the raw lacks what the rule needs |
+| `PASS` | 553 | 1212 | the raw meets the rule |
+| `REJECT` | 63 | 1212 | the raw CONTRADICTS the rule |
+| `INSUFFICIENT` | 424 | 1212 | the raw lacks what the rule needs |
 | `N/A` | 172 | 1212 | the rule does not apply to this claim |
 
-### `REJECT` — 82 row(s), by reason
+### `REJECT` — 63 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
-| 82 | N record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e |
+| 63 | N field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e |
 
 <details><summary>first 60 rows</summary>
 
 | row | label | target | why |
 |---|---|---|---|
-| `atomic_mem.addr_desc_hi` | hardware-run | G17P | 243 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=1ca0100667104400010120005101004046000b0006002000 decoded=1; req=2 bytes=1ca010066710440001012000510100404600 |
-| `atomic_mem.index_reg` | hardware-run | M4 | 514 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=128 bytes=6701540000800000004000002000 decoded=0; req=129 bytes=6701540000810000004000002000 decoded=1) |
-| `atomic_rmw.index_reg` | hardware-run | M4 | 256 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=128 bytes=6711540000800000004000002000 decoded=0; req=129 bytes=6711540000810000004000002000 decoded=1) |
-| `bf_alu.tail` | hardware-run | G17P | 1536 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=11021c021100c081 decoded=8503296; req=1 bytes=11021c021101c081 decoded=8503297) |
-| `bf_fma_dst.tail` | hardware-run | G17P | 6144 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=31001e0086020000c081 decoded=2176843776; req=1 bytes=31001e0086020100c081 decoded=2176843777) |
-| `call.offset` | isolated-byte-diff | A18 | 630 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=0f05541a8f005630010000000000 decoded=304; req=2 bytes=0f05541a8f005632010000000000 decoded=306) |
-| `carry_gen.dst` | hardware-run | G17P | 1034 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=010135032281 decoded=0; req=2 bytes=020135032281 decoded=0) |
-| `cvt_bf16.dst` | hardware-run | G17P | 16 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=0101148105024000 decoded=0; req=17 bytes=1101148105024000 decoded=1) |
-| `cvt_f2h_dst.dst` | hardware-run | G17P | 16 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=010114810402 decoded=0; req=17 bytes=110114810402 decoded=1) |
-| `device_store.idx_off` | hardware-run | G17P | 6128 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=e7005400000f2100110009901100 decoded=18; req=1 bytes=e7005400000f2100110109901100 decoded=18) |
-| `falu2.srcB_reg` | hardware-run | G17P | 1280 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=64 bytes=190504810002 decoded=0; req=65 bytes=190504830002 decoded=1) |
-| `falu2_ext.opsel` | hardware-run | M4 | 12 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=6901040501000080 decoded=4; req=1 bytes=6901050501000080 decoded=5) |
-| `falu3.dst` | hardware-run | M4 | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=69001e0581080200 decoded=6; req=1 bytes=69011e0581080200 decoded=6) |
-| `falu3.srcA` | hardware-run | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=09011e00810802c0 decoded=1; req=2 bytes=09011e02810802c0 decoded=1) |
-| `falu3_ext.dst` | hardware-run | M4 | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=69001e05820802000080 decoded=6; req=1 bytes=69011e05820802000080 decoded=6) |
-| `falu3_ext.ext` | isolated-byte-diff | M4 | 3 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=69011e05820802000080 decoded=2147483650; req=0 bytes=69011e05820802000080 decoded=2147483650) |
-| `falu3_ext.srcA` | hardware-run | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=09011e00820802000082 decoded=1; req=2 bytes=09011e02820802000082 decoded=1) |
-| `fspecial.dst` | hardware-run | G17P | 60 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=af1156000200b0400000 decoded=0; req=2 bytes=af2156000200b0400000 decoded=0) |
-| `fspecial.fn_hi` | hardware-run | G17P | 1033 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=010156000200b0400000 decoded=0; req=2 bytes=020156000200b0400000 decoded=0) |
-| `fspecial.fnclass` | hardware-run | G17P | 2 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=5 bytes=1ca0100667104400000120005101004046002f0556000200 decoded=0; req=13 bytes=1ca0100667104400000120005101004046002 |
-| `fspecial.src` | hardware-run | G17P | 828 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=af0156010200b0400000 decoded=0; req=2 bytes=af0156020200b0400000 decoded=0) |
-| `fspecial.src_ext` | hardware-run | G17P | 1020 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=af0156000201b0400000 decoded=0; req=2 bytes=af0156000202b0400000 decoded=0) |
-| `fspecial_est.dst` | hardware-run | G17P | 1281 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=0181250b00c2 decoded=0; req=2 bytes=0281250b00c2 decoded=0) |
-| `half_alu.dst` | hardware-run | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10001c0200c0 decoded=1; req=2 bytes=10021c0200c0 decoded=1) |
-| `half_alu.srcA` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10021c0000c0 decoded=2; req=1 bytes=10021c0100c0 decoded=2) |
-| `half_alu.srcB` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10021c0300c0 decoded=3; req=1 bytes=10021c0301c0 decoded=3) |
-| `half_alu_ext8.dst` | hardware-run | G17P | 2550 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10000411891500c0 decoded=1; req=2 bytes=10020411891500c0 decoded=1) |
-| `half_alu_ext8.opflags` | hardware-run | G17P | 4590 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=100d011100158c659c66ac67bc68 decoded=0; req=2 bytes=100d021100158c659c66ac67bc68 decoded=0) |
-| `half_alu_ext8.opsel` | isolated-byte-diff | G17P | 4464 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=8 bytes=100d081100158c659c66ac67bc68 decoded=0; req=9 bytes=100d091100158c659c66ac67bc68 decoded=1) |
-| `half_alu_ext8.srcA` | hardware-run | G17P | 2550 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=100d0400891500c0 decoded=13; req=1 bytes=100d0401891500c0 decoded=13) |
-| `half_alu_fma12.dst` | untested | G17P | 1530 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=100006119315000000800100 decoded=1; req=2 bytes=100206119315000000800100 decoded=1) |
-| `half_alu_fma12.ext` | untested | G17P | 12288 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=100d06110015000000800100 decoded=422212465071360; req=1 bytes=100d06110115000000800100 decoded=42221246507 |
-| `half_alu_fma12.srcA` | hardware-run | G17P | 1530 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=100d06009315000000800100 decoded=13; req=1 bytes=100d06019315000000800100 decoded=13) |
-| `half_pack.b3` | untested | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10021c0400c018031800 decoded=4; req=1 bytes=10021c0400c018031801 decoded=4) |
-| `half_pack.dstlo` | untested | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10021c0400c018001805 decoded=2; req=1 bytes=10021c0400c018011805 decoded=2) |
-| `half_pack.src` | hardware-run | G17P | 1020 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=10021c0400c018030005 decoded=28; req=0 bytes=10021c0400c018030005 decoded=28) |
-| `iadd2.b2_fmt` | single-template-inference | G17P | 1530 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=9f010104020400a81705 decoded=0; req=2 bytes=9f010204020400a81705 decoded=0) |
-| `iadd2.dst` | hardware-run | G17P | 8 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=-1 bytes=9f01560c020800a81705 decoded=12; req=-1 bytes=9f01560c020800a81705 decoded=12) |
-| `ibfe.b2_bit0` | single-template-inference | G17P | 1524 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=2 bytes=a700020402001000f0116100 decoded=0; req=3 bytes=a700030402001000f0116100 decoded=1) |
-| `ibfe.sign_ext` | single-template-inference | G17P | 1530 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=a700560402000100f0116100 decoded=0; req=2 bytes=a700560402000200f0116100 decoded=1) |
-| `ilogic.dst` | untested | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=01031f01000000800000 decoded=0; req=2 bytes=02031f01000000800000 decoded=0) |
-| `ilogic.lut_a_free` | untested | G17P | 3570 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=2b031f01010000800000 decoded=0; req=2 bytes=2b031f01020000800000 decoded=0) |
-| `ilogic.lut_a_sel` | untested | G17P | 3528 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=4 bytes=2b031f01040000800000 decoded=0; req=5 bytes=2b031f01050000800000 decoded=1) |
-| `ilogic.lut_a_z` | hardware-run | G17P | 3570 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=2b031f01010000800000 decoded=0; req=2 bytes=2b031f01020000800000 decoded=0) |
-| `imad.srcB` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=9f00560002010060d02e0a00 decoded=0; req=2 bytes=9f00560002020060d02e0a00 decoded=0) |
-| `imad.srcC_lo` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f00560002080060d02e0a00 decoded=8; req=1 bytes=9f00560002080160d02e0a00 decoded=8) |
-| `iminmax.srcA` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=02011e0007c0 decoded=1; req=2 bytes=02011e0207c0 decoded=1) |
-| `iminmax.srcB` | hardware-run | G17P | 1530 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=02011e050700 decoded=5; req=1 bytes=02011e050701 decoded=5) |
-| `isel10.cc` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=0; req=2 bytes=9f015608030e008c11049f1154060316108c |
-| `isel10.cmpA` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402001f05 decoded=1; req=2 bytes=9f015608030e008c11049f1154060316108c |
-| `isel10.cmpB` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f00 decoded=8; req=1 bytes=9f015608030e008c11049f1154060316108c |
-| `isel10.cmp_mode` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=3; req=1 bytes=9f015608030e008c11049f1154060316108c |
-| `isel10.dst` | hardware-run | G17P | 26 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=9; req=1 bytes=9f015608030e008c11049f1154060316108c1 |
-| `isel10.flags` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=140; req=1 bytes=9f015608030e008c11049f115406031610 |
-| `isel10.selFalse` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=4; req=1 bytes=9f015608030e008c11049f1154060316108c |
-| `isel10.selTrue` | hardware-run | G17P | 510 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=14; req=1 bytes=9f015608030e008c11049f1154060316108 |
-| `isel8.cc` | hardware-run | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=2981250b00c27281270982040002 decoded=114; req=1 bytes=2981250b00c27281270982040102 decoded=114) |
-| `isel8.cmpA` | untested | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=2981250b00c27200270982040202 decoded=129; req=1 bytes=2981250b00c27201270982040202 decoded=129) |
-| `isel8.cmpB` | untested | G17P | 765 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=0 bytes=2981250b00c27281270082040202 decoded=11; req=1 bytes=2981250b00c27281270182040202 decoded=11) |
-| `isel8.cmp_mode` | hardware-run | G17P | 1020 record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. req=1 bytes=2981250b00c27281270901040202 decoded=0; req=1 bytes=2981250b00c27281270901040202 decoded=0) |
+| `atomic_mem.addr_desc_hi` | hardware-run | G17P | 243 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1ca0100667104400010120005101004046000b0006002000 decoded=1; [k1] req=2 bytes=1ca01006671044 |
+| `atomic_mem.index_reg` | hardware-run | M4 | 514 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=128 bytes=6701540000800000004000002000 decoded=0; [k1] req=129 bytes=6701540000810000004000002000 d |
+| `atomic_rmw.index_reg` | hardware-run | M4 | 256 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=128 bytes=6711540000800000004000002000 decoded=0; [k1] req=129 bytes=6711540000810000004000002000 d |
+| `bf_alu.tail` | hardware-run | G17P | 1536 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=11021c021100c081 decoded=8503296; [k1] req=1 bytes=11021c021101c081 decoded=8503297) |
+| `call.offset` | isolated-byte-diff | A18 | 630 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=0f05541a8f005630010000000000 decoded=304; [k1] req=2 bytes=0f05541a8f005632010000000000 dec |
+| `cvt_bf16.dst` | hardware-run | G17P | 16 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=0101148105024000 decoded=0; [k1] req=17 bytes=1101148105024000 decoded=1) |
+| `cvt_f2h_dst.dst` | hardware-run | G17P | 16 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=010114810402 decoded=0; [k1] req=17 bytes=110114810402 decoded=1) |
+| `device_store.idx_off` | hardware-run | G17P | 6128 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=e7005400000f2100110009901100 decoded=18; [k1] req=1 bytes=e7005400000f2100110109901100 dec |
+| `falu2.srcB_reg` | hardware-run | G17P | 1280 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=64 bytes=190504810002 decoded=0; [k1] req=65 bytes=190504830002 decoded=1) |
+| `falu2_ext.opsel` | hardware-run | M4 | 12 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=6901040501000080 decoded=4; [k1] req=1 bytes=6901050501000080 decoded=5) |
+| `falu3.dst` | hardware-run | M4 | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=69001e0581080200 decoded=6; [k1] req=1 bytes=69011e0581080200 decoded=6) |
+| `falu3.srcA` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=09011e00810802c0 decoded=1; [k1] req=2 bytes=09011e02810802c0 decoded=1) |
+| `falu3_ext.dst` | hardware-run | M4 | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=69001e05820802000080 decoded=6; [k1] req=1 bytes=69011e05820802000080 decoded=6) |
+| `falu3_ext.srcA` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=09011e00820802000082 decoded=1; [k1] req=2 bytes=09011e02820802000082 decoded=1) |
+| `fspecial.dst` | hardware-run | G17P | 60 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=af1156000200b0400000 decoded=0; [k1] req=2 bytes=af2156000200b0400000 decoded=0) |
+| `fspecial.fnclass` | hardware-run | G17P | 2 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=5 bytes=1ca0100667104400000120005101004046002f0556000200 decoded=0; [k1] req=13 bytes=1ca010066710440 |
+| `fspecial.src` | hardware-run | G17P | 828 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=af0156010200b0400000 decoded=0; [k1] req=2 bytes=af0156020200b0400000 decoded=0) |
+| `fspecial.src_ext` | hardware-run | G17P | 1020 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=af0156000201b0400000 decoded=0; [k1] req=2 bytes=af0156000202b0400000 decoded=0) |
+| `half_alu.dst` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10001c0200c0 decoded=1; [k1] req=2 bytes=10021c0200c0 decoded=1) |
+| `half_alu.srcA` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10021c0000c0 decoded=2; [k1] req=1 bytes=10021c0100c0 decoded=2) |
+| `half_alu.srcB` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10021c0300c0 decoded=3; [k1] req=1 bytes=10021c0301c0 decoded=3) |
+| `half_alu_ext8.dst` | hardware-run | G17P | 2550 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10000411891500c0 decoded=1; [k1] req=2 bytes=10020411891500c0 decoded=1) |
+| `half_alu_ext8.srcA` | hardware-run | G17P | 2550 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=100d0400891500c0 decoded=13; [k1] req=1 bytes=100d0401891500c0 decoded=13) |
+| `half_alu_fma12.dst` | untested | G17P | 1530 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=100006119315000000800100 decoded=1; [k1] req=2 bytes=100206119315000000800100 decoded=1) |
+| `half_alu_fma12.ext` | untested | G17P | 12288 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=100d06110015000000800100 decoded=422212465071360; [k1] req=1 bytes=100d061101150000008001 |
+| `half_alu_fma12.srcA` | hardware-run | G17P | 1530 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=100d06009315000000800100 decoded=13; [k1] req=1 bytes=100d06019315000000800100 decoded=13) |
+| `half_pack.b3` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10021c0400c018031800 decoded=4; [k1] req=1 bytes=10021c0400c018031801 decoded=4) |
+| `half_pack.dstlo` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10021c0400c018001805 decoded=2; [k1] req=1 bytes=10021c0400c018011805 decoded=2) |
+| `half_pack.src` | hardware-run | G17P | 1020 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=10021c0400c018030005 decoded=28; [k1] req=0 bytes=10021c0400c018030005 decoded=28) |
+| `imad.srcB` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=9f00560002010060d02e0a00 decoded=0; [k1] req=2 bytes=9f00560002020060d02e0a00 decoded=0) |
+| `imad.srcC_lo` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f00560002080060d02e0a00 decoded=8; [k1] req=1 bytes=9f00560002080160d02e0a00 decoded=8) |
+| `iminmax.srcA` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=02011e0007c0 decoded=1; [k1] req=2 bytes=02011e0207c0 decoded=1) |
+| `iminmax.srcB` | hardware-run | G17P | 1530 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=02011e050700 decoded=5; [k1] req=1 bytes=02011e050701 decoded=5) |
+| `isel10.cc` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=0; [k1] req=2 bytes=9f015608030e00 |
+| `isel10.cmpA` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402001f05 decoded=1; [k1] req=2 bytes=9f015608030e00 |
+| `isel10.cmpB` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f00 decoded=8; [k1] req=1 bytes=9f015608030e00 |
+| `isel10.cmp_mode` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=3; [k1] req=1 bytes=9f015608030e00 |
+| `isel10.dst` | hardware-run | G17P | 26 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=9; [k1] req=1 bytes=9f015608030e008 |
+| `isel10.flags` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=140; [k1] req=1 bytes=9f015608030e |
+| `isel10.selFalse` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=4; [k1] req=1 bytes=9f015608030e00 |
+| `isel10.selTrue` | hardware-run | G17P | 510 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=9f015608030e008c11049f1154060316108c110402011f05 decoded=14; [k1] req=1 bytes=9f015608030e0 |
+| `isel8.cc` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c27281270982040002 decoded=114; [k1] req=1 bytes=2981250b00c27281270982040102 dec |
+| `isel8.cmpA` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c27200270982040202 decoded=129; [k1] req=1 bytes=2981250b00c27201270982040202 dec |
+| `isel8.cmpB` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c27281270082040202 decoded=11; [k1] req=1 bytes=2981250b00c27281270182040202 deco |
+| `isel8.cmp_mode` | hardware-run | G17P | 1020 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=2981250b00c27281270901040202 decoded=0; [k1] req=1 bytes=2981250b00c27281270901040202 deco |
+| `isel8.dst` | hardware-run | G17P | 39 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c20281270982040202 decoded=2; [k1] req=1 bytes=2981250b00c21281270982040202 decode |
+| `isel8.flags` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c27281270982040200 decoded=129; [k1] req=1 bytes=2981250b00c27281270982040201 dec |
+| `isel8.selTrue` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=2981250b00c27281270982000202 decoded=194; [k1] req=1 bytes=2981250b00c27281270982010202 dec |
+| `isel_reg.cmpA` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110142002f0f820605028004 decoded=1; [k1] req=2 bytes=1f01540803080628110142 |
+| `isel_reg.cmpB` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110142092f00820605028004 decoded=8; [k1] req=1 bytes=1f01540803080628110142 |
+| `isel_reg.cmp_mode` | untested | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110142092f0f000605028004 decoded=3; [k1] req=1 bytes=1f01540803080628110142 |
+| `isel_reg.dst` | hardware-run | G17P | 39 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110102092f0f820605028004 decoded=1; [k1] req=2 bytes=1f015408030806281101220 |
+| `isel_reg.selFalse` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110142092f0f820605028000 decoded=1; [k1] req=2 bytes=1f01540803080628110142 |
+| `isel_reg.selTrue` | hardware-run | G17P | 765 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=1f01540803080628110142092f0f820005028004 decoded=8; [k1] req=1 bytes=1f01540803080628110142 |
+| `iter_at.grp` | isolated-byte-diff | G17P | 47 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=47 bytes=2f14540c03000a01 decoded=0; [k1] req=175 bytes=af14540c03000a01 decoded=1) |
+| `mov_zext16.extend` | hardware-run | G17P | 1785 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=13000001 decoded=0; [k1] req=2 bytes=13000002 decoded=0) |
+| `mov_zext16.src_flag` | hardware-run | G17P | 7 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=1 bytes=13800001 decoded=128; [k1] req=1 bytes=13800001 decoded=128) |
+| `mov_zext16.src_reg` | hardware-run | G17P | 1270 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=0 bytes=13000001 decoded=1; [k1] req=2 bytes=13020001 decoded=1) |
+| `mov_zext16.subform` | hardware-run | G17P | 7 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=6 bytes=0ca01006671044020000200041010040460013000601e700 decoded=16; [k1] req=14 bytes=0ca01006671044 |
+| `packed_half2_hi.dst` | hardware-run | G17P | 16 field-keyed record(s) where the requested value != the value decoded from the ACTUAL dispatched bytes (e.g. [k1] req=8 bytes=080424000020 decoded=0; [k1] req=24 bytes=180424000020 decoded=1) |
 
 </details>
 
-### `INSUFFICIENT` — 420 row(s), by reason
+### `INSUFFICIENT` — 424 row(s), by reason
 
 | rows | reason (numbers elided) |
 |---:|---|
 | 379 | no actual-byte ledger: no records at all under any keying; evidence is in N non-record file(s) ( |
 | 40 | no actual-byte ledger: no records at all under any keying |
+| 4 | N record(s) carried actual bytes and N decoded, but NONE stated a requested value to compare against |
 | 1 | no actual-byte ledger: N record(s) but none carried actual instruction bytes |
 
 <details><summary>first 60 rows</summary>

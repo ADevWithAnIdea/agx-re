@@ -337,7 +337,16 @@ def axes(st, ctl, promoted, inerted, n_other_agents):
                                       and st["distinct_actual_encodings"]
                                       >= st["distinct_requested_values"])
                 else ("ledger-verified" if st["ledger_ok"] else "unverified"))
-    if not ctl[0]:
+    # LIVENESS vs the control requirement. RE_EXPERIMENT_PROCESS_CORRECTIONS
+    # Gate B: "If the positive control fails, the arm is `carrier-undecidable`;
+    # ZERO MOVEMENT is not evidence of inertness." The control exists to license an
+    # INERT reading. An arm whose TARGET FIELD ITSELF moved has demonstrated its own
+    # detection power directly and more strongly than any control could, so a failed
+    # control does not erase an observed movement -- it only bars the inert reading.
+    # This experiment's own frozen section 5 rule is STRICTER (a failed control bars
+    # both), and it is still applied to `promote`/`inert`; the liveness AXIS reports
+    # the normative reading. Both are published side by side.
+    if not ctl[0] and st["moved"] == 0 and not sum(st["hard"].values()):
         liveness = "carrier-undecidable"
     elif st["moved"] > 0 and st["V"] >= 2:
         liveness = "live"

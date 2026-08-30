@@ -49,18 +49,32 @@
    "samples": 2
   },
   "g17p_20260830_A2run03_derivmapping": {
-   "busy_samples": 2,
+   "busy_samples": 16,
    "foreign_process_names": {
-    "Python": 4,
-    "agxrun_persist": 5,
-    "agxrun_persist_as": 1,
-    "bash": 4,
-    "gfrun5": 6,
-    "sh": 2
+    "Python": 32,
+    "agxrun_persist": 47,
+    "bash": 32,
+    "gfrun5": 10,
+    "rendersweep207": 13,
+    "sh": 16
    },
    "max_concurrent_foreign_procs": 11,
    "quiet": false,
-   "samples": 2
+   "samples": 16
+  },
+  "g17p_20260830_A2run04_derivmapping": {
+   "busy_samples": 10,
+   "foreign_process_names": {
+    "Python": 20,
+    "agxrun_persist": 27,
+    "bash": 20,
+    "gfrun5": 30,
+    "rendersweep207": 8,
+    "sh": 10
+   },
+   "max_concurrent_foreign_procs": 13,
+   "quiet": false,
+   "samples": 10
   }
  },
  "_spec": "RE_EXPERIMENT_PROCESS_CORRECTIONS.md (normative, wins) + docs/evidence-classification.md sec.2 + FIELD-SWEEP-PROTOCOL sec.5; gates frozen in PRE_REGISTRATION sec.15",
@@ -73,20 +87,25 @@
      "agree": 28,
      "checked": 28,
      "match": true
+    },
+    "g17p_20260830_A2run04_derivmapping": {
+     "agree": 28,
+     "checked": 28,
+     "match": true
     }
    },
    "cross_run": {
-    "agreement": "0/0",
-    "agreement_pct": null,
-    "common_values": 0,
+    "agreement": "54/54",
+    "agreement_pct": 100.0,
+    "common_values": 54,
     "disagreements": 0
    },
-   "distinct_valid_payloads": 3,
+   "distinct_valid_payloads": 4,
    "gate_A_ledger": {
-    "cases_ok": 40,
-    "cases_with_ledger": 41,
-    "distinct_actual_encodings": 41,
-    "distinct_requested_values": 44,
+    "cases_ok": 110,
+    "cases_with_ledger": 112,
+    "distinct_actual_encodings": 57,
+    "distinct_requested_values": 65,
     "passed": false
    },
    "gate_B_control": {
@@ -101,20 +120,127 @@
    },
    "gate_C_semantics": {
     "buckets": {
-     "no_model": 44
+     "no_model": 65
     },
     "passed": false,
     "sem_checked": 0
    },
-   "moved": 0,
-   "moved_values_sample": [],
+   "moved": 53,
+   "moved_values_sample": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    15,
+    16,
+    31,
+    32,
+    63,
+    64,
+    127,
+    255,
+    256,
+    511,
+    512,
+    1023,
+    1024,
+    2047,
+    2048,
+    4095,
+    4096
+   ],
    "outcomes_run1": {
-    "fault": 3,
+    "fault": 6,
+    "foreign": 4,
     "ledger_mismatch": 1,
-    "wrong_value": 40
+    "ok": 1,
+    "wrong_value": 53
    },
    "runs": [
-    "g17p_20260830_A2run03_derivmapping"
+    "g17p_20260830_A2run03_derivmapping",
+    "g17p_20260830_A2run04_derivmapping"
+   ]
+  },
+  "tex_deriv.dstsrc@tex_deriv@deriv2/0": {
+   "baseline_field_value": 131156,
+   "baseline_host_oracle": {
+    "g17p_20260830_A2run03_derivmapping": {
+     "agree": 22,
+     "checked": 28,
+     "match": false
+    },
+    "g17p_20260830_A2run04_derivmapping": {
+     "agree": 22,
+     "checked": 28,
+     "match": false
+    }
+   },
+   "cross_run": {
+    "agreement": "19/19",
+    "agreement_pct": 100.0,
+    "common_values": 19,
+    "disagreements": 0
+   },
+   "distinct_valid_payloads": 3,
+   "gate_A_ledger": {
+    "cases_ok": 74,
+    "cases_with_ledger": 75,
+    "distinct_actual_encodings": 56,
+    "distinct_requested_values": 65,
+    "passed": false
+   },
+   "gate_B_control": {
+    "detection_power": true,
+    "dimension_controls_moved": [
+     "b1=0x0",
+     "b1=0xfa",
+     "src_comp=0x0",
+     "src_comp=0xef"
+    ],
+    "passed": true
+   },
+   "gate_C_semantics": {
+    "buckets": {
+     "no_model": 65
+    },
+    "passed": false,
+    "sem_checked": 0
+   },
+   "moved": 19,
+   "moved_values_sample": [
+    262144,
+    300693,
+    1048576,
+    1400949,
+    1968163,
+    2097152,
+    3102591,
+    4194304,
+    4770061,
+    5337275,
+    6437531,
+    8139173,
+    8672215,
+    10906899,
+    11474113,
+    12041327,
+    13175755,
+    13708797,
+    14843225
+   ],
+   "outcomes_run1": {
+    "fault": 1,
+    "foreign": 10,
+    "ledger_mismatch": 1,
+    "ok": 1,
+    "wrong_value": 52
+   },
+   "runs": [
+    "g17p_20260830_A2run03_derivmapping",
+    "g17p_20260830_A2run04_derivmapping"
    ]
   },
   "tex_sample.mode@tex_sample@mscmp/0": {
@@ -2328,42 +2454,45 @@
  "fields": {
   "tex_deriv.dstsrc": {
    "arms": [
-    "tex_deriv.dstsrc@tex_deriv@deriv/0"
+    "tex_deriv.dstsrc@tex_deriv@deriv/0",
+    "tex_deriv.dstsrc@tex_deriv@deriv2/0"
    ],
    "axes": {
     "_pre_registered_semantic_model_refuted": false,
     "compiler_recipe": "not-generated",
     "encoding_geometry": "unverified",
-    "liveness": "accepted-inert",
-    "reproducibility": "incomplete",
+    "liveness": "live",
+    "reproducibility": "auditable",
     "semantics": "unknown",
     "target": "G17P-direct"
    },
    "counts": {
-    "arms": 1,
-    "arms_at_or_above_99pct_agreement": 0,
-    "arms_passing_movement_repro_gate": 0,
-    "arms_where_field_moved": 0,
-    "arms_with_detection_power": 1,
-    "arms_with_dimension_control_moved": 1,
+    "arms": 2,
+    "arms_at_or_above_99pct_agreement": 2,
+    "arms_passing_movement_repro_gate": 2,
+    "arms_where_field_moved": 2,
+    "arms_with_detection_power": 2,
+    "arms_with_dimension_control_moved": 2,
     "clean_quiet_runs": [],
-    "cross_run_agreement_min": null,
-    "cross_run_common_total": 0,
+    "cross_run_agreement_min": 100.0,
+    "cross_run_common_total": 73,
     "disagreements_total": 0,
-    "dispatched_values_per_arm": 44,
-    "distinct_bytes": 41,
-    "distinct_requested_values": 44,
-    "distinct_valid_payloads_max": 3,
+    "dispatched_values_per_arm": 65,
+    "distinct_bytes": 57,
+    "distinct_requested_values": 65,
+    "distinct_valid_payloads_max": 4,
     "encodable_values": null,
-    "ledger_cases_ok_over_checked": "40/41",
-    "moved_total": 0,
+    "ledger_cases_ok_over_checked": "184/187",
+    "moved_total": 72,
     "outcome_totals_run1": {
-     "fault": 3,
-     "ledger_mismatch": 1,
-     "wrong_value": 40
+     "fault": 7,
+     "foreign": 14,
+     "ledger_mismatch": 2,
+     "ok": 2,
+     "wrong_value": 105
     },
     "sem_buckets_total": {
-     "no_model": 44
+     "no_model": 130
     },
     "sem_checked_total": 0,
     "sem_correct_total": 0,
@@ -2382,7 +2511,7 @@
    },
    "label": "untested",
    "note": "",
-   "range": "44 sampled values of 2^24 (boundaries + powers of two + all-ones prefixes + 16 hashed interior) x 1 arms",
+   "range": "65 sampled values of 2^24 (boundaries + powers of two + all-ones prefixes + 16 hashed interior) x 2 arms",
    "start": 16,
    "target": "G17P",
    "width": 24

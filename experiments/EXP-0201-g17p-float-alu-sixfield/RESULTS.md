@@ -26,6 +26,9 @@ nothing, exactly as `PRE_REGISTRATION-A.md` §A4 pre-committed.
 
 That is a bounded, single-cause gap, and it is worth separating from what the runs *did* establish:
 
+Arm counts per field: `falu3.op` 4, `falu3_ext.op` 5, `fspecial_est.srcA` 5,
+`falu3_srcmod12.opsel` 3, `falu3_srcmod12.ctrl` 3, `copysign.operands` 5.
+
 | field | geometry | liveness | semantics | recipe | reproducibility | blocked by |
 |---|---|---|---|---|---|---|
 | `falu3.op` | geometry-mapped | **live** | **bounded-map** | not-generated | auditable | Gate E only |
@@ -90,8 +93,9 @@ prior defect, and it is a `db.json` model error, not a tooling accident — see 
 ### 2.1 The instability was the fault-class boundary, not the semantics
 
 Both fields were withheld as **UNSTABLE** — 428 and 450 observations moved, one arm each, 87.5 %
-cross-run agreement. This experiment ran them on **3 and 5 independent arms** and measured every
-cross-run disagreement rather than reporting a percentage:
+cross-run agreement. This experiment ran them on **4 and 5 independent arms respectively** (the
+deficiency was one arm each, not too few values) and measured every cross-run disagreement rather
+than reporting a percentage:
 
 | pair | `falu3.op` | `falu3_ext.op` |
 |---|---|---|

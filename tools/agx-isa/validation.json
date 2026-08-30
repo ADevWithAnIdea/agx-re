@@ -634,7 +634,18 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 428 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 16,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "live: 122 moved, 12 distinct valid payloads",
+     "semantics": "bounded-map (see db_defects)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 99.22% then 100.00%, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "E only",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    },
    "ctrl": {
     "label": "hardware-run",
@@ -853,7 +864,18 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 1 arm(s), 450 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 16,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "live: 125 moved, 10 distinct valid payloads",
+     "semantics": "bounded-map (see db_defects)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 99.61% then 100.00%, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "E only",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -2755,7 +2777,18 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 4 arm(s), 1 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 8,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "CARRIER-UNDECIDABLE \u2014 control AND falsifier both dead on all five arms. Scoring \"0 of 256 moved\" as inertness would have published a confident FALSE inert claim; Gate B's control conjunct is the only thing that prevented it.",
+     "semantics": "unknown",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.00% both, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "B and E",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    },
    "subop": {
     "label": "hardware-run",
@@ -4085,7 +4118,17 @@
     ],
     "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 8,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 2048/2048 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 1024 distinct encodings",
+     "liveness": "live: 896/1024 moved, 4/4 arms with detection power all moved",
+     "semantics": "semantically-mapped: 8/15 sem checks matched",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.000%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "hardware-run",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -4133,7 +4176,17 @@
     ],
     "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 56,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 2048/2048 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 1024 distinct encodings",
+     "liveness": "live: 847/1024 moved, 4/4 arms",
+     "semantics": "semantically-mapped: 11/15 matched",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 99.609%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "hardware-run",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    }
   },
   "simd_shuffle": {
@@ -4157,7 +4210,17 @@
     ],
     "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 7,
-    "width": 1
+    "width": 1,
+    "axes": {
+     "geometry": "geometry-mapped: 20/20 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 10 distinct encodings",
+     "liveness": "live: 5/10 moved, 5/5 arms",
+     "semantics": "semantically-mapped: 6/6 matched",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.000%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "isolated-byte-diff",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    },
    "mode": {
     "label": "isolated-byte-diff",
@@ -4183,7 +4246,17 @@
     "distinct_bytes": 32,
     "encodable_range": 2,
     "start": 17,
-    "width": 1
+    "width": 1,
+    "axes": {
+     "geometry": "geometry-mapped: 20/20 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 10 distinct encodings",
+     "liveness": "LIVE (CONTEXTUAL) \u2014 the two prior INERT verdicts were a CARRIER FAILURE. Clearing byte+2 bit 1 where the compiler set it returns FOREIGN DATA (0x00003039 = our sentinel 12345) or a silent zero with a wrong cross-threadgroup atomic total. Isolated by a matched litmus PAIR: `lb_shuffle_ld`/`lb_shuffle_alu` are the same kernel with identical `srctype` and `src` encodings, differing ONLY in operand provenance \u2014 the compiler picked cache=1 for the load-seeded one and cache=0 for the ALU one, and the bit is live only in the first. 3/5 arms moved.",
+     "semantics": "bounded-map: the value that moved matched NO registered model, so isolated-byte-diff NOT hardware-run",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.000%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "isolated-byte-diff",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -4273,7 +4346,17 @@
     ],
     "note": "EXP-0189 withheld (UNVERIFIABLE): 0 values dispatched over 0 arm(s), 0 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements). Reason: no-field-records.",
     "start": 12,
-    "width": 4
+    "width": 4,
+    "axes": {
+     "geometry": "geometry-mapped: 192/192 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 96 distinct encodings",
+     "liveness": "accepted-inert in the tested envelope (0/96 over 6 arms, all 6 with detection power); global role unknown",
+     "semantics": "hypothesis \u2014 see db_defects: BOTH compiled forms carry pred=0, and an adversarial single-observation probe showed byte+6 `form` ALONE flips predicate-mask -> all-active-mask. Recorded as a db.json defect.",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.000%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "untested",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    },
    "cache": {
     "label": "single-template-inference",
@@ -4287,7 +4370,17 @@
     "distinct_bytes": 1536,
     "encodable_range": 256,
     "start": 16,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 3072/3072 target-arm cases ledger-verified (actual bytes re-read from the dispatched file, field independently decoded), 0 mismatches; 1536 distinct encodings",
+     "liveness": "accepted-inert in the exact tested envelope (0/1536 over 6 carriers, in-dimension `dst` control firing on 3), INCLUDING through a real multi-invocation ordering litmus; global role unknown. TWO DIMENSIONS REMAIN UNEXERCISED and are named: all six ballot carriers share ONE compiler-chosen baseline value, and retention/occupancy has no functional observable (GPUTIME_NS spread is at the timer quantisation).",
+     "semantics": "bounded-map",
+     "recipe": "not-generated \u2014 every case mutates one field of a compiler-emitted donor, so this is NOT an emittability proof",
+     "target": "G17P-direct (SIMD width MEASURED at 32 per lane via threads_per_simdgroup in every gated run)",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.000%, but the machine was NOT quiet: concurrent EXP-0199..0207 recorded in every env.json.",
+     "proposed_label_pending_gate_E": "untested",
+     "frozen_gate": "PASSED its own pre-registered gate (revision B litmus); blocked only on Gate E"
+    }
    },
    "dst": {
     "label": "isolated-byte-diff",
@@ -11025,7 +11118,18 @@
     ],
     "note": "EXP-0189 withheld (UNSTABLE): 256 values dispatched over 3 arm(s), 443 observations moved, re-derived from raw under EXP-0164's frozen thresholds (>=2 gated runs, moved>=1 in both, >=99% per-value agreement, moved >= 2x disagreements).",
     "start": 24,
-    "width": 8
+    "width": 8,
+    "axes": {
+     "geometry": "geometry-mapped: 256 dispatched, 256 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "live: 252 moved, 4 distinct valid payloads",
+     "semantics": "bounded-map (see db_defects)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.00% both, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "E only",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    }
   },
   "ibfe_mesh_attr": {
@@ -11465,7 +11569,18 @@
     "evidence": [
      "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 6, 'ok': 1}; ok at {0x6}"
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 6, 'ok': 1}; ok at {0x6}",
+    "axes": {
+     "geometry": "geometry-mapped: 8 dispatched, 8 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "live: 3 moved, 5 distinct valid payloads",
+     "semantics": "bounded-map (see db_defects)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.00% both, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "E only",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    },
    "opflags": {
     "label": "hardware-run",
@@ -11501,7 +11616,18 @@
     "evidence": [
      "EXP-0154"
     ],
-    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 12, 'wrong_value': 116}; ok at {0x0-0x1, 0x3-0x4, 0x8-0x9, 0xb-0xc, 0x10, 0x14, 0x18, 0x1c}"
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 12, 'wrong_value': 116}; ok at {0x0-0x1, 0x3-0x4, 0x8-0x9, 0xb-0xc, 0x10, 0x14, 0x18, 0x1c}",
+    "axes": {
+     "geometry": "geometry-mapped: 128 dispatched, 128 DISTINCT ACTUAL encodings, 0 Gate-A ledger mismatches in 22,536 amendment cases; aliasing refused three independent ways (arm generator rejects any pair whose XOR leaves the field span; Gate A re-extracts and re-decodes from the blob about to be dispatched; wave_audit confirms encodings >= legal values)",
+     "liveness": "live: 31 moved, 7 distinct valid payloads",
+     "semantics": "bounded-map (see db_defects)",
+     "recipe": "not-generated",
+     "target": "G17P-direct",
+     "reproducibility": "INCOMPLETE \u2014 Gate E NOT MET. Cross-run 100.00% both, but gpuwatch sampled the device every 2s across all 8 runs and EXP-0200/0202/0204/0205/0206 dispatched GPU work continuously; only run01 had zero foreign dispatch runners and its pair partner was heavily contended. Under the new Gate E a contaminated run cannot confirm AT ALL, so this is CONTAMINATED, not clean.",
+     "blocking_gate": "E only",
+     "fault_class_note": "EVERY cross-run disagreement in the whole experiment is a `fault` <-> `wrote-nothing` flip inside the pre-registered `(v&7)==7` class; adjudicated agreement is 100.00% everywhere. **The historical \"UNSTABLE\" verdict on the two `op` fields was the FAULT-CLASS BOUNDARY, not unstable semantics.**",
+     "frozen_gate": "PASSED its own pre-registered gate; blocked only on the NEW Gate E"
+    }
    },
    "srcB_imm": {
     "label": "hardware-run",

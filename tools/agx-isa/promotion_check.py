@@ -260,6 +260,8 @@ class Evidence(object):
             "n_req_values": 0, "n_actual_bytes": 0, "n_actual_field_values": 0,
             "ledger_records": 0, "ledger_decoded": 0, "ledger_agree": 0,
             "ledger_disagree": 0, "ledger_examples": [],
+            "byte_ledger_records": 0, "byte_ledger_agree": 0,
+            "byte_ledger_disagree": 0,
             "sem_checks": 0, "sem_true": 0, "sem_false": 0,
             "sem_buckets": collections.Counter(),
             "baseline_oracle": 0, "host_oracle": 0,
@@ -326,7 +328,9 @@ class Evidence(object):
     @staticmethod
     def _merge(agg, cell):
         for k in ("records", "in_raw", "ledger_records", "ledger_decoded",
-                  "ledger_agree", "ledger_disagree", "sem_checks", "sem_true",
+                  "ledger_agree", "ledger_disagree", "byte_ledger_records",
+                  "byte_ledger_agree", "byte_ledger_disagree",
+                  "sem_checks", "sem_true",
                   "sem_false", "baseline_oracle", "host_oracle",
                   "liveness_predictions", "prose_predictions"):
             agg[k] += cell.get(k, 0)
@@ -403,13 +407,19 @@ def rule_R3(row, ev, e):
     """actual-byte ledger is missing, or requested and decoded values disagree"""
     if row["field"] is None:
         return NA, "instruction-level row: no single field to decode"
-    if ev["ledger_disagree"]:
+    if ev["ledger_disagree"] or ev["byte_ledger_disagree"]:
         exs = ev["ledger_examples"][:2]
-        return REJECT, ("%d record(s) where the requested value != the value decoded "
+        which = []
+        if ev["ledger_disagree"]:
+            which.append("%d field-keyed" % ev["ledger_disagree"])
+        if ev["byte_ledger_disagree"]:
+            which.append("%d byte-keyed" % ev["byte_ledger_disagree"])
+        return REJECT, ("%s record(s) where the requested value != the value decoded "
                         "from the ACTUAL dispatched bytes (e.g. %s)"
-                        % (ev["ledger_disagree"],
-                           "; ".join("req=%s bytes=%s decoded=%s"
-                                     % (x["requested"], x["actual_bytes"], x["decoded"])
+                        % (" + ".join(which),
+                           "; ".join("[%s] req=%s bytes=%s decoded=%s"
+                                     % (x.get("keying"), x["requested"],
+                                        x["actual_bytes"], x["decoded"])
                                      for x in exs)))
     if ev["ledger_decoded"] == 0:
         why = ("no records at all under any keying" if ev["records"] == 0
@@ -419,8 +429,15 @@ def rule_R3(row, ev, e):
             why += ("; evidence is in %d non-record file(s) (.txt/.log/.hex) -- "
                     "format-unreadable, not absent" % ev["nonrecord_files"])
         return INSUFFICIENT, "no actual-byte ledger: " + why
-    return PASS, ("%d/%d records decoded, %d agree, 0 disagree"
-                  % (ev["ledger_decoded"], ev["ledger_records"], ev["ledger_agree"]))
+    if ev["ledger_agree"] == 0 and ev["byte_ledger_agree"] == 0:
+        return INSUFFICIENT, ("%d record(s) carried actual bytes and %d decoded, but "
+                              "NONE stated a requested value to compare against -- "
+                              "bytes without a caller intent are not a Gate A ledger"
+                              % (ev["ledger_records"], ev["ledger_decoded"]))
+    return PASS, ("%d/%d records decoded; field-keyed %d agree / 0 disagree; "
+                  "byte-keyed %d agree / 0 disagree"
+                  % (ev["ledger_decoded"], ev["ledger_records"], ev["ledger_agree"],
+                     ev["byte_ledger_agree"]))
 
 
 def rule_R4(row, ev, e):
@@ -588,7 +605,9 @@ def check_row(row, e):
            "facts": {k: ev[k] for k in
                      ("records", "in_raw", "n_req_values", "n_actual_bytes",
                       "n_actual_field_values", "ledger_records", "ledger_decoded",
-                      "ledger_agree", "ledger_disagree", "sem_checks", "sem_buckets",
+                      "ledger_agree", "ledger_disagree", "byte_ledger_records",
+                      "byte_ledger_agree", "byte_ledger_disagree",
+                      "sem_checks", "sem_buckets",
                       "baseline_oracle", "host_oracle", "V", "n_oracle_digests",
                       "raw_runs", "targets", "carriers", "outcomes", "hard",
                       "contamination", "keying", "nonrecord_files", "record_files",
