@@ -1,0 +1,248 @@
+{
+ "if_push.scope_kind": {
+  "claims": [
+   {
+    "claim": "cf_executed_comparable_identical",
+    "claimed": {
+     "comparable": 242,
+     "executed": 256,
+     "identical": 242,
+     "n": 256,
+     "skipped": 0
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 242,
+     "executed": 256,
+     "n": 256,
+     "outcomes": {
+      "hang": 1,
+      "invalid_run": 13,
+      "ok": 64,
+      "wrong_value": 178
+     },
+     "skipped": 0,
+     "stable": 242
+    }
+   }
+  ],
+  "group": "if_push.scope_kind@7",
+  "label": "hardware-run",
+  "note": "256/256 values executed (0 skipped by the hang budget); 242 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 242 of those identical",
+  "verdict": "SUPPORTED"
+ },
+ "mov_imm.dst": {
+  "claims": [
+   {
+    "claim": "mov_imm_dst",
+    "claimed": {
+     "identical": 16,
+     "of": 16,
+     "scans": "four",
+     "values": 16
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 16,
+     "executed": 16,
+     "n": 16,
+     "outcomes": {
+      "ok": 16
+     },
+     "skipped": 0,
+     "stable": 16
+    },
+    "raw_alias_scan": {
+     "comparable": 4,
+     "executed": 4,
+     "n": 4,
+     "outcomes": {
+      "ok": 4
+     },
+     "skipped": 0,
+     "stable": 4
+    }
+   }
+  ],
+  "group": "mov_imm.dst",
+  "label": "hardware-run",
+  "note": "all 16 values executed with a host-computed oracle; four 12-register aliasing scans confirm no second register changes; 16/16 values reproduced identically across both gated runs",
+  "verdict": "SUPPORTED"
+ },
+ "pop_reconverge.scope": {
+  "claims": [
+   {
+    "claim": "cf_executed_comparable_identical",
+    "claimed": {
+     "comparable": 256,
+     "executed": 256,
+     "identical": 256,
+     "n": 256,
+     "skipped": 0
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 256,
+     "executed": 256,
+     "n": 256,
+     "outcomes": {
+      "ok": 256
+     },
+     "skipped": 0,
+     "stable": 256
+    }
+   }
+  ],
+  "group": "pop_reconverge.scope@14",
+  "label": "untested",
+  "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical | WITHHELD 2026-08-30 for CONSISTENCY, on EXP-0191's detection gate. It fails the STRICT (arm-level) join exactly as the five fields withheld under DEF-0190-1 did: **512 valid observations per arm, ONE distinct payload, and no control of any kind at arm level.** It passes only at the looser CARRIER join, so EXP-0191's frozen trigger did not fire and that experiment correctly declined to bend its own rule. The decision to apply the strict join here is the orchestrator's, and it is made for consistency: the five already withheld were withheld on precisely this criterion, and leaving this one because a looser join rescues it would make the standard depend on which join happened to be written down. **EXP-0191 also establishes that DEF-0190-1's enumeration (8 arms with no observation, 128 with exactly one) is an UNDERCOUNT** -- `blind_arm_scan.py` requires ZERO empty observations, so arms mixing empty and single-valued records fall through both buckets. This is one of them.",
+  "verdict": "SUPPORTED"
+ },
+ "pop_reconverge.scope_kind": {
+  "claims": [
+   {
+    "claim": "cf_executed_comparable_identical",
+    "claimed": {
+     "comparable": 256,
+     "executed": 256,
+     "identical": 256,
+     "n": 256,
+     "skipped": 0
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 256,
+     "executed": 256,
+     "n": 256,
+     "outcomes": {
+      "fault": 1,
+      "ok": 254,
+      "wrong_value": 1
+     },
+     "skipped": 0,
+     "stable": 256
+    }
+   }
+  ],
+  "group": "pop_reconverge.scope_kind@14",
+  "label": "hardware-run",
+  "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical",
+  "verdict": "SUPPORTED"
+ },
+ "psel.flag": {
+  "claims": [
+   {
+    "claim": "psel_stable_of_comparable_of_swept",
+    "claimed": {
+     "comparable": 512,
+     "n": 512,
+     "stable": 512
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 512,
+     "executed": 512,
+     "n": 512,
+     "outcomes": {
+      "ok": 96,
+      "silent_zero": 256,
+      "wrong_value": 160
+     },
+     "skipped": 0,
+     "stable": 512
+    }
+   }
+  ],
+  "group": "psel.flag",
+  "label": "hardware-run",
+  "note": "512/512 comparable values reproduced identically across both gated runs (of 512 swept)",
+  "verdict": "SUPPORTED"
+ },
+ "psel.mode": {
+  "claims": [
+   {
+    "claim": "psel_stable_of_comparable_of_swept",
+    "claimed": {
+     "comparable": 511,
+     "n": 512,
+     "stable": 511
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 511,
+     "executed": 512,
+     "n": 512,
+     "outcomes": {
+      "fault": 127,
+      "invalid_run": 1,
+      "ok": 256,
+      "wrong_value": 128
+     },
+     "skipped": 0,
+     "stable": 511
+    }
+   }
+  ],
+  "group": "psel.mode",
+  "label": "hardware-run",
+  "note": "511/511 comparable values reproduced identically across both gated runs (of 512 swept)",
+  "verdict": "SUPPORTED"
+ },
+ "psel.sel": {
+  "claims": [
+   {
+    "claim": "psel_stable_of_comparable_of_swept",
+    "claimed": {
+     "comparable": 512,
+     "n": 512,
+     "stable": 512
+    },
+    "ok": true,
+    "raw": {
+     "comparable": 512,
+     "executed": 512,
+     "n": 512,
+     "outcomes": {
+      "ok": 512
+     },
+     "skipped": 0,
+     "stable": 512
+    }
+   }
+  ],
+  "group": "psel.sel",
+  "label": "hardware-run",
+  "note": "512/512 comparable values reproduced identically across both gated runs (of 512 swept)",
+  "verdict": "SUPPORTED"
+ },
+ "uniform_mov.usrc": {
+  "claims": [
+   {
+    "claim": "uniform_mov_usrc",
+    "claimed": {
+     "imm_ok": 128,
+     "uniform_ok": 8
+    },
+    "ok": true,
+    "raw": {
+     "imm_region_ok_stable": 128,
+     "uniform_ok_values": [
+      24,
+      25,
+      28,
+      29,
+      32,
+      33,
+      36,
+      37
+     ],
+     "uniform_region_ok_stable": 8
+    }
+   }
+  ],
+  "group": "regmove.usrc",
+  "label": "hardware-run",
+  "note": "128/128 immediate-region values matched their host-computed oracle exactly; 8/8 mapped uniform indices returned the bound magic constant",
+  "verdict": "SUPPORTED"
+ }
+}

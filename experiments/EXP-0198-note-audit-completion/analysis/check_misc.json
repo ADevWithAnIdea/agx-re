@@ -1,0 +1,650 @@
+{
+ "carry_gen.srcB": {
+  "claims": [
+   {
+    "claim": "accepted set fits (v & 0x7F) == 0x03, 2 of 256, on both arms",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01|A_CARRY_INPLACE": {
+      "accepted": [
+       3,
+       131
+      ],
+      "n": 256,
+      "released_map_fit": "0/0",
+      "rule_v_and_0x7f_eq_3": true
+     },
+     "g17p_20260829_run01|A_CARRY_SYNTH": {
+      "accepted": [
+       3,
+       131
+      ],
+      "n": 256,
+      "released_map_fit": "22/22",
+      "rule_v_and_0x7f_eq_3": true
+     },
+     "g17p_20260829_run02|A_CARRY_INPLACE": {
+      "accepted": [
+       3,
+       131
+      ],
+      "n": 256,
+      "released_map_fit": "0/0",
+      "rule_v_and_0x7f_eq_3": true
+     },
+     "g17p_20260829_run02|A_CARRY_SYNTH": {
+      "accepted": [
+       3,
+       131
+      ],
+      "n": 256,
+      "released_map_fit": "22/22",
+      "rule_v_and_0x7f_eq_3": true
+     }
+    }
+   },
+   {
+    "claim": "A_CARRY_SYNTH.srcB released register map reg=(v>>1)&0x3F, fit 22/22",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01|A_CARRY_SYNTH": "22/22",
+     "g17p_20260829_run02|A_CARRY_SYNTH": "22/22"
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "A_CARRY_INPLACE: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH: accepted set fits (v & 0x7F) == 0x03 (2 of 256 values) | A_CARRY_SYNTH.srcB: released register map -> reg=(v>>1)&0x3F, fit 22/22",
+  "verdict": "SUPPORTED"
+ },
+ "falu2_ext.srcB_neg": {
+  "claims": [
+   {
+    "claim": "the two byte strings differ in EXACTLY ONE BIT, bit 43",
+    "ok": true,
+    "raw": {
+     "bit": 43,
+     "popcount": 1,
+     "xor": "0x80000000000"
+    }
+   },
+   {
+    "claim": "db.json models srcB_neg at start=43 width=1",
+    "ok": true,
+    "raw": [
+     [
+      43,
+      1
+     ]
+    ]
+   },
+   {
+    "claim": "w0 moves 8.0 -> 2.0 with both sentinels holding, identical in all three runs",
+    "ok": true,
+    "raw": {
+     "m4_20260828_run01": {
+      "6901040501000080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 8.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 8.0
+        },
+        "outcome": "ok"
+       }
+      ],
+      "6901040501080080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 2.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 2.0
+        },
+        "outcome": "ok"
+       }
+      ]
+     },
+     "m4_20260828_run05": {
+      "6901040501000080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 8.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 8.0
+        },
+        "outcome": "ok"
+       }
+      ],
+      "6901040501080080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 2.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 2.0
+        },
+        "outcome": "ok"
+       }
+      ]
+     },
+     "m4_20260828_run06": {
+      "6901040501000080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 8.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 8.0
+        },
+        "outcome": "ok"
+       }
+      ],
+      "6901040501080080": [
+       {
+        "expect_match": true,
+        "match": true,
+        "observed": {
+         "w0": 2.0,
+         "w4": 26.0,
+         "w8": 5.0
+        },
+        "oracle": {
+         "w0": 2.0
+        },
+        "outcome": "ok"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "claim": "the host oracle PREDICTED 8.0 AND 2.0 SEPARATELY and matched both",
+    "ok": true,
+    "raw": {
+     "m4_20260828_run01": {
+      "6901040501000080": {
+       "w0": 8.0
+      },
+      "6901040501080080": {
+       "w0": 2.0
+      }
+     },
+     "m4_20260828_run05": {
+      "6901040501000080": {
+       "w0": 8.0
+      },
+      "6901040501080080": {
+       "w0": 2.0
+      }
+     },
+     "m4_20260828_run06": {
+      "6901040501000080": {
+       "w0": 8.0
+      },
+      "6901040501080080": {
+       "w0": 2.0
+      }
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0194 found the second carrier this row's own note asked for -- it was already committed. EXP-0138 `raw/m4_20260828_run01|run05|run06/sweep.jsonl`: bytes `6901040501000080` vs `6901040501080080` differ in EXACTLY ONE BIT, bit 43, which is this field (start=43,width=1); `w0` moves 8.0 -> 2.0 with both sentinels holding, identical in all three runs. Critically the host oracle PREDICTED 8.0 AND 2.0 SEPARATELY and matched both -- a discriminating oracle, which is the exact gate the 46 AMBIGUOUS rows fail (their oracle is constant while the field varies, so it predicts the instruction's effect, not the field's). Orchestrator re-derived all three runs from raw before merging. **TARGET IS M4/G16G, NOT the G17P documentation target** -- this adds to the target-blindness debt EXP-0193 named. The instruction stays BLOCKED on srcA_size, ctrl and srcB_imm, so the emittable-instruction headline does not move.",
+  "verdict": "SUPPORTED"
+ },
+ "falu3._instruction": {
+  "claims": [
+   {
+    "claim": "Anchor 09011e0581080200 decodes back to falu3",
+    "ok": true,
+    "raw": {
+     "decoded": "falu3",
+     "hex": "09011e0581080200",
+     "length": 8,
+     "ok": true
+    }
+   },
+   {
+    "claim": "'1809+2321 cases' and 'byte+4 ... re-lengths on 192 of 256 values' are carried from db.json's committed falu3 text",
+    "ok": true,
+    "raw": {
+     "has_1809_2321": true,
+     "has_192_256": true
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0138 HW-VALIDATED the OPERAND-SLOT model against a host oracle over 1809+2321 cases and corrected db.json's names by measurement (byte0 high nibble is the destination, byte+1/+3/+5 the sources, byte+4 the length-selecting control that re-lengths the instruction on 192 of 256 values); EXP-0160 then mapped byte+2 densely on G17P in two seed sets. Anchor 09011e0581080200 decodes back to falu3. This is a three-source float ALU proven by moving its operands and predicting the result.",
+  "verdict": "SUPPORTED"
+ },
+ "falu3_ext._instruction": {
+  "claims": [
+   {
+    "claim": "Anchor 09011e05820802000080 decodes back to falu3_ext at length 10",
+    "ok": true,
+    "raw": {
+     "decoded": "falu3_ext",
+     "hex": "09011e05820802000080",
+     "length": 10,
+     "ok": true
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0138's operand-slot rename is recorded as applying to falu3_ext verbatim, its own baselines reproduced their oracle 3/3, EXP-0154 ran a saturate-fma carrier and EXP-0160 mapped byte+2 densely on G17P. Anchor 09011e05820802000080 decodes back to falu3_ext at length 10.",
+  "verdict": "SUPPORTED"
+ },
+ "frag_depth_store._instruction": {
+  "claims": [
+   {
+    "claim": "db.json says 'Not individually splice-validated (agxrender has no depth attachment to read back)'",
+    "ok": true,
+    "raw": {
+     "found_in_db_json": 1
+    }
+   },
+   {
+    "claim": "All three of its declared fields are hardware-run",
+    "ok": true,
+    "raw": {
+     "b3": "hardware-run",
+     "b4": "hardware-run",
+     "b5": "hardware-run"
+    }
+   },
+   {
+    "claim": "its baselines are ok 11/11",
+    "ok": null,
+    "raw": {
+     "control_records_in_the_two_gated_runs": {
+      "ok": 12
+     },
+     "convention_note": "the same convention that makes iter_flat's '23/23' exact (all underscore-prefixed control records for the instruction across run03+run04, all ok) gives 12/12 here"
+    }
+   }
+  ],
+  "label": "corpus-correlation",
+  "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS, and this is the clearest example of why field labels must not gate the instruction. All three of its declared fields are `hardware-run` and its baselines are ok 11/11 -- yet the one thing the descriptor claims, 'write the shader [[depth]] output to the tile depth buffer', HAS NEVER BEEN OBSERVED. db.json says so itself: 'Not individually splice-validated (agxrender has no depth attachment to read back)'. The sweeps were scored against a COLOUR probe. Fields live proves the bytes were exercised; it does not prove this is the depth store.",
+  "verdict": "INSTRUMENT-LIMITED"
+ },
+ "funary.mod": {
+  "claims": [
+   {
+    "claim": "no synthesized value was executed (negative existential)",
+    "ok": true,
+    "raw": {
+     "per_value_dispatch_records_with_instr_funary": {}
+    }
+   }
+  ],
+  "label": "corpus-correlation",
+  "note": "Own-shader byte-diff; no synthesized value was executed.",
+  "verdict": "SUPPORTED"
+ },
+ "half_alu_fma12._instruction": {
+  "claims": [
+   {
+    "claim": "'121/126 corpus instances embed a real op-leader in ext' is carried from a committed artifact",
+    "ok": true,
+    "raw": {
+     "attributed_there_to": "EXP-M4-13 R8/R10 (own-MSL half corpus)",
+     "db.json half_alu_fma12.provenance contains it": true,
+     "validation_row_evidence": [
+      "EXP-M4-14"
+     ]
+    }
+   },
+   {
+    "claim": "the 121/126 census itself is reproducible at desk",
+    "ok": null,
+    "raw": {
+     "why_not": "EXP-M4-13's committed corpus under experiments/EXP-M4-14-a18-splice/corpus/ holds .metal SOURCES only, and half_alu_fma12's descriptor has been re-spanned since R8 (EXP-0183), so recounting under the CURRENT descriptor is not a test of an R8-era census. Recount under today's db.json over EXP-M4-13-full-corpus/hex/*.hex gives 7 instances / 2 with an op-leader byte -- a different population, not a refutation."
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "LENGTH-RULE DEFECT FLAGGED: a fixed 'always 12B for byte0==0x10' rule is WRONG. Own-MSL plain half fma is only 8B, and 121/126 corpus instances embed a real op-leader byte (0x9f iadd, 0xa8, 0x54, 0xe7) inside `ext`.",
+  "verdict": "INSTRUMENT-LIMITED"
+ },
+ "if_push.scope": {
+  "claims": [
+   {
+    "claim": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field value, every arm's control firing",
+    "ok": true,
+    "raw": {
+     "all_controls_fired": true,
+     "baseline_field_values": [
+      84
+     ],
+     "carriers": [
+      "cf_if2",
+      "cf_if3"
+     ],
+     "moved": [
+      0
+     ],
+     "n_arms": 10
+    }
+   },
+   {
+    "claim": "0/256 across 10 occurrences",
+    "ok": true,
+    "raw": [
+     256
+    ]
+   },
+   {
+    "claim": "six loop carriers all emit scope_kind == 0x1a, four emit both 0x54 and 0x56; at four 0x1a occurrences 0x00 and 0x54 FAULT while 0x56 and 0xFF are correct; never reached a gated pair",
+    "ok": true,
+    "raw": {
+     "carriers": [
+      "cf_ifnl",
+      "cf_lcont",
+      "cf_nl2",
+      "cf_nl3",
+      "cf_nlif",
+      "cf_wbrk"
+     ],
+     "note": "THE DIMENSION WAS BUILT AND THE COMPILER ITSELF SPANS IT: all six carriers emit scope_kind 0x1a, and four emit both 0x54 and 0x56 for scope. In pre-freeze calibration the field MOVED at four occurrences (0x00 and 0x54 fault; 0x56 and 0xFF correct), which is exactly the loop-iteration region EXP-0184 could not reach. NOT PROMOTED: the gated pair did not complete -- the device stopped responding with the first run of the pair in flight. Label unchanged.",
+     "values_dispatched": 4,
+     "verdict": "BLOCKED-NOT-PROMOTED"
+    }
+   }
+  ],
+  "label": "single-template-inference",
+  "note": "0 of 10 arms moved, on 2 carriers with 1 distinct baseline field values, every arm's control firing \u26a0 THE BASIS OF THIS DECLINE IS NOW KNOWN TO BE CARRIER-LIMITED (EXP-0188). EXP-0184 measured 0/256 across 10 occurrences at nesting depth 1-3 with every control firing, and stated its own limitation: the loop-iteration (`0x1a`) region kind was never reached, every push its compiler emitted being `0f 05 54 01`. EXP-0188 BUILT that carrier \u2014 six loop carriers all emit `scope_kind == 0x1a`, four emit both `0x54` and `0x56` \u2014 and **the field MOVES there: at four `0x1a` occurrences, 0x00 and 0x54 FAULT while 0x56 and 0xFF are correct**, consistent with bit 1 being live. So db.json's `0x54`/`0x56` nesting-parity claim is a REAL SEMANTIC, not an annotation. Not promoted because EXP-0188 never reached a gated pair (device wedge) and this is calibration only \u2014 but the field is NOT a don't-care, and the sixth `single-template-inference` decline of the day to be overturned by a carrier differing in the dimension the field controls.",
+  "verdict": "SUPPORTED"
+ },
+ "irotate._instruction": {
+  "claims": [
+   {
+    "claim": "Anchor 2701560002006c00f0150900 decodes back to irotate",
+    "ok": true,
+    "raw": {
+     "decoded": "irotate",
+     "hex": "2701560002006c00f0150900",
+     "length": 12,
+     "ok": true
+    }
+   },
+   {
+    "claim": "EXP-0172 showed byte+2 ASYMMETRIC over its two legal values on three arms",
+    "ok": true,
+    "raw": {
+     "arms": 5,
+     "arms_with_exactly_one_legal_value_moving": [
+      "irotate@deadsrc/compute#0",
+      "irotate@rot/compute#0",
+      "irotate@rot2/compute#0"
+     ],
+     "encodable_values": [
+      [
+       84,
+       86
+      ]
+     ]
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0033 read the rotate result back exactly from hardware for both a constant and a variable amount -- the documented semantics, by value -- and the single-op immediate form was separated from the multi-op dynamic lowering by byte-diff. EXP-0146/0154 then swept it densely on both targets and EXP-0172 showed byte+2 is ASYMMETRIC over its two legal values on three arms. Anchor 2701560002006c00f0150900 decodes back to irotate.",
+  "verdict": "SUPPORTED"
+ },
+ "iter_at._instruction": {
+  "claims": [
+   {
+    "claim": "loc separated BY VALUE: 0/256 at one sample, 128/256 at four",
+    "ok": true,
+    "raw": {
+     "g17p_20260830_run01": {
+      "iter_at@atoff1/fragment#0": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@atoff4/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@atoff4/fragment#1": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent1/fragment#0": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@cent1/fragment#1": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#1": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#2": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@ms4cent/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@ms4out/fragment#0": {
+       "moved": 128,
+       "n": 256
+      }
+     },
+     "g17p_20260830_run02": {
+      "iter_at@atoff1/fragment#0": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@atoff4/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@atoff4/fragment#1": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent1/fragment#0": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@cent1/fragment#1": {
+       "moved": 0,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#1": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@cent4/fragment#2": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@ms4cent/fragment#0": {
+       "moved": 128,
+       "n": 256
+      },
+      "iter_at@ms4out/fragment#0": {
+       "moved": 128,
+       "n": 256
+      }
+     }
+    }
+   },
+   {
+    "claim": "10,398 dispatch records but only 10 carry an oracle (0.1%)",
+    "ok": true,
+    "raw": {
+     "n": 10398,
+     "oracle": 10
+    }
+   },
+   {
+    "claim": "All six field rows are emitter-grade",
+    "ok": true,
+    "raw": {
+     "b5": "hardware-run",
+     "c4": "hardware-run",
+     "dst": "isolated-byte-diff",
+     "grp": "isolated-byte-diff",
+     "lead": "hardware-run",
+     "loc": "hardware-run"
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "ORCHESTRATOR REFRESH 2026-08-30 from corpus-correlation (A18, EXP-0029), applying the same rule EXP-0181 used for the other 30 stale descriptor labels: `corpus-correlation` asserts nothing was executed, and this instruction has been DISPATCHED on G17P repeatedly. EXP-0163 ran it in a CONTROLLED experiment -- `k_cent.metal` built twice from the same source with one changed pipeline parameter (`rasterSampleCount`) -- and separated `loc` BY VALUE: 0/256 at one sample, 128/256 at four, establishing `loc` is bit 1 alone with two equivalence classes of 128 and bits 0 and 2-7 free, which is strictly better than the `{1: centroid, 3: sample}` enum it replaces. EXP-0168 additionally dispatched `grp` on two carriers. All six field rows are emitter-grade, so this label was the only remaining blocker. \u26a0 CORRECTED 2026-08-30 by EXP-0189: over-labelled as `hardware-run`. There are 10,398 dispatch records but only 10 carry an oracle (0.1%), there are zero generated encodings, and the rationale I wrote was rule 5 restated in words rather than measured. `isolated-byte-diff` is the honest label; the instruction stays emittable either way.",
+  "verdict": "SUPPORTED"
+ },
+ "iter_flat._instruction": {
+  "claims": [
+   {
+    "claim": "EXP-0155 reproduced its baselines on G17P 23/23",
+    "ok": true,
+    "raw": {
+     "ok": 23
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0029 gave a real behavioural proof with a paired negative control: the [[flat]] fragment renders a CONSTANT colour (the provoking-vertex value) at all 16 pixels while the interpolated variants show a gradient, and four 6-byte 0x1f ops tokenize interp_flat to zero leftover. EXP-0155 reproduced its baselines on G17P 23/23 and showed the bytes are live against four DISTINCT authored flat values. What is missing for R1 is a per-value oracle: the sweeps score movement against the baseline, so no `sel` value was shown to fetch a PREDICTED varying.",
+  "verdict": "SUPPORTED"
+ },
+ "mov_imm._instruction": {
+  "claims": [
+   {
+    "claim": "EXP-0031: splicing byte+1 0x20->0x21/0x40/0x11 changes the output to 33/64/17",
+    "ok": true,
+    "raw": {
+     "lines": [
+      "splice off5 0x20->0x21 : [33]x8   (value = byte1 literal)",
+      "splice off5 0x20->0x40 : [64]x8",
+      "splice off5 0x20->0x11 : [17]x8"
+     ]
+    }
+   },
+   {
+    "claim": "EXP-0167 ran 196,114 assembler-GENERATED mov_imm instances whose 01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs",
+    "ok": true,
+    "raw": {
+     "iso01_iso02_byte_identical": true,
+     "mov_imm_assemble_calls": 196114,
+     "n_cases": 289
+    }
+   },
+   {
+    "claim": "'inside 233 zero-copied programs'",
+    "ok": null,
+    "raw": {
+     "EXP-0167 RESULTS.md": "233 of 237 zero-copied programs matched",
+     "reading": "233 is zero_copied_AND_matched; 237 were zero-copied. The note attaches the 196,114 instances to the smaller number, i.e. it UNDERSTATES the zero-copied population -- conservative, and recorded as an imprecision, not a finding."
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: The strongest case in the set and the reason the orchestrator refused to gate on these labels. EXP-0031 proved the semantics by value on hardware (splicing byte+1 0x20->0x21/0x40/0x11 changes the output to 33/64/17 -- the literal, not an SR read); EXP-0140 swept dst 16/16 against a host oracle with four 12-register aliasing scans; EXP-0128/0140 corrected the immediate to SEVEN bits by measurement against a POISONED read-back and found the imm7==12 tokenization hole; and EXP-0167 ran 196,114 assembler-GENERATED mov_imm instances inside 233 zero-copied programs whose 01_results.jsonl was BYTE-IDENTICAL across two isolated gated runs. `corpus-correlation` is flatly wrong for this descriptor.",
+  "verdict": "INSTRUMENT-LIMITED"
+ },
+ "n2_op6._instruction": {
+  "claims": [
+   {
+    "claim": "db.json's own text calls it 'a genuine catch-all bucket' whose 'per-sub-op value maps are mixed'",
+    "ok": true,
+    "raw": {
+     "a genuine catch-all bucket": 1,
+     "per-sub-op value maps are mixed": 1
+    }
+   }
+  ],
+  "label": "corpus-correlation",
+  "note": "EXP-0181 refresh from corpus-correlation: KEEP AS IS. This descriptor is not one instruction: db.json's own committed text calls it 'a genuine catch-all bucket (write-mask helper + compact select + fcmp-mask + SFU range-reduction select)' whose 'per-sub-op value maps are mixed and needs-splice'. EXP-0157 measured a DIFFERENT accepted mask for `opsel` in each carrier instance and EXP-0146/0157 recorded `dst` as PINNED ('no value other than the compiler's own reproduces the oracle'). A bucket has no semantics to confirm, so no execution can raise its instruction-level label; the fields being hardware-run says the BYTES are live in each sub-family, not that the descriptor names an operation.",
+  "verdict": "SUPPORTED"
+ },
+ "packed_half2_hi.mods": {
+  "claims": [
+   {
+    "claim": "the cited raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md exists",
+    "ok": true,
+    "raw": {
+     "exists": true,
+     "path": "experiments/EXP-0144-m4-emit-pack/raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md"
+    }
+   }
+  ],
+  "label": "untested",
+  "note": "NOT COVERED by the revalidation, same MTLCompilerService collapse (raw/m4_20260828_rv01__packed_half2_hi/NOT_RUN.md). This is also the one instrument that could not be provoked from any MSL shape tried, so it is only reachable by a synthesised encoding; in the contaminated run03 that synthesis executed and computed the packed-half2 multiply for the HIGH LANE ONLY, which is worth re-testing but is not admissible here.",
+  "verdict": "SUPPORTED"
+ },
+ "psel._instruction": {
+  "claims": [
+   {
+    "claim": "EXP-0140 swept flag, mode and sel at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512",
+    "ok": true,
+    "raw": {
+     "see": "analysis/check_0140.json :: psel.flag/mode/sel; byte+3 is the `sel` group, 512 cases, all stable, all observed == oracle"
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0010 E3 validated the grid-predicate select's BEHAVIOUR on hardware, and EXP-0140 swept `flag`, `mode` and `sel` at 256 values x 2 dispatch shapes with byte+3 matching the host-computed oracle 512/512 -- the same immediate model it proved for `sel`. The predicate select is confirmed by value, not by co-variation.",
+  "verdict": "SUPPORTED"
+ },
+ "uniform_mov._instruction": {
+  "claims": [
+   {
+    "claim": "EXP-0168 re-measured dst: 214 movements, 224 distinct byte strings, 100.000% agreement",
+    "ok": true,
+    "raw": {
+     "agree_pct": [
+      100.0
+     ],
+     "distinct_bytes": 224,
+     "moved_total": 214
+    }
+   },
+   {
+    "claim": "EXP-0140: 128 of 128 immediate-region usrc values matched and 8 of 8 mapped uniform indices returned the bound magic constant",
+    "ok": true,
+    "raw": {
+     "see": "analysis/check_0140.json :: uniform_mov.usrc (SUPPORTED, after the two documented repairs)"
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "EXP-0181 refresh from corpus-correlation: EXP-0140 proved the documented semantics by value: 128 of 128 immediate-region `usrc` values matched their host-computed oracle exactly and 8 of 8 mapped uniform indices returned the BOUND MAGIC CONSTANT -- i.e. byte+1 really does select the uniform read. EXP-0168 then re-measured `dst` on G17P against a fixed 16-GPR dump and a host-known seed table (214 movements, 224 distinct byte strings, 100.000% agreement) after showing EXP-0140's earlier dst arm could not have returned any other answer.",
+  "verdict": "SUPPORTED"
+ }
+}

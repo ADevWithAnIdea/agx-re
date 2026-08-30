@@ -1,0 +1,617 @@
+{
+ "atomic_mem.oper_reg_hi": {
+  "claims": [
+   {
+    "all_four_found_with_reader_zeroed": {
+     "0": true,
+     "1": true,
+     "2": true,
+     "3": true
+    },
+    "claim": "C2_four_indices",
+    "claimed": {
+     "0": 7,
+     "1": 1007,
+     "2": 2007,
+     "3": 3007
+    },
+    "ok": true,
+    "raw": {
+     "0": [
+      {
+       "arm": "atdev_atomic_mem_b1",
+       "bytes": "6701540000000000004000002000",
+       "out0": [
+        7
+       ],
+       "out2": [
+        1007,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": false,
+       "run": "run11"
+      },
+      {
+       "arm": "atdev_atomic_mem_b1",
+       "bytes": "6701540000000000004000002000",
+       "out0": [
+        7
+       ],
+       "out2": [
+        1007,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": false,
+       "run": "run11"
+      }
+     ],
+     "1": [
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000800000004000002000",
+       "out0": [
+        1007
+       ],
+       "out2": [
+        0,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000804000004000002000",
+       "out0": [
+        1007
+       ],
+       "out2": [
+        0,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      }
+     ],
+     "2": [
+      {
+       "arm": "atdev_atomic_mem_b6",
+       "bytes": "6701540000000100004000002000",
+       "out0": [
+        2007
+       ],
+       "out2": [
+        1007,
+        0,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run11"
+      },
+      {
+       "arm": "atdev_atomic_mem_b6",
+       "bytes": "6701540000004100004000002000",
+       "out0": [
+        2007
+       ],
+       "out2": [
+        1007,
+        0,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run11"
+      }
+     ],
+     "3": [
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000800100004000002000",
+       "out0": [
+        3007
+       ],
+       "out2": [
+        1007,
+        2007,
+        0,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000804100004000002000",
+       "out0": [
+        3007
+       ],
+       "out2": [
+        1007,
+        2007,
+        0,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      }
+     ]
+    }
+   },
+   {
+    "claim": "C3_two_acceptance_disagreements",
+    "claimed": {
+     "byte+6": [
+      "0x30",
+      "0x31"
+     ],
+     "n": 2
+    },
+    "ok": true,
+    "raw": {
+     "acceptance_disagreements": 2,
+     "addendum_common_cases": 15005,
+     "exact_outcome_disagreements": 21,
+     "match_flag_disagreements": 3,
+     "which": [
+      {
+       "arm": "atdev_operand_pair",
+       "run21": "silent_zero",
+       "run22": "ok",
+       "value": "0x30"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "run21": "ok",
+       "run22": "silent_zero",
+       "value": "0x31"
+      }
+     ]
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.amode_hi": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `tokenization-only`. The two carriers accept DIFFERENT value sets, so the byte's meaning is form-dependent; not root-caused. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.idx_off": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `tokenization-only`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.index_reg": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   },
+   {
+    "claim": "C2b_index_model_reaches_index_3",
+    "claimed": "model reaches index 3 (a[3]=3007)",
+    "ok": true,
+    "raw": [
+     {
+      "arm": "atdev_operand_pair",
+      "bytes": "6701540000800100004000002000",
+      "out0": [
+       3007
+      ],
+      "out2": [
+       1007,
+       2007,
+       0,
+       2779096485
+      ],
+      "redirected_reader_zeroed": true,
+      "run": "run21"
+     },
+     {
+      "arm": "atdev_operand_pair",
+      "bytes": "6701540000804100004000002000",
+      "out0": [
+       3007
+      ],
+      "out2": [
+       1007,
+       2007,
+       0,
+       2779096485
+      ],
+      "redirected_reader_zeroed": true,
+      "run": "run21"
+     }
+    ]
+   }
+  ],
+  "label": "hardware-run",
+  "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.oper_reg_hi": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   },
+   {
+    "all_four_found_with_reader_zeroed": {
+     "0": true,
+     "1": true,
+     "2": true,
+     "3": true
+    },
+    "claim": "C2_four_indices",
+    "claimed": {
+     "0": 7,
+     "1": 1007,
+     "2": 2007,
+     "3": 3007
+    },
+    "ok": true,
+    "raw": {
+     "0": [
+      {
+       "arm": "atdev_atomic_mem_b1",
+       "bytes": "6701540000000000004000002000",
+       "out0": [
+        7
+       ],
+       "out2": [
+        1007,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": false,
+       "run": "run11"
+      },
+      {
+       "arm": "atdev_atomic_mem_b1",
+       "bytes": "6701540000000000004000002000",
+       "out0": [
+        7
+       ],
+       "out2": [
+        1007,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": false,
+       "run": "run11"
+      }
+     ],
+     "1": [
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000800000004000002000",
+       "out0": [
+        1007
+       ],
+       "out2": [
+        0,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000804000004000002000",
+       "out0": [
+        1007
+       ],
+       "out2": [
+        0,
+        2007,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      }
+     ],
+     "2": [
+      {
+       "arm": "atdev_atomic_mem_b6",
+       "bytes": "6701540000000100004000002000",
+       "out0": [
+        2007
+       ],
+       "out2": [
+        1007,
+        0,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run11"
+      },
+      {
+       "arm": "atdev_atomic_mem_b6",
+       "bytes": "6701540000004100004000002000",
+       "out0": [
+        2007
+       ],
+       "out2": [
+        1007,
+        0,
+        3007,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run11"
+      }
+     ],
+     "3": [
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000800100004000002000",
+       "out0": [
+        3007
+       ],
+       "out2": [
+        1007,
+        2007,
+        0,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "bytes": "6701540000804100004000002000",
+       "out0": [
+        3007
+       ],
+       "out2": [
+        1007,
+        2007,
+        0,
+        2779096485
+       ],
+       "redirected_reader_zeroed": true,
+       "run": "run21"
+      }
+     ]
+    }
+   },
+   {
+    "claim": "C3_two_acceptance_disagreements",
+    "claimed": {
+     "byte+6": [
+      "0x30",
+      "0x31"
+     ],
+     "n": 2
+    },
+    "ok": true,
+    "raw": {
+     "acceptance_disagreements": 2,
+     "addendum_common_cases": 15005,
+     "exact_outcome_disagreements": 21,
+     "match_flag_disagreements": 3,
+     "which": [
+      {
+       "arm": "atdev_operand_pair",
+       "run21": "silent_zero",
+       "run22": "ok",
+       "value": "0x30"
+      },
+      {
+       "arm": "atdev_operand_pair",
+       "run21": "ok",
+       "run22": "silent_zero",
+       "value": "0x31"
+      }
+     ]
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Same db_defect: modelled `tokenization-only`, 'framing only, no value semantics'. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): proven at all four constructible indices -- 0 -> a[0]=7, 1 -> a[1]=1007, 2 -> a[2]=2007, 3 -> a[3]=3007 -- each with the redirected register's later reader zeroed (the same register-release contract EXP-0086/0089/0099 document for the ALU families). RESIDUAL UNKNOWN: with byte+5 = 0x80, byte+6 values 0x30 and 0x31 restore the BASELINE operand instead of selecting index 97/99, and they are the only two addendum cases whose acceptance disagreed between run21 and run22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.oper_reg_lo": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   },
+   {
+    "claim": "C2b_index_model_reaches_index_3",
+    "claimed": "model reaches index 3 (a[3]=3007)",
+    "ok": true,
+    "raw": [
+     {
+      "arm": "atdev_operand_pair",
+      "bytes": "6701540000800100004000002000",
+      "out0": [
+       3007
+      ],
+      "out2": [
+       1007,
+       2007,
+       0,
+       2779096485
+      ],
+      "redirected_reader_zeroed": true,
+      "run": "run21"
+     },
+     {
+      "arm": "atdev_operand_pair",
+      "bytes": "6701540000804100004000002000",
+      "out0": [
+       3007
+      ],
+      "out2": [
+       1007,
+       2007,
+       0,
+       2779096485
+      ],
+      "redirected_reader_zeroed": true,
+      "run": "run21"
+     }
+    ]
+   }
+  ],
+  "label": "hardware-run",
+  "note": "FIRST-ORDER db_defects RESULT: db.json says 'the actual RMW operand register is implicit (supplied by the preceding op / amode)' and DOC-02 ranks it a MISSING field. It is not implicit; see db_defects.atomic_operand_register. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22. OPERAND-REGISTER SPLIT (EXP-0141, HW): the RMW operand register IS encoded in the instruction. operand_register_index = (byte+5 >> 7) | ((byte+6 & 0x3F) << 1), relative to the register the compiler's own encoding selects.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.ret_desc": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `corpus-correlation`. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.ret_flag": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `corpus-correlation` (byte+7 bit0 = discard/no-writeback). Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.rsv10": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ },
+ "atomic_rmw.rsv11": {
+  "claims": [
+   {
+    "claim": "C1_addendum_runs_and_rmw_form",
+    "claimed": "swept in the atomic_rmw (byte+1 == 0x11) form, runs 21/22",
+    "ok": true,
+    "raw": {
+     "atdev_atomic_rmw_records_run21": 3072,
+     "byte+1_histogram": {
+      "11": 3072
+     },
+     "run21_records": 15005,
+     "run22_records": 15005
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Was `tokenization-only`; the name is wrong. Swept in the atomic_rmw (byte+1 == 0x11) form itself, addendum runs 21/22.",
+  "verdict": "SUPPORTED"
+ }
+}

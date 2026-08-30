@@ -1,0 +1,102 @@
+{
+ "experiment": "EXP-0201-g17p-float-alu-sixfield",
+ "frozen_utc": "2026-08-30T19:06:15Z",
+ "target": {
+  "device": "Apple A18 Pro / G17P",
+  "arch": "applegpu_g17p",
+  "accelerator": "AGXAcceleratorG17P",
+  "cores": 5,
+  "host": "192.168.170.254",
+  "os": "26.6",
+  "metal_family": "Apple9"
+ },
+ "repo": {
+  "revision": "f59821fe5e896b09a1bd33b41e7a9f1b7df6b4b4",
+  "dirty": true
+ },
+ "fields": [
+  {
+   "instr": "falu3",
+   "field": "op",
+   "start": 16,
+   "width": 8,
+   "values": 256
+  },
+  {
+   "instr": "falu3_ext",
+   "field": "op",
+   "start": 16,
+   "width": 8,
+   "values": 256
+  },
+  {
+   "instr": "fspecial_est",
+   "field": "srcA",
+   "start": 8,
+   "width": 8,
+   "values": 256
+  },
+  {
+   "instr": "falu3_srcmod12",
+   "field": "opsel",
+   "start": 16,
+   "width": 3,
+   "values": 8
+  },
+  {
+   "instr": "falu3_srcmod12",
+   "field": "ctrl",
+   "start": 32,
+   "width": 7,
+   "values": 128
+  },
+  {
+   "instr": "copysign",
+   "field": "operands",
+   "start": 24,
+   "width": 8,
+   "values": 256
+  }
+ ],
+ "timeouts": {
+  "request_s": 8.0,
+  "confirm_attempts": 3,
+  "innocent_retries": 3,
+  "canary_retries": 3,
+  "compile_s": 600,
+  "ssh_alarm_s": 180
+ },
+ "gate": {
+  "min_gated_runs": 2,
+  "min_agree_pct": 99.0,
+  "rule": "moved >= 2*disagree AND moved > 0",
+  "min_distinct_bytes": 2,
+  "case_c_rule": "V (distinct valid payloads) <= 1 => NOT PROMOTED"
+ },
+ "authored_sha256": {
+  "run.py": "619b074b6b924938c40f34daa918135834caa7687f617d722b1067c00644fe3e",
+  "PRE_REGISTRATION.md": "208914e7485ba8a5fa7909ddd7ae813bb3ce422009de5dc052db69ed1379894a",
+  "README.md": "9880928ffefcbd6f6d8676611389be612780c75686f22ca1b01a9d577f692550",
+  "kernels/k_falu201.metal": "bc3e7affe7e8c08369f157a945fb7991c2d971a7e4c237428e4c46ac1b6c2270",
+  "harness/carriers201.py": "b1825a6fa944d769e4bab67905fe6b9efef3c2e675a1d82f9b4cc2ad9b624131",
+  "harness/models201.py": "3d46a83d3cdca629eea1678a40378b5b5ea4c13f3ba0f535048f7bd32e1db5dd",
+  "harness/locate201.py": "f4d9fae47bf0250389f2950b16464fd3ee8c976137c053f0362b3632345fb8f0",
+  "harness/saferunner201.py": "f6f2838f143ca3890f237f169468ca8026c37b5909552ce9d21bfbb0c739a3c6",
+  "harness/gpuwatch.py": "5d51e9a110c28a816ae82827db92562814f77e3c9fc7ab82fc7e90a7845e65e7",
+  "harness/gated_run.sh": "3b9e16176515dc54455e10040a4cafb12f9ac1e043972c2b99b8db2e9a583d9a",
+  "harness/sync.sh": "69076e5b45e4aaf3864740ca62d684c5ffce24e0c828c162206f17a5b1d83bc9",
+  "harness/verify_remote.py": "fca1f812312c4caa94c622972893f60d267de370e787c18637c6b46d5c571b2d",
+  "analysis/gen_arms.py": "53f4b67c0b7181ca68b6a9b81c7dab5b03060f95770609ae7e5ad13c9935c486",
+  "analysis/oracle_check.py": "380d3ca07f08a3467c7bb9248a20707742c196446bae8bc1b5a74eb832db6426",
+  "analysis/verdicts.py": "5144b9b62da0fe7c145d3cf5a25de4e70e480bc14c1de506d9f614700b2eeb15",
+  "analysis/contract.py": "584288e4e09da3512a4433ea0da77963279c52a4689311b43d14f94c9f426c31"
+ },
+ "pinned_inputs_sha256": {
+  "pinned/db.json": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+  "pinned/isadb.py": "500db91a6077cd1968570dd1f7c08ae22a63bbfb39e688168ce711397375aa9f",
+  "pinned/agxparse.py": "72911ee524fa1e327914445a0b38837b4a71e8525565a03f2cb7f520733c6a0f",
+  "pinned/persistrun.py": "b69101e471b3fe280a8c7b608e2a954ceae1f5ea4d7cd3d955aa5cca4a31ffd8",
+  "pinned/shdump.m": "115e9f0e88a393b95b10545c63c140dc8c8fb7cd3f17c27f21506f7529f36dad"
+ },
+ "arms_sha256": "724a7e51d04982de2d174eaabe8be3af92d264fb59f9e1aef9c6a695a8df0f02"
+}

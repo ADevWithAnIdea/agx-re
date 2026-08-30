@@ -1,0 +1,647 @@
+[
+ {
+  "key": "call.offset",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0035"
+  ],
+  "repaired_to": [
+   "EXP-0179-g17p-call"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0179-g17p-call": true
+  },
+  "C_repaired_target": {
+   "EXP-0179-g17p-call": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "4 own-MSL call distances, each program dispatched OK; no splice sweep, so not hardware-run -- which is the label it has."
+ },
+ {
+  "key": "device_load.base_slot",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0083",
+   "EXP-0010"
+  ],
+  "repaired_to": [
+   "EXP-0141-m4-emit-mem"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0141-m4-emit-mem": true
+  },
+  "C_repaired_target": {
+   "EXP-0141-m4-emit-mem": "M4"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "256/256 dense splice census with per-value readback, two gated runs (EXP-0083)."
+ },
+ {
+  "key": "device_load.idx_off",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0082",
+   "EXP-0100"
+  ],
+  "repaired_to": [
+   "EXP-0141-m4-emit-mem"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0141-m4-emit-mem": true
+  },
+  "C_repaired_target": {
+   "EXP-0141-m4-emit-mem": "M4"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "two independent complete 0..2047 dense sweeps (EXP-0082 device space, EXP-0100 threadgroup space)."
+ },
+ {
+  "key": "falu_srcmod12b.ctrl",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0119",
+   "EXP-0089"
+  ],
+  "repaired_to": [
+   "EXP-0138-m4-emit-falu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0138-m4-emit-falu": true
+  },
+  "C_repaired_target": {
+   "EXP-0138-m4-emit-falu": "M4"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED-THIN",
+  "D_why": "8 of 128 ctrl values swept across 7 kernels with faults and a real GPU hang (EXP-0089) plus an isolated {0,1} bit-2 pair in two gated runs (EXP-0119); boundaries+samples, not full range."
+ },
+ {
+  "key": "falu_srcmod12b.opsel",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0119"
+  ],
+  "repaired_to": [
+   "EXP-0138-m4-emit-falu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0138-m4-emit-falu": true
+  },
+  "C_repaired_target": {
+   "EXP-0138-m4-emit-falu": "M4"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "DOWNGRADE",
+  "D_why": "the 0..7 exhaustive sweep is real but its per-value OBSERVATIONS are committed only as EXP-0119 prose; the gated raw holds a single opsel value. On committed observation artifacts alone this does not reach hardware-run."
+ },
+ {
+  "key": "frag_color_pack.src_present_mask",
+  "label_now": "hardware-run",
+  "target": "A18",
+  "orig": [
+   "EXP-M4-14"
+  ],
+  "repaired_to": [
+   "EXP-0168-g17p-dst-resweep"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0168-g17p-dst-resweep": true
+  },
+  "C_repaired_target": {
+   "EXP-0168-g17p-dst-resweep": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED-CHAIN-BROKEN",
+  "D_why": "7 values on 2 pack ops with per-value pixel outcomes and an illegal-value GPU fault -- but recorded only inside one narrative JSON string in an experiment with no raw/ tree."
+ },
+ {
+  "key": "frag_color_store.rt_index",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0029"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "one isolated byte splice 0x00->0x02 with the predicted observed effect (EXP-0029 validations.log section 6)."
+ },
+ {
+  "key": "frag_color_store.src",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0029"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED-WEAK",
+  "D_why": "3 values across dispatched own-MSL programs; EXP-0029 contains no splice of this byte, so the row's 'splice-proven' wording is not supported by the original citation."
+ },
+ {
+  "key": "fspecial_est.subop",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0171"
+  ],
+  "repaired_to": [
+   "EXP-0138-m4-emit-falu",
+   "EXP-0154-g17p-emit-alu",
+   "EXP-0161-g17p-carry-fspecial"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0138-m4-emit-falu": true,
+   "EXP-0154-g17p-emit-alu": true,
+   "EXP-0161-g17p-carry-fspecial": true
+  },
+  "C_repaired_target": {
+   "EXP-0138-m4-emit-falu": "M4",
+   "EXP-0154-g17p-emit-alu": "G17P/A18",
+   "EXP-0161-g17p-carry-fspecial": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "256/256 dense, 3 carriers, 2 gated runs (EXP-0171)."
+ },
+ {
+  "key": "half_alu.dst",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0180",
+   "EXP-0183"
+  ],
+  "repaired_to": [
+   "EXP-0138-m4-emit-falu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0138-m4-emit-falu": true
+  },
+  "C_repaired_target": {
+   "EXP-0138-m4-emit-falu": "M4"
+  },
+  "C_any_repaired_on_row_target": false,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED-FOR-THE-FAMILY",
+  "D_why": "16/16 dense on byte0's high nibble, 2 carriers, 2 gated runs -- on the 8-byte sibling form; the 6-byte descriptor itself is never dispatched in EXP-0180."
+ },
+ {
+  "key": "iadd2.srcA",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0171"
+  ],
+  "repaired_to": [
+   "EXP-0139-m4-emit-ialu",
+   "EXP-0146-m4-emit-int-misc",
+   "EXP-0154-g17p-emit-alu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0139-m4-emit-ialu": true,
+   "EXP-0146-m4-emit-int-misc": true,
+   "EXP-0154-g17p-emit-alu": true
+  },
+  "C_repaired_target": {
+   "EXP-0139-m4-emit-ialu": "M4",
+   "EXP-0146-m4-emit-int-misc": "M4",
+   "EXP-0154-g17p-emit-alu": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "256/256 dense, 3 carriers, 2 gated runs (EXP-0171)."
+ },
+ {
+  "key": "ibfe.srcA",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0171"
+  ],
+  "repaired_to": [
+   "EXP-0139-m4-emit-ialu",
+   "EXP-0154-g17p-emit-alu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0139-m4-emit-ialu": true,
+   "EXP-0154-g17p-emit-alu": true
+  },
+  "C_repaired_target": {
+   "EXP-0139-m4-emit-ialu": "M4",
+   "EXP-0154-g17p-emit-alu": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "256/256 dense, 2 carriers, 2 gated runs (EXP-0171)."
+ },
+ {
+  "key": "icmp_pred.dst_pred",
+  "label_now": "hardware-run",
+  "target": "M4+A18",
+  "orig": [
+   "EXP-0104",
+   "EXP-0115",
+   "RT-ISA-FIX"
+  ],
+  "repaired_to": [
+   "EXP-0139-m4-emit-ialu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0139-m4-emit-ialu": true
+  },
+  "C_repaired_target": {
+   "EXP-0139-m4-emit-ialu": "M4"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "16/16 exhaustive, 2 gated runs (EXP-0115 CF-05)."
+ },
+ {
+  "key": "ilogic.lut_a_z",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0171"
+  ],
+  "repaired_to": [
+   "EXP-0146-m4-emit-int-misc",
+   "EXP-0154-g17p-emit-alu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0146-m4-emit-int-misc": true,
+   "EXP-0154-g17p-emit-alu": true
+  },
+  "C_repaired_target": {
+   "EXP-0146-m4-emit-int-misc": "M4",
+   "EXP-0154-g17p-emit-alu": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "8/8 exhaustive for the 3-bit field, 3 carriers, 2 gated runs (EXP-0171)."
+ },
+ {
+  "key": "ilogic.outmod",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0171"
+  ],
+  "repaired_to": [
+   "EXP-0146-m4-emit-int-misc",
+   "EXP-0154-g17p-emit-alu"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0146-m4-emit-int-misc": true,
+   "EXP-0154-g17p-emit-alu": true
+  },
+  "C_repaired_target": {
+   "EXP-0146-m4-emit-int-misc": "M4",
+   "EXP-0154-g17p-emit-alu": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "256/256 dense, 3 carriers, 2 gated runs (EXP-0171)."
+ },
+ {
+  "key": "iter.mode",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0029"
+  ],
+  "repaired_to": [
+   "EXP-0155-g17p-emit-tex-frag",
+   "EXP-0163-g17p-inert-liveness"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0155-g17p-emit-tex-frag": true,
+   "EXP-0163-g17p-inert-liveness": true
+  },
+  "C_repaired_target": {
+   "EXP-0155-g17p-emit-tex-frag": "G17P/A18",
+   "EXP-0163-g17p-inert-liveness": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "3 values across dispatched own-MSL interpolation variants with 4x4 pixel dumps (EXP-0029)."
+ },
+ {
+  "key": "iter.src_slot",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0029"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "isolated byte splice 0x00->0x02 with baseline and spliced pixel dumps (EXP-0029 section 3)."
+ },
+ {
+  "key": "mov_zext16.src_reg",
+  "label_now": "hardware-run",
+  "target": "G17P",
+  "orig": [
+   "EXP-0161",
+   "EXP-0165"
+  ],
+  "repaired_to": [
+   "EXP-0146-m4-emit-int-misc"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0146-m4-emit-int-misc": true
+  },
+  "C_repaired_target": {
+   "EXP-0146-m4-emit-int-misc": "M4"
+  },
+  "C_any_repaired_on_row_target": false,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "16/16 nibble values on 2 carriers in 2 gated runs, via the byte0 probe (EXP-0161)."
+ },
+ {
+  "key": "simd_shuffle.lane",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0104",
+   "EXP-0115"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness",
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true,
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18",
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": false,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "42 distinct lane bytes incl. 0/1/2/126/127/128/254/255, 2 gated runs (EXP-0115 SIMD-03-static)."
+ },
+ {
+  "key": "simd_shuffle.mode",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0018",
+   "EXP-O2D"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness",
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true,
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18",
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "6 mode values across own-MSL subgroup kernels, each with a per-kernel PASS (EXP-0018)."
+ },
+ {
+  "key": "stop.reserved",
+  "label_now": "untested",
+  "target": "A18",
+  "orig": [
+   "EXP-0003",
+   "EXP-0010"
+  ],
+  "repaired_to": [
+   "EXP-0168-g17p-dst-resweep"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0168-g17p-dst-resweep": true
+  },
+  "C_repaired_target": {
+   "EXP-0168-g17p-dst-resweep": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "untested",
+  "D_status": "N/A",
+  "D_why": "already `untested` and already WITHHELD; the two committed cases co-vary byte0 and so isolate nothing."
+ },
+ {
+  "key": "tex_sample.result_desc",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0034"
+  ],
+  "repaired_to": [
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "4 gather-component values with per-value OUT dumps (EXP-0034 hw_validation section 4)."
+ },
+ {
+  "key": "tex_sample.samp_slot_offset",
+  "label_now": "isolated-byte-diff",
+  "target": "M4+A18",
+  "orig": [
+   "EXP-0016",
+   "EXP-0034",
+   "EXP-0106"
+  ],
+  "repaired_to": [
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "isolated splice 0x01->0x00 with a before/after 8x8 dump (EXP-0016 section 4) plus 5 corpus values (EXP-0034)."
+ },
+ {
+  "key": "tex_sample.tex_slot",
+  "label_now": "hardware-run",
+  "target": "M4",
+  "orig": [
+   "EXP-0114",
+   "EXP-0016"
+  ],
+  "repaired_to": [
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": false,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED",
+  "D_why": "16/16 upper-nibble splices plus 12 low-nibble cases, each with its own out_word (EXP-0114, two non-quarantined runs)."
+ },
+ {
+  "key": "tex_sample.variant",
+  "label_now": "hardware-run",
+  "target": "M4+A18",
+  "orig": [
+   "EXP-0016",
+   "EXP-0034",
+   "EXP-M4-10"
+  ],
+  "repaired_to": [
+   "EXP-0172-g17p-onefield-tail"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0172-g17p-onefield-tail": true
+  },
+  "C_repaired_target": {
+   "EXP-0172-g17p-onefield-tail": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "hardware-run",
+  "D_status": "SUSTAINED-PARTIAL",
+  "D_why": "~16 distinct dim/LOD codes across three originals, 8 of them splice-proven with a dim-splice break (EXP-M4-10); boundaries+interior, not the full 256."
+ },
+ {
+  "key": "vary_store.out_slot",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0037"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness",
+   "EXP-0168-g17p-dst-resweep"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true,
+   "EXP-0168-g17p-dst-resweep": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18",
+   "EXP-0168-g17p-dst-resweep": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "3 isolated byte+4 splices with observed corner pixels plus all 8 slot values in the committed vertex mains (EXP-0037)."
+ },
+ {
+  "key": "vary_store.src",
+  "label_now": "isolated-byte-diff",
+  "target": "A18",
+  "orig": [
+   "EXP-0037"
+  ],
+  "repaired_to": [
+   "EXP-0163-g17p-inert-liveness",
+   "EXP-0168-g17p-dst-resweep"
+  ],
+  "A_original_removed": [],
+  "B_repaired_has_records": {
+   "EXP-0163-g17p-inert-liveness": true,
+   "EXP-0168-g17p-dst-resweep": true
+  },
+  "C_repaired_target": {
+   "EXP-0163-g17p-inert-liveness": "G17P/A18",
+   "EXP-0168-g17p-dst-resweep": "G17P/A18"
+  },
+  "C_any_repaired_on_row_target": true,
+  "D_label_on_original_alone": "isolated-byte-diff",
+  "D_status": "SUSTAINED",
+  "D_why": "2 isolated byte+3 splices with observed corner pixels plus 8 corpus values (EXP-0037)."
+ }
+]

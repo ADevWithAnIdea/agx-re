@@ -1,0 +1,245 @@
+{
+ "_gen03": {
+  "ok": 0,
+  "outcomes": {
+   "null": 85
+  },
+  "records": 85
+ },
+ "fspecial.dst": {
+  "claims": [
+   {
+    "claim": "28/28 fit, 0 misfits, in BOTH gated runs (v=0..29 -> r0..r14)",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01": {
+      "fit_values": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       14,
+       15,
+       16,
+       17,
+       18,
+       19,
+       20,
+       21,
+       22,
+       23,
+       24,
+       25,
+       26,
+       27,
+       28,
+       29
+      ],
+      "fits": 28,
+      "invisible_seed_alias": [
+       12,
+       13
+      ],
+      "misfits": [],
+      "n_values_0_29_present": 30
+     },
+     "g17p_20260829_run02": {
+      "fit_values": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       14,
+       15,
+       16,
+       17,
+       18,
+       19,
+       20,
+       21,
+       22,
+       23,
+       24,
+       25,
+       26,
+       27,
+       28,
+       29
+      ],
+      "fits": 28,
+      "invisible_seed_alias": [
+       12,
+       13
+      ],
+      "misfits": [],
+      "n_values_0_29_present": 30
+     }
+    }
+   },
+   {
+    "claim": "v=12/13 write r6 and are invisible (seed aliasing)",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01": [
+      12,
+      13
+     ],
+     "g17p_20260829_run02": [
+      12,
+      13
+     ]
+    }
+   },
+   {
+    "claim": "v>=192: 45 hangs, 19 victim-only, none worked (64 values)",
+    "ok": true,
+    "raw": {
+     "hang": 45,
+     "n_cases": 64,
+     "outcomes": {
+      "fault": 64
+     },
+     "victim_only": 19,
+     "worked": 0
+    }
+   },
+   {
+    "claim": "cited EXP-0165 scripts exist",
+    "ok": true,
+    "raw": {
+     "analysis/def1_summary.py": true,
+     "analysis/rederive_def1_fspecial.py": true,
+     "analysis/rederive_def3_fnclass.py": true,
+     "analysis/rederive_def4_roundmode.py": true,
+     "analysis/rederive_gen03.py": true
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "NAME MOVED BY DEF-0161-1: byte+3 is the DESTINATION register, packed reg = v >> 1. Accept rule (the values that leave the result where the baseline put it) is exactly (v & 0xFE) == 0x00 -- an exhaustive search over all 256 candidate masks returns that one and no other. Destination map from the 16-register dump: 28/28 fit, 0 misfits, in BOTH gated runs (v = 0..29 -> r0..r14; v = 12/13 write r6, whose seed already equals rsqrt(seed[r0]), so the write is invisible -- a seed aliasing artefact, not a misfit). 20/20 GENERATED `r_i = rsqrt(r_j)` encodings pass. Bit 0 is HW-tested don't-care and is NOT the project-standard is32 bit (the compiler's own f32 rsqrt encodes byte+3 = 0x00). v >= 192 names r96+, outside the 96-GPR file: 45 of those 64 values gave a genuine kIOGPUCommandBufferCallbackErrorHang, 19 were only ever observed as innocent victims, and none ever worked. NEVER EMIT v >= 192. (EXP-0165 analysis/rederive_def1_fspecial.py, def1_summary.py, rederive_gen03.py.)",
+  "verdict": "SUPPORTED"
+ },
+ "fspecial.fnclass": {
+  "claims": [
+   {
+    "claim": "bit 3 DON'T-CARE: v and v+8 identical in all 8 pairs, three carriers",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01|D2_FSPEC_LOG2": {
+      "identical": 8,
+      "pairs": 8
+     },
+     "g17p_20260829_run01|D3_FSPEC_SYNTH": {
+      "identical": 8,
+      "pairs": 8
+     },
+     "g17p_20260829_run01|D_FSPEC_INPLACE": {
+      "identical": 8,
+      "pairs": 8
+     },
+     "g17p_20260829_run02|D2_FSPEC_LOG2": {
+      "identical": 8,
+      "pairs": 8
+     },
+     "g17p_20260829_run02|D3_FSPEC_SYNTH": {
+      "identical": 8,
+      "pairs": 8
+     },
+     "g17p_20260829_run02|D_FSPEC_INPLACE": {
+      "identical": 8,
+      "pairs": 8
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "POSITION UNCHANGED. Map measured BY COMPUTED VALUE. fn_hi=1 (0xaf): class&3 = 1 -> rsqrt, 2 -> exp2, 3 -> rsqrt, 0 -> +inf for every input. fn_hi=0 (0x2f): 0 -> rint, 1 -> rsqrt, 2 -> log2, 3 -> NaN for 11 of 12 positive-finite inputs. Bit 3 is a DON'T-CARE (v and v+8 identical in all 8 pairs, three carriers). Bit 2 is NOT: live at class&3 = 0 on both datapaths (4/12 store nothing) and at class&3 = 1 on 0x2f (5/13 FAULT); inert elsewhere. This CORRECTS EXP-0161's db_defects DEF-0161-3, which generalised 'only the low two bits are live' from the 0xaf carrier alone (EXP-0165 analysis/rederive_def3_fnclass.py).",
+  "verdict": "SUPPORTED"
+ },
+ "fspecial.roundmode": {
+  "claims": [
+   {
+    "claim": "128/128 odd all-NaN and 128/128 even bit-matching baseline, two carriers x two gated runs",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01|D2_FSPEC_LOG2": {
+      "even": 128,
+      "even_bitmatch_baseline": 128,
+      "odd": 128,
+      "odd_all_nan": 128
+     },
+     "g17p_20260829_run01|D_FSPEC_INPLACE": {
+      "even": 128,
+      "even_bitmatch_baseline": 128,
+      "odd": 128,
+      "odd_all_nan": 128
+     },
+     "g17p_20260829_run02|D2_FSPEC_LOG2": {
+      "even": 128,
+      "even_bitmatch_baseline": 128,
+      "odd": 128,
+      "odd_all_nan": 128
+     },
+     "g17p_20260829_run02|D_FSPEC_INPLACE": {
+      "even": 128,
+      "even_bitmatch_baseline": 128,
+      "odd": 128,
+      "odd_all_nan": 128
+     }
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "POSITION UNCHANGED. DEF-0161-4, re-derived in EXP-0165 with an explicit math.isnan test rather than a tolerance compare: on the rsqrt (0xaf) and log2 (0x2f) datapaths byte+8 has exactly ONE live bit -- bit 0 -- and setting it returns NaN in ALL 12 output lanes for EVERY input. 128/128 odd values all-NaN and 128/128 even values bit-matching the baseline, in two carriers x two gated runs, with no exceptions. **DO NOT EMIT bit 0.** The 0/2/4/6 round-mode enum is a claim about the DIRECT ROUND family only; on these two datapaths 2/4/6 are indistinguishable from 0, and the round-family arm (D4_FSPEC_FLOOR) was built but never run.",
+  "verdict": "SUPPORTED"
+ },
+ "fspecial.src": {
+  "claims": [
+   {
+    "claim": "60/60 fit, 0 misfits, in BOTH gated runs (v=0..59 -> r0..r14)",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01": {
+      "fits": 60,
+      "misfits": [],
+      "n_values_0_59_present": 60,
+      "released_to_zero": 56
+     },
+     "g17p_20260829_run02": {
+      "fits": 60,
+      "misfits": [],
+      "n_values_0_59_present": 60,
+      "released_to_zero": 56
+     }
+    }
+   },
+   {
+    "claim": "56/56 where src != dst are released to zero",
+    "ok": true,
+    "raw": {
+     "g17p_20260829_run01": 56,
+     "g17p_20260829_run02": 56
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "NAME MOVED BY DEF-0161-1: byte+5 is the SOURCE register, packed reg = v >> 2 (bits 0-1 don't-care). Accept rule is exactly (v & 0xFC) == 0x00, the unique separating mask over all 256 candidates. Source map from the 16-register dump: 60/60 fit, 0 misfits, in BOTH gated runs (v = 0..59 -> r0..r14), each source identified twice over -- the computed rsqrt matches that register's seed AND that register is released to zero (56/56 where src != dst). Reaches r0..r63; r15..r63 executed without fault but are unverifiable in this carrier. 20/20 GENERATED encodings pass.",
+  "verdict": "SUPPORTED"
+ }
+}

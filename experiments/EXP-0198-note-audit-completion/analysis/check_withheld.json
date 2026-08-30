@@ -1,0 +1,140 @@
+{
+ "n3_sample_read.tail": {
+  "claims": [
+   {
+    "claim": "case_C_legal_values",
+    "claimed": 1522,
+    "ok": true,
+    "raw": 1522,
+    "source": "EXP-0192"
+   },
+   {
+    "claim": "case_C_V_equals_1",
+    "claimed": 1,
+    "ok": true,
+    "raw": 1,
+    "source": "EXP-0192"
+   },
+   {
+    "claim": "case_letter",
+    "claimed": "C",
+    "ok": true,
+    "raw": "C"
+   }
+  ],
+  "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related. | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 1522 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
+  "verdict": "SUPPORTED"
+ },
+ "pop_reconverge.scope": {
+  "claims": [
+   {
+    "claim": "512 valid observations per arm",
+    "claimed": 512,
+    "ok": true,
+    "raw": {
+     "SIBLING": 512
+    }
+   },
+   {
+    "claim": "ONE distinct payload",
+    "claimed": 1,
+    "ok": true,
+    "raw": {
+     "SIBLING": 1
+    }
+   },
+   {
+    "claim": "no control of any kind at arm level",
+    "ok": true,
+    "raw": {
+     "control_records_relied_on": {},
+     "pass_falsifier": false,
+     "pass_live_control": false,
+     "pass_sibling_field": false
+    }
+   },
+   {
+    "claim": "passes only at the looser CARRIER join",
+    "ok": true,
+    "raw": {
+     "carrier_pass": true,
+     "strict_pass": false
+    }
+   },
+   {
+    "claim": "8 arms with no observation",
+    "claimed": 8,
+    "ok": true,
+    "raw": 8
+   }
+  ],
+  "note": "256/256 values executed (0 skipped by the hang budget); 256 comparable across the two gated runs (pairs where either side failed its integrity check or was skipped are excluded), 256 of those identical | WITHHELD 2026-08-30 for CONSISTENCY, on EXP-0191's detection gate. It fails the STRICT (arm-level) join exactly as the five fields withheld under DEF-0190-1 did: **512 valid observations per arm, ONE distinct payload, and no control of any kind at arm level.** It passes only at the looser CARRIER join, so EXP-0191's frozen trigger did not fire and that experiment correctly declined to bend its own rule. The decision to apply the strict join here is the orchestrator's, and it is made for consistency: the five already withheld were withheld on precisely this criterion, and leaving this one because a looser join rescues it would make the standard depend on which join happened to be written down. **EXP-0191 also establishes that DEF-0190-1's enumeration (8 arms with no observation, 128 with exactly one) is an UNDERCOUNT** -- `blind_arm_scan.py` requires ZERO empty observations, so arms mixing empty and single-valued records fall through both buckets. This is one of them.",
+  "verdict": "SUPPORTED"
+ },
+ "ray_move_copy6.optype": {
+  "claims": [
+   {
+    "claim": "case_C_legal_values",
+    "claimed": 191,
+    "ok": true,
+    "raw": 191,
+    "source": "EXP-0193"
+   },
+   {
+    "claim": "case_C_V_equals_1",
+    "claimed": 1,
+    "ok": true,
+    "raw": 1,
+    "source": "EXP-0193"
+   },
+   {
+    "claim": "case_letter",
+    "claimed": "C",
+    "ok": true,
+    "raw": "C"
+   },
+   {
+    "claim": "hard_class_cell_count_present",
+    "ok": true,
+    "raw": {
+     "EXP-0157-g17p-emit-misc|rq_cdist|R": 128
+    }
+   }
+  ],
+  "note": "outcomes fault=64, ok=191 | carrier rq_cdist, anchor +108, 2 agreeing captures (gate RSH) | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 191 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+  "verdict": "SUPPORTED"
+ },
+ "vtx_coord_xform.operand": {
+  "claims": [
+   {
+    "claim": "case_C_legal_values",
+    "claimed": 817,
+    "ok": true,
+    "raw": 817,
+    "source": "EXP-0193"
+   },
+   {
+    "claim": "case_C_V_equals_1",
+    "claimed": 1,
+    "ok": true,
+    "raw": 1,
+    "source": "EXP-0193"
+   },
+   {
+    "claim": "case_letter",
+    "claimed": "C",
+    "ok": true,
+    "raw": "C"
+   },
+   {
+    "claim": "hard_class_cell_count_present",
+    "ok": true,
+    "raw": {
+     "EXP-0147-m4-emit-pipeline-misc|vtx_coord_xform": 1026
+    }
+   }
+  ],
+  "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+  "verdict": "SUPPORTED"
+ }
+}

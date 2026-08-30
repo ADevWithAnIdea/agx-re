@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""EXP-0197 step 4 -- the adjudication.
+
+The three buckets are AUTHORED judgments, not a script's output; what the script does
+is attach, to each judgment, the mechanical evidence produced by scan.py / census.py /
+distinct_bytes.py / collector_blindspot.py, so a reader can attack the judgment with
+the same numbers.
+
+CRITERION (stated so it can return "no"):
+
+  CLAUSE-FALSE  the originally-cited experiment commits, for THIS field, >=2 per-case
+                records in which the field's OWN BITS take different values, each
+                record carrying its own committed observation (a dispatch outcome, a
+                readback, a fault, a pixel dump).
+  CLAUSE-TRUE   no such pair exists under ANY keying tried (K1 named, K2 byte-index,
+                K3 grouping strings, K4 encodings recovered from every file format).
+  UNRESOLVED    the search was blocked.
+
+It returned "no" three times, so it is not a cannot-fail check.
+
+`record_form` grades HOW the per-value records are committed, weakest last:
+  raw-jsonl-sweep > raw-percase-json > raw-textlog > root-evidence-json > work-pilot+prose
+`isolation` records whether the field's bits were changed ALONE.
+
+Read-only.  Writes analysis/verdicts.json and analysis/verdicts.tsv.
+"""
+import json, os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+EXP = os.path.abspath(os.path.join(HERE, ".."))
+
+V = [
+ # key, verdict, decisive_original, record_form, isolation, evidence, caveat
+ ("call.offset", "CLAUSE-FALSE", "EXP-0035-function-abi", "raw-textlog", "own-MSL (call distance varied in source)",
+  "3 distinct 48-bit offsets in committed encodings -- raw/abi_and_frames.txt:18 (0xffffffffffaa=-86), :19 "
+  "(0xffffffffff7c=-132), raw/direct_call.txt:10 off=36 and :17 (0xffffffffff98=-104); plus raw/call_offset_verify.txt:5-8 "
+  "enumerating FOUR distinct off40 values (-104,-158,-552,-458) each with a verified target and OK, and raw/hwval.txt "
+  "recording STATUS OK / COMPARE MATCH for the dispatches.",
+  "Compiler-emitted values across 4 programs, not a spliced sweep: isolated-byte-diff grade, not hardware-run."),
+
+ ("call_indirect._instruction", "CLAUSE-TRUE", None, None, None,
+  "K1/K2: EXP-0035 has no .jsonl raw at all. K3: no grouping string names the descriptor. K4: over all 20 files, "
+  "space-tolerant hex harvesting finds exactly ONE 0f-80 encoding, `0f8086020702` at raw/fptr_table_and_vft.txt:13 "
+  "(descriptor_scan.py: distinct_encodings=1 over 75 blobs). EXP-0035's own README.md:62 and RESULTS.md:137 list the "
+  "operand bit-decode as an open follow-up needing 'an indirect-call splice testbed'.",
+  "The single encoding decodes as `rt_query_traverse2` under the current db (both descriptors match 0f/80); either way "
+  "no byte of it ever takes a second value."),
+
+ ("device_load.base_slot", "CLAUSE-FALSE", "EXP-0083-m4-base-slot-census", "raw-jsonl-sweep", "single byte spliced",
+  "raw/m4-20260827-run01/04_results.jsonl lines 1-256: `c31_load_slot_0` .. `c31_load_slot_255`, 256 per-slot records, "
+  "257 distinct `slot` values incl. the -1 capacity baseline, each with `probe_word` + `witness_ok` + status ok; "
+  "identical in run02. raw/.../05_receipts.jsonl:1 shows `--slot 0 --splice-abs-off 17198`, and "
+  "raw/.../02_build.json ident.census31 pins that offset as `selector_rel: 4` of a 0x67 device_load = db `base_slot` "
+  "(start 32). 02_build.json additionally holds 195 device_load windows spanning 31 distinct base_slot values.",
+  "EXP-0010 (the other named original) holds only 2 distinct base_slot values and no splice: TRUE for EXP-0010 alone."),
+
+ ("device_load.idx_off", "CLAUSE-FALSE", "EXP-0082 and EXP-0100", "raw-jsonl-sweep", "single field spliced",
+  "EXP-0082/raw/m4-20260828-run01/04_results.jsonl: 2133 device_load `probe_after` records, 2100 distinct encodings, "
+  "**2048 distinct idx_off values = the complete 11-bit range**, changed_bytes histogram {9:1037, 10:2050, 11:1549} = "
+  "exactly idx_off's byte span; case names ld_range_f0000..f2047; first at line 1, last sweep row at line 2103; each "
+  "record carries out0_hex + decoded.byte_offset + status. EXP-0100/raw/m4-20260828-run01/04_results.jsonl repeats it "
+  "in threadgroup space: 2454 records, 2443 encodings, 2048 distinct values, lines 406-2456.",
+  "Both named originals independently falsify; the row's own `range` string ('0..2047 FULL DENSE sweep ... and a second "
+  "full 0..2047 dense sweep in threadgroup space') is a description of exactly these two files."),
+
+ ("falu_srcmod12b.ctrl", "CLAUSE-FALSE", "EXP-0119 and EXP-0089", "raw-jsonl-sweep", "single byte spliced",
+  "EXP-0119/raw/m4-20260828-run01/01_results.jsonl:35 (`h2_srcmod12b_noloop_baseline`, ctrl byte 0x03) and :77 "
+  "(`h2_srcmod12b_noloop_ctrl_bit2_HANGPROBE`, ctrl byte 0x07) -- the two spliced mains differ at exactly ONE byte, "
+  "main+12 = the 12-byte instruction's byte+4 = ctrl bit2 = absolute bit 34 -- each with its own `observed`/`oracle`; "
+  "identical lines in run02. EXP-0089/raw/m4-lifecycle-20260828-run01/04_results.jsonl: a 336-record CTRL_SWEEP over "
+  "8 distinct ctrl values {01,02,04,08,10,20,40,7f} x 7 kernels x 3 reps, first at line 25; the loop_boundary/c1 rows "
+  "(lines 457-480) are the 12-byte falu_srcmod12b form, and ctrl_sweep_c1_b04 at lines 463-465 is the NO_STATUS GPU "
+  "hang the row's `range` cites.",
+  "The current db tokenizer prefers `falu_compact4` at that offset, so a tokenization-based index sees no "
+  "falu_srcmod12b; the descriptor's own match constraints do hold on the 12-byte window."),
+
+ ("falu_srcmod12b.opsel", "CLAUSE-FALSE", "EXP-0119-m4-lifecycle-field-map", "work-pilot+prose", "single byte spliced",
+  "EXP-0119 commits EIGHT per-value spliced programs, work/pilot_run_sm12b_opsel0 .. opsel7/"
+  "arch_5a5209636c49_spliced.bin, which differ from each other at file byte 7354 taking 0x00..0x07; and states the "
+  "per-value outcome for all eight at RESULTS.md:485 and RESULTS.md:214-227 (0 clean; 4 corrupts the unrelated r6; "
+  "{1,2,3,5,6,7} locally-contained 0.0).",
+  "WEAKEST of the CLAUSE-FALSE set. EXP-0119's GATED raw/ contains ZERO opsel variation (all its srcmod12b cases fix "
+  "opsel_mod=0); the eight per-value binaries carry no committed output, so the per-value OBSERVATIONS exist only as "
+  "the experiment's own prose. A reader who requires a committed observation artifact should read this row as TRUE."),
+
+ ("frag_color_pack.src_present_mask", "CLAUSE-FALSE", "EXP-M4-14-a18-splice", "root-evidence-json", "single byte spliced",
+  "splice_results.json, group `frag`, resolved[0]: {op: frag_color_pack, field: src_present_mask, start 56, width 8}, "
+  "whose `evidence` records seven spliced values on TWO pack ops with per-value observations -- pack1 (abs 0x2b): "
+  "0x10 -> R=0x40,G=0x00; 0x40 -> R=0x00,G=0x80; 0x50 and 0xd0 -> both; 0x60/0xe0 -> both zero; 0xff -> STATUS "
+  "CMDBUF_ERROR (contained GPU fault); pack2 (abs 0x35): 0x10 -> B=0xc0,A=0x00; 0x40 -> B=0x00,A=0xff; 0xd0 -> both; "
+  "0xff -> CMDBUF_ERROR. The row's `range` string is a transcription of this entry.",
+  "EXP-M4-14 has NO raw/ directory at all -- EXP-0189 section 5 says so and is right about that. The per-value "
+  "observations are committed only inside one narrative JSON string, which is a real CODEX section 6 chain break; it is "
+  "not the same thing as their not existing."),
+
+ ("frag_color_store.rt_index", "CLAUSE-FALSE", "EXP-0029-fragment-isa", "raw-textlog", "single byte spliced",
+  "raw/validations.log:146-148 -- section 6, `SPLICE colour-store: byte+5 RT-index 0x00->0x02 (absent RT) => RT0 stays "
+  "clear`, with the observed PIXEL 0 0 bgra=00000000 and STATUS OK; byte+5 is db `rt_index` (start 40). The baseline "
+  "value 0x00 is dispatched by 8 programs in section 1/2/4/5. The committed .frag.hex corpus additionally holds 9 "
+  "distinct frag_color_store encodings over 4 rt_index values {0,2,4,8} (first: raw/out_mrt.frag.hex:1 off=96 for 0x2, "
+  "raw/imageblock.frag.hex:1 off=72 for 0x4 and off=48 for 0x8).",
+  "Only the {0x00, 0x02} pair is backed by a dispatch; 0x4/0x8 are corpus-only (those programs are not in "
+  "validations.log)."),
+
+ ("frag_color_store.src", "CLAUSE-FALSE", "EXP-0029-fragment-isa", "raw-textlog", "own-MSL (different shaders)",
+  "Restricted to the programs validations.log actually dispatched, byte+3 (db `src`, start 24) takes THREE distinct "
+  "values with their own observations: 0x0 (interp_centroid/noperspective/sample/smooth, persp_smooth, out_discard), "
+  "0x4 (blend_read, validations.log:124-136), 0x6 (interp_flat, validations.log:2-20). First encodings: "
+  "raw/imageblock.frag.hex:1 off=96 (0x0), raw/blend_read.frag.hex:1 off=98 (0x4), raw/interp_flat.frag.hex:1 off=56 "
+  "(0x6). Whole corpus: 6 values {0,2,4,6,8,c} over 9 distinct encodings.",
+  "These are compiler-emitted values across programs, not splices; the row's `range` says 'splice-proven', which "
+  "EXP-0029's raw does not show for this byte."),
+
+ ("fspecial_est.subop", "CLAUSE-FALSE", "EXP-0171-g17p-ilogic-srca", "raw-jsonl-sweep", "single byte spliced",
+  "raw/g17p_20260830_run01/sweep.jsonl: `instr=fspecial_est, field=null, byte_index=3` (db subop = start 24, byte 3), "
+  "256 records per carrier on SYNTH (first line 20154), FRAME (21179) and NAT (22204); 256 distinct `bytes` AND 256 "
+  "distinct subop values per arm; outcomes {wrong_value 131, silent_zero 124, ok 1} on SYNTH/FRAME. run02 repeats "
+  "(lines 15285/14260/16310). 1536 records total.",
+  "Re-verified; agrees with the correction EXP-0196 already appended to this note."),
+
+ ("half_alu.dst", "CLAUSE-FALSE", "EXP-0180-g17p-halfalu-rerecord", "raw-jsonl-sweep", "single nibble spliced",
+  "raw/g17p_run02/sweep.jsonl lines 1-16 (carrier C_LO) and 17-32 (C_HI): arm DSTNIB, `field=__dst_nibble`, 16 records "
+  "per carrier, 16 distinct `bytes` AND 16 distinct values of byte0 bits 4..7 = exactly db `half_alu.dst`; outcomes "
+  "{wrong_value 15, ok 1} per carrier. Repeated in run03 (lines 16704/16720) and pilot01 (2178/2210). EXP-0189's OWN "
+  "RESULTS.md section 4 R1 names these records: 'EXP-0180 records the ONLY sweep of half_alu_ext8.dst -- byte0's high "
+  "nibble, 16 values x 2 carriers x 2 gated runs -- under field: \"__dst_nibble\"'.",
+  "CONTESTED under a strict per-mnemonic reading: EXP-0180 has ZERO records carrying `instr: \"half_alu\"` (only "
+  "half_alu_ext8 / half_alu_fma12, the 8- and 12-byte forms) and ZERO 6-byte `bytes` columns. The clause is defensible "
+  "if 'records for it' means 'records keyed to this db mnemonic'; it is false if it means 'records that dispatch values "
+  "of this field's bits', which is the reading the row's own note uses when it sources its 16-of-16 figure to 'the "
+  "DSTNIB arm ... on an 8-byte instance of the family'. FALSIFIER FIRED HERE: the 2048 records EXP-0180 keys "
+  "`field=\"dst\"` on half_alu_fma12 have 256 distinct bytes but only ONE distinct value of bits 4..7 -- they do not "
+  "test this field at all. EXP-0183 half of the clause is TRUE (it is a pure-analysis experiment with no raw)."),
+
+ ("iadd2.srcA", "CLAUSE-FALSE", "EXP-0171-g17p-ilogic-srca", "raw-jsonl-sweep", "single byte spliced",
+  "raw/g17p_20260830_run01/sweep.jsonl: `instr=iadd2, field=null, byte_index=7` (db srcA = start 56, byte 7), 256 "
+  "records each on NAT (line 23229), SYNTH (24254) and FRAME (25279); 256 distinct bytes AND 256 distinct srcA values "
+  "per arm; NAT outcomes {wrong_value 188, fault 64, ok 4}. run02 repeats (11185/12210/13235). 1536 total.",
+  "Re-verified; agrees with EXP-0196's appended correction."),
+
+ ("ibfe.srcA", "CLAUSE-FALSE", "EXP-0171-g17p-ilogic-srca", "raw-jsonl-sweep", "single byte spliced",
+  "raw/g17p_20260830_run01/sweep.jsonl: `instr=ibfe, field=null, byte_index=8` (db srcA = start 64, byte 8), 512 "
+  "records on NAT (first line 33132, two kernels) and 256 on SYNTH (35694); 256 distinct srcA values per arm; outcomes "
+  "{ok 128, wrong_value 384} and {ok 64, wrong_value 192}. run02 repeats (2307/1026). 1536 total.",
+  "Re-verified; agrees with EXP-0196's appended correction."),
+
+ ("icmp_pred.dst_pred", "CLAUSE-FALSE", "EXP-0115-m4-controlflow-simd-deferred", "raw-jsonl-sweep", "single nibble spliced",
+  "raw/m4_20260828_run01.jsonl lines 191-217: item `CF-05-dstpred-mechanism`, locate_target "
+  "`predtest_dstpred_ifpush`, 27 records carrying an explicit `dst_pred` parameter over **16 distinct values 0..15 "
+  "(EXHAUSTIVE)**, each with its own splice string (`_agc.main@0x12: 0a -> Na`) and status/verdict; identical lines in "
+  "run02. The row's `range` ('0..15 EXHAUSTIVE') is this measurement.",
+  "EXP-0104's `predalias_dst_pred` contributes only 3 records; RT-ISA-FIX was not separately decisive."),
+
+ ("ilogic.lut_a_z", "CLAUSE-FALSE", "EXP-0171-g17p-ilogic-srca", "raw-jsonl-sweep", "whole byte spliced (field is 3 of its bits)",
+  "raw/g17p_20260830_run01/sweep.jsonl: `instr=ilogic, field=null, byte_index=4` (db lut_a_z = start 37, width 3, "
+  "byte 4), 1280 records on NAT (first line 770), 256 on SYNTH (3075), 256 on FRAME (5124); run02 repeats "
+  "(26708/34670/32365).",
+  "FALSIFIER PARTLY FIRED: the byte sweep has 256 distinct `bytes` but the FIELD is only 3 bits wide, so it produces "
+  "**8 distinct lut_a_z values, not 256** -- exhaustive for the field, but the '256 distinct values' framing carried "
+  "over from the byte is wrong for this row. Records exist either way."),
+
+ ("ilogic.outmod", "CLAUSE-FALSE", "EXP-0171-g17p-ilogic-srca", "raw-jsonl-sweep", "single byte spliced",
+  "raw/g17p_20260830_run01/sweep.jsonl: `instr=ilogic, field=null, byte_index=7` (db outmod = start 56, byte 7), 1280 "
+  "records on NAT (first line 1282, 1280 distinct bytes, 256 distinct outmod values, outcomes {silent_zero 512, ok 640, "
+  "wrong_value 128}), 256 on SYNTH (3587) and 256 on FRAME (5636); run02 repeats (26964/35182/32877). EXP-0171/"
+  "RESULTS.md:50 names this byte as 'the primary target' and :260 concludes 'outmod -> hardware-run'.",
+  "Re-verified; agrees with EXP-0196's appended correction."),
+
+ ("iter.mode", "CLAUSE-FALSE", "EXP-0029-fragment-isa", "raw-textlog", "own-MSL (different interpolation qualifiers)",
+  "Restricted to the programs raw/validations.log dispatched, iter byte+6 (db `mode`, start 48) takes THREE distinct "
+  "values with their own 4x4 pixel dumps: 0x0 (interp_noperspective, validations.log:21-39), 0x3 (interp_centroid :59-77 "
+  "and interp_sample :78-96), 0x4 (interp_smooth :40-58 and persp_smooth :99-103). First encodings "
+  "raw/interp_noperspective.frag.hex:1 off=0 (2f0d5400030000021000), raw/interp_centroid.frag.hex:1 "
+  "off=16 (2f055400030003020900), raw/interp_smooth.frag.hex:1 off=0 (2f0d5400030004021000). Whole corpus: 4 values "
+  "over 19 distinct encodings.",
+  "Compiler-emitted across programs, not spliced."),
+
+ ("iter.src_slot", "CLAUSE-FALSE", "EXP-0029-fragment-isa", "raw-textlog", "single byte spliced",
+  "raw/validations.log:112-122 -- section 3, `SPLICE: interp op byte+5 (source varying-slot) 0x00->0x02`, with a "
+  "baseline corner dump AND a spliced corner dump (the red channel moves from the x-gradient to the y-gradient); "
+  "byte+5 is db `src_slot` (start 40). Independently, the dispatched programs carry FIVE distinct src_slot values "
+  "{0,2,4,6,8} (raw/interp_centroid.frag.hex:1 at off 16/36/46/56/74).",
+  "The row's `range` ('0x00 -> 0x02 (slot<<1): switched the interpolated output from color.x to color.y') is a verbatim "
+  "description of validations.log section 3."),
+
+ ("mov_zext16.src_reg", "CLAUSE-FALSE", "EXP-0161-g17p-carry-fspecial", "raw-jsonl-sweep", "single nibble spliced",
+  "raw/g17p_20260829_run01/sweep.jsonl:3111 and :4011 -- `instr=mov_zext16, field=__falsifier_byte0, byte_index=0`, "
+  "257 records per carrier (SYNTH+LIFTED and INPLACE), 256 distinct `bytes`, **16 distinct values of byte0 bits 4..7 = "
+  "db `src_reg`**, outcomes {wrong_value 244, fault 11, ok 1, silent_zero 1} and {ok 100, fault 114, silent_zero 38, "
+  "wrong_value 5}; run02 repeats at :7033 and :7933. The row's own `range` cites exactly this ('the complete 0..255 "
+  "byte0 raw-byte probe in B_ZEXT_SYNTH (run01 + run02)').",
+  "CORRECTS EXP-0196's headline for this row. EXP-0196 cited '896 records over 128 distinct values keyed exactly "
+  "instr=mov_zext16, field=src_reg'. Those 896 records exist (128 per arm x 7 runs, first at run01:3371) and have 128 "
+  "distinct `bytes` -- but they carry `fstart:8, fwidth:7`, i.e. they sweep EXP-0161's old byte+1 src_reg, and they "
+  "hold db's CURRENT src_reg (byte0 bits 4..7) at a SINGLE value. Under the distinct-bytes test they do not test this "
+  "field at all. The clause is still false, but on the __falsifier_byte0 records, not the named ones."),
+
+ ("simd_shuffle.lane", "CLAUSE-FALSE", "EXP-0115-m4-controlflow-simd-deferred", "raw-jsonl-sweep", "single byte spliced",
+  "raw/m4_20260828_run01.jsonl lines 218-277: item `SIMD-03-static`, locate_target `static_shuffle_lane`, **60 records "
+  "over 42 distinct `lane_raw` values** (0..6,8,10,14,30,60..128,140..255), first `sshuf_raw_000` = 'simd_shuffle static "
+  "form: lane byte spliced to raw=0x0 (idx=0)'; identical in run02. The row's `range` says '28 swept points in the "
+  "dynamic form and 60 independently constructed raw-byte splices in the static form' -- the 60 is this file's "
+  "SIMD-03-static count and the 28 is EXP-0104's SIMD-03 count.",
+  "EXP-0104's 28 SIMD-03 records vary the shuffle index at MSL level in the DYNAMIC form, where the index comes from a "
+  "register, so the field's own bits do not vary: TRUE for EXP-0104 alone."),
+
+ ("simd_shuffle.mode", "CLAUSE-FALSE", "EXP-0018-atomics-subgroup", "raw-textlog", "own-MSL (different subgroup intrinsics)",
+  "raw/mains.txt holds 31 distinct simd_shuffle encodings spanning SIX distinct byte+1 values (db `mode`, start 8): "
+  "0x00 (quad, mains.txt:37 off=46), 0x01 (:57 off=22), 0x04 (SIMD, :2 off=84), 0x05 (simd up/down, :32 off=22), 0x06 "
+  "(rotate, :34 off=18), 0x14 (:20 off=180). raw/hwval.txt records a per-kernel [PASS] for each of the contributing "
+  "kernels (s_bcast0, s_shuf_up1, s_shuf_down1, s_rot_up1, q_bcast0, q_shuf_*...). The row's `range` ('0x00 quad, 0x04 "
+  "SIMD, 0x05 simd_updown, 0x06 rotate/shuffle_and_fill') is this table.",
+  "EXP-O2D (the other named original) holds ONE encoding with one mode value: TRUE for EXP-O2D alone."),
+
+ ("spill_frame_marker._instruction", "CLAUSE-TRUE", None, None, None,
+  "K1/K2: neither directory has any .jsonl raw. K3: no grouping string names it. K4: EXP-M4-14 -- 0 encodings with "
+  "byte0 0x60 in any file (it has no raw/ at all, and splice_results.json describes link_save_restore and "
+  "frame_prologue, never spill_frame_marker). EXP-0041 -- over 2468 unique hex blobs the ONLY clean-tokenization hit is "
+  "`60000000` appearing in analysis/code_census.py:20, i.e. in the script's own search literal, not in an observation. "
+  "The 71 'matchfit' hits are mid-stream coincidences of an 8-bit match and none anchors.",
+  "Consistent with the note's own text: 'EXP-0041 found this exact word ABSENT from all nine retained M4 own mains'."),
+
+ ("stop.reserved", "CLAUSE-FALSE", "EXP-0003-hw-testbed", "raw-textlog", "NOT isolated -- byte0 co-varied",
+  "raw/fault2_stop_ff.log splices the trailing word `0e000000 -> ffffffff` at _agc.main@0x34 and records "
+  "GPUTIME_NS 8041 / STATUS OK / RESULT matching the baseline, so bits 8..31 (db `reserved`) took 0xffffff with a "
+  "committed observation; the baseline value 0x000000 is dispatched throughout (raw/stage1_identity.log, "
+  "raw/fault_recovery_check.log). raw/fault1_stop_zeroed.log is the companion `-> 00000000` case. EXP-0003/"
+  "RESULTS.md:92-93 tabulates both.",
+  "WEAKEST-BUT-ONE of the CLAUSE-FALSE set. Both splices overwrite byte0 as well, so under the db `stop` descriptor "
+  "(match byte0==0x0e) neither spliced word is a `stop` at all, and neither isolates `reserved`. The row's own `range` "
+  "('the full 24-bit body corrupted') therefore overstates what was isolated. EXP-0010 holds only the single "
+  "`0e000000` encoding: TRUE for EXP-0010 alone. Label is `untested` and already WITHHELD, so nothing rests on it."),
+
+ ("tex_deriv.axis", "CLAUSE-TRUE", None, None, None,
+  "K1/K2: EXP-0016 has no .jsonl raw. K3: nothing. K4: over all 13 files, contiguous AND space-separated hex "
+  "harvesting yields **zero** windows with byte0 == 0x37 (tex_deriv's whole match), anchored or matchfit -- confirmed "
+  "by an independent regex for a 10-byte 0x37 run, which returns 0 in every file. The 0x92/0x90 axis values appear "
+  "ONLY as prose in EXP-0016/RESULTS.md:85-89 and README.md:7, and that prose attributes both the four instruction "
+  "instances and the hardware run to EXP-0008, not to EXP-0016.",
+  "EXP-0016 does state the two-value byte-diff in prose; it commits no encoding and no observation of its own."),
+
+ ("tex_sample.result_desc", "CLAUSE-FALSE", "EXP-0034-texture-variants", "raw-textlog", "own-MSL (different gather components)",
+  "raw/field_map.txt tabulates companion byte+3 (db `result_desc`, start 24) per kernel, and raw/mains.txt holds 27 "
+  "distinct tex_sample encodings over **7 distinct result_desc values** {0xa0 (:12 off=64), 0xa4 (:3 off=54), 0xa8 "
+  "(:18 off=26), 0xac (:5 off=54), 0xb4 (:6 off=54), 0xb8 (:2 off=54), 0xbc (:7 off=54)}. raw/hw_validation.txt "
+  "section 4 gives the per-value GATHER observation for four of them (b_gather=0xa4, g_y=0xac, g_z=0xb4, g_w=0xbc), "
+  "which is precisely the row's `range` ('companion+3 0xa4/0xac/0xb4/0xbc ... all four HW-validated').",
+  "Compiler-emitted across kernels, not spliced; the 0xa8 and 0xb8 values have no per-value observation of their own."),
+
+ ("tex_sample.samp_slot_offset", "CLAUSE-FALSE", "EXP-0016 and EXP-0034 (and EXP-0106)", "raw-textlog", "single byte spliced",
+  "EXP-0016/raw/hw_validation.txt section 4 is a SAMPLER-SLOT splice of op+5 (db `samp_slot_offset`, start 72) "
+  "`0x01->0x00` on two_samp, with the before/after 8x8 pixel dump and '55 / 64 pixels changed'; the two values also "
+  "appear as committed encodings at raw/mains.txt:2 off=62 (0x00) and :9 off=76 (0x01). EXP-0034/raw/mains.txt holds "
+  "FIVE distinct values {0x00, 0x08 (:8), 0x18 (:10), 0x80 (:9), 0x88 (:11)} with raw/hw_validation.txt section 5 "
+  "giving the no-offset vs off(1,0) observation. EXP-0106/raw/m4-20260830-run01 additionally commits 12 per-case "
+  "gather-offset records (case_b09_offset_*.json) plus a dynamic case, each with its own out_words.",
+  "EXP-0106's cases vary the offset at MSL level and commit no encoding, so only EXP-0016/EXP-0034 vary the field's "
+  "bits; either alone falsifies."),
+
+ ("tex_sample.tex_slot", "CLAUSE-FALSE", "EXP-0114 and EXP-0016", "raw-percase-json", "single byte spliced",
+  "EXP-0114/raw/m4-20260828f-run01 and run02 (NOT quarantined) each hold 31 per-case tex splices; the "
+  "quarantine-e-run02 copy shows the shape: case_tex_nibble_0..f = SIXTEEN per-value splices of one byte "
+  "(`applied_splices: [{abs_offset: 7874, rel_offset: 34, before: 128, after: N<<4}]`) each with its own "
+  "`out_word_hex`, plus 12 case_tex_lownib_slot{0,1}_* low-nibble cases. That is exactly the row's `range`: 'upper "
+  "nibble 0x0..0xF EXHAUSTIVE (16/16) plus 12 representative low-nibble values at both populated slots', and exactly "
+  "its `note` ('All 14 unpopulated nibble values are a deterministic SILENT ZERO'). EXP-0016 independently holds 4 "
+  "distinct tex_slot values in raw/mains.txt (:5 off=114, :2 off=62, :21 off=68, :8 off=76) and a TEXTURE-SLOT splice "
+  "0x81->0x01 with a pixel readback at raw/hw_validation.txt section 3.",
+  "EXP-0114's raw commits the splice as (offset, before, after) with no program hex, so no encoding-based index can "
+  "see it; EXP-0114 also names the byte 'op+4' where db puts tex_slot at bundle byte+8 -- a naming mismatch this audit "
+  "records but does not adjudicate."),
+
+ ("tex_sample.variant", "CLAUSE-FALSE", "EXP-0016, EXP-0034 and EXP-M4-10", "raw-textlog", "own-MSL + splice",
+  "EXP-0016/raw/mains.txt: 26 distinct tex_sample encodings over **10 distinct op+2 values** (db `variant`, start 48) "
+  "{0x00 :2, 0x04 :5, 0x07 :3, 0x09 :4, 0x13 :29, 0x17 :13, 0x29 :37, 0x79 :28, 0x80 :31, 0x97 :27}, tabulated per "
+  "kernel in raw/field_map.txt and dispatched in raw/hw_validation.txt sections 1-6. EXP-0034/raw/mains.txt: **12 "
+  "distinct values**. EXP-M4-10/isa6-texcoord/logs/EVIDENCE.txt:8-16 is a per-value table of EIGHT read-path codes "
+  "(0x17, 0x03, 0x97, 0x79, 0x37, 0xc3, 0x80, 0x8d) each marked 'HW-confirmed by correct read + dim-splice break', "
+  "plus a dim-code mismatch sweep at :26.",
+  "All three named originals falsify independently."),
+
+ ("vary_store.out_slot", "CLAUSE-FALSE", "EXP-0037-varying-texmath", "raw-textlog", "single byte spliced",
+  "raw/hw_validations.txt PART 1 section 'byte+4 = OUTPUT SLOT [HW-PROVEN]' records three splices of db `out_slot` "
+  "(start 32) with their observed corner pixels: 0x80->0x00 (abs 12296, output goes BLACK), 0x80->0xa0 (R=1.000 "
+  "everywhere), and 0xc0->0x80 (abs 12312, the FS red channel takes va.z's gradient), plus two position-store cases "
+  "(0x40->0x80). raw/vertex_mains.txt:7 holds EIGHT vary_store encodings covering all eight slot values "
+  "0x00/0x20/0x40/0x60/0x80/0xa0/0xc0/0xe0 (offsets 156,164,206,214,222,230,238,246).",
+  "The row's `range` is a restatement of that file."),
+
+ ("vary_store.src", "CLAUSE-FALSE", "EXP-0037-varying-texmath", "raw-textlog", "single byte spliced",
+  "raw/hw_validations.txt PART 1 section 'byte+3 = SOURCE register [HW-PROVEN]' records two splices of db `src` "
+  "(start 24) with observations: 0x08->0x00 (abs 12295, R=0.000 everywhere) and 0x08->0x0c (R takes va.z's gradient), "
+  "plus pos-store0.b3 -> 0x00 (abs 12263, entire output black). raw/vertex_mains.txt:7 holds eight encodings covering "
+  "src = 0,2,4,6,8,a,c,e -- the row's `range` verbatim ('byte+3 source GPR (reg<<1), in-order 0,2,4,..,14 over r0..r7').",
+  None),
+]
+
+
+def main():
+    rows = {r["key"]: r for r in json.load(open(os.path.join(EXP, "work", "rows.json")))}
+    assert len(V) == 30, len(V)
+    assert set(rows) == {v[0] for v in V}
+    out = []
+    for key, verdict, decisive, form, iso, ev, caveat in V:
+        r = rows[key]
+        out.append({"key": key, "verdict": verdict, "label": r["label"],
+                    "target": r["target"], "orig_citation": r["orig_slugs"],
+                    "repaired_to": r["live_slugs"],
+                    "already_corrected_by_0196": r["corrected_by_0196"],
+                    "decisive_original": decisive, "record_form": form,
+                    "isolation": iso, "evidence": ev, "caveat": caveat})
+    json.dump(out, open(os.path.join(HERE, "verdicts.json"), "w"), indent=1)
+    with open(os.path.join(HERE, "verdicts.tsv"), "w") as fh:
+        fh.write("key\tverdict\tlabel\ttarget\torig\trepaired_to\tdecisive_original\trecord_form\n")
+        for o in out:
+            fh.write("\t".join([o["key"], o["verdict"], str(o["label"]), str(o["target"]),
+                                ",".join(o["orig_citation"]), ",".join(o["repaired_to"]),
+                                str(o["decisive_original"]), str(o["record_form"])]) + "\n")
+    import collections
+    c = collections.Counter(o["verdict"] for o in out)
+    print(dict(c))
+    print("emitter-grade among CLAUSE-FALSE:",
+          sum(1 for o in out if o["verdict"] == "CLAUSE-FALSE"
+              and o["label"] in ("hardware-run", "isolated-byte-diff")))
+    for o in out:
+        print("%-34s %-13s %-18s %s" % (o["key"], o["verdict"], o["label"], o["record_form"]))
+
+
+if __name__ == "__main__":
+    main()

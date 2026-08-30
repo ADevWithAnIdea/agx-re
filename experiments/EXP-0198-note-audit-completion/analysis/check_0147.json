@@ -1,0 +1,262 @@
+{
+ "n3_sample_read.tail": {
+  "claims": [
+   {
+    "claim": "6x256 per byte + structured whole-field values, 1603 cases",
+    "ok": true,
+    "raw": {
+     "n_cases": 1603,
+     "per_byte_counts": {
+      "0": 256,
+      "1": 256,
+      "2": 256,
+      "3": 256,
+      "4": 256,
+      "5": 256
+     }
+    }
+   },
+   {
+    "claim": "bytes 1-5 FULLY INERT (256/256 each)",
+    "ok": true,
+    "raw": {
+     "1": {
+      "ok": 256
+     },
+     "2": {
+      "ok": 256
+     },
+     "3": {
+      "ok": 256
+     },
+     "4": {
+      "ok": 256
+     },
+     "5": {
+      "ok": 256
+     }
+    }
+   },
+   {
+    "claim": "byte 0: 53 values fault",
+    "ok": true,
+    "raw": {
+     "byte0": {
+      "fault": 53,
+      "invalid_run": 11,
+      "ok": 192
+     },
+     "faults_with_Hang_string": 0
+    }
+   },
+   {
+    "claim": "Intra-run 1603/1603 stable",
+    "ok": true,
+    "raw": {
+     "intra_stable": 1603,
+     "n_cases": 1603
+    }
+   }
+  ],
+  "label": "untested",
+  "note": "48-bit field swept per byte (6x256) plus structured whole-field values. Bytes 1-5 are FULLY INERT (256/256 each); only byte 0 matters, where 53 values fault with 'Caused GPU Hang Error'. Intra-run 1603/1603 stable; 12 cross-run misses are load-related. | WITHHELD 2026-08-30 on EXP-0192, the PRE-REGISTERED successor to EXP-0191's post-hoc finding. `audit.py`'s `sig_of()` gives `ok` and `fault` different signatures, so `moved` COUNTS A FAULT AS MOVEMENT. This row is **Case C: fewer than two distinct VALID payloads (V=1) but 1522 LEGAL values** -- multiple values ran legally and were INDISTINGUISHABLE. That is an inertness observation which the fault signature re-scored as movement; absent the defect it would have been INERT-SINGLE, already in the WITHHOLD set. Cross-run agreement is 100% and does not help: `moved` is precisely the ok/fault transition count, and a perfectly reproducible fault wall is a perfectly reproducible HAZARD MAP, not a semantic. The fault wall remains a first-class fact and a real legal-set bound. Case C says the PROMOTION is unsupported, not that the field is inert -- a single valid payload can also mean the arm lacked detection power.",
+  "verdict": "SUPPORTED"
+ },
+ "pixel_order.flags": {
+  "claims": [
+   {
+    "claim": "ACQUIRE rule bit0==0 AND (v&0x0e)!=0, 112/256",
+    "ok": true,
+    "raw": {
+     "hist": {
+      "ok": 112,
+      "wrong_value": 144
+     },
+     "n_cases": 256,
+     "n_ok": 112
+    }
+   },
+   {
+    "claim": "RELEASE rule (v&0x0f)>=2, 224/256",
+    "ok": true,
+    "raw": {
+     "hist": {
+      "ok": 224,
+      "wrong_value": 32
+     },
+     "n_cases": 256,
+     "n_ok": 224
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "ACQUIRE: correct iff bit0==0 AND (v & 0x0e)!=0 (112/256). RELEASE: correct iff (v & 0x0f)>=2 (224/256). byte+4 is therefore a REAL field with a large legal set, NOT the constant 0x06 that db.json's match clause pins it to - see db_defects.",
+  "verdict": "SUPPORTED"
+ },
+ "pixel_order.scope": {
+  "claims": [
+   {
+    "claim": "ACQUIRE bit4==1 AND (bit6 XOR bit7)==1, 64/256, baseline 0x50",
+    "ok": true,
+    "raw": {
+     "baseline_in_ok": true,
+     "hist": {
+      "ok": 64,
+      "wrong_value": 192
+     },
+     "n_cases": 256,
+     "n_ok": 64
+    }
+   },
+   {
+    "claim": "RELEASE bit4==1 AND bit7==1, 64/256, baseline 0xd0",
+    "ok": true,
+    "raw": {
+     "baseline_in_ok": true,
+     "hist": {
+      "ok": 64,
+      "wrong_value": 192
+     },
+     "n_cases": 256,
+     "n_ok": 64
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "ACQUIRE member: correct iff bit4==1 AND (bit6 XOR bit7)==1 (64/256, baseline 0x50). RELEASE member: correct iff bit4==1 AND bit7==1 (64/256, baseline 0xd0). Low nibble don't-care in both. This settles db.json's open note 'scope {0x50,0xd0}, bit7 differs' with the full accepted set.",
+  "verdict": "SUPPORTED"
+ },
+ "vtx_coord_xform.mode": {
+  "claims": [
+   {
+    "claim": "(mode & 0xf3) in {0x22,0xe2}, 8/256, baseline 0x22",
+    "ok": true,
+    "raw": {
+     "hist": {
+      "no_draw": 240,
+      "ok": 8,
+      "wrong_value": 8
+     },
+     "n_ok": 8,
+     "ok_values": [
+      34,
+      38,
+      42,
+      46,
+      226,
+      230,
+      234,
+      238
+     ]
+    }
+   },
+   {
+    "claim": "240 of 256 no_draw; 8 wrong pixel",
+    "ok": true,
+    "raw": {
+     "no_draw": 240,
+     "ok": 8,
+     "wrong_value": 8
+    }
+   }
+  ],
+  "label": "hardware-run",
+  "note": "Correct exactly when (mode & 0xf3) in {0x22,0xe2} (8/256, baseline 0x22). 240 of 256 values SUPPRESS THE DRAW ENTIRELY (no_draw, confirmed twice with a healthy device in between); 8 give a wrong pixel.",
+  "verdict": "SUPPORTED"
+ },
+ "vtx_coord_xform.operand": {
+  "claims": [
+   {
+    "claim": "5x256 per byte + structured whole-field values, 1339 cases",
+    "ok": true,
+    "raw": {
+     "n_cases": 1339,
+     "per_byte_counts": {
+      "0": 256,
+      "1": 256,
+      "2": 256,
+      "3": 256,
+      "4": 256
+     },
+     "whole": 59
+    }
+   },
+   {
+    "claim": "bytes 0 and 4 FULLY INERT (256/256 each)",
+    "ok": true,
+    "raw": {
+     "byte0": {
+      "ok": 256
+     },
+     "byte4": {
+      "ok": 256
+     }
+    }
+   },
+   {
+    "claim": "byte 3 fault-prone (17 faults)",
+    "ok": true,
+    "raw": {
+     "fault": 17,
+     "invalid_run": 9,
+     "no_draw": 229,
+     "ok": 1
+    }
+   },
+   {
+    "claim": "bytes 1-2 mix correct with no_draw",
+    "ok": true,
+    "raw": {
+     "byte1": {
+      "no_draw": 140,
+      "ok": 116
+     },
+     "byte2": {
+      "no_draw": 64,
+      "ok": 192
+     }
+    }
+   },
+   {
+    "claim": "Intra-run 1339/1339 stable",
+    "ok": true,
+    "raw": {
+     "intra_stable": 1339,
+     "n_cases": 1339
+    }
+   }
+  ],
+  "label": "untested",
+  "note": "40-bit field swept per byte (5x256) plus structured whole-field values. Bytes 0 and 4 are FULLY INERT (256/256 each); byte 3 is fault-prone (17 faults); bytes 1-2 mix correct with no_draw. Intra-run 1339/1339 stable. | WITHHELD 2026-08-30 by EXP-0193, applying EXP-0192's UNCHANGED pre-registered criterion to the full 337-arm STABLE-LIVE population. **Case C: 1 distinct VALID payload(s) across 817 LEGAL values** -- values ran legally and were indistinguishable. `moved_total` equals the hard-class cell count EXACTLY, and cross-run agreement is 100%: a perfectly reproducible hazard map, not a semantic.",
+  "verdict": "SUPPORTED"
+ },
+ "vtx_coord_xform.sel": {
+  "claims": [
+   {
+    "claim": "91 ok, 143 no_draw, 19 faults, 1 wrong_value",
+    "ok": true,
+    "raw": {
+     "hist": {
+      "fault": 19,
+      "invalid_run": 2,
+      "no_draw": 143,
+      "ok": 91,
+      "wrong_value": 1
+     },
+     "n_cases": 256
+    }
+   },
+   {
+    "claim": "Intra-run 255/256 stable",
+    "ok": true,
+    "raw": {
+     "intra_stable": 255,
+     "n_cases": 256
+    }
+   }
+  ],
+  "label": "isolated-byte-diff",
+  "note": "91 of 256 correct, 143 no_draw, 19 genuine 'Caused GPU Hang Error' faults, 1 wrong value. Intra-run 255/256 stable.",
+  "verdict": "SUPPORTED"
+ }
+}

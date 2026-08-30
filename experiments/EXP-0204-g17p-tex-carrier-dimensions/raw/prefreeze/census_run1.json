@@ -1,0 +1,926 @@
+{
+ "carriers": {
+  "deriv": {
+   "archive_sha256": "47ab170f7fa3fda9b481539b698c3aa30a53ebeb5582ba5e648ed3a2c8019a3f",
+   "src": "kernels/k_deriv.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15344,
+     "hex": "2f055400030004021000af0054000300004820012f0554020306000210002f0554040304000210002f05540a030a000210002f05540803020002100029052f810002000019032f8100030000790b2f810005000037075414030892400000370554020204904000002f05540a030c00021000370554040308904000002f055410020800021000299514050200000003003705540c031c92400000590b2f810006000049092f810001000089113f010004000037055406021492400000370554000310904000003707541003209040000009010e00a01419030e00a0103707540e031c90400000370f540a031490400000690d3c0f020000000300490b380929050e00a00c39070e00a0088702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 300,
+     "mnemonics": [
+      "falu2",
+      "falu2_srcmod10",
+      "falu2_uni",
+      "falu_acc",
+      "frag_color_store",
+      "frag_tile_setup",
+      "fspecial",
+      "iter",
+      "pad_operand",
+      "stop",
+      "tex_deriv",
+      "threadgroup_barrier"
+     ],
+     "n_tokens": 41,
+     "occurrences": {
+      "tex_deriv": [
+       {
+        "fields": {
+         "axis": 146,
+         "b1": 7,
+         "dstsrc": 201812,
+         "src_comp": 8,
+         "tail": 64
+        },
+        "hex": "37075414030892400000",
+        "off": 84
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 5,
+         "dstsrc": 131668,
+         "src_comp": 4,
+         "tail": 64
+        },
+        "hex": "37055402020490400000",
+        "off": 94
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 5,
+         "dstsrc": 197716,
+         "src_comp": 8,
+         "tail": 64
+        },
+        "hex": "37055404030890400000",
+        "off": 114
+       },
+       {
+        "fields": {
+         "axis": 146,
+         "b1": 5,
+         "dstsrc": 199764,
+         "src_comp": 28,
+         "tail": 64
+        },
+        "hex": "3705540c031c92400000",
+        "off": 144
+       },
+       {
+        "fields": {
+         "axis": 146,
+         "b1": 5,
+         "dstsrc": 132692,
+         "src_comp": 20,
+         "tail": 64
+        },
+        "hex": "37055406021492400000",
+        "off": 178
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 5,
+         "dstsrc": 196692,
+         "src_comp": 16,
+         "tail": 64
+        },
+        "hex": "37055400031090400000",
+        "off": 188
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 7,
+         "dstsrc": 200788,
+         "src_comp": 32,
+         "tail": 64
+        },
+        "hex": "37075410032090400000",
+        "off": 198
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 7,
+         "dstsrc": 200276,
+         "src_comp": 28,
+         "tail": 64
+        },
+        "hex": "3707540e031c90400000",
+        "off": 220
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 15,
+         "dstsrc": 199252,
+         "src_comp": 20,
+         "tail": 64
+        },
+        "hex": "370f540a031490400000",
+        "off": 230
+       }
+      ]
+     },
+     "undecodable_at": null
+    },
+    "vertex": {
+     "abs_off": 13152,
+     "hex": "0cdd1006a71754000300ac200b00200429b12c8180001981218119a93505c10000042983248100082c80233e0000000c400039052ea1a2984202000c49d12581c100001059e13503c100001069f12581c10000147981250041020014898125024102001499012d0051020008572654020040490057865406204049005716540040404b005706540460404b005706561080404b005706540ca04048005706540ec0404d0057465412e0404d005706550800414a005706540a20414c000e000000",
+     "len": 192,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2",
+      "falu2_ext",
+      "falu2i",
+      "falu3_ext",
+      "falu_compact4",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 28,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_deriv.dstsrc -- EXP-0172's OWN carrier, MSL unchanged, so the quiet-machine pass re-measures the same thing.  The withheld verdict is about cross-run STABILITY (5 values disagreed, all of them fault-in-one-run / InnocentVictim-in-the-other at the values that hang), not about liveness -- 198 observations moved."
+  },
+  "deriv2": {
+   "archive_sha256": "8d72559e6c0285e3e960f0577c534372ec8bfa34008ddba1b09e7df6fd5c96b5",
+   "src": "kernels/k_deriv2.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15616,
+     "hex": "2f055400030004021000af0054060300004820012f05540a0304000210002f0554020302000210002f05540e0306000210002f055404030a0002100049032f87000100002f055402030800021000090f2f8700030000590b2f870002000029052f870005000049092ec1a00a19032f87000400002f05540e030e0002100059033ea1a0002f0554100310000210003705540002109240000037055402021492400000610f2f87000700003707540a0214904000002f05540e030c00021000370554040308904000003705540c03188c60000061112f870008040037075408031090400000390f3f070006000009010e00a00837075408031a8c600000370f5406030c9040000019030e00a00a29050e00a006390c0e00810800028702540006008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 316,
+     "mnemonics": [
+      "cvt_f2h_dst",
+      "falu2",
+      "falu2_uni",
+      "fspecial",
+      "iter",
+      "op04_len8",
+      "pad_operand",
+      "tex_deriv"
+     ],
+     "n_tokens": 31,
+     "occurrences": {
+      "tex_deriv": [
+       {
+        "fields": {
+         "axis": 146,
+         "b1": 5,
+         "dstsrc": 131156,
+         "src_comp": 16,
+         "tail": 64
+        },
+        "hex": "37055400021092400000",
+        "off": 142
+       },
+       {
+        "fields": {
+         "axis": 146,
+         "b1": 5,
+         "dstsrc": 131668,
+         "src_comp": 20,
+         "tail": 64
+        },
+        "hex": "37055402021492400000",
+        "off": 152
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 7,
+         "dstsrc": 133716,
+         "src_comp": 20,
+         "tail": 64
+        },
+        "hex": "3707540a021490400000",
+        "off": 170
+       },
+       {
+        "fields": {
+         "axis": 144,
+         "b1": 5,
+         "dstsrc": 197716,
+         "src_comp": 8,
+         "tail": 64
+        },
+        "hex": "37055404030890400000",
+        "off": 190
+       },
+       {
+        "fields": {
+         "axis": 140,
+         "b1": 5,
+         "dstsrc": 199764,
+         "src_comp": 24,
+         "tail": 96
+        },
+        "hex": "3705540c03188c600000",
+        "off": 200
+       }
+      ]
+     },
+     "undecodable_at": 224
+    },
+    "vertex": {
+     "abs_off": 13360,
+     "hex": "0cdd1006a71754020300ac2009b12c8380000b00200419a93501c100000409832683118202002c80233e0000000c400039012ea1a2984202000c49c92583c00059d52583c100001469e32583c100001479f12583c90000108983250041020010998325005102000801c12583800001d93503840057265402004049005786540620404900571654004040490057065404604049005706540880404900ab0029045706560aa0404b005706540cc0404b005706550ee0404d005706541000414c005746541220414a0057165414404148000e000000",
+     "len": 212,
+     "mnemonics": [
+      "cvt_f2h_dst",
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "vary_slot"
+     ],
+     "n_tokens": 17,
+     "occurrences": {},
+     "undecodable_at": 110
+    }
+   },
+   "why": "tex_deriv.dstsrc -- a SECOND program, so stability is measured against a different register allocation: derivatives of ALU temporaries rather than of raw varyings, plus half-precision derivatives (a different operand width)."
+  },
+  "mscmp": {
+   "build_error": "/Users/user/agxre/EXP-0204/work/gfrun4 --source /Users/user/agxre/EXP-0204/kernels/k_mscmp.metal --vertex v_main --fragment f_main --color-format 125 --width 16 --height 16 --samples 1 --rt-count 1 --build-archive /Users/user/agxre/EXP-0204/work/mscmp.bin --tex-depth 8,8 failed:\n\ncompile failed: program_source:29:23: error: invalid values combination in sampler initialization\n    constexpr sampler sc(coord::pixel, filter::linear, address::clamp_to_edge,\n                      ^\nprogram_source:29:23: note: if 'coord::pixel' is specified the min_filter and mag_filter values must be the same, the mip_filter and compare_func values must be 'none', and address modes must be either 'clamp_to_zero', 'clamp_to_edge', or 'clamp_to_border'\nprogram_source:31:23: error: invalid values combination in sampler initialization\n    constexpr sampler sn(coord::pixel, filter::nearest, address::clamp_to_edge,\n                      ^\nprogram_source:31:23: note: if 'coord::pixel' is specified the min_filter and mag_filter values must be the same, the mip_filter and compare_func values must be 'none', and address modes must be either 'clamp_to_zero', 'clamp_to_edge', or 'clamp_to_border'\n\n",
+   "src": "kernels/k_mscmp.metal",
+   "why": "tex_sample.mode -- the DEPTH-COMPARE class (third member of mode 0x00).  Its result is confined to [0,1], so a class change is readable as leaving that interval."
+  },
+  "msfilt": {
+   "archive_sha256": "c058e3147e1e69a81a5d66541662a767769582a3043c85f37a7f037aac8e087e",
+   "src": "kernels/k_msfilt.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 13792,
+     "hex": "1ca010060ca11026a71754020304ac20a72754000300ac2019b13403800009b13401800009853503c00019853501c00087025400060005800ca09000000001011000010019c10581802029b1040180003c800240000000078702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 116,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "get_sr",
+      "ishift"
+     ],
+     "n_tokens": 4,
+     "occurrences": {},
+     "undecodable_at": 26
+    },
+    "vertex": {
+     "abs_off": 11904,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 15,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_sample.mode -- the FILTERED-SAMPLE class (implicit LOD, linear magnification, coordinate on the exact corner of four level-0 texels so a filtered result is host-predictable and an unfiltered one cannot be)."
+  },
+  "msfixl": {
+   "archive_sha256": "64595d1074a926add64010279702ea17bca57143d115eae4d105b2b94cf63a98",
+   "src": "kernels/k_msfixl.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 13792,
+     "hex": "1ca010060ca11026a71754020304ac20a72754000300ac2019b13403800009b13401800009853503c00019853501c00087025400060005800c00902409000001100001000d800ca0102409000101100401002903040100403c800240000000078702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 124,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "get_sr",
+      "ishift"
+     ],
+     "n_tokens": 4,
+     "occurrences": {},
+     "undecodable_at": 26
+    },
+    "vertex": {
+     "abs_off": 11904,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 15,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_sample.mode -- the FILTERED-SAMPLE class again but DERIVATIVE-FREE (explicit level()).  Control for msfilt: EXP-0172 showed derivative-dependent texture carriers are the unstable ones and derivative-free ones reproduce at 100 %."
+  },
+  "msgath": {
+   "archive_sha256": "39f153157fdbef2b1d7f806a3e91252720ae5a6976c1b7a0de6b215372b95ef1",
+   "src": "kernels/k_msgath.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 13696,
+     "hex": "1ca010060ca11026a71754020304ac20a72754000300ac2019b13403800009b13401800009853503c00019853501c00087025400060005800ca4900000000101000001008702540c0800e71654000000012e000000000702540c02000e000000",
+     "len": 96,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "get_sr",
+      "ishift"
+     ],
+     "n_tokens": 4,
+     "occurrences": {},
+     "undecodable_at": 26
+    },
+    "vertex": {
+     "abs_off": 11808,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 15,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_sample.mode -- the GATHER class (mode 0x00 per db.json), which returns four unfiltered texels; on the same coordinate as msfilt its components are integers rather than the interpolated mean."
+  },
+  "mslodq": {
+   "archive_sha256": "22c123039d6c4b0f3ed05fe60833c9ac8668be82f622f0fdb61dd8889daf0f8e",
+   "src": "kernels/k_mslodq.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 13888,
+     "hex": "1ca010060ca11026a71754020304ac20a72754000300ac2019a13403800009a13401800009912583c00019912581c00029892583c100000439892581c100000449833503c100000859833501c100000887025400060005800c20900000000001200001000d820c201001000000012000010015840ca8b00100000101200001008702540c0800e71654000000012e000000000702540c02000e000000",
+     "len": 156,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "get_sr",
+      "ishift"
+     ],
+     "n_tokens": 4,
+     "occurrences": {},
+     "undecodable_at": 26
+    },
+    "vertex": {
+     "abs_off": 12000,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 15,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_sample.mode -- the LOD-QUERY class (mode 0x20).  NO carrier in this corpus has ever emitted one; it needs a MIPMAPPED texture, which is why the harness gained one.  This is the carrier the field has been missing."
+  },
+  "msread": {
+   "archive_sha256": "f2badcbd5fdbdd4e8f1a5d04079c533726ca43235a14c0b9c3f2982487e6fc7e",
+   "src": "kernels/k_msread.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 14032,
+     "hex": "1ca11106010000000ca010262b032f871022000000000b012f87104200000000a700540200080600f0800100a700540203000600f01001002b812700420000040000a700540003000800f01101003b852700420000040000a700540a00080800f0a10100020b2709260ec7028002420c2781270ec00280000008000087025400060005820c20102517010001000001000d800c209024170100010004010015840ca09001170100010008010039032401004039070c0500208702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 212,
+     "mnemonics": [
+      "b_alu10_lo7",
+      "falu2",
+      "frag_color_store",
+      "frag_tile_setup",
+      "get_sr",
+      "ibfe",
+      "isel8",
+      "n1_word",
+      "pad_operand",
+      "stop",
+      "tex_coord_setup",
+      "tex_sample",
+      "threadgroup_barrier"
+     ],
+     "n_tokens": 28,
+     "occurrences": {
+      "tex_sample": [
+       {
+        "fields": {
+         "chain": 0,
+         "comp_flags": 2,
+         "coord": 37,
+         "extra_coord": 1,
+         "kind": 5,
+         "lod_present": 0,
+         "mode": 0,
+         "result_desc": 32,
+         "result_sel": 16,
+         "samp_extra": 0,
+         "samp_slot_offset": 1,
+         "tex_slot": 0,
+         "tex_type": 1,
+         "variant": 23
+        },
+        "hex": "05820c2010251701000100000100",
+        "off": 130
+       },
+       {
+        "fields": {
+         "chain": 0,
+         "comp_flags": 0,
+         "coord": 36,
+         "extra_coord": 1,
+         "kind": 13,
+         "lod_present": 4,
+         "mode": 0,
+         "result_desc": 32,
+         "result_sel": 144,
+         "samp_extra": 0,
+         "samp_slot_offset": 1,
+         "tex_slot": 0,
+         "tex_type": 1,
+         "variant": 23
+        },
+        "hex": "0d800c2090241701000100040100",
+        "off": 144
+       },
+       {
+        "fields": {
+         "chain": 1,
+         "comp_flags": 4,
+         "coord": 1,
+         "extra_coord": 1,
+         "kind": 5,
+         "lod_present": 8,
+         "mode": 0,
+         "result_desc": 160,
+         "result_sel": 144,
+         "samp_extra": 0,
+         "samp_slot_offset": 1,
+         "tex_slot": 0,
+         "tex_type": 1,
+         "variant": 23
+        },
+        "hex": "15840ca090011701000100080100",
+        "off": 158
+       }
+      ]
+     },
+     "undecodable_at": null
+    },
+    "vertex": {
+     "abs_off": 12080,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c406057265402004049005746540420404a0057165400404048005786540660404b000e000000",
+     "len": 94,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store"
+     ],
+     "n_tokens": 15,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_sample.mode -- the integer-READ class (also mode 0x00): no sampler, no filter, no LOD, no derivative.  Per-level reads make 'which level was read' readable off the returned value."
+  },
+  "twbuf": {
+   "archive_sha256": "655d47b95ff296d63322bd3264d39a82259efb011aa1011a09b517e2304b3d08",
+   "src": "kernels/k_twbuf.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15632,
+     "hex": "1f0b5480000502050f3f820405c2208087025400060067004408008020001988004048000b1a21081b2221082b2a21080b332700c200000400001b352700c200000400003ca010462b8127004200000400003b1d2700c200000400006b1f2700c200000400007b212700c200000400008b392700c200000c00009b3b2700c200000c0000ab0327004200000c0000bb252700c200000c00003b072f9f108200000000eb272700c200000c000032072f3720400502fb292700c200000c00000b87679f500200080000a7005422000c3800f0a101002b0567004200000800003b2d6700c200000800006b2f6700c200000800007b316700c20000080000d72054002040000100040000893a09009b0066004000001000008c8163000000000040803b3c0108d780541020400001000400008b3a0900748410a6d740542020400001000400008a3a090063002000af04540c03180a03ab0167004200001000002f05540c020006022000bb1d6700c20000100000eb1f6700c20000100000fb216700c200001000009f01560e021c38001605620d2f09010803209f015408031e38001404120dbf0b830a4200800c000010000b09af00420000001000d700553020400000000400008c3a0900870254010000d714544000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 504,
+     "mnemonics": [
+      "b_alu10_lo7",
+      "device_load",
+      "frag_tile_setup",
+      "iter_flat",
+      "n2_op6",
+      "operand_word",
+      "psel",
+      "reg_move_c1"
+     ],
+     "n_tokens": 10,
+     "occurrences": {},
+     "undecodable_at": 60
+    },
+    "vertex": {
+     "abs_off": 13264,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c40604b00260040000010000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c000e000000",
+     "len": 112,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "pad_operand",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 18,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_write.amode -- ADDRESS FORM: a texture_buffer destination, i.e. LINEAR one-dimensional texel addressing with a scalar index. db.json already recognises the buffer class as a distinct texture type on the sample side (tex_type == 3); no write carrier has ever used it."
+  },
+  "twcomp": {
+   "archive_sha256": "e1f5595550ba392684e91898b557471bd0870355319e47985608b6c02d2854f2",
+   "src": "kernels/k_twcomp.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15312,
+     "hex": "1f0b5480000502050f2b820405c2208087025400060067004408008020005989004048001b0020040c8123000000000040009c8223000000000040208c8323000000000040200c8563000000000040401c8463000000000040400b1021081b1821082b2021082b0021043b12210c6b14210c7b16210cab032700420000040000bb1b2700c20000040000eb1d2700c20000040000fb1f2700c200000400003b280108d71054002040000100040000883a090074841066d72054102040000200040000893a090063002000af04540c03180a032b0567004200000800002f05540c0200060220003b236700c200000800006b256700c200000800007b276700c200000800009f81540e021c38001605620d2f09010803c09f015408031e38001404920d7f0b830a4200800c000c10008b096f004200000c1000d740542020400000000400008a3a0900870254010000d784543060030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 374,
+     "mnemonics": [
+      "device_load",
+      "frag_tile_setup",
+      "iter_flat",
+      "mov_imm",
+      "n2_op6",
+      "n3_mov",
+      "pad_operand",
+      "psel",
+      "reg_move_c0"
+     ],
+     "n_tokens": 13,
+     "occurrences": {},
+     "undecodable_at": 58
+    },
+    "vertex": {
+     "abs_off": 13072,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c40604b00260040000010000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c000e000000",
+     "len": 112,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "pad_operand",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 18,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_write.rsv11 -- WRITE-DATA FORMAT: ONE- and TWO-component destinations.  byte+11's positional sibling is device_store's st_desc_hi, the store data-format descriptor tail, whose neighbouring bit is documented as set only for a NON-4-component store.  Every destination ever swept was 4-component."
+  },
+  "twcube": {
+   "archive_sha256": "60766c1ac624282f61a961338f7405da115eaae7ec879ec440873834ccb98e81",
+   "src": "kernels/k_twcube.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15488,
+     "hex": "1f0b5480000502050f2b820405c2208087025400060067004408008020001988004048003ca010261b0026004000000800009f205402030cb200e02402000c8123000000000040408c8323000000000040209c8223000000000040201c8663000000000040608c8563000000000040809c8463000000000040800b1021081b182108a700540c03080800f01101002b202108bb1b2700c20000040000eb1d2700c200000400009f0154070318304016051f015406030c1c4016052b8127004200000800003b132700c200000800006b152700c200000800007b172700c20000080000ab032700420000040000fb1f2700c2000004000097055436000c0000f0e00000ab056700420000100000db236700c20000100000eb256700c20000100000fb276700c200001000000c8763000000000040603b280108748410a6d740540020c00001000000008a3a0900d720541020c0000100040000893a0900d700553020400001000c00008c3a090063002000af04540c03180a032b0167004200000c00002f05540c0200060220003b136700c200000c00006b156700c200000c00007b176700c200000c00009f01560e021c38001605620d2f09010803209f015408031e38001404120dbf0b830a4200800c000010000b09af00420000001000d780542020400000000400008b3a0900870254010000d714544000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 540,
+     "mnemonics": [
+      "device_load",
+      "frag_tile_setup",
+      "get_sr",
+      "imad",
+      "iter_flat",
+      "mov_imm",
+      "n2_op6",
+      "n3_mov",
+      "pad_operand",
+      "psel",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 16,
+     "occurrences": {},
+     "undecodable_at": 80
+    },
+    "vertex": {
+     "abs_off": 13248,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c40604b00260040000010000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c000e000000",
+     "len": 112,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "pad_operand",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 18,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_write.amode -- ADDRESS FORM: a CUBE destination.  db.json documents coord_dim 0x0c = cube for tex_write and NOTHING in the corpus has ever emitted it, so that address form is unexercised."
+  },
+  "twdyn": {
+   "archive_sha256": "5ed4d8e542f36986adf3c3b6a3b74c1f889148b19a4d4a400c32c3a704960844",
+   "src": "kernels/k_twdyn.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 16464,
+     "hex": "1f0b5400020502050f2d820405c2208087025400060067004408008020001988004048000b1821082f0554020300040210002ca010266ca11046af0054020304004820012f0554060304000210002b052f8710420000000019073f03000200003b8d27871082000000001921340380000b8527004200000400001b8727004200000400002b8127004200000400003b1b2700c200000400006b1d2700c200000400007b1f2700c200000400008b852687520a000800009b072e87520a00080000ab032700420000080000bb232700c20000080000eb252700c20000080000fb272700c20000080000d72054004040000000040000893a09001b0066004000000c00003b2a01086b0d2f83100200000000d740541040400000000400008a3a0900028d6729232e44020084000c00009705542600181000f0d4000074841086a70754040208ac2063002000af04540c03180a032b0167004200000c00002f05540c0202060220005b1b6700c200000c00006b1d6700c200000c00007b1f6700c200000c00009f01550e021c38001605620d2f09010803209f015408031e38001404920d7f0b830a4200800c000010008b096f00420000001000d780542040000001000400008b3a0900870254010000d714543000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 502,
+     "mnemonics": [
+      "b_alu10_lo6",
+      "b_alu10_lo7",
+      "b_alu10_loe",
+      "device_load",
+      "falu2",
+      "falu2_uni",
+      "frag_tile_setup",
+      "fspecial",
+      "get_sr",
+      "iter",
+      "iter_flat",
+      "n2_op6",
+      "pad_operand",
+      "psel",
+      "reg_move_c1",
+      "tex_coord_setup",
+      "tex_write",
+      "uniform_mov"
+     ],
+     "n_tokens": 33,
+     "occurrences": {
+      "tex_write": [
+       {
+        "fields": {
+         "amode": 84,
+         "coord_dim": 4,
+         "coord_pack": 32,
+         "coord_regs": 64,
+         "data_desc": 58,
+         "data_desc_hi": 9,
+         "layer_reg": 64,
+         "rsv10": 0,
+         "rsv11": 0,
+         "rsv15": 0,
+         "rsv8": 0,
+         "seq_idx": 0,
+         "wop": 137
+        },
+        "hex": "d72054004040000000040000893a0900",
+        "off": 232
+       },
+       {
+        "fields": {
+         "amode": 84,
+         "coord_dim": 4,
+         "coord_pack": 64,
+         "coord_regs": 64,
+         "data_desc": 58,
+         "data_desc_hi": 9,
+         "layer_reg": 64,
+         "rsv10": 0,
+         "rsv11": 0,
+         "rsv15": 0,
+         "rsv8": 0,
+         "seq_idx": 16,
+         "wop": 138
+        },
+        "hex": "d740541040400000000400008a3a0900",
+        "off": 272
+       }
+      ]
+     },
+     "undecodable_at": 288
+    },
+    "vertex": {
+     "abs_off": 14112,
+     "hex": "0cdd1006a71754000300ac2019b12c8180000c80233e0000000c400019a93503c100000419812681118002002b00260040000008000039032ea1a2984202000c4b00260040000010000059c12581c00069c93501c100001457265402004049005786540620404b005746540440404b005716540060404a005706540a804048005706560ca0404d0057065508c0404c000e000000",
+     "len": 148,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "pad_operand",
+      "stop",
+      "vary_slot",
+      "vary_store",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 23,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_write.amode -- ADDRESS SOURCE and DATA SOURCE: every write ever swept used a COMPILE-TIME-CONSTANT uint2 literal, so the compiler never had to form the address from a register; db.json's sibling enum for this byte distinguishes exactly indexed-vs-GPR-index. It also carries a contiguous float4 store with NO ALU between load and write, the 0x54-vs-0x56 data-source split EXP-0141 found."
+  },
+  "twmip": {
+   "archive_sha256": "7c17ea791167f4a3d03f21e61ce5947f82a1ecf6c417cd64927c31c8982a3175",
+   "src": "kernels/k_twmip.metal",
+   "stages": {
+    "fragment": {
+     "abs_off": 15168,
+     "hex": "1f0b5480000502050f2b820405c2208087025400060067004408008020001988004048003b0020006c812200000000000b1021081b1821082b2021080b8d27004200000400001b8727004200000400002b8127004200000400003b132700c200000400006b152700c200000400007b172700c200000400008b8d27004200000800009b0d2f00420000080000ab032700420000080000bb1b2700c20000080000eb1d2700c20000080000fb1f2700c20000080000d72054002040000100040000893a09000b8767004200000c00001b076f004200000c00002b0567004200000c00003b236700c200000c00006b256700c200000c00007b276700c200000c0000d740541020400001000410008a3a09008c8363000000000040809c8263000000000040803b280108748410a6d780542020400001000420008b3a090063002000af04540c03180a03ab0167004200001000002f05540c020006022000bb136700c20000100000eb156700c20000100000fb176700c200001000009f01560e021c38001605620d2f09010803209f015408031e38001404120dbf0b830a4200800c000010000b09af00420000001000d700553020400000000400008c3a0900870254010000d714544000030702540100008702540c0800e70654000000012e000000000702540c02000e000000",
+     "len": 492,
+     "mnemonics": [
+      "b_alu10_lo7",
+      "b_alu10_lof",
+      "device_load",
+      "frag_tile_setup",
+      "get_sr",
+      "iadd2",
+      "isel_reg",
+      "iter",
+      "iter_at",
+      "iter_flat",
+      "mov_imm",
+      "n2_op10",
+      "n2_op6",
+      "n3_mov",
+      "operand_word",
+      "pad_operand",
+      "psel",
+      "reg_move_c0",
+      "reg_move_c1",
+      "tex_coord_setup",
+      "tex_write",
+      "uniform_mov"
+     ],
+     "n_tokens": 54,
+     "occurrences": {
+      "tex_write": [
+       {
+        "fields": {
+         "amode": 84,
+         "coord_dim": 4,
+         "coord_pack": 32,
+         "coord_regs": 65600,
+         "data_desc": 58,
+         "data_desc_hi": 9,
+         "layer_reg": 32,
+         "rsv10": 0,
+         "rsv11": 0,
+         "rsv15": 0,
+         "rsv8": 0,
+         "seq_idx": 0,
+         "wop": 137
+        },
+        "hex": "d72054002040000100040000893a0900",
+        "off": 180
+       },
+       {
+        "fields": {
+         "amode": 84,
+         "coord_dim": 4,
+         "coord_pack": 64,
+         "coord_regs": 65600,
+         "data_desc": 58,
+         "data_desc_hi": 9,
+         "layer_reg": 32,
+         "rsv10": 16,
+         "rsv11": 0,
+         "rsv15": 0,
+         "rsv8": 0,
+         "seq_idx": 16,
+         "wop": 138
+        },
+        "hex": "d740541020400001000410008a3a0900",
+        "off": 256
+       },
+       {
+        "fields": {
+         "amode": 84,
+         "coord_dim": 4,
+         "coord_pack": 128,
+         "coord_regs": 65600,
+         "data_desc": 58,
+         "data_desc_hi": 9,
+         "layer_reg": 32,
+         "rsv10": 32,
+         "rsv11": 0,
+         "rsv15": 0,
+         "rsv8": 0,
+         "seq_idx": 32,
+         "wop": 139
+        },
+        "hex": "d780542020400001000420008b3a0900",
+        "off": 300
+       }
+      ]
+     },
+     "undecodable_at": 412
+    },
+    "vertex": {
+     "abs_off": 12928,
+     "hex": "0cdd1006a71754000300ac200b00200419b12c81800009013e019100020019a93503c100000429012ea1a298420200083c80233e0000000c40604b00260040000010000057265402004049005746540420404a0057165400404048005786540660404b005706550880404c000e000000",
+     "len": 112,
+     "mnemonics": [
+      "cvt_i2f_src",
+      "falu2_ext",
+      "falu2i",
+      "falu3",
+      "falu3_ext",
+      "get_sr",
+      "mov_imm",
+      "n3_mov",
+      "pad_operand",
+      "reg_move_c0",
+      "stop",
+      "vary_slot",
+      "vary_store",
+      "vtx_out_pos"
+     ],
+     "n_tokens": 18,
+     "occurrences": {},
+     "undecodable_at": null
+    }
+   },
+   "why": "tex_write.amode -- ADDRESS FORM: an EXPLICIT MIP LEVEL operand in the write address.  Every tex_write ever swept wrote implicit level 0."
+  }
+ },
+ "isadb": "2412eac1cad4449eb385702062abd03e5c926d04f7d384e6bf3684c9c4c7c6c4",
+ "tag": "run1",
+ "utc": "2026-08-30T19:04:04Z"
+}
