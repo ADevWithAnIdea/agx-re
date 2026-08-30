@@ -338,11 +338,51 @@ EXP-0112 correctly found bit 6 inert (`r(R mod 64)` aliasing).
 
 **Negative and safety results (first-class, `target: G16G`):**
 
-- ⛔ **`fspecial.src` (byte+3) values 192..255 fault or hang the GPU.** On an isolated host,
-  values 192, 193, 194 each **hung the GPU three times in a row** under a 12 s watchdog; only
-  values 2 and 3 give the correct `rsqrt(4) = 0.5`; 188 values silently return `0.0`.
-  **An emitter must never set byte+3 bit 7 of `fspecial`.** The whole `fspecial` arm was stopped
-  after the hangs, so all 11 of its fields keep their prior labels — reported `PARTIAL`.
+- ⛔ **`fspecial`'s OPERANDS ARE SWAPPED in older documentation — read this before emitting one.**
+  `db.json` used to say `dst` = byte+1's high nibble, `src` = byte+3, `src_ext` = byte+5. The
+  hardware says otherwise, and the failure is silent:
+
+  | byte | what it actually is | rule | evidence (G17P) |
+  |---|---|---|---|
+  | byte+1 high nibble | **inert** | — | 16/16 both runs |
+  | **byte+3** | **destination** register | `reg = v >> 1`, requires `(v & 0xFE) == 0` | 28/28 fit, 0 misfits |
+  | **byte+5** | **source** register | `reg = v >> 2`, requires `(v & 0xFC) == 0` | 60/60 fit, 0 misfits |
+
+  Both mask rules are the **unique** separators over an exhaustive search of all 256 candidate
+  masks. **An emitter following the old layout puts the destination in a byte that does nothing
+  and the source in the byte that redirects the destination — the program runs, faults nothing,
+  and silently writes the wrong register.** Established three ways, including **20/20 generated
+  `r_i = rsqrt(r_j)` encodings that Apple's compiler never emitted** (the old model scored 10 fail
+  + 10 unpredictable on the same bytes). `EXP-0161` (DEF-0161-1), re-derived independently from
+  raw and confirmed by `EXP-0165`.
+
+- ⛔ **`fspecial` destination register ≥ 96 faults or hangs the GPU.** `reg = byte+3 >> 1` maps
+  values 0..191 onto **r0..r95 — exactly the 96-entry GPR file** — so the safe rule is
+  *register < 96*, not the earlier "byte+3 bit 7 clear". Measured: 45 of 64 values in 192..255
+  give a genuine `ErrorHang`, 19 were swamped by neighbouring contexts' resets and never cleanly
+  observed, and **0 ever worked**. Earlier isolated-host runs saw 192/193/194 each hang three
+  times in a row under a 12 s watchdog. The same ≥96 boundary appears independently across seven
+  unrelated instructions (`iter.dst`, `iter_at.dst`, `frag_color_pack.dst`,
+  `simd_{ballot,reduce,shuffle}.dst`, `imageblock_store.src`), where `(v & 0xC0) == 0xC0` faults
+  and the same plus bit 1 **hangs** — so it is a property of the register file, not of `fspecial`.
+
+- ⛔ **`imad` has NO first operand in older documentation.** `db.json` modelled no `srcA` at all;
+  the byte it called `srcC_lo` (byte+6) is the **first multiplicand's register selector**,
+  `reg = (byte+6) >> 3`, reproduced in both seed sets and solved from scratch with both
+  multiplicands free (132 two-dimensional points, 0 unsolved). **An implementer following the old
+  descriptor cannot choose the first operand of an integer multiply.** Related: `imad.srcC_desc`
+  is not one field — bits 0,1 are a mode (`11` → reproducible fault), bit 2 is inert, and bits
+  3..7 select an addend **that is not in the instruction** (the recovered addends are the 16-bit
+  halves of the *carrier's own* float constants). `byte+5`'s role is unresolved and was never
+  swept — do not assume `(reg << 1) | size` there. `EXP-0160` (DEF-0160-6), confirmed by `EXP-0165`.
+
+- ⛔ **`op04_len8`'s declared 8-byte length is REFUTED on hardware — do not emit this descriptor.**
+  A register-witness probe measuring consumed length directly (2,304 measurements, both controls
+  passing, one proving it can detect a 6-byte length) shows all six patterns from our own G17P
+  compiles consume **twelve** bytes; the `0x04` leader's length is a joint function of `byte+1`
+  bit 7 and `byte+2`. The corrected rule was **not** applied to the decoder because it regresses
+  the corpus gate, so the conflict is unresolved and the descriptor carries an `EMITTABLE VETO`.
+  Emitting 8 bytes would desynchronise every instruction after it. `EXP-0157`.
 - **`falu_srcmod12b.srcB_neg` and `.mod_lo` are inert** at the operands tested, although the
   *same-named* fields on `falu2` are live. **Do not assume one operand model across the
   float-ALU families** — the same lesson EXP-0139 recorded for `iadd2.dst`.
