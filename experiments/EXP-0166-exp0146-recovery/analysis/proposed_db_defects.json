@@ -1,0 +1,662 @@
+{
+ "defects": [
+  {
+   "id": "DEF-0166-1",
+   "title": "53 db.json fields have bits that a nonzero `match` constant also sets \u2014 unfillable through the DB's own assembler",
+   "severity": "emitter-breaking + it silently under-covers sweeps",
+   "db_says": "`match` lists constant bits, `fields` lists fillable bits; the two are treated as disjoint by every consumer.",
+   "hardware_says": "not a hardware claim \u2014 this is an internal inconsistency in the descriptor, established from the recorded bytes of EXP-0146's own sweeps.",
+   "mechanism": "tools/agx-isa/isadb.py `assemble()` ORs the match constant, then ORs the field values: `v |= value << start` for match, then `v |= val << start` for each field. An OR can never CLEAR a bit, so wherever a field overlaps a match bit that is SET, that bit is stuck at 1 for every value an emitter (or a sweep) supplies.",
+   "how_established": "Static scan of the pinned db.json (all 53 cases listed below), plus three DEMONSTRATED instances recovered from EXP-0146's raw `bytes`: an arm that dispatched 256 values produced far fewer distinct encodings.",
+   "demonstrated_in_exp0146_raw": [
+    {
+     "arm": "irotate.b1@rot_imm",
+     "distinct_encodings": 128,
+     "values_dispatched": 256,
+     "match_overlap_mask": "0xfe00"
+    },
+    {
+     "arm": "irotate.b2@rot_imm",
+     "distinct_encodings": 32,
+     "values_dispatched": 256,
+     "match_overlap_mask": "0xfd0000"
+    },
+    {
+     "arm": "shift_amt_move.kind@rot_var",
+     "distinct_encodings": 64,
+     "values_dispatched": 256,
+     "match_overlap_mask": "0xf0000"
+    }
+   ],
+   "worked_example": {
+    "arm": "shift_amt_move.kind",
+    "db_match": "[16,4,12] pins byte+2's low nibble to 0xC",
+    "db_field": "kind = (start 16, width 8) \u2014 the WHOLE of byte+2",
+    "observed_bytes": {
+     "v=0": "0b010c05",
+     "v=1": "0b010d05",
+     "v=2": "0b010e05",
+     "v=3": "0b010f05",
+     "v=4": "0b010c05 (same as v=0)"
+    },
+    "consequence": "64 of 256 values reachable; EXP-0146's verdict file claims '256 values tested (full 8-bit dense)'."
+   },
+   "affects_committed_claims": [
+    "EXP-0146 `irotate.b1`: 128 of 256 encodings reachable, claimed dense.",
+    "EXP-0146 `irotate.b2`: 32 of 256 encodings reachable, claimed dense.",
+    "EXP-0146 `shift_amt_move.kind`: 64 of 256 encodings reachable, claimed dense.",
+    "NOT EXP-0154 for `irotate.b1`: its raw shows 256 distinct byte-strings, so its harness wrote bytes directly rather than through assemble(). Any experiment that used isadb.assemble() to build sweep cases should be re-checked the same way \u2014 count distinct `bytes` values, do not trust the dispatched-value count."
+   ],
+   "all_overlaps": [
+    {
+     "mnemonic": "b_alu14_prep2",
+     "field": "sel",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x1",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "coord_madf",
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x23",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "cvt_bf16",
+     "field": "src",
+     "start": 24,
+     "width": 8,
+     "forced_mask": "0x81",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "cvt_bf16",
+     "field": "fmt",
+     "start": 32,
+     "width": 8,
+     "forced_mask": "0x1",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "cvt_f2h_dst",
+     "field": "src",
+     "start": 24,
+     "width": 8,
+     "forced_mask": "0x80",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "falu2_ext",
+     "field": "opsel",
+     "start": 16,
+     "width": 3,
+     "forced_mask": "0x4",
+     "bits_unfillable": 1,
+     "reachable_values": 4,
+     "total_values": 8
+    },
+    {
+     "mnemonic": "falu2_srcmod10",
+     "field": "opsel",
+     "start": 16,
+     "width": 3,
+     "forced_mask": "0x4",
+     "bits_unfillable": 1,
+     "reachable_values": 4,
+     "total_values": 8
+    },
+    {
+     "mnemonic": "falu2_uni",
+     "field": "uni_mode",
+     "start": 39,
+     "width": 1,
+     "forced_mask": "0x1",
+     "bits_unfillable": 1,
+     "reachable_values": 1,
+     "total_values": 2
+    },
+    {
+     "mnemonic": "falu3",
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "falu3_ext",
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "falu3_srcmod12",
+     "field": "opsel",
+     "start": 16,
+     "width": 3,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 4,
+     "total_values": 8
+    },
+    {
+     "mnemonic": "fspecial_est",
+     "field": "subop",
+     "start": 24,
+     "width": 8,
+     "forced_mask": "0x9",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "funary",
+     "field": "op",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0xe",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "funary_imm",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0xf",
+     "bits_unfillable": 4,
+     "reachable_values": 16,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "h_alu_hi",
+     "field": "opsel",
+     "start": 16,
+     "width": 3,
+     "forced_mask": "0x4",
+     "bits_unfillable": 1,
+     "reachable_values": 4,
+     "total_values": 8
+    },
+    {
+     "mnemonic": "h_alu_hi",
+     "field": "opflags",
+     "start": 19,
+     "width": 5,
+     "forced_mask": "0x3",
+     "bits_unfillable": 2,
+     "reachable_values": 8,
+     "total_values": 32
+    },
+    {
+     "mnemonic": "h_alu_hi_ext",
+     "field": "opsel",
+     "start": 16,
+     "width": 3,
+     "forced_mask": "0x4",
+     "bits_unfillable": 1,
+     "reachable_values": 4,
+     "total_values": 8
+    },
+    {
+     "mnemonic": "h_alu_hi_ext",
+     "field": "opflags",
+     "start": 19,
+     "width": 5,
+     "forced_mask": "0x3",
+     "bits_unfillable": 2,
+     "reachable_values": 8,
+     "total_values": 32
+    },
+    {
+     "mnemonic": "h_coord_hi",
+     "field": "opsel",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x26",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "h_coord_hi_ext",
+     "field": "opsel",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x26",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "irotate",
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x1",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "irotate",
+     "field": "b2",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x54",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "iter",
+     "field": "grp",
+     "start": 0,
+     "width": 8,
+     "forced_mask": "0x2f",
+     "bits_unfillable": 5,
+     "reachable_values": 8,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "iter",
+     "field": "c7",
+     "start": 56,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "iter_at",
+     "field": "grp",
+     "start": 0,
+     "width": 8,
+     "forced_mask": "0x2f",
+     "bits_unfillable": 5,
+     "reachable_values": 8,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "link_save_restore",
+     "field": "marker",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x54",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "link_save_restore",
+     "field": "scope",
+     "start": 32,
+     "width": 8,
+     "forced_mask": "0x81",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h5",
+     "field": "b0",
+     "start": 0,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h5",
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x21",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h6",
+     "field": "b0",
+     "start": 0,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h6",
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x41",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h7",
+     "field": "b0",
+     "start": 0,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "operand_word_x2_h7",
+     "field": "b1",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x81",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "pack_convert",
+     "field": "fmt_class",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x56",
+     "bits_unfillable": 4,
+     "reachable_values": 16,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "packed_half2_hi",
+     "field": "opsel",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x24",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "pixel_order",
+     "field": "scope",
+     "start": 24,
+     "width": 8,
+     "forced_mask": "0x50",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "ray_move",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x81",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "ray_move_copy6",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x41",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "ray_move_zero6",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x40",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "ray_move_zinit",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x80",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "reg_move_cb",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0xb",
+     "bits_unfillable": 3,
+     "reachable_values": 32,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "rt_intersect",
+     "field": "subop",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0xea",
+     "bits_unfillable": 5,
+     "reachable_values": 8,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "rt_transform_test",
+     "field": "marker",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x27",
+     "bits_unfillable": 4,
+     "reachable_values": 16,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "rt_transform_test",
+     "field": "subop",
+     "start": 24,
+     "width": 8,
+     "forced_mask": "0x81",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "rt_transform_test",
+     "field": "cmpmode",
+     "start": 32,
+     "width": 8,
+     "forced_mask": "0x22",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "rtq_state_move",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x9",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "shift_amt_move",
+     "field": "kind",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0xc",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "sr_read_wide",
+     "field": "width",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "tex_coord_setup",
+     "field": "subop",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x2f",
+     "bits_unfillable": 5,
+     "reachable_values": 8,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "tex_sample",
+     "field": "kind",
+     "start": 0,
+     "width": 4,
+     "forced_mask": "0x5",
+     "bits_unfillable": 2,
+     "reachable_values": 4,
+     "total_values": 16
+    },
+    {
+     "mnemonic": "tg_atomic_prep10",
+     "field": "form",
+     "start": 16,
+     "width": 8,
+     "forced_mask": "0x6",
+     "bits_unfillable": 2,
+     "reachable_values": 64,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "unpack_convert",
+     "field": "src_class",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x4",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    },
+    {
+     "mnemonic": "vary_store",
+     "field": "hint1",
+     "start": 8,
+     "width": 8,
+     "forced_mask": "0x2",
+     "bits_unfillable": 1,
+     "reachable_values": 128,
+     "total_values": 256
+    }
+   ],
+   "proposed_fix": "For each row: either narrow the field to the bits the match does not pin, or drop the redundant match entry. Both are DECODE changes and need the corpus A/B. Independently, `assemble()` should raise when a supplied field value's bits are already pinned by `match`, so this class of under-coverage becomes an error rather than a silent no-op.",
+   "evidence": [
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl",
+    "experiments/EXP-0146-m4-emit-int-misc/raw/run03/sweep.jsonl",
+    "tools/agx-isa/isadb.py::assemble",
+    "experiments/EXP-0166-exp0146-recovery/analysis/derived_stats.json"
+   ],
+   "target": "not target-specific (descriptor/tooling)"
+  },
+  {
+   "id": "DEF-0166-2",
+   "title": "iadd2.srcB_ext: EXP-0146's M4 raw independently reproduces DEF-0154-4 \u2014 the 'forbidden' bits are the srcA register selector",
+   "severity": "emitter-breaking (already recorded from G17P; this is the M4 half)",
+   "db_says": "srcB_ext is typed `mod` (start 49, width 7).",
+   "hardware_says": "bits 2..6 select the srcA register in the reg<<2 packing; the low two bits are don't-care. 32/32 groups of four consecutive values collapse to exactly ONE cross-run-agreeing observable.",
+   "how_established": "Group the 128 cross-run-agreeing srcB_ext values by v>>2 and ask whether each group of 4 (the two free low bits) collapses to ONE observable. If bits 2..6 select a register, every group must be internally identical.",
+   "resolves": "H3/F3 of this experiment. It also shows the refutation was already latent in EXP-0146's own capture a day before EXP-0154 ran on G17P \u2014 the M4 data never supported the modifier reading.",
+   "target": "M4/G16G (reproduces EXP-0154's G17P result)",
+   "evidence": [
+    "experiments/EXP-0166-exp0146-recovery/analysis/h3_srcB_ext.json"
+   ]
+  },
+  {
+   "id": "DEF-0166-3",
+   "title": "mov_zext16: EXP-0146's own M4 data shows its zext16 carrier is DEAD for this instruction \u2014 independent corroboration of DEF-0161-2",
+   "severity": "corroboration of an existing emitter-breaking defect",
+   "db_says": "(post-repair) src_reg = byte0's high nibble; src_flag = byte+1, inert.",
+   "hardware_says": "In EXP-0146's `zext16` carrier on M4, decomposing its own sweeps (A5) gives: byte0 high nibble (the repaired `src_reg`, 16/16 sub-values) INERT; byte+1 (129 of 256 encodings reached) INERT; byte+3 bits 3-7 (the repaired `extend`, 32/32) INERT. Only byte+2 (`subform`) moves (154 of 256). So the narrow itself is unobservable in that carrier while a wrong sub-form can still corrupt it.",
+   "how_established": "A5 decomposition of EXP-0146 raw run01+run03; no new device run.",
+   "resolves": "EXP-0161 diagnosed EXP-0146's inertness as a carrier artefact from G17P (its byte0:=0x00 falsifier scores `ok` there). This confirms the same thing ON M4, from EXP-0146's own bytes: the register nibble is inert too, which a live carrier could not produce.",
+   "consequence": "No mov_zext16 row from EXP-0146 should merge, in either the old or the repaired field model. EXP-0165 owns the descriptor.",
+   "target": "M4/G16G",
+   "evidence": [
+    "experiments/EXP-0166-exp0146-recovery/analysis/decomposed_fields.json"
+   ]
+  },
+  {
+   "id": "DEF-0166-4",
+   "title": "n2_op10.immword and n2_op8.body each span bytes with different roles \u2014 one raw field modelling several",
+   "severity": "mis-modelled field boundary (FIELD-SWEEP-PROTOCOL \u00a76)",
+   "db_says": "n2_op10.immword = a single 48-bit `imm`; n2_op8.body = a single 40-bit `raw`.",
+   "hardware_says": "Per-byte, on M4: n2_op10 byte+5 moves the observable for 242 of 256 values while byte+9 moves it for ZERO of 256 (219 reproduce, 37 unstable) \u2014 a dead byte inside a field typed `imm`. n2_op8 byte+3/+5/+6/+7 are stable-live while byte+4 is unstable (12 cross-run disagreements).",
+   "how_established": "byte-wise sweeps in EXP-0146 run01+run03, re-adjudicated here.",
+   "consequence": "Both composites are WITHHELD by this experiment (A1). A descriptor split would let the live bytes reach emitter grade without dragging a dead byte with them.",
+   "clean_room_note": "Only per-byte accept/reject envelopes are recorded. The SFU range-reduction / marshalling coefficient SEQUENCE is deliberately NOT reconstructed (CLAUDE.md forbidden-technique 5).",
+   "target": "M4/G16G",
+   "evidence": [
+    "experiments/EXP-0166-exp0146-recovery/analysis/derived_stats.json"
+   ]
+  },
+  {
+   "id": "DEF-0166-5",
+   "title": "ilogic.outmod: M4 and G17P disagree on whether the field is live",
+   "severity": "target divergence \u2014 not yet resolved",
+   "db_says": "outmod (byte+7) bit7 = an output/store flag.",
+   "hardware_says": "M4 (EXP-0146, carrier k_logic_and, dense 0..255, both gated runs agreeing on every value): 128 values move the observable \u2014 every value with bit 7 CLEAR silently zeroes \u2014 and 128 reproduce. G17P (EXP-0154, carrier SYNTH+LIFTED:k_and@ilogic[32:42], 253 sampled): 'inert across the whole encodable range', 253/253 ok.",
+   "likeliest_explanation": "carrier, not silicon: EXP-0154 judges by a 16-register dump, where a store-enable bit is invisible; EXP-0146's carrier stores the result, so the same bit gates the observable. NOT ESTABLISHED \u2014 it is a hypothesis, and the two records contradict each other as written.",
+   "consequence": "The EXP-0146 row is WITHHELD under G3 rather than merged. Whichever way it resolves, one of the two committed records needs correcting, and an emitter reading EXP-0154's 'inert' would drop the store.",
+   "recommended_test": "Re-run the G17P ilogic arm with a STORE-consumed observable (not a register dump) and sweep byte+7 densely. One arm settles it.",
+   "target": "M4/G16G vs G17P",
+   "evidence": [
+    "experiments/EXP-0146-m4-emit-int-misc/analysis/field_verdicts.json",
+    "experiments/EXP-0154-g17p-emit-alu/analysis/field_verdicts.json",
+    "experiments/EXP-0166-exp0146-recovery/analysis/derived_stats.json"
+   ]
+  },
+  {
+   "id": "DEF-0166-6",
+   "title": "sfu_marker.b0_hi is now hardware-run in validation.json, but its M4 half is UNSTABLE \u2014 the G17P half is what carries it",
+   "severity": "evidence-strength caution on an already-merged row",
+   "status": "The structural blocker is GONE: EXP-0165 landed the C7b relaxation while this experiment was running, so `sfu_marker`'s match is now [0,3,6]+[8,2,2] and it has two real fields, `b0_hi` (3,5) and `b1_hi` (10,6). Both were merged as hardware-run / G16G+G17P citing EXP-0146 + EXP-0157 + EXP-0165, and `sfu_marker` is now counted emittable. That vindicates the recovery direction \u2014 this defect entry is the caveat, not an objection.",
+   "the_caution": "Re-adjudicated under this experiment's thresholds, EXP-0146's two M4 arms are NOT equally strong. byte+1 -> `b1_hi`: N=64 decomposed sub-values, D=0, accept-set exactly the 32 values with the field's bit 2 clear = the published (v & 0x13) == 0x02 rule \u2014 clean, stable-live. byte+0 -> `b0_hi`: N=32, D=3 (agreement 0.906), and the underlying byte probe has 19 cross-run disagreements, every one a fault <-> silent-zero flip. Under FIELD-SWEEP-PROTOCOL \u00a77 those are contamination-shaped ('contamination can destroy an observation but never fabricate a coherent one'), but they are still 19 unresolved flips and the arm does not clear the 99% bar ON M4.",
+   "consequence": "`b0_hi`'s hardware-run label should rest on EXP-0157's three G17P carriers, which reproduced the rule exactly; the M4 citation is corroboration, not an independent confirmation of comparable strength. This experiment offers NO sfu_marker row (both are G2-redundant against the already-merged, cross-target versions).",
+   "target": "M4/G16G (this caution) vs G16G+G17P (the merged row)",
+   "evidence": [
+    "experiments/EXP-0166-exp0146-recovery/analysis/derived_stats.json",
+    "experiments/EXP-0166-exp0146-recovery/analysis/decomposed_fields.json"
+   ]
+  }
+ ]
+}

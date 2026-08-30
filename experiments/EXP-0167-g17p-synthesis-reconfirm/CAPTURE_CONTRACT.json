@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "experiment": "EXP-0167-g17p-synthesis-reconfirm",
+  "frozen_utc": "2026-08-30T07:52:00Z",
+  "question": "Re-measured on an ISOLATED G17P, does EXP-0158's 233-of-237 zero-copied synthesis result survive, and does its pre-registered cross-run byte-identity gate pass?",
+  "target": {
+    "name": "A18 Pro / G17P",
+    "host": "users-MacBook-Neo.local",
+    "ip_at_freeze": "192.168.10.243",
+    "soc": "T8140",
+    "accelerator": "AGXAcceleratorG17P",
+    "arch": "applegpu_g17p",
+    "gpu_cores": 5,
+    "os": "macOS 26.6",
+    "hw_model": "Mac17,5"
+  },
+  "repo_revision_at_freeze": "47fd53f6afd3a2a51c5dbad1500e39cb8822b904",
+  "repo_revision_is_informational_only": true,
+  "repo_dirty_files_at_freeze": 8,
+  "gate_on_head": false,
+  "gate_on_authored_blob_hashes": true,
+
+  "independent_variable": "concurrent GPU load on the target (contended in EXP-0158, isolated here)",
+  "controlled_variables": [
+    "the 289 generated programs, proven byte-identical to EXP-0158's",
+    "synth.py / generator.py / families.py / cf.py / casematrix.py / frozen_pilot.py",
+    "the pinned tools/agx-isa snapshot (work/isadb_pinned)",
+    "kernels/carrier_dag.metal, kernels/carrier_cf.metal",
+    "case order, poisoned 0xDEADBEEF read-back buffer, integrity sentinel",
+    "one fresh process per case, 5-retry InnocentVictim policy",
+    "cascade witness every 40 cases, majority-of-3 revalidation pass",
+    "target machine, OS, toolchain"
+  ],
+
+  "corpus_identity_proof": {
+    "n_cases": 289,
+    "sha256_of_concatenated_program_hex": "f08d598832ea7bbb5ad90f32a9c52cd6cd9402d3bf9cf52ac6dc047f259e4e87",
+    "exp0158_same_value": true,
+    "checked_before_freeze": true
+  },
+
+  "metrics": {
+    "M1_STRICT_PAIR": {
+      "definition": "cases with zero COPIED provenance fields and expect_match=true whose match==true in BOTH gated runs, no revalidation credit",
+      "denominator": 237,
+      "exp0158_value": 96
+    },
+    "M2_MATCHED_EVERYWHERE": {
+      "definition": "analysis/summarize.py HEADLINE_N_zero_copied_and_correct (EXP-0158's published strict figure)",
+      "denominator": 237,
+      "exp0158_value": 149
+    },
+    "M3_ATTRIBUTABLE": {
+      "definition": "analysis/summarize.py HEADLINE_ATTRIBUTABLE_N: produced its exact oracle at least once and NEVER a wrong value / silent zero / no-write",
+      "denominator": 237,
+      "exp0158_value": 233
+    },
+    "M4_CROSS_RUN_GATE": {
+      "definition": "verify.py --captured: 01_results.jsonl byte-identical across the two gated runs",
+      "exp0158_value": "FAIL"
+    }
+  },
+
+  "committed_predictions": {
+    "H1_M1_at_least": 225,
+    "H2_M2_at_least": 229,
+    "H3_M3_range_inclusive": [229, 237],
+    "H4_M4": "PASS",
+    "H5_adversarials_still_fail": 28
+  },
+
+  "pre_committed_conclusions": {
+    "if_M3_below_225": "EXP-0158's 233 was contamination-inflated; this experiment's number becomes the defensible figure for DRV-ISA-01 / P0.6. Reported as the headline. Every program whose verdict changed is named individually. No post-hoc metric may be introduced to recover a larger figure.",
+    "if_M1_below_200_with_quiet_sampler": "Contention was NOT the explanation for EXP-0158's failing gate; the nondeterminism is a property of this corpus or harness. Reported as the headline, evidenced by fault-class strings plus the sampler record.",
+    "if_sampler_max_foreign_nonzero": "The isolation claim is WITHDRAWN and the run is reported as a second contaminated run, worth nothing."
+  },
+
+  "watch_list_named_before_run": {
+    "no_ok_in_either_exp0158_gated_run_and_no_wrong_value": [
+      "dag_009_n11", "dag_010_n12", "dag_012_n14",
+      "dagi_016_n20", "dagi_019_n26", "dagi_023_n35",
+      "regb_R000", "regb_R031", "regb_R047", "regb_R063",
+      "regb_R063_poison_r63", "regb_R005_extlsb1",
+      "inl_k01", "inl_k08", "inl_k12"
+    ],
+    "known_real_failures": [
+      "iaddsyn_A33_B44_N13_D9_sub", "iaddsyn_A127_B1_N15_D10_add",
+      "iaddsyn_A11_B22_N1_D95_add", "iaddsyn_A7_B120_N4_D47_add"
+    ],
+    "singled_out": {
+      "dag_040_n20": "ok in EXP-0158 run03, victim in run04, fault 5/5 in its witness-gated reconfirm; counted inside the 233 on one ok"
+    }
+  },
+
+  "isolation": {
+    "lock_taken": false,
+    "reason_no_lock": "~/agxre/gpulease.sh is a neutralised pass-through shim as of 2026-08-30 and takes no lock; EXP-0158's own run03/run04 went through the same shim. Orchestrator decision 2026-08-30: do not build a new lock.",
+    "mechanism": "orchestrator quiesced the other device agents (EXP-0163, EXP-0165, EXP-0166); verified empirically by this experiment's own sampler",
+    "sampler": {
+      "script": "harness/gpuwatch.py",
+      "interval_seconds": 2.0,
+      "output": "raw/isolation/*.jsonl",
+      "append_only": true,
+      "matches": "agxrun|agxrun_persist|shdump|agxtest|agxparse|persistrun|MTLReplayer, plus any python process whose args name an EXP-NNNN path",
+      "classification": "mine (args contain EXP-0167) vs FOREIGN",
+      "mtlcompiler_service": "counted separately with %cpu; idle XPC instances are normal and are NOT counted as contention",
+      "also_records": "system load average",
+      "precondition": "a >= 3-minute pre-window baseline with n_foreign == 0 before any device operation"
+    }
+  },
+
+  "run_sequence": [
+    "harness/gpuwatch.py (prewindow, >= 3 min, n_foreign must be 0)",
+    "verify.py --selftest",
+    "verify.py --seqtest",
+    "verify.py --preflight",
+    "baseline.py",
+    "pre-capture smoke (non-recorded, outside raw/)",
+    "run.py --run-id g17p-20260830-iso01 --execute",
+    "verify.py --between-runs",
+    "run.py --run-id g17p-20260830-iso02 --execute",
+    "verify.py --captured",
+    "harness/reconfirm.py --reps 5 (scope fixed in PRE_REGISTRATION section 6.1)",
+    "analysis/summarize.py --write",
+    "analysis/compare.py"
+  ],
+
+  "run_ids": {
+    "gated_pair": ["g17p-20260830-iso01", "g17p-20260830-iso02"],
+    "append_only": true,
+    "never_reused": true,
+    "burned_ids_policy": "a defective capture is RETAINED and flagged; a replacement takes a NEW id"
+  },
+
+  "raw_schema": {
+    "raw/<run-id>/00_env.json": "target identity, authored/kernel/doc/pinned hashes, frozen pilot id, boundary statement",
+    "raw/<run-id>/01_results.jsonl": "one gated record per case: name, group, carrier, oracle, oracle_bits, expect_match, notes, prov, status, fault_class, pipeline_source, out_hex, observed, word_outcomes, outcome, sentinel, match, victim_retries",
+    "raw/<run-id>/01_timing.jsonl": "per-case duration and subprocess stdio (NOT gated for byte-identity)",
+    "raw/<run-id>/02_dispatch.json": "run-level counts and artifact hashes",
+    "raw/<run-id>/03_cascade.jsonl": "witness re-run every 40 cases",
+    "raw/<run-id>/04_revalidate.jsonl": "majority-of-3 re-runs of every fault/hang/victim/invalid_run/missing case",
+    "raw/isolation/*.jsonl": "concurrency samples, one JSON object per 2 s",
+    "work/reconfirm/*.jsonl": "witness-gated 5-repeat re-confirmation"
+  },
+
+  "timeouts_seconds": {
+    "case": 60,
+    "case_exec_inner": 45,
+    "agxtest_run_timeout": 20,
+    "host_build": 300,
+    "gate": 900,
+    "smoke": 90,
+    "env_command": 10,
+    "sampler_max": 14400
+  },
+
+  "stop_conditions": [
+    "any FOREIGN harness process sampled during a gated run -> retain the run, flag it contaminated, do not use it for M1-M4, replacement takes a NEW run id",
+    "two genuine hangs outside the known-fault cases -> stop that arm, report PARTIAL",
+    "target stops answering -> STOP and report BLOCKED; no macvdmtool, no scanning",
+    "pre-capture smoke defect -> pre-capture stop, raw/ never created"
+  ],
+
+  "known_confounders": [
+    "C1 self-inflicted contamination: our own deliberate fault cases (regb_R126_faultarm, regb_R127_faultarm, adv_iadd_dst_reg96, iaddsyn r0) can reset the device and make OUR OWN next case an InnocentVictim, breaking byte-identity even under perfect isolation. Leading alternative explanation if H4 fails.",
+    "C2 a neighbouring context's hang: EXP-0163 hit a real kIOGPUCommandBufferCallbackErrorHang at ~00:42 from `iter_at` grp=0x50, ~7 hours before this window.",
+    "C3 oracle-value ambiguity: classify_word tests got==expected before the zero test, so a case whose oracle is exactly 0.0 cannot separate 'computed 0' from 'silently zeroed'. 3 of the 237 have an entirely-zero oracle. Inherited from EXP-0158 by design.",
+    "C4 thermal/DVFS state: not controlled, recorded only via load average."
+  ],
+
+  "out_of_scope": [
+    "closing the 24 donor-dependent cases (12 CF, 12 immediate-mode iadd2) -- separate optional arm only, never traded against the confirmation",
+    "revisiting EXP-0158's ld_format / iadd2.srcA / falu2.mod_hi corrections",
+    "editing docs/, PROVENANCE.md, tools/, or anything under EXP-0158-*",
+    "any git commit"
+  ],
+
+  "clean_room": {
+    "provenance": "OWN-SHADER + HW-PROBE",
+    "apple_binary_introspection": "NONE",
+    "boundary": "public Metal API only; runtime MSL compile of our own carrier kernels; binary-archive splice of our own GENERATED AGX programs; owned shared buffers; every case a fresh process; /bin/ps and sysctl for machine state; no Apple binary, archive, BO, or command-stream inspection beyond our own compiled/generated bytes"
+  }
+}

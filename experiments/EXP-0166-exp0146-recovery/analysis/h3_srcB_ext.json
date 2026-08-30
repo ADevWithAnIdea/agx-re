@@ -1,0 +1,430 @@
+{
+ "consequence": "EXP-0146's published rule `(v & 0x7C) == 0x00` is a carrier artefact meaning 'srcA must be r0'. Shipped as a modifier constraint it would tell an emitter that bits 2..6 must be zero, when those bits are how a register is chosen. The row is VETOED from merge (G3).",
+ "distinct_observables_across_groups": 6,
+ "falsifier_F3": "did NOT fire (F3 would have required the excluded values to be inexplicable as a different source-register selection)",
+ "groups_of_four": 32,
+ "groups_with_a_single_observable": 32,
+ "hypothesis": "H3 \u2014 iadd2.srcB_ext bits 2..6 are the srcA REGISTER selector (reg<<2), not a modifier constraint (v & 0x7C) == 0x00",
+ "method": "Group the 128 cross-run-agreeing srcB_ext values by v>>2 and ask whether each group of 4 (the two free low bits) collapses to ONE observable. If bits 2..6 select a register, every group must be internally identical.",
+ "observables_by_group": {
+  "0": {
+   "outcome": "ok",
+   "words": [
+    "0x12345668acf1357",
+    "0xffffffffe0000000",
+    "0xffffffff01234567",
+    "0xfffffffffffffffe",
+    "0xfffffffeffffffff",
+    "0xffffffff00000000",
+    "0x0",
+    "0xcc7968774399779d"
+   ]
+  },
+  "1": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x7777777889abcdef",
+    "0x10000001effffffe",
+    "0xedcba98b12345674",
+    "0xffffffff",
+    "0x8000000b7ffffff4",
+    "0x8000000c7ffffff3",
+    "0x0",
+    "0x13af0431b8ca6446"
+   ]
+  },
+  "10": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "11": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "12": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "13": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "14": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "15": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "16": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "17": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "18": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "19": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "2": {
+   "outcome": "silent_zero",
+   "words": [
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0"
+   ]
+  },
+  "20": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "21": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "22": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "23": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "24": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "25": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "26": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "27": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "28": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "29": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "3": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456788888888",
+    "0x1efffffff",
+    "0x312345675",
+    "0xffffffff00000000",
+    "0xa7ffffff5",
+    "0xc7ffffff4",
+    "0x0",
+    "0xdeadbeeeec50fbcf"
+   ]
+  },
+  "30": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "31": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "4": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0"
+   ]
+  },
+  "5": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0",
+    "0x0"
+   ]
+  },
+  "6": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "7": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "8": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  },
+  "9": {
+   "outcome": "wrong_value",
+   "words": [
+    "0x123456789abcdef",
+    "0x1f0000000",
+    "0x312345678",
+    "0xffffffffffffffff",
+    "0xa7fffffff",
+    "0xc80000000",
+    "0x0",
+    "0xdeadbeefcafebabe"
+   ]
+  }
+ },
+ "result": "CONFIRMED \u2014 32/32 groups collapse to exactly one observable, so the low two bits of srcB_ext are don't-care and bits 2..6 are the discriminator, exactly the reg<<2 packing EXP-0154 proved independently on G17P (DEF-0154-4). Only 6 distinct observables appear across the 32 indices and groups 6..31 are all identical, so the carrier only distinguishes the handful of registers it actually loaded \u2014 the packing is established, the per-register map is NOT.",
+ "target": "M4/G16G (EXP-0146 raw run01+run03)",
+ "values_cross_run_agreeing": 128
+}

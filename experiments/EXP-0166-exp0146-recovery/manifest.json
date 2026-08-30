@@ -1,0 +1,96 @@
+{
+ "artifacts_sha256": {
+  "PRE_REGISTRATION.md": "4e53cc88f80afe3edfe106fb68c5a14a834ec6cf40a1166e4bac707986493e73",
+  "PROGRESS.md": "72485406e7f3b34d861989342614ff0c371b26ed3f5f9e5cb9d2bfe1494eaeb2",
+  "README.md": "c6a94316f1fffeb7fa3232c03a6c429f9925df89599f26f2c87adbaf56ff5e29",
+  "RESULTS.md": "b948fbd620aef65eb6773fab87dd78b5926ddf1bfd57b4cee7be9dc1f866c076",
+  "analysis/_stage2_debug.json": "0a2053a0ade1b08a6f4e1ecd3d663176261f0f19ecb3453c6311d57ce33884a2",
+  "analysis/adjudicate.py": "ea88db496d1e9c96077c19de42feaafad410487935141257c364269c62ece091",
+  "analysis/decomposed_fields.json": "00bc122c784c606d290c3b5eb3b9dc199d490d0b18f131593400fbd250548262",
+  "analysis/derived_stats.json": "180ef134bb00df5d37e3b5fe14dcf55f1722a5c89d8d2331a8730a560c0421bc",
+  "analysis/emit_deliverables.py": "a4f187f9a59d380f1e2f02eaa725e24bb57a2637a54e01f4262b2786b3eefff6",
+  "analysis/exp0146_disposition.json": "60496cda3f546555d6a401477b86a59cba179bd0d7dc5d6d04342c488d72b930",
+  "analysis/field_verdicts.json": "a012b9f46c4493e968fe4135c3bb711b263b74bc587be7275d511225605dc16e",
+  "analysis/h3_srcB_ext.json": "8259ebf8c3653a5ffee5eac02c427caca73b12549963c3be1bba550638adb211",
+  "analysis/proposed_db_defects.json": "abb41d7b9a114b63118f5784db0b91acd6ccfacd2d228dc9c069817375834d09",
+  "analysis/verdicts.py": "26a0e36326482f4e6cf3396ca1b53091fdf7e7d1b9ba09c3cc99aa57faf823d7",
+  "analysis/withheld.json": "c72212b293c08b4864da7d7b9841caaf1ea0554af98804d25c695ee43363e5e2",
+  "raw/README.md": "e25d955f19fae2f48a22ec5358adc3376eb14a71cd57c24fe6d14e57511220ef",
+  "work/db_snapshot.json": "addf5edaf29cc218954af6fbdc277a4c0dd827267c177bbd8af6a57e90f71b8f",
+  "work/validation_snapshot.json": "7a9e43524a19ec9c86c2a79124a7ad5811febdc73748c75d34d410cc7f3be339"
+ },
+ "clean_room": {
+  "apple_binary_introspection": "NONE",
+  "committed": false,
+  "files_written_outside_this_directory": "NONE",
+  "new_machine_code_inspected": "NONE",
+  "provenance": "OWN-SHADER + HW-PROBE (re-analysis of committed raw evidence only)"
+ },
+ "commands": [
+  "python3 analysis/adjudicate.py",
+  "python3 analysis/verdicts.py",
+  "python3 analysis/emit_deliverables.py",
+  "python3 ../../work/merge_verdicts.py --dry-run analysis/field_verdicts.json"
+ ],
+ "date": "2026-08-30",
+ "device_arm": "pre-registered as CONDITIONAL in PRE_REGISTRATION.md \u00a76; NOT RUN (coordinator hold for EXP-0167's quiet window; and FIELD-SWEEP-PROTOCOL \u00a77 records that a busy-machine re-run manufactures faults)",
+ "environment": {
+  "host": "repo host (Mac Mini / M4) \u2014 analysis only",
+  "no_gpu_dispatch": true,
+  "python": "Python 3.14.6"
+ },
+ "experiment": "EXP-0166-exp0146-recovery",
+ "frozen_inputs_sha256": {
+  "EXP-0146-m4-emit-int-misc/analysis/field_verdicts.json": "5dff397b31146a6e9ea944eb59ae8f47d3253ac06e16f9a9a9f5fe04267cb825",
+  "EXP-0146-m4-emit-int-misc/harness/arms.py": "2a85a497426039a632c22544dfeeb5ea3389ca5b86bc8ea37f597e3dd38bbc27",
+  "EXP-0146-m4-emit-int-misc/raw/run01/sweep.jsonl": "a55a574bdc4ec51f3c455c0b820bf807ff94ea7fd155c65a8e329061415f98f3",
+  "EXP-0146-m4-emit-int-misc/raw/run02/sweep.jsonl": "99529b1445cceb5be68fb704beb2e1f0749dfec8bbcf37bb14e7dcf25a49d742",
+  "EXP-0146-m4-emit-int-misc/raw/run03/sweep.jsonl": "47357d772da1e407ababff2b919128f3a13f9a5683aba6769683ead77b012e2a",
+  "EXP-0146-m4-emit-int-misc/raw/run04/sweep.jsonl": "c72794bbcf357c20ae29e4a7dcf6237d45182559580aa4bd4e8d67925f46f0c8",
+  "EXP-0146-m4-emit-int-misc/raw/run05/sweep.jsonl": "ce0a392a05d268bf1c0427b26d8dfaaea2b00cca897b4f9a0201678263f1c315",
+  "EXP-0146-m4-emit-int-misc/raw/run06/sweep.jsonl": "a1af2de9ddf7e22056cdffa6b1b7b2b54e9204453a7f3d3caf0bef75dae99d62",
+  "EXP-0146-m4-emit-int-misc/raw/trial00/sweep.jsonl": "fec9d594f605a227fecce32acad958432855dc281c36d7ede076f65223a49c85"
+ },
+ "git_revision_at_prereg": "b7dedbf0",
+ "git_revision_at_report": "4d84e417798b24c79d123a5ecf18a228ce3d372e",
+ "git_worktree_dirty": true,
+ "kind": "offline re-analysis \u2014 NO device was dispatched to",
+ "results_summary": {
+  "arms_whose_verdict_changed_under_amendment_A3": 12,
+  "dry_run_merge": {
+   "applied": 12,
+   "emittable_instructions": "44 -> 44",
+   "emitter_grade_fields": "605 -> 617",
+   "problems": 0,
+   "skipped": 0
+  },
+  "flaked_arm_baselines_found": 5,
+  "keys_naming_a_raw_byte_probe_not_a_db_field": 27,
+  "merge_ready_rows": 12,
+  "original_exp0146_verdict_keys": 94,
+  "proposed_db_defects": 6,
+  "withheld_by_reason": {
+   "G2 redundant": 11,
+   "G3 later-experiment veto": 23,
+   "inert on exactly one carrier": 7,
+   "unstable across the two gated runs": 12
+  },
+  "withheld_keys": 53
+ },
+ "target_of_evidence_adjudicated": "M4 / G16G (EXP-0146's only target)",
+ "target_of_this_experiment": "none (no hardware run)",
+ "title": "Recovering EXP-0146's 94 orphaned field verdicts by re-derivation from its own raw",
+ "tool_snapshots_pinned_in_work": {
+  "note": "tools/agx-isa/db.json changed THREE times during this experiment (EXP-0165 owns it). The adjudication runs against these pinned snapshots; adjudicate.py re-hashes the live files on every run and prints an INPUT DRIFT block rather than proceeding silently.",
+  "work/db_snapshot.json": "addf5edaf29cc218954af6fbdc277a4c0dd827267c177bbd8af6a57e90f71b8f",
+  "work/validation_snapshot.json": "7a9e43524a19ec9c86c2a79124a7ad5811febdc73748c75d34d410cc7f3be339"
+ },
+ "tool_state_sha256_at_report": {
+  "docs/evidence-classification.md": "799b487a3c377aa0e67e0302ce861fb9c20426a92f31b745ee65ca46c7019ceb",
+  "experiments/FIELD-SWEEP-PROTOCOL.md": "b2eacf61cb6235bc7c82155a555a879455bc23f55115c5a07b1fa40f68b02b79",
+  "tools/agx-isa/db.json": "07ad894d3e7041eaa35692489e90df58ed0b623b4de9378a9d8ea5ca104646d0",
+  "tools/agx-isa/isadb.py": "c3defa3e2c71a6d9b6f09cc098b02b876c60953e7369731ee74de6e26cc04c05",
+  "tools/agx-isa/validation.json": "7f3b70ab605002a763e98a3f8f5d61e25f8a6b380d13b658723a8d1d2be8cc42",
+  "work/merge_verdicts.py": "abdfc89d2e3b04c1c3380973013884490741a2b6a16ef74eb28729dcb941c762"
+ }
+}

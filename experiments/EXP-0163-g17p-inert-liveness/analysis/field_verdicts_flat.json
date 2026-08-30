@@ -1,0 +1,4642 @@
+{
+ "_meta": {
+  "arms_without_detection_power": [
+   "iter@vmany/fragment#0"
+  ],
+  "detection_gate": "a field's verdict counts only arms whose detection profile showed a status-OK, same-mnemonic control moving the observation; recomputed from raw, not from the run manifest",
+  "experiment": "EXP-0163",
+  "label_policy": "(stated so a reviewer can disagree with it explicitly):\n  LIVE               -> `hardware-run`.  The full 2^w range executed on real\n                        hardware; the value->behaviour partition is exact and\n                        reproduced across runs.  An emitter can choose the\n                        value and get documented behaviour, which is what\n                        emitter-grade means.\n  INERT-ROBUST       -> `single-template-inference`.  NOT `hardware-run`.\n                        `hardware-run` is one of the two labels\n                        validate_labels.py counts as EMITTER-GRADE, and\n                        emitter-grade asserts that an implementer can CHOOSE the\n                        field's value.  For these eleven our own\n                        `emitter_guidance` says the opposite -- emit the\n                        COMPILER-OBSERVED value -- which is a dependency on\n                        Apple's template and is exactly what Definition-of-Done\n                        rule 1 forbids (\"value generated, not merely decoded\n                        from a captured template\").  A negative result must not\n                        be able to inflate the emittable count.\n                        `single-template-inference` states the emitter's real\n                        position: we know the value that works because the\n                        compiler used it, we have hardware evidence the field is\n                        inert across a stated envelope, and we cannot say what\n                        it controls.\n                        THE MEASUREMENT IS NOT DOWNGRADED, only the claim about\n                        what an emitter may do with it: the full strength of the\n                        negative lives in `note`, `range`, `inert_arms`\n                        (including `proven_live_controls`) and\n                        `hardware_evidence` below.\n  STILL-UNDERPOWERED -> `untested`.  FIELD-SWEEP-PROTOCOL sec.5: \"if a sweep is\n                        inconclusive ... do not round up.\"  The cases are in\n                        raw/ and are described, but the field is NOT promoted.",
+  "question": "whether the 22 fields EXP-0155 never observed to move are don't-cares or were merely unexercised",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "target": "G17P (Apple A18 Pro, applegpu_g17p)"
+ },
+ "db_defects": {
+  "frag_color_store.byte+1 == 0x86 is not decoded": {
+   "evidence": "raw/prefreeze/census_run3.json -> texcube.stages.fragment",
+   "status": "REPORTED, NOT SWEPT -- outside this experiment's frozen arm list",
+   "structure": "0x16 = 0x06|0x10 is already documented as the first-store-after-tile-setup marker; 0x86 = 0x06|0x80 is a THIRD variant bit in the same byte, role unknown.",
+   "what": "db.json matches frag_color_store on byte+1 == 0x06 exactly and imageblock_store on 0x16.  Carrier `texcube` (four texture samples then a float4 return into an RGBA32Float attachment) emits `e7 86 54 00 00 00 01 2e 00 00 00 00 07 02` -- byte-for-byte a single-RT colour store in its first twelve bytes (store_mode 0x54, mask 0x01, fmt 0x2e = RGBA32Float) but with byte+1 = 0x86.  db.json falls through and decodes it as a 14-byte COMPUTE device_store, which is impossible: that fragment program has no writable device buffer, and the op is preceded by the ordinary 0x87 frag_tile_setup store bracket.",
+   "why_it_matters": "every frag_color_store occurrence census -- EXP-0155's and this one's -- silently omits the 0x86 form, so any claim of the shape 'frag_color_store always has X' is unquantified over it."
+  },
+  "simd_shuffle rotate-form length: CHECKED, NO DEFECT FOUND": {
+   "evidence": "raw/prefreeze/census_run3.json -> stype.stages.compute",
+   "open_question": "whether that trailing `0200` is a separate op or the tail of a 12-byte rotate form is NOT settled by spacing alone; byte+9 (`rsv9`) is proven live by this experiment, so byte+10/+11 are worth a splice.",
+   "status": "NO DEFECT; open question recorded",
+   "what": "the mode-0x06 rotate/fill occurrences in carrier `stype` sit 12 bytes apart (offsets 332, 344, 356, 368), which looked like a 10-vs-12 length defect.  It is not: db.json decodes 10 bytes of simd_shuffle and then a 2-byte `n2_compact2` (`0200`), and the stream stays consistent.  Recorded because a reviewer will see the same 12-byte spacing."
+  },
+  "simd_shuffle.byte+2 is only 1 bit wide in db.json": {
+   "evidence": "tools/agx-isa/db.json simd_shuffle.fields; raw/g17p_*/sweep.jsonl",
+   "status": "MODELLING GAP, stated so the negative is not over-read",
+   "what": "db.json models byte+2 of simd_shuffle as a single `cache` bit at bit 17 (byte+2 bit 1).  Every observed occurrence has byte+2 == 0x54, and the other seven bits of that byte are UNMODELLED.",
+   "why_it_matters": "this experiment's INERT-ROBUST verdict for `simd_shuffle.cache` therefore covers exactly ONE BIT and two values, not the byte.  It must not be read as 'byte+2 of simd_shuffle is inert'."
+  }
+ },
+ "frag_color_store.store_mode": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "cent4",
+    "ibhalf",
+    "layer",
+    "mrt3",
+    "tileread",
+    "tilerw2",
+    "vflat"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2048,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "frag_color_store@cent4/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "cent4",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "rt_index=0xff",
+     "slice_addr=0x0",
+     "slice_addr=0xf7fffff7",
+     "src=0x0",
+     "src=0xe7"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@ibhalf/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "ibhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xf1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0xff",
+     "slice_addr=0xffffffff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@layer/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "layer",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0xff",
+     "slice_addr=0xffffffff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@mrt3/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0x0",
+     "rt_index=0xef",
+     "slice_addr=0xffffffff",
+     "src=0x0",
+     "src=0xef"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@mrt3/fragment#2": {
+    "baseline_value": 84,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 2,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0xff",
+     "slice_addr=0xffffffff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@tileread/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "tileread",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0xff",
+     "slice_addr=0xffffffff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@tilerw2/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0x0",
+     "rt_index=0xf7",
+     "slice_addr=0xffffffff",
+     "src=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_color_store@vflat/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "vflat",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 7,
+    "occ": 0,
+    "proven_live_controls": [
+     "fmt=0x0",
+     "fmt=0xd1",
+     "mask=0x0",
+     "mask=0xfe",
+     "rt_index=0xff",
+     "slice_addr=0xffffffff",
+     "src=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "cent4",
+   "ibhalf",
+   "layer",
+   "mrt3",
+   "tileread",
+   "tilerw2",
+   "vflat"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 7 structurally different carriers (cent4, ibhalf, layer, mrt3, tileread, tilerw2, vflat), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "frag_tile_setup.access": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "ibmrt",
+    "layer",
+    "mrt3",
+    "tileread",
+    "tilerw2"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2048,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "frag_tile_setup@ibmrt/fragment#1": {
+    "baseline_value": 8,
+    "carrier": "ibmrt",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@layer/fragment#0": {
+    "baseline_value": 6,
+    "carrier": "layer",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#0": {
+    "baseline_value": 6,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#1": {
+    "baseline_value": 8,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#3": {
+    "baseline_value": 8,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tileread/fragment#1": {
+    "baseline_value": 8,
+    "carrier": "tileread",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#2": {
+    "baseline_value": 8,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 2,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#3": {
+    "baseline_value": 8,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "ibmrt",
+   "layer",
+   "mrt3",
+   "tileread",
+   "tilerw2"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "frag_tile_setup.b5": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "ibmrt",
+    "layer",
+    "mrt3",
+    "tileread",
+    "tilerw2"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2048,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "frag_tile_setup@ibmrt/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "ibmrt",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@layer/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "layer",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#3": {
+    "baseline_value": 0,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tileread/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "tileread",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#2": {
+    "baseline_value": 0,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 2,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#3": {
+    "baseline_value": 0,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "ibmrt",
+   "layer",
+   "mrt3",
+   "tileread",
+   "tilerw2"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "frag_tile_setup.sel": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "ibmrt",
+    "layer",
+    "mrt3",
+    "tileread",
+    "tilerw2"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2048,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "frag_tile_setup@ibmrt/fragment#1": {
+    "baseline_value": 192,
+    "carrier": "ibmrt",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@layer/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "layer",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#1": {
+    "baseline_value": 192,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@mrt3/fragment#3": {
+    "baseline_value": 12,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tileread/fragment#1": {
+    "baseline_value": 8,
+    "carrier": "tileread",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#2": {
+    "baseline_value": 32,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 2,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "frag_tile_setup@tilerw2/fragment#3": {
+    "baseline_value": 16,
+    "carrier": "tilerw2",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 3,
+    "proven_live_controls": [
+     "b1=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "ibmrt",
+   "layer",
+   "mrt3",
+   "tileread",
+   "tilerw2"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 5 structurally different carriers (ibmrt, layer, mrt3, tileread, tilerw2), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "imageblock_store.b4": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 3,
+   "arms_with_proven_detection_power": 3,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "atoff4",
+    "ibms4",
+    "ibsamp"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 768,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "imageblock_store@atoff4/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "atoff4",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "b6=0x0",
+     "fmt=0x0",
+     "fmt=0xd1",
+     "slice_off=0xff",
+     "tail=0x0",
+     "tail=0xf7fffff7"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "imageblock_store@ibms4/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ibms4",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "b6=0x0",
+     "fmt=0x0",
+     "fmt=0xd1",
+     "slice_off=0xff",
+     "tail=0x0",
+     "tail=0xf7fffff7"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "imageblock_store@ibsamp/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ibsamp",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "b6=0x0",
+     "b6=0xfe",
+     "fmt=0x0",
+     "fmt=0xd1",
+     "slice_off=0xff",
+     "tail=0xffffffff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "atoff4",
+   "ibms4",
+   "ibsamp"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 3 arms across 3 structurally different carriers (atoff4, ibms4, ibsamp), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 3 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "iter.b9": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 6,
+   "arms_with_proven_detection_power": 5,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "atoff1",
+    "cent4",
+    "mrt3",
+    "vflat",
+    "vhalf",
+    "vmany"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 1536,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "iter@atoff1/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "atoff1",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 0,
+    "proven_live_controls": [
+     "loc=0xf6"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter@cent4/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "cent4",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 1,
+    "occ": 0,
+    "proven_live_controls": [
+     "loc=0xfe"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter@mrt3/fragment#2": {
+    "baseline_value": 0,
+    "carrier": "mrt3",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 10,
+    "occ": 2,
+    "proven_live_controls": [
+     "coeff_sel=0x0",
+     "coeff_sel=0xfc",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xfa",
+     "loc=0x0",
+     "loc=0xef",
+     "mode=0xff",
+     "src_slot=0x0",
+     "src_slot=0xf9"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter@vflat/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "vflat",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 10,
+    "occ": 1,
+    "proven_live_controls": [
+     "coeff_sel=0x0",
+     "coeff_sel=0xfd",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xfa",
+     "loc=0x0",
+     "loc=0xef",
+     "mode=0xff",
+     "src_slot=0x0",
+     "src_slot=0xf7"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter@vhalf/fragment#3": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 10,
+    "occ": 3,
+    "proven_live_controls": [
+     "coeff_sel=0x0",
+     "coeff_sel=0xfc",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xfa",
+     "loc=0x0",
+     "loc=0xef",
+     "mode=0xff",
+     "src_slot=0x0",
+     "src_slot=0xf9"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter@vmany/fragment#5": {
+    "baseline_value": 0,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 10,
+    "occ": 5,
+    "proven_live_controls": [
+     "coeff_sel=0x0",
+     "coeff_sel=0xfc",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xfa",
+     "loc=0x0",
+     "loc=0xef",
+     "mode=0xff",
+     "src_slot=0x0",
+     "src_slot=0xf9"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "atoff1",
+   "cent4",
+   "mrt3",
+   "vflat",
+   "vhalf",
+   "vmany"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 6 arms across 6 structurally different carriers (atoff1, cent4, mrt3, vflat, vhalf, vmany), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 6 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": [
+   "iter@vmany/fragment#0"
+  ]
+ },
+ "iter_at.loc": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "set bit1 = 0 for centroid, 1 for per-sample; the other seven bits are free (observed inert over all 256 values on five 4-sample arms).",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "iter_at@atoff4/fragment#0": {
+    "baseline_value": 3,
+    "carrier": "atoff4",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit1 clear",
+    "stage": "fragment"
+   },
+   "iter_at@atoff4/fragment#1": {
+    "baseline_value": 1,
+    "carrier": "atoff4",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 1,
+    "rule": "exactly the values with bit1 set",
+    "stage": "fragment"
+   },
+   "iter_at@cent4/fragment#0": {
+    "baseline_value": 1,
+    "carrier": "cent4",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit1 set",
+    "stage": "fragment"
+   },
+   "iter_at@cent4/fragment#1": {
+    "baseline_value": 3,
+    "carrier": "cent4",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 1,
+    "rule": "exactly the values with bit1 clear",
+    "stage": "fragment"
+   },
+   "iter_at@cent4/fragment#2": {
+    "baseline_value": 3,
+    "carrier": "cent4",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 2,
+    "rule": "exactly the values with bit1 clear",
+    "stage": "fragment"
+   },
+   "iter_at@ms4cent/fragment#0": {
+    "baseline_value": 1,
+    "carrier": "ms4cent",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit1 set",
+    "stage": "fragment"
+   },
+   "iter_at@ms4out/fragment#0": {
+    "baseline_value": 1,
+    "carrier": "ms4out",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     1
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit1 set",
+    "stage": "fragment"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 10,
+   "arms_with_proven_detection_power": 10,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "atoff1",
+    "atoff4",
+    "cent1",
+    "cent4",
+    "ms4cent",
+    "ms4out"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2560,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "iter_at@atoff1/fragment#0": {
+    "baseline_value": 3,
+    "carrier": "atoff1",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "b5=0x0",
+     "c4=0x0",
+     "c4=0xfc",
+     "dst=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter_at@cent1/fragment#0": {
+    "baseline_value": 1,
+    "carrier": "cent1",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 0,
+    "proven_live_controls": [
+     "c4=0x0",
+     "c4=0xfc",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xeb"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "iter_at@cent1/fragment#1": {
+    "baseline_value": 3,
+    "carrier": "cent1",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 1,
+    "proven_live_controls": [
+     "c4=0x0",
+     "c4=0xfc",
+     "dst=0x0",
+     "lead=0x0",
+     "lead=0xfb"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "atoff1",
+   "cent1"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   1
+  ],
+  "note": "LIVE: moved the observation on 7 arm(s) across atoff4, cent4, ms4cent, ms4out. Inert on atoff1, cent1 -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 10 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "bit1 selects the interpolation LOCATION the setup computes: 0 = centroid, 1 = per-sample.  bit0 and bits 2..7 are don't-cares (0x81 behaves exactly as 0x01, 0x83 exactly as 0x03).  Two equivalence classes of exactly 128 values each.  Observable ONLY at rasterSampleCount > 1: the identical program at 1 sample gives 0/256 (carrier `cent1`), because centroid, sample point and pixel centre are then the same point.  This REFINES db.json's enum {1: centroid, 3: sample} to a single-bit selector and tells an emitter which bits are free.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "secondary_byte_probes": {
+  "op57_fragment.byte2": {
+   "note": "the fragment 0x57 form is the 6-byte kill / target-mask op and NO carrier in this experiment emits it: none of the 26 uses discard_fragment() or writes [[sample_mask]], and a byte scan of every fragment program here finds no 0x57 opcode byte (the only 0x57 bytes in the carrier set are operand bytes inside sdiv's compute-stage device_stores). EXP-0155's verdict stands unchanged and unimproved.",
+   "status": "NOT COVERED BY EXP-0163",
+   "what_a_successor_needs": "a discard_fragment() / [[sample_mask]] carrier"
+  },
+  "op57_vertex.byte2": {
+   "note": "EXP-0155's vertex 0x57 byte-probe sweeps byte+2 of the 8-byte vertex form, i.e. bit range [16:24] -- exactly `vary_store.hint2`, which is one of this experiment's 20 fields. See that entry.",
+   "status": "COVERED",
+   "verdict_via": "vary_store.hint2"
+  }
+ },
+ "simd_ballot.cache": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 4,
+   "arms_with_proven_detection_power": 4,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "sball",
+    "scache",
+    "sdiv"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 1024,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "simd_ballot@sball/compute#0": {
+    "baseline_value": 84,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 0,
+    "proven_live_controls": [
+     "dst=0x0",
+     "form_sig=0x0",
+     "psrc=0x0",
+     "psrc=0xfc",
+     "psrctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_ballot@sball/compute#1": {
+    "baseline_value": 84,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 7,
+    "occ": 1,
+    "proven_live_controls": [
+     "dst=0x0",
+     "form=0xff",
+     "form_sig=0x0",
+     "psrc=0x0",
+     "psrc=0xfc",
+     "psrctype=0x0",
+     "psrctype=0xfb"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_ballot@scache/compute#0": {
+    "baseline_value": 84,
+    "carrier": "scache",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 7,
+    "occ": 0,
+    "proven_live_controls": [
+     "dst=0x0",
+     "form=0xff",
+     "form_sig=0x0",
+     "psrc=0x0",
+     "psrc=0xfc",
+     "psrctype=0x0",
+     "psrctype=0xf7"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_ballot@sdiv/compute#0": {
+    "baseline_value": 84,
+    "carrier": "sdiv",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 0,
+    "proven_live_controls": [
+     "dst=0x0",
+     "form=0xff",
+     "form_sig=0x0",
+     "psrc=0x0",
+     "psrc=0xfd",
+     "psrctype=0xff"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "sball",
+   "scache",
+   "sdiv"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 4 arms across 3 structurally different carriers (sball, scache, sdiv), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 4 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "simd_shuffle.cache": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "sball",
+    "scache",
+    "sdiv",
+    "stype"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 16,
+   "values_executed_per_arm": 2
+  },
+  "inert_arms": {
+   "simd_shuffle@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 11,
+    "occ": 0,
+    "proven_live_controls": [
+     "dst=0x0",
+     "dsthi=0xff",
+     "lane=0xf5",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0x0",
+     "srctype=0xef"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@scache/compute#0": {
+    "baseline_value": 0,
+    "carrier": "scache",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 0,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfd",
+     "lane=0x0",
+     "lane=0xf5",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfc",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@scache/compute#2": {
+    "baseline_value": 0,
+    "carrier": "scache",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 2,
+    "proven_live_controls": [
+     "dst=0x0",
+     "dsthi=0xed"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@sdiv/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sdiv",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 0,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfd",
+     "lane=0x0",
+     "lane=0xfd",
+     "mode=0x0",
+     "mode=0xfa",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfc",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@stype/compute#10": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 12,
+    "occ": 10,
+    "proven_live_controls": [
+     "dir=0x0",
+     "dst=0x0",
+     "dsthi=0xfb",
+     "lane=0x0",
+     "lane=0xf7",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0xff"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@stype/compute#13": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 15,
+    "occ": 13,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0x0",
+     "lane=0x0",
+     "lane=0xf9",
+     "mode=0x0",
+     "mode=0xf9",
+     "rsv9=0x0",
+     "rsv9=0x5e",
+     "rtype=0x0",
+     "rtype=0xf7",
+     "src=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@stype/compute#15": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 14,
+    "occ": 15,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dsthi=0x0",
+     "lane=0x0",
+     "lane=0xf3",
+     "mode=0x0",
+     "mode=0xf9",
+     "rsv9=0x0",
+     "rsv9=0x6e",
+     "rtype=0x0",
+     "rtype=0xef",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   },
+   "simd_shuffle@stype/compute#8": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 8,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfb",
+     "lane=0x0",
+     "lane=0xf1",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xdf",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 2
+    }
+   }
+  },
+  "inert_carriers": [
+   "sball",
+   "scache",
+   "sdiv",
+   "stype"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 8 arms across 4 structurally different carriers (sball, scache, sdiv, stype), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..1 dense (all 2 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "simd_shuffle.rsv9": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "on the mode-0x06 rotate/fill form this is an OPERAND, not padding: emit the compiler-observed value unless you intend to change the fill result.",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "simd_shuffle@stype/compute#13": {
+    "baseline_value": 161,
+    "carrier": "stype",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     64,
+     64,
+     16,
+     16,
+     16,
+     16,
+     16,
+     16,
+     16,
+     16
+    ],
+    "live_bits": [
+     1,
+     2,
+     6,
+     7
+    ],
+    "n_equivalence_classes": 10,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 13,
+    "rule": "240 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f...",
+    "stage": "compute"
+   },
+   "simd_shuffle@stype/compute#15": {
+    "baseline_value": 145,
+    "carrier": "stype",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     120,
+     40,
+     24,
+     24,
+     24,
+     8,
+     8,
+     8
+    ],
+    "live_bits": [
+     1,
+     2,
+     5,
+     6,
+     7
+    ],
+    "n_equivalence_classes": 8,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 248
+    },
+    "occ": 15,
+    "rule": "248 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f...",
+    "stage": "compute"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 8,
+   "arms_with_proven_detection_power": 8,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "sball",
+    "scache",
+    "sdiv",
+    "stype"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2048,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "simd_shuffle@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 11,
+    "occ": 0,
+    "proven_live_controls": [
+     "dst=0x0",
+     "dsthi=0xff",
+     "lane=0xf5",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0x0",
+     "srctype=0xef"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_shuffle@scache/compute#0": {
+    "baseline_value": 0,
+    "carrier": "scache",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 0,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfd",
+     "lane=0x0",
+     "lane=0xf5",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfc",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_shuffle@scache/compute#2": {
+    "baseline_value": 0,
+    "carrier": "scache",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 2,
+    "proven_live_controls": [
+     "dst=0x0",
+     "dsthi=0xed"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_shuffle@sdiv/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sdiv",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 0,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfd",
+     "lane=0x0",
+     "lane=0xfd",
+     "mode=0x0",
+     "mode=0xfa",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfc",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_shuffle@stype/compute#10": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 12,
+    "occ": 10,
+    "proven_live_controls": [
+     "dir=0x0",
+     "dst=0x0",
+     "dsthi=0xfb",
+     "lane=0x0",
+     "lane=0xf7",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xd3",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0xff"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "simd_shuffle@stype/compute#8": {
+    "baseline_value": 0,
+    "carrier": "stype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 13,
+    "occ": 8,
+    "proven_live_controls": [
+     "dir=0x1",
+     "dst=0x0",
+     "dsthi=0xfb",
+     "lane=0x0",
+     "lane=0xf1",
+     "mode=0x0",
+     "mode=0xfb",
+     "rtype=0x0",
+     "rtype=0xdf",
+     "src=0x0",
+     "src=0xfd",
+     "srctype=0x0"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "sball",
+   "scache",
+   "sdiv",
+   "stype"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   1,
+   2,
+   5,
+   6,
+   7
+  ],
+  "note": "LIVE: moved the observation on 2 arm(s) across stype. Inert on sball, scache, sdiv, stype -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 8 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "NOT reserved.  On the mode-0x06 rotate / shuffle-and-fill form (which no EXP-0155 arm emitted) bits 1, 2, 6 and 7 are live: bits 6 and 7 CHANGE THE RESULT VALUE of the shuffle-and-fill (result word 31 -> 116 -> 256 across the four combinations, with bit2 giving a further distinct value), while bit1 suppresses the stores that follow the op.  240-248 of 256 values move; 8-10 equivalence classes.  Inert on the mode-0x00/0x04/0x05 forms.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_coord_setup.b5": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "see `exact_rules`; the live bits are the only ones observed to matter",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "tex_coord_setup@bits/fragment#0": {
+    "baseline_value": 2,
+    "carrier": "bits",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     240,
+     16
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 0,
+    "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@bits/fragment#1": {
+    "baseline_value": 2,
+    "carrier": "bits",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     176,
+     64,
+     16
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "n_equivalence_classes": 3,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 1,
+    "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@fclass/fragment#1": {
+    "baseline_value": 2,
+    "carrier": "fclass",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     176,
+     64,
+     16
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "n_equivalence_classes": 3,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 1,
+    "rule": "240 values, set = 0x0,0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@ms4out/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ms4out",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     184,
+     64,
+     8
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "n_equivalence_classes": 3,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 192
+    },
+    "occ": 0,
+    "rule": "192 values, set = 0x1,0x3,0x5,0x7,0x9,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x29,0x2b,0x2d,0x2f...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@sball/compute#0": {
+    "baseline_value": 2,
+    "carrier": "sball",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     208,
+     48
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 208
+    },
+    "occ": 0,
+    "rule": "208 values, set = 0x1,0x3,0x4,0x5,0x7,0x9,0xb,0xc,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x24,0x25,0x27,0x29...",
+    "stage": "compute"
+   },
+   "tex_coord_setup@vhalf/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     176,
+     48,
+     16,
+     8,
+     8
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "n_equivalence_classes": 5,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 208
+    },
+    "occ": 0,
+    "rule": "208 values, set = 0x1,0x3,0x5,0x7,0x8,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x28,0x29...",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     192,
+     48,
+     8,
+     8
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "n_equivalence_classes": 4,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 208
+    },
+    "occ": 0,
+    "rule": "208 values, set = 0x1,0x3,0x5,0x7,0x8,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x28,0x29...",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#1": {
+    "baseline_value": 32,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     192,
+     56,
+     8
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "n_equivalence_classes": 3,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 200
+    },
+    "occ": 1,
+    "rule": "200 values, set = 0x1,0x3,0x5,0x7,0x9,0xa,0xb,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x21,0x23,0x25,0x27,0x29,0x2a,0x2b...",
+    "stage": "vertex"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "bits",
+    "fclass",
+    "ms4out",
+    "sball",
+    "vhalf",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_coord_setup@fclass/fragment#0": {
+    "baseline_value": 2,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "dst_lo=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "fclass"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "note": "LIVE: moved the observation on 8 arm(s) across bits, fclass, ms4out, sball, vhalf, vsrc. Inert on fclass -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "live on BOTH forms.  On the 0x42 destination-address form the classes are: bit0 set -> the addressed varying reads 0.0; bits 2..5 (b6) clear and bit3 set -> the varying's VALUE shifts slightly (6.08333 -> 6.0918 / 6.10946), i.e. a small address/offset perturbation rather than a kill.  4-5 equivalence classes; 200-240 of 256 values move.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_coord_setup.b6": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "bits 2..5 must be clear on the 0x42 form; only (v & 0x3c) == 0 works.",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "tex_coord_setup@ms4out/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ms4out",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     240,
+     16
+    ],
+    "live_bits": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 0,
+    "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@vhalf/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     240,
+     16
+    ],
+    "live_bits": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 0,
+    "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     240,
+     16
+    ],
+    "live_bits": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 0,
+    "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#1": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     240,
+     16
+    ],
+    "live_bits": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 240
+    },
+    "occ": 1,
+    "rule": "240 values, set = 0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23...",
+    "stage": "vertex"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "bits",
+    "fclass",
+    "ms4out",
+    "sball",
+    "vhalf",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_coord_setup@bits/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xe",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf2"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@bits/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "dst_lo=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xe0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xf0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "form=0x0",
+     "form=0xef",
+     "srcA=0x0",
+     "srcA=0x70"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "bits",
+   "fclass",
+   "sball"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   2,
+   3,
+   4,
+   5
+  ],
+  "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "bits 2,3,4,5 are live and must ALL be clear for the store to work: exactly 16 of 256 values (those with (v & 0x3c) == 0) reproduce the baseline; the other 240 zero the addressed varying.  Two equivalence classes on every live arm.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_coord_setup.b8": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "see `exact_rules`; the live bits are the only ones observed to matter",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "tex_coord_setup@ms4out/fragment#0": {
+    "baseline_value": 16,
+    "carrier": "ms4out",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     64,
+     64
+    ],
+    "live_bits": [
+     3,
+     4
+    ],
+    "n_equivalence_classes": 3,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 192
+    },
+    "occ": 0,
+    "rule": "192 values, set = 0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27...",
+    "stage": "fragment"
+   },
+   "tex_coord_setup@vhalf/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     3
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit3 set",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     3
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit3 set",
+    "stage": "vertex"
+   },
+   "tex_coord_setup@vsrc/vertex#1": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     192,
+     64
+    ],
+    "live_bits": [
+     3,
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 192
+    },
+    "occ": 1,
+    "rule": "192 values, set = 0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f...",
+    "stage": "vertex"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "bits",
+    "fclass",
+    "ms4out",
+    "sball",
+    "vhalf",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_coord_setup@bits/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xe",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf2"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@bits/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "dst_lo=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xe0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xf0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "form=0x0",
+     "form=0xef",
+     "srcA=0x0",
+     "srcA=0x70"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "bits",
+   "fclass",
+   "sball"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   3,
+   4
+  ],
+  "note": "LIVE: moved the observation on 4 arm(s) across ms4out, vhalf, vsrc. Inert on bits, fclass, sball -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "bit3 alone (plus bit4 on two arms) is live, with the same signature as idx bit7: setting it zeroes exactly the one varying this occurrence addresses.  Only on the byte+4 == 0x42 form; inert over all 256 values on the 0x00 form.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_coord_setup.b9": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "bits",
+    "fclass",
+    "ms4out",
+    "sball",
+    "vhalf",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_coord_setup@bits/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xe",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf2"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@bits/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "dst_lo=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xe0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@ms4out/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ms4out",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xec",
+     "b5=0xff",
+     "b6=0xff",
+     "b8=0x0",
+     "b8=0xef",
+     "dst_lo=0xf",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xf0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "form=0x0",
+     "form=0xef",
+     "srcA=0x0",
+     "srcA=0x70"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@vhalf/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0xff",
+     "b6=0xff",
+     "b8=0xff",
+     "dst_lo=0x0",
+     "dst_lo=0x5",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@vsrc/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 11,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfc",
+     "b5=0xff",
+     "b6=0xff",
+     "b8=0xff",
+     "dst_lo=0x0",
+     "dst_lo=0x9",
+     "form=0x0",
+     "form=0xbd",
+     "idx=0x0",
+     "idx=0x6b"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@vsrc/vertex#1": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0xdf",
+     "b6=0xff",
+     "b8=0xff",
+     "dst_lo=0x0",
+     "dst_lo=0x8",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "bits",
+   "fclass",
+   "ms4out",
+   "sball",
+   "vhalf",
+   "vsrc"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 6 structurally different carriers (bits, fclass, ms4out, sball, vhalf, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_coord_setup.idx": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "on the byte+4 == 0x42 form this is a real destination selector -- do not treat it as padding; bit7 must match the slot.  On the 0x00 form it was inert over the full range.",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "tex_coord_setup@vsrc/vertex#0": {
+    "baseline_value": 148,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     7
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit7 clear",
+    "stage": "vertex"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "bits",
+    "fclass",
+    "ms4out",
+    "sball",
+    "vhalf",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_coord_setup@bits/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xe",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf2"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@bits/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "bits",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xf0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 2,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "dst_lo=0x0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@fclass/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "fclass",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0x0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "dst_lo=0xd",
+     "form=0xff",
+     "srcA=0x0",
+     "srcA=0xe0"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@ms4out/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "ms4out",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xec",
+     "b5=0xff",
+     "b6=0xff",
+     "b8=0x0",
+     "b8=0xef",
+     "dst_lo=0xf",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@sball/compute#0": {
+    "baseline_value": 0,
+    "carrier": "sball",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 8,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xf0",
+     "b5=0xfd",
+     "dst_lo=0x0",
+     "form=0x0",
+     "form=0xef",
+     "srcA=0x0",
+     "srcA=0x70"
+    ],
+    "stage": "compute",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@vhalf/vertex#0": {
+    "baseline_value": 20,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 0,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfa",
+     "b5=0xff",
+     "b6=0xff",
+     "b8=0xff",
+     "dst_lo=0x0",
+     "dst_lo=0x5",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_coord_setup@vsrc/vertex#1": {
+    "baseline_value": 12,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 9,
+    "occ": 1,
+    "proven_live_controls": [
+     "b1=0x0",
+     "b1=0xfe",
+     "b5=0xdf",
+     "b6=0xff",
+     "b8=0xff",
+     "dst_lo=0x0",
+     "dst_lo=0x8",
+     "form=0x0",
+     "form=0xbd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "bits",
+   "fclass",
+   "ms4out",
+   "sball",
+   "vhalf",
+   "vsrc"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   7
+  ],
+  "note": "LIVE: moved the observation on 1 arm(s) across vsrc. Inert on bits, fclass, ms4out, sball, vhalf, vsrc -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "on the byte+4 == 0x42 form (vertex attribute / varying DESTINATION-address setup) bit7 alone is live: with bit7 clear the ONE varying this occurrence addresses reads back 0.0 while the other three are untouched, so the byte selects that store's destination and its top bit must be set for our slot.  This is the form db.json says carries `idx = dst<<2`; on the byte+4 == 0x00 float-classify form idx was inert over all 256 values, which is consistent with the same note.",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_write.amode": {
+  "bucket": "STILL-UNDERPOWERED",
+  "cross_run_agreement": true,
+  "emitter_guidance": "do not rely on this field; not established",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 6,
+   "arms_with_proven_detection_power": 6,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "twdim",
+    "twtype"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 1536,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_write@twdim/fragment#0": {
+    "baseline_value": 84,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 17,
+    "occ": 0,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#1": {
+    "baseline_value": 84,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 1,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xbf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffdf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf2",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#2": {
+    "baseline_value": 84,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 2,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xf7",
+     "coord_pack=0x7f",
+     "coord_regs=0x0",
+     "coord_regs=0xfdffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#3": {
+    "baseline_value": 85,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 3,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twtype/fragment#2": {
+    "baseline_value": 84,
+    "carrier": "twtype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 17,
+    "occ": 2,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0x7f",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "data_desc=0xd5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xdf",
+     "rsv10=0xff",
+     "rsv15=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twtype/fragment#3": {
+    "baseline_value": 85,
+    "carrier": "twtype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 3,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xfdffbf",
+     "data_desc=0x0",
+     "data_desc=0xe5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xdf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "twdim",
+   "twtype"
+  ],
+  "label": "untested",
+  "live_bits": [],
+  "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
+  "range": "0..255 dense (all 256 values) x 6 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "tex_write.rsv11": {
+  "bucket": "STILL-UNDERPOWERED",
+  "cross_run_agreement": true,
+  "emitter_guidance": "do not rely on this field; not established",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 6,
+   "arms_with_proven_detection_power": 6,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "twdim",
+    "twtype"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 1536,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "tex_write@twdim/fragment#0": {
+    "baseline_value": 0,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 17,
+    "occ": 0,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xdf",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#1": {
+    "baseline_value": 0,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 1,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xbf",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffdf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf2",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#2": {
+    "baseline_value": 0,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 2,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xf7",
+     "coord_pack=0x7f",
+     "coord_regs=0x0",
+     "coord_regs=0xfdffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twdim/fragment#3": {
+    "baseline_value": 0,
+    "carrier": "twdim",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 3,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xffffbf",
+     "data_desc=0x0",
+     "data_desc=0xc5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xbf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twtype/fragment#2": {
+    "baseline_value": 0,
+    "carrier": "twtype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 17,
+    "occ": 2,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0x7f",
+     "coord_regs=0x0",
+     "coord_regs=0xfeffbf",
+     "data_desc=0xd5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xdf",
+     "rsv10=0xff",
+     "rsv15=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "tex_write@twtype/fragment#3": {
+    "baseline_value": 0,
+    "carrier": "twtype",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 18,
+    "occ": 3,
+    "proven_live_controls": [
+     "coord_dim=0x0",
+     "coord_dim=0xfb",
+     "coord_pack=0xff",
+     "coord_regs=0x0",
+     "coord_regs=0xfdffbf",
+     "data_desc=0x0",
+     "data_desc=0xe5",
+     "data_desc_hi=0x0",
+     "data_desc_hi=0xf6",
+     "layer_reg=0x0",
+     "layer_reg=0xdf",
+     "rsv10=0xff"
+    ],
+    "stage": "fragment",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "twdim",
+   "twtype"
+  ],
+  "label": "untested",
+  "live_bits": [],
+  "note": "STILL-UNDERPOWERED: swept densely on 6 arms but only 2 distinct carrier(s) with proven detection power (the pre-registered bar is 3), so NOT promoted. Reported as unreached, not as inert.",
+  "range": "0..255 dense (all 256 values) x 6 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "vary_store.b7": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "vclip",
+    "vflat",
+    "vhalf",
+    "vmany",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "vary_store@vclip/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vclip",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vflat/vertex#4": {
+    "baseline_value": 0,
+    "carrier": "vflat",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 4,
+    "proven_live_controls": [
+     "hint6=0xb7",
+     "out_slot=0x0",
+     "out_slot=0x7f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf1"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vhalf/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 0,
+    "proven_live_controls": [
+     "hint6=0xb5",
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfb"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vhalf/vertex#6": {
+    "baseline_value": 0,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 6,
+    "proven_live_controls": [
+     "hint6=0xb5",
+     "out_slot=0x0",
+     "out_slot=0x3f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf3"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#0": {
+    "baseline_value": 0,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#16": {
+    "baseline_value": 0,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 16,
+    "proven_live_controls": [
+     "hint6=0xb2",
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xdf"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#9": {
+    "baseline_value": 0,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 9,
+    "proven_live_controls": [
+     "hint6=0xb3",
+     "out_slot=0x0",
+     "out_slot=0xdf",
+     "out_slot_hi=0x0",
+     "src=0x0",
+     "src=0xed"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vsrc/vertex#5": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 5,
+    "proven_live_controls": [
+     "hint6=0xb3",
+     "out_slot=0x0",
+     "out_slot=0x5f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf5"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vsrc/vertex#6": {
+    "baseline_value": 0,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 6,
+    "proven_live_controls": [
+     "hint6=0xb2",
+     "out_slot=0x0",
+     "out_slot=0x3f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf3"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "vclip",
+   "vflat",
+   "vhalf",
+   "vmany",
+   "vsrc"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "vary_store.hint2": {
+  "bucket": "INERT-ROBUST",
+  "cross_run_agreement": true,
+  "emitter_guidance": "emit the compiler-observed value for your configuration; no other value had an observable effect in the tested envelope",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {},
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "vclip",
+    "vflat",
+    "vhalf",
+    "vmany",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "vary_store@vclip/vertex#0": {
+    "baseline_value": 84,
+    "carrier": "vclip",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vflat/vertex#4": {
+    "baseline_value": 85,
+    "carrier": "vflat",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 4,
+    "proven_live_controls": [
+     "hint6=0xb7",
+     "out_slot=0x0",
+     "out_slot=0x7f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf1"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vhalf/vertex#0": {
+    "baseline_value": 84,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 0,
+    "proven_live_controls": [
+     "hint6=0xb5",
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfb"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vhalf/vertex#6": {
+    "baseline_value": 86,
+    "carrier": "vhalf",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 6,
+    "proven_live_controls": [
+     "hint6=0xb5",
+     "out_slot=0x0",
+     "out_slot=0x3f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf3"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#0": {
+    "baseline_value": 84,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#16": {
+    "baseline_value": 84,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 5,
+    "occ": 16,
+    "proven_live_controls": [
+     "hint6=0xb2",
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xdf"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#9": {
+    "baseline_value": 84,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 9,
+    "proven_live_controls": [
+     "hint6=0xb3",
+     "out_slot=0x0",
+     "out_slot=0xdf",
+     "out_slot_hi=0x0",
+     "src=0x0",
+     "src=0xed"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vsrc/vertex#5": {
+    "baseline_value": 85,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 5,
+    "proven_live_controls": [
+     "hint6=0xb3",
+     "out_slot=0x0",
+     "out_slot=0x5f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf5"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vsrc/vertex#6": {
+    "baseline_value": 86,
+    "carrier": "vsrc",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 6,
+    "occ": 6,
+    "proven_live_controls": [
+     "hint6=0xb2",
+     "out_slot=0x0",
+     "out_slot=0x3f",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xf3"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "vclip",
+   "vflat",
+   "vhalf",
+   "vmany",
+   "vsrc"
+  ],
+  "label": "single-template-inference",
+  "live_bits": [],
+  "note": "INERT-ROBUST over the stated envelope: every value executed on 9 arms across 5 structurally different carriers (vclip, vflat, vhalf, vmany, vsrc), each of which PASSED the strict detection profile, and none moved any observed surface. This bounds the field; it does NOT establish that it is a don't-care outside this envelope. LABEL NOTE: carried as `single-template-inference`, NOT `hardware-run`, even though the hardware evidence is a full dense sweep -- because `hardware-run` is emitter-grade and an emitter here must reuse the compiler-observed value, which is a captured-template dependency. The measurement is not downgraded; see `hardware_evidence`.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "unknown -- this experiment establishes presence or absence of an observable effect, not the field's meaning",
+  "target": "G17P",
+  "underpowered_arms": []
+ },
+ "vary_store.hint6": {
+  "bucket": "LIVE",
+  "cross_run_agreement": true,
+  "emitter_guidance": "bit4 MUST be clear or the varying block is lost; emit the compiler-observed 0x48..0x4d pattern and do not set bit4.",
+  "evidence": [
+   "EXP-0163"
+  ],
+  "exact_rules": {
+   "vary_store@vflat/vertex#4": {
+    "baseline_value": 72,
+    "carrier": "vflat",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 4,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vhalf/vertex#0": {
+    "baseline_value": 74,
+    "carrier": "vhalf",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     121,
+     5,
+     2
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "n_equivalence_classes": 4,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 0,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vhalf/vertex#6": {
+    "baseline_value": 74,
+    "carrier": "vhalf",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 6,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vmany/vertex#16": {
+    "baseline_value": 77,
+    "carrier": "vmany",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     63,
+     2,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "live_bits": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "n_equivalence_classes": 65,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 16,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vmany/vertex#9": {
+    "baseline_value": 76,
+    "carrier": "vmany",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 9,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vsrc/vertex#5": {
+    "baseline_value": 76,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 5,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   },
+   "vary_store@vsrc/vertex#6": {
+    "baseline_value": 77,
+    "carrier": "vsrc",
+    "cross_run_identical": true,
+    "equivalence_class_sizes": [
+     128,
+     128
+    ],
+    "live_bits": [
+     4
+    ],
+    "n_equivalence_classes": 2,
+    "n_moved_per_run": {
+     "g17p_20260830_run01": 128
+    },
+    "occ": 6,
+    "rule": "exactly the values with bit4 set",
+    "stage": "vertex"
+   }
+  },
+  "hardware_evidence": {
+   "arms_swept": 9,
+   "arms_with_proven_detection_power": 9,
+   "codex_ladder_equivalent": "HW-VALIDATED (the observation); the field LABEL is set by what an emitter may do with it, not by observation strength",
+   "distinct_carriers": [
+    "vclip",
+    "vflat",
+    "vhalf",
+    "vmany",
+    "vsrc"
+   ],
+   "method": "dense splice-and-execute sweep on real hardware",
+   "total_hardware_observations": 2304,
+   "values_executed_per_arm": 256
+  },
+  "inert_arms": {
+   "vary_store@vclip/vertex#0": {
+    "baseline_value": 73,
+    "carrier": "vclip",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   },
+   "vary_store@vmany/vertex#0": {
+    "baseline_value": 74,
+    "carrier": "vmany",
+    "faults_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "moved_per_run": {
+     "g17p_20260830_run01": 0
+    },
+    "n_proven_live_controls_same_instruction": 4,
+    "occ": 0,
+    "proven_live_controls": [
+     "out_slot=0xff",
+     "out_slot_hi=0x1",
+     "src=0x0",
+     "src=0xfd"
+    ],
+    "stage": "vertex",
+    "values_swept_per_run": {
+     "g17p_20260830_run01": 256
+    }
+   }
+  },
+  "inert_carriers": [
+   "vclip",
+   "vmany"
+  ],
+  "label": "hardware-run",
+  "live_bits": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "note": "LIVE: moved the observation on 7 arm(s) across vflat, vhalf, vmany, vsrc. Inert on vclip, vmany -- i.e. the EXP-0155 null was CARRIER-LIMITED, not a property of the silicon.",
+  "range": "0..255 dense (all 256 values) x 9 arms",
+  "runs": [
+   "g17p_20260830_run01"
+  ],
+  "semantics": "bit4 (0x10) alone determines whether the varying store WORKS: with bit4 set, all four fragment output channels read back 0.0 on every live arm -- the whole varying block is lost, not just this one component -- while the compiler-chosen values (0x48..0x4d across our carriers) have it clear.  Exactly 128 of 256 values move, on 7 arms across 5 carriers; two equivalence classes on five of them.  db.json types this byte `mod` with no semantics; it is not a free hint.",
+  "target": "G17P",
+  "underpowered_arms": []
+ }
+}
