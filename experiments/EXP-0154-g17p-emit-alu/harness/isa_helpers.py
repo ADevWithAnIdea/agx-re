@@ -38,12 +38,23 @@ EXP = HERE.parent
 
 
 def _find_isadb():
-    """tools/agx-isa lives at <repo>/tools/agx-isa on the M4 and at
-    ~/agxre/tools/agx-isa on the neo; both are the SAME committed file (sha256
-    compared in PROGRESS.md M0)."""
-    for cand in (EXP.parents[1] / "tools" / "agx-isa",
-                 Path.home() / "agxre" / "tools" / "agx-isa"):
-        if (cand / "isadb.py").exists():
+    """Return the agx-isa directory this experiment is pinned to.
+
+    `work/frozen/` holds the EXACT `db.json` / `isadb.py` / `validation.json`
+    the hardware ran against, pulled off the neo and sha256-checked against
+    CAPTURE_CONTRACT.json. It is preferred because the repo host's
+    `tools/agx-isa/db.json` DRIFTS while sibling experiments extend the ISA --
+    during this experiment `ilogic.lut_a` was split into
+    `lut_a_sel`/`lut_a_free`/`lut_a_z` in the repo copy, which would silently
+    re-key our verdicts against a descriptor the hardware never saw.
+
+    On the neo `work/frozen/` is absent and `~/agxre/tools/agx-isa` is used;
+    the two are byte-identical (sha256 in CAPTURE_CONTRACT.json).
+    """
+    for cand in (EXP / "work" / "frozen",
+                 Path.home() / "agxre" / "tools" / "agx-isa",
+                 EXP.parents[1] / "tools" / "agx-isa"):
+        if (cand / "isadb.py").exists() and (cand / "db.json").exists():
             return cand
     raise RuntimeError("cannot locate tools/agx-isa")
 

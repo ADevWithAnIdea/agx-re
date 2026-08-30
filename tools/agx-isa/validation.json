@@ -16,26 +16,26 @@
   "total_instructions": 171,
   "total_fields": 1057,
   "by_label": {
-   "hardware-run": 368,
-   "isolated-byte-diff": 94,
-   "corpus-correlation": 184,
-   "tokenization-only": 203,
+   "hardware-run": 417,
+   "isolated-byte-diff": 95,
+   "corpus-correlation": 166,
+   "tokenization-only": 194,
    "single-template-inference": 13,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 195
+   "untested": 172
   },
   "by_label_pct": {
-   "hardware-run": 34.8,
-   "isolated-byte-diff": 8.9,
-   "corpus-correlation": 17.4,
-   "tokenization-only": 19.2,
+   "hardware-run": 39.5,
+   "isolated-byte-diff": 9.0,
+   "corpus-correlation": 15.7,
+   "tokenization-only": 18.4,
    "single-template-inference": 1.2,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 18.4
+   "untested": 16.3
   },
-  "emittable_instructions": 38,
+  "emittable_instructions": 44,
   "emittable_mnemonics": [
    "copysign",
    "cvt_f2h",
@@ -45,12 +45,17 @@
    "device_load",
    "device_store",
    "falu2",
+   "falu_acc",
    "frame_prologue",
    "get_sr",
    "half_alu",
    "half_alu_ext8",
+   "iadd2",
+   "ibfe",
    "ibitcount",
    "if_push",
+   "isel10",
+   "ishift",
    "iunary",
    "link_save_restore",
    "matrix_mac",
@@ -65,6 +70,7 @@
    "reg_move_c9",
    "reg_move_cb",
    "sel",
+   "shift_amt_move",
    "spill_frame_marker",
    "stop",
    "tex_addr_setup",
@@ -76,7 +82,7 @@
    "vtx_coord_xform",
    "vtx_out_pos"
   ],
-  "decodable_not_yet_emittable": 133,
+  "decodable_not_yet_emittable": 127,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -87,7 +93,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 165,
-  "emittable_of_emitter_relevant": 38
+  "emittable_of_emitter_relevant": 44
  },
  "instructions": {
   "falu2": {
@@ -491,12 +497,12 @@
    },
    "op": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "213 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "64 cases failed the integrity sentinel without a structural explanation"
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 204, 'ok': 3, 'silent_zero': 6}; ok at {0x16, 0x36, 0x3e}"
    },
    "ctrl": {
     "label": "hardware-run",
@@ -527,21 +533,21 @@
    },
    "srcB": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "29 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 28, 'ok': 1}; ok at {0x81}"
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 251, 'ok': 2}; ok at {0x5, 0x85}"
    },
    "dst": {
     "label": "hardware-run",
@@ -553,13 +559,13 @@
     "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcC": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only. FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_fma@falu3[56:64]; outcomes {'wrong_value': 251, 'ok': 4}; ok at {0x8-0x9, 0x88-0x89}"
    }
   },
   "falu2_ext": {
@@ -574,30 +580,30 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "srcA_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 18, 'silent_zero': 8}; ok at {0x0, 0x2, 0xf-0x11, 0x1f-0x21, 0x2a, 0x30, 0x3f-0x40, 0x50, 0x55, 0x60, 0x70, 0x7e-0x7f}"
    },
    "opsel": {
     "label": "hardware-run",
@@ -619,21 +625,21 @@
    },
    "srcB_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
     "label": "tokenization-only",
@@ -647,30 +653,30 @@
    },
    "srcB_imm": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "mod_lo": {
     "label": "hardware-run",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "range": "8 values tested (dense over 3-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2, 'wrong_value': 6}; ok at {0x0-0x1}"
    },
    "srcB_neg": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sat_add@falu2_ext[32:40]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "mod_hi": {
     "label": "hardware-run",
@@ -702,12 +708,12 @@
    },
    "op": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "210 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "64 cases failed the integrity sentinel without a structural explanation"
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 201, 'ok': 3, 'silent_zero': 6}; ok at {0x1e, 0x36, 0x3e}"
    },
    "ext": {
     "label": "isolated-byte-diff",
@@ -729,21 +735,21 @@
    },
    "srcB": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "29 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 29}; ok at {}"
    },
    "srcA": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 254, 'ok': 2}; ok at {0x5, 0x85}"
    },
    "dst": {
     "label": "hardware-run",
@@ -755,13 +761,13 @@
     "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
    },
    "srcC": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "4 cases failed the integrity sentinel without a structural explanation; 4/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only. FIELD RENAME (EXP-0138 H-FALU3-LAYOUT, HW, 1809+2321 cases): db.json's old names put the destination in a source slot. byte0 high nibble is the DESTINATION; byte+1 is the FIRST source descriptor; byte+3 the SECOND; byte+5 the THIRD; byte+4 is a CONTROL byte whose low 2 bits are the 0x09-group LENGTH selector. Same bits, same sweep -- name only."
+    "note": "carrier SYNTH+LIFTED:k_sat_fma@falu3_ext[56:66]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x8-0x9, 0x88-0x89}"
    }
   },
   "funary": {
@@ -838,12 +844,12 @@
    },
    "addsub": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "lenbit": {
     "label": "hardware-run",
@@ -865,21 +871,21 @@
    },
    "b2_bit0": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "store_en": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b2_fmt": {
     "label": "hardware-run",
@@ -892,12 +898,12 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "27 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "6/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 60 values: 192-193,195-214,216-217,219-222,224-255; 2 values return a silent zero"
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 2, 'wrong_value': 10, 'silent_zero': 13, 'fault': 2}; ok at {0x0-0x1}"
    },
    "opmode": {
     "label": "hardware-run",
@@ -919,20 +925,21 @@
    },
    "srcB_imm_hi": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "srcB_ext": {
-    "label": "corpus-correlation",
-    "range": "part of the scattered srcB register number",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "128 values tested (dense over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_u32add@iadd2[32:42]; outcomes {'ok': 4, 'wrong_value': 124}; ok at {0x0-0x3}"
    },
    "srcA": {
     "label": "isolated-byte-diff",
@@ -974,21 +981,21 @@
    },
    "b0bit7": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "lenbit": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 1 values: 1"
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "b1hi": {
     "label": "hardware-run",
@@ -1001,21 +1008,21 @@
    },
    "b2_bit0": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "store_en": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b2_fmt": {
     "label": "hardware-run",
@@ -1027,12 +1034,13 @@
     "note": ""
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "(reg<<1)|size proven by an own-MSL r6/r4/r2 dst sweep (compile-only)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "194 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 2, 'wrong_value': 28, 'silent_zero': 162, 'fault': 2}; ok at {0x0-0x1}"
    },
    "opmode": {
     "label": "hardware-run",
@@ -1044,24 +1052,22 @@
     "note": "128 values return a silent zero"
    },
    "srcB": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x8-0xb}"
    },
    "srcC_lo": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 4, 'wrong_value': 252}; ok at {0x0, 0x2, 0x4, 0x6}"
    },
    "srcC_desc": {
     "label": "corpus-correlation",
@@ -1072,12 +1078,13 @@
     ]
    },
    "mulsel": {
-    "label": "corpus-correlation",
-    "range": "0xd0 low-32 vs 0xe0 high-32 (mulhi); own-MSL byte-diff",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_imad@imad[32:44]; outcomes {'ok': 8, 'wrong_value': 244, 'silent_zero': 4}; ok at {0x0, 0x10, 0x40, 0x50, 0x80, 0x90, 0xc0, 0xd0}"
    },
    "b9": {
     "label": "isolated-byte-diff",
@@ -1117,22 +1124,22 @@
     ]
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "15 values return a silent zero"
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "dst_full": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'ok': 4, 'wrong_value': 56, 'silent_zero': 196}; ok at {0x0-0x1, 0x80-0x81}"
    },
    "fmt": {
     "label": "isolated-byte-diff",
@@ -1144,22 +1151,22 @@
     "note": "12 values return a silent zero"
    },
    "srcA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}"
    },
    "sel": {
     "label": "hardware-run",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "range": "8 values tested (dense over 3-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'wrong_value': 6, 'ok': 2}; ok at {0x5, 0x7}"
    },
    "selhi": {
     "label": "isolated-byte-diff",
@@ -1172,12 +1179,12 @@
    },
    "srcB": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "238 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (192,200); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_imin@iminmax[32:38]; outcomes {'ok': 32, 'silent_zero': 32, 'wrong_value': 192}; ok at {32 values}"
    }
   },
   "hminmax": {
@@ -1238,49 +1245,49 @@
     ]
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'wrong_value': 12, 'ok': 1, 'silent_zero': 1}; ok at {0x4}"
    },
    "cmpA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "250 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "4 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'ok': 228, 'silent_zero': 22}; ok at {228 values}"
    },
    "cmpB": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "255 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (8-9); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'wrong_value': 254, 'ok': 1}; ok at {0xf}"
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "254 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "4/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 191 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (38,46,54,62); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'wrong_value': 250, 'ok': 4}; ok at {0x82, 0x8a, 0x92, 0x9a}"
    },
    "selTrue": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (10-11); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x6-0x7, 0x86-0x87}"
    },
    "cc": {
     "label": "corpus-correlation",
@@ -1310,13 +1317,13 @@
     "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73)"
    },
    "selFalse": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "5/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); TESTED-BUT-UNEXPLAINED: 114 of 256 values reproduce the carrier's correct result (12-96,98-108,110-118,120-128); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel_reg[80:100]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}"
    }
   },
   "isel_reg8": {
@@ -1548,13 +1555,13 @@
     "note": "1/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 128 values return a silent zero"
    },
    "srcA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "198 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "2/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 62 values: 192-230,232-242,244-255; 190 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (0-1); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_ashr@ishift[18:28]; outcomes {'ok': 2, 'wrong_value': 28, 'silent_zero': 162, 'fault': 6}; ok at {0x0-0x1}"
    },
    "src_class": {
     "label": "hardware-run",
@@ -1566,13 +1573,13 @@
     "note": "128 values return a silent zero"
    },
    "opB": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "255 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "252 values return a silent zero; TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (0-3); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_ashr@ishift[18:28]; outcomes {'ok': 4, 'wrong_value': 52, 'silent_zero': 199}; ok at {0x0-0x3}"
    },
    "shamt": {
     "label": "hardware-run",
@@ -1633,21 +1640,21 @@
    },
    "b2_bit0": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "store_en": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "1 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b2_fmt": {
     "label": "hardware-run",
@@ -1659,12 +1666,13 @@
     "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..63 dense (all 64 values))"
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "(reg<<1)|size proven by an own-MSL dst sweep b3 0x0c/0x0a/0x06 = r6/r5/r3",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "199 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 161, 'silent_zero': 28, 'fault': 10}; ok at {161 values}"
    },
    "b4": {
     "label": "hardware-run",
@@ -1676,32 +1684,31 @@
     "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); 126 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..255 dense (all 256 values))"
    },
    "b5": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "225 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 179, 'wrong_value': 43, 'silent_zero': 3}; ok at {179 values}"
    },
    "b6_bit0": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "1 values return a silent zero; second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "sign_ext": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "second independent carrier IBFE_SH AGREES (hardware-run over 0..1 dense (all 2 values))"
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "offset": {
     "label": "hardware-run",
@@ -1723,12 +1730,12 @@
    },
    "srcA": {
     "label": "isolated-byte-diff",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "29 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); second independent carrier IBFE_SH AGREES (isolated-byte-diff over 0..255 dense (all 256 values))"
+    "note": "carrier SYNTH+LIFTED:k_bfe@ibfe[18:30]; outcomes {'ok': 29}; ok at {29 values}"
    },
    "srcC_flags": {
     "label": "isolated-byte-diff",
@@ -2182,74 +2189,76 @@
     ]
    },
    "srcA": {
-    "label": "corpus-correlation",
-    "range": "located at the falu srcA position",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "252 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'wrong_value': 248, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}"
    },
    "op_base": {
-    "label": "corpus-correlation",
-    "range": "0,1 (xor base vs and/or base)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "op_base 0..1 x lut_a 0..15 x lut_b 0..15, DENSE (512 combinations). The upper bits of lut_a/lut_b were swept 0..255 separately but the full 2^8 x 2^8 product was NOT swept.",
+    "target": "G17P",
     "evidence": [
-     "EXP-0013"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcB": {
-    "label": "corpus-correlation",
-    "range": "located at byte+3",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 3, 'silent_zero': 218, 'wrong_value': 32}; ok at {0x0-0x1, 0x81}"
    },
    "lut_b": {
-    "label": "corpus-correlation",
-    "range": "output invert bit (byte+5 bit3)",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "op_base 0..1 x lut_a 0..15 x lut_b 0..15, DENSE (512 combinations). The upper bits of lut_a/lut_b were swept 0..255 separately but the full 2^8 x 2^8 product was NOT swept.",
+    "target": "G17P",
     "evidence": [
-     "EXP-0013"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 16, 'wrong_value': 171, 'silent_zero': 63}; ok at {0x0, 0x8, 0x20, 0x28, 0x40, 0x48, 0x60, 0x68, 0x80, 0x88, 0xa0, 0xa8, 0xc0, 0xc8, 0xe0, 0xe8}"
    },
    "z6": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "254 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "outmod": {
-    "label": "corpus-correlation",
-    "range": "bit7 set for store-consumed forms, clear for compare-consumed forms",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 253}; ok at {253 values}"
    },
    "z8": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "254 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "z9": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "isolated-byte-diff",
+    "range": "255 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_and@ilogic[32:42]; outcomes {'ok': 255}; ok at {255 values}"
    },
    "lut_a_sel": {
     "label": "corpus-correlation",
@@ -2403,22 +2412,22 @@
     ]
    },
    "dst": {
-    "label": "untested",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "16 values tested (dense over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "1 cases failed the integrity sentinel without a structural explanation"
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@fspecial_est[18:24]; outcomes {'wrong_value': 15, 'ok': 1}; ok at {0x2}"
    },
    "srcA": {
     "label": "isolated-byte-diff",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "29 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "CAPPED: the carrier held too few live source registers to establish a register->value RULE (only 1 distinct non-zero results), so an emitter may not generalise"
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@fspecial_est[18:24]; outcomes {'ok': 29}; ok at {29 values}"
    },
    "subop": {
     "label": "hardware-run",
@@ -4995,49 +5004,48 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "srcA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'wrong_value': 254, 'ok': 2}; ok at {0x1, 0x81}"
    },
    "op": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "cache": {
-    "label": "isolated-byte-diff",
-    "range": "0x18 <-> 0x38 spliced: the reduction result is unchanged",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "RT-1a-FIX",
-     "EXP-0025"
+     "EXP-0154"
     ],
-    "note": "CAVEAT: this was a SAME-INSTRUCTION self-check, structurally incapable of detecting a register-liveness effect on a LATER reader. EXP-0086 downgraded the whole 0x54/0x56/0x18/0x38 class to UNKNOWN. Do NOT treat as inert."
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "srcB": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2 cases failed the integrity sentinel without a structural explanation; 28/256 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_sum@falu_acc[252:256]; outcomes {'wrong_value': 251, 'ok': 2}; ok at {0x17, 0x97}"
    }
   },
   "iter": {
@@ -6028,24 +6036,22 @@
     ]
    },
    "b1": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'wrong_value': 160, 'ok': 32, 'silent_zero': 64}; ok at {32 values}"
    },
    "b2": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_imm@irotate[18:30]; outcomes {'ok': 256}; ok at {256 values}"
    },
    "operands": {
     "label": "tokenization-only",
@@ -6468,9 +6474,12 @@
    },
    "dst": {
     "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "range": "16 values tested (dense over 4-bit domain)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_u64add@carry_gen[32:72]; outcomes {'silent_zero': 11, 'ok': 3, 'wrong_value': 2}; ok at {0x1, 0x3, 0xf}"
    },
    "cmpmode": {
     "label": "corpus-correlation",
@@ -6732,12 +6741,13 @@
     ]
    },
    "dstlo": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble = dst; the same op appears as 0x08/0x18/0x28/0x38 for r0/r1/r2/r3",
-    "target": "A18",
+    "label": "hardware-run",
+    "range": "239 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0038"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 25, 'ok': 214}; ok at {214 values}"
    },
    "src": {
     "label": "corpus-correlation",
@@ -6748,14 +6758,13 @@
     ]
    },
    "b3": {
-    "label": "tokenization-only",
-    "range": "framing only (round-trips; no value semantics established)",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "242 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0036",
-     "EXP-M4-12",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_half2@half_pack[32:42]; outcomes {'wrong_value': 26, 'ok': 216}; ok at {216 values}"
    }
   },
   "pad_operand": {
@@ -7403,20 +7412,21 @@
    },
    "cache": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte+3 (reg<<1)|size, located",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "196 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2, 'wrong_value': 190, 'fault': 4}; ok at {0x0-0x1}"
    },
    "b4": {
     "label": "hardware-run",
@@ -7428,39 +7438,40 @@
     "note": "128 values return a silent zero"
    },
    "mask_imm": {
-    "label": "corpus-correlation",
-    "range": "scattered mask immediate (byte+5 + byte+6 bit0)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 256}; ok at {256 values}"
    },
    "mask_hi": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "1 values return a silent zero"
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "b6hi": {
     "label": "untested",
-    "range": "0..127 dense (all 128 values)",
-    "target": "M4",
+    "range": "128 values tested (dense over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 4 of 128 values reproduce the carrier's correct result (8-11); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'wrong_value': 80, 'ok': 48}; ok at {48 values}"
    },
    "b7": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "185 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "reproducibly FAULT (5/5 attempts, healthy baselines) at 64 values: 3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99,103,107,111,115,119,123,127,131,135,139,143,147,151,155,159,163,167,171,175,179,183,187,191,195,199,203,207,211,215,219,223,227,231,235,239,243,...; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (0,4); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'ok': 2, 'wrong_value': 183}; ok at {0x0, 0x4}"
    },
    "srcdesc": {
     "label": "corpus-correlation",
@@ -7481,12 +7492,12 @@
    },
    "b10": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "240 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "32 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (5,7); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rot_var@ibfins[42:54]; outcomes {'wrong_value': 179, 'ok': 61}; ok at {61 values}"
    },
    "b11": {
     "label": "hardware-run",
@@ -9291,22 +9302,22 @@
     ]
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "15 values return a silent zero"
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 13, 'ok': 1}; ok at {0x7}"
    },
    "cmpA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "254 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 254}; ok at {254 values}"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -9318,49 +9329,49 @@
     "note": "12 values return a silent zero"
    },
    "cmpB": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "isolated-byte-diff",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 122 of 256 values reproduce the carrier's correct result (8-129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 253}; ok at {253 values}"
    },
    "cmp_mode": {
     "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "range": "255 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "148 values return a silent zero; TESTED-BUT-UNEXPLAINED: 8 of 256 values reproduce the carrier's correct result (1,9,17,25,129,137,145,153); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 127, 'ok': 128}; ok at {128 values}"
    },
    "selTrue": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "253 values tested (sampled over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'wrong_value': 52, 'ok': 201}; ok at {201 values}"
    },
    "cc": {
-    "label": "corpus-correlation",
-    "range": "condition-code byte shares the icmpsel byte+6 map (float/uint/sint x lt/gt) by structure; per-value map located by own-MSL byte-diff",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0013",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 64, 'wrong_value': 192}; ok at {64 values}"
    },
    "flags": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "128 values return a silent zero; TESTED-BUT-UNEXPLAINED: 56 of 256 values reproduce the carrier's correct result (0,2,4,6,10,12,14,32,34,36,38,42,44,46,64,66,68,70,74,76,78,96,98,100,102,106,108,110,128,130,132,134,138,140,142,160,162,164,166,170,172,174,192,194,196,198,202,204,206,224,226,228,230,234,236,238); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_rsqrt@isel8[18:32]; outcomes {'ok': 128, 'wrong_value': 128}; ok at {128 values}"
    }
   },
   "isel10": {
@@ -9374,22 +9385,22 @@
     ]
    },
    "dst": {
-    "label": "isolated-byte-diff",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "15 values return a silent zero"
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "cmpA": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (1,129); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'ok': 204, 'silent_zero': 8, 'wrong_value': 44}; ok at {204 values}"
    },
    "opsel": {
     "label": "isolated-byte-diff",
@@ -9401,49 +9412,49 @@
     "note": "12 values return a silent zero"
    },
    "cmpB": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 4 of 256 values reproduce the carrier's correct result (4-5,132-133); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}"
    },
    "cmp_mode": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "192 values return a silent zero; TESTED-BUT-UNEXPLAINED: 8 of 256 values reproduce the carrier's correct result (162,170,178,186,226,234,242,250); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x82, 0x8a, 0x92, 0x9a}"
    },
    "selTrue": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 1 of 256 values reproduce the carrier's correct result (170); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x8-0x9, 0x88-0x89}"
    },
    "cc": {
-    "label": "corpus-correlation",
-    "range": "condition-code byte shares the icmpsel byte+6 map (float/uint/sint x lt/gt) by structure; per-value map located by own-MSL byte-diff",
-    "target": "M4+A18",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0013",
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'wrong_value': 144, 'ok': 16, 'silent_zero': 96}; ok at {0x5, 0x7, 0xd, 0xf, 0x15, 0x17, 0x1d, 0x1f, 0x85, 0x87, 0x8d, 0x8f, 0x95, 0x97, 0x9d, 0x9f}"
    },
    "flags": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "120 values return a silent zero; TESTED-BUT-UNEXPLAINED: 2 of 256 values reproduce the carrier's correct result (192,200); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'ok': 32, 'wrong_value': 208, 'silent_zero': 16}; ok at {32 values}"
    },
    "selFalse_file": {
     "label": "isolated-byte-diff",
@@ -9455,13 +9466,13 @@
     "note": "3/256 values excluded as not reproducible (sibling-GPU contamination class, see RESULTS.md \u00a73); reproducibly FAULT (5/5 attempts, healthy baselines) at 61 values: 64-78,80,82-95,192-211,213-223"
    },
    "selFalse": {
-    "label": "untested",
-    "range": "0..255 dense (all 256 values)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0139"
+     "EXP-0154"
     ],
-    "note": "TESTED-BUT-UNEXPLAINED: 1 of 256 values reproduce the carrier's correct result (213); no <=4-bit rule explains the partition, so the field's SEMANTICS are not established and an emitter must not choose an arbitrary value. Full per-value observations are in raw/*/sweep.jsonl."
+    "note": "carrier SYNTH+LIFTED:k_isel@isel10[32:62]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x6-0x7, 0x86-0x87}"
    }
   },
   "isel10_c": {
@@ -10049,30 +10060,30 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 1, 'wrong_value': 12, 'silent_zero': 1}; ok at {0x0}"
    },
    "srcA_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 2, 'wrong_value': 24}; ok at {0x0, 0x40}"
    },
    "opsel": {
     "label": "corpus-correlation",
@@ -10093,57 +10104,57 @@
    },
    "srcB_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
     "label": "untested",
-    "range": "122 of 128 encodable values",
-    "target": "M4",
+    "range": "128 values tested (dense over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 24/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 6 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 24, 'wrong_value': 32, 'silent_zero': 72}; ok at {0x0-0x2, 0x4-0x6, 0x8-0xa, 0xc-0xe, 0x10-0x12, 0x14-0x16, 0x18-0x1a, 0x1c-0x1e}"
    },
    "srcB_imm": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "mod_lo": {
     "label": "hardware-run",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "range": "8 values tested (dense over 3-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 1, 'wrong_value': 7}; ok at {0x0}"
    },
    "srcB_neg": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_abs_add@falu2_srcmod10[32:42]; outcomes {'ok': 1, 'wrong_value': 1}; ok at {0x0}"
    },
    "mod_hi": {
     "label": "hardware-run",
@@ -10175,39 +10186,39 @@
    },
    "dst": {
     "label": "hardware-run",
-    "range": "0..15 dense (all 16 values)",
-    "target": "M4",
+    "range": "14 values tested (sampled over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "2/16 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 1, 'wrong_value': 11, 'silent_zero': 2}; ok at {0x0}"
    },
    "srcA_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcA_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 2, 'wrong_value': 24}; ok at {0x0, 0x40}"
    },
    "opsel": {
     "label": "untested",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "range": "7 values tested (sampled over 3-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "NOT deterministic across the two gated runs; HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 6, 'ok': 1}; ok at {0x6}"
    },
    "opflags": {
     "label": "hardware-run",
@@ -10220,57 +10231,57 @@
    },
    "srcB_size": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "srcB_reg": {
     "label": "hardware-run",
-    "range": "0..15 dense + boundaries {16,24,31,32,40,48,63,64,66,67,95,96,112,120,125,126,127}",
-    "target": "M4",
+    "range": "26 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 25, 'ok': 1}; ok at {0x2}"
    },
    "ctrl": {
     "label": "untested",
-    "range": "123 of 128 encodable values",
-    "target": "M4",
+    "range": "128 values tested (dense over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "NOT deterministic across the two gated runs; sweep not dense over the encodable range; 30/32 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs; 5 case(s) dropped as InnocentVictim (machine evidence); HELD BACK BY run01 ONLY: the two ISOLATED-host runs (run05+run06) give `hardware-run` for this field. run01 was captured against ~9 concurrent GPU experiments (254 faults / 41 victims vs 15 / 0). Not promoted here."
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 12, 'wrong_value': 116}; ok at {0x0-0x1, 0x3-0x4, 0x8-0x9, 0xb-0xc, 0x10, 0x14, 0x18, 0x1c}"
    },
    "srcB_imm": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "mod_lo": {
     "label": "hardware-run",
-    "range": "0..7 dense (all 8 values)",
-    "target": "M4",
+    "range": "8 values tested (dense over 3-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": "7/8 pre-registered predictions REFUTED; the label rests on the observed value->behaviour map, which is complete and reproduced in both runs"
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'ok': 2, 'wrong_value': 6}; ok at {0x0-0x1}"
    },
    "srcB_neg": {
     "label": "hardware-run",
-    "range": "0..1 dense (all 2 values)",
-    "target": "M4",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-0138"
+     "EXP-0154"
     ],
-    "note": ""
+    "note": "carrier SYNTH+LIFTED:k_fma_abs@falu3_srcmod12[56:68]; outcomes {'wrong_value': 1, 'ok': 1}; ok at {0x1}"
    },
    "mod_hi": {
     "label": "hardware-run",
@@ -10712,42 +10723,49 @@
     ]
    },
    "dst": {
-    "label": "corpus-correlation",
-    "range": "byte0 high nibble proven a destination register by parallel-extend diffs / an own-MSL reg sweep (compile-only)",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "16 values tested (dense over 4-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 1, 'wrong_value': 14, 'silent_zero': 1}; ok at {0x0}"
    },
    "src_reg": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bits0-6 source register",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "125 values tested (sampled over 7-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2, 'wrong_value': 123}; ok at {0x0-0x1}"
    },
    "src_flag": {
-    "label": "corpus-correlation",
-    "range": "byte+1 bit7 uniform-file / high-half flag",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "2 values tested (dense over 1-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'ok': 2}; ok at {0x0-0x1}"
    },
    "kind": {
-    "label": "corpus-correlation",
-    "range": "byte+2 low nibble 0xc: 0x1c shift, 0x3c rotate",
-    "target": "M4",
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
     "evidence": [
-     "EXP-M4-13"
-    ]
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'wrong_value': 234, 'ok': 4, 'silent_zero': 18}; ok at {0x14, 0x1c, 0x34, 0x3c}"
    },
    "op_desc": {
-    "label": "untested",
-    "range": "none",
-    "target": "M4",
-    "evidence": []
+    "label": "hardware-run",
+    "range": "256 values tested (dense over 8-bit domain)",
+    "target": "G17P",
+    "evidence": [
+     "EXP-0154"
+    ],
+    "note": "carrier SYNTH+LIFTED:k_rot_var@shift_amt_move[76:80]; outcomes {'wrong_value': 252, 'ok': 4}; ok at {0x4-0x5, 0x84-0x85}"
    }
   },
   "reg_move_c2var": {

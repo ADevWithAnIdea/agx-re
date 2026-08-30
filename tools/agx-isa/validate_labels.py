@@ -12,7 +12,8 @@ Hard checks (any failure -> exit 1):
   3. every non-`untested` label carries a non-empty `evidence` list;
   4. every `hardware-run` entry carries a `range` that is not the placeholder "tested";
   5. `untested` entries carry `evidence: []` (the spec's default rule);
-  6. every entry has a non-empty `range` and a `target` in {M4, A18, M4+A18};
+  6. every entry has a non-empty `range` and a `target` in
+     {M4, G16G, A18, G17P, M4+A18, G16G+G17P}  (G16G==M4, G17P==A18);
   7. no validation.json entry names a mnemonic/field that db.json does not have;
   8. the `coverage` block's counts agree with the entries actually present;
   9. `emitter_role: "data-word"` in db.json agrees exactly with the descriptor's own
@@ -63,7 +64,14 @@ LABELS = (
     "untested",
 )
 EMIT_OK = ("hardware-run", "isolated-byte-diff")
-TARGETS = ("M4", "A18", "M4+A18")
+# Target names. The project pivoted to the A18 Pro / G17P as the sole test target on
+# 2026-08-28, and experiments run there label their results by the GPU name (G17P)
+# rather than the product name (A18). Both are accepted and mean the same silicon;
+# likewise G16G is the M4's GPU. Legacy labels are kept so committed evidence stays
+# valid without a mass relabel — that would rewrite history for no gain.
+#   G16G == M4     (Mac Mini, retired from testing)
+#   G17P == A18    (users-MacBook-Neo.local, the current test target)
+TARGETS = ("M4", "G16G", "A18", "G17P", "M4+A18", "G16G+G17P")
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # A descriptor is DECODE SCAFFOLDING (excluded from the emittability denominator)

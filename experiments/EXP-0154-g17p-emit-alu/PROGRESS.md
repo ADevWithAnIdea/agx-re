@@ -92,3 +92,68 @@ are not hitting the same illegal encodings simultaneously. Sibling GPU experimen
 active throughout (EXP-0156 held `gpulease.sh`, plus one further `run.py`); this is
 recorded per FIELD-SWEEP-PROTOCOL section 7.4 and every non-OK case carries the OS
 fault-classification string.
+
+## M6 — 2026-08-29 — run03 CRASHED in a sibling-induced victim cascade; run04 replaces it
+`g17p_20260829_run03` stopped at **9,000 cases**. Root cause is in its own
+`baseline.jsonl` (seq 46-48): a **sibling experiment's GPU hang triggered a device reset**,
+our `IBFINS` baseline came back
+`Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)`,
+the immediate re-acquisition was discarded too, and the next revalidation dereferenced the
+absent baseline. The anti-cascade machinery did its job — it detected the cascade and
+refused to log it as data (those cases are `undecodable`) — and then a missing null guard
+killed the process. `amendment_02` records the fix (retry-with-backoff through a victim
+wave, null guard) **and a tightening**: a value must now be covered by **both** gated runs
+to be promoted. run03 is retained exactly as it crashed; the gated pair is **run02 + run04**.
+
+## M7 — 2026-08-29 — run02 COMPLETE; my throughput estimate was wrong (corrected)
+`g17p_20260829_run02`: **all 23,267 cases**, 23,267 distinct `idx`, **0 duplicates**,
+`seq` and `t` both monotonic, largest inter-record gap 8.4 s, **0 watchdog hangs**,
+**0 baseline failures**. Outcomes: 7,385 `ok`, 11,940 `wrong_value`, 3,309 `silent_zero`,
+633 `fault`. OS fault classes across all attempts: **993 `...ErrorHang`** (ours) and
+**1,127 `...ErrorInnocentVictim`** (siblings' device resets splashing into our command
+buffers) — the split FIELD-SWEEP-PROTOCOL section 7.2 asks for, measured.
+
+The run's own timestamps show it ran at **44.9 cases/s**, not the ~3.3/s I had inferred
+from polling. `amendment_03` records the correction: the matrix reduction in
+`amendment_01` was unnecessary on throughput grounds. It is kept because it does not touch
+the headline metric — every field below emitter grade is still swept densely — and
+`EXP0154_DENSE_ALL=1` (matrix v3, 36,222 cases) is now available for a successor.
+
+## M8 — 2026-08-29 — `irotate.operands` genuinely hangs the GPU on G17P
+run04 slowed to a crawl inside `IROTATE.operands`. Cause read straight out of its raw log:
+values around byte+7 = 231/232 return
+`Caused GPU Hang Error (00000003:kIOGPUCommandBufferCallbackErrorHang)` — **genuine**, not
+`InnocentVictim`, and reproducible across the majority-of-3 retries. They are *contained*
+command-buffer errors (`hangs_seen` = 0, i.e. no watchdog timeout, no host wedge), so the
+arm was allowed to continue, but they cost ~24 s each and they are almost certainly the
+source of some of the `InnocentVictim` waves the sibling experiments and run02 saw.
+
+## M9 — 2026-08-29 — gated pair COMPLETE, analysis done
+`run02` and `run04` both executed all **23,267** cases, **0 watchdog hangs**, **0 baseline
+failures**, counters agreeing to within 0.1% on an identical matrix run in opposite arm
+order. 22,340 cases survived the cross-run gate (896 victim-class excluded, 31 disagreements
+over 14 fields).
+
+**Result: 58 fields upgraded, 7 instructions become EMITTABLE (38 -> 45):**
+`iadd2`, `ibfe`, `ishift`, `isel10`, `ilogic`, `falu_acc`, `shift_amt_move`.
+
+## M10 — 2026-08-29 — four analysis flaws found by my own checks, all deflating
+Between the first verdict pass and the final one I found and fixed four defects in
+`analysis/verdicts.py`, each of which had **inflated** the result:
+1. an `INERT across the whole encodable range` verdict granted from a ~30-value SAMPLE;
+2. destination writes misattributed as release-on-read whenever the result value is 0;
+3. the `ilogic` LUT decoder could not see the carrier's OWN function (it only looked at
+   registers that differed from the baseline, and for the anchor encoding nothing differs);
+4. the register-map promotion path bypassed the pre-registered falsifier gate.
+
+Fixing (4) withdrew all promotions from `CARRY_GEN` and `MOV_ZEXT16`, whose falsifiers
+scored `ok` — for `CARRY_GEN` because my own integer seeds (all <= 127) never carry out of
+the low word, so the instruction is a no-op in that carrier whatever its encoding. Fixing
+(3) took `ilogic` from 15/16 to 16/16 functions and made it emittable. Net: a naive +6/63
+became an audited **+7/58**.
+
+## M11 — 2026-08-29 — evidence pulled back, deliverables complete
+`raw/` holds all four runs (two gated, two retained partials), `work/frozen/` pins the exact
+db.json the hardware ran against, and `analysis/` holds `field_verdicts.json` (section-5
+schema), `emittable.json`, `crosscheck.json`, `headline.json` and `target_set.json`.
+Nothing committed; `db.json`, `validation.json`, `docs/` and `PROVENANCE.md` untouched.

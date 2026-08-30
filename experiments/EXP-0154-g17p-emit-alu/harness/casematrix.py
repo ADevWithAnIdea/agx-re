@@ -22,6 +22,7 @@ geometry comes from our own tools/agx-isa/db.json.
 from __future__ import print_function
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -108,9 +109,18 @@ VAL = json.loads((H.ISA_DIR / "validation.json").read_text())["instructions"]
 GOOD_LABELS = ("hardware-run", "isolated-byte-diff")
 
 
+DENSE_ALL = os.environ.get("EXP0154_DENSE_ALL") == "1"
+
+
 def is_blocked(mnemonic, field):
     """True iff this field is what stops the instruction being emittable, i.e.
-    it is not already at emitter grade in tools/agx-isa/validation.json."""
+    it is not already at emitter grade in tools/agx-isa/validation.json.
+
+    With EXP0154_DENSE_ALL=1 every field is swept densely regardless (matrix
+    v3). The sampled mode (matrix v2) existed only because throughput was
+    mis-estimated; see CAPTURE_CONTRACT.json amendment_03."""
+    if DENSE_ALL:
+        return True
     return VAL.get(mnemonic, {}).get(field, {}).get("label", "untested") \
         not in GOOD_LABELS
 

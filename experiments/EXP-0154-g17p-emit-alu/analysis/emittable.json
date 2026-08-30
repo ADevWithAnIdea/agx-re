@@ -1,0 +1,333 @@
+{
+ "emittable_after": [
+  "copysign",
+  "cvt_f2h",
+  "cvt_f2i",
+  "cvt_i2f",
+  "cvt_i2f_src",
+  "device_load",
+  "device_store",
+  "falu2",
+  "falu_acc",
+  "frame_prologue",
+  "get_sr",
+  "half_alu",
+  "half_alu_ext8",
+  "iadd2",
+  "ibfe",
+  "ibitcount",
+  "if_push",
+  "ilogic",
+  "isel10",
+  "ishift",
+  "iunary",
+  "link_save_restore",
+  "matrix_mac",
+  "mov_imm",
+  "n3_sample_read",
+  "pack_convert",
+  "pixel_order",
+  "psel",
+  "reg_move_c0",
+  "reg_move_c1",
+  "reg_move_c2var",
+  "reg_move_c9",
+  "reg_move_cb",
+  "sel",
+  "shift_amt_move",
+  "spill_frame_marker",
+  "stop",
+  "tex_addr_setup",
+  "threadgroup_barrier",
+  "tile_read",
+  "tile_read_mrt",
+  "uniform_mov",
+  "unpack_convert",
+  "vtx_coord_xform",
+  "vtx_out_pos"
+ ],
+ "emittable_before": [
+  "copysign",
+  "cvt_f2h",
+  "cvt_f2i",
+  "cvt_i2f",
+  "cvt_i2f_src",
+  "device_load",
+  "device_store",
+  "falu2",
+  "frame_prologue",
+  "get_sr",
+  "half_alu",
+  "half_alu_ext8",
+  "ibitcount",
+  "if_push",
+  "iunary",
+  "link_save_restore",
+  "matrix_mac",
+  "mov_imm",
+  "n3_sample_read",
+  "pack_convert",
+  "pixel_order",
+  "psel",
+  "reg_move_c0",
+  "reg_move_c1",
+  "reg_move_c2var",
+  "reg_move_c9",
+  "reg_move_cb",
+  "sel",
+  "spill_frame_marker",
+  "stop",
+  "tex_addr_setup",
+  "threadgroup_barrier",
+  "tile_read",
+  "tile_read_mrt",
+  "uniform_mov",
+  "unpack_convert",
+  "vtx_coord_xform",
+  "vtx_out_pos"
+ ],
+ "fields_upgraded": 58,
+ "newly_emittable": [
+  "falu_acc",
+  "iadd2",
+  "ibfe",
+  "ilogic",
+  "isel10",
+  "ishift",
+  "shift_amt_move"
+ ],
+ "upgrades": {
+  "falu3.srcA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "falu3.srcC": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "falu3_ext.srcA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "falu3_ext.srcC": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "falu_acc.cache": {
+   "from": "isolated-byte-diff",
+   "to": "hardware-run"
+  },
+  "falu_acc.srcA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "falu_acc.srcB": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "fspecial_est.dst": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "half_pack.b3": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "half_pack.dstlo": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "iadd2.srcB_ext": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ibfe.b5": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "ibfe.dst": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ibfins.dst": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ibfins.mask_imm": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.lut_a": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.lut_b": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.op_base": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.outmod": {
+   "from": "corpus-correlation",
+   "to": "isolated-byte-diff"
+  },
+  "ilogic.srcA": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.srcB": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "ilogic.z6": {
+   "from": "tokenization-only",
+   "to": "isolated-byte-diff"
+  },
+  "ilogic.z8": {
+   "from": "tokenization-only",
+   "to": "isolated-byte-diff"
+  },
+  "ilogic.z9": {
+   "from": "tokenization-only",
+   "to": "isolated-byte-diff"
+  },
+  "imad.dst": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "imad.mulsel": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "imad.srcB": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "imad.srcC_lo": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "iminmax.dst": {
+   "from": "isolated-byte-diff",
+   "to": "hardware-run"
+  },
+  "iminmax.dst_full": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "iminmax.srcA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "irotate.b1": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "irotate.b2": {
+   "from": "tokenization-only",
+   "to": "hardware-run"
+  },
+  "isel10.cc": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "isel10.cmpA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel10.cmpB": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel10.cmp_mode": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel10.dst": {
+   "from": "isolated-byte-diff",
+   "to": "hardware-run"
+  },
+  "isel10.flags": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel10.selFalse": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel10.selTrue": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel8.cc": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "isel8.cmpA": {
+   "from": "untested",
+   "to": "isolated-byte-diff"
+  },
+  "isel8.cmpB": {
+   "from": "untested",
+   "to": "isolated-byte-diff"
+  },
+  "isel8.dst": {
+   "from": "isolated-byte-diff",
+   "to": "hardware-run"
+  },
+  "isel8.flags": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel8.selTrue": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel_reg.cmpA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel_reg.dst": {
+   "from": "isolated-byte-diff",
+   "to": "hardware-run"
+  },
+  "isel_reg.selFalse": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "isel_reg.selTrue": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "ishift.opB": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "ishift.srcA": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "shift_amt_move.dst": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "shift_amt_move.kind": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "shift_amt_move.op_desc": {
+   "from": "untested",
+   "to": "hardware-run"
+  },
+  "shift_amt_move.src_flag": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  },
+  "shift_amt_move.src_reg": {
+   "from": "corpus-correlation",
+   "to": "hardware-run"
+  }
+ }
+}

@@ -9,6 +9,21 @@
    "utc": "2026-08-29",
    "what": "Case matrix reduced from 38,089 to 23,267 cases and the redundant IADD2_64 arm dropped; harness/run.py round-trips the mutated BLOCK instead of the whole 2412-byte padded program; harness/run.py gains --order forward|reverse.",
    "why": "Measured throughput on G17P is ~3.3 dispatches/s (dominated by per-request MTLLibrary+pipeline creation from the spliced archive, not by our Python). The original matrix needed ~3.4 h per gated run, ~7 h for the pair, with a network drop already having killed one dispatch. The reduction sweeps DENSELY exactly the fields that are below emitter grade in tools/agx-isa/validation.json - the ones that actually decide whether an instruction becomes emittable - and samples (boundaries + all powers of two + interior points, ~30 values) the fields already at emitter grade, which are only being CONFIRMED on G17P and are never promoted from a sampled sweep. IADD2_64 tested the same instruction as IADD2 in a second carrier; EXP-0146 already covered the u64 form on M4."
+  },
+  {
+   "id": "amendment_02",
+   "retained_partial": "raw/g17p_20260829_run03 (9,000 cases, reverse order) is RETAINED EXACTLY AS IT CRASHED. The gated pair becomes run02 + run04.",
+   "touches": "the cascade-recovery path and the promotion gate. Case generation, splicing, poisoning, majority-of-3, victim classification, the sentinels, the oracle and outcome classification are UNCHANGED, so run02 (started before the patch) stays comparable with run04.",
+   "utc": "2026-08-29",
+   "what": "harness/run.py: (a) baseline acquisition now retries with backoff (and one child restart) while the OS reports `kIOGPUCommandBufferCallbackErrorInnocentVictim`, instead of giving up after 3 attempts; (b) the periodic baseline-revalidation comparison is null-guarded. analysis/verdicts.py: promotion now REQUIRES a value to be covered by both gated runs (n_runs >= 2); previously a value only one run reached could be promoted without a cross-run check.",
+   "why": "g17p_20260829_run03 crashed at 9,000 cases. Root cause, from raw/g17p_20260829_run03/baseline.jsonl seq 46-48: a SIBLING experiment's GPU hang triggered a device reset, our IBFINS baseline was discarded as `...ErrorInnocentVictim`, the immediate re-acquisition was discarded too, so no baseline existed and the next revalidation dereferenced it. The FIELD-SWEEP-PROTOCOL section 7.3 machinery worked exactly as intended -- it detected the cascade and refused to record it as data (those cases are `undecodable`) -- and then a null guard was missing. Change (c) TIGHTENS the promotion rule rather than loosening it."
+  },
+  {
+   "consequence": "The matrix reduction in amendment_01 was NOT necessary on throughput grounds. It is left in place because it does not affect the headline metric - every field that is BELOW emitter grade, i.e. every field that decides whether an instruction becomes emittable, is still swept DENSELY over its whole encodable range. What the reduction costs is only the ability to re-label already-emitter-grade fields from `target: M4` to `target: G17P`, and those fields are explicitly never promoted from the sampled sweep. `harness/casematrix.py` gained an `EXP0154_DENSE_ALL=1` mode (matrix v3, 36,222 cases, sha256 cce98b8c80d0414149a9e75cbcabd1f05329ae64a7fb8136904bf6dd7af71c4a) so a successor can close that gap in ~15 minutes.",
+   "id": "amendment_03",
+   "utc": "2026-08-29",
+   "what": "CORRECTION to amendment_01's stated reason. The '~3.3 dispatches/s' figure quoted there was WRONG: it was inferred from `wc -l` growth across polls using a bad assumption about how much wall time had passed between them. The measured truth, from the run's own per-record timestamps, is that g17p_20260829_run02 executed all 23,267 cases in 518.4 s = 44.9 cases/s, monotonic in both `seq` and `t`, 23,267 distinct idx, 0 duplicates, largest inter-record gap 8.4 s.",
+   "why_disclosed": "An incorrect measurement that changed a frozen contract has to be visible in the record, not quietly fixed."
   }
  ],
  "authored_sha256": {
@@ -40,7 +55,7 @@
  "gate": "authored blob hashes below, NOT live HEAD (SUBAGENT_BRIEF)",
  "gated_runs": [
   "g17p_20260829_run02",
-  "g17p_20260829_run03"
+  "g17p_20260829_run04"
  ],
  "matrix": {
   "cases": 23267,
@@ -108,6 +123,10 @@
  },
  "repo_revision": "3a885d58c4d286eda61a8808029c8a7aecb1dfec",
  "repo_tree_clean_at_freeze": true,
+ "retained_partials": [
+  "g17p_20260829_run01 (2,306 cases, matrix v1, stopped for throughput)",
+  "g17p_20260829_run03 (9,000 cases, matrix v2, crashed in a sibling-induced victim cascade)"
+ ],
  "target": {
   "accelerator": "AGXAcceleratorG17P",
   "addr": "192.168.10.243",

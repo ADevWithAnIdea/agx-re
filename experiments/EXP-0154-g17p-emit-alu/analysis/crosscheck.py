@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -116,11 +117,74 @@ def main():
             print("F  ibfe.%-8s        M4: %-34s G17P ok at %s"
                   % (fld, note, V.compact(oks)))
 
+    # --- iadd2.srcB_ext on a 32-BIT carrier, with the width PROVEN fixed ----
+    # EXP-0139 (32-bit carrier) declined to promote it ("no <=4-bit rule");
+    # EXP-0146 (64-bit carrier) promoted it as a modifier with
+    # `(v & 0x7C) == 0x00`. This settles it on a 32-bit carrier.
+    d = by("IADD2", "srcB_ext")
+    if d:
+        B = H.SEED_I[2]          # anchor srcB_imm = 0x08 = 4*2 -> r2
+        hit = tot = 0
+        bad = []
+        for v, r in sorted(d.items()):
+            regs = r["observed"]["regs"]
+            if not regs:
+                continue
+            reg = v >> 2
+            want = (H.SEED_I[reg] if reg < H.N_REGS else 0) + B
+            tot += 1
+            if regs[0] == want:
+                hit += 1
+            else:
+                bad.append((v, reg, regs[0], want))
+        okv = sorted(v for v in d if d[v]["outcome"] == "ok")
+        mask_ok = set(okv) == set(v for v in d if (v & 0x7C) == 0)
+        base_regs = None
+        anyr = list(d.values())[0]
+        if anyr["oracle"]["digest"]:
+            dg = anyr["oracle"]["digest"]
+            base_regs = [int(dg[i * 8:(i + 1) * 8], 16) for i in range(16)]
+        # width proof: a 32-bit add writes ONE register; a 64-bit add writes a pair
+        width_proof = None
+        if base_regs:
+            touched = [i for i in range(16)
+                       if base_regs[i] != H.SEED_I[i]]
+            width_proof = {"registers_differing_from_seed": touched,
+                           "r0": base_regs[0],
+                           "expected_32bit_sum": H.SEED_I[0] + B,
+                           "r1_untouched": base_regs[1] == H.SEED_I[1]}
+        report["iadd2_srcB_ext_32bit"] = {
+            "carrier": "SYNTH+LIFTED:k_u32add@iadd2[32:42] (opmode = 0x02 held fixed)",
+            "sweep": "%d values, dense over the whole 7-bit range" % len(d),
+            "ok_values": okv,
+            "EXP0146_mask_rule_(v&0x7C)==0_fits_ok_set": mask_ok,
+            "register_selector_model": "reg = srcB_ext >> 2  (the reg<<2 packing)",
+            "model_matches": "%d/%d" % (hit, tot),
+            "model_mismatches": bad[:12],
+            "distinct_registers_confirmed": sorted(set(v >> 2 for v in d if (v >> 2) < 16)),
+            "width_proof_32bit": width_proof,
+        }
+        print()
+        print("=" * 72)
+        print("iadd2.srcB_ext on a 32-BIT carrier (the EXP-0139 vs EXP-0146 disagreement)")
+        print("=" * 72)
+        print("  dense sweep            : %d values" % len(d))
+        print("  `ok` (reproduces anchor): %s" % V.compact(okv))
+        print("  EXP-0146 mask (v&0x7C)==0 fits that ok-set exactly: %s" % mask_ok)
+        print("  REGISTER-SELECTOR model  d = r[srcB_ext>>2] + r[srcB_imm>>2]")
+        print("     matches %d/%d over the FULL dense sweep, %d distinct registers"
+              % (hit, tot, len(set(v >> 2 for v in d if (v >> 2) < 16))))
+        print("  32-bit width proof     : %s" % json.dumps(width_proof))
+
     # F3 + the LUT: ilogic
     print()
     print("=" * 72)
     print("ilogic - 2-input boolean function recovery on G17P")
     print("=" * 72)
+    # The carrier's two operands. db.json calls byte+1 `srcA` (0x05 -> r2) and
+    # byte+3 `srcB` (0x01 -> r0). EXP-0146's M4 table is written in terms of its
+    # own MSL's `a`/`b`, which is NOT the same labelling -- both conventions are
+    # scored below and the one that reproduces the M4 table is reported.
     a, b = H.SEED_I[2], H.SEED_I[0]      # srcA=0x05 -> r2, srcB=0x01 -> r0
     print("operands: a = r2 = %d (0x%x), b = r0 = %d (0x%x)" % (a, a, b, b))
     # find the destination register from any ok LUT case
@@ -138,21 +202,75 @@ def main():
                 dg = r["oracle"]["digest"]
                 base = [int(dg[i * 8:(i + 1) * 8], 16) for i in range(16)]
             break
-    found = {}
+    # PASS 1: locate the destination register from cases that DID change it.
     dstreg = None
+    votes = Counter()
     for key, r in sorted(lut_cases.items()):
-        ob, la, lb = key >> 8, (key >> 4) & 15, key & 15
         regs = r["observed"]["regs"]
-        cand = [i for i in range(16) if base and regs[i] != base[i]]
-        for i in (cand or []):
-            f = derive_lut(a, b, regs[i])
+        for i in range(16):
+            if base and regs[i] != base[i] and derive_lut(a, b, regs[i]) is not None:
+                votes[i] += 1
+    if votes:
+        dstreg = votes.most_common(1)[0][0]
+
+    # PASS 2: read the function out of THAT register for EVERY case, including
+    # the ones that reproduce the baseline. Without this the carrier's own
+    # function (`and`, for kernels/probes.metal::k_and) is never observed,
+    # because nothing differs from the baseline in exactly that case.
+    found = {}
+    if dstreg is not None:
+        for key, r in sorted(lut_cases.items()):
+            ob, la, lb = key >> 8, (key >> 4) & 15, key & 15
+            regs = r["observed"]["regs"]
+            if not regs:
+                continue
+            f = derive_lut(a, b, regs[dstreg])
             if f is not None:
-                if dstreg is None:
-                    dstreg = i
-                if i == dstreg:
-                    found.setdefault(f, []).append((ob, la, lb))
+                found.setdefault(f, []).append((ob, la, lb))
     print("destination register observed:", dstreg)
     print("functions reached: %d of 16" % len(found))
+
+    # Score BOTH operand conventions against EXP-0146's M4 minimal selectors.
+    def score_convention(A, B):
+        f2 = {}
+        for key, r in sorted(lut_cases.items()):
+            regs = r["observed"]["regs"]
+            if not regs or dstreg is None:
+                continue
+            f = derive_lut(A, B, regs[dstreg])
+            if f is not None:
+                f2.setdefault(f, []).append((key >> 8, (key >> 4) & 15, key & 15))
+        n = 0
+        for fn in range(16):
+            m4 = [k for k, v in M4_LUT.items() if v == fn]
+            if m4 and any(e[0] == m4[0][0] and (e[1] & 3) == m4[0][1]
+                          and (e[2] & 0x0f) == m4[0][2] for e in f2.get(fn, [])):
+                n += 1
+        return len(f2), n, f2
+    n_dbnames, ok_dbnames, _ = score_convention(a, b)
+    n_swapped, ok_swapped, f_swapped = score_convention(b, a)
+    print("  convention `a` = db.json srcA (byte+1): %d/16 functions, "
+          "%d/16 M4 minimal selectors reproduced" % (n_dbnames, ok_dbnames))
+    print("  convention `a` = db.json srcB (byte+3): %d/16 functions, "
+          "%d/16 M4 minimal selectors reproduced" % (n_swapped, ok_swapped))
+    if ok_swapped > ok_dbnames:
+        print("  => EXP-0146's M4 table reproduces EXACTLY on G17P, but its `a`/`b`")
+        print("     are SWAPPED relative to db.json's srcA/srcB field NAMES.")
+        found = f_swapped
+    report["ilogic_operand_convention"] = {
+        "a_is_dbjson_srcA_byte+1": {"functions": n_dbnames,
+                                    "m4_selectors_reproduced": ok_dbnames},
+        "a_is_dbjson_srcB_byte+3": {"functions": n_swapped,
+                                    "m4_selectors_reproduced": ok_swapped},
+        "conclusion": ("EXP-0146's `a` is db.json's srcB (byte+3) and its `b` is "
+                       "db.json's srcA (byte+1). With that alignment the entire "
+                       "16-function M4 table reproduces on G17P. An emitter that "
+                       "reads the EXP-0146 table together with db.json's field "
+                       "names gets all EIGHT asymmetric functions wrong "
+                       "(a_and_not_b, a, not_a_and_b, b, not_b, a_or_not_b, "
+                       "not_a, not_a_or_b) while the eight symmetric ones "
+                       "(0, and, xor, or, nor, xnor, nand, 1) still look right."),
+    }
     agree = diverge = 0
     lut_rows = {}
     for f in range(16):

@@ -32,12 +32,17 @@ GOOD = ("hardware-run", "isolated-byte-diff")
 def main():
     db = json.loads((H.ISA_DIR / "db.json").read_text())
     INS = dict((i["mnemonic"], i) for i in db["instructions"])
+    # db.json's `emit_unsafe` flag overrides field labels entirely -- that is why
+    # validation.json's own coverage block lists 38 emittable instructions where a
+    # pure field-label count gives 39 (`tg_addr_compute` is field-complete but
+    # emit_unsafe: over-fitted match, two live operand bytes unmodelled).
+    UNSAFE = set(i["mnemonic"] for i in db["instructions"] if i.get("emit_unsafe"))
     VAL = json.loads((H.ISA_DIR / "validation.json").read_text())["instructions"]
     MINE = json.loads((HERE / "field_verdicts.json").read_text())
 
     mine_by = {}
     for k, v in MINE.items():
-        if k.startswith("_"):
+        if k.startswith("_") or k == "db_defects" or "." not in k:
             continue
         base = k.split("@byte+")[0]
         mn, fld = base.split(".", 1)
@@ -61,8 +66,8 @@ def main():
             if new and RANK[new] > RANK[old]:
                 changed.append((n, old, new))
         binst_ok = VAL.get(mn, {}).get("_instruction", {}).get("label", "untested") in GOOD
-        pre_all = (all(pre) and names) or (not names and binst_ok)
-        post_all = (all(post) and names) or (not names and binst_ok)
+        pre_all = ((all(pre) and names) or (not names and binst_ok)) and mn not in UNSAFE
+        post_all = ((all(post) and names) or (not names and binst_ok)) and mn not in UNSAFE
         if pre_all:
             before_ok.add(mn)
         if post_all:

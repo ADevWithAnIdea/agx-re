@@ -1,0 +1,366 @@
+{
+ "F2_iadd2_dst_ge192": {
+  "g17p_fault": 2,
+  "g17p_tested": 2,
+  "m4": "reproducible fault",
+  "outcomes": {
+   "fault": 2
+  }
+ },
+ "F_ibfe_offset": {
+  "g17p_ok": [
+   4,
+   5,
+   7,
+   8,
+   9,
+   15,
+   16,
+   17,
+   21,
+   24,
+   31,
+   32,
+   33,
+   40,
+   42,
+   48,
+   56,
+   62,
+   63
+  ],
+  "m4": "LITERAL: 32..63 shift the field out",
+  "n_tested": 23
+ },
+ "F_ibfe_width": {
+  "g17p_ok": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   7,
+   8,
+   9,
+   15,
+   16,
+   17,
+   21,
+   24,
+   31,
+   32,
+   33,
+   40,
+   42,
+   48,
+   56,
+   62,
+   63
+  ],
+  "m4": "mod-32: 32 behaves like 0",
+  "n_tested": 23
+ },
+ "iadd2_srcB_ext_32bit": {
+  "EXP0146_mask_rule_(v&0x7C)==0_fits_ok_set": true,
+  "carrier": "SYNTH+LIFTED:k_u32add@iadd2[32:42] (opmode = 0x02 held fixed)",
+  "distinct_registers_confirmed": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  "model_matches": "128/128",
+  "model_mismatches": [],
+  "ok_values": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "register_selector_model": "reg = srcB_ext >> 2  (the reg<<2 packing)",
+  "sweep": "128 values, dense over the whole 7-bit range",
+  "width_proof_32bit": {
+   "expected_32bit_sum": 44,
+   "r0": 44,
+   "r1_untouched": true,
+   "registers_differing_from_seed": [
+    0,
+    2
+   ]
+  }
+ },
+ "ilogic_lut": {
+  "a": 34,
+  "b": 10,
+  "dst_register": 0,
+  "functions_reached": 16,
+  "m4_selectors_diverged": 0,
+  "m4_selectors_reproduced": 16,
+  "rows": {
+   "0000_0": {
+    "g17p_encodings": 157,
+    "g17p_example": [
+     0,
+     0,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     0,
+     0
+    ],
+    "truth_f00f01f10f11": "0000"
+   },
+   "0001_and": {
+    "g17p_encodings": 8,
+    "g17p_example": [
+     1,
+     0,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     1,
+     0,
+     0
+    ],
+    "truth_f00f01f10f11": "0001"
+   },
+   "0002_a_and_not_b": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     0,
+     0,
+     8
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     0,
+     8
+    ],
+    "truth_f00f01f10f11": "0010"
+   },
+   "0003_a": {
+    "g17p_encodings": 12,
+    "g17p_example": [
+     0,
+     0,
+     9
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     0,
+     9
+    ],
+    "truth_f00f01f10f11": "0011"
+   },
+   "0004_not_a_and_b": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     0,
+     2,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     2,
+     0
+    ],
+    "truth_f00f01f10f11": "0100"
+   },
+   "0005_b": {
+    "g17p_encodings": 49,
+    "g17p_example": [
+     0,
+     2,
+     4
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     2,
+     2
+    ],
+    "truth_f00f01f10f11": "0101"
+   },
+   "0006_xor": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     0,
+     2,
+     8
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     2,
+     8
+    ],
+    "truth_f00f01f10f11": "0110"
+   },
+   "0007_or": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     1,
+     2,
+     8
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     1,
+     2,
+     8
+    ],
+    "truth_f00f01f10f11": "0111"
+   },
+   "0008_nor": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     0,
+     1,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     1,
+     0
+    ],
+    "truth_f00f01f10f11": "1000"
+   },
+   "0009_xnor": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     1,
+     1,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     1,
+     1,
+     0
+    ],
+    "truth_f00f01f10f11": "1001"
+   },
+   "0010_not_b": {
+    "g17p_encodings": 50,
+    "g17p_example": [
+     0,
+     1,
+     2
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     1,
+     2
+    ],
+    "truth_f00f01f10f11": "1010"
+   },
+   "0011_a_or_not_b": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     1,
+     1,
+     8
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     1,
+     1,
+     8
+    ],
+    "truth_f00f01f10f11": "1011"
+   },
+   "0012_not_a": {
+    "g17p_encodings": 12,
+    "g17p_example": [
+     0,
+     1,
+     1
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     1,
+     1
+    ],
+    "truth_f00f01f10f11": "1100"
+   },
+   "0013_not_a_or_b": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     1,
+     3,
+     0
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     1,
+     3,
+     0
+    ],
+    "truth_f00f01f10f11": "1101"
+   },
+   "0014_nand": {
+    "g17p_encodings": 4,
+    "g17p_example": [
+     0,
+     3,
+     8
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     3,
+     8
+    ],
+    "truth_f00f01f10f11": "1110"
+   },
+   "0015_1": {
+    "g17p_encodings": 135,
+    "g17p_example": [
+     0,
+     1,
+     3
+    ],
+    "m4_encoding_reproduced_on_g17p": true,
+    "m4_minimal_selector_EXP0146": [
+     0,
+     1,
+     5
+    ],
+    "truth_f00f01f10f11": "1111"
+   }
+  }
+ },
+ "ilogic_operand_convention": {
+  "a_is_dbjson_srcA_byte+1": {
+   "functions": 16,
+   "m4_selectors_reproduced": 8
+  },
+  "a_is_dbjson_srcB_byte+3": {
+   "functions": 16,
+   "m4_selectors_reproduced": 16
+  },
+  "conclusion": "EXP-0146's `a` is db.json's srcB (byte+3) and its `b` is db.json's srcA (byte+1). With that alignment the entire 16-function M4 table reproduces on G17P. An emitter that reads the EXP-0146 table together with db.json's field names gets all EIGHT asymmetric functions wrong (a_and_not_b, a, not_a_and_b, b, not_b, a_or_not_b, not_a, not_a_or_b) while the eight symmetric ones (0, and, xor, or, nor, xnor, nand, 1) still look right."
+ }
+}
