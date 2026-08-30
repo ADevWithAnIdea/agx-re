@@ -8,14 +8,14 @@ A field is emitter-grade only at `hardware-run` or `isolated-byte-diff` (`docs/e
 
 | emittable | blocked | total emitter-relevant |
 |---:|---:|---:|
-| 43 | 123 | 166 |
+| 42 | 124 | 166 |
 
 ## Distance to emittable
 
 | blocking fields | instructions |
 |---:|---:|
 | 0 | 4 |
-| 1 | 18 |
+| 1 | 19 |
 | 2 | 26 |
 | 3 | 24 |
 | 4 | 13 |
@@ -36,8 +36,8 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 |---|---:|
 | `dst` | 38 |
 | `srcA` | 14 |
+| `tail` | 12 |
 | `b3` | 11 |
-| `tail` | 11 |
 | `src` | 10 |
 | `src_flag` | 9 |
 | `b5` | 9 |
@@ -50,10 +50,11 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 | `flags` | 7 |
 | `mode` | 6 |
 
-## ONE field away (18 instructions)
+## ONE field away (19 instructions)
 
 | instruction | blocking field(s) | current label |
 |---|---|---|
+| `call` | `tail` | untested |
 | `copysign` | `operands` | untested |
 | `cubearray_coord_const` | `b3` | tokenization-only |
 | `cvt_f2i` | `b9` | single-template-inference |
@@ -117,7 +118,7 @@ Sweeping one of these once, on a carrier that generalizes, moves many descriptor
 
 | label | fields |
 |---|---:|
-| `untested` | 248 |
+| `untested` | 249 |
 | `tokenization-only` | 123 |
 | `corpus-correlation` | 74 |
 | `single-template-inference` | 30 |

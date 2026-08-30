@@ -16,32 +16,31 @@
   "total_instructions": 172,
   "total_fields": 1040,
   "by_label": {
-   "hardware-run": 491,
+   "hardware-run": 490,
    "isolated-byte-diff": 64,
    "corpus-correlation": 74,
    "tokenization-only": 133,
    "single-template-inference": 30,
    "api-accept-reject": 0,
    "host-private": 0,
-   "untested": 248
+   "untested": 249
   },
   "by_label_pct": {
-   "hardware-run": 47.2,
+   "hardware-run": 47.1,
    "isolated-byte-diff": 6.2,
    "corpus-correlation": 7.1,
    "tokenization-only": 12.8,
    "single-template-inference": 2.9,
    "api-accept-reject": 0.0,
    "host-private": 0.0,
-   "untested": 23.8
+   "untested": 23.9
   },
-  "emittable_instructions": 38,
+  "emittable_instructions": 37,
   "emittable_mnemonics": [
    "atomic_mem",
    "bf_add_dst",
    "bf_alu",
    "bf_fma_dst",
-   "call",
    "carry_gen",
    "cvt_bf16",
    "cvt_f2h",
@@ -76,7 +75,7 @@
    "uniform_mov",
    "vtx_coord_xform"
   ],
-  "decodable_not_yet_emittable": 134,
+  "decodable_not_yet_emittable": 135,
   "data_word_descriptors": 6,
   "data_word_mnemonics": [
    "operand_word",
@@ -87,7 +86,7 @@
    "pad_operand"
   ],
   "emitter_relevant_instructions": 166,
-  "emittable_of_emitter_relevant": 38
+  "emittable_of_emitter_relevant": 37
  },
  "instructions": {
   "falu2": {
@@ -6461,13 +6460,13 @@
     "note": "EXP-0189 citation repair: the records supporting this row live in EXP-0179-g17p-call; the original citation EXP-0035 has no per-value records for it. Both are kept -- the stale one is where the claim came from, the new one is where the evidence is."
    },
    "tail": {
-    "label": "hardware-run",
+    "label": "untested",
     "range": "0..255 dense (all 256 values), 2 carriers",
     "target": "G17P",
     "evidence": [
      "EXP-0179"
     ],
-    "note": "",
+    "note": "WITHHELD 2026-08-30 by the orchestrator on EXP-0189's eighth cannot-fail finding. This row was promoted through `EXP-0179/analysis/analyze.py:140-142`, whose promotion gate has **no `moved >= 1` conjunct** -- `len(moved)` sits only in the right arm of an `or` whose left arm is `disagreements == 0`, so a perfectly reproducible, perfectly INERT field passes. EXP-0189 proved it constructively rather than by argument: a synthetic DEAD-CODE carrier fed to the unmodified pipeline yields `{\"label\":\"hardware-run\",\"movement\":0,\"range\":\"0..255 dense (all 256 values), 2 carriers\"}` -- **byte-for-byte the string published for this field**. Its sibling `call.b6` rode the same branch and was caught only because an independent second method (arm S, mutating the real compiler-emitted call) refuted it; `call.tail` never got a second method. The measurement may well be right -- inert is a plausible reading -- but it is indistinguishable from dead code under the gate that produced it, and that is not evidence. Needs a second method or a re-run under a gate with the missing conjunct.",
     "values_dispatched": 256,
     "distinct_bytes": 256,
     "encodable_range": 256
