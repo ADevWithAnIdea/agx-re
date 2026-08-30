@@ -1,0 +1,8 @@
+REC {"observed":500000,"case":"cap_query","outcome":"ok","note":"MTLDevice.maxArgumentBufferSamplerCount","target":"G17P","family":"fd"}
+REC {"family":"fd","target":"G17P","note":"array<sampler,500000> encodedLength; 8.000 bytes\/entry","value":500000,"case":"heap_alloc","outcome":"ok","observed":4000000}
+REC {"family":"fd","cb_errors":1,"resource_id":2,"target":"G17P","note":"independent path: sampler bound directly at [[sampler(0)]]","outcome":"ok","case":"fingerprint_released_class","observed":"1001","fault_class":"Discarded (victim of GPU error\/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)"}
+REC {"family":"fd","cb_errors":0,"resource_id":3,"target":"G17P","note":"independent path: sampler bound directly at [[sampler(0)]]","outcome":"ok","case":"fingerprint_replacement_class","observed":"3","fault_class":""}
+REC {"family":"fd","target":"G17P","note":"ID of the sampler about to be released (class 5)","heap_entry":"0000000000000004","outcome":"ok","case":"reuse_before_release","observed":4}
+REC {"family":"fd","target":"G17P","note":"does a released sampler's ID come back to the next distinct creation?","match":1,"value":4,"case":"reuse_after_release","outcome":"ok","observed":4,"heap_entry":"0000000000000004"}
+REC {"family":"fd","oracle":"released=1001 replacement=3","cb_errors":0,"target":"G17P","note":"heap entry 0 still holds the RELEASED sampler's ID; sampling through it","heap_entry":"0000000000000004","outcome":"ok","case":"stale_id_sample","observed":"3","fault_class":""}
+REC {"case":"__done","family":"fd","outcome":"ok","target":"G17P"}

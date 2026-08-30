@@ -1,4 +1,7 @@
-// EXP-0159 FE API-ceiling probe: 64 declared buffer arguments.
+// EXP-0159 FE probe: 64 declared device-buffer arguments (MEM-19).
+// Authored by the clean-room RE team.  Each binding is read through a
+// thread-varying index so none can be folded away; the point is to make
+// the USC constant/uniform program populate one base slot per binding.
 #include <metal_stdlib>
 using namespace metal;
 kernel void k(device uint* out [[buffer(0)]],
@@ -65,6 +68,7 @@ kernel void k(device uint* out [[buffer(0)]],
               device const uint* b61 [[buffer(61)]],
               device const uint* b62 [[buffer(62)]],
               device const uint* b63 [[buffer(63)]],
-              device const uint* b64 [[buffer(64)]]) {
-  out[0] = b1[0]^b2[0]^b3[0]^b4[0]^b5[0]^b6[0]^b7[0]^b8[0]^b9[0]^b10[0]^b11[0]^b12[0]^b13[0]^b14[0]^b15[0]^b16[0]^b17[0]^b18[0]^b19[0]^b20[0]^b21[0]^b22[0]^b23[0]^b24[0]^b25[0]^b26[0]^b27[0]^b28[0]^b29[0]^b30[0]^b31[0]^b32[0]^b33[0]^b34[0]^b35[0]^b36[0]^b37[0]^b38[0]^b39[0]^b40[0]^b41[0]^b42[0]^b43[0]^b44[0]^b45[0]^b46[0]^b47[0]^b48[0]^b49[0]^b50[0]^b51[0]^b52[0]^b53[0]^b54[0]^b55[0]^b56[0]^b57[0]^b58[0]^b59[0]^b60[0]^b61[0]^b62[0]^b63[0]^b64[0];
+              device const uint* b64 [[buffer(64)]],
+              uint gid [[thread_position_in_grid]]) {
+  out[gid] = b1[gid]^b2[gid]^b3[gid]^b4[gid]^b5[gid]^b6[gid]^b7[gid]^b8[gid]^b9[gid]^b10[gid]^b11[gid]^b12[gid]^b13[gid]^b14[gid]^b15[gid]^b16[gid]^b17[gid]^b18[gid]^b19[gid]^b20[gid]^b21[gid]^b22[gid]^b23[gid]^b24[gid]^b25[gid]^b26[gid]^b27[gid]^b28[gid]^b29[gid]^b30[gid]^b31[gid]^b32[gid]^b33[gid]^b34[gid]^b35[gid]^b36[gid]^b37[gid]^b38[gid]^b39[gid]^b40[gid]^b41[gid]^b42[gid]^b43[gid]^b44[gid]^b45[gid]^b46[gid]^b47[gid]^b48[gid]^b49[gid]^b50[gid]^b51[gid]^b52[gid]^b53[gid]^b54[gid]^b55[gid]^b56[gid]^b57[gid]^b58[gid]^b59[gid]^b60[gid]^b61[gid]^b62[gid]^b63[gid]^b64[gid];
 }

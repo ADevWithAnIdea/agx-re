@@ -1,0 +1,56 @@
+# EXP-0159 pre-freeze feasibility probe — NOT EVIDENCE.
+# Purpose: establish the three facts needed to specify PRE_REGISTRATION.md at all.
+# Sources: work/prefreeze/{ctrl,fp64_a,bigarray}.metal and work/prefreeze/sampilot.m (authored).
+# This transcript is a re-capture of the same calibration on the same host after the gated
+# runs; it is retained for the record and no result below is promoted anywhere.
+# captured 2026-08-30T06:22:02Z
+
+Warning: Permanently added '192.168.10.243' (ED25519) to the list of known hosts.
+== devinfo ==
+DEV_NAME Apple A18 Pro
+DEV_REGISTRY_ID 4294968297
+DEV_ARGBUF_TIER 1
+DEV_MAX_ARGBUF_SAMPLERS 500000
+DEV_MAX_BUFLEN 4294967296
+DEV_MAX_TG_MEM 32768
+DEV_RECOMMENDED_WS 5726633984
+DEV_FAMILY_APPLE 1
+DEV_FAMILY_APPLE 2
+DEV_FAMILY_APPLE 3
+DEV_FAMILY_APPLE 4
+DEV_FAMILY_APPLE 5
+DEV_FAMILY_APPLE 6
+DEV_FAMILY_APPLE 7
+DEV_FAMILY_APPLE 8
+DEV_FAMILY_APPLE 9
+DEV_RT 1
+STATUS devinfo_only
+== ctrl ==
+COMPILE_STATUS accept
+FUNCTION k
+STATUS ok
+== fp64_a ==
+COMPILE_STATUS reject
+DIAG_BEGIN
+Error Domain=MTLLibraryErrorDomain Code=3 "program_source:3:22: error: 'double' is not supported in Metal
+kernel void k(device double* out [[buffer(0)]], device const double* a [[buffer(1)]]) {
+                     ^
+program_source:3:62: error: 'double' is not supported in Metal
+kernel void k(device double* out [[buffer(0)]], device const double* a [[buffer(1)]]) {
+                                                             ^
+" UserInfo={NSLocalizedDescription=program_source:3:22: error: 'double' is not supported in Metal
+kernel void k(device double* out [[buffer(0)]], device const double* a [[buffer(1)]]) {
+                     ^
+program_source:3:62: error: 'double' is not supported in Metal
+== bigarray ==
+COMPILE_STATUS accept
+FUNCTION k
+STATUS ok
+== sampler pilot ==
+DEDUP id_a=1 id_b=1
+SAMP 0 id=2
+SAMP 1 id=3
+SAMP 2 id=4
+SAMP 3 id=5
+SAMP 19999 id=20001
+MADE 20000 elapsed=0.01

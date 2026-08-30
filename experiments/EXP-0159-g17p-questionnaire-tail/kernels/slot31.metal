@@ -22,13 +22,15 @@ kernel void k(device uint* out [[buffer(0)]],
               device const uint* b27 [[buffer(27)]], device const uint* b28 [[buffer(28)]],
               device const uint* b29 [[buffer(29)]], device const uint* b30 [[buffer(30)]],
               uint gid [[thread_position_in_grid]]) {
-  // The probe: a single load from b17, which the splice re-points.
-  uint probe = b17[0];
+  // The probe: a single load from b17, which the splice re-points.  Indexed by
+  // the thread id so the compiler cannot hoist it into the uniform/constant
+  // program -- the probe must stay in _agc.main to be spliceable.
+  uint probe = b17[gid];
   // Keep every other binding live so all 31 base slots are really populated
   // (a dead binding would be optimised out and its slot never written).
-  uint acc = b1[0]^b2[0]^b3[0]^b4[0]^b5[0]^b6[0]^b7[0]^b8[0]^b9[0]^b10[0]
-           ^ b11[0]^b12[0]^b13[0]^b14[0]^b15[0]^b16[0]^b18[0]^b19[0]^b20[0]
-           ^ b21[0]^b22[0]^b23[0]^b24[0]^b25[0]^b26[0]^b27[0]^b28[0]^b29[0]^b30[0];
+  uint acc = b1[gid]^b2[gid]^b3[gid]^b4[gid]^b5[gid]^b6[gid]^b7[gid]^b8[gid]^b9[gid]^b10[gid]
+           ^ b11[gid]^b12[gid]^b13[gid]^b14[gid]^b15[gid]^b16[gid]^b18[gid]^b19[gid]^b20[gid]
+           ^ b21[gid]^b22[gid]^b23[gid]^b24[gid]^b25[gid]^b26[gid]^b27[gid]^b28[gid]^b29[gid]^b30[gid];
   out[0] = probe;
   out[1] = acc;
   out[2] = gid;

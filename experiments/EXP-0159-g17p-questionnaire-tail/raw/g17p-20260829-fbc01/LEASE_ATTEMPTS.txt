@@ -1,0 +1,15 @@
+# EXP-0159 — record of the lease-isolated repeat of the FB fault-confirmation pass
+# (FIELD-SWEEP-PROTOCOL.md sec.7A).  Three attempts, all TIMED OUT waiting for
+# ~/agxre/gpulease.sh under sustained sibling contention; the pass never ran in isolation.
+# The unlocked pass (raw/g17p-20260829-fbc01/, 217 encodings x 5 reps = 1,085 executions,
+# 0 binary64 hits) stands as the confirmation actually obtained.  Recorded so a reader can
+# see exactly what was attempted and why it is missing.
+# captured 2026-08-30T06:47:06Z
+
+Warning: Permanently added '192.168.10.243' (ED25519) to the list of known hosts.
+== fbc02 ==
+gpulease: TIMEOUT after 900s; held by EXP-0156 pid=40924 2026-08-30T06:25:53Z age=174s
+== fbc03 ==
+gpulease: TIMEOUT after 420s; held by EXP-0158-run03 pid=45672 2026-08-30T06:31:49Z age=890s
+== lease holder at give-up ==
+EXP-0156 pid=32280 2026-08-30T06:46:53Z
